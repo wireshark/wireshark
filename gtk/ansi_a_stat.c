@@ -134,12 +134,12 @@ ansi_a_stat_draw(
     {
 	i = 0;
 
-	while (ansi_a_ios401_bsmap_strings[i].strptr)
+	while (ansi_a_bsmap_strings[i].strptr)
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_bsmap.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat_p->bsmap_message_type[ansi_a_ios401_bsmap_strings[i].value]);
+		    stat_p->bsmap_message_type[ansi_a_bsmap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_bsmap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -153,12 +153,12 @@ ansi_a_stat_draw(
     {
 	i = 0;
 
-	while (ansi_a_ios401_dtap_strings[i].strptr)
+	while (ansi_a_dtap_strings[i].strptr)
 	{
 	    j = gtk_clist_find_row_from_data(GTK_CLIST(dlg_dtap.table), (gpointer) i);
 
 	    strp = g_strdup_printf("%d",
-		    stat_p->dtap_message_type[ansi_a_ios401_dtap_strings[i].value]);
+		    stat_p->dtap_message_type[ansi_a_dtap_strings[i].value]);
 	    gtk_clist_set_text(GTK_CLIST(dlg_dtap.table), j, 2, strp);
 	    g_free(strp);
 
@@ -288,9 +288,9 @@ ansi_a_stat_gtk_win_create(
     dlg_p->win = window_new(GTK_WINDOW_TOPLEVEL, title);
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 480, 450);
 
-	vbox=gtk_vbox_new(FALSE, 3);
-	gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
+    vbox=gtk_vbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     dlg_p->scrolled_win = scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), dlg_p->scrolled_win, TRUE, TRUE, 0);
@@ -309,19 +309,19 @@ ansi_a_stat_gtk_win_create(
         column_lb = gtk_label_new(default_titles[i]);
 
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb,
-        0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+	    0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
         gtk_widget_show(column_lb);
 
         col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
 
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
-        1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
         col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
 
         gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
-        1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
         if (i == 0)
         {
@@ -350,7 +350,7 @@ ansi_a_stat_gtk_win_create(
 
 	/* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(dlg_p->win, bt_close, window_cancel_button_cb);
@@ -383,12 +383,12 @@ ansi_a_stat_gtk_bsmap_cb(
     ansi_a_stat_gtk_win_create(&dlg_bsmap, "ANSI A-I/F BSMAP Statistics");
 
     i = 0;
-    while (ansi_a_ios401_bsmap_strings[i].strptr)
+    while (ansi_a_bsmap_strings[i].strptr)
     {
 	dlg_bsmap.entries[0] = g_strdup_printf("0x%02x",
-					       ansi_a_ios401_bsmap_strings[i].value);
+					       ansi_a_bsmap_strings[i].value);
 
-	dlg_bsmap.entries[1] = g_strdup(ansi_a_ios401_bsmap_strings[i].strptr);
+	dlg_bsmap.entries[1] = g_strdup(ansi_a_bsmap_strings[i].strptr);
 
 	dlg_bsmap.entries[2] = g_strdup("0");
 
@@ -430,12 +430,12 @@ ansi_a_stat_gtk_dtap_cb(
     ansi_a_stat_gtk_win_create(&dlg_dtap, "ANSI A-I/F DTAP Statistics");
 
     i = 0;
-    while (ansi_a_ios401_dtap_strings[i].strptr)
+    while (ansi_a_dtap_strings[i].strptr)
     {
 	dlg_dtap.entries[0] = g_strdup_printf("0x%02x",
-					      ansi_a_ios401_dtap_strings[i].value);
+					      ansi_a_dtap_strings[i].value);
 
-	dlg_dtap.entries[1] = g_strdup(ansi_a_ios401_dtap_strings[i].strptr);
+	dlg_dtap.entries[1] = g_strdup(ansi_a_dtap_strings[i].strptr);
 
 	dlg_dtap.entries[2] = g_strdup("0");
 

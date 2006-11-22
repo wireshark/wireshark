@@ -32,26 +32,49 @@ typedef struct _ansi_a_tap_rec_t {
     guint8		message_type;
 } ansi_a_tap_rec_t;
 
+typedef struct ext_value_string_t
+{
+    guint32		value;
+    const gchar		*strptr;
+    gint		dec_index;
+}
+ext_value_string_t;
+
 
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a 
  * libwireshark.dll, we need a special declaration.
  */
-WS_VAR_IMPORT const value_string ansi_a_ios401_bsmap_strings[];
-WS_VAR_IMPORT const value_string ansi_a_ios401_dtap_strings[];
+WS_VAR_IMPORT const ext_value_string_t *ansi_a_bsmap_strings;
+WS_VAR_IMPORT const ext_value_string_t *ansi_a_dtap_strings;
+WS_VAR_IMPORT const ext_value_string_t ansi_a_ios501_bsmap_strings[];
+WS_VAR_IMPORT const ext_value_string_t ansi_a_ios501_dtap_strings[];
+WS_VAR_IMPORT const ext_value_string_t ansi_a_ios401_bsmap_strings[];
+WS_VAR_IMPORT const ext_value_string_t ansi_a_ios401_dtap_strings[];
+
+#define	A_VARIANT_IS634		4
+#define	A_VARIANT_TSB80		5
+#define	A_VARIANT_IS634A	6
+#define	A_VARIANT_IOS2		7
+#define	A_VARIANT_IOS3		8
+#define	A_VARIANT_IOS401	9
+#define	A_VARIANT_IOS501	10
+
+WS_VAR_IMPORT gint a_global_variant;
 
 /*
  * allows ANSI MAP to use this for IS-880 enhancements
+ * based on the 'ansi_a_ios401_elem_1_strings/ansi_a_ios501_elem_1_strings'
  */
-extern const value_string ansi_a_ios401_elem_1_strings[];
+WS_VAR_IMPORT const ext_value_string_t *ansi_a_elem_1_strings;
 
 /*
  * maximum number of strings that are allowed
  * 255 because IEI are 1 octet in length
  *
  * this define is required by dissectors that need to
- * size based on the 'ansi_a_ios401_elem_1_strings'
+ * size based on the 'ansi_a_elem_1_strings'
  * array
  */
-#define	ANSI_A_MAX_NUM_IOS401_ELEM_1_STRINGS	255
+#define	ANSI_A_MAX_NUM_IOS_ELEM_1_STRINGS	255

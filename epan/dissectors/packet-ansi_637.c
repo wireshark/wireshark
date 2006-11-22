@@ -109,6 +109,7 @@ static const value_string ansi_tele_id_strings[] = {
     { 4099,	"CDMA Voice Mail Notification" },
     { 4100,	"CDMA Wireless Application Protocol (WAP)" },
     { 4101,	"CDMA Wireless Enhanced Messaging Teleservice (WEMT)" },
+    { 65535,	"(Reserved) Being used for Broadcast" },
     { 0, NULL },
 };
 
@@ -132,6 +133,8 @@ static const value_string ansi_tele_param_strings[] = {
     { 0x10,	"Multiple Encoding User Data" },
     { 0, NULL },
 };
+
+#define	ANSI_TRANS_MSG_TYPE_BROADCAST	1
 
 static const value_string ansi_trans_msg_type_strings[] = {
     { 0,	"Point-to-Point" },
@@ -298,6 +301,26 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
 	    (edc_len), "Unexpected Data Length"); \
 	return; \
     }
+
+static void
+tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
+{
+    guint32	octs;
+    const gchar	*str = NULL;
+
+    EXACT_DATA_CHECK(len, 3);
+
+    octs = tvb_get_ntoh24(tvb, offset);
+
+    proto_tree_add_uint(tree, hf_ansi_637_tele_msg_type,
+	tvb, offset, 3, octs);
+
+    proto_tree_add_uint(tree, hf_ansi_637_tele_msg_id,
+	tvb, offset, 3, octs);
+
+    proto_tree_add_uint(tree, hf_ansi_637_tele_msg_rsvd,
+	tvb, offset, 3, octs);
+}
 
 static void
 tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
@@ -881,7 +904,7 @@ tele_param_disp_mode(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 #define	NUM_TELE_PARAM (sizeof(ansi_tele_param_strings)/sizeof(value_string))
 static gint ett_ansi_637_tele_param[NUM_TELE_PARAM];
 static void (*ansi_637_tele_param_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset) = {
-    NULL,			/* Message Identifier */
+    tele_param_msg_id,		/* Message Identifier */
     tele_param_user_data,	/* User Data */
     tele_param_rsp_code,	/* User Response Code */
     tele_param_timestamp,	/* Message Center Time Stamp */
@@ -1580,63 +1603,10 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 static void
 dissect_ansi_637_tele_message(tvbuff_t *tvb, proto_tree *ansi_637_tree)
 {
-    guint8	oct;
     guint8	len;
-    guint32	octs;
     guint32	curr_offset;
-    /* guint32	msg_id; */
-    guint32	msg_type;
-    const gchar	*str = NULL;
-    proto_item	*item;
-    proto_tree	*subtree;
 
-
-    oct = tvb_get_guint8(tvb, 0);
-    if (oct != 0x00)
-    {
-	return;
-    }
-
-    len = tvb_get_guint8(tvb, 1);
-    if (len != 3)
-    {
-	return;
-    }
-
-    octs = tvb_get_ntoh24(tvb, 2);
-    msg_type = (octs >> 20) & 0x0f;
-    /* msg_id = (octs >> 4) & 0xffff; */
-
-    str = match_strval(msg_type, ansi_tele_msg_type_strings);
-
-    /*
-     * do not append to COL_INFO
-     */
-
-    item =
-	proto_tree_add_none_format(ansi_637_tree, hf_ansi_637_none,
-	    tvb, 0, -1, str);
-
-    subtree = proto_item_add_subtree(item, ett_params);
-
-    proto_tree_add_uint(subtree, hf_ansi_637_tele_subparam_id,
-	tvb, 0, 1, oct);
-
-    proto_tree_add_uint(subtree, hf_ansi_637_length,
-	tvb, 1, 1, len);
-
-    proto_tree_add_uint(subtree, hf_ansi_637_tele_msg_type,
-	tvb, 2, 3, octs);
-
-    proto_tree_add_uint(subtree, hf_ansi_637_tele_msg_id,
-	tvb, 2, 3, octs);
-
-    proto_tree_add_uint(subtree, hf_ansi_637_tele_msg_rsvd,
-	tvb, 2, 3, octs);
-
-    proto_item_set_len(item, 2 + len);
-
-    curr_offset = 2 + len;
+    curr_offset = 0;
     len = tvb_length(tvb);
 
     while ((len - curr_offset) > 0)
@@ -1720,9 +1690,18 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 		    str = "Reserved for assignment by this Standard for TDMA MS-based SMEs";
 		}
-		else if ((value >= 49152) && (value <= 65535))
+		else if ((value >= 49152) && (value < 65535))
 		{
 		    str = "Reserved for carrier specific teleservices";
+		}
+		else if (value == 65535)
+		{
+		    /*
+		     * supposed to be "Reserved for carrier specific teleservices"
+		     * but we are using it to key SMS Broadcast dissection were
+		     * there is no teleservice ID
+		     */
+		    str = "(Reserved) Being used for Broadcast";
 		}
 		else
 		{
@@ -1844,6 +1823,11 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	g_tree = tree;
 
 	/*
+	 * reset the teleservice ID for each dissection
+	 */
+	ansi_637_trans_tele_id = 0;
+
+	/*
 	 * create the ansi_637 protocol tree
 	 */
 	oct = tvb_get_guint8(tvb, 0);
@@ -1871,6 +1855,17 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    ansi_637_tree =
 		proto_item_add_subtree(ansi_637_item, ett_ansi_637_trans_msg[idx]);
+
+	    if (oct == ANSI_TRANS_MSG_TYPE_BROADCAST)
+	    {
+		/*
+		 * there is no teleservice ID for Broadcast but we want the
+		 * bearer data to be dissected
+		 *
+		 * using a reserved value to key dissector port
+		 */
+		ansi_637_trans_tele_id = 65535;
+	    }
 	}
 
 	curr_offset = 1;

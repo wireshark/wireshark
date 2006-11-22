@@ -16,8 +16,12 @@ add_new_data_source
 add_oid_name
 add_oid_str_name
 AdmissionRejectReason_vals      DATA
+ansi_a_bsmap_strings     DATA
+ansi_a_dtap_strings     DATA
 ansi_a_ios401_bsmap_strings     DATA
 ansi_a_ios401_dtap_strings      DATA
+ansi_a_ios501_bsmap_strings     DATA
+ansi_a_ios501_dtap_strings      DATA
 ansi_map_opr_code_strings       DATA
 asn1_bits_decode
 asn1_bool_decode

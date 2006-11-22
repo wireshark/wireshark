@@ -132,6 +132,26 @@ dissector_handle_t ansi_map_handle;
 
 static gboolean dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree);
 
+static const gchar *
+my_match_strval_idx(guint32 val, const ext_value_string_t *vs, gint *idx)
+{
+    gint i = 0;
+
+    while (vs[i].strptr)
+    {
+	if (vs[i].value == val)
+	{
+	    *idx = i;
+	    return(vs[i].strptr);
+	}
+
+	i++;
+    }
+
+    *idx = -1;
+    return(NULL);
+}
+
 /* ANSI PARAM STRINGS */
 static const value_string ansi_param_1_strings[] = {
     { 0x81,	"Billing ID" },
@@ -657,10 +677,10 @@ static const gchar *qos_pri_str[] = {
 /*
  * would prefer to have had the define set to the exact number of
  * elements in the array but that is not without it's own problems
- * (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(value_string))
+ * (sizeof(ansi_a_elem_1_strings)/sizeof(value_string))
  */
-#define	NUM_IOS401_ELEM	ANSI_A_MAX_NUM_IOS401_ELEM_1_STRINGS
-static gint ett_ansi_map_ios401_elem[NUM_IOS401_ELEM];
+#define	NUM_IOS_ELEM	ANSI_A_MAX_NUM_IOS_ELEM_1_STRINGS
+static gint ett_ansi_map_ios_elem[NUM_IOS_ELEM];
 
 
 /* Initialize the protocol and registered fields */
@@ -673,7 +693,7 @@ static int hf_ansi_map_length = -1;
 static int hf_ansi_map_id = -1;
 static int hf_ansi_map_opr_code = -1;
 static int hf_ansi_map_param_id = -1;
-static int hf_ansi_map_ios401_elem_id = -1;
+static int hf_ansi_map_ios_elem_id = -1;
 static int hf_ansi_map_min = -1;
 static int hf_ansi_map_number = -1;
 
@@ -6616,7 +6636,7 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 	num_elems++;
 
 	asn1_int32_value_decode(asn1, 1, &value);
-	str = match_strval_idx((guint32) value, ansi_a_ios401_elem_1_strings, &idx);
+	str = my_match_strval_idx((guint32) value, ansi_a_elem_1_strings, &idx);
 
 	asn1_octet_decode(asn1, &elem_len);
 
@@ -6626,9 +6646,9 @@ dissect_cdma2000_ios_data(ASN1_SCK *asn1, proto_tree *tree, guint len, gchar *ad
 		"IOS - %s",
 		str);
 
-	subtree = proto_item_add_subtree(item, ett_ansi_map_ios401_elem[idx]);
+	subtree = proto_item_add_subtree(item, ett_ansi_map_ios_elem[idx]);
 
-	proto_tree_add_none_format(subtree, hf_ansi_map_ios401_elem_id, asn1->tvb,
+	proto_tree_add_none_format(subtree, hf_ansi_map_ios_elem_id, asn1->tvb,
 	    saved_offset, 1, "Element ID");
 
 	proto_tree_add_uint(subtree, hf_ansi_map_length, asn1->tvb,
@@ -12703,7 +12723,7 @@ dissect_ansi_param(ASN1_SCK *asn1, proto_tree *tree)
 
 	    if (ansi_map_add_string[0] != '\0')
 	    {
-		proto_item_append_text(item, "%s", ansi_map_add_string);
+		proto_item_append_text(item, ansi_map_add_string);
 	    }
 	}
     }
@@ -12766,7 +12786,7 @@ dissect_ansi_params(ASN1_SCK *asn1, proto_tree *tree)
 
     if (ansi_map_add_string[0] != '\0')
     {
-	proto_item_append_text(item, "%s", ansi_map_add_string);
+	proto_item_append_text(item, ansi_map_add_string);
     }
 }
 
@@ -13109,8 +13129,8 @@ proto_register_ansi_map(void)
 	    FT_INT32, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
-	{ &hf_ansi_map_ios401_elem_id,
-	    { "IOS 4.0.1 Element ID",	"ansi_map.ios401_elem_id",
+	{ &hf_ansi_map_ios_elem_id,
+	    { "IOS 4.0.1 Element ID",	"ansi_map.ios_elem_id",
 	    FT_NONE, 0, NULL, 0,
 	    "", HFILL }
 	},
@@ -13128,7 +13148,7 @@ proto_register_ansi_map(void)
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARAMS	15
-    gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+NUM_PARAM_2+NUM_PARAM_3+NUM_IOS401_ELEM];
+    gint *ett[NUM_INDIVIDUAL_PARAMS+NUM_PARAM_1+NUM_PARAM_2+NUM_PARAM_3+NUM_IOS_ELEM];
 
     memset((void *) ett, -1, sizeof(ett));
 
@@ -13165,9 +13185,9 @@ proto_register_ansi_map(void)
 	ett[last_offset] = &ett_ansi_param_3[i];
     }
 
-    for (i=0; i < NUM_IOS401_ELEM; i++, last_offset++)
+    for (i=0; i < NUM_IOS_ELEM; i++, last_offset++)
     {
-	ett[last_offset] = &ett_ansi_map_ios401_elem[i];
+	ett[last_offset] = &ett_ansi_map_ios_elem[i];
     }
 
     /* Register the protocol name and description */

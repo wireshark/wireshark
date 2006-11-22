@@ -48,239 +48,563 @@
 #include "packet-bssap.h"
 #include "packet-ansi_a.h"
 
+/*
+ * IOS 4, probably most common
+ */
+gint a_global_variant = A_VARIANT_IOS401;
+
 
 /* PROTOTYPES/FORWARDS */
 
 void proto_reg_handoff_ansi_a(void);
 
-const value_string ansi_a_ios401_bsmap_strings[] = {
-    { 0x69,	"Additional Service Notification" },
-    { 0x65,	"ADDS Page" },
-    { 0x66,	"ADDS Page Ack" },
-    { 0x67,	"ADDS Transfer" },
-    { 0x68,	"ADDS Transfer Ack" },
-    { 0x02,	"Assignment Complete" },
-    { 0x03,	"Assignment Failure" },
-    { 0x01,	"Assignment Request" },
-    { 0x45,	"Authentication Request" },
-    { 0x46,	"Authentication Response" },
-    { 0x48,	"Base Station Challenge" },
-    { 0x49,	"Base Station Challenge Response" },
-    { 0x40,	"Block" },
-    { 0x41,	"Block Acknowledge" },
-    { 0x09,	"BS Service Request" },
-    { 0x0A,	"BS Service Response" },
-    { 0x20,	"Clear Command" },
-    { 0x21,	"Clear Complete" },
-    { 0x22,	"Clear Request" },
-    { 0x57,	"Complete Layer 3 Information" },
-    { 0x60,	"Feature Notification" },
-    { 0x61,	"Feature Notification Ack" },
-    { 0x13,	"Handoff Command" },
-    { 0x15,	"Handoff Commenced" },
-    { 0x14,	"Handoff Complete" },
-    { 0x16,	"Handoff Failure" },
-    { 0x17,	"Handoff Performed" },
-    { 0x10,	"Handoff Request" },
-    { 0x12,	"Handoff Request Acknowledge" },
-    { 0x11,	"Handoff Required" },
-    { 0x1A,	"Handoff Required Reject" },
-    { 0x6C,	"PACA Command" },
-    { 0x6D,	"PACA Command Ack" },
-    { 0x6E,	"PACA Update" },
-    { 0x6F,	"PACA Update Ack" },
-    { 0x52,	"Paging Request" },
-    { 0x53,	"Privacy Mode Command" },
-    { 0x55,	"Privacy Mode Complete" },
-    { 0x23,	"Radio Measurements for Position Request" },
-    { 0x25,	"Radio Measurements for Position Response" },
-    { 0x56,	"Rejection" },
-    { 0x05,	"Registration Request" },
-    { 0x30,	"Reset" },
-    { 0x31,	"Reset Acknowledge" },
-    { 0x34,	"Reset Circuit" },
-    { 0x35,	"Reset Circuit Acknowledge" },
-    { 0x47,	"SSD Update Request" },
-    { 0x4A,	"SSD Update Response" },
-    { 0x6A,	"Status Request" },
-    { 0x6B,	"Status Response" },
-    { 0x39,	"Transcoder Control Acknowledge" },
-    { 0x38,	"Transcoder Control Request" },
-    { 0x42,	"Unblock" },
-    { 0x43,	"Unblock Acknowledge" },
-    { 0x0B,	"User Zone Reject" },
-    { 0x04,	"User Zone Update" },
-    { 0, NULL },
+static const gchar *
+my_match_strval_idx(guint32 val, const ext_value_string_t *vs, gint *idx, gint *dec_idx)
+{
+    gint i = 0;
+
+    while (vs[i].strptr)
+    {
+	if (vs[i].value == val)
+	{
+	    *idx = i;
+	    *dec_idx = vs[i].dec_index;
+	    return(vs[i].strptr);
+	}
+
+	i++;
+    }
+
+    *idx = -1;
+    *dec_idx = -1;
+    return(NULL);
+}
+
+const ext_value_string_t ansi_a_ios401_bsmap_strings[] =
+{
+    { 0x69,	"Additional Service Notification",	0 },
+    { 0x65,	"ADDS Page",	1 },
+    { 0x66,	"ADDS Page Ack",	2 },
+    { 0x67,	"ADDS Transfer",	3 },
+    { 0x68,	"ADDS Transfer Ack",	4 },
+    { 0x02,	"Assignment Complete",	5 },
+    { 0x03,	"Assignment Failure",	6 },
+    { 0x01,	"Assignment Request",	7 },
+    { 0x45,	"Authentication Request",	8 },
+    { 0x46,	"Authentication Response",	9 },
+    { 0x48,	"Base Station Challenge",	10 },
+    { 0x49,	"Base Station Challenge Response",	11 },
+    { 0x40,	"Block",	12 },
+    { 0x41,	"Block Acknowledge",	13 },
+    { 0x09,	"BS Service Request",	14 },
+    { 0x0A,	"BS Service Response",	15 },
+    { 0x20,	"Clear Command",	16 },
+    { 0x21,	"Clear Complete",	17 },
+    { 0x22,	"Clear Request",	18 },
+    { 0x57,	"Complete Layer 3 Information",	19 },
+    { 0x60,	"Feature Notification",	20 },
+    { 0x61,	"Feature Notification Ack",	21 },
+    { 0x13,	"Handoff Command",	22 },
+    { 0x15,	"Handoff Commenced",	23 },
+    { 0x14,	"Handoff Complete",	24 },
+    { 0x16,	"Handoff Failure",	25 },
+    { 0x17,	"Handoff Performed",	26 },
+    { 0x10,	"Handoff Request",	27 },
+    { 0x12,	"Handoff Request Acknowledge",	28 },
+    { 0x11,	"Handoff Required",	29 },
+    { 0x1A,	"Handoff Required Reject",	30 },
+    { 0x6C,	"PACA Command",	31 },
+    { 0x6D,	"PACA Command Ack",	32 },
+    { 0x6E,	"PACA Update",	33 },
+    { 0x6F,	"PACA Update Ack",	34 },
+    { 0x52,	"Paging Request",	35 },
+    { 0x53,	"Privacy Mode Command",	36 },
+    { 0x55,	"Privacy Mode Complete",	37 },
+    { 0x23,	"Radio Measurements for Position Request",	38 },
+    { 0x25,	"Radio Measurements for Position Response",	39 },
+    { 0x56,	"Rejection",	40 },
+    { 0x05,	"Registration Request",	41 },
+    { 0x30,	"Reset",	42 },
+    { 0x31,	"Reset Acknowledge",	43 },
+    { 0x34,	"Reset Circuit",	44 },
+    { 0x35,	"Reset Circuit Acknowledge",	45 },
+    { 0x47,	"SSD Update Request",	46 },
+    { 0x4A,	"SSD Update Response",	47 },
+    { 0x6A,	"Status Request",	48 },
+    { 0x6B,	"Status Response",	49 },
+    { 0x39,	"Transcoder Control Acknowledge",	50 },
+    { 0x38,	"Transcoder Control Request",	51 },
+    { 0x42,	"Unblock",	52 },
+    { 0x43,	"Unblock Acknowledge",	53 },
+    { 0x0B,	"User Zone Reject",	54 },
+    { 0x04,	"User Zone Update",	55 },
+    { 0, NULL, 0 },
 };
 
-const value_string ansi_a_ios401_dtap_strings[] = {
-    { 0x62,	"Additional Service Request" },
-    { 0x53,	"ADDS Deliver" },
-    { 0x54,	"ADDS Deliver Ack" },
-    { 0x26,	"Alert With Information" },
-    { 0x45,	"Authentication Request" },
-    { 0x46,	"Authentication Response" },
-    { 0x48,	"Base Station Challenge" },
-    { 0x49,	"Base Station Challenge Response" },
-    { 0x24,	"CM Service Request" },
-    { 0x25,	"CM Service Request Continuation" },
-    { 0x07,	"Connect" },
-    { 0x10,	"Flash with Information" },
-    { 0x50,	"Flash with Information Ack" },
-    { 0x02,	"Location Updating Accept" },
-    { 0x04,	"Location Updating Reject" },
-    { 0x08,	"Location Updating Request" },
-    { 0x27,	"Paging Response" },
-    { 0x2B,	"Parameter Update Confirm" },
-    { 0x2C,	"Parameter Update Request" },
-    { 0x56,	"Rejection" },
-    { 0x03,	"Progress" },
-    { 0x70,	"Service Redirection" },
-    { 0x2E,	"Service Release" },
-    { 0x2F,	"Service Release Complete" },
-    { 0x47,	"SSD Update Request" },
-    { 0x4A,	"SSD Update Response" },
-    { 0x6A,	"Status Request" },
-    { 0x6B,	"Status Response" },
-    { 0x0B,	"User Zone Reject" },
-    { 0x0C,	"User Zone Update" },
-    { 0x0D,	"User Zone Update Request" },
-    { 0, NULL },
+const ext_value_string_t ansi_a_ios401_dtap_strings[] =
+{
+    { 0x62,	"Additional Service Request",	0 },
+    { 0x53,	"ADDS Deliver",	1 },
+    { 0x54,	"ADDS Deliver Ack",	2 },
+    { 0x26,	"Alert With Information",	3 },
+    { 0x45,	"Authentication Request",	4 },
+    { 0x46,	"Authentication Response",	5 },
+    { 0x48,	"Base Station Challenge",	6 },
+    { 0x49,	"Base Station Challenge Response",	7 },
+    { 0x24,	"CM Service Request",	8 },
+    { 0x25,	"CM Service Request Continuation",	9 },
+    { 0x07,	"Connect",	10 },
+    { 0x10,	"Flash with Information",	11 },
+    { 0x50,	"Flash with Information Ack",	12 },
+    { 0x02,	"Location Updating Accept",	13 },
+    { 0x04,	"Location Updating Reject",	14 },
+    { 0x08,	"Location Updating Request",	15 },
+    { 0x27,	"Paging Response",	16 },
+    { 0x2B,	"Parameter Update Confirm",	17 },
+    { 0x2C,	"Parameter Update Request",	18 },
+    { 0x56,	"Rejection",	19 },
+    { 0x03,	"Progress",	20 },
+    { 0x70,	"Service Redirection",	21 },
+    { 0x2E,	"Service Release",	22 },
+    { 0x2F,	"Service Release Complete",	23 },
+    { 0x47,	"SSD Update Request",	24 },
+    { 0x4A,	"SSD Update Response",	25 },
+    { 0x6A,	"Status Request",	26 },
+    { 0x6B,	"Status Response",	27 },
+    { 0x0B,	"User Zone Reject",	28 },
+    { 0x0C,	"User Zone Update",	29 },
+    { 0x0D,	"User Zone Update Request",	30 },
+    { 0, NULL, 0 },
 };
 
-const value_string ansi_a_ios401_elem_1_strings[] = {
-    { 0x20,	"Access Network Identifiers" },
-    { 0x3D,	"ADDS User Part" },
-    { 0x25,	"AMPS Hard Handoff Parameters" },
-    { 0x30,	"Anchor PDSN Address" },
-    { 0x7C,	"Anchor P-P Address" },
-    { 0x41,	"Authentication Challenge Parameter" },
-    { 0x28,	"Authentication Confirmation Parameter (RANDC)" },
-    { 0x59,	"Authentication Data" },
-    { 0x4A,	"Authentication Event" },
-    { 0x40,	"Authentication Parameter COUNT" },
-    { 0x42,	"Authentication Response Parameter" },
-    { 0x37,	"Band Class" },
-    { 0x5B,	"Called Party ASCII Number" },
-    { 0x5E,	"Called Party BCD Number" },
-    { 0x4B,	"Calling Party ASCII Number" },
-    { 0x04,	"Cause" },
-    { 0x08,	"Cause Layer 3" },
-    { 0x0C,	"CDMA Serving One Way Delay" },
-    { 0x05,	"Cell Identifier" },
-    { 0x1A,	"Cell Identifier List" },
-    { 0x23,	"Channel Number" },
-    { 0x0B,	"Channel Type" },
-    { 0x19,	"Circuit Group" },
-    { 0x01,	"Circuit Identity Code" },
-    { 0x24,	"Circuit Identity Code Extension" },
-    { 0x12,	"Classmark Information Type 2" },
-    { 0x29,	"Downlink Radio Environment" },
-    { 0x2B,	"Downlink Radio Environment List" },
-    { 0x0A,	"Encryption Information" },
-    { 0x10,	"Extended Handoff Direction Parameters" },
-    { 0x2C,	"Geographic Location" },
-    { 0x5A,	"Special Service Call Indicator" },
-    { 0x26,	"Handoff Power Level" },
-    { 0x16,	"Hard Handoff Parameters" },
-    { 0x2E,	"Information Element Requested" },
-    { 0x09,	"IS-2000 Channel Identity" },
-    { 0x27,	"IS-2000 Channel Identity 3X" },
-    { 0x11,	"IS-2000 Mobile Capabilities" },
-    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record" },
-    { 0x0E,	"IS-2000 Service Configuration Record" },
-    { 0x62,	"IS-95/IS-2000 Cause Value" },
-    { 0x67,	"IS-2000 Redirection Record" },
-    { 0x22,	"IS-95 Channel Identity" },
-    { 0x64,	"IS-95 MS Measured Channel Identity" },
-    { 0x17,	"Layer 3 Information" },
-    { 0x13,	"Location Area Information" },
-    { 0x38,	"Message Waiting Indication" },
-    { 0x0D,	"Mobile Identity" },
-    { 0x15,	"MS Information Records" },
-    { 0xA0,	"Origination Continuation Indicator" },
-    { 0x5F,	"PACA Order" },
-    { 0x60,	"PACA Reorigination Indicator" },
-    { 0x4E,	"PACA Timestamp" },
-    { 0x70,	"Packet Session Parameters" },
-    { 0x14,	"PDSN IP Address" },
-    { 0xA2,	"Power Down Indicator" },
-    { 0x06,	"Priority" },
-    { 0x3B,	"Protocol Revision" },
-    { 0x18,	"Protocol Type" },
-    { 0x2D,	"PSMM Count" },
-    { 0x07,	"Quality of Service Parameters" },
-    { 0x1D,	"Radio Environment and Resources" },
-    { 0x1F,	"Registration Type" },
-    { 0x44,	"Reject Cause" },
-    { 0x1B,	"Response Request" },
-    { 0x68,	"Return Cause" },
-    { 0x21,	"RF Channel Identity" },
-    { 0x03,	"Service Option" },
-    { 0x1E,	"Service Option Connection Identifier (SOCI)" },
-    { 0x2A,	"Service Option List" },
-    { 0x69,	"Service Redirection Info" },
-    { 0x71,	"Session Reference Identifier (SR_ID)" },
-    { 0x32,	"SID" },
-    { 0x34,	"Signal" },
-    { 0x35,	"Slot Cycle Index" },
-    { 0x31,	"Software Version" },
-    { 0x39,	"Source RNC to Target RNC Transparent Container" },
-    { 0x14,	"Source PDSN Address" },
-    { 0x33,	"Tag" },
-    { 0x3A,	"Target RNC to Source RNC Transparent Container" },
-    { 0x36,	"Transcoder Mode" }, /* XXX 0x1C in IOS 4.0.1 */
-    { 0x02,	"User Zone ID" },
-    { 0xA1,	"Voice Privacy Request" },
-    { 0, NULL },
+const ext_value_string_t ansi_a_ios401_elem_1_strings[] =
+{
+    { 0x20,	"Access Network Identifiers",	0 },
+    { 0x3D,	"ADDS User Part",	1 },
+    { 0x25,	"AMPS Hard Handoff Parameters",	2 },
+    { 0x30,	"Anchor PDSN Address",	3 },
+    { 0x7C,	"Anchor P-P Address",	4 },
+    { 0x41,	"Authentication Challenge Parameter",	5 },
+    { 0x28,	"Authentication Confirmation Parameter (RANDC)",	6 },
+    { 0x59,	"Authentication Data",	7 },
+    { 0x4A,	"Authentication Event",	8 },
+    { 0x40,	"Authentication Parameter COUNT",	9 },
+    { 0x42,	"Authentication Response Parameter",	10 },
+    { 0x37,	"Band Class",	11 },
+    { 0x5B,	"Called Party ASCII Number",	12 },
+    { 0x5E,	"Called Party BCD Number",	13 },
+    { 0x4B,	"Calling Party ASCII Number",	14 },
+    { 0x04,	"Cause",	15 },
+    { 0x08,	"Cause Layer 3",	16 },
+    { 0x0C,	"CDMA Serving One Way Delay",	17 },
+    { 0x05,	"Cell Identifier",	18 },
+    { 0x1A,	"Cell Identifier List",	19 },
+    { 0x23,	"Channel Number",	20 },
+    { 0x0B,	"Channel Type",	21 },
+    { 0x19,	"Circuit Group",	22 },
+    { 0x01,	"Circuit Identity Code",	23 },
+    { 0x24,	"Circuit Identity Code Extension",	24 },
+    { 0x12,	"Classmark Information Type 2",	25 },
+    { 0x29,	"Downlink Radio Environment",	26 },
+    { 0x2B,	"Downlink Radio Environment List",	27 },
+    { 0x0A,	"Encryption Information",	28 },
+    { 0x10,	"Extended Handoff Direction Parameters",	29 },
+    { 0x2C,	"Geographic Location",	30 },
+    { 0x5A,	"Special Service Call Indicator",	31 },
+    { 0x26,	"Handoff Power Level",	32 },
+    { 0x16,	"Hard Handoff Parameters",	33 },
+    { 0x2E,	"Information Element Requested",	34 },
+    { 0x09,	"IS-2000 Channel Identity",	35 },
+    { 0x27,	"IS-2000 Channel Identity 3X",	36 },
+    { 0x11,	"IS-2000 Mobile Capabilities",	37 },
+    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record",	38 },
+    { 0x0E,	"IS-2000 Service Configuration Record",	39 },
+    { 0x62,	"IS-95/IS-2000 Cause Value",	40 },
+    { 0x67,	"IS-2000 Redirection Record",	41 },
+    { 0x22,	"IS-95 Channel Identity",	42 },
+    { 0x64,	"IS-95 MS Measured Channel Identity",	43 },
+    { 0x17,	"Layer 3 Information",	44 },
+    { 0x13,	"Location Area Information",	45 },
+    { 0x38,	"Message Waiting Indication",	46 },
+    { 0x0D,	"Mobile Identity",	47 },
+    { 0x15,	"MS Information Records (Forward)",	48 },
+    { 0xA0,	"Origination Continuation Indicator",	49 },
+    { 0x5F,	"PACA Order",	50 },
+    { 0x60,	"PACA Reorigination Indicator",	51 },
+    { 0x4E,	"PACA Timestamp",	52 },
+    { 0x70,	"Packet Session Parameters",	53 },
+    { 0x14,	"PDSN IP Address",	54 },
+    { 0xA2,	"Power Down Indicator",	55 },
+    { 0x06,	"Priority",	56 },
+    { 0x3B,	"Protocol Revision",	57 },
+    { 0x18,	"Protocol Type",	58 },
+    { 0x2D,	"PSMM Count",	59 },
+    { 0x07,	"Quality of Service Parameters",	60 },
+    { 0x1D,	"Radio Environment and Resources",	61 },
+    { 0x1F,	"Registration Type",	62 },
+    { 0x44,	"Reject Cause",	63 },
+    { 0x1B,	"Response Request",	64 },
+    { 0x68,	"Return Cause",	65 },
+    { 0x21,	"RF Channel Identity",	66 },
+    { 0x03,	"Service Option",	67 },
+    { 0x1E,	"Service Option Connection Identifier (SOCI)",	68 },
+    { 0x2A,	"Service Option List",	69 },
+    { 0x69,	"Service Redirection Info",	70 },
+    { 0x71,	"Service Reference Identifier (SR_ID)",	71 },
+    { 0x32,	"SID",	72 },
+    { 0x34,	"Signal",	73 },
+    { 0x35,	"Slot Cycle Index",	74 },
+    { 0x31,	"Software Version",	75 },
+    { 0x39,	"Source RNC to Target RNC Transparent Container",	76 },
+    { 0x14,	"Source PDSN Address",	77 },
+    { 0x33,	"Tag",	78 },
+    { 0x3A,	"Target RNC to Source RNC Transparent Container",	79 },
+    { 0x36,	"Transcoder Mode",	80 }, /* XXX 0x1C in IOS 4.0.1 */
+    { 0x02,	"User Zone ID",	81 },
+    { 0xA1,	"Voice Privacy Request",	82 },
+    { 0x15,	"MS Information Records (Reverse)",	88 },
+    { 0, NULL, 0 },
 };
 
-#define	ANSI_MS_INFO_REC_DISPLAY	0x01
-#define	ANSI_MS_INFO_REC_CLD_PN		0x02
-#define	ANSI_MS_INFO_REC_CLG_PN		0x03
-#define	ANSI_MS_INFO_REC_CONN_N		0x04
-#define	ANSI_MS_INFO_REC_SIGNAL		0x05
-#define	ANSI_MS_INFO_REC_MW		0x06
-#define	ANSI_MS_INFO_REC_SC		0x07
-#define	ANSI_MS_INFO_REC_CLD_PSA	0x08
-#define	ANSI_MS_INFO_REC_CLG_PSA	0x09
-#define	ANSI_MS_INFO_REC_CONN_SA	0x0a
-#define	ANSI_MS_INFO_REC_RED_N		0x0b
-#define	ANSI_MS_INFO_REC_RED_SA		0x0c
-#define	ANSI_MS_INFO_REC_MP		0x0d
-#define	ANSI_MS_INFO_REC_PA		0x0e
-#define	ANSI_MS_INFO_REC_LC		0x0f
-#define	ANSI_MS_INFO_REC_EDISPLAY	0x10
-#define	ANSI_MS_INFO_REC_NNSC		0x13
-#define	ANSI_MS_INFO_REC_MC_EDISPLAY	0x14
-#define	ANSI_MS_INFO_REC_CWI		0x15
-#define	ANSI_MS_INFO_REC_ERTI		0xfe
+const ext_value_string_t ansi_a_ios501_bsmap_strings[] =
+{
+    { 0x69,	"Additional Service Notification",	0 },
+    { 0x65,	"ADDS Page",	1 },
+    { 0x66,	"ADDS Page Ack",	2 },
+    { 0x67,	"ADDS Transfer",	3 },
+    { 0x68,	"ADDS Transfer Ack",	4 },
+    { 0x02,	"Assignment Complete",	5 },
+    { 0x03,	"Assignment Failure",	6 },
+    { 0x01,	"Assignment Request",	7 },
+    { 0x45,	"Authentication Request",	8 },
+    { 0x46,	"Authentication Response",	9 },
+    { 0x48,	"Base Station Challenge",	10 },
+    { 0x49,	"Base Station Challenge Response",	11 },
+    { 0x40,	"Block",	12 },
+    { 0x41,	"Block Acknowledge",	13 },
+    { 0x09,	"BS Service Request",	14 },
+    { 0x0A,	"BS Service Response",	15 },
+    { 0x20,	"Clear Command",	16 },
+    { 0x21,	"Clear Complete",	17 },
+    { 0x22,	"Clear Request",	18 },
+    { 0x57,	"Complete Layer 3 Information",	19 },
+    { 0x60,	"Feature Notification",	20 },
+    { 0x61,	"Feature Notification Ack",	21 },
+    { 0x13,	"Handoff Command",	22 },
+    { 0x15,	"Handoff Commenced",	23 },
+    { 0x14,	"Handoff Complete",	24 },
+    { 0x16,	"Handoff Failure",	25 },
+    { 0x17,	"Handoff Performed",	26 },
+    { 0x10,	"Handoff Request",	27 },
+    { 0x12,	"Handoff Request Acknowledge",	28 },
+    { 0x11,	"Handoff Required",	29 },
+    { 0x1A,	"Handoff Required Reject",	30 },
+    { 0x6C,	"PACA Command",	31 },
+    { 0x6D,	"PACA Command Ack",	32 },
+    { 0x6E,	"PACA Update",	33 },
+    { 0x6F,	"PACA Update Ack",	34 },
+    { 0x52,	"Paging Request",	35 },
+    { 0x53,	"Privacy Mode Command",	36 },
+    { 0x55,	"Privacy Mode Complete",	37 },
+    { 0x23,	"Radio Measurements for Position Request",	38 },
+    { 0x25,	"Radio Measurements for Position Response",	39 },
+    { 0x56,	"Rejection",	40 },
+    { 0x05,	"Registration Request",	41 },
+    { 0x30,	"Reset",	42 },
+    { 0x31,	"Reset Acknowledge",	43 },
+    { 0x34,	"Reset Circuit",	44 },
+    { 0x35,	"Reset Circuit Acknowledge",	45 },
+    { 0x47,	"SSD Update Request",	46 },
+    { 0x4A,	"SSD Update Response",	47 },
+    { 0x6A,	"Status Request",	48 },
+    { 0x6B,	"Status Response",	49 },
+    { 0x39,	"Transcoder Control Acknowledge",	50 },
+    { 0x38,	"Transcoder Control Request",	51 },
+    { 0x42,	"Unblock",	52 },
+    { 0x43,	"Unblock Acknowledge",	53 },
+    { 0x0B,	"User Zone Reject",	54 },
+    { 0x04,	"User Zone Update",	55 },
+    { 0x58,	"Bearer Update Request",	56 },
+    { 0x59,	"Bearer Update Response",	58 },
+    { 0x5A,	"Bearer Update Required",	57 },
+    { 0x71,	"Mobile Station Registered Notification",	59 },
+    { 0x07,	"BS Authentication Request",	60 },
+    { 0x08,	"BS Authentication Request Ack",	61 },
+    { 0, NULL, 0 },
+};
 
-static const value_string ansi_ms_info_rec_str[] = {
-    { ANSI_MS_INFO_REC_DISPLAY,		"Display" },
-    { ANSI_MS_INFO_REC_CLD_PN,		"Called Party Number" },
-    { ANSI_MS_INFO_REC_CLG_PN,		"Calling Party Number" },
-    { ANSI_MS_INFO_REC_CONN_N,		"Connected Number" },
-    { ANSI_MS_INFO_REC_SIGNAL,		"Signal" },
-    { ANSI_MS_INFO_REC_MW,		"Message Waiting" },
-    { ANSI_MS_INFO_REC_SC,		"Service Configuration" },
-    { ANSI_MS_INFO_REC_CLD_PSA,		"Called Party Subaddress" },
-    { ANSI_MS_INFO_REC_CLG_PSA,		"Calling Party Subaddress" },
-    { ANSI_MS_INFO_REC_CONN_SA,		"Connected Subaddress" },
-    { ANSI_MS_INFO_REC_RED_N,		"Redirecting Number" },
-    { ANSI_MS_INFO_REC_RED_SA,		"Redirecting Subaddress" },
-    { ANSI_MS_INFO_REC_MP,		"Meter Pulses" },
-    { ANSI_MS_INFO_REC_PA,		"Parametric Alerting" },
-    { ANSI_MS_INFO_REC_LC,		"Line Control" },
-    { ANSI_MS_INFO_REC_EDISPLAY,	"Extended Display" },
-    { ANSI_MS_INFO_REC_NNSC,		"Non-Negotiable Service Configuration" },
-    { ANSI_MS_INFO_REC_MC_EDISPLAY,	"Multiple Character Extended Display" },
-    { ANSI_MS_INFO_REC_CWI,		"Call Waiting Indicator" },
-    { ANSI_MS_INFO_REC_ERTI,		"Extended Record Type International" },
+const ext_value_string_t ansi_a_ios501_dtap_strings[] =
+{
+    { 0x62,	"Additional Service Request",	0 },
+    { 0x53,	"ADDS Deliver",	1 },
+    { 0x54,	"ADDS Deliver Ack",	2 },
+    { 0x26,	"Alert With Information",	3 },
+    { 0x45,	"Authentication Request",	4 },
+    { 0x46,	"Authentication Response",	5 },
+    { 0x48,	"Base Station Challenge",	6 },
+    { 0x49,	"Base Station Challenge Response",	7 },
+    { 0x24,	"CM Service Request",	8 },
+    { 0x25,	"CM Service Request Continuation",	9 },
+    { 0x07,	"Connect",	10 },
+    { 0x10,	"Flash with Information",	11 },
+    { 0x50,	"Flash with Information Ack",	12 },
+    { 0x02,	"Location Updating Accept",	13 },
+    { 0x04,	"Location Updating Reject",	14 },
+    { 0x08,	"Location Updating Request",	15 },
+    { 0x27,	"Paging Response",	16 },
+    { 0x2B,	"Parameter Update Confirm",	17 },
+    { 0x2C,	"Parameter Update Request",	18 },
+    { 0x56,	"Rejection",	19 },
+    { 0x03,	"Progress",	20 },
+    { 0x70,	"Service Redirection",	21 },
+    { 0x2E,	"Service Release",	22 },
+    { 0x2F,	"Service Release Complete",	23 },
+    { 0x47,	"SSD Update Request",	24 },
+    { 0x4A,	"SSD Update Response",	25 },
+    { 0x6A,	"Status Request",	26 },
+    { 0x6B,	"Status Response",	27 },
+    { 0x0B,	"User Zone Reject",	28 },
+    { 0x0C,	"User Zone Update",	29 },
+    { 0x0D,	"User Zone Update Request",	30 },
+    { 0, NULL, 0 },
+};
+
+/*
+ * ORDER MUST MATCH
+ * ansi_a_ios401_elem_1_strings when the same element
+ * is being described.
+ */
+const ext_value_string_t ansi_a_ios501_elem_1_strings[] =
+{
+    { 0x20,	"Access Network Identifiers",	0 },
+    { 0x3D,	"ADDS User Part",	1 },
+    { 0x25,	"AMPS Hard Handoff Parameters",	2 },
+    { 0x30,	"Anchor PDSN Address",	3 },
+    { 0x7C,	"Anchor P-P Address",	4 },
+    { 0x41,	"Authentication Challenge Parameter",	5 },
+    { 0x28,	"Authentication Confirmation Parameter (RANDC)",	6 },
+    { 0x59,	"Authentication Data",	7 },
+    { 0x4A,	"Authentication Event",	8 },
+    { 0x40,	"Authentication Parameter COUNT",	9 },
+    { 0x42,	"Authentication Response Parameter",	10 },
+    { 0x37,	"Band Class",	11 },
+    { 0x5B,	"Called Party ASCII Number",	12 },
+    { 0x5E,	"Called Party BCD Number",	13 },
+    { 0x4B,	"Calling Party ASCII Number",	14 },
+    { 0x04,	"Cause",	15 },
+    { 0x08,	"Cause Layer 3",	16 },
+    { 0x0C,	"CDMA Serving One Way Delay",	17 },
+    { 0x05,	"Cell Identifier",	18 },
+    { 0x1A,	"Cell Identifier List",	19 },
+    { 0x23,	"Channel Number",	20 },
+    { 0x0B,	"Channel Type",	21 },
+    { 0x19,	"Circuit Group",	22 },
+    { 0x01,	"Circuit Identity Code",	23 },
+    { 0x24,	"Circuit Identity Code Extension",	24 },
+    { 0x12,	"Classmark Information Type 2",	25 },
+    { 0x29,	"Downlink Radio Environment",	26 },
+    { 0x2B,	"Downlink Radio Environment List",	27 },
+    { 0x0A,	"Encryption Information",	28 },
+    { 0x10,	"Extended Handoff Direction Parameters",	29 },
+    { 0x2C,	"Geographic Location",	30 },
+    { 0x5A,	"Special Service Call Indicator",	31 },
+    { 0x26,	"Handoff Power Level",	32 },
+    { 0x16,	"Hard Handoff Parameters",	33 },
+    { 0x2E,	"Information Element Requested",	34 },
+    { 0x09,	"IS-2000 Channel Identity",	35 },
+    { 0x27,	"IS-2000 Channel Identity 3X",	36 },
+    { 0x11,	"IS-2000 Mobile Capabilities",	37 },
+    { 0x0F,	"IS-2000 Non-Negotiable Service Configuration Record",	38 },
+    { 0x0E,	"IS-2000 Service Configuration Record",	39 },
+    { 0x62,	"IS-95/IS-2000 Cause Value",	40 },
+    { 0x67,	"IS-2000 Redirection Record",	41 },
+    { 0x22,	"IS-95 Channel Identity",	42 },
+    { 0x64,	"IS-95 MS Measured Channel Identity",	43 },
+    { 0x17,	"Layer 3 Information",	44 },
+    { 0x13,	"Location Area Information",	45 },
+    { 0x38,	"Message Waiting Indication",	46 },
+    { 0x0D,	"Mobile Identity",	47 },
+    { 0x15,	"MS Information Records (Forward)",	48 },
+    { 0xA0,	"Origination Continuation Indicator",	49 },
+    { 0x5F,	"PACA Order",	50 },
+    { 0x60,	"PACA Reorigination Indicator",	51 },
+    { 0x4E,	"PACA Timestamp",	52 },
+    { 0x70,	"Packet Session Parameters",	53 },
+    { 0x14,	"PDSN IP Address",	54 },
+    { 0xA2,	"Power Down Indicator",	55 },
+    { 0x06,	"Priority",	56 },
+    { 0x3B,	"Protocol Revision",	57 },
+    { 0x18,	"Protocol Type",	58 },
+    { 0x2D,	"PSMM Count",	59 },
+    { 0x07,	"Quality of Service Parameters",	60 },
+    { 0x1D,	"Radio Environment and Resources",	61 },
+    { 0x1F,	"Registration Type",	62 },
+    { 0x44,	"Reject Cause",	63 },
+    { 0x1B,	"Response Request",	64 },
+    { 0x68,	"Return Cause",	65 },
+    { 0x21,	"RF Channel Identity",	66 },
+    { 0x03,	"Service Option",	67 },
+    { 0x1E,	"Service Option Connection Identifier (SOCI)",	68 },
+    { 0x2A,	"Service Option List",	69 },
+    { 0x69,	"Service Redirection Info",	70 },
+    { 0x71,	"Service Reference Identifier (SR_ID)",	71 },
+    { 0x32,	"SID",	72 },
+    { 0x34,	"Signal",	73 },
+    { 0x35,	"Slot Cycle Index",	74 },
+    { 0x31,	"Software Version",	75 },
+    { 0x39,	"Source RNC to Target RNC Transparent Container",	76 },
+    { 0x14,	"Source PDSN Address",	77 },
+    { 0x33,	"Tag",	78 },
+    { 0x3A,	"Target RNC to Source RNC Transparent Container",	79 },
+    { 0x36,	"Transcoder Mode",	80 }, /* XXX 0x1C in IOS 4.0.1 */
+    { 0x02,	"User Zone ID",	81 },
+    { 0xA1,	"Voice Privacy Request",	82 },
+    { 0x45,	"A2p Bearer Session-Level Parameters",	83 },
+    { 0x46,	"A2p Bearer Format-Specific Parameters",	84 },
+    { 0x73,	"MS Designated Frequency",	85 },
+    { 0x7D,	"Mobile Subscription Information",	86 },
+    { 0x72,	"Public Long Code Mask Identification",	87 },
+    { 0x15,	"MS Information Records (Reverse)",	88 },
+    { 0, NULL, 0 },
+};
+
+/*
+ * From Table 3.7.5-1 C.S0005-D v1.0 L3
+ */
+#define	ANSI_FWD_MS_INFO_REC_DISPLAY		0x01
+#define	ANSI_FWD_MS_INFO_REC_CLD_PN		0x02
+#define	ANSI_FWD_MS_INFO_REC_CLG_PN		0x03
+#define	ANSI_FWD_MS_INFO_REC_CONN_N		0x04
+#define	ANSI_FWD_MS_INFO_REC_SIGNAL		0x05
+#define	ANSI_FWD_MS_INFO_REC_MW			0x06
+#define	ANSI_FWD_MS_INFO_REC_SC			0x07
+#define	ANSI_FWD_MS_INFO_REC_CLD_PSA		0x08
+#define	ANSI_FWD_MS_INFO_REC_CLG_PSA		0x09
+#define	ANSI_FWD_MS_INFO_REC_CONN_SA		0x0a
+#define	ANSI_FWD_MS_INFO_REC_RED_N		0x0b
+#define	ANSI_FWD_MS_INFO_REC_RED_SA		0x0c
+#define	ANSI_FWD_MS_INFO_REC_MP			0x0d
+#define	ANSI_FWD_MS_INFO_REC_PA			0x0e
+#define	ANSI_FWD_MS_INFO_REC_LC			0x0f
+#define	ANSI_FWD_MS_INFO_REC_EDISPLAY		0x10
+#define	ANSI_FWD_MS_INFO_REC_NNSC		0x13
+#define	ANSI_FWD_MS_INFO_REC_MC_EDISPLAY	0x14
+#define	ANSI_FWD_MS_INFO_REC_CWI		0x15
+#define	ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY	0x16
+#define	ANSI_FWD_MS_INFO_REC_ERTI		0xfe
+
+static const value_string ansi_fwd_ms_info_rec_str[] = {
+    { ANSI_FWD_MS_INFO_REC_DISPLAY,		"Display" },
+    { ANSI_FWD_MS_INFO_REC_CLD_PN,		"Called Party Number" },
+    { ANSI_FWD_MS_INFO_REC_CLG_PN,		"Calling Party Number" },
+    { ANSI_FWD_MS_INFO_REC_CONN_N,		"Connected Number" },
+    { ANSI_FWD_MS_INFO_REC_SIGNAL,		"Signal" },
+    { ANSI_FWD_MS_INFO_REC_MW,			"Message Waiting" },
+    { ANSI_FWD_MS_INFO_REC_SC,			"Service Configuration" },
+    { ANSI_FWD_MS_INFO_REC_CLD_PSA,		"Called Party Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_CLG_PSA,		"Calling Party Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_CONN_SA,		"Connected Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_RED_N,		"Redirecting Number" },
+    { ANSI_FWD_MS_INFO_REC_RED_SA,		"Redirecting Subaddress" },
+    { ANSI_FWD_MS_INFO_REC_MP,			"Meter Pulses" },
+    { ANSI_FWD_MS_INFO_REC_PA,			"Parametric Alerting" },
+    { ANSI_FWD_MS_INFO_REC_LC,			"Line Control" },
+    { ANSI_FWD_MS_INFO_REC_EDISPLAY,		"Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_NNSC,		"Non-Negotiable Service Configuration" },
+    { ANSI_FWD_MS_INFO_REC_MC_EDISPLAY,		"Multiple Character Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_CWI,			"Call Waiting Indicator" },
+    { ANSI_FWD_MS_INFO_REC_EMC_EDISPLAY,	"Enhanced Multiple Character Extended Display" },
+    { ANSI_FWD_MS_INFO_REC_ERTI,		"Extended Record Type International" },
     { 0, NULL },
 };
-#define	NUM_MS_INFO_REC (sizeof(ansi_ms_info_rec_str)/sizeof(value_string))
-static gint ett_ansi_ms_info_rec[NUM_MS_INFO_REC];
+#define	NUM_FWD_MS_INFO_REC (sizeof(ansi_fwd_ms_info_rec_str)/sizeof(value_string))
+static gint ett_ansi_fwd_ms_info_rec[NUM_FWD_MS_INFO_REC];
+
+/*
+ * From Table 2.7.4-1 C.S0005-D v1.0 L3
+ */
+#define	ANSI_REV_MS_INFO_REC_KEYPAD_FAC		0x03
+#define	ANSI_REV_MS_INFO_REC_CLD_PN		0x04
+#define	ANSI_REV_MS_INFO_REC_CLG_PN		0x05
+#define	ANSI_REV_MS_INFO_REC_CALL_MODE		0x07
+#define	ANSI_REV_MS_INFO_REC_TERM_INFO		0x08
+#define	ANSI_REV_MS_INFO_REC_ROAM_INFO		0x09
+#define	ANSI_REV_MS_INFO_REC_SECUR_STS		0x0a
+#define	ANSI_REV_MS_INFO_REC_CONN_N		0x0b
+#define	ANSI_REV_MS_INFO_REC_IMSI		0x0c
+#define	ANSI_REV_MS_INFO_REC_ESN		0x0d
+#define	ANSI_REV_MS_INFO_REC_BAND_INFO		0x0e
+#define	ANSI_REV_MS_INFO_REC_POWER_INFO		0x0f
+#define	ANSI_REV_MS_INFO_REC_OP_MODE_INFO	0x10
+#define	ANSI_REV_MS_INFO_REC_SO_INFO		0x11
+#define	ANSI_REV_MS_INFO_REC_MO_INFO		0x12
+#define	ANSI_REV_MS_INFO_REC_SC_INFO		0x13
+#define	ANSI_REV_MS_INFO_REC_CLD_PSA		0x14
+#define	ANSI_REV_MS_INFO_REC_CLG_PSA		0x15
+#define	ANSI_REV_MS_INFO_REC_CONN_SA		0x16
+#define	ANSI_REV_MS_INFO_REC_PCI		0x17
+#define	ANSI_REV_MS_INFO_REC_IMSI_M		0x18
+#define	ANSI_REV_MS_INFO_REC_IMSI_T		0x19
+#define	ANSI_REV_MS_INFO_REC_CAP_INFO		0x1a
+#define	ANSI_REV_MS_INFO_REC_CCC_INFO		0x1b
+#define	ANSI_REV_MS_INFO_REC_EMO_INFO		0x1c
+#define	ANSI_REV_MS_INFO_REC_GEO_CAP		0x1e
+#define	ANSI_REV_MS_INFO_REC_BAND_SUB		0x1f
+#define	ANSI_REV_MS_INFO_REC_GECO		0x20
+#define	ANSI_REV_MS_INFO_REC_HOOK		0x21
+#define	ANSI_REV_MS_INFO_REC_QOS_PARAM		0x22
+#define	ANSI_REV_MS_INFO_REC_ENCRYPT_CAP	0x23
+#define	ANSI_REV_MS_INFO_REC_SMI_CAP		0x24
+#define	ANSI_REV_MS_INFO_REC_UIM_ID		0x25
+#define	ANSI_REV_MS_INFO_REC_ESN_ME		0x26
+#define	ANSI_REV_MS_INFO_REC_MEID		0x27
+#define	ANSI_REV_MS_INFO_REC_EKEYPAD_FAC	0x28
+#define	ANSI_REV_MS_INFO_REC_SYNC_ID		0x29
+#define	ANSI_REV_MS_INFO_REC_ERTI		0xfe
+
+static const value_string ansi_rev_ms_info_rec_str[] = {
+    { ANSI_REV_MS_INFO_REC_KEYPAD_FAC,		"Keypad Facility" },
+    { ANSI_REV_MS_INFO_REC_CLD_PN,		"Called Party Number" },
+    { ANSI_REV_MS_INFO_REC_CLG_PN,		"Calling Party Number" },
+    { ANSI_REV_MS_INFO_REC_CALL_MODE,		"Call Mode" },
+    { ANSI_REV_MS_INFO_REC_TERM_INFO,		"Terminal Information" },
+    { ANSI_REV_MS_INFO_REC_ROAM_INFO,		"Roaming Information" },
+    { ANSI_REV_MS_INFO_REC_SECUR_STS,		"Security Status" },
+    { ANSI_REV_MS_INFO_REC_CONN_N,		"Connected Number" },
+    { ANSI_REV_MS_INFO_REC_IMSI,		"IMSI" },
+    { ANSI_REV_MS_INFO_REC_ESN,			"ESN" },
+    { ANSI_REV_MS_INFO_REC_BAND_INFO,		"Band Class Information" },
+    { ANSI_REV_MS_INFO_REC_POWER_INFO,		"Power Class Information" },
+    { ANSI_REV_MS_INFO_REC_OP_MODE_INFO,	"Operating Mode Information" },
+    { ANSI_REV_MS_INFO_REC_SO_INFO,		"Service Option Information" },
+    { ANSI_REV_MS_INFO_REC_MO_INFO,		"Multiplex Option Information" },
+    { ANSI_REV_MS_INFO_REC_SC_INFO,		"Service Configuration Information" },
+    { ANSI_REV_MS_INFO_REC_CLD_PSA,		"Called Party Subaddress" },
+    { ANSI_REV_MS_INFO_REC_CLG_PSA,		"Calling Party Subaddress" },
+    { ANSI_REV_MS_INFO_REC_CONN_SA,		"Connected Subaddress" },
+    { ANSI_REV_MS_INFO_REC_PCI,			"Power Control Information" },
+    { ANSI_REV_MS_INFO_REC_IMSI_M,		"IMSI_M" },
+    { ANSI_REV_MS_INFO_REC_IMSI_T,		"IMSI_T" },
+    { ANSI_REV_MS_INFO_REC_CAP_INFO,		"Capability Information" },
+    { ANSI_REV_MS_INFO_REC_CCC_INFO,		"Channel Configuration Capability Information" },
+    { ANSI_REV_MS_INFO_REC_EMO_INFO,		"Extended Multiplex Option Information" },
+    { ANSI_REV_MS_INFO_REC_GEO_CAP,		"Geo-Location Capability" },
+    { ANSI_REV_MS_INFO_REC_BAND_SUB,		"Band Subclass Information" },
+    { ANSI_REV_MS_INFO_REC_GECO,		"Global Emergency Call" },
+    { ANSI_REV_MS_INFO_REC_HOOK,		"Hook Status" },
+    { ANSI_REV_MS_INFO_REC_QOS_PARAM,		"QoS Parameters" },
+    { ANSI_REV_MS_INFO_REC_ENCRYPT_CAP,		"Encryption Capability" },
+    { ANSI_REV_MS_INFO_REC_SMI_CAP,		"Signaling Message Integrity Capability" },
+    { ANSI_REV_MS_INFO_REC_UIM_ID,		"UIM_ID" },
+    { ANSI_REV_MS_INFO_REC_ESN_ME,		"ESN_ME" },
+    { ANSI_REV_MS_INFO_REC_MEID,		"MEID" },
+    { ANSI_REV_MS_INFO_REC_EKEYPAD_FAC,		"Extended Keypad Facility" },
+    { ANSI_REV_MS_INFO_REC_SYNC_ID,		"SYNC_ID" },
+    { ANSI_REV_MS_INFO_REC_ERTI,		"Extended Record Type International" },
+    { 0, NULL },
+};
+#define	NUM_REV_MS_INFO_REC (sizeof(ansi_rev_ms_info_rec_str)/sizeof(value_string))
+static gint ett_ansi_rev_ms_info_rec[NUM_REV_MS_INFO_REC];
 
 static const gchar *band_class_str[] = {
     "800 MHz Cellular System",
@@ -316,6 +640,10 @@ static const gchar *cell_disc_str[] = {
 static int proto_a_bsmap = -1;
 static int proto_a_dtap = -1;
 
+const ext_value_string_t *ansi_a_bsmap_strings = NULL;
+const ext_value_string_t *ansi_a_dtap_strings = NULL;
+const ext_value_string_t *ansi_a_elem_1_strings = NULL;
+
 static int ansi_a_tap = -1;
 
 static int hf_ansi_a_none = -1;
@@ -326,6 +654,7 @@ static int hf_ansi_a_elem_id = -1;
 static int hf_ansi_a_esn = -1;
 static int hf_ansi_a_imsi = -1;
 static int hf_ansi_a_min = -1;
+static int hf_ansi_a_meid = -1;
 static int hf_ansi_a_cld_party_bcd_num = -1;
 static int hf_ansi_a_clg_party_bcd_num = -1;
 static int hf_ansi_a_cld_party_ascii_num = -1;
@@ -334,6 +663,12 @@ static int hf_ansi_a_cell_ci = -1;
 static int hf_ansi_a_cell_lac = -1;
 static int hf_ansi_a_cell_mscid = -1;
 static int hf_ansi_a_pdsn_ip_addr = -1;
+static int hf_ansi_a_s_pdsn_ip_addr = -1;
+static int hf_ansi_a_anchor_ip_addr = -1;
+static int hf_ansi_a_anchor_pp_ip_addr = -1;
+static int hf_ansi_a_a2p_bearer_ipv4_addr = -1;
+static int hf_ansi_a_a2p_bearer_ipv6_addr = -1;
+static int hf_ansi_a_a2p_bearer_udp_port = -1;
 
 
 /* Initialize the subtree pointers */
@@ -345,19 +680,12 @@ static gint ett_dtap_oct_1 = -1;
 static gint ett_cm_srvc_type = -1;
 static gint ett_ansi_ms_info_rec_reserved = -1;
 static gint ett_ansi_enc_info = -1;
+static gint ett_scm = -1;
 static gint ett_cell_list = -1;
-
-#define	A_VARIANT_IS634		4
-#define	A_VARIANT_TSB80		5
-#define	A_VARIANT_IS634A	6
-#define	A_VARIANT_IOS2		7
-#define	A_VARIANT_IOS3		8
-#define	A_VARIANT_IOS401	9
-
-/*
- * IOS 4, probably most common
- */
-static gint a_global_variant = A_VARIANT_IOS401;
+static gint ett_bearer_list = -1;
+static gint ett_re_list = -1;
+static gint ett_so_list = -1;
+static gint ett_adds_user_part = -1;
 
 /*
  * Variables to allow for proper deletion of dissector registration when
@@ -489,14 +817,40 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 
     value = tvb_get_ntohs(tvb, curr_offset);
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
-	"Channel Number: %u",
-	value);
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 2,
+	    "Channel Number: %u",
+	    value);
+
+	g_snprintf(add_string, string_len, " - (%u)", value);
+	break;
+
+    case A_VARIANT_IOS501:
+	other_decode_bitfield_value(a_bigbuf, value >> 8, 0xf8, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, value >> 8, 0x07, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  ARFCN (MSB): %u",
+	    a_bigbuf,
+	    value & 0x07ff);
+
+	other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+	proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
+	    "%s :  ARFCN (LSB)",
+	    a_bigbuf);
+
+	g_snprintf(add_string, string_len, " - (ARFCN: %u)", value & 0x07ff);
+	break;
+    }
 
     curr_offset += 2;
-
-    g_snprintf(add_string, string_len, " - (%u)", value);
 
     /* no length check possible */
 
@@ -617,6 +971,51 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 /*
+ * IOS 5 4.2.83
+ */
+static guint8
+elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    const gchar	*str;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    switch (oct & 0x0f)
+    {
+    case 0: str = "Normal access"; break;
+    case 1: str = "Service redirection failed as a result of system not found"; break;
+    case 2: str = "Service redirection failed as a result of protocol mismatch"; break;
+    case 3: str = "Service redirection failed as a result of registration rejection"; break;
+    case 4: str = "Service redirection failed as a result of wrong SID"; break;
+    case 5: str = "Service redirection failed as a result of wrong NID"; break;
+    default:
+	str = "Reserved";
+	break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Return Cause: %s",
+	a_bigbuf,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
  * IOS 6.2.2.8
  */
 static guint8
@@ -690,6 +1089,41 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     curr_offset += 2;
 
     /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.86
+ */
+static guint8
+elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  SR_ID: %u",
+	a_bigbuf,
+	oct & 0x07);
+
+    g_snprintf(add_string, string_len, " - (%u)", oct);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
     return(curr_offset - offset);
 }
@@ -969,6 +1403,8 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     guint8	num_bands;
     guint32	curr_offset;
     gint	temp_int;
+    proto_tree	*subtree;
+    proto_item	*item;
     const gchar	*str;
 
     curr_offset = offset;
@@ -1106,9 +1542,66 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"Station Class Mark: %u",
-	oct);
+    item =
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "Station Class Mark: %u",
+	    oct);
+
+    /*
+     * following SCM decode is from:
+     *	3GPP2 C.S0005-0 section 2.3.3
+     *	3GPP2 C.S0072-0 section 2.1.2
+     */
+    subtree = proto_item_add_subtree(item, ett_scm);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  Extended SCM Indicator: %s",
+	a_bigbuf,
+	(oct & 0x80) ? "Band Classes 1,4" : "Other bands");
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  %s",
+	a_bigbuf,
+	(oct & 0x40) ? "Dual Mode" : "CDMA Only");
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  %s",
+	a_bigbuf,
+	(oct & 0x20) ? "Slotted" : "Non-Slotted");
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  MEID %sconfigured",
+	a_bigbuf,
+	(oct & 0x10) ? "" : "not ");
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  25 MHz Bandwidth",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x04, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  %s Transmission",
+	a_bigbuf,
+	(oct & 0x04) ? "Discontinuous" : "Continuous");
+
+    switch (oct & 0x03)
+    {
+    case 0x00: str = "Class I"; break;
+    case 0x01: str = "Class II"; break;
+    case 0x02: str = "Class III"; break;
+    case 0x03: str = "Reserved"; break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	"%s :  Power Class for Band Class 0 Analog Operation: %s",
+	a_bigbuf,
+	str);
 
     curr_offset++;
 
@@ -1207,10 +1700,11 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    guint8	oct;
+    guint8	oct, nib;
     guint8	*poctets;
     guint32	value;
     guint32	curr_offset;
+    gint	i;
     const gchar	*str;
 
     curr_offset = offset;
@@ -1219,6 +1713,80 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
     switch (oct & 0x07)
     {
+    case 1:
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  MEID Hex Digit 1: %hhX",
+	    a_bigbuf,
+	    (oct & 0xf0) >> 4);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  Odd/Even Indicator: %s",
+	    a_bigbuf,
+	    (oct & 0x08) ? "ODD" : "EVEN");
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  Type of Identity: MEID",
+	    a_bigbuf);
+
+	curr_offset++;
+
+	i = 0;
+	nib = (oct & 0xf0) >> 4;
+	if (nib < 10)
+	{
+	    a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+	}
+	else
+	{
+	    a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+	}
+
+	while ((len - (curr_offset - offset)) > 0)
+	{
+	    oct = tvb_get_guint8(tvb, curr_offset);
+
+	    nib = oct & 0x0f;
+	    if (nib < 10)
+	    {
+		a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+	    }
+	    else
+	    {
+		a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+	    }
+
+	    nib = (oct & 0xf0) >> 4;
+	    if (nib < 10)
+	    {
+		a_bigbuf[i++] = nib + 0x30;  /* + '0' */
+	    }
+	    else
+	    {
+		a_bigbuf[i++] = nib + 0x41;  /* + 'A' */
+	    }
+
+	    curr_offset++;
+	}
+	a_bigbuf[i] = '\0';
+
+	proto_tree_add_string_format(tree,
+	    hf_ansi_a_meid,
+	    tvb, offset + 1, len - 1,
+	    a_bigbuf,
+	    "MEID: %s",
+	    a_bigbuf);
+
+	g_snprintf(add_string, string_len, " - %s (%s)",
+	    "MEID",
+	    a_bigbuf);
+	break;
+
     case 2:
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
 	proto_tree_add_text(tree,
@@ -1321,7 +1889,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 	    value,
 	    str);
 
-	curr_offset++;
+	curr_offset += 2;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -1381,12 +1949,6 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
 
 	curr_offset += len - 1;
 	break;
-
-    case 1:
-	/*
-	 * IS-634 value
-	 */
-	/* FALLTHRU */
 
     case 6:
 	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
@@ -1632,6 +2194,31 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 }
 
 /*
+ * IOS 5 4.2.79
+ */
+static guint8
+elem_p_rev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"MOB_P_REV");
+
+    g_snprintf(add_string, string_len, " - (%u)", oct);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
  * IOS 6.2.2.19
  */
 static guint8
@@ -1738,31 +2325,68 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	case 0x0F: str = "Interference"; break;
 	case 0x10: str = "Packet call going dormant"; break;
 	case 0x11: str = "Service option not available"; break;
+
 	case 0x12: str = "Invalid Call"; break;
 	case 0x13: str = "Successful operation"; break;
 	case 0x14: str = "Normal call release"; break;
+
+	/* IOS 5 */
+	case 0x15: str = "Short data burst authentication failure"; break;
+	case 0x17: str = "Time critical relocation/handoff"; break;
+	case 0x18: str = "Network optimization"; break;
+	case 0x19: str = "Power down from dormant state"; break;
+	case 0x1A: str = "Authentication failure"; break;
+
 	case 0x1B: str = "Inter-BS Soft Handoff Drop Target"; break;
 	case 0x1D: str = "Intra-BS Soft Handoff Drop Target"; break;
+
+	/* IOS 5 */
+	case 0x1E: str = "Autonomous Registration by the Network"; break;
+
 	case 0x20: str = "Equipment failure"; break;
 	case 0x21: str = "No radio resource available"; break;
 	case 0x22: str = "Requested terrestrial resource unavailable"; break;
+
+	/* IOS 5 */
+	case 0x23: str = "A2p RTP Payload Type not available"; break;
+	case 0x24: str = "A2p Bearer Format Address Type not available"; break;
+
 	case 0x25: str = "BS not equipped"; break;
 	case 0x26: str = "MS not equipped (or incapable)"; break;
+
+	/* IOS 5 */
+	case 0x27: str = "2G only sector"; break;
+	case 0x28: str = "3G only sector"; break;
+
 	case 0x29: str = "PACA Call Queued"; break;
+
+	/* IOS 5 */
+	case 0x2A: str = "PCF resources are not available"; break;
+
 	case 0x2B: str = "Alternate signaling type reject"; break;
+
+	/* IOS 5 */
+	case 0x2C: str = "A2p Resource not available"; break;
+
 	case 0x2D: str = "PACA Queue Overflow"; break;
 	case 0x2E: str = "PACA Cancel Request Rejected"; break;
 	case 0x30: str = "Requested transcoding/rate adaptation unavailable"; break;
 	case 0x31: str = "Lower priority radio resources not available"; break;
-	case 0x32: str = "PCF resources not available"; break;
+	case 0x32: str = "PCF resources not available"; break;	/* IOS 4 */
 	case 0x33: str = "TFO Control request Failed"; break;
+
+	/* IOS 5 */
+	case 0x34: str = "MS rejected order"; break;
+
 	case 0x40: str = "Ciphering algorithm not supported"; break;
 	case 0x41: str = "Private Long Code not available or not supported."; break;
 	case 0x42: str = "Requested MUX option or rates not available."; break;
 	case 0x43: str = "Requested Privacy Configuration unavailable"; break;
-	case 0x4F: str = "Terrestrial circuit already allocated.a"; break;
+
+	/* IOS 5 */
+	case 0x45: str = "PDS-related capability not available or not supported"; break;
+
 	case 0x50: str = "Terrestrial circuit already allocated"; break;
-	case 0x5F: str = "Protocol Error between BS and MSC.a"; break;
 	case 0x60: str = "Protocol Error between BS and MSC"; break;
 	case 0x71: str = "ADDS message too long for delivery on the paging channel"; break;
 	case 0x72: str = "MS-to-IWF TCP connection failure"; break;
@@ -1772,8 +2396,12 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	case 0x76: str = "PPP protocol failure"; break;
 	case 0x77: str = "PPP session closed by the MS"; break;
 	case 0x78: str = "Do not notify MS"; break;
-	case 0x79: str = "PDSN resources are not available"; break;
+	case 0x79: str = "PCF (or PDSN) resources are not available"; break;
 	case 0x7A: str = "Data ready to send"; break;
+
+	/* IOS 5 */
+	case 0x7B: str = "Concurrent authentication"; break;
+
 	case 0x7F: str = "Handoff procedure time-out"; break;
 	default:
 	    str = "Reserved for future use";
@@ -2088,6 +2716,45 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 }
 
 /*
+ * IOS 5 4.2.21
+ */
+static guint8
+elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    len = len;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Mobile Originated Position Determination",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Global Emergency Call Indication",
+	a_bigbuf);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
  * IOS 6.2.2.24
  * UNUSED
  */
@@ -2096,14 +2763,16 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
 /*
  * IOS 6.2.2.25
+ * Formats everything no length check
  */
 static guint8
-elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8	oct;
     guint8	disc;
     guint8	consumed;
     guint8	num_cells;
+    guint8	curr_cell;
     guint32	value;
     guint32	curr_offset;
     proto_item	*item = NULL;
@@ -2112,11 +2781,11 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
+    num_cells = tvb_get_guint8(tvb, curr_offset);
 
     proto_tree_add_text(tree, tvb, curr_offset, 1,
 	"Number of Cells: %u",
-	oct);
+	num_cells);
 
     curr_offset++;
 
@@ -2145,15 +2814,17 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
     SHORT_DATA_CHECK(len - (curr_offset - offset), (guint32) 3 + ANSI_A_CELL_ID_LEN(disc));
 
-    num_cells =0;
+    curr_cell = 0;
 
     do
     {
+	curr_cell++;
+
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
 		"Cell %u",
-		num_cells + 1);
+		curr_cell);
 
 	subtree = proto_item_add_subtree(item, ett_cell_list);
 
@@ -2194,13 +2865,90 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 	    value);
 
 	curr_offset += 2;
-
-	num_cells++;
     }
-    while ((len - (curr_offset - offset)) >= (guint32) (3 + ANSI_A_CELL_ID_LEN(disc)));
+    while (curr_cell < num_cells);
 
     g_snprintf(add_string, string_len, " - %u cell%s",
 	num_cells, plurality(num_cells, "", "s"));
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 6.2.2.25
+ */
+static guint8
+elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    curr_offset +=
+	elem_downlink_re_aux(tvb, tree, offset, len, add_string, string_len);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 6.2.2.140
+ */
+static guint8
+elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	consumed;
+    guint8	num_envs;
+    guint8	oct_len;
+    guint32	curr_offset;
+    proto_item	*item = NULL;
+    proto_tree	*subtree = NULL;
+
+    curr_offset = offset;
+
+    num_envs = 0;
+
+    while ((len - (curr_offset - offset)) > 0)
+    {
+	num_envs++;
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Environment %u",
+		num_envs);
+
+	subtree = proto_item_add_subtree(item, ett_re_list);
+
+	oct_len = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "Environment Length: %u",
+	    oct_len);
+
+	curr_offset++;
+
+	add_string[0] = '\0';
+	consumed =
+	    elem_downlink_re_aux(tvb, subtree, curr_offset, len - (curr_offset - offset), add_string, string_len);
+
+	if (add_string[0] != '\0')
+	{
+	    proto_item_append_text(item, "%s", add_string);
+	}
+
+	/*
+	 * +1 is for environment length
+	 */
+	proto_item_set_len(item, consumed + 1);
+
+	curr_offset += consumed;
+    }
+
+    g_snprintf(add_string, string_len, " - %u environment%s",
+	num_envs, plurality(num_envs, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -2239,10 +2987,24 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     proto_tree_add_item(tree, hf_ansi_a_pdsn_ip_addr, tvb, curr_offset, len, FALSE);
 
+    curr_offset += len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
 /*
-    proto_tree_add_text(tree, tvb, curr_offset, len,
-	"IPv4 Address");
-*/
+ * IOS 5 4.2.24
+ */
+static guint8
+elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_ansi_a_s_pdsn_ip_addr, tvb, curr_offset, len, FALSE);
 
     curr_offset += len;
 
@@ -2402,6 +3164,58 @@ elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  */
 
 /*
+ * IOS 5 4.2.77
+ */
+static guint8
+elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	rec_type;
+    guint8	num_recs;
+    guint32	curr_offset;
+    const gchar	*str;
+    gint	ett_elem_idx, idx;
+
+    curr_offset = offset;
+
+    num_recs = 0;
+
+    while ((len - (curr_offset - offset)) > 0)
+    {
+	num_recs++;
+
+	rec_type = tvb_get_guint8(tvb, curr_offset);
+
+	str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+
+	if (str == NULL)
+	{
+	    str = "Reserved";
+	    ett_elem_idx = ett_ansi_ms_info_rec_reserved;
+	}
+	else
+	{
+	    ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
+	}
+
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "Information Record Type - %u: (%u) %s",
+	    num_recs,
+	    rec_type,
+	    str);
+
+	curr_offset++;
+    }
+
+    g_snprintf(add_string, string_len, " - %u request%s",
+	num_recs, plurality(num_recs, "", "s"));
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
  * IOS 6.2.2.34
  */
 static guint8
@@ -2467,10 +3281,22 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+	switch (a_variant)
+	{
+	case A_VARIANT_IOS401:
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+	    break;
+
+	case A_VARIANT_IOS501:
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+		"%s :  Rev_FCH_Gating",
+		a_bigbuf);
+	    break;
+	}
 
 	switch ((oct & 0x60) >> 5)
 	{
@@ -2529,10 +3355,27 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	    a_bigbuf,
 	    value);
 
-	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
-	proto_tree_add_text(tree, tvb, curr_offset, 1,
-	    "%s :  Reserved",
-	    a_bigbuf);
+	switch (a_variant)
+	{
+	case A_VARIANT_IOS401:
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+	    break;
+
+	case A_VARIANT_IOS501:
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
+	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+		"%s :  Power Combined",
+		a_bigbuf);
+	    break;
+	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
 	proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -2914,6 +3757,44 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
     g_snprintf(add_string, string_len, " - (%s)", str);
 
     /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.78
+ */
+static guint8
+elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_ansi_a_anchor_ip_addr, tvb, curr_offset, len, FALSE);
+
+    curr_offset += len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.80
+ */
+static guint8
+elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_ansi_a_anchor_pp_ip_addr, tvb, curr_offset, len, FALSE);
+
+    curr_offset += len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
     return(curr_offset - offset);
 }
@@ -3495,7 +4376,7 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 7: str = "International network"; break;
     case 10: str = "Network beyond interworking point"; break;
     default:
-	str = "All other values Reserved"; break;
+	str = "Reserved"; break;
 	break;
     }
 
@@ -3685,6 +4566,8 @@ elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
     case 0x04: str = "Parameter-change"; break;
     case 0x05: str = "Ordered"; break;
     case 0x06: str = "Distance-based"; break;
+    case 0x07: str = "User Zone-based"; break;
+    case 0x09: str = "BCMC Registration"; break;
     default:
 	str = "Reserved";
 	break;
@@ -3825,11 +4708,29 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+	break;
+
+    case A_VARIANT_IOS501:
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "%s :  Rev_Pwr_Cntl_Delay_Incl",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x60, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Rev_Pwr_Cntl_Delay",
+	    a_bigbuf);
+	break;
+    }
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree,
@@ -3954,6 +4855,7 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
 
     return(curr_offset - offset);
 }
+
 /*
  * IOS 6.2.2.66
  */
@@ -3991,7 +4893,7 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     {
     case 1: str = "Basic Variable Rate Voice Service (8 kbps)"; break;
     case 2: str = "Mobile Station Loopback (8 kbps)"; break;
-    case 3: str = "Enhanced Variable Rate Voice Service (8 kbps)"; break;
+    case 3: str = "(EVRC) Enhanced Variable Rate Voice Service (8 kbps)"; break;
     case 4: str = "Asynchronous Data Service (9.6 kbps)"; break;
     case 5: str = "Group 3 Facsimile (9.6 kbps)"; break;
     case 6: str = "Short Message Services (Rate Set 1)"; break;
@@ -4028,8 +4930,8 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     case 32: str = "Test Data Service Option (TDSO)"; break;
     case 33: str = "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack"; break;
     case 34: str = "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack"; break;
-    case 35: str = "Location Services, Rate Set 1 (9.6 kbps)"; break;
-    case 36: str = "Location Services, Rate Set 2 (14.4 kbps)"; break;
+    case 35: str = "Location Services (PDS), Rate Set 1 (9.6 kbps)"; break;
+    case 36: str = "Location Services (PDS), Rate Set 2 (14.4 kbps)"; break;
     case 37: str = "ISDN Interworking Service (64 kbps)"; break;
     case 38: str = "GSM Voice"; break;
     case 39: str = "GSM Circuit Data"; break;
@@ -4045,6 +4947,8 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     case 60: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal"; break;
     case 61: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression"; break;
     case 62: str = "- 4099 None Reserved for standard service options"; break;
+    case 68: str = "(EVRC-B NB) Enhanced Variable Rate Voice Service"; break;
+    case 70: str = "(EVRC-B WB) Enhanced Variable Rate Voice Service"; break;
     case 4100: str = "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)"; break;
     case 4101: str = "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)"; break;
     case 4102: str = "Reserved for standard service option"; break;
@@ -4094,9 +4998,209 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
     return(curr_offset - offset);
 }
 
-#define	ADDS_APP_SMS	0x03
-#define	ADDS_APP_OTA	0x04
-#define	ADDS_APP_PLD	0x05
+/*
+ * IOS 5 4.2.73
+ */
+static guint8
+elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  SOCI: %u",
+	a_bigbuf,
+	oct & 0x07);
+
+    g_snprintf(add_string, string_len, " - (%u)", oct);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.74
+ */
+static guint8
+elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint8	num_so;
+    guint8	inst;
+    guint32	curr_offset;
+    proto_item	*item;
+    proto_tree	*subtree;
+
+    curr_offset = offset;
+
+    num_so = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"Number of Service Option instances: %u",
+	num_so);
+
+    /*
+     * this is in case we leave the function before the
+     * loop through the instances
+     */
+    g_snprintf(add_string, string_len, " - %u service options", num_so);
+
+    curr_offset++;
+
+    NO_MORE_DATA_CHECK(len);
+
+    SHORT_DATA_CHECK(len - (curr_offset - offset), 3);
+
+    inst = 1;
+
+    do
+    {
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Service Option Instance - %u",
+		inst);
+
+	subtree = proto_item_add_subtree(item, ett_so_list);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x38, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  SR_ID: %u",
+	    a_bigbuf,
+	    (oct & 0x38) >> 3);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 1,
+	    "%s :  SOCI: %u",
+	    a_bigbuf,
+	    oct & 0x07);
+
+	curr_offset++;
+
+	curr_offset += elem_so(tvb, subtree, curr_offset, len, add_string, string_len);
+	add_string[0] = '\0';
+
+	inst++;
+    }
+    while ((len - (curr_offset - offset)) >= 3);
+
+    /*
+     * this is because 'add_string' was used by 'elem_so()'
+     */
+    g_snprintf(add_string, string_len, " - %u service options", num_so);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.70
+ */
+static guint8
+elem_acc_net_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint32	value;
+    guint32	sid, nid, pzid;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    value = tvb_get_ntohs(tvb, curr_offset);
+    sid = value & 0x7fff;
+
+    other_decode_bitfield_value(a_bigbuf, value >> 8, 0x80, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, value >> 8, 0x7f, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  SID (MSB), %u",
+	a_bigbuf,
+	sid);
+
+    other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+    proto_tree_add_text(tree, tvb, curr_offset + 1, 1,
+	"%s :  SID (LSB)",
+	a_bigbuf);
+
+    curr_offset += 2;
+
+    nid = tvb_get_ntohs(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 2,
+	"NID: %u",
+	nid);
+
+    curr_offset += 2;
+
+    pzid = tvb_get_ntohs(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 2,
+	"PZID: %u",
+	pzid);
+
+    curr_offset += 2;
+
+    g_snprintf(add_string, string_len, " - (SID/NID/PZID: %u/%u/%u)", sid, nid, pzid);
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+
+#define	ADDS_APP_UNKNOWN	0x00
+#define	ADDS_APP_ADS		0x01
+#define	ADDS_APP_FAX		0x02
+#define	ADDS_APP_SMS		0x03
+#define	ADDS_APP_OTA		0x04
+#define	ADDS_APP_PDS		0x05		/* aka PLD */
+#define	ADDS_APP_SDB		0x06
+#define	ADDS_APP_HRPD		0x07
+#define	ADDS_APP_EXT_INTL	0x3E
+#define	ADDS_APP_EXT		0x3F
+
+static const value_string ansi_a_adds_strings[] = {
+    { ADDS_APP_UNKNOWN,		"UNKNOWN" },
+    { ADDS_APP_ADS,		"ADS" },
+    { ADDS_APP_FAX,		"FAX" },
+    { ADDS_APP_SMS,		"SMS" },
+    { ADDS_APP_OTA,		"OTA" },
+    { ADDS_APP_PDS,		"PDS" },
+    { ADDS_APP_SDB,		"SDB" },
+    { ADDS_APP_HRPD,		"HRPD" },
+    { ADDS_APP_EXT_INTL,	"EXT_INTL" },
+    { ADDS_APP_EXT,		"EXT" }
+};
 
 /*
  * IOS 6.2.2.67
@@ -4105,10 +5209,14 @@ static guint8
 elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8	oct;
+    guint32	value;
     guint8	adds_app;
     guint32	curr_offset;
     const gchar	*str;
     tvbuff_t	*adds_tvb;
+    gint	idx;
+    proto_tree	*subtree;
+    proto_item	*item;
 
     curr_offset = offset;
     adds_app = 0;
@@ -4123,39 +5231,12 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     adds_app = oct & 0x3f;
 
-    switch (adds_app)
+    str = match_strval_idx((guint32) adds_app, ansi_a_adds_strings, &idx);
+    if (str == NULL)
     {
-    case ADDS_APP_SMS:
-	str = "SMS";
-
-	adds_tvb = tvb_new_subset(tvb, curr_offset + 1, len - 1, len - 1);
-
-	dissector_try_port(is637_dissector_table,
-	    0, adds_tvb, g_pinfo, g_tree);
-	break;
-
-    case ADDS_APP_OTA:
-	str = "OTA";
-
-	adds_tvb = tvb_new_subset(tvb, curr_offset + 1, len - 1, len - 1);
-
-	dissector_try_port(is683_dissector_table,
-	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
-	break;
-
-    case ADDS_APP_PLD:
-	str = "PLD";
-
-	adds_tvb = tvb_new_subset(tvb, curr_offset + 1, len - 1, len - 1);
-
-	dissector_try_port(is801_dissector_table,
-	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
-	break;
-
-    default:
-	str = "Unknown";
-	break;
+	str = "Reserved";
     }
+    g_snprintf(add_string, string_len, " - (%s)", str);
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x3f, 8);
     proto_tree_add_text(tree,
@@ -4166,12 +5247,120 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     curr_offset++;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len - 1,
-	"Application Data Message");
+    item =
+	proto_tree_add_text(tree, tvb, curr_offset, len - 1,
+	    "Application Data Message");
 
-    g_snprintf(add_string, string_len, " - (%s)", str);
+    subtree = proto_item_add_subtree(item, ett_adds_user_part);
 
-    curr_offset += (len - 1);
+    switch (adds_app)
+    {
+    case ADDS_APP_SMS:
+	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+
+	dissector_try_port(is637_dissector_table,
+	    0, adds_tvb, g_pinfo, g_tree);
+
+	curr_offset += (len - 1);
+	break;
+
+    case ADDS_APP_OTA:
+	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+
+	dissector_try_port(is683_dissector_table,
+	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+
+	curr_offset += (len - 1);
+	break;
+
+    case ADDS_APP_PDS:
+	adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
+
+	dissector_try_port(is801_dissector_table,
+	    (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+
+	curr_offset += (len - 1);
+	break;
+
+    case ADDS_APP_SDB:
+	/*
+	 * no SDB dissector, push to GRE/A11 dissector ?
+	 */
+	curr_offset += (len - 1);
+	break;
+
+    case ADDS_APP_EXT_INTL:
+	/*
+	 * no generic External International dissector
+	 */
+	value = tvb_get_ntohs(tvb, curr_offset);
+
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 2,
+	    "Extended Burst Type - International: 0x%04x", value);
+
+	curr_offset += 2;
+
+	proto_tree_add_text(tree, tvb, curr_offset, len - (curr_offset - offset),
+	    "Data");
+
+	curr_offset += len - (curr_offset - offset);
+	break;
+
+    case ADDS_APP_EXT:
+	value = tvb_get_ntohs(tvb, curr_offset);
+
+	proto_tree_add_text(subtree,
+	    tvb, curr_offset, 2,
+	    "Extended Burst Type: 0x%04x", value);
+
+	curr_offset += 2;
+
+	proto_tree_add_text(subtree, tvb, curr_offset, len - (curr_offset - offset),
+	    "Data");
+
+	curr_offset += len - (curr_offset - offset);
+	break;
+
+    default:
+	/*
+	 * no sub-dissectors
+	 */
+	curr_offset += (len - 1);
+	break;
+    }
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.75
+ */
+static guint8
+elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  Encryption Mode: (%u) %s",
+	a_bigbuf,
+	oct & 0x03,
+	(oct & 0x03) ? "enabled" : "disabled");
+
+    curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -4281,22 +5470,53 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     guint8	oct;
     guint8	oct_len;
     guint32	curr_offset;
+    gboolean	rev_pdch_supported;
+    gboolean	for_pdch_supported;
+    gboolean	dcch_supported;
     const gchar	*str;
 
     curr_offset = offset;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+	break;
 
+    case A_VARIANT_IOS501:
+	rev_pdch_supported = (oct & 0x80) ? TRUE : FALSE;
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  REV_PDCH Supported: IS-2000 R-PDCH %ssupported",
+	    a_bigbuf,
+	    rev_pdch_supported ? "" : "not ");
+
+	for_pdch_supported = (oct & 0x40) ? TRUE : FALSE;
+	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  FOR_PDCH Supported: IS-2000 F-PDCH %ssupported",
+	    a_bigbuf,
+	    for_pdch_supported ? "" : "not ");
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x20, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  ERAM Supported: Enhanced Rate Adaptation Mode %ssupported",
+	    a_bigbuf,
+	    (oct & 0x20) ? "" : "not ");
+	break;
+    }
+
+    dcch_supported = (oct & 0x10) ? TRUE : FALSE;
     other_decode_bitfield_value(a_bigbuf, oct, 0x10, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
 	"%s :  DCCH Supported: IS-2000 DCCH %ssupported",
 	a_bigbuf,
-	(oct & 0x10) ? "" : "not ");
+	dcch_supported ? "" : "not ");
 
     other_decode_bitfield_value(a_bigbuf, oct, 0x08, 8);
     proto_tree_add_text(tree, tvb, curr_offset, 1,
@@ -4351,7 +5571,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     case 2: str = "IS801 capable (Advanced Forward Link Triangulation and Global Positioning Systems"; break;
     case 3: str = "Global Positioning Systems Only"; break;
     default:
-	str = "All Other values reserved";
+	str = "Reserved";
 	break;
     }
 
@@ -4388,42 +5608,133 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	NO_MORE_DATA_CHECK(len);
     }
 
-    oct_len = tvb_get_guint8(tvb, curr_offset);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"DCCH Information: Bit-Exact Length Octet Count: %u",
-	oct_len);
-
-    curr_offset++;
-
-    NO_MORE_DATA_CHECK(len);
-
-    oct = tvb_get_guint8(tvb, curr_offset);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
-
-    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
-	a_bigbuf,
-	oct & 0x07);
-
-    curr_offset++;
-
-    NO_MORE_DATA_CHECK(len);
-
-    if (oct_len > 0)
+    if (dcch_supported)
     {
-	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+	oct_len = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
-	    "DCCH Information Content");
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "DCCH Information: Bit-Exact Length Octet Count: %u",
+	    oct_len);
 
-	curr_offset += oct_len;
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  DCCH Information: Bit-Exact Length Fill Bits: %u",
+	    a_bigbuf,
+	    oct & 0x07);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (oct_len > 0)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+
+	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+		"DCCH Information Content");
+
+	    curr_offset += oct_len;
+
+	    NO_MORE_DATA_CHECK(len);
+	}
+    }
+
+    if (for_pdch_supported)
+    {
+	oct_len = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "FOR_PDCH Information: Bit-Exact Length Octet Count: %u",
+	    oct_len);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  FOR_PDCH Information: Bit-Exact Length Fill Bits: %u",
+	    a_bigbuf,
+	    oct & 0x07);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (oct_len > 0)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+
+	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+		"FOR_PDCH Information Content");
+
+	    curr_offset += oct_len;
+
+	    NO_MORE_DATA_CHECK(len);
+	}
+    }
+
+    if (rev_pdch_supported)
+    {
+	oct_len = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 1,
+	    "REV_PDCH Information: Bit-Exact Length Octet Count: %u",
+	    oct_len);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  REV_PDCH Information: Bit-Exact Length Fill Bits: %u",
+	    a_bigbuf,
+	    oct & 0x07);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	if (oct_len > 0)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+
+	    proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+		"REV_PDCH Information Content");
+
+	    curr_offset += oct_len;
+
+	    NO_MORE_DATA_CHECK(len);
+	}
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -4473,7 +5784,7 @@ elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.72
  */
 static guint8
-elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8	oct;
     guint8	oct_len;
@@ -4496,7 +5807,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	rec_type = tvb_get_guint8(tvb, curr_offset);
 
-	str = match_strval_idx((guint32) rec_type, ansi_ms_info_rec_str, &idx);
+	str = match_strval_idx((guint32) rec_type, ansi_fwd_ms_info_rec_str, &idx);
 
 	if (str == NULL)
 	{
@@ -4505,7 +5816,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 	}
 	else
 	{
-	    ett_elem_idx = ett_ansi_ms_info_rec[idx];
+	    ett_elem_idx = ett_ansi_fwd_ms_info_rec[idx];
 	}
 
 	item =
@@ -4533,7 +5844,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
 	    switch (rec_type)
 	    {
-	    case ANSI_MS_INFO_REC_CLD_PN:
+	    case ANSI_FWD_MS_INFO_REC_CLD_PN:
 		oct = tvb_get_guint8(tvb, curr_offset);
 
 		switch ((oct & 0xe0) >> 5)
@@ -4609,7 +5920,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 		curr_offset++;
 		break;
 
-	    case ANSI_MS_INFO_REC_CLG_PN:
+	    case ANSI_FWD_MS_INFO_REC_CLG_PN:
 		value = tvb_get_ntohs(tvb, curr_offset);
 
 		oct = (value & 0xff00) >> 8;
@@ -4730,7 +6041,7 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 		}
 		break;
 
-	    case ANSI_MS_INFO_REC_MW:
+	    case ANSI_FWD_MS_INFO_REC_MW:
 		oct = tvb_get_guint8(tvb, curr_offset);
 
 		proto_tree_add_text(subtree, tvb, curr_offset, 1,
@@ -4738,6 +6049,286 @@ elem_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 		    oct);
 
 		curr_offset++;
+		break;
+
+	    default:
+		proto_tree_add_text(subtree,
+		    tvb, curr_offset, oct_len,
+		    "Record Content");
+
+		curr_offset += oct_len;
+		break;
+	    }
+	}
+    }
+
+    g_snprintf(add_string, string_len, " - %u record%s",
+	num_recs, plurality(num_recs, "", "s"));
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 6.2.2.72
+ */
+static guint8
+elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint8	oct_len;
+    guint8	rec_type;
+    guint8	num_recs;
+    guint32	value;
+    guint32	curr_offset;
+    const gchar	*str;
+    gint	ett_elem_idx, idx, i;
+    proto_tree	*subtree;
+    proto_item	*item;
+
+    curr_offset = offset;
+
+    num_recs = 0;
+
+    while ((len - (curr_offset - offset)) >= 2)
+    {
+	num_recs++;
+
+	rec_type = tvb_get_guint8(tvb, curr_offset);
+
+	str = match_strval_idx((guint32) rec_type, ansi_rev_ms_info_rec_str, &idx);
+
+	if (str == NULL)
+	{
+	    str = "Reserved";
+	    ett_elem_idx = ett_ansi_ms_info_rec_reserved;
+	}
+	else
+	{
+	    ett_elem_idx = ett_ansi_rev_ms_info_rec[idx];
+	}
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"Information Record Type - %u: (%u) %s",
+		num_recs,
+		rec_type,
+		str);
+
+	subtree = proto_item_add_subtree(item, ett_elem_idx);
+
+	curr_offset++;
+
+	oct_len = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
+	    curr_offset, 1, oct_len);
+
+	curr_offset++;
+
+	if (oct_len > 0)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+
+	    switch (rec_type)
+	    {
+	    case ANSI_REV_MS_INFO_REC_CLD_PN:
+		oct = tvb_get_guint8(tvb, curr_offset);
+
+		switch ((oct & 0xe0) >> 5)
+		{
+		case 0: str = "Unknown"; break;
+		case 1: str = "International number"; break;
+		case 2: str = "National number"; break;
+		case 3: str = "Network-specific number"; break;
+		case 4: str = "Subscriber number"; break;
+		case 5: str = "Reserved"; break;
+		case 6: str = "Abbreviated number"; break;
+		default:
+		    str = "Reserved for extension";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+		proto_tree_add_text(subtree, tvb, curr_offset, 1,
+		    "%s :  Number Type: %s",
+		    a_bigbuf,
+		    str);
+
+		switch ((oct & 0x1e) >> 1)
+		{
+		case 0x00: str = "Unknown"; break;
+		case 0x01: str = "ISDN/Telephony Numbering"; break;
+		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+		case 0x09: str = "Private Numbering"; break;
+		case 0x0f: str = "Reserved for extension"; break;
+		default:
+		    str = "Reserved";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, oct, 0x1e, 8);
+		proto_tree_add_text(subtree, tvb, curr_offset, 1,
+		    "%s :  Number Plan: %s",
+		    a_bigbuf,
+		    str);
+
+		if (oct_len > 1)
+		{
+		    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+			"%s :  MSB of first digit",
+			a_bigbuf);
+
+		    curr_offset++;
+
+		    for (i=0; i < (oct_len - 1); i++)
+		    {
+			a_bigbuf[i] = (oct & 0x01) << 7;
+
+			oct = tvb_get_guint8(tvb, curr_offset + i);
+
+			a_bigbuf[i] |= (oct & 0xfe) >> 1;
+		    }
+		    a_bigbuf[i] = '\0';
+
+		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 1,
+			"Digits: %s",
+			a_bigbuf);
+
+		    curr_offset += (oct_len - 2);
+		}
+
+		other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+		proto_tree_add_text(subtree, tvb, curr_offset, 1,
+		    "%s :  Reserved",
+		    a_bigbuf);
+
+		curr_offset++;
+		break;
+
+	    case ANSI_REV_MS_INFO_REC_CLG_PN:
+		value = tvb_get_ntohs(tvb, curr_offset);
+
+		oct = (value & 0xff00) >> 8;
+
+		switch ((oct & 0xe0) >> 5)
+		{
+		case 0: str = "Unknown"; break;
+		case 1: str = "International number"; break;
+		case 2: str = "National number"; break;
+		case 3: str = "Network-specific number"; break;
+		case 4: str = "Subscriber number"; break;
+		case 5: str = "Reserved"; break;
+		case 6: str = "Abbreviated number"; break;
+		default:
+		    str = "Reserved for extension";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, value, 0xe000, 16);
+		proto_tree_add_text(subtree, tvb, curr_offset, 2,
+		    "%s :  Number Type: %s",
+		    a_bigbuf,
+		    str);
+
+		switch ((oct & 0x1e) >> 1)
+		{
+		case 0x00: str = "Unknown"; break;
+		case 0x01: str = "ISDN/Telephony Numbering"; break;
+		case 0x03: str = "Data Numbering (ITU-T Rec. X.121)"; break;
+		case 0x04: str = "Telex Numbering (ITU-T Rec. F.69)"; break;
+		case 0x09: str = "Private Numbering"; break;
+		case 0x0f: str = "Reserved for extension"; break;
+		default:
+		    str = "Reserved";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, value, 0x1e00, 16);
+		proto_tree_add_text(subtree, tvb, curr_offset, 2,
+		    "%s :  Number Plan: %s",
+		    a_bigbuf,
+		    str);
+
+		switch ((value & 0x0180) >> 7)
+		{
+		case 0: str = "Presentation allowed"; break;
+		case 1: str = "Presentation restricted"; break;
+		case 2: str = "Number not available"; break;
+		default:
+		    str = "Reserved";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, value, 0x0180, 16);
+		proto_tree_add_text(subtree, tvb, curr_offset, 2,
+		    "%s :  Presentation Indicator (PI): %s",
+		    a_bigbuf,
+		    str);
+
+		switch ((value & 0x0060) >> 5)
+		{
+		case 0: str = "User-provided, not screened"; break;
+		case 1: str = "User-provided, verified and passed"; break;
+		case 2: str = "User-provided, verified and failed"; break;
+		default:
+		    str = "Network-provided";
+		    break;
+		}
+
+		other_decode_bitfield_value(a_bigbuf, value, 0x0060, 16);
+		proto_tree_add_text(subtree, tvb, curr_offset, 2,
+		    "%s :  Screening Indicator (SI): %s",
+		    a_bigbuf,
+		    str);
+
+		if (oct_len > 2)
+		{
+		    oct = (value & 0x00ff);
+
+		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+			"%s :  MSB of first digit",
+			a_bigbuf);
+
+		    curr_offset += 2;
+
+		    for (i=0; i < (oct_len - 2); i++)
+		    {
+			a_bigbuf[i] = (oct & 0x1f) << 3;
+
+			oct = tvb_get_guint8(tvb, curr_offset + i);
+
+			a_bigbuf[i] |= (oct & 0xe0) >> 5;
+		    }
+		    a_bigbuf[i] = '\0';
+
+		    proto_tree_add_text(subtree, tvb, curr_offset, oct_len - 2,
+			"Digits: %s",
+			a_bigbuf);
+
+		    curr_offset += (oct_len - 3);
+
+		    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+		    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+			"%s :  Reserved",
+			a_bigbuf);
+
+		    curr_offset++;
+		}
+		else
+		{
+		    other_decode_bitfield_value(a_bigbuf, value, 0x001f, 16);
+		    proto_tree_add_text(subtree, tvb, curr_offset, 2,
+			"%s :  Reserved",
+			a_bigbuf);
+
+		    curr_offset += 2;
+		}
 		break;
 
 	    default:
@@ -4768,6 +6359,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     guint8	oct;
     guint32	value;
     guint32	curr_offset;
+    const gchar	*str;
 
     curr_offset = offset;
 
@@ -4850,10 +6442,38 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	a_bigbuf,
 	(oct & 0xf0) >> 4);
 
-    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
-    proto_tree_add_text(tree, tvb, curr_offset, 1,
-	"%s :  Reserved",
-	a_bigbuf);
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+	break;
+
+    case A_VARIANT_IOS501:
+	other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Reserved",
+	    a_bigbuf);
+
+	switch (oct & 0x03)
+	{
+	case 0: str = "Only Search Window A Size is valid"; break;
+	case 1: str = "Subset is valid"; break;
+	case 2: str = "All fields valid"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+	proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    "%s :  Target BS Values Included: %s",
+	    a_bigbuf,
+	    str);
+	break;
+    }
 
     curr_offset++;
 
@@ -4997,6 +6617,15 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	str);
 
     curr_offset++;
+
+    if ((len - (curr_offset - offset)) > 1)
+    {
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 2,
+	    "Timestamp");
+
+	curr_offset += 2;
+    }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5403,6 +7032,8 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 	{
 	case 0x01: str = "Event: Authentication parameters were NOT received from mobile"; break;
 	case 0x02: str = "Event: RANDC mis-match"; break;
+	case 0x03: str = "Event: Recently requested"; break;
+	case 0x04: str = "Event: Direct channel assignment"; break;
 	default:
 	    str = "Event";
 	    break;
@@ -5540,13 +7171,55 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
 /*
  * IOS 6.2.2.138
- * UNUSED
  */
+static guint8
+elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  PSMM Count: %u",
+	a_bigbuf,
+	oct & 0x0f);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
 
 /*
  * IOS 6.2.2.139
- * UNUSED
  */
+static guint8
+elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_text(tree, tvb, curr_offset, len, "Calling Geodetic Location");
+
+    curr_offset += len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
 
 /*
  * IOS 6.2.2.140
@@ -5715,7 +7388,7 @@ elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
     case 4: str = "MS Requested PACA Cancel"; break;
     case 5: str = "BS Requested PACA Cancel"; break;
     default:
-	str = "All other values Reserved";
+	str = "Reserved";
 	break;
     }
 
@@ -5770,6 +7443,399 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 /*
+ * IOS 5 4.2.89
+ */
+static guint8
+elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xc0, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x38, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Max Frames: %u",
+	a_bigbuf,
+	(oct & 0x38) >> 3);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x06, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Session IP Address Type: Internet Protocol IPv%s",
+	a_bigbuf,
+	((oct & 0x06) >> 1) ? "6" : "4");
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Session Address Flag",
+	a_bigbuf);
+
+    curr_offset++;
+
+    if (oct & 0x01)
+    {
+	/* session address included */
+
+	if ((oct & 0x06) >> 1)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
+
+	    proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv6_addr,
+		tvb, curr_offset, 16, FALSE);
+
+	    curr_offset += 16;
+	}
+	else
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
+
+	    proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv4_addr,
+		tvb, curr_offset, 4, FALSE);
+
+	    curr_offset += 4;
+	}
+
+	proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_udp_port,
+	    tvb, curr_offset, 2, FALSE);
+
+	curr_offset += 2;
+    }
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.90
+ */
+static guint8
+elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    proto_item	*item;
+    proto_tree	*subtree;
+    guint8	num_bearers;
+    guint32	curr_offset, orig_offset;
+    guint8	ip_addr_type;
+    gboolean	ext;
+    guint8	ext_len;
+    const gchar	*str;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xfc, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Number of Bearer Formats: %u",
+	a_bigbuf,
+	(oct & 0xfc) >> 2);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Session IP Address Type: Internet Protocol IPv%s",
+	a_bigbuf,
+	(oct & 0x03) ? "6" : "4");
+
+    ip_addr_type = (oct & 0x03);
+
+    curr_offset++;
+
+    num_bearers = 0;
+
+    while ((len - (curr_offset - offset)) > 0)
+    {
+	orig_offset = curr_offset;
+
+	item =
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, -1,
+		"Bearer Format %u",
+		num_bearers + 1);
+
+	subtree = proto_item_add_subtree(item, ett_bearer_list);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "Bearer Format Length: %u",
+	    oct);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  Extension",
+	    a_bigbuf);
+
+	ext = (oct & 0x80) ? TRUE : FALSE;
+
+	switch ((oct & 0x70) >> 4)
+	{
+	case 0: str = "Unknown"; break;
+	case 1: str = "In-band signaling"; break;
+	case 2: str = "Assigned"; break;
+	case 3: str = "Unassigned"; break;
+	case 4: str = "Transcoded"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  Bearer Format Tag Type: %s",
+	    a_bigbuf,
+	    str);
+
+	switch (oct & 0x0f)
+	{
+	case 0: str = "PCMU"; break;
+	case 1: str = "PCMA"; break;
+	case 2: str = "13K Vocoder"; break;
+	case 3: str = "EVRC"; break;
+	case 4: str = "EVRC0"; break;
+	case 5: str = "SMV"; break;
+	case 6: str = "SMV0"; break;
+	case 7: str = "telephone-event"; break;
+	case 8: str = "EVRCB"; break;
+	case 9: str = "EVRCB0"; break;
+	default:
+	    str = "Reserved";
+	    break;
+	}
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  Bearer Format ID: %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset++;
+
+	NO_MORE_DATA_CHECK(len);
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xfe, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  RTP Payload Type: %u",
+	    a_bigbuf,
+	    (oct & 0xfe) >> 1);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree, tvb, curr_offset, 1,
+	    "%s :  Bearer Address Flag",
+	    a_bigbuf);
+
+	curr_offset++;
+
+	if (oct & 0x01)
+	{
+	    /* bearer address included */
+
+	    if (ip_addr_type != 0)
+	    {
+		SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
+
+		proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv6_addr,
+		    tvb, curr_offset, 16, FALSE);
+
+		curr_offset += 16;
+	    }
+	    else
+	    {
+		SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
+
+		proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv4_addr,
+		    tvb, curr_offset, 4, FALSE);
+
+		curr_offset += 4;
+	    }
+
+	    proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_udp_port,
+		tvb, curr_offset, 2, FALSE);
+
+	    curr_offset += 2;
+	}
+
+	if (ext)
+	{
+	    SHORT_DATA_CHECK(len - (curr_offset - offset), 1);
+
+	    oct = tvb_get_guint8(tvb, curr_offset);
+
+	    ext_len = (oct & 0xf0) >> 4;
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+	    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+		"%s :  Extension Length: %u",
+		a_bigbuf,
+		ext_len);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	    proto_tree_add_text(subtree, tvb, curr_offset, 1,
+		"%s :  Extension ID: %u",
+		a_bigbuf,
+		(oct & 0x0f));
+
+	    curr_offset++;
+
+	    if (ext_len > 0)
+	    {
+		SHORT_DATA_CHECK(len - (curr_offset - offset), ext_len);
+
+		proto_tree_add_text(subtree, tvb, curr_offset, ext_len,
+		    "Extension Parameter value");
+
+		curr_offset += ext_len;
+	    }
+	}
+
+	proto_item_set_len(item, curr_offset - orig_offset);
+
+	num_bearers++;
+    }
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.88
+ */
+static guint8
+elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	value;
+    gint	temp_int;
+    guint32	curr_offset;
+    const gchar	*str;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    temp_int = (oct & 0xf8) >> 3;
+    if ((temp_int < 0) || (temp_int >= (gint) NUM_BAND_CLASS_STR))
+    {
+	str = "Reserved";
+    }
+    else
+    {
+	str = band_class_str[temp_int];
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf8, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Band Class: %s",
+	a_bigbuf,
+	str);
+
+    value = tvb_get_guint8(tvb, curr_offset + 1) | ((oct & 0x07) << 8);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x07, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  CDMA Channel (MSB): %u",
+	a_bigbuf,
+	value);
+
+    curr_offset++;
+
+    other_decode_bitfield_value(a_bigbuf, value & 0x00ff, 0xff, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  CDMA Channel (LSB)",
+	a_bigbuf);
+
+    g_snprintf(add_string, string_len, " - (CDMA Channel: %u)", value);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * IOS 5 4.2.87
+ */
+static guint8
+elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    const gchar	*str;
+
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /*
+     * from C.S0005-D v1.0 L3 Table 3.7.2.3.2.21-5
+     */
+    switch ((oct & 0xf0) >> 4)
+    {
+    case 0x00: str = "PLCM derived from ESN or MEID"; break;
+    case 0x01: str = "PLCM specified by the base station"; break;
+    case 0x02: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_M"; break;
+    case 0x03: str = "PLCM derived from IMSI_O_S when IMSI_O is derived from IMSI_T"; break;
+	break;
+    default:
+	str = "Reserved";
+	break;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  PLCM_TYPE: %s",
+	a_bigbuf,
+	str);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x0c, 8);
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"%s :  Reserved",
+	a_bigbuf);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x03, 8);
+    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	"%s :  PLCM_42 (MSB)",
+	a_bigbuf);
+
+    curr_offset++;
+
+    proto_tree_add_text(tree, tvb, curr_offset, 5, "PLCM_42");
+
+    curr_offset += 5;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
  * IOS 6.2.2.152
  * A3/A7
  */
@@ -5779,6 +7845,13 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * A3/A7
  */
 
+/*
+ * ORDER MUST BE MAINTAINED
+ *
+ * The value of this enum is used as an index into
+ * elem_1_fcn[]
+ *
+ */
 typedef enum
 {
     ANSI_A_E_ACC_NET_ID,	/* Access Network Identifiers */
@@ -5829,7 +7902,7 @@ typedef enum
     ANSI_A_E_LAI,	/* Location Area Information */
     ANSI_A_E_MWI,	/* Message Waiting Indication */
     ANSI_A_E_MID,	/* Mobile Identity */
-    ANSI_A_E_MS_INFO_RECS,	/* MS Information Records */
+    ANSI_A_E_FWD_MS_INFO_RECS,	/* (Forward) MS Information Records */
     ANSI_A_E_ORIG_CI,	/* Origination Continuation Indicator */
     ANSI_A_E_PACA_ORDER,	/* PACA Order */
     ANSI_A_E_PACA_REOI,	/* PACA Reorigination Indicator */
@@ -5838,7 +7911,7 @@ typedef enum
     ANSI_A_E_PDSN_IP_ADDR,	/* PDSN IP Address */
     ANSI_A_E_PDI,	/* Power Down Indicator */
     ANSI_A_E_PRIO,	/* Priority */
-    ANSI_A_E_PREV,	/* Protocol Revision */
+    ANSI_A_E_P_REV,	/* Protocol Revision */
     ANSI_A_E_PTYPE,	/* Protocol Type */
     ANSI_A_E_PSMM_COUNT,	/* PSMM Count */
     ANSI_A_E_QOS_PARAMS,	/* Quality of Service Parameters */
@@ -5846,13 +7919,13 @@ typedef enum
     ANSI_A_E_REG_TYPE,	/* Registration Type */
     ANSI_A_E_REJ_CAUSE,	/* Reject Cause */
     ANSI_A_E_RESP_REQ,	/* Response Request */
-    ANSI_A_E_RET_CAUSE,	/* Return Cause */
+    ANSI_A_E_RETURN_CAUSE,	/* Return Cause */
     ANSI_A_E_RF_CHAN_ID,	/* RF Channel Identity */
     ANSI_A_E_SO,	/* Service Option */
     ANSI_A_E_SOCI,	/* Service Option Connection Identifier (SOCI) */
     ANSI_A_E_SO_LIST,	/* Service Option List */
     ANSI_A_E_S_RED_INFO,	/* Service Redirection Info */
-    ANSI_A_E_SR_ID,	/* Session Reference Identifier (SR_ID) */
+    ANSI_A_E_SR_ID,	/* Service Reference Identifier (SR_ID) */
     ANSI_A_E_SID,	/* SID */
     ANSI_A_E_SIGNAL,	/* Signal */
     ANSI_A_E_SCI,	/* Slot Cycle Index */
@@ -5864,18 +7937,26 @@ typedef enum
     ANSI_A_E_XMODE,	/* Transcoder Mode */
     ANSI_A_E_UZ_ID,	/* User Zone ID */
     ANSI_A_E_VP_REQ,	/* Voice Privacy Request */
+    ANSI_A_E_A2P_BEARER_SESSION,	/* A2p Bearer Session-Level Parameters */
+    ANSI_A_E_A2P_BEARER_FORMAT,	/* A2p Bearer Format-Specific Parameters */
+    ANSI_A_E_MS_DES_FREQ,	/* MS Designated Frequency */
+    ANSI_A_E_MOB_SUB_INFO,	/* Mobile Subscription Information */
+    ANSI_A_E_PLCM_ID,	/* Public Long Code Mask Identifier */
+    ANSI_A_E_REV_MS_INFO_RECS,	/* (Reverse) MS Information Records */
     ANSI_A_E_NONE	/* NONE */
 }
 elem_idx_t;
 
-#define	NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(value_string))
-static gint ett_ansi_elem_1[NUM_ELEM_1];
-static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) = {
-    NULL,	/* Access Network Identifiers */
+#define	MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
+#define	MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
+static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
+static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
+{
+    elem_acc_net_id,	/* Access Network Identifiers */
     elem_adds_user_part,	/* ADDS User Part */
-    NULL,	/* AMPS Hard Handoff Parameters */
-    NULL,	/* Anchor PDSN Address */
-    NULL,	/* Anchor P-P Address */
+    elem_amps_hho_param,	/* AMPS Hard Handoff Parameters */
+    elem_anchor_pdsn_addr,	/* Anchor PDSN Address */
+    elem_anchor_pp_addr,	/* Anchor P-P Address */
     elem_auth_chlg_param,	/* Authentication Challenge Parameter */
     NULL /* no decode required */,	/* Authentication Confirmation Parameter (RANDC) */
     NULL /* no decode required */,	/* Authentication Data */
@@ -5898,14 +7979,14 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     elem_cic_ext,	/* Circuit Identity Code Extension */
     elem_cm_info_type_2,	/* Classmark Information Type 2 */
     elem_downlink_re,	/* Downlink Radio Environment */
-    NULL,	/* Downlink Radio Environment List */
+    elem_downlink_re_list,	/* Downlink Radio Environment List */
     elem_enc_info,	/* Encryption Information */
     elem_ext_ho_dir_params,	/* Extended Handoff Direction Parameters */
-    NULL,	/* Geographic Location */
-    NULL,	/* Special Service Call Indicator */
+    elem_geo_loc,	/* Geographic Location */
+    elem_ssci,	/* Special Service Call Indicator */
     elem_ho_pow_lev,	/* Handoff Power Level */
     elem_hho_params,	/* Hard Handoff Parameters */
-    NULL,	/* Information Element Requested */
+    elem_info_rec_req,	/* Information Element Requested */
     elem_is2000_chan_id,	/* IS-2000 Channel Identity */
     NULL,	/* IS-2000 Channel Identity 3X */
     elem_is2000_mob_cap,	/* IS-2000 Mobile Capabilities */
@@ -5919,8 +8000,8 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     elem_lai,	/* Location Area Information */
     elem_mwi,	/* Message Waiting Indication */
     elem_mid,	/* Mobile Identity */
-    elem_ms_info_recs,	/* MS Information Records */
-    NULL,	/* Origination Continuation Indicator */
+    elem_fwd_ms_info_recs,	/* (Forward) MS Information Records */
+    NULL /* no associated data */,	/* Origination Continuation Indicator */
     elem_paca_order,	/* PACA Order */
     elem_paca_reoi,	/* PACA Reorigination Indicator */
     elem_paca_ts,	/* PACA Timestamp */
@@ -5928,32 +8009,38 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     elem_pdsn_ip_addr,	/* PDSN IP Address */
     NULL /* no associated data */,	/* Power Down Indicator */
     elem_prio,	/* Priority */
-    NULL,	/* Protocol Revision */
+    elem_p_rev,	/* Protocol Revision */
     elem_ptype,	/* Protocol Type */
-    NULL,	/* PSMM Count */
+    elem_psmm_count,	/* PSMM Count */
     elem_qos_params,	/* Quality of Service Parameters */
     elem_re_res,	/* Radio Environment and Resources */
     elem_reg_type,	/* Registration Type */
     elem_rej_cause,	/* Reject Cause */
     NULL /* no associated data */,	/* Response Request */
-    NULL,	/* Return Cause */
+    elem_return_cause,	/* Return Cause */
     elem_rf_chan_id,	/* RF Channel Identity */
     elem_so,	/* Service Option */
-    NULL,	/* Service Option Connection Identifier (SOCI) */
-    NULL,	/* Service Option List */
+    elem_soci,	/* Service Option Connection Identifier (SOCI) */
+    elem_so_list,	/* Service Option List */
     NULL,	/* Service Redirection Info */
-    NULL,	/* Session Reference Identifier (SR_ID) */
+    elem_sr_id,	/* Service Reference Identifier (SR_ID) */
     elem_sid,	/* SID */
     elem_signal,	/* Signal */
     elem_sci,	/* Slot Cycle Index */
     elem_sw_ver,	/* Software Version */
-    NULL,	/* Source RNC to Target RNC Transparent Container */
-    NULL,	/* Source PDSN Address */
+    NULL /* transparent */,	/* Source RNC to Target RNC Transparent Container */
+    elem_s_pdsn_ip_addr,	/* Source PDSN Address */
     elem_tag,	/* Tag */
-    NULL,	/* Target RNC to Source RNC Transparent Container */
+    NULL /* transparent */,	/* Target RNC to Source RNC Transparent Container */
     elem_xmode,	/* Transcoder Mode */
     elem_uz_id,	/* User Zone ID */
     NULL /* no associated data */,	/* Voice Privacy Request */
+    elem_a2p_bearer_session,	/* A2p Bearer Session-Level Parameters */
+    elem_a2p_bearer_format,	/* A2p Bearer Format-Specific Parameters */
+    elem_ms_des_freq,	/* MS Designated Frequency */
+    NULL,	/* Mobile Subscription Information */
+    elem_plcm_id,	/* Public Long Code Mask Identification */
+    elem_rev_ms_info_recs,	/* (Reverse) MS Information Records */
     NULL,	/* NONE */
 };
 
@@ -5970,6 +8057,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
+    gint	dec_idx;
 
     len = len;
     curr_offset = offset;
@@ -5977,28 +8065,31 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
+	dec_idx = ansi_a_elem_1_strings[idx].dec_index;
+
 	parm_len = tvb_get_guint8(tvb, curr_offset + 1);
 
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, parm_len + 2,
 		"%s%s",
-		ansi_a_ios401_elem_1_strings[idx].strptr,
+		ansi_a_elem_1_strings[idx].strptr,
 		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-	proto_tree_add_uint(subtree, hf_ansi_a_elem_id, tvb,
-	    curr_offset, 1, oct);
+	proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
+	    curr_offset, 1, oct,
+	    "Element ID");
 
 	proto_tree_add_uint(subtree, hf_ansi_a_length, tvb,
 	    curr_offset + 1, 1, parm_len);
 
 	if (parm_len > 0)
 	{
-	    if (elem_1_fcn[idx] == NULL)
+	    if (elem_1_fcn[dec_idx] == NULL)
 	    {
 		proto_tree_add_text(subtree,
 		    tvb, curr_offset + 2, parm_len,
@@ -6013,7 +8104,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
 		a_add_string=ep_alloc(1024);
 		a_add_string[0] = '\0';
 		consumed =
-		    (*elem_1_fcn[idx])(tvb, subtree, curr_offset + 2,
+		    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
 			parm_len, a_add_string, 1024);
 
 		if (a_add_string[0] != '\0')
@@ -6043,26 +8134,32 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
+    gint	dec_idx;
+
 
     curr_offset = offset;
     consumed = 0;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
+	dec_idx = ansi_a_elem_1_strings[idx].dec_index;
+
 	item =
 	    proto_tree_add_text(tree,
 		tvb, curr_offset, -1,
 		"%s%s",
-		ansi_a_ios401_elem_1_strings[idx].strptr,
+		ansi_a_elem_1_strings[idx].strptr,
 		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
 
-	proto_tree_add_uint(subtree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct);
+	proto_tree_add_uint_format(subtree, hf_ansi_a_elem_id, tvb,
+	    curr_offset, 1, oct,
+	    "Element ID");
 
-	if (elem_1_fcn[idx] == NULL)
+	if (elem_1_fcn[dec_idx] == NULL)
 	{
 	    /* BAD THING, CANNOT DETERMINE LENGTH */
 
@@ -6078,7 +8175,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
 
 	    a_add_string=ep_alloc(1024);
 	    a_add_string[0] = '\0';
-	    consumed = (*elem_1_fcn[idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
+	    consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
 	    if (a_add_string[0] != '\0')
 	    {
@@ -6107,16 +8204,17 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
     guint32	curr_offset;
     guint8	consumed;
 
+
     curr_offset = offset;
     consumed = 0;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == (guint8) ansi_a_ios401_elem_1_strings[idx].value)
+    if (oct == (guint8) ansi_a_elem_1_strings[idx].value)
     {
 	proto_tree_add_uint_format(tree, hf_ansi_a_elem_id, tvb, curr_offset, 1, oct,
 	    "%s%s",
-	    ansi_a_ios401_elem_1_strings[idx].strptr,
+	    ansi_a_elem_1_strings[idx].strptr,
 	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
 	consumed = 1;
@@ -6136,9 +8234,13 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     guint32	curr_offset;
     proto_tree	*subtree;
     proto_item	*item;
+    gint	dec_idx;
+
 
     curr_offset = offset;
     consumed = 0;
+
+    dec_idx = ansi_a_elem_1_strings[idx].dec_index;
 
     parm_len = tvb_get_guint8(tvb, curr_offset);
 
@@ -6146,7 +8248,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 	proto_tree_add_text(tree,
 	    tvb, curr_offset, parm_len + 1,
 	    "%s%s",
-	    ansi_a_ios401_elem_1_strings[idx].strptr,
+	    ansi_a_elem_1_strings[idx].strptr,
 	    (name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
 
     subtree = proto_item_add_subtree(item, ett_ansi_elem_1[idx]);
@@ -6156,7 +8258,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
     if (parm_len > 0)
     {
-	if (elem_1_fcn[idx] == NULL)
+	if (elem_1_fcn[dec_idx] == NULL)
 	{
 	    proto_tree_add_text(subtree,
 		tvb, curr_offset + 1, parm_len,
@@ -6171,7 +8273,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 	    a_add_string=ep_alloc(1024);
 	    a_add_string[0] = '\0';
 	    consumed =
-		(*elem_1_fcn[idx])(tvb, subtree, curr_offset + 1,
+		(*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
 		    parm_len, a_add_string, 1024);
 
 	    if (a_add_string[0] != '\0')
@@ -6195,11 +8297,14 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {
     guint8	consumed;
     guint32	curr_offset;
+    gint	dec_idx;
 
     curr_offset = offset;
     consumed = 0;
 
-    if (elem_1_fcn[idx] == NULL)
+    dec_idx = ansi_a_elem_1_strings[idx].dec_index;
+
+    if (elem_1_fcn[dec_idx] == NULL)
     {
 	/* BAD THING, CANNOT DETERMINE LENGTH */
 
@@ -6215,7 +8320,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 	a_add_string=ep_alloc(1024);
 	a_add_string[0] = '\0';
-	consumed = (*elem_1_fcn[idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
+	consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
     }
 
     return(consumed);
@@ -6234,8 +8339,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 	proto_tree_add_text(tree, \
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_a_ios401_elem_1_strings[elem_idx].value, \
-		ansi_a_ios401_elem_1_strings[elem_idx].strptr, \
+		ansi_a_elem_1_strings[elem_idx].value, \
+		ansi_a_elem_1_strings[elem_idx].strptr, \
 		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
 	    ); \
     } \
@@ -6264,8 +8369,8 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 	proto_tree_add_text(tree, \
 	    tvb, curr_offset, 0, \
 	    "Missing Mandatory element (0x%02x) %s%s, rest of dissection is suspect", \
-		ansi_a_ios401_elem_1_strings[elem_idx].value, \
-		ansi_a_ios401_elem_1_strings[elem_idx].strptr, \
+		ansi_a_elem_1_strings[elem_idx].value, \
+		ansi_a_elem_1_strings[elem_idx].strptr, \
 		(elem_name_addition == NULL) || (elem_name_addition[0] == '\0') ? "" : elem_name_addition \
 	    ); \
     } \
@@ -6436,6 +8541,49 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+	ELEM_OPT_T(ANSI_A_E_ORIG_CI, "");
+
+	ELEM_OPT_TV(ANSI_A_E_RETURN_CAUSE, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+	break;
+    }
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.3
+ */
+static void
+dtap_cm_srvc_req_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_ASCII_NUM, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6463,6 +8611,21 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TV(ANSI_A_E_SO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6514,6 +8677,19 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
 
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+	break;
+    }
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6532,7 +8708,77 @@ dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_SIGNAL, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.8.1
+ */
+static void
+dtap_srvc_redirection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_IS2000_RED_RECORD, "");
+
+    ELEM_MAND_TLV(ANSI_A_E_S_RED_INFO, "");
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.11
+ */
+static void
+dtap_srvc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_SOCI, "");
+
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE_L3, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.12
+ */
+static void
+dtap_srvc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6562,13 +8808,30 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CLG_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
 
     ELEM_OPT_TLV(ANSI_A_E_PRIO, "");
 
     ELEM_OPT_TLV(ANSI_A_E_PACA_TS, "");
 
     ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_SR_ID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6592,6 +8855,19 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_SO, "");
 
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+	break;
+    }
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6609,6 +8885,8 @@ bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6668,6 +8946,8 @@ bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_T(ANSI_A_E_PDI, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6684,7 +8964,9 @@ dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6710,6 +8992,12 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_ADDS_USER_PART, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SR_ID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6733,6 +9021,82 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.19
+ */
+static void
+bsmap_add_srvc_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_MAND_TV(ANSI_A_E_SO, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.20
+ */
+static void
+dtap_add_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_SOCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_BCD_NUM, "");
+
+    ELEM_MAND_TV(ANSI_A_E_SO, "");
+
+    ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CLD_PARTY_ASCII_NUM, "");
+
+    ELEM_OPT_TV(ANSI_A_E_CIC, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.1.10
+ */
+static void
+dtap_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6760,7 +9124,11 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SSCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6779,6 +9147,8 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     curr_len = len;
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6810,9 +9180,15 @@ bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CLG_PARTY_ASCII_NUM, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_MS_INFO_RECS, "");
+    ELEM_OPT_TLV(ANSI_A_E_FWD_MS_INFO_RECS, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6906,6 +9282,10 @@ bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_AUTH_EVENT, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -6932,6 +9312,48 @@ bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 /*
+ * IOS 5 3.2.9
+ */
+static void
+bsmap_rm_pos_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_PSMM_COUNT, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.2.10
+ */
+static void
+bsmap_rm_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_DOWNLINK_RE_LIST, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_GEO_LOC, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
  * IOS 6.1.4.1
  */
 static void
@@ -6953,6 +9375,14 @@ bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
 
     ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6989,11 +9419,80 @@ bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_MAND_TLV(ANSI_A_E_AUTH_RESP_PARAM, "");
 
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_MAND_TV(ANSI_A_E_TAG, "");
+
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
-    ELEM_OPT_TV(ANSI_A_E_TAG, "");
-
     ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5
+ * Section 3.1.21
+ */
+static void
+bsmap_bearer_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5
+ * Section 3.1.22
+ */
+static void
+bsmap_bearer_upd_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5
+ * Section 3.1.23
+ */
+static void
+bsmap_bearer_upd_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7027,6 +9526,176 @@ bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
     curr_len = len;
 
     ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.16
+ */
+static void
+dtap_user_zone_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_UZ_ID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.17
+ */
+static void
+dtap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_UZ_ID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.18
+ */
+static void
+bsmap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.18
+ */
+static void
+dtap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.19
+ */
+static void
+bsmap_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.20
+ */
+static void
+bsmap_ms_reg_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.21
+ */
+static void
+bsmap_bs_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.22
+ */
+static void
+bsmap_bs_auth_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7142,6 +9811,14 @@ dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
+    ELEM_OPT_TV(ANSI_A_E_RETURN_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -7158,7 +9835,20 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
-    ELEM_OPT_TV(ANSI_A_E_LAI, "");
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	ELEM_OPT_TV(ANSI_A_E_LAI, "");
+	break;
+
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7177,6 +9867,15 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
     ELEM_MAND_V(ANSI_A_E_REJ_CAUSE);
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7215,6 +9914,107 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
     ELEM_OPT_TLV(ANSI_A_E_ENC_INFO, "");
 
     ELEM_OPT_T(ANSI_A_E_VP_REQ, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.14
+ */
+static void
+bsmap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_IE_REQD, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.14
+ */
+static void
+dtap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_LV(ANSI_A_E_IE_REQD, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+
+/*
+ * IOS 5 3.3.15
+ */
+static void
+bsmap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.3.15
+ */
+static void
+dtap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_LV(ANSI_A_E_REV_MS_INFO_RECS, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7262,9 +10062,42 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+	break;
+
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+	break;
+    }
 
     ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TV(ANSI_A_E_ACC_NET_ID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_ANCH_PDSN_ADDR, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_ANCH_PP_ADDR, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_PSP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7314,9 +10147,51 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
-    ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+	ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+	break;
+
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+	break;
+    }
 
     ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
+
+	ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+	ELEM_OPT_TV(ANSI_A_E_ACC_NET_ID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_ANCH_PDSN_ADDR, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_ANCH_PP_ADDR, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_PSP, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7347,6 +10222,25 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_SESSION, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_A2P_BEARER_FORMAT, "");
+	break;
+    }
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7402,6 +10296,41 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
 
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_AMPS_HHO_PARAM, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+
+	ELEM_OPT_TLV(ANSI_A_E_PLCM_ID, "");
+	break;
+    }
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.4.6
+ */
+static void
+bsmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -7439,6 +10368,12 @@ bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_MAND_TLV(ANSI_A_E_CAUSE, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID_LIST, "");
+
+    ELEM_OPT_TV(ANSI_A_E_CHAN_NUM, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_BAND_CLASS, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7660,6 +10595,12 @@ bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_P_REV, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MS_DES_FREQ, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -7695,6 +10636,46 @@ bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID, "");
 
     ELEM_OPT_TLV(ANSI_A_E_CDMA_SOWD, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_AUTH_DATA, "");
+
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CM_INFO_TYPE_2, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SCI, "");
+
+    ELEM_OPT_TV(ANSI_A_E_SO, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_UZ_ID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MOB_SUB_INFO, "");
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * IOS 5 3.6.4
+ */
+static void
+bsmap_adds_transfer_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    ELEM_MAND_TLV(ANSI_A_E_MID, "");
+
+    ELEM_OPT_TV(ANSI_A_E_TAG, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_CAUSE, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -7744,6 +10725,8 @@ bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_CELL_ID, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -7786,6 +10769,8 @@ bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
 
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -7799,26 +10784,34 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_offset = offset;
     curr_len = len;
 
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
+
     ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_SOCI, "");
+
+    ELEM_OPT_TLV(ANSI_A_E_MID, "");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
-#define	ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(value_string))
-static gint ett_bsmap_msg[ANSI_A_IOS401_BSMAP_NUM_MSG];
-static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    NULL,	/* Additional Service Notification */
+#define	ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
+#define	ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
+static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
+static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
+{
+    bsmap_add_srvc_noti,	/* Additional Service Notification */
     bsmap_adds_page,	/* ADDS Page */
     bsmap_adds_page_ack,	/* ADDS Page Ack */
     bsmap_adds_transfer,	/* ADDS Transfer */
-    NULL,	/* ADDS Transfer Ack */
+    bsmap_adds_transfer_ack,	/* ADDS Transfer Ack */
     bsmap_ass_complete,	/* Assignment Complete */
     bsmap_ass_failure,	/* Assignment Failure */
     bsmap_ass_req,	/* Assignment Request */
     bsmap_auth_req,	/* Authentication Request */
     bsmap_auth_resp,	/* Authentication Response */
-    NULL,	/* Base Station Challenge */
-    NULL,	/* Base Station Challenge Response */
+    NULL /* no BSMAP definition */,	/* Base Station Challenge */
+    NULL /* no BSMAP definition */,	/* Base Station Challenge Response */
     bsmap_block,	/* Block */
     bsmap_block_ack,	/* Block Acknowledge */
     bsmap_bs_srvc_req,	/* BS Service Request */
@@ -7831,7 +10824,7 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     bsmap_feat_noti_ack,	/* Feature Notification Ack */
     bsmap_ho_command,	/* Handoff Command */
     NULL /* no associated data */,	/* Handoff Commenced */
-    NULL /* no associated data */,	/* Handoff Complete */
+    bsmap_ho_complete,	/* Handoff Complete */
     bsmap_ho_failure,	/* Handoff Failure */
     bsmap_ho_performed,	/* Handoff Performed */
     bsmap_ho_req,	/* Handoff Request */
@@ -7845,31 +10838,39 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
     bsmap_page_req,	/* Paging Request */
     bsmap_priv_mode_command,	/* Privacy Mode Command */
     bsmap_priv_mode_complete,	/* Privacy Mode Complete */
-    NULL,	/* Radio Measurements for Position Request */
-    NULL,	/* Radio Measurements for Position Response */
+    bsmap_rm_pos_req,	/* Radio Measurements for Position Request */
+    bsmap_rm_pos_resp,	/* Radio Measurements for Position Response */
     bsmap_rejection,	/* Rejection */
-    NULL,	/* Registration Request */
+    bsmap_reg_req,	/* Registration Request */
     bsmap_reset,	/* Reset */
     bsmap_reset_ack,	/* Reset Acknowledge */
     bsmap_reset_cct,	/* Reset Circuit */
     bsmap_reset_cct_ack,	/* Reset Circuit Acknowledge */
-    NULL,	/* SSD Update Request */
-    NULL,	/* SSD Update Response */
-    NULL,	/* Status Request */
-    NULL,	/* Status Response */
+    NULL /* no BSMAP definition */,	/* SSD Update Request */
+    NULL /* no BSMAP definition */,	/* SSD Update Response */
+    bsmap_status_req,	/* Status Request */
+    bsmap_status_resp,	/* Status Response */
     bsmap_xmode_ack,	/* Transcoder Control Acknowledge */
     bsmap_xmode_req,	/* Transcoder Control Request */
     bsmap_unblock,	/* Unblock */
     bsmap_unblock_ack,	/* Unblock Acknowledge */
-    NULL,	/* User Zone Reject */
+    bsmap_user_zone_reject,	/* User Zone Reject */
     bsmap_user_zone_update,	/* User Zone Update */
+    bsmap_bearer_upd_req,	/* Bearer Update Request *//* IOS 5.0.1 */
+    bsmap_bearer_upd_resp,	/* Bearer Update Response *//* IOS 5.0.1 */
+    bsmap_bearer_upd_reqd,	/* Bearer Update Required *//* IOS 5.0.1 */
+    bsmap_ms_reg_noti,	/* Mobile Station Registered Notification *//* IOS 5.0.1 */
+    bsmap_bs_auth_req,	/* BS Authentication Request *//* IOS 5.0.1 */
+    bsmap_bs_auth_req_ack,	/* BS Authentication Request Ack *//* IOS 5.0.1 */
     NULL,	/* NONE */
 };
 
-#define	ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(value_string))
-static gint ett_dtap_msg[ANSI_A_IOS401_DTAP_NUM_MSG];
-static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    NULL,	/* Additional Service Request */
+#define	ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
+#define	ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
+static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
+static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
+{
+    dtap_add_srvc_req,	/* Additional Service Request */
     dtap_adds_deliver,	/* ADDS Deliver */
     dtap_adds_deliver_ack,	/* ADDS Deliver Ack */
     dtap_alert_with_info,	/* Alert With Information */
@@ -7878,8 +10879,8 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     dtap_bs_challenge,	/* Base Station Challenge */
     dtap_bs_challenge_resp,	/* Base Station Challenge Response */
     dtap_cm_srvc_req,	/* CM Service Request */
-    NULL,	/* CM Service Request Continuation */
-    NULL /* no associated data */,	/* Connect */
+    dtap_cm_srvc_req_cont,	/* CM Service Request Continuation */
+    dtap_connect,	/* Connect */
     dtap_flash_with_info,	/* Flash with Information */
     dtap_flash_with_info_ack,	/* Flash with Information Ack */
     dtap_lu_accept,	/* Location Updating Accept */
@@ -7890,16 +10891,16 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     NULL /* no associated data */,	/* Parameter Update Request */
     dtap_rejection,	/* Rejection */
     dtap_progress,	/* Progress */
-    NULL,	/* Service Redirection */
-    NULL,	/* Service Release */
-    NULL,	/* Service Release Complete */
+    dtap_srvc_redirection,	/* Service Redirection */
+    dtap_srvc_release,	/* Service Release */
+    dtap_srvc_release_complete,	/* Service Release Complete */
     dtap_ssd_update_req,	/* SSD Update Request */
     dtap_ssd_update_resp,	/* SSD Update Response */
-    NULL,	/* Status Request */
-    NULL,	/* Status Response */
-    NULL,	/* User Zone Reject */
-    NULL,	/* User Zone Update */
-    NULL,	/* User Zone Update Request */
+    dtap_status_req,	/* Status Request */
+    dtap_status_resp,	/* Status Response */
+    dtap_user_zone_reject,	/* User Zone Reject */
+    dtap_user_zone_update,	/* User Zone Update */
+    dtap_user_zone_update_req,	/* User Zone Update Request */
     NULL,	/* NONE */
 };
 
@@ -7914,7 +10915,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8			oct;
     guint32			offset, saved_offset;
     guint32			len;
-    gint			idx;
+    gint			idx, dec_idx;
     proto_item			*bsmap_item = NULL;
     proto_tree			*bsmap_tree = NULL;
     const gchar			*msg_str;
@@ -7949,7 +10950,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = match_strval_idx((guint32) oct, ansi_a_ios401_bsmap_strings, &idx);
+    msg_str = my_match_strval_idx((guint32) oct, ansi_a_bsmap_strings, &idx, &dec_idx);
 
     /*
      * create the a protocol tree
@@ -7970,7 +10971,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"ANSI A-I/F BSMAP - %s",
 		msg_str);
 
-	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[idx]);
+	bsmap_tree = proto_item_add_subtree(bsmap_item, ett_bsmap_msg[dec_idx]);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -7996,7 +10997,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (bsmap_msg_fcn[idx] == NULL)
+    if (bsmap_msg_fcn[dec_idx] == NULL)
     {
 	proto_tree_add_text(bsmap_tree,
 	    tvb, offset, len - offset,
@@ -8004,7 +11005,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-	(*bsmap_msg_fcn[idx])(tvb, bsmap_tree, offset, len - offset);
+	(*bsmap_msg_fcn[dec_idx])(tvb, bsmap_tree, offset, len - offset);
     }
 }
 
@@ -8018,7 +11019,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32			offset, saved_offset;
     guint32			len;
     guint32			oct_1, oct_2;
-    gint			idx;
+    gint			idx, dec_idx;
     proto_item			*dtap_item = NULL;
     proto_tree			*dtap_tree = NULL;
     proto_item			*oct_1_item = NULL;
@@ -8072,7 +11073,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     saved_offset = offset;
     oct = tvb_get_guint8(tvb, offset++);
 
-    msg_str = match_strval_idx((guint32) oct, ansi_a_ios401_dtap_strings, &idx);
+    msg_str = my_match_strval_idx((guint32) oct, ansi_a_dtap_strings, &idx, &dec_idx);
 
     /*
      * create the a protocol tree
@@ -8093,7 +11094,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"ANSI A-I/F DTAP - %s",
 		msg_str);
 
-	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[idx]);
+	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg[dec_idx]);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
@@ -8191,7 +11192,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * decode elements
      */
-    if (dtap_msg_fcn[idx] == NULL)
+    if (dtap_msg_fcn[dec_idx] == NULL)
     {
 	proto_tree_add_text(dtap_tree,
 	    tvb, offset, len - offset,
@@ -8199,7 +11200,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-	(*dtap_msg_fcn[idx])(tvb, dtap_tree, offset, len - offset);
+	(*dtap_msg_fcn[dec_idx])(tvb, dtap_tree, offset, len - offset);
     }
 }
 
@@ -8218,17 +11219,17 @@ proto_register_ansi_a(void)
     {
 	{ &hf_ansi_a_bsmap_msgtype,
 	    { "BSMAP Message Type",	"ansi_a.bsmap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(ansi_a_ios401_bsmap_strings), 0x0,
+	    FT_UINT8, BASE_HEX, NULL, 0x0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_dtap_msgtype,
 	    { "DTAP Message Type",	"ansi_a.dtap_msgtype",
-	    FT_UINT8, BASE_HEX, VALS(ansi_a_ios401_dtap_strings), 0x0,
+	    FT_UINT8, BASE_HEX, NULL, 0x0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_elem_id,
 	    { "Element ID",	"ansi_a.elem_id",
-	    FT_UINT8, BASE_DEC, VALS(ansi_a_ios401_elem_1_strings), 0,
+	    FT_UINT8, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_length,
@@ -8254,6 +11255,11 @@ proto_register_ansi_a(void)
 	{ &hf_ansi_a_min,
 	    { "MIN",	"ansi_a.min",
 	    FT_STRING, BASE_DEC, 0, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_a_meid,
+	    { "MEID",	"ansi_a.meid",
+	    FT_STRING, BASE_HEX, 0, 0,
 	    "", HFILL }
 	},
 	{ &hf_ansi_a_cld_party_bcd_num,
@@ -8294,7 +11300,38 @@ proto_register_ansi_a(void)
 	{ &hf_ansi_a_pdsn_ip_addr,
 	    { "PDSN IP Address", "ansi_a.pdsn_ip_addr",
 	    FT_IPv4, BASE_NONE, NULL, 0,
-	    "IP Address", HFILL}},
+	    "IP Address", HFILL }
+	},
+	{ &hf_ansi_a_s_pdsn_ip_addr,
+	    { "Source PDSN Address", "ansi_a.s_pdsn_ip_addr",
+	    FT_IPv4, BASE_NONE, NULL, 0,
+	    "IP Address", HFILL }
+	},
+	{ &hf_ansi_a_anchor_ip_addr,
+	    { "Anchor PDSN Address", "ansi_a.anchor_pdsn_ip_addr",
+	    FT_IPv4, BASE_NONE, NULL, 0,
+	    "IP Address", HFILL }
+	},
+	{ &hf_ansi_a_anchor_pp_ip_addr,
+	    { "Anchor P-P Address", "ansi_a.anchor_pp_ip_addr",
+	    FT_IPv4, BASE_NONE, NULL, 0,
+	    "IP Address", HFILL }
+	},
+	{ &hf_ansi_a_a2p_bearer_ipv4_addr,
+	    { "A2p Bearer IP Address", "ansi_a.a2p_bearer_ipv4_addr",
+	    FT_IPv4, BASE_NONE, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_a_a2p_bearer_ipv6_addr,
+	    { "A2p Bearer IP Address", "ansi_a.a2p_bearer_ipv6_addr",
+	    FT_IPv6, BASE_NONE, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_a_a2p_bearer_udp_port,
+	    { "A2p Bearer UDP Port", "ansi_a.a2p_bearer_udp_port",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
     };
 
     static enum_val_t a_variant_options[] = {
@@ -8304,16 +11341,18 @@ proto_register_ansi_a(void)
 	    { "ios-2.x",	"IOS 2.x",		A_VARIANT_IOS2 },
 	    { "ios-3.x",	"IOS 3.x",		A_VARIANT_IOS3 },
 	    { "ios-4.0.1",	"IOS 4.0.1",		A_VARIANT_IOS401 },
+	    { "ios-5.0.1",	"IOS 5.0.1",		A_VARIANT_IOS501 },
 	    { NULL,		NULL,			0 }
 
     };
 
     /* Setup protocol subtree array */
-#define	MAX_NUM_DTAP_MSG	MAX(ANSI_A_IOS401_DTAP_NUM_MSG, 0)
-#define	MAX_NUM_BSMAP_MSG	MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, 0)
-#define	NUM_INDIVIDUAL_ELEMS	9
+#define	MAX_NUM_DTAP_MSG	MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)
+#define	MAX_NUM_BSMAP_MSG	MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
+#define	MAX_NUM_ELEM_1		MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
+#define	NUM_INDIVIDUAL_ELEMS	14
     gint **ett;
-    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+NUM_ELEM_1+NUM_MS_INFO_REC) * sizeof(gint *);
+    gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
     /*
      * XXX - at least one version of the HP C compiler apparently doesn't
@@ -8324,10 +11363,11 @@ proto_register_ansi_a(void)
      */
     ett = g_malloc(ett_len);
 
-    memset((void *) ett_dtap_msg, -1, sizeof(gint) * MAX_NUM_DTAP_MSG);
-    memset((void *) ett_bsmap_msg, -1, sizeof(gint) * MAX_NUM_BSMAP_MSG);
-    memset((void *) ett_ansi_elem_1, -1, sizeof(gint) * NUM_ELEM_1);
-    memset((void *) ett_ansi_ms_info_rec, -1, sizeof(gint) * NUM_MS_INFO_REC);
+    memset((void *) ett_dtap_msg, -1, sizeof(ett_dtap_msg));
+    memset((void *) ett_bsmap_msg, -1, sizeof(ett_bsmap_msg));
+    memset((void *) ett_ansi_elem_1, -1, sizeof(ett_ansi_elem_1));
+    memset((void *) ett_ansi_fwd_ms_info_rec, -1, sizeof(gint) * NUM_FWD_MS_INFO_REC);
+    memset((void *) ett_ansi_rev_ms_info_rec, -1, sizeof(gint) * NUM_REV_MS_INFO_REC);
 
     ett[0] = &ett_bsmap;
     ett[1] = &ett_dtap;
@@ -8338,6 +11378,11 @@ proto_register_ansi_a(void)
     ett[6] = &ett_ansi_ms_info_rec_reserved;
     ett[7] = &ett_ansi_enc_info;
     ett[8] = &ett_cell_list;
+    ett[9] = &ett_bearer_list;
+    ett[10] = &ett_re_list;
+    ett[11] = &ett_so_list;
+    ett[12] = &ett_scm;
+    ett[13] = &ett_adds_user_part;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -8351,14 +11396,19 @@ proto_register_ansi_a(void)
 	ett[last_offset] = &ett_bsmap_msg[i];
     }
 
-    for (i=0; i < NUM_ELEM_1; i++, last_offset++)
+    for (i=0; i < MAX_NUM_ELEM_1; i++, last_offset++)
     {
 	ett[last_offset] = &ett_ansi_elem_1[i];
     }
 
-    for (i=0; i < NUM_MS_INFO_REC; i++, last_offset++)
+    for (i=0; i < NUM_FWD_MS_INFO_REC; i++, last_offset++)
     {
-	ett[last_offset] = &ett_ansi_ms_info_rec[i];
+	ett[last_offset] = &ett_ansi_fwd_ms_info_rec[i];
+    }
+
+    for (i=0; i < NUM_REV_MS_INFO_REC; i++, last_offset++)
+    {
+	ett[last_offset] = &ett_ansi_rev_ms_info_rec[i];
     }
 
     /* Register the protocol name and description */
@@ -8426,6 +11476,21 @@ proto_reg_handoff_ansi_a(void)
     if (a_variant != a_global_variant)
     {
 	a_variant = a_global_variant;
+    }
+
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS501:
+	ansi_a_bsmap_strings = ansi_a_ios501_bsmap_strings;
+	ansi_a_dtap_strings = ansi_a_ios501_dtap_strings;
+	ansi_a_elem_1_strings = ansi_a_ios501_elem_1_strings;
+	break;
+
+    default:
+	ansi_a_bsmap_strings = ansi_a_ios401_bsmap_strings;
+	ansi_a_dtap_strings = ansi_a_ios401_dtap_strings;
+	ansi_a_elem_1_strings = ansi_a_ios401_elem_1_strings;
+	break;
     }
 
     dissector_add("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);
