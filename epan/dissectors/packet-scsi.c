@@ -7163,7 +7163,7 @@ proto_register_scsi (void)
           {"Transfer Length", "scsi.sbc2.wrverify.xferlen32", FT_UINT32,
            BASE_DEC, NULL, 0x0, "", HFILL}},
         { &hf_ssc3_space6_count,
-          {"Count", "scsi.space6.count", FT_UINT24, BASE_DEC, NULL, 0x0,
+          {"Count", "scsi.space6.count", FT_INT24, BASE_DEC, NULL, 0x0,
            "", HFILL}},
         { &hf_ssc3_space16_count,
           {"Count", "scsi.space16.count", FT_UINT64, BASE_DEC, NULL, 0x0,
