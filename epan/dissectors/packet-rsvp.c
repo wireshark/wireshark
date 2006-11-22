@@ -269,44 +269,43 @@ static gboolean rsvp_bundle_dissect = TRUE;
  */
 typedef enum {
     RSVP_MSG_PATH=1,			/* RFC 2205 */
-    RSVP_MSG_RESV,			/* RFC 2205 */
-    RSVP_MSG_PERR,			/* RFC 2205 */
-    RSVP_MSG_RERR,			/* RFC 2205 */
-    RSVP_MSG_PTEAR,			/* RFC 2205 */
-    RSVP_MSG_RTEAR,			/* RFC 2205 */
+    RSVP_MSG_RESV,				/* RFC 2205 */
+    RSVP_MSG_PERR,				/* RFC 2205 */
+    RSVP_MSG_RERR,				/* RFC 2205 */
+    RSVP_MSG_PTEAR,				/* RFC 2205 */
+    RSVP_MSG_RTEAR,				/* RFC 2205 */
     RSVP_MSG_CONFIRM,			/* XXX - DREQ, RFC 2745? */
-    					/* 9 is DREP, RFC 2745 */
-    RSVP_MSG_RTEAR_CONFIRM=10,		/* from Fred Baker at Cisco */
-    					/* 11 is unassigned */
+    							/* 9 is DREP, RFC 2745 */
+    RSVP_MSG_RTEAR_CONFIRM=10,	/* from Fred Baker at Cisco */
+    							/* 11 is unassigned */
     RSVP_MSG_BUNDLE = 12,		/* RFC 2961 */
-    RSVP_MSG_ACK,			/* RFC 2961 */
-    					/* 14 is reserved */
+    RSVP_MSG_ACK,				/* RFC 2961 */
+    							/* 14 is reserved */
     RSVP_MSG_SREFRESH = 15,		/* RFC 2961 */
-    					/* 16, 17, 18, 19 not listed */
-    RSVP_MSG_HELLO = 20			/* RFC 3209 */
-    					/* 25 is Integrity Challenge
-    					   RFC 2747, RFC 3097 */
-    					/* 26 is Integrity Response
-    					   RFC 2747, RFC 3097 */
-    					/* 66 is DSBM_willing [SBM] */
-    					/* 67 is I_AM_DSBM [SBM] */
-    					/* [SBM] is Subnet Bandwidth
-    					   Manager ID from July 1997 */
+    							/* 16, 17, 18, 19 not listed */
+    RSVP_MSG_HELLO = 20,		/* RFC 3209 */
+    RSVP_MSG_NOTIFY				/* [RFC3473] */
+								/* 25 is Integrity Challenge RFC 2747, RFC 3097 */
+    							/* 26 is Integrity Response RFC 2747, RFC 3097 */
+    							/* 66 is DSBM_willing [SBM] */
+    							/* 67 is I_AM_DSBM [SBM] */
+    							/* [SBM] is Subnet Bandwidth Manager ID from July 1997 */
 } rsvp_message_types;
 
 static value_string message_type_vals[] = {
-    {RSVP_MSG_PATH, "PATH Message. "},
-    {RSVP_MSG_RESV, "RESV Message. "},
-    {RSVP_MSG_PERR, "PATH ERROR Message. "},
-    {RSVP_MSG_RERR, "RESV ERROR Message. "},
-    {RSVP_MSG_PTEAR, "PATH TEAR Message. "},
-    {RSVP_MSG_RTEAR, "RESV TEAR Message. "},
-    {RSVP_MSG_CONFIRM, "CONFIRM Message. "},
+    {RSVP_MSG_PATH,			"PATH Message. "},
+    {RSVP_MSG_RESV,			"RESV Message. "},
+    {RSVP_MSG_PERR,			"PATH ERROR Message. "},
+    {RSVP_MSG_RERR,			"RESV ERROR Message. "},
+    {RSVP_MSG_PTEAR,		"PATH TEAR Message. "},
+    {RSVP_MSG_RTEAR,		"RESV TEAR Message. "},
+    {RSVP_MSG_CONFIRM,		"CONFIRM Message. "},
     {RSVP_MSG_RTEAR_CONFIRM, "RESV TEAR CONFIRM Message. "},
-    {RSVP_MSG_BUNDLE, "BUNDLE Message. "},
-    {RSVP_MSG_ACK, "ACK Message. "},
-    {RSVP_MSG_SREFRESH, "SREFRESH Message. "},
-    {RSVP_MSG_HELLO, "HELLO Message. "},
+    {RSVP_MSG_BUNDLE,		"BUNDLE Message. "},
+    {RSVP_MSG_ACK,			"ACK Message. "},
+    {RSVP_MSG_SREFRESH,		"SREFRESH Message. "},
+    {RSVP_MSG_HELLO,		"HELLO Message. "},
+	{RSVP_MSG_NOTIFY,		"NOTIFY Message. "},
     {0, NULL}
 };
 
@@ -333,7 +332,8 @@ enum rsvp_classes {
     RSVP_CLASS_POLICY,
     RSVP_CLASS_CONFIRM,
     RSVP_CLASS_LABEL,
-
+	RSVP_CLASS_HOP_COUNT,
+	RSVP_CLASS_STRICT_SOURCE_ROUTE,
     RSVP_CLASS_LABEL_REQUEST=19,
     RSVP_CLASS_EXPLICIT_ROUTE,
     RSVP_CLASS_RECORD_ROUTE,
@@ -344,31 +344,71 @@ enum rsvp_classes {
     RSVP_CLASS_MESSAGE_ID_ACK,
     RSVP_CLASS_MESSAGE_ID_LIST,
 
-    RSVP_CLASS_RECOVERY_LABEL = 34,
+	/* 26-29  Unassigned */
+
+	RSVP_CLASS_DIAGNOSTIC = 30,
+	RSVP_CLASS_ROUTE,
+	RSVP_CLASS_DIAG_RESPONSE,
+	RSVP_CLASS_DIAG_SELECT,
+    RSVP_CLASS_RECOVERY_LABEL,
     RSVP_CLASS_UPSTREAM_LABEL,
     RSVP_CLASS_LABEL_SET,
     RSVP_CLASS_PROTECTION,
 
+	/* 38-41  Unassigned */
+	RSVP_CLASS_DSBM_IP_ADDRESS = 42,
+	RSVP_CLASS_SBM_PRIORITY,
+	RSVP_CLASS_DSBM_TIMER_INTERVALS,
+	RSVP_CLASS_SBM_INFO,
+
+	/* 46-62  Unassigned */
+
     RSVP_CLASS_DETOUR = 63,
+	RSVP_CLASS_CHALLENGE,
+    RSVP_CLASS_DIFFSERV,
+    RSVP_CLASS_CLASSTYPE, /* FF: RFC4124 */
+	RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES,
 
-    RSVP_CLASS_DIFFSERV = 65,
-
-    RSVP_CLASS_CLASSTYPE = 66, /* FF: RFC4124 */
-
-    RSVP_CLASS_SUGGESTED_LABEL = 129,
+	/* 68-127  Unassigned */
+	
+	RSVP_CLASS_NODE_CHAR = 128,
+    RSVP_CLASS_SUGGESTED_LABEL,
     RSVP_CLASS_ACCEPTABLE_LABEL_SET,
     RSVP_CLASS_RESTART_CAP,
 
-    RSVP_CLASS_LSP_TUNNEL_IF_ID = 193,
+	/* 132-160 Unassigned */ 
+
+	/* 166-191 Unassigned */
+
+	RSVP_CLASS_SESSION_ASSOC = 192,
+    RSVP_CLASS_LSP_TUNNEL_IF_ID,
+	/* 194 Unassigned */
     RSVP_CLASS_NOTIFY_REQUEST = 195,
     RSVP_CLASS_ADMIN_STATUS,
+	RSVP_CLASS_LSP_ATTRIBUTES,
+	/* IANA has this as 198  ALARM_SPEC ??? */
     RSVP_CLASS_ASSOCIATION = 198,
 
+	/* 199-204  Unassigned */
     RSVP_CLASS_FAST_REROUTE = 205,
+	/* 206 Unassigned */
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
+	/* 208-223 Unassigned */
+	/*
+		Class Numbers 224-255 are assigned by IANA using FCFS allocation.
+		RSVP will silently ignore, but FORWARD an object with a Class Number
+		in this range that it does not understand.
+	*/
+	/* 224  Unassigned */
     RSVP_CLASS_DCLASS = 225,
-    RSVP_CLASS_GENERALIZED_UNI = 229,
-    RSVP_CLASS_CALL_ID
+	RSVP_CLASS_PACKETCABLE_EXTENSIONS,
+	RSVP_CLASS_ATM_SERVICECLASS,
+	RSVP_CLASS_CALL_OPS,
+    RSVP_CLASS_GENERALIZED_UNI,
+    RSVP_CLASS_CALL_ID,
+	RSVP_CLASS_3GPP2_OBJECT
+	/* 232-254 Unassigned */
+	/* 255  Reserved */
 
 };
 
@@ -389,6 +429,8 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_POLICY, "POLICY object"},
     {RSVP_CLASS_CONFIRM, "CONFIRM object"},
     {RSVP_CLASS_LABEL, "LABEL object"},
+	{RSVP_CLASS_HOP_COUNT, "HOP_COUNT object"},
+	{RSVP_CLASS_STRICT_SOURCE_ROUTE, "STRICT_SOURCE_ROUTE object"}, 
     {RSVP_CLASS_LABEL_REQUEST, "LABEL REQUEST object"},
     {RSVP_CLASS_EXPLICIT_ROUTE, "EXPLICIT ROUTE object"},
     {RSVP_CLASS_RECORD_ROUTE, "RECORD ROUTE object"},
@@ -435,12 +477,17 @@ enum rsvp_error_types {
     RSVP_ERROR_UNKNOWN_CLASS,
     RSVP_ERROR_UNKNOWN_C_TYPE,
     RSVP_ERROR_TRAFFIC = 21,
-    RSVP_ERROR_TRAFFIC_SYSTEM,
-    RSVP_ERROR_SYSTEM,
-    RSVP_ERROR_ROUTING,
-    RSVP_ERROR_NOTIFY,
+    RSVP_ERROR_TRAFFIC_SYSTEM, /* 22 */
+    RSVP_ERROR_SYSTEM,         /* 23 */
+    RSVP_ERROR_ROUTING,        /* 24 */
+    RSVP_ERROR_NOTIFY,         /* 25 */
     RSVP_ERROR_DIFFSERV = 27,
     RSVP_ERROR_DSTE = 28 /* FF: RFC4124 */
+    /*missing (11-2006) : 
+      - 29 : Unknown Attributes TLV ,  RFC4420
+      - 30 : Unknown Attributes Bit RFC4420
+      - 31 : Alarms RFC-ietf-ccamp-gmpls-alarm-spec-06.txt
+    */
 };
 
 enum {
@@ -473,7 +520,13 @@ enum {
 enum {
     RSVP_NOTIFY_ERROR_RRO_TOO_LARGE = 1,
     RSVP_NOTIFY_ERROR_RRO_NOTIFICATION,
-    RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED
+    RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED,
+    RSVP_NOTIFY_ERROR_RRO_CC_ACTIVE_STATE, /* RFC3473*/
+    RSVP_NOTIFY_ERROR_RRO_CC_DEGRADED_STATE, /* RFC3473*/
+    RSVP_NOTIFY_ERROR_LSP_FAILURE,  /* Private */
+    RSVP_NOTIFY_ERROR_LSP_RECOVERED,/* Private */
+    RSVP_NOTIFY_ERROR_LSP_LOCAL_FAILURE/* Private */
+
 };
 
 enum {
@@ -553,6 +606,11 @@ static value_string rsvp_notify_error_vals[] = {
     {RSVP_NOTIFY_ERROR_RRO_TOO_LARGE, "RRO too large for MTU"},
     {RSVP_NOTIFY_ERROR_RRO_NOTIFICATION, "RRO Notification"},
     {RSVP_NOTIFY_ERROR_RRO_TUNNEL_LOCAL_REPAIRED, "Tunnel locally repaired"},
+    {RSVP_NOTIFY_ERROR_RRO_CC_ACTIVE_STATE, "Control Channel Active State"},/* RFC3473*/
+    {RSVP_NOTIFY_ERROR_RRO_CC_DEGRADED_STATE,"Control Channel Degraded State"}, /* RFC3473*/
+    {RSVP_NOTIFY_ERROR_LSP_FAILURE,  "Private : LSP Failure"},/* Private */
+    {RSVP_NOTIFY_ERROR_LSP_RECOVERED,"Private : LSP recovered"},/* Private */
+    {RSVP_NOTIFY_ERROR_LSP_LOCAL_FAILURE,"Private : LSP Local Failure"},/* Private */
     {0, NULL}
 };
 
@@ -846,6 +904,7 @@ enum rsvp_filter_keys {
     RSVPF_JUNK18,
     RSVPF_JUNK19,
     RSVPF_HELLO,
+	RSVPF_NOTIFY,
     /* Does the message contain an object of this type? */
     RSVPF_OBJECT,
     /* Object present shorthands */
@@ -987,7 +1046,11 @@ static hf_register_info rsvpf_info[] = {
      { "Object class", "rsvp.object", FT_UINT8, BASE_DEC, VALS(rsvp_class_vals), 0x0,
      	"", HFILL }},
 
-    /* Object present shorthands */
+    {&rsvp_filter[RSVPF_NOTIFY],
+     { "Notify Message", "rsvp.notify", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+ 
+	/* Object present shorthands */
     {&rsvp_filter[RSVPF_SESSION],
      { "SESSION", "rsvp.session", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -4974,6 +5037,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSVPF_ACK:
     case RSVPF_SREFRESH:
     case RSVPF_HELLO:
+	case RSVPF_NOTIFY:
 	proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb,
 				      offset+1, 1, 1);
 	break;
