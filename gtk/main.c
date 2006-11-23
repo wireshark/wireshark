@@ -306,10 +306,13 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 void
 match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 {
-    if (cfile.finfo_selected)
-	match_selected_cb_do((data ? data : w),
-	    action,
-	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
+    char *filter;
+
+    if (cfile.finfo_selected) {
+        if (proto_construct_match_selected_string(cfile.finfo_selected,
+                                                  cfile.edt, &filter))
+            match_selected_cb_do((data ? data : w), action, filter);
+    }
 }
 
 

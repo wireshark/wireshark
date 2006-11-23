@@ -343,9 +343,8 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		default:
 			/* XXX - this is a hack until we can just call
 			 * fvalue_to_string_repr() for *all* FT_* types. */
-			dfilter_string = proto_construct_dfilter_string(fi,
-					pdata->edt);
-			if (dfilter_string != NULL) {
+			if (proto_construct_match_selected_string(fi,
+			    pdata->edt, &dfilter_string)) {
 				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
 				/* XXX - Remove double-quotes. Again, once we

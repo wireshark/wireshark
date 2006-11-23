@@ -5070,86 +5070,21 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 	return format;
 }
 
-/*
- * Returns TRUE if we can do a "match selected" on the field, FALSE
- * otherwise.
- */
-gboolean
-proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
-{
-	header_field_info	*hfinfo;
-	gint			length;
-
-	hfinfo = finfo->hfinfo;
-	DISSECTOR_ASSERT(hfinfo);
-
-	switch(hfinfo->type) {
-
-		case FT_NONE:
-		case FT_PCRE:
-			/*
-			 * This doesn't have a value, so we'd match
-			 * on the raw bytes at this address.
-			 *
-			 * Should we be allowed to access to the raw bytes?
-			 * If "edt" is NULL, the answer is "no".
-			 */
-			if (edt == NULL)
-				return FALSE;
-
-			/*
-			 * Is this field part of the raw frame tvbuff?
-			 * If not, we can't use "frame[N:M]" to match
-			 * it.
-			 *
-			 * XXX - should this be frame-relative, or
-			 * protocol-relative?
-			 *
-			 * XXX - does this fallback for non-registered
-			 * fields even make sense?
-			 */
-			if (finfo->ds_tvb != edt->tvb)
-				return FALSE;
-
-			/*
-			 * If the length is 0, we will just match the name
-			 * of the field.
-			 *
-			 * (Also check for negative values, just in case,
-			 * as we'll cast it to an unsigned value later.)
-			 */
-			length = finfo->length;
-			if (length < 0)
-				return FALSE;
-
-			/*
-			 * Don't go past the end of that tvbuff.
-			 */
-			if ((guint)length > tvb_length(finfo->ds_tvb))
-				length = tvb_length(finfo->ds_tvb);
-			if (length <= 0)
-				return FALSE;
-			return TRUE;
-
-		default:
-			/*
-			 * By default, assume the type has a value, so
-			 * we can match.
-			 */
-			return TRUE;
-	}
-}
-
-/* This function returns a string allocated with packet lifetime scope.
+/* This function indicates whether it's possible to construct a
+ * "match selected" display filter string for the specified field,
+ * returns an indication of whether it's possible, and, if it's
+ * possible and "filter" is non-null, constructs the filter and
+ * sets "*filter" to point to it.
  * You do not need to [g_]free() this string since it will be automatically
  * freed once the next packet is dissected.
  */
-char*
-proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
+gboolean
+proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
+    char **filter)
 {
 	header_field_info	*hfinfo;
 	int			abbrev_len;
-	char			*buf, *ptr;
+	char			*ptr;
 	int			buf_len;
 	const char		*format;
 	int			dfilter_len, i;
@@ -5207,10 +5142,14 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 *
 			 * 1 byte for the trailing '\0'.
 			 */
-			dfilter_len = abbrev_len + 4 + 11 + 1;
-			buf = ep_alloc0(dfilter_len);
-			format = hfinfo_numeric_format(hfinfo);
-			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(&finfo->value));
+			if (filter != NULL) {
+				dfilter_len = abbrev_len + 4 + 11 + 1;
+				*filter = ep_alloc0(dfilter_len);
+				format = hfinfo_numeric_format(hfinfo);
+				g_snprintf(*filter, dfilter_len, format,
+				    hfinfo->abbrev,
+				    fvalue_get_integer(&finfo->value));
+			}
 			break;
 
 		case FT_INT64:
@@ -5231,18 +5170,39 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 *
 			 * 1 byte for the trailing '\0'.
 			 */
-			dfilter_len = abbrev_len + 4 + 22 + 1;
-			buf = ep_alloc0(dfilter_len);
-			format = hfinfo_numeric_format(hfinfo);
-			g_snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
+			if (filter != NULL) {
+				dfilter_len = abbrev_len + 4 + 22 + 1;
+				*filter = ep_alloc0(dfilter_len);
+				format = hfinfo_numeric_format(hfinfo);
+				g_snprintf(*filter, dfilter_len, format,
+				    hfinfo->abbrev,
+				    fvalue_get_integer64(&finfo->value));
+			}
 			break;
 
 		case FT_PROTOCOL:
-			buf = ep_strdup(finfo->hfinfo->abbrev);
+			if (filter != NULL)
+				*filter = ep_strdup(finfo->hfinfo->abbrev);
 			break;
 
 		case FT_NONE:
 		case FT_PCRE:
+			/*
+			 * If the length is 0, just match the name of the
+			 * field.
+			 *
+			 * (Also check for negative values, just in case,
+			 * as we'll cast it to an unsigned value later.)
+			 */
+			length = finfo->length;
+			if (length == 0) {
+				if (filter != NULL)
+					*filter = ep_strdup(finfo->hfinfo->abbrev);
+				break;
+			}
+			if (length < 0)
+				return FALSE;
+
 			/*
 			 * This doesn't have a value, so we'd match
 			 * on the raw bytes at this address.
@@ -5251,7 +5211,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * If "edt" is NULL, the answer is "no".
 			 */
 			if (edt == NULL)
-				return NULL;
+				return FALSE;
 
 			/*
 			 * Is this field part of the raw frame tvbuff?
@@ -5265,22 +5225,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * fields even make sense?
 			 */
 			if (finfo->ds_tvb != edt->tvb)
-				return NULL;	/* you lose */
-
-			/*
-			 * If the length is 0, just match the name of the
-			 * field.
-			 *
-			 * (Also check for negative values, just in case,
-			 * as we'll cast it to an unsigned value later.)
-			 */
-			length = finfo->length;
-			if (length == 0) {
-				buf = ep_strdup(finfo->hfinfo->abbrev);
-				break;
-			}
-			if (length < 0)
-				return NULL;
+				return FALSE;	/* you lose */
 
 			/*
 			 * Don't go past the end of that tvbuff.
@@ -5289,22 +5234,25 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			if (length > length_remaining)
 				length = length_remaining;
 			if (length <= 0)
-				return NULL;
+				return FALSE;
 
-			start = finfo->start;
-			buf_len = 32 + length * 3;
-			buf = ep_alloc0(buf_len);
-			ptr = buf;
+			if (filter != NULL) {
+				start = finfo->start;
+				buf_len = 32 + length * 3;
+				*filter = ep_alloc0(buf_len);
+				ptr = *filter;
 
-			ptr += g_snprintf(ptr, buf_len-(ptr-buf), "frame[%d:%d] == ", finfo->start, length);
-			for (i=0;i<length; i++) {
-				c = tvb_get_guint8(finfo->ds_tvb, start);
-				start++;
-				if (i == 0 ) {
-					ptr += g_snprintf(ptr, buf_len-(ptr-buf), "%02x", c);
-				}
-				else {
-					ptr += g_snprintf(ptr, buf_len-(ptr-buf), ":%02x", c);
+				ptr += g_snprintf(ptr, buf_len-(ptr-*filter),
+				    "frame[%d:%d] == ", finfo->start, length);
+				for (i=0;i<length; i++) {
+					c = tvb_get_guint8(finfo->ds_tvb, start);
+					start++;
+					if (i == 0 ) {
+						ptr += g_snprintf(ptr, buf_len-(ptr-*filter), "%02x", c);
+					}
+					else {
+						ptr += g_snprintf(ptr, buf_len-(ptr-*filter), ":%02x", c);
+					}
 				}
 			}
 			break;
@@ -5316,18 +5264,21 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			 * 	4 bytes for " == ".
 			 * 	1 byte for trailing NUL.
 			 */
-			dfilter_len = fvalue_string_repr_len(&finfo->value,
-					FTREPR_DFILTER);
-			dfilter_len += abbrev_len + 4 + 1;
-			buf = ep_alloc0(dfilter_len);
+			if (filter != NULL) {
+				dfilter_len = fvalue_string_repr_len(&finfo->value,
+						FTREPR_DFILTER);
+				dfilter_len += abbrev_len + 4 + 1;
+				*filter = ep_alloc0(dfilter_len);
 
-			/* Create the string */
-			g_snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
-			fvalue_to_string_repr(&finfo->value,
-					FTREPR_DFILTER,
-					&buf[abbrev_len + 4]);
+				/* Create the string */
+				g_snprintf(*filter, dfilter_len, "%s == ",
+				    hfinfo->abbrev);
+				fvalue_to_string_repr(&finfo->value,
+				    FTREPR_DFILTER,
+				    &(*filter)[abbrev_len + 4]);
+			}
 			break;
 	}
 
-	return buf;
+	return TRUE;
 }

@@ -76,8 +76,7 @@ protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const vo
 	}
 
 	for(i=0;i<gp->len;i++){
-		str=proto_construct_dfilter_string(gp->pdata[i], NULL);
-		if(str){
+		if(proto_construct_match_selected_string(gp->pdata[i], NULL, &str)){
 			col_append_fstr(pinfo->cinfo, COL_INFO, "  %s",str);
 		}
 	}

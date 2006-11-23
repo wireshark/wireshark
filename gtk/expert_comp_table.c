@@ -716,9 +716,9 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
             err->procedures[err->num_procs].entries[j]=NULL;
 	}
         err->procedures[err->num_procs].packet_num = (guint32)expert_data->packet_num;                        /* First packet num */
-	err->procedures[err->num_procs].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
-        err->procedures[err->num_procs].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol, NULL);    /* Protocol */
-        err->procedures[err->num_procs].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary, NULL);     /* Summary */
+	err->procedures[err->num_procs].entries[0]=(char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
+        err->procedures[err->num_procs].entries[1]=(char *)g_strdup(expert_data->protocol, NULL);    /* Protocol */
+        err->procedures[err->num_procs].entries[2]=(char *)g_strdup(expert_data->summary, NULL);     /* Summary */
     	err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
         err->procedures[err->num_procs].fvalue_value = NULL;
     }
@@ -734,22 +734,24 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         }
         
         /* Create the item in our memory table */
-        err->procedures[row].entries[0]=(char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
-        err->procedures[row].entries[1]=(char *)g_strdup_printf("%s", expert_data->protocol);    /* Protocol */
-        err->procedures[row].entries[2]=(char *)g_strdup_printf("%s", expert_data->summary);     /* Summary */
+        err->procedures[row].entries[0]=(char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));  /* Group */
+        err->procedures[row].entries[1]=(char *)g_strdup(expert_data->protocol);    /* Protocol */
+        err->procedures[row].entries[2]=(char *)g_strdup(expert_data->summary);     /* Summary */
 
         /* Create a new item in our tree view */
         store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view)); /* Get store */
         gtk_tree_store_append (store, &err->procedures[row].iter, NULL);  /* Acquire an iterator */
         
         gtk_tree_store_set (store, &err->procedures[row].iter,
-                    GROUP_COLUMN, (char *)g_strdup_printf("%s", val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)")),
-                    PROTOCOL_COLUMN, (char *)g_strdup_printf("%s", expert_data->protocol),
-                    SUMMARY_COLUMN, (char *)g_strdup_printf("%s", expert_data->summary), -1);
+                    GROUP_COLUMN, (char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)")),
+                    PROTOCOL_COLUMN, (char *)g_strdup(expert_data->protocol),
+                    SUMMARY_COLUMN, (char *)g_strdup(expert_data->summary), -1);
 
         /* If an expert item was passed then build the filter string */
-        if (expert_data->pitem && strcmp(expert_data->pitem->finfo->value.ftype->name,"FT_NONE")!=0) {
-            err->procedures[row].fvalue_value = g_strdup_printf("%s", proto_construct_dfilter_string(expert_data->pitem->finfo, NULL));
+        if (expert_data->pitem) {
+            char *filter;
+            if (proto_construct_match_selected_string(expert_data->pitem->finfo, NULL, &filter))
+                err->procedures[row].fvalue_value = g_strdup(filter);
         }
         /* Store the updated count of events */
         err->num_procs = ++old_num_procs;

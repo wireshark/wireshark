@@ -2430,13 +2430,13 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	  proto_construct_match_selected_string(cf->finfo_selected, cf->edt, NULL));
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	  proto_construct_match_selected_string(cf->finfo_selected, cf->edt, NULL));
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	  proto_construct_match_selected_string(cf->finfo_selected, cf->edt, NULL));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
-	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	  proto_construct_match_selected_string(cf->finfo_selected, cf->edt, NULL));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
