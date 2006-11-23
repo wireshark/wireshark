@@ -1139,6 +1139,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 	guint32 dword;
 	gchar *addr_str_ptr;
 	guint8 opt_p;
+	proto_item	*item;
 	/* The unit used is 32 bit words */
 	guint8 orig_hdr_size;
 
@@ -1152,7 +1153,8 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 	/* User: 4 bits */
 	proto_tree_add_item(tipc_tree, hf_tipcv2_usr, tipc_tvb, offset, 4, FALSE);
 	/* Header Size: 4 bits */
-	proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
+	item = proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
+	proto_item_append_text(item, " = %u Bytes",(hdr_size * 4));
 	/* Non-sequenced: 1 bit */
 	proto_tree_add_item(tipc_tree,hf_tipc_nonsequenced, tipc_tvb,offset,4, FALSE);
 	if (datatype_hdr){
@@ -1508,7 +1510,7 @@ static void
 dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	proto_item *ti, *tipc_data_item;
+	proto_item *ti, *tipc_data_item, *item;
 	proto_tree *tipc_tree, *tipc_data_tree;
 	int offset = 0;
 	int previous_offset;
@@ -1648,7 +1650,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(tipc_tree, hf_tipc_ver, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_usr, tipc_tvb, offset, 4, FALSE);
-	proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
+	item = proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
+	proto_item_append_text(item, " = %u Bytes",(hdr_size * 4));
 	proto_tree_add_item(tipc_tree,hf_tipc_nonsequenced, tipc_tvb,offset,4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
 	if (datatype_hdr){
