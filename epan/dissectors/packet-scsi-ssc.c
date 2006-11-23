@@ -41,6 +41,7 @@
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-scsi-ssc.h"
+#include "packet-scsi-smc.h"
 
 
 static int proto_scsi_ssc		= -1;
