@@ -273,6 +273,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
+  fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
   fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
