@@ -3647,7 +3647,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_datapad (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE,
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
       pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE);
 }
 

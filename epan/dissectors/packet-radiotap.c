@@ -191,7 +191,7 @@ static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
 static gint ett_radiotap_flags = -1;
 
-static dissector_handle_t ieee80211_radio_handle;
+static dissector_handle_t ieee80211_handle;
 static dissector_handle_t ieee80211_datapad_handle;
 
 static void
@@ -691,9 +691,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    if (tree) {
-		pinfo->pseudo_header->ieee_802_11.data_rate = rate;
 		proto_tree_add_uint_format(radiotap_tree, hf_radiotap_datarate,
-			tvb, offset, 1, rate,
+			tvb, offset, 1, tvb_get_guint8(tvb, offset),
 			"Data Rate: %d.%d Mb/s", rate / 2, rate & 1 ? 5 : 0);
 	    }
 	    offset++;
@@ -792,7 +791,6 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, freq,
 				"Channel frequency: %u (invalid)", freq);
 		} else {
-			pinfo->pseudo_header->ieee_802_11.channel = (guint8) channel;
 			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel,
 				tvb, offset, 2, (guint32) channel);
 			proto_tree_add_uint(radiotap_tree, hf_radiotap_channel_frequency,
@@ -860,9 +858,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    if (length_remaining < 2)
 		break;
 	    if (tree) {
-		pinfo->pseudo_header->ieee_802_11.signal_level = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(radiotap_tree, hf_radiotap_quality,
-				tvb, offset, 2, pinfo->pseudo_header->ieee_802_11.signal_level);
+				tvb, offset, 2, tvb_get_letohs(tvb, offset));
 	    }
 	    offset+=2;
 	    length_remaining-=2;
@@ -933,7 +930,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* dissect the 802.11 header next */
     call_dissector((rflags & IEEE80211_RADIOTAP_F_DATAPAD) ?
-        ieee80211_datapad_handle : ieee80211_radio_handle,
+        ieee80211_datapad_handle : ieee80211_handle,
         next_tvb, pinfo, tree);
 }
 
@@ -943,7 +940,7 @@ proto_reg_handoff_radiotap(void)
     dissector_handle_t radiotap_handle;
 
     /* handle for 802.11 dissector */
-    ieee80211_radio_handle = find_dissector("wlan_radio");
+    ieee80211_handle = find_dissector("wlan");
     ieee80211_datapad_handle = find_dissector("wlan_datapad");
 
     radiotap_handle = create_dissector_handle(dissect_radiotap, proto_radiotap);
