@@ -5086,12 +5086,6 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 	switch(hfinfo->type) {
 
 		case FT_NONE:
-			/*
-			 * Doesn't have a value, but may still want to test
-			 * for its presence in a trace
-			 */
-			return TRUE;
-
 		case FT_PCRE:
 			/*
 			 * This doesn't have a value, so we'd match
@@ -5118,13 +5112,14 @@ proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
 				return FALSE;
 
 			/*
-			 * If the length is 0, there's nothing to match, so
-			 * we can't match.  (Also check for negative values,
-			 * just in case, as we'll cast it to an unsigned
-			 * value later.)
+			 * If the length is 0, we will just match the name
+			 * of the field.
+			 *
+			 * (Also check for negative values, just in case,
+			 * as we'll cast it to an unsigned value later.)
 			 */
 			length = finfo->length;
-			if (length <= 0)
+			if (length < 0)
 				return FALSE;
 
 			/*
@@ -5273,14 +5268,14 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 				return NULL;	/* you lose */
 
 			/*
-			 * If the length is 0, just match the name of the field
-			 * (Also check for negative values,
-			 * just in case, as we'll cast it to an unsigned
-			 * value later.)
+			 * If the length is 0, just match the name of the
+			 * field.
+			 *
+			 * (Also check for negative values, just in case,
+			 * as we'll cast it to an unsigned value later.)
 			 */
 			length = finfo->length;
-			if (length == 0)
-			{
+			if (length == 0) {
 				buf = ep_strdup(finfo->hfinfo->abbrev);
 				break;
 			}
