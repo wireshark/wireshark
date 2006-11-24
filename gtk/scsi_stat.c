@@ -53,6 +53,8 @@
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
 #include <epan/dissectors/packet-scsi-ssc.h>
+#include <epan/dissectors/packet-scsi-smc.h>
+#include <epan/dissectors/packet-scsi-osd.h>
 
 static GtkWidget *dlg=NULL;
 
@@ -216,6 +218,16 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 		rs->prog="MMC (cd/dvd)";
 		rs->cdbnames=scsi_mmc_vals;
 		hf_name="scsi.mmc.opcode";
+		break;
+	case SCSI_DEV_SMC:
+		rs->prog="SMC (tape robot)";
+		rs->cdbnames=scsi_smc_vals;
+		hf_name="scsi.smc.opcode";
+		break;
+	case SCSI_DEV_OSD:
+		rs->prog="OSD (object based)";
+		rs->cdbnames=scsi_osd_vals;
+		hf_name="scsi.osd.opcode";
 		break;
 	}
 

@@ -676,6 +676,8 @@ static const enum_val_t scsi_devtype_options[] = {
     {"block", "Block Device", SCSI_DEV_SBC},
     {"sequential", "Sequential Device", SCSI_DEV_SSC},
     {"objectbased", "Object Based Storage Device", SCSI_DEV_OSD},
+    {"mediumchanger", "Medium Changer Device", SCSI_DEV_SMC},
+    {"cdrom", "Multimedia Device", SCSI_DEV_CDROM},
     {NULL, NULL, -1},
 };
 
