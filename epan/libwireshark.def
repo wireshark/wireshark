@@ -651,6 +651,7 @@ scsi_mmc_vals					DATA
 scsi_smc_vals					DATA
 scsi_sbc2_vals					DATA
 scsi_ssc_vals					DATA
+scsi_osd_vals					DATA
 set_actual_length
 show_fragment_seq_tree
 show_fragment_tree
