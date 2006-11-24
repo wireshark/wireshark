@@ -125,8 +125,86 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 	return 	offset+len;
 }
 
+static int dissect_ms_compressed_string_internal(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
+{
+  guint8 len;
+
+  len=tvb_get_guint8(tvb, offset);
+  offset+=1;
+  *str=0;
+
+  while(len){
+    /* add potential field separation dot */
+    if(prepend_dot){
+      if(!maxlen){
+        *str=0;
+        return offset;
+      }
+      maxlen--;
+      *str++='.';
+      *str=0;
+    }
+
+    if(len==0xc0){
+      int new_offset;
+      /* ops its a mscldap compressed string */
+
+      new_offset=tvb_get_guint8(tvb, offset);
+      if (new_offset == offset - 1)
+        THROW(ReportedBoundsError);
+      offset+=1;
+
+      dissect_ms_compressed_string_internal(tvb, new_offset, str, maxlen, FALSE);
+
+      return offset;
+    }
+
+    prepend_dot=TRUE;
+
+    if(maxlen<=len){
+      if(maxlen>3){
+        *str++='.';
+        *str++='.';
+        *str++='.';
+      }
+      *str=0;
+      return offset; /* will mess up offset in caller, is unlikely */
+    }
+    tvb_memcpy(tvb, str, offset, len);
+    str+=len;
+    *str=0;
+    maxlen-=len;
+    offset+=len;
+
+
+    len=tvb_get_guint8(tvb, offset);
+    offset+=1;
+  }
+  *str=0;
+  return offset;
+}
+
 /* Max string length for displaying Unicode strings.  */
 #define	MAX_UNICODE_STR_LEN	256
+
+int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
+				 gboolean prepend_dot, char **data)
+{
+	int old_offset=offset;
+	char *str;
+	int len;
+
+	len = MAX_UNICODE_STR_LEN+3+1;
+	str=ep_alloc(len);
+
+	offset=dissect_ms_compressed_string_internal(tvb, offset, str, len, prepend_dot);
+	proto_tree_add_string(tree, hf_index, tvb, old_offset, offset-old_offset, str);
+
+	if (data)
+		*data = str;
+
+	return offset;
+}
 
 /* Turn a little-endian Unicode '\0'-terminated string into a string we
    can display.

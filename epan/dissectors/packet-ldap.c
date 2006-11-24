@@ -94,6 +94,7 @@
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-windows-common.h>
+#include <epan/dissectors/packet-smb-common.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-frame.h"
@@ -3427,65 +3428,6 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     }
 }
 
-static int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int maxlen, gboolean prepend_dot)
-{
-  guint8 len;
-
-  len=tvb_get_guint8(tvb, offset);
-  offset+=1;
-  *str=0;
-
-  while(len){
-    /* add potential field separation dot */
-    if(prepend_dot){
-      if(!maxlen){
-        *str=0;
-        return offset;
-      }
-      maxlen--;
-      *str++='.';
-      *str=0;
-    }
-
-    if(len==0xc0){
-      int new_offset;
-      /* ops its a mscldap compressed string */
-
-      new_offset=tvb_get_guint8(tvb, offset);
-      if (new_offset == offset - 1)
-        THROW(ReportedBoundsError);
-      offset+=1;
-
-      dissect_mscldap_string(tvb, new_offset, str, maxlen, FALSE);
-
-      return offset;
-    }
-
-    prepend_dot=TRUE;
-
-    if(maxlen<=len){
-      if(maxlen>3){
-        *str++='.';
-        *str++='.';
-        *str++='.';
-      }
-      *str=0;
-      return offset; /* will mess up offset in caller, is unlikely */
-    }
-    tvb_memcpy(tvb, str, offset, len);
-    str+=len;
-    *str=0;
-    maxlen-=len;
-    offset+=len;
-
-
-    len=tvb_get_guint8(tvb, offset);
-    offset+=1;
-  }
-  *str=0;
-  return offset;
-}
-
 /* These flag bits were found to be defined in the samba sources.
  * I hope they are correct (but have serious doubts about the CLOSEST
  * bit being used or being meaningful).
@@ -3583,8 +3525,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
 
 static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int old_offset, offset=0;
-  char str[256];
+  int offset=0;
 
   ldm_tree = NULL;
 
@@ -3603,44 +3544,28 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   offset += 16;
 
   /* Forest */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_forest, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_forest, FALSE, NULL);
 
   /* Domain */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_domain, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_domain, FALSE, NULL);
 
   /* Hostname */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_hostname, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_hostname, FALSE, NULL);
 
   /* NetBios Domain */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_nb_domain, FALSE, NULL);
 
   /* NetBios Hostname */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_nb_hostname, FALSE, NULL);
 
   /* User */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_username, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_username, FALSE, NULL);
 
   /* Site */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_sitename, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_sitename, FALSE, NULL);
 
   /* Client Site */
-  old_offset=offset;
-  offset=dissect_mscldap_string(tvb, offset, str, 255, FALSE);
-  proto_tree_add_string(tree, hf_mscldap_clientsitename, tvb, old_offset, offset-old_offset, str);
+  offset=dissect_ms_compressed_string(tvb, tree, offset, hf_mscldap_clientsitename, FALSE, NULL);
 
   /* Version */
   proto_tree_add_item(tree, hf_mscldap_netlogon_version, tvb, offset, 4, TRUE);
