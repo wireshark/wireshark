@@ -2393,7 +2393,7 @@ dissect_scsi_ssc2_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 				 (flags & 0x01));
 	    flags = tvb_get_guint8 (tvb, offset+5);
 	    proto_tree_add_text (tree, tvb, offset+5, 1,
-				 "Media Formar Recognition: %u",
+				 "Media Format Recognition: %u",
 				 flags);
 	    flags = tvb_get_guint8 (tvb, offset+6);
 	    proto_tree_add_text (tree, tvb, offset+6, 1,
