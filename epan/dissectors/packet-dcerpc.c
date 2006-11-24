@@ -2127,7 +2127,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     dcerpc_dissect_fnct_t *volatile sub_dissect;
     const char *volatile saved_proto;
     void *volatile saved_private_data;
-    guint length, reported_length;
+    guint length = 0, reported_length = 0;
     tvbuff_t *volatile stub_tvb;
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
@@ -2183,8 +2183,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 	    proc->dissect_rqst : proc->dissect_resp;
 
     if (tree) {
-        sub_item = proto_tree_add_item (tree, sub_proto->proto_id, tvb, 0,
-                                        -1, FALSE);
+        sub_item = proto_tree_add_item (tree, sub_proto->proto_id,
+					(decrypted_tvb != NULL)?decrypted_tvb:tvb,
+					0, -1, FALSE);
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
@@ -2230,12 +2231,13 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
             init_ndr_pointer_list(pinfo);
 
+            length = tvb_length(decrypted_tvb);
+            reported_length = tvb_reported_length(decrypted_tvb);
+
             /*
              * Remove the authentication padding from the stub data.
              */
             if (auth_info != NULL && auth_info->auth_pad_len != 0) {
-                length = tvb_length(decrypted_tvb);
-                reported_length = tvb_reported_length(decrypted_tvb);
                 if (reported_length >= auth_info->auth_pad_len) {
                     /*
                      * OK, the padding length isn't so big that it
@@ -2253,7 +2255,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     if (length > reported_length)
                         length = reported_length;
 
-                    stub_tvb = tvb_new_subset(tvb, 0, length, reported_length);
+                    stub_tvb = tvb_new_subset(decrypted_tvb, 0, length, reported_length);
                     auth_pad_len = auth_info->auth_pad_len;
                     auth_pad_offset = reported_length;
                 } else {
@@ -2266,6 +2268,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     stub_tvb = NULL;
                     auth_pad_len = reported_length;
                     auth_pad_offset = 0;
+                    length = 0;
+                    reported_length = 0;
                 }
             } else {
                 /*
@@ -2274,6 +2278,10 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                 stub_tvb = decrypted_tvb;
                 auth_pad_len = 0;
                 auth_pad_offset = 0;
+            }
+
+            if (sub_item) {
+              	proto_item_set_len(sub_item, length);
             }
 
             if (stub_tvb != NULL) {
@@ -2287,25 +2295,24 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                  * dissect; just re-throw that exception.
                  */
                 TRY {
-                    offset = sub_dissect (decrypted_tvb, 0, pinfo, sub_tree,
+                    offset = sub_dissect (stub_tvb, 0, pinfo, sub_tree,
                                           drep);
-                    if(tree) {
+                    if(tree && offset > 0) {
                         proto_item_set_len(sub_item, offset);
                     }
 
                     /* If we have a subdissector and it didn't dissect all
                        data in the tvb, make a note of it. */
-                    /* XXX - don't do this, as this could be just another RPC Req./Resp. in this PDU */
-                    /*if (tvb_reported_length_remaining(stub_tvb, offset) > 0) {
+                    if (tvb_reported_length_remaining(stub_tvb, offset) > 0) {
                         if (check_col(pinfo->cinfo, COL_INFO))
                             col_append_fstr(pinfo->cinfo, COL_INFO,
                                             "[Long frame (%d bytes)]",
                                             tvb_reported_length_remaining(stub_tvb, offset));
-                    }*/
+                    }
                 } CATCH(BoundsError) {
                     RETHROW;
                 } CATCH_ALL {
-                    show_exception(decrypted_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+                    show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
                 } ENDTRY;
             }
 
