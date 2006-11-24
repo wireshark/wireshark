@@ -29,6 +29,6 @@
 
 extern int hf_scsi_osd_opcode;
 extern scsi_cdb_table_t scsi_osd_table[256];
-extern const value_string scsi_osd_vals[];
+WS_VAR_IMPORT const value_string scsi_osd_vals[];
 
 #endif
