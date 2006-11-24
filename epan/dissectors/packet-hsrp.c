@@ -159,11 +159,16 @@ static const value_string hsrp_adv_state_vals[] = {
 	{0, NULL},
 };
 
-static void
+static int
 dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 opcode, state = 0;
 	tvbuff_t   *next_tvb;
+
+	/* Return if this isn't really HSRP traffic
+	 * (source and destination port must be UDP_PORT_HSRP) */
+	if(pinfo->destport != UDP_PORT_HSRP)
+		return 0;
 
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
@@ -253,7 +258,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
         }
 
-        return;
+        return tvb_length(tvb);
 }
 
 void proto_register_hsrp(void)
@@ -364,6 +369,6 @@ proto_reg_handoff_hsrp(void)
 	dissector_handle_t hsrp_handle;
 
 	data_handle = find_dissector("data");
-	hsrp_handle = create_dissector_handle(dissect_hsrp, proto_hsrp);
+	hsrp_handle = new_create_dissector_handle(dissect_hsrp, proto_hsrp);
 	dissector_add("udp.port", UDP_PORT_HSRP, hsrp_handle);
 }
