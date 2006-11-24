@@ -483,6 +483,7 @@ process_reassembled_data
 process_stat_cmd_arg
 protocols_module                DATA
 proto_all_finfos
+proto_can_match_selected
 proto_can_toggle_protocol
 proto_construct_match_selected_string
 proto_data                      DATA

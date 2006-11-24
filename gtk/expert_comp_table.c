@@ -750,7 +750,9 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
         /* If an expert item was passed then build the filter string */
         if (expert_data->pitem) {
             char *filter;
-            if (proto_construct_match_selected_string(expert_data->pitem->finfo, NULL, &filter))
+
+            filter = proto_construct_match_selected_string(expert_data->pitem->finfo, NULL);
+            if (filter != NULL)
                 err->procedures[row].fvalue_value = g_strdup(filter);
         }
         /* Store the updated count of events */

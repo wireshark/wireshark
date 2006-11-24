@@ -1532,16 +1532,19 @@ hfinfo_bitwidth(header_field_info *hfinfo);
 
 #include "epan.h"
 
-/** Check whether we can do a "match selected" on this field and, if
-    requested to, return the filter that does so.
+/** Can we do a "match selected" on this field.
  @param finfo field_info
  @param edt epan dissecting
- @param filter if non-null, the display filter string is constructed and
- *filter is set to point to it
  @return TRUE if we can do a "match selected" on the field, FALSE otherwise. */
 extern gboolean
-proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
-    char **filter);
+proto_can_match_selected(field_info *finfo, epan_dissect_t *edt);
+
+/** Construct a "match selected" display filter string.
+ @param finfo field_info
+ @param edt epan dissecting
+ @return the display filter string */
+extern char*
+proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt);
 
 /** Find field from offset in tvb.
  @param tree 

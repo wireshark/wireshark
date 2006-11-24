@@ -5078,8 +5078,8 @@ hfinfo_numeric_format(header_field_info *hfinfo)
  * You do not need to [g_]free() this string since it will be automatically
  * freed once the next packet is dissected.
  */
-gboolean
-proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
+static gboolean
+construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
     char **filter)
 {
 	header_field_info	*hfinfo;
@@ -5281,4 +5281,32 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	}
 
 	return TRUE;
+}
+
+/*
+ * Returns TRUE if we can do a "match selected" on the field, FALSE
+ * otherwise.
+ */
+gboolean
+proto_can_match_selected(field_info *finfo, epan_dissect_t *edt)
+{
+	return construct_match_selected_string(finfo, edt, NULL);
+}
+
+/* This function attempts to construct a "match selected" display filter
+ * string for the specified field; if it can do so, it returns a pointer
+ * to the string, otherwise it returns NULL.
+ *
+ * The string is allocated with packet lifetime scope.
+ * You do not need to [g_]free() this string since it will be automatically
+ * freed once the next packet is dissected.
+ */
+char*
+proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
+{
+	char *filter;
+
+	if (!construct_match_selected_string(finfo, edt, &filter))
+		return NULL;
+	return filter;
 }

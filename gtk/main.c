@@ -309,8 +309,9 @@ match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
     char *filter;
 
     if (cfile.finfo_selected) {
-        if (proto_construct_match_selected_string(cfile.finfo_selected,
-                                                  cfile.edt, &filter))
+        filter = proto_construct_match_selected_string(cfile.finfo_selected,
+                                                       cfile.edt);
+        if (filter != NULL)
             match_selected_cb_do((data ? data : w), action, filter);
     }
 }
