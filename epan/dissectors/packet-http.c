@@ -1284,10 +1284,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			*c = '\0';
 		}
 
-		if ( ( chunk_size = strtol((gchar*)chunk_string, NULL, 16) ) == 0 ) {
-			break;
-		}
-
+		chunk_size = strtol((gchar*)chunk_string, NULL, 16);
 
 		if (chunk_size > datalen) {
 			/*
@@ -1297,9 +1294,6 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			 */
 			chunk_size = datalen;
 		}
-		/*
-		 * chunk_size is guaranteed to be >0 from here on
-		 */
 #if 0
 		  else if (new_tvb == NULL) {
 			new_tvb = tvb_new_composite();
@@ -1339,10 +1333,17 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 
 		if (subtree) {
-			chunk_ti = proto_tree_add_text(subtree, tvb,
-				    offset,
-				    chunk_offset - offset + chunk_size + 2,
-				    "Data chunk (%u octets)", chunk_size);
+			if(chunk_size == 0) {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+					    offset,
+					    chunk_offset - offset + chunk_size + 2,
+					    "End of chunked encoding");
+			} else {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+				            offset,
+				            chunk_offset - offset + chunk_size + 2,
+				            "Data chunk (%u octets)", chunk_size);
+			}
 
 			chunk_subtree = proto_item_add_subtree(chunk_ti,
 			    ett_http_chunk_data);
