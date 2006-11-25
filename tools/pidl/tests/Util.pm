@@ -35,7 +35,7 @@ sub test_samba4_ndr
 SKIP: {
 
 	skip "no samba environment available, skipping compilation", 3 
-		if (system("pkg-config --exists dcerpc ndr") != 0);
+		if (system("pkg-config --exists ndr") != 0);
 
 	my $test_data_prefix = $ENV{TEST_DATA_PREFIX};
 
@@ -46,7 +46,7 @@ SKIP: {
 		$outfile = "test-$name";
 	}
 
-	my $cflags = `pkg-config --libs --cflags dcerpc ndr`;
+	my $cflags = `pkg-config --libs --cflags ndr`;
 
 	open CC, "|cc -x c - -o $outfile $cflags";
 	print CC "#define uint_t unsigned int\n";
@@ -56,6 +56,7 @@ SKIP: {
 	print CC "#include <stdio.h>\n";
 	print CC "#include <stdbool.h>\n";
 	print CC "#include <stdarg.h>\n";
+	print CC "#include <core.h>\n";
 	print CC $header;
 	print CC $ndrheader;
 	print CC $extra if ($extra);

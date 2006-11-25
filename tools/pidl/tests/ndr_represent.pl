@@ -26,7 +26,7 @@ test_samba4_ndr('represent_as-simple',
 		return 2;
 ',
 '
-#include <core/nterr.h>
+#include <libcli/util/nterr.h>
 
 NTSTATUS ndr_uint8_to_uint32(uint8_t from, uint32_t *to)
 {

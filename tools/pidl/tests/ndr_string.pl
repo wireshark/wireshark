@@ -79,6 +79,6 @@ test_samba4_ndr("string-out",
 	if (strncmp(r.out.data, "foo", 3) != 0)
 		return 3;
 
-	if (r.in.data[4] != 0)
+	if (r.out.data[4] != 0)
 		return 4;
 ');

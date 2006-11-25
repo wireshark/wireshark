@@ -70,8 +70,6 @@ my $scalar_alignment = {
 	'ipv4address' => 4
 };
 
-
-
 sub nonfatal($$)
 {
 	my ($e,$s) = @_;
@@ -135,8 +133,7 @@ sub GetElementLevelTable($)
 				$is_string = 1;
 				delete($e->{PROPERTIES}->{string});
 			} else {
-				print "$e->{FILE}:$e->{LINE}: Must specify size_is() for conformant array!\n";
-				exit 1;
+				fatal($e, "Must specify size_is() for conformant array!")
 			}
 
 			if (($length = shift @length_is) or $is_string) {
@@ -183,6 +180,11 @@ sub GetElementLevelTable($)
 			IS_DEFERRED => "$is_deferred",
 			LEVEL => $level
 		});
+
+		nonfatal($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer") 
+			if ($i == 1 and pointer_type($e) ne "ref" and 
+				$e->{PARENT}->{TYPE} eq "FUNCTION" and 
+				not has_property($e, "in"));
 
 		$pointer_idx++;
 		
@@ -307,7 +309,7 @@ sub pointer_type($)
 	return undef unless $e->{POINTERS};
 	
 	return "ref" if (has_property($e, "ref"));
-	return "ptr" if (has_property($e, "ptr"));
+	return "full" if (has_property($e, "ptr"));
 	return "sptr" if (has_property($e, "sptr"));
 	return "unique" if (has_property($e, "unique"));
 	return "relative" if (has_property($e, "relative"));
@@ -605,6 +607,8 @@ sub ParseInterface($)
 
 	if (not has_property($idl, "pointer_default_top")) {
 		$idl->{PROPERTIES}->{pointer_default_top} = "ref";
+	} else {
+		nonfatal($idl, "pointer_default_top() is a pidl extension and should not be used");
 	}
 
 	foreach my $d (@{$idl->{DATA}}) {
@@ -785,7 +789,6 @@ my %property_list = (
 	# pointer
 	"ref"			=> ["ELEMENT"],
 	"ptr"			=> ["ELEMENT"],
-	"sptr"			=> ["ELEMENT"],
 	"unique"		=> ["ELEMENT"],
 	"ignore"		=> ["ELEMENT"],
 	"relative"		=> ["ELEMENT"],
@@ -881,10 +884,6 @@ sub ValidElement($)
 
 	ValidProperties($e,"ELEMENT");
 
-	if (has_property($e, "ptr")) {
-		fatal($e, el_name($e) . " : pidl does not support full NDR pointers yet\n");
-	}
-
 	# Check whether switches are used correctly.
 	if (my $switch = has_property($e, "switch_is")) {
 		my $e2 = find_sibling($e, $switch);
@@ -942,7 +941,6 @@ sub ValidElement($)
 
 	if (!$e->{POINTERS} && (
 		has_property($e, "ptr") or
-		has_property($e, "sptr") or
 		has_property($e, "unique") or
 		has_property($e, "relative") or
 		has_property($e, "ref"))) {
@@ -1050,9 +1048,11 @@ sub ValidInterface($)
 
 	ValidProperties($interface,"INTERFACE");
 
-	if (has_property($interface, "pointer_default") && 
-		$interface->{PROPERTIES}->{pointer_default} eq "ptr") {
-		fatal $interface, "Full pointers are not supported yet\n";
+	if (has_property($interface, "pointer_default")) {
+		if (not grep (/$interface->{PROPERTIES}->{pointer_default}/, 
+					("ref", "unique", "ptr"))) {
+			fatal $interface, "Unknown default pointer type `$interface->{PROPERTIES}->{pointer_default}'";
+		}
 	}
 
 	if (has_property($interface, "object")) {

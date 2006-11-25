@@ -119,11 +119,11 @@ test_samba4_ndr('align-blob-align2',
 		uint8 x;
 		[flag(LIBNDR_FLAG_ALIGN2)] DATA_BLOB data;
 		uint8 y;
-	} bla;
+	} blie;
 ',
 '
 	struct ndr_push *ndr = ndr_push_init();
-	struct bla r;
+	struct blie r;
 	uint8_t data[] = { 0x01, 0x02 };
 	uint8_t expected[] = { 0x0D, 0x00, 0x0E };
 	DATA_BLOB expected_blob = { expected, 3 };
@@ -134,7 +134,7 @@ test_samba4_ndr('align-blob-align2',
 	r.data.data = data;
 	r.data.length = 2;
 
-	if (NT_STATUS_IS_ERR(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (NT_STATUS_IS_ERR(ndr_push_blie(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);

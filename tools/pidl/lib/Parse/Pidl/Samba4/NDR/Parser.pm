@@ -669,8 +669,8 @@ sub ParsePtrPush($$$)
 		pidl "NDR_CHECK(ndr_push_relative_ptr1(ndr, $var_name));";
 	} elsif ($l->{POINTER_TYPE} eq "unique") {
 		pidl "NDR_CHECK(ndr_push_unique_ptr(ndr, $var_name));";
-	} elsif ($l->{POINTER_TYPE} eq "sptr") {
-		pidl "NDR_CHECK(ndr_push_sptr_ptr(ndr, $var_name));";
+	} elsif ($l->{POINTER_TYPE} eq "full") {
+		pidl "NDR_CHECK(ndr_push_full_ptr(ndr, $var_name));";
 	} else {
 		die("Unhandled pointer type $l->{POINTER_TYPE}");
 	}
@@ -1085,7 +1085,7 @@ sub ParsePtrPull($$$$)
 		return;
 	} elsif (($l->{POINTER_TYPE} eq "unique") or 
 		 ($l->{POINTER_TYPE} eq "relative") or
-		 ($l->{POINTER_TYPE} eq "sptr")) {
+		 ($l->{POINTER_TYPE} eq "full")) {
 		pidl "NDR_CHECK(ndr_pull_generic_ptr($ndr, &_ptr_$e->{NAME}));";
 		pidl "if (_ptr_$e->{NAME}) {";
 		indent;

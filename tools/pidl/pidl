@@ -268,12 +268,12 @@ Datagram support (ncadg_*)
 
 =back
 
-=head2 Supported attributes
+=head2 Supported attributes and statements
 
 in, out, ref, length_is, switch_is, size_is, uuid, case, default, string, 
 unique, ptr, pointer_default, v1_enum, object, helpstring, range, local, 
 call_as, endpoint, switch_type, progid, coclass, iid_is, represent_as, 
-transmit_as.
+transmit_as, import, include.
 
 =head2 PIDL Specific properties
 
@@ -342,13 +342,13 @@ to the host format. Commonly used values are UCS2, DOS and UTF8.
 
 =back
 
-=head2 Unsupported MIDL properties
+=head2 Unsupported MIDL properties or statements
 
 aggregatable, appobject, async_uuid, bindable, control, cpp_quote, 
 defaultbind, defaultcollelem, defaultvalue, defaultvtable, dispinterface, 
 displaybind, dual, entry, first_is, helpcontext, helpfile, helpstringcontext, 
 helpstringdll, hidden, idl_module, idl_quote, id, immediatebind, importlib, 
-import, include, includelib, last_is, lcid, licensed, max_is, module, 
+includelib, last_is, lcid, licensed, max_is, module, 
 ms_union, no_injected_text, nonbrowsable, noncreatable, nonextensible, odl, 
 oleautomation, optional, pragma, propget, propputref, propput, readonly, 
 requestedit, restricted, retval, source, uidefault, 
