@@ -803,6 +803,8 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 		dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
 }
 
+gboolean h248_c_implicit = TRUE;
+
 static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x1001, &hf_h248_pkg_annexc_media, h248_param_ber_integer, NULL },
 	{ 0x1002, &hf_h248_pkg_annexc_transmission_mode, h248_param_ber_integer, NULL },
@@ -921,21 +923,21 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xA002, &hf_h248_pkg_annexc_bmsdu, h248_param_item, &four },
 	{ 0xA003, &hf_h248_pkg_annexc_sscs, NULL, NULL },
 
-	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, h248_param_ber_octetstring, NULL },
-	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, h248_param_ber_octetstring, NULL },
-	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, h248_param_ber_octetstring, NULL },
-	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, h248_param_ber_octetstring, NULL },
-	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, h248_param_ber_octetstring, NULL },
-	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, h248_param_ber_octetstring, NULL },
-	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, h248_param_ber_octetstring, NULL },
-	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, h248_param_ber_octetstring, NULL },
-	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, h248_param_ber_octetstring, NULL },
-	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, h248_param_ber_octetstring, NULL },
-	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, h248_param_ber_octetstring, NULL },
-	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, h248_param_ber_octetstring, NULL },
-	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, h248_param_ber_octetstring, NULL },
-	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, h248_param_ber_octetstring, NULL },
-	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, h248_param_ber_octetstring, NULL },
+	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, h248_param_ber_octetstring, &h248_c_implicit },
+	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, h248_param_ber_octetstring, &h248_c_implicit },
 	
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring, NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
@@ -952,10 +954,10 @@ static h248_package_t h248_annexc_package = {
 	&proto_h248_pkg_annexc,
 	&hf_h248_pkg_annexc_parameters,
 	&ett_annexc,
-	h248_annexc_package_properties,
-	NULL,
-	NULL,
-	NULL
+	h248_annexc_package_properties, /* properties */
+	NULL,							/* signals */
+	NULL,							/* events */
+	NULL							/* statistics */
 };
 
 

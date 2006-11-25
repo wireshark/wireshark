@@ -315,10 +315,11 @@ static const true_false_string h248_tdmc_ec_vals = {
 	"Off"
 };
 
+gboolean implicit = TRUE;
 
 static h248_pkg_param_t h248_pkg_tdmc_props[] = {
-	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, NULL },
-	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, NULL },
+	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, &implicit },
+	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
