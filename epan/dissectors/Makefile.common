@@ -255,6 +255,7 @@ DISSECTOR_SRC =	\
 	packet-dcom-remact.c \
 	packet-dcom-remunkn.c \
 	packet-dcom-sysact.c \
+	packet-dcp-etsi.c	\
 	packet-ddtp.c	\
 	packet-dec-bpdu.c	\
 	packet-dec-dnart.c	\

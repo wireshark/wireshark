@@ -40,6 +40,7 @@ LIBWIRESHARK_SRC = 		\
 	conversation.c		\
 	crc16.c			\
 	crc32.c			\
+	crcdrm.c		\
 	crypt-des.c		\
 	crypt-md4.c		\
 	crypt-md5.c		\
@@ -73,6 +74,7 @@ LIBWIRESHARK_SRC = 		\
 	radius_dict.c		\
 	range.c			\
 	reassemble.c		\
+	reedsolomon.c		\
 	req_resp_hdrs.c		\
 	sha1.c			\
 	sigcomp_state_hdlr.c	\
@@ -119,6 +121,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	conversation.h		\
 	crc16.h			\
 	crc32.h			\
+	crcdrm.h		\
 	crypt-des.h		\
 	crypt-md4.h		\
 	crypt-md5.h		\
@@ -168,6 +171,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	ptvcursor.h		\
 	range.h			\
 	reassemble.h		\
+	reedsolomon.h		\
 	report_err.h		\
 	req_resp_hdrs.h		\
 	rtp_pt.h		\
