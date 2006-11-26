@@ -36,12 +36,18 @@
 #include "packet-smb-common.h"
 
 static int proto_smb_logon = -1;
+static int proto_smb_netlogon = -1;
+static int proto_smb_ntlogon = -1;
 static int hf_command = -1;
 static int hf_computer_name = -1;
 static int hf_unicode_computer_name = -1;
+static int hf_unknown_int = -1;
 static int hf_server_name = -1;
 static int hf_user_name = -1;
 static int hf_domain_name = -1;
+static int hf_server_dns_name = -1;
+static int hf_forest_dns_name = -1;
+static int hf_domain_dns_name = -1;
 static int hf_mailslot_name = -1;
 static int hf_pdc_name = -1;
 static int hf_unicode_pdc_name = -1;
@@ -74,6 +80,15 @@ static int hf_db_count = -1;
 static int hf_db_index = -1;
 static int hf_large_serial = -1;
 static int hf_nt_date_time = -1;
+
+static int hf_unknown8 = -1;
+static int hf_unknown32 = -1;
+
+static int hf_domain_guid = -1;
+static int hf_server_ip = -1;
+
+static int hf_server_site_name = -1;
+static int hf_client_site_name = -1;
 
 static int ett_smb_logon = -1;
 static int ett_smb_account_flags = -1;
@@ -531,7 +546,6 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 
-
 static int
 dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
@@ -705,6 +719,7 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int offset)
 {
 	/* Netlogon command 0x13 - decode the SAM logon response from server */
+	/* Netlogon command 0x15 - decode the SAM logon response from server unknown user */
 
 	/* server name */
 	offset = display_unicode_string(tvb, tree, offset, hf_server_name, NULL);
@@ -714,6 +729,81 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* domain name */
 	offset = display_unicode_string(tvb, tree, offset, hf_domain_name, NULL);
+
+	/* NT version */
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* LMNT token */
+	offset = display_LMNT_token(tvb, offset, tree);
+
+	/* LM token */
+	offset = display_LM_token(tvb, offset, tree);
+
+	return offset;
+}
+
+static int
+dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
+	proto_tree *tree, int offset)
+{
+	/* Netlogon command 0x17 - decode the response from PDC ADS */
+	/* Netlogon command 0x19 - decode the response from PDC ADS USER ?*/
+
+	/* Align to four-byte boundary */
+	offset = ((offset + 3)/4)*4;
+
+	/* unknown uint32 type */
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* Domain GUID */
+	proto_tree_add_item(tree, hf_domain_guid, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* forest dns name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_forest_dns_name, FALSE, NULL);
+
+	/* domain dns name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_dns_name, FALSE, NULL);
+
+	/* server dns name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_dns_name, FALSE, NULL);
+
+	/* domain name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_name, FALSE, NULL);
+
+	/* server name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_name, FALSE, NULL);
+
+	/* user name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_user_name, FALSE, NULL);
+
+	/* server_site name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_site_name, FALSE, NULL);
+
+	/* client_site name */
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_client_site_name, FALSE, NULL);
+
+	/* unknown uint8 type */
+	proto_tree_add_item(tree, hf_unknown8, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* unknown uint32 type */
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* server ip */
+	proto_tree_add_item(tree, hf_server_ip, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* unknown uint32 type */
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* unknown uint32 type */
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* NT version */
 	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
@@ -819,11 +909,11 @@ static int (*dissect_smb_logon_cmds[])(tvbuff_t *tvb, packet_info *pinfo, proto_
 	dissect_smb_sam_logon_req,  /* 0x12 (SAM LOGON request )	*/
 	dissect_smb_sam_logon_resp, /* 0x13 (SAM LOGON response)	*/
 	dissect_smb_unknown,        /* 0x14 (SAM Response during LOGON Pause) */
-	dissect_smb_unknown,        /* 0x15 (SAM Response User Unknown)	*/
+	dissect_smb_sam_logon_resp, /* 0x15 (SAM Response User Unknown)	*/
 	dissect_smb_unknown,        /* 0x16 (SAM Response to Interrogate)*/
-	dissect_smb_unknown,        /* 0x17 (SAM AD response User Unknown*/
+	dissect_smb_pdc_response_ads,        /* 0x17 (SAM AD response User Unknown*/
 	dissect_smb_unknown,        /* 0x18 (Unknown command)		*/
-	dissect_smb_unknown         /* 0x19 (SAM LOGON AD response)	*/
+	dissect_smb_pdc_response_ads         /* 0x19 (SAM LOGON AD response)	*/
 };
 
 
@@ -890,6 +980,10 @@ proto_register_smb_logon( void)
 			{ "Server Name", "smb_netlogon.server_name", FT_STRING, BASE_NONE,
 			  NULL, 0, "SMB NETLOGON Server Name", HFILL }},
 
+		{ &hf_server_dns_name,
+			{ "Server DNS Name", "smb_netlogon.server_dns_name", FT_STRING, BASE_NONE,
+			  NULL, 0, "SMB NETLOGON Server DNS Name", HFILL }},
+
 		{ &hf_user_name,
 			{ "User Name", "smb_netlogon.user_name", FT_STRING, BASE_NONE,
 			  NULL, 0, "SMB NETLOGON User Name", HFILL }},
@@ -897,6 +991,14 @@ proto_register_smb_logon( void)
 		{ &hf_domain_name,
 			{ "Domain Name", "smb_netlogon.domain_name", FT_STRING, BASE_NONE,
 			  NULL, 0, "SMB NETLOGON Domain Name", HFILL }},
+
+		{ &hf_domain_dns_name,
+			{ "Domain DNS Name", "smb_netlogon.domain_dns_name", FT_STRING, BASE_NONE,
+			  NULL, 0, "SMB NETLOGON Domain DNS Name", HFILL }},
+
+		{ &hf_forest_dns_name,
+			{ "Forest DNS Name", "smb_netlogon.forest_dns_name", FT_STRING, BASE_NONE,
+			  NULL, 0, "SMB NETLOGON Forest DNS Name", HFILL }},
 
 		{ &hf_mailslot_name,
 			{ "Mailslot Name", "smb_netlogon.mailslot_name", FT_STRING, BASE_NONE,
@@ -1027,6 +1129,30 @@ proto_register_smb_logon( void)
 		{ &hf_nt_date_time,
 			{ "NT Date/Time", "smb_netlogon.nt_date_time", FT_ABSOLUTE_TIME, BASE_NONE,
 			  NULL, 0, "SMB NETLOGON NT Date/Time", HFILL }},
+
+		{ &hf_unknown8,
+			{ "Unknown", "smb_netlogon.unknown", FT_UINT8, BASE_HEX,
+			  NULL, 0, "Unknown", HFILL }},
+
+		{ &hf_unknown32,
+			{ "Unknown", "smb_netlogon.unknown", FT_UINT32, BASE_HEX,
+			  NULL, 0, "Unknown", HFILL }},
+
+		{ &hf_domain_guid,
+			{ "Domain GUID", "smb_netlogon.domain.guid", FT_BYTES, BASE_HEX,
+			   NULL, 0x0, "Domain GUID", HFILL }},
+
+		{ &hf_server_ip, {
+			"Server IP", "smb_netlogon.server_ip", FT_IPv4, BASE_NONE,
+			NULL, 0x0, "Server IP Address", HFILL }},
+
+		{ &hf_server_site_name,
+			{ "Server Site Name", "smb_netlogon.server_site_name", FT_STRING, BASE_NONE,
+			  NULL, 0, "SMB NETLOGON Server Site Name", HFILL }},
+
+		{ &hf_client_site_name,
+			{ "Client Site Name", "smb_netlogon.client_site_name", FT_STRING, BASE_NONE,
+			  NULL, 0, "SMB NETLOGON Client Site Name", HFILL }},
 	};
 
 	static gint *ett[] = {
