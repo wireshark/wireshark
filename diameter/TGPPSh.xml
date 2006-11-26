@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: 3GPPSh.xml 16498 2005-11-13 16:40:55Z etxrab $ -->
+<!-- $Id$ -->
 
 	<application id="16777217" name="3GPP Sh" uri="http://webapp.etsi.org/exchangefolder/ts_129329v060600p.pdf">
 	<!-- 3GPP TS 29.329 version 6.6.0 Release 6, ETSI TS 129 329 V6.6.0 (2005-09)-->
