@@ -133,10 +133,11 @@ static int dissect_ms_compressed_string_internal(tvbuff_t *tvb, int offset, char
   offset+=1;
   *str=0;
 
+  /* XXX: Reserve 4 chars for "...\0" */
   while(len){
     /* add potential field separation dot */
     if(prepend_dot){
-      if(!maxlen){
+      if(maxlen<=4){
         *str=0;
         return offset;
       }
@@ -161,12 +162,10 @@ static int dissect_ms_compressed_string_internal(tvbuff_t *tvb, int offset, char
 
     prepend_dot=TRUE;
 
-    if(maxlen<=len){
-      if(maxlen>3){
-        *str++='.';
-        *str++='.';
-        *str++='.';
-      }
+    if(len>(maxlen-4)){
+      *str++='.';
+      *str++='.';
+      *str++='.';
       *str=0;
       return offset; /* will mess up offset in caller, is unlikely */
     }
