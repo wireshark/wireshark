@@ -974,7 +974,7 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 5 4.2.83
  */
 static guint8
-elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     const gchar	*str;
@@ -2719,7 +2719,7 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 5 4.2.21
  */
 static guint8
-elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -3765,7 +3765,7 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 5 4.2.78
  */
 static guint8
-elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
 
@@ -3784,7 +3784,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 4.2.80
  */
 static guint8
-elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
 
@@ -5470,8 +5470,8 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     guint8	oct;
     guint8	oct_len;
     guint32	curr_offset;
-    gboolean	rev_pdch_supported;
-    gboolean	for_pdch_supported;
+    gboolean	rev_pdch_supported = FALSE;
+    gboolean	for_pdch_supported = FALSE;
     gboolean	dcch_supported;
     const gchar	*str;
 
@@ -7173,7 +7173,7 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.138
  */
 static guint8
-elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -7206,7 +7206,7 @@ elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.139
  */
 static guint8
-elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
 
@@ -7446,7 +7446,7 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 5 4.2.89
  */
 static guint8
-elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     guint32	curr_offset;
@@ -7521,7 +7521,7 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * IOS 5 4.2.90
  */
 static guint8
-elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     proto_item	*item;
@@ -7781,7 +7781,7 @@ elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * IOS 5 4.2.87
  */
 static guint8
-elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
     guint32	curr_offset;

@@ -306,7 +306,6 @@ static void
 tele_param_msg_id(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 {
     guint32	octs;
-    const gchar	*str = NULL;
 
     EXACT_DATA_CHECK(len, 3);
 
@@ -1298,7 +1297,7 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 }
 
 static void
-trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len)
+trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct, oct2, num_fields;
     guint32	i;
@@ -1499,7 +1498,7 @@ trans_param_cause_codes(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 }
 
 static void
-trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len)
+trans_param_bearer_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string _U_, int string_len _U_)
 {
     tvbuff_t	*tele_tvb;
 
