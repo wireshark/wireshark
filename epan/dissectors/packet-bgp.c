@@ -489,7 +489,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
         }
 
         bufptr+=MIN(buflen-(bufptr-buf),
-		    g_snprintf(bufptr, buflen-(bufptr-buf), "%u%s", 
+                    (unsigned)g_snprintf(bufptr, buflen-(bufptr-buf), "%u%s", 
 			(label_entry >> 4), 
 			((label_entry & 0x000001) == 0) ? "," : " (bottom)"));
 	
