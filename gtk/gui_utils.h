@@ -33,7 +33,7 @@
  * - Statistic Windows (several different statistic windows)
  *
  * See: @ref howto_window_page for details.
- * 
+ *
  */
 
 /** @page howto_window_page How to develop a window / dialog
@@ -43,7 +43,7 @@
  * from it's parent window. Dialogs should be used to ask or note the user something, while windows should
  * show data independantly from the main window.
  * Dialogs are created by calling dlg_window_new() which in turn will call window_new().
- * After that, dialogs can be developed the same way as windows, all window related functions in gui_utils.h 
+ * After that, dialogs can be developed the same way as windows, all window related functions in gui_utils.h
  * can be used for both.
  *
  * @section window_create Create a window
@@ -56,37 +56,37 @@
  *   needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
  *   Be sure that the given size is larger than the initial size, otherwise the window might
  *   clip the content (at least on GTK1)
- * - SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be 
+ * - SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be
  *   done after the window is destroyed, e.g. free up memory, or set the window pointer
  *   of a singleton window (only one instance allowed, e.g. about dialog) back to zero
  * - create and fill in the content and button widgets
  * - gtk_widget_show_all() shows all the widgets in the window
- * - window_present() present the window on screen and 
+ * - window_present() present the window on screen and
  *   (if available) set previously saved position and size
  *
  * @section window_events Events
  *
  * The following events are usually interesting:
  *
- * - "delete_event": the window managers "X" (e.g. upper right edge) of the window 
+ * - "delete_event": the window managers "X" (e.g. upper right edge) of the window
  *   was clicked, default handler will call gtk_widget_destroy()
  * - "destroy": everything is already gone, only cleanup of left over ressources
  *   can/should be done now
  *
  * @section window_hints Hints
  *
- * If you want to save size and position, be sure to call window_destroy() instead of only 
+ * If you want to save size and position, be sure to call window_destroy() instead of only
  *   gtk_widget_destroy(), so you will probably have to SIGNAL_CONNECT to the "delete_event"!
  *
  * Don't use WIDGET_SET_SIZE() to set the size of a window,
  * use gtk_window_set_default_size() for that purpose!
  *
- * Be sure to call window_present() / window_destroy() appropriately, if you 
+ * Be sure to call window_present() / window_destroy() appropriately, if you
  *   want to have size and position of the window handled by ui_util.
  *
  */
 
-/** @file 
+/** @file
  * Utilities for Windows and other user interface functions. See: @ref howto_window_page for details.
  * @ingroup dialog_group
  * @ingroup windows_group
@@ -96,10 +96,10 @@
  *  @todo Move these window functions to a new file win_utils.h?
  *  @{ */
 
-/** Create a new window with the Wireshark icon. 
- *  If you want to create a dialog, use dlg_window_new() instead. 
+/** Create a new window with the Wireshark icon.
+ *  If you want to create a dialog, use dlg_window_new() instead.
  *
- * @param type window type, typical GTK_WINDOW_TOPLEVEL 
+ * @param type window type, typical GTK_WINDOW_TOPLEVEL
  * @param title the title for the new window
  * @return the newly created window
  */
@@ -107,8 +107,8 @@ extern GtkWidget *window_new(GtkWindowType type, const gchar *title);
 
 /** Same as window_new(), but will keep its geometry values (size, position, ...).
  *  Be sure to use window_present() and window_destroy() appropriately!
- * 
- * @param type window type, typical GTK_WINDOW_TOPLEVEL 
+ *
+ * @param type window type, typical GTK_WINDOW_TOPLEVEL
  * @param title the title for the new window
  * @param geom_name the name to distinguish this window, will also be used for the recent file (don't use special chars)
  * @return the newly created window
@@ -121,7 +121,7 @@ extern GtkWidget *window_new_with_geom(GtkWindowType type, const gchar *title, c
  */
 extern GtkWidget *splash_window_new(void);
 
-/** Present the created window on the top of the screen. This will put the window on top and 
+/** Present the created window on the top of the screen. This will put the window on top and
  * (if available) set previously saved position and size.
  *
  * @param win the window from window_new()
@@ -132,7 +132,7 @@ extern void window_present(GtkWidget *win);
 typedef void (*window_cancel_button_fct) (GtkWidget *w, gpointer data);
 
 /** Register the default cancel button "Cancel"/"Close"/"Ok" of this window.
- *  This will set the callback function for this button, grab this button as the default one and 
+ *  This will set the callback function for this button, grab this button as the default one and
  *  set the "ESC" key handler to call the callback function if key is pressed.
  *
  * @param win the window from window_new()
@@ -149,13 +149,13 @@ extern void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cance
 extern void window_destroy(GtkWidget *win);
 
 /** Default callback handler for cancel button "clicked" signal.
- *  Use this for window_set_cancel_button(), if no user specific functionality required, 
+ *  Use this for window_set_cancel_button(), if no user specific functionality required,
  *  will simply call window_destroy()
  */
 extern void window_cancel_button_cb(GtkWidget *w _U_, gpointer data);
 
 /** Default callback handler if the window managers X of the window was clicked (delete_event).
- *  Use this for SIGNAL_CONNECT(), if no user specific functionality required, 
+ *  Use this for SIGNAL_CONNECT(), if no user specific functionality required,
  *  will simply call window_destroy()
  */
 extern gboolean window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _U_);
@@ -204,7 +204,7 @@ extern void window_geom_recent_write_all(gpointer rf);
  */
 extern void window_geom_recent_read_pair(const char *name, const char *key, const char *value);
 
-/** Raise a top-level window and de-iconify it.  
+/** Raise a top-level window and de-iconify it.
  *  This routine is used if the user has done something to
  *  ask that a window of a certain type be popped up when there can be only
  *  one such window and such a window has already been popped up - we
@@ -295,7 +295,7 @@ extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm
  *
  * @param str GString that is to be copied to the clipboard.
  */
-extern void copy_to_clipboard(GString *str);  
+extern void copy_to_clipboard(GString *str);
 
 /** Create a new window title that includes user-defined preference string.
  *
@@ -303,6 +303,5 @@ extern void copy_to_clipboard(GString *str);
  * @return a newly created title string including user-defined preference (if specified)
  */
 extern gchar *create_user_window_title(const gchar *caption);
-
 
 #endif /* __GTKGUIUI_UTIL_H__ */

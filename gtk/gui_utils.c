@@ -143,9 +143,9 @@ window_new(GtkWindowType type, const gchar *title)
   /* a lot of people dislike GTK_WIN_POS_MOUSE */
 
   /* set the initial position (must be done, before show is called!) */
-#if GTK_MAJOR_VERSION >= 2 	 
+#if GTK_MAJOR_VERSION >= 2
 /*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);*/
-#else	 
+#else
 /*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);*/
 #endif
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
@@ -332,12 +332,12 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 	http://www.gtk.org/faq/#AEN606
     */
 
-	gdk_window_get_root_origin(widget->window, 
-        &geom->x, 
+	gdk_window_get_root_origin(widget->window,
+        &geom->x,
         &geom->y);
 	if (gdk_window_get_deskrelative_origin(widget->window,
 				&desk_x, &desk_y)) {
-		if (desk_x <= geom->x && 
+		if (desk_x <= geom->x &&
             desk_y <= geom->y)
         {
 			geom->x = desk_x;
@@ -346,8 +346,8 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 	}
 
 	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(widget->window, 
-        &geom->width, 
+	gdk_window_get_size(widget->window,
+        &geom->width,
         &geom->height);
 
 #if GTK_MAJOR_VERSION >= 2
@@ -379,8 +379,8 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 #if GTK_MAJOR_VERSION >= 2
         gtk_window_resize(GTK_WINDOW(widget),
 #else
-        gtk_window_set_default_size(GTK_WINDOW(widget), 
-                                geom->width, 
+        gtk_window_set_default_size(GTK_WINDOW(widget),
+                                geom->width,
                                 geom->height);
         gtk_widget_set_usize(widget,
 #endif
@@ -476,7 +476,7 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
         geom.set_maximized = FALSE;/* this is valid in GTK2 only */
         geom.maximized  = FALSE;   /* this is valid in GTK2 only */
     }
-    
+
     if (strcmp(key, "x") == 0) {
         geom.x = strtol(value, NULL, 10);
         geom.set_pos = TRUE;
@@ -527,7 +527,7 @@ window_destroy(GtkWidget *win)
 
   /* get_geometry must be done *before* destroy is running, as the window geometry
    * cannot be retrieved at destroy time (so don't use event "destroy" for this) */
-  /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the 
+  /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
    * GtkWidget is hidden) */
   if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
       window_get_geometry(win, &geom);
@@ -861,6 +861,7 @@ static GList *trees;
 static void setup_tree(GtkWidget *tree);
 static void forget_tree(GtkWidget *tree, gpointer data);
 static void set_tree_styles(GtkWidget *tree);
+static int tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_);
 
 /* Create a Tree, give it the right styles, and remember it. */
 #if GTK_MAJOR_VERSION < 2
@@ -905,6 +906,9 @@ setup_tree(GtkWidget *tree)
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
   SIGNAL_CONNECT(tree, "destroy", forget_tree, NULL);
+#if GTK_MAJOR_VERSION >= 2
+  SIGNAL_CONNECT(tree, "key-press-event", tree_view_key_pressed_cb, NULL );
+#endif
 }
 
 /* Remove a Tree from the list of Trees. */
@@ -1035,7 +1039,7 @@ simple_list_new(gint cols, const gchar **titles) {
 }
 
 void
-copy_to_clipboard(GString *str)  
+copy_to_clipboard(GString *str)
 {
 #if (GTK_MAJOR_VERSION >= 2)
         GtkClipboard    *cb;
@@ -1073,3 +1077,74 @@ create_user_window_title(const gchar *caption)
 
 	return g_strdup_printf("%s %s", prefs.gui_window_title, caption);
 }
+
+/* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */
+#if GTK_MAJOR_VERSION >= 2
+static int
+tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_)
+{
+    GtkTreeSelection* selection;
+    GtkTreeIter iter;
+    GtkTreeIter parent;
+    GtkTreeModel* model;
+    GtkTreePath* path;
+    gboolean    expanded;
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
+    if(!selection) {
+        return FALSE;
+    }
+
+    if(!gtk_tree_selection_get_selected (selection, &model, &iter)) {
+        return FALSE;
+    }
+
+    path = gtk_tree_model_get_path(model, &iter);
+    if(!path) {
+        return FALSE;
+    }
+    expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(tree), path);
+
+    switch (event->keyval) {
+        case GDK_Left:
+            if(expanded) {
+                /* subtree is expanded, collapse it */
+                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
+                return TRUE;
+            }
+            /* No break - fall through to jumping to the parent */
+        case GDK_BackSpace:
+            if (!expanded) {
+                /* subtree is already collapsed, jump to parent node */
+                if(! gtk_tree_model_iter_parent(model, &parent, &iter)) {
+                    return FALSE;
+                }
+                path = gtk_tree_model_get_path(model, &parent);
+                if(!path) {
+                    return FALSE;
+                }
+                gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree), path,
+                                                 NULL /* focus_column */,
+                                                 FALSE /* !start_editing */);
+                return TRUE;
+            }
+            break;
+        case GDK_Right:
+            /* try to expand the subtree */
+            gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+            return TRUE;
+        case GDK_Return:
+        case GDK_KP_Enter:
+            /* Reverse the current state. */
+            if (expanded)
+                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree), path);
+            else
+                gtk_tree_view_expand_row(GTK_TREE_VIEW(tree), path, FALSE /* !open_all */);
+	    return TRUE;
+    }
+
+    return FALSE;
+}
+#endif
+
+

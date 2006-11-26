@@ -1754,77 +1754,6 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 }
 #endif
 
-
-#if GTK_MAJOR_VERSION >= 2
-static int
-tree_view_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_data _U_)
-{
-    GtkTreeSelection* selection;
-    GtkTreeIter iter;
-    GtkTreeIter parent;
-    GtkTreeModel* model;
-    GtkTreePath* path;
-    gboolean    expanded;
-    gboolean    has_parent;
-
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
-    if(!selection) {
-        return FALSE;
-    }
-
-    if(!gtk_tree_selection_get_selected (selection, &model, &iter)) {
-        return FALSE;
-    }
-
-    path = gtk_tree_model_get_path(model, &iter);
-    if(!path) {
-        return FALSE;
-    }
-    expanded = gtk_tree_view_row_expanded(GTK_TREE_VIEW(tree_view), path);
-
-    switch (event->keyval) {
-        case GDK_Left:
-            if(expanded) {
-                /* subtree is expanded, collapse it */
-                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree_view), path);
-                return TRUE;
-            }
-            /* No break - fall through to jumping to the parent */
-        case GDK_BackSpace:
-            if (!expanded) {
-                /* subtree is already collapsed, jump to parent node */
-                has_parent = gtk_tree_model_iter_parent(model, &parent, &iter);
-                path = gtk_tree_model_get_path(model, &parent);
-                if(!path) {
-                    return FALSE;
-                }
-                gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree_view), path,
-                                                 NULL /* focus_column */,
-                                                 FALSE /* !start_editing */);
-                return TRUE;
-            }
-            break;
-        case GDK_Right:
-            /* try to expand the subtree */
-            gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, FALSE /* !open_all */);
-            return TRUE;
-        case GDK_Return:
-        case GDK_KP_Enter:
-            /* Reverse the current state. */
-            if (expanded)
-                gtk_tree_view_collapse_row(GTK_TREE_VIEW(tree_view), path);
-            else
-                gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, FALSE /* !open_all */);
-	    return TRUE;
-    }
-
-    return FALSE;
-}
-#endif
-
-
-
 GtkWidget *
 main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 {
@@ -1873,7 +1802,6 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
   SIGNAL_CONNECT(tree_view, "row-expanded", expand_tree, NULL);
   SIGNAL_CONNECT(tree_view, "row-collapsed", collapse_tree, NULL);
-  SIGNAL_CONNECT(tree_view, "key-press-event", tree_view_key_pressed_cb, NULL );
 #endif
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
