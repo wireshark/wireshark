@@ -437,9 +437,9 @@ Please read README.malloc.
 1.1.3 Robustness.
 
 Wireshark is not guaranteed to read only network traces that contain correctly-
-formed packets. Wireshark is commonly used is to track down networking problems, 
-and the problems might be due to a buggy protocol implementation sending out 
-bad packets.
+formed packets. Wireshark is commonly used is to track down networking
+problems, and the problems might be due to a buggy protocol implementation
+sending out bad packets.
 
 Therefore, protocol dissectors not only have to be able to handle
 correctly-formed packets without, for example, crashing or looping
@@ -702,13 +702,29 @@ static gboolean gPREF_HEX = FALSE;
 static gint ett_PROTOABBREV = -1;
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *PROTOABBREV_tree;
+
+/*  First, if at all possible, do some heuristics to check if the packet cannot
+ *  possibly belong to your protocol.  This is especially important for
+ *  protocols directly on top of TCP or UDP where port collisions are
+ *  common place (e.g., even though your protocol uses a well known port,
+ *  someone else may set up, for example, a web server on that port which,
+ *  if someone analyzed that web server's traffic in Wireshark, would result
+ *  in Wireshark handing an HTTP packet to your dissector).  For example:
+ */
+
+	/* Get some values from the packet header, probably using tvb_get_*() */
+	if ( /* these values are not possible in PROTONAME */ )
+		/*  This packet does not appear to belong to PROTONAME.
+		 *  Return 0 to give another dissector a chance to dissect it.
+		 */
+		return 0;
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
@@ -753,14 +769,15 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	(a) Operational dissection
 
 		In this mode, Wireshark is only interested in the way protocols
-		interact, protocol conversations are created, packets are reassembled
-		and handed over to higher-level protocol dissectors.
-		In this mode Wireshark does not build a so-called "protocol tree".
+		interact, protocol conversations are created, packets are
+		reassembled and handed over to higher-level protocol dissectors.
+		In this mode Wireshark does not build a so-called "protocol
+		tree".
 
 	(b) Detailed dissection
 
-		In this mode, Wireshark is also interested in all details of a given
-		protocol, so a "protocol tree" is created.
+		In this mode, Wireshark is also interested in all details of
+		a given protocol, so a "protocol tree" is created.
 
    Wireshark distinguishes between the 2 modes with the proto_tree pointer:
 	(a) <=> tree == NULL
@@ -811,6 +828,9 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 /* If this protocol has a sub-dissector call it here, see section 1.8 */
+
+/* Return the amount of data this dissector was able to dissect */
+	return tvb_length(tvb);
 }
 
 
@@ -860,8 +880,8 @@ proto_register_PROTOABBREV(void)
 
 
 /* If this dissector uses sub-dissector registration add a registration routine.
-   This exact format is required because a script is used to find these routines 
-   and create the code that calls these routines.
+   This exact format is required because a script is used to find these
+   routines and create the code that calls these routines.
    
    This function is also called by preferences whenever "Apply" is pressed 
    (see prefs_register_protocol above) so it should accommodate being called 
@@ -876,7 +896,11 @@ proto_reg_handoff_PROTOABBREV(void)
 
 	    dissector_handle_t PROTOABBREV_handle;
 
-	    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
+/*  Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
+ *  returns the number of bytes it dissected (or 0 if it thinks the packet
+ *  does not belong to PROTONAME).
+ */
+	    PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
 	        proto_PROTOABBREV);
 	    dissector_add("PARENT_SUBFIELD", ID_VALUE, PROTOABBREV_handle);
         
@@ -886,10 +910,10 @@ proto_reg_handoff_PROTOABBREV(void)
         /* 
           If you perform registration functions which are dependant upon
           prefs the you should de-register everything which was associated
-          with the previous settings and re-register using the new prefs settings
-          here. In general this means you need to keep track of what value the
-          preference had at the time you registered using a local static in this
-          function. ie.
+          with the previous settings and re-register using the new prefs
+	  settings here. In general this means you need to keep track of what
+	  value the preference had at the time you registered using a local
+	  static in this function. ie.
 
           static int currentPort = -1;
 
@@ -958,7 +982,7 @@ wants/needs to expose code to other subdissectors.
 The dissector must declared as exactly as follows in the file 
 packet-PROTOABBREV.h:
 
-void
+int
 dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
@@ -2946,11 +2970,12 @@ static dissector_handle_t sub_dissector_handle;
 
 2.5 Per packet information.
 
-Information can be stored for each data packet that is processed by the dissector.
-The information is added with the p_add_proto_data function and retrieved with the 
-p_get_proto_data function.  The data pointers passed into the p_add_proto_data are
-not managed by the proto_data routines. If you use malloc or any other dynamic 
-memory allocation scheme, you must release the data when it isn't required.
+Information can be stored for each data packet that is processed by the
+dissector.  The information is added with the p_add_proto_data function and
+retrieved with the p_get_proto_data function.  The data pointers passed into
+the p_add_proto_data are not managed by the proto_data routines. If you use
+malloc or any other dynamic memory allocation scheme, you must release the
+data when it isn't required.
 
 void
 p_add_proto_data(frame_data *fd, int proto, void *proto_data)
@@ -2959,7 +2984,8 @@ p_get_proto_data(frame_data *fd, int proto)
 
 Where: 
 	fd         - The fd pointer in the pinfo structure, pinfo->fd
-	proto      - Protocol id returned by the proto_register_protocol call during initialization
+	proto      - Protocol id returned by the proto_register_protocol call
+		     during initialization
 	proto_data - pointer to the dissector data.
 
 
@@ -2977,7 +3003,8 @@ Where: proto_id   - the value returned by "proto_register_protocol()" when
        apply_cb   - Callback routine that is call when preferences are applied
 
 
-Then you can register the fields that can be configured by the user with these routines -
+Then you can register the fields that can be configured by the user with these
+routines -
 
 	/* Register a preference with an unsigned integral value. */
 	void prefs_register_uint_preference(module_t *module, const char *name,
@@ -3210,9 +3237,9 @@ static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 This simple dissector will repeatedly return -1 requesting one more byte until 
 the tvbuff contains a complete C string. The C string will then be added to the 
-protocol tree. Unfortunately since there is no way to guess the size of C String 
-without seeing the entire string this dissector can never request more than one
-additional byte.
+protocol tree. Unfortunately since there is no way to guess the size of C
+String without seeing the entire string this dissector can never request more
+than one additional byte.
 
 2.8 ptvcursors.
 
