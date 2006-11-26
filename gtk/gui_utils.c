@@ -861,7 +861,9 @@ static GList *trees;
 static void setup_tree(GtkWidget *tree);
 static void forget_tree(GtkWidget *tree, gpointer data);
 static void set_tree_styles(GtkWidget *tree);
+#if GTK_MAJOR_VERSION >= 2
 static int tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_);
+#endif
 
 /* Create a Tree, give it the right styles, and remember it. */
 #if GTK_MAJOR_VERSION < 2
