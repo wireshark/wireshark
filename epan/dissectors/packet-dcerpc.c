@@ -2295,19 +2295,26 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                  * dissect; just re-throw that exception.
                  */
                 TRY {
+                    int remaining;
+
                     offset = sub_dissect (stub_tvb, 0, pinfo, sub_tree,
                                           drep);
-                    if(tree && offset > 0) {
-                        proto_item_set_len(sub_item, offset);
-                    }
 
                     /* If we have a subdissector and it didn't dissect all
                        data in the tvb, make a note of it. */
-                    if (tvb_reported_length_remaining(stub_tvb, offset) > 0) {
+                    remaining = tvb_reported_length_remaining(stub_tvb, offset);
+                    if (remaining > 0) {
+                        proto_tree_add_text(sub_tree, stub_tvb, offset,
+                                            remaining,
+                                            "[Long frame (%d byte%s)]",
+                                            remaining,
+                                            plurality(remaining, "", "s"));
                         if (check_col(pinfo->cinfo, COL_INFO))
                             col_append_fstr(pinfo->cinfo, COL_INFO,
-                                            "[Long frame (%d bytes)]",
-                                            tvb_reported_length_remaining(stub_tvb, offset));
+                                            "[Long frame (%d byte%s)]",
+                                            remaining,
+                                            plurality(remaining, "", "s"));
+
                     }
                 } CATCH(BoundsError) {
                     RETHROW;
