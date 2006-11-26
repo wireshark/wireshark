@@ -1117,7 +1117,7 @@ AC_DEFUN([AC_WIRESHARK_NETSNMP_CHECK],
 		#
 		AC_PATH_PROG(NETSNMPCONFIG, net-snmp-config)
 	else
-		NETSNMPCNFIG=$netsnmpconfig
+		NETSNMPCONFIG=$netsnmpconfig
 		if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
 			NETSNMPCONFIG=$netsnmpconfig/bin/net-snmp-config
 			if test ! -x $NETSNMPCONFIG -o ! -f $NETSNMPCONFIG ; then
