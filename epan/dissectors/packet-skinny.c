@@ -2567,7 +2567,6 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (hdr_data_length < 4 || hdr_reserved != 0) {
     /* Not an SKINNY packet, just happened to use the same port */
-    call_dissector(data_handle,tvb, pinfo, tree);
     return FALSE;
   }
 
