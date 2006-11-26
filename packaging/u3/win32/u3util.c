@@ -34,6 +34,53 @@
  */
 
 #include <windows.h>
+#include <winreg.h>
+#include <shlobj.h>
+
+
+#define WIRESHARK_ASSOC "u3-wireshark-file"
+#define WIRESHARK_DESC  "U3 Wireshark File"
+
+#define SHELL                "\\Shell"
+#define SHELL_OPEN           "\\Shell\\open"
+#define SHELL_OPEN_COMMAND   "\\Shell\\open\\command"
+#define DEFAULT_ICON         "\\DefaultIcon"
+
+#define WINPCAP_PACKAGE      "\\WinPcap_3_1.exe"
+#define WINPCAP_KEY          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinPcapInst"
+#define WINPCAP_UNINSTALL    "UninstallString"
+#define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
+
+#define BUFSIZ          256
+
+static char *extensions[] = {
+  ".5vw",
+  ".acp",
+  ".apc",
+  ".atc",
+  ".bfr",
+  ".cap",
+  ".enc",
+  ".erf",
+  ".fdc",
+  ".pcap",
+  ".pkt",
+  ".tpc",
+  ".tr1",
+  ".trace",
+  ".trc",
+  ".wpc",
+  ".wpz",
+  /* and BER encoded files */
+  ".cer",
+  ".crt",
+  ".crl",
+  ".p12",
+  ".pfx",
+  ".asn",
+  ".spf",
+  NULL
+};
 
 #define TA_FAILED 0
 #define TA_SUCCESS_CLEAN 1
@@ -217,6 +264,25 @@ BOOL CALLBACK Terminate16AppEnum( HWND hwnd, LPARAM lParam )
   return TRUE ;
 }
 
+
+void ExecuteAndWait(char *buffer)
+{
+  STARTUPINFO         si;
+  PROCESS_INFORMATION pi;
+
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
+
+  if(CreateProcess(NULL, buffer, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+    /* wait for the uninstall to finish */
+    (void) WaitForSingleObject(pi.hProcess, INFINITE);
+      
+    (void)CloseHandle(pi.hProcess);
+    (void)CloseHandle(pi.hThread);
+
+  }
+}
 /* This is the new function */
 
 void app_stop(DWORD timeOut)
@@ -259,12 +325,272 @@ void app_stop(DWORD timeOut)
 
 }
 
+/* associate
+  
+Associate an filetype (extension) with the U3 Wireshark if it doesn't already have an association
+   
+*/
+
+void associate(char *extension)
+{
+  HKEY key;
+  DWORD disposition;
+  char buffer[BUFSIZ];
+  int  buflen = BUFSIZ;
+
+  buffer[0] = '\0';
+
+  /* open the HKCR  extension  key*/
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, extension, 0, NULL, 0, (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
+
+    /* we could look at the disposition - but we don't bother */
+    if((RegQueryValueEx(key, "", NULL, NULL, buffer, &buflen) != ERROR_SUCCESS) || (buffer[0] == '\0')) {
+
+      (void)RegSetValueEx(key, "", 0, REG_SZ, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+    }
+
+    RegCloseKey(key);
+  }
+
+}
+
+/* disassociate
+  
+Remove any file types that are associated with the U3 Wireshark (which is being removed)
+   
+*/
+
+
+void disassociate(char *extension)
+{
+  HKEY key;
+  DWORD disposition;
+  char buffer[BUFSIZ];
+  int  buflen = BUFSIZ;
+  boolean delete_key = FALSE;
+
+  buffer[0] = '\0';
+
+  /* open the HKCR  extension  key*/
+  if(RegOpenKeyEx(HKEY_CLASSES_ROOT, extension, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
+
+    if(RegQueryValueEx(key, "", NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      if(!strncmp(buffer, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1))
+	delete_key = TRUE;
+    }
+
+    RegCloseKey(key);
+  }
+
+  if(delete_key)
+    RegDeleteKey(HKEY_CLASSES_ROOT, extension);
+}
+
+/* host_configure
+   
+Configure the host for the U3 Wireshark. This involves:
+1) registering the U3 Wireshark with capture file types
+2) installing WinPcap if not already installed
+
+*/
+
+void host_configure(void)
+{
+  char **pext;
+  HKEY  key;
+  DWORD disposition;
+  char *u3_host_exec_path;
+  char *u3_device_exec_path;
+  char *u3_device_serial;
+  char wireshark_path[MAX_PATH+1];
+  char winpcap_path[MAX_PATH+1];
+  char reg_key[BUFSIZ];
+  char buffer[BUFSIZ];
+  int  buflen = BUFSIZ;
+  boolean hasWinPcap = FALSE;
+
+  /* compute the U3 path to wireshark */
+  u3_host_exec_path = getenv("U3_HOST_EXEC_PATH");
+  strncpy(wireshark_path, u3_host_exec_path, strlen(u3_host_exec_path) + 1);
+  strncat(wireshark_path, "\\wireshark.exe", 15);
+
+  /* CREATE THE U3 Wireshark TYPE */
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC, 0, NULL, 0, 
+		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
+
+    (void)RegSetValueEx(key, "", 0, REG_SZ, WIRESHARK_DESC, strlen(WIRESHARK_DESC) + 1);
+
+    RegCloseKey(key);
+  }
+
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, SHELL_OPEN_COMMAND, strlen(SHELL_OPEN_COMMAND) + 1);
+
+  /* associate the application */
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0, 
+		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
+
+    (void)RegSetValueEx(key, "", 0, REG_SZ, wireshark_path, strlen(wireshark_path) + 1);
+
+    RegCloseKey(key);
+  }
+
+  /* associate the icon */
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, DEFAULT_ICON, strlen(DEFAULT_ICON) + 1);
+
+  /* the icon is in the exe */
+  strncat(wireshark_path, ",1", 3);
+
+  /* associate the application */
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0, 
+		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
+
+    (void)RegSetValueEx(key, "", 0, REG_SZ, wireshark_path, strlen(wireshark_path) + 1);
+
+    RegCloseKey(key);
+  }
+
+  /* CREATE THE FILE ASSOCIATIONS */
+
+  for(pext = extensions; *pext; pext++)
+    associate(*pext);
+
+  /* update icons */
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+
+  /* START WINPCAP INSTALLATION IF NOT ALREADY INSTALLED */
+
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINPCAP_KEY, 0, (KEY_READ), &key) == ERROR_SUCCESS) {
+
+    if(RegQueryValueEx(key, WINPCAP_UNINSTALL, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      if(buffer[0] != '\0')
+	hasWinPcap = TRUE;
+    }
+    
+    RegCloseKey(key);
+  }
+
+  if(!hasWinPcap) {
+    /* XXX: we should ask the user if they want to install - and remember it */
+
+    /* compute the U3 path to the WinPcap installation package - it stays on the device */
+    u3_device_exec_path = getenv("U3_DEVICE_EXEC_PATH");
+    strncpy(winpcap_path, "\"", 2);
+    strncat(winpcap_path, u3_device_exec_path, strlen(u3_device_exec_path) + 1);
+    strncat(winpcap_path, WINPCAP_PACKAGE, strlen(WINPCAP_PACKAGE) + 1);
+    strncat(winpcap_path, "\"", 2);
+    
+    ExecuteAndWait(winpcap_path);
+
+    /* if installation was successful this key will now exist */
+    if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINPCAP_KEY, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
+
+      u3_device_serial = getenv("U3_DEVICE_SERIAL");
+      
+      (void)RegSetValueEx(key, WINPCAP_U3INSTALLED, 0, REG_SZ, u3_device_serial, strlen(u3_device_serial) + 1);
+
+    }
+  }
+}
+
+/* host_cleanup
+
+Remove any references to the U3 Wireshark from the host. This involves:
+1) Removing the U3 Wireshark file type associations
+2) Uninstalling WinPcap if we installed it. 
+   If the user cancels the uninstallation of WinPcap, we will not try and remove it again.
+
+*/
+
 void host_clean_up(void)
 {
+  HKEY  key;
+  DWORD disposition;
+  char **pext;
+  char *u3_device_serial;
+  char buffer[BUFSIZ];
+  int buflen = BUFSIZ;
+  char reg_key[BUFSIZ];
+
   /* the device has been removed - 
      just close the application as quickly as possible */
 
   app_stop(0);
+
+  /* DELETE THE FILE ASSOCIATIONS */
+  for(pext = extensions; *pext; pext++)
+    disassociate(*pext);
+
+  /* update icons */
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+
+  /* DELETE THE U3 Wireshark TYPE */
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, SHELL_OPEN_COMMAND, strlen(SHELL_OPEN_COMMAND) + 1);
+
+  RegDeleteKey(HKEY_CLASSES_ROOT, reg_key);
+
+  /* delete the open key */
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, SHELL_OPEN, strlen(SHELL_OPEN) + 1);
+
+  RegDeleteKey(HKEY_CLASSES_ROOT, reg_key);
+
+  /* delete the shell key */
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, SHELL, strlen(SHELL) + 1);
+
+  RegDeleteKey(HKEY_CLASSES_ROOT, reg_key);
+
+  /* delete the icon key */
+  strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
+  strncat(reg_key, DEFAULT_ICON, strlen(DEFAULT_ICON) + 1);
+
+  RegDeleteKey(HKEY_CLASSES_ROOT, reg_key);
+
+  /* finally delete the toplevel key */
+  RegDeleteKey(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC);
+
+  /* UNINSTALL WINPCAP ONLY IF WE INSTALLED IT */
+  buffer[0] = '\0';
+
+  /* see if WinPcap is installed */
+  if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINPCAP_KEY, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
+
+    /* see if a U3 device installed the package */
+    if(RegQueryValueEx(key, WINPCAP_U3INSTALLED, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
+
+      u3_device_serial = getenv("U3_DEVICE_SERIAL");
+
+      /* see if this U3 device installed the package */
+      if(!strncmp(buffer, u3_device_serial, strlen(u3_device_serial) + 1)) {
+
+	buffer[0] = '"';
+	buflen = BUFSIZ-1;	
+	/* we installed WinPcap - we should now uninstall it - read the uninstall string */
+	(void) RegQueryValueEx(key, WINPCAP_UNINSTALL, NULL, NULL, &buffer[1], &buflen);
+	strncat(buffer, "\"", 2); /* close the quotes */
+
+	/* delete our value */
+	RegDeleteValue(key, WINPCAP_U3INSTALLED);
+
+      } else {
+	/* empty the buffer */
+	buffer[0] = '\0';
+      }
+    }
+    
+    RegCloseKey(key);
+  }
+  
+  if(*buffer) {
+    /* we have an uninstall string */
+    ExecuteAndWait(buffer);
+  }
+
 }
 
 main(int argc, char *argv[])
@@ -281,7 +607,9 @@ main(int argc, char *argv[])
 
   if(argc > 1) {
   
-    if(!strncmp(argv[1], "appStop", 8))
+    if(!strncmp(argv[1], "hostConfigure", 13))
+      host_configure();
+    else if(!strncmp(argv[1], "appStop", 8))
       app_stop(time_out);
     else if(!strncmp(argv[1], "hostCleanUp", 11))
       host_clean_up();

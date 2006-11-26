@@ -8,7 +8,7 @@ include <win32.mak>
 CC 	= cl
 LINK	= link
 
-LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 /ENTRY:mainCRTStartup $(LOCAL_LDFLAGS)
 
 DEVICE 	= device
 HOST 	= host
@@ -36,19 +36,12 @@ $(HOST):
 	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
 	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
 	$(MKDIR) $(HOST)\$(GTK_WIMP_DLLDST_DIR)
-	$(MKDIR) $(HOST)\lib\pango
-	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)
-	$(MKDIR) $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
 
 $(DEVICE):
 	$(MKDIR) $(DEVICE)
 	$(MKDIR) $(DEVICE)\plugins
 	$(MKDIR) $(DEVICE)\plugins\$(VERSION)
 	$(MKDIR) $(DEVICE)\help
-	$(MKDIR) $(DEVICE)\share
-	$(MKDIR) $(DEVICE)\share\themes
-	$(MKDIR) $(DEVICE)\share\themes\Default
-	$(MKDIR) $(DEVICE)\share\themes\Default\gtk-2.0
 	$(MKDIR) $(DEVICE)\snmp
 	$(MKDIR) $(DEVICE)\snmp\mibs
 	$(MKDIR) $(DEVICE)\diameter
@@ -81,10 +74,12 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\diameter\imscxdx.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\mobileipv4.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\nasreq.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\sip.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\sunping.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\TGPPSh.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\dc.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\itunes.dtd $(DEVICE)\dtds $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\dtds\mscml.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\pocsettings.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\presence.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\reginfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
@@ -205,6 +200,7 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(TOPDIR)\epan\wslua\console.lua $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\epan\wslua\dtd_gen.lua $(DEVICE) $(COPY_FLAGS)
 !ENDIF
+	$(COPY) $(TOPDIR)\packaging\nsis\WinPcap_3_1.exe $(DEVICE) $(COPY_FLAGS)
 # host
 #
 # these files are copy onto the U3 host and are required to make Wireshark stable
@@ -264,7 +260,6 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) $(GTK2_DIR)\etc\pango\pango.* $(HOST)\etc\pango $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
-	$(COPY) $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(HOST)\lib\pango\$(PANGO_LIB_DIR)\modules
 !IFDEF GTK_WIMP_DIR
 	$(COPY) $(GTK_WIMP_DLLSRC_DIR)\libwimp.dll $(HOST)\$(GTK_WIMP_DLLDST_DIR) $(COPY_FLAGS)
 	$(COPY) $(GTK_WIMP_RCSRC_DIR)\gtkrc $(HOST)\$(GTK_WIMP_RCDST_DIR) $(COPY_FLAGS)
@@ -287,11 +282,11 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 package:	distribution
 	zip -r wireshark.u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) 
 
-u3util_LIBS= user32.lib kernel32.lib
+u3util_LIBS= user32.lib shell32.lib 
 
 u3util.exe:	u3util.obj
 	@echo Linking $@
-	$(LINK) /OUT:u3util.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console u3util.obj $(u3util_LIBS)
+	$(LINK) /OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll) 
 	
 clean:
 	rm -rf manifest.u3i
