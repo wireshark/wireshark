@@ -6,9 +6,9 @@
  *                     Institute of Embedded Systems (InES)
  *                     http://ines.zhwin.ch
  *                     
- *                     - Dominic BÇchaz <bdo@zhwin.ch>
- *                     - Damir Bursic <bum@zhwin.ch>
- *                     - David BÅchi <bhd@zhwin.ch>
+ *                     - Dominic BÇchaz <bdo[AT]zhwin.ch>
+ *                     - Damir Bursic <bum[AT]zhwin.ch>
+ *                     - David BÅchi <bhd[AT]zhwin.ch>
  *
  *
  * $Id$
@@ -155,7 +155,7 @@ static gint hf_epl_asnd_nmtrequest_rcd                       = -1;
 /*NMTCommand*/
 static gint hf_epl_asnd_nmtcommand_cid                       = -1;
 static gint hf_epl_asnd_nmtcommand_cdat                      = -1;
-static gint hf_epl_asnd_nmtcommand_nmtnetparameterset_mtu    = -1;
+/*static gint hf_epl_asnd_nmtcommand_nmtnetparameterset_mtu    = -1;*/
 static gint hf_epl_asnd_nmtcommand_nmtnethostnameset_hn      = -1;
 static gint hf_epl_asnd_nmtcommand_nmtflusharpentry_nid      = -1;
 static gint hf_epl_asnd_nmtcommand_nmtpublishtime_dt         = -1;
@@ -177,24 +177,24 @@ static gint hf_epl_asnd_sdo_cmd_segment_size                 = -1;
 static gint hf_epl_asnd_sdo_cmd_data_size                    = -1;
 
 static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
-static gint hf_epl_asnd_sdo_cmd_abort_flag                   = -1;
-static gint hf_epl_asnd_sdo_cmd_segmentation_flag            = -1;
-static gint hf_epl_asnd_sdo_cmd_cmd_valid_test               = -1;
+/*static gint hf_epl_asnd_sdo_cmd_abort_flag                   = -1;*/
+/*static gint hf_epl_asnd_sdo_cmd_segmentation_flag            = -1;*/
+/*static gint hf_epl_asnd_sdo_cmd_cmd_valid_test               = -1;*/
 
-static gint hf_epl_asnd_sdo_actual_command_id                = -1;
+/*static gint hf_epl_asnd_sdo_actual_command_id                = -1;*/
 
 static gint hf_epl_asnd_sdo_cmd_write_by_index_index         = -1;
 static gint hf_epl_asnd_sdo_cmd_write_by_index_subindex      = -1;
 static gint hf_epl_asnd_sdo_cmd_write_by_index_data          = -1;
-static gint hf_epl_asnd_sdo_cmd_write_by_index_response      = -1;
+/*static gint hf_epl_asnd_sdo_cmd_write_by_index_response      = -1;*/
 
 static gint hf_epl_asnd_sdo_cmd_read_by_index_index          = -1;
 static gint hf_epl_asnd_sdo_cmd_read_by_index_subindex       = -1;
 static gint hf_epl_asnd_sdo_cmd_read_by_index_data           = -1;
-static gint hf_epl_asnd_sdo_cmd_read_by_index_response       = -1;
+/*static gint hf_epl_asnd_sdo_cmd_read_by_index_response       = -1;*/
 
-static gint hf_epl_asnd_sdo_actual_segment_size              = -1;
-static gint hf_epl_asnd_sdo_actual_payload_size_read         = -1;
+/*static gint hf_epl_asnd_sdo_actual_segment_size              = -1;*/
+/*static gint hf_epl_asnd_sdo_actual_payload_size_read         = -1;*/
 
 /* Initialize the subtree pointers */
 static gint ett_epl                 = -1;
@@ -1159,6 +1159,6 @@ proto_reg_handoff_epl(void)
 {
     dissector_handle_t epl_handle;
     
-    epl_handle = create_dissector_handle(dissect_epl, proto_epl);
+    epl_handle = new_create_dissector_handle(dissect_epl, proto_epl);
     dissector_add("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 }
