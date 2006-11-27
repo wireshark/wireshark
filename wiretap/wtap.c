@@ -366,6 +366,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_USB */
 	{ "Raw USB packets", "usb" },
+
+	/* WTAP_ENCAP_IEEE802_16_MAC_CPS */
+	{ "IEEE 802.16 MAC Common Part Sublayer", "ieee-802-16-mac-cps" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -183,9 +183,10 @@
 #define WTAP_ENCAP_BER                          90
 #define WTAP_ENCAP_JUNIPER_VP                   91
 #define WTAP_ENCAP_USB				92
+#define WTAP_ENCAP_IEEE802_16_MAC_CPS		93
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			93
+#define WTAP_NUM_ENCAP_TYPES			94
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
