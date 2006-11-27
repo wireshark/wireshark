@@ -2,6 +2,8 @@
 Lightweight-Directory-Access-Protocol-V3
 --
 -- $Id$
+-- This is based on the ASN.1 definitions in RFC 2251, with changes made
+-- as necessary for Wireshark.
 -- Copyright (C) The Internet Society (1997). This version of
 -- this ASN.1 module is part of RFC 2251;
 -- see the RFC itself for full legal notices.
