@@ -134,7 +134,6 @@ typedef struct _scsi_cdb_table_t {
 #define SCSI_SPC2_RESERVE10              0x56
 #define SCSI_SPC2_SENDDIAG               0x1D
 #define SCSI_SPC2_SETDEVICEID            0xA4
-#define SCSI_SBC2_STARTSTOPUNIT          0x1B
 #define SCSI_SPC2_TESTUNITRDY            0x00
 #define SCSI_SPC2_WRITEBUFFER            0x3B
 #define SCSI_SPC2_VARLENCDB              0x7F
@@ -151,11 +150,7 @@ void dissect_spc3_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 void dissect_spc3_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_sbc2_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq _U_, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 void dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
@@ -213,7 +208,6 @@ void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            guint32 relative_offset);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
 
-WS_VAR_IMPORT const value_string scsi_sbc2_vals[];
 WS_VAR_IMPORT const value_string scsi_mmc_vals[];
 
 extern int hf_scsi_control;

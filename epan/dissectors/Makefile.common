@@ -594,6 +594,7 @@ DISSECTOR_SRC =	\
 	packet-scsi.c	\
 	packet-scsi-mmc.c	\
 	packet-scsi-osd.c	\
+	packet-scsi-sbc.c	\
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
 	packet-sctp.c	\
@@ -947,6 +948,7 @@ DISSECTOR_INCLUDES =	\
 	packet-scsi.h	\
 	packet-scsi-mmc.h	\
 	packet-scsi-osd.h	\
+	packet-scsi-sbc.h	\
 	packet-scsi-smc.h	\
 	packet-scsi-ssc.h	\
 	packet-sctp.h	\

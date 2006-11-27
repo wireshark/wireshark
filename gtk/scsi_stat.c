@@ -52,6 +52,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
+#include <epan/dissectors/packet-scsi-sbc.h>
 #include <epan/dissectors/packet-scsi-ssc.h>
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
@@ -206,7 +207,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
         switch(program){
 	case SCSI_DEV_SBC:
 		rs->prog="SBC (disk)";
-		rs->cdbnames=scsi_sbc2_vals;
+		rs->cdbnames=scsi_sbc_vals;
 		hf_name="scsi.sbc.opcode";
 		break;
 	case SCSI_DEV_SSC:

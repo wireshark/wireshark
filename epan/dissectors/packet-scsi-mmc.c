@@ -38,6 +38,7 @@
 #include "packet-scsi.h"
 #include "packet-fc.h"
 #include "packet-scsi-mmc.h"
+#include "packet-scsi-sbc.h"
 
 
 static int proto_scsi_mmc		= -1;
