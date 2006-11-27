@@ -715,9 +715,9 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
             err->procedures[err->num_procs].entries[j]=NULL;
 	}
         err->procedures[err->num_procs].packet_num = (guint32)expert_data->packet_num;                        /* First packet num */
-	err->procedures[err->num_procs].entries[0]=(char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"), NULL);   /* Group */
-        err->procedures[err->num_procs].entries[1]=(char *)g_strdup(expert_data->protocol, NULL);    /* Protocol */
-        err->procedures[err->num_procs].entries[2]=(char *)g_strdup(expert_data->summary, NULL);     /* Summary */
+	err->procedures[err->num_procs].entries[0]=(char *)g_strdup(val_to_str(expert_data->group, expert_group_vals,"Unknown group (%u)"));   /* Group */
+        err->procedures[err->num_procs].entries[1]=(char *)g_strdup(expert_data->protocol);    /* Protocol */
+        err->procedures[err->num_procs].entries[2]=(char *)g_strdup(expert_data->summary);     /* Summary */
     	err->procedures[err->num_procs].entries[3]=(char *)g_strdup_printf("%d", err->procedures[row].count);     /* Count */
         err->procedures[err->num_procs].fvalue_value = NULL;
     }
