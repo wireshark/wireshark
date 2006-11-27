@@ -542,7 +542,6 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 	GtkStyle *win_style;
 	GtkWidget *column_lb;
 
-    GtkTooltips *tooltips = gtk_tooltips_new();
 	const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
 
 	err->scrolled_window=scrolled_window_new(NULL, NULL);
