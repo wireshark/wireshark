@@ -138,6 +138,7 @@ static int hf_scsi_release_flags         = -1;
 static int hf_scsi_release_thirdpartyid  = -1;
 static int hf_scsi_select_report         = -1;
 static int hf_scsi_inq_add_len           = -1;
+static int hf_scsi_inq_peripheral        = -1;
 static int hf_scsi_inq_qualifier         = -1;
 static int hf_scsi_inq_vendor_id         = -1;
 static int hf_scsi_inq_product_id        = -1;
@@ -181,6 +182,7 @@ static int hf_scsi_inq_tpc               = -1;
 static int hf_scsi_inq_protect           = -1;
 static int hf_scsi_inq_tpgs              = -1;
 static int hf_scsi_inq_acaflags          = -1;
+static int hf_scsi_inq_rmbflags          = -1;
 static int hf_scsi_inq_normaca           = -1;
 static int hf_scsi_inq_hisup             = -1;
 static int hf_scsi_inq_aerc              = -1;
@@ -210,7 +212,9 @@ static int hf_scsi_reassembled_in = -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
+static gint ett_scsi_inq_peripheral = -1;
 static gint ett_scsi_inq_acaflags = -1;
+static gint ett_scsi_inq_rmbflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
@@ -245,7 +249,6 @@ static const fragment_items scsi_frag_items = {
 	&hf_scsi_reassembled_in,
 	"fragments"
 };
-
 
 
 typedef guint32 scsi_cmnd_type;
@@ -1360,56 +1363,6 @@ static const value_string inq_rdf_vals[] = {
 	{ 0, NULL }
 };
 
-/* This dissects byte 3 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
-static int
-dissect_spc3_inq_acaflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
-{
-	guint8 flags;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-
-	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_scsi_inq_acaflags, tvb, offset, 1, 0);
-		tree = proto_item_add_subtree (item, ett_scsi_inq_acaflags);
-	}
-
-        flags=tvb_get_guint8 (tvb, offset);
-
-	/* AERC (obsolete in spc3 and forward) */
-	proto_tree_add_boolean(tree, hf_scsi_inq_aerc, tvb, offset, 1, flags);
-	if(flags&SCSI_INQ_ACAFLAGS_AERC){
-		proto_item_append_text(item, "  AERC");
-	}
-	flags&=(~SCSI_INQ_ACAFLAGS_AERC);
-
-	/* TRMTSK (obsolete in spc2 and forward) */
-	proto_tree_add_boolean(tree, hf_scsi_inq_trmtsk, tvb, offset, 1, flags);
-	if(flags&SCSI_INQ_ACAFLAGS_TRMTSK){
-		proto_item_append_text(item, "  TrmTsk");
-	}
-	flags&=(~SCSI_INQ_ACAFLAGS_TRMTSK);
-
-	/* NormACA */
-	proto_tree_add_boolean(tree, hf_scsi_inq_normaca, tvb, offset, 1, flags);
-	if(flags&SCSI_INQ_ACAFLAGS_NORMACA){
-		proto_item_append_text(item, "  NormACA");
-	}
-	flags&=(~SCSI_INQ_ACAFLAGS_NORMACA);
-
-	/* HiSup */
-	proto_tree_add_boolean(tree, hf_scsi_inq_hisup, tvb, offset, 1, flags);
-	if(flags&SCSI_INQ_ACAFLAGS_HISUP){
-		proto_item_append_text(item, "  HiSup");
-	}
-	flags&=(~SCSI_INQ_ACAFLAGS_HISUP);
-
-	/* Response Data Format */
-	proto_tree_add_item (tree, hf_scsi_inq_rdf, tvb, offset, 1, 0);
-	proto_item_append_text(item, "  RDF:%s", val_to_str(flags&0x0f, inq_rdf_vals, "Unknown:%d"));
-
-	offset+=1;
-	return offset;
-}
 
 #define SCSI_INQ_SCCSFLAGS_SCCS		0x80
 #define SCSI_INQ_SCCSFLAGS_ACC		0x40
@@ -1589,6 +1542,23 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags, i;
+    static const int *peripheal_fields[] = {
+	&hf_scsi_inq_qualifier,
+	&hf_scsi_inq_devtype,
+	NULL
+    };
+    static const int *aca_fields[] = {
+	&hf_scsi_inq_aerc,	/* obsolete in spc3 and forward */
+	&hf_scsi_inq_trmtsk,	/* obsolete in spc2 and forward */
+	&hf_scsi_inq_normaca,
+	&hf_scsi_inq_hisup,
+	&hf_scsi_inq_rdf,
+	NULL
+    };
+    static const int *rmb_fields[] = {
+	&hf_scsi_inq_rmb,
+	NULL
+    };
 
     if (!isreq && (cdata == NULL || !(cdata->itlq->flags & 0x3))
     && (tvb_length_remaining(tvb, offset)>=1) ) {
@@ -1651,13 +1621,11 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
 
 	/* Qualifier and DeviceType */
-        proto_tree_add_item (tree, hf_scsi_inq_qualifier, tvb, offset,
-                             1, 0);
-        proto_tree_add_item (tree, hf_scsi_inq_devtype, tvb, offset, 1, 0);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
 	offset+=1;
 
 	/* RMB */
-	proto_tree_add_item(tree, hf_scsi_inq_rmb,  tvb, offset, 1, 0);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_rmbflags, ett_scsi_inq_rmbflags, rmb_fields, FALSE);
 	offset+=1;
 
 	/* Version */
@@ -1665,7 +1633,8 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset+=1;
 
 	/* aca flags */
-	offset=dissect_spc3_inq_acaflags(tvb, offset, tree);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, FALSE);
+	offset+=1;
 
 	/* Additional Length */
 	SET_SCSI_DATA_END(tvb_get_guint8(tvb, offset)+offset);
@@ -4275,8 +4244,11 @@ proto_register_scsi (void)
           {"Additional Length", "scsi.inquiry.add_len", FT_UINT8, BASE_DEC,
            NULL, 0, "", HFILL}},
         { &hf_scsi_inq_qualifier,
-          {"Peripheral Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
+          {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
            VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
+        { &hf_scsi_inq_peripheral,
+          {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
         { &hf_scsi_inq_vendor_id,
           {"Vendor Id", "scsi.inquiry.vendor_id", FT_STRING, BASE_NONE,
            NULL, 0, "", HFILL}},
@@ -4290,7 +4262,7 @@ proto_register_scsi (void)
           {"Version Description", "scsi.inquiry.version_desc", FT_UINT16, BASE_HEX,
            VALS(scsi_verdesc_val), 0, "", HFILL}},
         { &hf_scsi_inq_devtype,
-          {"Peripheral Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
+          {"Device Type", "scsi.inquiry.devtype", FT_UINT8, BASE_HEX,
            VALS (scsi_devtype_val), SCSI_DEV_BITS, "", HFILL}},
         { &hf_scsi_inq_rmb,
           {"Removable", "scsi.inquiry.removable", FT_BOOLEAN, 8,
@@ -4348,6 +4320,9 @@ proto_register_scsi (void)
            "", HFILL}},
         { &hf_scsi_inq_acaflags,
           {"Flags", "scsi.inquiry.acaflags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_inq_rmbflags,
+          {"Flags", "scsi.inquiry.rmbflags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
         { &hf_scsi_inq_normaca,
           {"NormACA", "scsi.inquiry.normaca", FT_BOOLEAN, 8, TFS(&normaca_tfs), SCSI_INQ_ACAFLAGS_NORMACA,
@@ -4509,7 +4484,9 @@ proto_register_scsi (void)
     static gint *ett[] = {
 	&ett_scsi,
 	&ett_scsi_page,
+	&ett_scsi_inq_peripheral,
 	&ett_scsi_inq_acaflags,
+	&ett_scsi_inq_rmbflags,
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
 	&ett_scsi_inq_reladrflags,

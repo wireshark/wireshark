@@ -5310,3 +5310,122 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 		return NULL;
 	return filter;
 }
+
+
+/* This function will dissect a sequence of bytes that describe a
+ * bitmask.
+ * hf_hdr is a 8/16/24/32 bit integer that describes the bitmask to be dissected.
+ * This field will form an expansion under which the individual fields of the
+ * bitmask is dissected and displayed.
+ * This field must be of the type FT_[U]INT{8|16|24|32}.
+ *
+ * fields is an array of pointers to int that lists all the fields of the
+ * bitmask. These fields can be either of the type FT_BOOLEAN for flags
+ * or another integer of the same type/size as hf_hdr with a mask specified.
+ * This array is terminated by a NULL entry.
+ *
+ * FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
+ * FT_integer fields that have a value_string attached will have the 
+ * matched string displayed on the expansion line.
+ */
+proto_item *
+proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hf_hdr, gint ett, const int **fields, gboolean little_endian)
+{
+	proto_tree *tree=NULL;
+	proto_item *item=NULL;
+	header_field_info *hf_info;
+	int len=0;
+	guint32 value=0;
+
+	hf_info=proto_registrar_get_nth(hf_hdr);
+	switch(hf_info->type){
+	case FT_INT8:
+	case FT_UINT8:
+		len=1;
+		value=tvb_get_guint8(tvb, offset);
+		break;
+	case FT_INT16:
+	case FT_UINT16:
+		len=2;
+		if(little_endian){
+			value=tvb_get_letohs(tvb, offset);
+		} else {
+			value=tvb_get_ntohs(tvb, offset);
+		}
+		break;
+	case FT_INT24:
+	case FT_UINT24:
+		len=3;
+		if(little_endian){
+			value=tvb_get_letoh24(tvb, offset);
+		} else {
+			value=tvb_get_ntoh24(tvb, offset);
+		}
+		break;
+	case FT_INT32:
+	case FT_UINT32:
+		len=4;
+		if(little_endian){
+			value=tvb_get_letohl(tvb, offset);
+		} else {
+			value=tvb_get_ntohl(tvb, offset);
+		}
+		break;
+	default:
+		g_assert_not_reached();
+	}
+
+	if(parent_tree){
+		item=proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, little_endian);
+		tree=proto_item_add_subtree(item, ett);
+	}
+
+	while(*fields){
+		header_field_info *hf_field;
+		guint32 tmpval, tmpmask;
+
+		hf_field=proto_registrar_get_nth(**fields);
+		switch(hf_field->type){
+		case FT_INT8:
+		case FT_UINT8:
+		case FT_INT16:
+		case FT_UINT16:
+		case FT_INT24:
+		case FT_UINT24:
+		case FT_INT32:
+		case FT_UINT32:
+			proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
+
+			/* Mask and shift out the value */
+			tmpmask=hf_field->bitmask;
+			tmpval=value;
+			if(tmpmask){
+				tmpval&=tmpmask;
+				while(!(tmpmask&0x00000001)){
+					tmpval>>=1;
+					tmpmask>>=1;
+				}
+			}
+			/* Show the value_string content (if there is one) */
+			if(hf_field->strings){
+				proto_item_append_text(item, ",  %s", val_to_str(tmpval, hf_field->strings, "Unknown"));
+			}
+
+			break;
+		case FT_BOOLEAN:
+			proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
+			/* if the flag is set, show the name */
+			if(hf_field->bitmask&value){
+				proto_item_append_text(item, ",  %s", hf_field->name);
+			}
+			break;
+		default:
+			g_assert_not_reached();
+		}
+
+		fields++;
+	}
+
+	return item;
+}
+

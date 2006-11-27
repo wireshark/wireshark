@@ -1554,4 +1554,8 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt);
 extern field_info*
 proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
 
+
+extern proto_item *
+proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_hdr, gint ett, const int **fields, gboolean little_endian);
+
 #endif /* proto.h */
