@@ -178,7 +178,6 @@ EXTRA_DIST = \
 	inap/packet-inap-template.h	\
 	ldap/ldap.cnf	\
 	ldap/Lightweight-Directory-Access-Protocol-V3.asn	\
-	ldap/Lightweight-Directory-Access-Protocol-V3.asn.orig	\
 	ldap/Makefile	\
 	ldap/Makefile.nmake	\
 	ldap/packet-ldap-template.c	\
