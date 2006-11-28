@@ -1338,7 +1338,7 @@ static const megaco_tokens_t megaco_mediaParm_names[] = {
 		{ "Remote",						"R" },	/* 2 */
 		{ "LocalControl",				"O" },	/* 3 */
 		{ "Stream",						"ST" },	/* 4 */
-		{ "TerminationStateToken",		"TS" },	/* 5 */
+		{ "TerminationState",			"TS" },	/* 5 */
 };
 
 /* Returns index of megaco_tokens_t */
@@ -2603,14 +2603,13 @@ static void
 dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,  gint tvb_next_offset, gint tvb_current_offset)
 {
 	gint tokenlen;
-	gint tvb_offset, tvb_help_offset;
+	gint tvb_offset;
 	guint8 tempchar;
 
 	proto_tree  *megaco_TerminationState_tree, *megaco_TerminationState_ti;
 
 	tokenlen		= 0;
 	tvb_offset		= 0;
-	tvb_help_offset = 0;
 
 	tvb_offset = tvb_find_guint8(tvb, tvb_current_offset , tvb_next_offset, '=');
 
@@ -2626,8 +2625,6 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 	while ( tvb_offset < tvb_next_offset && tvb_offset != -1 ){
 
 		tempchar = tvb_get_guint8(tvb, tvb_current_offset);
-		tvb_help_offset = tvb_current_offset;
-
 		tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 
 		switch ( tempchar ){
@@ -2687,12 +2684,10 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 				tvb_offset = tvb_next_offset;
 			}
 
-			tempchar = tvb_get_guint8(tvb, tvb_help_offset);
-			tokenlen = tvb_offset - tvb_help_offset;
+			tokenlen = tvb_offset - tvb_current_offset;
 
-			proto_tree_add_text(megaco_TerminationState_tree, tvb, tvb_help_offset, tokenlen,
-				"%s", tvb_format_text(tvb,tvb_help_offset,
-				tokenlen));
+			proto_tree_add_text(megaco_TerminationState_tree, tvb, tvb_current_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_current_offset,tokenlen));
 			break;
 		}
 
