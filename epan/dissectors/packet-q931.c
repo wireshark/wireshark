@@ -2157,7 +2157,7 @@ static const value_string q931_subaddress_type_vals[] = {
 
 static const value_string q931_odd_even_indicator_vals[] = {
 	{ 0x00, "Even number of address signals" },
-	{ 0x10, "Odd number of address signals" },
+	{ 0x08, "Odd number of address signals" },
 	{ 0,    NULL }
 };
 
@@ -2176,7 +2176,7 @@ dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
 	      "Unknown (0x%02X)"));
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Odd/even indicator: %s",
-	    val_to_str(octet & 0x10, q931_odd_even_indicator_vals,
+	    val_to_str(octet & 0x08, q931_odd_even_indicator_vals,
 	      "Unknown (0x%02X)"));
 	offset += 1;
 	len -= 1;
