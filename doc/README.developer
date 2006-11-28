@@ -1940,6 +1940,10 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_oid_format_value(tree, id, tvb, start, length,
 	    value_ptr, format, ...);
 
+	proto_item *
+	proto_tree_add_bitmask(tree, tvb, start, header, ett, **fields,
+	    little_endian);
+
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
@@ -2291,6 +2295,54 @@ This is like proto_tree_add_text(), but takes, as the last argument, a
 'va_list'; it is used to allow routines that take a printf-like
 variable-length list of arguments to add a text item to the protocol
 tree.
+
+proto_tree_add_bitmask()
+---------------------
+This function provides an easy to use and convenient helper function
+to manage many types of common bitmasks that occur in protocols.
+
+This function will dissect a 1/2/3/4 byte large bitmask into its individual 
+fields.
+header is an integer type and must be of type FT_[U]INT{8|16|24|32} and 
+represents the entire width of the bitmask.
+
+'header' and 'ett' are the hf fields and ett field respectively to create an
+expansion that covers the 1-4 bytes of the bitmask.
+
+'**fields' is a NULL terminated a array of pointers to hf fields representing
+the individual subfields of the bitmask. These fields must either be integers
+of the same byte width as 'header' or of the type FT_BOOLEAN.
+Each of the entries in '**fields' will be dissected as an item under the
+'header' expansion and also IF the field is a booelan and IF it is set to 1,
+then the name of that boolean field will be printed on the 'header' expansion
+line.  For integer type subfields that have a value_string defined, the 
+matched string from that value_string will be printed on the expansion line as well.
+
+Example: (from the scsi dissector)
+	static int hf_scsi_inq_peripheral        = -1;
+	static int hf_scsi_inq_qualifier         = -1;
+	static gint ett_scsi_inq_peripheral = -1;
+	...
+	static const int *peripheal_fields[] = {
+		&hf_scsi_inq_qualifier,
+		&hf_scsi_inq_devtype,
+		NULL
+	};
+	...
+	/* Qualifier and DeviceType */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+	offset+=1;
+	...
+        { &hf_scsi_inq_peripheral,
+          {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_inq_qualifier,
+          {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
+           VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
+	...
+
+Which provides very pretty dissection of this one byte bitmask.
+
 
 1.7 Utility routines.
 
