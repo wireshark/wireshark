@@ -88,6 +88,9 @@ typedef struct {
 	GtkWidget	*carray_bt;
 	GtkWidget	*raw_bt;
 	GtkWidget	*follow_save_as_w;
+#if GTK_MAJOR_VERSION >= 2
+	GtkWidget	*find_dlg_w;
+#endif
 	gboolean        is_ipv6;
 	char		*filter_out_filter;
 	GtkWidget	*filter_te;
@@ -102,6 +105,11 @@ static void follow_destroy_cb(GtkWidget * win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget * w, gpointer parent_w);
 static void follow_load_text(follow_info_t *follow_info);
 static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
+#if GTK_MAJOR_VERSION >= 2
+static void follow_find_cb(GtkWidget * w, gpointer data);
+static void follow_find_button_cb(GtkWidget * w _U_, gpointer parent_w);
+static void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
+#endif
 static void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
 static void follow_save_as_ok_cb(GtkWidget * w, gpointer fs);
 static void follow_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
@@ -316,6 +324,14 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     /* stream hbox */
     hbox = gtk_hbox_new(FALSE, 1);
     gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
+
+#if GTK_MAJOR_VERSION >= 2
+	/* Create Find Button */
+	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_FIND);
+	SIGNAL_CONNECT(button, "clicked", follow_find_cb, follow_info);
+	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+#endif
 
     /* Create Save As Button */
     button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
@@ -727,6 +743,129 @@ follow_read_stream(follow_info_t *follow_info,
 print_error:
     return FRS_PRINT_ERROR;
 }
+
+#if GTK_MAJOR_VERSION >= 2
+static void
+follow_find_cb(GtkWidget * w _U_, gpointer data)
+{
+    follow_info_t      	*follow_info = data;
+    GtkTooltips		*tooltips;
+    GtkWidget		*find_dlg_w, *main_vb, *buttons_row, *find_lb;
+    GtkWidget		*find_hb, *find_text_box, *find_bt, *cancel_bt;
+
+    tooltips = gtk_tooltips_new();
+
+    if (follow_info->find_dlg_w != NULL) {
+	    /* There's already a dialog box; reactivate it. */
+	    reactivate_window(follow_info->find_dlg_w);
+	    return;
+    }
+
+    /* Create the find box */
+    find_dlg_w = dlg_window_new("Wireshark: Find text");
+    gtk_window_set_transient_for(GTK_WINDOW(find_dlg_w),
+				 GTK_WINDOW(follow_info->streamwindow));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(find_dlg_w), TRUE);
+    follow_info->find_dlg_w = find_dlg_w;
+
+    SIGNAL_CONNECT(find_dlg_w, "destroy", follow_find_destroy_cb, follow_info);
+    SIGNAL_CONNECT(find_dlg_w, "delete_event", window_delete_event_cb, NULL);
+
+    /* Main vertical box */
+    main_vb = gtk_vbox_new(FALSE, 3);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_add(GTK_CONTAINER(find_dlg_w), main_vb);
+
+    /* Horizontal box for find label, entry field and up/down radio buttons*/
+    find_hb = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(main_vb), find_hb);
+    gtk_widget_show(find_hb);
+
+    /* Find label */
+    find_lb = gtk_label_new("Find text:");
+    gtk_box_pack_start(GTK_BOX(find_hb), find_lb, FALSE, FALSE, 0);
+    gtk_widget_show(find_lb);
+
+    /* Find field */
+    find_text_box = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX(find_hb), find_text_box, FALSE, FALSE, 0);
+    gtk_tooltips_set_tip(tooltips, find_text_box, "Text to search for (case sensitive)", NULL);
+    gtk_widget_show(find_text_box);
+
+    /* Buttons row */
+    buttons_row = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, NULL);
+    gtk_container_add(GTK_CONTAINER(main_vb), buttons_row);
+    find_bt = OBJECT_GET_DATA(buttons_row, GTK_STOCK_FIND);
+    cancel_bt = OBJECT_GET_DATA(buttons_row, GTK_STOCK_CANCEL);
+
+    SIGNAL_CONNECT(find_bt, "clicked", follow_find_button_cb, follow_info);
+    OBJECT_SET_DATA(find_bt, "find_string", find_text_box);
+    window_set_cancel_button(find_dlg_w, cancel_bt, window_cancel_button_cb);
+
+    /* Hitting return in the find field "clicks" the find button */
+    dlg_set_activate(find_text_box, find_bt);
+
+    /* Show the dialog */
+    gtk_widget_show_all(find_dlg_w);
+    window_present(find_dlg_w);
+}
+
+static void
+follow_find_button_cb(GtkWidget * w, gpointer data)
+{
+    gboolean		found;
+    const gchar		*find_string;
+    follow_info_t	*follow_info = data;
+    GtkTextBuffer	*buffer;
+    GtkTextIter		iter, match_start, match_end;
+    GtkTextMark		*last_pos_mark;
+    GtkWidget		*find_string_w;
+
+    /* Get the text the user typed into the find field */
+    find_string_w = (GtkWidget *)OBJECT_GET_DATA(w, "find_string");
+    find_string = gtk_entry_get_text(GTK_ENTRY(find_string_w));
+
+    /* Get the buffer associated with the follow stream */
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
+    gtk_text_buffer_get_start_iter(buffer, &iter);
+
+    /* Look for the search string in the buffer */
+    last_pos_mark = gtk_text_buffer_get_mark(buffer, "last_position");
+    if(last_pos_mark)
+	    gtk_text_buffer_get_iter_at_mark(buffer, &iter, last_pos_mark);
+
+    found = gtk_text_iter_forward_search(&iter, find_string, 0, &match_start,
+					 &match_end,
+					 NULL);
+
+    if(found) {
+	    gtk_text_buffer_select_range(buffer, &match_start, &match_end);
+	    last_pos_mark = gtk_text_buffer_create_mark (buffer, "last_position",
+							 &match_end, FALSE);
+	    gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(follow_info->text), last_pos_mark);
+    } else {
+	    /* We didn't find a match */
+	    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+			  "%sFind text has reached the end of the followed "
+			  "stream%s\n\nThe next search will start from the "
+			  "beginning", simple_dialog_primary_start(),
+			  simple_dialog_primary_end());
+	    if(last_pos_mark)
+		    gtk_text_buffer_delete_mark(buffer, last_pos_mark);
+    }
+	
+}
+
+static void
+follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
+{
+	follow_info_t	*follow_info = data;
+
+	/* Note that we no longer have a dialog box. */
+	follow_info->find_dlg_w = NULL;
+}
+#endif /* GTK_MAJOR_VERSION >= 2 */
+
 
 /*
  * XXX - for text printing, we probably want to wrap lines at 80 characters;
