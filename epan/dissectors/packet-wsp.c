@@ -889,6 +889,7 @@ static const value_string vals_content_types[] = {
 };
 
 static const value_string vals_languages[] = {
+	{ 0x00, "*" },
 	{ 0x01, "Afar (aa)" },
 	{ 0x02, "Abkhazian (ab)" },
 	{ 0x03, "Afrikaans (af)" },
@@ -2611,6 +2612,12 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
 				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
 						tvb, hdr_start, offset - hdr_start, "deflate");
+				ok = TRUE;
+				break;
+			case 0x83: /* * */
+				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
+				ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
+						tvb, hdr_start, offset - hdr_start, "*");
 				ok = TRUE;
 				break;
 		}
