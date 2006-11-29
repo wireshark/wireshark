@@ -2892,6 +2892,11 @@ decode_iei_tlli(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
     col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP, 
 			"TLLI %#4x", tlli);
   }
+  
+  if (check_col(bi->pinfo->cinfo, COL_BSSGP_TLLI)) {
+    col_add_fstr(bi->pinfo->cinfo, COL_BSSGP_TLLI, "%#04x", tlli);
+  }
+  
   decode_nri(bi->bssgp_tree, bi, tlli);
 }
 

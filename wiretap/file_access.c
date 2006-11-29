@@ -117,6 +117,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	 * would be, for example, saved copies of a Telnet session
 	 * to some box.
 	 */
+	erf_open,
 	etherpeek_open,
 	pppdump_open,
 	iseries_open,
@@ -127,7 +128,6 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	csids_open,
 	vms_open,
 	cosine_open,
-	erf_open,
 	hcidump_open,
 };
 

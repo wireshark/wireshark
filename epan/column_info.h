@@ -101,6 +101,8 @@ enum {
   COL_DCE_CTX,        /* DCE/RPC connection oriented context id */
   COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
   COL_TEI,            /* q.921 TEI */
+  COL_FR_DLCI,		  /* Frame Relay DLCI */
+  COL_BSSGP_TLLI,	  /* GPRS BSSGP IE TLLI */
   NUM_COL_FMTS        /* Should always be last */
 };
 

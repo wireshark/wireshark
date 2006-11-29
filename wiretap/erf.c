@@ -123,7 +123,10 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 		guint32 packet_size;
 		erf_timestamp_t ts;
 
-		if (file_read(&header,1,sizeof(header),wth->fh) != sizeof(header)) {
+		int r = file_read(&header,1,sizeof(header),wth->fh);
+
+		if (r == 0 ) break;
+		if (r != sizeof(header)) {
 			if ((*err = file_error(wth->fh)) != 0)
 				return -1;
 			else

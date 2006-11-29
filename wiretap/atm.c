@@ -74,6 +74,7 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 	 * guessing based on the contents, if we have enough data
 	 * to guess.
 	 */
+	 
 	if (len >= 3) {
 		if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
 			/*
@@ -81,7 +82,8 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 			 * multiplexed RFC 1483 traffic.
 			 */
 			pseudo_header->atm.type = TRAF_LLCMX;
-		} else if (len < 16) {
+		} else if ((pseudo_header->atm.aal5t_len &&
+			pseudo_header->atm.aal5t_len < 16) || len<16) {
 			/*
 			 * As this cannot be a LANE Ethernet frame (less
 			 * than 2 bytes of LANE header + 14 bytes of

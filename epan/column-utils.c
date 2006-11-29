@@ -1242,6 +1242,10 @@ col_fill_in(packet_info *pinfo)
     case COL_8021Q_VLAN_ID:
         break;
 
+    case COL_FR_DLCI:	/* done by packet-fr.c */
+    case COL_BSSGP_TLLI: /* done by packet-bssgp.c */
+        break;
+
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
       break;

@@ -37,6 +37,7 @@
 #include "packet-eth.h"
 #include "packet-tr.h"
 #include "packet-llc.h"
+#include "prefs.h"
 
 static int proto_atm = -1;
 static int hf_atm_aal = -1;
@@ -69,6 +70,8 @@ static dissector_handle_t lane_handle;
 static dissector_handle_t ilmi_handle;
 static dissector_handle_t fp_handle;
 static dissector_handle_t data_handle;
+
+static gboolean dissect_lanesscop = FALSE;
 
 /*
  * See
@@ -1017,7 +1020,8 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_text(atm_tree, tvb, 0, 0, "Cells: %u",
 		reported_length/48);
     }
-    if (pinfo->pseudo_header->atm.aal == AAL_5 &&
+    if ((pinfo->pseudo_header->atm.aal == AAL_5 ||
+    	pinfo->pseudo_header->atm.aal == AAL_SIGNALLING) &&
         length >= reported_length) {
       /*
        * XXX - what if the packet is truncated?  Can that happen?
@@ -1558,6 +1562,12 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
   proto_tree   *atm_tree = NULL;
   proto_item   *atm_ti = NULL;
+  
+  if ( pinfo->pseudo_header->atm.aal == AAL_5 &&
+  	pinfo->pseudo_header->atm.type == TRAF_LANE &&
+  	dissect_lanesscop ) {
+  	pinfo->pseudo_header->atm.aal = AAL_SIGNALLING;
+  }
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
@@ -1677,6 +1687,9 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_flags,
 		&ett_atm_lane_lc_tlv,
 	};
+	
+	module_t *atm_module;
+	
 	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
 	proto_aal1 = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
 	proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3/4", "aal3_4");
@@ -1693,6 +1706,11 @@ proto_register_atm(void)
 
 	register_dissector("lane", dissect_lane, proto_atm_lane);
 	register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+	
+	atm_module = prefs_register_protocol ( proto_atm, NULL );
+	prefs_register_bool_preference ( atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
+		"Autodection between LANE and SSCOP is hard. As default LANE is preferred",
+		&dissect_lanesscop);
 }
 
 void

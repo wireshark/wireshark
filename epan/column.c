@@ -93,7 +93,9 @@ col_format_to_string(gint fmt) {
     "%y", 
     "%z", 
     "%v", 
-    "%E"
+    "%E",
+	"%C",
+	"%l"
 };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -154,6 +156,8 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"DCE/RPC context ID (cn_ctx_id)",           /* COL_DCE_CTX */
 	"802.1Q VLAN id",                           /* COL_8021Q_VLAN_ID */
 	"TEI",                                      /* XXX - why is it missing in column_utils.c and elsewhere? */
+	"Frame Relay DLCI",							/* COL_FR_DLCI */
+	"GPRS BSSGP TLLI",							/* COL_BSSGP_TLLI */
 };
 
 const gchar *
@@ -259,6 +263,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_TEI:
       fmt_list[COL_TEI] = TRUE;
+      break;
+    case COL_FR_DLCI:
+      fmt_list[COL_FR_DLCI] = TRUE;
+      break;
+    case COL_BSSGP_TLLI:
+      fmt_list[COL_BSSGP_TLLI] = TRUE;
       break;
     default:
       break;
@@ -460,7 +470,7 @@ get_column_longest_string(gint format)
       return "0000000";
       break;
     case COL_VSAN:
-      return "000000";
+     return "000000";
       break;
     case COL_TX_RATE:
       return "108.0";
@@ -485,6 +495,12 @@ get_column_longest_string(gint format)
       break;
     case COL_TEI:
       return "127";
+      break;
+    case COL_FR_DLCI:
+      return "8388608";
+      break;
+    case COL_BSSGP_TLLI:
+      return "0xffffffff";
       break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
@@ -640,6 +656,10 @@ get_column_format_from_str(gchar *str) {
 	break;
       case 'E':
 	return COL_TEI;
+      case 'C':
+	return COL_FR_DLCI;
+      case 'l':
+	return COL_BSSGP_TLLI;
 	break;
     }
     cptr++;
