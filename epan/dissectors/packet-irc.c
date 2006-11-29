@@ -1,6 +1,19 @@
 /* packet-irc.c
  * Routines for IRC packet dissection
  *
+ * See
+ *
+ *	http://www.irchelp.org/irchelp/rfc/
+ *
+ * and the RFCs and other documents it mentions, such as RFC 1459, RFCs
+ * 2810, 2811, 2812, and 2813,
+ *
+ *	http://www.irchelp.org/irchelp/rfc/ctcpspec.html
+ *
+ * and
+ *
+ *	http://www.invlogic.com/irc/ctcp.html
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
