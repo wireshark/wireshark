@@ -1283,6 +1283,23 @@ separator between two consecutive items, and will not add the separator at the
 beginning of the column. The remainder of the work both functions do is
 identical to what 'col_append_str' and 'col_append_fstr' do.
 
+1.5.8 The col_set_fence and col_prepend_fence_fstr functions.
+
+Sometimes a dissector may be called multiple times for different PDUs in the
+same frame (for example in the case of SCTP chunk bundling: several upper
+layer data packets may be contained in one SCTP packet).  If the upper layer
+dissector calls 'col_set_str()' or 'col_clear()' on the Info column when it
+begins dissecting each of those PDUs then when the frame is fully dissected
+the Info column would contain only the string from the last PDU in the frame.
+The 'col_set_fence' function erects a "fence" in the column that prevents
+subsequent 'col_...' calls from clearing the data currently in that column.
+For example, the SCTP dissector calls 'col_set_fence' on the Info column
+after it has called any subdissectors for that chunk so that subdissectors
+of any subsequent chunks may only append to the Info column.
+'col_prepend_fence_fstr' prepends data before a fence (moving it if
+necessary).  It will create a fence at the end of the prended data if the
+fence does not already exist.
+
 1.6 Constructing the protocol tree.
 
 The middle pane of the main window, and the topmost pane of a packet
