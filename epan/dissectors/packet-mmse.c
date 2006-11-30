@@ -237,7 +237,8 @@ static int hf_mmse_retrieve_status	= -1;
 static int hf_mmse_retrieve_text	= -1;
 static int hf_mmse_read_status		= -1;
 static int hf_mmse_reply_charging	= -1;
-static int hf_mmse_reply_charging_deadline	= -1;
+static int hf_mmse_reply_charging_deadline_abs	= -1;
+static int hf_mmse_reply_charging_deadline_rel	= -1;
 static int hf_mmse_reply_charging_id	= -1;
 static int hf_mmse_reply_charging_size	= -1;
 static int hf_mmse_prev_sent_by	= -1;
@@ -435,13 +436,6 @@ static const value_string vals_reply_charging[] = {
     { 0x81, "Requested text only" },
     { 0x82, "Accepted" },
     { 0x83, "Accepted text only" },
-
-    { 0x00, NULL },
-};
-
-static const value_string vals_reply_charging_deadline[] = {
-    { 0x80, "Absolute" },
-    { 0x81, "Relative" },
 
     { 0x00, NULL },
 };
@@ -1123,12 +1117,32 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    }
 		    break;
 		case MM_REPLY_CHARGING_DEADLINE_HDR:	/* Well-known-value */
-		    field = tvb_get_guint8(tvb, offset++);
+		    /*
+		     * Value-length(Absolute-token Date-value|
+		     * 		    Relative-token Delta-seconds-value)
+		     */
+		    length = get_value_length(tvb, offset, &count);
+		    field = tvb_get_guint8(tvb, offset + count);
 		    if (tree) {
-			proto_tree_add_uint(mmse_tree,
-				hf_mmse_reply_charging_deadline,
-				tvb, offset - 2, 2, field);
+			guint		 tval;
+			nstime_t	 tmptime;
+			guint		 cnt;
+
+			tval = get_long_integer(tvb, offset + count + 1, &cnt);
+			tmptime.secs = tval;
+			tmptime.nsecs = 0;
+
+			tvb_ensure_bytes_exist(tvb, offset - 1, length + count + 1);
+			if (field == 0x80)
+			    proto_tree_add_time(mmse_tree, hf_mmse_reply_charging_deadline_abs,
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
+			else
+			    proto_tree_add_time(mmse_tree, hf_mmse_reply_charging_deadline_rel,
+				    tvb, offset - 1,
+				    length + count + 1, &tmptime);
 		    }
+		    offset += length + count;
 		    break;
 		case MM_REPLY_CHARGING_ID_HDR:	/* Text-string */
 		    length = get_text_string(tvb, offset, &strval);
@@ -1558,10 +1572,17 @@ proto_register_mmse(void)
 		HFILL
 	    }
 	},
-	{   &hf_mmse_reply_charging_deadline,
-	    {   "X-Mms-Reply-Charging-Deadline", "mmse.reply_charging_deadline",
-		FT_UINT8, BASE_HEX, VALS(vals_reply_charging_deadline), 0x00,
-		"MMS-specific message reply charging deadline type.",
+	{   &hf_mmse_reply_charging_deadline_abs,
+	    {   "X-Mms-Reply-Charging-Deadline", "mmse.reply_charging_deadline.abs",
+		FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x00,
+		"The latest time of the recipient(s) to submit the Reply MM.",
+		HFILL
+	    }
+	},
+	{   &hf_mmse_reply_charging_deadline_rel,
+	    {   "X-Mms-Reply-Charging-Deadline", "mmse.reply_charging_deadline.rel",
+		FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+		"The latest time of the recipient(s) to submit the Reply MM.",
 		HFILL
 	    }
 	},
