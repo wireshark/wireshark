@@ -112,8 +112,8 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
 static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset,
-                                        guint32 *source_addr, guint32 *dest_addr,
-                                        guint16 *source_port, guint16 *dest_port,
+                                        guint32 *source_addr_offset, guint32 *dest_addr_offset,
+                                        guint32 *source_port_offset, guint32 *dest_port_offset,
                                         port_type *type_of_port)
 {
     guint8 length;
@@ -158,23 +158,23 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset,
             if (tag == 0x31 && length >=4 && length <= 6)
             {
                 /* Dest IP address */
-                *dest_addr = tvb_get_ipv4(tvb, offset);
+                *dest_addr_offset = offset;
 
                 /* Dest port follows (if present) */
                 if (length > 4)
                 {
-                    *dest_port = tvb_get_ntohs(tvb, offset+4);
+                    *dest_port_offset = offset + 4;
                 }
             }
             if (tag == 0x32 && length == 4)
             {
                 /* Source IP address */
-                *source_addr = tvb_get_ipv4(tvb, offset);
+                *source_addr_offset = offset;
             }
             if (tag == 0x33 && length == 2)
             {
                 /* Get source port */
-                *source_port = tvb_get_ntohs(tvb, offset);
+                *source_port_offset = offset;
             }
 
             /* Skip the following value */
@@ -388,6 +388,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     else
     if ((strcmp(protocol_name, "xcap_caps") == 0) ||
         (strcmp(protocol_name, "mm1") == 0) ||
+        (strcmp(protocol_name, "mm3") == 0) ||
         (strcmp(protocol_name, "mm7") == 0))
     {
         return find_dissector("http");
@@ -775,90 +776,111 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Try IP Prim heuristic if configured to */
             if (catapult_dct2000_try_ipprim_heuristic)
             {
-                guint32 source_addr = 0, dest_addr = 0;
-                guint16 source_port = 0, dest_port = 0;
+                guint32 source_addr_offset = 0, dest_addr_offset = 0;
+                guint32 source_port_offset = 0, dest_port_offset = 0;
                 port_type type_of_port = PT_NONE;
+                int offset_before_ipprim_header = offset;
 
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
-                    find_ipprim_data_offset(tvb, &offset, &source_addr, &dest_addr,
-                                            &source_port, &dest_port, &type_of_port))
+                    find_ipprim_data_offset(tvb, &offset,
+                                            &source_addr_offset, &dest_addr_offset,
+                                            &source_port_offset, &dest_port_offset,
+                                            &type_of_port))
                 {
                     proto_tree *ipprim_tree;
                     proto_item *ti;
                     protocol_handle = heur_protocol_handle;
 
-                    if (source_addr && check_col(pinfo->cinfo, COL_DEF_SRC))
+                    if (source_addr_offset && check_col(pinfo->cinfo, COL_DEF_SRC))
                     {
                         col_append_fstr(pinfo->cinfo, COL_DEF_SRC,
-                                        "(%s:%u)", (char*)get_hostname(source_addr), source_port);
+                                        "(%s:%u)",
+                                        (char*)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)),
+                                        tvb_get_ntohs(tvb, source_port_offset));
                     }
-                    if (dest_addr && check_col(pinfo->cinfo, COL_DEF_DST))
+                    if (dest_addr_offset && check_col(pinfo->cinfo, COL_DEF_DST))
                     {
                         col_append_fstr(pinfo->cinfo, COL_DEF_DST,
-                                        "(%s:%u)", (char*)get_hostname(dest_addr), dest_port);
+                                        "(%s:%u)",
+                                        (char*)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)),
+                                        tvb_get_ntohs(tvb, dest_port_offset));
                     }
 
                     /* Add address parameters to tree */
                     /* Unfortunately can't automatically create a conversation filter for this...
                        I could create a fake IP header from these details, but then it would be tricky
                        to get FP dissector called as it has no well-known ports or heuristics... */
-                    ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_ipprim_addresses, tvb, offset, 0,
+                    ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_ipprim_addresses,
+                                                       tvb, offset_before_ipprim_header, 0,
                                                        "", "IPPrim transport (%s): %s:%u -> %s:%u",
                                                        (type_of_port == PT_UDP) ? "UDP" : "TCP",
-                                                       (char *)get_hostname(source_addr), source_port,
-                                                       (char *)get_hostname(dest_addr), dest_port);
+                                                       (source_addr_offset) ?
+                                                           (char *)get_hostname(tvb_get_ipv4(tvb, source_addr_offset)) :
+                                                           "0.0.0.0",
+                                                       (source_port_offset) ?
+                                                           tvb_get_ntohs(tvb, source_port_offset) :
+                                                           0,
+                                                       (dest_addr_offset) ?
+                                                           (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                           "0.0.0.0",
+                                                       (dest_port_offset) ?
+                                                           tvb_get_ntohs(tvb, dest_port_offset) :
+                                                           0);
                     ipprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_ipprim);
 
 
-                    if (source_addr != 0)
+                    if (source_addr_offset != 0)
                     {
                         proto_item *addr_ti;
-                        proto_tree_add_ipv4(ipprim_tree, hf_catapult_dct2000_ipprim_src_addr,
-                                            tvb, offset, 0, source_addr);
-                        addr_ti = proto_tree_add_ipv4(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
-                                                      tvb, offset, 0, source_addr);
+                        proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_src_addr,
+                                            tvb, source_addr_offset, 4, FALSE);
+                        addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
+                                                      tvb, source_addr_offset, 4, FALSE);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
-                    if (source_port != 0)
+                    if (source_port_offset != 0)
                     {
                         proto_item *port_ti;
-                        proto_tree_add_uint(ipprim_tree,
+                        proto_tree_add_item(ipprim_tree,
                                             (type_of_port == PT_UDP) ?
                                                hf_catapult_dct2000_ipprim_udp_src_port :
                                                hf_catapult_dct2000_ipprim_tcp_src_port,
-                                            tvb, offset, 0, source_port);
-                        port_ti = proto_tree_add_uint(ipprim_tree,
+                                            tvb, source_port_offset, 2, FALSE);
+                        port_ti = proto_tree_add_item(ipprim_tree,
                                                       (type_of_port == PT_UDP) ?
                                                           hf_catapult_dct2000_ipprim_udp_port :
                                                           hf_catapult_dct2000_ipprim_tcp_port,
-                                                      tvb, offset, 0, source_port);
+                                                      tvb, source_port_offset, 2, FALSE);
                         PROTO_ITEM_SET_HIDDEN(port_ti);
                     }
-                    if (dest_addr != 0)
+                    if (dest_addr_offset != 0)
                     {
                         proto_item *addr_ti;
-                        proto_tree_add_ipv4(ipprim_tree, hf_catapult_dct2000_ipprim_dst_addr,
-                                            tvb, offset, 0, dest_addr);
+                        proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_dst_addr,
+                                            tvb, dest_addr_offset, 4, FALSE);
                         addr_ti = proto_tree_add_ipv4(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
-                                                      tvb, offset, 0, dest_addr);
+                                                      tvb, dest_addr_offset, 4, FALSE);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
-                    if (dest_port != 0)
+                    if (dest_port_offset != 0)
                     {
                         proto_item *port_ti;
-                        proto_tree_add_uint(ipprim_tree,
+                        proto_tree_add_item(ipprim_tree,
                                             (type_of_port == PT_UDP) ?
                                                hf_catapult_dct2000_ipprim_udp_dst_port :
                                                hf_catapult_dct2000_ipprim_tcp_dst_port,
-                                            tvb, offset, 0, dest_port);
-                        port_ti = proto_tree_add_uint(ipprim_tree,
+                                            tvb, dest_port_offset, 2, FALSE);
+                        port_ti = proto_tree_add_item(ipprim_tree,
                                                       (type_of_port == PT_UDP) ?
                                                           hf_catapult_dct2000_ipprim_udp_port :
                                                           hf_catapult_dct2000_ipprim_tcp_port,
-                                                      tvb, offset, 0, dest_port);
+                                                      tvb, dest_port_offset, 2, FALSE);
                         PROTO_ITEM_SET_HIDDEN(port_ti);
                     }
+
+                    /* Set length for IPPrim tree */
+                    proto_item_set_len(ipprim_tree, offset - offset_before_ipprim_header);
                 }
             }
 
