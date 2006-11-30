@@ -33,9 +33,10 @@
 #include "packet-umts_fp.h"
 
 /* TODO:
-   - remaining message types
+   - IU interface-specific formats
    - verify header & payload CRCs
-   - look for (and report as expert info) spare extension bytes
+   - look for (and report as expert info) possible spare extension bytes
+   - R7?
 */
 
 /* Initialize the protocol and registered fields. */
@@ -740,6 +741,9 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     if (credits == 0)
     {
         proto_item_append_text(ti, " (stop transmission)");
+        expert_add_info_format(pinfo, ti,
+                               PI_RESPONSE_CODE, PI_NOTE,
+                               "Stop HSDPA transmission");
     }
     if (credits == 2047)
     {
@@ -765,7 +769,7 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     }
 
     /* Calculated and show effective rate enabled */
-    if ((credits == 2047) || (repetition_period == 0))
+    if (credits == 2047)
     {
         rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
     }
@@ -2495,7 +2499,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_hsdsch_unlimited_rate,
             { "Unlimited rate",
-              "fp.hsdsch-unlimited_rate", FT_NONE, BASE_NONE, 0, 0x0,
+              "fp.hsdsch-unlimited-rate", FT_NONE, BASE_NONE, 0, 0x0,
               "No restriction on rate at which date may be sent", HFILL
             }
         },
@@ -2627,7 +2631,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_ul_sir_target,
             { "UL_SIR_TARGET",
-              "fp.ul-sir_target", FT_FLOAT, BASE_DEC, 0, 0x0,
+              "fp.ul-sir-target", FT_FLOAT, BASE_DEC, 0, 0x0,
               "Value (in dB) of the SIR target to be used by the UL inner loop power control", HFILL
             }
         },
@@ -2736,31 +2740,31 @@ void proto_register_fp(void)
 
         { &hf_fp_radio_interface_parameter_update_flag[0],
             { "CFN valid",
-              "fp.radio_interface_param.cfn-valid", FT_UINT16, BASE_DEC, 0, 0x0001,
+              "fp.radio-interface-param.cfn-valid", FT_UINT16, BASE_DEC, 0, 0x0001,
               "CFN valid", HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[1],
             { "TPC PO valid",
-              "fp.radio_interface_param.tpc-po-valid", FT_UINT16, BASE_DEC, 0, 0x0002,
+              "fp.radio-interface-param.tpc-po-valid", FT_UINT16, BASE_DEC, 0, 0x0002,
               "TPC PO valid", HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[2],
             { "DPC mode valid",
-              "fp.radio_interface_param.dpc-mode-valid", FT_UINT16, BASE_DEC, 0, 0x0004,
+              "fp.radio-interface-param.dpc-mode-valid", FT_UINT16, BASE_DEC, 0, 0x0004,
               "DPC mode valid", HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[3],
             { "RL sets indicator valid",
-              "fp.radio_interface_param.rl-sets-indicator-valid", FT_UINT16, BASE_DEC, 0, 0x0020,
+              "fp.radio-interface_param.rl-sets-indicator-valid", FT_UINT16, BASE_DEC, 0, 0x0020,
               "RI valid", HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[4],
             { "MAX_UE_TX_POW valid",
-              "fp.radio_interface_param.max-ue-tx-pow-valid", FT_UINT16, BASE_DEC, 0, 0x0040,
+              "fp.radio-interface-param.max-ue-tx-pow-valid", FT_UINT16, BASE_DEC, 0, 0x0040,
               "MAX UE TX POW valid", HFILL
             }
         },
