@@ -95,7 +95,7 @@ static const value_string ntlmssp_message_types[] = {
 #define NTLMSSP_NEGOTIATE_NETWARE          0x00000100
 #define NTLMSSP_NEGOTIATE_NTLM             0x00000200
 #define NTLMSSP_NEGOTIATE_00000400         0x00000400
-#define NTLMSSP_NEGOTIATE_00000800         0x00000800
+#define NTLMSSP_NEGOTIATE_ANONYMOUS        0x00000800
 #define NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED  0x00001000
 #define NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED 0x00002000
 #define NTLMSSP_NEGOTIATE_THIS_IS_LOCAL_CALL  0x00004000
@@ -1589,7 +1589,7 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_400,
       { "Negotiate 0x00000400", "ntlmssp.negotiate00000400", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00000400, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_800,
-      { "Negotiate 0x00000800", "ntlmssp.negotiate00000800", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00000800, "", HFILL }},
+      { "Negotiate Anonymous", "ntlmssp.negotiateanonymous", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_ANONYMOUS, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_1000,
       { "Negotiate Domain Supplied", "ntlmssp.negotiatedomainsupplied", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_2000,
