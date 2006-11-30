@@ -742,6 +742,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* set up for next record in frame, if any */
         first_record_in_frame = FALSE;
     }
+    if (check_col(pinfo->cinfo, COL_INFO)) 
+	col_set_fence(pinfo->cinfo, COL_INFO);
     tap_queue_packet(ssl_tap, pinfo, (gpointer)proto_ssl);
 }
 
