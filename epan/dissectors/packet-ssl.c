@@ -1103,9 +1103,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
 
-        if (!ssl_record_tree)
-            break;
-
         /* we need dissector information when the selected packet is shown.
          * ssl session pointer is NULL at that time, so we can't access
          * info cached there*/
