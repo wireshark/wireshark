@@ -84,8 +84,8 @@ fileset_filename_match_pattern(const char *fname)
 
     /* test_00001_20050418010750.cap */
     pfx = strrchr(filename, '.');
-    if(pfx == NULL) {
-        return FALSE;
+    if(pfx == NULL) {  /* suffix is optional */
+        pfx = filename + strlen(filename);
     }
     /* test_00001_20050418010750 */
     *pfx = '\0';
@@ -145,6 +145,9 @@ fileset_is_file_in_set(const char *fname1, const char *fname2)
 
     pfx1 = strrchr(dup_f1, '.');
     pfx2 = strrchr(dup_f2, '.');
+    /* suffix is optional */
+    if (!pfx1) pfx1 = dup_f1 + strlen(dup_f1);
+    if (!pfx2) pfx2 = dup_f2 + strlen(dup_f2);
 
     /* the optional suffix (file extension) must be equal */
     if(strcmp(pfx1, pfx2) != 0) {
