@@ -901,6 +901,8 @@ void proto_register_mysql(void)
 				       "Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
 				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &mysql_desegment);
+			       
+	register_dissector("mysql", dissect_mysql_pdu, proto_mysql);				       
 }
 
 
