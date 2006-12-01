@@ -136,7 +136,9 @@ static int hf_mgcp_param_invalid = -1;
 static int hf_mgcp_messagecount = -1;
 static int hf_mgcp_dup = -1;
 static int hf_mgcp_req_dup = -1;
+static int hf_mgcp_req_dup_frame = -1;
 static int hf_mgcp_rsp_dup = -1;
+static int hf_mgcp_rsp_dup_frame = -1;
 
 static const value_string mgcp_return_code_vals[] = {
 	{000, "Response Acknowledgement"},
@@ -826,9 +828,15 @@ void proto_register_mgcp(void)
         { &hf_mgcp_req_dup,
           { "Duplicate Request", "mgcp.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Duplicate Request", HFILL }},
+        { &hf_mgcp_req_dup_frame,
+          { "Original Request Frame", "mgcp.req.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Frame containing original request", HFILL }},
         { &hf_mgcp_rsp_dup,
           { "Duplicate Response", "mgcp.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Duplicate Response", HFILL }},
+        { &hf_mgcp_rsp_dup_frame,
+          { "Original Response Frame", "mgcp.rsp.dup.frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "Frame containing original response", HFILL }},
     };
 
     static gint *ett[] =
@@ -1595,6 +1603,9 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
 									                           tvb, 0, 0, mi->transid);
 									PROTO_ITEM_SET_GENERATED(item);
+									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup_frame,
+									                           tvb, 0, 0, mgcp_call->rsp_num);
+									PROTO_ITEM_SET_GENERATED(item);
 								}
 							}
 						}
@@ -1684,6 +1695,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							proto_item* item;
 							proto_tree_add_uint_hidden(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
 							item = proto_tree_add_uint(tree, hf_mgcp_req_dup, tvb, 0,0, mi->transid);
+							PROTO_ITEM_SET_GENERATED(item);
+							item = proto_tree_add_uint(tree, hf_mgcp_req_dup_frame, tvb, 0,0, mi->req_num);
 							PROTO_ITEM_SET_GENERATED(item);
 						}
 					}
