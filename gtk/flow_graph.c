@@ -256,25 +256,27 @@ static int flow_graph_frame_add_to_graph(packet_info *pinfo)
 	}
 
 
-	if (pinfo->cinfo->col_first[COL_INFO]>=0){
+	if(pinfo->cinfo) {
+		if (pinfo->cinfo->col_first[COL_INFO]>=0){
+			
+			for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
+				if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
+					colinfo = g_strdup(pinfo->cinfo->col_data[i]);
+				}
+			}
+		}
 		
-  		for (i = pinfo->cinfo->col_first[COL_INFO]; i <= pinfo->cinfo->col_last[COL_INFO]; i++) {
-    		if (pinfo->cinfo->fmt_matx[i][COL_INFO]) {
-				colinfo = g_strdup(pinfo->cinfo->col_data[i]);
+		if (pinfo->cinfo->col_first[COL_PROTOCOL]>=0){
+			
+			for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
+				if (pinfo->cinfo->fmt_matx[i][COL_PROTOCOL]) {
+					protocol = g_strdup(pinfo->cinfo->col_data[i]);
+					
+				}
 			}
 		}
 	}
 
-	if (pinfo->cinfo->col_first[COL_PROTOCOL]>=0){
-		
-  		for (i = pinfo->cinfo->col_first[COL_PROTOCOL]; i <= pinfo->cinfo->col_last[COL_PROTOCOL]; i++) {
-    		if (pinfo->cinfo->fmt_matx[i][COL_PROTOCOL]) {
-				protocol = g_strdup(pinfo->cinfo->col_data[i]);
-
-			}
-		}
-	}
-		
 	if (colinfo != NULL) {
 		if (protocol != NULL) {
 			gai->frame_label = g_strdup_printf("%.19s", colinfo);
