@@ -2599,11 +2599,11 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		} else {
 			fid_info->filename=NULL;
 		}
-		se_tree_insert32(si->ct->tid_tree, pinfo->fd->num, fid_info);
+		se_tree_insert32(si->ct->tid_tree, tid, fid_info);
 	}
 
 	if(!fid_info){
-		fid_info=se_tree_lookup32_le(si->ct->tid_tree, pinfo->fd->num);
+		fid_info=se_tree_lookup32_le(si->ct->tid_tree, tid);
 	}
 	if(!fid_info){
 		return offset;
@@ -3026,11 +3026,11 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			fid_info->filename=NULL;
 		}
 
-		se_tree_insert32(si->ct->fid_tree, pinfo->fd->num, fid_info);
+		se_tree_insert32(si->ct->fid_tree, fid, fid_info);
 	}
 
 	if(!fid_info){
-		fid_info=se_tree_lookup32_le(si->ct->fid_tree, pinfo->fd->num);
+		fid_info=se_tree_lookup32(si->ct->fid_tree, fid);
 	}
 	if(!fid_info){
 		return NULL;
