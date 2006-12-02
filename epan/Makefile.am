@@ -103,7 +103,7 @@ MAINTAINERCLEANFILES = \
 libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SNMP_LIBS@ @SSL_LIBS@ -lm
 libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la $(wslua_lib)
 
-tvbtest: tvbtest.o tvbuff.o except.o strutil.o
+tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
 exntest: exntest.o except.o
