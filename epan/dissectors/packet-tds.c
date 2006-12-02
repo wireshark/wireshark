@@ -792,8 +792,8 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint offset, i, offset2, len;
-	char *val;
+	guint offset, i, j, k, offset2, len;
+	char *val, *val2;
 
 	proto_item *login_hdr;
 	proto_tree *login_tree;
@@ -882,10 +882,30 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				val = tvb_get_ephemeral_faked_unicode(tvb, offset2, len, TRUE);
 				len *= 2;
 				proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
-			}
-			else {
+			} else {
+				/* This field is the password.  We retrieve it from the packet 
+				 * as a non-unicode string and then perform two operations on it
+				 * to "decrypt" it.  Finally, we create a new string that consists
+				 * of ASCII characters instead of unicode by skipping every other
+				 * byte in the original string.
+				 */
+
 				len *= 2;
-				proto_tree_add_text(login_tree, tvb, offset2, len, "%s", val_to_str(i, login_field_names, "Unknown"));
+				val = tvb_get_ephemeral_string(tvb, offset2, len);
+				val2 = g_malloc((len/2)+1);
+
+				for(j = 0, k = 0; j < len; j += 2, k++) {
+					val[j] ^= 0xA5;
+
+					/* Swap the most and least significant bits */
+					val[j] = ((val[j] & 0x0F) << 4) | ((val[j] & 0xF0) >> 4);
+
+					val2[k] = val[j];
+				}
+				val2[k] = '\0'; /* Null terminate our new string */
+
+				proto_tree_add_text(login_tree, tvb, offset2, len, "%s: %s", val_to_str(i, login_field_names, "Unknown"), val2);
+				g_free(val2);
 			}
 		}
 	}
