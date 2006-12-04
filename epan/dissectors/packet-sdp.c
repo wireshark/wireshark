@@ -157,6 +157,7 @@ static int hf_media_attribute_value = -1;
 static int hf_media_encoding_name = -1;
 static int hf_media_format_specific_parameter = -1;
 static int hf_sdp_fmtp_profile_level_id = -1;
+static int hf_sdp_fmtp_h263_profile = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
 
 /* trees */
@@ -693,6 +694,9 @@ static void
 dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   proto_tree * sdp_bandwidth_tree;
   gint offset, next_offset, tokenlen;
+  proto_item *item;
+  gboolean unit_is_kbs = FALSE;
+  gboolean unit_is_bps = FALSE;
 
   offset = 0;
   next_offset = 0;
@@ -708,13 +712,28 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
 
   tokenlen = next_offset - offset;
 
-  proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_modifier, tvb, offset,
+  item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_modifier, tvb, offset,
                       tokenlen, FALSE);
+  if (tvb_strneql(tvb, offset, "CT", 2) == 0){
+	  proto_item_append_text(item, " [Conference Total(total bandwidth of all RTP sessions)]");
+	  unit_is_kbs = TRUE;
+  }else if (tvb_strneql(tvb, offset, "AS", 2) == 0){
+	  proto_item_append_text(item, " [Application Specific (RTP session bandwidth)]");
+	  unit_is_kbs = TRUE;
+  }else if (tvb_strneql(tvb, offset, "TIAS", 4) == 0){
+	  proto_item_append_text(item, " [Transport Independent Application Specific maximum]");
+	  unit_is_bps = TRUE;
+  }
+
 
   offset = next_offset + 1;
 
-  proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_value, tvb, offset, -1,
+  item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_value, tvb, offset, -1,
                       FALSE);
+  if (unit_is_kbs == TRUE)
+	   proto_item_append_text(item, " kb/s");
+  if (unit_is_bps == TRUE)
+	   proto_item_append_text(item, " b/s");
 }
 
 static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
@@ -1111,6 +1130,22 @@ static const value_string mpeg4es_level_indication_vals[] =
   { 0xff, "Reserved for Escape" },
   { 0, NULL },
 };
+/* Annex X Profiles and levels definition */
+static const value_string h263_profile_vals[] =
+{
+  { 0,    "Baseline Profile" },
+  { 1,    "H.320 Coding Efficiency Version 2 Backward-Compatibility Profile" },
+  { 2,    "Version 1 Backward-Compatibility Profile" },
+  { 3,    "Version 2 Interactive and Streaming Wireless Profile" },
+  { 4,    "Version 3 Interactive and Streaming Wireless Profile" },
+  { 5,    "Conversational High Compression Profile" },
+  { 6,    "Conversational Internet Profile" },
+  { 7,    "Conversational Interlace Profile" },
+  { 8,    "High Latency Profile" },
+  { 9,    "High Latency Profile" },
+  { 0, NULL },
+};
+
 /* 
  * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
  */
@@ -1150,6 +1185,19 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, gui
       PROTO_ITEM_SET_GENERATED(item);
     }
   }
+
+  /* Dissect the H263-2000 profile parameter if present */
+  if (mime_type != NULL && strcmp((char*)mime_type, "H263-2000") == 0) {
+    if (strcmp((char*)field_name, "profile") == 0) {
+      offset++;
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
+                                 atol((char*)format_specific_parameter));
+      PROTO_ITEM_SET_GENERATED(item);
+    }
+  }
+
 #if 0
   /* TODO: Add code to dissect H264 fmtp parameters wehen an example can be found */
   if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
@@ -1710,10 +1758,14 @@ proto_register_sdp(void)
       { "IPBCP Command Type",
         "ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
         "IPBCP Command Type", HFILL }},
-        {&hf_sdp_fmtp_profile_level_id,
+	{&hf_sdp_fmtp_profile_level_id,
       { "Level Code",
         "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mpeg4es_level_indication_vals), 0x0,
         "Level Code", HFILL }},
+	{ &hf_sdp_fmtp_h263_profile,
+      { "Profile",
+        "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
+        "Profile", HFILL }},
     { &hf_SDPh223LogicalChannelParameters,
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
