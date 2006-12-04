@@ -247,7 +247,19 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap
 # The easiest way is to use the corresponding packages from cygwin.
 
 # command for a shell (cygwin's bash package recommended)
-SH=bash
+SH_PROG=bash
+
+# bash versions after 3.1.6 need the 'igncr' shell option to be able to
+#  process scripts in windows 'native format' (dos crlf format). 
+# The following !IF results in the option being used only if it is available
+#  since using it on bash version 3.1.6 (or earlier) is not required and
+#  will cause an error message.
+!if "$(SH_PROG)"=="bash" && [bash -c "set -o igncr" 2>nul: ] == 0
+SH_FLAGS=-o igncr
+!endif
+
+SH=$(SH_PROG) $(SH_FLAGS)
+
 
 # command for perl (cygwin's perl package recommended)
 PERL=perl

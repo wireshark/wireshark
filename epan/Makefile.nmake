@@ -88,7 +88,7 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) ftypes dfilter $(WSLUA_DI
 
 ..\config.h	: ..\config.h.win32 ..\config.nmake
 	cd ..
-	$(MAKE) -f Makefile.nmake config.h
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake config.h
 	cd epan
 
 clean:

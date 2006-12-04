@@ -119,7 +119,7 @@ all: config.h tools image codecs wiretap epan $(EXECUTABLES) $(RESOURCES) doc in
 packaging: all
 	cd packaging
 	cd nsis
-	nmake -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ..
 	cd ..
 
@@ -127,10 +127,10 @@ separate_packaging: all
 	cd packaging
 	cd nsis
 !IFDEF GTK1_DIR
-	nmake -f makefile.nmake GTK1_ONLY="USE"
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake GTK1_ONLY="USE"
 !ENDIF
 !IFDEF GTK2_DIR
-	nmake -f makefile.nmake GTK2_ONLY="USE"
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake GTK2_ONLY="USE"
 !ENDIF
 	cd ..
 	cd ..
@@ -139,7 +139,7 @@ packaging_u3: all
 	cd packaging
 	cd u3
 	cd win32
-	nmake -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ..
 	cd ..
 	cd ..
@@ -485,7 +485,7 @@ REQUIRED_TOOLS=\
 	$(CC) \
 	$(LINK) \
 	nmake \
-	$(SH)	\
+	$(SH_PROG)	\
 	$(YACC)	\
 	$(LEX)	\
 	env	\
@@ -498,7 +498,7 @@ REQUIRED_TOOLS=\
 	wget
 
 verify_tools:
-	$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
+	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
 # Download and install all the required libraries into WIRESHARK_LIBS.
 # If you used this setup target before, consider doing a clean_setup.
@@ -686,7 +686,7 @@ debug-gtk2: wireshark-gtk2.exe install-files2
 debug-tshark: tshark.exe
 	set copycmd=/y
 	set INSTALL_DIR=$(INSTALL2_DIR)
-	nmake -f Makefile.nmake install-common-files
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 
 
 # "install-deps" will copy all files needed to run Wwireshark/Tshark
@@ -699,7 +699,7 @@ install-files1:
 !IFDEF GTK1_DIR
 	set copycmd=/y
 	set INSTALL_DIR=$(INSTALL1_DIR)
-	nmake -f Makefile.nmake install-common-files
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	xcopy wireshark.exe $(INSTALL1_DIR) /d
 !ENDIF
 
@@ -707,7 +707,7 @@ install-files1:
 install-files2:
 !IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
-	nmake -f Makefile.nmake install-common-files
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	copy wireshark-gtk2.exe $(INSTALL2_DIR)\wireshark.exe
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
 !ENDIF
@@ -831,13 +831,13 @@ install-deps2: install-common-deps2
 install-common-deps1:
 !IFDEF GTK1_DIR
 	set INSTALL_DIR=$(INSTALL1_DIR)
-	nmake -f Makefile.nmake install-common-deps
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
 !ENDIF
 
 install-common-deps2:
 !IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
-	nmake -f Makefile.nmake install-common-deps
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
 !ENDIF
 
 install-common-deps:
