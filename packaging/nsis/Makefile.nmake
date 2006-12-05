@@ -175,10 +175,10 @@ maintainer-clean: distclean
 
 $(DOC):
 	cd ../../doc
-	$(MAKE) -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../packaging/nsis
 
 $(EXE) $(DLL):
 	cd ../..
-	$(MAKE) -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd packaging/nsis

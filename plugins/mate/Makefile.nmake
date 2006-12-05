@@ -61,5 +61,5 @@ mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
 
 $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
-	$(MAKE) -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../plugins/mate

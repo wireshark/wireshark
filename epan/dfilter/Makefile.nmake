@@ -43,7 +43,7 @@ $(OBJECTS): ..\..\config.h
 
 ..\..\config.h: ..\..\config.h.win32 ..\..\config.nmake
 	cd ..\..
-	$(MAKE) -f Makefile.nmake config.h
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake config.h
 	cd epan\dfilter
 
 clean:
@@ -74,5 +74,5 @@ grammar.c : grammar.lemon $(LEMON)\lemon.exe
 
 $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
-	$(MAKE) -f makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../epan/dfilter

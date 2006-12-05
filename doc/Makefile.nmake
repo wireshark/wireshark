@@ -37,7 +37,7 @@ wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
 
 ../AUTHORS-SHORT-FORMAT:
 	cd ..
-	$(MAKE) -f makefile.nmake AUTHORS-SHORT-FORMAT
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake AUTHORS-SHORT-FORMAT
 	cd doc
 
 wireshark.1: wireshark.pod ../config.h
@@ -54,7 +54,7 @@ wireshark.html: wireshark-tmp.pod ../config.h
 
 ../$(INSTALL2_DIR)/tshark.exe:
 	cd ..
-	$(MAKE) -f makefile.nmake tshark.exe
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake tshark.exe
 	cd doc
 
 tshark.1: tshark.pod ../config.h
