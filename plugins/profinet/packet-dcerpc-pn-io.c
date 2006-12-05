@@ -300,6 +300,13 @@ static int hf_pn_io_error_power_budget = -1;
 static int hf_pn_io_fiber_optic = -1;
 static int hf_pn_io_fiber_optic_cable = -1;
 
+static int hf_pn_io_controller_appl_cycle_factor = -1;
+static int hf_pn_io_time_data_cycle = -1;
+static int hf_pn_io_time_io_input = -1;
+static int hf_pn_io_time_io_output = -1;
+static int hf_pn_io_time_io_input_valid = -1;
+static int hf_pn_io_time_io_output_valid = -1;
+
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -887,6 +894,7 @@ static const value_string pn_io_index[] = {
 	{ 0xAFFE, "I&M14" },
 	{ 0xAFFF, "I&M15" },
     /*0xB000 - 0xBFFF reserved for profiles */
+	{ 0xB02E, "Reserved for profiles"},
 
     /* slot specific */
 	{ 0xC000, "ExpectedIdentificationData for one slot" },
@@ -3055,6 +3063,55 @@ dissect_ModuleDiffBlock(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the IsochronousModeData block */
+static int
+dissect_IsochronousModeData(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16SlotNr;
+    guint16 u16SubslotNr;
+    guint16 u16ControllerApplicationCycleFactor;
+    guint16 u16TimeDataCycle;
+    guint32 u32TimeIOInput;
+    guint32 u32TimeIOOutput;
+    guint32 u32TimeIOInputValid;
+    guint32 u32TimeIOOutputValid;
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* SlotNumber */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_slot_nr, &u16SlotNr);
+    /* Subslotnumber */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_subslot_nr, &u16SubslotNr);
+
+    /* ControllerApplicationCycleFactor */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_controller_appl_cycle_factor, &u16ControllerApplicationCycleFactor);
+    /* TimeDataCycle */
+	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_time_data_cycle, &u16TimeDataCycle);
+    /* TimeIOInput (ns) */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_time_io_input, &u32TimeIOInput);
+    /* TimeIOOutput (ns) */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_time_io_output, &u32TimeIOOutput);
+    /* TimeIOInputValid (ns) */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_time_io_input_valid, &u32TimeIOInputValid);
+    /* TimeIOOutputValid (ns) */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_time_io_output_valid, &u32TimeIOOutputValid);
+
+
+    return offset+1;
+}
+
+
 /* dissect one PN-IO block (depending on the block type) */
 static int
 dissect_block(tvbuff_t *tvb, int offset,
@@ -3112,6 +3169,10 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0002):
         dissect_AlarmNotification_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
+    case(0x0008):
+    case(0x0009):
+        dissect_ReadWrite_rqst_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        break;
     case(0x0010):
         dissect_DiagnosisBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
@@ -3140,9 +3201,60 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0114):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
-    case(0x0008):
-    case(0x0009):
-        dissect_ReadWrite_rqst_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+    case(0x0200):
+    case(0x0202):
+        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
+    case(0x0203):
+        dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0204):
+        dissect_IsochronousModeData(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0205):
+        dissect_PDIRData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0206):
+        dissect_PDIRGlobalData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0207):
+        dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;        
+    case(0x0209):
+        dissect_AdjustDomainBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x020A):
+        dissect_CheckPeers_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x020B):
+        dissect_CheckPropagationDelayFactor_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x020C):
+        dissect_CheckMAUType_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x020E):
+        dissect_AdjustMAUType_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x020F):
+        dissect_PDPortDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0210):
+        dissect_AdjustMulticastBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x021B):
+        dissect_AdjustPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x021C):
+        dissect_CheckPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0222):
+        dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0223):
+        dissect_PDPortFODataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0230):
+        dissect_PDNCDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x8001):
     case(0x8002):
@@ -3170,58 +3282,6 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8113):
     case(0x8114):
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x0200):
-    case(0x0202):
-        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
-        break;
-    case(0x0203):
-        dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x0205):
-        dissect_PDIRData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x0206):
-        dissect_PDIRGlobalData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x0207):
-        dissect_PDIRFrameData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;        
-    case(0x0209):
-        dissect_AdjustDomainBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x20A):
-        dissect_CheckPeers_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x20B):
-        dissect_CheckPropagationDelayFactor_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x20C):
-        dissect_CheckMAUType_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x20E):
-        dissect_AdjustMAUType_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x20F):
-        dissect_PDPortDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x0210):
-        dissect_AdjustMulticastBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x21B):
-        dissect_AdjustPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x21C):
-        dissect_CheckPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x222):
-        dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x223):
-        dissect_PDPortFODataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
-        break;
-    case(0x230):
-        dissect_PDNCDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     default:
     	header_item = proto_tree_add_string_format(sub_tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", "Undecoded Block Data: %d bytes", u16BodyLength);
@@ -3388,6 +3448,14 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
         return offset;
     }
 
+    /* "reserved for profiles" */
+    if(u16Index == 0xb02e) {
+        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
+            "RecordDataRead: %d bytes - undecoded as index is reserved for profiles", u32RecDataLen);
+        offset += u32RecDataLen;
+        return offset;
+    }
+
     /* see: pn_io_index */
     switch(u16Index) {
     case(0x8001):   /* RealIdentificationData */
@@ -3451,6 +3519,13 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
         offset += u32RecDataLen;
         return offset;
     }
+    /* "reserved for profiles" */
+    if(u16Index == 0xb02e) {
+        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
+            "RecordDataWrite: %d bytes - undecoded as index is reserved for profiles", u32RecDataLen);
+        offset += u32RecDataLen;
+        return offset;
+    }
 
     /* see: pn_io_index */
     switch(u16Index) {
@@ -3459,6 +3534,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x802d):   /* PDSyncData */
     case(0x802e):   /* PDSyncData */
     case(0x802f):   /* PDPortDataAdjust */
+    case(0x8030):   /* IsochronousModeData */
     case(0x8061):   /* PDPortFODataCheck */
     case(0x8062):   /* PDPortFODataAdjust */
     case(0x8070):   /* PDNCDataCheck */
@@ -4242,6 +4318,19 @@ proto_register_pn_io (void)
       { "FiberOptic", "pn_io.fiber_optic", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic), 0x0, "", HFILL }},
     { &hf_pn_io_fiber_optic_cable,
       { "FiberOpticCable", "pn_io.fiber_optic_cable", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable), 0x0, "", HFILL }},
+
+    { &hf_pn_io_controller_appl_cycle_factor,
+      { "ControllerApplicationCycleFactor", "pn_io.controller_appl_cycle_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_time_data_cycle,
+      { "TimeDataCycle", "pn_io.time_data_cycle", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_time_io_input,
+      { "TimeIOInput", "pn_io.time_io_input", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_time_io_output,
+      { "TimeIOOutput", "pn_io.time_io_output", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_time_io_input_valid,
+      { "TimeIOInput", "pn_io.time_io_input_valid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_time_io_output_valid,
+      { "TimeIOOutputValid", "pn_io.time_io_output_valid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     };
 
 	static gint *ett[] = {
