@@ -1142,7 +1142,6 @@ static const value_string h263_profile_vals[] =
   { 6,    "Conversational Internet Profile" },
   { 7,    "Conversational Interlace Profile" },
   { 8,    "High Latency Profile" },
-  { 9,    "High Latency Profile" },
   { 0, NULL },
 };
 
