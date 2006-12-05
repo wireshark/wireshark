@@ -13565,7 +13565,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
 {
 	smb_info_t *si;
-	int fn_len, vll, fnl;
+	int fn_len, vll;
 	const char *fn;
 	guint support = 0;
 	proto_item *item = NULL;
