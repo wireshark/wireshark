@@ -2072,7 +2072,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	guint32 port_tx_delay_local;
 	guint32 port_tx_delay_remote;
 	guint32 cable_delay_local;
-	guint8 mac_addr[6];
+	const guint8 *mac_addr = NULL;
 	e_guid_t * uuid;
 	guint16 mrrt_PortStatus;
 
@@ -2155,13 +2155,15 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	}
     case 5:     /* Chassis MAC */
     {
-	    proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
+	mac_addr=tvb_get_ptr(tvb, offset, 6);
+	proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
         offset += 6;
         break;
     }
     case 6:     /* PTCP status */
     {
 	    /* MasterSourceAddress */
+	    mac_addr=tvb_get_ptr(tvb, offset, 6);
 	    proto_tree_add_ether(tree, hf_profinet_master_source_address, tvb, offset, 6, mac_addr);
 	    offset += 6;
 	    /* SubdomainUUID */
@@ -2551,7 +2553,7 @@ proto_register_lldp(void)
 	   		VALS(profinet_mrrt_port_status_vals), 0x0, "", HFILL }
 		},
 		{ &hf_profinet_cm_mac,
-			{ "CMMacAdd",	"lldp.profinet.rtc3_port_status", FT_ETHER, BASE_NONE,
+			{ "CMMacAdd",	"lldp.profinet.cm_mac_add", FT_ETHER, BASE_NONE,
 	   		NULL, 0x0, "CMResponderMacAdd or CMInitiatorMacAdd", HFILL }
 		},
 		{ &hf_profinet_master_source_address,
