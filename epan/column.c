@@ -373,6 +373,37 @@ get_timestamp_column_longest_string(gint type, gint precision)
 				g_assert_not_reached();
 		}
 		break;
+	case(TS_EPOCH):
+        /* This is enough to represent 2^63 (signed 64-bit integer) + fractions */
+		switch(precision) {
+			case(TS_PREC_AUTO_SEC):
+			case(TS_PREC_FIXED_SEC):
+				return "0000000000000000000";
+				break;
+			case(TS_PREC_AUTO_DSEC):
+			case(TS_PREC_FIXED_DSEC):
+				return "0000000000000000000.0";
+				break;
+			case(TS_PREC_AUTO_CSEC):
+			case(TS_PREC_FIXED_CSEC):
+				return "0000000000000000000.00";
+				break;
+			case(TS_PREC_AUTO_MSEC):
+			case(TS_PREC_FIXED_MSEC):
+				return "0000000000000000000.000";
+				break;
+			case(TS_PREC_AUTO_USEC):
+			case(TS_PREC_FIXED_USEC):
+				return "0000000000000000000.000000";
+				break;
+			case(TS_PREC_AUTO_NSEC):
+			case(TS_PREC_FIXED_NSEC):
+				return "0000000000000000000.000000000";
+				break;
+			default:
+				g_assert_not_reached();
+		}
+		break;
 	case(TS_NOT_SET):
 		return "0000.000000";
 		break;

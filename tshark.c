@@ -276,7 +276,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
-  fprintf(output, "  -t ad|a|r|d              output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t ad|a|r|d|e            output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
@@ -1011,6 +1011,8 @@ main(int argc, char *argv[])
           timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
+        else if (strcmp(optarg, "e") == 0)
+          timestamp_set_type(TS_EPOCH);
         else {
           cmdarg_err("Invalid time stamp type \"%s\"",
             optarg);

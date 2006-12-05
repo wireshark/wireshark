@@ -27,7 +27,7 @@ S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
-S<[ B<-t> ad|a|r|d ]>
+S<[ B<-t> ad|a|r|d|e ]>
 S<[ B<-T> pdml|psml|ps|text ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
@@ -349,7 +349,7 @@ memory, or saved to disk.
 Decode and display packets even while writing raw packet data using the
 B<-w> option.
 
-=item -t  ad|a|r|d
+=item -t  ad|a|r|d|e
 
 Set the format of the packet timestamp printed in summary lines, the default 
 is relative. The format can be one of:
@@ -365,6 +365,8 @@ and the current packet
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
+
+B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
 =item -T  pdml|psml|ps|text
 

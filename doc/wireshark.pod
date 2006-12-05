@@ -30,7 +30,7 @@ S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-S> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
-S<[ B<-t> ad|a|r|d ]>
+S<[ B<-t> ad|a|r|d|e ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
 S<[ B<-y> E<lt>capture link typeE<gt> ]>
@@ -390,7 +390,7 @@ Set the default snapshot length to use when capturing live data.
 No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.
 
-=item -t  ad|a|r|d
+=item -t  ad|a|r|d|e
 
 Set the format of the packet timestamp displayed in the packet list
 window, the default is relative. The format can be one of:
@@ -406,6 +406,8 @@ and the current packet
 
 B<d> delta: The delta time is the time since the previous packet was
 captured
+
+B<e> epoch: The time in seconds since epoch (Jan 1, 1970 00:00:00)
 
 =item -v
 

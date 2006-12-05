@@ -120,6 +120,7 @@ static void timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
+static void timestamp_epoch_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_);
 static void timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_);
@@ -474,6 +475,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, timestamp_relative_cb,
                         0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Previous Packet:   1.123456", NULL, timestamp_delta_cb,
+                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
+    ITEM_FACTORY_ENTRY("/View/Time Display Format/Seconds Since Epoch Time:   123.123456", NULL, timestamp_epoch_cb,
                         0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Time Display Format/Automatic (File Format Precision)", NULL, timestamp_auto_cb,
@@ -1646,6 +1649,16 @@ timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 static void
+timestamp_epoch_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    if (recent.gui_time_format != TS_EPOCH) {
+        timestamp_set_type(TS_EPOCH);
+        recent.gui_time_format  = TS_EPOCH;
+        cf_change_time_formats(&cfile);
+    }
+}
+
+static void
 timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (recent.gui_time_precision != TS_PREC_AUTO) {
@@ -1890,6 +1903,12 @@ menu_recent_read_finished(void) {
     case(TS_DELTA):
         menu = gtk_item_factory_get_widget(main_menu_factory,
             "/View/Time Display Format/Seconds Since Previous Packet:   1.123456");
+        recent.gui_time_format = -1;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
+        break;
+    case(TS_EPOCH):
+        menu = gtk_item_factory_get_widget(main_menu_factory,
+            "/View/Time Display Format/Seconds Since Epoch Time:   123.123456");
         recent.gui_time_format = -1;
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
         break;

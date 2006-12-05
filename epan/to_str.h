@@ -72,6 +72,8 @@ extern gchar*	time_msecs_to_str(gint32);
 extern gchar*	abs_time_to_str(nstime_t*);
 extern gchar*	abs_time_secs_to_str(time_t);
 extern void	display_signed_time(gchar *, int, gint32, gint32, time_res_t);
+extern void	display_epoch_time(gchar *, int, time_t,  gint32, time_res_t);
+
 extern gchar*	rel_time_to_str(nstime_t*);
 extern gchar*	rel_time_to_secs_str(nstime_t*);
 extern gchar*	oid_to_str(const guint8*, gint);

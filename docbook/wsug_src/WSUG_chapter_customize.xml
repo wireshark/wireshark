@@ -435,6 +435,12 @@ standard libpcap format.
 		    are relative to the previous packet.
 		  </para>
 		</listitem>
+		<listitem>
+		  <para>
+		    <command>e</command> epoch, which specifies that timestamps 
+		    are seconds since epoch (Jan 1, 1970 00:00:00)
+		  </para>
+		</listitem>
 	      </itemizedlist>
 	    </para>
 	  </listitem>

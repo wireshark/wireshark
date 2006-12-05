@@ -779,6 +779,50 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
 }
 
+static void
+col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
+{
+
+  COL_CHECK_REF_TIME(fd, cinfo, col);
+
+  switch(timestamp_get_precision()) {
+	  case(TS_PREC_FIXED_SEC):
+	  case(TS_PREC_AUTO_SEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, SECS);
+		  break;
+	  case(TS_PREC_FIXED_DSEC):
+	  case(TS_PREC_AUTO_DSEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, DSECS);
+		  break;
+	  case(TS_PREC_FIXED_CSEC):
+	  case(TS_PREC_AUTO_CSEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, CSECS);
+		  break;
+	  case(TS_PREC_FIXED_MSEC):
+	  case(TS_PREC_AUTO_MSEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, MSECS);
+		  break;
+	  case(TS_PREC_FIXED_USEC):
+	  case(TS_PREC_AUTO_USEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, USECS);
+		  break;
+	  case(TS_PREC_FIXED_NSEC):
+	  case(TS_PREC_AUTO_NSEC):
+		  display_epoch_time(cinfo->col_buf[col], COL_MAX_LEN,
+			fd->abs_ts.secs, fd->abs_ts.nsecs, NSECS);
+		  break;
+	  default:
+		  g_assert_not_reached();
+  }
+  cinfo->col_data[col] = cinfo->col_buf[col];
+  strcpy(cinfo->col_expr[col],"frame.time_delta");
+  strcpy(cinfo->col_expr_val[col],cinfo->col_buf[col]);
+}
 /* Set the format of the variable time format.
    XXX - this is called from "file.c" when the user changes the time
    format they want for "command-line-specified" time; it's a bit ugly
@@ -804,6 +848,9 @@ col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
 
     case TS_DELTA:
       col_set_delta_time(fd, cinfo, col);
+      break;
+    case TS_EPOCH:
+      col_set_epoch_time(fd, cinfo, col);
       break;
    case TS_NOT_SET:
 	/* code is missing for this case, but I don't know which [jmayer20051219] */

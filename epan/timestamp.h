@@ -29,10 +29,12 @@
  * Type of time-stamp shown in the summary display.
  */
 typedef enum {
-	TS_RELATIVE,
+	TS_RELATIVE,            /* Since start of capture */
 	TS_ABSOLUTE,
 	TS_ABSOLUTE_WITH_DATE,
-	TS_DELTA,
+	TS_DELTA,               /* Since previous packet */
+	TS_EPOCH,               /* Seconds (and fractions) since epoch */
+
 /*
  * Special value used for the command-line setting in Wireshark, to indicate
  * that no value has been set from the command line.

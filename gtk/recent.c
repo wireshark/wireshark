@@ -76,7 +76,7 @@
 recent_settings_t recent;
 
 static const char *ts_type_text[] =
-	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", NULL };
+	{ "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", "EPOCH", NULL };
 
 static const char *ts_precision_text[] =
 	{ "AUTO", "SEC", "DSEC", "CSEC", "MSEC", "USEC", "NSEC", NULL };
@@ -207,7 +207,7 @@ write_recent(void)
 		  recent.packet_list_colorize == TRUE ? "TRUE" : "FALSE");
 
   fprintf(rf, "\n# Timestamp display format.\n");
-  fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_DATE, DELTA\n");
+  fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_DATE, DELTA, EPOCH\n");
   fprintf(rf, RECENT_GUI_TIME_FORMAT ": %s\n",
           ts_type_text[recent.gui_time_format]);
 

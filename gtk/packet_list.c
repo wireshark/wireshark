@@ -162,6 +162,7 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 
     case TS_ABSOLUTE:
     case TS_ABSOLUTE_WITH_DATE:
+    case TS_EPOCH:
       return COMPARE_TS(abs_ts);
 
     case TS_RELATIVE:

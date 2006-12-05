@@ -2538,6 +2538,10 @@ Alex Burlyga              <Alex.Burlyga [AT] netapp.com> {
 	NetApp NFS filehandle dissectors
 }
 
+Douglas Pratley		 <Douglas.pratley [AT] detica.com> {
+	Epoch timestamps
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
