@@ -5008,7 +5008,7 @@ proto_register_ieee80211 (void)
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
-	    key_title->str, key_desc->str, wep_keystr[i]);
+	    key_title->str, key_desc->str, &wep_keystr[i]);
 
     g_string_free(key_name, FALSE);
     g_string_free(key_title, FALSE);
