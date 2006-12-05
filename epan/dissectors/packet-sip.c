@@ -479,7 +479,7 @@ static header_parameter_t via_parameters_hf_array[] =
 	{"rport",         &hf_sip_via_rport},
 	{"received",      &hf_sip_via_received},
 	{"ttl",           &hf_sip_via_ttl},
-	{"ttl",           &hf_sip_via_comp}
+	{"comp",          &hf_sip_via_comp}
 };
 
 /*
