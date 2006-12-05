@@ -147,4 +147,16 @@ extern gint fetch_preference_option_menu_val(GtkWidget *optmenu, const enum_val_
 extern GtkWidget *create_preference_entry(GtkWidget *main_tb, int table_row,
     const gchar *label_text, const gchar *tooltip_text, char *value);
 
+/** Create a static text for a preferences page.
+ *
+ * @param main_tb the table to put this entry into
+ * @param table_row row in the table
+ * @param label_text the label text
+ * @param tooltip_text the tooltip for this text (not neded at all...)
+ * @return the new static text label
+ */
+GtkWidget *
+create_preference_static_text(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const gchar *tooltip_text);
+
 #endif

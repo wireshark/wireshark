@@ -627,6 +627,17 @@ prefs_register_range_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a static text 'preference'.  It can be used to add explanatory
+ * text inline with other preferences in the GUI.
+ * Note: Static preferences are not saved to the preferences file.
+ */
+void prefs_register_static_text_preference(module_t *module, const char *name,
+    const char *title, const char *description)
+{
+	register_preference(module, name, title, description, PREF_STATIC_TEXT);
+}
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 void
@@ -972,7 +983,7 @@ init_prefs(void) {
    * verified on XP: "Lucida Console"
    * unknown for other windows versions.
    *
-   * Problem: if we have no preferences file, and the default font name is unknown, 
+   * Problem: if we have no preferences file, and the default font name is unknown,
    * we cannot save Preferences as an error dialog pops up "You have not selected a font".
    */
   prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
@@ -1191,7 +1202,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   return &prefs;
 }
 
-/* read the preferences file (or similiar) and call the callback 
+/* read the preferences file (or similiar) and call the callback
  * function to set each key/value pair found */
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data)
@@ -1771,7 +1782,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 	find_index_from_string_array(value, gui_layout_content_text, 0);
   } else if (strcmp(pref_name, PRS_CONSOLE_LOG_LEVEL) == 0) {
     prefs.console_log_level = strtoul(value, NULL, 10);
-        
+
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {
     if (prefs.capture_device != NULL)
@@ -2114,6 +2125,11 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       break;
     }
 
+	case PREF_STATIC_TEXT:
+    {
+      break;
+    }
+
     case PREF_OBSOLETE:
       return PREFS_SET_OBSOLETE;	/* no such preference any more */
     }
@@ -2224,6 +2240,12 @@ write_pref(gpointer data, gpointer user_data)
 		break;
 	}
 
+	case PREF_STATIC_TEXT:
+	{
+		/* Nothing to do */
+		break;
+	}
+
 	case PREF_OBSOLETE:
 		g_assert_not_reached();
 		break;
@@ -2279,7 +2301,7 @@ write_prefs(char **pf_path_return)
     "# Wireshark.  Making manual changes should be safe, however.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
-  
+
   fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
@@ -2334,12 +2356,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 		  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
-                  
+
   fprintf(pf, "\n# Save window maximized state at exit (GTK2 only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 		  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
-                  
+
   fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
@@ -2365,21 +2387,21 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# A decimal number (in seconds).\n");
   fprintf(pf, PRS_GUI_FILEOPEN_PREVIEW ": %d\n",
 	          prefs.gui_fileopen_preview);
-  
+
   fprintf(pf, "\n# Ask to save unsaved capture files?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
-		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");                  
+		  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Wrap to beginning/end of file during search?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_FIND_WRAP ": %s\n",
-		  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");                  
+		  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Settings dialogs use a save button?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_USE_PREF_SAVE ": %s\n",
-		  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");                  
+		  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# The path to the webbrowser.\n");
   fprintf(pf, "# Ex: mozilla %%s\n");
@@ -2405,7 +2427,7 @@ write_prefs(char **pf_path_return)
 	          gui_layout_content_text[prefs.gui_layout_content_3]);
 
   fprintf (pf, "\n######## User Interface: Columns ########\n");
-  
+
   clp = prefs.col_list;
   col_l = NULL;
   while (clp) {
@@ -2476,7 +2498,7 @@ write_prefs(char **pf_path_return)
           prefs.console_log_level);
 
   fprintf(pf, "\n####### Capture ########\n");
-  
+
   if (prefs.capture_device != NULL) {
     fprintf(pf, "\n# Default capture device\n");
     fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
@@ -2531,7 +2553,7 @@ write_prefs(char **pf_path_return)
     "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
   fprintf(pf, "\n####### Name Resolution ########\n");
-  
+
   fprintf(pf, "\n# Resolve addresses to names?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",

@@ -144,7 +144,13 @@ pref_show(pref_t *pref, gpointer user_data)
   title = pref->title;
   label_string = g_malloc(strlen(title) + 2);
   strcpy(label_string, title);
-  strcat(label_string, ":");
+
+  /*
+   * Sometimes we don't want to append a ':' after a static text string...
+   * If it is needed, we will specify it in the string itself.
+   */
+  if(pref->type != PREF_STATIC_TEXT)
+    strcat(label_string, ":");
 
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
@@ -221,6 +227,13 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->control = create_preference_entry(main_tb, pref->ordinal,
 					    label_string, pref->description,
 					    range_string);
+    break;
+  }
+
+  case PREF_STATIC_TEXT:
+  {
+    pref->control = create_preference_static_text(main_tb, pref->ordinal,
+					    label_string, pref->description);
     break;
   }
 
@@ -905,6 +918,28 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 	return entry;
 }
 
+GtkWidget *
+create_preference_static_text(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const gchar *tooltip_text)
+{
+	GtkTooltips *tooltips;
+	GtkWidget *label;
+
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+
+	if(label_text != NULL)
+		label = gtk_label_new(label_text);
+	else
+		label = gtk_label_new("");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 2,
+	    table_position, table_position + 1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, label, tooltip_text, NULL);
+	gtk_widget_show(label);
+
+	return label;
+}
+
 static guint
 pref_check(pref_t *pref, gpointer user_data)
 {
@@ -950,6 +985,10 @@ pref_check(pref_t *pref, gpointer user_data)
 	}
 	g_free(newrange);
     }
+    break;
+
+	case PREF_STATIC_TEXT:
+    /* Value can't be bad. */
     break;
 
   case PREF_OBSOLETE:
@@ -1049,6 +1088,9 @@ pref_fetch(pref_t *pref, gpointer user_data)
 
     break;
   }
+
+  case PREF_STATIC_TEXT:
+    break;
 
   case PREF_OBSOLETE:
     g_assert_not_reached();
@@ -1163,6 +1205,9 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
       g_free(pref->saved_val.range);
       pref->saved_val.range = NULL;
     }
+    break;
+
+  case PREF_STATIC_TEXT:
     break;
 
   case PREF_OBSOLETE:
@@ -1346,10 +1391,10 @@ prefs_main_write(void)
   }
 
 #ifdef HAVE_AIRPCAP
-/* 
- * Load the Wireshark decryption keys (just set) and save 
- * the changes to the adapters' registry 
- */ 
+/*
+ * Load the Wireshark decryption keys (just set) and save
+ * the changes to the adapters' registry
+ */
 airpcap_load_decryption_keys(airpcap_if_list);
 #endif
 }
@@ -1493,6 +1538,9 @@ pref_revert(pref_t *pref, gpointer user_data)
       g_free(*pref->varp.range);
       *pref->varp.range = range_copy(pref->saved_val.range);
     }
+    break;
+
+  case PREF_STATIC_TEXT:
     break;
 
   case PREF_OBSOLETE:

@@ -308,6 +308,12 @@ extern void prefs_register_range_preference(module_t *module, const char *name,
     guint32 max_value);
 
 /*
+ * Register a static text 'preference'. It can be used to add some info/explanation.
+ */
+extern void prefs_register_static_text_preference(module_t *module, const char *name,
+    const char *title, const char *description);
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 extern void prefs_register_obsolete_preference(module_t *module,

@@ -55,6 +55,7 @@ typedef enum {
 	PREF_ENUM,
 	PREF_STRING,
 	PREF_RANGE,
+	PREF_STATIC_TEXT,
 	PREF_OBSOLETE
 } pref_type_t;
 
