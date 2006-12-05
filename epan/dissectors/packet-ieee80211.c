@@ -1722,7 +1722,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     case TAG_SSID:
       if(beacon_padding == 0) /* padding bug */
       {
-        guint8 *ssid; /* The SSID may consist of arbitrary bytes */
+        char *ssid; /* The SSID may consist of arbitrary bytes */
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -4977,7 +4977,7 @@ proto_register_ieee80211 (void)
 #else
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
 	  "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
-	  "010203040506070809101111213 (104/128-bit WEP)"
+	  "010203040506070809101111213 (104/128-bit WEP)",
 	  "This is just a static text");
 #endif
 
@@ -5008,7 +5008,7 @@ proto_register_ieee80211 (void)
 #endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
-	    key_title->str, key_desc->str, &wep_keystr[i]);
+	    key_title->str, key_desc->str, wep_keystr[i]);
 
     g_string_free(key_name, FALSE);
     g_string_free(key_title, FALSE);
