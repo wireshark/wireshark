@@ -457,7 +457,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 	 * state handler.
 	 */
 
-	if (( p_id_length < 6 ) || ( p_id_length > 20 )){
+	if (( p_id_length < STATE_MIN_ACCESS_LEN ) || ( p_id_length > STATE_BUFFER_SIZE )){
 		result_code = 1;
 		return result_code;
 	}

@@ -2731,7 +2731,12 @@ execute_next_instruction:
 					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 
 				}
+/* begin partial state-id change cco@iptel.org */				
+#if 0
 				udvm_state_create(sha1buff, sha1_digest_buf, state_minimum_access_length_buff[n]);
+#endif				
+				udvm_state_create(sha1buff, sha1_digest_buf, STATE_MIN_ACCESS_LEN);
+/* end partial state-id change cco@iptel.org */				
 				proto_tree_add_text(udvm_tree,bytecode_tvb, 0, -1,"### Creating state ###");
 				proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(sha1_digest_buf, state_minimum_access_length_buff[n]));
 

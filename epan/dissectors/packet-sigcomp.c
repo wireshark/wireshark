@@ -717,10 +717,15 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 				i++;
 			}
 
+/* begin partial state-id change cco@iptel.org */				
+#if 0
 			result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length, 
 				&state_address, &state_instruction, hf_sigcomp_partial_state);
+#endif
+			result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, STATE_MIN_ACCESS_LEN, state_begin, &state_length, 
+				&state_address, &state_instruction, hf_sigcomp_partial_state);
 
-
+/* end partial state-id change cco@iptel.org */				
 			if ( result_code != 0 ){
 				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
 					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
