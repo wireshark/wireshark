@@ -76,6 +76,7 @@
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
+#include <airpcap_loader.h>
 #else
 /* XXX - This is probably a bit much */
 #define MAX_ENCRYPTION_KEYS 64
@@ -107,6 +108,10 @@ static int *wep_keylens = NULL;
 static void init_wepkeys(void);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
+#ifdef	HAVE_AIRPDCAP
+/* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2	*/
+static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
+#endif
 static int weak_iv(guchar *iv);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
 
@@ -785,6 +790,15 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
 
 static int wlan_tap = -1;
+
+/*	Davide Schiera (2006-11-22): including AirPDcap project							*/
+#ifdef	HAVE_AIRPDCAP
+#include "..\..\airpdcap\airpdcap_ws.h"
+AIRPDCAP_CONTEXT airpdcap_ctx;
+#else
+int airpdcap_ctx;
+#endif
+/* Davide Schiera (2006-11-22) ----------------------------------------------	*/
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -3286,6 +3300,17 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
 	} /* end of qos control field */
 
+#ifdef	HAVE_AIRPDCAP
+		/*	Davide Schiera (2006-11-21): process handshake packet with AirPDcap		*/
+		/*		the processing will take care of 4-way handshake sessions for WPA		*/
+		/*		and WPA2 decryption																	*/
+		if (enable_decryption && !pinfo->fd->flags.visited) {
+			const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
+			AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len+reported_len, NULL, 0, NULL, FALSE, FALSE, TRUE, FALSE);
+		}
+		/* Davide Schiera --------------------------------------------------------	*/
+#endif
+
       /*
        * No-data frames don't have a body.
        */
@@ -3303,37 +3328,92 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   if (IS_PROTECTED(FCF_FLAGS(fcf))) {
     /*
-     * It's a WEP-encrypted frame; dissect the WEP parameters and decrypt
-     * the data, if we have a matching key.  Otherwise display it as data.
+		* It's a WEP or WPA encrypted frame; dissect the protections parameters
+		* and decrypt the data, if we have a matching key. Otherwise display it as data.
      */
+
     gboolean can_decrypt = FALSE;
     proto_tree *wep_tree = NULL;
     guint32 iv;
     guint8 key, keybyte;
 
+		/* Davide Schiera (2006-11-27): define algorithms constants and macros	*/
+#ifdef	HAVE_AIRPDCAP
+#define	PROTECTION_ALG_TKIP	AIRPDCAP_KEY_TYPE_TKIP
+#define	PROTECTION_ALG_CCMP	AIRPDCAP_KEY_TYPE_CCMP
+#define	PROTECTION_ALG_WEP	AIRPDCAP_KEY_TYPE_WEP
+#define	PROTECTION_ALG_RSNA	PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
+#else
+#define	PROTECTION_ALG_WEP	0
+#define	PROTECTION_ALG_TKIP	1
+#define	PROTECTION_ALG_CCMP	2
+#define	PROTECTION_ALG_RSNA	PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
+#endif
+		guint8 algorithm=-1;
+		/* Davide Schiera (2006-11-27): added macros to check the algorithm		*/
+		/*		used could be TKIP or CCMP														*/
+#define	IS_TKIP(tvb, hdr_len)	(tvb_get_guint8(tvb, hdr_len + 1) & 0x20)
+#define	IS_CCMP(tvb, hdr_len)	(tvb_get_guint8(tvb, hdr_len + 2) == 0)
+		/* Davide Schiera -----------------------------------------------------	*/
+
+#ifdef	HAVE_AIRPDCAP
+		/* Davide Schiera (2006-11-21): recorded original lengths to pass them	*/
+		/*		to the packets process function												*/
+		guint32 sec_header=0;
+		guint32 sec_trailer=0;
+
+		next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer);
+#endif
+		/* Davide Schiera -----------------------------------------------------	*/
+
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
     key = KEY_OCTET_WEP_KEY(keybyte);
     if ((keybyte & KEY_EXTIV) && (len >= EXTIV_LEN)) {
       /* Extended IV; this frame is likely encrypted with TKIP or CCMP */
+
+
       if (tree) {
 	proto_item *extiv_fields;
 
+#ifdef	HAVE_AIRPDCAP
+				/* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if	*/
+				/*		it's possible																*/
+				if (algorithm==PROTECTION_ALG_TKIP)
+					extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+					"TKIP parameters");
+				else if (algorithm==PROTECTION_ALG_CCMP)
+					extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+					"CCMP parameters");
+				else {
+					/* Davide Schiera --------------------------------------------	*/
+#endif
+					/* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
+					/*		it's possible															*/
+					if (IS_TKIP(tvb, hdr_len)) {
+						algorithm=PROTECTION_ALG_TKIP;
+						extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+							"TKIP parameters");
+					} else if (IS_CCMP(tvb, hdr_len)) {
+						algorithm=PROTECTION_ALG_CCMP;
+						extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+							"CCMP parameters");
+					} else
 	extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
 					   "TKIP/CCMP parameters");
+#ifdef	HAVE_AIRPDCAP
+				}
+#endif
+
 	wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
-	/* It is unknown whether this is a TKIP or CCMP encrypted packet, so
-	 * display both packet number alternatives unless the ExtIV can be
-	 * determined to be possible only with one of the encryption protocols.
-	 */
-	if (tvb_get_guint8(tvb, hdr_len + 1) & 0x20) {
+
+				if (algorithm==PROTECTION_ALG_TKIP) {
 	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len),
 		   tvb_get_guint8(tvb, hdr_len + 2));
 	  proto_tree_add_string(wep_tree, hf_tkip_extiv, tvb, hdr_len,
 				EXTIV_LEN, out_buff);
-	}
-	if (tvb_get_guint8(tvb, hdr_len + 2) == 0) {
+				} else if (algorithm==PROTECTION_ALG_CCMP) {
 	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len + 1),
@@ -3341,6 +3421,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  proto_tree_add_string(wep_tree, hf_ccmp_extiv, tvb, hdr_len,
 				EXTIV_LEN, out_buff);
 	}
+
         proto_tree_add_uint(wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
       }
 
@@ -3350,6 +3431,31 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       ivlen = EXTIV_LEN;
       /* It is unknown whether this is TKIP or CCMP, so let's not even try to
        * parse TKIP Michael MIC+ICV or CCMP MIC. */
+
+#ifdef	HAVE_AIRPDCAP
+			/*	Davide Schiera (2006-11-21): enable TKIP and CCMP decryption			*/
+			/*		checking for the trailer														*/
+			if (next_tvb!=NULL) {
+				if (reported_len < sec_trailer) {
+					/* There is no space for a trailer, ignore it and don't decrypt	*/
+					;
+				} else if (len < reported_len) {
+					/* There is space for a trailer, but we haven't capture all the	*/
+					/* packet. Slice off the trailer, but don't try to decrypt			*/
+					reported_len -= sec_trailer;
+					if (len > reported_len)
+						len = reported_len;
+				} else {
+					/* Ok, we have a trailer and the whole packet. Decrypt it!			*/
+					/* TODO: At the moment we won't add the trailer to the tree,		*/
+					/* so don't remove the trailer from the packet							*/
+					len -= sec_trailer;
+					reported_len -= sec_trailer;
+					can_decrypt = TRUE;
+				}
+			}
+			/* Davide Schiera --------------------------------------------------	*/
+#endif
     } else {
       /* No Ext. IV - WEP packet */
       /*
@@ -3385,6 +3491,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       len -= 4;
       reported_len -= 4;
       ivlen = 4;
+
+			/* Davide Schiera (2006-11-27): Even if the decryption was not			*/
+			/*		successful, set the algorithm												*/
+			algorithm=PROTECTION_ALG_WEP;
 
       /*
        * Well, this packet should, in theory, have an ICV.
@@ -3427,19 +3537,33 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       }
     }
 
-    if (!can_decrypt || (next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8)) == NULL) {
+#ifndef	HAVE_AIRPDCAP
+		if (can_decrypt)
+			next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8);
+#else
+		/* Davide Schiera (2006-11-26): decrypted before parsing header and		*/
+		/*		protection header																	*/
+#endif
+		if (!can_decrypt || next_tvb == NULL) {
       /*
        * WEP decode impossible or failed, treat payload as raw data
        * and don't attempt fragment reassembly or further dissection.
        */
       next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
 
-      if (tree && can_decrypt)
+			if (tree) {
+				/* Davide Schiera (2006-11-21): added WEP or WPA separation			*/
+				if (algorithm==PROTECTION_ALG_WEP) {
+					if (can_decrypt)
 	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
 				    hdr_len + ivlen + len, 4,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
 				    "WEP ICV: 0x%08x (not verified)",
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
+				} else if (algorithm==PROTECTION_ALG_CCMP) {
+				} else if (algorithm==PROTECTION_ALG_TKIP) {
+				}
+				/* Davide Schiera (2006-11-21) ----------------------------------	*/
 
       if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
       {
@@ -3447,8 +3571,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         call_dissector(data_handle, next_tvb, pinfo, tree);
         goto end_of_wlan;
       }
+			}
     } else {
-
+			/* Davide Schiera (2006-11-21): added WEP or WPA separation				*/
+			if (algorithm==PROTECTION_ALG_WEP) {
       if (tree)
 	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
 				    hdr_len + ivlen + len, 4,
@@ -3457,6 +3583,19 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
       add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
+			} else if (algorithm==PROTECTION_ALG_CCMP) {
+				add_new_data_source(pinfo, next_tvb, "Decrypted CCMP data");
+			} else if (algorithm==PROTECTION_ALG_TKIP) {
+				add_new_data_source(pinfo, next_tvb, "Decrypted TKIP data");
+			}
+			/* Davide Schiera (2006-11-21) -------------------------------------	*/
+			/* Davide Schiera (2006-11-27): undefine macros and definitions		*/
+#undef	IS_TKIP(tvb, hdr_len)
+#undef	IS_CCMP(tvb, hdr_len)
+#undef	PROTECTION_ALG_CCMP
+#undef	PROTECTION_ALG_TKIP
+#undef	PROTECTION_ALG_WEP
+			/* Davide Schiera --------------------------------------------------	*/
     }
 
     /*
@@ -4805,18 +4944,42 @@ proto_register_ieee80211 (void)
 				 "Some 802.11 cards include the FCS at the end of a packet, others do not.",
 				 &wlan_check_fcs);
 
+	/* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"		*/
+	/*		(according to the document IEEE Std 802.11i-2004)							*/
   prefs_register_bool_preference(wlan_module, "ignore_wep",
-				 "Ignore the WEP bit",
-				 "Some 802.11 cards leave the WEP bit set even though the packet is decrypted.",
+		"Ignore the Protection bit",
+		"Some 802.11 cards leave the Protection bit set even though the packet is decrypted.",
 				 &wlan_ignore_wep);
 
 #ifndef USE_ENV
 
   prefs_register_obsolete_preference(wlan_module, "wep_keys");
 
+#ifdef HAVE_AIRPDCAP
+  /* Davide Schiera (2006-11-26): added reference to WPA/WPA2 decryption		*/
+  prefs_register_bool_preference(wlan_module, "enable_decryption",
+	"Enable decryption", "Enable WEP and WPA/WPA2 decryption",
+	&enable_decryption);
+#else
   prefs_register_bool_preference(wlan_module, "enable_decryption",
 	"Enable decryption", "Enable WEP decryption",
 	&enable_decryption);
+#endif
+
+#ifdef HAVE_AIRPDCAP
+  prefs_register_static_text_preference(wlan_module, "info_decryption_key",
+	  "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
+	  "010203040506070809101111213 (104/128-bit WEP),\n"
+	  "wpa-pwd:MyPassword[:MyAP]> (WPA + plaintext password [+ SSID]),\n"
+	  "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
+	  "Invalid keys will be ignored.",
+	  "This is just a static text");
+#else
+  prefs_register_static_text_preference(wlan_module, "info_decryption_key",
+	  "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
+	  "010203040506070809101111213 (104/128-bit WEP)"
+	  "This is just a static text");
+#endif
 
   for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {
     key_name = g_string_new("");
@@ -4826,11 +4989,23 @@ proto_register_ieee80211 (void)
     /* prefs_register_*_preference() expects unique strings, so
      * we build them using g_string_sprintf and just leave them
      * allocated. */
+#ifdef HAVE_AIRPDCAP
+  g_string_sprintf(key_name, "wep_key%d", i + 1);
+  g_string_sprintf(key_title, "Key #%d", i + 1);
+  /* Davide Schiera (2006-11-26): modified keys input tooltip					*/
+  g_string_sprintf(key_desc,
+	"Key #%d string can be:"
+	"   <wep hexadecimal key>;"
+	"   WEP:<wep hexadecimal key>;"
+	"   WPA-PWD:<passphrase>[:<ssid>];"
+	"   WPA-PSK:<wpa hexadecimal key>", i + 1);
+#else
     g_string_sprintf(key_name, "wep_key%d", i + 1);
     g_string_sprintf(key_title, "WEP key #%d", i + 1);
     g_string_sprintf(key_desc, "WEP key #%d bytes in hexadecimal (A:B:C:D:E) "
 	    "[40bit], (A:B:C:D:E:F:G:H:I:J:K:L:M) [104bit], or whatever key "
 	    "length you're using", i + 1);
+#endif
 
     prefs_register_string_preference(wlan_module, key_name->str,
 	    key_title->str, key_desc->str, &wep_keystr[i]);
@@ -4864,6 +5039,65 @@ proto_reg_handoff_ieee80211(void)
 		ieee80211_radio_handle);
   dissector_add("ethertype", ETHERTYPE_CENTRINO_PROMISC, ieee80211_handle);
 }
+
+#ifdef	HAVE_AIRPDCAP
+/*	Davide Schiera (2006-11-26): this function will try to decrypt with WEP or	*/
+/*		WPA and return a tvb to the caller to add a new tab. It returns the		*/
+/*		algorithm used for decryption (WEP, TKIP, CCMP) and the header and		*/
+/*		trailer lengths.																			*/
+static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer) {
+	const guint8 *enc_data;
+	guint8 *tmp = NULL;
+	tvbuff_t *decr_tvb = NULL;
+	guint32 dec_caplen;
+	guchar dec_data[AIRPDCAP_MAX_CAPLEN];
+	AIRPDCAP_KEY_ITEM used_key;
+
+	if (!enable_decryption)
+		return NULL;
+
+	/* get the entire packet																	*/
+	enc_data = tvb_get_ptr(tvb, 0, len+offset);
+
+	/*	process packet with AirPDcap															*/
+	if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, len+offset, dec_data, &dec_caplen, &used_key, FALSE, FALSE, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
+	{
+		*algorithm=used_key.KeyType;
+		switch (*algorithm) {
+	case AIRPDCAP_KEY_TYPE_WEP:
+		*sec_header=AIRPDCAP_WEP_HEADER;
+		*sec_trailer=AIRPDCAP_WEP_TRAILER;
+		break;
+	case AIRPDCAP_KEY_TYPE_CCMP:
+		*sec_header=AIRPDCAP_RSNA_HEADER;
+		*sec_trailer=AIRPDCAP_CCMP_TRAILER;
+		break;
+	case AIRPDCAP_KEY_TYPE_TKIP:
+		*sec_header=AIRPDCAP_RSNA_HEADER;
+		*sec_trailer=AIRPDCAP_TKIP_TRAILER;
+		break;
+	default:
+		return NULL;
+		}
+
+		/* allocate buffer for decrypted payload											*/
+		if ((tmp = g_malloc(dec_caplen-offset)) == NULL)
+			return NULL;  /* krap! */
+		memcpy(tmp, dec_data+offset, dec_caplen-offset);
+
+		len=dec_caplen-offset;
+
+		/* decrypt successful, let's set up a new data tvb.							*/
+		decr_tvb = tvb_new_real_data(tmp, len, len);
+		tvb_set_free_cb(decr_tvb, g_free);
+		tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+	} else
+		g_free(tmp);
+
+	return decr_tvb;
+}
+/*	Davide Schiera -----------------------------------------------------------	*/
+#endif
 
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   const guint8 *enc_data;
@@ -4907,6 +5141,410 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   return decr_tvb;
 }
 
+#ifdef	HAVE_AIRPDCAP
+/*
+* Returns the decryption_key_t struct given a string describing the key.
+* Returns NULL if the key_string cannot be parsed.
+*/
+static decryption_key_t*
+parse_key(gchar* input_string)
+{
+	gchar *type;
+	gchar *key;
+	gchar *ssid;
+
+	GString *key_string,
+		*ssid_string;
+
+	gchar **tokens;
+	guint n = 0;
+	guint i;
+
+	decryption_key_t *dk;
+
+	if(input_string == NULL)
+		return NULL;
+
+	/*
+	* Parse the input_string. It should be in the form <key type>:<key data>[:<ssid>]
+	* XXX - For backward compatibility, the a WEP key can be just a string of hexadecimal
+	* characters (if WEP key is wrong, null will be returned...).
+	*/
+	tokens = g_strsplit(input_string,":",0);
+
+	/* Tokens is a null termiated array of strings ... */
+	while(tokens[n] != NULL)
+		n++;
+
+	if(n == 0)
+	{
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	/*
+	* 'n' contains the number of tokens. If the key string is correct, we should have
+	* 2 or 3 tokens... If we have 1 token, it can be an 'old style' WEP key... check for it...
+	*/
+	if(n == 1)
+	{
+		/* Maybe it is an 'old style' WEP key */
+		key = g_strdup(tokens[0]);
+
+		/* Create a new string */
+		key_string = g_string_new(key);
+
+		/* Check if it is a correct WEP key */
+		if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		if((key_string->len % 2) != 0)
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		for(i = 0; i < key_string->len; i++)
+		{
+			if(!g_ascii_isxdigit(key_string->str[i]))
+			{
+				g_string_free(key_string, TRUE);
+				g_free(key);
+				/* Free the array of strings */
+				g_strfreev(tokens);
+				return NULL;
+			}
+		}
+
+		/* Key is correct! It was probably an 'old style' WEP key */
+		/* Create the decryption_key_t structure, fill it and return it*/
+		dk = g_malloc(sizeof(decryption_key_t));
+
+		dk->type = AIRPDCAP_KEY_TYPE_WEP;
+		dk->key  = g_string_new(key);
+		dk->bits = dk->key->len * 4;
+		dk->ssid = NULL;
+
+		g_string_free(key_string, TRUE);
+		g_free(key);
+
+		/* Free the array of strings */
+		g_strfreev(tokens);
+
+		return dk;
+	}
+
+	/* There were at least 2 tokens... copy the type value */
+	type = g_strdup(tokens[0]);
+
+	/*
+	* The second token is the key (right now it doesn't matter
+	* if it is a passphrase or an hexadecimal one)
+	*/
+	key = g_strdup(tokens[1]);
+
+	/* Lower case... */
+	g_strdown(type);
+	g_strdown(key);
+
+	/* Maybe there is a third token (an ssid, if everything else is ok) */
+	if(n >= 3)
+	{
+		ssid = g_strdup(tokens[2]);
+		g_strdown(ssid);
+	}
+	else
+	{
+		ssid = NULL;
+	}
+
+	/*
+	* Now the initial key string has been divided in two/three tokens... let's see
+	* which kind of key it is, and if it is the correct form
+	*/
+	if(g_strcasecmp(type,STRING_KEY_TYPE_WEP) == 0) /* WEP key */
+	{
+		/* Create a new string */
+		key_string = g_string_new(key);
+
+		/* Check if it is a correct WEP key */
+		if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		if((key_string->len % 2) != 0)
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		for(i = 0; i < key_string->len; i++)
+		{
+			if(!g_ascii_isxdigit(key_string->str[i]))
+			{
+				g_string_free(key_string, TRUE);
+				g_free(key);
+				/* Free the array of strings */
+				g_strfreev(tokens);
+				return NULL;
+			}
+		}
+
+		dk =  (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+		dk->type = AIRPDCAP_KEY_TYPE_WEP;
+		dk->key  = g_string_new(key);
+		dk->bits = dk->key->len * 4;
+		dk->ssid = NULL;
+
+		g_string_free(key_string, TRUE);
+		g_free(key);
+
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return dk;
+	}
+	else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
+	{
+		/* Create a new string */
+		key_string = g_string_new(key);
+
+		/* Two tokens means that the user should have entered a WPA-BIN key ... */
+		if( ((key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
+		{
+			g_string_free(key_string, TRUE);
+
+			g_free(type);
+			g_free(key);
+			/* No ssid has been created ... */
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		for(i = 0; i < key_string->len; i++)
+		{
+			if(!g_ascii_isxdigit(key_string->str[i]))
+			{
+				g_string_free(key_string, TRUE);
+				/* No ssid_string has been created ... */
+
+				g_free(type);
+				g_free(key);
+				/* No ssid has been created ... */
+				/* Free the array of strings */
+				g_strfreev(tokens);
+				return NULL;
+			}
+		}
+
+		/* Key was correct!!! Create the new decryption_key_t ... */
+		dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+		dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
+		dk->key  = g_string_new(key);
+		dk->bits = dk->key->len * 4;
+		dk->ssid = NULL;
+
+		g_string_free(key_string, TRUE);
+		g_free(key);
+		g_free(type);
+
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return dk;
+	}
+	else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the number of tokens is more than three, we accept the string... if the first three tokens are correct... */
+	{
+		/* Create a new string */
+		key_string = g_string_new(key);
+		ssid_string = NULL;
+
+
+		/* Three (or more) tokens mean that the user entered a WPA-PWD key ... */
+		if( ((key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
+		{
+			g_string_free(key_string, TRUE);
+
+			g_free(type);
+			g_free(key);
+			g_free(ssid);
+
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+
+		if(ssid != NULL) /* more than three tokens found, means that the user specified the ssid */
+		{
+			ssid_string = g_string_new(ssid);
+
+			/*
+			* XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
+			*/
+			if( ((ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
+			{
+				g_string_free(key_string, TRUE);
+				g_string_free(ssid_string, TRUE);
+
+				g_free(type);
+				g_free(key);
+				g_free(ssid);
+
+				/* Free the array of strings */
+				g_strfreev(tokens);
+				return NULL;
+			}
+		}
+
+		/* Key was correct!!! Create the new decryption_key_t ... */
+		dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+		dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+		dk->key  = g_string_new(key);
+		dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
+		if(ssid != NULL)
+			dk->ssid = g_string_new(ssid);
+		else
+			dk->ssid = NULL;
+
+		g_string_free(key_string, TRUE);
+		if(ssid_string != NULL) g_string_free(ssid_string, TRUE);
+
+		g_free(type);
+		g_free(key);
+		if(ssid != NULL) g_free(ssid);
+
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return dk;
+	}
+
+	/* Something was wrong ... free everything */
+
+	g_free(type);
+	g_free(key);
+	if(ssid != NULL) g_free(ssid); /* It is not always present */
+	/* Free the array of strings */
+	g_strfreev(tokens);
+
+	return NULL;
+}
+
+#endif
+
+#ifdef	HAVE_AIRPDCAP
+static
+void set_airpdcap_keys()
+{
+	guint n = 0;
+	guint i = 0;
+	guint nKeys = 0;
+	AIRPDCAP_KEY_ITEM key;
+	PAIRPDCAP_KEYS_COLLECTION keys;
+	decryption_key_t* dk = NULL;
+	GByteArray *bytes;
+	gboolean res;
+	gchar* tmpk = NULL;
+
+	keys=(PAIRPDCAP_KEYS_COLLECTION)malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
+	keys->nKeys = 0;
+
+	for(i = 0; i < MAX_ENCRYPTION_KEYS; i++)
+	{
+		tmpk = g_strdup(wep_keystr[i]);
+
+		dk = parse_key(tmpk);
+
+		if(dk != NULL)
+		{
+			if(dk->type == AIRPDCAP_KEY_TYPE_WEP)
+			{
+				key.KeyType = AIRPDCAP_KEY_TYPE_WEP;
+
+				bytes = g_byte_array_new();
+				res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
+
+				if (dk->key->str && res && bytes->len > 0)
+				{
+					/*
+					* WEP key is correct (well, the can be even or odd, so it is not
+					* a real check, I think... is a check performed somewhere in the
+					* AirPDcap function??? )
+					*/
+					memcpy(key.KeyData.Wep.WepKey,bytes->data,bytes->len);
+					key.KeyData.Wep.WepKeyLen = bytes->len;
+					keys->Keys[keys->nKeys] = key;
+					keys->nKeys++;
+				}
+			}
+			else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+			{
+				key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
+
+				/* XXX - Maybe check the lenght passed... */
+				memcpy(key.KeyData.Wpa.UserPwd.Passphrase,dk->key->str,dk->key->len+1);
+
+				if(dk->ssid != NULL)
+				{
+					if(dk->ssid->len > 0)
+					{
+						memcpy(key.KeyData.Wpa.UserPwd.Ssid,dk->ssid->str,dk->ssid->len+1);
+						key.KeyData.Wpa.UserPwd.SsidLen = dk->ssid->len;
+					}
+					else /* The GString is not NULL, but the 'ssid' name is just "\0" */
+					{
+						key.KeyData.Wpa.UserPwd.SsidLen = 0;
+					}
+				}
+				else
+				{
+					key.KeyData.Wpa.UserPwd.SsidLen = 0;
+				}
+
+				keys->Keys[keys->nKeys] = key;
+				keys->nKeys++;
+			}
+			else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+			{
+				key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
+
+				bytes = g_byte_array_new();
+				res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
+
+				/* XXX - PAss the correct array of bytes... */
+				memcpy(key.KeyData.Wpa.Pmk,bytes->data,bytes->len);
+
+				keys->Keys[keys->nKeys] = key;
+				keys->nKeys++;
+			}
+		}
+	}
+
+	/* Now set the keys */
+	AirPDcapSetKeys(&airpdcap_ctx,keys->Keys,keys->nKeys);
+
+	if(tmpk != NULL) g_free(tmpk);
+}
+#endif
 
 /* de-weps the block.  if successful, buf* will point to the data start. */
 static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
@@ -5029,6 +5667,18 @@ static void init_wepkeys(void) {
       num_wepkeys++;
     }
   }
+
+#ifdef	HAVE_AIRPDCAP
+	/*
+	* XXX - AirPDcap - That God sends it to us beautiful (che dio ce la mandi bona)
+	* The next lines will add a key to the AirPDcap context. The keystring will be added
+	* to the old WEP array too, but we don't care, because the packets will come here
+	* already decrypted... One of these days we will fix this too
+	*/
+	set_airpdcap_keys();
+
+	/* END AirPDcap */
+#endif
 
   wep_keys = g_malloc0(num_wepkeys * sizeof(guint8*));
   wep_keylens = g_malloc(num_wepkeys * sizeof(int));

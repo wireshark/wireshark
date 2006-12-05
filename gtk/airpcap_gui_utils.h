@@ -191,7 +191,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA and WPA2) and will set them as default for 
+ * keys (WEP, WPA and WPA_BIN) and will set them as default for 
  * each adapter. To do this, it will save the keys in the registry...
  */
 void
@@ -199,7 +199,7 @@ airpcap_load_decryption_keys(GList* if_list);
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA and WPA2) and will set them as default for 
+ * keys (WEP, WPA and WPA_BIN) and will set them as default for 
  * each adapter. To do this, it will save the keys in the registry...
  */
 gboolean
@@ -211,5 +211,19 @@ airpcap_check_decryption_keys(GList* if_list);
  */
 void
 airpcap_save_decryption_keys(GList* key_list, GList* adapters_list);
+
+/*
+ * This function is used to enable/disable the toolbar widgets
+ * depending on the type of interface selected... 
+ */
+void
+airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en);
+
+/*
+ * This function sets up the correct airpcap toolbar that must
+ * be displayed when no airpcap if is found on the system...
+ */
+void
+airpcap_set_toolbar_no_if(GtkWidget* w);
 
 #endif

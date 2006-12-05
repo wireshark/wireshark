@@ -135,14 +135,14 @@ airpcap_if_info_t* if_info = NULL;
  * Callback for the select row event in the key list widget
  */
 void
-on_key_ls_select_row(GtkWidget *widget, 
+on_key_ls_select_row(GtkWidget *widget,
                      gint row,
                      gint column,
                      GdkEventButton *event,
                      gpointer data)
 {
 airpcap_key_ls_selected_info_t*  selected_item;
-                             
+
 selected_item = OBJECT_GET_DATA(GTK_WIDGET(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
 
 selected_item->row = row;
@@ -160,7 +160,7 @@ on_key_ls_unselect_row(GtkWidget *widget,
                        gpointer data)
 {
 airpcap_key_ls_selected_info_t*  selected_item;
-                             
+
 selected_item = OBJECT_GET_DATA(GTK_WIDGET(data),AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
 
 selected_item->row = NO_ROW_SELECTED;
@@ -208,6 +208,8 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
 GtkWidget *edit_key_w;
 GtkWidget *edit_ssid_te;
 GtkWidget *type_te;
+GtkWidget *key_lb;
+GtkWidget *ssid_lb;
 
 gchar* type_text = NULL;
 
@@ -215,22 +217,49 @@ edit_key_w = GTK_WIDGET(data);
 type_te    = w;
 
 edit_ssid_te = OBJECT_GET_DATA(edit_key_w,AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY);
+key_lb = OBJECT_GET_DATA(edit_key_w,AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY);
+ssid_lb = OBJECT_GET_DATA(edit_key_w,AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY);
 
 type_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(type_te)));
 
 if(string_is_not_empty(type_text))
     {
-    /* 
-     * If it is a WEP key, no SSID is required! Gray out rhe entry text so 
+    /*
+     * If it is a WEP key, no SSID is required! Gray out rhe entry text so
      * it doesn't create confusion ...
      */
     if(g_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
         {
         gtk_widget_set_sensitive(edit_ssid_te,FALSE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Key");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-    else
+	else if(g_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+		{
+		gtk_widget_set_sensitive(edit_ssid_te,FALSE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Key");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"");
+		}
+    else if(g_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
         gtk_widget_set_sensitive(edit_ssid_te,TRUE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Passphrase");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"SSID");
         }
     }
 gtk_widget_show(edit_ssid_te);
@@ -247,6 +276,8 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
 GtkWidget *add_key_w;
 GtkWidget *add_ssid_te;
 GtkWidget *type_te;
+GtkWidget *key_lb;
+GtkWidget *ssid_lb;
 
 gchar* type_text = NULL;
 
@@ -254,22 +285,49 @@ add_key_w = GTK_WIDGET(data);
 type_te    = w;
 
 add_ssid_te = OBJECT_GET_DATA(add_key_w,AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY);
+key_lb = OBJECT_GET_DATA(add_key_w,AIRPCAP_ADVANCED_ADD_KEY_KEY_LABEL_KEY);
+ssid_lb = OBJECT_GET_DATA(add_key_w,AIRPCAP_ADVANCED_ADD_KEY_SSID_LABEL_KEY);
 
 type_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(type_te)));
 
 if(string_is_not_empty(type_text))
     {
-    /* 
-     * If it is a WEP key, no SSID is required! Gray out rhe entry text so 
+    /*
+     * If it is a WEP key, no SSID is required! Gray out rhe entry text so
      * it doesn't create confusion ...
      */
     if(g_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
         {
         gtk_widget_set_sensitive(add_ssid_te,FALSE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(add_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Key");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-    else
+	else if(g_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+		{
+		gtk_widget_set_sensitive(add_ssid_te,FALSE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(add_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Key");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"");
+		}
+    else if(g_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
         gtk_widget_set_sensitive(add_ssid_te,TRUE);
+		/*
+		 * Maybe the user has already entered some text into the SSID field
+		 * and then switched to WEP...
+		 */
+		gtk_entry_set_text(GTK_ENTRY(add_ssid_te),"");
+		gtk_label_set_text(GTK_LABEL(key_lb),"Passphrase");
+		gtk_label_set_text(GTK_LABEL(ssid_lb),"SSID");
         }
     }
 gtk_widget_show(add_ssid_te);
@@ -278,7 +336,7 @@ g_free(type_text);
 }
 
 /*
- * Returns FALSE if a text string has lenght 0, i.e. the first char 
+ * Returns FALSE if a text string has lenght 0, i.e. the first char
  * is '\0', TRUE otherwise
  */
 gboolean
@@ -650,7 +708,7 @@ on_key_management_destroy(GtkWidget *w _U_, gpointer data _U_)
 {
 GtkWidget	*airpcap_advanced_w,
 			*toolbar;
-	
+
 gint *from_widget = NULL;
 
 /* Retrieve the GUI object pointers */
@@ -665,14 +723,19 @@ if( *from_widget == AIRPCAP_ADVANCED_FROM_TOOLBAR)
 	gtk_widget_set_sensitive(toolbar,TRUE);
 else
 	gtk_widget_set_sensitive(toolbar,FALSE);
+
 g_free(from_widget);
 
 /* reload the configuration!!! Configuration has not been saved but
 the corresponding structure has been modified probably...*/
+if(airpcap_if_selected != NULL)
+{
 if(!airpcap_if_selected->saved)
 	{
 	airpcap_load_selected_if_configuration(airpcap_if_selected);
 	}
+}
+
 }
 
 /* the Advenced wireless Settings window was closed, cleanup things */
@@ -681,7 +744,7 @@ on_airpcap_advanced_destroy(GtkWidget *w _U_, gpointer data _U_)
 {
 GtkWidget	*airpcap_advanced_w,
 			*toolbar;
-	
+
 gint *from_widget = NULL;
 
 /* Retrieve the GUI object pointers */
@@ -696,6 +759,7 @@ if( *from_widget == AIRPCAP_ADVANCED_FROM_TOOLBAR)
 	gtk_widget_set_sensitive(toolbar,TRUE);
 else
 	gtk_widget_set_sensitive(toolbar,FALSE);
+
 g_free(from_widget);
 
 /* reload the configuration!!! Configuration has not been saved but
@@ -754,19 +818,13 @@ else if(g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYP
     }
 
 /* Save the configuration */
-if( (airpcap_if_selected != NULL) )
-    {
     airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
-    
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    	{
+
+/* The update will make redissect al the packets... no need to do it here again */
 		update_decryption_mode_cm(toolbar_cm);
-		}
-    }
 
 /* Redissect all the packets, and re-evaluate the display filter. */
-cf_redissect_packets(&cfile);
+//cf_redissect_packets(&cfile);
 }
 
 /*
@@ -783,7 +841,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
 				*toolbar_if_lb,
 				*toolbar_channel_cm,
 				*toolbar_wrong_crc_cm;
-				
+
 	/* retrieve main window */
 	main_w = GTK_WIDGET(data);
 
@@ -807,7 +865,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
 }
 
 /*
- * Callback for the 'Ok' button.
+ * Callback for the 'OK' button.
  */
 static void
 airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
@@ -872,16 +930,16 @@ return;
  * Callback used to add a WEP key in the add new key box;
  */
 static void
-add_key(GtkWidget *widget, gpointer data _U_)
+on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 {
 GtkWidget	*type_cm,
 			*key_en,
 			*ssid_en;
-			
+
 GtkWidget   *key_ls;
 
-GString     *new_type_string,	
-            *new_key_string,            
+GString     *new_type_string,
+            *new_key_string,
             *new_ssid_string;
 
 gchar		*type_entered = NULL;
@@ -926,15 +984,15 @@ g_strchomp(new_ssid_string->str);
 /* Check which type of key the user has entered */
 if(g_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
 {
-                                                             
-if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < 2))
+
+if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
 	{
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is 2-%d characters (8-%d bits).",WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MAX_SIZE*8);	
-    
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
+
     g_string_free(new_type_string,TRUE);
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
-    
+
     g_free(type_entered);
     g_free(key_entered );
     g_free(ssid_entered);
@@ -944,11 +1002,11 @@ if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < 
 if((new_key_string->len % 2) != 0)
 	{
 	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nThe number of characters must be even.");
-	
+
     g_string_free(new_type_string,TRUE);
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
-    
+
     g_free(type_entered);
     g_free(key_entered );
     g_free(ssid_entered);
@@ -960,11 +1018,11 @@ for(i = 0; i < new_key_string->len; i++)
 	if(!g_ascii_isxdigit(new_key_string->str[i]))
 		{
 		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nA WEP key must be a hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
-		
+
         g_string_free(new_type_string,TRUE);
         g_string_free(new_key_string, TRUE);
         g_string_free(new_ssid_string,TRUE);
-        
+
         g_free(type_entered);
         g_free(key_entered );
         g_free(ssid_entered);
@@ -972,28 +1030,96 @@ for(i = 0; i < new_key_string->len; i++)
 		}
 	}
 
-/* If so... Modify key */
+/* If so... add key */
 airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
 
-airpcap_if_selected->saved = FALSE;	
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
-else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_KEY_STRING) == 0) /* WPA Key */
+else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
 {
 /* XXX - Perform some WPA related input fields check */
 /* If everything is ok, modify the entry int he list */
 
-airpcap_if_selected->saved = FALSE;
+if( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range!\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
+	}
+
+/*
+ * XXX - Maybe we need some check on the characters? I'm not sure if only stabdard ASCII are ok...
+ */
+if( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
+	}
+
+/* If so... add key */
+airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
+
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
-else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA2_KEY_STRING) == 0) /* WPA2 Key */
+else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
 {
-/* XXX - Perform some WPA2 related input fields check */
+/* XXX - Perform some WPA_BIN related input fields check */
 /* If everything is ok, modify the entry int he list */
 
-airpcap_if_selected->saved = FALSE;
+if( ((new_key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong!\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
+	}
+
+for(i = 0; i < new_key_string->len; i++)
+	{
+	if(!g_ascii_isxdigit(new_key_string->str[i]))
+		{
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key!\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+
+        g_string_free(new_type_string,TRUE);
+        g_string_free(new_key_string, TRUE);
+        g_string_free(new_ssid_string,TRUE);
+
+        g_free(type_entered);
+        g_free(key_entered );
+        g_free(ssid_entered);
+        return;
+		}
+	}
+
+/* If so... add key */
+airpcap_add_key_to_list(key_ls, new_type_string->str, new_key_string->str, new_ssid_string->str);
+
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
 else /* Should never happen!!! */
-{ 
-simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!"); 
+{
+simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!");
 }
 
 g_string_free(new_type_string,TRUE);
@@ -1002,7 +1128,7 @@ g_string_free(new_ssid_string,TRUE);
 
 g_free(type_entered);
 g_free(key_entered );
-g_free(ssid_entered); 
+g_free(ssid_entered);
 
 window_destroy(GTK_WIDGET(data));
 return;
@@ -1017,11 +1143,11 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 GtkWidget	*type_cm,
 			*key_en,
 			*ssid_en;
-			
+
 GtkWidget   *key_ls;
 
-GString     *new_type_string,	
-            *new_key_string,            
+GString     *new_type_string,
+            *new_key_string,
             *new_ssid_string;
 
 gchar		*type_entered = NULL;
@@ -1066,15 +1192,15 @@ g_strchomp(new_ssid_string->str);
 /* Check which type of key the user has entered */
 if(g_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
 {
-                                                             
-if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < 2))
+
+if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
 	{
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is 2-%d characters (8-%d bits).",WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MAX_SIZE*8);	
-    
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WEP key size out of range!\nValid key size range is %d-%d characters (%d-%d bits).",WEP_KEY_MIN_CHAR_SIZE,WEP_KEY_MAX_CHAR_SIZE,WEP_KEY_MIN_BIT_SIZE,WEP_KEY_MAX_BIT_SIZE);
+
     g_string_free(new_type_string,TRUE);
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
-    
+
     g_free(type_entered);
     g_free(key_entered );
     g_free(ssid_entered);
@@ -1084,11 +1210,11 @@ if( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < 
 if((new_key_string->len % 2) != 0)
 	{
 	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nThe number of characters must be even.");
-	
+
     g_string_free(new_type_string,TRUE);
     g_string_free(new_key_string, TRUE);
     g_string_free(new_ssid_string,TRUE);
-    
+
     g_free(type_entered);
     g_free(key_entered );
     g_free(ssid_entered);
@@ -1100,11 +1226,11 @@ for(i = 0; i < new_key_string->len; i++)
 	if(!g_ascii_isxdigit(new_key_string->str[i]))
 		{
 		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WEP key!\nA WEP key must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
-		
+
         g_string_free(new_type_string,TRUE);
         g_string_free(new_key_string, TRUE);
         g_string_free(new_ssid_string,TRUE);
-        
+
         g_free(type_entered);
         g_free(key_entered );
         g_free(ssid_entered);
@@ -1115,25 +1241,93 @@ for(i = 0; i < new_key_string->len; i++)
 /* If so... Modify key */
 airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
 
-airpcap_if_selected->saved = FALSE;	
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
-else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_KEY_STRING) == 0) /* WPA Key */
+else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
 {
 /* XXX - Perform some WPA related input fields check */
 /* If everything is ok, modify the entry int he list */
 
-airpcap_if_selected->saved = FALSE;
+if( ((new_key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA key size out of range!\nValid key size range is %d-%d ASCII characters (%d-%d bits).",WPA_KEY_MIN_CHAR_SIZE,WPA_KEY_MAX_CHAR_SIZE,WPA_KEY_MIN_BIT_SIZE,WPA_KEY_MAX_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
 }
-else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA2_KEY_STRING) == 0) /* WPA2 Key */
+
+/*
+ * XXX - Maybe we need some check on the characters? I'm not sure if only stabdard ASCII are ok...
+ */
+if( ((new_ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((new_ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
 {
-/* XXX - Perform some WPA2 related input fields check */
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"SSID key size out of range!\nValid SSID size range is %d-%d ASCII characters (%d-%d bits).",WPA_SSID_MIN_CHAR_SIZE,WPA_SSID_MAX_CHAR_SIZE,WPA_SSID_MIN_BIT_SIZE,WPA_SSID_MAX_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
+	}
+
+/* If so... Modify key */
+airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
+
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
+}
+else if(g_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
+{
+/* XXX - Perform some WPA_BIN related input fields check */
 /* If everything is ok, modify the entry int he list */
 
-airpcap_if_selected->saved = FALSE;
+if( ((new_key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
+	{
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"WPA PSK/PMK key size is wrong!\nValid key size is %d characters (%d bits).",WPA_PSK_KEY_CHAR_SIZE,WPA_PSK_KEY_BIT_SIZE);
+
+    g_string_free(new_type_string,TRUE);
+    g_string_free(new_key_string, TRUE);
+    g_string_free(new_ssid_string,TRUE);
+
+    g_free(type_entered);
+    g_free(key_entered );
+    g_free(ssid_entered);
+    return;
+	}
+
+for(i = 0; i < new_key_string->len; i++)
+	{
+	if(!g_ascii_isxdigit(new_key_string->str[i]))
+		{
+		simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Invalid WPA PSK/PMK key!\nKey must be an hexadecimal number.\nThe valid characters are: 0123456789ABCDEF.");
+
+        g_string_free(new_type_string,TRUE);
+        g_string_free(new_key_string, TRUE);
+        g_string_free(new_ssid_string,TRUE);
+
+        g_free(type_entered);
+        g_free(key_entered );
+        g_free(ssid_entered);
+        return;
+		}
+	}
+
+/* If so... Modify key */
+airpcap_modify_key_in_list(key_ls, r, new_type_string->str, new_key_string->str, new_ssid_string->str);
+
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
 else /* Should never happen!!! */
-{ 
-simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!"); 
+{
+simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Unknown error in the key \"Type\" field!");
 }
 
 g_string_free(new_type_string,TRUE);
@@ -1142,7 +1336,7 @@ g_string_free(new_ssid_string,TRUE);
 
 g_free(type_entered);
 g_free(key_entered );
-g_free(ssid_entered); 
+g_free(ssid_entered);
 
 window_destroy(GTK_WIDGET(data));
 return;
@@ -1200,14 +1394,14 @@ keys_in_list = GTK_CLIST(key_ls)->rows;
 
 if(keys_in_list >= MAX_ENCRYPTION_KEYS) /* Check if we have already reached the maximum number of allowed keys... */
 {
-	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Maximum number (%d) of decryption keys reached! You cannot add another key!\n",MAX_ENCRYPTION_KEYS);	
+	simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Maximum number (%d) of decryption keys reached! You cannot add another key!\n",MAX_ENCRYPTION_KEYS);
     return;
 }
 
 /* Gray out the Advanced Wireless Setting window */
 gtk_widget_set_sensitive(airpcap_advanced_w,FALSE);
 
-/* Pop-up a new window */   
+/* Pop-up a new window */
 add_key_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 gtk_widget_set_name (add_key_window, "add_key_window");
 gtk_container_set_border_width (GTK_CONTAINER (add_key_window), 5);
@@ -1251,16 +1445,17 @@ gtk_table_attach (GTK_TABLE (add_tb), add_type_cm, 0, 1, 1, 2,
 	    (GtkAttachOptions) (GTK_FILL),
 	    (GtkAttachOptions) (0), 0, 0);
 #if GTK_MAJOR_VERSION >= 2
-gtk_widget_set_size_request (add_type_cm, 63, -1);
+gtk_widget_set_size_request (add_type_cm, 83, -1);
 #else
-gtk_widget_set_usize (add_type_cm, 63, -1);
+gtk_widget_set_usize (add_type_cm, 83, -1);
 #endif
 add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
 
-/* XXX - DEcomment only when WPA and WPA2 will be ready */
-/*
-add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA_KEY_STRING);
-add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA2_KEY_STRING);*/
+/* XXX - DEcomment only when WPA and WPA_BIN will be ready */
+#ifdef HAVE_AIRPDCAP
+add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA_PWD_KEY_STRING);
+add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WPA_BIN_KEY_STRING);
+#endif
 gtk_combo_set_popdown_strings (GTK_COMBO (add_type_cm),
 			 add_type_cm_items);
 g_list_free (add_type_cm_items);
@@ -1285,8 +1480,8 @@ gtk_widget_set_usize (add_key_te, 178, -1);
 add_ssid_te = gtk_entry_new ();
 gtk_widget_set_name (add_ssid_te, "add_ssid_te");
 gtk_widget_set_sensitive(add_ssid_te,FALSE);
-/* XXX - Decomment only when WPA and WPA2 will be ready */
-/* gtk_widget_show (add_ssid_te); */
+/* XXX - Decomment only when WPA and WPA_BIN will be ready */
+gtk_widget_show (add_ssid_te);
 gtk_table_attach (GTK_TABLE (add_tb), add_ssid_te, 2, 3, 1, 2,
 	    (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
 
@@ -1300,16 +1495,16 @@ gtk_label_set_justify (GTK_LABEL (add_type_lb), GTK_JUSTIFY_CENTER);
 
 add_key_lb = gtk_label_new ("Key");
 gtk_widget_set_name (add_key_lb, "add_key_lb");
-gtk_widget_show (add_key_lb); 
+gtk_widget_show (add_key_lb);
 gtk_table_attach (GTK_TABLE (add_tb), add_key_lb, 1, 2, 0, 1,
 	    (GtkAttachOptions) (GTK_FILL),
 	    (GtkAttachOptions) (0), 0, 0);
 gtk_label_set_justify (GTK_LABEL (add_key_lb), GTK_JUSTIFY_CENTER);
 
-add_ssid_lb = gtk_label_new ("SSID");
+add_ssid_lb = gtk_label_new ("");
 gtk_widget_set_name (add_ssid_lb, "add_ssid_lb");
-/* XXX - Decomment only when WPA and WPA2 will be ready */
-/* gtk_widget_show (add_ssid_lb); */
+/* XXX - Decomment only when WPA and WPA_BIN will be ready */
+gtk_widget_show (add_ssid_lb);
 gtk_table_attach (GTK_TABLE (add_tb), add_ssid_lb, 2, 3, 0, 1,
 	    (GtkAttachOptions) (GTK_FILL),
 	    (GtkAttachOptions) (0), 0, 0);
@@ -1324,9 +1519,9 @@ gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
 		     GTK_BUTTONBOX_END);
 
 #if GTK_MAJOR_VERISON >= 2
-ok_bt = gtk_button_new_with_mnemonic ("Ok");
+ok_bt = gtk_button_new_with_mnemonic ("OK");
 #else
-ok_bt = gtk_button_new_with_label ("Ok");
+ok_bt = gtk_button_new_with_label ("OK");
 #endif
 gtk_widget_set_name (ok_bt, "ok_bt");
 gtk_widget_show (ok_bt);
@@ -1354,7 +1549,7 @@ gtk_frame_set_label (GTK_FRAME (add_frame), "Modify Selected Key");
 #endif
 
 /* Add callbacks */
-SIGNAL_CONNECT(ok_bt, "clicked", add_key, add_key_window );
+SIGNAL_CONNECT(ok_bt, "clicked", on_add_key_ok_bt_clicked, add_key_window );
 SIGNAL_CONNECT(cancel_bt, "clicked", window_cancel_button_cb, add_key_window );
 SIGNAL_CONNECT(add_type_en, "changed",on_add_type_en_changed, add_key_window);
 SIGNAL_CONNECT(add_key_window, "delete_event",window_delete_event_cb, add_key_window);
@@ -1366,6 +1561,8 @@ OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY,selec
 OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_ADD_KEY_TYPE_KEY,add_type_cm);
 OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_ADD_KEY_KEY_KEY,add_key_te);
 OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_ADD_KEY_SSID_KEY,add_ssid_te);
+OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_ADD_KEY_KEY_LABEL_KEY,add_key_lb);
+OBJECT_SET_DATA(add_key_window,AIRPCAP_ADVANCED_ADD_KEY_SSID_LABEL_KEY,add_ssid_lb);
 
 gtk_widget_show(add_key_window);
 }
@@ -1431,8 +1628,8 @@ airpcap_advanced_w = GTK_WIDGET(data);
 key_ls        = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
 selected_item = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
 
-/* 
- * Better to store the selected_item data in two new variables, because maybe some 
+/*
+ * Better to store the selected_item data in two new variables, because maybe some
  * select_row signal will be emitted somewhere...
  */
 r = selected_item->row;
@@ -1450,10 +1647,10 @@ gtk_clist_remove(GTK_CLIST(key_ls),r);
 if( r < (keys_in_list-1) )
     gtk_clist_select_row(GTK_CLIST(key_ls),r,c);
 else
-    gtk_clist_select_row(GTK_CLIST(key_ls),r-1,c);  
+    gtk_clist_select_row(GTK_CLIST(key_ls),r-1,c);
 
 /* Need to save config... */
-airpcap_if_selected->saved = FALSE;
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
 
 /*
@@ -1511,11 +1708,11 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     gtk_clist_get_text(GTK_CLIST(key_ls),r,0,&row_type);
     gtk_clist_get_text(GTK_CLIST(key_ls),r,1,&row_key);
     gtk_clist_get_text(GTK_CLIST(key_ls),r,2,&row_ssid);
-    
+
     /* Gray out the Advanced Wireless Setting window */
     gtk_widget_set_sensitive(airpcap_advanced_w,FALSE);
-    
-    /* Pop-up a new window */   
+
+    /* Pop-up a new window */
     edit_key_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_name (edit_key_window, "edit_key_window");
     gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
@@ -1525,17 +1722,17 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     #else
     gtk_window_set_policy(GTK_WINDOW(edit_key_window), FALSE, FALSE, TRUE);
     #endif
-    
+
     main_v_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (main_v_box, "main_v_box");
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (edit_key_window), main_v_box);
-    
+
     edit_frame = gtk_frame_new (NULL);
     gtk_widget_set_name (edit_frame, "edit_frame");
     gtk_widget_show (edit_frame);
     gtk_box_pack_start (GTK_BOX (main_v_box), edit_frame, TRUE, TRUE, 0);
-    
+
     edit_frame_al = gtk_alignment_new (0.5, 0.5, 1, 1);
     gtk_widget_set_name (edit_frame_al, "edit_frame_al");
     gtk_widget_show (edit_frame_al);
@@ -1545,13 +1742,13 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     #else
     gtk_alignment_set (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
     #endif
-    
+
     edit_tb = gtk_table_new (2, 3, FALSE);
     gtk_widget_set_name (edit_tb, "edit_tb");
     gtk_container_set_border_width(GTK_CONTAINER(edit_tb),5);
     gtk_widget_show (edit_tb);
     gtk_container_add (GTK_CONTAINER (edit_frame_al), edit_tb);
-    
+
     edit_type_cm = gtk_combo_new ();
     gtk_widget_set_name (edit_type_cm, "edit_type_cm");
     gtk_widget_show (edit_type_cm);
@@ -1559,25 +1756,27 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     	    (GtkAttachOptions) (GTK_FILL),
     	    (GtkAttachOptions) (0), 0, 0);
     #if GTK_MAJOR_VERSION >= 2
-    gtk_widget_set_size_request (edit_type_cm, 63, -1);
+    gtk_widget_set_size_request (edit_type_cm, 83, -1);
     #else
-    gtk_widget_set_usize (edit_type_cm, 63, -1);
+    gtk_widget_set_usize (edit_type_cm, 83, -1);
     #endif
     edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
-    /* XXX - Decomment only when WPA and WPA2 support will be ready!!! */
-/*  edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA_KEY_STRING);
-    edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA2_KEY_STRING);*/
+    /* XXX - Decomment only when WPA and WPA_BIN support will be ready!!! */
+	#ifdef HAVE_AIRPDCAP
+    edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA_PWD_KEY_STRING);
+    edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WPA_BIN_KEY_STRING);
+	#endif
     gtk_combo_set_popdown_strings (GTK_COMBO (edit_type_cm),
     			 edit_type_cm_items);
     g_list_free (edit_type_cm_items);
-    
+
     edit_type_en = GTK_COMBO (edit_type_cm)->entry;
     gtk_widget_set_name (edit_type_en, "edit_type_en");
     /* Set current type */
     gtk_entry_set_text(GTK_ENTRY(edit_type_en),row_type);
     gtk_editable_set_editable (GTK_EDITABLE (edit_type_en), FALSE);
     gtk_widget_show (edit_type_en);
-    
+
     edit_key_te = gtk_entry_new ();
     gtk_widget_set_name (edit_key_te, "edit_key_te");
     /* Set current key */
@@ -1590,7 +1789,7 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     #else
     gtk_widget_set_usize (edit_key_te, 178, -1);
     #endif
-    
+
     edit_ssid_te = gtk_entry_new ();
     gtk_widget_set_name (edit_ssid_te, "edit_ssid_te");
 
@@ -1604,12 +1803,14 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     gtk_widget_set_sensitive(edit_ssid_te,TRUE);
     gtk_entry_set_text(GTK_ENTRY(edit_ssid_te),row_ssid);
     }
-    
+
     /* XXX - Decomment only when WPA and WPA@ will be ready */
-    /* gtk_widget_show (edit_ssid_te); */
+#ifdef HAVE_AIRPDCAP
+    gtk_widget_show (edit_ssid_te);
+#endif
     gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_te, 2, 3, 1, 2,
     	    (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-    
+
     edit_type_lb = gtk_label_new ("Type");
     gtk_widget_set_name (edit_type_lb, "edit_type_lb");
     gtk_widget_show (edit_type_lb);
@@ -1617,7 +1818,7 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     	    (GtkAttachOptions) (GTK_FILL),
     	    (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_justify (GTK_LABEL (edit_type_lb), GTK_JUSTIFY_CENTER);
-    
+
     edit_key_lb = gtk_label_new ("Key");
     gtk_widget_set_name (edit_key_lb, "edit_key_lb");
     gtk_widget_show (edit_key_lb);
@@ -1625,16 +1826,16 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     	    (GtkAttachOptions) (GTK_FILL),
     	    (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_justify (GTK_LABEL (edit_key_lb), GTK_JUSTIFY_CENTER);
-    
-    edit_ssid_lb = gtk_label_new ("SSID");
+
+    edit_ssid_lb = gtk_label_new ("");
     gtk_widget_set_name (edit_ssid_lb, "edit_ssid_lb");
-    /* XXX - Decomment only when WPA and WPA2 will be ready */
-    /* gtk_widget_show (edit_ssid_lb); */
+    /* XXX - Decomment only when WPA and WPA_BIN will be ready */
+    gtk_widget_show (edit_ssid_lb);
     gtk_table_attach (GTK_TABLE (edit_tb), edit_ssid_lb, 2, 3, 0, 1,
     	    (GtkAttachOptions) (GTK_FILL),
     	    (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
-    
+
     low_h_button_box = gtk_hbutton_box_new ();
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
      gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
@@ -1642,17 +1843,17 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     gtk_box_pack_end (GTK_BOX (main_v_box), low_h_button_box, FALSE, FALSE, 0);
     gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
     		     GTK_BUTTONBOX_END);
-    
+
     #if GTK_MAJOR_VERISON >= 2
-    ok_bt = gtk_button_new_with_mnemonic ("Ok");
+    ok_bt = gtk_button_new_with_mnemonic ("OK");
     #else
-    ok_bt = gtk_button_new_with_label ("Ok");
+    ok_bt = gtk_button_new_with_label ("OK");
     #endif
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
-    
+
     #if GTK_MAJOR_VERISON >= 2
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
     #else
@@ -1662,7 +1863,7 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
     GTK_WIDGET_SET_FLAGS (cancel_bt, GTK_CAN_DEFAULT);
-    
+
     edit_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
     gtk_widget_set_name (edit_frame_lb, "edit_frame_lb");
     gtk_widget_show (edit_frame_lb);
@@ -1672,21 +1873,23 @@ if((r != NO_ROW_SELECTED) && (c != NO_COLUMN_SELECTED))
     #else
     gtk_frame_set_label (GTK_FRAME (edit_frame), "Modify Selected Key");
     #endif
-    
+
     /* Add callbacks */
     SIGNAL_CONNECT(ok_bt, "clicked", on_edit_key_ok_bt_clicked, edit_key_window );
     SIGNAL_CONNECT(cancel_bt, "clicked", window_cancel_button_cb, edit_key_window );
     SIGNAL_CONNECT(edit_type_en, "changed",on_edit_type_en_changed, edit_key_window);
     SIGNAL_CONNECT(edit_key_window, "delete_event",window_delete_event_cb, edit_key_window);
     SIGNAL_CONNECT(edit_key_window, "destroy",on_edit_key_w_destroy, data);
-    
+
     /* Add widget data */
     OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_LIST_KEY,key_ls);
     OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_SELECTED_KEY,selected_item);
     OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_TYPE_KEY,edit_type_cm);
     OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_KEY_KEY,edit_key_te);
     OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_SSID_KEY,edit_ssid_te);
-    
+    OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_KEY_LABEL_KEY,edit_key_lb);
+	OBJECT_SET_DATA(edit_key_window,AIRPCAP_ADVANCED_EDIT_KEY_SSID_LABEL_KEY,edit_ssid_lb);
+
     gtk_widget_show(edit_key_window);
     }
 }
@@ -1715,8 +1918,8 @@ airpcap_advanced_w = GTK_WIDGET(data);
 key_ls        = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
 selected_item = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
 
-/* 
- * Better to store the selected_item data in two new variables, because maybe some 
+/*
+ * Better to store the selected_item data in two new variables, because maybe some
  * select_row signal will be emitted somewhere...
  */
 r = selected_item->row;
@@ -1733,14 +1936,14 @@ if( r == 0 ) /* Cannot move up the first row */
 /* Move up selected key */
 gtk_clist_swap_rows (GTK_CLIST(key_ls),r-1,r);
 
-/* 
+/*
  * Re-select the just moved key... so the user can keep pressing 'Move Key Up'
  * without re-select the row...
  */
 gtk_clist_select_row (GTK_CLIST(key_ls),r-1,c);
 
 /* Need to save config... */
-airpcap_if_selected->saved = FALSE;
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
 
 /*
@@ -1767,8 +1970,8 @@ airpcap_advanced_w = GTK_WIDGET(data);
 key_ls        = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_KEYLIST_KEY);
 selected_item = OBJECT_GET_DATA(airpcap_advanced_w,AIRPCAP_ADVANCED_SELECTED_KEY_LIST_ITEM_KEY);
 
-/* 
- * Better to store the selected_item data in two new variables, because maybe some 
+/*
+ * Better to store the selected_item data in two new variables, because maybe some
  * select_row signal will be emitted somewhere...
  */
 r = selected_item->row;
@@ -1785,14 +1988,14 @@ if( (r+1) == keys_in_list ) /* Cannot move down the last row */
 /* Move down selected key */
 gtk_clist_swap_rows (GTK_CLIST(key_ls),r,r+1);
 
-/* 
+/*
  * Re-select the just moved key... so the user can keep pressing 'Move Key Down'
  * without re-select the row...
  */
 gtk_clist_select_row (GTK_CLIST(key_ls),r+1,c);
 
 /* Need to save config... */
-airpcap_if_selected->saved = FALSE;
+if(airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
 }
 
 /* Turns the decryption on or off */
@@ -1804,6 +2007,14 @@ GtkEntry *decryption_en;
 char* decryption_mode_string = NULL;
 
 decryption_en = GTK_ENTRY(w);
+
+/*
+ * This callback is called twice: when the current text is canceled ("")
+ * and then when the 'new text' is added ("new text"). We don't really
+ * care about the first time, and we just return.
+ */
+if(g_strcasecmp(gtk_entry_get_text(decryption_en),"") == 0)
+	return;
 
 if(g_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
@@ -1831,7 +2042,13 @@ cf_redissect_packets(&cfile);
 void
 update_decryption_mode_cm(GtkWidget *w)
 {
-/* Wireshark decryption is on */                       
+/*
+ * This ensures that the entry tet changes... the callback will return immediately, but
+ * at least next time packets will be redissected...
+ */
+gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),"");
+
+/* Wireshark decryption is on */
 if(wireshark_decryption_on())
     {
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
@@ -1848,7 +2065,59 @@ else
     {
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
     }
+
 return;
+}
+
+/*
+ * Creates the list of available decryption modes, depending on the adapters found
+ */
+void
+update_decryption_mode_list(GtkWidget *w)
+{
+GList		*enable_decryption_cb_items = NULL;
+GtkWidget	*entry;
+gchar		*current_text;
+
+if(w == NULL)
+return;
+
+entry = GTK_COMBO(w)->entry;
+current_text = NULL;
+
+/*
+ * XXX - Retrieve the current 'decryption mode'. It would be better just block the
+ * signal handler, but it doesn't work... one of these days I'll try to figure otu why...
+ */
+current_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
+
+enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+
+if(airpcap_if_list != NULL)
+{
+enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+}
+else
+{
+	/* The last decryption mode was 'Driver', but no more AirPcap adapter are found */
+	if(g_strcasecmp(current_text,AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+	{
+	if(current_text != NULL) g_free(current_text);
+
+	current_text = g_strdup(AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+	}
+}
+
+gtk_signal_handler_block_by_data(GTK_OBJECT(entry),(gpointer)airpcap_tb);
+gtk_combo_set_popdown_strings (GTK_COMBO (w), enable_decryption_cb_items);
+/* The 'changed' callback will be called twice */
+gtk_entry_set_text(GTK_ENTRY(entry),current_text);
+gtk_signal_handler_unblock_by_data(GTK_OBJECT(entry),(gpointer)airpcap_tb);
+
+if(current_text != NULL) g_free(current_text);
+
+g_list_free (enable_decryption_cb_items);
 }
 
 /* Called to create the airpcap settings' window */
@@ -1927,7 +2196,7 @@ gtk_window_set_title (GTK_WINDOW (airpcap_advanced_w),
 		"Advanced Wireless Settings");
 gtk_window_set_position (GTK_WINDOW (airpcap_advanced_w),
 		   GTK_WIN_POS_CENTER);
-		   
+
 #if GTK_MAJOR_VERSION >= 2
 gtk_window_set_resizable (GTK_WINDOW (airpcap_advanced_w), FALSE);
 gtk_window_set_type_hint (GTK_WINDOW (airpcap_advanced_w), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -1978,7 +2247,7 @@ else
 	interface_name_lb = gtk_label_new("No airpcap interface found!");
 	gtk_widget_set_sensitive(main_box,FALSE);
 	}
-	
+
 gtk_widget_set_name (interface_name_lb, "interface_name_lb");
 gtk_widget_show (interface_name_lb);
 gtk_box_pack_start (GTK_BOX (interface_sub_h_box), interface_name_lb, TRUE,
@@ -2013,7 +2282,7 @@ gtk_frame_set_label_widget (GTK_FRAME (interface_fr), interface_frame_lb);
 gtk_label_set_use_markup (GTK_LABEL (interface_frame_lb), TRUE);
 #else
 gtk_frame_set_label(GTK_FRAME(interface_fr),"Interface");
-#endif  
+#endif
 
 basic_parameters_fr = gtk_frame_new (NULL);
 gtk_widget_set_name (basic_parameters_fr, "basic_parameters_fr");
@@ -2082,7 +2351,7 @@ if(airpcap_if_selected != NULL)
 	{
 	airpcap_update_channel_combo(GTK_WIDGET(channel_cm), airpcap_if_selected);
 	}
-	
+
 g_list_free (channel_cm_items);
 
 channel_en = GTK_COMBO (channel_cm)->entry;
@@ -2102,7 +2371,7 @@ capture_type_cm_items =
 g_list_append (capture_type_cm_items, (gpointer) AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
 gtk_combo_set_popdown_strings (GTK_COMBO (capture_type_cm),
 			 capture_type_cm_items);
-			 
+
 /* Current interface value */
 capture_s = NULL;
 if(airpcap_if_selected != NULL)
@@ -2110,7 +2379,7 @@ if(airpcap_if_selected != NULL)
 	if(airpcap_if_selected->linkType == AIRPCAP_LT_802_11)
 		capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_ONLY);
 	else if(airpcap_if_selected->linkType == AIRPCAP_LT_802_11_PLUS_RADIO)
-		capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);	
+		capture_s = g_strdup_printf("%s",AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO);
 	if(capture_s != NULL) gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(capture_type_cm)->entry), capture_s);
 	}
 g_free(capture_s);
@@ -2136,7 +2405,7 @@ if(airpcap_if_selected != NULL)
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(fcs_ck),FALSE);
 	}
-	
+
 gtk_widget_show (fcs_ck);
 gtk_table_attach (GTK_TABLE (basic_parameters_tb), fcs_ck, 2, 3, 0, 1,
 	    (GtkAttachOptions) (GTK_FILL),
@@ -2185,7 +2454,7 @@ if(airpcap_if_selected != NULL)
 	{
 	airpcap_validation_type_combo_set_by_type(fcs_filter_cm,airpcap_if_selected->CrcValidationOn);
 	}
-	
+
 gtk_widget_show (fcs_filter_en);
 
 basic_parameters_frame_lb = gtk_label_new ("<b>Basic Parameters</b>");
@@ -2350,9 +2619,9 @@ gtk_timeout_remove(airpcap_if_selected->tag);
 if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
 	{
     gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
-	
+
 	airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
-	
+
     airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 	}
 
@@ -2473,7 +2742,7 @@ GtkWidget *right_h_button_box;
 GtkWidget *ok_bt;
 GtkWidget *apply_bt;
 GtkWidget *cancel_bt;
-  
+
 /* widgets in the toolbar */
 GtkWidget	*toolbar,
 			*toolbar_decryption_ck;
@@ -2481,7 +2750,7 @@ GtkWidget	*toolbar,
 /* other stuff */
 /*GList				*channel_list,*capture_list;*/
 GList				*linktype_list = NULL;
-	
+
 /* Selected row/column structure */
 airpcap_key_ls_selected_info_t *key_ls_selected_item;
 key_ls_selected_item = (airpcap_key_ls_selected_info_t*)g_malloc(sizeof(airpcap_key_ls_selected_info_t));
@@ -2507,13 +2776,12 @@ airpcap_if_selected = airpcap_if_active;
 /* Create the new window */
 key_management_w = window_new(GTK_WINDOW_TOPLEVEL, "Decryption Keys Management");
 
-
 gtk_container_set_border_width (GTK_CONTAINER (key_management_w), 5);
 gtk_window_set_title (GTK_WINDOW (key_management_w),
 		"Decryption Keys Management");
 gtk_window_set_position (GTK_WINDOW (key_management_w),
 		   GTK_WIN_POS_CENTER);
-			   
+
 #if GTK_MAJOR_VERSION >= 2
 gtk_window_set_resizable (GTK_WINDOW (key_management_w), FALSE);
 gtk_window_set_type_hint (GTK_WINDOW (key_management_w), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -2575,11 +2843,7 @@ gtk_widget_set_size_request (enable_decryption_cb, 83, -1);
 #else
 gtk_widget_set_usize (enable_decryption_cb, 83, -1);
 #endif
-enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
-enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
-gtk_combo_set_popdown_strings (GTK_COMBO (enable_decryption_cb), enable_decryption_cb_items);
-g_list_free (enable_decryption_cb_items);
+update_decryption_mode_list(enable_decryption_cb);
 
 enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
 gtk_widget_set_name (enable_decryption_en, "enable_decryption_en");
@@ -2602,14 +2866,21 @@ gtk_box_pack_start (GTK_BOX (keys_v_sub_box), keys_scrolled_w, TRUE, TRUE,
 	      0);
 gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (keys_scrolled_w), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
+#ifdef HAVE_AIRPDCAP
 key_ls = gtk_clist_new (3);
+#else
+key_ls = gtk_clist_new (2);
+#endif
+
 gtk_widget_set_name (key_ls, "key_ls");
 gtk_widget_show (key_ls);
 
 gtk_container_add (GTK_CONTAINER (keys_scrolled_w), key_ls);
 gtk_clist_set_column_width (GTK_CLIST (key_ls), 0, 54);
 gtk_clist_set_column_width (GTK_CLIST (key_ls), 1, 113);
+#ifdef HAVE_AIRPDCAP
 gtk_clist_set_column_width (GTK_CLIST (key_ls), 2, 80);
+#endif
 gtk_clist_column_titles_show (GTK_CLIST (key_ls));
 gtk_clist_set_shadow_type (GTK_CLIST (key_ls), GTK_SHADOW_ETCHED_IN);
 gtk_clist_set_column_justification(GTK_CLIST (key_ls),0,GTK_JUSTIFY_CENTER);
@@ -2627,15 +2898,15 @@ gtk_widget_show (key_list_decryption_key_col_lb);
 gtk_clist_set_column_widget (GTK_CLIST (key_ls), 1,
 		       key_list_decryption_key_col_lb);
 
+#ifdef HAVE_AIRPDCAP
 key_ls_decryption_ssid_col_lb = gtk_label_new ("SSID");
 gtk_widget_set_name (key_ls_decryption_ssid_col_lb,
 	       "key_ls_decryption_ssid_col_lb");
 gtk_widget_show (key_ls_decryption_ssid_col_lb);
 gtk_clist_set_column_widget (GTK_CLIST (key_ls), 2,
 		       key_ls_decryption_ssid_col_lb);
+#endif
 
-/* XXX - USED ONLY BECAUSE WPA and WPA2 are note ready YET... */
-gtk_clist_set_column_visibility(GTK_CLIST (key_ls), 2, FALSE);
 
 key_v_button_box = gtk_vbutton_box_new ();
 gtk_widget_set_name (key_v_button_box, "key_v_button_box");
@@ -2721,7 +2992,6 @@ cancel_bt = OBJECT_GET_DATA(right_h_button_box, GTK_STOCK_CANCEL);
 /* Connect the callbacks */
 SIGNAL_CONNECT (key_management_w, "delete_event", window_delete_event_cb, key_management_w);
 SIGNAL_CONNECT (key_management_w, "destroy", on_key_management_destroy, key_management_w);
-/*SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, toolbar);*/
 SIGNAL_CONNECT (add_new_key_bt, "clicked",on_add_new_key_bt_clicked, key_management_w);
 SIGNAL_CONNECT (remove_key_bt, "clicked",on_remove_key_bt_clicked, key_management_w);
 SIGNAL_CONNECT (edit_key_bt, "clicked",on_edit_key_bt_clicked, key_management_w);
@@ -2755,9 +3025,9 @@ OBJECT_SET_DATA(key_management_w,AIRPCAP_TOOLBAR_KEY,toolbar);
 OBJECT_SET_DATA (key_management_w, AIRPCAP_TOOLBAR_DECRYPTION_KEY, toolbar_decryption_ck);
 
 /* FIRST OF ALL, CHECK THE KEY COLLECTIONS */
-/* 
- * This will read the decryption keys from the preferences file, and will store 
- * them into the registry... 
+/*
+ * This will read the decryption keys from the preferences file, and will store
+ * them into the registry...
  */
 if(!airpcap_check_decryption_keys(airpcap_if_list))
     {
@@ -2769,7 +3039,7 @@ else /* Keys from lists are equals, or wireshark has got no keys */
     airpcap_load_decryption_keys(airpcap_if_list);
 	airpcap_fill_key_list(key_ls);
     /* At the end, so that it appears completely all together ... */
-	gtk_widget_show (key_management_w); 
+	gtk_widget_show (key_management_w);
 	}
 }
 
@@ -2817,24 +3087,22 @@ else if(g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYP
     }
 
 /* Save the configuration */
-if( (airpcap_if_selected != NULL) )
-    {
     airpcap_read_and_save_decryption_keys_from_clist(key_ls,airpcap_if_selected,airpcap_if_list); /* This will save the keys for every adapter */
-    
-    /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
-    	{
+
+/* The update will make redissect al the packets... no need to do it here again */
 		update_decryption_mode_cm(toolbar_cm);
-		}
-    }
 
 /* Redissect all the packets, and re-evaluate the display filter. */
-cf_redissect_packets(&cfile);
+//cf_redissect_packets(&cfile);
 
 /* Save the preferences to preferences file!!! */
 write_prefs_to_file();
 
 /* If interface active is airpcap, set sensitive TRUE for airpcap toolbar */
+if(airpcap_if_list != NULL)
+{
+	if(airpcap_if_active != NULL)
+	{
 if( get_airpcap_if_by_name(airpcap_if_list,airpcap_if_active->description) != NULL)
 	{
 	airpcap_set_toolbar_start_capture(airpcap_if_active);
@@ -2843,6 +3111,8 @@ else
 	{
 	airpcap_set_toolbar_stop_capture(airpcap_if_active);
 	}
+	}
+}
 
 gtk_widget_destroy(key_management_w);
 }
@@ -2865,7 +3135,7 @@ GtkWidget *key_ls;
 GtkWidget	*toolbar,
 			*toolbar_decryption_ck,
 			*key_management_bt;
-			
+
 /* Row selected structure */
 airpcap_key_ls_selected_info_t *selected_item;
 
@@ -2890,7 +3160,7 @@ gtk_widget_destroy(key_management_w);
 }
 
 /*
- * Dialog box that appears whenever keys are not consistent between wireshark and AirPcap 
+ * Dialog box that appears whenever keys are not consistent between wireshark and AirPcap
  */
 void
 airpcap_keys_check_w(GtkWidget *w, gpointer data)
@@ -3061,9 +3331,9 @@ gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
 		     GTK_BUTTONBOX_SPREAD);
 
 #if GTK_MAJOR_VERSION >= 2
-ok_bt = gtk_button_new_with_mnemonic ("Ok");
+ok_bt = gtk_button_new_with_mnemonic ("OK");
 #else
-ok_bt = gtk_button_new_with_label ("Ok");
+ok_bt = gtk_button_new_with_label ("OK");
 #endif
 gtk_widget_set_name (ok_bt, "ok_bt");
 gtk_widget_show (ok_bt);
@@ -3108,7 +3378,7 @@ keys_check_w = GTK_WIDGET(user_data);
 
 key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
    and is not NULL if it was called when the Key Management widget has been clicked */
 if(key_management_w != NULL)
     {
@@ -3193,12 +3463,11 @@ write_prefs_to_file();
 
 /* Free the memory */
 free_key_list(wireshark_keys);
-free_key_list(merged_keys);
 
 /* Close the window */
 gtk_widget_destroy(keys_check_w);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
    and is not NULL if it was called when the Key Management widget has been clicked */
 if(key_management_w != NULL)
     {
@@ -3259,11 +3528,11 @@ for(i = 0; i<n_adapters; i++)
     current_adapter_keys = get_airpcap_device_keys(curr_adapter);
     n_curr_adapter_keys = g_list_length(current_adapter_keys);
 
-    merged_list_tmp = merged_list;    
-    merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);    
+    merged_list_tmp = merged_list;
+    merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
     free_key_list(merged_list_tmp);
-    
-    n_total_keys += n_curr_adapter_keys;    
+
+    n_total_keys += n_curr_adapter_keys;
     }
 
 n_merged_keys = g_list_length(merged_list);
@@ -3279,7 +3548,7 @@ free_key_list(driver_keys);
 
 gtk_widget_destroy(keys_check_w);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
    and is not NULL if it was called when the Key Management widget has been clicked */
 if(key_management_w != NULL)
     {
@@ -3338,11 +3607,11 @@ for(i = 0; i<n_adapters; i++)
     current_adapter_keys = get_airpcap_device_keys(curr_adapter);
     n_curr_adapter_keys = g_list_length(current_adapter_keys);
 
-    merged_list_tmp = merged_list;    
-    merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);    
+    merged_list_tmp = merged_list;
+    merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
     free_key_list(merged_list_tmp);
-    
-    n_total_keys += n_curr_adapter_keys;    
+
+    n_total_keys += n_curr_adapter_keys;
     }
 
 n_merged_keys = g_list_length(merged_list);
@@ -3358,7 +3627,7 @@ free_key_list(driver_keys);
 
 gtk_widget_destroy(keys_check_w);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
    and is not NULL if it was called when the Key Management widget has been clicked */
 if(key_management_w != NULL)
     {
@@ -3381,7 +3650,7 @@ keys_check_w = GTK_WIDGET(user_data);
 
 key_management_w = OBJECT_GET_DATA(keys_check_w,AIRPCAP_CHECK_WINDOW_KEY);
 
-/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading, 
+/* w may be NULL if airpcap_keys_check_w() has been called while wireshark was loading,
    and is not NULL if it was called when the Key Management widget has been clicked */
 if(key_management_w != NULL)
     {

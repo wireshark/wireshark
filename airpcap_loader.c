@@ -49,6 +49,9 @@
 #include <airpcap.h>
 #include "airpcap_loader.h"
 
+/* AirPDcap */
+#include "../airpdcap/airpdcap_ws.h"
+
 /*
  * We load dinamically the dag library in order link it only when
  * it's present on the system
@@ -106,7 +109,9 @@ airpcap_if_info_t *airpcap_if_active = NULL;
 /* WLAN preferences pointer */
 module_t *wlan_prefs = NULL;
 
-/* Callback used by the load_wlan_keys() routine in order to read a WEP decryption key */
+/* 
+ * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key 
+ */
 static guint
 get_wep_key(pref_t *pref, gpointer ud _U_)
 {
@@ -122,43 +127,18 @@ if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
     my_string = g_strdup(*pref->varp.string);
 
-    if( my_string != NULL)
+	/* Here we have the string describing the key... */
+	new_key = parse_key_string(my_string);
+
+    if( new_key != NULL)
         {
         /* Key is added only if not null ... */
-        if( (g_strcasecmp(my_string,"") != 0) && (wep_key_is_valid(my_string)))
-            {
-            new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
-
-            new_key->key = g_string_new(my_string);
-            g_free(my_string);
-
-            new_key->bits = new_key->key->len * 4;
-
-            new_key->type = AIRPCAP_KEYTYPE_WEP;
-
-            new_key->ssid = NULL;
-
             user_data->list = g_list_append(user_data->list,new_key);
             user_data->number_of_keys++;
             user_data->current_index++;
             }
         }
-    }
 return 0;
-}
-
-/* Callback used by the load_wlan_keys() routine in order to read a WPA decryption key */
-static guint
-get_wpa_key(pref_t *pref, gpointer ud _U_)
-{
-return 1;
-}
-
-/* Callback used by the load_wlan_keys() routine in order to read a WPA2 decryption key */
-static guint
-get_wpa2_key(pref_t *pref, gpointer ud _U_)
-{
-return 1;
 }
 
 /* Returs TRUE if the WEP key is valid, false otherwise */
@@ -204,6 +184,8 @@ gchar *my_string = NULL;
 keys_cb_data_t* user_data;
 gint wep_key_number = 0;
 
+decryption_key_t* new_key;
+
 /* Retrieve user data info */
 user_data = (keys_cb_data_t*)ud;
 
@@ -216,11 +198,19 @@ if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
         {
         if(wep_key_number == (user_data->current_index+1))
             {
-            my_string = g_strdup((char*)g_list_nth_data(user_data->list,user_data->current_index));
+			/* Retrieve the nth decryption_key_t structure pointer */
+			new_key = (decryption_key_t*)g_list_nth_data(user_data->list,user_data->current_index);
 
+			/* Free the old key string */
 			g_free((void *)*pref->varp.string);
+
+			/* Create the new string describing the decryption key */
+			my_string = get_key_string(new_key);
+
+			/* Duplicate the string, and assign it to the variable pointer */
 			*pref->varp.string = (void *)g_strdup(my_string);
 
+			/* Free the previously allocated string */
             g_free(my_string);
             }
         }
@@ -236,63 +226,6 @@ if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
 
 return 0;
 }
-
-/*
- * Function used to read the Decryption Keys from the preferences and store them
- * properly into the airpcap adapter.
- */
-BOOL
-load_wlan_wep_keys(airpcap_if_info_t* info_if)
-{
-keys_cb_data_t* user_data;
-guint i;
-gchar *tmp = NULL;
-
-if(info_if == NULL) return FALSE;
-
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
-
-/* Allocate a structure used to keep infos  between the callbacks */
-user_data = (keys_cb_data_t*)g_malloc(sizeof(keys_cb_data_t));
-
-/* Fill the structure */
-user_data->list = NULL;
-user_data->current_index = 0;
-user_data->number_of_keys= 0; /* Still unknown */
-
-/* Run the callback on each 802.11 preference */
-prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)user_data);
-
-/* Now the key list should be filled */
-
-/*
- * Signal that we've changed things, and run the 802.11 dissector's
- * callback
- */
-wlan_prefs->prefs_changed = TRUE;
-
-prefs_apply(wlan_prefs);
-
-write_wlan_wep_keys_to_regitry(info_if,user_data->list);
-
-/* FREE MEMORY */
-/* free the WEP key string */
-for(i=0;i<g_list_length(user_data->list);i++)
-    {
-    g_free(g_list_nth(user_data->list,i)->data);
-    }
-
-/* free the (empty) list */
-g_list_free(user_data->list);
-
-/* free the user_data structure */
-g_free(user_data);
-
-return TRUE;
-}
-
-
 
 /*
  * Function used to read the Decryption Keys from the preferences and store them
@@ -393,7 +326,7 @@ KeysCollection->nKeys = keys_in_list;
 
 for(i = 0; i < keys_in_list; i++)
 {
-    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_WEP;
+    KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
 
 	/* Retrieve the Item corresponding to the i-th key */
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
@@ -446,7 +379,7 @@ return TRUE;
 BOOL
 write_wlan_driver_wep_keys_to_regitry(GList* key_list)
 {
-UINT i,j;
+UINT i,j,k,n,y;
 GString *new_key;
 gchar s[3];
 PAirpcapKeysCollection KeysCollection;
@@ -459,7 +392,17 @@ airpcap_if_info_t* fake_info_if = NULL;
 /* Create the fake_info_if from the first adapter of the list */
 fake_info_if = airpcap_driver_fake_if_info_new();
 
-keys_in_list = g_list_length(key_list);
+if(fake_info_if == NULL)
+	return FALSE;
+
+/* 
+ * XXX - When WPA will be supported, change this to: keys_in_list = g_list_length(key_list); 
+ * but right now we will have to count only the WEP keys (or we will have a malloc-mess :-) )
+ */
+n = g_list_length(key_list);
+for(k = 0; k < n; k++ )
+	if(((decryption_key_t*)g_list_nth_data(key_list,k))->type == AIRPDCAP_KEY_TYPE_WEP)
+		keys_in_list++;
 
 /*
  * Save the encryption keys, if we have any of them
@@ -485,16 +428,33 @@ if(!KeysCollection)
  */
 KeysCollection->nKeys = keys_in_list;
 
-for(i = 0; i < keys_in_list; i++)
-{
-    KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_WEP;
+/* 
+ * XXX - If we have, let's say, six keys, the first three are WEP, then two are WPA, and the 
+ * last is WEP, we have to scroll the whole list (n) but increment the array counter only
+ * when a WEP key is found (y) .. When WPA will be supported by the driver, I'll have to change
+ * this
+ */
+y = 0; /* Current position in the key list */
 
+for(i = 0; i < n; i++)
+{
 	/* Retrieve the Item corresponding to the i-th key */
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
+	
+	/*
+	 * XXX - The AIRPDCAP_KEY_TYPE_WEP is the only supportd right now!
+	 * We will have to modify the AirpcapKey structure in order to
+	 * support the other two types! What happens now, is that simply the
+	 * not supported keys will just be discarded (they will be saved in wireshark though)
+	 */
+	if(key_item->type == AIRPDCAP_KEY_TYPE_WEP)
+	{
+	KeysCollection->Keys[y].KeyType = AIRPDCAP_KEY_TYPE_WEP;
+
 	new_key = g_string_new(key_item->key->str);
 
-	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
-	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
+	KeysCollection->Keys[y].KeyLen = new_key->len / 2;
+	memset(&KeysCollection->Keys[y].KeyData, 0, sizeof(KeysCollection->Keys[y].KeyData));
 
 	for(j = 0 ; j < new_key->len; j += 2)
 	{
@@ -502,10 +462,20 @@ for(i = 0; i < keys_in_list; i++)
 		s[1] = new_key->str[j+1];
 		s[2] = '\0';
 		KeyByte = (UCHAR)strtol(s, NULL, 16);
-		KeysCollection->Keys[i].KeyData[j / 2] = KeyByte;
+		KeysCollection->Keys[y].KeyData[j / 2] = KeyByte;
 	}
-
+	/* XXX - Change when WPA will be supported!!! */
+	y++;
 	g_string_free(new_key,TRUE);
+}
+	else if(key_item->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+	{
+		/* XXX - The driver cannot deal with this kind of key yet... */
+	}
+	else if(key_item->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+	{
+		/* XXX - The driver cannot deal with this kind of key yet... */
+	}
 }
 
 /*
@@ -538,80 +508,6 @@ return TRUE;
 /*
  *  Function used to save to the preference file the Decryption Keys.
  */
-gboolean
-save_wlan_wep_keys(airpcap_if_info_t* info_if)
-{
-GList* key_list = NULL;
-char* tmp_key = NULL;
-guint keys_in_list,i;
-keys_cb_data_t* user_data;
-
-if(info_if == NULL) return FALSE;
-
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
-
-/* Allocate a structure used to keep infos  between the callbacks */
-user_data = (keys_cb_data_t*)g_malloc(sizeof(keys_cb_data_t));
-
-/* Number of keys in key list */
-/* Number of keys in key list */
-if(info_if->keysCollectionSize != 0)
-    keys_in_list = (guint)(info_if->keysCollectionSize -  sizeof(AirpcapKeysCollection))/sizeof(AirpcapKey);
-else
-    keys_in_list = 0;
-
-for(i=0; i<keys_in_list; i++)
-{
-/* Only if it is a WEP key... */
-if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
-    {
-    tmp_key = airpcap_get_key_string(info_if->keysCollection->Keys[i]);
-    key_list = g_list_append(key_list,g_strdup(tmp_key));
-    g_free(tmp_key);
-    }
-}
-
-/* Now we know the exact number of WEP keys in the list, so store it ... */
-keys_in_list = g_list_length(key_list);
-
-/* Fill the structure */
-user_data->list = key_list;
-user_data->current_index = 0;
-user_data->number_of_keys= keys_in_list;
-
-/* Retrieve the wlan preferences */
-wlan_prefs = prefs_find_module("wlan");
-
-/* Run the callback on each 802.11 preference */
-prefs_pref_foreach(wlan_prefs, set_wep_key,  (gpointer)user_data);
-
-/* Signal that we've changed things, and run the 802.11 dissector's
- * callback */
-wlan_prefs->prefs_changed = TRUE;
-
-/* Apply changes for the specified preference */
-prefs_apply(wlan_prefs);
-
-/* FREE MEMORY */
-/* free the WEP key string */
-for(i=0;i<g_list_length(user_data->list);i++)
-    {
-    g_free(g_list_nth(user_data->list,i)->data);
-    }
-
-/* free the (empty) list */
-g_list_free(user_data->list);
-
-/* free the user_data structure */
-g_free(user_data);
-
-return TRUE;
-}
-
-/*
- *  Function used to save to the preference file the Decryption Keys.
- */
 int
 save_wlan_driver_wep_keys()
 {
@@ -623,6 +519,9 @@ airpcap_if_info_t* fake_info_if = NULL;
 
 /* Create the fake_info_if from the first adapter of the list */
 fake_info_if = airpcap_driver_fake_if_info_new();
+
+if(fake_info_if == NULL)
+	return FALSE;
 
 /* Retrieve the wlan preferences */
 wlan_prefs = prefs_find_module("wlan");
@@ -640,7 +539,7 @@ else
 for(i=0; i<keys_in_list; i++)
 {
 /* Only if it is a WEP key... */
-if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
     {
     tmp_key = airpcap_get_key_string(fake_info_if->keysCollection->Keys[i]);
     key_list = g_list_append(key_list,g_strdup(tmp_key));
@@ -698,6 +597,7 @@ char* tmp_key = NULL;
 guint keys_in_list,i;
 keys_cb_data_t* user_data;
 airpcap_if_info_t* fake_info_if = NULL;
+decryption_key_t* tmp_dk;
 
 /* Retrieve the wlan preferences */
 wlan_prefs = prefs_find_module("wlan");
@@ -731,7 +631,9 @@ prefs_apply(wlan_prefs);
 /* free the WEP key string */
 for(i=0;i<g_list_length(user_data->list);i++)
     {
-    g_free(g_list_nth(user_data->list,i)->data);
+	tmp_dk = (decryption_key_t*)g_list_nth(user_data->list,i)->data;
+	g_string_free(tmp_dk->key,TRUE);
+	if(tmp_dk->ssid != NULL) g_string_free(tmp_dk->ssid,TRUE);
     }
 
 /* free the (empty) list */
@@ -770,6 +672,7 @@ PAirpcapHandle
 airpcap_if_open(PCHAR name, PCHAR err)
 {
 	if (!AirpcapLoaded) return NULL;
+	if (name == NULL) return NULL;
 	return g_PAirpcapOpen(name,err);
 }
 
@@ -972,8 +875,12 @@ airpcap_if_info_new(char *name, char *description)
 PAirpcapHandle ad;
 gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 
-	airpcap_if_info_t *if_info;
+	airpcap_if_info_t *if_info = NULL;
 
+	/* Probably I have to switch on the leds!!! */
+	ad = airpcap_if_open(name, ebuf);
+	if(ad)
+		{
 	if_info = g_malloc(sizeof (airpcap_if_info_t));
 	if_info->name = g_strdup(name);
 	if (description == NULL)
@@ -982,11 +889,6 @@ gchar ebuf[AIRPCAP_ERRBUF_SIZE];
 		if_info->description = g_strdup(description);
 	if_info->ip_addr = NULL;
 	if_info->loopback = FALSE;
-
-	/* Probably I have to switch on the leds!!! */
-	ad = airpcap_if_open(if_info->name, ebuf);
-	if(ad)
-		{
 		airpcap_if_get_fcs_validation(ad,&(if_info->CrcValidationOn));
 		airpcap_if_get_fcs_presence(ad,&(if_info->IsFcsPresent));
 		airpcap_if_get_link_type(ad,&(if_info->linkType));
@@ -1016,6 +918,10 @@ airpcap_driver_fake_if_info_new()
 	airpcap_if_info_t *if_info = NULL;
 	airpcap_if_info_t *fake_if_info = NULL;
 
+	/* Maybe for some reason no airpcap adapter is found */
+	if(airpcap_if_list == NULL)
+		return NULL;
+
 	/*
 	 * Retrieve the first AirPcap adapter available. If no interface is found,
 	 * it is not possible to retrieve the driver's settings, so return NULL.
@@ -1024,16 +930,15 @@ airpcap_driver_fake_if_info_new()
 	if(if_info == NULL)
 		return NULL;
 
+	/* Open the 'fake' adapter */
+	ad = airpcap_if_open(if_info->name, ebuf);
+	if(ad)
+		{
 	fake_if_info = g_malloc(sizeof (airpcap_if_info_t));
 	fake_if_info->name = g_strdup(if_info->name);
 	fake_if_info->description = g_strdup(if_info->description);
 	fake_if_info->loopback = FALSE;
 	fake_if_info->ip_addr = NULL;
-
-	/* Open the 'fake' adapter */
-	ad = airpcap_if_open(if_info->name, ebuf);
-	if(ad)
-		{
 		airpcap_if_get_driver_decryption_state(ad, &(fake_if_info->DecryptionOn));
 		airpcap_if_get_fcs_validation(ad,&(fake_if_info->CrcValidationOn));
 		airpcap_if_get_fcs_presence(ad,&(fake_if_info->IsFcsPresent));
@@ -1343,9 +1248,10 @@ unsigned int j = 0;
 unsigned int l = 0;
 gchar *dst,*src;
 
+dst = NULL;
 src = NULL;
 
-if(key.KeyType == AIRPCAP_KEYTYPE_WEP)
+if(key.KeyType == AIRPDCAP_KEY_TYPE_WEP)
 	{
 	if(key.KeyLen != 0)
 	    {
@@ -1365,11 +1271,11 @@ if(key.KeyType == AIRPCAP_KEYTYPE_WEP)
     	g_free(src);
         }
 	}
-else if(key.KeyType == AIRPCAP_KEYTYPE_TKIP)
+else if(key.KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
     {
     /* XXX - Add code here */
     }
-else if(key.KeyType == AIRPCAP_KEYTYPE_CCMP)
+else if(key.KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
     {
     /* XXX - Add code here */
     }
@@ -1656,12 +1562,12 @@ g_print("KEY : %s\n",tmp->key->str);
 
 g_print("BITS: %d\n",tmp->bits);
 
-if(tmp->type == AIRPCAP_KEYTYPE_WEP)
+if(tmp->type == AIRPDCAP_KEY_TYPE_WEP)
     g_print("TYPE: %s\n",AIRPCAP_WEP_KEY_STRING);
-else if(tmp->type == AIRPCAP_KEYTYPE_TKIP)
-    g_print("TYPE: %s\n",AIRPCAP_WPA_KEY_STRING);
-else if(tmp->type == AIRPCAP_KEYTYPE_CCMP)
-    g_print("TYPE: %s\n",AIRPCAP_WPA2_KEY_STRING);
+else if(tmp->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+    g_print("TYPE: %s\n",AIRPCAP_WPA_PWD_KEY_STRING);
+else if(tmp->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+    g_print("TYPE: %s\n",AIRPCAP_WPA_BIN_KEY_STRING);
 else
     g_print("TYPE: %s\n","???");
 
@@ -1696,7 +1602,7 @@ else
 for(i=0; i<keys_in_list; i++)
 {
 /* Different things to do depending on the key type  */
-if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+if(info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
     {
     /* allocate memory for the new key item */
     new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
@@ -1719,11 +1625,11 @@ if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
     /* Append the new element in the list */
     key_list = g_list_append(key_list,(gpointer)new_key);
     }
-else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
+else if(info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
     {
     /* XXX - Not supported yet */
     }
-else if(info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
+else if(info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
     {
     /* XXX - Not supported yet */
     }
@@ -1768,7 +1674,7 @@ else
 for(i=0; i<keys_in_list; i++)
 {
 /* Different things to do depending on the key type  */
-if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
+if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WEP)
     {
     /* allocate memory for the new key item */
     new_key = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
@@ -1777,7 +1683,7 @@ if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
     /* KEY */
     tmp_key = airpcap_get_key_string(fake_info_if->keysCollection->Keys[i]);
     new_key->key = g_string_new(tmp_key);
-    g_free(tmp_key);
+    if(tmp_key != NULL) g_free(tmp_key);
 
     /* BITS */
     new_key->bits = new_key->key->len *4; /* every char is 4 bits in WEP keys (it is an exadecimal number) */
@@ -1791,11 +1697,11 @@ if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_WEP)
     /* Append the new element in the list */
     key_list = g_list_append(key_list,(gpointer)new_key);
     }
-else if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_TKIP)
+else if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD)
     {
     /* XXX - Not supported yet */
     }
-else if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPCAP_KEYTYPE_CCMP)
+else if(fake_info_if->keysCollection->Keys[i].KeyType == AIRPDCAP_KEY_TYPE_WPA_PMK)
     {
     /* XXX - Not supported yet */
     }
@@ -1814,15 +1720,11 @@ GList*
 get_wireshark_keys()
 {
 keys_cb_data_t* wep_user_data = NULL;
-keys_cb_data_t* wpa_user_data = NULL;
-keys_cb_data_t* wpa2_user_data= NULL;
 
 gchar *tmp = NULL;
 
 GList* final_list = NULL;
 GList* wep_final_list = NULL;
-GList* wpa_final_list = NULL;
-GList* wpa2_final_list = NULL;
 
 /* Retrieve the wlan preferences */
 wlan_prefs = prefs_find_module("wlan");
@@ -1838,23 +1740,15 @@ wep_user_data->number_of_keys= 0; /* Still unknown */
 /* Run the callback on each 802.11 preference */
 /* XXX - Right now, only WEP keys will be loaded */
 prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)wep_user_data);
-prefs_pref_foreach(wlan_prefs, get_wpa_key, (gpointer)wpa_user_data);
-prefs_pref_foreach(wlan_prefs, get_wpa2_key, (gpointer)wpa2_user_data);
 
 /* Copy the list field in the user data structure pointer into the final_list */
 if(wep_user_data != NULL)  wep_final_list  = wep_user_data->list;
-if(wpa_user_data != NULL)  wpa_final_list  = wpa_user_data->list;
-if(wpa2_user_data != NULL) wpa2_final_list = wpa2_user_data->list;
 
 /* XXX - Merge the three lists!!!!! */
 final_list = wep_final_list;
 
 /* free the wep_user_data structure */
 g_free(wep_user_data);
-/* free the wpa_user_data structure */
-g_free(wpa_user_data);
-/* free the wpa2_user_data structure */
-g_free(wpa2_user_data);
 
 return final_list;
 }
@@ -2056,6 +1950,10 @@ keys_are_equals(decryption_key_t *k1,decryption_key_t *k2)
 if((k1==NULL) || (k2==NULL))
     return FALSE;
 
+/* XXX - Remove this check when we will have the WPA/WPA2 decryption in the Driver! */
+//if( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) )
+//	return TRUE;
+
 if( g_string_equal(k1->key,k2->key) &&
     (k1->bits == k2->bits) && /* If the previous is TRUE, this must be TRUE as well */
     k1->type == k2->type)
@@ -2085,11 +1983,44 @@ gboolean
 key_lists_are_equal(GList* list1, GList* list2)
 {
 guint n1=0,n2=0;
-guint i;
+/* XXX - Remove */
+guint wep_n1=0,wep_n2=0;
+GList *wep_list1=NULL;
+GList *wep_list2=NULL;
+/* XXX - END*/
+guint i,j;
 decryption_key_t *dk1=NULL,*dk2=NULL;
 
 n1 = g_list_length(list1);
 n2 = g_list_length(list2);
+
+/*
+ * XXX - START : Retrieve the aublists of WEP keys!!! This is needed only 'till Driver WPA decryption
+ * is not implemented.
+ */
+for(i=0;i<n1;i++)
+	{
+	dk1=(decryption_key_t*)g_list_nth_data(list1,i);
+	if(dk1->type == AIRPDCAP_KEY_TYPE_WEP)
+		{
+		wep_list1 = g_list_append(wep_list1,(gpointer)dk1);
+		wep_n1++;
+		}
+	}
+for(i=0;i<n2;i++)
+	{
+	dk2=(decryption_key_t*)g_list_nth_data(list2,i);
+	if(dk2->type == AIRPDCAP_KEY_TYPE_WEP)
+		{
+		wep_list2 = g_list_append(wep_list2,(gpointer)dk2);
+		wep_n2++;
+		}
+	}
+
+/*
+ * XXX - END : Remove from START to END when the WPA/WPA2 decryption will be implemented in 
+ * the Driver
+ */
 
 /*
  * Commented, because in the new AirPcap version all the keys will be saved
@@ -2097,14 +2028,23 @@ n2 = g_list_length(list2);
  * removed. This means that this check will always fail... and the user will
  * always be asked what to do... and it doesn't make much sense.
  */
-if(n1 != n2) return FALSE;
+/* if(n1 != n2) return FALSE; */
+if(wep_n1 != wep_n2) return FALSE;
 
-for(i=0;i<n1;i++)
+n1 = wep_n1;
+n2 = wep_n2;
+
+/*for(i=0;i<n1;i++)
 {
 dk1=(decryption_key_t*)g_list_nth_data(list1,i);
 dk2=(decryption_key_t*)g_list_nth_data(list2,i);
 
 if(!g_string_equal(dk1->key,dk2->key)) return FALSE;
+}*/
+for(i=0;i<n2;i++)
+{
+dk2=(decryption_key_t*)g_list_nth_data(wep_list2,i);
+if(!key_is_in_list(dk2,wep_list1)) return FALSE;
 }
 
 return TRUE;
@@ -2424,6 +2364,361 @@ get_runtime_airpcap_version(GString *str)
 	g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
 	g_string_sprintfa(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
 		vrev, build);
+}
+
+/*
+ * Returns the decryption_key_t struct given a string describing the key.
+ * Returns NULL if the key_string cannot be parsed.
+ */
+decryption_key_t*
+parse_key_string(gchar* input_string)
+{
+gchar *type;
+gchar *key;
+gchar *ssid;
+
+GString *key_string,
+	*ssid_string;
+
+gchar **tokens;
+guint n = 0;
+guint i;
+
+decryption_key_t *dk;
+
+if(input_string == NULL)
+	return NULL;
+
+/* 
+* Parse the input_string. It should be in the form <key type>:<key data>[:<ssid>]
+* XXX - For backward compatibility, the a WEP key can be just a string of hexadecimal
+* characters (if WEP key is wrong, null will be returned...).
+*/
+tokens = g_strsplit(input_string,":",0);
+
+/* Tokens is a null termiated array of strings ... */
+while(tokens[n] != NULL)
+	n++;
+
+if(n == 0)
+{
+	/* Free the array of strings */
+	g_strfreev(tokens);
+	return NULL;
+}
+
+/* 
+* 'n' contains the number of tokens. If the key string is correct, we should have
+* 2 or 3 tokens... If we have 1 token, it can be an 'old style' WEP key... check for it...
+*/
+if(n == 1)
+{
+	/* Maybe it is an 'old style' WEP key */
+	key = g_strdup(tokens[0]);
+
+	/* Create a new string */
+	key_string = g_string_new(key);
+
+	/* Check if it is a correct WEP key */
+	if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
+	{
+		g_string_free(key_string, TRUE);
+		g_free(key);
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	if((key_string->len % 2) != 0)
+	{
+		g_string_free(key_string, TRUE);
+		g_free(key);
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	for(i = 0; i < key_string->len; i++)
+	{
+		if(!g_ascii_isxdigit(key_string->str[i]))
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+	}
+
+	/* Key is correct! It was probably an 'old style' WEP key */
+	/* Create the decryption_key_t structure, fill it and return it*/
+	dk = g_malloc(sizeof(decryption_key_t));
+
+	dk->type = AIRPDCAP_KEY_TYPE_WEP;
+	dk->key  = g_string_new(key);
+	dk->bits = dk->key->len * 4;
+	dk->ssid = NULL;
+
+	g_string_free(key_string, TRUE);
+	g_free(key);
+
+	/* Free the array of strings */
+	g_strfreev(tokens);
+
+	return dk;
+}
+
+/* There were at least 2 tokens... copy the type value */
+type = g_strdup(tokens[0]);
+
+/* 
+* The second token is the key (right now it doesn't matter 
+* if it is a passphrase or an hexadecimal one) 
+*/
+key = g_strdup(tokens[1]);
+
+/* Lower case... */
+g_strdown(type);
+g_strdown(key);
+
+/* Maybe there is a third token (an ssid, if everything else is ok) */
+if(n >= 3)
+{
+	ssid = g_strdup(tokens[2]);
+	g_strdown(ssid);
+}
+else
+{
+	ssid = NULL;
+}
+
+/* 
+* Now the initial key string has been divided in two/three tokens... let's see
+* which kind of key it is, and if it is the correct form
+*/
+if(g_strcasecmp(type,STRING_KEY_TYPE_WEP) == 0) /* WEP key */
+{
+	/* Create a new string */
+	key_string = g_string_new(key);
+
+	/* Check if it is a correct WEP key */
+	if( ((key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
+	{
+		g_string_free(key_string, TRUE);
+		g_free(key);
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	if((key_string->len % 2) != 0)
+	{
+		g_string_free(key_string, TRUE);
+		g_free(key);
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	for(i = 0; i < key_string->len; i++)
+	{
+		if(!g_ascii_isxdigit(key_string->str[i]))
+		{
+			g_string_free(key_string, TRUE);
+			g_free(key);
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+	}
+
+	dk =  (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+	dk->type = AIRPDCAP_KEY_TYPE_WEP;
+	dk->key  = g_string_new(key);
+	dk->bits = dk->key->len * 4;
+	dk->ssid = NULL;
+
+	g_string_free(key_string, TRUE);
+	g_free(key);
+
+	/* Free the array of strings */
+	g_strfreev(tokens);
+	return dk;
+}
+else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
+{
+	/* Create a new string */
+	key_string = g_string_new(key);
+
+	/* Two tokens means that the user should have entered a WPA-BIN key ... */
+	if( ((key_string->len) != WPA_PSK_KEY_CHAR_SIZE))
+	{
+		g_string_free(key_string, TRUE);
+
+		g_free(type);
+		g_free(key);
+		/* No ssid has been created ... */
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	for(i = 0; i < key_string->len; i++)
+	{
+		if(!g_ascii_isxdigit(key_string->str[i]))
+		{
+			g_string_free(key_string, TRUE);
+			/* No ssid_string has been created ... */
+
+			g_free(type);
+			g_free(key);
+			/* No ssid has been created ... */
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+	}
+
+	/* Key was correct!!! Create the new decryption_key_t ... */
+	dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+	dk->type = AIRPDCAP_KEY_TYPE_WPA_PMK;
+	dk->key  = g_string_new(key);
+	dk->bits = dk->key->len * 4;
+	dk->ssid = NULL;
+
+	g_string_free(key_string, TRUE);
+	g_free(key);
+	g_free(type);
+
+	/* Free the array of strings */
+	g_strfreev(tokens);
+	return dk;
+}
+else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the number of tokens is more than three, we accept the string... if the first three tokens are correct... */
+{
+	/* Create a new string */
+	key_string = g_string_new(key);
+	ssid_string = NULL;
+
+
+	/* Three (or more) tokens mean that the user entered a WPA-PWD key ... */
+	if( ((key_string->len) > WPA_KEY_MAX_CHAR_SIZE) || ((key_string->len) < WPA_KEY_MIN_CHAR_SIZE))
+	{
+		g_string_free(key_string, TRUE);
+
+		g_free(type);
+		g_free(key);
+		g_free(ssid);
+
+		/* Free the array of strings */
+		g_strfreev(tokens);
+		return NULL;
+	}
+
+	if(ssid != NULL) /* more than three tokens found, means that the user specified the ssid */
+	{
+		ssid_string = g_string_new(ssid);
+
+		/*
+		* XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
+		*/ 
+		if( ((ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
+		{
+			g_string_free(key_string, TRUE);
+			g_string_free(ssid_string, TRUE);
+
+			g_free(type);
+			g_free(key);
+			g_free(ssid);
+
+			/* Free the array of strings */
+			g_strfreev(tokens);
+			return NULL;
+		}
+	}
+
+	/* Key was correct!!! Create the new decryption_key_t ... */
+	dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+
+	dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
+	dk->key  = g_string_new(key);
+	dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
+	if(ssid != NULL) 
+		dk->ssid = g_string_new(ssid);
+	else 
+		dk->ssid = NULL;
+
+	g_string_free(key_string, TRUE);
+	if(ssid_string != NULL) g_string_free(ssid_string, TRUE);
+
+	g_free(type);
+	g_free(key);
+	if(ssid != NULL) g_free(ssid);
+
+	/* Free the array of strings */
+	g_strfreev(tokens);
+	return dk;
+}
+
+/* Something was wrong ... free everything */
+
+g_free(type);
+g_free(key);
+if(ssid != NULL) g_free(ssid); /* It is not always present */
+/* Free the array of strings */
+g_strfreev(tokens);
+
+return NULL;
+}
+
+/*
+ * Returns a newly allocated string representing the given decryption_key_t struct, or NULL if
+ * something is wrong...
+ */
+gchar*
+get_key_string(decryption_key_t* dk)
+{
+gchar* output_string = NULL;
+
+	if(dk == NULL)
+		return NULL;
+
+#ifdef HAVE_AIRPDCAP
+	if(dk->type == AIRPDCAP_KEY_TYPE_WEP)
+	{
+		if(dk->key == NULL) /* Should NOT happen at all... */
+			return NULL;
+
+		output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WEP,dk->key->str);
+	}
+	else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
+	{
+		if(dk->key == NULL) /* Should NOT happen at all... */
+			return NULL;
+
+		if(dk->ssid == NULL)
+			output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PWD,dk->key->str);
+		else
+			output_string = g_strdup_printf("%s:%s:%s",STRING_KEY_TYPE_WPA_PWD,dk->key->str,dk->ssid->str);
+	}
+	else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
+	{
+		if(dk->key == NULL) /* Should NOT happen at all... */
+			return NULL;
+
+		output_string = g_strdup_printf("%s:%s",STRING_KEY_TYPE_WPA_PSK,dk->key->str);
+	}
+	else
+	{
+		return NULL;
+	}
+#else /* not HAVE_AIRPDCAP*/
+output_string = g_strdup(dk->key->str);
+#endif
+
+return output_string;
 }
 
 #endif /* _WIN32 */

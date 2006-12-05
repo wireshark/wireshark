@@ -45,9 +45,51 @@
  */
 #define WEP_KEY_MAX_BIT_SIZE (WEP_KEY_MAX_SIZE*8)
 
+#define WEP_KEY_MIN_CHAR_SIZE 2
+#define WEP_KEY_MIN_BIT_SIZE  8
+
+/*
+ * XXX - The next #define should probably be moved in airpcap.h,
+ * near WEP_KEY_MAX_SIZE ...
+ */
+#define WPA_KEY_MAX_SIZE 63 /* 63 chars followed by a '\0' */
+
+#define WPA_KEY_MAX_CHAR_SIZE (WPA_KEY_MAX_SIZE*1)
+#define WPA_KEY_MAX_BIT_SIZE  (WPA_KEY_MAX_SIZE*8)
+#define WPA_KEY_MIN_CHAR_SIZE 8
+#define WPA_KEY_MIN_BIT_SIZE  (WPA_KEY_MIN_CHAR_SIZE*8)
+
+/*
+ * XXX - The next #define should probably be moved in airpcap.h,
+ * near WEP_KEY_MAX_SIZE ...
+ */
+#define WPA_SSID_MAX_SIZE 32
+
+#define WPA_SSID_MAX_CHAR_SIZE (WPA_SSID_MAX_SIZE*1)
+#define WPA_SSID_MAX_BIT_SIZE  (WPA_SSID_MAX_SIZE*8)
+#define WPA_SSID_MIN_CHAR_SIZE 0
+#define WPA_SSID_MIN_BIT_SIZE  (WPA_SSID_MIN_CHAR_SIZE*8)
+
+/*
+ * User can enter the binary PSK, instead of the passphrase+ssid...
+ */
+#define WPA_PSK_KEY_SIZE 32 /* Fixed size, 32 bytes (256bit) */
+#define WPA_PSK_KEY_CHAR_SIZE (WPA_PSK_KEY_SIZE*2)
+#define WPA_PSK_KEY_BIT_SIZE  (WPA_PSK_KEY_SIZE*8)
+
 #define AIRPCAP_WEP_KEY_STRING  "WEP"
-#define AIRPCAP_WPA_KEY_STRING  "WPA"
-#define AIRPCAP_WPA2_KEY_STRING "WPA2"
+/*
+ * XXX - WPA_PWD is the passphrase+ssid and WPA-PSK is the hexadecimal key 
+ */
+#define AIRPCAP_WPA_PWD_KEY_STRING  "WPA-PWD"
+#define AIRPCAP_WPA_BIN_KEY_STRING  "WPA-PSK"
+
+/*
+ * Key string defines
+ */
+#define STRING_KEY_TYPE_WEP "wep"
+#define STRING_KEY_TYPE_WPA_PWD "wpa-pwd"
+#define STRING_KEY_TYPE_WPA_PSK "wpa-psk"
 
 #define AIRPCAP_DLL_OK			0
 #define AIRPCAP_DLL_OLD			1
@@ -110,15 +152,6 @@ typedef struct {
 } airpcap_if_info_t;
 
 /*
- * Struct used to store infos to pass to the preferences manager callbacks
- */
-typedef struct {
-   GList *list;
-   int current_index;
-   int number_of_keys;
-} keys_cb_data_t;
-
-/*
  * Struct to store infos about a specific decryption key.
  */
 typedef struct {
@@ -127,6 +160,15 @@ typedef struct {
     guint   bits;
     guint   type;
 } decryption_key_t;
+
+/*
+ * Struct used to store infos to pass to the preferences manager callbacks
+ */
+typedef struct {
+   GList *list;
+   int current_index;
+   int number_of_keys;
+} keys_cb_data_t;
 
 /* Airpcap interface list */
 extern GList *airpcap_if_list;
@@ -139,13 +181,6 @@ extern airpcap_if_info_t *airpcap_if_active;
 
 /* WLAN preferences pointer */
 //extern module_t *wlan_prefs;
-
-/*
- * Function used to read the Decryption Keys from the preferences and store them
- * properly into the airpcap adapter.
- */
-BOOL
-load_wlan_wep_keys(airpcap_if_info_t* info_if);
 
 /*
  * Function used to read the Decryption Keys from the preferences and store them
@@ -552,5 +587,18 @@ get_compiled_airpcap_version(GString *str);
 
 void
 get_runtime_airpcap_version(GString *str);
+
+/*
+ * Returns the decryption_key_t struct given a string describing the key.
+ * Returns NULL if the key_string cannot be parsed.
+ */
+decryption_key_t*
+parse_key_string(gchar* key_string);
+
+/*
+ * Returns a newly allocated string representing the given decryption_key_t struct
+ */
+gchar*
+get_key_string(decryption_key_t* dk);
 
 #endif

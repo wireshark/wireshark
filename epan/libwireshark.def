@@ -16,6 +16,7 @@ add_new_data_source
 add_oid_name
 add_oid_str_name
 AdmissionRejectReason_vals      DATA
+airpdcap_ctx                    DATA
 ansi_a_bsmap_strings     DATA
 ansi_a_dtap_strings     DATA
 ansi_a_ios401_bsmap_strings     DATA

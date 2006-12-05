@@ -401,6 +401,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 				*help_bt,
 				*icon;
 
+  GtkWidget		*decryption_cm;
+
   GtkWidget     *if_tb;
   GtkWidget     *if_lb;
 #if GTK_MAJOR_VERSION < 2
@@ -453,6 +455,10 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   /* LOAD AIRPCAP INTERFACES */
 	/* load the airpcap interfaces */
 	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+	if(airpcap_if_list == NULL) airpcap_if_active = airpcap_if_selected = NULL;
+
+	decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+	update_decryption_mode_list(decryption_cm);
 
 	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
 	cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
@@ -467,13 +473,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 		if(airpcap_if_list == NULL)
 			{
 			/*No airpcap device found */
-			gtk_widget_set_sensitive(airpcap_tb,FALSE);
+			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
 			}
 		else
 			{
 			/* default adapter is not airpcap... or is airpcap but is not found*/
 			airpcap_set_toolbar_stop_capture(airpcap_if_active);
-			gtk_widget_set_sensitive(airpcap_tb,FALSE);
+			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
 			}
 		}
 

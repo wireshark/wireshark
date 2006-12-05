@@ -172,6 +172,12 @@
 #include "./image/toolbar/wep_closed_24.xpm"
 #endif
 
+#ifdef	HAVE_AIRPDCAP
+/*	Davide Schiera (2006-11-22): including AirPDcap project							*/
+#include "..\airpdcap\airpdcap_ws.h"
+/* Davide Schiera (2006-11-22) ----------------------------------------------	*/
+#endif
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -2116,6 +2122,12 @@ main(int argc, char *argv[])
   char optstring[sizeof(OPTSTRING_INIT) + sizeof(OPTSTRING_WIN32) - 1] =
     OPTSTRING_INIT OPTSTRING_WIN32;
 
+#ifdef	HAVE_AIRPDCAP
+	/*	Davide Schiera (2006-11-18): init AirPDcap context								*/
+	AirPDcapInitContext(&airpdcap_ctx);
+	/* Davide Schiera (2006-11-18) -------------------------------------------	*/
+#endif
+
   /*
    * Attempt to get the pathname of the executable file.
    */
@@ -2994,6 +3006,12 @@ main(int argc, char *argv[])
 
   epan_cleanup();
   g_free(rc_file);
+
+#ifdef	HAVE_AIRPDCAP
+	/*	Davide Schiera (2006-11-18): destroy AirPDcap context							*/
+	AirPDcapDestroyContext(&airpdcap_ctx);
+	/* Davide Schiera (2006-11-18) -------------------------------------------	*/
+#endif
 
 #ifdef _WIN32
   /* hide the (unresponsive) main window, while asking the user to close the console window */
@@ -3991,6 +4009,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "802.11 Channel:" label */
     channel_lb = gtk_label_new(" 802.11 Channel: ");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY,channel_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
                               "Current 802.11 Channel", "Private");
     gtk_widget_show(channel_lb);
@@ -4040,6 +4059,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Wrong CRC Label */
     wrong_crc_lb = gtk_label_new(" FCS Filter: ");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY,wrong_crc_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_lb,
                               "", "Private");
     gtk_widget_show(wrong_crc_lb);
@@ -4058,7 +4078,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT);
 
     gtk_combo_set_popdown_strings( GTK_COMBO(wrong_crc_cm), linktype_list) ;
-	gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(wrong_crc_cm)->entry),
+    gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(wrong_crc_cm)->entry),
 	"Select the 802.11 FCS filter that the wireless adapter will apply.",
         NULL);
 
@@ -4074,6 +4094,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Decryption mode combo box */
     enable_decryption_lb = gtk_label_new ("Decryption Mode: ");
+    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY,enable_decryption_lb);
     gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
     gtk_widget_show (enable_decryption_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
@@ -4083,11 +4104,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
     gtk_widget_show (enable_decryption_cb);
     WIDGET_SET_SIZE (enable_decryption_cb, 83, -1);
-    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
-    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-    enable_decryption_cb_items = g_list_append (enable_decryption_cb_items, AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
-    gtk_combo_set_popdown_strings (GTK_COMBO (enable_decryption_cb), enable_decryption_cb_items);
-    g_list_free (enable_decryption_cb_items);
+    update_decryption_mode_list(enable_decryption_cb);
 
     enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
     gtk_widget_set_name (enable_decryption_en, "enable_decryption_en");
@@ -4130,17 +4147,17 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     if(airpcap_if_active == NULL) {
         if(airpcap_if_list == NULL) {
             /*No airpcap device found */
-            gtk_widget_set_sensitive(airpcap_tb,FALSE);
-            recent.airpcap_toolbar_show = FALSE;
+			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
+			//recent.airpcap_toolbar_show = TRUE;
 	} else {
             /* default adapter is not airpcap... or is airpcap but is not found*/
             airpcap_set_toolbar_stop_capture(airpcap_if_active);
-            gtk_widget_set_sensitive(airpcap_tb,FALSE);
-            recent.airpcap_toolbar_show = TRUE;
+			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
+			//recent.airpcap_toolbar_show = TRUE;
 	}
     } else {
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
-        recent.airpcap_toolbar_show = TRUE;
+		//recent.airpcap_toolbar_show = TRUE;
     }
 #endif
 

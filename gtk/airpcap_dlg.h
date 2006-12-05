@@ -80,6 +80,12 @@ void
 airpcap_fill_if_combo(GtkWidget *combo, GList* if_list);
 
 /*
+ * Creates the list of available decryption modes, depending on the adapters found
+ */
+void
+update_decryption_mode_list(GtkWidget *w);
+
+/*
  * Callback for the 'Add Key' button.
  */
 void

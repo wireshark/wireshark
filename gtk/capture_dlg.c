@@ -202,7 +202,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   /* retrieve the advanced button pointer */
   advanced_bt = OBJECT_GET_DATA(entry,AIRPCAP_OPTIONS_ADVANCED_KEY);
   airpcap_if_selected = get_airpcap_if_by_name(airpcap_if_list,if_name);
-  gtk_widget_set_sensitive(airpcap_tb,FALSE);
+  airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
   if( airpcap_if_selected != NULL)
 	{
 	gtk_widget_set_sensitive(advanced_bt,TRUE);
@@ -530,7 +530,7 @@ from_widget = (gint*)g_malloc(sizeof(gint));
 OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
 airpcap_if_active = airpcap_if_selected;
-gtk_widget_set_sensitive(airpcap_tb,FALSE);
+airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
 display_airpcap_advanced_cb(w,d);
 }
 #endif
@@ -580,8 +580,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
 		*stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj, *ring_filesize_adj, *file_duration_adj;
   GList         *if_list, *combo_list, *cfilter_list;
-  int           err;
   int           row;
+  int           err;
   char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
   gchar         *cant_get_if_list_errstr;
 #ifdef _WIN32
@@ -591,6 +591,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   guint32       value;
   gchar         *cap_title;
   gchar         *if_device;
+
+  GtkWidget		*decryption_cm;
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */
@@ -622,6 +624,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* update airpcap interface list */
   	/* load the airpcap interfaces */
 	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+
+	decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+	update_decryption_mode_list(decryption_cm);
 
 	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
     cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
