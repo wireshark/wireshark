@@ -30,6 +30,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * References:
+ * IKEv2 http://www.ietf.org/rfc/rfc4306.txt?number=4306
+ * http://www.iana.org/assignments/ikev2-parameters
  */
 
 #ifdef HAVE_CONFIG_H
@@ -96,6 +100,8 @@ static int hf_isakmp_num_spis        = -1;
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
+
+dissector_handle_t eap_handle = NULL;
 
 /* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500
@@ -2308,7 +2314,14 @@ static void
 dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int isakmp_version _U_, int unused _U_)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "EAP Message");
+  tvbuff_t *eap_tvb = NULL;
+  
+  eap_tvb = tvb_new_subset(tvb, offset,length, length );
+  if ((eap_tvb != NULL)&& eap_handle != NULL){
+	  call_dissector(eap_handle, eap_tvb, pinfo, tree);
+  }else{
+	  proto_tree_add_text(tree, tvb, offset, length, "EAP Message");
+  }
 }
 
 static const char *
@@ -3200,6 +3213,7 @@ proto_reg_handoff_isakmp(void)
   dissector_handle_t isakmp_handle;
 
   isakmp_handle = find_dissector("isakmp");
+  eap_handle = find_dissector("eap");
   dissector_add("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }

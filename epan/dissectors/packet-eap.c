@@ -65,7 +65,7 @@ References:
   2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
   3) RFC2284
   4) RFC3748
-  5) http://www.iana.org/assignments/eap-numbers	EAP registry
+  5) http://www.iana.org/assignments/eap-numbers	EAP registry( updated 2006-10-23)
 */
 
 #define EAP_TYPE_ID     1
@@ -84,7 +84,7 @@ References:
 static const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC3748]" },
   {EAP_TYPE_NOTIFY,"Notification [RFC3748]" },
-  {EAP_TYPE_NAK, "Nak (Response only) [RFC3748]" },
+  {EAP_TYPE_NAK, "Legacy Nak (Response only) [RFC3748]" },
   {EAP_TYPE_MD5, "MD5-Challenge [RFC3748]" },
   {  5,          "One Time Password (OTP) [RFC2289]" },
   {  6,          "Generic Token Card [RFC3748]" },
@@ -99,12 +99,12 @@ static const value_string eap_type_vals[] = {
   { 15,          "RSA Security SecurID EAP [Asnes, Liberman]" },
   { 16,          "Arcot Systems EAP [Jerdonek]" },
   {EAP_TYPE_LEAP,"EAP-Cisco Wireless (LEAP) [Norman]" },
-  {EAP_TYPE_SIM, "EAP-SIM Nokia IP smart card authentication [Haverinen]" },
+  {EAP_TYPE_SIM, "GSM Subscriber Identity Modules (EAP-SIM) [RFC4186]" },
   { 19,          "SRP-SHA1 Part 1 [Carlson]" },
-  { 20,          "SRP-SHA1 Part 2 [Carlson]" },
+  { 20,          "AVAILABLE" },
   {EAP_TYPE_TTLS,"EAP-TTLS [Funk]" },
   { 22,          "Remote Access Service [Fields]" },
-  {EAP_TYPE_AKA, "UMTS Authentication and Key Agreement [Haverinen]" },
+  {EAP_TYPE_AKA, "EAP-AKA Authentication [RFC4187]" },
   { 24,          "EAP-3Com Wireless [Young]" },
   {EAP_TYPE_PEAP,"PEAP [Palekar]" },
   {EAP_TYPE_MSCHAPV2,"MS-EAP-Authentication [Palekar]" },
@@ -113,7 +113,7 @@ static const value_string eap_type_vals[] = {
   { 29,          "EAP-MSCHAP-V2 [Potter]" },
   { 30,          "DynamID [Merlin]" },
   { 31,          "Rob EAP [Ullah]" },
-  { 32,          "SecurID EAP [Josefsson]" },
+  { 32,          "Protected One-Time Password [RFC-draft-nystrom-eap-potp-07.txt] [Nystrom]" },
   { 33,          "MS-Authentication-TLV [Palekar]" },
   { 34,          "SentriNET [Kelleher]" },
   { 35,          "EAP-Actiontec Wireless [Chang]" },
@@ -127,6 +127,9 @@ static const value_string eap_type_vals[] = {
   {EAP_TYPE_FAST,"EAP-FAST [Cam-Winget]" },
   { 44,          "ZoneLabs EAP (ZLXEAP) [Bogue]" },
   { 45,          "EAP-Link [Zick]" },
+  { 46,          "EAP-PAX [Clancy]" },
+  { 47,          "EAP-PSK [RFC-bersani-eap-psk-11.txt]" },
+  { 48,          "EAP-SAKE [RFC-vanderveen-eap-sake-02.txt]" },
   { 254,         "RESERVED for the Expanded Type [RFC3748]" },
   { 255,         "EXPERIMENTAL [RFC3748]" },
   { 0,          NULL }
