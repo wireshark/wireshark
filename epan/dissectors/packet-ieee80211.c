@@ -3590,8 +3590,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			}
 			/* Davide Schiera (2006-11-21) -------------------------------------	*/
 			/* Davide Schiera (2006-11-27): undefine macros and definitions		*/
-#undef	IS_TKIP(tvb, hdr_len)
-#undef	IS_CCMP(tvb, hdr_len)
+#undef	IS_TKIP
+#undef	IS_CCMP
 #undef	PROTECTION_ALG_CCMP
 #undef	PROTECTION_ALG_TKIP
 #undef	PROTECTION_ALG_WEP

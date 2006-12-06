@@ -9,7 +9,7 @@ include ..\..\config.nmake
 
 include Makefile.common
 
-CFLAGS=-DHAVE_CONFIG_H -DHAVE_AIRPDCAP /I. /I.. /I../.. $(GLIB_CFLAGS) \
+CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../.. $(GLIB_CFLAGS) \
 	$(NET_SNMP_CFLAGS) \
 	$(PCRE_CFLAGS) $(GNUTLS_CFLAGS) $(NETTLE_CFLAGS) \
 	$(KFW_CFLAGS) \
