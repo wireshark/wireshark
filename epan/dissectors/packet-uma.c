@@ -1599,7 +1599,7 @@ proto_reg_handoff_uma(void)
 	if (!Initialized) {
 		uma_tcp_handle = create_dissector_handle(dissect_uma_tcp, proto_uma);
 		uma_udp_handle = new_create_dissector_handle(dissect_uma_urlc_udp, proto_uma);
-		dissector_add("tcp.port", 0, uma_udp_handle);
+		dissector_add("udp.port", 0, uma_udp_handle);
 		Initialized=TRUE;
 	} else {
 		dissector_delete("tcp.port", TcpPort1, uma_tcp_handle);
