@@ -136,6 +136,7 @@ static gint ett_sip_contact_item	= -1;
 static gint ett_sip_message_body	= -1;
 static gint ett_sip_cseq			= -1;
 static gint ett_sip_via				= -1;
+static gint ett_sip_reason			= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -1451,7 +1452,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
-	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, *sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL, *via_tree = NULL;
+	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, 
+		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL, 
+		*via_tree = NULL, *reason_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
@@ -2169,7 +2172,17 @@ separator_found2:
 						}
 						dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
 						break;
-					
+					case POS_REASON:
+						if(hdr_tree) {
+							ti = proto_tree_add_string_format(hdr_tree,
+							                             hf_header_array[hf_index], tvb,
+							                             offset, next_offset - offset,
+							                             value, "%s",
+							                             tvb_format_text(tvb, offset, linelen));
+							reason_tree = proto_item_add_subtree(ti, ett_sip_reason);
+						}
+						semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
+						break;
 					default :
 						/* Default case is to assume its an FT_STRING field */
 						if(hdr_tree) {
@@ -3400,7 +3413,8 @@ void proto_register_sip(void)
 		&ett_sip_contact_item,
 		&ett_sip_message_body,
 		&ett_sip_cseq,
-		&ett_sip_via
+		&ett_sip_via,
+		&ett_sip_reason
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
