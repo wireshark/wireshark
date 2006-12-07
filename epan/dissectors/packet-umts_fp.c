@@ -1704,7 +1704,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     else
     {
         /********************************/
-        /* E-DCH data here        */
+        /* E-DCH data here              */
 
         guint  bit_offset = 0;
         guint  total_pdus = 0;
@@ -1740,6 +1740,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         for (n=0; n < number_of_subframes; n++)
         {
             int i;
+            int start_offset = offset;
             proto_item *subframe_header_ti;
             proto_tree *subframe_header_tree;
 
@@ -1831,10 +1832,10 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 bit_offset += 6;
             }
 
-            /* Tree should cover entire subframe header */
-            proto_item_set_len(subframe_header_ti, bit_offset/8);
-
             offset += ((bit_offset+7)/8);
+
+            /* Tree should cover entire subframe header */
+            proto_item_set_len(subframe_header_ti, offset - start_offset);
         }
 
         /* EDCH subframes */
