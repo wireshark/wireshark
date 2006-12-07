@@ -127,8 +127,8 @@ radius_vendor_info_t no_vendor = {"Unknown Vendor",0,NULL,-1};
 
 radius_attr_info_t no_dictionary_entry = {"Unknown-Attribute",0,FALSE,FALSE,radius_octets, NULL, NULL, -1, -1, -1, -1, -1 };
 
-dissector_handle_t eap_handle;
-dissector_handle_t radius_handle;
+static dissector_handle_t eap_handle;
+static dissector_handle_t radius_handle;
 
 static const gchar* shared_secret = "";
 static gboolean show_length = FALSE;

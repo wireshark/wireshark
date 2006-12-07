@@ -65,8 +65,8 @@
 #define ISNS_SCN_PORT 2
 
 
-dissector_handle_t isns_tcp_handle;
-dissector_handle_t isns_udp_handle;
+static dissector_handle_t isns_tcp_handle;
+static dissector_handle_t isns_udp_handle;
 
 static gint ett_isns_flags = -1;
 static gint ett_isns_payload = -1;

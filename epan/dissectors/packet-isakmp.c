@@ -101,7 +101,7 @@ static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 
-dissector_handle_t eap_handle = NULL;
+static dissector_handle_t eap_handle = NULL;
 
 /* IKE port number assigned by IANA */
 #define UDP_PORT_ISAKMP	500

@@ -107,7 +107,7 @@ static gint ett_winsrepl_send_reply = -1;
 
 static gint ett_winsrepl_flags = -1;
 
-dissector_handle_t winsrepl_handle;
+static dissector_handle_t winsrepl_handle;
 
 #define WINS_REPLICATION_PORT	( 42 )
 #define WREPL_OPCODE_BITS	( 0x7800 )

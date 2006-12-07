@@ -116,7 +116,7 @@
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-dissector_handle_t ansi_map_handle=NULL;
+static dissector_handle_t ansi_map_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int ansi_map_tap = -1;

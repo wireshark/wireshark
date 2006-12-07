@@ -327,7 +327,7 @@ static gint ett_krb_e_checksum = -1;
 guint32 krb5_errorcode;
 
 
-dissector_handle_t krb4_handle=NULL;
+static dissector_handle_t krb4_handle=NULL;
 
 static gboolean do_col_info;
 

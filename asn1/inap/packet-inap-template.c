@@ -68,7 +68,7 @@ static int hf_inap_genproblem = -1;
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-dissector_handle_t	inap_handle;
+static dissector_handle_t	inap_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;

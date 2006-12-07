@@ -136,7 +136,7 @@ static gint hf_header_array[] = {
 #define MSRP_AUTHORIZATION						14
 #define MSRP_AUTHENTICATION_INFO				15
 
-dissector_handle_t msrp_handle;
+static dissector_handle_t msrp_handle;
 gboolean global_msrp_raw_text = TRUE;
 
 /* MSRP content type and internet media type used by other dissectors

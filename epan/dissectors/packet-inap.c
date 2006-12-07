@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-inap.c                                                            */
+/* ./packet-inap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p inap -c inap.cnf -s packet-inap-template inap.asn */
 
 /* Input file: packet-inap-template.c */
@@ -355,7 +355,7 @@ static int hf_inap_rep = -1;                      /* ReturnErrorProblem */
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-dissector_handle_t	inap_handle;
+static dissector_handle_t	inap_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_inap = -1;

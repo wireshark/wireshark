@@ -771,7 +771,7 @@ static gint ett_camel_CancelFailedPARAM = -1;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-dissector_handle_t  camel_handle;
+static dissector_handle_t  camel_handle;
 
 /* Global variables */
 

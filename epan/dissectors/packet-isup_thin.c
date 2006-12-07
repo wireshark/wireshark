@@ -91,8 +91,8 @@ static const value_string isup_thin_mtp_message_name_code_vals[] = {
 	{ 0,	NULL }
 };
 
-dissector_handle_t isup_thin_handle;
-dissector_handle_t isup_handle;
+static dissector_handle_t isup_thin_handle;
+static dissector_handle_t isup_handle;
 
 
 static int dissect_isup_thin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

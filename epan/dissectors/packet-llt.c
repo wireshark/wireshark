@@ -63,7 +63,7 @@ static int hf_llt_message_time = -1;
 /* Initialize the subtree pointers */
 static gint ett_llt = -1;
 
-dissector_handle_t llt_handle; /* Declaring this here allows us to use it for re-registration throughout the handoff function */
+static dissector_handle_t llt_handle; /* Declaring this here allows us to use it for re-registration throughout the handoff function */
 
 /* Code to actually dissect the packets */
 static void

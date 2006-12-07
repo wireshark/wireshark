@@ -85,7 +85,7 @@ extern gboolean gtcap_DisplaySRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
-dissector_handle_t	tcap_handle = NULL;
+static dissector_handle_t	tcap_handle = NULL;
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -131,7 +131,7 @@ static dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
     return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
-dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
+static dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
     return g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 

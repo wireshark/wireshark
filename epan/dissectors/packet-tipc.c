@@ -169,7 +169,7 @@ static gboolean extra_ethertype = FALSE;
 
 #define ETHERTYPE_TIPC2  0x0807
 
-dissector_handle_t ip_handle;
+static dissector_handle_t ip_handle;
 
 static proto_tree *top_tree;
 

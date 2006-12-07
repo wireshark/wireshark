@@ -129,7 +129,7 @@ static gint cigi3_add_image_generator_message(tvbuff_t*, proto_tree*, gint);
 static gfloat tvb_get_fixed_point(tvbuff_t*, int, gint);
 
 /* CIGI Handle */
-dissector_handle_t cigi_handle;
+static dissector_handle_t cigi_handle;
         
 /* Initialize the protocol and registered fields */
 static int proto_cigi = -1;

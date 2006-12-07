@@ -125,7 +125,7 @@
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-dissector_handle_t ansi_map_handle;
+static dissector_handle_t ansi_map_handle;
 
 
 /* PROTOTYPES/FORWARDS */

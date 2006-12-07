@@ -54,7 +54,7 @@ static int hf_btacl_reassembled_in = -1;
 /* Initialize the subtree pointers */
 static gint ett_btacl = -1;
 
-dissector_handle_t btl2cap_handle=NULL;
+static dissector_handle_t btl2cap_handle=NULL;
 
 static gboolean acl_reassembly = TRUE;
 

@@ -156,15 +156,15 @@ static gint ett_gsm_map_RadioResourceInformation =-1;
 #include "packet-gsm_map-ett.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
-static dissector_handle_t data_handle;
-static dissector_handle_t ranap_handle;
+static dissector_handle_t	data_handle;
+static dissector_handle_t	ranap_handle;
+static dissector_handle_t	map_handle;
 
 /* Preferenc settings default */
 gboolean old_gsm_map_version = FALSE;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-dissector_handle_t	map_handle;
 
 /* Global variables */
 static guint32 opcode=0;

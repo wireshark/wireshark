@@ -77,7 +77,7 @@ static int hf_rsync_data = -1;
 
 static gint ett_rsync = -1;
 
-dissector_handle_t rsync_handle;
+static dissector_handle_t rsync_handle;
 
 
 #define TCP_PORT_RSYNC	873

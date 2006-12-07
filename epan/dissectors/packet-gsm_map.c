@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -1389,15 +1389,15 @@ static gint ett_gsm_map_AccessTypePriv = -1;
 #line 157 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
-static dissector_handle_t data_handle;
-static dissector_handle_t ranap_handle;
+static dissector_handle_t	data_handle;
+static dissector_handle_t	ranap_handle;
+static dissector_handle_t	map_handle;
 
 /* Preferenc settings default */
 gboolean old_gsm_map_version = FALSE;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
-dissector_handle_t	map_handle;
 
 /* Global variables */
 static guint32 opcode=0;

@@ -40,7 +40,7 @@ static int hf_wfleet_hdlc_cmd = -1;
 
 static gint ett_wfleet_hdlc = -1;
 
-dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t eth_withoutfcs_handle;
 
 static const value_string wfleet_hdlc_cmd_vals[] = {
   { 0x03, "Un-numbered I frame"},
