@@ -202,6 +202,16 @@ static const value_string mpls_link_stlv_ltype_str[] = {
     {0, NULL},
 };
 
+/* FF: from www.iana.org/assignments/bandwidth-constraints-model-ids */
+static const range_string mpls_link_stlv_bcmodel_rvals[] = {
+    { 0,     0, "(Russian Dolls Model - RDM)"                       },
+    { 1,     1, "(Maximum Allocation Model - MAM)"                  },
+    { 2,     2, "(Maximum Allocation with Reservation Model - MAR)" },
+    { 3,   239, "(Unassigned, Specification Required)"              },
+    { 240, 255, "(Reserved, Private Use)"                           },
+    { 0,     0, NULL                                                }
+};
+
 #define OSPF_V2_ROUTER_LSA_FLAG_B 0x01
 #define OSPF_V2_ROUTER_LSA_FLAG_E 0x02
 #define OSPF_V2_ROUTER_LSA_FLAG_V 0x04
@@ -585,7 +595,7 @@ static hf_register_info ospff_info[] = {
        BASE_HEX, NULL, 0x0, "MPLS/TE Link Resource Class/Color", HFILL }},
     {&ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
      { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
-       BASE_HEX, NULL, 0x0, "MPLS/DSTE Bandwidth Constraints Model Id", HFILL }},
+       BASE_DEC, NULL, 0x0, "MPLS/DSTE Bandwidth Constraints Model Id", HFILL }},
 
     {&ospf_filter[OSPFF_V2_OPTIONS],
      { "Options", "ospf.v2.options", FT_UINT8, BASE_HEX,
@@ -1752,10 +1762,16 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
 		    
-		    proto_tree_add_item(stlv_tree,
-                                        ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
-                                        tvb, stlv_offset+4, 1, FALSE);
-		    
+		    proto_tree_add_uint_format(stlv_tree,
+					       ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
+					       tvb, stlv_offset+4, 1, 
+					       tvb_get_guint8(tvb, stlv_offset+4),
+					       "MPLS/DSTE Bandwidth Constraints Model Id: %u %s",
+					       tvb_get_guint8(tvb, stlv_offset+4),
+					       rval_to_str(tvb_get_guint8(tvb, stlv_offset+4),
+							   mpls_link_stlv_bcmodel_rvals, 
+							   "Unknown"));
+
 		    /* 3 octets reserved +5, +6 and +7 (all 0x00) */
 		    if(tvb_memeql(tvb, stlv_offset+5, allzero, 3) == -1) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 3, 
