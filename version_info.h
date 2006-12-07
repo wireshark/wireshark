@@ -33,7 +33,7 @@ extern "C" {
 /*
  * The svn version string or ""
  */
-const gchar *svnversion;
+extern const gchar *svnversion;
 
 /*
  * Get various library compile-time versions and append them to
