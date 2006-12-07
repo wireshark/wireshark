@@ -2277,6 +2277,7 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	MPLS OAM support, Y.1711
 	RSVP/OSPF Extensions for Support of Diffserv-aware MPLS-TE, RFC 4124
 	Linux Packet Generator support
+	rval_to_str() and alike
 }
 
 Bill Meier		<wmeier [AT] newsguy.com> {

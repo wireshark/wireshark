@@ -109,3 +109,50 @@ decode_enumerated_bitfield_shifted(guint32 val, guint32 mask, int width,
   g_snprintf(p, 1024-(p-buf), fmt, val_to_str((val & mask) >> shift, tab, "Unknown"));
   return buf;
 }
+
+
+/* FF: ranges aware versions */
+
+/* Tries to match val against each range in the range_string array rs.
+   Returns the associated string ptr on a match.
+   Formats val with fmt, and returns the resulting string, on failure. */
+const gchar *rval_to_str(guint32 val, const range_string *rs, const char *fmt) 
+{
+  const gchar *ret = NULL;
+
+  g_assert(fmt != NULL);
+
+  ret = match_strrval(val, rs);
+  if(ret != NULL)
+    return ret;
+
+  return ep_strdup_printf(fmt, val);
+}
+
+/* Tries to match val against each range in the range_string array rs.
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx)
+{
+  gint i = 0;
+
+  while(rs[i].strptr) {
+    if( (val >= rs[i].value_min) && (val <= rs[i].value_max) ) {
+      *idx = i;
+      return (rs[i].strptr);
+    }
+    i++;
+  }
+
+  *idx = -1;
+  return (NULL);
+}
+
+/* Like match_strrval_idx(), but doesn't return the index. */
+const gchar *match_strrval(guint32 val, const range_string *rs)
+{
+    gint ignore_me = 0;
+    return match_strrval_idx(val, rs, &ignore_me);
+}
+

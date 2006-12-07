@@ -1569,6 +1569,28 @@ indicate the end of the array).  The 'strings' field would be set to
 If the field has a numeric rather than an enumerated type, the 'strings'
 field would be set to NULL.
 
+If the field has a numeric type that might logically fit in ranges of values
+one can use a range_string struct.
+
+Thus a 'range_string' structure is a way to map ranges to strings.
+
+        typedef struct _range_string {
+                guint32        value_min;
+                guint32        value_max;
+                const gchar   *strptr;
+        } range_string;
+
+For fields of that type, you would declare an array of "range_string"s:
+
+	static const range_string rvalstringname[] = {
+		{ INTVAL_MIN1, INTVALMAX1, "Descriptive String 1" }, 
+		{ INTVAL_MIN2, INTVALMAX2, "Descriptive String 2" }, 
+		{ 0,           0,          NULL                   }
+	};
+
+If INTVAL_MIN equals INTVAL_MAX for a given entry the range_string 
+behavior collapses to the one of value_string. 
+
 FT_BOOLEANS have a default map of 0 = "False", 1 (or anything else) = "True".
 Sometimes it is useful to change the labels for boolean values (e.g.,
 to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
@@ -2405,6 +2427,32 @@ to generate a string, and will return a pointer to that string.
 them; this permits the results of up to three calls to 'val_to_str' to
 be passed as arguments to a routine using those strings.)
 
+1.7.2 match_strrval and rval_to_str.
+
+A dissector may need to convert a range of values to a string, using a
+'range_string' structure.
+
+'match_strrval()' will do that:
+
+	gchar*
+	match_strrval(guint32 val, const range_string *rs)
+
+It will look up the value 'val' in the 'range_string' table pointed to
+by 'rs', and return either the corresponding string, or NULL if the
+value could not be found in the table. Please note that its base
+behavior is inherited from match_strval().
+
+'rval_to_str()' can be used to generate a string for values not found in
+the table:
+
+	gchar*
+	rval_to_str(guint32 val, const range_string *rs, const char *fmt)
+
+If the value 'val' is found in the 'range_string' table pointed to by
+'rs', 'rval_to_str' will return the corresponding string; otherwise, it
+will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
+to generate a string, and will return a pointer to that string. Please 
+note that its base behavior is inherited from match_strval().
 
 1.8 Calling Other Dissectors.
 

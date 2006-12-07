@@ -34,6 +34,13 @@ typedef struct _value_string {
   const gchar   *strptr;
 } value_string;
 
+/* Struct for the rval_to_str, match_strrval_idx, and match_strrval functions */
+typedef struct _range_string {
+  guint32        value_min;
+  guint32        value_max;
+  const gchar   *strptr;
+} range_string;
+
 /* #define VS_DEF(x) { x, #x } */
 /* #define VS_END    { 0, NULL } */
 
@@ -60,5 +67,22 @@ extern const char *decode_enumerated_bitfield(guint32 val, guint32 mask,
    with various specific values having particular names). */
 extern const char *decode_enumerated_bitfield_shifted(guint32 val, guint32 mask,
   int width, const value_string *tab, const char *fmt);
+
+
+/* ranges aware versions */
+
+/* Tries to match val against each range in the range_string array rs.
+   Returns the associated string ptr on a match.
+   Formats val with fmt, and returns the resulting string, on failure. */
+extern const gchar* rval_to_str(guint32 val, const range_string *rs, const char *fmt);
+
+/* Tries to match val against each range in the range_string array rs.
+   Returns the associated string ptr, and sets "*idx" to the index in
+   that table, on a match, and returns NULL, and sets "*idx" to -1,
+   on failure. */
+extern const gchar *match_strrval_idx(guint32 val, const range_string *rs, gint *idx);
+
+/* Like match_strrval_idx(), but doesn't return the index. */
+extern const gchar *match_strrval(guint32 val, const range_string *rs);
 
 #endif /* __VALUE_STRING_H__ */
