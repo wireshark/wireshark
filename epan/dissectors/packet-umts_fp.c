@@ -1707,6 +1707,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* E-DCH data here        */
 
         guint  bit_offset = 0;
+        guint  total_pdus = 0;
         guint  total_bits = 0;
 
         /* FSN */
@@ -1923,6 +1924,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 proto_item_append_text(subframe_ti, " (%u bits in %u MAC-d PDUs)",
                                        bits_in_subframe, mac_d_pdus_in_subframe);
             }
+            total_pdus += mac_d_pdus_in_subframe;
             total_bits += bits_in_subframe;
 
             offset += (bit_offset/8);
@@ -1932,8 +1934,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            " CFN = %03u   (%u bits in %u subframes)",
-                            cfn, total_bits, number_of_subframes);
+                            " CFN = %03u   (%u bits in %u pdus in %u subframes)",
+                            cfn, total_bits, total_pdus, number_of_subframes);
         }
 
         /* Payload CRC (optional) */
