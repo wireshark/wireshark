@@ -109,7 +109,7 @@ struct ncp_common_header    *ncp_hdr;
 /* Tables for reassembly of fragments. */ 
 GHashTable *nds_fragment_table = NULL;
 GHashTable *nds_reassembled_table = NULL;
-static dissector_handle_t nds_data_handle;
+dissector_handle_t nds_data_handle;
 
 /* desegmentation of NCP over TCP */
 static gboolean ncp_desegment = TRUE;
