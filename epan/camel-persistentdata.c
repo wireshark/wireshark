@@ -63,9 +63,6 @@ static void update_camelsrt_call(struct camelsrt_call_t * p_camelsrt_call,
 				 packet_info *pinfo,
 				 guint msg_category _U_);
 
-static struct camelsrt_call_t * append_camelsrt_call(struct camelsrt_call_t * prev_call,
-						     packet_info *pinfo);
-
 static void camelsrt_begin_call_matching(tvbuff_t *tvb,
 					 packet_info * pinfo _U_,
 					 proto_tree *tree,
