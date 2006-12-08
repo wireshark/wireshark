@@ -297,7 +297,7 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 
 /* set one user's recent file key/value pair */
-static int
+static prefs_set_pref_e
 read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 {
   long num;
@@ -451,7 +451,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 
 
 /* set one user's recent file key/value pair */
-static int
+static prefs_set_pref_e
 read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
 {
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
