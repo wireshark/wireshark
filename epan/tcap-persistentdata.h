@@ -124,6 +124,6 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
 						  proto_tree *tree,
 						  struct tcapsrt_info_t * p_tcap_info);
 
-extern gboolean gtcap_StatSRT;
+WS_VAR_IMPORT gboolean gtcap_StatSRT;
 
 #endif /* __tcapsrt_HASH__*/
