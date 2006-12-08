@@ -940,7 +940,7 @@ else
 fi
 AC_SUBST(SSL_LIBS)
 
-dnl UCD SNMP/Net-SNMP Check
+dnl Net-SNMP Check
 SNMP_LIBS=''
 
 AC_ARG_WITH(net-snmp,
@@ -964,30 +964,8 @@ AC_ARG_WITH(net-snmp,
 	want_netsnmp=ifavailable
 ])
 
-AC_ARG_WITH(ucd-snmp,
-[  --with-ucd-snmp[[=DIR]]   use UCD SNMP client library (located in directory DIR, if supplied).  [[default=yes, if available]]],
-[
-	if test $withval = no
-	then
-		want_ucdsnmp=no
-	elif test $withval = yes
-	then
-		want_ucdsnmp=yes
-	else
-		want_ucdsnmp=yes
-		ucdsnmp_dir=$withval
-	fi
-],[
-	#
-	# Set "want_ucdsnmp" to "ifavailable" to make the default "use it
-	# if you find it, otherwise don't".
-	#
-	want_ucdsnmp=ifavailable
-	ucdsnmp_dir=
-])
-
 #
-# Try Net-SNMP first.
+# Try Net-SNMP
 #
 AC_MSG_CHECKING(whether to use Net-SNMP library)
 if test "x$want_netsnmp" = "xno" ; then
@@ -1001,25 +979,8 @@ else
 	AC_WIRESHARK_NETSNMP_CHECK
 fi
 
-#
-# If that didn't find Net-SNMP, try UCD SNMP.
-#
-if test "x$have_net_snmp" != "xyes" ; then
-	AC_MSG_CHECKING(whether to use UCD SNMP library)
-	if test "x$want_ucdsnmp" = "xno" ; then
-		AC_MSG_RESULT(no)
-	else
-		if test "x$want_ucdsnmp" = "xifavailable" ; then
-			AC_MSG_RESULT([yes, if available])
-		else
-			AC_MSG_RESULT(yes)
-		fi
-		AC_WIRESHARK_UCDSNMP_CHECK
-	fi
-fi
-
-if test "x$have_net_snmp" = "xyes" || test "x$have_ucd_snmp" = "xyes"; then
-	AC_DEFINE(HAVE_SOME_SNMP, 1, [Define to 1 if some SNMP support is to be used])
+if test "x$have_net_snmp" = "xyes"; then
+	AC_DEFINE(HAVE_NET_SNMP, 1, [Define to 1 if Net-SNMP support is to be used])
 fi
 
 AC_SUBST(SNMP_LIBS)
@@ -1453,9 +1414,7 @@ else
 fi
 
 if test "x$have_net_snmp" = "xyes" ; then
-	snmp_libs_message="yes (net-snmp)"
-elif test "x$have_ucdsnmp" = "xyes" ; then
-	snmp_libs_message="yes (ucd-snmp)"
+	snmp_libs_message="yes"
 else
 	snmp_libs_message="no"
 fi

@@ -51,10 +51,10 @@
  * "config.h", to get the right #defines defined, so that we properly
  * typedef "subid_t".
  */
-#if defined(HAVE_SOME_SNMP)
-typedef gulong	subid_t;	/* Net-SNMP or UCD SNMP */
+#if defined(HAVE_NET_SNMP)
+typedef gulong	subid_t;	/* Net-SNMP */
 #else
-typedef guint	subid_t;	/* CMU SNMP, libsmi, or nothing */
+typedef guint	subid_t;	/* CMU SNMP, UCD SNMP, libsmi, or nothing */
 #endif
 
 extern int oid_to_subid_buf(const guint8 *oid, gint oid_len, subid_t *buf, int buf_len);

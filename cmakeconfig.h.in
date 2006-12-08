@@ -170,9 +170,6 @@
 /* Define if sa_len field exists in struct sockaddr */
 #cmakedefine HAVE_SA_LEN 1
 
-/* Define to 1 if some SNMP support is to be used */
-#cmakedefine HAVE_SOME_SNMP 1
-
 /* Define to 1 if you have the <stdarg.h> header file. */
 #cmakedefine HAVE_STDARG_H 1
 
@@ -220,9 +217,6 @@
 
 /* Define to 1 if you have the <sys/wait.h> header file. */
 #cmakedefine HAVE_SYS_WAIT_H 1
-
-/* Define to enable support for UCD-SNMP */
-#cmakedefine HAVE_UCD_SNMP 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #cmakedefine HAVE_UNISTD_H 1

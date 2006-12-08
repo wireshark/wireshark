@@ -67,23 +67,12 @@
 #include "packet-ipv6.h"
 #include "packet-tcp.h"
 
-#ifdef HAVE_SOME_SNMP
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
 # include <net-snmp/mib_api.h>
 # include <net-snmp/library/default_store.h>
 # include <net-snmp/config_api.h>
-#else /* HAVE_NET_SNMP */
-# include <ucd-snmp/ucd-snmp-config.h>
-# include <ucd-snmp/asn1.h>
-# include <ucd-snmp/snmp_api.h>
-# include <ucd-snmp/snmp_impl.h>
-# include <ucd-snmp/mib.h>
-# include <ucd-snmp/default_store.h>
-# include <ucd-snmp/read_config.h>
-# include <ucd-snmp/tools.h>
 #endif /* HAVE_NET_SNMP */
-#endif /* HAVE_SOME_SNMP */
 
 #include <epan/dissectors/format-oid.h>
 #include <epan/prefs.h>

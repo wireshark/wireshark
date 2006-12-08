@@ -64,31 +64,11 @@
 
 #include "packet-ber.h"
 
-#ifdef HAVE_SOME_SNMP
-
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
 # include <net-snmp/mib_api.h>
 # include <net-snmp/library/default_store.h>
 # include <net-snmp/config_api.h>
-#else /* HAVE_NET_SNMP */
-# include <ucd-snmp/ucd-snmp-config.h>
-# include <ucd-snmp/asn1.h>
-# include <ucd-snmp/snmp_api.h>
-# include <ucd-snmp/snmp_impl.h>
-# include <ucd-snmp/mib.h>
-# include <ucd-snmp/default_store.h>
-# include <ucd-snmp/read_config.h>
-# include <ucd-snmp/tools.h>
-#endif /* HAVE_NET_SNMP */
-
-#ifndef NETSNMP_DS_LIBRARY_ID
-# define NETSNMP_DS_LIBRARY_ID DS_LIBRARY_ID
-# define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
-# define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
-# define netsnmp_ds_set_boolean ds_set_boolean
-# define netsnmp_ds_set_int ds_set_int
-#endif
 
 #ifdef _WIN32
 # include <epan/filesystem.h>
@@ -109,7 +89,7 @@
 # define VALTYPE_BITSTR		ASN_BIT_STR
 # define VALTYPE_COUNTER64	ASN_COUNTER64
 
-#endif /* HAVE_SOME_SNMP */
+#endif /* HAVE_NET_SNMP */
 
 #include "packet-snmp.h"
 #include "format-oid.h"
@@ -392,7 +372,7 @@ format_oid(subid_t *oid, guint oid_length)
 	int len;
 	unsigned int i;
 	char *buf;
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	guchar *oid_string;
 	size_t oid_string_len;
 	size_t oid_out_len;
@@ -400,7 +380,7 @@ format_oid(subid_t *oid, guint oid_length)
 
 	result_len = oid_length * 22;
 
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
@@ -429,7 +409,7 @@ format_oid(subid_t *oid, guint oid_length)
 		buf += len;
 	}
 
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	/*
 	 * Append the decoded form of the OID.
 	 */
@@ -448,7 +428,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 	int len;
 	unsigned int i;
 	char *buf;
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	guchar *oid_string;
 	size_t oid_string_len;
 	size_t oid_out_len;
@@ -459,7 +439,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 		return;
 	}
 
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
@@ -498,7 +478,7 @@ new_format_oid(subid_t *oid, guint oid_length,
 	}
 }
 
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 static gboolean
 check_var_length(guint vb_length, guint required_length, guchar **errmsg)
 {
@@ -796,7 +776,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	gint oid_len;
 	guint variable_oid_length = 0;
 	const guint8 *var_oid_buf;
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	struct variable_list variable;
 	long value;
 #endif
@@ -845,7 +825,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_integer_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 			value = vb_integer_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -873,7 +853,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_uinteger_value);
 		length = offset - vb_value_start;
 		if (snmp_tree) {
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 			value = vb_uinteger_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -907,7 +887,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 
 		length = offset - vb_value_start;
 		if (snmp_tree) {
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 			variable.val.string = vb_octet_string;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -977,7 +957,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 		offset = offset + vb_length;
 		length = offset - vb_value_start;
 		if (snmp_tree) {
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 			variable.val.objid = vb_oid;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -991,7 +971,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				    vb_value_start, length,
 				    "Value: %s: [Out of memory]", vb_type_name);
 			}
-#else /* HAVE_SOME_SNMP */
+#else /* HAVE_NET_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			if (vb_display_string != NULL) {
 				proto_tree_add_text(snmp_tree, tvb,
@@ -1003,7 +983,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 				    vb_value_start, length,
 				    "Value: %s: [Out of memory]", vb_type_name);
 			}
-#endif /* HAVE_SOME_SNMP */
+#endif /* HAVE_NET_SNMP */
 		}
 		break;
 
@@ -1291,7 +1271,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 process_prefs(void)
 {
-#ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 	gchar *tmp_mib_modules;
 	static gboolean mibs_loaded = FALSE;
 
@@ -1341,12 +1321,12 @@ process_prefs(void)
 	init_mib();
 	read_configs();
 	mibs_loaded = TRUE;
-#endif /* HAVE_SOME_SNMP */
+#endif /* HAVE_NET_SNMP */
 }
 /*--- proto_register_snmp -------------------------------------------*/
 void proto_register_snmp(void) {
 
-#if defined(_WIN32) && defined(HAVE_SOME_SNMP)
+#if defined(_WIN32) && defined(HAVE_NET_SNMP)
 	char *mib_path;
 	int mib_path_len;
 #define MIB_PATH_APPEND "snmp\\mibs"
@@ -1408,7 +1388,7 @@ void proto_register_snmp(void) {
   };
 	module_t *snmp_module;
 
-  #ifdef HAVE_SOME_SNMP
+#ifdef HAVE_NET_SNMP
 
 #ifdef _WIN32
 	/* Set MIBDIRS so that the SNMP library can find its mibs. */
@@ -1424,7 +1404,7 @@ void proto_register_snmp(void) {
 
 	/*
 	 * Suppress warnings about unknown tokens - we aren't initializing
-	 * UCD SNMP in its entirety, we're just initializing the
+	 * Net-SNMP in its entirety, we're just initializing the
 	 * MIB-handling part because that's all we're using, which
 	 * means that entries in the configuration file for other
 	 * pars of the library will not be handled, and we don't want
@@ -1434,7 +1414,7 @@ void proto_register_snmp(void) {
                                NETSNMP_DS_LIB_NO_TOKEN_WARNINGS, TRUE);
 	netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
                            NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY, 2);
-#endif /* HAVE_SOME_SNMP */
+#endif /* HAVE_NET_SNMP */
 
 
   /* Register protocol */

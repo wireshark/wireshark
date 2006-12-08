@@ -77,7 +77,6 @@
 #endif
 
 @HAVE_NET_SNMP@
-@HAVE_SOME_SNMP@
 
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
@@ -132,9 +131,6 @@
 
 /* Define if you have the <sys/wait.h> header file.  */
 /* #undef HAVE_SYS_WAIT_H */
-
-/* Define if you have the <ucd-snmp/version.h> header file.  */
-/* #undef HAVE_UCD_SNMP_VERSION_H */
 
 /* Define if you have the <unistd.h> header file.  */
 /* #define HAVE_UNISTD_H 1 */

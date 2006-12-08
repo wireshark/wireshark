@@ -525,12 +525,10 @@ NET_SNMP_CFLAGS=/I$(NET_SNMP_DIR)\include /I$(NET_SNMP_DIR)\win32
 NET_SNMP_LIBS=$(NET_SNMP_DIR)\win32\lib\release\netsnmp.lib
 # Nmake uses carets to escape special characters
 NET_SNMP_CONFIG=^#define HAVE_NET_SNMP 1
-SOME_SNMP_CONFIG=^#define HAVE_SOME_SNMP 1
 !else
 NET_SNMP_CFLAGS=
 NET_SNMP_LIBS=
 NET_SNMP_CONFIG=
-SOME_SNMP_CONFIG=
 !ENDIF
 
 !IFDEF ADNS_DIR
