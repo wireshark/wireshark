@@ -60,12 +60,6 @@ struct camelsrt_t {
   nstime_t delta_time[NB_CAMELSRT_CATEGORY][NUM_RAS_STATS];
 };
 
-/* Check if we have to inhibit the display or not 
- * cannot be static because it's exported in libwireshark.def
- */
-gboolean gcamel_StatSRT;
-gboolean gtcap_StatSRT;
-
 /* Reset the counter */
 static void camelsrt_reset(void *phs)
 {

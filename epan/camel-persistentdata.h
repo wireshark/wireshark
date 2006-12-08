@@ -112,4 +112,6 @@ void camelsrt_call_matching(tvbuff_t *tvb,
 			    proto_tree *tree,
 			    struct camelsrt_info_t * p_camel_info);
 
+extern gboolean gcamel_StatSRT;
+
 #endif /* __camelsrt_HASH__*/
