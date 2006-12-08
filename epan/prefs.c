@@ -1232,20 +1232,23 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
             if (got_val) {
               switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
 
-	      case PREFS_SET_SYNTAX_ERR:
+              case PREFS_SET_OK:
+                break;
+
+              case PREFS_SET_SYNTAX_ERR:
                 g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
                 break;
 
-	      case PREFS_SET_NO_SUCH_PREF:
+              case PREFS_SET_NO_SUCH_PREF:
                 g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-				pline, cur_var->str, hint);
+                                pline, cur_var->str, hint);
                 break;
 
-	      case PREFS_SET_OBSOLETE:
-	        /* We silently ignore attempts to set these; it's
-	           probably not the user's fault that it's in there -
-	           they may have saved preferences with a release that
-	           supported them. */
+              case PREFS_SET_OBSOLETE:
+                /* We silently ignore attempts to set these; it's
+                   probably not the user's fault that it's in there -
+                   they may have saved preferences with a release that
+                   supported them. */
                 break;
               }
             } else {
@@ -1295,19 +1298,22 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
     if (got_val) {
       switch (pref_set_pair_fct(cur_var->str, cur_val->str, private_data)) {
 
+      case PREFS_SET_OK:
+        break;
+
       case PREFS_SET_SYNTAX_ERR:
         g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
         break;
 
       case PREFS_SET_NO_SUCH_PREF:
         g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
-			pline, cur_var->str, hint);
+                        pline, cur_var->str, hint);
         break;
 
       case PREFS_SET_OBSOLETE:
-	/* We silently ignore attempts to set these; it's probably not
-	   the user's fault that it's in there - they may have saved
-	   preferences with a release that supported it. */
+        /* We silently ignore attempts to set these; it's probably not
+           the user's fault that it's in there - they may have saved
+           preferences with a release that supported it. */
         break;
       }
     } else {
