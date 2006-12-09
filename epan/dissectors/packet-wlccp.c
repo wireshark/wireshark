@@ -188,8 +188,8 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if(tvb_get_guint8(tvb, 0) == 0xC1) { /* Get the version number */
 			col_add_fstr(pinfo->cinfo, COL_INFO, "Message subtype: %s",
-				     match_strval((tvb_get_guint8(tvb, 6)>>6) & 3,
-						  wlccp_subtype_vs));
+				     val_to_str((tvb_get_guint8(tvb, 6)>>6) & 3,
+						wlccp_subtype_vs, "Unknown"));
 		} else {
 			col_add_str(pinfo->cinfo, COL_INFO, "WLCCP frame");
 		}
