@@ -46,7 +46,7 @@
 static int proto_scsi_sbc			= -1;
 int hf_scsi_sbc_opcode				= -1;
 static int hf_scsi_sbc_formatunit_flags		= -1;
-static int hf_scsi_sbc_cdb_defectfmt		= -1;
+static int hf_scsi_sbc_defect_list_format	= -1;
 static int hf_scsi_sbc_formatunit_vendor	= -1;
 static int hf_scsi_sbc_formatunit_interleave	= -1;
 static int hf_scsi_sbc_rdwr6_lba		= -1;
@@ -79,29 +79,39 @@ static int hf_scsi_sbc_reassignblks_flags	= -1;
 static int hf_scsi_sbc_read_flags		= -1;
 static int hf_scsi_sbc_alloclen32		= -1;
 static int hf_scsi_sbc_alloclen16		= -1;
+static int hf_scsi_sbc_fuflags_fmtpinfo		= -1;
+static int hf_scsi_sbc_fuflags_rto_req		= -1;
+static int hf_scsi_sbc_fuflags_longlist		= -1;
+static int hf_scsi_sbc_fuflags_fmtdata		= -1;
+static int hf_scsi_sbc_fuflags_cmplist		= -1;
 
-
+static gint ett_scsi_format_unit		= -1;
 
 
 
 
 static void
-dissect_sbc2_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *fuflags_fields[] = {
+	&hf_scsi_sbc_fuflags_fmtpinfo,
+	&hf_scsi_sbc_fuflags_rto_req,
+	&hf_scsi_sbc_fuflags_longlist,
+	&hf_scsi_sbc_fuflags_fmtdata,
+	&hf_scsi_sbc_fuflags_cmplist,
+	&hf_scsi_sbc_defect_list_format,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_formatunit_flags, tvb, offset,
-                                    1, flags,
-                                    "Flags: Longlist = %u, FMTDATA = %u, CMPLIST = %u",
-                                    flags & 0x20, flags & 0x8, flags & 0x4);
-        proto_tree_add_item (tree, hf_scsi_sbc_cdb_defectfmt, tvb, offset, 1, 0);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_formatunit_flags, ett_scsi_format_unit, fuflags_fields, FALSE);
+
         proto_tree_add_item (tree, hf_scsi_sbc_formatunit_vendor, tvb, offset+1,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_formatunit_interleave, tvb, offset+2,
@@ -112,6 +122,7 @@ dissect_sbc2_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    /* TODO : add dissection of DATA */
 }
 
 static void
@@ -527,7 +538,7 @@ dissect_sbc2_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_uint_format (tree, hf_scsi_sbc_readdefdata_flags, tvb,
                                     offset, 1, flags, "PLIST = %u, GLIST = %u",
                                     flags & 0x10, flags & 0x8);
-        proto_tree_add_item (tree, hf_scsi_sbc_cdb_defectfmt, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_defect_list_format, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -555,7 +566,7 @@ dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_uint_format (tree, hf_scsi_sbc_readdefdata_flags, tvb,
                                     offset, 1, flags, "PLIST = %u, GLIST = %u",
                                     flags & 0x10, flags & 0x8);
-        proto_tree_add_item (tree, hf_scsi_sbc_cdb_defectfmt, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_defect_list_format, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset+5, 4, 0);
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
@@ -744,7 +755,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x01*/{NULL},
 /*SBC 0x02*/{NULL},
 /*SPC 0x03*/{dissect_spc3_requestsense},
-/*SBC 0x04*/{dissect_sbc2_formatunit},
+/*SBC 0x04*/{dissect_sbc_formatunit},
 /*SBC 0x05*/{NULL},
 /*SBC 0x06*/{NULL},
 /*SBC 0x07*/{dissect_sbc2_reassignblocks},
@@ -1009,8 +1020,8 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_formatunit_flags,
           {"Flags", "scsi.sbc.formatunit.flags", FT_UINT8, BASE_HEX, NULL, 0xF8,
            "", HFILL}},
-        { &hf_scsi_sbc_cdb_defectfmt,
-          {"Defect List Format", "scsi.sbc.cdb.defectfmt", FT_UINT8, BASE_DEC,
+        { &hf_scsi_sbc_defect_list_format,
+          {"Defect List Format", "scsi.sbc.defect_list_format", FT_UINT8, BASE_DEC,
            NULL, 0x7, "", HFILL}},
         { &hf_scsi_sbc_formatunit_vendor,
           {"Vendor Unique", "scsi.sbc.formatunit.vendor", FT_UINT8, BASE_HEX, NULL,
@@ -1037,28 +1048,28 @@ proto_register_scsi_sbc(void)
           {"Logical Block Address (LBA)", "scsi.sbc.rdwr16.lba", FT_BYTES, BASE_DEC,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_sbc_ssu_immed,
-          {"Immediate", "scsi.sbc.ssu.immediate", FT_BOOLEAN, BASE_DEC, NULL,
+          {"Immediate", "scsi.sbc.ssu.immediate", FT_BOOLEAN, 8, NULL,
            0x1, "", HFILL}},
         { &hf_scsi_sbc_ssu_pwr_cond,
           {"Power Conditions", "scsi.sbc.ssu.pwr", FT_UINT8, BASE_HEX,
            VALS (scsi_ssu_pwrcnd_val), 0xF0, "", HFILL}},
         { &hf_scsi_sbc_ssu_loej,
-          {"LOEJ", "scsi.sbc.ssu.loej", FT_BOOLEAN, BASE_HEX, NULL, 0x2, "",
+          {"LOEJ", "scsi.sbc.ssu.loej", FT_BOOLEAN, 8, NULL, 0x2, "",
            HFILL}},
         { &hf_scsi_sbc_ssu_start,
-          {"Start", "scsi.sbc.ssu.start", FT_BOOLEAN, BASE_HEX, NULL, 0x1,
+          {"Start", "scsi.sbc.ssu.start", FT_BOOLEAN, 8, NULL, 0x1,
            "", HFILL}},
         { &hf_scsi_sbc_verify_dpo,
-          {"DPO", "scsi.sbc.verify.dpo", FT_BOOLEAN, BASE_HEX, NULL, 0x10, "",
+          {"DPO", "scsi.sbc.verify.dpo", FT_BOOLEAN, 8, NULL, 0x10, "",
            HFILL}},
         { &hf_scsi_sbc_verify_blkvfy,
-          {"BLKVFY", "scsi.sbc.verify.blkvfy", FT_BOOLEAN, BASE_HEX, NULL, 0x4,
+          {"BLKVFY", "scsi.sbc.verify.blkvfy", FT_BOOLEAN, 8, NULL, 0x4,
            "", HFILL}},
         { &hf_scsi_sbc_verify_bytchk,
-          {"BYTCHK", "scsi.sbc.verify.bytchk", FT_BOOLEAN, BASE_HEX, NULL, 0x2,
+          {"BYTCHK", "scsi.sbc.verify.bytchk", FT_BOOLEAN, 8, NULL, 0x2,
            "", HFILL}},
         { &hf_scsi_sbc_verify_reladdr,
-          {"RELADDR", "scsi.sbc.verify.reladdr", FT_BOOLEAN, BASE_HEX, NULL,
+          {"RELADDR", "scsi.sbc.verify.reladdr", FT_BOOLEAN, 8, NULL,
            0x1, "", HFILL}},
         { &hf_scsi_sbc_verify_lba,
           {"LBA", "scsi.sbc.verify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, "",
@@ -1070,7 +1081,7 @@ proto_register_scsi_sbc(void)
           {"Verification Length", "scsi.sbc.verify.vlen32", FT_UINT32,
            BASE_DEC, NULL, 0x0, "", HFILL}},
         { &hf_scsi_sbc_wrverify_ebp,
-          {"EBP", "scsi.sbc.wrverify.ebp", FT_BOOLEAN, BASE_HEX, NULL, 0x4, "",
+          {"EBP", "scsi.sbc.wrverify.ebp", FT_BOOLEAN, 8, NULL, 0x4, "",
            HFILL}},
         { &hf_scsi_sbc_wrverify_lba,
           {"LBA", "scsi.sbc.wrverify.lba", FT_UINT32, BASE_DEC, NULL, 0x0, "",
@@ -1108,23 +1119,35 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_alloclen16,
           {"Allocation Length", "scsi.sbc.alloclen16", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
+        { &hf_scsi_sbc_fuflags_fmtpinfo,
+          {"FMTPINFO", "scsi.sbc.format_unit.fmtpinfo", FT_BOOLEAN, 8,
+           NULL, 0x80, "", HFILL}},
+        { &hf_scsi_sbc_fuflags_rto_req,
+          {"RTO_REQ", "scsi.sbc.format_unit.rto_req", FT_BOOLEAN, 8,
+           NULL, 0x40, "", HFILL}},
+        { &hf_scsi_sbc_fuflags_longlist,
+          {"LONGLIST", "scsi.sbc.format_unit.longlist", FT_BOOLEAN, 8,
+           NULL, 0x20, "", HFILL}},
+        { &hf_scsi_sbc_fuflags_fmtdata,
+          {"FMTDATA", "scsi.sbc.format_unit.fmtdata", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_sbc_fuflags_cmplist,
+          {"CMPLIST", "scsi.sbc.format_unit.cmplist", FT_BOOLEAN, 8,
+           NULL, 0x08, "", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
-/*
 	static gint *ett[] = {
+		&ett_scsi_format_unit
 	};
-*/
 
 	/* Register the protocol name and description */
 	proto_scsi_sbc = proto_register_protocol("SCSI_SBC", "SCSI_SBC", "scsi_sbc");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_scsi_sbc, hf, array_length(hf));
-/*
 	proto_register_subtree_array(ett, array_length(ett));
-*/
 }
 
 void
