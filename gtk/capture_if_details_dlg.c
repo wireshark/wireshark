@@ -2422,6 +2422,8 @@ capture_if_details_open(char *iface)
     /* XXX - add more known DLL versions here */
     /* (all versions since the 2.3 release seems to be working (although the 2.3 beta did not) */
     if( 
+        strcmp(version, "4.0.0.703"  ) == 0 ||       /* 4.0 beta 3 */
+        strcmp(version, "4.0.0.655"  ) == 0 ||       /* 4.0 beta 2 */
         strcmp(version, "4.0.0.592"  ) == 0 ||       /* 4.0 beta 1 */
         strcmp(version, "3, 2, 0, 29") == 0 ||       /* 3.2 beta 1 */
         strcmp(version, "3, 1, 0, 27") == 0 ||       /* 3.1 release */
