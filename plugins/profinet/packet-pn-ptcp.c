@@ -467,10 +467,10 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset, 
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length)
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
-	guint8 subType;
-    guint8 padding8;
+    guint8 subType;
+    guint16 padding16;
     e_uuid_t uuid;
     proto_item *unknown_item;
 
@@ -482,11 +482,18 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 
     switch(subType) {
     case 1: /* RTData */
-        /* Padding8 */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_padding8, &padding8);
+        /* Padding16 */
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_padding16, &padding16);
 
         /* IRDataUUID */
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_irdata_uuid, &uuid);
+        proto_item_append_text(item, ": IRDataUUID=%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                      uuid.Data1, uuid.Data2, uuid.Data3,
+                                      uuid.Data4[0], uuid.Data4[1],
+                                      uuid.Data4[2], uuid.Data4[3],
+                                      uuid.Data4[4], uuid.Data4[5],
+                                      uuid.Data4[6], uuid.Data4[7]);
+
         break;
     default:
         unknown_item = proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
