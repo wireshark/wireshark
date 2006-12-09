@@ -84,8 +84,12 @@ static int hf_scsi_sbc_fuflags_rto_req		= -1;
 static int hf_scsi_sbc_fuflags_longlist		= -1;
 static int hf_scsi_sbc_fuflags_fmtdata		= -1;
 static int hf_scsi_sbc_fuflags_cmplist		= -1;
+static int hf_scsi_sbc_prefetch_flags		= -1;
+static int hf_scsi_sbc_prefetch_immed		= -1;
+static int hf_scsi_sbc_prefetch_group		= -1;
 
 static gint ett_scsi_format_unit		= -1;
+static gint ett_scsi_prefetch			= -1;
 
 
 
@@ -144,6 +148,74 @@ dissect_sbc2_readwrite6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr6_xferlen, tvb, offset+3, 1, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *prefetch_fields[] = {
+	&hf_scsi_sbc_prefetch_immed,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags, ett_scsi_prefetch, prefetch_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_prefetch_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+static void
+dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *prefetch_fields[] = {
+	&hf_scsi_sbc_prefetch_immed,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+1),
+                             tvb_get_ntohl (tvb, offset+9));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags, ett_scsi_prefetch, prefetch_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_prefetch_group, tvb, offset+13, 1, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
@@ -803,7 +875,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x31*/{NULL},
 /*SBC 0x32*/{NULL},
 /*SBC 0x33*/{NULL},
-/*SBC 0x34*/{NULL},
+/*SBC 0x34*/{dissect_sbc_prefetch10},
 /*SBC 0x35*/{NULL},
 /*SBC 0x36*/{NULL},
 /*SBC 0x37*/{dissect_sbc2_readdefectdata10},
@@ -895,7 +967,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x8d*/{NULL},
 /*SBC 0x8e*/{dissect_sbc2_wrverify16},
 /*SBC 0x8f*/{dissect_sbc2_verify16},
-/*SBC 0x90*/{NULL},
+/*SBC 0x90*/{dissect_sbc_prefetch16},
 /*SBC 0x91*/{NULL},
 /*SBC 0x92*/{NULL},
 /*SBC 0x93*/{NULL},
@@ -1134,12 +1206,22 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_fuflags_cmplist,
           {"CMPLIST", "scsi.sbc.format_unit.cmplist", FT_BOOLEAN, 8,
            NULL, 0x08, "", HFILL}},
+        { &hf_scsi_sbc_prefetch_flags,
+          {"Flags", "scsi.sbc.prefetch.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_scsi_sbc_prefetch_immed,
+          {"Immediate", "scsi.sbc.prefetch.immediate", FT_BOOLEAN, 8, NULL,
+           0x2, "", HFILL}},
+        { &hf_scsi_sbc_prefetch_group,
+          {"Group", "scsi.sbc.prefetch.group", FT_UINT8, BASE_HEX, NULL,
+           0x1f, "", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
-		&ett_scsi_format_unit
+		&ett_scsi_format_unit,
+		&ett_scsi_prefetch
 	};
 
 	/* Register the protocol name and description */
