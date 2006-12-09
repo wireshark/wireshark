@@ -229,7 +229,7 @@
   </section>
   
   <section id="ChLibsSNMP">
-	<title>Net SNMP (optional, previously known as "ucd-snmp")</title>
+	<title>Net-SNMP (optional)</title>
 	<para>
 	"Various tools relating to the Simple Network Management Protocol"
 	</para>
