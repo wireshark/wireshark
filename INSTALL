@@ -148,8 +148,10 @@ README.win32 for those instructions.
 
     --enable-setuid-install
         Use this switch to install the packet analyzers as setuid.
-        Installating Wireshark and TShark as setuid 'root' is
-        dangerous. Repeat: IT'S DANGEROUS. Don't do it.
+        Installing Wireshark and TShark as setuid 'root' is
+        dangerous. Repeat: IT'S DANGEROUS. Don't do it.  (In fact,
+	applications using GTK+ 2.x will refuse to run setuid at
+	all, so Wireshark might not even run setuid.)
 
     --with-ssl=DIR
         If your SNMP library needs the SSL library, and your
@@ -157,25 +159,15 @@ README.win32 for those instructions.
         you can specify where your SSL library is with this switch.
 
     --without-net-snmp
-        If 'configure' finds a supported version of the NET SNMP library
+        If 'configure' finds a supported version of the Net-SNMP library
         on your system,  the SNMP dissector will be enhanced to use
-        routines from that SNMP library. Use this switch to avoid
-        using the NET SNMP library even if you have it installed.
+        routines from the Net-SNMP library. Use this switch to avoid
+        using the Net-SNMP library even if you have it installed.
 
     --with-net-snmp=PATH
         Tell the 'configure' script where your net-snmp-config shell script 
         that comes with the net-snmp package is located, if not in a standard 
         location.
-
-    --without-ucd-snmp
-        If 'configure' finds a supported version of the UCD SNMP library
-        on your system,  the SNMP dissector will be enhanced to use
-        routines from that SNMP library. Use this switch to avoid
-        using the UCD SNMP library even if you have it installed.
-
-    --with-ucd-snmp=DIR
-        Tell the 'configure' script where your UCD SNMP library
-        is located, if not in a standard location.
 
     --without-plugins
         By default, if your system can support run-time loadable modules,
