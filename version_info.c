@@ -40,17 +40,9 @@
 #include <pcre.h>	/* to get the libpcre version number */
 #endif /* HAVE_LIBPCRE */
 
-#ifdef HAVE_SOME_SNMP
-
 #ifdef HAVE_NET_SNMP
 #include <net-snmp/version.h>
 #endif /* HAVE_NET_SNMP */
-
-#ifdef HAVE_UCD_SNMP
-#include <ucd-snmp/version.h>
-#endif /* HAVE_UCD_SNMP */
-
-#endif /* HAVE_SOME_SNMP */
 
 #if (defined(HAVE_LIBGCRYPT) || defined(HAVE_LIBGNUTLS)) && defined(_WIN32)
 #include <winposixtype.h>
@@ -197,23 +189,12 @@ get_epan_compiled_version_info(GString *str)
 
         /* SNMP */
 	g_string_append(str, ", ");
-/* Oh, this is pretty. */
-/* Oh, ha.  you think that was pretty.  Try this:! --Wes */
-#ifdef HAVE_SOME_SNMP
-
-#ifdef HAVE_UCD_SNMP
-	g_string_append(str, "with UCD-SNMP ");
-	g_string_append(str, VersionInfo);
-#endif /* HAVE_UCD_SNMP */
-
 #ifdef HAVE_NET_SNMP
 	g_string_append(str, "with Net-SNMP ");
 	g_string_append(str, netsnmp_get_version());
-#endif /* HAVE_NET_SNMP */
-
 #else /* no SNMP library */
 	g_string_append(str, "without UCD-SNMP or Net-SNMP");
-#endif /* HAVE_SOME_SNMP */
+#endif /* HAVE_NET_SNMP */
 
         /* ADNS */
 	g_string_append(str, ", ");
