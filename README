@@ -205,22 +205,14 @@ decode IPv6 packets, but you'll only see IPv6 addresses, not host names.
 
 SNMP
 ----
-Wireshark can do some basic decoding of SNMP packets; it can also use the
-UCD SNMP library, version 4.2.2 or later, to do more sophisticated
-decoding, by reading MIB files and using the information in those files
-to display OIDs and variable binding values in a friendlier fashion. 
-The configure script will automatically determine whether you have the
-UCD SNMP library on your system, and will use it if it's version 4.2.2
-or later.  If you have an SNMP library but _do not_ want to have
-wireshark use it, you can run configure with the "--without-ucd-snmp"
+Wireshark can do some basic decoding of SNMP packets; it can also use
+the Net-SNMP library to do more sophisticated decoding, by reading MIB
+files and using the information in those files to display OIDs and
+variable binding values in a friendlier fashion.  The configure script
+will automatically determine whether you have the Net-SNMP library on
+your system.  If you have the Net-SNMP library but _do not_ want to have
+wireshark use it, you can run configure with the "--without-net-snmp"
 option.
-
-If you have an earlier version of the UCD SNMP library on your system,
-the configure script will stop, reporting that it can't find the
-"sprint_realloc_objid()" routine; you should either upgrade to version
-4.2.4 or later, as UCD SNMP 4.2.4 fixes some potential buffer overflow
-problems, or should configure with "--without-ucd-snmp".
-
 
 How to Report a Bug
 -------------------
