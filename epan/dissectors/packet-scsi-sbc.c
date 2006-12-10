@@ -108,10 +108,23 @@ static int hf_scsi_sbc_vrprotect		= -1;
 static int hf_scsi_sbc_verify_flags		= -1;
 static int hf_scsi_sbc_wrprotect		= -1;
 static int hf_scsi_sbc_wrverify_flags		= -1;
+static int hf_scsi_sbc_writesame_flags		= -1;
+static int hf_scsi_sbc_pbdata			= -1;
+static int hf_scsi_sbc_lbdata			= -1;
+static int hf_scsi_sbc_xdread_flags		= -1;
+static int hf_scsi_sbc_xorpinfo			= -1;
+static int hf_scsi_sbc_disable_write		= -1;
+static int hf_scsi_sbc_xdwrite_flags		= -1;
+static int hf_scsi_sbc_xdwriteread_flags	= -1;
+static int hf_scsi_sbc_xpwrite_flags		= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
 static gint ett_scsi_rdwr			= -1;
+static gint ett_scsi_xdread			= -1;
+static gint ett_scsi_xdwrite			= -1;
+static gint ett_scsi_xdwriteread		= -1;
+static gint ett_scsi_xpwrite			= -1;
 static gint ett_scsi_pmi			= -1;
 static gint ett_scsi_defectdata			= -1;
 static gint ett_scsi_corrct			= -1;
@@ -121,6 +134,7 @@ static gint ett_scsi_ssu_pwr			= -1;
 static gint ett_scsi_synccache			= -1;
 static gint ett_scsi_verify			= -1;
 static gint ett_scsi_wrverify			= -1;
+static gint ett_scsi_writesame			= -1;
 
 
 
@@ -390,6 +404,154 @@ dissect_sbc_read10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (tree && isreq && iscdb) {
 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr10_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_xdread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *xdread10_fields[] = {
+	&hf_scsi_sbc_xorpinfo,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdread_flags, ett_scsi_xdread, xdread10_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_xdwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *xdwrite10_fields[] = {
+	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_disable_write,
+	&hf_scsi_sbc_fua_nv,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwrite_flags, ett_scsi_xdwrite, xdwrite10_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_xdwriteread10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *xdwriteread10_fields[] = {
+	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_disable_write,
+	&hf_scsi_sbc_fua_nv,
+	&hf_scsi_sbc_xorpinfo,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xdwriteread_flags, ett_scsi_xdwriteread, xdwriteread10_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_xpwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *xpwrite10_fields[] = {
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_fua_nv,
+	&hf_scsi_sbc_xorpinfo,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_xpwrite_flags, ett_scsi_xpwrite, xpwrite10_fields, FALSE);
 
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
@@ -959,6 +1121,94 @@ dissect_sbc_readlong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 }
 
+static void
+dissect_sbc_writelong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq,
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_writesame10 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq,
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *writesame10_fields[] = {
+	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_pbdata,
+	&hf_scsi_sbc_lbdata,
+	NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+ 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags, ett_scsi_writesame, writesame10_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+
+	proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq,
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *writesame16_fields[] = {
+	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_pbdata,
+	&hf_scsi_sbc_lbdata,
+	NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+ 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags, ett_scsi_writesame, writesame16_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
+	proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
 
 static void
 dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -1271,9 +1521,9 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x3c*/{NULL},
 /*SBC 0x3d*/{NULL},
 /*SBC 0x3e*/{dissect_sbc_readlong10},
-/*SBC 0x3f*/{NULL},
+/*SBC 0x3f*/{dissect_sbc_writelong10},
 /*SBC 0x40*/{NULL},
-/*SBC 0x41*/{NULL},
+/*SBC 0x41*/{dissect_sbc_writesame10},
 /*SBC 0x42*/{NULL},
 /*SBC 0x43*/{NULL},
 /*SBC 0x44*/{NULL},
@@ -1288,10 +1538,10 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SPC 0x4d*/{dissect_spc3_logsense},
 /*SBC 0x4e*/{NULL},
 /*SBC 0x4f*/{NULL},
-/*SBC 0x50*/{NULL},
-/*SBC 0x51*/{NULL},
-/*SBC 0x52*/{NULL},
-/*SBC 0x53*/{NULL},
+/*SBC 0x50*/{dissect_sbc_xdwrite10},
+/*SBC 0x51*/{dissect_sbc_xpwrite10},
+/*SBC 0x52*/{dissect_sbc_xdread10},
+/*SBC 0x53*/{dissect_sbc_xdwriteread10},
 /*SBC 0x54*/{NULL},
 /*SPC 0x55*/{dissect_spc3_modeselect10},
 /*SBC 0x56*/{NULL},
@@ -1355,7 +1605,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x90*/{dissect_sbc_prefetch16},
 /*SBC 0x91*/{dissect_sbc_synchronizecache16},
 /*SBC 0x92*/{NULL},
-/*SBC 0x93*/{NULL},
+/*SBC 0x93*/{dissect_sbc_writesame16},
 /*SBC 0x94*/{NULL},
 /*SBC 0x95*/{NULL},
 /*SBC 0x96*/{NULL},
@@ -1660,6 +1910,33 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_wrverify_flags,
           {"Flags", "scsi.sbc.wrverify_flags", FT_UINT8, BASE_HEX,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_writesame_flags,
+          {"Flags", "scsi.sbc.writesame_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_pbdata,
+          {"PBDATA", "scsi.sbc.pbdata", FT_BOOLEAN, 8, NULL,
+           0x04, "", HFILL}},
+        { &hf_scsi_sbc_lbdata,
+          {"LBDATA", "scsi.sbc.lbdata", FT_BOOLEAN, 8, NULL,
+           0x02, "", HFILL}},
+        { &hf_scsi_sbc_xdread_flags,
+          {"Flags", "scsi.sbc.xdread.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_scsi_sbc_xorpinfo,
+          {"XORPINFO", "scsi.sbc.xorpinfo", FT_BOOLEAN, 8, NULL,
+           0x01, "", HFILL}},
+        { &hf_scsi_sbc_disable_write,
+          {"DISABLE_WRITE", "scsi.sbc.disable_write", FT_BOOLEAN, 8, NULL,
+           0x04, "", HFILL}},
+        { &hf_scsi_sbc_xdwrite_flags,
+          {"Flags", "scsi.sbc.xdwrite.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_scsi_sbc_xdwriteread_flags,
+          {"Flags", "scsi.sbc.xdwriteread.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_scsi_sbc_xpwrite_flags,
+          {"Flags", "scsi.sbc.xpwrite.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
 	};
 
 
@@ -1669,6 +1946,10 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_prefetch,
 		&ett_scsi_pmi,
 		&ett_scsi_rdwr,
+		&ett_scsi_xdread,
+		&ett_scsi_xdwrite,
+		&ett_scsi_xdwriteread,
+		&ett_scsi_xpwrite,
 		&ett_scsi_defectdata,
 		&ett_scsi_corrct,
 		&ett_scsi_reassign_blocks,
@@ -1676,7 +1957,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_ssu_pwr,
 		&ett_scsi_synccache,
 		&ett_scsi_verify,
-		&ett_scsi_wrverify
+		&ett_scsi_wrverify,
+		&ett_scsi_writesame
 	};
 
 	/* Register the protocol name and description */
