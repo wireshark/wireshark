@@ -59,7 +59,6 @@ static int hf_scsi_sbc_ssu_immed		= -1;
 static int hf_scsi_sbc_ssu_pwr_cond		= -1;
 static int hf_scsi_sbc_ssu_loej			= -1;
 static int hf_scsi_sbc_ssu_start		= -1;
-static int hf_scsi_sbc_verify_dpo		= -1;
 static int hf_scsi_sbc_verify_blkvfy		= -1;
 static int hf_scsi_sbc_verify_bytchk		= -1;
 static int hf_scsi_sbc_verify_reladdr		= -1;
@@ -86,13 +85,30 @@ static int hf_scsi_sbc_fuflags_fmtdata		= -1;
 static int hf_scsi_sbc_fuflags_cmplist		= -1;
 static int hf_scsi_sbc_prefetch_flags		= -1;
 static int hf_scsi_sbc_prefetch_immed		= -1;
-static int hf_scsi_sbc_prefetch_group		= -1;
+static int hf_scsi_sbc_group			= -1;
+static int hf_scsi_sbc_rdprotect		= -1;
+static int hf_scsi_sbc_dpo			= -1;
+static int hf_scsi_sbc_fua			= -1;
+static int hf_scsi_sbc_fua_nv			= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
+static gint ett_scsi_rdwr			= -1;
 
 
 
+static const true_false_string dpo_tfs = {
+    "Disable Page Out (dont cache this data)",
+    "Disable page out is DISABLED (cache this data)"
+};
+static const true_false_string fua_tfs = {
+    "Read from the medium, not cache",
+    "Read from cache if possible"
+};
+static const true_false_string fua_nv_tfs = {
+    "Read from volatile cache is NOT permitted",
+    "Read from volatile or non-volatile cache permitted"
+};
 
 static void
 dissect_sbc_formatunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -178,7 +194,7 @@ dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
 
-        proto_tree_add_item (tree, hf_scsi_sbc_prefetch_group, tvb, offset+5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
         flags = tvb_get_guint8 (tvb, offset+8);
@@ -212,7 +228,7 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
-        proto_tree_add_item (tree, hf_scsi_sbc_prefetch_group, tvb, offset+13, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
@@ -229,6 +245,13 @@ dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 {
     guint8 flags;
+    static const int *rdwr10_fields[] = {
+	&hf_scsi_sbc_rdprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_fua_nv,
+	NULL
+    };
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -238,13 +261,11 @@ dissect_sbc2_readwrite10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr10_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_read_flags, tvb, offset, 1,
-                                    flags,
-                                    "DPO = %u, FUA = %u, RelAddr = %u",
-                                    flags & 0x10, flags & 0x8, flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -260,6 +281,13 @@ dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *rdwr12_fields[] = {
+	&hf_scsi_sbc_rdprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_fua_nv,
+	NULL
+    };
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -269,14 +297,12 @@ dissect_sbc2_readwrite12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr12_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_read_flags, tvb, offset, 1,
-                                    flags,
-                                    "DPO = %u, FUA = %u, RelAddr = %u",
-                                    flags & 0x10, flags & 0x8, flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+5, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+9, 1, 0);
+
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
                                     flags,
@@ -291,6 +317,13 @@ dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *rdwr16_fields[] = {
+	&hf_scsi_sbc_rdprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_fua_nv,
+	NULL
+    };
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -300,14 +333,12 @@ dissect_sbc2_readwrite16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags, ett_scsi_rdwr, rdwr16_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_read_flags, tvb, offset, 1,
-                                    flags,
-                                    "DPO = %u, FUA = %u, RelAddr = %u",
-                                    flags & 0x10, flags & 0x8, flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
                                     flags,
@@ -371,7 +402,7 @@ dissect_sbc2_verify10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_blkvfy, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -402,7 +433,7 @@ dissect_sbc2_verify12 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_blkvfy, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -433,7 +464,7 @@ dissect_sbc2_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_blkvfy, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -466,7 +497,7 @@ dissect_sbc2_wrverify10 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_wrverify_ebp, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -498,7 +529,7 @@ dissect_sbc2_wrverify12 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_wrverify_ebp, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -530,7 +561,7 @@ dissect_sbc2_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
 
     if (tree && isreq && iscdb) {
-         proto_tree_add_item (tree, hf_scsi_sbc_verify_dpo, tvb, offset+1, 1, 0);
+         proto_tree_add_item (tree, hf_scsi_sbc_dpo, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_wrverify_ebp, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_bytchk, tvb, offset+1, 1, 0);
          proto_tree_add_item (tree, hf_scsi_sbc_verify_reladdr, tvb, offset+1, 1,
@@ -1131,9 +1162,6 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_ssu_start,
           {"Start", "scsi.sbc.ssu.start", FT_BOOLEAN, 8, NULL, 0x1,
            "", HFILL}},
-        { &hf_scsi_sbc_verify_dpo,
-          {"DPO", "scsi.sbc.verify.dpo", FT_BOOLEAN, 8, NULL, 0x10, "",
-           HFILL}},
         { &hf_scsi_sbc_verify_blkvfy,
           {"BLKVFY", "scsi.sbc.verify.blkvfy", FT_BOOLEAN, 8, NULL, 0x4,
            "", HFILL}},
@@ -1212,16 +1240,29 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_prefetch_immed,
           {"Immediate", "scsi.sbc.prefetch.immediate", FT_BOOLEAN, 8, NULL,
            0x2, "", HFILL}},
-        { &hf_scsi_sbc_prefetch_group,
-          {"Group", "scsi.sbc.prefetch.group", FT_UINT8, BASE_HEX, NULL,
+        { &hf_scsi_sbc_group,
+          {"Group", "scsi.sbc.group", FT_UINT8, BASE_HEX, NULL,
            0x1f, "", HFILL}},
+        { &hf_scsi_sbc_rdprotect,
+          {"RDPROTECT", "scsi.sbc.rdprotect", FT_UINT8, BASE_HEX,
+           NULL, 0xe0, "", HFILL}},
+        { &hf_scsi_sbc_dpo,
+          {"DPO", "scsi.sbc.dpo", FT_BOOLEAN, 8,
+           TFS(&dpo_tfs), 0x10, "DisablePageOut: Whether the device should cache the data or not", HFILL}},
+        { &hf_scsi_sbc_fua,
+          {"FUA", "scsi.sbc.fua", FT_BOOLEAN, 8,
+           TFS(&fua_tfs), 0x08, "ForceUnitAccess: Whether to allow reading from the cache or not", HFILL}},
+        { &hf_scsi_sbc_fua_nv,
+          {"FUA_NV", "scsi.sbc.fua_nv", FT_BOOLEAN, 8,
+           TFS(&fua_nv_tfs), 0x02, "ForceUnitAccess_NonVolatile: Whether to allow reading from non-volatile cache or not", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_scsi_format_unit,
-		&ett_scsi_prefetch
+		&ett_scsi_prefetch,
+		&ett_scsi_rdwr
 	};
 
 	/* Register the protocol name and description */
