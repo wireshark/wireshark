@@ -1,3 +1,4 @@
+/* TODO  add dissection of opcode 0x7f and READ32 */
 /* packet-scsi-sbc.c
  * Dissector for the SCSI SBC commandset
  * Extracted from packet-scsi.c
@@ -72,7 +73,6 @@ static int hf_scsi_sbc_wrverify_lba64		= -1;
 static int hf_scsi_sbc_wrverify_xferlen32	= -1;
 static int hf_scsi_sbc_readcapacity_flags	= -1;
 static int hf_scsi_sbc_readcapacity_lba		= -1;
-static int hf_scsi_sbc_readcapacity_pmi		= -1;
 static int hf_scsi_sbc_readdefdata_flags	= -1;
 static int hf_scsi_sbc_reassignblks_flags	= -1;
 static int hf_scsi_sbc_read_flags		= -1;
@@ -90,10 +90,15 @@ static int hf_scsi_sbc_rdprotect		= -1;
 static int hf_scsi_sbc_dpo			= -1;
 static int hf_scsi_sbc_fua			= -1;
 static int hf_scsi_sbc_fua_nv			= -1;
+static int hf_scsi_sbc_pmi_flags		= -1;
+static int hf_scsi_sbc_pmi			= -1;
+static int hf_scsi_sbc_blocksize		= -1;
+static int hf_scsi_sbc_returned_lba		= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
 static gint ett_scsi_rdwr			= -1;
+static gint ett_scsi_pmi			= -1;
 
 
 
@@ -108,6 +113,10 @@ static const true_false_string fua_tfs = {
 static const true_false_string fua_nv_tfs = {
     "Read from volatile cache is NOT permitted",
     "Read from volatile or non-volatile cache permitted"
+};
+static const true_false_string pmi_tfs = {
+    "PMI is SET",
+    "Pmi is CLEAR"
 };
 
 static void
@@ -586,21 +595,19 @@ dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     guint8 flags;
     guint32 len, block_len, tot_len;
     const char *un;
+    static const int *pmi_fields[] = {
+        &hf_scsi_sbc_pmi,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_readcapacity_flags, tvb,
-                                    offset, 1, flags,
-                                    "LongLBA = %u, RelAddr = %u",
-                                    flags & 0x2, flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_lba, tvb, offset+1,
                              4, 0);
-        proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_pmi, tvb, offset+7,
-                             1, 0);
+	proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_sbc_pmi_flags, ett_scsi_pmi, pmi_fields, FALSE);
+
 
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -617,10 +624,8 @@ dissect_sbc2_readcapacity10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             tot_len/=1024;
             un="GB";
         }
-        proto_tree_add_text (tree, tvb, offset, 4, "LBA: %u (%u %s)",
-                             len, tot_len, un);
-        proto_tree_add_text (tree, tvb, offset+4, 4, "Block Length: %u bytes",
-                             block_len);
+        proto_tree_add_uint_format (tree, hf_scsi_sbc_returned_lba, tvb, offset, 4, len, "LBA: %u (%u %s)", len, tot_len, un);
+        proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+4, 4, 0);
     }
 }
 
@@ -730,6 +735,10 @@ dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32 block_len;
     guint64 len, tot_len;
     char *un;
+    static const int *pmi_fields[] = {
+        &hf_scsi_sbc_pmi,
+	NULL
+    };
 
     if (!tree)
         return;
@@ -754,7 +763,7 @@ dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 	        proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, 0);
 		offset += 4;
 
-	        proto_tree_add_item (tree, hf_scsi_sbc_readcapacity_pmi, tvb, offset, 1, 0);
+		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_pmi_flags, ett_scsi_pmi, pmi_fields, FALSE);
 		offset++;
 
 	        flags = tvb_get_guint8 (tvb, offset);
@@ -1201,9 +1210,6 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_readcapacity_lba,
           {"Logical Block Address", "scsi.sbc.readcapacity.lba", FT_UINT32, BASE_DEC,
            NULL, 0x0, "", HFILL}},
-        { &hf_scsi_sbc_readcapacity_pmi,
-          {"PMI", "scsi.sbc.readcapacity.pmi", FT_UINT8, BASE_DEC, NULL, 0x1, "",
-           HFILL}},
         { &hf_scsi_sbc_readdefdata_flags,
           {"Flags", "scsi.sbc.readdefdata.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
@@ -1255,6 +1261,18 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_fua_nv,
           {"FUA_NV", "scsi.sbc.fua_nv", FT_BOOLEAN, 8,
            TFS(&fua_nv_tfs), 0x02, "ForceUnitAccess_NonVolatile: Whether to allow reading from non-volatile cache or not", HFILL}},
+        { &hf_scsi_sbc_pmi,
+          {"PMI", "scsi.sbc.pmi", FT_BOOLEAN, 8,
+           TFS(&pmi_tfs), 0x01, "Partial Medium Indicator", HFILL}},
+        { &hf_scsi_sbc_pmi_flags,
+          {"PMI Flags", "scsi.sbc.pmi_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_blocksize,
+          {"Block size in bytes", "scsi.sbc.blocksize", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_returned_lba,
+          {"Returned LBA", "scsi.sbc.returned_lba", FT_UINT32, BASE_DEC,
+           NULL, 0, "", HFILL}},
 	};
 
 
@@ -1262,6 +1280,7 @@ proto_register_scsi_sbc(void)
 	static gint *ett[] = {
 		&ett_scsi_format_unit,
 		&ett_scsi_prefetch,
+		&ett_scsi_pmi,
 		&ett_scsi_rdwr
 	};
 
