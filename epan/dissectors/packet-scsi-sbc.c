@@ -94,11 +94,14 @@ static int hf_scsi_sbc_pmi_flags		= -1;
 static int hf_scsi_sbc_pmi			= -1;
 static int hf_scsi_sbc_blocksize		= -1;
 static int hf_scsi_sbc_returned_lba		= -1;
+static int hf_scsi_sbc_req_plist		= -1;
+static int hf_scsi_sbc_req_glist		= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
 static gint ett_scsi_rdwr			= -1;
 static gint ett_scsi_pmi			= -1;
+static gint ett_scsi_defectdata			= -1;
 
 
 
@@ -636,17 +639,19 @@ dissect_sbc2_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *defect_fields[] = {
+	&hf_scsi_sbc_defect_list_format,
+	&hf_scsi_sbc_req_plist,
+	&hf_scsi_sbc_req_glist,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_sbc_readdefdata_flags, ett_scsi_defectdata, defect_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_readdefdata_flags, tvb,
-                                    offset, 1, flags, "PLIST = %u, GLIST = %u",
-                                    flags & 0x10, flags & 0x8);
-        proto_tree_add_item (tree, hf_scsi_sbc_defect_list_format, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -654,6 +659,7 @@ dissect_sbc2_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    /* TODO : add dissection of DATA */
 }
 
 
@@ -664,17 +670,19 @@ dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *defect_fields[] = {
+	&hf_scsi_sbc_defect_list_format,
+	&hf_scsi_sbc_req_plist,
+	&hf_scsi_sbc_req_glist,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_readdefdata_flags, ett_scsi_defectdata, defect_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_readdefdata_flags, tvb,
-                                    offset, 1, flags, "PLIST = %u, GLIST = %u",
-                                    flags & 0x10, flags & 0x8);
-        proto_tree_add_item (tree, hf_scsi_sbc_defect_list_format, tvb, offset, 1, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset+5, 4, 0);
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
@@ -682,6 +690,7 @@ dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    /* TODO : add dissection of DATA */
 }
 
 
@@ -1273,6 +1282,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_returned_lba,
           {"Returned LBA", "scsi.sbc.returned_lba", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_req_plist,
+          {"REQ_PLIST", "scsi.sbc.req_plist", FT_BOOLEAN, 8,
+           NULL, 0x10, "", HFILL}},
+        { &hf_scsi_sbc_req_glist,
+          {"REQ_GLIST", "scsi.sbc.req_glist", FT_BOOLEAN, 8,
+           NULL, 0x08, "", HFILL}},
 	};
 
 
@@ -1281,7 +1296,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_format_unit,
 		&ett_scsi_prefetch,
 		&ett_scsi_pmi,
-		&ett_scsi_rdwr
+		&ett_scsi_rdwr,
+		&ett_scsi_defectdata
 	};
 
 	/* Register the protocol name and description */
