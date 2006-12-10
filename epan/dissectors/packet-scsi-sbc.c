@@ -102,6 +102,9 @@ static int hf_scsi_sbc_corrct_flags		= -1;
 static int hf_scsi_sbc_corrct			= -1;
 static int hf_scsi_sbc_reassignblocks_longlba	= -1;
 static int hf_scsi_sbc_reassignblocks_longlist	= -1;
+static int hf_scsi_sbc_synccache_flags		= -1;
+static int hf_scsi_sbc_synccache_immed		= -1;
+static int hf_scsi_sbc_synccache_sync_nv	= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
@@ -112,6 +115,7 @@ static gint ett_scsi_corrct			= -1;
 static gint ett_scsi_reassign_blocks		= -1;
 static gint ett_scsi_ssu_immed			= -1;
 static gint ett_scsi_ssu_pwr			= -1;
+static gint ett_scsi_synccache			= -1;
 
 
 
@@ -226,6 +230,78 @@ dissect_sbc_prefetch10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
+
+static void
+dissect_sbc_synchronizecache10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *sync_fields[] = {
+	&hf_scsi_sbc_synccache_sync_nv,
+	&hf_scsi_sbc_synccache_immed,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: 0x%08x, Len: %u)",
+                             tvb_get_ntohl (tvb, offset+1),
+                             tvb_get_ntohs (tvb, offset+6));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags, ett_scsi_synccache, sync_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_xferlen, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    guint8 flags;
+    static const int *sync_fields[] = {
+	&hf_scsi_sbc_synccache_sync_nv,
+	&hf_scsi_sbc_synccache_immed,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+1),
+                             tvb_get_ntohl (tvb, offset+9));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags, ett_scsi_synccache, sync_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
 static void
 dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -1016,7 +1092,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x32*/{NULL},
 /*SBC 0x33*/{NULL},
 /*SBC 0x34*/{dissect_sbc_prefetch10},
-/*SBC 0x35*/{NULL},
+/*SBC 0x35*/{dissect_sbc_synchronizecache10},
 /*SBC 0x36*/{NULL},
 /*SBC 0x37*/{dissect_sbc2_readdefectdata10},
 /*SBC 0x38*/{NULL},
@@ -1108,7 +1184,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x8e*/{dissect_sbc2_wrverify16},
 /*SBC 0x8f*/{dissect_sbc2_verify16},
 /*SBC 0x90*/{dissect_sbc_prefetch16},
-/*SBC 0x91*/{NULL},
+/*SBC 0x91*/{dissect_sbc_synchronizecache16},
 /*SBC 0x92*/{NULL},
 /*SBC 0x93*/{NULL},
 /*SBC 0x94*/{NULL},
@@ -1397,6 +1473,15 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_ssu_pwr_flags,
           {"Pwr flags", "scsi.sbc.ssu.pwr_flags", FT_UINT8, BASE_HEX,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_synccache_flags,
+          {"Flags", "scsi.sbc.synccache.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
+           HFILL}},
+        { &hf_scsi_sbc_synccache_immed,
+          {"Immediate", "scsi.sbc.synccache.immediate", FT_BOOLEAN, 8, NULL,
+           0x02, "", HFILL}},
+        { &hf_scsi_sbc_synccache_sync_nv,
+          {"SYNC_NV", "scsi.sbc.synccache.sync_nv", FT_BOOLEAN, 8, NULL,
+           0x04, "", HFILL}},
 	};
 
 
@@ -1410,7 +1495,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_corrct,
 		&ett_scsi_reassign_blocks,
 		&ett_scsi_ssu_immed,
-		&ett_scsi_ssu_pwr
+		&ett_scsi_ssu_pwr,
+		&ett_scsi_synccache
 	};
 
 	/* Register the protocol name and description */
