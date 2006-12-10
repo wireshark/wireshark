@@ -256,7 +256,7 @@ typedef guint32 scsi_device_type;
 
 /* Valid SCSI Command Types */
 #define SCSI_CMND_SPC2                   1
-#define SCSI_CMND_SBC2                   2
+#define SCSI_CMND_SBC                    2
 #define SCSI_CMND_SSC2                   3
 #define SCSI_CMND_SMC2                   4
 #define SCSI_CMND_MMC                    5
@@ -392,26 +392,26 @@ static const value_string scsi_spc2_modepage_val[] = {
     {0, NULL},
 };
 
-#define SCSI_SBC2_MODEPAGE_RDWRERR  0x01
-#define SCSI_SBC2_MODEPAGE_FMTDEV   0x03
-#define SCSI_SBC2_MODEPAGE_DISKGEOM 0x04
-#define SCSI_SBC2_MODEPAGE_FLEXDISK 0x05
-#define SCSI_SBC2_MODEPAGE_VERERR   0x07
-#define SCSI_SBC2_MODEPAGE_CACHE    0x08
-#define SCSI_SBC2_MODEPAGE_MEDTYPE  0x0B
-#define SCSI_SBC2_MODEPAGE_NOTPART  0x0C
-#define SCSI_SBC2_MODEPAGE_XORCTL   0x10
+#define SCSI_SBC_MODEPAGE_RDWRERR  0x01
+#define SCSI_SBC_MODEPAGE_FMTDEV   0x03
+#define SCSI_SBC_MODEPAGE_DISKGEOM 0x04
+#define SCSI_SBC_MODEPAGE_FLEXDISK 0x05
+#define SCSI_SBC_MODEPAGE_VERERR   0x07
+#define SCSI_SBC_MODEPAGE_CACHE    0x08
+#define SCSI_SBC_MODEPAGE_MEDTYPE  0x0B
+#define SCSI_SBC_MODEPAGE_NOTPART  0x0C
+#define SCSI_SBC_MODEPAGE_XORCTL   0x10
 
-static const value_string scsi_sbc2_modepage_val[] = {
-    {SCSI_SBC2_MODEPAGE_RDWRERR,  "Read/Write Error Recovery"},
-    {SCSI_SBC2_MODEPAGE_FMTDEV,   "Format Device"},
-    {SCSI_SBC2_MODEPAGE_DISKGEOM, "Rigid Disk Geometry"},
-    {SCSI_SBC2_MODEPAGE_FLEXDISK, "Flexible Disk"},
-    {SCSI_SBC2_MODEPAGE_VERERR,   "Verify Error Recovery"},
-    {SCSI_SBC2_MODEPAGE_CACHE,    "Caching"},
-    {SCSI_SBC2_MODEPAGE_MEDTYPE,  "Medium Types Supported"},
-    {SCSI_SBC2_MODEPAGE_NOTPART,  "Notch & Partition"},
-    {SCSI_SBC2_MODEPAGE_XORCTL,   "XOR Control"},
+static const value_string scsi_sbc_modepage_val[] = {
+    {SCSI_SBC_MODEPAGE_RDWRERR,  "Read/Write Error Recovery"},
+    {SCSI_SBC_MODEPAGE_FMTDEV,   "Format Device"},
+    {SCSI_SBC_MODEPAGE_DISKGEOM, "Rigid Disk Geometry"},
+    {SCSI_SBC_MODEPAGE_FLEXDISK, "Flexible Disk"},
+    {SCSI_SBC_MODEPAGE_VERERR,   "Verify Error Recovery"},
+    {SCSI_SBC_MODEPAGE_CACHE,    "Caching"},
+    {SCSI_SBC_MODEPAGE_MEDTYPE,  "Medium Types Supported"},
+    {SCSI_SBC_MODEPAGE_NOTPART,  "Notch & Partition"},
+    {SCSI_SBC_MODEPAGE_XORCTL,   "XOR Control"},
     {0x3F,                        "Return All Mode Pages"},
     {0, NULL},
 };
@@ -1955,13 +1955,13 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_sbc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags;
 
     switch (pcode) {
-    case SCSI_SBC2_MODEPAGE_FMTDEV:
+    case SCSI_SBC_MODEPAGE_FMTDEV:
         proto_tree_add_text (tree, tvb, offset+2, 2, "Tracks Per Zone: %u",
                              tvb_get_ntohs (tvb, offset+2));
         proto_tree_add_text (tree, tvb, offset+4, 2,
@@ -1991,7 +1991,7 @@ dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              (flags & 0x80) >> 7, (flags & 0x40) >> 6,
                              (flags & 0x20) >> 5, (flags & 0x10) >> 4);
         break;
-    case SCSI_SBC2_MODEPAGE_RDWRERR:
+    case SCSI_SBC_MODEPAGE_RDWRERR:
         flags = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_text (tree, tvb, offset+2, 1,
                              "AWRE: %u, ARRE: %u, TB: %u, RC: %u, EER: %u, PER: %u, DTE: %u, DCR: %u",
@@ -2014,7 +2014,7 @@ dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "Recovery Time Limit: %u ms",
                              tvb_get_ntohs (tvb, offset+10));
         break;
-   case SCSI_SBC2_MODEPAGE_DISKGEOM:
+   case SCSI_SBC_MODEPAGE_DISKGEOM:
         proto_tree_add_text (tree, tvb, offset+2, 3, "Number of Cylinders: %u",
                              tvb_get_ntoh24 (tvb, offset+2));
         proto_tree_add_text (tree, tvb, offset+5, 1, "Number of Heads: %u",
@@ -2035,11 +2035,11 @@ dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "Medium Rotation Rate: %u",
                              tvb_get_ntohs (tvb, offset+20));
         break;
-    case SCSI_SBC2_MODEPAGE_FLEXDISK:
+    case SCSI_SBC_MODEPAGE_FLEXDISK:
         return FALSE;
-    case SCSI_SBC2_MODEPAGE_VERERR:
+    case SCSI_SBC_MODEPAGE_VERERR:
         return FALSE;
-    case SCSI_SBC2_MODEPAGE_CACHE:
+    case SCSI_SBC_MODEPAGE_CACHE:
         flags = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_text (tree, tvb, offset+2, 1,
                              "IC: %u, ABPF: %u, CAP %u, Disc: %u, Size: %u, WCE: %u, MF: %u, RCD: %u",
@@ -2075,11 +2075,11 @@ dissect_scsi_sbc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "Non-Cache Segment Size: %u",
                              tvb_get_ntoh24 (tvb, offset+17));
         break;
-    case SCSI_SBC2_MODEPAGE_MEDTYPE:
+    case SCSI_SBC_MODEPAGE_MEDTYPE:
         return FALSE;
-    case SCSI_SBC2_MODEPAGE_NOTPART:
+    case SCSI_SBC_MODEPAGE_NOTPART:
         return FALSE;
-    case SCSI_SBC2_MODEPAGE_XORCTL:
+    case SCSI_SBC_MODEPAGE_XORCTL:
         return FALSE;
     default:
         return FALSE;
@@ -2482,9 +2482,9 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
          */
         switch (devtype) {
         case SCSI_DEV_SBC:
-            modepage_val = scsi_sbc2_modepage_val;
+            modepage_val = scsi_sbc_modepage_val;
             hf_pagecode = hf_scsi_sbcpagecode;
-            dissect_modepage = dissect_scsi_sbc2_modepage;
+            dissect_modepage = dissect_scsi_sbc_modepage;
             break;
 
         case SCSI_DEV_SSC:
@@ -4206,7 +4206,7 @@ proto_register_scsi (void)
            VALS (scsi_spc2_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_sbcpagecode,
           {"SBC-2 Page Code", "scsi.mode.sbc.pagecode", FT_UINT8, BASE_HEX,
-           VALS (scsi_sbc2_modepage_val), 0x3F, "", HFILL}},
+           VALS (scsi_sbc_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_sscpagecode,
           {"SSC-2 Page Code", "scsi.mode.ssc.pagecode", FT_UINT8, BASE_HEX,
            VALS (scsi_ssc2_modepage_val), 0x3F, "", HFILL}},
