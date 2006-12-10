@@ -922,6 +922,13 @@
 			<enum name="DIAMETER_MULTI_ROUND_AUTH" code="1001"/>
 			<enum name="DIAMETER_SUCCESS" code="2001"/>
 			<enum name="DIAMETER_LIMITED_SUCCESS" code="2002"/>
+			<enum name="DIAMETER_FIRST_REGISTRATION" code="2003"/>
+			<enum name="DIAMETER_SUBSEQUENT_REGISTRATION" code="2004"/>
+			<enum name="DIAMETER_UNREGISTERED_SERVICE" code="2005"/>
+			<enum name="DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED" code="2006"/>
+			<enum name="DIAMETER_SERVER_SELECTION" code="2007"/>
+			<enum name="DIAMETER_SUCCESS_AUTH_SENT_SERVER_NOT_STORED" code="2008"/>
+
 			<enum name="DIAMETER_COMMAND_UNSUPPORTED" code="3001"/>
 			<enum name="DIAMETER_UNABLE_TO_DELIVER" code="3002"/>
 			<enum name="DIAMETER_REALM_NOT_SERVED" code="3003"/>
@@ -932,6 +939,7 @@
 			<enum name="DIAMETER_INVALID_HDR_BITS" code="3008"/>
 			<enum name="DIAMETER_INVALID_AVP_BITS" code="3009"/>
 			<enum name="DIAMETER_UNKNOWN_PEER" code="3010"/>
+
 			<enum name="DIAMETER_AUTHENTICATION_REJECTED" code="4001"/>
 			<enum name="DIAMETER_OUT_OF_SPACE" code="4002"/>
 			<enum name="DIAMETER_ELECTION_LOST" code="4003"/>
@@ -942,6 +950,8 @@
 			<enum name="DIAMETER_END_USER_SERVICE_DENIED" code="4010"/>
 			<enum name="DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE" code="4011"/>
 			<enum name="DIAMETER_CREDIT_LIMIT_REACHED" code="4012"/>
+			<enum name="DIAMETER_USER_NAME_REQUIRED" code="4013"/>
+
 			<enum name="DIAMETER_AVP_UNSUPPORTED" code="5001"/>
 			<enum name="DIAMETER_UNKNOWN_SESSION_ID" code="5002"/>
 			<enum name="DIAMETER_AUTHORIZATION_REJECTED" code="5003"/>
@@ -963,6 +973,15 @@
 			<enum name="DIAMETER_ERROR_END_TO_END_MIP_KEY_ENCRYPTION" code="5025"/>
 			<enum name="DIAMETER_USER_UNKNOWN" code="5030"/>
 			<enum name="DIAMETER_RATING_FAILED" code="5031"/>
+			<enum name="DIAMETER_ERROR_USER_UNKNOWN" code="5032"/>
+			<enum name="DIAMETER_ERROR_IDENTITIES_DONT_MATCH" code="5033"/>
+			<enum name="DIAMETER_ERROR_IDENTITY_NOT_REGISTERED" code="5034"/>
+			<enum name="DIAMETER_ERROR_ROAMING_NOT_ALLOWED" code="5035"/>
+			<enum name="DIAMETER_ERROR_IDENTITY_ALREADY_REGISTERED" code="5036"/>
+			<enum name="DIAMETER_ERROR_AUTH_SCHEME_NOT_SUPPORTED" code="5037"/>
+			<enum name="DIAMETER_ERROR_IN_ASSIGNMENT_TYPE" code="5038"/>
+			<enum name="DIAMETER_ERROR_TOO_MUCH_DATA" code="5039"/>
+			<enum name="DIAMETER_ERROR_NOT SUPPORTED_USER_DATA" code="5040"/>
 		</avp>
 		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="UTF8String"/>
