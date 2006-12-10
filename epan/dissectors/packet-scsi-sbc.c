@@ -765,7 +765,7 @@ const value_string service_action_vals[] = {
 };
 
 /* this is either readcapacity16  or  readlong16  depending of what service
-   action is set to.   for now we only implement readcapacity16
+   action is set to.
 */
 static void
 dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -787,7 +787,10 @@ dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (isreq && iscdb) {
         service_action = tvb_get_guint8 (tvb, offset) & 0x1F;
-	/* we should store this one for later so the data in can be decoded */
+        if(cdata && cdata->itlq){
+            cdata->itlq->flags=service_action;
+        }
+
 	switch(service_action){
 	case SERVICE_READ_CAPACITY16:
         	proto_tree_add_text (tree, tvb, offset, 1,
@@ -816,21 +819,55 @@ dissect_sbc2_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		offset++;
 
 		break;
+	case SERVICE_READ_LONG16:
+        	proto_tree_add_text (tree, tvb, offset, 1,
+                             "Service Action: %s",
+                             val_to_str (service_action,
+                                         service_action_vals,
+                                         "Unknown (0x%02x)"));
+		offset++;
+
+        	proto_tree_add_text (tree, tvb, offset, 8,
+                             "Logical Block Address: %" PRIu64,
+                              tvb_get_ntoh64 (tvb, offset));
+        	offset+=8;
+
+		/* two reserved bytes */
+		offset+=2;
+
+		proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset, 2, 0);
+		offset+=2;
+
+		/* CORRCT bit */
+		offset++;
+
+	        flags = tvb_get_guint8 (tvb, offset);
+        	proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+		offset++;
+
+		break;
 	};
     } else if (!iscdb) {
-	/* assuming for now that all such data in PDUs are read capacity16 */
-        len = tvb_get_ntoh64 (tvb, offset);
-        block_len = tvb_get_ntohl (tvb, offset+8);
-        tot_len=((len/1024)*block_len)/1024; /*MB*/
-        un="MB";
-        if(tot_len>20000){
-            tot_len/=1024;
-            un="GB";
-        }
-        proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" PRIu64 " (%" PRIu64 " %s)",
+        if(cdata && cdata->itlq){
+            switch(cdata->itlq->flags){
+            case SERVICE_READ_CAPACITY16:
+                len = tvb_get_ntoh64 (tvb, offset);
+                block_len = tvb_get_ntohl (tvb, offset+8);
+                tot_len=((len/1024)*block_len)/1024; /*MB*/
+                un="MB";
+                if(tot_len>20000){
+                    tot_len/=1024;
+                    un="GB";
+                }
+                proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" PRIu64 " (%" PRIu64 " %s)",
                              len, tot_len, un);
-        proto_tree_add_text (tree, tvb, offset+8, 4, "Block Length: %u bytes",
-                             block_len);
+                proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, 0);
+                break;
+            }
+        }
     }
 }
 
