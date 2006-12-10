@@ -96,12 +96,15 @@ static int hf_scsi_sbc_blocksize		= -1;
 static int hf_scsi_sbc_returned_lba		= -1;
 static int hf_scsi_sbc_req_plist		= -1;
 static int hf_scsi_sbc_req_glist		= -1;
+static int hf_scsi_sbc_corrct_flags		= -1;
+static int hf_scsi_sbc_corrct			= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
 static gint ett_scsi_rdwr			= -1;
 static gint ett_scsi_pmi			= -1;
 static gint ett_scsi_defectdata			= -1;
+static gint ett_scsi_corrct			= -1;
 
 
 
@@ -664,6 +667,36 @@ dissect_sbc2_readdefectdata10 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
+dissect_sbc_readlong10 (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq,
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *corrct_fields[] = {
+	&hf_scsi_sbc_corrct,
+	NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_corrct_flags, ett_scsi_corrct, corrct_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr10_lba, tvb, offset+1, 4, 0);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, 0);
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+
+static void
 dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, guint offset, gboolean isreq,
                             gboolean iscdb,
@@ -830,7 +863,7 @@ const value_string scsi_sbc_vals[] = {
     {SCSI_SBC2_SERVICEACTIONIN16 , "Service Action In(16)"},
     {SCSI_SBC2_READDEFDATA10     , "Read Defect Data(10)"},
     {SCSI_SBC2_READDEFDATA12     , "Read Defect Data(12)"},
-    {SCSI_SBC2_READLONG          , "Read Long"},
+    {SCSI_SBC2_READLONG          , "Read Long(10)"},
     {SCSI_SBC2_REASSIGNBLKS      , "Reassign Blocks"},
     {SCSI_SBC2_REBUILD16         , "Rebuild(16)"},
     {SCSI_SBC2_REBUILD32         , "Rebuild(32)"},
@@ -934,7 +967,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SPC 0x3b*/{dissect_spc3_writebuffer},
 /*SBC 0x3c*/{NULL},
 /*SBC 0x3d*/{NULL},
-/*SBC 0x3e*/{NULL},
+/*SBC 0x3e*/{dissect_sbc_readlong10},
 /*SBC 0x3f*/{NULL},
 /*SBC 0x40*/{NULL},
 /*SBC 0x41*/{NULL},
@@ -1288,6 +1321,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_req_glist,
           {"REQ_GLIST", "scsi.sbc.req_glist", FT_BOOLEAN, 8,
            NULL, 0x08, "", HFILL}},
+        { &hf_scsi_sbc_corrct,
+          {"CORRCT", "scsi.sbc.corrct", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_sbc_corrct_flags,
+          {"Flags", "scsi.sbc.corrct_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
 	};
 
 
@@ -1297,7 +1336,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_prefetch,
 		&ett_scsi_pmi,
 		&ett_scsi_rdwr,
-		&ett_scsi_defectdata
+		&ett_scsi_defectdata,
+		&ett_scsi_corrct
 	};
 
 	/* Register the protocol name and description */
