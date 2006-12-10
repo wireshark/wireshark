@@ -147,11 +147,17 @@ static gint ett_cmd_GetPowerLevel_data_Properties = -1; /* add subtree for Prope
 /* IPMI session header */
 static int hf_ipmi_session_id = -1;
 static int hf_ipmi_session_authtype = -1;
+static int hf_ipmi_payloadtype = -1;
+static int hf_ipmi_payloadtype_auth = -1;
+static int hf_ipmi_payloadtype_enc = -1;
+static int hf_ipmi_oem_iana = -1;
+static int hf_ipmi_oem_payload_id = -1;
 static int hf_ipmi_session_sequence = -1;
 static int hf_ipmi_session_authcode = -1;
 
 /* IPMI message header */
 static int hf_ipmi_msg_len = -1;
+static int hf_ipmi_conf_hdr = -1;
 static int hf_ipmi_msg_rsaddr = -1;
 static int hf_ipmi_msg_nlfield = -1;
 static int hf_ipmi_msg_netfn = -1;
@@ -494,7 +500,44 @@ static const value_string ipmi_authtype_vals[] = {
 	{ 0x02,	"MD5" },
 	{ 0x04,	"PASSWORD" },
 	{ 0x05,	"OEM" },
+	{ 0x06, "RMCPP"},
 	{ 0x00,	NULL }
+};
+
+#define IPMI_IPMI_MESSAGE	0
+#define IPMI_OEM_EXPLICIT	2
+
+static const value_string ipmi_payload_vals[] = {
+	{ IPMI_IPMI_MESSAGE,	"IPMI Message" },
+	{ 0x01,	"SOL (serial over LAN)" },
+	{ IPMI_OEM_EXPLICIT,	"OEM Explicit" },
+	/* Session Setup Payload Types */
+	{ 0x10,	"RMCP+ Open Session Request" },
+	{ 0x11,	"RMCP+ Open Session Response" },
+	{ 0x12,	"RAKP Message 1" },
+	{ 0x13,	"RAKP Message 2" },
+	{ 0x14,	"RAKP Message 3" },
+	{ 0x15,	"RAKP Message 4" },
+	/* OEM Payload Type Handles */
+	{ 0x20,	"Handle values for OEM payloads OEM0" },
+	{ 0x21,	"Handle values for OEM payloads OEM1" },
+	{ 0x22,	"Handle values for OEM payloads OEM2" },
+	{ 0x23,	"Handle values for OEM payloads OEM3" },
+	{ 0x24,	"Handle values for OEM payloads OEM4" },
+	{ 0x25,	"Handle values for OEM payloads OEM5" },
+	{ 0x26,	"Handle values for OEM payloads OEM6" },
+	{ 0x27,	"Handle values for OEM payloads OEM7" },
+	{ 0x00,	NULL }
+};
+
+static const true_false_string ipmi_payload_aut_val  = {
+  "Payload is authenticated",
+  "Payload is unauthenticated"
+};
+
+static const true_false_string ipmi_payload_enc_val  = {
+  "Payload is encrypted",
+  "Payload is unencrypted"
 };
 
 static const value_string ipmi_ccode_vals[] = {
@@ -537,6 +580,31 @@ static const value_string ipmi_addr_vals[] = {
 	{ 0x89,	"Remote Console Software 5" },
 	{ 0x8b,	"Remote Console Software 6" },
 	{ 0x8d,	"Remote Console Software 7" },
+	{ 0x00,	NULL },
+};
+
+/* Table 13-19, Confidentiality Algorithm Numbers */
+static const value_string ipmi_conf_vals[] ={
+	{ 0x00,	"none" },
+	{ 0x01,	"AES-CBC-128" },
+	{ 0x02,	"xRC4-128" },
+	{ 0x03,	"xRC4-40" },
+	{ 0x30,	"OEM" },
+	{ 0x31,	"OEM" },
+	{ 0x32,	"OEM" },
+	{ 0x33,	"OEM" },
+	{ 0x34,	"OEM" },
+	{ 0x35,	"OEM" },
+	{ 0x36,	"OEM" },
+	{ 0x37,	"OEM" },
+	{ 0x38,	"OEM" },
+	{ 0x39,	"OEM" },
+	{ 0x3a,	"OEM" },
+	{ 0x3b,	"OEM" },
+	{ 0x3c,	"OEM" },
+	{ 0x3d,	"OEM" },
+	{ 0x3e,	"OEM" },
+	{ 0x3f,	"OEM" },
 	{ 0x00,	NULL },
 };
 
@@ -1538,7 +1606,7 @@ typedef struct _ipmi_cmd_dissect{
 
 static void
 dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
 
 	tvbuff_t		*next_tvb;
@@ -1560,7 +1628,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 		}
 
 		/* Sensor Type */
-		SensorType = tvb_get_guint8(tvb, authtype ? 33 : 17) ;
+		SensorType = tvb_get_guint8(tvb, auth_offset + 17) ;
 		
 		if (tree) {
 			proto_tree_add_item(ipmi_tree, hf_PEM_datafield_SensorType,
@@ -1576,7 +1644,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 		}
 	
 		/* Event Dir & Event Type*/
-		EventDirAndEventType = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+		EventDirAndEventType = tvb_get_guint8(tvb, auth_offset + 19) ;
 		EventType = EventDirAndEventType&0x7f;
 		
 		if (tree) {
@@ -1607,7 +1675,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				/* threshold  */
 				if(0x01==EventType) {
 					/* EventData 1*/
-					EventData1 = tvb_get_guint8(tvb, authtype ? 36 : 20) ;
+					EventData1 = tvb_get_guint8(tvb, auth_offset + 20) ;
 					if (tree) {
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 			"EventData 1: %s0x%02x", " ", EventData1);
@@ -1645,7 +1713,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				if(((EventType>=0x02)&&(EventType<=0x0b))||(0x6f==EventType)) {
 					/* EventData 1*/
 					if (tree) {
-						EventData1 = tvb_get_guint8(tvb, authtype ? 36 : 20) ;
+						EventData1 = tvb_get_guint8(tvb, auth_offset + 20) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 			"EventData 1: %s0x%02x", " ", EventData1);
 
@@ -1664,7 +1732,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 					
 					/* EventData 2*/
 					if (tree&&(len!=0)) {
-						EventData2 = tvb_get_guint8(tvb, authtype ? 37 : 21) ;
+						EventData2 = tvb_get_guint8(tvb, auth_offset + 21) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 			"EventData 2: %s0x%02x", " ", EventData2);
 
@@ -1691,7 +1759,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 				if((EventType>=0x70)&&(EventType<=0x7f)) {
 					/* EventData 1*/
 					if (tree) {
-						EventData1 = tvb_get_guint8(tvb, authtype ? 36 : 20) ;
+						EventData1 = tvb_get_guint8(tvb, auth_offset + 20) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 			"EventData 1: %s0x%02x", " ", EventData1);
 
@@ -1709,7 +1777,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 					}
 					/* EventData 2*/
 					if (tree&&(len!=0)) {
-						EventData2 = tvb_get_guint8(tvb, authtype ? 37 : 21) ;
+						EventData2 = tvb_get_guint8(tvb, auth_offset + 21) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 			"EventData 2: %s0x%02x", " ", EventData2);
 
@@ -1749,7 +1817,7 @@ dissect_cmd_PlatformEventMessage(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 static void
 dissect_cmd_GetDeviceSDR(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset _U_)
 {
 	tvbuff_t	*next_tvb;
 
@@ -1802,7 +1870,7 @@ dissect_cmd_GetDeviceSDR(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 
 static void
 dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -1811,7 +1879,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 	
 	if(response) {
 
-		flag = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+		flag = tvb_get_guint8(tvb, auth_offset + 18) ;
 		
 		/* Number of the Sensors in device*/
 		if (tree) {
@@ -1856,7 +1924,7 @@ dissect_cmd_Get_Device_SDR_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_
 
 static void
 dissect_cmd_Reserve_Device_SDR_Repository(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 
 	if(response) {
@@ -1876,7 +1944,7 @@ dissect_cmd_Reserve_Device_SDR_Repository(proto_tree *tree, proto_tree *ipmi_tre
 
 static void
 dissect_cmd_Set_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 
 	if(response) {
@@ -1909,7 +1977,7 @@ dissect_cmd_Set_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 static void
 dissect_cmd_Get_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 
 	if(response) {
@@ -1941,7 +2009,7 @@ dissect_cmd_Get_Sensor_Hysteresis(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 static void
 dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -1957,7 +2025,7 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 			proto_tree_add_item(ipmi_tree, hf_SetSensorThresholds_datafield_SensorNumber,
 			    					tvb, (*poffset)++, 1, TRUE);
 			/* Control Byte */
-			ControlByte = tvb_get_guint8(tvb, authtype ? 33 : 17) ;
+			ControlByte = tvb_get_guint8(tvb, auth_offset + 17) ;
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Control Byte: %s0x%02x", " ", ControlByte);
 			field_tree = proto_item_add_subtree(tf, ett_cmd_SetSensorThresholds_ControlByte);
@@ -2015,7 +2083,7 @@ dissect_cmd_Set_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 static void
 dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2025,7 +2093,7 @@ dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 	if(response) {
 		/* Control Byte */
 		if (tree) {
-			ControlByte = tvb_get_guint8(tvb, authtype ? 33 : 17) ;
+			ControlByte = tvb_get_guint8(tvb, auth_offset + 17) ;
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Control Byte: %s0x%02x", " ", ControlByte);
 			field_tree = proto_item_add_subtree(tf, ett_cmd_GetSensorThresholds_ControlByte);
@@ -2090,7 +2158,7 @@ dissect_cmd_Get_Sensor_Thresholds(proto_tree *tree, proto_tree *ipmi_tree, packe
 
 static void
 dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2107,7 +2175,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 		/* Response Data Byte2 */
 		if (tree) {
 			
-				Response_Data_Byte2 = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+				Response_Data_Byte2 = tvb_get_guint8(tvb, auth_offset + 18) ;
 				
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 2: %s0x%02x", " ", Response_Data_Byte2);
@@ -2130,7 +2198,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 				/* Response Data Byte3 (For discrete reading sensors) */
 				if (tree) {
 			
-					Response_Data_Byte3 = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+					Response_Data_Byte3 = tvb_get_guint8(tvb, auth_offset + 19) ;
 				
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 3: %s0x%02x", " ", Response_Data_Byte3);
@@ -2159,7 +2227,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 				/* Response Data Byte4 (For discrete reading sensors) */
 				if (tree) {
 			
-					Response_Data_Byte4 = tvb_get_guint8(tvb, authtype ? 36 : 20) ;
+					Response_Data_Byte4 = tvb_get_guint8(tvb, auth_offset + 20) ;
 				
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Response Data Byte 4: %s0x%02x", " ", Response_Data_Byte4);
@@ -2190,7 +2258,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 				/* Response Data Byte3 (For threshold-based sensors) */
 				if (tree) {
 			
-					Response_Data_Byte3 = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+					Response_Data_Byte3 = tvb_get_guint8(tvb, auth_offset + 19) ;
 				
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Present threshold comparison status: %s0x%02x", " ", Response_Data_Byte3);
@@ -2234,7 +2302,7 @@ dissect_cmd_Get_Sensor_Reading(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 
 static void
 dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2246,11 +2314,11 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 	if(response) {
 
-		device_revision = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
-		firmware_revision1 = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
-		additional_device_support = tvb_get_guint8(tvb, authtype ? 38 : 22) ;
-		ManufactureID = tvb_get_ntoh24(tvb, authtype ? 39 : 23);
-		ProductID = tvb_get_ntohs(tvb, authtype ? 42 : 26);
+		device_revision = tvb_get_guint8(tvb, auth_offset + 18) ;
+		firmware_revision1 = tvb_get_guint8(tvb, auth_offset + 19) ;
+		additional_device_support = tvb_get_guint8(tvb, auth_offset + 22) ;
+		ManufactureID = tvb_get_ntoh24(tvb, auth_offset + 23);
+		ProductID = tvb_get_ntohs(tvb, auth_offset + 26);
 		
 
 		/* Device ID */
@@ -2362,11 +2430,19 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 }
 
 
+dissect_cmd_Get_Channel_Auth_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
+{
+	if(response) {
 
+	}else{
+
+	}
+}
 /* Storage NetFN (0x0a) */
 static void
 dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2384,7 +2460,7 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 		/* Response Data Byte4 */
 		if (tree) {
 			
-			Response_Data_Byte4 =  tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+			Response_Data_Byte4 =  tvb_get_guint8(tvb, auth_offset + 19) ;
 			
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Device is accessed by bytes or words: %s0x%02x", " ", Response_Data_Byte4);
@@ -2413,7 +2489,7 @@ dissect_cmd_Get_FRU_Inventory_Area_Info(proto_tree *tree, proto_tree *ipmi_tree,
 
 static void
 dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2467,7 +2543,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 		/* Operation Support */
 		if (tree) {
 			
-			Operation_Support =  tvb_get_guint8(tvb, authtype ? 46 : 30) ;
+			Operation_Support =  tvb_get_guint8(tvb, auth_offset + 30) ;
 			
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Operation Support: %s0x%02x", " ", Operation_Support);
@@ -2497,7 +2573,7 @@ dissect_cmd_Get_SEL_Info(proto_tree *tree, proto_tree *ipmi_tree, packet_info *p
 
 static void
 dissect_cmd_Reserve_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 	
 	if(response) {
@@ -2517,7 +2593,7 @@ dissect_cmd_Reserve_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pi
 
 static void
 dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset _U_)
 {
 
 	tvbuff_t		*next_tvb;
@@ -2570,7 +2646,7 @@ dissect_cmd_Get_SEL_Entry(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 static void
 dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 	proto_tree	*field_tree = NULL;
@@ -2582,7 +2658,7 @@ dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinf
 		/* Erasure progress */
 		if (tree) {
 			
-			erasure_progress =  tvb_get_guint8(tvb, authtype ? 33 : 17) ;
+			erasure_progress =  tvb_get_guint8(tvb, auth_offset + 17) ;
 			
 			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 "Erasure progress: %s0x%02x", " ", erasure_progress);
@@ -2634,7 +2710,7 @@ dissect_cmd_Clear_SEL(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinf
 
 static void
 dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 		/*proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -2676,7 +2752,7 @@ dissect_cmd_Get_PICMG_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet
 
 static void
 dissect_cmd_FRU_Control(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+							gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 
 		if(response) {
@@ -2712,7 +2788,7 @@ dissect_cmd_FRU_Control(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pi
 
 static void
 dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+							gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -2728,7 +2804,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 			/* General Status LED Properties */
 			if (tree) {
 			
-				LedProperties = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+				LedProperties = tvb_get_guint8(tvb, auth_offset + 18) ;
 				
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"General Status LED Properties: %s0x%02x", " ", LedProperties);
@@ -2774,7 +2850,7 @@ dissect_cmd_Get_FRU_Led_Properties(proto_tree *tree, proto_tree *ipmi_tree, pack
 
 static void 
 dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-							gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+							gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 		proto_tree	*field_tree = NULL;
@@ -2791,7 +2867,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 			/* LED Color Capabilities */
 			if (tree) {
 			
-				LEDColorCapabilities = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+				LEDColorCapabilities = tvb_get_guint8(tvb, auth_offset + 18) ;
 				
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"LED Color Capabilities: %s0x%02x", " ", LEDColorCapabilities);
@@ -2820,7 +2896,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 			/* Default LED Color in Local Control State*/
 			if (tree) {
 				
-				DefaultLEDColorLocalControl = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+				DefaultLEDColorLocalControl = tvb_get_guint8(tvb, auth_offset + 19) ;
 				
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Default LED Color in Local Control State: %s0x%02x", " ", DefaultLEDColorLocalControl);
@@ -2836,7 +2912,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 			/* Default LED Color in Override State */
 			if (tree) {
 				
-				DefaultLEDColorOverride = tvb_get_guint8(tvb, authtype ? 36 : 20) ;
+				DefaultLEDColorOverride = tvb_get_guint8(tvb, auth_offset + 20) ;
 				
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Default LED Color in Override State: %s0x%02x", " ", DefaultLEDColorOverride);
@@ -2876,7 +2952,7 @@ dissect_cmd_Get_Led_Color_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, 
 
 static void 
 dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -2931,7 +3007,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			/* Color when illuminated */
 			if (tree) {
 
-				Color = tvb_get_guint8(tvb, authtype ? 37 : 21) ;
+				Color = tvb_get_guint8(tvb, auth_offset + 21) ;
 			
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Color when illuminated: %s0x%02x", " ", Color);
@@ -2952,7 +3028,7 @@ dissect_cmd_Set_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 
 static void 
 dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -2969,7 +3045,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			/* LED state */
 			if (tree) {
 
-				led_state = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+				led_state = tvb_get_guint8(tvb, auth_offset + 18) ;
 			
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"LED State: %s0x%02x", " ", led_state);
@@ -3008,7 +3084,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			/* Local Control Color */
 			if (tree) {
 
-				Color = tvb_get_guint8(tvb, authtype ? 37 : 21) ;
+				Color = tvb_get_guint8(tvb, auth_offset + 21) ;
 			
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Local Control Color: %s0x%02x", " ", Color);
@@ -3044,7 +3120,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 			/* Override State Color */
 			if (tree) {
 				
-				Color = tvb_get_guint8(tvb, authtype ? 40 : 24) ;
+				Color = tvb_get_guint8(tvb, auth_offset + 24) ;
 			
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"Override State Color: %s0x%02x", " ", Color);
@@ -3088,7 +3164,7 @@ dissect_cmd_Get_FRU_Led_State(proto_tree *tree, proto_tree *ipmi_tree, packet_in
 
 static void
 dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -3116,7 +3192,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			    						tvb, (*poffset)++, 1, TRUE);
 			}
 			/* FRU Activation Policy Mask Bit */
-			FRUActivationPolicyMaskBit = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+			FRUActivationPolicyMaskBit = tvb_get_guint8(tvb, auth_offset + 18) ;
 			if (tree) {
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy Mask Bit : %s0x%02x", " ", FRUActivationPolicyMaskBit);
@@ -3138,7 +3214,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			if(MaskBit1&&MaskBit0) {
 
 				if (tree) {
-					FRUActivationPolicySetBit = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+					FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 					tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy Set Bit : %s0x%02x", " ", FRUActivationPolicySetBit);
 
@@ -3157,7 +3233,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			else if(MaskBit1) {
 				
 					if (tree) {
-						FRUActivationPolicySetBit = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+						FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy Set Bit : %s0x%02x", " ", FRUActivationPolicySetBit);
 
@@ -3176,7 +3252,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			else if(MaskBit0) {
 
 					if (tree) {
-						FRUActivationPolicySetBit = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+						FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy Set Bit : %s0x%02x", " ", FRUActivationPolicySetBit);
 
@@ -3194,7 +3270,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			else {
 				
 				if (tree) {
-						FRUActivationPolicySetBit = tvb_get_guint8(tvb, authtype ? 35 : 19) ;
+						FRUActivationPolicySetBit = tvb_get_guint8(tvb, auth_offset + 19) ;
 						tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy Set Bit : %s0x%02x", " ", FRUActivationPolicySetBit);
 
@@ -3218,7 +3294,7 @@ dissect_cmd_Set_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 
 static void
 dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset)
 {
 
 		proto_tree	*field_tree = NULL;
@@ -3234,7 +3310,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 			}
 			/* FRU Activation Policy Mask Bit */
 			if (tree) {
-				FRUActivationPolicy = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+				FRUActivationPolicy = tvb_get_guint8(tvb, auth_offset + 18) ;
 				tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,
 					 		"FRU Activation Policy : %s0x%02x", " ", FRUActivationPolicy);
 
@@ -3270,7 +3346,7 @@ dissect_cmd_Get_FRU_Activation_Policy(proto_tree *tree, proto_tree *ipmi_tree, p
 
 static void
 dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 
 		if(response) {
@@ -3306,7 +3382,7 @@ dissect_cmd_Set_FRU_Activation(proto_tree *tree, proto_tree *ipmi_tree, packet_i
 
 static void
 dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 				
 		if(response) {
@@ -3343,7 +3419,7 @@ dissect_cmd_Get_Device_Locator_Record_ID(proto_tree *tree, proto_tree *ipmi_tree
 
 static void
 dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 		if(response) {
 
@@ -3383,7 +3459,7 @@ dissect_cmd_Set_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 
 static void
 dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
 		proto_tree	*field_tree = NULL;
 		proto_item	*tf = NULL;
@@ -3392,7 +3468,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 		
 		if(response) {
 
-			Properties = tvb_get_guint8(tvb, authtype ? 34 : 18) ;
+			Properties = tvb_get_guint8(tvb, auth_offset + 18) ;
 			
 			/* PICMG Identifier */
 			if (tree) {
@@ -3460,7 +3536,7 @@ dissect_cmd_Get_Power_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info
 
 static void
 dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len _U_, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 		if(response) {
 
@@ -3495,7 +3571,7 @@ dissect_cmd_Set_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 static void
 dissect_cmd_Get_Fan_Level(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 authtype _U_)
+								gint *poffset, guint8 len, guint8 response, guint8 auth_offset _U_)
 {
 				
 		if(response) {
@@ -3637,6 +3713,9 @@ ipmi_cmd_dissect ipmi_cmd_array[] = {
 	{ 0x06,	0x35,	NULL},
 	{ 0x06,	0x36,	NULL},
 	{ 0x06,	0x37,	NULL},
+	/*
+	{ 0x06,	0x38,	dissect_cmd_Get_Channel_Auth_Capabilities},
+	*/
 	{ 0x06,	0x38,	NULL},
 	{ 0x06,	0x39,	NULL},
 	{ 0x06,	0x3a,	NULL},
@@ -3751,47 +3830,93 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ipmi_tree = NULL, *field_tree = NULL;
 	proto_item	*ti = NULL, *tf;
 	gint			offset = 0;
+	gint			auth_offset = 0;
 	/* tvbuff_t	*next_tvb; */  /* modified by lane */
 	guint32		session_id;
-	guint8		authtype, netfn, cmd, ccode, len, response;
+	/*payloadtype for RMCPP*/
+	guint8		authtype, payloadtype, netfn, cmd, ccode, len, response;
+	gboolean	payloadtype_auth, payloadtype_enc;
 
 	/* session authtype, 0=no authcode present */
 	authtype = tvb_get_guint8(tvb, 0);
 
+
+
+	/* EventData 1~3 */
+	switch(authtype) {
+
+		case 0x06:
+			/* RMCPP
+			 *  ipmi.session.authtype 	=6
+			 *	Payload Type			+1
+			 *  ipmi.session.id
+			 *  ipmi.session.sequence
+			 * [OEM IANA]				+?
+			 * [OEM Payload ID]			+?
+			 *  ipmi.msg.len			+1
+ 			 */
+			auth_offset = 2;
+
+			break;
+		case 0x00:
+			auth_offset = 0;
+			break;
+		default:
+			auth_offset = 16;
+		}
+
+
+/*
+	2.0:	IPMI v2.0 RMCP+ Session ID	4
+	BOTH:	Session Sequence Number		4
+	1.5:	IPMI v1.5 Session ID		4
+*/
+
 	/* session ID */
-	session_id = tvb_get_letohl(tvb, 5);
+	if (authtype == 6) {
+		// -1 for 2 byte length field when RMCPP
+		session_id = tvb_get_letohl(tvb, auth_offset + 9 - 1);
+	} else {
+		session_id = tvb_get_letohl(tvb, auth_offset + 5);
+	}
 
 	/* network function code */
-	netfn = tvb_get_guint8(tvb, authtype ? 27 : 11) >> 2;
+	netfn = tvb_get_guint8(tvb, auth_offset + 11) >> 2;
 
 	/* bit 0 of netfn: even=request odd=response */
 	response =  netfn & 1;
 
 	/* command */
-	cmd = tvb_get_guint8(tvb, authtype ? 31 : 15);
+	cmd = tvb_get_guint8(tvb, auth_offset + 15);
 
 	/* completion code */
-	ccode = response ? tvb_get_guint8(tvb, authtype ? 32 : 16) : 0;
+	ccode = response ? tvb_get_guint8(tvb, auth_offset + 16) : 0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		if (authtype == 6) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCPP");
+		} else {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI");
+		}
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (ccode)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s: %s",
-			     get_netfn_cmd_text(netfn, cmd),
-			     val_to_str(netfn, ipmi_netfn_vals,	"Unknown (0x%02x)"),
-			     val_to_str(ccode, ipmi_ccode_vals,	"Unknown (0x%02x)"));
-		else
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
-			     get_netfn_cmd_text(netfn, cmd),
-			     val_to_str(netfn, ipmi_netfn_vals,	"Unknown (0x%02x)"));
+	if (authtype != 6) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			if (ccode)
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s: %s",
+				     get_netfn_cmd_text(netfn, cmd),
+				     val_to_str(netfn, ipmi_netfn_vals,	"Unknown (0x%02x)"),
+				     val_to_str(ccode, ipmi_ccode_vals,	"Unknown (0x%02x)"));
+			else
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
+				     get_netfn_cmd_text(netfn, cmd),
+				     val_to_str(netfn, ipmi_netfn_vals,	"Unknown (0x%02x)"));
+		}
 	}
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_ipmi,
-			    tvb, offset, authtype ? 32 : 16,
+			    tvb, offset, auth_offset + 16,
 			    "Intelligent Platform Management Interface, "
 			    "NetFn: %s (0x%02x), Cmd: %s (0x%02x)",
 			    val_to_str(netfn, ipmi_netfn_vals, "Unknown (0x%02x)"),
@@ -3799,12 +3924,70 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipmi_tree = proto_item_add_subtree(ti, ett_ipmi);
 	}
 	
+/*
+	2.0:	IPMI v2.0 RMCP+ Session ID	4
+	BOTH:	Session Sequence Number		4
+	1.5:	IPMI v1.5 Session ID		4
+*/
+
+
 	/* ipmi session field */
-	if (tree) {
+
+	if (authtype == 6) {
+
+		/*5 - 1 :subtract extra byte from 2 byte lenghth correction*/
 		tf = proto_tree_add_text(ipmi_tree, tvb, offset,
-				 authtype ? 25 : 9,
+				 auth_offset + 5 - 1,
 				 "Session: ID 0x%08x (%d bytes)",
-				 session_id, authtype ? 25 : 9);
+				 session_id, auth_offset + 5 - 1);
+		field_tree = proto_item_add_subtree(tf, ett_ipmi_session);
+		proto_tree_add_item(field_tree, hf_ipmi_session_authtype,
+				tvb, offset++, 1, TRUE);
+
+		/*payloadtype */
+		payloadtype = tvb_get_guint8(tvb,offset);
+		payloadtype_auth = (payloadtype >> 6) & 1;
+		payloadtype_enc = (payloadtype >> 7);
+		payloadtype = payloadtype & 0x3f;
+		proto_tree_add_item(field_tree, hf_ipmi_payloadtype,
+				tvb, offset, 1, TRUE);
+		/* Bit [6] - 0b = payload is unauthenticated (no AuthCode field)
+		 *			 1b = payload is authenticated (AuthCode field is present)
+		 * Bit [7] - 0b = payload is unencrypted
+		 *			 1b = payload is encrypted
+		 */
+		proto_tree_add_item(field_tree, hf_ipmi_payloadtype_auth,
+				tvb, offset, 1, TRUE);
+		proto_tree_add_item(field_tree, hf_ipmi_payloadtype_enc,
+				tvb, offset, 1, TRUE);
+		offset++;
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+				val_to_str(payloadtype, ipmi_payload_vals,	"Unknown (0x%02x)"));
+		}
+	 
+		if ( payloadtype == IPMI_OEM_EXPLICIT){
+			proto_tree_add_item(field_tree, hf_ipmi_oem_iana,
+				tvb, offset, 4, TRUE);
+			offset = offset+4;
+			proto_tree_add_item(field_tree, hf_ipmi_oem_payload_id,
+					tvb, offset, 2, TRUE);
+			offset = offset+2;
+		}
+		proto_tree_add_item(field_tree, hf_ipmi_session_id,
+				tvb, offset, 4, TRUE);
+		offset += 4;
+
+		proto_tree_add_item(field_tree, hf_ipmi_session_sequence,
+				tvb, offset, 4, TRUE);
+		offset += 4;
+
+
+	} else {
+		tf = proto_tree_add_text(ipmi_tree, tvb, offset,
+					 auth_offset + 9,
+				 "Session: ID 0x%08x (%d bytes)",
+					 session_id, auth_offset + 9);
 		field_tree = proto_item_add_subtree(tf, ett_ipmi_session);
 		proto_tree_add_item(field_tree, hf_ipmi_session_authtype,
 			    tvb, offset++, 1, TRUE);
@@ -3814,7 +3997,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree, hf_ipmi_session_id,
 			    tvb, offset, 4, TRUE);
 		offset += 4;
-		if (authtype) {
+			if (authtype != 0) {
 			proto_tree_add_item(field_tree, hf_ipmi_session_authcode,
 				    tvb, offset, 16, TRUE);
 			offset += 16;
@@ -3823,8 +4006,34 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* message length */
 	if (tree) {
-		proto_tree_add_item(ipmi_tree, hf_ipmi_msg_len,
-			    tvb, offset++, 1, TRUE);
+
+		if(authtype == 6) {
+			proto_tree_add_item(ipmi_tree, hf_ipmi_msg_len,
+					tvb, offset, 2, TRUE);
+					offset+=2;
+					/*
+			proto_tree_add_item(ipmi_tree, hf_ipmi_conf_hdr,
+					tvb, offset, 1, TRUE);
+					offset++;
+					*/
+		} else {
+			proto_tree_add_item(ipmi_tree, hf_ipmi_msg_len,
+					tvb, offset, 1, TRUE);
+					offset++;
+		}
+	}
+	if ((authtype == 6)) {
+		switch (payloadtype){
+		case IPMI_IPMI_MESSAGE:
+			if (payloadtype_enc){
+				return;
+			}
+			break;
+		default:
+			return;
+		
+		}
+
 	}
 
 	/* r[sq]addr */
@@ -3916,7 +4125,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* determine data length */
-	len = tvb_get_guint8(tvb, authtype ? 25 : 9) - 6 - (response ? 1 : 0) -1;
+	len = tvb_get_guint8(tvb,  auth_offset + 9) - 6 - (response ? 1 : 0) -1;
+	/*TODO: fix for 2 byte length with RMCPP*/
 
 	/* rem by lane */
 	/*
@@ -3926,7 +4136,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 
 	/* dissect the data block, added by lane */
-	dissect_ipmi_data(tree, ipmi_tree, pinfo, tvb, &offset, len, netfn, cmd, response, authtype);
+	dissect_ipmi_data(tree, ipmi_tree, pinfo, tvb, &offset, len, netfn, cmd, response, auth_offset);
 	
 
 	/* checksum 2 */
@@ -3944,6 +4154,26 @@ proto_register_ipmi(void)
 			"Authentication Type", "ipmi.session.authtype",
 			FT_UINT8, BASE_HEX, VALS(ipmi_authtype_vals), 0,
 			"IPMI Authentication Type", HFILL }},
+		{ &hf_ipmi_payloadtype,{
+			"Payload Type", "ipmi.session.payloadtype",
+			FT_UINT8, BASE_HEX, VALS(ipmi_payload_vals), 0x3f,
+			"IPMI Payload Type", HFILL }},
+		{ &hf_ipmi_payloadtype_auth,{
+			"Authenticated","ipmi.session.payloadtype.auth",
+			FT_BOOLEAN,8,  TFS(&ipmi_payload_aut_val), 0x40,          
+			"IPMI Paylodtype authenticated", HFILL }},
+		{ &hf_ipmi_payloadtype_enc,{
+			"Encryption","ipmi.session.payloadtype.enc",
+			FT_BOOLEAN,8,  TFS(&ipmi_payload_enc_val), 0x80,          
+			"IPMI Paylodtype encryption", HFILL }},
+		{ &hf_ipmi_oem_iana,{
+			"OEM IANA", "ipmi.session.oem.iana",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"IPMI OEM IANA", HFILL }},
+		{ &hf_ipmi_oem_payload_id,{
+			"OEM Payload ID", "ipmi.session.oem.payloadid",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"IPMI OEM Payload ID", HFILL }},
 		{ &hf_ipmi_session_sequence, {
 			"Session Sequence Number", "ipmi.session.sequence",
 			FT_UINT32, BASE_HEX, NULL, 0,
@@ -3962,6 +4192,10 @@ proto_register_ipmi(void)
 			"Message Length", "ipmi.msg.len",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"IPMI Message Length", HFILL }},
+		{ &hf_ipmi_conf_hdr, {
+			"Confidentiality Header", "ipmi.msg.confhdr",
+			FT_UINT8, BASE_DEC, VALS(ipmi_conf_vals), 0x3f,
+			"IPMI Confidentiality Header", HFILL }},
 		{ &hf_ipmi_msg_rsaddr, {
 			"Response Address", "ipmi.msg.rsaddr",
 			FT_UINT8, BASE_HEX, VALS(ipmi_addr_vals), 0,
@@ -5341,13 +5575,13 @@ proto_reg_handoff_ipmi(void)
 	dissector_add("rmcp.class", RMCP_CLASS_IPMI, ipmi_handle);
 }
 
-typedef  void (*P_FUN)(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb, gint *poffset, guint8 len, guint8 response, guint8 authtype);
+typedef  void (*P_FUN)(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo, tvbuff_t *tvb, gint *poffset, guint8 len, guint8 response, guint8 auth_offset);
 
 /* added hereinafter by lane */ 
 void
 dissect_ipmi_data(proto_tree *tree, proto_tree *ipmi_tree,	packet_info *pinfo,
 					tvbuff_t *tvb, gint *poffset, guint8 len, guint8 netfn, guint8 cmd, 
-					guint8 response, guint8 authtype)
+					guint8 response, guint8 auth_offset)
 {
 	tvbuff_t	*next_tvb;
 	guint i;
@@ -5355,7 +5589,8 @@ dissect_ipmi_data(proto_tree *tree, proto_tree *ipmi_tree,	packet_info *pinfo,
 	for (i = 0; i < NUM_OF_CMD_ARRAY; i++)	{
 		if(((netfn&0xfe)==ipmi_cmd_array[i].netfn) && (cmd==ipmi_cmd_array[i].cmd))	{
 			if(ipmi_cmd_array[i].dissectfunc) {
-				( (P_FUN)ipmi_cmd_array[i].dissectfunc )(tree, ipmi_tree, pinfo, tvb, poffset, len, response, authtype);
+				/*( (P_FUN)ipmi_cmd_array[i].dissectfunc )(tree, ipmi_tree, pinfo, tvb, poffset, len, response, authtype);*/
+				( (P_FUN)ipmi_cmd_array[i].dissectfunc )(tree, ipmi_tree, pinfo, tvb, poffset, len, response, auth_offset);
 				return;
 			}
 			else  {
