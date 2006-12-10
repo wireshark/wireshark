@@ -98,6 +98,8 @@ static int hf_scsi_sbc_req_plist		= -1;
 static int hf_scsi_sbc_req_glist		= -1;
 static int hf_scsi_sbc_corrct_flags		= -1;
 static int hf_scsi_sbc_corrct			= -1;
+static int hf_scsi_sbc_reassignblocks_longlba	= -1;
+static int hf_scsi_sbc_reassignblocks_longlist	= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
@@ -105,6 +107,7 @@ static gint ett_scsi_rdwr			= -1;
 static gint ett_scsi_pmi			= -1;
 static gint ett_scsi_defectdata			= -1;
 static gint ett_scsi_corrct			= -1;
+static gint ett_scsi_reassign_blocks		= -1;
 
 
 
@@ -728,29 +731,31 @@ dissect_sbc2_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
-dissect_sbc2_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_sbc_reassignblocks (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree, guint offset, gboolean isreq,
                            gboolean iscdb,
                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *reassign_fields[] = {
+	&hf_scsi_sbc_reassignblocks_longlba,
+	&hf_scsi_sbc_reassignblocks_longlist,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_reassignblks_flags, ett_scsi_reassign_blocks, reassign_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_sbc_reassignblks_flags, tvb,
-                                    offset, 1, flags,
-                                    "LongLBA = %u, LongList = %u",
-                                    flags & 0x2, flags & 0x1);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
+    /* TODO : add dissection of DATA */
 }
 
 
@@ -949,7 +954,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x04*/{dissect_sbc_formatunit},
 /*SBC 0x05*/{NULL},
 /*SBC 0x06*/{NULL},
-/*SBC 0x07*/{dissect_sbc2_reassignblocks},
+/*SBC 0x07*/{dissect_sbc_reassignblocks},
 /*SBC 0x08*/{dissect_sbc2_readwrite6},
 /*SBC 0x09*/{NULL},
 /*SBC 0x0a*/{dissect_sbc2_readwrite6},
@@ -1364,6 +1369,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_corrct_flags,
           {"Flags", "scsi.sbc.corrct_flags", FT_UINT8, BASE_HEX,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_reassignblocks_longlba,
+          {"LongLBA", "scsi.sbc.reassignblocks.longlba", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_sbc_reassignblocks_longlist,
+          {"LongList", "scsi.sbc.reassignblocks.longlist", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
 	};
 
 
@@ -1374,7 +1385,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_pmi,
 		&ett_scsi_rdwr,
 		&ett_scsi_defectdata,
-		&ett_scsi_corrct
+		&ett_scsi_corrct,
+		&ett_scsi_reassign_blocks
 	};
 
 	/* Register the protocol name and description */
