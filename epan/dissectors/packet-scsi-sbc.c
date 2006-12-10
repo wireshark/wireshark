@@ -56,7 +56,9 @@ static int hf_scsi_sbc_rdwr10_lba		= -1;
 static int hf_scsi_sbc_rdwr10_xferlen		= -1;
 static int hf_scsi_sbc_rdwr12_xferlen		= -1;
 static int hf_scsi_sbc_rdwr16_lba		= -1;
+static int hf_scsi_sbc_ssu_immed_flags		= -1;
 static int hf_scsi_sbc_ssu_immed		= -1;
+static int hf_scsi_sbc_ssu_pwr_flags		= -1;
 static int hf_scsi_sbc_ssu_pwr_cond		= -1;
 static int hf_scsi_sbc_ssu_loej			= -1;
 static int hf_scsi_sbc_ssu_start		= -1;
@@ -108,6 +110,8 @@ static gint ett_scsi_pmi			= -1;
 static gint ett_scsi_defectdata			= -1;
 static gint ett_scsi_corrct			= -1;
 static gint ett_scsi_reassign_blocks		= -1;
+static gint ett_scsi_ssu_immed			= -1;
+static gint ett_scsi_ssu_pwr			= -1;
 
 
 
@@ -388,20 +392,32 @@ dissect_sbc2_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
                             guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *ssu_fields[] = {
+	&hf_scsi_sbc_ssu_immed,
+	NULL
+    };
+    static const int *pwr_fields[] = {
+	&hf_scsi_sbc_ssu_pwr_cond,
+	&hf_scsi_sbc_ssu_loej,
+	&hf_scsi_sbc_ssu_start,
+	NULL
+    };
 
     if (!tree || !iscdb)
         return;
 
-    proto_tree_add_boolean (tree, hf_scsi_sbc_ssu_immed, tvb, offset, 1, 0);
-    proto_tree_add_uint (tree, hf_scsi_sbc_ssu_pwr_cond, tvb, offset+3, 1, 0);
-    proto_tree_add_boolean (tree, hf_scsi_sbc_ssu_loej, tvb, offset+3, 1, 0);
-    proto_tree_add_boolean (tree, hf_scsi_sbc_ssu_start, tvb, offset+3, 1, 0);
+    if (isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_ssu_immed_flags, ett_scsi_ssu_immed, ssu_fields, FALSE);
 
-    flags = tvb_get_guint8 (tvb, offset+4);
-    proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+	proto_tree_add_bitmask(tree, tvb, offset+3, hf_scsi_sbc_ssu_pwr_flags, ett_scsi_ssu_pwr, pwr_fields, FALSE);
+
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                 flags,
                                 "Vendor Unique = %u, NACA = %u, Link = %u",
                                 flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
 }
 
 static void
@@ -1245,7 +1261,7 @@ proto_register_scsi_sbc(void)
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_sbc_ssu_immed,
           {"Immediate", "scsi.sbc.ssu.immediate", FT_BOOLEAN, 8, NULL,
-           0x1, "", HFILL}},
+           0x01, "", HFILL}},
         { &hf_scsi_sbc_ssu_pwr_cond,
           {"Power Conditions", "scsi.sbc.ssu.pwr", FT_UINT8, BASE_HEX,
            VALS (scsi_ssu_pwrcnd_val), 0xF0, "", HFILL}},
@@ -1375,6 +1391,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_reassignblocks_longlist,
           {"LongList", "scsi.sbc.reassignblocks.longlist", FT_BOOLEAN, 8,
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_sbc_ssu_immed_flags,
+          {"Immed flags", "scsi.sbc.ssu.immed_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
+        { &hf_scsi_sbc_ssu_pwr_flags,
+          {"Pwr flags", "scsi.sbc.ssu.pwr_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, "", HFILL}},
 	};
 
 
@@ -1386,7 +1408,9 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_rdwr,
 		&ett_scsi_defectdata,
 		&ett_scsi_corrct,
-		&ett_scsi_reassign_blocks
+		&ett_scsi_reassign_blocks,
+		&ett_scsi_ssu_immed,
+		&ett_scsi_ssu_pwr
 	};
 
 	/* Register the protocol name and description */
