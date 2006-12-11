@@ -494,13 +494,20 @@ static const value_string ipmi_netfn_vals[] = {
 	{ 0x00,	NULL },
 };
 
+#define IPMI_AUTH_NONE		0x00
+#define IPMI_AUTH_MD2		0x01
+#define IPMI_AUTH_MD5		0x02
+#define IPMI_AUTH_PASSWORD	0x04
+#define IPMI_AUTH_OEM		0x05
+#define IPMI_AUTH_RMCPP		0x06
+
 static const value_string ipmi_authtype_vals[] = {
-	{ 0x00,	"NONE" },
-	{ 0x01,	"MD2" },
-	{ 0x02,	"MD5" },
-	{ 0x04,	"PASSWORD" },
-	{ 0x05,	"OEM" },
-	{ 0x06, "RMCPP"},
+	{ IPMI_AUTH_NONE,	"NONE" },
+	{ IPMI_AUTH_MD2,	"MD2" },
+	{ IPMI_AUTH_MD5,	"MD5" },
+	{ IPMI_AUTH_PASSWORD,	"PASSWORD" },
+	{ IPMI_AUTH_OEM,	"OEM" },
+	{ IPMI_AUTH_RMCPP,	"RMCPP"},
 	{ 0x00,	NULL }
 };
 
@@ -3834,8 +3841,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* tvbuff_t	*next_tvb; */  /* modified by lane */
 	guint32		session_id;
 	/*payloadtype for RMCPP*/
-	guint8		authtype, payloadtype, netfn, cmd, ccode, len, response;
-	gboolean	payloadtype_auth, payloadtype_enc;
+	guint8		authtype, payloadtype = 0, netfn, cmd, ccode, len, response;
+	gboolean	payloadtype_auth, payloadtype_enc = 0;
 
 	/* session authtype, 0=no authcode present */
 	authtype = tvb_get_guint8(tvb, 0);
@@ -3845,7 +3852,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* EventData 1~3 */
 	switch(authtype) {
 
-		case 0x06:
+		case IPMI_AUTH_RMCPP:
 			/* RMCPP
 			 *  ipmi.session.authtype 	=6
 			 *	Payload Type			+1
@@ -3858,7 +3865,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			auth_offset = 2;
 
 			break;
-		case 0x00:
+		case IPMI_AUTH_NONE:
 			auth_offset = 0;
 			break;
 		default:
@@ -3873,8 +3880,8 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 */
 
 	/* session ID */
-	if (authtype == 6) {
-		// -1 for 2 byte length field when RMCPP
+	if (authtype == IPMI_AUTH_RMCPP) {
+		/* -1 for 2 byte length field when RMCPP */
 		session_id = tvb_get_letohl(tvb, auth_offset + 9 - 1);
 	} else {
 		session_id = tvb_get_letohl(tvb, auth_offset + 5);
@@ -3892,15 +3899,16 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* completion code */
 	ccode = response ? tvb_get_guint8(tvb, auth_offset + 16) : 0;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		if (authtype == 6) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		if (authtype == IPMI_AUTH_RMCPP) {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCPP");
 		} else {
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI");
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPMI");
 		}
+	}
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
-	if (authtype != 6) {
+	if (authtype != IPMI_AUTH_RMCPP) {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			if (ccode)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s: %s",
@@ -3933,9 +3941,9 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* ipmi session field */
 
-	if (authtype == 6) {
+	if (authtype == IPMI_AUTH_RMCPP) {
 
-		/*5 - 1 :subtract extra byte from 2 byte lenghth correction*/
+		/*5 - 1 :subtract extra byte from 2 byte length correction*/
 		tf = proto_tree_add_text(ipmi_tree, tvb, offset,
 				 auth_offset + 5 - 1,
 				 "Session: ID 0x%08x (%d bytes)",
@@ -3981,8 +3989,6 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree, hf_ipmi_session_sequence,
 				tvb, offset, 4, TRUE);
 		offset += 4;
-
-
 	} else {
 		tf = proto_tree_add_text(ipmi_tree, tvb, offset,
 					 auth_offset + 9,
@@ -3997,7 +4003,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(field_tree, hf_ipmi_session_id,
 			    tvb, offset, 4, TRUE);
 		offset += 4;
-			if (authtype != 0) {
+		if (authtype != IPMI_AUTH_NONE) {
 			proto_tree_add_item(field_tree, hf_ipmi_session_authcode,
 				    tvb, offset, 16, TRUE);
 			offset += 16;
@@ -4007,7 +4013,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* message length */
 	if (tree) {
 
-		if(authtype == 6) {
+		if(authtype == IPMI_AUTH_RMCPP) {
 			proto_tree_add_item(ipmi_tree, hf_ipmi_msg_len,
 					tvb, offset, 2, TRUE);
 					offset+=2;
@@ -4022,7 +4028,7 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset++;
 		}
 	}
-	if ((authtype == 6)) {
+	if ((authtype == IPMI_AUTH_RMCPP)) {
 		switch (payloadtype){
 		case IPMI_IPMI_MESSAGE:
 			if (payloadtype_enc){
@@ -4161,11 +4167,11 @@ proto_register_ipmi(void)
 		{ &hf_ipmi_payloadtype_auth,{
 			"Authenticated","ipmi.session.payloadtype.auth",
 			FT_BOOLEAN,8,  TFS(&ipmi_payload_aut_val), 0x40,          
-			"IPMI Paylodtype authenticated", HFILL }},
+			"IPMI Payload Type authenticated", HFILL }},
 		{ &hf_ipmi_payloadtype_enc,{
 			"Encryption","ipmi.session.payloadtype.enc",
 			FT_BOOLEAN,8,  TFS(&ipmi_payload_enc_val), 0x80,          
-			"IPMI Paylodtype encryption", HFILL }},
+			"IPMI Payload Type encryption", HFILL }},
 		{ &hf_ipmi_oem_iana,{
 			"OEM IANA", "ipmi.session.oem.iana",
 			FT_BYTES, BASE_HEX, NULL, 0,
