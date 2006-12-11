@@ -1,4 +1,5 @@
-/* TODO  
+/* This dissector is based on the SBC2 specification.
+ * TODO  
  * parts of opcodes 
  * 0x7f
  * 0xa3
