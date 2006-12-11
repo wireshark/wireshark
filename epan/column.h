@@ -36,6 +36,7 @@ gint                 get_column_format(gint);
 void                 get_column_format_matches(gboolean *, gint);
 gint                 get_column_format_from_str(gchar *);
 gchar               *get_column_title(gint);
+const gchar         *get_column_width_string(gint, gint);
 const char          *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
 

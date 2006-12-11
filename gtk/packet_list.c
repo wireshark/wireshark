@@ -481,10 +481,10 @@ packet_list_set_font(FONT_TYPE *font)
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
 #if GTK_MAJOR_VERSION < 2
 		col_width = gdk_string_width(font,
-			get_column_longest_string(get_column_format(i)));
+			get_column_width_string(get_column_format(i), i));
 #else
                 layout = gtk_widget_create_pango_layout(packet_list,
-		    get_column_longest_string(get_column_format(i)));
+		    get_column_width_string(get_column_format(i), i));
                 pango_layout_get_pixel_size(layout, &col_width, NULL);
                 g_object_unref(G_OBJECT(layout));
 #endif

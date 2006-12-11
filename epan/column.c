@@ -415,6 +415,18 @@ get_timestamp_column_longest_string(gint type, gint precision)
 	return "";
 }
 
+/* Returns the longer string of the column title or the hard-coded width of 
+ * its contents for building the packet list layout. */
+const gchar *
+get_column_width_string(gint format, gint col)
+{
+	if(strlen(get_column_longest_string(format)) >
+	   strlen(get_column_title(col)))
+		return get_column_longest_string(format);
+	else
+		return get_column_title(col);
+}
+
 /* Returns a string representing the longest possible value for a
    particular column type.
 
