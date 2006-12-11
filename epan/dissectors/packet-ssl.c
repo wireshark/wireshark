@@ -3758,10 +3758,10 @@ proto_register_ssl(void)
              &ssl_desegment_app_data);
 #ifdef HAVE_LIBGNUTLS
        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
-             "semicolon separated list of private RSA keys used for SSL decryption;\n"
-             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>\n"
-             "<key_file_name> is the local file name of the RSA private key used by the specified server\n"
-             "(or name of the file containig such a list)",
+             "Semicolon-separated list of private RSA keys used for SSL decryption; "
+             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>. "
+             "<key_file_name> is the local file name of the RSA private key used by the specified server "
+             "(or name of the file containing such a list)",
              (const gchar **)&ssl_keys_list);
         prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
              "redirect ssl debug to file name; leave empty to disable debug, "
