@@ -1600,7 +1600,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
             
     addr = start;
     /* split ip/file couple with ';' separator*/
-    end = strchr(start, ';');
+    end = strpbrk(start, ";\n\r");
     if (end) {
       *end = 0;
       start = end+1;
@@ -1612,7 +1612,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     if (!port)
       {
 	ssl_debug_printf("ssl_init entry malformed can't find port in %s\n", addr);
-	break;
+	continue;
       }
     *port = 0;
     port++;
@@ -1621,7 +1621,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     if (!protocol)
       {
 	ssl_debug_printf("ssl_init entry malformed can't find protocol in %s\n", port);
-	break;
+	continue;
       }
     *protocol=0;
     protocol++;
@@ -1630,7 +1630,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     if (!filename)
       {
 	ssl_debug_printf("ssl_init entry malformed can't find filename in %s\n", port);
-	break;
+	continue;
       }
     *filename=0;
     filename++;
@@ -1649,14 +1649,14 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     fp = fopen(filename, "rb");
     if (!fp) {
       fprintf(stderr, "can't open file %s \n",filename);
-      break;
+      continue;
     }        
             
     private_key = ssl_load_key(fp);
     if (!private_key) {
       fprintf(stderr,"can't load private key from %s\n",
 	      filename);
-      break;
+      continue;
     }
     fclose(fp);
             

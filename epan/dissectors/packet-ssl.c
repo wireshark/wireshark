@@ -95,6 +95,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <sys/types.h>
 #ifdef HAVE_SYS_SOCKET_H
@@ -109,6 +110,8 @@
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include <epan/filesystem.h>
+#include <epan/report_err.h>
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 
@@ -243,6 +246,10 @@ ssl_parse(void)
 {
     ep_stack_t tmp_stack;
     SslAssociation *tmp_assoc;
+    FILE *ssl_keys_file;
+	struct stat statb;
+	size_t size;
+	gchar *tmp_buf;
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -264,7 +271,22 @@ ssl_parse(void)
 
     if (ssl_keys_list && (ssl_keys_list[0] != 0))
     {
-        ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+		if (file_exists(ssl_keys_list)) {
+		    if ((ssl_keys_file = fopen(ssl_keys_list, "r"))) {
+				fstat(fileno(ssl_keys_file), &statb);
+				size = statb.st_size;
+				tmp_buf = ep_alloc0(size + 1);
+				fread(tmp_buf, size, 1, ssl_keys_file);
+				tmp_buf[size] = '\0';
+				fclose(ssl_keys_file);
+		        ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+			} else {
+        		report_open_failure(ssl_keys_list, errno, FALSE);
+		    }
+
+		} else {
+	        ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+		}
     }
 
 }
@@ -3735,9 +3757,10 @@ proto_register_ssl(void)
              &ssl_desegment_app_data);
 #ifdef HAVE_LIBGNUTLS
        prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list",
-             "semicolon separated list of private RSA keys used for SSL decryption; "
-             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>"
-             "<key_file_name>   is the local file name of the RSA private key used by the specified server\n",
+             "semicolon separated list of private RSA keys used for SSL decryption;\n"
+             "each list entry must be in the form of <ip>,<port>,<protocol>,<key_file_name>\n"
+             "<key_file_name> is the local file name of the RSA private key used by the specified server\n"
+             "(or name of the file containig such a list)",
              (const gchar **)&ssl_keys_list);
         prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
              "redirect ssl debug to file name; leave empty to disable debug, "
