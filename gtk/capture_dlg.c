@@ -592,7 +592,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar         *cap_title;
   gchar         *if_device;
 
+#ifdef HAVE_AIRPCAP
   GtkWidget		*decryption_cm;
+#endif
 
   if (cap_open_w != NULL) {
     /* There's already a "Capture Options" dialog box; reactivate it. */

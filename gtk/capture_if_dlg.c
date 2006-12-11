@@ -401,7 +401,9 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 				*help_bt,
 				*icon;
 
+#ifdef HAVE_AIRPCAP
   GtkWidget		*decryption_cm;
+#endif
 
   GtkWidget     *if_tb;
   GtkWidget     *if_lb;
