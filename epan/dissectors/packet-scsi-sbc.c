@@ -1,4 +1,12 @@
-/* TODO  add dissection of opcode 0x7f and all subcommands */
+/* TODO  
+ * parts of opcodes 
+ * 0x7f
+ * 0xa3
+ * 0xa4
+ * 0x9e
+ * are still missing. 
+ * Some DATA IN/OUT PDUs are missing as well.
+ */
 /* packet-scsi-sbc.c
  * Dissector for the SCSI SBC commandset
  * Extracted from packet-scsi.c
