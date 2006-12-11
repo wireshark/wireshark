@@ -91,11 +91,14 @@ col_format_to_string(gint fmt) {
     "%H", 
     "%P", 
     "%y", 
-    "%z", 
-    "%v", 
+	"%v",
+	"%q",
+	"%f",
+    "%U",  
     "%E",
 	"%C",
-	"%l"
+	"%l",
+	"%z"
 };
                      
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -155,6 +158,8 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"DCE/RPC call (cn_call_id / dg_seqnum)",    /* COL_DCE_CALL */
 	"DCE/RPC context ID (cn_ctx_id)",           /* COL_DCE_CTX */
 	"802.1Q VLAN id",                           /* COL_8021Q_VLAN_ID */
+	"IP DSCP Value",		     	    /* COL_DSCP_VALUE */
+	"L2 COS Value (802.1p)",		    /* COL_COS_VALUE */
 	"TEI",                                      /* XXX - why is it missing in column_utils.c and elsewhere? */
 	"Frame Relay DLCI",							/* COL_FR_DLCI */
 	"GPRS BSSGP TLLI",							/* COL_BSSGP_TLLI */
@@ -260,6 +265,12 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_8021Q_VLAN_ID:
       fmt_list[COL_8021Q_VLAN_ID] = TRUE;
+      break;
+    case COL_DSCP_VALUE:
+      fmt_list[COL_DSCP_VALUE] = TRUE;
+      break;
+    case COL_COS_VALUE:
+      fmt_list[COL_COS_VALUE] = TRUE;
       break;
     case COL_TEI:
       fmt_list[COL_TEI] = TRUE;
@@ -428,7 +439,7 @@ get_column_width_string(gint format, gint col)
 }
 
 /* Returns a string representing the longest possible value for a
-   particular column type.
+   particular column type.  See also get_column_width_string() above.
 
    Except for the COL...SRC and COL...DST columns, these are used
    only when a capture is being displayed while it's taking place;
@@ -535,6 +546,12 @@ get_column_longest_string(gint format)
       break;
     case COL_8021Q_VLAN_ID:
       return "0000";
+      break;
+    case COL_DSCP_VALUE:
+      return "00";
+      break;
+    case COL_COS_VALUE:
+      return "0";
       break;
     case COL_TEI:
       return "127";
@@ -694,9 +711,15 @@ get_column_format_from_str(gchar *str) {
       case 'z':
 	return COL_DCE_CTX;
 	break;
-      case 'v':
+      case 'q':
 	return COL_8021Q_VLAN_ID;
 	break;
+      case 'f':
+        return COL_DSCP_VALUE;
+        break;
+      case 'U':
+        return COL_COS_VALUE;
+        break;
       case 'E':
 	return COL_TEI;
       case 'C':

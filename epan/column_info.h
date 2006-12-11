@@ -100,6 +100,8 @@ enum {
   COL_DCE_CALL,       /* DCE/RPC connection oriented call id OR datagram sequence number */
   COL_DCE_CTX,        /* DCE/RPC connection oriented context id */
   COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
+  COL_DSCP_VALUE,     /* IP DSCP Value */
+  COL_COS_VALUE,      /* L2 COS Value */
   COL_TEI,            /* q.921 TEI */
   COL_FR_DLCI,		  /* Frame Relay DLCI */
   COL_BSSGP_TLLI,	  /* GPRS BSSGP IE TLLI */

@@ -929,7 +929,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (tree) {
-    if (g_ip_dscp_actif) {
+      
+	  if (check_col(pinfo->cinfo, COL_DSCP_VALUE)) {
+		col_add_fstr(pinfo->cinfo, COL_DSCP_VALUE, "%u", IPDSFIELD_DSCP(iph->ip_tos));
+      }
+	  if (g_ip_dscp_actif) {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1, 1, iph->ip_tos,
 	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s; ECN: 0x%02x)", iph->ip_tos,
 	   IPDSFIELD_DSCP(iph->ip_tos), val_to_str(IPDSFIELD_DSCP(iph->ip_tos), dscp_vals,
