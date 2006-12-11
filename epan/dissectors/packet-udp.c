@@ -232,19 +232,25 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (udph->uh_ulen < 8) {
       /* Bogus length - it includes the header, so it must be >= 8. */
       /* XXX - should handle IPv6 UDP jumbograms (RFC 2675), where the length is zero */
-      if (tree) {
-        proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
+      item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
-      }
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u < 8", udph->uh_ulen);
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
-    if (tree) {
-      if ((udph->uh_ulen > pinfo->iplen - pinfo->iphdrlen) && ! pinfo->fragmented) {
-        proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
+    if ((udph->uh_ulen > pinfo->iplen - pinfo->iphdrlen) && ! pinfo->fragmented) {
+      /* Bogus length - it goes past the end of the IP payload */
+      item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, should be %u)", udph->uh_ulen,
           pinfo->iplen - pinfo->iphdrlen);
-      } else {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u > IP payload length", udph->uh_ulen);
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
+    } else {
+      if (tree) {
         proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
+        /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
         proto_tree_add_uint_hidden(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4,
           0, udph->uh_sum_cov);
       }
@@ -257,15 +263,22 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       if (tree) {
         proto_tree_add_boolean_hidden(udp_tree, hf_udplite_checksum_coverage_bad, tvb, offset + 4, 2, TRUE);
         proto_tree_add_uint_hidden(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-        proto_tree_add_uint_format(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2,
+      }
+      item = proto_tree_add_uint_format(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2,
           udph->uh_sum_cov, "Checksum coverage: %u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
           udph->uh_sum_cov, udph->uh_ulen);
-      }
-      if (udplite_ignore_checksum_coverage == FALSE)
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value %u < 8 or > %u",
+                             udph->uh_sum_cov, udph->uh_ulen);
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD LIGHTWEIGHT UDP CHECKSUM COVERAGE LENGTH %u < 8 or > %u]",
+                        udph->uh_sum_cov, udph->uh_ulen);
+      if (!udplite_ignore_checksum_coverage)
         return;
-    } else if (tree) {
-      proto_tree_add_uint_hidden(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-      proto_tree_add_uint(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2, udph->uh_sum_cov);
+    } else {
+      if (tree) {
+        proto_tree_add_uint_hidden(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+        proto_tree_add_uint(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2, udph->uh_sum_cov);
+      }
     }
   }
 
