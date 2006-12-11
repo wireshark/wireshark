@@ -534,73 +534,73 @@ error_create_popup_menu(error_equiv_table *err)
 void
 init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
 {
-	guint16 i, j;
+    guint16 i, j;
 #if (GTK_MAJOR_VERSION < 2)
-	column_arrows *col_arrows;
-	GdkBitmap *ascend_bm, *descend_bm;
-	GdkPixmap *ascend_pm, *descend_pm;
-	GtkStyle *win_style;
-	GtkWidget *column_lb;
+    column_arrows *col_arrows;
+    GdkBitmap *ascend_bm, *descend_bm;
+    GdkPixmap *ascend_pm, *descend_pm;
+    GtkStyle *win_style;
+    GtkWidget *column_lb;
 
-	const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
+    const char *default_titles[] = { "Group", "Protocol", "Summary", "Count"};
 
-	err->scrolled_window=scrolled_window_new(NULL, NULL);
-	gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
+    err->scrolled_window=scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
 
-	err->table=(GtkCList *)gtk_clist_new(4);
+    err->table=(GtkCList *)gtk_clist_new(4);
 
-	gtk_widget_show(GTK_WIDGET(err->table));
-	gtk_widget_show(err->scrolled_window);
+    gtk_widget_show(GTK_WIDGET(err->table));
+    gtk_widget_show(err->scrolled_window);
 
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 4);
-	win_style = gtk_widget_get_style(err->scrolled_window);
-	ascend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
-			&ascend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_ascend_xpm);
-	descend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
-			&descend_bm,
-			&win_style->bg[GTK_STATE_NORMAL],
-			(gchar **)clist_descend_xpm);
-	for (i = 0; i < 4; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(default_titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
+    col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * 4);
+    win_style = gtk_widget_get_style(err->scrolled_window);
+    ascend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
+            &ascend_bm,
+            &win_style->bg[GTK_STATE_NORMAL],
+            (gchar **)clist_ascend_xpm);
+    descend_pm = gdk_pixmap_create_from_xpm_d(err->scrolled_window->window,
+            &descend_bm,
+            &win_style->bg[GTK_STATE_NORMAL],
+            (gchar **)clist_descend_xpm);
+    for (i = 0; i < 4; i++) {
+        col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+        gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+        column_lb = gtk_label_new(default_titles[i]);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        gtk_widget_show(column_lb);
 
-		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		if (i == 3) {
-			gtk_widget_show(col_arrows[i].descend_pm);
-		}
-		gtk_clist_set_column_widget(GTK_CLIST(err->table), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
-	}
-	gtk_clist_column_titles_show(GTK_CLIST(err->table));
+        col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+        gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+        if (i == 3) {
+            gtk_widget_show(col_arrows[i].descend_pm);
+        }
+        gtk_clist_set_column_widget(GTK_CLIST(err->table), i, col_arrows[i].table);
+        gtk_widget_show(col_arrows[i].table);
+    }
+    gtk_clist_column_titles_show(GTK_CLIST(err->table));
 
-	gtk_clist_set_compare_func(err->table, error_sort_column);
-	gtk_clist_set_sort_column(err->table, 3);
-	gtk_clist_set_sort_type(err->table, GTK_SORT_DESCENDING);
-
-
-	/*XXX instead of this we should probably have some code to
-		dynamically adjust the width of the columns */
-	gtk_clist_set_column_width(err->table, 0, 75);
-	gtk_clist_set_column_width(err->table, 1, 75);
-	gtk_clist_set_column_width(err->table, 2, 400);
-	gtk_clist_set_column_width(err->table, 3, 50);
+    gtk_clist_set_compare_func(err->table, error_sort_column);
+    gtk_clist_set_sort_column(err->table, 3);
+    gtk_clist_set_sort_type(err->table, GTK_SORT_DESCENDING);
 
 
-	gtk_clist_set_shadow_type(err->table, GTK_SHADOW_IN);
-	gtk_clist_column_titles_show(err->table);
-	gtk_container_add(GTK_CONTAINER(err->scrolled_window), (GtkWidget *)err->table);
+    /*XXX instead of this we should probably have some code to
+        dynamically adjust the width of the columns */
+    gtk_clist_set_column_width(err->table, 0, 75);
+    gtk_clist_set_column_width(err->table, 1, 75);
+    gtk_clist_set_column_width(err->table, 2, 400);
+    gtk_clist_set_column_width(err->table, 3, 50);
 
-	SIGNAL_CONNECT(err->table, "click-column", error_click_column_cb, col_arrows);
 
-	gtk_widget_show(GTK_WIDGET(err->table));
+    gtk_clist_set_shadow_type(err->table, GTK_SHADOW_IN);
+    gtk_clist_column_titles_show(err->table);
+    gtk_container_add(GTK_CONTAINER(err->scrolled_window), (GtkWidget *)err->table);
+
+    SIGNAL_CONNECT(err->table, "click-column", error_click_column_cb, col_arrows);
+
+    gtk_widget_show(GTK_WIDGET(err->table));
 #else
     GtkTreeStore *store;
     GtkWidget *tree;
@@ -659,11 +659,11 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
  
- 	err->scrolled_window=scrolled_window_new(NULL, NULL);
+    err->scrolled_window=scrolled_window_new(NULL, NULL);
 
     gtk_container_add(GTK_CONTAINER(err->scrolled_window), GTK_WIDGET (err->tree_view));
 
-	gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), err->scrolled_window, TRUE, TRUE, 0);
 
     gtk_tree_view_set_search_column (err->tree_view, SUMMARY_COLUMN); /* Allow searching the summary */
     gtk_tree_view_set_reorderable (err->tree_view, TRUE);   /* Allow user to reorder data with drag n drop */
@@ -671,22 +671,20 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
     /* Now enable the sorting of each column */
     gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(err->tree_view), TRUE);
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(err->tree_view), TRUE);
-
-	gtk_container_add(GTK_CONTAINER(err->scrolled_window), GTK_WIDGET (err->tree_view));
 #endif
 
-	gtk_widget_show(err->scrolled_window);
+    gtk_widget_show(err->scrolled_window);
 
     err->num_procs=num_procs;
-	err->procedures=g_malloc(sizeof(error_procedure_t)*(num_procs+1));
-	for(i=0;i<num_procs;i++){
-		for(j=0;j<3;j++){
-			err->procedures[i].entries[j]=NULL; /* reset all values */
-		}
-	}
+    err->procedures=g_malloc(sizeof(error_procedure_t)*(num_procs+1));
+    for(i=0;i<num_procs;i++){
+        for(j=0;j<3;j++){
+            err->procedures[i].entries[j]=NULL; /* reset all values */
+        }
+    }
 
-	/* create popup menu for this table */
-  	error_create_popup_menu(err);
+    /* create popup menu for this table */
+    error_create_popup_menu(err);
 }
 
 void
