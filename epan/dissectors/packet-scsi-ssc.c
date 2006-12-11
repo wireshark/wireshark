@@ -51,7 +51,29 @@ static int hf_scsi_ssc_locate10_loid	= -1;
 static int hf_scsi_ssc_locate16_loid	= -1;
 static int hf_scsi_ssc_space6_count	= -1;
 static int hf_scsi_ssc_space16_count	= -1;
-static int hf_scsi_ssc_rdwr10_xferlen	= -1;
+static int hf_scsi_ssc_erase_flags		= -1;
+static int hf_scsi_ssc_fcs			= -1;
+static int hf_scsi_ssc_lcs			= -1;
+static int hf_scsi_ssc_erase_immed		= -1;
+static int hf_scsi_ssc_long			= -1;
+static int hf_scsi_ssc_partition		= -1;
+static int hf_scsi_ssc_lbi			= -1;
+static int hf_scsi_ssc_verify			= -1;
+static int hf_scsi_ssc_immed			= -1;
+static int hf_scsi_ssc_formatmedium_flags	= -1;
+static int hf_scsi_ssc_format			= -1;
+static int hf_scsi_ssc_rdwr10_xferlen		= -1;
+static int hf_scsi_ssc_loadunload_immed_flags	= -1;
+static int hf_scsi_ssc_loadunload_flags		= -1;
+static int hf_scsi_ssc_hold			= -1;
+static int hf_scsi_ssc_eot			= -1;
+static int hf_scsi_ssc_reten			= -1;
+static int hf_scsi_ssc_load			= -1;
+
+static gint ett_scsi_erase			= -1;
+static gint ett_scsi_formatmedium		= -1;
+static gint ett_scsi_loadunload_immed		= -1;
+static gint ett_scsi_loadunload			= -1;
 
 
 static void
@@ -137,27 +159,38 @@ dissect_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static void
-dissect_ssc2_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *loadunload_immed_fields[] = {
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+    static const int *loadunload_fields[] = {
+	&hf_scsi_ssc_hold,
+	&hf_scsi_ssc_eot,
+	&hf_scsi_ssc_reten,
+	&hf_scsi_ssc_load,
+	NULL
+    };
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
                              tvb_get_guint8 (tvb, offset) & 0x01);
+    }
 
-        if (!tree)
-            return;
+    if (!tree)
+        return;
 
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Immed: %u", tvb_get_guint8 (tvb, offset) & 0x01);
-        flags = tvb_get_guint8 (tvb, offset+3);
-        proto_tree_add_text (tree, tvb, offset+3, 1,
-                             "Hold: %u, EOT: %u, Reten: %u, Load: %u",
-                             (flags & 0x08) >> 3, (flags & 0x04) >> 2,
-                             (flags & 0x02) >> 1, (flags & 0x01));
+
+    if (isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_loadunload_immed_flags, ett_scsi_loadunload_immed, loadunload_immed_fields, FALSE);
+
+	proto_tree_add_bitmask(tree, tvb, offset+3, hf_scsi_ssc_loadunload_flags, ett_scsi_loadunload, loadunload_fields, FALSE);
+
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -317,37 +350,28 @@ dissect_ssc2_erase6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *erase16_fields[] = {
+	&hf_scsi_ssc_fcs,
+	&hf_scsi_ssc_lcs,
+	&hf_scsi_ssc_erase_immed,
+	&hf_scsi_ssc_long,
+	NULL
+    };
+
+    if (!tree)
+        return;
 
     if (isreq && iscdb) {
-        if (!tree)
-            return;
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_erase_flags, ett_scsi_erase, erase16_fields, FALSE);
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "FCS: %u, LCS: %u, IMMED: %u, LONG: %u",
-                             (flags & 0x08) >> 3,
-                             (flags & 0x04) >> 2,
-                             (flags & 0x02) >> 1,
-                             flags & 0x01);
+        proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset+2, 1, 0);
 
-        proto_tree_add_text (tree, tvb, offset+2, 1,
-                             "Partition: %u", tvb_get_guint8(tvb,offset+2));
-
-        proto_tree_add_text (tree, tvb, offset+3, 8,
-                             "Logical Object Identifier: 0x%02x%02x%02x%02x%02x%02x%02x%02x",
-                             tvb_get_guint8(tvb,offset+3),
-                             tvb_get_guint8(tvb,offset+4),
-                             tvb_get_guint8(tvb,offset+5),
-                             tvb_get_guint8(tvb,offset+6),
-                             tvb_get_guint8(tvb,offset+7),
-                             tvb_get_guint8(tvb,offset+8),
-                             tvb_get_guint8(tvb,offset+9),
-                             tvb_get_guint8(tvb,offset+10));
+        proto_tree_add_item (tree, hf_scsi_ssc_lbi, tvb, offset+3, 8, 0);
 
         flags = tvb_get_guint8 (tvb, offset+14);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
@@ -414,25 +438,32 @@ dissect_ssc2_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+static const value_string format_vals[] = {
+    {0x0, "Use default format"},
+    {0x1, "Partition medium"},
+    {0x2, "Default format then partition"},
+    {0, NULL}
+};
+
 static void
-dissect_ssc2_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *formatmedium_fields[] = {
+	&hf_scsi_ssc_verify,
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+
+    if (!tree)
+        return;
 
     if (isreq && iscdb) {
-        if (!tree)
-            return;
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_formatmedium_flags, ett_scsi_formatmedium, formatmedium_fields, FALSE);
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "VERIFY: %u, IMMED: %u",
-                             (flags & 0x02) >> 1,
-                             flags & 0x01);
-
-        proto_tree_add_text (tree, tvb, offset+1, 1,
-                             "Format: 0x%02x", tvb_get_guint8(tvb,offset+1)&0x0f);
+        proto_tree_add_item (tree, hf_scsi_ssc_format, tvb, offset+1, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_ssc_rdwr10_xferlen, tvb, offset+2, 2, 0);
 
@@ -636,9 +667,9 @@ dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 /* SSC Commands */
 const value_string scsi_ssc_vals[] = {
     {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
-    {SCSI_SSC2_ERASE_16                    , "Erase(16)"},
+    {SCSI_SSC_ERASE_16                     , "Erase(16)"},
     {SCSI_SPC2_EXTCOPY                     , "Extended Copy"},
-    {SCSI_SSC2_FORMAT_MEDIUM               , "Format Medium"},
+    {SCSI_SSC_FORMAT_MEDIUM                , "Format Medium"},
     {SCSI_SPC2_INQUIRY                     , "Inquiry"},
     {SCSI_SSC2_LOAD_UNLOAD                 , "Load Unload"},
     {SCSI_SSC2_LOCATE_10                   , "Locate(10)"},
@@ -690,7 +721,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x01*/{dissect_ssc2_rewind},
 /*SSC 0x02*/{NULL},
 /*SPC 0x03*/{dissect_spc3_requestsense},
-/*SSC 0x04*/{dissect_ssc2_formatmedium},
+/*SSC 0x04*/{dissect_ssc_formatmedium},
 /*SSC 0x05*/{dissect_ssc2_readblocklimits},
 /*SSC 0x06*/{NULL},
 /*SSC 0x07*/{NULL},
@@ -713,7 +744,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x18*/{NULL},
 /*SSC 0x19*/{dissect_ssc2_erase6},
 /*SPC 0x1a*/{dissect_spc3_modesense6},
-/*SSC 0x1b*/{dissect_ssc2_loadunload},
+/*SSC 0x1b*/{dissect_ssc_loadunload},
 /*SSC 0x1c*/{NULL},
 /*SPC 0x1d*/{dissect_spc3_senddiagnostic},
 /*SSC 0x1e*/{dissect_spc3_preventallowmediaremoval},
@@ -833,7 +864,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x90*/{NULL},
 /*SSC 0x91*/{dissect_ssc2_space16},
 /*SSC 0x92*/{dissect_ssc2_locate16},
-/*SSC 0x93*/{dissect_ssc2_erase16},
+/*SSC 0x93*/{dissect_ssc_erase16},
 /*SSC 0x94*/{NULL},
 /*SSC 0x95*/{NULL},
 /*SSC 0x96*/{NULL},
@@ -971,23 +1002,77 @@ proto_register_scsi_ssc(void)
         { &hf_scsi_ssc_rdwr10_xferlen,
           {"Transfer Length", "scsi.ssc.rdwr10.xferlen", FT_UINT16, BASE_DEC, NULL,
            0x0, "", HFILL}},
+        { &hf_scsi_ssc_erase_flags,
+          {"Flags", "scsi.ssc.erase_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_fcs,
+          {"FCS", "scsi.ssc.fcs", FT_BOOLEAN, 8, 
+           NULL, 0x08, "", HFILL}},
+        { &hf_scsi_ssc_lcs,
+          {"LCS", "scsi.ssc.lcs", FT_BOOLEAN, 8, 
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_ssc_erase_immed,
+          {"IMMED", "scsi.ssc.erase_immed", FT_BOOLEAN, 8, 
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_ssc_long,
+          {"LONG", "scsi.ssc.long", FT_BOOLEAN, 8, 
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_ssc_partition,
+          {"Partition", "scsi.ssc.partition", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_lbi,
+          {"Logical Block Identifier", "scsi.ssc.lbi", FT_UINT64, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_verify,
+          {"VERIFY", "scsi.ssc.verify", FT_BOOLEAN, 8, 
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_ssc_immed,
+          {"IMMED", "scsi.ssc.immed", FT_BOOLEAN, 8, 
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_ssc_formatmedium_flags,
+          {"Flags", "scsi.ssc.formatmedium_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_format,
+          {"Format", "scsi.ssc.format", FT_UINT8, BASE_HEX, 
+           VALS(format_vals), 0x0f, "", HFILL}},
+        { &hf_scsi_ssc_loadunload_immed_flags,
+          {"Immed", "scsi.ssc.loadunload_immed_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_loadunload_flags,
+          {"Flags", "scsi.ssc.loadunload_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_hold,
+          {"HOLD", "scsi.ssc.hold", FT_BOOLEAN, 8, 
+           NULL, 0x08, "", HFILL}},
+        { &hf_scsi_ssc_eot,
+          {"EOT", "scsi.ssc.eot", FT_BOOLEAN, 8, 
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_ssc_reten,
+          {"RETEN", "scsi.ssc.reten", FT_BOOLEAN, 8, 
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_ssc_load,
+          {"LOAD", "scsi.ssc.load", FT_BOOLEAN, 8, 
+           NULL, 0x01, "", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
-/*
 	static gint *ett[] = {
+		&ett_scsi_erase,
+		&ett_scsi_formatmedium,
+		&ett_scsi_loadunload_immed,
+		&ett_scsi_loadunload
 	};
-*/
+
 
 	/* Register the protocol name and description */
 	proto_scsi_ssc = proto_register_protocol("SCSI_SSC", "SCSI_SSC", "scsi_ssc");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_scsi_ssc, hf, array_length(hf));
-/*
+
 	proto_register_subtree_array(ett, array_length(ett));
-*/
+
 }
 
 void
