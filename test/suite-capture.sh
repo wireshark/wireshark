@@ -19,7 +19,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
+# along with this program; if not, writeto the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
@@ -29,15 +29,26 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
+traffic_gen_ping() {
+	# Generate some traffic for quiet networks.
+	# This will have to be adjusted for non-Windows systems.
+	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
+}
 
 # capture exactly 10 packets
 capture_step_10packets() {
-        if [ "$WS_SYSTEM" != "Windows" ] ; then
-                test_step_skipped
-                return
-        fi
+	if [ "$WS_SYSTEM" != "Windows" ] ; then
+		test_step_skipped
+		return
+	fi
 
-	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
+	traffic_gen_ping
+	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-c 10  \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		icmp \
+		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -75,7 +86,13 @@ capture_step_10packets_stdout() {
                 return
         fi
 
-	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -c 10 -a duration:$TRAFFIC_CAPTURE_DURATION -w - > ./testout.pcap 2>./testout.txt
+	traffic_gen_ping
+	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
+		-c 10 \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		-w - \
+		icmp \
+		> ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -107,7 +124,10 @@ capture_step_10packets_stdout() {
 capture_step_fifo() {
 	mkfifo 'fifo'
 	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) > fifo &
-	$DUT -i fifo $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
+	$DUT -i fifo $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	rm 'fifo'
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -140,7 +160,14 @@ capture_step_2multi_10packets() {
                 return
         fi
 
-	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -c 10  -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
+	traffic_gen_ping
+	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-c 10 \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		icmp
+		> ./testout.txt 2>&1
+
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -175,8 +202,15 @@ capture_step_read_filter() {
                 return
         fi
 
+	traffic_gen_ping
 	# valid, but very unlikely filter
-	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -a duration:$TRAFFIC_CAPTURE_DURATION -R 'dcerpc.cn_call_id==123456' -c 10 > ./testout.txt 2>&1
+	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		-R 'dcerpc.cn_call_id==123456' \
+		-c 10 \
+		icmp
+		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -209,9 +243,16 @@ capture_step_snapshot() {
                 return
         fi
 
+	traffic_gen_ping
+
 	# capture with a snapshot length of 68 bytes for $TRAFFIC_CAPTURE_DURATION seconds
 	# this should result in no packets
-	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC -w ./testout.pcap -s 68 -a duration:$TRAFFIC_CAPTURE_DURATION > ./testout.txt 2>&1
+	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
+		-w ./testout.pcap \
+		-s 68 \
+		-a duration:$TRAFFIC_CAPTURE_DURATION
+		icmp \
+		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"

@@ -51,7 +51,7 @@ TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-3}
 
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
-TRAFFIC_CAPTURE_DURATION=3
+TRAFFIC_CAPTURE_DURATION=20
 
 # the default is to not capture in promiscuous mode
 # (this makes known trouble with some Windows WLAN adapters)
