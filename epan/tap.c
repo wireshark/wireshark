@@ -163,6 +163,14 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 	if(!tapping_is_active){
 		return;
 	}
+	/*
+	 * XXX - should we allocate this with an ep_allocator,
+	 * rather than having a fixed maximum number of entries?
+	 */
+	if(tap_packet_index >= TAP_PACKET_QUEUE_LEN){
+		g_warning("Too many taps queued");
+		return;
+	}
 
 	tpt=&tap_packet_array[tap_packet_index];
 	tpt->tap_id=tap_id;
