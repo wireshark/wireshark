@@ -368,6 +368,7 @@ get_column_format_from_str
 get_column_format_matches
 get_column_longest_string
 get_column_title
+get_column_width_string
 get_credential_info
 get_datafile_path
 get_datafile_dir
