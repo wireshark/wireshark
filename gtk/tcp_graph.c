@@ -37,7 +37,6 @@
 #include "globals.h" 		/* cfile */
 #include <epan/packet.h>	/* frame_data */
 #include <epan/emem.h>
-#include "gtkglobals.h"		/* packet_list */
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "color.h"
