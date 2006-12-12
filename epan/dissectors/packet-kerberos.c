@@ -2251,7 +2251,6 @@ dissect_krb5_padata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 
 
 
-
 static const true_false_string krb5_ticketflags_forwardable = {
 	"FORWARDABLE tickets are allowed/requested",
 	"Do NOT use forwardable tickets"
@@ -4088,6 +4087,7 @@ dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 		break;
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED:
 	case KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED:
+	case KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_krb_e_data, dissect_krb5_padata);
 
 		break;
