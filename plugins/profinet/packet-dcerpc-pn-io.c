@@ -307,6 +307,10 @@ static int hf_pn_io_time_io_output = -1;
 static int hf_pn_io_time_io_input_valid = -1;
 static int hf_pn_io_time_io_output_valid = -1;
 
+static int hf_pn_io_maintenance_status = -1;
+static int hf_pn_io_maintenance_status_required = -1;
+static int hf_pn_io_maintenance_status_demanded = -1;
+
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -330,6 +334,7 @@ static gint ett_pn_io_alarmcr_properties = -1;
 static gint ett_pn_io_submodule_state = -1;
 static gint ett_pn_io_channel_properties = -1;
 static gint ett_pn_io_subslot = -1;
+static gint ett_pn_io_maintenance_status = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -439,7 +444,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0223, "PDPortFODataCheck"},
 	{ 0x0230, "PDNCDataCheck"},
 	{ 0x0400, "MultipleBlockHeader"},
-	{ 0x0F00, "MaintenanceBlock"},
+	{ 0x0F00, "MaintenanceItem"},
 	{ 0, NULL }
 };
 
@@ -1144,6 +1149,9 @@ static const value_string pn_io_fiber_optic_cable[] = {
 
 
 
+static int dissect_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen);
+
 static int dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
@@ -1353,6 +1361,72 @@ dissect_ChannelProperties(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *body_length)
+{
+    guint16 u16UserStructureIdentifier;
+    guint16 u16ChannelNumber;
+    guint16 u16ChannelErrorType;
+    guint16 u16ExtChannelErrorType;
+    guint32 u32ExtChannelAddValue;
+    proto_item *sub_item;
+    guint16 u16Index;
+    guint32 u32RecDataLen;
+
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_user_structure_identifier, &u16UserStructureIdentifier);
+    *body_length -= 2;
+
+    proto_item_append_text(item, ", USI:0x%x", u16UserStructureIdentifier);
+
+    switch(u16UserStructureIdentifier) {
+    case(0x8000):   /* ChannelDiagnosisData */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_number, &u16ChannelNumber);
+        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, *body_length);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
+        *body_length -= 6;
+        break;
+    case(0x8002):   /* ExtChannelDiagnosisData */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_number, &u16ChannelNumber);
+
+        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, *body_length);
+
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
+        *body_length -= 12;
+        break;
+    case(0x8100):   /* MaintenanceItem */
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+        *body_length -= 12;
+        break;
+    /* XXX - dissect remaining user structures of [AlarmItem] */
+    case(0x8001):   /* DiagnosisData */
+    case(0x8003):   /* QualifiedChannelDiagnosisData */
+    default:
+        sub_item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, *body_length, "data", 
+            "Data of UserStructureIdentifier(0x%x): %u bytes", u16UserStructureIdentifier, *body_length);
+        if(u16UserStructureIdentifier >= 0x8000) {
+            expert_add_info_format(pinfo, sub_item, PI_UNDECODED, PI_WARN,
+			    "Unknown UserStructureIdentifier 0x%x", u16UserStructureIdentifier);
+        }
+
+        offset += *body_length;
+        *body_length = 0;
+    }
+
+    return offset;
+}
+
+
 
 /* dissect the alarm notification block */
 static int
@@ -1361,16 +1435,10 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
 {
     guint32 u32ModuleIdentNumber;
     guint32 u32SubmoduleIdentNumber;
-    guint16 u16UserStructureIdentifier;
-    guint16 u16ChannelNumber;
-    guint16 u16ChannelErrorType;
-    guint16 u16ExtChannelErrorType;
-    guint32 u32ExtChannelAddValue;
-	proto_item *sub_item;
 
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Notification");
+    /*if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_str(pinfo->cinfo, COL_INFO, ", Alarm Notification");*/
 
     offset = dissect_Alarm_header(tvb, offset, pinfo, tree, item, drep);
     
@@ -1384,51 +1452,11 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ", Ident:0x%x, SubIdent:0x%x",
         u32ModuleIdentNumber, u32SubmoduleIdentNumber);
 
-    /* the rest of the block is optional: [MaintenanceItem] or [AlarmItem] */
-    if(body_length == 20) {
-        return offset;
-    }
+    body_length -= 20;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_user_structure_identifier, &u16UserStructureIdentifier);
-
-    proto_item_append_text(item, ", USI:0x%x", u16UserStructureIdentifier);
-
-    switch(u16UserStructureIdentifier) {
-    case(0x8000):   /* ChannelDiagnosisData */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_number, &u16ChannelNumber);
-        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, body_length);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
-        break;
-    case(0x8002):   /* ExtChannelDiagnosisData */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_number, &u16ChannelNumber);
-
-        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep, body_length);
-
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
-        break;
-    /* XXX - dissect remaining user structures of [MaintenanceItem] and [AlarmItem]*/
-    case(0x8001):   /* DiagnosisData */
-    case(0x8003):   /* QualifiedChannelDiagnosisData */
-    case(0x8100):   /* MaintenanceItem */
-    default:
-        body_length -= 22;
-        sub_item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, body_length, "data", 
-            "Data of UserStructureIdentifier(0x%x): %u bytes", u16UserStructureIdentifier, body_length);
-        if(u16UserStructureIdentifier >= 0x8000) {
-            expert_add_info_format(pinfo, sub_item, PI_UNDECODED, PI_WARN,
-			    "Unknown UserStructureIdentifier 0x%x", u16UserStructureIdentifier);
-        }
-
-        offset += body_length;
+    /* the rest of the block contains optional: [MaintenanceItem] and/or [AlarmItem] */
+    while(body_length) {
+        offset = dissect_AlarmUserStructure(tvb, offset, pinfo, tree, item, drep, &body_length);
     }
 
     return offset;
@@ -1519,6 +1547,41 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
     offset = dissect_Alarm_specifier(tvb, offset, pinfo, tree, drep);
 
     offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+
+/* dissect the maintenance block */
+static int
+dissect_Maintenance_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint32 u32MaintenanceStatus;
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    sub_item = proto_tree_add_item(tree, hf_pn_io_maintenance_status, tvb, offset, 4, FALSE);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_maintenance_status);
+
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_maintenance_status_demanded, &u32MaintenanceStatus);
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_maintenance_status_required, &u32MaintenanceStatus);
+
+    if(u32MaintenanceStatus & 0x0002) {
+        proto_item_append_text(item, ", Demanded");
+        proto_item_append_text(sub_item, ", Demanded");
+    }
+
+    if(u32MaintenanceStatus & 0x0001) {
+        proto_item_append_text(item, ", Required");
+        proto_item_append_text(sub_item, ", Required");
+    }
 
     return offset;
 }
@@ -3256,6 +3319,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0230):
         dissect_PDNCDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
+    case(0x0f00):
+        dissect_Maintenance_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x8001):
     case(0x8002):
         dissect_Alarm_ack_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -3825,9 +3891,17 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     u8CBAVersion = tvb_get_guint8 (tvb, 0);
 
+    /* is this a PNIO class 3 data packet? */
+	/* frame id must be in valid range (cyclic Real-Time, class=3) */
+	if (u16FrameID >= 0x0100 && u16FrameID < 0x7fff) {
+        dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
+        return TRUE;
+    }
+
     /* is this a PNIO class 2 data packet? */
-	/* frame id must be in valid range (cyclic Real-Time, class=2) */
-	if (u16FrameID >= 0x8000 && u16FrameID < 0xbf00) {
+	/* frame id must be in valid range (cyclic Real-Time, class=2) and
+     * first byte (CBA version field) has to be != 0x11 */
+	if (u16FrameID >= 0x8000 && u16FrameID < 0xbf00 && u8CBAVersion != 0x11) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -4331,6 +4405,12 @@ proto_register_pn_io (void)
       { "TimeIOInput", "pn_io.time_io_input_valid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_time_io_output_valid,
       { "TimeIOOutputValid", "pn_io.time_io_output_valid", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_maintenance_status,
+      { "MaintenanceStatus", "pn_io.maintenance_status", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_maintenance_status_required,
+      { "Required", "pn_io.maintenance_status_required", FT_UINT32, BASE_HEX, NULL, 0x0001, "", HFILL }},
+    { &hf_pn_io_maintenance_status_demanded,
+      { "Demanded", "pn_io.maintenance_status_demanded", FT_UINT32, BASE_HEX, NULL, 0x0002, "", HFILL }},
     };
 
 	static gint *ett[] = {
@@ -4356,7 +4436,8 @@ proto_register_pn_io (void)
         &ett_pn_io_alarmcr_properties,
         &ett_pn_io_submodule_state,
         &ett_pn_io_channel_properties,
-        &ett_pn_io_subslot
+        &ett_pn_io_subslot,
+        &ett_pn_io_maintenance_status
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
