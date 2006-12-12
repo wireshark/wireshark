@@ -111,6 +111,7 @@ static gint ett_cmd_GetDeviceID_data_ads = -1;  /* add subtree for Additional De
 
 /********* Storage, NetFN = 0x0a *********/
 
+static gint ett_Get_Channel_Auth_Cap_anonymouslogin = -1;
 /* Get FRU Inventory Area Info, added by lane */
 static gint ett_cmd_GetFRUInventoryAreaInfo_data_ResponseDataByte4 = -1;    /* add subtree for ResponseDataByte4 */
 /* Get SEL Info, added by lane */
@@ -315,6 +316,27 @@ static int hf_GetDeviceID_datafield_ADS_SensorDevice = -1;
 static int hf_GetDeviceID_datafield_ManufactureID = -1;
 static int hf_GetDeviceID_datafield_ProductID = -1;
 static int hf_GetDeviceID_datafield_AFRI = -1;
+
+static int hf_Get_Channel_Auth_Cap_channel_number = -1;
+static int hf_Get_Channel_Auth_Cap_datafield_comp_info = -1;
+static int hf_Get_Channel_Auth_Cap_datafield_channel_number = -1;
+static int hf_Get_Channel_Auth_Cap_datafield_max_priv_lev = -1;
+static int hf_Get_Channel_Auth_Cap_comp_info = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_types_b5 = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_types_b4 = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_types_b2 = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_types_b1 = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_types_b0 = -1;
+static int hf_Get_Channel_Auth_Cap_Auth_KG_status = -1;
+static int hf_Get_Channel_Auth_Cap_per_mess_auth_status = -1;
+static int hf_Get_Channel_Auth_Cap_user_level_auth_status = -1;
+static int hf_Get_Channel_Auth_Cap_anonymouslogin_status_b2 = -1;
+static int hf_Get_Channel_Auth_Cap_anonymouslogin_status_b1 = -1;
+static int hf_Get_Channel_Auth_Cap_anonymouslogin_status_b0 = -1;
+static int hf_Get_Channel_Auth_Cap_ext_cap_b1 = -1;
+static int hf_Get_Channel_Auth_Cap_ext_cap_b0 = -1;
+static int hf_Get_Channel_Auth_OEM_ID = -1;
+static int hf_Get_Channel_Auth_OEM_AUX = -1;
 
 /********* Storage, NetFN = 0x0a *********/
 
@@ -2436,14 +2458,133 @@ dissect_cmd_Get_Device_ID(proto_tree *tree, proto_tree *ipmi_tree, packet_info *
 
 }
 
+static const true_false_string ipmi_Auth_Cap_comp_val  = {
+  "IPMI v2.0+ extended capabilities available",
+  "IPMI v1.5 support only"
+};
 
+static const true_false_string ipmi_Authentication_Type_Support_val  = {
+  "Supported",
+  "Authentication type not available for use"
+};
+
+static const true_false_string ipmi_Auth_Cap_datafield_comp_val  = {
+  "Get IPMI v2.0+ extended data",
+  "Backward compatible with IPMI v1.5"
+};
+
+static const true_false_string ipmi_Authentication_Type_KG_status_val  = {
+  "KG is set to non-zero value",
+  "KG is set to default (all 0s)"
+};
+
+static const true_false_string ipmi_Authentication_Type_per_mess_auth_status_val  = {
+  "Per-message Authentication is disabled",
+  "Per-message Authentication is enabled"
+};
+
+static const true_false_string ipmi_Authentication_Type_user_level_auth_status_val  = {
+  "User Level Authentication is disabled",
+  "User Level Authentication is enabled"
+};
+
+
+
+static const value_string GetChannelAuthCap_channelno_vals[] = {
+	{ 0x0,	"0" },
+	{ 0x1,	"1" },
+	{ 0x2,	"2" },
+	{ 0x3,	"3" },
+	{ 0x4,	"4" },
+	{ 0x5,	"5" },
+	{ 0x6,	"6" },
+	{ 0x7,	"7" },
+	{ 0x8,	"8" },
+	{ 0x9,	"9" },
+	{ 0xa,	"10" },
+	{ 0xb,	"11" },
+	{ 0xe,	"Retrieve information for channel this request was issued on" },
+	{ 0xf,	"15" },
+	{ 0x0,	NULL },
+};
+
+static const value_string GetChannelAuthCap_max_priv_lev_vals[] = {
+	{ 0x0,	"Reserved" },
+	{ 0x1,	"Callback level" },
+	{ 0x2,	"User level" },
+	{ 0x3,	"Operator level" },
+	{ 0x4,	"Administrator level" },
+	{ 0x5,	"OEM Proprietary level" },
+	{ 0x0,	NULL },
+};
+/* 22-15, Get Channel Authentication Capabilities Command */
 dissect_cmd_Get_Channel_Auth_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
+	proto_tree	*field_tree = NULL;
+	proto_item	*tf = NULL;
+
 	if(response) {
+		if (tree) {
+			/* Byte 2 Channel Number */
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_channel_number,
+			    					tvb, (*poffset), 1, TRUE);
+			(*poffset)++;
+			/* Byte 3 - 4 Authentication Type Support */
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_comp_info,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_types_b5,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_types_b4,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_types_b2,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_types_b1,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_types_b0,
+			    					tvb, (*poffset), 1, TRUE);
+			(*poffset)++;
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_Auth_KG_status,
+			    					tvb, (*poffset), 1, TRUE);
+			/* [4] - Per-message Authentication status */
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_per_mess_auth_status,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_user_level_auth_status,
+			    					tvb, (*poffset), 1, TRUE);
+			/* [2:0] - Anonymous Login status */
+			tf = proto_tree_add_text(ipmi_tree, tvb, *poffset, 1,"Anonymous Login status");
+			field_tree = proto_item_add_subtree(tf, ett_Get_Channel_Auth_Cap_anonymouslogin);
 
+			proto_tree_add_item(field_tree, hf_Get_Channel_Auth_Cap_anonymouslogin_status_b2,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(field_tree, hf_Get_Channel_Auth_Cap_anonymouslogin_status_b1,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(field_tree, hf_Get_Channel_Auth_Cap_anonymouslogin_status_b0,
+			    					tvb, (*poffset), 1, TRUE);
+			(*poffset)++;
+			/* For IPMI v2.0+: - Extended Capabilities */
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_ext_cap_b1,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_ext_cap_b0,
+			    					tvb, (*poffset), 1, TRUE);
+			(*poffset)++;
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_OEM_ID,
+			    					tvb, (*poffset), 3, TRUE);
+			(*poffset)+=3;
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_OEM_AUX,
+			    					tvb, (*poffset), 1, TRUE);
+		}
 	}else{
-
+		if (tree) {
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_datafield_comp_info,
+			    					tvb, (*poffset), 1, TRUE);
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_datafield_channel_number,
+			    					tvb, (*poffset), 1, TRUE);
+			(*poffset)++;
+			/* Requested Maximum Privilege Level */
+			proto_tree_add_item(ipmi_tree, hf_Get_Channel_Auth_Cap_datafield_max_priv_lev,
+			    					tvb, (*poffset), 1, TRUE);
+		}
 	}
 }
 /* Storage NetFN (0x0a) */
@@ -3720,10 +3861,7 @@ ipmi_cmd_dissect ipmi_cmd_array[] = {
 	{ 0x06,	0x35,	NULL},
 	{ 0x06,	0x36,	NULL},
 	{ 0x06,	0x37,	NULL},
-	/*
 	{ 0x06,	0x38,	dissect_cmd_Get_Channel_Auth_Capabilities},
-	*/
-	{ 0x06,	0x38,	NULL},
 	{ 0x06,	0x39,	NULL},
 	{ 0x06,	0x3a,	NULL},
 	{ 0x06,	0x3b,	NULL},
@@ -4797,7 +4935,90 @@ proto_register_ipmi(void)
 			FT_UINT32, BASE_HEX, NULL, 0,
 			"Auxiliary Firmware Revision Infomation", HFILL }},
 	};
+	/* Data field of Get Channel Authentication Capabilities command */
+	static hf_register_info hf_Get_Ch_Auth_Cap_datafield[] = {
+		{ &hf_Get_Channel_Auth_Cap_channel_number, {
+			"Channel number", "GetChannelAuthCap.resp.channelno",
+			FT_UINT8, BASE_DEC, NULL, 0,
+			"Channel number", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_comp_info, {
+			"Compabillity information", "GetChannelAuthCap.resp.Auth_Cap_comp_info",
+			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_comp_val), 0x80,          
+			"Compabillity information", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_types_b5, {
+			"OEM proprietary (per OEM identified by the IANA OEM ID in the RMCP Ping Response)", "GetChannelAuthCap.resp.auth_types_b4",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_Support_val), 0x20,
+			"OEM proprietary (per OEM identified by the IANA OEM ID in the RMCP Ping Response)", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_types_b4, {
+			"Straight password / key", "GetChannelAuthCap.resp.auth_types_b4",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_Support_val), 0x10,
+			"Straight password / key", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_types_b2, {
+			"MD5", "GetChannelAuthCap.resp.auth_types_b2",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_Support_val), 0x04,
+			"MD5", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_types_b1, {
+			"MD2", "GetChannelAuthCap.resp.auth_types_b1",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_Support_val), 0x02,
+			"MD2", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_types_b0, {
+			"None", "GetChannelAuthCap.resp.auth_types_b0",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_Support_val), 0x01,
+			"None", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_Auth_KG_status, {
+			"KG status", "GetChannelAuthCap.resp.auth_types_b0",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_KG_status_val), 0x20,
+			"KG status (two-key login status)", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_per_mess_auth_status, {
+			"Per-message Authentication is enabled", "GetChannelAuthCap.resp.per_mess_auth_status",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_per_mess_auth_status_val), 0x10,
+			"Per-message Authentication is enabled", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_user_level_auth_status, {
+			"User Level Authentication status", "GetChannelAuthCap.resp.user_level_auth_status",
+			FT_BOOLEAN,8, TFS(&ipmi_Authentication_Type_user_level_auth_status_val), 0x08,
+			"User Level Authentication status", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_anonymouslogin_status_b2, {
+			"Non-null usernames enabled", "GetChannelAuthCap.resp.anonymouslogin_status_b2",
+			FT_BOOLEAN,8, NULL, 0x04,
+			"Non-null usernames enabled", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_anonymouslogin_status_b1, {
+			"Null usernames enabled", "GetChannelAuthCap.resp.anonymouslogin_status_b1",
+			FT_BOOLEAN,8, NULL, 0x02,
+			"Null usernames enabled", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_anonymouslogin_status_b0, {
+			"Anonymous Login enabled", "GetChannelAuthCap.resp.anonymouslogin_status_b0",
+			FT_BOOLEAN,8, NULL, 0x01,
+			"Anonymous Login enabled", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_ext_cap_b1, {
+			"Channel supports IPMI v2.0 connections", "GetChannelAuthCap.resp.ext_cap_b1",
+			FT_BOOLEAN,8, NULL, 0x02,
+			"Channel supports IPMI v2.0 connections", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_ext_cap_b0, {
+			"Channel supports IPMI v1.5 connections", "GetChannelAuthCap.resp.ext_cap_b0",
+			FT_BOOLEAN,8, NULL, 0x01,
+			"Channel supports IPMI v1.5 connections", HFILL }},
+		{ &hf_Get_Channel_Auth_OEM_ID, {
+			"OEM ID", "GetChannelAuthCap.resp.oemid",
+			FT_UINT24, BASE_HEX, NULL, 0,
+			"OEM ID", HFILL }},
+		{ &hf_Get_Channel_Auth_OEM_AUX, {
+			"OEM auxiliary data", "GetChannelAuthCap.resp.oemaux",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"OEM auxiliary data.", HFILL }},
 
+		{ &hf_Get_Channel_Auth_Cap_datafield_comp_info, {
+			"Compabillity information", "GetChannelAuthCap.datafield.compinfo",
+			FT_BOOLEAN,8,  TFS(&ipmi_Auth_Cap_datafield_comp_val), 0x80,          
+			"Compabillity information", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_datafield_channel_number, {
+			"Channel number", "GetChannelAuthCap.datafield.channelno",
+			FT_UINT8, BASE_DEC, VALS(GetChannelAuthCap_channelno_vals), 0xf,
+			"Channel number", HFILL }},
+		{ &hf_Get_Channel_Auth_Cap_datafield_max_priv_lev, {
+			"Requested Maximum Privilege Level", "GetChannelAuthCap.datafield.max_priv_lev",
+			FT_UINT8, BASE_DEC, VALS(GetChannelAuthCap_max_priv_lev_vals), 0xf,
+			"Requested Maximum Privilege Level", HFILL }},
+	};
 
 /********* Storage, NetFN = 0x0a *********/
 
@@ -5424,6 +5645,7 @@ static gint *ett[] = {
 		&ett_cmd_GetDeviceID_data_ads,
 		
 		/********* Storage, NetFN = 0x0a *********/
+		&ett_Get_Channel_Auth_Cap_anonymouslogin,
 		/* Get FRU Inventory Area Info, added by lane */
 		&ett_cmd_GetFRUInventoryAreaInfo_data_ResponseDataByte4,
 		/* Get SEL Info, added by lane */
@@ -5500,7 +5722,10 @@ static gint *ett[] = {
 	proto_register_field_array(proto_ipmi, hf_GetDeviceID_datafield,
 			   array_length(hf_GetDeviceID_datafield));
 	
-
+	/* Get Channel Authentication Capabilities */
+	proto_register_field_array(proto_ipmi, hf_Get_Ch_Auth_Cap_datafield,
+			   array_length(hf_Get_Ch_Auth_Cap_datafield));
+	
 	/********* Storage, NetFN = 0x0a *********/
 
 	/* Get FRU Inventory Area Info, added by lane */
