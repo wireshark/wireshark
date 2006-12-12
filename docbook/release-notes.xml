@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.4">
+  <!ENTITY WiresharkCurrentVersion "0.99.5">
 
 ]>
 
@@ -36,47 +36,17 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-	  The HTTP dissector could crash.
-	  <!-- Fixed in r19022, r19153 -->
-	  <!-- Bug IDs: 1050, 1079 -->
-	  Versions affected: 0.99.3.
+	  TCP reassembly could crash.
+	  <!-- Fixed in ? -->
+	  <!-- Bug IDs: ? -->
+	  Versions affected: ?
         </para></listitem>
 
         <listitem><para>
-	  The LDAP dissector (and possibly others) could crash.
-	  <!-- Fixed in r19154 -->
-	  <!-- Bug IDs: 1079 -->
-	  Versions affected: 0.99.3.
-        </para></listitem>
-
-        <listitem><para>
-	  The XOT dissector could attempt to allocate a large amount of
-	  memory and crash.
-	  <!-- Fixed in r19365 -->
-	  <!-- Bug IDs: 1133 -->
-	  Versions affected: 0.9.8 to 0.99.3.
-        </para></listitem>
-
-        <listitem><para>
-	  The WBXML dissector could crash.
-	  <!-- Fixed in r19560 -->
-	  <!-- Bug IDs: 1134 -->
-	  Versions affected: 0.10.11 to 0.99.3.
-        </para></listitem>
-
-        <listitem><para>
-	  The MIME Multipart dissector was susceptible to an off-by-one error.
-	  <!-- Fixed in r19566 -->
-	  <!-- Bug IDs: 1135 -->
-	  Versions affected: 0.10.1 to 0.99.3.
-        </para></listitem>
-
-        <listitem><para>
-	  If AirPcap support was enabled, parsing a WEP key could
-	  sometimes cause a crash.
-	  <!-- Fixed in r19401 -->
+	  On some systems, the IEEE 802.11 dissector could crash.
+	  <!-- Fixed in 20126 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.99.3.
+	  Versions affected: ?
         </para></listitem>
 
       </itemizedlist>
