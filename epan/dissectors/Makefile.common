@@ -639,6 +639,7 @@ DISSECTOR_SRC =	\
 	packet-stat-notify.c	\
 	packet-stat.c	\
 	packet-stun.c	\
+	packet-stun2.c	\
 	packet-sua.c	\
 	packet-symantec.c	\
 	packet-synergy.c \
