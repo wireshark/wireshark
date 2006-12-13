@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-spnego.c                                                          */
+/* ./packet-spnego.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p spnego -c spnego.cnf -s packet-spnego-template spnego.asn */
 
 /* Input file: packet-spnego-template.c */
@@ -199,11 +199,33 @@ static int
 dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 91 "spnego.cnf"
 
-  saw_mechanism = FALSE;
+  conversation_t *conversation;
 
+  saw_mechanism = FALSE;
 
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       MechTypeList_sequence_of, hf_index, ett_spnego_MechTypeList);
+
+
+  /* 
+   * If we saw a mechType we need to store it in case the negTokenTarg
+   * does not provide a supportedMech.
+   */
+  if(saw_mechanism){
+    conversation = find_conversation(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+					pinfo->ptype, 
+					pinfo->srcport, pinfo->destport, 0);
+    if(!conversation){
+      conversation = conversation_new(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+    	                                pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
+    }
+    conversation_add_proto_data(conversation, proto_spnego, next_level_value);
+  }
+
+
 
   return offset;
 }
@@ -239,7 +261,7 @@ static int dissect_reqFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
 static int
 dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 99 "spnego.cnf"
+#line 121 "spnego.cnf"
 
   tvbuff_t *mechToken_tvb = NULL;
 
@@ -267,7 +289,7 @@ static int dissect_mechToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 113 "spnego.cnf"
+#line 135 "spnego.cnf"
 
   gint8 class;
   gboolean pc;
@@ -357,7 +379,7 @@ static int dissect_negResult(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 151 "spnego.cnf"
+#line 173 "spnego.cnf"
 
   conversation_t *conversation;
 
@@ -367,17 +389,21 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
   /*
-   * Now, we need to save this in per-proto info in the
-   * conversation if it exists. We also should create a 
-   * conversation if one does not exist. FIXME!
-   * Hmmm, might need to be smarter, because there can be
-   * multiple mechTypes in a negTokenInit with one being the
-   * default used in the Token if present. Then the negTokenTarg
-   * could override that. :-(
+   * If we saw an explicit mechType we store this in the conversation so that
+   * it will override any mechType we might have picked up from the 
+   * negTokenInit.
    */
-  if ((conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					pinfo->ptype, pinfo->srcport,
-					pinfo->destport, 0))) {
+  if(saw_mechanism){
+    conversation = find_conversation(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+					pinfo->ptype, 
+					pinfo->srcport, pinfo->destport, 0);
+    if(!conversation){
+      conversation = conversation_new(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+    	                                pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
+    }
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
 
@@ -394,7 +420,7 @@ static int dissect_supportedMech(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 179 "spnego.cnf"
+#line 205 "spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
 
@@ -410,9 +436,12 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
    * However, we should make sure that there is something in the 
    * response token ...
    */
-  if (responseToken_tvb && next_level_value) {
-    if (tvb_reported_length(responseToken_tvb) > 0)
-      call_dissector(next_level_value->handle, responseToken_tvb, pinfo, tree);
+  if (responseToken_tvb && (tvb_reported_length(responseToken_tvb) > 0) ){
+    gssapi_oid_value *value=next_level_value;
+
+    if(value){
+      call_dissector(value->handle, responseToken_tvb, pinfo, tree);
+    }
   }
 
 
@@ -428,7 +457,7 @@ static int dissect_responseToken(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 203 "spnego.cnf"
+#line 232 "spnego.cnf"
 
   tvbuff_t *mechListMIC_tvb;
 
@@ -442,8 +471,13 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
    * Now, we should be able to dispatch, if we've gotten a tvbuff for
    * the MIC and we have information on how to dissect its contents.
    */
-  if (mechListMIC_tvb && next_level_value)
-    call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+  if (mechListMIC_tvb && (tvb_reported_length(mechListMIC_tvb) > 0) ){
+    gssapi_oid_value *value=next_level_value;
+
+    if(value){
+      call_dissector(value->handle, mechListMIC_tvb, pinfo, tree);
+    }
+  }
 
 
 

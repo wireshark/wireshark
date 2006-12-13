@@ -87,9 +87,31 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
   } else
     offset = tvb_length(tvb);
 
-#.FN_HDR MechTypeList
+#.FN_BODY MechTypeList
+
+  conversation_t *conversation;
 
   saw_mechanism = FALSE;
+
+%(DEFAULT_BODY)s
+
+  /* 
+   * If we saw a mechType we need to store it in case the negTokenTarg
+   * does not provide a supportedMech.
+   */
+  if(saw_mechanism){
+    conversation = find_conversation(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+					pinfo->ptype, 
+					pinfo->srcport, pinfo->destport, 0);
+    if(!conversation){
+      conversation = conversation_new(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+    	                                pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
+    }
+    conversation_add_proto_data(conversation, proto_spnego, next_level_value);
+  }
 
 #.FN_PARS NegTokenInit/mechToken
 
@@ -156,17 +178,21 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
 %(DEFAULT_BODY)s
 
   /*
-   * Now, we need to save this in per-proto info in the
-   * conversation if it exists. We also should create a 
-   * conversation if one does not exist. FIXME!
-   * Hmmm, might need to be smarter, because there can be
-   * multiple mechTypes in a negTokenInit with one being the
-   * default used in the Token if present. Then the negTokenTarg
-   * could override that. :-(
+   * If we saw an explicit mechType we store this in the conversation so that
+   * it will override any mechType we might have picked up from the 
+   * negTokenInit.
    */
-  if ((conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-					pinfo->ptype, pinfo->srcport,
-					pinfo->destport, 0))) {
+  if(saw_mechanism){
+    conversation = find_conversation(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+					pinfo->ptype, 
+					pinfo->srcport, pinfo->destport, 0);
+    if(!conversation){
+      conversation = conversation_new(pinfo->fd->num, 
+                                        &pinfo->src, &pinfo->dst,
+    	                                pinfo->ptype,
+                                        pinfo->srcport, pinfo->destport, 0);
+    }
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
 
@@ -189,9 +215,12 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    * However, we should make sure that there is something in the 
    * response token ...
    */
-  if (responseToken_tvb && next_level_value) {
-    if (tvb_reported_length(responseToken_tvb) > 0)
-      call_dissector(next_level_value->handle, responseToken_tvb, pinfo, tree);
+  if (responseToken_tvb && (tvb_reported_length(responseToken_tvb) > 0) ){
+    gssapi_oid_value *value=next_level_value;
+
+    if(value){
+      call_dissector(value->handle, responseToken_tvb, pinfo, tree);
+    }
   }
 
 
@@ -211,8 +240,13 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    * Now, we should be able to dispatch, if we've gotten a tvbuff for
    * the MIC and we have information on how to dissect its contents.
    */
-  if (mechListMIC_tvb && next_level_value)
-    call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+  if (mechListMIC_tvb && (tvb_reported_length(mechListMIC_tvb) > 0) ){
+    gssapi_oid_value *value=next_level_value;
+
+    if(value){
+      call_dissector(value->handle, mechListMIC_tvb, pinfo, tree);
+    }
+  }
 
 
 #.END
