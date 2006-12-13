@@ -1979,6 +1979,7 @@ dissect_megaco_auditdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree, packet_in
 #define MEGACO_MGC_ID_TOKEN		4
 #define MEGACO_PROFILE_TOKEN	5
 #define MEGACO_VERSION_TOKEN	6
+#define MEGACO_METHOD_TOKEN		7
 
 static const megaco_tokens_t megaco_serviceChangeParm_names[] = {
 		{ "Unknown-token",	 			NULL }, /* 0 Pad so that the real headers start at index 1 */
@@ -1989,6 +1990,7 @@ static const megaco_tokens_t megaco_serviceChangeParm_names[] = {
 		{ "MgcIdToTry",					"MG" }, /* 4 MgcIdToken */
 		{ "Profile",					"PF" }, /* 5 ProfileToken */
 		{ "Version",					"V"	 }, /* 6 VersionToken */
+		{ "Method",						"MT" }, /* 7  MethodToken */
 };
 
 /* Returns index of megaco_tokens_t */
@@ -2049,7 +2051,6 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
 	gint				reason;
 	guint8				ServiceChangeReason_str[4];
 
-
 	tvb_LBRKT  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '{');
 	/*
 	if (tvb_LBRKT == -1)
@@ -2074,7 +2075,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
 		token_index = find_megaco_megaco_serviceChangeParm_names(tvb, tvb_previous_offset, tokenlen);
 
 		tvb_offset  = tvb_find_guint8(tvb, tvb_offset, tvb_RBRKT, ',');
-		if (tvb_offset == -1){
+		if ((tvb_offset == -1)||(tvb_offset >=tvb_RBRKT)){
 			more_params = FALSE;
 			tvb_offset = tvb_skip_wsp_return(tvb, tvb_RBRKT-1);
 		}
@@ -2107,6 +2108,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
 		case MEGACO_MGC_ID_TOKEN:
 		case MEGACO_PROFILE_TOKEN:
 		case MEGACO_VERSION_TOKEN:
+		case MEGACO_METHOD_TOKEN:
 			/* No special dissection: fall trough */
 		default:
 		/* Unknown or:
@@ -2117,9 +2119,9 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
 				"%s", tvb_format_text(tvb, tvb_previous_offset, tokenlen));
 			break;
 		}
-		if (more_params == TRUE ){
-			tvb_previous_offset = tvb_offset +1;
-		}
+
+		tvb_previous_offset = tvb_offset +1;
+
 	}/*End while */
 
 	/* extension            = extensionParameter parmValue 
