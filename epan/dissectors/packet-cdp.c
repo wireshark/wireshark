@@ -20,10 +20,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -127,14 +129,14 @@ static const value_string type_vals[] = {
 	{ TYPE_SYSTEM_OID,      "System Object ID" },
 	{ TYPE_MANAGEMENT_ADDR, "Management Address" },
 	{ TYPE_LOCATION,        "Location" },
-	{ 0,                    NULL },
+	{ 0,                    NULL }
 };
 
 #define TYPE_HELLO_CLUSTER_MGMT    0x0112
 
 static const value_string type_hello_vals[] = {
         { TYPE_HELLO_CLUSTER_MGMT,   "Cluster Management" },
-	{ 0,                    NULL },
+	{ 0,                    NULL }
 };
 
 static void
@@ -737,7 +739,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static const value_string proto_type_vals[] = {
 	{ PROTO_TYPE_NLPID,      "NLPID" },
 	{ PROTO_TYPE_IEEE_802_2, "802.2" },
-	{ 0,                     NULL },
+	{ 0,                     NULL }
 };
 
 static int
@@ -940,7 +942,7 @@ proto_register_cdp(void)
 
 	{ &hf_cdp_tlvlength,
 	{ "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
-	  "", HFILL }},
+	  "", HFILL }}
     };
     static gint *ett[] = {
 	&ett_cdp,
