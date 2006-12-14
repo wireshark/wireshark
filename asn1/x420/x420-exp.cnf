@@ -14,6 +14,8 @@ ORDescriptor             BER_CLASS_UNI BER_UNI_TAG_SET
 ExtensionsField          BER_CLASS_UNI BER_UNI_TAG_SET
 MessageParameters        BER_CLASS_UNI BER_UNI_TAG_SET
 IPN                      BER_CLASS_UNI BER_UNI_TAG_SET
+NonReceiptReasonField    BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
+DiscardReasonField       BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
 #.END
 
 #.TYPE_ATTR
@@ -23,5 +25,7 @@ ORDescriptor             TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 ExtensionsField          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 MessageParameters        TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 IPN                      TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+NonReceiptReasonField    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x420_NonReceiptReasonField_vals)  BITMASK = 0
+DiscardReasonField       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x420_DiscardReasonField_vals)  BITMASK = 0
 #.END
 

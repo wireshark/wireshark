@@ -2444,6 +2444,7 @@ Menno Andriesse		<s5066 [AT] nc3a.nato.int> {
 Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	 P_Mul (ACP142) packet disassembly
 	 CDT (CompressedDataType) support
+	 DMP (STANAG 4406 Direct Message Profile) support
 }
 
 Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {

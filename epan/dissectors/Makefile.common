@@ -270,6 +270,7 @@ DISSECTOR_SRC =	\
 	packet-disp.c	\
 	packet-distcc.c	\
 	packet-dlsw.c	\
+	packet-dmp.c	\
 	packet-dnp.c	\
 	packet-dns.c	\
 	packet-dop.c	\

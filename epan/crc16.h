@@ -41,6 +41,12 @@
  @return The CRC16 CCITT checksum. */
 extern guint16 crc16_ccitt(const guint8 *buf, guint len);
 
+/** Compute CRC16 X.25 CCITT checksum of a buffer of data.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 X.25 CCITT checksum. */
+extern guint16 crc16_x25_ccitt(const guint8 *buf, guint len);
+
 /** Compute CRC16 CCITT checksum of a buffer of data.  If computing the
  *  checksum over multiple buffers and you want to feed the partial CRC16
  *  back in, remember to take the 1's complement of the partial CRC16 first.
@@ -55,6 +61,12 @@ extern guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
  @param len The number of bytes to include in the computation.
  @return The CRC16 CCITT checksum. */
 extern guint16 crc16_ccitt_tvb(tvbuff_t *tvb, guint len);
+
+/** Compute CRC16 X.25 CCITT checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The CRC16 X.25 CCITT checksum. */
+extern guint16 crc16_x25_ccitt_tvb(tvbuff_t *tvb, guint len);
 
 /** Compute CRC16 CCITT checksum of a tv buffer.
  @param tvb The tv buffer containing the data.

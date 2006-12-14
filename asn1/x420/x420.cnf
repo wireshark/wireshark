@@ -16,6 +16,8 @@ ExtensionsField
 IPM
 IPN
 MessageParameters
+NonReceiptReasonField
+DiscardReasonField
 
 #.FIELD_RENAME
 

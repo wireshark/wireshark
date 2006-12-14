@@ -38,6 +38,8 @@ int dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 
 /*--- Included file: packet-x411-exp.h ---*/
 #line 1 "packet-x411-exp.h"
+extern const value_string x411_NonDeliveryReasonCode_vals[];
+extern const value_string x411_NonDeliveryDiagnosticCode_vals[];
 int dissect_x411_SecurityContext(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_EncodedInformationTypesConstraints(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_MessageSubmissionEnvelope(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -46,6 +48,8 @@ int dissect_x411_ExtendedContentType(gboolean implicit_tag, tvbuff_t *tvb, int o
 int dissect_x411_ContentLength(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_MessageDeliveryIdentifier(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_MessageDeliveryTime(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_x411_NonDeliveryReasonCode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_x411_NonDeliveryDiagnosticCode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_SupplementaryInformation(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_RequestedDeliveryMethod(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_x411_OriginatingMTACertificate(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);

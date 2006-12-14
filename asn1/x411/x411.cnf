@@ -29,6 +29,8 @@ SecurityLabel
 SupplementaryInformation
 TeletexNonBasicParameters
 UniversalOrBMPString
+NonDeliveryReasonCode
+NonDeliveryDiagnosticCode
 
 #.TYPE_RENAME
 MTABindArgument/authenticated	AuthenticatedArgument

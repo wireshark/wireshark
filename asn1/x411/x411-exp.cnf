@@ -16,6 +16,8 @@ ExtendedContentType      BER_CLASS_UNI BER_UNI_TAG_OID
 ContentLength            BER_CLASS_UNI BER_UNI_TAG_INTEGER
 MessageDeliveryIdentifier BER_CLASS_APP 4
 MessageDeliveryTime      BER_CLASS_UNI BER_UNI_TAG_UTCTime
+NonDeliveryReasonCode    BER_CLASS_UNI BER_UNI_TAG_INTEGER
+NonDeliveryDiagnosticCode BER_CLASS_UNI BER_UNI_TAG_INTEGER
 SupplementaryInformation BER_CLASS_UNI BER_UNI_TAG_PrintableString
 RequestedDeliveryMethod  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 OriginatingMTACertificate BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
@@ -39,6 +41,8 @@ ExtendedContentType      TYPE = FT_OID     DISPLAY = BASE_NONE  STRINGS = NULL  
 ContentLength            TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 MessageDeliveryIdentifier TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 MessageDeliveryTime      TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+NonDeliveryReasonCode    TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_NonDeliveryReasonCode_vals)  BITMASK = 0
+NonDeliveryDiagnosticCode TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_NonDeliveryDiagnosticCode_vals)  BITMASK = 0
 SupplementaryInformation TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RequestedDeliveryMethod  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 OriginatingMTACertificate TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
