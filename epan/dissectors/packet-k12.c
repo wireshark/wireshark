@@ -136,7 +136,7 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	FILE* fp;
 	gchar buffer[0x10000];
 	size_t len;
-	GHashTable* hash = g_hash_table_new(g_str_hash,g_str_equal);
+	GHashTable* hash;
 	gchar** curr;
 	gchar** lines = NULL;
 	guint i;
@@ -151,6 +151,8 @@ static GHashTable* k12_load_config(const gchar* filename) {
 		report_open_failure(filename, errno, FALSE);
 		return NULL;
 	}
+
+	hash = g_hash_table_new(g_str_hash, g_str_equal);
 
 	if (len > 0) {
 
