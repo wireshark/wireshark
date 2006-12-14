@@ -1988,7 +1988,7 @@ guint wep_n1=0,wep_n2=0;
 GList *wep_list1=NULL;
 GList *wep_list2=NULL;
 /* XXX - END*/
-guint i,j;
+guint i/*,j*/;
 decryption_key_t *dk1=NULL,*dk2=NULL;
 
 n1 = g_list_length(list1);
