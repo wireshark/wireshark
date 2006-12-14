@@ -419,7 +419,7 @@ instead write the code as
   static void
   foo_to_str(char **buffer, ...
     #define MAX_BUFFER x
-    *buffer=ep_alloc(x);
+    *buffer=ep_alloc(MAX_BUFFER);
     <fill in *buffer>
   }
   ...
