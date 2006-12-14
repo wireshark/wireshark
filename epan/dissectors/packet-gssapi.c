@@ -222,7 +222,6 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		conversation_add_proto_data(conversation, proto_gssapi, gss_info);
 	}
 
-
 	item = proto_tree_add_item(
 		tree, proto_gssapi, tvb, offset, -1, FALSE);
 
@@ -304,6 +303,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 		if (!(class == BER_CLASS_APP && pc && tag == 0)) {
+		  /* It could be NTLMSSP, with no OID.  This can happen 
+		     for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
+		  if ((tvb_length_remaining(gss_tvb, start_offset)>7) && (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0)) {
+		    call_dissector(ntlmssp_handle, tvb_new_subset(gss_tvb, start_offset, -1, -1), pinfo, subtree);
+		    return_offset = tvb_length(gss_tvb);
+		    goto done;
+		  }
+
 		  /* 
 		   * If we do not recognise an Application class,
 		   * then we are probably dealing with an inner context
@@ -334,18 +341,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  }
 		  if (!oidvalue)
 		  {
-		    /* It could be NTLMSSP, with no OID.  This can happen 
-		       for anything that microsoft calls 'Negotiate' or GSS-SPNEGO */
-		    if (tvb_strneql(gss_tvb, start_offset, "NTLMSSP", 7) == 0) {
-		      call_dissector(ntlmssp_handle, tvb_new_subset(gss_tvb, start_offset, -1, -1), pinfo, subtree);
-		    } else {
-		      proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
+                    proto_tree_add_text(subtree, gss_tvb, start_offset, 0,
 					  "Unknown header (class=%d, pc=%d, tag=%d)",
 					  class, pc, tag);
-		    }
 		    return_offset = tvb_length(gss_tvb);
 		    goto done;
-
 		  } else {
 		    tvbuff_t *oid_tvb;
 
