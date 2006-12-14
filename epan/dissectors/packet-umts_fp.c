@@ -1716,7 +1716,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
         /* Number of subframes.
            This was 3 bits in early releases, is 4 bits offset by 1 in later releases  */
-        if ((p_fp_info->dct2000_variant % 256) > 1)
+        if (((p_fp_info->dct2000_variant / 256) >= 2) ||
+             (p_fp_info->release > 6))
         {
             /* Use 4 bits plus offset of 1 */
             number_of_subframes = (tvb_get_guint8(tvb, offset) & 0x0f) + 1;
@@ -1859,6 +1860,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             {
                 int         m;
                 guint16     size = 0;
+                guint8      tsn;
                 guint       send_size;
                 proto_item  *ti;
 
@@ -1888,6 +1890,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 bit_offset += 2;
 
                 /* TSN */
+                tsn = (tvb_get_guint8(tvb, offset + (bit_offset/8)) & 0x3f);
                 proto_tree_add_item(subframe_tree, hf_fp_edch_tsn, tvb,
                                     offset + (bit_offset/8),
                                     1, FALSE);
