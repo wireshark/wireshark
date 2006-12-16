@@ -2163,6 +2163,22 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	"Destination port: %s (%u)", get_tcp_port(tcph->th_dport), tcph->th_dport);
     proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
     proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
+
+    /*  If we're dissecting the headers of a TCP packet in an ICMP packet
+     *  then go ahead and put the sequence numbers in the tree now (because
+     *  they won't be put in later because the ICMP packet only contains up
+     *  to the sequence number).
+     *  We should only need to do this for IPv4 since IPv6 will hopefully
+     *  carry enough TCP payload for this dissector to put the sequence
+     *  numbers in via the regular code path.
+     */
+    if (pinfo->layer_names != NULL && pinfo->layer_names->str != NULL) {
+      /*  use strstr because g_strrstr is only present in glib2.0 and 
+       *  g_str_has_suffix in glib2.2
+       */
+      if (strstr(pinfo->layer_names->str, "icmp:ip") != NULL)
+	proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, FALSE);
+    }
   }
 
   /* Set the source and destination port numbers as soon as we get them,
