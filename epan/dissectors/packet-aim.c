@@ -1136,9 +1136,8 @@ int dissect_aim_tlv_value_uint16 (proto_item *ti, guint16 valueid _U_, tvbuff_t 
 }
 
 int dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_){
-  /* FIXME: Somewhat more readable format ? */
-  guint32 value32 = tvb_get_ntoh24(tvb, 0);
-  proto_item_set_text(ti, "Value: %d", value32);
+  guint32 ipv4_addr = tvb_get_ipv4(tvb, 0);
+  proto_item_set_text(ti, "Value: %s", ip_to_str((guint8 *)&ipv4_addr));
   return 4;
 }
 
