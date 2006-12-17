@@ -368,6 +368,28 @@ apt-get install wireshark
       apt-get should take care of all of the dependency issues for you.
     </para>
   </section>
+
+  <section> 
+    <title>Installing from portage under Gentoo Linux</title>
+    <para> 
+      Use the following command to install Wireshark under Gentoo
+      Linux with all of the extra features:
+      <programlisting>
+USE="adns gtk ipv6 portaudio snmp ssl kerberos threads selinux" emerge wireshark
+      </programlisting>
+    </para>
+  </section>
+
+  <section> 
+    <title>Installing from packages under FreeBSD</title>
+    <para> 
+      Use the following command to install Wireshark under FreeBSD:
+      <programlisting>
+pkg_add -r wireshark
+      </programlisting>
+      pkg_add should take care of all of the dependency issues for you.
+    </para>
+  </section>
   </section>
   
   <section id="ChBuildInstallUnixTrouble">
