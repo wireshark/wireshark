@@ -37,17 +37,6 @@ mate_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)	\
 	$(DISSECTOR_INCLUDES)
 
-#	mate.h		\
-#	mate_grammar.c	\
-#	mate_grammar.h	\
-#	mate_parser.c	\
-#	mate_runtime.c	\
-#	mate_setup.c	\
-#	mate_util.c	\
-#	mate_util.h	\
-#	moduleinfo.h	\
-#	packet-mate.c
-
 mate_la_LDFLAGS = -module -avoid-version
 mate_la_LIBADD = @PLUGIN_LIBS@
 
