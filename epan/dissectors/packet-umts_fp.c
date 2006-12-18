@@ -56,6 +56,7 @@ static int hf_fp_usch_tfi = -1;
 static int hf_fp_cpch_tfi = -1;
 static int hf_fp_propagation_delay = -1;
 static int hf_fp_tb = -1;
+static int hf_fp_chan_zero_tbs = -1;
 static int hf_fp_received_sync_ul_timing_deviation = -1;
 static int hf_fp_pch_pi = -1;
 static int hf_fp_pch_tfi = -1;
@@ -382,6 +383,19 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     for (chan=0; chan < p_fp_info->num_chans; chan++)
     {
         int n;
+
+        /* Clearly show channels with no TBs */
+        if (p_fp_info->chan_num_tbs[chan] == 0)
+        {
+            proto_item *no_tb_ti = proto_tree_add_uint(data_tree, hf_fp_chan_zero_tbs, tvb,
+                                                       offset+(bit_offset/8),
+                                                       0, chan+1);
+            proto_item_append_text(no_tb_ti, " (of size %d)",
+                                   p_fp_info->chan_tf_size[chan]);
+            PROTO_ITEM_SET_GENERATED(no_tb_ti);
+        }
+
+        /* Show TBs from non-empty channels */
         for (n=0; n < p_fp_info->chan_num_tbs[chan]; n++)
         {
             proto_item *ti;
@@ -2237,6 +2251,12 @@ void proto_register_fp(void)
             { "TB",
               "fp.tb", FT_NONE, BASE_NONE, NULL, 0x0,
               "Transport Block", HFILL
+            }
+        },
+        { &hf_fp_chan_zero_tbs,
+            { "No TBs for channel",
+              "fp.channel-with-zero-tbs", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Channel with 0 TBs", HFILL
             }
         },
         { &hf_fp_tfi,
