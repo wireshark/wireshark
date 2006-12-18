@@ -3,9 +3,9 @@
 #
 
 include ..\..\config.nmake
-include <win32.mak>
+include moduleinfo.nmake
 
-############### no need to modify below this line #########
+include Makefile.common
 
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
@@ -19,16 +19,32 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
 CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=stats_tree_plugin.obj pinfo_stats_tree.obj
+TAP_OBJECTS = $(TAP_SRC:.c=.obj)
 
-stats_tree.dll stats_tree.exp stats_tree.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
-	link -dll /out:stats_tree.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
-	$(GLIB_LIBS)
+OBJECTS=$(TAP_OBJECTS)
+
+RESOURCE=$(PLUGIN_NAME).res
+
+all: $(PLUGIN_NAME).dll
+
+$(PLUGIN_NAME).rc : moduleinfo.nmake
+	sed -e s/@PLUGIN_NAME@/$(PLUGIN_NAME)/ \
+	-e s/@RC_MODULE_VERSION@/$(RC_MODULE_VERSION)/ \
+	-e s/@RC_VERSION@/$(RC_VERSION)/ \
+	-e s/@MODULE_VERSION@/$(MODULE_VERSION)/ \
+	-e s/@PACKAGE@/$(PACKAGE)/ \
+	-e s/@VERSION@/$(VERSION)/ \
+	< plugin.rc.in > $@
+
+$(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) $(RESOURCE)
+	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
+	$(GLIB_LIBS) $(RESOURCE)
 
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) stats_tree.dll stats_tree.exp stats_tree.lib *.pdb
+	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp \
+	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb
 
 distclean: clean
 
