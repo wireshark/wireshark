@@ -1769,9 +1769,8 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += 2;
 
 	if (tree) {
-		proto_tree_add_text(lsp_tree, tvb, offset, 2,
-                                    "Remaining Lifetime: %us",
-                                    tvb_get_ntohs(tvb, offset));
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life, 
+			tvb, offset, 2, FALSE);
 	}
 	offset += 2;
 	offset_checksum = offset;
@@ -1789,9 +1788,8 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += id_length + 2;
 
 	if (tree) {
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_sequence_number, tvb,
-			offset, 4,
-			tvb_get_ntohl(tvb, offset));
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number, 
+			tvb, offset, 4, FALSE);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Sequence: 0x%08x, Lifetime: %5us",
