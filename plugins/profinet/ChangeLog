@@ -29,3 +29,7 @@ Version 0.2.0:
 Version 0.2.1:
 
 * PN-MRP and PN-MRRT: add new Media Redundancy Protocol and Media Redundacy for RealTime Protocol dissector
+
+Version 0.2.2:
+
+* PN-IO: RT class 3 packets and some more blocks
