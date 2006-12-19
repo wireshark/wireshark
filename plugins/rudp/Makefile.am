@@ -116,4 +116,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	Makefile.common		\
-	Makefile.nmake
+	Makefile.nmake		\
+	moduleinfo.nmake	\
+	plugin.rc.in
+
