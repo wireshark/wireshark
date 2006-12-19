@@ -1071,9 +1071,9 @@ init_prefs(void) {
   prefs.capture_devices_descr    = NULL;
   prefs.capture_devices_hide     = NULL;
   prefs.capture_prom_mode        = TRUE;
-  prefs.capture_real_time        = FALSE;
-  prefs.capture_auto_scroll      = FALSE;
-  prefs.capture_show_info        = TRUE;
+  prefs.capture_real_time        = TRUE;
+  prefs.capture_auto_scroll      = TRUE;
+  prefs.capture_show_info        = FALSE;
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
   prefs.name_resolve_concurrency = 500;
 
