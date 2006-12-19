@@ -1586,7 +1586,6 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	const ber_choice_t *ch;
 	proto_tree *tree=parent_tree;
 	proto_item *item=NULL;
-	proto_item *cause;
 	int end_offset, start_offset, count;
 	int hoffset = offset;
 	header_field_info	*hfinfo;
