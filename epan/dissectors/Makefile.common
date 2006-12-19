@@ -569,6 +569,7 @@ DISSECTOR_SRC =	\
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
 	packet-rnsap.c	\
+	packet-roofnet.c	\
 	packet-ros.c	\
 	packet-rpc.c	\
 	packet-rpl.c	\
