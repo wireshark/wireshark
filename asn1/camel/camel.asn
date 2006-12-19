@@ -4,6 +4,7 @@
 -- Ref : CAMEL Application Part (CAP) specification
 --       (3GPP TS 29.078 version 3.5.0 Release 1999)
 --       ETSI TS 129 078 V3.5.0 (2000-09)
+--       Updated to 3GPP TS 29.078 version 7.3.0 Release 7 (2006-06)
 --
 --***********************************************
 
@@ -154,7 +155,7 @@ ApplicationTimer ::= INTEGER (0..2047)
 AssistingSSPIPRoutingAddress ::= Digits
 
 AudibleIndicator ::= CHOICE {
-	tone								BOOLEAN,
+	istone								BOOLEAN,
 	burstList							[1] BurstList
 	}
 
@@ -183,12 +184,14 @@ BasicGapCriteria ::= CHOICE
     calledAddressAndService  [29]   SEQUENCE
     {
         calledAddressValue [0] Digits,
-        serviceKey         [1] ServiceKey
+        serviceKey         [1] ServiceKey,
+        ...
     },
     callingAddressAndService [30]   SEQUENCE
     {
         callingAddressValue [0] Digits,
-        serviceKey          [1] ServiceKey
+        serviceKey          [1] ServiceKey,
+        ...
     }
 }
 -- Both calledAddressValue and callingAddressValue can be
@@ -303,7 +306,7 @@ CalledPartyNumber ::=
 CallingPartyNumber ::=
 	
 	
-	OCTET STRING (SIZE (cAPSpecificBoundSetminCallingPartyNumberLength ..cAPSpecificBoundSetmaxCallingPartyNumberLength ))
+	OCTET STRING (SIZE (cAPSpecificBoundSetminCallingPartyNumberLength..cAPSpecificBoundSetmaxCallingPartyNumberLength ))
 -- Indicates the Calling Party Number. Refer to ETSI EN 300 356-1 [23] for encoding.
 
 -- CallResult notes: not recursive, exported,
@@ -320,7 +323,7 @@ CallSegmentFailure ::= SEQUENCE {
 	...
 	}
 
-CallSegmentID  ::= INTEGER (1..127)
+CallSegmentID  ::= INTEGER (1..cAPSpecificBoundsSetnumOfCSs)
 
 CallSegmentToCancel  ::= SEQUENCE {
 	invokeID							[0]	InvokeID						OPTIONAL,
@@ -338,7 +341,8 @@ CAMEL-AChBillingChargingCharacteristics ::=  CHOICE
         releaseIfdurationExceeded	[1] BOOLEAN               DEFAULT FALSE,
         tariffSwitchInterval		[2] INTEGER (1..86400)    OPTIONAL,
 		audibleIndicator			[3] AudibleIndicator,	
-        extensions					[4] ExtensionsArray       OPTIONAL
+        extensions					[4] ExtensionsArray       OPTIONAL,
+        ...
     }
 }
 
@@ -460,7 +464,7 @@ CGEncountered ::= ENUMERATED
         scpOverload (2)
 }
 
-ChangeOfPositionControlInfo ::= SEQUENCE OF ChangeOfLocation 
+ChangeOfPositionControlInfo ::= SEQUENCE SIZE(1..cAPSpecificBoundsSetnumOfChangeOfPositionControlInf) OF ChangeOfLocation 
 
 ChangeOfLocation ::= CHOICE {
 	cellGlobalId						[0] CellGlobalIdOrServiceAreaIdFixedLength,
@@ -496,7 +500,7 @@ ChargeNumber ::= LocationNumber
 -- locally refd 1 times, import refd 0 times
 ChargingCharacteristics ::= CHOICE
 {
-    maxTransferredVolume [0] INTEGER (1..2147483647),
+    maxTransferredVolume [0] INTEGER (1..4294967295),
     maxElapsedTime [1] INTEGER (1..86400)
 }
 
@@ -655,18 +659,25 @@ DpSpecificCriteria ::= CHOICE
 
 DpSpecificCriteriaAlt ::= SEQUENCE {
 	...,
-	changeOfPositionControlInfo			[0]	ChangeOfPositionControlInfo
+        changeOfPositionControlInfo			[0]	ChangeOfPositionControlInfo,
+        numberOfDigits                                  [1]     NumberOfDigits                  OPTIONAL,
+        interDigitTimeout                               [2]     INTEGER (1..127)                 OPTIONAL
 	}
+-- interDigitTimeout  duration in seconds.
 
 DpSpecificInfoAlt ::= SEQUENCE {
 	...,
 	oServiceChangeSpecificInfo			[0] SEQUENCE {
 		ext-basicServiceCode				[0] Ext-BasicServiceCode				OPTIONAL,
-		...
+	  ...,
+	  initiatorOfServiceChange                        [1] InitiatorOfServiceChange                           OPTIONAL,
+	  natureOfServiceChange                           [2] NatureOfServiceChange                               OPTIONAL
 		},
 	tServiceChangeSpecificInfo			[1] SEQUENCE {
 		ext-basicServiceCode				[0] Ext-BasicServiceCode				OPTIONAL,
-		...
+	  ...,
+	  initiatorOfServiceChange                        [1] InitiatorOfServiceChange                           OPTIONAL,
+	  natureOfServiceChange                           [2] NatureOfServiceChange                               OPTIONAL
 		}
 	}
 --	This datatype is for extension in future releases.
@@ -696,12 +707,14 @@ ElapsedTimeRollOver ::= CHOICE {
 -- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded. 
 -- The sender of this parameter shall set the most significant 4 bits of the octet to 1. 
 -- The receiver of this parameter shall ignore the most significant 4 bits of this octet. 
-EndUserAddress ::= SEQUENCE
-{
-    pDPTypeOrganization [0] OCTET STRING (SIZE (1)),
-    pDPTypeNumber		[1] OCTET STRING (SIZE (1)),
-    pDPAddress			[2] OCTET STRING (SIZE (1..63)) OPTIONAL
-}
+-- Not used anymore, replaced by PDPType
+-- EndUserAddress ::= SEQUENCE
+-- {
+--    pDPTypeOrganization [0] OCTET STRING (SIZE (1)),
+--    pDPTypeNumber		[1] OCTET STRING (SIZE (1)),
+--    pDPAddress			[2] OCTET STRING (SIZE (cAPSpecificBoundSetminPDPAddressLength..cAPSpecificBoundSetmaxPDPAddressLength)) OPTIONAL
+-- }
+
 -- Indicates the EndUserAddress, refer to 3GPP TS 29.060 [12] for the encoding.
 -- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded.
 -- The sender of this parameter shall set the most significant 4 bits of the octet to 1.
@@ -742,7 +755,7 @@ EventSpecificInformationBCSM ::= CHOICE
 		...
 		},
 	oMidCallSpecificInfo				[6] SEQUENCE {
-		midCallEvents						[1] CHOICE {
+		omidCallEvents						[1] CHOICE {
 			dTMFDigitsCompleted					[3] Digits,
 			dTMFDigitsTimeOut					[4] Digits	
 			}																		OPTIONAL,
@@ -774,7 +787,7 @@ EventSpecificInformationBCSM ::= CHOICE
 		...
 		},
 	tMidCallSpecificInfo				[11] SEQUENCE {
-		midCallEvents						[1] CHOICE {
+		tmidCallEvents						[1] CHOICE {
 			dTMFDigitsCompleted					[3] Digits,
 			dTMFDigitsTimeOut					[4] Digits
 			}																		OPTIONAL,
@@ -823,7 +836,7 @@ EventSpecificInformationSMS ::= CHOICE
         foo INTEGER(0) OPTIONAL
     },
 	t-smsFailureSpecificInfo			[2] SEQUENCE {
-		failureCause						[0] MT-SMSCause							OPTIONAL,
+		failureMTSMSCause				[0] MT-SMSCause							OPTIONAL,
 		...
 		},
 	t-smsDeliverySpecificInfo			[3] SEQUENCE {
@@ -836,7 +849,6 @@ EventSpecificInformationSMS ::= CHOICE
 -- locally refd 3 times, import refd 0 times
 EventTypeBCSM ::= ENUMERATED
 {
-    collectedInfo (2),
 	collectedInfo						(2),
 	analyzedInformation					(3),
 	routeSelectFailure					(4),
@@ -973,7 +985,7 @@ GenericNumber ::=
 -- locally refd 3 times, import refd 0 times
 GenericNumbers ::=
 
-SET SIZE (1..5) OF GenericNumber
+SET SIZE (1..cAPSpecificBoundSetnumOfGenericNumbers) OF GenericNumber
 
 
 -- GPRS-QoS notes: not recursive, exported,
@@ -993,7 +1005,7 @@ GPRS-QoS-Extension ::= SEQUENCE {
 -- locally refd 3 times, import refd 0 times
 GPRSCause ::=
 
-	OCTET STRING (SIZE (1))
+	OCTET STRING (SIZE (cAPSpecificBoundSetminGPRSCauseLength..cAPSpecificBoundSetmaxGPRSCauseLength))
 --	00000000   Unspecified
 --  All other values shall be interpreted as 'Unspecified'.
 --
@@ -1117,6 +1129,12 @@ InitiatingEntity ::= ENUMERATED
 	ggsn								(3)
 }
 
+InitiatorOfServiceChange ::= ENUMERATED
+{
+  a-side    (0),
+  b-side    (1)
+}
+
 -- InvokeID notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 InvokeID ::= TCInvokeIdSet
@@ -1129,8 +1147,7 @@ IPRoutingAddress ::= CalledPartyNumber
 -- locally refd 3 times, import refd 0 times
 IPSSPCapabilities ::=
 
-
-OCTET STRING (SIZE (cAPSpecificBoundSetminIPSSPCapabilitiesLength ..cAPSpecificBoundSetmaxIPSSPCapabilitiesLength ))
+OCTET STRING (SIZE (cAPSpecificBoundSetminIPSSPCapabilitiesLength..cAPSpecificBoundSetmaxIPSSPCapabilitiesLength ))
 --  Indicates the gsmSRF resources available. The parameter has two parts, a standard and a
 --  bilateral part. The standard part indicates capabilities defined as optional in CAP
 --  that shall be recognised (but not necessarily supported) by a gsmSCF. The bilateral
@@ -1195,7 +1212,8 @@ LocationNumber ::=
 -- Indicates the Location Number for the calling party.
 -- Refer to ETSI EN 300 356-1 [23] for encoding.
 
-LowLayerCompatibility ::= OCTET STRING
+LowLayerCompatibility ::= 
+OCTET STRING (SIZE (cAPSpecificBoundSetminLowLayerCompatibilityLength .. cAPSpecificBoundSetmaxLowLayerCompatibilityLength ))
 -- indicates the LowLayerCompatibility for the calling party.
 -- Refer to 3GPP TS 24.008 [9] for encoding.
 -- It shall be coded as in the value part defined in 3GPP TS 24.008.
@@ -1211,14 +1229,14 @@ MessageID ::= CHOICE
     {
         messageContent   [0]
                              
-                             IA5String (SIZE (1..127)),
+                             IA5String (SIZE (cAPSpecificBoundSetminMessageContentLength..cAPSpecificBoundSetmaxMessageContentLength)),
         attributes       [1]
                              
-                             OCTET STRING (SIZE (2..10)) OPTIONAL
+                             OCTET STRING (SIZE (cAPSpecificBoundSetminAttributesLength..cAPSpecificBoundSetmaxAttributesLength)) OPTIONAL
     },
     elementaryMessageIDs [29]
                              
-                             SEQUENCE SIZE (1..16) OF Integer4,
+                             SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfMessageIDs) OF Integer4,
     variableMessage      [30] SEQUENCE
     {
         elementaryMessageID [0] Integer4,
@@ -1227,7 +1245,7 @@ MessageID ::= CHOICE
 }
 -- Use of the text parameter is network operator/equipment vendor specific.
 
-MetDPCriteriaList ::= SEQUENCE OF MetDPCriterion 
+MetDPCriteriaList ::= SEQUENCE SIZE(1..cAPSpecificBoundsSetnumOfChangeOfPositionControlInf) OF MetDPCriterion 
 
 MetDPCriterion ::= CHOICE {
 	enteringCellGlobalId				[0] CellGlobalIdOrServiceAreaIdFixedLength,
@@ -1349,6 +1367,15 @@ OCTET STRING (SIZE (1))
 --			'3E'H  - Decimal value 62 - Cellular Service (Type 2)
 --			'3F'H  - Decimal value 63 - Cellular Service (roaming)
 
+NatureOfServiceChange ::= ENUMERATED {
+  userInitiated						(0),
+  networkInitiated					(1)
+}
+
+NumberOfDigits ::= INTEGER (1..255)
+--	Indicates the number of digits to be collected.
+
+
 -- OCSIApplicable notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 OCSIApplicable ::= NULL
@@ -1464,7 +1491,7 @@ OCTET STRING (SIZE (1))
 -- locally refd 2 times, import refd 0 times
 ScfID ::=
 
-OCTET STRING (SIZE (cAPSpecificBoundSetminScfIDLength ..cAPSpecificBoundSetmaxScfIDLength ))
+OCTET STRING (SIZE (cAPSpecificBoundSetminScfIDLength..cAPSpecificBoundSetmaxScfIDLength ))
 
 -- SCIBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -1476,7 +1503,7 @@ OCTET STRING (SIZE (cAPSpecificBoundSetminSCIBillingChargingLength ..cAPSpecific
 -- locally refd 2 times, import refd 0 times
 SCIGPRSBillingChargingCharacteristics ::=
 
-OCTET STRING (SIZE (4..69))
+OCTET STRING (SIZE (cAPSpecificBoundSetminSCIBillingChargingLength ..cAPSpecificBoundSetmaxSCIBillingChargingLength ))
 
 -- SendingSideID notes: not recursive, exported,
 -- locally refd 4 times, import refd 0 times
@@ -1678,11 +1705,11 @@ TPValidityPeriod ::= OCTET STRING (SIZE (1..7))
 -- locally refd 1 times, import refd 0 times
 TransferredVolume ::= CHOICE
 {
-    volumeIfNoTariffSwitch [0] INTEGER (0..2147483647),
+    volumeIfNoTariffSwitch [0] INTEGER (0..4294967295),
     volumeIfTariffSwitch [1] SEQUENCE
     {
-        volumeSinceLastTariffSwitch [0] INTEGER (0..2147483647),
-        volumeTariffSwitchInterval [1] INTEGER (0..2147483647) OPTIONAL
+        volumeSinceLastTariffSwitch [0] INTEGER (0..4294967295),
+        volumeTariffSwitchInterval [1] INTEGER (0..4294967295) OPTIONAL
     }
 }
 --	volumeIfNoTariffSwitch, volumeSinceLastTariffSwitch and volumeTariffSwitchInterval
@@ -1698,6 +1725,15 @@ TransferredVolumeRollOver ::= CHOICE {
 }
 --	rO-VolumeIfNoTariffSwitch, rO-VolumeSinceLastTariffSwitch and rO-VolumeTariffSwitchInterval
 --	present counters indicating the number of parameter range rollovers.
+
+UnavailableNetworkResource ::= ENUMERATED {
+  unavailableResources				(0),
+  componentFailure					(1),
+  basicCallProcessingException		(2),
+  resourceStatusFailure				(3),
+  endUserFailure						(4)
+}
+-- Indicates the network resource that failed.
 
 -- VariablePart notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1738,7 +1774,11 @@ VariablePart ::= CHOICE
 
 -- SpecializedResourceReportArg notes: not recursive, exported,
 -- locally refd 0 times, import refd 0 times
-SpecializedResourceReportArg ::=  NULL
+-- SpecializedResourceReportArg ::=  NULL
+SpecializedResourceReportArg ::= CHOICE {
+  allAnnouncementsComplete			[50] NULL,
+  firstAnnouncementStarted			[51] NULL
+}
 
 -- CUG-Interlock notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
@@ -1867,7 +1907,7 @@ PDPTypeOrganization ::= OCTET STRING (SIZE (1))
 
 PDPTypeNumber ::= OCTET STRING (SIZE (1))
 
-PDPAddress ::= OCTET STRING (SIZE (1..63))
+PDPAddress ::= OCTET STRING (SIZE (cAPSpecificBoundSetminPDPAddressLength..cAPSpecificBoundSetmaxPDPAddressLength))
 
 -- Indicates the PDPType, refer to 3GPP TS 29.060 for the encoding.
 -- The pDPTypeOrganization shall use the least significant 4 bits of the octet encoded.
@@ -1922,7 +1962,7 @@ PrivateExtension ::= SEQUENCE
 
 FreeFormatData ::=
 
-OCTET STRING (SIZE (1..160))
+OCTET STRING (SIZE (cAPSpecificBoundSetminSCIBillingChargingLength..cAPSpecificBoundSetmaxSCIBillingChargingLength ))
 
 
 -- The endOfReplyDigit, cancelDigit, and startDigit parameters have been
@@ -1960,6 +2000,11 @@ CHOICE
 
 }
 
+CollectInformationArg ::= SEQUENCE {
+  extensions	[0] ExtensionsArray OPTIONAL,
+  ...
+  }
+
 -- FurnishChargingInformationArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 FurnishChargingInformationArg ::= CAMEL-FCIBillingChargingCharacteristics
@@ -1971,11 +2016,11 @@ FurnishChargingInformationArg ::= CAMEL-FCIBillingChargingCharacteristics
 -- ReleaseCallArg ::= OCTET STRING (SIZE (minCauseLength..32))
 ReleaseCallArg ::= Q850Cause
 
-Q850Cause ::=OCTET STRING (SIZE (minCauseLength..32))
+Q850Cause ::=OCTET STRING (SIZE (cAPSpecificBoundSetminCauseLength..cAPSpecificBoundSetminCauseLength))
 
 -- Cause notes: not recursive, exported,
 -- locally refd 10 times, import refd 0 times
-Cause ::= OCTET STRING (SIZE (minCauseLength..cAPSpecificBoundSetmaxCauseLength))
+Cause ::= OCTET STRING (SIZE (cAPSpecificBoundSetminCauseLength..cAPSpecificBoundSetmaxCauseLength))
 
 --    
 -- ReceivedInformationArg notes: not recursive, exported,
@@ -2003,7 +2048,8 @@ ConnectGPRSArg ::=
  SEQUENCE
 {
     accessPointName [0] AccessPointName,
-    pdpID           [1] PDPId           OPTIONAL
+    pdpID           [1] PDPId           OPTIONAL,
+    ...
 }
 
 
@@ -2015,7 +2061,8 @@ EntityReleasedGPRSArg ::=
  SEQUENCE
 {
     gPRSCause [0] GPRSCause,
-    pDPID     [1] PDPId      OPTIONAL
+    pDPID     [1] PDPId      OPTIONAL,
+    ...
 }
 
 -- ReleaseGPRSArg notes: not recursive, exported,
@@ -2025,7 +2072,8 @@ ReleaseGPRSArg ::=
  SEQUENCE
 {
     gprsCause [0] GPRSCause,
-    pDPID     [1] PDPId     OPTIONAL
+    pDPID     [1] PDPId     OPTIONAL,
+    ...
 }
 
 -- RequestReportGPRSEventArg notes: not recursive, exported,
@@ -2035,11 +2083,12 @@ RequestReportGPRSEventArg ::=
  SEQUENCE
 {
     gPRSEvent [0] GPRSEventArray,
-    pDPID     [1] PDPId     OPTIONAL
+    pDPID     [1] PDPId     OPTIONAL,
+    ...
 }
 
 GPRSEventArray ::= 
-		   SEQUENCE SIZE (1..10) OF GPRSEvent
+		   SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfGPRSEvents) OF GPRSEvent
 
 -- SendChargingInformationGPRSArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2047,7 +2096,8 @@ SendChargingInformationGPRSArg ::=
 
  SEQUENCE
 {
-    sCIGPRSBillingChargingCharacteristics [0] SCIGPRSBillingChargingCharacteristics
+    sCIGPRSBillingChargingCharacteristics [0] SCIGPRSBillingChargingCharacteristics,
+    ...
 }
 
 
@@ -2103,7 +2153,8 @@ InitialDPArgExtension  ::= SEQUENCE {
 	lowLayerCompatibility2				[10] LowLayerCompatibility					OPTIONAL,
 	...,
 	enhancedDialledServicesAllowed		[11] NULL									OPTIONAL,
-	uu-Data								[12] UU-Data								OPTIONAL
+        uu-Data						[12] UU-Data								OPTIONAL,
+        collectInformationAllowed			[13] NULL								OPTIONAL
 }
 
 
@@ -2207,7 +2258,8 @@ EventReportGPRSArg ::=
     gPRSEventType                [0] GPRSEventType,
     miscGPRSInfo                 [1] MiscCallInfo                 OPTIONAL,
     gPRSEventSpecificInformation [2] GPRSEventSpecificInformation OPTIONAL,
-    pDPID                        [3] PDPId                        OPTIONAL
+    pDPID                        [3] PDPId                        OPTIONAL,
+    ...
 }
 
 -- SupportedExtensionsid notes: not recursive, exported,
@@ -2222,7 +2274,8 @@ ExtensionField ::=   SEQUENCE
 {
     type        SupportedExtensionsid,
     criticality CriticalityType      DEFAULT ignore,
-    value [1]   SupportedExtensionsExtensionType
+    value [1]   SupportedExtensionsExtensionType,
+    ...
 }
 
 
@@ -2288,16 +2341,16 @@ ConnectArg ::=
     genericNumbers                  [14] GenericNumbers                 OPTIONAL,
     serviceInteractionIndicatorsTwo [15] ServiceInteractionIndicatorsTwo OPTIONAL,
     chargeNumber                    [19] ChargeNumber                   OPTIONAL,
+    legToBeConnected	            [21] LegID				OPTIONAL,
     cug-Interlock                   [31] CUG-Interlock                  OPTIONAL,
     cug-OutgoingAccess              [32] NULL                           OPTIONAL,
     suppressionOfAnnouncement       [55] SuppressionOfAnnouncement      OPTIONAL,
     oCSIApplicable                  [56] OCSIApplicable                 OPTIONAL,
 	naOliInfo						[57] NAOliInfo						OPTIONAL,
 	bor-InterrogationRequested		[58] NULL							OPTIONAL,
-	...
+    ...,
+    suppress-N-CSI		[59] NULL								OPTIONAL
 }
-
-
 
 -- ConnectToResourceArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -2378,13 +2431,13 @@ EstablishTemporaryConnectionArg ::=
     extensions                      [4]  ExtensionsArray                OPTIONAL,
     carrier                         [5]  Carrier                        OPTIONAL,
     serviceInteractionIndicatorsTwo [6]  ServiceInteractionIndicatorsTwo OPTIONAL,
+    callSegmentID	            [7]	 CallSegmentID 			OPTIONAL,
     naOliInfo                       [50] NAOliInfo                      OPTIONAL,
 	chargeNumber						[51] ChargeNumber				OPTIONAL,
 	...,
 	originalCalledPartyID				[52] OriginalCalledPartyID		OPTIONAL,
 	callingPartyNumber					[53] CallingPartyNumber			OPTIONAL
 }
-
 
 
 -- EventReportBCSMArg notes: not recursive, exported,
@@ -2451,7 +2504,8 @@ EventReportSMSArg ::=
     eventTypeSMS                [0] EventTypeSMS,
     eventSpecificInformationSMS [1] EventSpecificInformationSMS OPTIONAL,
     miscCallInfo                [2] MiscCallInfo                OPTIONAL,
-    extensions                  [10] ExtensionsArray            OPTIONAL
+    extensions                  [10] ExtensionsArray            OPTIONAL,
+    ...
 }
 
 
@@ -2464,7 +2518,8 @@ ResetTimerSMSArg ::=
 {
     timerID    [0] TimerID DEFAULT tssf,
     timervalue [1] TimerValue,
-    extensions [2] ExtensionsArray OPTIONAL
+    extensions [2] ExtensionsArray OPTIONAL,
+    ...
 }
 
 
@@ -2478,12 +2533,11 @@ RequestReportBCSMEventArg ::=
 {
     bcsmEvents [0] BCSMEventArray,
     extensions [2] ExtensionsArray OPTIONAL,
--- extensions							[2] Extensions {bound}	 ??
 	...
 }
 
 BCSMEventArray ::= 
-		   SEQUENCE SIZE (1..10) OF BCSMEvent
+		   SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfBCSMEvents) OF BCSMEvent
 
 
 
@@ -2496,7 +2550,8 @@ ConnectSMSArg ::=
     callingPartysNumber         [0] SMS-AddressString   OPTIONAL,
     destinationSubscriberNumber [1] CalledPartyBCDNumber OPTIONAL,
     sMSCAddress                 [2] ISDN-AddressString   OPTIONAL,
-    extensions                  [10] ExtensionsArray     OPTIONAL
+    extensions                  [10] ExtensionsArray     OPTIONAL,
+    ...
 }
 
 
@@ -2523,7 +2578,10 @@ PlayAnnouncementArg ::=
     informationToSend           [0] InformationToSend,
     disconnectFromIPForbidden   [1] BOOLEAN         DEFAULT TRUE,
     requestAnnouncementComplete [2] BOOLEAN         DEFAULT TRUE,
-    extensions                  [3] ExtensionsArray OPTIONAL
+    extensions                  [3] ExtensionsArray OPTIONAL,
+    callSegmentID		[5] CallSegmentID   OPTIONAL,
+    requestAnnouncementStartedNotification	[51] BOOLEAN DEFAULT FALSE,
+    ...
 }
 
 
@@ -2537,7 +2595,10 @@ PromptAndCollectUserInformationArg ::=
     collectedInfo             [0] CollectedInfo,
     disconnectFromIPForbidden [1] BOOLEAN           DEFAULT TRUE,
     informationToSend         [2] InformationToSend OPTIONAL,
-    extensions                [3] ExtensionsArray   OPTIONAL
+    extensions                [3] ExtensionsArray   OPTIONAL,
+    callSegmentID		[5] CallSegmentID   OPTIONAL,
+    requestAnnouncementStartedNotification	[51] BOOLEAN DEFAULT FALSE,
+    ...
 }
 
 --furnishChargingInformationGPRS {PARAMETERS-BOUND : bound} OPERATION ::= {
@@ -2583,8 +2644,10 @@ InitialDPGPRSArg ::=
     locationInformationGPRS [12] LocationInformationGPRS OPTIONAL,
     pDPInitiationType       [13] PDPInitiationType       OPTIONAL,
     extensions              [14] ExtensionsArray         OPTIONAL,
+    ...,
     gGSNAddress             [15] GSN-Address             OPTIONAL,
-    secondaryPDPContext     [16] NULL                    OPTIONAL
+    secondaryPDPContext     [16] NULL                    OPTIONAL,
+    iMEI	            [17] IMEI   		 OPTIONAL
 }
 
 
@@ -2674,7 +2737,7 @@ InitialDPSMSArg ::=
 	ms-Classmark2						[17] MS-Classmark2							OPTIONAL,
 	gPRSMSClass 						[18] GPRSMSClass							OPTIONAL,
 	iMEI								[19] IMEI									OPTIONAL,
-	calledPartyNumber					[20] ISDN-AddressString						OPTIONAL
+	calledPartyNumberSMS					[20] ISDN-AddressString						OPTIONAL
 }
 
 -- ReleaseSMSArg notes: not recursive, exported,
@@ -2688,11 +2751,12 @@ RequestReportSMSEventArg ::=
  SEQUENCE
 {
     sMSEvents  [0]  SMSEventArray,
-    extensions [10] ExtensionsArray OPTIONAL
+    extensions [10] ExtensionsArray OPTIONAL,
+    ...
 }
 
 SMSEventArray ::= 
-		  SEQUENCE SIZE (1..10) OF SMSEvent
+		  SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfSMSEvents) OF SMSEvent
 
 
 -- ExtensionContainer notes: not recursive, exported,
@@ -2711,7 +2775,8 @@ ApplyChargingGPRSArg ::= SEQUENCE
 {
     chargingCharacteristics [0] ChargingCharacteristics,
     tariffSwitchInterval    [1] INTEGER (1..86400)      OPTIONAL,
-    pDPID                   [2] PDPId                   OPTIONAL
+    pDPID                   [2] PDPId                   OPTIONAL,
+    ...
 }
 	    
 -- CriticalityType notes: not recursive, exported,
@@ -2732,6 +2797,7 @@ ApplyChargingReportGPRSArg ::=
     qualityOfService [1] QualityOfService OPTIONAL,
     active           [2] BOOLEAN          DEFAULT TRUE,
     pDPID            [3] PDPId            OPTIONAL,
+    ...,
     chargingRollOver [4] ChargingRollOver OPTIONAL
 }
 
@@ -2741,7 +2807,8 @@ CancelGPRSArg ::=
 
  SEQUENCE
 {
-    pDPID [0] PDPId OPTIONAL
+     pDPID [0] PDPId OPTIONAL,
+     ...
 }
 
 -- ContinueGPRSArg notes: not recursive, exported,
@@ -2750,7 +2817,8 @@ ContinueGPRSArg ::=
 
  SEQUENCE
 {
-    pDPID [0] PDPId OPTIONAL
+     pDPID [0] PDPId OPTIONAL,
+     ...
 }
 
 -- ResetTimerGPRSArg notes: not recursive, exported,
@@ -2760,7 +2828,8 @@ ResetTimerGPRSArg ::=
  SEQUENCE
 {
     timerID    [0] TimerID DEFAULT tssf,
-    timervalue [1] TimerValue
+    timervalue [1] TimerValue,
+    ...
 }
 
 -- #############################
@@ -2770,20 +2839,22 @@ ResetTimerGPRSArg ::=
 leg1 LegType ::= '01'H
 leg2 LegType ::= '02'H
 
-minCauseLength INTEGER ::= 2
 numOfInfoItems INTEGER ::= 4
 
 opcode-initialDP                       Code ::= 0
 opcode-assistRequestInstructions       Code ::= 16
 opcode-establishTemporaryConnection    Code ::= 17
 opcode-disconnectForwardConnection     Code ::= 18
+opcode-dFCWithArgument                 Code ::= 86
 opcode-connectToResource               Code ::= 19
 opcode-connect                         Code ::= 20
 opcode-releaseCall                     Code ::= 22
 opcode-requestReportBCSMEvent          Code ::= 23
 opcode-eventReportBCSM                 Code ::= 24
+opcode-collectInformation              Code ::= 27
 opcode-continue                        Code ::= 31
-opcode-continueWithArgument            Code ::= 56
+opcode-initiateCallAttempt             Code ::= 32
+-- opcode-continueWithArgument            Code ::= 56 (should be 88)
 opcode-resetTimer                      Code ::= 33
 opcode-furnishChargingInformation      Code ::= 34
 opcode-applyCharging                   Code ::= 35
@@ -2819,6 +2890,12 @@ opcode-eventReportGPRS                 Code ::= 80
 opcode-requestReportGPRSEvent          Code ::= 81
 opcode-resetTimerGPRS                  Code ::= 82
 opcode-sendChargingInformationGPRS     Code ::= 83
+opcode-continueWithArgument            Code ::= 88
+opcode-disconnectLeg                   Code ::= 90
+opcode-moveLeg                         Code ::= 93
+opcode-splitLeg                        Code ::= 95
+opcode-entityReleased                  Code ::= 96
+opcode-playTone                        Code ::= 97
 
 errcode-canceled                    Code ::= 0
 errcode-cancelFailed                Code ::= 1
@@ -2836,11 +2913,19 @@ errcode-unexpectedDataValue         Code ::= 15
 errcode-unexpectedParameter         Code ::= 16
 errcode-unknownLegID                Code ::= 17
 errcode-unknownPDPId                Code ::= 50
+errcode-unknownCSId                 Code ::= 51
 
+--cAPSpecificBoundSetnumOfExtensions                 INTEGER ::= 10
 maxNumOfPrivateExtensions                          INTEGER ::= 10
+
+--cAPSpecificBoundSetminCalledPartyBCDNumberLength   INTEGER ::= 1
+--cAPSpecificBoundSetmaxCalledPartyBCDNumberLength   INTEGER ::= 41
 maxISDN-AddressLength                              INTEGER ::= 9
+-- for AddressString
 maxAddressLength                                   INTEGER ::= 20
+
 highLayerCompatibilityLength                       INTEGER ::= 2
+
 cAPSpecificBoundSetminAccessPointNameLength        INTEGER ::= 1
 cAPSpecificBoundSetmaxAccessPointNameLength        INTEGER ::= 100
 cAPSpecificBoundSetminAChBillingChargingLength     INTEGER ::= 5
@@ -2855,9 +2940,10 @@ cAPSpecificBoundSetmaxCalledPartyNumberLength      INTEGER ::= 18
 cAPSpecificBoundSetminCallingPartyNumberLength     INTEGER ::= 2
 cAPSpecificBoundSetmaxCallingPartyNumberLength     INTEGER ::= 10
 cAPSpecificBoundSetminCallResultLength             INTEGER ::= 12
-cAPSpecificBoundSetmaxCallResultLength             INTEGER ::= 186
+cAPSpecificBoundSetmaxCallResultLength             INTEGER ::= 193
 cAPSpecificBoundSetminCarrierLength                INTEGER ::= 4
 cAPSpecificBoundSetmaxCarrierLength                INTEGER ::= 4
+cAPSpecificBoundSetminCauseLength                  INTEGER ::= 2
 cAPSpecificBoundSetmaxCauseLength                  INTEGER ::= 32
 cAPSpecificBoundSetminDigitsLength                 INTEGER ::= 2
 cAPSpecificBoundSetmaxDigitsLength                 INTEGER ::= 16
@@ -2867,25 +2953,31 @@ cAPSpecificBoundSetminFCIBillingChargingLength     INTEGER ::= 5
 cAPSpecificBoundSetmaxFCIBillingChargingLength     INTEGER ::= 225
 cAPSpecificBoundSetminGenericNumberLength          INTEGER ::= 3
 cAPSpecificBoundSetmaxGenericNumberLength          INTEGER ::= 11
+cAPSpecificBoundSetminGPRSCauseLength              INTEGER ::= 1
+cAPSpecificBoundSetmaxGPRSCauseLength              INTEGER ::= 1
 cAPSpecificBoundSetminIPSSPCapabilitiesLength      INTEGER ::= 1
 cAPSpecificBoundSetmaxIPSSPCapabilitiesLength      INTEGER ::= 4
 cAPSpecificBoundSetminLocationNumberLength         INTEGER ::= 2
 cAPSpecificBoundSetmaxLocationNumberLength         INTEGER ::= 10
+cAPSpecificBoundSetminLowLayerCompatibilityLength  INTEGER ::= 1
+cAPSpecificBoundSetmaxLowLayerCompatibilityLength  INTEGER ::= 16
 cAPSpecificBoundSetminMessageContentLength         INTEGER ::= 1
 cAPSpecificBoundSetmaxMessageContentLength         INTEGER ::= 127
 cAPSpecificBoundSetminOriginalCalledPartyIDLength  INTEGER ::= 2
 cAPSpecificBoundSetmaxOriginalCalledPartyIDLength  INTEGER ::= 10
-cAPSpecificBoundSetminpDPAddressLength             INTEGER ::= 1
-cAPSpecificBoundSetmaxpDPAddressLength             INTEGER ::= 63
+cAPSpecificBoundSetminPDPAddressLength             INTEGER ::= 1
+cAPSpecificBoundSetmaxPDPAddressLength             INTEGER ::= 63
 cAPSpecificBoundSetminRedirectingPartyIDLength     INTEGER ::= 2
 cAPSpecificBoundSetmaxRedirectingPartyIDLength     INTEGER ::= 10
 cAPSpecificBoundSetminScfIDLength                  INTEGER ::= 2
 cAPSpecificBoundSetmaxScfIDLength                  INTEGER ::= 10
 cAPSpecificBoundSetminSCIBillingChargingLength     INTEGER ::= 4
-cAPSpecificBoundSetmaxSCIBillingChargingLength     INTEGER ::= 124
+cAPSpecificBoundSetmaxSCIBillingChargingLength     INTEGER ::= 225
 cAPSpecificBoundSetminTimeAndTimezoneLength        INTEGER ::= 8
-cAPSpecificBoundSetmaxTimeAndTimezoneLength        INTEGER ::= 8
-cAPSpecificBoundSetnumOfBCSMEvents                 INTEGER ::= 10
+cAPSpecificBoundSetmaxTimeAndTimezoneLength        INTEGER ::= 8    
+cAPSpecificBoundSetnumOfBCSMEvents                 INTEGER ::= 30
+cAPSpecificBoundsSetnumOfChangeOfPositionControlInfo INTEGER ::= 10
+cAPSpecificBoundsSetnumOfCSs                       INTEGER ::= 127
 cAPSpecificBoundSetnumOfSMSEvents                  INTEGER ::= 10
 cAPSpecificBoundSetnumOfGPRSEvents                 INTEGER ::= 10
 cAPSpecificBoundSetnumOfExtensions                 INTEGER ::= 10
