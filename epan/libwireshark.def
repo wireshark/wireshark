@@ -213,6 +213,7 @@ dissect_rpc_uint64
 dissect_tpkt_encap
 dissect_xdlc_control
 draw_tap_listeners
+dscp_vals						DATA
 dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII

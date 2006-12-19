@@ -60,16 +60,12 @@
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-h245.h>
+#include <epan/dissectors/packet-ip.h>
 
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
-#define MODETOKEN			1
-#define RESERVEDVALUETOKEN	2
-#define RESERVEDGROUPTOKEN	3
-#define H324_H223CAPR		4
-#define H324_MUXTBL_IN		5
-#define H324_MUXTBL_OUT		6
+
 void proto_reg_handoff_megaco(void);
 
 /* Define the megaco proto */
@@ -111,6 +107,7 @@ static int hf_megaco_mode						= -1;
 static int hf_megaco_reserve_group				= -1;
 static int hf_megaco_h324_muxtbl_in				= -1;
 static int hf_megaco_h324_muxtbl_out			= -1;
+static int hf_megaco_ds_dscp					= -1;
 static int hf_megaco_h324_h223capr				= -1;
 static int hf_megaco_reserve_value				= -1;
 static int hf_megaco_streamid 					= -1;
@@ -1390,9 +1387,10 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 			}
 		}
 		tokenlen = tvb_next_offset - tvb_current_offset;
-
+		
 		mediaParm = find_megaco_mediaParm_names(tvb, tvb_current_offset, tokenlen);
-		tvb_LBRKT = tvb_find_guint8(tvb, tvb_next_offset+1 , tvb_last_RBRKT, '{');
+
+		tvb_LBRKT = tvb_find_guint8(tvb, tvb_next_offset , tvb_last_RBRKT, '{');
 		tvb_next_offset = tvb_find_guint8(tvb, tvb_current_offset+1 , tvb_last_RBRKT, '}');
 		tvb_RBRKT = tvb_next_offset;
 
@@ -2757,6 +2755,23 @@ dissect_megaco_Remotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescripto
  *   localParm            = ( streamMode / propertyParm / reservedValueMode / reservedGroupMode )
  */
 
+#define MEGACO_MODETOKEN			1
+#define MEGACO_RESERVEDVALUETOKEN	2
+#define MEGACO_RESERVEDGROUPTOKEN	3
+#define MEGACO_H324_H223CAPR		4
+#define MEGACO_H324_MUXTBL_IN		5
+#define MEGACO_H324_MUXTBL_OUT		6
+#define MEGACO_DS_DSCP				7
+#define MEGACO_GM_SAF				8
+#define MEGACO_GM_SAM				9
+#define MEGACO_GM_SPF				10
+#define MEGACO_GM_SPR				11
+#define MEGACO_GM_ESAS				12
+#define MEGACO_GM_LSA				13
+#define MEGACO_GM_ESPS				14
+#define MEGACO_GM_LSP				15
+#define MEGACO_GM_RSB				16
+
 static const megaco_tokens_t megaco_localParam_names[] = {
 		{ "Unknown-token",	 			NULL }, /* 0 Pad so that the real headers start at index 1 */
 		/* streamMode */
@@ -2767,8 +2782,18 @@ static const megaco_tokens_t megaco_localParam_names[] = {
 		 * Add more package names as needed.
 		 */
 		{ "h324/h223capr",				NULL }, /* 4 */
-		{ "h324/muxtbl_in",				NULL },
-		{ "h324/muxtbl_out",			NULL },
+		{ "h324/muxtbl_in",				NULL },	/* 5 */
+		{ "h324/muxtbl_out",			NULL },	/* 6 */
+		{ "ds/dscp",					NULL },	/* 7 */
+		{ "gm/saf",						NULL },	/* 8 */
+		{ "gm/sam",						NULL },	/* 9 */
+		{ "gm/spf",						NULL },	/* 10 */
+		{ "gm/spr",						NULL },	/* 11 */
+		{ "gm/esas",					NULL },	/* 12 */
+		{ "gm/lsa",						NULL },	/* 13 */
+		{ "gm/esps",					NULL },	/* 14 */
+		{ "gm/lsp",						NULL },	/* 15 */
+		{ "gm/rsb",						NULL },	/* 16 */
 };
 
 /* Returns index of megaco_tokens_t */
@@ -2797,6 +2822,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 	gint tvb_offset,tvb_help_offset;
 	gint token_index = 0;
 	gchar *msg;
+	proto_item* item;
 
 	/*proto_tree  *megaco_LocalControl_tree, *megaco_LocalControl_ti; */
 
@@ -2860,7 +2886,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 		 */
 		switch ( token_index ){
 
-		case MODETOKEN: /* Mode */
+		case MEGACO_MODETOKEN: /* Mode */
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_mode, tvb,
 				tvb_current_offset, tokenlen,
 				tvb_format_text(tvb, tvb_current_offset,
@@ -2870,7 +2896,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 			break;
 
-		case RESERVEDVALUETOKEN: /* ReservedValue */
+		case MEGACO_RESERVEDVALUETOKEN: /* ReservedValue */
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_reserve_value, tvb,
 					tvb_current_offset, tokenlen,
 					tvb_format_text(tvb, tvb_current_offset,
@@ -2878,7 +2904,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 			break;
-		case RESERVEDGROUPTOKEN: /* ReservedGroup */
+		case MEGACO_RESERVEDGROUPTOKEN: /* ReservedGroup */
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_reserve_group, tvb,
 				tvb_current_offset, tokenlen,
 				tvb_format_text(tvb, tvb_current_offset,
@@ -2886,7 +2912,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 			break;
 
-		case H324_H223CAPR: /* h324/h223capr */
+		case MEGACO_H324_H223CAPR: /* h324/h223capr */
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_h324_h223capr, tvb,
 				tvb_current_offset, tokenlen,
 				tvb_format_text(tvb, tvb_current_offset,
@@ -2899,7 +2925,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 			break;
 
-		case H324_MUXTBL_IN: /* h324/muxtbl_in */
+		case MEGACO_H324_MUXTBL_IN: /* h324/muxtbl_in */
 
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_h324_muxtbl_in, tvb,
 				tvb_current_offset, tokenlen,
@@ -2915,7 +2941,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 			break;
 
-		case H324_MUXTBL_OUT:
+		case MEGACO_H324_MUXTBL_OUT:
 
 			proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_h324_muxtbl_out, tvb,
 				tvb_current_offset, tokenlen,
@@ -2931,7 +2957,59 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
 			break;
 
+		case MEGACO_DS_DSCP:
+			item = proto_tree_add_string(megaco_mediadescriptor_tree, hf_megaco_ds_dscp, tvb,
+				tvb_current_offset, tokenlen,
+				tvb_format_text(tvb, tvb_current_offset,
+				tokenlen));
+			
+			proto_item_append_text(item,"[ %s ]", val_to_str(atoi(tvb_format_text(tvb, tvb_current_offset,tokenlen)), dscp_vals,"Unknown (%u)"));
+			
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
+
+		case MEGACO_GM_SAF:
+			tokenlen = tvb_offset - tvb_help_offset;
+			item = proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_help_offset,
+				tokenlen));
+			proto_item_append_text(item," [Remote Source Address Filtering]");
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
+		case MEGACO_GM_SAM:
+			tokenlen = tvb_offset - tvb_help_offset;
+			item = proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_help_offset,
+				tokenlen));
+			proto_item_append_text(item," [Remote Source Address Mask]");
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
+		case MEGACO_GM_SPF:
+			tokenlen = tvb_offset - tvb_help_offset;
+			item = proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_help_offset,
+				tokenlen));
+			proto_item_append_text(item," [Remote Source Port Filtering]");
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
+		case MEGACO_GM_SPR:
+			tokenlen = tvb_offset - tvb_help_offset;
+			item = proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_help_offset,
+				tokenlen));
+			proto_item_append_text(item," [Remote Source Port Range]");
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
+		case MEGACO_GM_ESAS:
+			tokenlen = tvb_offset - tvb_help_offset;
+			item = proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
+				"%s", tvb_format_text(tvb,tvb_help_offset,
+				tokenlen));
+			proto_item_append_text(item," [Explicit Source Address Setting]");
+			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+			break;
 		default:
+			tokenlen = tvb_offset - tvb_help_offset;
 			proto_tree_add_text(megaco_mediadescriptor_tree, tvb, tvb_help_offset, tokenlen,
 				"%s", tvb_format_text(tvb,tvb_help_offset,
 				tokenlen));
@@ -3033,6 +3111,9 @@ proto_register_megaco(void)
 		{ &hf_megaco_h324_muxtbl_out,
 		{ "h324/muxtbl_out", "megaco.h324_muxtbl_out", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/muxtbl_out", HFILL }},
+		{ &hf_megaco_ds_dscp,
+		{ "ds/dscp", "megaco.ds_dscp", FT_STRING, BASE_DEC, NULL, 0x0,
+		"ds/dscp Differentiated Services Code Point", HFILL }},
 		{ &hf_megaco_h324_h223capr,
 		{ "h324/h223capr", "megaco._h324_h223capr", FT_STRING, BASE_DEC, NULL, 0x0,
 		"h324/h223capr", HFILL }},

@@ -43,6 +43,6 @@ typedef struct _e_ip
 void capture_ip(const guchar *, int, int, packet_counts *);
 
 /* Export the DSCP value-string table for other protocols */
-extern const value_string dscp_vals[];
+WS_VAR_IMPORT const value_string dscp_vals[];
 
 #endif
