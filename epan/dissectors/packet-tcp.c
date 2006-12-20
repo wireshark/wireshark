@@ -1129,7 +1129,6 @@ again:
 		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
 			/* The dissector asked for the entire segment */
 			len=tvb_length_remaining(tvb, offset);
-			msp->flags&=(~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
 		} else {
 			len=MIN(nxtseq, msp->nxtpdu) - seq;
 		}
@@ -1139,11 +1138,25 @@ again:
 			seq - msp->seq,
 			len,
 			(LT_SEQ (nxtseq,msp->nxtpdu)) );
-		/* if we didnt consume the entire segment there is another pdu
-		 * starting beyong the end of this one 
-		 */
-		if(msp->nxtpdu<nxtseq && len>0){
-			another_pdu_follows=len;
+
+		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
+			msp->flags&=(~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
+
+			/* If we consumed the entire segment there is no
+			 * other pdu starting anywhere inside this segment.
+			 * So update nxtpdu to point at least to the start
+			 * of the next segment.
+			 * (If the subdissector asks for even more data we
+			 * will advance nxtpdu even furhter later down in
+			 * the code.)
+			 */
+			msp->nxtpdu=nxtseq;
+		}
+
+		if( (msp->nxtpdu<nxtseq)
+		&&  (msp->nxtpdu>=seq)
+		&&  (len>0) ){
+			another_pdu_follows=msp->nxtpdu-seq;
 		}
 	} else {
 		/* This segment was not found in our table, so it doesn't
@@ -1242,7 +1255,28 @@ again:
 				 * needs desegmentation).
 				 */
 				fragment_set_partial_reassembly(pinfo,msp->first_frame,tcp_fragment_table);
-				msp->nxtpdu=msp->seq+tvb_reported_length(next_tvb) + pinfo->desegment_len;
+				/* Update msp->nxtpdu to point to the new next
+				 * pdu boundary.
+				 */
+				if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
+					/* We want reassembly of at least one
+					 * more segment so set the nxtpdu 
+					 * boundary to one byte into the next 
+					 * segment.
+					 * This means that the next segment 
+					 * will complete reassembly even if it
+					 * is only one single byte in length.
+					 */
+					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + 1;
+					msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+				} else {
+					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + pinfo->desegment_len;
+				}
+				/* Since we need at least some more data
+				 * there can be no pdu following in the
+				 * tail of this segment.
+				 */
+				another_pdu_follows=0;
 			} else {
 				/*
 				 * Show the stuff in this TCP segment as
@@ -1339,7 +1373,6 @@ again:
 	    if(pinfo->desegment_len==DESEGMENT_UNTIL_FIN){
 		tcpd->fwd->flags|=TCP_FLOW_REASSEMBLE_UNTIL_FIN;
 	    }
-
 	    /*
 	     * The sequence number at which the stuff to be desegmented
 	     * starts is the sequence number of the byte at an offset
