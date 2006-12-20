@@ -27,52 +27,57 @@ Makefile.am
 Makefile.common
 Makefile.nmake
 moduleinfo.h
+moduleinfo.nmake
+plugin.rc.in
 The source files and header files for your dissector
+
+Examples of these files can be found in plugins/h223.
 
 2.1 AUTHORS, COPYING, and ChangeLog
 
 The AUTHORS, COPYING, and ChangeLog are the standard sort of GPL project 
-files; see plugins/docsis for examples.
+files.
 
-2.2 Makefile.am and Makefile.nmake
+2.2 Makefile.am 
 
-For your plugins/xxx/Makefile.am and plugins/xxx/Makefile.nmake files,
-see the corresponding files in plugins/docsis.  Replace all occurrences
-of "docsis" in those files with "xxx".
+For your plugins/xxx/Makefile.am file, see the corresponding file in 
+plugins/h223. Replace all occurrences of "h223" in those files with "xxx".
 
 2.3 Makefile.common
 
 Your plugins/xxx/Makefile.common should list the source files for your
-dissector, in the DISSECTOR_SRC variable, and the header files for your
-dissector, if any, in the DISSECTOR_INCLUDES variable.  (The
-DISSECTOR_INCLUDES variable should not include moduleinfo.h.)
+dissector in the DISSECTOR_SRC variable, and all supporting source files
+in the DISSECTOR_SUPPORT_SRC variable.
+The header files for your dissector, if any, must be listed in the 
+DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not 
+include moduleinfo.h. 
 
-2.4 moduleinfo.h
+2.4 Makefile.nmake
 
-Your plugins/xxx/moduleinfo.h file is used to set the version
-information for the plugin.  An example follows:
+For your plugins/xxx/Makefile.nmake file, see the corresponding file in 
+plugins/h223. No modifications are needed here.
 
-/* Included *after* config.h, in order to re-define these macros */
+2.5 moduleinfo.h
 
-#ifdef PACKAGE
-#undef PACKAGE
-#endif
+Your plugins/xxx/moduleinfo.h file is used to set the version information 
+for the plugin. 
 
-/* Name of package */
-#define PACKAGE "xxx"
+2.6 moduleinfo.nmake
 
-#ifdef VERSION
-#undef VERSION
-#endif
+Your plugins/xxx/moduleinfo.nmake is used to set the version information
+for building the plugin. Its contents should match that in moduleinfo.h
 
-/* Version number of package */
-#define VERSION "0.0.8"
+2.7 plugin.rc.in
+
+Your plugins/xxx/plugin.rc.in is the Windows resource template file
+used to add the plugin specific information as resources to the DLL.
+No modifications are needed here.
 
 3. Changes to existing Wireshark files
 
-You will also need to change the plugins/Makefile.am toplevel
-Makefile.am, the plugins/Makefile.nmake toplevel Makefile.nmake, the
-toplevel Makefile.am file, and the toplevel configure.in file.
+You will also need to change the plugins/Makefile.am, the 
+plugins/Makefile.nmake, the toplevel Makefile.am file, and the 
+toplevel configure.in file.
 
 3.1  Changes to plugins/Makefile.am
 
@@ -143,7 +148,7 @@ maintainer-clean: clean
 Unfortunately there are quite some several places in the top level
 Makefile.am that need to be altered for adding a plugin.
 
-Add your plugin to the plugin_libs and plugin_ldadd (two times):
+Add your plugin to the plugin_libs and plugin_ldadd:
 
 plugin_libs = \
         plugins/gryphon/gryphon.la \
@@ -151,10 +156,7 @@ plugin_libs = \
         plugins/xxx/xxx.la
 
 if ENABLE_STATIC
-plugin_ldadd = \
-        plugins/gryphon/gryphon.o \
-        plugins/mgcp/mgcp.o \
-        plugins/xxx/xxx.o 
+plugin_ldadd = (plugin_libs)
 
 else          # ENABLE_STATIC
 plugin_ldadd = \
@@ -187,6 +189,11 @@ AC_OUTPUT(
   tools/lemon/Makefile
   ,)
 
+3.5  Changes to the installers
+
+If you want to include your plugin in an installer you have to add lines 
+in the NSIS installer wireshark.nsi file, and U3 installer makefile.nmake 
+file.
 
 4. Development and plugins
 
@@ -210,7 +217,42 @@ by going to the plugins/xxx directory and running
 
 make install
 
-5. How to update an "old style" plugin (using plugin_init function)
+5. Update "old style" plugins
+
+5.1 How to update an "old style" plugin (using plugin_register and 
+    plugin_reg_handoff functions).
+
+The plugin registration has changed with the extension of the build
+scripts. These now generate the additional code needed for plugin 
+encapsulation in plugin.c. When using the new style build scripts,
+stips the parts outlined below:
+
+    o Remove the following include statments:
+
+        #include <gmodule.h>
+        #include "moduleinfo.h"
+
+    o Removed the definition:
+
+        #ifndef ENABLE_STATIC
+        G_MODULE_EXPORT gchar version[] = VERSION;
+        #endif
+
+    o Move relevant code from the blocks and delete these functions:
+
+        #ifndef ENABLE_STATIC
+        plugin_reg_handoff()
+        ....
+        #endif
+
+        #ifndef ENABLE_STATIC
+        plugin_register()
+        ....
+        #endif
+
+This will leave a clean dissector source file without plugin specifics.
+
+5.2 How to update an "old style" plugin (using plugin_init function)
 
 The plugin registering has changed between 0.10.9 and 0.10.10; everyone
 is encouraged to update their plugins as outlined below:
@@ -241,3 +283,4 @@ Gilbert Ramirez <gram@alumni.rice.edu>
 Jeff Foster <jfoste@woodward.com>
 Olivier Abad <oabad@cybercable.fr>
 Laurent Deniel <laurent.deniel@free.fr>
+Jaap Keuter <jaap.keuter@xs4all.nl>
