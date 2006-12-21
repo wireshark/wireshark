@@ -14,7 +14,7 @@ VERSION_MINOR=99
 VERSION_MICRO=5
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
-VERSION_EXTRA=
+VERSION_EXTRA=-SVN-20180
 
 # The version of the wiretap library (recommended: leave unchanged)
 WTAP_VERSION_MAJOR=0
@@ -64,8 +64,11 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 # GTK 2.6 is the mainline since Ethereal 0.10.14
 #GTK2_INST_VERSION=2.6
 #PANGO_INST_VERSION=1.8
-# Support for GTK 2.8 is currently experimental ...
-GTK2_INST_VERSION=2.8
+# Support for GTK 2.8 
+#GTK2_INST_VERSION=2.8
+#PANGO_INST_VERSION=1.14
+# Support for GTK 2.10 is currently experimental ...
+GTK2_INST_VERSION=2.10
 PANGO_INST_VERSION=1.14
 
 #
@@ -438,8 +441,17 @@ GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK2_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 
+!IF "$(GTK2_INST_VERSION)" == "2.10"
+GTK2_LIB_DIR=2.10.0
+NEED_LIBPNG_DLL=USE
+NEED_CAIRO_DLL=USE
+GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
+GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCDST_DIR=etc\gtk-2.0
+!ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
 # the lib dir of GTK2.6 didn't changed since 2.4.0
-!IF "$(GTK2_INST_VERSION)" == "2.8"
 GTK2_LIB_DIR=2.4.0
 NEED_LIBPNG_DLL=USE
 NEED_CAIRO_DLL=USE
