@@ -50,6 +50,7 @@ static int hf_catapult_dct2000_outhdr = -1;
 static int hf_catapult_dct2000_direction = -1;
 static int hf_catapult_dct2000_encap = -1;
 static int hf_catapult_dct2000_unparsed_data = -1;
+static int hf_catapult_dct2000_dissected_length = -1;
 
 static int hf_catapult_dct2000_ipprim_addresses = -1;
 static int hf_catapult_dct2000_ipprim_src_addr = -1;
@@ -859,7 +860,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_item *addr_ti;
                         proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_dst_addr,
                                             tvb, dest_addr_offset, 4, FALSE);
-                        addr_ti = proto_tree_add_ipv4(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
+                        addr_ti = proto_tree_add_item(ipprim_tree, hf_catapult_dct2000_ipprim_addr,
                                                       tvb, dest_addr_offset, 4, FALSE);
                         PROTO_ITEM_SET_HIDDEN(addr_ti);
                     }
@@ -938,6 +939,14 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          tvb_get_ephemeral_string(tvb, variant_start, variant_length));
         }
     }
+    else
+    {
+        /* Show number of dissected bytes */
+        proto_item *ti = proto_tree_add_uint(dct2000_tree,
+                                             hf_catapult_dct2000_dissected_length,
+                                             tvb, 0, 0, tvb_reported_length(tvb)-offset);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 }
 
 
@@ -1011,6 +1020,12 @@ void proto_register_catapult_dct2000(void)
             { "Unparsed protocol data",
               "dct2000.unparsed_data", FT_BYTES, BASE_NONE, NULL, 0x0,
               "Unparsed DCT2000 protocol data", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_dissected_length,
+            { "Dissected length",
+              "dct2000.dissected-length", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Number of bytes dissected by subdissector(s)", HFILL
             }
         },
         { &hf_catapult_dct2000_ipprim_addresses,
