@@ -121,6 +121,8 @@
  * one, rather than creating a new one.
  */
 static GtkWidget *cap_open_w;
+static GtkWidget * dl_hdr_menu=NULL;
+static gint linktype_history=-1;
 
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
@@ -192,7 +194,12 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   GtkWidget *advanced_bt;
 #endif
 
+  /* Deallocate the existing menu for Datalink header type */
+  if (dl_hdr_menu != NULL)
+    gtk_widget_destroy(dl_hdr_menu);
+  
   lt_menu = gtk_menu_new();
+  dl_hdr_menu= lt_menu;
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
   if_name = get_if_name(if_text);
@@ -294,13 +301,15 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
       gtk_widget_set_sensitive(lt_menu_item, FALSE);
     }
     gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
+    gtk_widget_show(lt_menu_item);
   }
   if (lt_list != NULL)
     free_pcap_linktype_list(lt_list);
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
-
+  /* Restore the menu to the last index used */
+  gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_history);
   if_ip_lb = OBJECT_GET_DATA(linktype_om, E_CAP_IFACE_KEY);
   if(ips == 0) {
     g_string_append(ip_str, "unknown");
@@ -726,8 +735,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   linktype_om = gtk_option_menu_new();
   OBJECT_SET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY, linktype_lb);
   /* Default to "use the default" */
-  OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
+  /* Datalink menu index is not resetted, it will be restored with last used value */
+  /* OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
   OBJECT_SET_DATA(linktype_om, E_CAP_IFACE_KEY, if_ip_lb);
+  dl_hdr_menu=NULL;
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
@@ -1397,10 +1408,15 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   int new_linktype = GPOINTER_TO_INT(data);
   GtkWidget *linktype_om = OBJECT_GET_DATA(w, E_CAP_LT_OM_KEY);
   int old_linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
-
-  if (old_linktype != new_linktype)
+  
+  /* If the link is changed, update the menu and store the index and the value
+     to reuse later when the dialog window will be reopened */
+  if (old_linktype != new_linktype) {
     OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
-}
+    capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+    linktype_history=gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om));
+  }
+ }
 
 /* user pressed "File" button */
 static void
@@ -1486,9 +1502,10 @@ capture_dlg_prep(gpointer parent_w) {
     g_free(capture_opts->iface);
   capture_opts->iface = g_strdup(if_name);
   g_free(entry_text);
-
-  capture_opts->linktype =
-      GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+  /* The Linktype will be stored when the interface will be changed, or if not, not datalink option is used,
+     the acquisition will be performed on the default datalink for the device */
+  /*  capture_opts->linktype =
+      GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY)); */
 
 #ifdef _WIN32
   capture_opts->buffer_size =
@@ -1685,6 +1702,10 @@ capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
 {
   GtkWidget *linktype_om = argp;
   set_link_type_list(linktype_om, entry);
+  /* Default to "use the default" */
+  OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
+  capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+  linktype_history=-1;
 }
 
 /*
