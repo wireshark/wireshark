@@ -689,7 +689,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				{
 					return offset;
 				}
-				
+
 				/* Look for a code in the first byte */
 				code = tvb_get_guint8(tvb, offset);
 				offset += 1;
@@ -863,14 +863,9 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					return offset;
 				}
 
-				/* Item length, 8 bits */
-				item_len = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
-				offset++;
-				packet_len--;
-
 				/* SIP URI */
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, item_len, FALSE );
+				item_len = tvb_get_guint8( tvb, offset );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, 1, FALSE );
 
 				if (check_col(pinfo->cinfo, COL_INFO))
 				{
@@ -878,8 +873,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					                tvb_get_ephemeral_string(tvb, offset, item_len));
 				}
 				
-				offset = offset + item_len;
-				packet_len = packet_len - item_len;
+				offset = offset + item_len + 1;
+				packet_len = packet_len - item_len - 1;
 				
 				/* In the application dependent data, the TBCP Talk Burst Taken message SHALL carry
 				 * a SSRC field and SDES items, CNAME and MAY carry SDES item NAME to identify the
@@ -899,21 +894,20 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, FALSE );
 					offset++;
 					packet_len--;
-	
-					/* Item length, 8 bits */
-					item_len = tvb_get_guint8( tvb, offset );
-					proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
-					offset++;
-					packet_len--;
-	
+
 					/* Display name */
-					if ( item_len != 0 )
-						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, item_len, FALSE );
-					offset = offset + item_len;
-					packet_len = packet_len - item_len;
+					item_len = tvb_get_guint8( tvb, offset );
+					if (item_len != 0)
+					{
+						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, 1, FALSE );
+					}
+					offset = offset + item_len + 1;
+					packet_len = packet_len - item_len - 1;
 
 					if (packet_len == 0)
+					{
 						return offset;
+					}
 				}
 
 				/* Participants (optional) */
@@ -984,7 +978,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 			case TBCP_BURST_RELEASE:
 				{
 				guint16 last_seq_no;
-				guint8  ignore_last_seq_no;
+				guint16 ignore_last_seq_no;
 
 				/* Sequence number of last RTP packet in burst */
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
@@ -2803,7 +2797,7 @@ proto_register_rtcp(void)
 			{
 				"SIP URI",
 				"rtcp.app.poc1.sip.uri",
-				FT_STRING,
+				FT_UINT_STRING,
 				BASE_NONE,
 				NULL,
 				0x0,
@@ -2815,7 +2809,7 @@ proto_register_rtcp(void)
 			{
 				"Display Name",
 				"rtcp.app.poc1.disp.name",
-				FT_STRING,
+				FT_UINT_STRING,
 				BASE_NONE,
 				NULL,
 				0x0,
