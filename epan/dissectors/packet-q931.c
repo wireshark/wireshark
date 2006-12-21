@@ -427,6 +427,7 @@ static const value_string q931_info_element_vals6[] = {
 	{ Q931_IE_REDIRECTING_NUMBER,		"Redirecting number" },
 	{ Q931_IE_REDIRECTING_SUBADDR,		"Redirecting subaddress" },
 	{ Q931_IE_CALL_APPEARANCE,		"Call appearance" },
+        { Q931_IE_DISPLAY,			"Avaya Display" }, /* if Avaya codeset to send display = 6 */
 	{ 0,					NULL }
 };
 /* Codeset 7 */
@@ -2977,6 +2978,14 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 							ie_tree);
 					}
 					break;
+
+                                case CS6 | Q931_IE_DISPLAY:
+                                        if (q931_tree != NULL) {
+                                                dissect_q931_ia5_ie(tvb, offset + 2,
+                                                        info_element_len, ie_tree,
+                                                        "Avaya Display");
+                                        }
+                                        break;
 
 				default:
 					if (q931_tree != NULL) {
