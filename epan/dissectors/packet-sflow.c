@@ -446,9 +446,9 @@ dissect_sflow_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	
 	proto_tree_add_item(tree, hf_sflow_vlan_in, tvb, offset + len, 4, FALSE);
 	len += 4;
-	proto_tree_add_item(tree, hf_sflow_vlan_out, tvb, offset + len, 4, FALSE);
-	len += 4;
 	proto_tree_add_item(tree, hf_sflow_pri_in, tvb, offset + len, 4, FALSE);
+	len += 4;
+	proto_tree_add_item(tree, hf_sflow_vlan_out, tvb, offset + len, 4, FALSE);
 	len += 4;
 	proto_tree_add_item(tree, hf_sflow_pri_out, tvb, offset + len, 4, FALSE);
 	len += 4;
