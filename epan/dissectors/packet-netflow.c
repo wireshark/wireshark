@@ -152,7 +152,7 @@ struct v9_template {
 	guint16	count;
 	guint32	length;
 	guint32 source_id;
-	guint32	source_addr;
+	address	source_addr;
 	guint16 option_template; /* 0=data template, 1=option template */
 	struct v9_template_entry *entries;
 };
@@ -292,26 +292,35 @@ proto_tree_add_mpls_label(proto_tree * pdutree, tvbuff_t * tvb, int offset, int 
 
 void		proto_reg_handoff_netflow(void);
 
+typedef struct _hdrinfo_t {
+	guint8 vspec;
+	guint32 src_id;	/* SourceID in NetFlow V9, Observation Domain ID in IPFIX */
+	address net_src;
+} hdrinfo_t;
+
 typedef int     dissect_pdu_t(proto_tree * pdutree, tvbuff_t * tvb, int offset,
-			      int verspec);
+			      hdrinfo_t * hdrinfo);
+
 static int      dissect_pdu(proto_tree * tree, tvbuff_t * tvb, int offset,
-			    int verspec);
+			    hdrinfo_t * hdrinfo);
 static int      dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb,
-				  int offset, int verspec);
+				  int offset, hdrinfo_t * hdrinfo);
 static int      dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb,
-				   int offset, int verspec);
+				   int offset, hdrinfo_t * hdrinfo);
 static int	dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb,
-				   int offset, int verspec);
+				   int offset, hdrinfo_t * hdrinfo);
 static int	dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset, guint16 id, guint length);
+				int offset, guint16 id, guint length, hdrinfo_t * hdrinfo);
 static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset, struct v9_template * template);
 static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset);
+				   int offset, hdrinfo_t * hdrinfo);
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
-				    int offset, int len);
+				    int offset, int len, hdrinfo_t * hdrinfo);
+static int	v9_template_hash(guint16 id, const address * net_src, 
+				 guint32 src_id);
 static void	v9_template_add(struct v9_template * template);
-static struct v9_template *v9_template_get(guint16 id, guint32 src_addr,
+static struct v9_template *v9_template_get(guint16 id, address  * net_src,
 					   guint32 src_id);
 
 static gchar   *getprefix(const guint32 * address, int prefix);
@@ -340,8 +349,9 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree     *ti;
 	proto_item     *timeitem, *pduitem;
 	proto_tree     *timetree, *pdutree;
-	unsigned int    pduret, ver = 0, pdus = 0, x = 1, vspec;
-	gint             flow_len;
+	unsigned int    pduret, ver = 0, pdus = 0, x = 1;
+	hdrinfo_t       hdrinfo;
+	gint            flow_len = -1;
 	size_t          available, pdusize, offset = 0;
 	nstime_t        ts;
 	dissect_pdu_t  *pduptr;
@@ -358,7 +368,11 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	ver = tvb_get_ntohs(tvb, offset);
-	vspec = ver;
+
+	hdrinfo.vspec = ver;
+	hdrinfo.src_id = 0;
+	COPY_ADDRESS(&hdrinfo.net_src, &pinfo->net_src);
+
 	switch (ver) {
 	case 1:
 		pdusize = V1PDU_SIZE;
@@ -488,11 +502,12 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	} else if ((ver == 9) || (ver == 10)) {
 		proto_tree_add_item(netflow_tree, hf_cflow_source_id,
 				    tvb, offset, 4, FALSE);
+		hdrinfo.src_id = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 	}
 	if (ver == 8) {
-		vspec = tvb_get_guint8(tvb, offset);
-		switch (vspec) {
+		hdrinfo.vspec = tvb_get_guint8(tvb, offset);
+		switch (hdrinfo.vspec) {
 		case V8PDU_AS_METHOD:
 			pdusize = V8PDU_AS_SIZE;
 			break;
@@ -540,11 +555,11 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			break;
 		default:
 			pdusize = -1;
-			vspec = 0;
+			hdrinfo.vspec = 0;
 			break;
 		}
 		proto_tree_add_uint(netflow_tree, hf_cflow_aggmethod,
-				    tvb, offset++, 1, vspec);
+				    tvb, offset++, 1, hdrinfo.vspec);
 		proto_tree_add_item(netflow_tree, hf_cflow_aggversion,
 				    tvb, offset++, 1, FALSE);
 	}
@@ -585,7 +600,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		pdutree = proto_item_add_subtree(pduitem, ett_flow);
 
-		pduret = pduptr(pdutree, tvb, offset, vspec);
+		pduret = pduptr(pdutree, tvb, offset, &hdrinfo);
 
 		if (pduret < pdusize) pduret = pdusize; /* padding */
 
@@ -686,12 +701,15 @@ flow_process_textfield(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 static int
 dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
-		   int verspec)
+		   hdrinfo_t * hdrinfo)
 {
 	int             startoffset = offset;
+	guint8		verspec;
 
 	proto_tree_add_item(pdutree, hf_cflow_dstaddr, tvb, offset, 4, FALSE);
 	offset += 4;
+
+	verspec = hdrinfo->vspec;
 
 	if (verspec != V8PDU_DESTONLY_METHOD) {
 		proto_tree_add_item(pdutree, hf_cflow_srcaddr, tvb, offset, 4,
@@ -749,15 +767,18 @@ dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 static int
 dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
-		  int verspec)
+		  hdrinfo_t * hdrinfo)
 {
 	int             startoffset = offset;
+	guint8		verspec;
 
 	proto_tree_add_item(pdutree, hf_cflow_flows, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	offset = flow_process_sizecount(pdutree, tvb, offset);
 	offset = flow_process_timeperiod(pdutree, tvb, offset);
+
+	verspec = hdrinfo->vspec;
 
 	switch (verspec) {
 	case V8PDU_AS_METHOD:
@@ -894,10 +915,13 @@ dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 /* Dissect a version 9 FlowSet and return the length we processed. */
 
 static int
-dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
+dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
 {
 	int length;
 	guint16	flowset_id;
+	guint8 ver;
+
+	ver = hdrinfo->vspec;
 
 	if ((ver != 9) && (ver != 10))
 		return (0);
@@ -914,7 +938,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 				    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_template(pdutree, tvb, offset, length - 4);
+		dissect_v9_template(pdutree, tvb, offset, length - 4, hdrinfo);
 	} else if ((flowset_id == 1) || (flowset_id == 3)) {
 		/* Options */
 		proto_tree_add_item(pdutree, hf_cflow_options_flowset_id, tvb,
@@ -926,7 +950,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		    offset, 2, FALSE);
 		offset += 2;
 
-		dissect_v9_options(pdutree, tvb, offset);
+		dissect_v9_options(pdutree, tvb, offset, hdrinfo);
 	} else if (flowset_id >= 4 && flowset_id <= 255) {
 		/* Reserved */
 		proto_tree_add_item(pdutree, hf_cflow_flowset_id, tvb,
@@ -955,7 +979,7 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		length -= 4;
 		if (length > 0) {
 			dissect_v9_data(pdutree, tvb, offset, flowset_id,
-			    (guint)length);
+					(guint)length, hdrinfo);
 		}
 	}
 
@@ -964,13 +988,13 @@ dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 
 static int
 dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
-    guint16 id, guint length)
+		guint16 id, guint length, hdrinfo_t * hdrinfo)
 {
 	struct v9_template *template;
 	proto_tree *data_tree;
 	proto_item *data_item;
 
-	template = v9_template_get(id, 0, 0);
+	template = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
 	if (template != NULL && template->length != 0) {
 		int count;
 
@@ -1257,7 +1281,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 }
 
 static int
-dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
+dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
 {
   guint16 length, option_scope_len, option_len, i, id, size;
   struct v9_template template;
@@ -1308,8 +1332,8 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
   memset(&template, 0, sizeof(template));
   template.id = id;
   template.count = option_len/4;
-  template.source_addr = 0;	/* XXX */
-  template.source_id = 0;	/* XXX */
+  COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
+  template.source_id = hdrinfo->src_id;
   template.option_template = 1; /* Option template */
   size = template.count * sizeof(struct v9_template_entry);
   template.entries = g_malloc(size);
@@ -1321,7 +1345,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 }
 
 static int
-dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len)
+dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, hdrinfo_t * hdrinfo)
 {
 	struct v9_template template;
 	proto_tree *template_tree;
@@ -1354,8 +1378,8 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len)
 		memset(&template, 0, sizeof(template));
 		template.id = id;
 		template.count = count;
-		template.source_addr = 0;	/* XXX */
-		template.source_id = 0;		/* XXX */
+		COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
+		template.source_id = hdrinfo->src_id;
 		template.option_template = 0;   /* Data template */
 		template.entries = g_malloc(count * sizeof(struct v9_template_entry));
 		tvb_memcpy(tvb, (guint8 *)template.entries, offset,
@@ -1464,6 +1488,30 @@ static value_string v9_scope_field_types[] = {
 	{ 0, NULL },
 };
 
+static int
+v9_template_hash(guint16 id, const address * net_src, guint32 src_id)
+{
+	guint32 val = 0;
+	const guint32 *p; 
+	int i;
+
+	p = (guint32 *)net_src->data;
+	
+	val += id;
+
+	if (net_src->type == AT_IPv4) {
+		val += *p;
+	} else if (net_src->type == AT_IPv6) {
+		for (i=0; i < 4; i++) {
+			val += *p++;
+		}
+	}
+
+	val += src_id;
+
+	return val % V9TEMPLATE_CACHE_MAX_ENTRIES;
+}
+
 static void
 v9_template_add(struct v9_template *template)
 {
@@ -1477,20 +1525,20 @@ v9_template_add(struct v9_template *template)
 		template->length += template->entries[i].length;
 	}
 
-	memmove(&v9_template_cache[template->id % V9TEMPLATE_CACHE_MAX_ENTRIES],
+	memmove(&v9_template_cache[v9_template_hash(template->id, 
+		    &template->source_addr, template->source_id)],
 	    template, sizeof(*template));
 }
 
 static struct v9_template *
-v9_template_get(guint16 id, guint32 src_addr, guint32 src_id)
+v9_template_get(guint16 id, address * net_src, guint32 src_id)
 {
 	struct v9_template *template;
 
-	src_addr = 0;
-	template = &v9_template_cache[id % V9TEMPLATE_CACHE_MAX_ENTRIES];
+	template = &v9_template_cache[v9_template_hash(id, net_src, src_id)];
 
 	if (template->id != id ||
-	    template->source_addr != src_addr ||
+	    !ADDRESSES_EQUAL(&template->source_addr, net_src) ||
 	    template->source_id != src_id) {
 		template = NULL;
 	}
@@ -1504,12 +1552,13 @@ v9_template_get(guint16 id, guint32 src_addr, guint32 src_id)
  */
 
 static int
-dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
+dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
 {
 	int             startoffset = offset;
 	guint32         srcaddr, dstaddr;
 	guint8          mask;
 	nstime_t        ts;
+	guint8		ver;
 
 	memset(&ts, '\0', sizeof(ts));
 
@@ -1537,6 +1586,9 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 	/*
 	 * and the similarities end here 
 	 */
+
+	ver = hdrinfo->vspec;
+
 	if (ver == 1) {
 		offset =
 		    flow_process_textfield(pdutree, tvb, offset, 2, "padding");
