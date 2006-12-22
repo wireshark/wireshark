@@ -32,7 +32,6 @@ EXIT_ERROR=2
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-##	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
 	ping -n 20 www.wireshark.org > ./pingout.txt 2>&1 &
 }
 
@@ -55,7 +54,6 @@ capture_step_10packets() {
 		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		echo
 		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
@@ -76,8 +74,10 @@ capture_step_10packets() {
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
+		wait  # for ping to complete
 		echo
 		cat ./testout.txt
+		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -101,6 +101,10 @@ capture_step_10packets_stdout() {
 		> ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		wait  # for ping to complete
+		echo
+		cat ./testout.txt
+		cat ./pingout.txt
 		$TSHARK -D
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
@@ -119,8 +123,10 @@ capture_step_10packets_stdout() {
 		test_step_ok
 	else
 		echo
+		wait  # for ping to complete
 		cat ./testout.txt
 		cat ./testout2.txt
+		cat ./pingout.txt
 		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
@@ -176,6 +182,10 @@ capture_step_2multi_10packets() {
 
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		wait  # for ping to complete
+		echo
+		cat ./testout.txt
+		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -219,6 +229,13 @@ capture_step_read_filter() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		wait  # for ping to complete
+		echo
+		cat ./testout.txt
+		cat ./pingout.txt
+		# part of the Prerequisite checks
+		# wrong interface ? output the possible interfaces
+		$TSHARK -D
 		test_step_failed "exit status: $RETURNVALUE"
 		return
 	fi
@@ -261,6 +278,13 @@ capture_step_snapshot() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		wait  # for ping to complete
+		echo
+		cat ./testout.txt
+		cat ./pingout.txt
+		# part of the Prerequisite checks
+		# wrong interface ? output the possible interfaces
+		$TSHARK -D
 		test_step_failed "exit status: $RETURNVALUE"
 		return
 	fi
