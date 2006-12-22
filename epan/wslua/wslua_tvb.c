@@ -442,8 +442,7 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 	return 0
 }
 #endif
- 
- */
+
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
