@@ -920,6 +920,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
             g_free(value_str);
             return;
         }
+        FVALUE_FREE(fvalue);
     } else {
         value_str = NULL;
         stripped_value_str = NULL;

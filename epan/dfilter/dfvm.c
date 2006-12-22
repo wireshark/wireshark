@@ -44,6 +44,7 @@ dfvm_value_free(dfvm_value_t *v)
 {
 	switch (v->type) {
 		case FVALUE:
+			FVALUE_FREE(v->value.fvalue);
 			break;
 		case DRANGE:
 			drange_free(v->value.drange);
