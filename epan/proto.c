@@ -203,17 +203,6 @@ static GList *protocols = NULL;
  * dissectors register their data */
 static GMemChunk *gmc_hfinfo = NULL;
 
-/* Contains information about a field when a dissector calls
- * proto_tree_add_item.  */
-SLAB_ITEM_TYPE_DEFINE(field_info)
-static SLAB_FREE_LIST_DEFINE(field_info)
-static field_info *field_info_tmp=NULL;
-#define FIELD_INFO_NEW(fi)					\
-	SLAB_ALLOC(fi, field_info)
-#define FIELD_INFO_FREE(fi)					\
-	SLAB_FREE(fi, field_info)
-
-
 
 /* Contains the space for proto_nodes. */
 SLAB_ITEM_TYPE_DEFINE(proto_node)
@@ -227,15 +216,6 @@ static SLAB_FREE_LIST_DEFINE(proto_node)
 #define PROTO_NODE_FREE(node)				\
 	SLAB_FREE(node, proto_node)
 
-
-
-/* String space for protocol and field items for the GUI */
-SLAB_ITEM_TYPE_DEFINE(item_label_t)
-static SLAB_FREE_LIST_DEFINE(item_label_t)
-#define ITEM_LABEL_NEW(il)				\
-	SLAB_ALLOC(il, item_label_t)
-#define ITEM_LABEL_FREE(il)				\
-	SLAB_FREE(il, item_label_t)
 
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
@@ -516,13 +496,6 @@ free_node_tree_data(tree_data_t *tree_data)
         g_free(tree_data);
 }
 
-#define FREE_NODE_FIELD_INFO(finfo)	\
-	if(finfo->rep){			\
-		ITEM_LABEL_FREE(finfo->rep);	\
-	}				\
-	FVALUE_CLEANUP(&finfo->value);	\
-	FIELD_INFO_FREE(finfo);
-
 static gboolean
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
@@ -532,11 +505,6 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 		/* This is the root node. Destroy the per-tree data.
 		 * There is no field_info to destroy. */
 		free_node_tree_data(PTREE_DATA(node));
-	}
-	else {
-		/* This is a child node. Don't free the per-tree data, but
-		 * do free the field_info data. */
-		FREE_NODE_FIELD_INFO(finfo);
 	}
 
 	/* Free the proto_node. */
@@ -805,28 +773,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 	GHashTable	*hash;
 	GPtrArray	*ptrs;
 
-	/* there is a possibility here that we might raise an exception
-	 * and thus would lose track of the field_info.
-	 * store it in a temp so that if we come here again we can reclaim
-	 * the field_info without leaking memory.
-	 */
-	/* XXX this only keeps track of one field_info struct,
-	   if we ever go multithreaded for calls to this function
-	   we have to change this code to use per thread variable.
-	*/
-	if(field_info_tmp){
-		/* oops, last one we got must have been lost due
-		 * to an exception.
-		 * good thing we saved it, now we can reverse the
-		 * memory leak and reclaim it.
-		 */
-		SLAB_FREE(field_info_tmp, field_info);
-	}
-	/* we might throw an exception, keep track of this one
-	 * across the "dangerous" section below.
-	*/
-	field_info_tmp=new_fi;
-
 	switch(new_fi->hfinfo->type) {
 		case FT_NONE:
 			/* no value to set for FT_NONE */
@@ -1024,11 +970,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 	/* Don't add new node to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
 	pi = proto_tree_add_node(tree, new_fi);
-
-	/* we did not raise an exception so we dont have to remember this
-	 * field_info struct any more.
-	 */
-	field_info_tmp=NULL;
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
@@ -2876,7 +2817,7 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 {
 	field_info		*fi;
 
-	FIELD_INFO_NEW(fi);
+	fi=ep_alloc(sizeof(field_info));
 
 	fi->hfinfo = hfinfo;
 	fi->start = start;
@@ -2918,7 +2859,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 	field_info *fi = PITEM_FINFO(pi);
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
-		ITEM_LABEL_NEW(fi->rep);
+		fi->rep=ep_alloc(sizeof(item_label_t));
 		replen = 0;
 		ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 		    "%s: ", fi->hfinfo->name);
@@ -2945,7 +2886,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	field_info *fi = PITEM_FINFO(pi);
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
-		ITEM_LABEL_NEW(fi->rep);
+		fi->rep=ep_alloc(sizeof(item_label_t));
 		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -2964,10 +2905,6 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 	}
 
 	fi = PITEM_FINFO(pi);
-
-	if(fi->rep){
-		ITEM_LABEL_FREE(fi->rep);
-	}
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
@@ -2997,7 +2934,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		 * generate the default representation.
 		 */
 		if (fi->rep == NULL) {
-			ITEM_LABEL_NEW(fi->rep);
+			fi->rep=ep_alloc(sizeof(item_label_t));
 			proto_item_fill_label(fi, fi->rep->representation);
 		}
 

@@ -27,6 +27,7 @@
 #include <ftypes-int.h>
 #include <glib.h>
 #include "../slab.h"
+#include "../emem.h"
 
 #include "ftypes.h"
 
@@ -203,7 +204,7 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	SLAB_ALLOC(fv, fvalue_t);
+	fv=ep_alloc(sizeof(fvalue_t));
 
 	FTYPE_LOOKUP(ftype, ft);
 	fv->ftype = ft;
@@ -246,7 +247,6 @@ fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogF
 		logfunc("\"%s\" cannot be converted to %s.",
 				s, ftype_pretty_name(ftype));
 	}
-	FVALUE_FREE(fv);
 	return NULL;
 }
 
@@ -265,7 +265,6 @@ fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
 		logfunc("\"%s\" cannot be converted to %s.",
 				s, ftype_pretty_name(ftype));
 	}
-	FVALUE_FREE(fv);
 	return NULL;
 }
 

@@ -241,31 +241,6 @@ void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
 
-/* Define type needed for the fvalue_t free list. */
-SLAB_ITEM_TYPE_DEFINE(fvalue_t)
-
-/* Free all memory used by an fvalue_t. With MSVC and a 
- * libwireshark.dll, we need a special declaration.
- */
-WS_VAR_IMPORT SLAB_FREE_LIST_DECLARE(fvalue_t)
-
-
-#define FVALUE_CLEANUP(fv)					\
-	{							\
-		register FvalueFreeFunc	free_value;		\
-		free_value = (fv)->ftype->free_value;	\
-		if (free_value) {				\
-			free_value((fv));			\
-		}						\
-	}
-
-#define FVALUE_FREE(fv)						\
-	{							\
-		FVALUE_CLEANUP(fv)				\
-		SLAB_FREE(fv, fvalue_t);			\
-	}
-
-
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc);
 

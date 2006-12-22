@@ -322,7 +322,6 @@ ftype_can_matches
 ftype_can_ne
 ftype_can_slice
 ftype_pretty_name
-fvalue_t_free_list              DATA
 fvalue_from_unparsed
 fvalue_get
 fvalue_get_floating

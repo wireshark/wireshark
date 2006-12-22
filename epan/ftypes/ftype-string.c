@@ -178,7 +178,6 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		memcpy(fv->value.string, fv_bytes->value.bytes->data, num_bytes);
 		fv->value.string[num_bytes] = '\0';
 
-		FVALUE_FREE(fv_bytes);
 		return TRUE;
 	}
 	else {

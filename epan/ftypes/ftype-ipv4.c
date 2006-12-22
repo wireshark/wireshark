@@ -105,7 +105,6 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 			return FALSE;
 		}
 		nmask_bits = fvalue_get_integer(nmask_fvalue);
-		FVALUE_FREE(nmask_fvalue);
 
 		if (nmask_bits > 32) {
 			logfunc("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
