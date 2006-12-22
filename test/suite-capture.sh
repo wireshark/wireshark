@@ -32,7 +32,8 @@ EXIT_ERROR=2
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
+##	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
+	ping -n 20 www.wireshark.org > ./pingout.txt 2>&1 &
 }
 
 # capture exactly 10 packets
@@ -51,10 +52,15 @@ capture_step_10packets() {
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		wait  # for ping to complete
+		echo
+		cat ./testout.txt
+		echo
+		cat ./pingout.txt
 		# part of the Prerequisite checks
-		# probably wrong interface, output the possible interfaces
+		# wrong interface ? output the possible interfaces
 		$TSHARK -D
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -95,8 +101,8 @@ capture_step_10packets_stdout() {
 		> ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		$TSHARK -D
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -170,10 +176,10 @@ capture_step_2multi_10packets() {
 
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -321,6 +327,7 @@ capture_cleanup_step() {
 	rm -f ./testout2.txt
 	rm -f ./testout.pcap
 	rm -f ./testout2.pcap
+	rm -f ./pingout.txt
 }
 
 capture_suite() {
