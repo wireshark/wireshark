@@ -32,7 +32,7 @@ EXIT_ERROR=2
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-	ping -n 20 www.wireshark.org > ./pingout.txt 2>&1 &
+	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
 }
 
 # capture exactly 10 packets
@@ -47,14 +47,12 @@ capture_step_10packets() {
 		-w ./testout.pcap \
 		-c 10  \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		icmp \
+		-f icmp \
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -74,10 +72,8 @@ capture_step_10packets() {
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -97,14 +93,12 @@ capture_step_10packets_stdout() {
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-w - \
-		icmp \
+		-f icmp \
 		> ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		$TSHARK -D
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
@@ -123,10 +117,8 @@ capture_step_10packets_stdout() {
 		test_step_ok
 	else
 		echo
-		wait  # for ping to complete
 		cat ./testout.txt
 		cat ./testout2.txt
-		cat ./pingout.txt
 		$TSHARK -D
 		test_step_failed "No or not enough traffic captured. Probably the wrong interface: $TRAFFIC_CAPTURE_IFACE!"
 	fi
@@ -177,15 +169,13 @@ capture_step_2multi_10packets() {
 		-w ./testout.pcap \
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		icmp
+		-f icmp \
 		> ./testout.txt 2>&1
 
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -225,14 +215,12 @@ capture_step_read_filter() {
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-R 'dcerpc.cn_call_id==123456' \
 		-c 10 \
-		icmp
+		-f icmp \
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -273,15 +261,13 @@ capture_step_snapshot() {
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-s 68 \
-		-a duration:$TRAFFIC_CAPTURE_DURATION
-		icmp \
+		-a duration:$TRAFFIC_CAPTURE_DURATION \
+		-f icmp \
 		> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		wait  # for ping to complete
 		echo
 		cat ./testout.txt
-		cat ./pingout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -351,7 +337,6 @@ capture_cleanup_step() {
 	rm -f ./testout2.txt
 	rm -f ./testout.pcap
 	rm -f ./testout2.pcap
-	rm -f ./pingout.txt
 }
 
 capture_suite() {
