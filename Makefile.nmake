@@ -506,7 +506,7 @@ setup: verify_tools
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.10"
 # ran into problems probably due to stuff left in gtk dir, remove it 
-	rm -r $(WIRESHARK_LIBS)/gtk2
+	rm -rf $(WIRESHARK_LIBS)/gtk2
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.6.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
