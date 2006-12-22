@@ -3586,7 +3586,10 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * GIOP octet stream start.
    */
 
-  set_new_alignment(&offset, GIOP_HEADER_SIZE, 8);
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
+  {
+    set_new_alignment(&offset, GIOP_HEADER_SIZE, 8);
+  }
 
   /*
    * Save FN,reqid,and operation for later. Add sub_handle later.
