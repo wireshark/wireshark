@@ -122,7 +122,7 @@
  */
 static GtkWidget *cap_open_w;
 static GtkWidget * dl_hdr_menu=NULL;
-static gint linktype_history=-1;
+static guint linktype_history=0;
 
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
@@ -1414,7 +1414,10 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   if (old_linktype != new_linktype) {
     OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
     capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
-    linktype_history=gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om));
+#if GTK_MAJOR_VERSION >= 2
+    linktype_history=MAX(gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om)), 0);
+#endif
+
   }
  }
 
@@ -1705,7 +1708,7 @@ capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
   /* Default to "use the default" */
   OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
   capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
-  linktype_history=-1;
+  linktype_history=0;
 }
 
 /*
