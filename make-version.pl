@@ -20,7 +20,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # usage:  ./make-version.pl [-p] [--package-version]
 #
@@ -29,6 +29,7 @@
 #
 #   enable     - Enable or disable versioning.  Zero (0) disables, nonzero
 #                enables.
+#   svn_client - Use svn client i.s.o. ugly internal SVN file hack
 #   format     - A strftime() formatted string to use as a template for
 #                the version string.  The sequence "%#" will substitute
 #                the SVN revision number.
@@ -44,6 +45,7 @@
 # Default configuration:
 #
 # enable: 1
+# svn_client: 0 <- This needs to change in order to support SVN 1.4
 # format: SVN %Y%m%d%H%M%S
 # pkg_enable: 1
 # pkg_format: -SVN-%#
@@ -66,6 +68,7 @@ my $revision = 0;
 my $pkg_version = 0;
 my %version_pref = (
 	"enable"     => 1,
+	"svn_client" => 0,
 	"format"     => "SVN %Y%m%d%H%M%S",
 	"pkg_enable" => 1,
 	"pkg_format" => "-SVN-%#",
@@ -86,6 +89,16 @@ sub read_svn_info {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
+	if ($version_pref{"svn_client"}) {
+		$line = qx{svn info};
+		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
+			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+		}
+		if ($line =~ /Last Changed Rev: (\d+)/) { $revision = $1; }
+		return;
+	}
+
+        # Start of ugly internal SVN file hack
 	if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
 		print ("Unable to get SVN info.\n");
 		return;
@@ -224,8 +237,8 @@ sub get_config {
 	while (<FILE>) {
 		chomp;
 		next if (/^#/);
-		next unless (/^(\w+):\s+(\S.*)/);
-		$version_pref{$1} = $2;
+		next unless (/^(\w+)(:|=)\s*(\S.*)/);
+		$version_pref{$1} = $3;
 	}
 	close FILE;
 	return 1;
