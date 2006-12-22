@@ -193,7 +193,7 @@ get_epan_compiled_version_info(GString *str)
 	g_string_append(str, "with Net-SNMP ");
 	g_string_append(str, netsnmp_get_version());
 #else /* no SNMP library */
-	g_string_append(str, "without UCD-SNMP or Net-SNMP");
+	g_string_append(str, "without Net-SNMP");
 #endif /* HAVE_NET_SNMP */
 
         /* ADNS */
