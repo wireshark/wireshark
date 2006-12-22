@@ -236,7 +236,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  pppoe_code;
-	guint16 pppoe_length;
+	guint16 reported_payload_length;
 
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
@@ -259,11 +259,11 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Read length of payload */
-	pppoe_length = tvb_get_ntohs(tvb, 4);
+	reported_payload_length = tvb_get_ntohs(tvb, 4);
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0, pppoe_length+6, FALSE);
+		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0, reported_payload_length+6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 
 		/* Dissect fixed fields */
@@ -275,9 +275,9 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	
 	/* Now dissect any tags */
-	if (pppoe_length > 0)
+	if (reported_payload_length > 0)
 	{
-		dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+pppoe_length);
+		dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+reported_payload_length);
 	}
 
 }
@@ -421,7 +421,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  pppoe_code;
 	guint16 pppoe_session_id;
-	guint16 pppoe_length;
+	guint16 reported_payload_length, actual_payload_length;
 	gint    length, reported_length;
 
 	proto_tree  *pppoe_tree;
@@ -447,7 +447,8 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	pppoe_session_id = tvb_get_ntohs(tvb, 2);
-	pppoe_length = tvb_get_ntohs(tvb, 4);
+	reported_payload_length = tvb_get_ntohs(tvb, 4);
+	actual_payload_length = tvb_length_remaining(tvb, 6);
 
 	if (tree)
 	{
@@ -458,7 +459,10 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
 		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
+		ti = proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
+		if(reported_payload_length != actual_payload_length)
+			proto_item_append_text(ti, " [incorrect, should be %u]",
+					       actual_payload_length);
 	}
 
 	/* dissect_ppp is apparently done as a 'top level' dissector,
@@ -472,10 +476,10 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	DISSECTOR_ASSERT(reported_length >= 0);
 	if (length > reported_length)
 		length = reported_length;
-	if ((guint)length > pppoe_length)
-		length = pppoe_length;
-	if ((guint)reported_length > pppoe_length)
-		reported_length = pppoe_length;
+	if ((guint)length > reported_payload_length)
+		length = reported_payload_length;
+	if ((guint)reported_length > reported_payload_length)
+		reported_length = reported_payload_length;
 	next_tvb = tvb_new_subset(tvb,6,length,reported_length);
 	call_dissector(ppp_handle,next_tvb,pinfo,tree);
 }
