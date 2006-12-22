@@ -436,7 +436,14 @@ static const luaL_reg Tvb_methods[] = {
 };
 
 static int Tvb_range(lua_State* L);
-
+#if USED_FOR_DOC_PURPOSES
+WSLUA_METAMETHOD Tvb__call(lua_State* L) {
+	/* equivalent to tvb:range(...) */
+	return 0
+}
+#endif
+ 
+ */
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},

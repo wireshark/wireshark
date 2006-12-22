@@ -36,46 +36,45 @@ ip ../dissectors/packet-ip.h e_ip
 udp ../dissectors/packet-udp.h e_udphdr
 http ../dissectors/packet-http.h http_info_value_t
 h225 ../dissectors/packet-h225.h h225_packet_info h225_msg_type h225_cs_type
-
-#actrace
-#afp
-#ansi_a
-#ansi_map
-#bootp
-#dcerpc
-#dccp
-#dtls
-#epl
-#eth
-#fc
-#fddi
-#gsm_a
-#gsm_map
-#h245
-#h245dg
-#wlan
-#ipx
-#isup
-#jxta
-#ldap
-#mtp3
-#ncp_srt
-#ncp_hdr
-#ntlmssp
-#q931
-#rpc
-#rsvp
-#rtpevent
-#rtp
-#scsi
-#sctp
-#sdp
-#sip
-#smb
-#smb2
-#ssl
-#t38
-#tcp
-#teredo
-#tr
-#wsp
+actrace ../dissectors/packet-actrace.h actrace_info_t
+#afp ../dissectors/packet-afp.h
+ansi_a ../dissectors/packet-ansi_a.h ansi_a_tap_rec_t
+ansi_map ../dissectors/packet-ansi_map.h ansi_map_tap_rec_t
+#bootp ../dissectors/packet-bootp.h bootp_info_t
+#dcerpc ../dissectors/packet-dcerpc.h dcerpc_info_t
+#dccp ../dissectors/packet-dccp.h dccp_info_t
+#dtls ../dissectors/packet-dtls.h dtls_info_t
+#epl ../dissectors/packet-epl.h epl_info_t
+eth ../dissectors/packet-eth.h eth_hdr
+#fc ../dissectors/packet-fc.h fc_hdr
+#fddi ../dissectors/packet-fddi.h fddi_info_t
+#gsm_a ../dissectors/packet-gsm_a.h gsm_a_info_t
+#gsm_map ../dissectors/packet-gsm_map.h gsm_map_info_t
+#h245 ../dissectors/packet-h245.h h245_info_t
+#h245dg ../dissectors/packet-h245dg.h h245dg_info_t
+#wlan ../dissectors/packet-wlan.h wlan_info_t
+#ipx ../dissectors/packet-ipx.h ipx_info_t
+#isup ../dissectors/packet-isup.h isup_info_t
+#jxta ../dissectors/packet-jxta.h jxta_info_t
+#ldap ../dissectors/packet-ldap.h ldap_info_t
+#mtp3 ../dissectors/packet-mtp3.h mtp3_info_t
+#ncp_srt ../dissectors/packet-ncp_srt.h ncp_srt_info_t
+#ncp_hdr ../dissectors/packet-ncp_hdr.h ncp_hdr_info_t
+#ntlmssp ../dissectors/packet-ntlmssp.h ntlmssp_info_t
+#q931 ../dissectors/packet-q931.h q931_info_t
+#rpc ../dissectors/packet-rpc.h rpc_info_t
+#rsvp ../dissectors/packet-rsvp.h rsvp_info_t
+#rtpevent ../dissectors/packet-rtpevent.h rtpevent_info_t
+#rtp ../dissectors/packet-rtp.h rtp_info_t
+#scsi ../dissectors/packet-scsi.h scsi_info_t
+#sctp ../dissectors/packet-sctp.h sctp_info_t
+#sdp ../dissectors/packet-sdp.h sdp_info_t
+#sip ../dissectors/packet-sip.h sip_info_t
+#smb ../dissectors/packet-smb.h smb_info_t
+#smb2 ../dissectors/packet-smb2.h smb2_info_t
+#ssl ../dissectors/packet-ssl.h ssl_info_t
+#t38 ../dissectors/packet-t38.h t38_info_t
+#tcp ../dissectors/packet-tcp.h tcp_info_t
+#teredo ../dissectors/packet-teredo.h teredo_info_t
+#tr ../dissectors/packet-tr.h tr_info_t
+#wsp ../dissectors/packet-wsp.h wsp_info_t

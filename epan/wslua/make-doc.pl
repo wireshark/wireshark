@@ -87,24 +87,6 @@ my $docbook_template = {
 	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
 };
 
-my %metamethods = %{{
-	__tostring => "tostring(__)",
-	__index => "__[]",
-	__newindex => "__[] = ",
-	__add => "__ + __",
-	__sub => "__ - __",
-	__mul => "__ * __",
-	__div => "__ / __",
-	__mod => "__ % __",
-	__pow => "__ ^ __",
-	__unm => "-___",
-	__concat => "__ .. __",
-	__len => "#__",
-	__call => "__()",
-	__eq => "__ == __",
-	__lt => "__ < __",
-	__le => "__ <= __",
-}};
 
 my $template_ref = $docbook_template;
 my $out_extension = "xml";
@@ -134,7 +116,6 @@ sub {
 		descr=> gorolla($4),
 		constructors => [],
 		methods => [],
-		metamethods => [],
 		attributes => []
 	};
 	$classes{$1} = $class;
@@ -154,7 +135,7 @@ sub {
 	push @functions, $function;
 } ] ,
 
-[ 'WSLUA_CONSTRUCTOR\s+([A-Za-z]+)_([a-z_]+).*?\173' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_CONSTRUCTOR\s+([A-Za-z0-9]+)_([a-z0-9_]+).*?\173' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">cc=$1=$2=$3=$4=$5=$6=$7=\n";
 	$function = {
@@ -168,54 +149,86 @@ sub {
 	push @{${$class}{constructors}}, $function;
 } ] ,
 
-[ 'WSLUA_METHOD\s+([A-Za-z]+)_([a-z_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+[ '_WSLUA_CONSTRUCTOR_\s+([A-Za-z0-9]+)_([a-z0-9_]+)\s*(.*?)\052\057',
 	sub {
-		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
+		deb ">cc=$1=$2=$3=$4=$5=$6=$7=\n";
 		$function = {
 			returns => [],
 			arglist => [],
 			args => {},
-			name => "$1:$2",
+			name => "$1.$2",
+			descr => gorolla($3),
+			type => 'constructor'
+		};
+		push @{${$class}{constructors}}, $function;
+	} ] ,
+
+[ 'WSLUA_METHOD\s+([A-Za-z]+)_([a-z0-9_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+	sub {
+		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
+		my $name = "$1";
+		$name =~ tr/A-Z/a-z/;
+		$name .= ":$2";
+		$function = {
+			returns => [],
+			arglist => [],
+			args => {},
+			name => $name,
 			descr => gorolla($5),
 			type => 'method'
 		};
 		push @{${$class}{methods}}, $function;
 	} ] ,
 
-[ 'WSLUA_METAMETHOD\s+([A-Za-z]+)(__[a-z]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_METAMETHOD\s+([A-Za-z]+)(__[a-z0-9]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
 	sub {
 		deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
-		my $name = $metamethods{$2};
+		my $name = "$1";
+		$name =~ tr/A-Z/a-z/;
+		$name .= ":$2";
 		my ($c,$d) = ($1,$5);
 		$function = {
 			returns => [],
 			arglist => [],
 			args => {},
-			name => "$1:$2",
+			name => $name,
 			descr => gorolla($5),
 			type => 'metamethod'
 		};
-		push @{${$class}{metamethods}}, $function;
+		push @{${$class}{methods}}, $function;
 	} ] ,
 
-[ '#define WSLUA_(OPT)?ARG_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
+[ '#define WSLUA_(OPT)?ARG_([a-z0-9_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
-	push @{${$function}{arglist}} , $3;
-	${${$function}{args}}{$3} = {descr=>$6}
+	my $name = $1 eq 'OPT' ? "[$3]" : $3;
+	push @{${$function}{arglist}} , $name;
+	${${$function}{args}}{$name} = {descr=>$6,}
+} ],
+
+[ '\057\052\s*WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s*(.*?)\052\057',
+	sub {
+		deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
+		my $name = $1 eq 'OPT' ? "[$3]" : $3;
+		push @{${$function}{arglist}} , $name;
+		${${$function}{args}}{$name} = {descr=>$4,}
 } ],
 
 [ '#define WSLUA_(OPT)?ARG_([A-Za-z]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">ca=$1=$2=$3=$4=$5=$6=$7=\n";
-	push @{${$function}{arglist}} , $4;
-	${${$function}{args}}{$4} = {descr=>$7}
+	my $name = $1 eq 'OPT' ? "[$4]" : $4;
+	push @{${$function}{arglist}} , $name;
+	${${$function}{args}}{$name} = {descr=>$7,optional => $1 eq '' ? 1 : 0 }
 } ],
 
 [ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
 	sub {
 		deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
-		push @{${$class}{attributes}}, { name => "$1.$2", descr => gorolla($4), mode=>$3 };
+		my $name = "$1";
+		$name =~ tr/A-Z/a-z/;
+		$name .= ".$2";
+		push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
 	} ],
 
 [ '/\052\s+WSLUA_MOREARGS\s+([A-Za-z_]+)\s+(.*?)\052/',
@@ -229,6 +242,12 @@ sub {
 sub { 
 	deb ">fr=$1=$2=$3=$4=$5=$6=$7=\n";
 	push @{${$function}{returns}} , gorolla($4) if $4 ne '';
+} ],
+
+[ '\057\052\s*_WSLUA_RETURNS_\s*(.*?)\052\057',
+	sub { 
+		deb ">fr2=$1=$2=$3=$4=$5=$6=$7=\n";
+		push @{${$function}{returns}} , gorolla($1) if $1 ne '';
 } ],
 
 [ 'WSLUA_ERROR\s*\050\s*(([A-Z][A-Za-z]+)_)?([a-z_]+),' . $QUOTED_RE ,
@@ -325,11 +344,7 @@ while ( $file =  shift) {
 			for my $m (@{${$cl}{methods}}) {
 				function_descr($m);
 			}
-			
-			for my $m (@{${$cl}{metamethods}}) {
-				function_descr($m);
-			}
-			
+						
 #			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
 		}
 		
@@ -420,7 +435,8 @@ sub function_descr {
 	for my $argname (@{${$f}{arglist}}) {
 		my $arg = ${${$f}{args}}{$argname};
 		$argname =~ tr/A-Z/a-z/;
-		
+		$argname =~ s/\[(.*)\]/$1 (optional)/;
+
 		printf D ${$template_ref}{function_arg_header}, $argname, $argname;
 		printf D ${$template_ref}{function_arg_descr}, ${$arg}{descr} , ${$arg}{descr} if ${$arg}{descr};
 

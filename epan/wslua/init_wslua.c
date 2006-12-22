@@ -263,16 +263,16 @@ int wslua_init(lua_State* LS) {
     }
     
     /* check if lua is to be disabled */
-    lua_pushstring(L,"lua_disabled");
+    lua_pushstring(L,"disable_lua");
     lua_gettable(L, LUA_GLOBALSINDEX);
     
     if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
-        /* disable lua */
-        lua_close(L);
-        L = NULL;
-        return 0;
+		/* disable lua */
+		lua_close(L);
+		L = NULL;
+		return 0;
     }
-    
+
     /* check whether we should run other scripts even if running superuser */
     lua_pushstring(L,"run_user_scripts_when_superuser");
     lua_gettable(L, LUA_GLOBALSINDEX);
