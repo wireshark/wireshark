@@ -25,14 +25,23 @@
 
 
 if (gui_enabled()) then 
+	-- Note that everything is "local" to this "if then" 
+	-- this way we don't add globals
+
+	-- Evaluate Window
 	local function evaluate_lua()
 		local w = TextWindow.new("Evaluate Lua")
 		w:set_editable()
 
-		function eval()
+		-- button callback
+		local function eval()
+			-- get the window's text and remove the result 
 			local text = string.gsub(w:get_text(),"%c*--%[%[.*--%]%]$","")
+
+			-- if the text begins with '=' then convert = into return
 			text = string.gsub(text,"^=","return ")
 
+			-- evaluate text
 			local result = assert(loadstring(text))()
 
 			if (result ~= nil) then
@@ -50,16 +59,18 @@ if (gui_enabled()) then
 	local date = rawget(os,"date") -- use rawget to avoid disabled's os.__index
 
 	if type(date) ~= "function" then
-		-- 'os' has been disabled use a dummy function for date
+		-- 'os' has been disabled, use a dummy function for date
 		date = function() return "" end
 	end
 
+	-- Console Window
 	local function run_console()
 		if console_open then return end
 		console_open = true
 
 		local w = TextWindow.new("Console")
 
+		-- save original logger functions
 		local orig = {
 			critical = critical,
 			warn = warn,
@@ -68,13 +79,15 @@ if (gui_enabled()) then
 			debug = debug
 		}
 
+		-- define new logger functions that append text to the window
 		function critical(x)  w:append( date() .. " CRITICAL: " .. tostring(x) .. "\n") end
 		function warn(x)  w:append( date() .. " WARN: " .. tostring(x) .. "\n") end
 		function message(x)  w:append( date() .. " MESSAGE: " .. tostring(x) .. "\n") end
 		function info(x)  w:append( date() .. " INFO: " .. tostring(x) .. "\n") end
 		function debug(x)  w:append( date() .. " DEBUG: " .. tostring(x) .. "\n") end
 
-		function at_close()
+		-- when the window gets closed restore the original logger functions
+		local function at_close()
 			critical = orig.critical
 			warn = orig.warn
 			message = orig.message

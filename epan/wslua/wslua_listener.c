@@ -81,7 +81,8 @@ int tap_packet_cb_error_handler(lua_State* L) {
 int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = tapdata;
     int retval = 0;
-
+	int top;
+	
     if (tap->packet_ref == LUA_NOREF) return 0;
 
     lua_settop(tap->L,0);
@@ -104,14 +105,11 @@ int lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const
 	lua_tree->tree = edt->tree;
 	lua_tree->item = NULL;
     
+	top = lua_gettop(tap->L);
+	
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
-            
-            if (lua_gettop(tap->L) > 0)
-                retval = luaL_checkint(tap->L,1);
-            else 
-                retval = 1;
-            
+			retval = luaL_optint(tap->L,-1,1);
             break;
         case LUA_ERRRUN:
             break;
