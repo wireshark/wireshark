@@ -694,8 +694,9 @@ main(int argc, char *argv[])
   char                 badopt;
   GLogLevelFlags       log_flags;
   int                  status;
+  int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:d:Df:F:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:d:Df:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -721,6 +722,26 @@ main(int argc, char *argv[])
    * Get credential information for later use.
    */
   get_credential_info();
+
+  /*
+   * in order to have the -X otps assigned before the wslua machine starts
+   * we need to getopts before epan_init() gets called
+   */
+  opterr = 0;
+  optind_initial = optind;
+  
+  while ((opt = getopt(argc, argv, optstring)) != -1) {
+	  switch (opt) {
+		  case 'X':
+			  ex_opt_add(optarg);
+			  break;
+		  default:
+			  break;
+	  }
+  }
+  
+  optind = optind_initial;
+  opterr = 1;
 
   /* nothing more than the standard GLib handler, but without a warning */
   log_flags =
@@ -1059,7 +1080,6 @@ main(int argc, char *argv[])
           print_hex = TRUE;
           break;
       case 'X':
-          ex_opt_add(optarg);
           break;
       case 'z':
         /* We won't call the init function for the stat this soon
