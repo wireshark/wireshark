@@ -32,6 +32,7 @@
 #endif
 
 #include <ftypes-int.h>
+#include <epan/emem.h>
 
 #ifdef HAVE_LIBPCRE
 
@@ -46,35 +47,44 @@ pcre_tuple_new(const char *value)
 	pcre_tuple_t *tuple;
 	const char *pcre_error_text;
 	int pcre_error_offset;
+	void *tmpp;
 
-	tuple = g_malloc(sizeof(pcre_tuple_t));
-	tuple->string = g_strdup(value); /* The RE as string */
+	tuple = ep_malloc(sizeof(pcre_tuple_t));
+	tuple->string = ep_strdup(value); /* The RE as string */
 	tuple->ex = NULL;
-	/* Compile the RE */
-	tuple->re = pcre_compile(
+	/* Compile the RE and convert it into ep allocated memory */
+	tmpp = pcre_compile(
 			value,				/* pattern */
 			0,					/* PCRE options */
 			&pcre_error_text,	/* PCRE constant error string */
 			&pcre_error_offset,	/* Start offset of error in pattern */
 			NULL				/* Default char tables (C locale) */
 			);
+	tuple->re = ep_alloc(sizeof(pcre));
+	memcpy(tuple->re, tmpp, sizeof(pcre));
+	g_free(tmpp);
+
 	if (pcre_error_text) {
-		tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
+		tuple->error = ep_strdup_printf("In regular expression \"%s\":\n"
 				"%s (character position %d)",
 				value, pcre_error_text, pcre_error_offset);
 		return tuple;
 	} else {
 		tuple->error = NULL;
 	}
-	/* Study the RE */
-	tuple->ex = pcre_study(tuple->re, 0, &pcre_error_text);
+	/* Study the RE and convert it into ep allocated memory */
+	tmpp = pcre_study(tuple->re, 0, &pcre_error_text);
+	tuple->ex = ep_alloc(sizeof(pcre_extra));
+	memcpy(tuple->ex, tmpp, sizeof(pcre_extra));
+	g_free(tmpp);
+
 	if (pcre_error_text) {
 		if (tuple->error) {
-			tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
+			tuple->error = ep_strdup_printf("In regular expression \"%s\":\n"
 					"%s. %s",
 					value, tuple->error, pcre_error_text);
 		} else {
-			tuple->error = g_strdup_printf("In regular expression \"%s\":\n"
+			tuple->error = ep_strdup_printf("In regular expression \"%s\":\n"
 					"%s",
 					value, pcre_error_text);
 		}
@@ -83,29 +93,9 @@ pcre_tuple_new(const char *value)
 }
 
 static void
-pcre_tuple_free(pcre_tuple_t *tuple)
-{
-	if (tuple) {
-		if (tuple->string) g_free(tuple->string);
-		if (tuple->re) g_free(tuple->re);
-		if (tuple->ex) g_free(tuple->ex);
-		if (tuple->error) g_free(tuple->error);
-		g_free(tuple);
-	}
-}
-
-static void
 pcre_fvalue_new(fvalue_t *fv)
 {
 	fv->value.re = NULL;
-}
-
-static void
-pcre_fvalue_free(fvalue_t *fv)
-{
-	if (fv->value.re) {
-		pcre_tuple_free(fv->value.re);
-	}
 }
 
 /* Generate a FT_PCRE from a parsed string pattern.
@@ -113,9 +103,6 @@ pcre_fvalue_free(fvalue_t *fv)
 static gboolean
 val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
 {
-	/* Free up the old value, if we have one */
-	pcre_fvalue_free(fv);
-
 	fv->value.re = pcre_tuple_new(pattern);
 	if (fv->value.re->error) {
 		logfunc(fv->value.re->error);
@@ -129,8 +116,6 @@ val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
 static gboolean
 val_from_unparsed(fvalue_t *fv, char *pattern, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
-	/* Free up the old value, if we have one */
-	pcre_fvalue_free(fv);
 	g_assert(! allow_partial_value);
 
 	fv->value.re = pcre_tuple_new(pattern);
@@ -161,8 +146,6 @@ static void
 pcre_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(value != NULL);
-	/* Free up the old value, if we have one */
-	pcre_fvalue_free(fv);
 	g_assert(! already_copied);
 	fv->value.re = pcre_tuple_new(value);
 }
@@ -182,7 +165,7 @@ ftype_register_pcre(void)
 		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
 		0,			/* wire_size */
 		pcre_fvalue_new,	/* new_value */
-		pcre_fvalue_free,	/* free_value */
+		NULL,			/* free_value */
 		val_from_unparsed,	/* val_from_unparsed */
 		val_from_string,	/* val_from_string */
 		pcre_to_repr,		/* val_to_string_repr */
