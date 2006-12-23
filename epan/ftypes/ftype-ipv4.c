@@ -29,6 +29,7 @@
 #include <ftypes-int.h>
 #include <epan/ipv4.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 
 
 static void
@@ -59,7 +60,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	if (has_slash) {
 		/* Make a copy of the string and use strtok() to
 		 * get the address portion. */
-		s_copy = g_strdup(s);
+		s_copy = ep_strdup(s);
 		addr_str = strtok(s_copy, "/");
 
 		/* I just checked for slash! I shouldn't get NULL here.
@@ -67,7 +68,6 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		if (!addr_str) {
 			logfunc("Unexpected strtok() error parsing IP address: %s",
 			    s_copy);
-			g_free(s_copy);
 			return FALSE;
 		}
 	}
@@ -78,9 +78,6 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	if (!get_host_ipaddr(addr_str, &addr)) {
 		logfunc("\"%s\" is not a valid hostname or IPv4 address.",
 		    addr_str);
-		if (has_slash) {
-			g_free(s_copy);
-		}
 		return FALSE;
 	}
 
@@ -94,13 +91,11 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		if (!net_str) {
 			logfunc("Unexpected strtok() error parsing netmask: %s",
 			    s_copy);
-			g_free(s_copy);
 			return FALSE;
 		}
 
 		/* XXX - this is inefficient */
 		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, logfunc);
-		g_free(s_copy);
 		if (!nmask_fvalue) {
 			return FALSE;
 		}
