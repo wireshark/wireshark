@@ -133,7 +133,7 @@ static void dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offse
 /*
  * dissect the description of link in roofnet
  */
-static int dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint link)
+static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint link)
 {
   proto_item *it= NULL;
   proto_tree *subtree= NULL;
@@ -203,7 +203,6 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item * it= NULL;
   proto_tree * roofnet_tree= NULL;
-  proto_tree * roofnet_links_tree= NULL;
   guint offset= 0;
 
   guint8 roofnet_msg_type= 0;
