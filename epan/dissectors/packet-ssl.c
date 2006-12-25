@@ -1589,12 +1589,9 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
         if (session_id_length > 0)
         {
             tvb_ensure_bytes_exist(tvb, offset, session_id_length);
-            proto_tree_add_bytes_format(tree, hf_ssl_handshake_session_id,
+            proto_tree_add_bytes(tree, hf_ssl_handshake_session_id,
                                          tvb, offset, session_id_length,
-                                         tvb_get_ptr(tvb, offset, session_id_length),
-                                         "Session ID (%u byte%s)",
-                                         session_id_length,
-                                         plurality(session_id_length, "", "s"));
+                                         tvb_get_ptr(tvb, offset, session_id_length));
             offset += session_id_length;
         }
 
