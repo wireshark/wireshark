@@ -1174,12 +1174,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
-      if (called) {
-	      if (assoc) assoc->called_ssn = ssn;
-      }
-      else {
-	      if (assoc) assoc->calling_ssn = ssn;
-    }
+
+      if (called && assoc)
+	assoc->called_ssn = ssn;
+      else if (assoc)
+	assoc->calling_ssn = ssn;
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
@@ -1195,13 +1194,13 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       if (ssn_dissector) {
 	  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
 	  if(ssn_dissector_short_name) {
-	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH,"Linked to %s",ssn_dissector_short_name);
+	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
 	      PROTO_ITEM_SET_GENERATED(item);
-	      if (strncasecmp("TCAP",ssn_dissector_short_name,4)== 0) {
+	      if (strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
 		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 		      if(tcap_ssn_dissector){
 			  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-			  proto_item_append_text(item,", TCAP ssn Linked to %s",tcap_ssn_dissector_short_name);
+			  proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
 		      }
 	      }
 	  } /* short name */
@@ -1242,12 +1241,11 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect SSN (if present) */
     if (ssni) {
       ssn = tvb_get_guint8(tvb, offset);
-      if (called) {
-	      if (assoc) assoc->called_ssn = ssn;
-      }
-      else {
-	      if (assoc) assoc->calling_ssn = ssn;
-      }
+
+      if (called && assoc)
+	assoc->called_ssn = ssn;
+      else if (assoc)
+	assoc->calling_ssn = ssn;
 
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
@@ -1406,32 +1404,39 @@ static void
 dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn;
+    guint8 other_ssn;
     
     if (assoc) {
-        switch (pinfo->p2p_dir) {
-            case P2P_DIR_SENT:
-                ssn = assoc->calling_ssn;
-                break;
-            case P2P_DIR_RECV:
-                ssn = assoc->called_ssn;
-                break;
-            default:
-                ssn = assoc->called_ssn;
-                if (ssn == INVALID_SSN) ssn = assoc->calling_ssn;
-                break;
+	other_ssn = INVALID_SSN;
+
+	switch (pinfo->p2p_dir) {
+	    case P2P_DIR_SENT:
+		ssn = assoc->calling_ssn;
+		break;
+	    case P2P_DIR_RECV:
+		ssn = assoc->called_ssn;
+		break;
+	    default:
+		ssn = assoc->called_ssn;
+		other_ssn = assoc->calling_ssn;
+		break;
         }
     } else {
-        ssn = assoc->called_ssn;
+	ssn = assoc->called_ssn;
+	other_ssn = assoc->calling_ssn;
     }
     
-
-    if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree) ) {
-        return;
+    if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
+	return;
+    }
+    
+    if (other_ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
+	return;
     }
     
     /* try heuristic subdissector list to see if there are any takers */
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
-        return;
+	return;
     }
 
     /* No sub-dissection occured, treat it as raw data */
