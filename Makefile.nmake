@@ -498,10 +498,6 @@ REQUIRED_TOOLS=\
 	wget
 
 verify_tools:
-#	This dos2unix hack shouldn't be necessary as of the SH_FLAGS mechanism in config.nmake.
-#	Unfortunately, SH_FLAGS doesn't work, so dos2unix was added here 
-#	(might be removed later if the SH_FLAGS mechanism is working).
-	dos2unix tools\win32-setup.sh
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
 # Download and install all the required libraries into WIRESHARK_LIBS.

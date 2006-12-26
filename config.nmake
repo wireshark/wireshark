@@ -249,6 +249,9 @@ GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 # Set the following mandatory commands to find the tools.
 # The easiest way is to use the corresponding packages from cygwin.
 
+# Set up the path to the cygwin binaries
+CYGWIN_PATH=c:\cygwin\bin
+
 # command for a shell (cygwin's bash package recommended)
 SH_PROG=bash
 
@@ -257,7 +260,7 @@ SH_PROG=bash
 # The following !IF results in the option being used only if it is available
 #  since using it on bash version 3.1.6 (or earlier) is not required and
 #  will cause an error message.
-!if "$(SH_PROG)"=="bash" && [bash -c "set -o igncr" 2>nul: ] == 0
+!if "$(SH_PROG)"=="bash" && [$(CYGWIN_PATH)\bash -c "set -o igncr" 2>nul: ] == 0
 SH_FLAGS=-o igncr
 !endif
 
@@ -341,9 +344,6 @@ LOCAL_LDFLAGS=/DEBUG
 
 # Set PDB_FILE according to your VC++ version 
 PDB_FILE=vc*.pdb
-
-# Set up the path to the cygwin binaries
-CYGWIN_PATH=c:\cygwin\bin
 
 # 
 # Optional: Use the User's Guide as the online help system
