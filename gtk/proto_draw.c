@@ -382,7 +382,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     proto_tree   *tree;
 #if GTK_MAJOR_VERSION < 2
     GtkCTree     *ctree;
-    GtkCTreeNode *node, *parent;
+    /*GtkCTreeNode *node, *parent;*/
     GtkText      *bv = GTK_TEXT(widget);
 #else
     GtkTreeView  *tree_view;
