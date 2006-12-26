@@ -14,7 +14,7 @@ VERSION_MINOR=99
 VERSION_MICRO=5
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
-VERSION_EXTRA=-SVN-20180
+VERSION_EXTRA=
 
 # The version of the wiretap library (recommended: leave unchanged)
 WTAP_VERSION_MAJOR=0
@@ -272,13 +272,13 @@ PERL=perl
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
-# command for python (cygwin's python package recommended)
-PYTHON=env python
-
-# command for native windows python (not recommended)
-#PYTHON="C:/python24/python.exe"
+# command for native windows python (recommended)
+PYTHON="C:/python24/python.exe"
 # add native python to the path (not needed if cygwin's python is used)
-#PATH=c:\python24;$(PATH)
+PATH=c:\python24;$(PATH)
+
+# command for python (cygwin's python package, not recommended)
+#PYTHON=env python
 
 # command for lex/flexx (cygwin's flex recommended)
 LEX=flex
