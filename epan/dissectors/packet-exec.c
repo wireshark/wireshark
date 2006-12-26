@@ -46,8 +46,8 @@
 
 /* Forward declaration we need below */
 void proto_reg_handoff_exec(void);
-gboolean exec_isprint_string(gchar *string);
-gboolean exec_isdigit_string(gchar *string);
+static gboolean exec_isprint_string(guchar *string);
+static gboolean exec_isdigit_string(guchar *string);
 
 /* Variables for our preferences */
 static gboolean preference_info_show_username = TRUE;
@@ -86,7 +86,7 @@ typedef enum {
 typedef struct {
 	/* Packet number within the conversation */
 	guint first_packet_number, second_packet_number;
-	guint third_packet_number, forth_packet_number;
+	guint third_packet_number, fourth_packet_number;
 
 	/* The following variables are given values from session_state_t
 	 * above to keep track of where we are in the beginning of the session
@@ -98,7 +98,7 @@ typedef struct {
 	/* Track where we are in the conversation */
 	exec_session_state_t state;
 	exec_session_state_t first_packet_state, second_packet_state;
-	exec_session_state_t third_packet_state, forth_packet_state;
+	exec_session_state_t third_packet_state, fourth_packet_state;
 
 	gchar *username;
 	gchar *command;
@@ -113,7 +113,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *exec_tree=NULL;
 
 	/* Variables for extracting and displaying data from the packet */
-	gchar *field_stringz; /* Temporary storage for each field we extract */
+	guchar *field_stringz; /* Temporary storage for each field we extract */
 
 	gint length;
 	guint offset = 0;
@@ -137,7 +137,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hash_info->first_packet_number = pinfo->fd->num;
 		hash_info->second_packet_number = 0;
 		hash_info->third_packet_number  = 0;
-		hash_info->forth_packet_number  = 0;
+		hash_info->fourth_packet_number  = 0;
 
 		hash_info->state = WAIT_FOR_STDERR_PORT; /* The first field we'll see */
 
@@ -151,7 +151,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		hash_info->first_packet_state  = NONE;
 		hash_info->second_packet_state = NONE;
 		hash_info->third_packet_state  = NONE;
-		hash_info->forth_packet_state  = NONE;
+		hash_info->fourth_packet_state  = NONE;
 
 		conversation_add_proto_data(conversation, proto_exec, hash_info);
 	}
@@ -169,10 +169,10 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* We're on the third packet of the conversation */
 		hash_info->third_packet_number = pinfo->fd->num;
 	} else if(hash_info->third_packet_number
-	 && !hash_info->forth_packet_number
+	 && !hash_info->fourth_packet_number
 	 && pinfo->fd->num > hash_info->third_packet_number) {
-		/* We're on the forth packet of the conversation */
-		hash_info->forth_packet_number = pinfo->fd->num;
+		/* We're on the fourth packet of the conversation */
+		hash_info->fourth_packet_number = pinfo->fd->num;
 	}
 
 	/* Save this packet's state so we can retrieve it if this packet
@@ -202,11 +202,11 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
       
-	if(pinfo->fd->num == hash_info->forth_packet_number){
-		if(hash_info->forth_packet_state == NONE){
-			hash_info->forth_packet_state = hash_info->state;
+	if(pinfo->fd->num == hash_info->fourth_packet_number){
+		if(hash_info->fourth_packet_state == NONE){
+			hash_info->fourth_packet_state = hash_info->state;
 		} else {
-			hash_info->state = hash_info->forth_packet_state;
+			hash_info->state = hash_info->fourth_packet_state;
 		}
 	}
 
@@ -250,7 +250,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if(length == 1 || (exec_isdigit_string(field_stringz)
 		&& length <= EXEC_STDERR_PORT_LEN)){
-			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, (gchar*)field_stringz);
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_USERNAME;
 		} else { 
@@ -270,13 +270,13 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check if this looks like the username field */
 		if(length != 1 && length <= EXEC_USERNAME_LEN
 		&& exec_isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, (gchar*)field_stringz);
 
 			/* Store the username so we can display it in the 
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->username){
-				hash_info->username=se_strdup(field_stringz);
+				hash_info->username=se_strdup((gchar*)field_stringz);
 			}
 
 			 /* Next field we need */
@@ -298,7 +298,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check if this looks like the password field */
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
 		&& exec_isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, (gchar*)field_stringz);
 
 			/* Next field we need */
 			hash_info->state = WAIT_FOR_COMMAND;
@@ -321,13 +321,13 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check if this looks like the command field */
 		if(length != 1 && length <= EXEC_COMMAND_LEN
 		&& exec_isprint_string(field_stringz)){
-			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, field_stringz);
+			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, (gchar*)field_stringz);
 	      
 			/* Store the username so we can display it in the 
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->command){
-				hash_info->command=se_strdup(field_stringz);
+				hash_info->command=se_strdup((gchar*)field_stringz);
 			}
 
 		} else {
@@ -411,7 +411,6 @@ proto_register_exec(void)
 	prefs_register_bool_preference(exec_module, "info_show_command",
 		 "Show command in info column?",
 		 "Controls the display of the command being run on the server by this session in the info column.  This is only displayed if the packet containing it was seen during this capture session.", &preference_info_show_command);
-
 }
 
 
@@ -426,8 +425,8 @@ proto_reg_handoff_exec(void)
 }
 
 /* Custom function to check if an entire string is printable. */
-gboolean
-exec_isprint_string(gchar *string)
+static gboolean
+exec_isprint_string(guchar *string)
 {
 	guint position;
 
@@ -444,8 +443,8 @@ exec_isprint_string(gchar *string)
 }
 
 /* Custom function to check if an entire string is digits. */
-gboolean
-exec_isdigit_string(gchar *string)
+static gboolean
+exec_isdigit_string(guchar *string)
 {
 	guint position;
 

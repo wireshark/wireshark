@@ -1151,7 +1151,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	guint transport_slash_count = 0;
 	gboolean transport_name_started = FALSE;
 	gboolean colon_seen = FALSE;
-	gchar c;
+	guchar c;
 	gchar *param_name = NULL;
 
 	/* skip Spaces and Tabs */

@@ -231,7 +231,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint		i1;
     gint		offset = 0;
     guint16		opcode;
-    char		lcd_char;
+    guchar		lcd_char;
     char		lcd_str[MAX_LCD_STR_LEN + 1];
     int			to_server = FALSE;
     int			old_protocol = FALSE;

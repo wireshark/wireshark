@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <glib.h>
+
 #include <string.h>
 #include <ctype.h>
 #include <epan/packet.h>
@@ -105,7 +107,7 @@ void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(char *protocol_name);
-static void parse_outhdr_string(char *outhdr_string);
+static void parse_outhdr_string(guchar *outhdr_string);
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
 
@@ -433,7 +435,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-void parse_outhdr_string(char *outhdr_string)
+void parse_outhdr_string(guchar *outhdr_string)
 {
     int n = 0;
 
@@ -444,7 +446,7 @@ void parse_outhdr_string(char *outhdr_string)
         guint digits;
 
         /* Find digits */
-        for (digits = 0; digits < strlen(outhdr_string); digits++, n++)
+        for (digits = 0; digits < strlen((gchar*)outhdr_string); digits++, n++)
         {
             if (!isdigit(outhdr_string[n]))
             {
@@ -702,7 +704,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0))
     {
-        parse_outhdr_string((char*)tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
+        parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
         attach_fp_info(pinfo, direction, protocol_name,
                        atoi((char*)tvb_get_ephemeral_string(tvb, variant_start, variant_length)));
     }
