@@ -40,6 +40,7 @@
 #include "packet-isis-lsp.h"
 #include <epan/addr_resolv.h>
 #include <epan/addr_and_mask.h>
+#include <epan/expert.h>
 
 /* lsp packets */
 static int hf_isis_lsp_pdu_length = -1;
@@ -47,6 +48,7 @@ static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
 static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_checksum_bad = -1;
+static int hf_isis_lsp_checksum_good = -1;
 static int hf_isis_lsp_clv_ipv4_int_addr = -1;
 static int hf_isis_lsp_clv_ipv6_int_addr = -1;
 static int hf_isis_lsp_clv_te_router_id = -1;
@@ -59,6 +61,7 @@ static int hf_isis_lsp_is_type = -1;
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
 static gint ett_isis_lsp_att = -1;
+static gint ett_isis_lsp_cksum = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
 static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
@@ -1727,6 +1730,27 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 }
 
+static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo, 
+    proto_item * it_cksum, int offset, gboolean is_cksum_correct)
+{
+	proto_tree * checksum_tree;
+	proto_item * item;
+
+	checksum_tree = proto_item_add_subtree(it_cksum, ett_isis_lsp_cksum);
+        item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_good, tvb,
+	   offset, 2, is_cksum_correct);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_bad, tvb,
+	   offset, 2, !is_cksum_correct);
+        PROTO_ITEM_SET_GENERATED(item);
+	if (!is_cksum_correct) {
+	  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+	  if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_fstr(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
+	}
+}
+
+
 /*
  * Name: isis_dissect_isis_lsp()
  *
@@ -1754,6 +1778,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	guint16		pdu_length, checksum, cacl_checksum=0;
 	guint8		lsp_info, lsp_att;
 	int		len, offset_checksum;
+	proto_item	*it_cksum;
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1813,17 +1838,15 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
       			 		tvb_length_remaining(tvb, offset_checksum));
         		break;
         		case CKSUM_NOT_OK :
-					proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+					it_cksum = proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
 						"Checksum: 0x%04x [incorrect, should be 0x%04x]",
 						checksum, cacl_checksum);
-					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
-						tvb, offset, 2, TRUE);
+					isis_lsp_checkum_additional_info(tvb, pinfo, it_cksum, offset, FALSE);
         		break;
 	        	case CKSUM_OK :
-	        			proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
+	        			it_cksum = proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
 						"Checksum: 0x%04x [correct]", checksum);
-					proto_tree_add_boolean_hidden(lsp_tree, hf_isis_lsp_checksum_bad,
-						tvb, offset, 2, FALSE);
+					isis_lsp_checkum_additional_info(tvb, pinfo, it_cksum, offset, TRUE);
         		break;
         		default :
           			g_message("'check_and_get_checksum' returned an invalid value");
@@ -1915,6 +1938,10 @@ isis_register_lsp(int proto_isis) {
 		{ "Checksum",		"isis.lsp.checksum",FT_UINT16,
 		  BASE_HEX, NULL, 0x0, "", HFILL }},
 		  
+		{ &hf_isis_lsp_checksum_good,
+		{ "Good Checksum", "isis.lsp.checksum_good", FT_BOOLEAN, BASE_NONE,
+			NULL, 0, "Good IS-IS LSP Checksum", HFILL }},
+
 		{ &hf_isis_lsp_checksum_bad,
 		{ "Bad Checksum", "isis.lsp.checksum_bad", FT_BOOLEAN, BASE_NONE,
 			NULL, 0, "Bad IS-IS LSP Checksum", HFILL }},
@@ -1953,12 +1980,13 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_is_type,
 		{ "Type of Intermediate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
 			VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
-			"", HFILL }},
+			"", HFILL }}
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
 		&ett_isis_lsp_info,
 		&ett_isis_lsp_att,
+		&ett_isis_lsp_cksum,
 		&ett_isis_lsp_clv_area_addr,
 		&ett_isis_lsp_clv_is_neighbors,
 		&ett_isis_lsp_clv_ext_is_reachability, /* CLV 22 */
@@ -1985,7 +2013,7 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,
     &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
-    &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
+    &ett_isis_lsp_clv_mt_reachable_IPv6_prefx
 	};
 
 	proto_register_field_array(proto_isis, hf, array_length(hf));
