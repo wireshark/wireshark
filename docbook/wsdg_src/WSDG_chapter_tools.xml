@@ -161,8 +161,9 @@
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsPython"/></entry>
-	  <entry>Interpreters/python</entry>
 	  <entry>-</entry>
+	  <entry>Python</entry>
+	  <entry>Cygwin Python don't work on some machines</entry>
 	</row>
 	<row>
 	  <entry><xref linkend="ChToolsPerl"/></entry>
@@ -273,9 +274,6 @@
 	Interpreters/perl
 	</para></listitem>
 	<listitem><para>
-	Interpreters/python
-	</para></listitem>
-	<listitem><para>
 	Utils/patch
 	</para></listitem>
 	<listitem><para>
@@ -335,6 +333,15 @@
 	</section>
 	</section>
 
+	<section id="ChToolsInstallPython">
+	<title>Install Python</title>	
+	<para>
+	Get the python installer from: 
+	<ulink url="http://python.org/download/"/>
+	and install python into the default location (currently: C:/Python24).
+	</para>
+	</section>
+	
 	<section id="ChToolsInstallAdditional">
 	<title>Install Additional Tools</title>	
 	<para>
@@ -417,7 +424,7 @@
         /usr/bin/find: /usr/bin/find
         perl: /usr/bin/perl
         env: /usr/bin/env
-        python: /usr/bin/python
+		C:/python24/python.exe: /cygdrive/c/python24/python.exe
         sed: /usr/bin/sed
         unzip: /usr/bin/unzip
         wget: /usr/bin/wget]]>
