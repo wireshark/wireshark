@@ -77,7 +77,7 @@ static int stun2_att_value = -1;
 #define REQUEST		0x0000
 #define INDICATION	0x0001
 #define RESPONSE	0x0010
-#define ERROR		0x0011
+#define STUN2_ERROR	0x0011  /* use prefix to prevent redefinition from wingdi.h */
 
 /* Message methods */
 #define METHOD_MASK	0xCEEF
@@ -115,7 +115,7 @@ static const value_string classes[] = {
 	{REQUEST, "Request"},
 	{INDICATION, "Indication"},
 	{RESPONSE, "Response"},
-	{ERROR, "Error Response"},
+	{STUN2_ERROR, "Error Response"},
 	{0x00, NULL}
 };
 
