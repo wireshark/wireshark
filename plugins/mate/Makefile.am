@@ -130,6 +130,7 @@ EXTRA_DIST = \
 	mate_parser.l	\
 	Makefile.nmake	\
 	Makefile.common	\
+	moduleinfo.nmake	\
 	plugin.rc.in
 
 mate_parser.c : mate_parser.l
