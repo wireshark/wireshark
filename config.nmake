@@ -204,14 +204,14 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 # If you don't have PORTAUDIO, comment this line out, so that 
 # PORTAUDIO_DIR isn't defined.
 #
-PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
-#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19
+#PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
+PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19
 
 #
 # Version number of PortAudio
 # 
-PORTAUDIO_VERSION=18
-#PORTAUDIO_VERSION=19
+#PORTAUDIO_VERSION=18
+PORTAUDIO_VERSION=19
 
 #
 # Mandatory for GTK >= 2: Iconv

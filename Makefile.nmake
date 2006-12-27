@@ -578,7 +578,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. portaudio_v18_1.zip
+		. portaudio_v19.zip
 !ENDIF
 
 !IFDEF GTK2_DIR
@@ -690,6 +690,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.3.1
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
+    rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
 
