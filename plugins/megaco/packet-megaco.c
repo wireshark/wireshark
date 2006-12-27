@@ -2823,6 +2823,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 	gint token_index = 0;
 	gchar *msg;
 	proto_item* item;
+	guint8				code_str[3];
 
 	/*proto_tree  *megaco_LocalControl_tree, *megaco_LocalControl_ti; */
 
@@ -2963,7 +2964,8 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 				tvb_format_text(tvb, tvb_current_offset,
 				tokenlen));
 			
-			proto_item_append_text(item,"[ %s ]", val_to_str(atoi(tvb_format_text(tvb, tvb_current_offset,tokenlen)), dscp_vals,"Unknown (%u)"));
+			tvb_get_nstringz0(tvb,tvb_current_offset,3,code_str);
+			proto_item_append_text(item,"[ %s ]", val_to_str(strtoul(code_str,NULL,16), dscp_vals,"Unknown (%u)"));
 			
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 			break;
