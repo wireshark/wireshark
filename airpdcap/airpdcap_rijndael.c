@@ -33,23 +33,23 @@
 /*	Internal function prototypes declarations												*/
 /*																										*/
 INT rijndaelKeySetupEnc(
-								UINT32 rk[/*4*(Nr + 1)*/],
-								const UINT8 cipherKey[],
-								INT keyBits)
-								;
+	UINT32 rk[/*4*(Nr + 1)*/],
+	const UINT8 cipherKey[],
+	INT keyBits)
+	;
 
 INT rijndaelKeySetupDec(
-								UINT32 rk[/*4*(Nr + 1)*/],
-								const UINT8 cipherKey[],
-								INT keyBits)
-								;
+	UINT32 rk[/*4*(Nr + 1)*/],
+	const UINT8 cipherKey[],
+	INT keyBits)
+	;
 
 void rijndaelEncrypt(
-							const UINT32 rk[/*4*(Nr + 1)*/],
-							INT Nr,
-							const UINT8 pt[16],
-							UINT8 ct[16])
-							;
+	const UINT32 rk[/*4*(Nr + 1)*/],
+	INT Nr,
+	const UINT8 pt[16],
+	UINT8 ct[16])
+	;
 
 /*																										*/
 /******************************************************************************/
@@ -741,9 +741,9 @@ static const UINT32 rcon[] = {
 /*	Fuction definitions																			*/
 /*																										*/
 INT rijndaelKeySetupEnc(
-								UINT32 rk[/*4*(Nr + 1)*/],
-								const UINT8 cipherKey[],
-								INT keyBits)
+	UINT32 rk[/*4*(Nr + 1)*/],
+	const UINT8 cipherKey[],
+	INT keyBits)
 {
 	INT i = 0;
 	UINT32 temp;
@@ -829,9 +829,9 @@ INT rijndaelKeySetupEnc(
 }
 
 INT rijndaelKeySetupDec(
-								UINT32 rk[/*4*(Nr + 1)*/],
-								const UINT8 cipherKey[],
-								INT keyBits)
+	UINT32 rk[/*4*(Nr + 1)*/],
+	const UINT8 cipherKey[],
+	INT keyBits)
 {
 	INT Nr, i, j;
 	UINT32 temp;
@@ -873,9 +873,9 @@ INT rijndaelKeySetupDec(
 }
 
 void rijndael_set_key(
-					  rijndael_ctx *ctx,
-					  const u_char *key,
-					  INT bits)
+	rijndael_ctx *ctx,
+	const UCHAR *key,
+	INT bits)
 {
 
 	ctx->Nr = rijndaelKeySetupEnc(ctx->ek, key, bits);
@@ -883,10 +883,10 @@ void rijndael_set_key(
 }
 
 void rijndaelEncrypt(
-							const UINT32 rk[/*4*(Nr + 1)*/],
-							INT Nr,
-							const UINT8 pt[16],
-							UINT8 ct[16])
+	const UINT32 rk[/*4*(Nr + 1)*/],
+	INT Nr,
+	const UINT8 pt[16],
+	UINT8 ct[16])
 {
 	UINT32 s0, s1, s2, s3, t0, t1, t2, t3;
 #ifndef FULL_UNROLL
@@ -1069,9 +1069,9 @@ void rijndaelEncrypt(
 }
 
 void rijndael_encrypt(
-							 const rijndael_ctx *ctx,
-							 const UCHAR *src,
-							 UCHAR *dst)
+	const rijndael_ctx *ctx,
+	const UCHAR *src,
+	UCHAR *dst)
 {
 
 	rijndaelEncrypt(ctx->ek, ctx->Nr, src, dst);

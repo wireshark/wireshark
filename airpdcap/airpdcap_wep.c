@@ -6,7 +6,7 @@
 
 #include "airpdcap_wep.h"
 
-#include	"airpdcap_debug.h"
+#include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
 
@@ -15,10 +15,10 @@ extern const UINT32 crc32_table[256];
 /* Note: copied from FreeBSD source code, RELENG 6,									*/
 /*		sys/net80211/ieee80211_crypto_wep.c, 391											*/
 INT AirPDcapWepDecrypt(
-					 const UCHAR *seed,
-					 const size_t seed_len,
-					 UCHAR *cypher_text,
-					 const size_t data_len)
+	const UCHAR *seed,
+	const size_t seed_len,
+	UCHAR *cypher_text,
+	const size_t data_len)
 {
 	UINT32 i, j, k, crc;
 	UINT8 S[256];

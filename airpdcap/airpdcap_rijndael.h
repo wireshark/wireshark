@@ -36,17 +36,17 @@ typedef struct s_rijndael_ctx {
 /*	External function prototypes declarations												*/
 /*																										*/
 void rijndael_encrypt(
-							 const rijndael_ctx *ctx,
-							 const UCHAR *src,
-							 UCHAR *dst)
-							 ;
+	const rijndael_ctx *ctx,
+	const UCHAR *src,
+	UCHAR *dst)
+	;
 
 
 void rijndael_set_key(
-					  rijndael_ctx *ctx,
-					  const u_char *key,
-					  INT bits)
-					  ;
+	rijndael_ctx *ctx,
+	const UCHAR *key,
+	INT bits)
+	;
 /*																										*/
 /******************************************************************************/
 
@@ -54,9 +54,9 @@ void rijndael_set_key(
 /*	External function definition																*/
 /*																										*/
 static __inline void xor_block(
-										 UINT8 *b,
-										 const UINT8 *a,
-										 size_t len)
+	UINT8 *b,
+	const UINT8 *a,
+	size_t len)
 {
 	INT i;
 	for (i = 0; i < (INT)len; i++)

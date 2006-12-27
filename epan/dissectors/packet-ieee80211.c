@@ -70,6 +70,7 @@
 #include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/crypt/wep-wpadefs.h>
 
 #include <ctype.h>
 #include "isprint.h"
@@ -791,14 +792,15 @@ static dissector_handle_t data_handle;
 
 static int wlan_tap = -1;
 
-/*	Davide Schiera (2006-11-22): including AirPDcap project							*/
-#ifdef	HAVE_AIRPDCAP
-#include "..\..\airpdcap\airpdcap_ws.h"
+/*     Davide Schiera (2006-11-22): including AirPDcap project                */
+#ifdef HAVE_AIRPDCAP
+#include "airpdcap/airpdcap_ws.h"
 AIRPDCAP_CONTEXT airpdcap_ctx;
 #else
 int airpdcap_ctx;
 #endif
-/* Davide Schiera (2006-11-22) ----------------------------------------------	*/
+/* Davide Schiera (2006-11-22) ---------------------------------------------- */
+
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -5454,7 +5456,7 @@ void set_airpdcap_keys()
 	gboolean res;
 	gchar* tmpk = NULL;
 
-	keys=(PAIRPDCAP_KEYS_COLLECTION)malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
+	keys=(PAIRPDCAP_KEYS_COLLECTION)g_malloc(sizeof(AIRPDCAP_KEYS_COLLECTION));
 	keys->nKeys = 0;
 
 	for(i = 0; i < MAX_ENCRYPTION_KEYS; i++)
@@ -5526,12 +5528,13 @@ void set_airpdcap_keys()
 				keys->nKeys++;
 			}
 		}
+		if(tmpk != NULL) g_free(tmpk);
 	}
 
 	/* Now set the keys */
 	AirPDcapSetKeys(&airpdcap_ctx,keys->Keys,keys->nKeys);
+        g_free(keys);
 
-	if(tmpk != NULL) g_free(tmpk);
 }
 #endif
 

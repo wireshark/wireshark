@@ -312,6 +312,7 @@ tshark_additional_libs =		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la
 
+
 # This is the automake dependency variable for the executable
 tshark_DEPENDENCIES = \
 	$(wireshark_optional_objects)	\
@@ -712,12 +713,12 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap
+DIST_SUBDIRS = asn1 codecs doc airpdcap epan gtk help packaging plugins tools wiretap
 
 if HAVE_PLUGINS
-SUBDIRS = tools wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wiretap doc airpdcap epan plugins packaging help @wireshark_SUBDIRS@
 else
-SUBDIRS = tools wiretap doc epan packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wiretap doc airpdcap epan packaging help @wireshark_SUBDIRS@
 endif
 
 wireshark.1: doc/wireshark.pod AUTHORS-SHORT-FORMAT

@@ -21,32 +21,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+include Makefile.common
 
-noinst_LIBRARIES = airpdcap.a
+noinst_LIBRARIES = \
+	libairpdcap.a
+
+DISTCLEANFILES = \
+	libairpdcap.a
 
 CLEANFILES = \
-       airpdcap.a	\
+	libairpdcap.a	\
        *~
 
 MAINTAINERCLEANFILES =	\
        Makefile.in
 
-airpdcap_a_SOURCES = \
-       airpdcap.c \
-       airpdcap_ccmp.c airpdcap_ccmp.h	\
-       airpdcap_debug.c airpdcap_debug.h	\
-       airpdcap_md5.c airpdcap_md5.h	\
-       airpdcap_rijndael.c airpdcap_rijndael.h	\ 
-       airpdcap_sha1.c airpdcap_sha1.h	\
-       airpdcap_tkip.c airpdcap_tkip.h	\
-       airpdcap_wep.c airpdcap_wep.h   \
-       airpdcap_interop.h \
-       airpdcap_ws.h \
-       airpdcap_types.h	\
-       airpdcap_user.h \
-       airpdcap_system.h
-
-airpdcap_a_DEPENDENCIES = 
+libairpdcap_a_SOURCES =	\
+	$(LIBAIRPDCAP_SRC)	\
+	$(LIBAIRPDCAP_INCLUDES)
 
 EXTRA_DIST = \
        Makefile.nmake 

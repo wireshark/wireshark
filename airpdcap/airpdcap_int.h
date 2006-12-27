@@ -15,7 +15,7 @@
 /* IEEE 802.11 packet type values															*/
 #define	AIRPDCAP_TYPE_MANAGEMENT		0
 #define	AIRPDCAP_TYPE_CONTROL			1
-#define	AIRPDCAP_TYPE_DATA				2
+#define	AIRPDCAP_TYPE_DATA			2
 
 /*	Min length of encrypted data (TKIP=25bytes, CCMP=21bytes)						*/
 #define	AIRPDCAP_CRYPTED_DATA_MINLEN	21

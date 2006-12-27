@@ -4,10 +4,9 @@
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_ccmp.h"
 #include "airpdcap_rijndael.h"
 
-#include	"airpdcap_debug.h"
+#include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
 
@@ -37,14 +36,14 @@
 /*	Internal macros																				*/
 /*																										*/
 #define CCMP_DECRYPT(_i, _b, _b0, _pos, _a, _len) {		\
-	/* Decrypt, with counter */					            \
-	_b0[14] = (UINT8)((_i >> 8) & 0xff);				      \
-	_b0[15] = (UINT8)(_i & 0xff);		                     \
-	rijndael_encrypt(&key, _b0, _b);								\
-	xor_block(_pos, _b, _len);							         \
-	/* Authentication */											   \
-	xor_block(_a, _pos, _len);								      \
-	rijndael_encrypt(&key, _a, _a);								\
+	/* Decrypt, with counter */                             \
+	_b0[14] = (UINT8)((_i >> 8) & 0xff);                    \
+	_b0[15] = (UINT8)(_i & 0xff);                           \
+	rijndael_encrypt(&key, _b0, _b);		        \
+	xor_block(_pos, _b, _len);				\
+	/* Authentication */					\
+	xor_block(_a, _pos, _len);				\
+	rijndael_encrypt(&key, _a, _a);				\
 }
 
 #define AIRPDCAP_ADDR_COPY(dst,src)    memcpy(dst,src,AIRPDCAP_MAC_LEN)
@@ -55,8 +54,8 @@
 /*	Internal function prototypes declarations												*/
 /*																										*/
 static void ccmp_init_blocks(
-									  rijndael_ctx *ctx,
-PAIRPDCAP_MAC_FRAME wh,
+	rijndael_ctx *ctx,
+        PAIRPDCAP_MAC_FRAME wh,
 	UINT64 pn,
 	size_t dlen,
 	UINT8 b0[AES_BLOCK_LEN],
@@ -71,12 +70,12 @@ PAIRPDCAP_MAC_FRAME wh,
 /*	Function definitions																			*/
 /*																										*/
 static __inline UINT64 READ_6(
-										UINT8 b0,
-										UINT8 b1,
-										UINT8 b2,
-										UINT8 b3,
-										UINT8 b4,
-										UINT8 b5)
+        UINT8 b0,
+	UINT8 b1,
+	UINT8 b2,
+	UINT8 b3,
+	UINT8 b4,
+	UINT8 b5)
 {
 	UINT32 iv32 = (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
 	UINT16 iv16 = (UINT16)((b4 << 0) | (b5 << 8));
@@ -84,8 +83,8 @@ static __inline UINT64 READ_6(
 }
 
 static void ccmp_init_blocks(
-									  rijndael_ctx *ctx,
-PAIRPDCAP_MAC_FRAME wh,
+	rijndael_ctx *ctx,
+        PAIRPDCAP_MAC_FRAME wh,
 	UINT64 pn,
 	size_t dlen,
 	UINT8 b0[AES_BLOCK_LEN],
@@ -189,9 +188,9 @@ PAIRPDCAP_MAC_FRAME wh,
 }
 
 INT AirPDcapCcmpDecrypt(
-								  UINT8 *m,
-								  INT len,
-								  UCHAR TK1[16])
+	UINT8 *m,
+	INT len,
+	UCHAR TK1[16])
 {
 	PAIRPDCAP_MAC_FRAME wh;
 	UINT8 aad[2 * AES_BLOCK_LEN];

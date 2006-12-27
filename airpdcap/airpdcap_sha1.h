@@ -22,13 +22,6 @@
 /******************************************************************************/
 /*	External function prototypes declarations												*/
 /*																										*/
-void AirPDcapAlgHmacSha1(
-								 const UCHAR *key_len,
-								 const size_t keylen,
-								 UCHAR *buffer,
-								 const size_t digest_len,
-								 UCHAR digest[20])
-					;
 /*																										*/
 /******************************************************************************/
 

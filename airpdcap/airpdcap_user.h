@@ -32,8 +32,8 @@
 #define	AIRPDCAP_WPA_PASSPHRASE_MAX_LEN	63	/* null-terminated string, the actual length of the storage is 64	*/
 #define	AIRPDCAP_WPA_SSID_MIN_LEN			0
 #define	AIRPDCAP_WPA_SSID_MAX_LEN			32
-#define	AIRPDCAP_WPA_PSK_LEN					64
-#define	AIRPDCAP_WPA_PMK_LEN					32
+#define	AIRPDCAP_WPA_PSK_LEN				64
+#define	AIRPDCAP_WPA_PMK_LEN				32
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -47,67 +47,89 @@
 /******************************************************************************/
 /*	Type definitions																				*/
 /*																										*/
-/*!
-/brief
-It represent a key item used during the decryption process.
-*/
-typedef struct _AIRPDCAP_KEY_ITEM {
-	/*!
-	/brief
-	Type of key. The type will remain unchanged during the processing, even if some fields could be changed (e.g., WPA fields).
+/**
+ * Struct to store info about a specific decryption key.
+ */
+typedef struct {
+    GString *key;
+    GString *ssid;
+    guint   bits;
+    guint   type;
+} decryption_key_t;
 
-	/note
-	You can use constants AIRPDCAP_KEY_TYPE_xxx to indicate the key type.
-	*/
+/**
+ * Key item used during the decryption process.
+ */
+typedef struct _AIRPDCAP_KEY_ITEM {
+	/**
+	 * Type of key. The type will remain unchanged during the
+	 * processing, even if some fields could be changed (e.g., WPA
+	 * fields).
+	 * @note
+	 * You can use constants AIRPDCAP_KEY_TYPE_xxx to indicate the
+	 * key type.
+	 */
 	UINT8 KeyType;
 
-	/*!
-	/brief
-	Key data.
-	This field can be used for the following decryptographic algorithms: WEP-40, with a key of 40 bits (10 hex-digits); WEP-104, with a key of 104 bits (or 26 hex-digits); WPA or WPA2.
-	/note
-	For WPA/WPA2, the PMK is calculated from the PSK, and the PSK is calculated from the passphrase-SSID pair. You can enter one of these 3 values and subsequent fields will be automatically calculated.
-	/note
-	For WPA and WPA2 this implementation will use standards as defined in 802.11i (2004) and 802.1X (2004).
-	*/
+	/**
+	 * Key data.
+	 * This field can be used for the following decryptographic
+	 * algorithms: WEP-40, with a key of 40 bits (10 hex-digits);
+	 * WEP-104, with a key of 104 bits (or 26 hex-digits); WPA or
+	 * WPA2.
+	 * @note
+	 * For WPA/WPA2, the PMK is calculated from the PSK, and the PSK
+	 * is calculated from the passphrase-SSID pair. You can enter one
+	 * of these 3 values and subsequent fields will be automatically
+	 * calculated.
+	 * @note
+	 * For WPA and WPA2 this implementation will use standards as
+	 * defined in 802.11i (2004) and 802.1X (2004).
+	 */
 	union AIRPDCAP_KEY_ITEMDATA {
 		struct AIRPDCAP_KEY_ITEMDATA_WEP {
-			/*!
-			/brief
-			The binary value of the WEP key.
-			/note
-			It is accepted a key of lenght between AIRPDCAP_WEP_KEY_MINLEN and AIRPDCAP_WEP_KEY_MAXLEN. A WEP key standard-compliante should be either 40 bits (10 hex-digits, 5 bytes) for WEP-40 or 104 bits (26 hex-digits, 13 bytes) for WEP-104.
-			*/
+			/**
+			 * The binary value of the WEP key.
+			 * @note
+			 * It is accepted a key of lenght between
+			 * AIRPDCAP_WEP_KEY_MINLEN and
+			 * AIRPDCAP_WEP_KEY_MAXLEN. A WEP key
+			 * standard-compliante should be either 40 bits
+			 * (10 hex-digits, 5 bytes) for WEP-40 or 104 bits
+			 * (26 hex-digits, 13 bytes) for WEP-104.
+			 */
 			UCHAR WepKey[AIRPDCAP_WEP_KEY_MAXLEN];
-			/*!
-			/brief
-			The length of the WEP key. Acceptable range is [AIRPDCAP_WEP_KEY_MINLEN;AIRPDCAP_WEP_KEY_MAXLEN].
-			*/
+			/**
+			 * The length of the WEP key. Acceptable range
+			 * is [AIRPDCAP_WEP_KEY_MINLEN;AIRPDCAP_WEP_KEY_MAXLEN].
+			 */
 			size_t WepKeyLen;
 		} Wep;
 
-		/*!
-		/brief
-		WPA/WPA2 key data. Note that the decryption process will use the PMK (equal to PSK), that is calculated from passphrase-SSID pair. You can define one of these three fields and necessary fields will be automatically calculated.
-		*/
+		/**
+		 * WPA/WPA2 key data. Note that the decryption process
+		 * will use the PMK (equal to PSK), that is calculated
+		 * from passphrase-SSID pair. You can define one of these
+		 * three fields and necessary fields will be automatically
+		 * calculated.
+		 */
 		union AIRPDCAP_KEY_ITEMDATA_WPA {
 			struct AIRPDCAP_KEY_ITEMDATA_PWD {
-				/*!
-				/brief
-				The string (null-terminated) value of the passphrase.
-				*/
+				/**
+				 * The string (null-terminated) value of
+				 * the passphrase.
+				 */
 				CHAR Passphrase[AIRPDCAP_WPA_PASSPHRASE_MAX_LEN+1];
-				/*!
-				/brief
-				The value of the SSID (up to AIRPDCAP_WPA_SSID_MAX_LEN octets).
-				/note
-				A zero-length SSID indicates broadcast.
-				*/
+				/**
+				 * The value of the SSID (up to
+				 * AIRPDCAP_WPA_SSID_MAX_LEN octets).
+				 * @note
+				 * A zero-length SSID indicates broadcast.
+				 */
 				CHAR Ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
-				/*!
-				/brief
-				The length of the SSID
-				*/
+				/**
+				 *The length of the SSID
+				 */
 				size_t SsidLen;
 			} UserPwd;
 
@@ -118,21 +140,18 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 	} KeyData;
 } AIRPDCAP_KEY_ITEM, *PAIRPDCAP_KEY_ITEM;
 
-/*!
-/brief
-Collection of keys to use to decrypt packets
-*/
+/**
+ * Collection of keys to use to decrypt packets
+ */
 typedef struct _AIRPDCAP_KEYS_COLLECTION {
-	/*!
-	/brief
-	Number of stored keys
-	*/
+	/**
+	 * Number of stored keys
+	 */
 	size_t nKeys;
 
-	/*!
-	/brief
-	Array of nKeys keys
-	*/
+	/**
+	 * Array of nKeys keys
+	 */
 	AIRPDCAP_KEY_ITEM Keys[256];
 } AIRPDCAP_KEYS_COLLECTION, *PAIRPDCAP_KEYS_COLLECTION;
 /*																										*/
@@ -145,4 +164,4 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
 /*																										*/
 /******************************************************************************/
 
-#endif
+#endif /* _AIRPDCAP_USER_H */

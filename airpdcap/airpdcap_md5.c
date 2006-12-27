@@ -4,8 +4,6 @@
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_md5.h"
-
 #include	"airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
@@ -101,37 +99,37 @@ static UCHAR PADDING[64] = {
 /*	Internal function prototypes declarations												*/
 /*																										*/
 void MD5Final(
-				  UCHAR digest[16],
-				  MD5_CTX *context)
-				  ;
+	UCHAR digest[16],
+	MD5_CTX *context)
+	;
 void MD5Update(
-					MD5_CTX *context,
-					UCHAR *input,
-					UINT inputLen)
-					;
+	MD5_CTX *context,
+	UCHAR *input,
+	UINT inputLen)
+	;
 void MD5Init(
-				 MD5_CTX *context)
-				 ;
+	MD5_CTX *context)
+	;
 static void MD5_memset(
-							  UCHAR *output,
-							  INT value,
-							  UINT len)
-							  ;
+	UCHAR *output,
+	INT value,
+	UINT len)
+	;
 static void MD5_memcpy(
-							  UCHAR *output,
-							  UCHAR *input,
-							  UINT len)
-							  ;
+	UCHAR *output,
+	UCHAR *input,
+	UINT len)
+	;
 static void Decode(
-						 ULONG *output,
-						 UCHAR *input,
-						 UINT len)
-						 ;
+	ULONG *output,
+	UCHAR *input,
+	UINT len)
+	;
 static void Encode(
-						 UCHAR *output,
-						 ULONG *input,
-						 UINT len)
-						 ;
+	UCHAR *output,
+	ULONG *input,
+	UINT len)
+	;
 /*																										*/
 /******************************************************************************/
 
@@ -142,9 +140,9 @@ static void Encode(
 a multiple of 4.
 */
 static void Encode(
-						 UCHAR *output,
-						 ULONG *input,
-						 UINT len)
+	UCHAR *output,
+	ULONG *input,
+	UINT len)
 {
 	UINT i, j;
 
@@ -160,9 +158,9 @@ static void Encode(
 a multiple of 4.
 */
 static void Decode(
-						 ULONG *output,
-						 UCHAR *input,
-						 UINT len)
+	ULONG *output,
+	UCHAR *input,
+	UINT len)
 {
 	UINT i, j;
 
@@ -175,9 +173,9 @@ static void Decode(
 */
 
 static void MD5_memcpy(
-							  UCHAR *output,
-							  UCHAR *input,
-							  UINT len)
+	UCHAR *output,
+	UCHAR *input,
+	UINT len)
 {
 	UINT i;
 
@@ -188,9 +186,9 @@ static void MD5_memcpy(
 /* Note: Replace "for loop" with standard memset if possible.
 */
 static void MD5_memset(
-							  UCHAR *output,
-							  INT value,
-							  UINT len)
+	UCHAR *output,
+	INT value,
+	UINT len)
 {
 	UINT i;
 
@@ -201,8 +199,8 @@ static void MD5_memset(
 /* MD5 basic transformation. Transforms state based on block.
 */
 static void MD5Transform(
-								 ULONG state[4],
-								 UCHAR block[64])
+	ULONG state[4],
+	UCHAR block[64])
 {
 	ULONG a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -293,7 +291,7 @@ static void MD5Transform(
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
 */
 void MD5Init(
-				 MD5_CTX *context)
+	MD5_CTX *context)
 {
 	memset(context, 0, sizeof(context));
 
@@ -311,9 +309,9 @@ operation, processing another message block, and updating the
 context.
 */
 void MD5Update(
-					MD5_CTX *context,
-					UCHAR *input,
-					UINT inputLen)
+	MD5_CTX *context,
+	UCHAR *input,
+	UINT inputLen)
 {
 	UINT i, index, partLen;
 
@@ -353,8 +351,8 @@ void MD5Update(
 the message digest and zeroizing the context.
 */
 void MD5Final(
-				  UCHAR digest[16],
-				  MD5_CTX *context)
+	UCHAR digest[16],
+	MD5_CTX *context)
 {
 	UCHAR bits[8];
 	UINT index, padLen;
@@ -380,11 +378,11 @@ void MD5Final(
 }
 
 void AirPDcapAlgHmacMd5(
-				  UCHAR *key,	/* pointer to authentication key */
-				  INT key_len,			/* length of authentication key */
-				  const UCHAR *text,	/* pointer to data stream */
-				  const INT text_len,			/* length of data stream */
-				  UCHAR *digest)		/* caller digest to be filled in */
+	UCHAR *key,	/* pointer to authentication key */
+	INT key_len,			/* length of authentication key */
+	const UCHAR *text,	/* pointer to data stream */
+	const INT text_len,			/* length of data stream */
+	UCHAR *digest)		/* caller digest to be filled in */
 {
 	MD5_CTX context;
 	UCHAR k_ipad[65];    /* inner padding -

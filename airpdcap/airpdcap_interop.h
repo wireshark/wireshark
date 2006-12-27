@@ -1,40 +1,64 @@
 #ifndef	_AIRPDCAP_INTEROP_H
 #define	_AIRPDCAP_INTEROP_H
 
-#ifdef	HAVE_WIRESHARK
-/* built with Wireshark																			*/
+/**
+ * Cast data types commonly used in Windows (e.g. UINT16) to theirf
+ * GLib equivalents.
+ */
+
+#include <glib.h>
+#include <string.h>
+
+#ifndef	INT
+typedef	gint	INT;
+#endif
+
+#ifndef	UINT
+typedef	guint	UINT;
+#endif
 
 #ifndef	UINT8
-typedef	unsigned char	UINT8;
+typedef	guint8	UINT8;
 #endif
 
 #ifndef	UINT16
-typedef unsigned short	UINT16;
+typedef	guint16	UINT16;
 #endif
 
-#ifdef	_WIN32
-/* built with Win32																				*/
+#ifndef	UINT32
+typedef	guint32	UINT32;
+#endif
 
-#include <windows.h>
+#ifndef	UINT64
+typedef	guint64	UINT64;
+#endif
 
-#else
-/*	build without Win32																			*/
+#ifndef	USHORT
+typedef	gushort	USHORT;
+#endif
 
-#endif	/* ? _WIN32	*/
+#ifndef	ULONG
+typedef	gulong	ULONG;
+#endif
 
-#else
-/* built without Wireshark																		*/
+#ifndef	ULONGLONG
+typedef	guint64	ULONGLONG;
+#endif
 
-#ifdef	_WIN32
-/* built with Win32																				*/
+#ifndef	CHAR
+typedef	gchar	CHAR;
+#endif
 
-#include <windows.h>
+#ifndef	UCHAR
+typedef guchar	UCHAR;
+#endif
 
-#else
-/*	build without Win32																			*/
+#ifndef	size_t
+typedef	gsize	size_t;
+#endif
 
-#endif	/* ? _WIN32	*/
+#ifndef	ntohs
+#define	ntohs(value)	g_ntohs(value)
+#endif
 
-#endif	/* ? _WIRESHARK	*/
-
-#endif	/* ? _AIRPDCAP_INTEROP_H	*/
+#endif /* _AIRPDCAP_INTEROP_H */

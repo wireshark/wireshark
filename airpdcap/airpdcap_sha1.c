@@ -3,7 +3,7 @@
 /*																										*/
 #include "airpdcap_sha1.h"
 
-#include	"airpdcap_debug.h"
+#include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
 
@@ -66,12 +66,12 @@ static UINT32 _K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
 
 #define S(n, x)         (((x) << (n)) | ((x) >> (32 - n)))
 
-#define PUTPAD(x)	{						\
+#define PUTPAD(x)	{		\
 	ctxt->m.b8[(COUNT % 64)] = (x);	\
-	COUNT++;									\
-	COUNT %= 64;							\
-	if (COUNT % 64 == 0)					\
-		sha1_step(ctxt);              \
+	COUNT++;			\
+	COUNT %= 64;			\
+	if (COUNT % 64 == 0)		\
+		sha1_step(ctxt);        \
 }
 /*																										*/
 /******************************************************************************/
@@ -80,19 +80,19 @@ static UINT32 _K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
 /*	Function prototypes used internally														*/
 /*																										*/
 void sha1_init(
-					SHA1_CONTEXT *ctxt)
-					;
+	SHA1_CONTEXT *ctxt)
+	;
 void sha1_result(
-					  SHA1_CONTEXT *ctxt,
-					  UCHAR *digest0)
-					  ;
+	SHA1_CONTEXT *ctxt,
+	UCHAR *digest0)
+	;
 void sha1_pad(
-				  SHA1_CONTEXT *ctxt)
-				  ;
+	SHA1_CONTEXT *ctxt)
+	;
 
 static void sha1_step(
-							 SHA1_CONTEXT *ctxt)
-							 ;
+	SHA1_CONTEXT *ctxt)
+	;
 
 /*																										*/
 /******************************************************************************/
@@ -104,7 +104,7 @@ static void sha1_step(
 /*																										*/
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 176		*/
 void sha1_init(
-					SHA1_CONTEXT *ctxt)
+	SHA1_CONTEXT *ctxt)
 {
 	memset(ctxt, 0, sizeof(SHA1_CONTEXT));
 	H(0) = 0x67452301;
@@ -116,9 +116,9 @@ void sha1_init(
 
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 223		*/
 void sha1_loop(
-					SHA1_CONTEXT *ctxt,
-					const UCHAR *input,
-					size_t len)
+	SHA1_CONTEXT *ctxt,
+	const UCHAR *input,
+	size_t len)
 {
 	size_t gaplen;
 	size_t gapstart;
@@ -143,7 +143,7 @@ void sha1_loop(
 
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 91		*/
 static void sha1_step(
-							 SHA1_CONTEXT *ctxt)
+	SHA1_CONTEXT *ctxt)
 {
 	UINT32 a, b, c, d, e;
 	size_t t, s;
@@ -224,7 +224,7 @@ static void sha1_step(
 
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 188		*/
 void sha1_pad(
-				  SHA1_CONTEXT *ctxt)
+	SHA1_CONTEXT *ctxt)
 {
 	size_t padlen;          /*pad length in bytes*/
 	size_t padstart;
@@ -253,8 +253,8 @@ void sha1_pad(
 
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 251		*/
 void sha1_result(
-					  SHA1_CONTEXT *ctxt,
-					  UCHAR *digest0)
+	SHA1_CONTEXT *ctxt,
+	UCHAR *digest0)
 {
 	UINT8 *digest;
 
@@ -274,11 +274,11 @@ void sha1_result(
 }
 
 void AirPDcapAlgHmacSha1(
-								 const UCHAR *key_len,
-								 const size_t keylen,
-								 UCHAR *buffer,
-								 const size_t digest_len,
-								 UCHAR digest[20])
+	const UCHAR *key_len,
+	const size_t keylen,
+	UCHAR *buffer,
+	const size_t digest_len,
+	UCHAR digest[20])
 {
 	//INT i;
 	//SHA1_CONTEXT ictx;
@@ -338,33 +338,6 @@ void AirPDcapAlgHmacSha1(
 	sha1_loop(&octx, tmp, 20);
 	sha1_result(&octx, digest);
 
-	//INT i;
-	//SHA1_CONTEXT sha1ctx;
-	//UCHAR k_ipad[64];
-	//UCHAR k_opad[64];
-	//UCHAR tmp[20];
-
-	//memset(k_ipad, 0, sizeof(k_ipad));
-	//memset(k_opad, 0, sizeof(k_opad));
-
-	//memcpy(k_ipad, key_len, keylen);
-	//memcpy(k_opad, key_len, keylen);
-
-	//for(i = 0; i<64; i++)
-	//{
-	//	k_ipad[i] ^= HMAC_IPAD_VAL;
-	//	k_opad[i] ^= HMAC_OPAD_VAL;
-	//}
-
-	//sha1_init(&sha1ctx);
-	//sha1_loop(&sha1ctx, k_ipad, 64);
-	//sha1_loop(&sha1ctx, buffer, digest_len);
-	//sha1_result(&sha1ctx, tmp);
-
-	//sha1_init(&sha1ctx);
-	//sha1_loop(&sha1ctx, k_opad, 64);
-	//sha1_loop(&sha1ctx, tmp, 20);
-	//sha1_result(&sha1ctx, digest);
 }
 /*																										*/
 /******************************************************************************/

@@ -72,13 +72,7 @@ static const UINT32 crc32_table[256] = {
 /******************************************************************************/
 /*	External function prototypes declarations												*/
 /*																										*/
-INT AirPDcapWepDecrypt(
-					 const UCHAR *seed,
-					 const size_t seed_len,	/* max AIRPDCAP_KEYBUF_SIZE	*/
-					 UCHAR *cypher_text,
-					 const size_t data_len)
-					 ;
 /*																										*/
 /******************************************************************************/
 
-#endif
+#endif /* _AIRPDCAP_WEP */

@@ -174,7 +174,7 @@
 
 #ifdef	HAVE_AIRPDCAP
 /*	Davide Schiera (2006-11-22): including AirPDcap project							*/
-#include "..\airpdcap\airpdcap_ws.h"
+#include "../airpdcap/airpdcap_ws.h"
 /* Davide Schiera (2006-11-22) ----------------------------------------------	*/
 #endif
 

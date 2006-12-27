@@ -34,62 +34,12 @@
 
 #define AIRPCAP_CHANNEL_ANY_NAME "ANY"
 
-/*
- * WEP_KEY_MAX_SIZE is in bytes, but each byte is rapresented in strings with an ascii char
- * 4 bit are needed to store an exadecimal number, 8 bit to store a char...
- */
-#define WEP_KEY_MAX_CHAR_SIZE (WEP_KEY_MAX_SIZE*2)
-
-/*
- * WEP_KEY_MAX_SIZE is in bytes, this is in bits...
- */
-#define WEP_KEY_MAX_BIT_SIZE (WEP_KEY_MAX_SIZE*8)
-
-#define WEP_KEY_MIN_CHAR_SIZE 2
-#define WEP_KEY_MIN_BIT_SIZE  8
-
-/*
- * XXX - The next #define should probably be moved in airpcap.h,
- * near WEP_KEY_MAX_SIZE ...
- */
-#define WPA_KEY_MAX_SIZE 63 /* 63 chars followed by a '\0' */
-
-#define WPA_KEY_MAX_CHAR_SIZE (WPA_KEY_MAX_SIZE*1)
-#define WPA_KEY_MAX_BIT_SIZE  (WPA_KEY_MAX_SIZE*8)
-#define WPA_KEY_MIN_CHAR_SIZE 8
-#define WPA_KEY_MIN_BIT_SIZE  (WPA_KEY_MIN_CHAR_SIZE*8)
-
-/*
- * XXX - The next #define should probably be moved in airpcap.h,
- * near WEP_KEY_MAX_SIZE ...
- */
-#define WPA_SSID_MAX_SIZE 32
-
-#define WPA_SSID_MAX_CHAR_SIZE (WPA_SSID_MAX_SIZE*1)
-#define WPA_SSID_MAX_BIT_SIZE  (WPA_SSID_MAX_SIZE*8)
-#define WPA_SSID_MIN_CHAR_SIZE 0
-#define WPA_SSID_MIN_BIT_SIZE  (WPA_SSID_MIN_CHAR_SIZE*8)
-
-/*
- * User can enter the binary PSK, instead of the passphrase+ssid...
- */
-#define WPA_PSK_KEY_SIZE 32 /* Fixed size, 32 bytes (256bit) */
-#define WPA_PSK_KEY_CHAR_SIZE (WPA_PSK_KEY_SIZE*2)
-#define WPA_PSK_KEY_BIT_SIZE  (WPA_PSK_KEY_SIZE*8)
-
 #define AIRPCAP_WEP_KEY_STRING  "WEP"
 /*
- * XXX - WPA_PWD is the passphrase+ssid and WPA-PSK is the hexadecimal key 
+ * XXX - WPA_PWD is the passphrase+ssid and WPA-PSK is the hexadecimal key
  */
 #define AIRPCAP_WPA_PWD_KEY_STRING  "WPA-PWD"
 #define AIRPCAP_WPA_BIN_KEY_STRING  "WPA-PSK"
-
-/*
- * Key string defines
- */
-#define STRING_KEY_TYPE_WEP "wep"
-#define STRING_KEY_TYPE_WPA_PWD "wpa-pwd"
-#define STRING_KEY_TYPE_WPA_PSK "wpa-psk"
 
 #define AIRPCAP_DLL_OK			0
 #define AIRPCAP_DLL_OLD			1
@@ -150,16 +100,6 @@ typedef struct {
 	gboolean				saved;				/* TRUE if current configuration has been saved, FALSE otherwise */
 	gint					tag;				/* int for the gtk blinking callback */
 } airpcap_if_info_t;
-
-/*
- * Struct to store infos about a specific decryption key.
- */
-typedef struct {
-    GString *key;
-    GString *ssid;
-    guint   bits;
-    guint   type;
-} decryption_key_t;
 
 /*
  * Struct used to store infos to pass to the preferences manager callbacks
@@ -480,13 +420,13 @@ write_wlan_driver_wep_keys_to_regitry(GList* key_list);
 void
 airpcap_if_clear_decryption_settings(airpcap_if_info_t* info_if);
 
-/* 
+/*
  *  Function used to save to the preference file the Decryption Keys.
  */
 int
 save_wlan_driver_wep_keys();
 
-/* 
+/*
  *  Function used to save to the preference file the Decryption Keys.
  */
 int

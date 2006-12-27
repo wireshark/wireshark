@@ -42,15 +42,16 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/crypt/wep-wpadefs.h>
 #include "capture_ui_utils.h"
 
 #include "simple_dialog.h"
 
+/* AirPDcap */
+#include "airpdcap/airpdcap_ws.h"
+
 #include <airpcap.h>
 #include "airpcap_loader.h"
-
-/* AirPDcap */
-#include "../airpdcap/airpdcap_ws.h"
 
 /*
  * We load dinamically the dag library in order link it only when
@@ -109,8 +110,8 @@ airpcap_if_info_t *airpcap_if_active = NULL;
 /* WLAN preferences pointer */
 module_t *wlan_prefs = NULL;
 
-/* 
- * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key 
+/*
+ * Callback used by the load_wlan_keys() routine in order to read a WEP decryption key
  */
 static guint
 get_wep_key(pref_t *pref, gpointer ud _U_)
@@ -395,8 +396,8 @@ fake_info_if = airpcap_driver_fake_if_info_new();
 if(fake_info_if == NULL)
 	return FALSE;
 
-/* 
- * XXX - When WPA will be supported, change this to: keys_in_list = g_list_length(key_list); 
+/*
+ * XXX - When WPA will be supported, change this to: keys_in_list = g_list_length(key_list);
  * but right now we will have to count only the WEP keys (or we will have a malloc-mess :-) )
  */
 n = g_list_length(key_list);
@@ -428,8 +429,8 @@ if(!KeysCollection)
  */
 KeysCollection->nKeys = keys_in_list;
 
-/* 
- * XXX - If we have, let's say, six keys, the first three are WEP, then two are WPA, and the 
+/*
+ * XXX - If we have, let's say, six keys, the first three are WEP, then two are WPA, and the
  * last is WEP, we have to scroll the whole list (n) but increment the array counter only
  * when a WEP key is found (y) .. When WPA will be supported by the driver, I'll have to change
  * this
@@ -440,7 +441,7 @@ for(i = 0; i < n; i++)
 {
 	/* Retrieve the Item corresponding to the i-th key */
 	key_item = (decryption_key_t*)g_list_nth_data(key_list,i);
-	
+
 	/*
 	 * XXX - The AIRPDCAP_KEY_TYPE_WEP is the only supportd right now!
 	 * We will have to modify the AirpcapKey structure in order to
@@ -2018,7 +2019,7 @@ for(i=0;i<n2;i++)
 	}
 
 /*
- * XXX - END : Remove from START to END when the WPA/WPA2 decryption will be implemented in 
+ * XXX - END : Remove from START to END when the WPA/WPA2 decryption will be implemented in
  * the Driver
  */
 
@@ -2389,7 +2390,7 @@ decryption_key_t *dk;
 if(input_string == NULL)
 	return NULL;
 
-/* 
+/*
 * Parse the input_string. It should be in the form <key type>:<key data>[:<ssid>]
 * XXX - For backward compatibility, the a WEP key can be just a string of hexadecimal
 * characters (if WEP key is wrong, null will be returned...).
@@ -2407,7 +2408,7 @@ if(n == 0)
 	return NULL;
 }
 
-/* 
+/*
 * 'n' contains the number of tokens. If the key string is correct, we should have
 * 2 or 3 tokens... If we have 1 token, it can be an 'old style' WEP key... check for it...
 */
@@ -2471,9 +2472,9 @@ if(n == 1)
 /* There were at least 2 tokens... copy the type value */
 type = g_strdup(tokens[0]);
 
-/* 
-* The second token is the key (right now it doesn't matter 
-* if it is a passphrase or an hexadecimal one) 
+/*
+* The second token is the key (right now it doesn't matter
+* if it is a passphrase or an hexadecimal one)
 */
 key = g_strdup(tokens[1]);
 
@@ -2492,7 +2493,7 @@ else
 	ssid = NULL;
 }
 
-/* 
+/*
 * Now the initial key string has been divided in two/three tokens... let's see
 * which kind of key it is, and if it is the correct form
 */
@@ -2623,7 +2624,7 @@ else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the 
 
 		/*
 		* XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
-		*/ 
+		*/
 		if( ((ssid_string->len) > WPA_SSID_MAX_CHAR_SIZE) || ((ssid_string->len) < WPA_SSID_MIN_CHAR_SIZE))
 		{
 			g_string_free(key_string, TRUE);
@@ -2645,9 +2646,9 @@ else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the 
 	dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
 	dk->key  = g_string_new(key);
 	dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
-	if(ssid != NULL) 
+	if(ssid != NULL)
 		dk->ssid = g_string_new(ssid);
-	else 
+	else
 		dk->ssid = NULL;
 
 	g_string_free(key_string, TRUE);

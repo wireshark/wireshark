@@ -4,10 +4,9 @@
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_tkip.h"
 #include "airpdcap_wep.h"
 
-#include	"airpdcap_debug.h"
+#include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
 
@@ -24,18 +23,18 @@
 /*	Internal function prototypes declarations												*/
 /*																										*/
 void AirPDcapTkipMixingPhase1(
-								UINT16 *TTAK,
-								const UINT8 *TK,
-								const UINT8 *TA,
-								UINT32 TSC)
-								;
+	UINT16 *TTAK,
+	const UINT8 *TK,
+	const UINT8 *TA,
+	UINT32 TSC)
+	;
 
 static void AirPDcapTkipMixingPhase2(
-										 UINT8 *wep_seed,
-										 const UINT8 *TK,
-										 UINT16 *PPK,
-										 UINT16 TSC16)
-										 ;
+	UINT8 *wep_seed,
+	const UINT8 *TK,
+	UINT16 *PPK,
+	UINT16 TSC16)
+	;
 
 /*																										*/
 /******************************************************************************/
@@ -90,38 +89,38 @@ static const UINT16 Sbox[256] = {
 /* Note: any functions were copied from FreeBSD source code, RELENG 6,			*/
 /*		sys/net80211/ieee80211_crypto_tkip.c												*/
 static __inline UINT16 RotR1(
-									  UINT16 val)
+	UINT16 val)
 {
 	return (UINT16)((val >> 1) | (val << 15));
 }
 
 static __inline UINT8 Lo8(
-								  UINT16 val)
+	UINT16 val)
 {
 	return (UINT8)(val & 0xff);
 }
 
 static __inline UINT8 Hi8(
-								  UINT16 val)
+	UINT16 val)
 {
 	return (UINT8)(val >> 8);
 }
 
 static __inline UINT16 Lo16(
-									 UINT32 val)
+	UINT32 val)
 {
 	return (UINT16)(val & 0xffff);
 }
 
 static __inline UINT16 Hi16(
-									 UINT32 val)
+	UINT32 val)
 {
 	return (UINT16)(val >> 16);
 }
 
 static __inline UINT16 Mk16(
-									 UINT8 hi,
-									 UINT8 lo)
+	UINT8 hi,
+	UINT8 lo)
 {
 	return (UINT16)(lo | (((UINT16) hi) << 8));
 }
@@ -132,19 +131,19 @@ static __inline UINT16 Mk16_le(const UINT16 *v)
 }
 
 static __inline UINT16 _S_(
-									UINT16 v)
+	UINT16 v)
 {
 	UINT16 t = Sbox[Hi8(v)];
 	return (UINT16)(Sbox[Lo8(v)] ^ ((t << 8) | (t >> 8)));
 }
 
 static __inline UINT64 READ_6(
-										UINT8 b0,
-										UINT8 b1,
-										UINT8 b2,
-										UINT8 b3,
-										UINT8 b4,
-										UINT8 b5)
+	UINT8 b0,
+	UINT8 b1,
+	UINT8 b2,
+	UINT8 b3,
+	UINT8 b4,
+	UINT8 b5)
 {
 	UINT32 iv32 = (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
 	UINT16 iv16 = (UINT16)((b4 << 0) | (b5 << 8));
@@ -152,10 +151,10 @@ static __inline UINT64 READ_6(
 }
 
 void AirPDcapTkipMixingPhase1(
-								UINT16 *TTAK,
-								const UINT8 *TK,
-								const UINT8 *TA,
-								UINT32 TSC)
+	UINT16 *TTAK,
+	const UINT8 *TK,
+	const UINT8 *TA,
+	UINT32 TSC)
 {
 	UINT16 i, j;
 
@@ -177,10 +176,10 @@ void AirPDcapTkipMixingPhase1(
 }
 
 static void AirPDcapTkipMixingPhase2(
-										 UINT8 *wep_seed,
-										 const UINT8 *TK,
-										 UINT16 *TTAK,
-										 UINT16 TSC16)
+	UINT8 *wep_seed,
+	const UINT8 *TK,
+	UINT16 *TTAK,
+	UINT16 TSC16)
 {
 	INT i;
 	TTAK[5] = (UINT16)(TTAK[4] + TSC16);
@@ -217,10 +216,10 @@ static void AirPDcapTkipMixingPhase2(
 /* Note: taken from FreeBSD source code, RELENG 6,										*/
 /*		sys/net80211/ieee80211_crypto_tkip.c, 936											*/
 INT AirPDcapTkipDecrypt(
-							 UCHAR *tkip_mpdu,
-							 size_t mpdu_len,
-							 UCHAR TA[AIRPDCAP_MAC_LEN],
-							 UCHAR TK[AIRPDCAP_TK_LEN])
+	UCHAR *tkip_mpdu,
+	size_t mpdu_len,
+	UCHAR TA[AIRPDCAP_MAC_LEN],
+	UCHAR TK[AIRPDCAP_TK_LEN])
 {
 	UINT32 TSC;
 	UINT16 TSC16;

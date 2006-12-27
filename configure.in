@@ -1047,6 +1047,12 @@ AC_SUBST(ADNS_LIBS)
 #
 AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external variable declarations in dynamically-linked libraries])
 
+#
+# Define HAVE_AIRPDCAP
+# We'll want to remove this eventually.
+#
+AC_DEFINE(HAVE_AIRPDCAP, 1, [Enable AirPDcap (WPA/WPA2 decryption)])
+
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST
 
@@ -1313,6 +1319,7 @@ AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doxygen.cfg
+  airpdcap/Makefile
   asn1/Makefile
   doc/Makefile
   epan/Makefile

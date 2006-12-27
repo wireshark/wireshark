@@ -7,7 +7,7 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H -DHAVE_WIRESHARK $(GLIB_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
