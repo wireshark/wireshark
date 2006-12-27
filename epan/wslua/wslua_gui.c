@@ -600,3 +600,40 @@ WSLUA_FUNCTION wslua_reload(lua_State* L) { /* reload the current capture file *
 
 	return 0;
 }
+
+
+WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* open an url in a browser */
+#define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
+	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
+
+	if (!ops->browser_open_url) {
+		WSLUA_ERROR(browser_open_url, "does not work on TShark");
+	}
+
+	if (!url) {
+		WSLUA_ARG_ERROR(browser_open_url,URL,"must be a string");
+	}
+
+	ops->browser_open_url(url);
+
+	return 0;
+}
+
+WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* open an file in a browser */
+#define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The url. */
+	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
+
+	if (!ops->browser_open_url) {
+		WSLUA_ERROR(browser_open_data_file, "does not work on TShark");
+	}
+
+	if (!url) {
+		WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"must be a string");
+	}
+
+	ops->browser_open_data_file(url);
+
+	return 0;
+}
+
+

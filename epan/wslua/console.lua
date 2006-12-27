@@ -101,6 +101,11 @@ if (gui_enabled()) then
 		info("Console opened")
 	end
 
-	register_menu("Lua/Evaluate",evaluate_lua,MENU_TOOLS)
-	register_menu("Lua/Console",run_console,MENU_TOOLS)
+	function wiki_page()
+		browser_open_url("http://wiki.wireshark.org/Lua")
+	end
+
+	register_menu("Lua/Evaluate", evaluate_lua, MENU_TOOLS)
+	register_menu("Lua/Console", run_console, MENU_TOOLS)
+	register_menu("Lua/Wiki", wiki_page, MENU_TOOLS)
 end

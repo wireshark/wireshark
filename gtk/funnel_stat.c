@@ -60,6 +60,7 @@
 #include "prefs_dlg.h"
 #include "file.h"
 #include "main.h"
+#include "webbrowser.h"
 
 #include "gtkglobals.h"
 
@@ -615,7 +616,9 @@ static const funnel_ops_t funnel_ops = {
 	funnel_set_filter,
 	funnel_open_file,
 	funnel_reload,
-	funnel_apply_filter
+	funnel_apply_filter,
+	browser_open_url,
+	browser_open_data_file
 };
 
 
