@@ -1,4 +1,7 @@
 #!/bin/bash
+(shopt -s igncr) 2>/dev/null && shopt -s igncr; # comment is needed
+#                                               # hack for cygwin bash
+#                                               #  no-op for other
 #
 # Test various command line testable aspects of the Wireshark tools
 #
