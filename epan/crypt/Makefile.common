@@ -45,4 +45,5 @@ LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_tkip.h		\
 	airpdcap_user.h		\
 	airpdcap_wep.h		\
-	airpdcap_ws.h
+	airpdcap_ws.h		\
+	wep-wpadefs.h

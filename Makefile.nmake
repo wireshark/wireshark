@@ -47,7 +47,9 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\wireshark.lib \
-	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	epan\crypt\airpdcap.lib \
+	epan\dfilter\dfilter.lib \
+	epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \
@@ -63,7 +65,9 @@ tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 !ELSE
 	epan\dissectors\dissectors.lib \
 	epan\wireshark.lib \
-	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	epan\crypt\airpdcap.lib \
+	epan\dfilter\dfilter.lib \
+	epan\ftypes\ftypes.lib \
 	$(ADNS_LIBS) \
 	$(PCRE_LIBS) \
 	$(ZLIB_LIBS) \

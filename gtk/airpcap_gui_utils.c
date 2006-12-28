@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include <epan/filesystem.h>
+#include <epan/crypt/airpdcap_ws.h>
 
 #include "gtk/main.h"
 #include "dlg_utils.h"
@@ -50,8 +51,6 @@
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 
-#include "../airpdcap/airpdcap_ws.h"
-
 #include "keys.h"
 
 /*
@@ -65,7 +64,7 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
 {
 gchar *channels;
 gchar *tmp;
-guint n,i; 
+guint n,i;
 GList *current_item;
 airpcap_if_info_t* current_adapter;
 
@@ -77,7 +76,7 @@ channels[0]='\0';
 if(airpcap_if_is_any(if_info))
     {
     n = g_list_length(airpcap_if_list);
-        
+
     for(i = 0; i < n; i++)
         {
         current_item = g_list_nth(airpcap_if_list,i);
@@ -87,12 +86,12 @@ if(airpcap_if_is_any(if_info))
             tmp = g_strdup_printf("%d",current_adapter->channel);
             g_strlcat(channels,tmp,128);
             g_free(tmp);
-            
-            if(i<(n-1)) g_strlcat(channels,",",128);  
+
+            if(i<(n-1)) g_strlcat(channels,",",128);
             }
-        }       
+        }
     }
-    
+
 return channels;
 }
 
@@ -307,70 +306,70 @@ decryption_key_t* curr_key = NULL;
 n = 0;
 
 fake_if_info = airpcap_driver_fake_if_info_new();
-	
+
 	/* We can retrieve the driver's key list (i.e. we have the right .dll)*/
 		wireshark_key_list = get_wireshark_keys();
 		n = g_list_length(wireshark_key_list);
-		
+
  		for(i = 0; i < n; i++)
 			{
 			curr_key = (decryption_key_t*)g_list_nth_data(wireshark_key_list,i);
-			
+
 			if(curr_key->type == AIRPDCAP_KEY_TYPE_WEP)
 			{
 				s = g_strdup(curr_key->key->str);
-				
+
             new_row[0] = g_strdup(AIRPCAP_WEP_KEY_STRING);
 			new_row[1] = g_strdup(s);
 			new_row[2] = g_strdup("");
 
 				gtk_clist_append(GTK_CLIST(keylist),new_row);
-				
+
 				g_free(new_row[0]);
 				g_free(new_row[1]);
 				g_free(new_row[2]);
-				
+
 				g_free(s);
             }
 			else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PWD)
             {
 				s = g_strdup(curr_key->key->str);
-				if(curr_key->ssid != NULL) 
+				if(curr_key->ssid != NULL)
 					s2= g_strdup(curr_key->ssid->str);
-				else 
+				else
 					s2 = NULL;
-				
+
 				new_row[0] = g_strdup(AIRPCAP_WPA_PWD_KEY_STRING);
 			new_row[1] = g_strdup(s);
 
-				if(curr_key->ssid != NULL) 
+				if(curr_key->ssid != NULL)
 					new_row[2] = g_strdup(s2);
             else
 			new_row[2] = g_strdup("");
-			
+
 			gtk_clist_append(GTK_CLIST(keylist),new_row);
-			
+
 			g_free(new_row[0]);
 			g_free(new_row[1]);
 			g_free(new_row[2]);
-			
+
 			g_free(s);
 				if(s2 != NULL)  g_free(s2);
 			}
 			else if(curr_key->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
 			{
 			s = g_strdup(curr_key->key->str);
-			
+
 				new_row[0] = g_strdup(AIRPCAP_WPA_BIN_KEY_STRING);
 			new_row[1] = g_strdup(s);
 			new_row[2] = g_strdup("");
 
 			gtk_clist_append(GTK_CLIST(keylist),new_row);
-			
+
 			g_free(new_row[0]);
 			g_free(new_row[1]);
 			g_free(new_row[2]);
-			
+
 			g_free(s);
 			}
 		}
@@ -560,20 +559,20 @@ airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel)
 int
 airpcap_if_is_any(airpcap_if_info_t* if_info)
 {
-if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)  
+if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
     return 1;
 else
-    return 0;                                   
+    return 0;
 }
 
 /*
  * Update channel combo box. If the airpcap interface is "Any", the combo box will be disabled.
  */
-void 
+void
 airpcap_update_channel_combo(GtkWidget* w, airpcap_if_info_t* if_info)
 {
 gchar* channels_list;
-                                        
+
 if(airpcap_if_is_any(if_info))
     {
     channels_list = airpcap_get_all_channels_list(if_info);
@@ -642,10 +641,10 @@ KeysCollection->nKeys = keys_in_list;
 for(i = 0; i < keys_in_list; i++)
 {
     /* Retrieve the row infos */
-    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);  
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);
     gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
-    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid); 
-    
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
+
     if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
     KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
     else if(g_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
@@ -655,7 +654,7 @@ for(i = 0; i < keys_in_list; i++)
 
 	/* Retrieve the Item corresponding to the i-th key */
 	new_key = g_string_new(row_key);
-	
+
 	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
@@ -741,10 +740,10 @@ KeysCollection->nKeys = keys_in_list;
 for(i = 0; i < keys_in_list; i++)
 {
     /* Retrieve the row infos */
-    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);  
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,0,&row_type);
     gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
-    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid); 
-    
+    gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
+
     if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
     KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
     else if(g_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
@@ -754,7 +753,7 @@ for(i = 0; i < keys_in_list; i++)
 
 	/* Retrieve the Item corresponding to the i-th key */
 	new_key = g_string_new(row_key);
-	
+
 	KeysCollection->Keys[i].KeyLen = new_key->len / 2;
 	memset(&KeysCollection->Keys[i].KeyData, 0, sizeof(KeysCollection->Keys[i].KeyData));
 
@@ -808,7 +807,7 @@ char* tmp_ssid = NULL;
 
 decryption_key_t* tmp_dk=NULL;
 
-/* 
+/*
  * Save the keys for Wireshark...
  */
 
@@ -871,24 +870,24 @@ if_n = g_list_length(if_list);
 for(i = 0; i < if_n; i++)
       {
       curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
-      
+
       if(curr_if != NULL)
           {
           /* XXX - Set an empty collection */
 		  airpcap_if_clear_decryption_settings(curr_if);
-              
+
           /* Save to registry */
           airpcap_save_selected_if_configuration(curr_if);
           }
-      }      
+      }
 }
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA and WPA_BIN) and will set them as default for 
+ * keys (WEP, WPA and WPA_BIN) and will set them as default for
  * each adapter. To do this, it will save the keys in the registry...
  * A check will be performed, to make sure that keys found in
- * registry and keys found in Wireshark preferences are the same. If not, 
+ * registry and keys found in Wireshark preferences are the same. If not,
  * the user will be asked to choose if use all keys (merge them),
  * or use Wireshark preferences ones. In the last case, registry keys will
  * be overwritten for all the connected AirPcap adapters.
@@ -900,7 +899,7 @@ airpcap_check_decryption_keys(GList* if_list)
 {
 gint if_n = 0;
 gint i = 0;
-gint n_adapters_keys = 0; 
+gint n_adapters_keys = 0;
 gint n_driver_keys = 0;
 gint n_wireshark_keys = 0;
 airpcap_if_info_t* curr_if = NULL;
@@ -912,11 +911,11 @@ GList* curr_adapter_key_list;
 gboolean equals = TRUE;
 gboolean adapters_keys_equals=TRUE;
 
-/* 
+/*
  * If no AirPcap interface is found, return TRUE, so Wireshark
  * will use HIS OWN keys.
  */
-if(if_list == NULL) 
+if(if_list == NULL)
     return TRUE;
 
 if_n = g_list_length(if_list);
@@ -950,10 +949,10 @@ return equals;
 
 /*
  * This function will load from the preferences file ALL the
- * keys (WEP, WPA_PWD and WPA_BIN) and will set them as default for 
+ * keys (WEP, WPA_PWD and WPA_BIN) and will set them as default for
  * each adapter. To do this, it will save the keys in the registry...
  * A check will be performed, to make sure that keys found in
- * registry and keys found in Wireshark preferences are the same. If not, 
+ * registry and keys found in Wireshark preferences are the same. If not,
  * the user will be asked to choose if use all keys (merge them),
  * or use Wireshark preferences ones. In the last case, registry keys will
  * be overwritten for all the connected AirPcap adapters.
@@ -979,7 +978,7 @@ for(i = 0; i < if_n; i++)
 }
 
 /*
- * This function will set the gibven GList of decryption_key_t structures 
+ * This function will set the gibven GList of decryption_key_t structures
  * as the defoult for both Wireshark and the AirPcap adapters...
  */
 void

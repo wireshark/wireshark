@@ -24,9 +24,9 @@ DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
 
 DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
-dissectors.lib: airpdcap.lib register.obj packet-ncp2222.c $(GENERATED_HEADER_FILES) ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
+dissectors.lib: register.obj packet-ncp2222.c $(GENERATED_HEADER_FILES) ../../config.h $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 	@echo Linking dissectors.lib
-	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS) ..\..\airpdcap\airpdcap.lib
+	link /lib /out:dissectors.lib $(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 #
 # The header files listed here are built from x11-fields using Perl;
@@ -74,11 +74,6 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 # All subsequent arguments are the files to scan.
 #
 
-airpdcap.lib:
-	cd ..\..\airpdcap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..\epan\dissectors
-
 register.c: $(DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
@@ -101,9 +96,6 @@ packet-ncp2222.c : ncp2222.py
 !ENDIF
 
 clean:
-	cd ..\..\airpdcap
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..\epan\dissectors
 	rm -f dissectors.lib $(PDB_FILE) \
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 

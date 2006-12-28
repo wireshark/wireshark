@@ -1319,10 +1319,10 @@ AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doxygen.cfg
-  airpdcap/Makefile
   asn1/Makefile
   doc/Makefile
   epan/Makefile
+  epan/crypt/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile
   epan/dissectors/Makefile

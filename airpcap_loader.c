@@ -43,12 +43,10 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/crypt/wep-wpadefs.h>
+#include <epan/crypt/airpdcap_ws.h>
 #include "capture_ui_utils.h"
 
 #include "simple_dialog.h"
-
-/* AirPDcap */
-#include "airpdcap/airpdcap_ws.h"
 
 #include <airpcap.h>
 #include "airpcap_loader.h"

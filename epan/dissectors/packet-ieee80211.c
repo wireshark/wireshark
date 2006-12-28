@@ -794,7 +794,7 @@ static int wlan_tap = -1;
 
 /*     Davide Schiera (2006-11-22): including AirPDcap project                */
 #ifdef HAVE_AIRPDCAP
-#include "airpdcap/airpdcap_ws.h"
+#include <epan/crypt/airpdcap_ws.h>
 AIRPDCAP_CONTEXT airpdcap_ctx;
 #else
 int airpdcap_ctx;

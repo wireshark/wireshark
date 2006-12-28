@@ -55,7 +55,7 @@ WIRESHARK_WIN32_GTK_OBJECTS = $(WIRESHARK_WIN32_GTK_SRC:.c=.obj)
 	
 
 libui.lib	: ..\config.h $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
-	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib ..\airpdcap\airpdcap.lib
+	link /lib /out:libui.lib $(WIRESHARK_WIN32_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
 
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) ../make-tapreg-dotc Makefile.common
 	@echo Making wireshark-tap-register.c
