@@ -81,4 +81,9 @@ dummy:
 init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h
 	$(PERL) make-init-lua.pl template-init.lua > init.lua
 
+clean:
+	rm -f $(OBJECTS) wslua.lib *.pdb
 
+disclean: clean
+
+maintainer-clean: distclean
