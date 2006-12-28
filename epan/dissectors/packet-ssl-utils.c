@@ -31,6 +31,8 @@
 
 #include <epan/emem.h>
 
+static gint ver_major, ver_minor, ver_patch;
+
 void 
 ssl_data_set(StringInfo* str, guchar* data, guint len)
 {
@@ -1095,7 +1097,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         pad=out[inl-1];
         worklen-=(pad+1);
         ssl_debug_printf("ssl_decrypt_record found padding %d final len %d\n", 
-            pad, *outl);
+            pad, worklen);
     }
 
     /* And the MAC */
@@ -1143,15 +1145,12 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     return(0);
 }
 
-/* old relase of gnutls does not define the appropriate macros, so get 
- * them from the string*/
 static void 
 ssl_get_version(gint* major, gint* minor, gint* patch)
 {
-    const gchar* str = gnutls_check_version(NULL);
-    
-    ssl_debug_printf("ssl_get_version: %s\n", str);
-    sscanf(str, "%d.%d.%d", major, minor, patch);
+  *major = ver_major;
+  *minor = ver_minor;
+  *patch = ver_patch;
 }
 
 
@@ -1294,6 +1293,13 @@ void ssl_free_key(SSL_PRIVATE_KEY* key)
 void 
 ssl_lib_init(void)
 {
+    const gchar* str = gnutls_check_version(NULL);
+
+    /* get library version */
+    /* old relase of gnutls does not define the appropriate macros, so get 
+     * them from the string*/
+    ssl_debug_printf("gnutls version: %s\n", str);
+    sscanf(str, "%d.%d.%d", &ver_major, &ver_minor, &ver_patch);
 }
 
 #else /* HAVE_LIBGNUTLS */
@@ -1594,7 +1600,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
 
   start = strdup(keys_list);
   tmp = start;   
-  ssl_debug_printf("ssl_init keys string %s\n", start);
+  ssl_debug_printf("ssl_init keys string:\n%s\n", start);
   do {
     gchar* addr, *port, *protocol, *filename;            
             
@@ -1606,12 +1612,15 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
       start = end+1;
     }
   
+    /* skip comments (in file) */
+    if (addr[0] == '#') continue;
+
     /* for each entry split ip, port, protocol, filename with ',' separator */
     ssl_debug_printf("ssl_init found host entry %s\n", addr);
     port = strchr(addr, ',');
     if (!port)
       {
-	ssl_debug_printf("ssl_init entry malformed can't find port in %s\n", addr);
+	ssl_debug_printf("ssl_init entry malformed can't find port in '%s'\n", addr);
 	continue;
       }
     *port = 0;

@@ -568,7 +568,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     first_record_in_frame = TRUE;
     ssl_session = NULL;
 
-    ssl_debug_printf("dissect_ssl enter frame #%u\n", pinfo->fd->num);
+    ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
 
     /* Track the version using conversations to reduce the
      * chance that a packet that simply *looks* like a v2 or
@@ -781,7 +781,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     ret = 0;
     /* if we can decrypt and decryption have success
     * add decrypted data to this packet info*/
-    ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl state %X\n",
+    ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl, state 0x%02X\n",
         record_length, ssl->state);
     if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
         ssl_debug_printf("decrypt_ssl3_record: no session key\n");
@@ -1022,6 +1022,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1032,6 +1033,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1042,6 +1044,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1456,11 +1459,11 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         break;
 
                     /* check for required session data */
-                    ssl_debug_printf("dissect_ssl3_handshake found SSL_HND_CLIENT_KEY_EXCHG state %X\n",
+                    ssl_debug_printf("dissect_ssl3_handshake found SSL_HND_CLIENT_KEY_EXCHG state 0x%X\n",
                         ssl->state);
                     if ((ssl->state & (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) !=
                             (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION)) {
-                        ssl_debug_printf("dissect_ssl3_handshake not enough data to generate key (required %X)\n",
+                        ssl_debug_printf("dissect_ssl3_handshake not enough data to generate key (required 0x%02X)\n",
                             (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION));
                         break;
                     }
@@ -1548,8 +1551,8 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             ssl->state |= SSL_SERVER_RANDOM;
         else
             ssl->state |= SSL_CLIENT_RANDOM;
-        ssl_debug_printf("dissect_ssl3_hnd_hello_common found random state %X\n",
-            ssl->state);
+        ssl_debug_printf("dissect_ssl3_hnd_hello_common found %s RANDOM -> state 0x%02X\n",
+            (from_server)?"SERVER":"CLIENT", ssl->state);
 
         session_id_length = tvb_get_guint8(tvb, offset + 32);
         /* check stored session id info */
@@ -1810,12 +1813,12 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
             /* store selected cipher suite for decryption */
             ssl->cipher = tvb_get_ntohs(tvb, offset);
             if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
-                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't find cipher suite %X\n", ssl->cipher);
+                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't find cipher suite 0x%X\n", ssl->cipher);
                 goto no_cipher;
             }
 
             ssl->state |= SSL_CIPHER;
-            ssl_debug_printf("dissect_ssl3_hnd_srv_hello found cipher %X, state %X\n",
+            ssl_debug_printf("dissect_ssl3_hnd_srv_hello found CIPHER 0x%04X -> state 0x%02X\n",
                 ssl->cipher, ssl->state);
 
             /* if we have restored a session now we can have enought material
@@ -1823,7 +1826,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
             if ((ssl->state &
                     (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
                     (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) {
-                ssl_debug_printf("dissect_ssl3_hnd_srv_hello not enough data to generate key (required %X)\n",
+                ssl_debug_printf("dissect_ssl3_hnd_srv_hello not enough data to generate key (required 0x%02X)\n",
                     (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET));
                 goto no_cipher;
             }
