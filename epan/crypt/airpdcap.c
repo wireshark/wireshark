@@ -835,9 +835,9 @@ INT AirPDcapRsna4WHandshake(
                                         } else {
                                                 /* there is a cached key in the security association, if it's a WPA key try it...	*/
                                                 if (sa->key!=NULL &&
-                                                        sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD ||
-                                                        sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
-                                                        sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK) {
+                                                        (sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD ||
+                                                         sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
+                                                         sa->key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK)) {
                                                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Try cached WPA key...", AIRPDCAP_DEBUG_LEVEL_3);
                                                                 tmp_key=sa->key;
                                                 } else {
