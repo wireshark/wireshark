@@ -1953,8 +1953,8 @@ proto_item_append_string(proto_item *pi, const char *str)
 	}
 	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
 	old_str = fvalue_get(&fi->value);
-	new_str = g_strdup_printf("%s%s", old_str, str);
-	fvalue_set(&fi->value, new_str, TRUE);
+	new_str = ep_strdup_printf("%s%s", old_str, str);
+	fvalue_set(&fi->value, new_str, FALSE);
 }
 
 /* Set the FT_STRING value */
