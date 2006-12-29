@@ -23,20 +23,19 @@
 
 include Makefile.common
 
-noinst_LIBRARIES = \
-	libairpdcap.a
-
-DISTCLEANFILES = \
-	libairpdcap.a
+noinst_LTLIBRARIES = libairpdcap.la
 
 CLEANFILES = \
 	libairpdcap.a	\
-       *~
+	libairpdcap.la	\
+	*~
+
+DISTCLEANFILES =
 
 MAINTAINERCLEANFILES =	\
        Makefile.in
 
-libairpdcap_a_SOURCES =	\
+libairpdcap_la_SOURCES =	\
 	$(LIBAIRPDCAP_SRC)	\
 	$(LIBAIRPDCAP_INCLUDES)
 
