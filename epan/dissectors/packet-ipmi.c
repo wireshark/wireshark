@@ -2518,6 +2518,7 @@ static const value_string GetChannelAuthCap_max_priv_lev_vals[] = {
 	{ 0x0,	NULL },
 };
 /* 22-15, Get Channel Authentication Capabilities Command */
+static void
 dissect_cmd_Get_Channel_Auth_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
 								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
 {
@@ -3769,7 +3770,7 @@ static void dissect_ipmi_data(proto_tree *, proto_tree *, packet_info *, tvbuff_
 						guint8, guint8, guint8, guint8,guint8);
 
 
-ipmi_cmd_dissect ipmi_cmd_array[] = {
+static const ipmi_cmd_dissect ipmi_cmd_array[] = {
 	
 	/* Chassis netfn (0x00) */
 	{ 0x00,	0x00,	NULL},
