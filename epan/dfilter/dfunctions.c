@@ -34,6 +34,7 @@
 
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
+#include <epan/emem.h>
 
 /* lowercase an ASCII character.
  * (thanks to Guy Harris for the function) */
@@ -65,14 +66,14 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
         arg_fvalue = arg1->data; 
         switch (fvalue_ftype(arg_fvalue)->ftype) {
             case FT_STRING:
-                s = g_strdup(fvalue_get(arg1->data));
+                s = ep_strdup(fvalue_get(arg1->data));
                 for (c = s; *c; c++) {
                         /**c = string_ascii_to_lower(*c);*/
                         *c = conv_func(*c);
                 }
 
                 new_ft_string = fvalue_new(FT_STRING);
-                fvalue_set(new_ft_string, s, TRUE);
+                fvalue_set(new_ft_string, s, FALSE);
                 *retval = g_list_append(*retval, new_ft_string);
                 break;
 
