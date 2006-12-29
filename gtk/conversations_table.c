@@ -108,8 +108,8 @@ ct_port_to_str(int port_type, guint32 port)
    return a string for the filter name
 
    some addresses, like AT_ETHER may actually be any of multiple types
-   of protocols,   either ethernet, tokenring, fddi etc so we must be more
-   specific there  thats why we need specific_addr_type
+   of protocols,   either ethernet, tokenring, fddi, wlan etc so we must be
+   more specific there  thats why we need specific_addr_type
 */
 static const char *
 ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
@@ -121,6 +121,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			switch(specific_addr_type){
 			case SAT_ETHER:
 				return "eth.src";
+			case SAT_WLAN:
+				return "wlan.sa";
 			case SAT_FDDI:
 				return "fddi.src";
 			case SAT_TOKENRING:
@@ -155,6 +157,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			switch(specific_addr_type){
 			case SAT_ETHER:
 				return "eth.dst";
+			case SAT_WLAN:
+				return "wlan.da";
 			case SAT_FDDI:
 				return "fddi.dst";
 			case SAT_TOKENRING:
@@ -189,6 +193,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			switch(specific_addr_type){
 			case SAT_ETHER:
 				return "eth.addr";
+			case SAT_WLAN:
+				return "wlan.addr";
 			case SAT_FDDI:
 				return "fddi.addr";
 			case SAT_TOKENRING:

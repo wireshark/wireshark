@@ -34,6 +34,7 @@
 typedef enum {
     SAT_NONE,       /**< no address type */
     SAT_ETHER,      /**< MAC : Ethernet */
+    SAT_WLAN,       /**< MAC : Wireless LAN */
     SAT_FDDI,       /**< MAC : FDDI */
     SAT_TOKENRING,  /**< MAC : Token Ring */
     SAT_JXTA        /**< URI : JXTA */

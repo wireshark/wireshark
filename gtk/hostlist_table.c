@@ -104,6 +104,8 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 			switch(specific_addr_type){
 			case SAT_ETHER:
 				return "eth.addr";
+			case SAT_WLAN:
+				return "wlan.addr";
 			case SAT_FDDI:
 				return "fddi.addr";
 			case SAT_TOKENRING:
