@@ -928,7 +928,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 			break;
 
 		case FT_STRING:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 			proto_tree_set_string_tvb(new_fi, tvb, start, length);
 			break;
 
@@ -997,7 +996,6 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 			break;
 
 		case FT_UINT_STRING:
-			/* This g_strdup'ed memory is freed in proto_tree_free_node() */
 			n = get_uint_value(tvb, start, length, little_endian);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n);
 
@@ -1977,9 +1975,8 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
-	/* This memory is freed in proto_tree_free_node() */
-	string = tvb_get_string(tvb, start, length);
-	proto_tree_set_string(fi, string, TRUE);
+	string = tvb_get_ephemeral_string(tvb, start, length);
+	proto_tree_set_string(fi, string, FALSE);
 }
 
 /* Add a FT_ETHER to a proto_tree */
