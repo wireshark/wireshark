@@ -223,19 +223,41 @@ else
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
 		;;
-	cygwin*)
-		#
-		# Shared libraries in cygwin/Win32 must never contain
-		# undefined symbols.
-		#
-		LDFLAGS="$LDFLAGS -no-undefined"
-		AC_MSG_RESULT(CygWin GCC - added -no-undefined to LDFLAGS)
-		;;
 	*)
 		AC_MSG_RESULT(none needed)
 		;;
 	esac
 fi
+
+#
+# Add any platform-specific linker flags needed.
+#
+AC_MSG_CHECKING(for platform-specific linker flags)
+case "$host_os" in
+darwin*)
+	#
+	# Make sure that if we search directories A and B, in
+	# that order, for a given library, a non-shared version
+	# in directory A, rather than a shared version in
+	# directory B, is chosen (so we can use --with-pcap=/usr/local
+	# to force all programs to be linked with a static
+	# version installed in /usr/local/lib rather than the
+	# system version in /usr/lib).
+	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
+	AC_MSG_RESULT(Apple linker - added -Wl,-search_paths_first)
+	;;
+cygwin*)
+	#
+	# Shared libraries in cygwin/Win32 must never contain
+	# undefined symbols.
+	#
+	LDFLAGS="$LDFLAGS -no-undefined"
+	AC_MSG_RESULT(CygWin GNU ld - added -no-undefined)
+	;;
+*)
+	AC_MSG_RESULT(none needed)
+	;;
+esac
 
 #
 # On OS X, if we find the headers for Core Foundation and Launch Services,
