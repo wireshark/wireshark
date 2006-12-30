@@ -55,16 +55,12 @@ static void
 string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
     DISSECTOR_ASSERT(value != NULL);
+    DISSECTOR_ASSERT(!already_copied);
 
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
 
-	if (already_copied) {
-		fv->value.string = value;
-	}
-	else {
-		fv->value.string = g_strdup(value);
-	}
+	fv->value.string = g_strdup(value);
 }
 
 static int
