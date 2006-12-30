@@ -135,7 +135,7 @@ proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length
 static void
 proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
 static void
-proto_tree_set_string(field_info *fi, const char* value, gboolean);
+proto_tree_set_string(field_info *fi, const char* value);
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
@@ -987,7 +987,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 					length);
 			}
 			new_fi->length = length;
-			proto_tree_set_string(new_fi, string, FALSE);
+			proto_tree_set_string(new_fi, string);
 			break;
 
 		case FT_UINT_STRING:
@@ -1853,7 +1853,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
 	DISSECTOR_ASSERT(length >= 0);
-	proto_tree_set_string(new_fi, value, FALSE);
+	proto_tree_set_string(new_fi, value);
 
 	return pi;
 }
@@ -1952,13 +1952,12 @@ proto_item_append_string(proto_item *pi, const char *str)
 
 /* Set the FT_STRING value */
 static void
-proto_tree_set_string(field_info *fi, const char* value,
-		gboolean already_allocated)
+proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value)
-		fvalue_set(&fi->value, (gpointer) value, already_allocated);
+		fvalue_set(&fi->value, (gpointer) value, FALSE);
 	else
-		fvalue_set(&fi->value, (gpointer) "[ Null ]", already_allocated);
+		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
 }
 
 static void
@@ -1971,7 +1970,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	}
 
 	string = tvb_get_ephemeral_string(tvb, start, length);
-	proto_tree_set_string(fi, string, FALSE);
+	proto_tree_set_string(fi, string);
 }
 
 /* Add a FT_ETHER to a proto_tree */
