@@ -946,13 +946,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 				/* This can throw an exception */
 				length = tvb_strsize(tvb, start);
 
-				/* This g_malloc'ed memory is freed
-				   in proto_tree_free_node() */
-				string = g_malloc(length);
+				string = ep_alloc(length);
 
 				tvb_memcpy(tvb, string, start, length);
 			} else if (length == 0) {
-				string = g_strdup("[Empty]");
+				string = "[Empty]";
 			} else {
 				/* In this case, length signifies
 				 * the length of the string.
@@ -985,14 +983,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-
-				/* This g_malloc'ed memory is freed
-				 * in proto_tree_free_node() */
-				string = tvb_get_string(tvb, start,
+				string = tvb_get_ephemeral_string(tvb, start,
 					length);
 			}
 			new_fi->length = length;
-			proto_tree_set_string(new_fi, string, TRUE);
+			proto_tree_set_string(new_fi, string, FALSE);
 			break;
 
 		case FT_UINT_STRING:
