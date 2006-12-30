@@ -60,9 +60,26 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @wireshark_bin@ @capinfos_bin@ @editcap_bin@ @mergecap_bin@ @tshark_bin@ @dftest_bin@ @randpkt_bin@ @text2pcap_bin@ @dumpcap_bin@
+bin_PROGRAMS = \
+	@wireshark_bin@	\
+	@tshark_bin@	\
+	@text2pcap_bin@	\
+	@mergecap_bin@	\
+	@capinfos_bin@	\
+	@editcap_bin@	\
+	@randpkt_bin@	\
+	@dftest_bin@	\
+	@dumpcap_bin@
 bin_SCRIPTS = @idl2wrs_bin@
-man1_MANS = @wireshark_man@ @capinfos_man@ @editcap_man@ @mergecap_man@ @tshark_man@ @text2pcap_man@ @dumpcap_man@ @idl2wrs_man@
+man1_MANS = \
+	@wireshark_man@	\
+	@tshark_man@	\
+	@text2pcap_man@	\
+	@mergecap_man@	\
+	@capinfos_man@	\
+	@editcap_man@	\
+	@dumpcap_man@	\
+	@idl2wrs_man@
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
@@ -274,7 +291,10 @@ wireshark_additional_libs = \
 	wiretap/libwiretap.la	\
 	epan/libwireshark.la
 
-# This is the automake dependency variable for the wireshark executable
+# This is the automake dependency variable for the wireshark executable;
+# it differs from wireshark_LDADD because, if we have plugins enabled,
+# it includes the libraries regardless of whether we're building static
+# or not, rather than including a bunch of -dlopen flags.
 wireshark_DEPENDENCIES = \
 	$(wireshark_optional_objects)	\
 	$(wireshark_additional_libs)	\
@@ -286,7 +306,7 @@ else
 wireshark_LDFLAGS = -export-dynamic
 endif
 
-# This automake variable adds to the link-line for the wireshark executable.
+# Libraries and plugin flags with which to link wireshark.
 #
 # Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
 # they are included in @GTK_LIBS@, and doesn't have to be linked with
@@ -311,7 +331,10 @@ tshark_additional_libs =		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la
 
-# This is the automake dependency variable for the tshark executable
+# This is the automake dependency variable for the tshark executable;
+# it differs from wireshark_LDADD because, if we have plugins enabled,
+# it includes the libraries regardless of whether we're building static
+# or not, rather than including a bunch of -dlopen flags.
 tshark_DEPENDENCIES = \
 	$(wireshark_optional_objects)	\
 	$(tshark_additional_libs)	\
@@ -323,7 +346,7 @@ else
 tshark_LDFLAGS = -export-dynamic
 endif
 
-# This automake variable adds to the link-line for the tshark executable
+# Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	$(tshark_additional_libs)	\
@@ -340,31 +363,69 @@ tshark_LDADD = \
 # text2pcap.
 text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
 
-# This is the automake dependency variable for the text2pcap executable
-# XXX - this is a dependency for text2pcap.o; do we need it?
-text2pcap_DEPENDENCIES = text2pcap.h
-
-# This automake variable adds to the link-line for the text2pcap executable
-text2pcap_LDADD = $(text2pcap_optional_objects) \
+# Libraries with which to link text2pcap.
+text2pcap_LDADD = \
+	$(text2pcap_optional_objects)	\
 	@GLIB_LIBS@ -lm
 
-# This is the automake dependency variable for the mergecap executable
-mergecap_DEPENDENCIES = wiretap/libwiretap.la
+# Libraries with which to link mergecap.
+mergecap_LDADD = \
+	wiretap/libwiretap.la		\
+	$(mergecap_optional_objects)	\
+	@GLIB_LIBS@
 
-# This automake variable adds to the link-line for the mergecap executable.
-mergecap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
+# Libraries with which to link capinfos.
+capinfos_LDADD = \
+	wiretap/libwiretap.la		\
+	$(capinfos_additional_libs)	\
+	@GLIB_LIBS@
 
-# This is the automake dependency variable for the capinfos executable
-capinfos_DEPENDENCIES = wiretap/libwiretap.la
+# Libraries with which to link editcap.
+editcap_LDADD = \
+	wiretap/libwiretap.la		\
+	$(editcap_additional_libs)	\
+	@GLIB_LIBS@
 
-# This automake variable adds to the link-line for the capinfos executable
-capinfos_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
+# Libraries with which to link randpkt.
+randpkt_LDADD = \
+	wiretap/libwiretap.la		\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
-# This is the automake dependency variable for the editcap executable
-editcap_DEPENDENCIES = wiretap/libwiretap.la
+# Additional libs that I know how to build. These will be
+# linked into the dftest executable.
+dftest_additional_libs =		\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la
 
-# This automake variable adds to the link-line for the editcap executable
-editcap_LDADD = wiretap/libwiretap.la @GLIB_LIBS@
+# This is the automake dependency variable for the dftest executable;
+# it differs from wireshark_LDADD because, if we have plugins enabled,
+# it includes the libraries regardless of whether we're building static
+# or not, rather than including a bunch of -dlopen flags.
+dftest_DEPENDENCIES = \
+	$(wireshark_optional_objects)	\
+	$(dftest_additional_libs)	\
+	$(plugin_libs)
+
+# Libraries and plugin flags with which to link dftest.
+dftest_LDADD = \
+	$(wireshark_optional_objects)	\
+	$(dftest_additional_libs)	\
+	@SNMP_LIBS@ @SSL_LIBS@		\
+	$(plugin_ldadd)			\
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@LIBICONV@			\
+	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@
+
+# Libraries with which to link dumpcap.
+dumpcap_LDADD = \
+	wiretap/libwiretap.la		\
+	@GLIB_LIBS@			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ \
+	@LIBGCRYPT_LIBS@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
@@ -426,61 +487,6 @@ ps.c: print.ps rdps
 
 rdps: rdps.c
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o rdps $(srcdir)/rdps.c
-
-# Additional libs that I know how to build. These will be
-# linked into the randpkt executable.
-randpkt_additional_libs = wiretap/libwiretap.la
-
-# This is the automake dependency variable for the randpkt executable
-randpkt_DEPENDENCIES = \
-	$(randpkt_additional_libs)
-
-# This automake variable adds to the link-line for the randpkt executable
-randpkt_LDADD = \
-	$(randpkt_additional_libs) \
-	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
-
-# Additional libs that I know how to build. These will be
-# linked into the dftest executable.
-dftest_additional_libs =		\
-	wiretap/libwiretap.la		\
-	epan/libwireshark.la
-
-# This is the automake dependency variable for the dftest executable
-dftest_DEPENDENCIES = \
-	$(wireshark_optional_objects)	\
-	$(dftest_additional_libs)	\
-	$(plugin_libs)
-
-# This automake variable adds to the link-line for the dftest executable
-dftest_LDADD = \
-	$(wireshark_optional_objects)	\
-	$(dftest_additional_libs)	\
-	@SNMP_LIBS@ @SSL_LIBS@		\
-	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
-	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
-	@LIBICONV@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@
-
-# Additional libs that I know how to build. These will be
-# linked into the dumpcap executable.
-dumpcap_additional_libs = \
-	wiretap/libwiretap.la
-
-# This is the automake dependency variable for the dumpcap executable
-dumpcap_DEPENDENCIES = \
-	$(dumpcap_additional_libs)
-
-# This automake variable adds to the link-line for the dumpcap executable
-dumpcap_LDADD = \
-	$(dumpcap_additional_libs)	\
-	@GLIB_LIBS@			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ \
-	@LIBGCRYPT_LIBS@
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
