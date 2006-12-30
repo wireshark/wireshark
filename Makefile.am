@@ -207,69 +207,36 @@ include Makefile.common
 
 if HAVE_PLUGINS
 
-plugin_libs = \
-	plugins/agentx/agentx.la \
-	plugins/artnet/artnet.la \
-	plugins/asn1/asn1.la \
-	plugins/ciscosm/ciscosm.la \
-	plugins/docsis/docsis.la \
-	plugins/enttec/enttec.la \
-	plugins/giop/cosnaming.la \
-	plugins/giop/coseventcomm.la \
-	plugins/gryphon/gryphon.la \
-	plugins/irda/irda.la \
-	plugins/lwres/lwres.la \
-	plugins/mate/mate.la \
-	plugins/megaco/megaco.la \
-	plugins/mgcp/mgcp.la \
-	plugins/opsi/opsi.la \
-	plugins/pcli/pcli.la \
-	plugins/profinet/profinet.la \
-	plugins/rlm/rlm.la \
-	plugins/rtnet/rtnet.la \
-	plugins/rudp/rudp.la \
-	plugins/sbus/sbus.la \
-	plugins/stats_tree/stats_tree.la \
-	plugins/v5ua/v5ua.la
-
-if ENABLE_STATIC
-plugin_ldadd = $(plugin_libs)
-
-else		# ENABLE_STATIC
-
 plugin_ldadd = \
-	"-dlopen" self	\
-	"-dlopen" plugins/agentx/agentx.la \
-	"-dlopen" plugins/artnet/artnet.la \
-	"-dlopen" plugins/asn1/asn1.la \
-	"-dlopen" plugins/ciscosm/ciscosm.la \
-	"-dlopen" plugins/docsis/docsis.la \
-	"-dlopen" plugins/enttec/enttec.la \
-	"-dlopen" plugins/giop/cosnaming.la \
-	"-dlopen" plugins/giop/coseventcomm.la \
-	"-dlopen" plugins/gryphon/gryphon.la \
-	"-dlopen" plugins/h223/h223.la \
-	"-dlopen" plugins/irda/irda.la \
-	"-dlopen" plugins/lwres/lwres.la \
-	"-dlopen" plugins/mate/mate.la \
-	"-dlopen" plugins/megaco/megaco.la \
-	"-dlopen" plugins/mgcp/mgcp.la \
-	"-dlopen" plugins/opsi/opsi.la \
-	"-dlopen" plugins/pcli/pcli.la \
-	"-dlopen" plugins/profinet/profinet.la \
-	"-dlopen" plugins/rlm/rlm.la \
-	"-dlopen" plugins/rtnet/rtnet.la \
-	"-dlopen" plugins/rudp/rudp.la \
-	"-dlopen" plugins/sbus/sbus.la \
-	"-dlopen" plugins/stats_tree/stats_tree.la \
-	"-dlopen" plugins/v5ua/v5ua.la
-
-endif		# ENABLE_STATIC
+	-dlopen plugins/agentx/agentx.la \
+	-dlopen plugins/artnet/artnet.la \
+	-dlopen plugins/asn1/asn1.la \
+	-dlopen plugins/ciscosm/ciscosm.la \
+	-dlopen plugins/docsis/docsis.la \
+	-dlopen plugins/enttec/enttec.la \
+	-dlopen plugins/giop/cosnaming.la \
+	-dlopen plugins/giop/coseventcomm.la \
+	-dlopen plugins/gryphon/gryphon.la \
+	-dlopen plugins/h223/h223.la \
+	-dlopen plugins/irda/irda.la \
+	-dlopen plugins/lwres/lwres.la \
+	-dlopen plugins/mate/mate.la \
+	-dlopen plugins/megaco/megaco.la \
+	-dlopen plugins/mgcp/mgcp.la \
+	-dlopen plugins/opsi/opsi.la \
+	-dlopen plugins/pcli/pcli.la \
+	-dlopen plugins/profinet/profinet.la \
+	-dlopen plugins/rlm/rlm.la \
+	-dlopen plugins/rtnet/rtnet.la \
+	-dlopen plugins/rudp/rudp.la \
+	-dlopen plugins/sbus/sbus.la \
+	-dlopen plugins/stats_tree/stats_tree.la \
+	-dlopen plugins/v5ua/v5ua.la
 
 else		# HAVE_PLUGINS
-plugin_libs =
 
 plugin_ldadd =
+
 endif		# HAVE_PLUGINS
 
 # Optional objects that I know how to build. These will be
@@ -282,23 +249,6 @@ endif		# HAVE_PLUGINS
 # other.
 wireshark_optional_objects = @GETOPT_O@ @STRERROR_O@ \
 	@STRCASECMP_O@ @STRNCASECMP_O@ @MKSTEMP_O@ @STRPTIME_O@
-
-# Additional libs that I know how to build. These will be
-# linked into the wireshark executable.
-wireshark_additional_libs = \
-	gtk/libui.a		\
-	codecs/libcodec.a	\
-	wiretap/libwiretap.la	\
-	epan/libwireshark.la
-
-# This is the automake dependency variable for the wireshark executable;
-# it differs from wireshark_LDADD because, if we have plugins enabled,
-# it includes the libraries regardless of whether we're building static
-# or not, rather than including a bunch of -dlopen flags.
-wireshark_DEPENDENCIES = \
-	$(wireshark_optional_objects)	\
-	$(wireshark_additional_libs)	\
-	$(plugin_libs)
 
 if ENABLE_STATIC
 wireshark_LDFLAGS = -Wl,-static -all-static
@@ -315,7 +265,10 @@ endif
 # applications are X applications).
 wireshark_LDADD = \
 	$(wireshark_optional_objects)	\
-	$(wireshark_additional_libs)	\
+	gtk/libui.a			\
+	codecs/libcodec.a		\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -324,21 +277,6 @@ wireshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@PORTAUDIO_LIBS@
-
-# Additional libs that I know how to build. These will be
-# linked into the tshark executable.
-tshark_additional_libs =		\
-	wiretap/libwiretap.la		\
-	epan/libwireshark.la
-
-# This is the automake dependency variable for the tshark executable;
-# it differs from wireshark_LDADD because, if we have plugins enabled,
-# it includes the libraries regardless of whether we're building static
-# or not, rather than including a bunch of -dlopen flags.
-tshark_DEPENDENCIES = \
-	$(wireshark_optional_objects)	\
-	$(tshark_additional_libs)	\
-	$(plugin_libs)
 
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
@@ -349,7 +287,8 @@ endif
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
 	$(wireshark_optional_objects)	\
-	$(tshark_additional_libs)	\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -371,19 +310,16 @@ text2pcap_LDADD = \
 # Libraries with which to link mergecap.
 mergecap_LDADD = \
 	wiretap/libwiretap.la		\
-	$(mergecap_optional_objects)	\
 	@GLIB_LIBS@
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
-	$(capinfos_additional_libs)	\
 	@GLIB_LIBS@
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
-	$(editcap_additional_libs)	\
 	@GLIB_LIBS@
 
 # Libraries with which to link randpkt.
@@ -392,25 +328,11 @@ randpkt_LDADD = \
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
-# Additional libs that I know how to build. These will be
-# linked into the dftest executable.
-dftest_additional_libs =		\
-	wiretap/libwiretap.la		\
-	epan/libwireshark.la
-
-# This is the automake dependency variable for the dftest executable;
-# it differs from wireshark_LDADD because, if we have plugins enabled,
-# it includes the libraries regardless of whether we're building static
-# or not, rather than including a bunch of -dlopen flags.
-dftest_DEPENDENCIES = \
-	$(wireshark_optional_objects)	\
-	$(dftest_additional_libs)	\
-	$(plugin_libs)
-
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
 	$(wireshark_optional_objects)	\
-	$(dftest_additional_libs)	\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
