@@ -432,7 +432,8 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                proto_tree *tree, guint32 offset,
                                guint *conv_version,
                                gboolean *need_desegmentation,
-                               SslDecryptSession *conv_data);
+                               SslDecryptSession *conv_data,
+                               gboolean first_record_in_frame);
 
 /* change cipher spec dissector */
 static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
@@ -715,7 +716,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
                                              offset, conv_version,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             first_record_in_frame);
             }
             break;
 
@@ -737,7 +739,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
                                              offset, conv_version,
                                              &need_desegmentation,
-                                             ssl_session);
+                                             ssl_session,
+                                             first_record_in_frame);
             }
             else
             {
@@ -867,7 +870,7 @@ static gint
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     guint *conv_version, gboolean *need_desegmentation,
-                    SslDecryptSession* ssl)
+                    SslDecryptSession* ssl, gboolean first_record_in_frame)
 {
 
     /*
@@ -1149,7 +1152,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* show decrypted data info, if available */
         pi = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (pi && pi->app_data.data && (pi->app_data.data_len > 0))
+        if (pi && pi->app_data.data && (pi->app_data.data_len > 0) &&
+	    first_record_in_frame)
         {
             tvbuff_t* new_tvb;
 
