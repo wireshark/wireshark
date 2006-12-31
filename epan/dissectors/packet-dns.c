@@ -1,14 +1,9 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
- *
- * RFC 1034, RFC 1035
- * RFC 2136 for dynamic DNS
- * http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
- *  for multicast DNS
+ * Copyright 2004, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  *
  * $Id$
  *
- * Copyright 2004, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -25,7 +20,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+/*
+ * RFC 1034, RFC 1035
+ * RFC 2136 for dynamic DNS
+ * http://files.multicastdns.org/draft-cheshire-dnsext-multicastdns.txt
+ *  for multicast DNS
  */
 
 #ifdef HAVE_CONFIG_H
@@ -177,7 +179,7 @@ typedef struct _dns_conv_info_t {
 #define T_NIMLOC        32              /* ??? (Nimrod?) */
 #define T_SRV           33              /* service location (RFC 2052) */
 #define T_ATMA          34              /* ??? */
-#define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
+#define T_NAPTR         35              /* naming authority pointer (RFC 3403) */
 #define	T_KX		36		/* Key Exchange (RFC 2230) */
 #define	T_CERT		37		/* Certificate (RFC 2538) */
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
@@ -373,7 +375,7 @@ static const value_string dns_types[] = {
 	{ T_NIMLOC,	"NIMLOC" },
 	{ T_SRV,	"SRV" }, /* RFC 2052 */
 	{ T_ATMA,	"ATMA" },
-	{ T_NAPTR,	"NAPTR" }, /* RFC 2168 */
+	{ T_NAPTR,	"NAPTR" }, /* RFC 3403 */
 	{ T_KX,		"KX" }, /* RFC 2230 */
 	{ T_CERT,	"CERT" }, /* RFC 2538 */
 	{ T_A6,		"A6" }, /* RFC 2874 */
@@ -2296,6 +2298,70 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 4, 2, "Port: %u", port);
 	proto_tree_add_text(rr_tree, tvb, cur_offset + 6, target_len, "Target: %s",
 			name_out);
+      }
+    }
+    break;
+
+    case T_NAPTR:
+    {
+      int offset = cur_offset;
+      guint16 order;
+      guint16 preference;
+      gchar *flags;
+      guint8 flags_len;
+      guchar *service;
+      guint8 service_len;
+      guchar *regex;
+      guint8 regex_len;
+      guchar *replacement;
+      guint8 replacement_len;
+
+      order = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+      preference = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+      flags_len = tvb_get_guint8(tvb, offset);
+      offset++;
+      flags = tvb_get_ephemeral_string(tvb, offset, flags_len);
+      offset += flags_len;
+      service_len = tvb_get_guint8(tvb, offset);
+      offset++;
+      service = tvb_get_ephemeral_string(tvb, offset, service_len);
+      offset += service_len;
+      regex_len = tvb_get_guint8(tvb, offset);
+      offset++;
+      regex = tvb_get_ephemeral_string(tvb, offset, regex_len);
+      offset += regex_len;
+      replacement_len = tvb_get_guint8(tvb, offset);
+      offset++;
+      replacement = tvb_get_ephemeral_string(tvb, offset, replacement_len);
+
+      if (cinfo != NULL) 
+	col_append_fstr(cinfo, COL_INFO, " %u %u %s", order, preference, flags);
+
+      if (dns_tree != NULL) {
+	proto_item_append_text(trr, ", order %u, preference %u, flags %s",
+		order, preference, flags);
+	offset = cur_offset;
+	proto_tree_add_text(rr_tree, tvb, offset, 2, "Order: %u", order);
+	offset += 2;
+	proto_tree_add_text(rr_tree, tvb, offset, 2, "Preference: %u", preference);
+	offset += 2;
+	proto_tree_add_text(rr_tree, tvb, offset, 1, "Flags length: %u", flags_len);
+	offset++;
+	proto_tree_add_text(rr_tree, tvb, offset, flags_len, "Flags: \"%s\"", flags);
+	offset += flags_len;
+	proto_tree_add_text(rr_tree, tvb, offset, 1, "Service length: %u", service_len);
+	offset++;
+	proto_tree_add_text(rr_tree, tvb, offset, service_len, "Service: \"%s\"", service);
+	offset += service_len;
+	proto_tree_add_text(rr_tree, tvb, offset, 1, "Regex length: %u", regex_len);
+	offset++;
+	proto_tree_add_text(rr_tree, tvb, offset, regex_len, "Regex: \"%s\"", regex);
+	offset += regex_len;
+	proto_tree_add_text(rr_tree, tvb, offset, 1, "Replacement length: %u", replacement_len);
+	offset++;
+	proto_tree_add_text(rr_tree, tvb, offset, replacement_len, "Replacement: \"%s\"", replacement);
       }
     }
     break;
