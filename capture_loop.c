@@ -1110,18 +1110,26 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(capture_opts->save_file);
-    if (strcmp(capfile_name, "-") == 0) {
-      /* Write to the standard output. */
+
+    if (capture_opts->output_to_pipe == TRUE) { /* either "-" or named pipe */
       if (capture_opts->multi_files_on) {
-        /* ringbuffer is enabled; that doesn't work with standard output */
+        /* ringbuffer is enabled; that doesn't work with standard output or a named pipe */
         g_snprintf(errmsg, errmsg_len,
-	    "Ring buffer requested, but capture is being written to the standard output.");
+	    "Ring buffer requested, but capture is being written to standard output or to a named pipe.");
         g_free(capfile_name);
         return FALSE;
-      } else {
+      } 
+      if (strcmp(capfile_name, "-") == 0) {
+        /* write to stdout */
         *save_file_fd = 1;
+#ifdef _WIN32
+        /* set output pipe to binary mode to avoid Windows text-mode processing (eg: for CR/LF)  */
+        _setmode(1, O_BINARY);
+#endif
       }
-    } else {
+    } /* if (...output_to_pipe ... */
+
+    else { 
       if (capture_opts->multi_files_on) {
         /* ringbuffer is enabled */
         *save_file_fd = ringbuf_init(capfile_name,
