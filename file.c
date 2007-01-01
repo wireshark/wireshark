@@ -87,7 +87,7 @@ static guint32 cum_bytes = 0;
 
 static void cf_reset_state(capture_file *cf);
 
-static int read_packet(capture_file *cf, gint64 offset);
+static int read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
 	gboolean refilter, gboolean redissect);
@@ -375,6 +375,16 @@ cf_read(capture_file *cf)
   gchar        status_str[100];
   gint64       progbar_nextstep;
   gint64       progbar_quantum;
+  dfilter_t   *dfcode;
+
+  /* Compile the current display filter.
+   * We assume this will not fail since cf->dfilter is only set in 
+   * cf_filter IFF the filter was valid.
+   */
+  dfcode=NULL;
+  if(cf->dfilter){
+    dfilter_compile(cf->dfilter, &dfcode);
+  }
 
   cum_bytes=0;
 
@@ -462,7 +472,12 @@ cf_read(capture_file *cf)
          hours even on fast machines) just to see that it was the wrong file. */
       break;
     }
-    read_packet(cf, data_offset);
+    read_packet(cf, dfcode, data_offset);
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
   }
 
   /* We're done reading the file; destroy the progress bar if it was created. */
@@ -569,6 +584,16 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
   gint64 data_offset = 0;
   gchar *err_info;
   int newly_displayed_packets = 0;
+  dfilter_t   *dfcode;
+
+  /* Compile the current display filter.
+   * We assume this will not fail since cf->dfilter is only set in 
+   * cf_filter IFF the filter was valid.
+   */
+  dfcode=NULL;
+  if(cf->dfilter){
+    dfilter_compile(cf->dfilter, &dfcode);
+  }
 
   *err = 0;
 
@@ -583,10 +608,15 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    if (read_packet(cf, data_offset) != -1) {
+    if (read_packet(cf, dfcode, data_offset) != -1) {
         newly_displayed_packets++;
     }
     to_read--;
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
   }
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: count %u state: %u err: %u",
@@ -627,6 +657,16 @@ cf_finish_tail(capture_file *cf, int *err)
 {
   gchar *err_info;
   gint64 data_offset;
+  dfilter_t   *dfcode;
+
+  /* Compile the current display filter.
+   * We assume this will not fail since cf->dfilter is only set in 
+   * cf_filter IFF the filter was valid.
+   */
+  dfcode=NULL;
+  if(cf->dfilter){
+    dfilter_compile(cf->dfilter, &dfcode);
+  }
 
   if(cf->wth == NULL) {
     cf_close(cf);
@@ -642,7 +682,12 @@ cf_finish_tail(capture_file *cf, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, data_offset);
+    read_packet(cf, dfcode, data_offset);
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
   }
 
   packet_list_thaw();
@@ -768,6 +813,7 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
+	dfilter_t *dfcode,
 	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter)
 {
@@ -824,15 +870,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((cf->dfcode != NULL && refilter) || color_filters_used()
+  if ((dfcode != NULL && refilter) || color_filters_used()
         || num_tap_filters != 0)
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
   edt = epan_dissect_new(create_proto_tree, FALSE);
 
-  if (cf->dfcode != NULL && refilter) {
-      epan_dissect_prime_dfilter(edt, cf->dfcode);
+  if (dfcode != NULL && refilter) {
+      epan_dissect_prime_dfilter(edt, dfcode);
   }
   /* prepare color filters */
   if (color_filters_used()) {
@@ -846,9 +892,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      leave the "passed_dfilter" flag alone.
 
      If we don't have a display filter, set "passed_dfilter" to 1. */
-  if (cf->dfcode != NULL) {
+  if (dfcode != NULL) {
     if (refilter) {
-      fdata->flags.passed_dfilter = dfilter_apply_edt(cf->dfcode, edt) ? 1 : 0;
+      fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, edt) ? 1 : 0;
     }
   } else
     fdata->flags.passed_dfilter = 1;
@@ -916,7 +962,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 /* read in a new packet */
 /* returns the row of the new packet in the packet list or -1 if not displayed */
 static int
-read_packet(capture_file *cf, gint64 offset)
+read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
@@ -966,7 +1012,7 @@ read_packet(capture_file *cf, gint64 offset)
     cf->count++;
     cf->f_datalen = offset + phdr->caplen;
     fdata->num = cf->count;
-    row = add_packet_to_packet_list(fdata, cf, pseudo_header, buf, TRUE);
+    row = add_packet_to_packet_list(fdata, cf, dfcode, pseudo_header, buf, TRUE);
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
@@ -1212,18 +1258,21 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 cf_status_t
 cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 {
-  dfilter_t  *dfcode;
   const char *filter_new = dftext ? dftext : "";
   const char *filter_old = cf->dfilter ? cf->dfilter : "";
+  dfilter_t   *dfcode;
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
     return CF_OK;
   }
 
+  dfcode=NULL;
+
   if (dftext == NULL) {
-    /* The new filter is an empty filter (i.e., display all packets). */
-    dfcode = NULL;
+    /* The new filter is an empty filter (i.e., display all packets).
+     * so leave dfcode==NULL
+     */
   } else {
     /*
      * We have a filter; make a copy of it (as we'll be saving it),
@@ -1260,9 +1309,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   if (cf->dfilter != NULL)
     g_free(cf->dfilter);
   cf->dfilter = dftext;
-  if (cf->dfcode != NULL)
-    dfilter_free(cf->dfcode);
-  cf->dfcode = dfcode;
 
   /* Now rescan the packet list, applying the new filter, but not
      throwing away information constructed on a previous pass. */
@@ -1270,6 +1316,11 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     rescan_packets(cf, "Resetting", "Filter", TRUE, FALSE);
   } else {
     rescan_packets(cf, "Filtering", dftext, TRUE, FALSE);
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
   }
   return CF_OK;
 }
@@ -1325,6 +1376,16 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
+  dfilter_t   *dfcode;
+
+  /* Compile the current display filter.
+   * We assume this will not fail since cf->dfilter is only set in 
+   * cf_filter IFF the filter was valid.
+   */
+  dfcode=NULL;
+  if(cf->dfilter){
+    dfilter_compile(cf->dfilter, &dfcode);
+  }
 
   cum_bytes=0;
   reset_tap_listeners();
@@ -1468,7 +1529,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
       preceding_row = prev_row;
       preceding_frame = prev_frame;
     }
-    row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd,
+    row = add_packet_to_packet_list(fdata, cf, dfcode, &cf->pseudo_header, cf->pd,
 					refilter);
 
     /* If this frame is displayed, and this is the first frame we've
@@ -1554,6 +1615,11 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        found the nearest displayed frame to that frame.  Select it, make
        it the focus row, and make it visible. */
     packet_list_set_selected_row(selected_row);
+  }
+
+  /* Cleanup and release all dfilter resources */
+  if (dfcode != NULL){
+    dfilter_free(dfcode);
   }
 }
 

@@ -51,7 +51,6 @@ init_cap_file(capture_file *cf)
   cf->is_tempfile	= FALSE;
   cf->rfcode		= NULL;
   cf->dfilter		= NULL;
-  cf->dfcode		= NULL;
   cf->has_snap	= FALSE;
   cf->snap		= WTAP_MAX_PACKET_SIZE;
   cf->count		= 0;
