@@ -584,6 +584,8 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 {
   int err;
 
+  *is_pipe = FALSE;
+
   if (save_file != NULL) {
     /* We're writing to a capture file. */
     if (strcmp(save_file, "-") == 0) {
@@ -594,7 +596,7 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
          Least Astonishment. */
       *is_pipe = TRUE;
     } else {
-      /* not a capture file, test for a FIFO (aka named pipe) */
+      /* not writing to stdout, test for a FIFO (aka named pipe) */
       err = capture_opts_test_for_fifo(save_file);
       switch (err) {
 
@@ -614,8 +616,6 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
       }
     }
   }
-
-  *is_pipe = FALSE;
 
   return 0;
 }
