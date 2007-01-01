@@ -263,14 +263,16 @@ int nettl_open(wtap *wth, int *err, gchar **err_info _U_)
         case NETTL_SUBSYS_NS_LS_UDP :
         case NETTL_SUBSYS_NS_LS_IPV6 :
 		wth->file_encap = WTAP_ENCAP_NETTL_RAW_IP;
+		break;
         case NETTL_SUBSYS_NS_LS_ICMP :
 		wth->file_encap = WTAP_ENCAP_NETTL_RAW_ICMP;
-        case NETTL_SUBSYS_NS_LS_ICMPV6 :
-		wth->file_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
 		break;
-	default:
-		/* If this assumption is bad, the read will catch it */
-		wth->file_encap = WTAP_ENCAP_NETTL_ETHERNET;
+        case NETTL_SUBSYS_NS_LS_ICMPV6 :
+                wth->file_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
+                break;
+        default:
+                /* If this assumption is bad, the read will catch it */
+                wth->file_encap = WTAP_ENCAP_NETTL_ETHERNET;
     }
 
     if (file_seek(wth->fh, FILE_HDR_SIZE, SEEK_SET, err) == -1) {
@@ -431,22 +433,22 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_NS_LS_UDP :
 	case NETTL_SUBSYS_HP_APAPORT :
 	case NETTL_SUBSYS_HP_APALACP :
-	case NETTL_SUBSYS_NS_LS_IPV6 :
-	case NETTL_SUBSYS_NS_LS_ICMPV6 :
-	case NETTL_SUBSYS_NS_LS_ICMP :
-	    if( (subsys == NETTL_SUBSYS_NS_LS_IP)
-	     || (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK)
-	     || (subsys == NETTL_SUBSYS_NS_LS_UDP)
+        case NETTL_SUBSYS_NS_LS_IPV6 :
+        case NETTL_SUBSYS_NS_LS_ICMPV6 :
+        case NETTL_SUBSYS_NS_LS_ICMP :
+            if( (subsys == NETTL_SUBSYS_NS_LS_IP)
+             || (subsys == NETTL_SUBSYS_NS_LS_LOOPBACK)
+             || (subsys == NETTL_SUBSYS_NS_LS_UDP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_TCP)
 	     || (subsys == NETTL_SUBSYS_NS_LS_IPV6)) {
 		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_IP;
 	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMP) {
-		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMP;
-	    } else if (subsys == NETTL_SUBSYS_NS_LS_ICMPV6) {
-		phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
-	    } else if( (subsys == NETTL_SUBSYS_HPPB_FDDI)
-		    || (subsys == NETTL_SUBSYS_EISA_FDDI)
-		    || (subsys == NETTL_SUBSYS_PCI_FDDI)
+                phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMP;
+            } else if (subsys == NETTL_SUBSYS_NS_LS_ICMPV6) {
+                phdr->pkt_encap = WTAP_ENCAP_NETTL_RAW_ICMPV6;
+            } else if( (subsys == NETTL_SUBSYS_HPPB_FDDI)
+                    || (subsys == NETTL_SUBSYS_EISA_FDDI)
+                    || (subsys == NETTL_SUBSYS_PCI_FDDI)
 		    || (subsys == NETTL_SUBSYS_HSC_FDDI) ) {
 		phdr->pkt_encap = WTAP_ENCAP_NETTL_FDDI;
 	    } else if( (subsys == NETTL_SUBSYS_PCI_TR)
@@ -571,18 +573,18 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             break;
     }
 
-    if (length <= padlen) {
-	*err = WTAP_ERR_BAD_RECORD;
-	*err_info = g_strdup_printf("nettl: packet length %u in record header too short, <= %u",
-	    length, padlen);
-	return -1;
+    if (length < padlen) {
+        *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("nettl: packet length %u in record header too short, less than %u",
+            length, padlen);
+        return -1;
     }
     phdr->len = length - padlen;
-    if (caplen <= padlen) {
-	*err = WTAP_ERR_BAD_RECORD;
-	*err_info = g_strdup_printf("nettl: captured length %u in record header too short, <= %u",
-	    caplen, padlen);
-	return -1;
+    if (caplen < padlen) {
+        *err = WTAP_ERR_BAD_RECORD;
+        *err_info = g_strdup_printf("nettl: captured length %u in record header too short, less than %u",
+            caplen, padlen);
+        return -1;
     }
     phdr->caplen = caplen - padlen;
     phdr->ts.secs = pntohl(&rec_hdr.sec);
@@ -657,11 +659,11 @@ int nettl_dump_can_write_encap(int encap)
 		case WTAP_ENCAP_NETTL_ETHERNET:
 		case WTAP_ENCAP_NETTL_FDDI:
 		case WTAP_ENCAP_NETTL_TOKEN_RING:
-		case WTAP_ENCAP_NETTL_RAW_IP:
-		case WTAP_ENCAP_NETTL_RAW_ICMP:
-		case WTAP_ENCAP_NETTL_RAW_ICMPV6:
+                case WTAP_ENCAP_NETTL_RAW_IP:
+                case WTAP_ENCAP_NETTL_RAW_ICMP:
+                case WTAP_ENCAP_NETTL_RAW_ICMPV6:
 /*
-		case WTAP_ENCAP_NETTL_X25:
+                case WTAP_ENCAP_NETTL_X25:
 */
 		case WTAP_ENCAP_PER_PACKET:
 		case WTAP_ENCAP_UNKNOWN:
@@ -739,12 +741,12 @@ static gboolean nettl_dump(wtap_dumper *wdh,
                         /* fall through and fill the rest of the fields */
 		case WTAP_ENCAP_NETTL_ETHERNET:
 		case WTAP_ENCAP_NETTL_TOKEN_RING:
-		case WTAP_ENCAP_NETTL_RAW_IP:
-		case WTAP_ENCAP_NETTL_RAW_ICMP:
-		case WTAP_ENCAP_NETTL_RAW_ICMPV6:
-		case WTAP_ENCAP_NETTL_UNKNOWN:
-			rec_hdr.subsys = g_htons(pseudo_header->nettl.subsys);
-			rec_hdr.devid = g_htonl(pseudo_header->nettl.devid);
+                case WTAP_ENCAP_NETTL_RAW_IP:
+                case WTAP_ENCAP_NETTL_RAW_ICMP:
+                case WTAP_ENCAP_NETTL_RAW_ICMPV6:
+                case WTAP_ENCAP_NETTL_UNKNOWN:
+                        rec_hdr.subsys = g_htons(pseudo_header->nettl.subsys);
+                        rec_hdr.devid = g_htonl(pseudo_header->nettl.devid);
 			rec_hdr.kind = g_htonl(pseudo_header->nettl.kind);
 			rec_hdr.pid = g_htonl(pseudo_header->nettl.pid);
 			rec_hdr.uid = g_htons(pseudo_header->nettl.uid);
