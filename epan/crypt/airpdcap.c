@@ -1,6 +1,6 @@
-/******************************************************************************/
-/*	File includes																					*/
-/*																										*/
+/****************************************************************************/
+/*	File includes								*/
+
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
@@ -8,15 +8,15 @@
 #include "airpdcap_sha1.h"
 
 #include "airpdcap_debug.h"
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Constant definitions																			*/
-/*																										*/
+/****************************************************************************/
+
+/****************************************************************************/
+/*	Constant definitions							*/
+
 #define	AIRPDCAP_SHA_DIGEST_LEN	20
 
-/*	EAPOL definitions																				*/
+/*	EAPOL definitions							*/
 /**
  * Length of the EAPOL-Key key confirmation key (KCK) used to calculate
  * MIC over EAPOL frame and validate an EAPOL packet (128 bits)
@@ -47,28 +47,24 @@
  * Defined in 802.11i-2004, page 78
  */
 #define	AIRPDCAP_WPA_KEY_VER_AES_CCMP	2
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Macro definitions																				*/
-/*																										*/
+/****************************************************************************/
+
+/****************************************************************************/
+/*	Macro definitions							*/
+
 extern const UINT32 crc32_table[256];
 #define CRC(crc, ch)	 (crc = (crc >> 8) ^ crc32_table[(crc ^ (ch)) & 0xff])
 
 #define	AIRPDCAP_GET_TK(ptk)	(ptk + 32)
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Type definitions																				*/
-/*																										*/
-/*																										*/
-/******************************************************************************/
+/****************************************************************************/
 
-/******************************************************************************/
-/*	Internal function prototype declarations												*/
-/*																										*/
+/****************************************************************************/
+/*	Type definitions							*/
+
+/*	Internal function prototype declarations				*/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -175,7 +171,7 @@ INT AirPDcapGetSa(
 
 INT AirPDcapFreeSa(
         PAIRPDCAP_CONTEXT ctx,
-        INT index)								/* index of the structure to free		*/
+        INT index)	/* index of the structure to free		*/
         ;
 
 INT AirPDcapStoreSa(
@@ -208,12 +204,12 @@ INT AirPDcapAlgCrc32(
 #ifdef	__cplusplus
 }
 #endif
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Exported function definitions																*/
-/*																										*/
+/****************************************************************************/
+
+/****************************************************************************/
+/* Exported function definitions						*/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -565,12 +561,12 @@ INT AirPDcapDestroyContext(
 #ifdef	__cplusplus
 }
 #endif
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Internal function definitions																*/
-/*																										*/
+/****************************************************************************/
+
+/****************************************************************************/
+/* Internal function definitions						*/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -1042,7 +1038,7 @@ case AIRPDCAP_KEY_TYPE_WPA_PWD:
         }
 
         len=key->KeyData.Wpa.UserPwd.SsidLen;
-        if (len<AIRPDCAP_WPA_SSID_MIN_LEN || len>AIRPDCAP_WPA_SSID_MAX_LEN) {
+        if (len>AIRPDCAP_WPA_SSID_MAX_LEN) {
                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: ssid length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
                 ret=FALSE;
         }
@@ -1289,18 +1285,18 @@ INT AirPDcapRsnaPwd2Psk(
         return 0;
 }
 
-/***************************************************************************/
-/* The following code come from freeBSD and implements the AUTODIN II		*/
-/* polynomial used by 802.11.																*/
-/* It can be used to calculate multicast address hash indices.					*/
-/* It assumes that the low order bits will be transmitted first,				*/
-/* and consequently the low byte should be sent first when						*/
-/* the crc computation is finished.  The crc should be complemented			*/
-/* before transmission.																		*/
-/* The variable corresponding to the macro argument "crc" should				*/
-/* be an unsigned long and should be preset to all ones for Ethernet			*/
-/* use.  An error-free packet will leave 0xDEBB20E3 in the crc.				*/
-/***************************************************************************/
+/*
+ * The following code come from freeBSD and implements the AUTODIN II
+ * polynomial used by 802.11.
+ * It can be used to calculate multicast address hash indices.
+ * It assumes that the low order bits will be transmitted first,
+ * and consequently the low byte should be sent first when
+ * the crc computation is finished.  The crc should be complemented
+ * before transmission.
+ * The variable corresponding to the macro argument "crc" should
+ * be an unsigned long and should be preset to all ones for Ethernet
+ * use.  An error-free packet will leave 0xDEBB20E3 in the crc.
+ */
 INT AirPDcapAlgCrc32(
         UCHAR *buf,
         size_t nr,
@@ -1329,5 +1325,5 @@ INT AirPDcapAlgCrc32(
 #ifdef	__cplusplus
 }
 #endif
-/*																										*/
-/******************************************************************************/
+
+/****************************************************************************/

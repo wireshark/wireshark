@@ -1,24 +1,24 @@
-/******************************************************************************/
-/*	File includes																					*/
-/*																										*/
+/****************************************************************************/
+/* File includes								*/
+
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
 #include "airpdcap_rijndael.h"
 
 #include "airpdcap_debug.h"
-/*																										*/
-/******************************************************************************/
 
-/* Note: this code were copied from FreeBSD source code, RELENG 6,				*/
-/*		sys/net80211/ieee80211_crypto_ccmp.c												*/
+/****************************************************************************/
 
-/******************************************************************************/
-/*	Internal definitions																			*/
-/*																										*/
+/* Note: this code were copied from FreeBSD source code, RELENG 6,		*/
+/*		sys/net80211/ieee80211_crypto_ccmp.c				*/
+
+/****************************************************************************/
+/*	Internal definitions							*/
+
 #define AES_BLOCK_LEN 16
 
-/* Note: copied from net80211/ieee80211.h													*/
+/* Note: copied from net80211/ieee80211.h					*/
 #define AIRPDCAP_FC1_DIR_MASK                  0x03
 #define AIRPDCAP_FC1_DIR_DSTODS                0x03    /* AP ->AP  */
 #define AIRPDCAP_FC0_SUBTYPE_QOS               0x80
@@ -29,12 +29,10 @@
 	(((wh)->fc[0] & \
 	(AIRPDCAP_FC0_TYPE_MASK | AIRPDCAP_FC0_SUBTYPE_QOS)) == \
 	(AIRPDCAP_FC0_TYPE_DATA | AIRPDCAP_FC0_SUBTYPE_QOS))
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Internal macros																				*/
-/*																										*/
+/****************************************************************************/
+/* Internal macros								*/
+
 #define CCMP_DECRYPT(_i, _b, _b0, _pos, _a, _len) {		\
 	/* Decrypt, with counter */                             \
 	_b0[14] = (UINT8)((_i >> 8) & 0xff);                    \
@@ -47,12 +45,10 @@
 }
 
 #define AIRPDCAP_ADDR_COPY(dst,src)    memcpy(dst,src,AIRPDCAP_MAC_LEN)
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Internal function prototypes declarations												*/
-/*																										*/
+/****************************************************************************/
+/* Internal function prototypes declarations					*/
+
 static void ccmp_init_blocks(
 	rijndael_ctx *ctx,
         PAIRPDCAP_MAC_FRAME wh,
@@ -63,12 +59,10 @@ static void ccmp_init_blocks(
 	UINT8 a[AES_BLOCK_LEN],
 	UINT8 b[AES_BLOCK_LEN])
 	;
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Function definitions																			*/
-/*																										*/
+/****************************************************************************/
+/* Function definitions							*/
+
 static __inline UINT64 READ_6(
         UINT8 b0,
 	UINT8 b1,
@@ -213,6 +207,8 @@ INT AirPDcapCcmpDecrypt(
 	rijndael_set_key(&key, TK1, 128);
 	wh = (PAIRPDCAP_MAC_FRAME )m;
 	data_len = len - (z + AIRPDCAP_CCMP_HEADER+AIRPDCAP_CCMP_TRAILER);
+	if (data_len < 1)
+	    return 0;
 	ccmp_init_blocks(&key, wh, *(UINT64 *)PN, data_len, b0, aad, a, b);
 	memcpy(mic, m+len-AIRPDCAP_CCMP_TRAILER, AIRPDCAP_CCMP_TRAILER);
 	xor_block(mic, b, AIRPDCAP_CCMP_TRAILER);
@@ -238,8 +234,8 @@ INT AirPDcapCcmpDecrypt(
 		return 0;
 	}
 
-	/* TODO replay check	(IEEE 802.11i-2004, pg. 62)									*/
-	/*	TODO PN must be incremental (IEEE 802.11i-2004, pg. 62)						*/
+	/* TODO replay check	(IEEE 802.11i-2004, pg. 62)			*/
+	/* TODO PN must be incremental (IEEE 802.11i-2004, pg. 62)		*/
 
 	return 1;
 }
