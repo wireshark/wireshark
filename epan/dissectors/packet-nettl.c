@@ -24,7 +24,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -38,7 +38,7 @@
 #include <epan/ipproto.h>
 #include <wiretap/nettl.h>
 
-/* Initialise the protocol and registered fields */
+/* Initialize the protocol and registered fields */
 
 static int proto_nettl = -1;
 
@@ -55,8 +55,11 @@ static dissector_handle_t x25_handle;
 static dissector_handle_t data_handle;
 static dissector_table_t wtap_dissector_table;
 static dissector_table_t ip_proto_dissector_table;
+static dissector_table_t tcp_subdissector_table;
 
-/* Initialise the subtree pointers */
+#define TCP_PORT_TELNET	23
+
+/* Initialize the subtree pointers */
 
 static gint ett_nettl = -1;
 
@@ -161,6 +164,7 @@ static const value_string subsystem[] = {
 	{ 252, "IGELAN" },
 	{ 253, "IETHER" },
 	{ 265, "IXGBE" },
+	{ 267, "NS_LS_TELNET" },
 	{ 513, "KL_VM" },
 	{ 514, "KL_PKM" },
 	{ 515, "KL_DLKM" },
@@ -256,6 +260,11 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    else
             	call_dissector(x25_handle, tvb, pinfo, tree);
             break;
+         case WTAP_ENCAP_NETTL_RAW_TELNET:
+            if (!dissector_try_port(tcp_subdissector_table,
+	                TCP_PORT_TELNET, tvb, pinfo, tree))
+	            call_dissector(data_handle, tvb, pinfo, tree);
+            break;
          default:
             if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
@@ -296,14 +305,14 @@ proto_register_nettl(void)
 
 	{ &hf_nettl_uid,
 	{ "User ID (uid)", "nettl.uid", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"HP-UX User ID", HFILL}},
+		"HP-UX User ID", HFILL}}
 
   };
 
   /* Setup protocol subtree array */
 
   static gint *ett[] = {
-    &ett_nettl,
+    &ett_nettl
   };
 
   /* Register the protocol name and description */
@@ -323,10 +332,9 @@ proto_reg_handoff_nettl(void)
 {
   dissector_handle_t nettl_handle;
 
-                                                                                
   /*
    * Get handles for the Ethernet, Token Ring, FDDI, and RAW dissectors.
-  */
+   */
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   tr_handle = find_dissector("tr");
   lapb_handle = find_dissector("lapb");
@@ -334,6 +342,7 @@ proto_reg_handoff_nettl(void)
   data_handle = find_dissector("data");
   wtap_dissector_table = find_dissector_table("wtap_encap");
   ip_proto_dissector_table = find_dissector_table("ip.proto");
+  tcp_subdissector_table = find_dissector_table("tcp.port");
 
   nettl_handle = create_dissector_handle(dissect_nettl, proto_nettl);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET, nettl_handle);
@@ -342,6 +351,7 @@ proto_reg_handoff_nettl(void)
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_IP, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMP, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_ICMPV6, nettl_handle);
+  dissector_add("wtap_encap", WTAP_ENCAP_NETTL_RAW_TELNET, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_X25, nettl_handle);
   dissector_add("wtap_encap", WTAP_ENCAP_NETTL_UNKNOWN, nettl_handle);
 }

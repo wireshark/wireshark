@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifndef __WTAP_H__
@@ -184,9 +184,10 @@
 #define WTAP_ENCAP_JUNIPER_VP                   91
 #define WTAP_ENCAP_USB				92
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS		93
+#define WTAP_ENCAP_NETTL_RAW_TELNET		94
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			94
+#define WTAP_NUM_ENCAP_TYPES			95
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -475,9 +476,9 @@ struct nettl_phdr {
 /* Packet "pseudo-header" for MTP2 files. */
 
 struct mtp2_phdr {
-	guint8  sent;         
-	guint8  annex_a_used;   
-	guint16 link_number;  
+	guint8  sent;
+	guint8  annex_a_used;
+	guint16 link_number;
 };
 
 /* Packet "pseudo-header" for K12 files. */
@@ -486,7 +487,7 @@ typedef union {
 	struct {
 		guint16 vp;
 		guint16 vc;
-        guint16 cid;
+		guint16 cid;
 	} atm;
 	
 	guint32 ds0mask;

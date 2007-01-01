@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -369,6 +369,9 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_IEEE802_16_MAC_CPS */
 	{ "IEEE 802.16 MAC Common Part Sublayer", "ieee-802-16-mac-cps" },
+
+	/* WTAP_ENCAP_NETTL_RAW_TELNET */
+	{ "Raw telnet with nettl headers", "raw-telnet-nettl" }
 };
 
 /* Name that should be somewhat descriptive. */
@@ -423,7 +426,7 @@ static const char *wtap_errlist[] = {
 	"Uncompression error: data oddly truncated",
 	"Uncompression error: data would overflow buffer",
 	"Uncompression error: bad LZ77 offset",
-	"The standard input cannot be opened for random access",
+	"The standard input cannot be opened for random access"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 

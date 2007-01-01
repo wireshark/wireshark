@@ -20,8 +20,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifndef __NETTL_H__
@@ -76,6 +75,7 @@
 #define NETTL_SUBSYS_HP_APALACP		190
 #define NETTL_SUBSYS_NS_LS_IPV6		244
 #define NETTL_SUBSYS_NS_LS_ICMPV6	245
+#define NETTL_SUBSYS_NS_LS_TELNET	267
 
 /* Ethernet cards */
 #define NETTL_SUBSYS_100VG		37
