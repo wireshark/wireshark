@@ -1,4 +1,5 @@
 # tcap.cnf
+# $Id:$
 # tcap conformation file
 
 # 
@@ -259,5 +260,14 @@ if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, 
 				
  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                 TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);  
-          
+
+#.FN_BODY TransactionID VAL_PTR = &next_tvb
+
+tvbuff_t *next_tvb;
+
+%(DEFAULT_BODY)s
+
+if(next_tvb)
+	tcap_private.TransactionID_str = tvb_bytes_to_str(next_tvb, 0,tvb_length(next_tvb));
+
 #.END

@@ -61,6 +61,7 @@ struct tcap_private_t {
   void * oid;
   guint32 session_id;
   void * context;
+  gchar *TransactionID_str;
 };
 
 extern gint tcap_standard;

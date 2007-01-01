@@ -1,4 +1,4 @@
--- Copyright 2005 - 2006 Anders Broman
+-- Copyright 2005 - 2007 Anders Broman
 -- $Id$
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
@@ -230,7 +230,7 @@ AuthenticationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.18 b
 	cdmaNetworkIdentification				[232] IMPLICIT CDMANetworkIdentification OPTIONAL,
 	-- (Serving MSC) O 6.5.2.bk
-	confidentialityModes					[39] IMPLICIT ConfidentialityModes,
+	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Actual) O 6.5.2.50 c
 	controlChannelMode                      [199] IMPLICIT ControlChannelMode OPTIONAL,
 	-- O 6.5.2.ac
@@ -2573,7 +2573,7 @@ SMSNotification ::= [PRIVATE 18] SET {
 	-- O 6.5.2.122 a
 	sms-Address								[104] IMPLICIT SMS-Address OPTIONAL,
 	-- O 6.5.2.123 a, b
-	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier
+	sms-TeleserviceIdentifier				[116] IMPLICIT SMS-TeleserviceIdentifier OPTIONAL
 	-- O 6.5.2.137
 	}
 

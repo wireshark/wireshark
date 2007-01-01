@@ -1,6 +1,6 @@
 # ansi_map.cnf
 # ansi_map conformation file
-# Copyright 2005-2006 Anders Broman 
+# Copyright 2005-2007 Anders Broman 
 # $Id$
 
 
@@ -24,6 +24,10 @@ OriginationRequestRes
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ReturnParameters
+	  if(tvb_length_remaining(tvb, offset)<=0){
+		  return offset;
+	  }
+
 	proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
 	offset = dissect_returnData(pinfo, tree, tvb, offset);
 
@@ -346,6 +350,11 @@ VAL_PTR = &parameter_tvb
 		dissect_ansi_map_pilotbillingid(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.124
+#.FN_BODY SMS-BearerData VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
 
 # 6.5.2.158 TerminationTreatment
 #.FN_PARS TerminationTreatment

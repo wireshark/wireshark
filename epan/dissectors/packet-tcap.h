@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.h                                                            */
+/* .\packet-tcap.h                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.h */
@@ -69,6 +69,7 @@ struct tcap_private_t {
   void * oid;
   guint32 session_id;
   void * context;
+  gchar *TransactionID_str;
 };
 
 extern gint tcap_standard;

@@ -5,7 +5,7 @@
  * Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Copyright 2005 - 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2005 - 2007, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -312,7 +312,42 @@ static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
 static guint32 OperationCode;
 
+/* Transaction table */
+static GHashTable *TransactionId_table=NULL;
 
+static void
+TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
+
+	guint8 *opcode = value;
+	gchar *TransactionId_str = key;
+
+	if ( TransactionId_str ){
+		g_free(TransactionId_str);
+	}
+	if (opcode){
+		g_free(opcode);
+	}
+
+}
+
+void
+ansi_map_init_transaction_table(void){
+
+	/* Destroy any existing memory chunks / hashes. */
+	if (TransactionId_table){
+		g_hash_table_foreach(TransactionId_table, TransactionId_table_cleanup, NULL);
+		g_hash_table_destroy(TransactionId_table);
+	}
+
+	TransactionId_table = g_hash_table_new(g_str_hash, g_str_equal);
+
+}
+
+static void
+ansi_map_init_protocol(void)
+{
+	ansi_map_init_transaction_table();
+} 
 /* value strings */
 const value_string ansi_map_opr_code_strings[] = {
     { 1,	"Handoff Measurement Request" },
@@ -3050,6 +3085,16 @@ static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
+  gint   *opcode;
+  struct tcap_private_t * p_private_tcap;
+
+  /* Data from the TCAP dissector */
+  if (pinfo->private_data != NULL){
+	  p_private_tcap=pinfo->private_data;
+	  opcode = g_malloc(sizeof(gint));
+	  *opcode = OperationCode&0x00ff;
+	  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
+  }
 
   switch(OperationCode & 0x00ff){
    case 1: /*Handoff Measurement Request*/
@@ -3381,9 +3426,27 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
  }
 
 static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  gint   *opcode;
+  struct tcap_private_t *p_private_tcap;
+  proto_item *item;
+
+  /* Data from the TCAP dissector */
+  if (pinfo->private_data != NULL){
+	  p_private_tcap=pinfo->private_data;
+	  opcode = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  if(opcode){
+		  OperationCode = *opcode;
+	  }else{
+		  OperationCode = OperationCode & 0x00ff;
+	  }
+  }else{
+	  OperationCode = OperationCode & 0x00ff;
+  }
+  item = proto_tree_add_text(tree, tvb, offset, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
+  PROTO_ITEM_SET_GENERATED(item);
 
 
-  switch(OperationCode & 0x00ff){
+  switch(OperationCode){
    case 2: /*Facilities Directive*/
 	   offset = dissect_ansi_map_FacilitiesDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
@@ -3404,6 +3467,9 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	   break;
    case  27: /*Authentication Directive*/
 	   offset = dissect_ansi_map_AuthenticationDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  28: /*Authentication Request*/
+	   offset = dissect_ansi_map_AuthenticationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
    case  30: /*Authentication Failure Report*/
 	   offset = dissect_ansi_map_AuthenticationFailureReportRes(TRUE, tvb, offset, pinfo, tree, -1);
@@ -4316,6 +4382,8 @@ void proto_register_ansi_map(void) {
   prefs_register_range_preference(ansi_map_module, "map.ssn", "ANSI MAP SSNs",
 				    "ANSI MAP SSNs to decode as ANSI MAP",
 				    &global_ssn_range, MAX_SSN);
+
+  register_init_routine(&ansi_map_init_protocol);
 }
 
 
