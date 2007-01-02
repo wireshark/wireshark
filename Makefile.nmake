@@ -291,7 +291,7 @@ AUTHORS-SHORT-FORMAT: AUTHORS-SHORT make-authors-format.pl
 #
 # Build "tshark-tap-register.c", which contains a function 
 # "register_all_tap_listeners()"
-# that calls the register routines for all tehtereal tap listeners.
+# that calls the register routines for all TShark tap listeners.
 #
 # We do this by grepping through sources.
 #

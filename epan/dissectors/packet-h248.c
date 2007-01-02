@@ -6363,9 +6363,10 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     curr_info.stat = NULL;
     curr_info.par = NULL;
 
-    /* Check if it is actually a text based h248 encoding, which we call
-        megaco in ehtereal.
-        */
+    /* Check if it is actually a text-based H.248 encoding, which we
+       dissect with the "megaco" dissector in Wireshark.  (Both
+       encodings are MEGACO (RFC 3015) and both are H.248.)
+     */
     if(tvb_length(tvb)>=6){
         if(!tvb_strneql(tvb, 0, "MEGACO", 6)){
             static dissector_handle_t megaco_handle=NULL;
@@ -7697,7 +7698,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1903 "packet-h248-template.c"
+#line 1904 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7866,7 +7867,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1928 "packet-h248-template.c"
+#line 1929 "packet-h248-template.c"
   };
 
   module_t *h248_module;
