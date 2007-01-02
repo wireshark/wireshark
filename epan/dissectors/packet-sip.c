@@ -125,6 +125,10 @@ static gint hf_sip_via_received          = -1;
 static gint hf_sip_via_ttl               = -1;
 static gint hf_sip_via_comp              = -1;
 
+static gint hf_sip_rack_rseq_no          = -1;
+static gint hf_sip_rack_cseq_no          = -1;
+static gint hf_sip_rack_cseq_method      = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_sip 				= -1;
 static gint ett_sip_reqresp 		= -1;
@@ -137,6 +141,7 @@ static gint ett_sip_message_body	= -1;
 static gint ett_sip_cseq			= -1;
 static gint ett_sip_via				= -1;
 static gint ett_sip_reason			= -1;
+static gint ett_sip_rack			= -1;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -1453,8 +1458,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
 	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, 
-		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL, 
-		*via_tree = NULL, *reason_tree = NULL;
+		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
+		*via_tree = NULL, *reason_tree = NULL, *rack_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
@@ -1985,6 +1990,86 @@ separator_found2:
 						}
 					break;
 
+					case POS_RACK :
+					{
+						int cseq_no_offset;
+						int cseq_method_offset;
+
+						/* Add RAck  tree */
+						if (hdr_tree) {
+							ti = proto_tree_add_string_format(hdr_tree,
+							                             hf_header_array[hf_index], tvb,
+							                             offset, next_offset - offset,
+							                             value, "%s",
+							                             tvb_format_text(tvb, offset, linelen));
+							rack_tree = proto_item_add_subtree(ti, ett_sip_rack);
+						}
+
+						/* RSeq number */
+						for (sub_value_offset=0; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						{
+							if (!isdigit((guchar)value[sub_value_offset]))
+							{
+								proto_tree_add_uint(rack_tree, hf_sip_rack_rseq_no,
+								                    tvb, value_offset, sub_value_offset,
+								                    atoi(value));
+								break;
+							}
+						}
+
+						/* Get to start of CSeq number */
+						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						{
+							if (value[sub_value_offset] != ' ' &&
+						        value[sub_value_offset] != '\t')
+							{
+								cseq_no_offset = sub_value_offset;
+								break;
+							}
+						}
+
+						/* CSeq number */
+						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						{
+							if (!isdigit((guchar)value[sub_value_offset]))
+							{
+								proto_tree_add_uint(rack_tree, hf_sip_rack_cseq_no,
+								                    tvb, value_offset+cseq_no_offset,
+								                    sub_value_offset-cseq_no_offset,
+								                    atoi(value+cseq_no_offset));
+								break;
+							}
+						}
+
+						/* Get to start of CSeq method name */
+						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
+						{
+							if (isalpha((guchar)value[sub_value_offset]))
+							{
+								/* Have reached start of method name */
+								break;
+							}
+						}
+						cseq_method_offset = sub_value_offset;
+
+						if (sub_value_offset == (gint)strlen(value))
+						{
+							/* Didn't find method name */
+							THROW(ReportedBoundsError);
+							return offset - orig_offset;
+						}
+
+						/* Add CSeq method to the tree */
+						if (cseq_tree)
+						{
+							proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
+							                    value_offset + sub_value_offset,
+							                    strlen(value)-sub_value_offset, FALSE);
+						}
+
+						break;
+					}
+
 					case POS_CALL_ID :
 						/* Store the Call-id */
 						strncpy(call_id, value,
@@ -2065,6 +2150,7 @@ separator_found2:
 						break;
 
 					case POS_MAX_FORWARDS :
+					case POS_RSEQ :
 						if(hdr_tree) {
 							proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
@@ -3130,7 +3216,7 @@ void proto_register_sip(void)
 		},
         { &hf_header_array[POS_RSEQ],
 		       { "RSeq", 		"sip.RSeq",
-		       FT_STRING, BASE_NONE,NULL,0x0,
+		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"RFC 3262: RSeq Header", HFILL }
 		},
 		{ &hf_header_array[ POS_SECURITY_CLIENT],
@@ -3400,7 +3486,22 @@ void proto_register_sip(void)
 			{ "Comp",  "sip.Via.comp",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"SIP Via comp", HFILL}
-		}};
+		},
+		{ &hf_sip_rack_rseq_no,
+			{ "RSeq Sequence Number",  "sip.RAck.RSeq.seq",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+		    	"RAck RSeq header sequence number (from prov response)", HFILL}
+		},
+		{ &hf_sip_rack_cseq_no,
+			{ "CSeq Sequence Number",  "sip.RAck.CSeq.seq",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+		    	"RAck CSeq header sequence number (from prov response)", HFILL}
+		},
+		{ &hf_sip_rack_cseq_method,
+			{ "CSeq Method",  "sip.RAck.CSeq.method",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"RAck CSeq header method (from prov response)", HFILL}}
+		};
 
 
 	/* Setup protocol subtree array */
@@ -3414,7 +3515,8 @@ void proto_register_sip(void)
 		&ett_sip_message_body,
 		&ett_sip_cseq,
 		&ett_sip_via,
-		&ett_sip_reason
+		&ett_sip_reason,
+		&ett_sip_rack
 	};
 	static gint *ett_raw[] = {
 		&ett_raw_text,
