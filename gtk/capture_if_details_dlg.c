@@ -71,6 +71,12 @@ typedef unsigned short eth_sa_family_t;
 #define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (eth_sa_family_t) + \
                               ETH_SS_PAD1SIZE + ETH_SS_ALIGNSIZE))
 
+/* sockaddr_storage problem with different MSVC versions
+ * - MSVC 6 (1200) doesn't define this
+ * - MSVC 7 (1300) unknown
+ * - MSVC 8 (1400) does */
+/* we might need to tweak this #if, see version_info for _MSC_VER values */
+#if _MSC_VER < 1400
 struct sockaddr_storage {
     eth_sa_family_t  __ss_family;     /* address family */
     /* Following fields are implementation specific */
@@ -86,6 +92,7 @@ struct sockaddr_storage {
               /* __ss_pad1, __ss_align fields is 112 */
 };
 /* ... copied from RFC2553 */
+#endif /* _MSC_VER */
 #endif
 
 
