@@ -45,7 +45,6 @@
 #include <errno.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-radius.h>
-#define DIR_SEPARATOR '/'
 #define ECHO
 #define MAX_INCLUDE_DEPTH 10
 
@@ -174,7 +173,8 @@
 	
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 	
-	fullpaths[include_stack_ptr] = g_strdup_printf("%s%c%s",directory,DIR_SEPARATOR,yytext);
+	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+	    directory,yytext);
 
 	yyin = fopen( fullpaths[include_stack_ptr], "r" );
 	
@@ -354,7 +354,8 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 	
 	directory = dir;
 	
-	fullpaths[include_stack_ptr] = g_strdup_printf("%s%c%s",directory,DIR_SEPARATOR,filename);
+	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+	    directory,filename);
 	
 	error = g_string_new("");
 
