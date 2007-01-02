@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for MATE Ethereal plugin
+# Automake file for MATE Wireshark plugin
 #
 # $Id$
 #

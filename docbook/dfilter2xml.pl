@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 #
-# Reads the display filter keyword dump produced by 'ethereal -G' and
+# Reads the display filter keyword dump produced by 'tshark -G' and
 # formats it for a pod document. The pod document is then used to
 # make a manpage
 #
-# STDIN is the ethereal glossary
+# STDIN is the wireshark glossary
 # arg1 is the pod template file. The =insert_dfilter_table token
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
@@ -84,7 +84,7 @@ close(TEMPLATE) || die "Can't close $template: $!\n";
 
 sub create_dfilter_table {
 
-        print "<appendix id=\"AppFiltFields\"><title>Ethereal Display Filter Fields</title>\n";
+        print "<appendix id=\"AppFiltFields\"><title>Wireshark Display Filter Fields</title>\n";
 	$pn_counter = 1;
 
 	# Print each protocol
