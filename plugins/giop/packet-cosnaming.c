@@ -1703,7 +1703,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 
-/* Register the protocol with Ethereal */
+/* Register the protocol with Wireshark */
 
 void proto_register_giop_cosnaming(void) {
 
