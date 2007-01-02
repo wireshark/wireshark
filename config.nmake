@@ -332,15 +332,64 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 
 ##### Flags, PATHs and Miscellaneous #####
 
-# Compiler flags
+# for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
+# only one of the following MSVC_VARIANT settings should be used
+
+# "Microsoft Visual Studio 6.0" - THE ONLY RECOMMENDED
+# Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
+#MSVC_VARIANT=MSVC6
+
+# "Microsoft Visual Studio .NET (2002)" - NOT YET WORKING
+# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
+#MSVC_VARIANT=MSVC2002
+
+# "Microsoft Visual Studio .NET 2003" - NOT YET WORKING
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=MSVC2003
+
+# "Microsoft Visual C++ Toolkit 2003" - NOT YET WORKING
+# needs additional Platform SDK installation
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=VC2003TOOLKIT		
+
+# "Microsoft Visual Studio 2005" - NOT YET WORKING
+# "Microsoft Visual C++ 2005 Express Edition" - NOT YET WORKING
+# The "Express Edition" needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+MSVC_VARIANT=MSVC2005	
+
+
+# Compiler flags:
 # /W3  warning level 3 (0 less - 4 most, 1 default)
 # /Zi  create .pdb file for debugging
+# /D_CRT_SECURE_NO_DEPRECATE don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
+# /D_CRT_NONSTDC_NO_DEPRECATE don't warn for "Deprecated CRT Functions" as MSDN calls this
+#
+!IF "$(MSVC_VARIANT)" == "MSVC6"
 LOCAL_CFLAGS=/Zi /W3
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+LOCAL_CFLAGS=/Zi /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
 
-# Linker flags
+# Linker flags:
 # /DEBUG  generate debug info
 # /PROFILE generate map file(s) for profiling
-LOCAL_LDFLAGS=/DEBUG
+# /DEFAULTLIB:xxx use xxx as the standard C library
+# /NODEFAULTLIB:xxx don't use xxx as the standard C library
+# 
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+LOCAL_LDFLAGS=/DEBUG 
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+#LOCAL_LDFLAGS=/DEBUG /DEFAULTLIB:msvcrt /NODEFAULTLIB:libc /NODEFAULTLIB:libcmt
+LOCAL_LDFLAGS=/DEBUG /DEFAULTLIB:msvcrt /NODEFAULTLIB:libc /NODEFAULTLIB:libcmt
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
+
+WS_PLUGIN_LDFLAGS=/DEBUG /NOLOGO /INCREMENTAL:no /MACHINE:I386 
+
 
 # Set PDB_FILE according to your VC++ version 
 PDB_FILE=vc*.pdb
