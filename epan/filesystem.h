@@ -82,6 +82,23 @@ extern const char *get_progfile_dir(void);
 extern const char *get_datafile_dir(void);
 
 /*
+ * Find the directory in which plugins are stored; this must be called
+ * after init_progfile_dir() is called.
+ */
+extern void init_plugin_dir(void);
+
+/*
+ * Get the directory in which plugins are stored.
+ */
+extern const char *get_plugin_dir(void);
+
+/*
+ * Get the flag indicating whether we're running from a build
+ * directory.
+ */
+extern gboolean running_in_build_directory(void);
+
+/*
  * Construct the path name of a global configuration file, given the
  * file name.
  */

@@ -310,11 +310,9 @@ extern void proto_tree_children_foreach(proto_tree *tree,
 /** Retrieve the tree_data_t from a proto_tree */
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 
-
-
 /** Sets up memory used by proto routines. Called at program startup */
-extern void proto_init(const char *plugin_dir,
-    void (register_all_protocols)(void), void (register_all_handoffs)(void));
+extern void proto_init(void (register_all_protocols)(void),
+    void (register_all_handoffs)(void));
 
 /** Frees memory used by proto routines. Called at program shutdown */
 extern void proto_cleanup(void);

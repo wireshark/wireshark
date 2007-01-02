@@ -174,20 +174,23 @@ plugins_scan_dir(const char *dirname)
 #if GLIB_MAJOR_VERSION < 2
 	    /* don't try to open "." and ".." */
 	    if (!(strcmp(name, "..") &&
-		  strcmp(name, "."))) continue;
+		  strcmp(name, ".")))
+		continue;
 
             /* skip anything but files with lt_lib_ext */
             dot = strrchr(name, '.');
-            if (dot == NULL || strcmp(dot, lt_lib_ext) != 0) continue;
+            if (dot == NULL || strcmp(dot, lt_lib_ext) != 0)
+	        continue;
 
 #else /* GLIB 2 */
-    /*
-     * GLib 2.x defines G_MODULE_SUFFIX as the extension used on this
-     * platform for loadable modules.
-     */
+	    /*
+	     * GLib 2.x defines G_MODULE_SUFFIX as the extension used on
+	     * this platform for loadable modules.
+	     */
 	    /* skip anything but files with G_MODULE_SUFFIX */
             dot = strrchr(name, '.');
-            if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0) continue;
+            if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0)
+	        continue;
 
 #endif
 	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
@@ -338,59 +341,6 @@ plugins_scan_dir(const char *dirname)
 #endif
 }
 
-
-/* get the global plugin dir */
-/* Return value is malloced so the caller should g_free() it. */
-char *get_plugins_global_dir(const char *plugin_dir)
-{
-#ifdef _WIN32
-	char *install_plugin_dir;
-
-	/*
-	 * On Windows, the data file directory is the installation
-	 * directory; the plugins are stored under it.
-	 *
-	 * Assume we're running the installed version of Wireshark;
-	 * on Windows, the data file directory is the directory
-	 * in which the Wireshark binary resides.
-	 */
-	install_plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(), VERSION);
-
-	/*
-	 * Make sure that pathname refers to a directory.
-	 */
-	if (test_for_directory(install_plugin_dir) != EISDIR) {
-		/*
-		 * Either it doesn't refer to a directory or it
-		 * refers to something that doesn't exist.
-		 *
-		 * Assume that means we're running, for example,
-		 * a version of Wireshark we've built in a source
-		 * directory, and fall back on the default
-		 * installation directory, so you can put the plugins
-		 * somewhere so they can be used with this version
-		 * of Wireshark.
-		 *
-		 * XXX - should we, instead, have the Windows build
-		 * procedure create a subdirectory of the "plugins"
-		 * source directory, and copy the plugin DLLs there,
-		 * so that you use the plugins from the build tree?
-		 */
-		g_free(install_plugin_dir);
-		install_plugin_dir =
-		    g_strdup("C:\\Program Files\\Wireshark\\plugins\\" VERSION);
-	}
-
-	return install_plugin_dir;
-#else
-	/*
-	 * Scan the plugin directory.
-	 */
-	return g_strdup(plugin_dir);
-#endif
-}
-
-
 /* get the personal plugin dir */
 /* Return value is malloced so the caller should g_free() it. */
 char *get_plugins_pers_dir(void)
@@ -402,18 +352,58 @@ char *get_plugins_pers_dir(void)
  * init plugins
  */
 void
-init_plugins(const char *plugin_dir)
+init_plugins(void)
 {
-    char *datafile_dir;
+    const char *plugin_dir;
+    const char *name;
+    char *plugin_dir_path;
+    char *plugins_pers_dir;
+    ETH_DIR *dir;		/* scanned directory */
+    ETH_DIRENT *file;		/* current file */
 
     if (plugin_list == NULL)      /* ensure init_plugins is only run once */
     {
 	/*
 	 * Scan the global plugin directory.
+	 * If we're running from a build directory, scan the subdirectories
+	 * of that directory, as the global plugin directory is the
+	 * "plugins" directory of the source tree, and the subdirectories
+	 * are the source directories for the plugins, with the plugins
+	 * built in those subdirectories.
 	 */
-	datafile_dir = get_plugins_global_dir(plugin_dir);
-	plugins_scan_dir(datafile_dir);
-	g_free(datafile_dir);
+	plugin_dir = get_plugin_dir();
+	if (running_in_build_directory()) {
+	    if ((dir = eth_dir_open(plugin_dir, 0, NULL)) != NULL) {
+		while ((file = eth_dir_read_name(dir)) != NULL)	{
+		    name = eth_dir_get_name(file);
+		    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+			continue;	/* skip "." and ".." */
+		    /*
+		     * Get the full path of a ".libs" subdirectory of that
+		     * directory.
+		     */
+		    plugin_dir_path = g_strdup_printf(
+			"%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S ".libs",
+			plugin_dir, name);
+		    if (test_for_directory(plugin_dir_path) != EISDIR) {
+			/*
+			 * Either it doesn't refer to a directory or it
+			 * refers to something that doesn't exist.
+			 *
+			 * Assume that means that the plugins are in
+			 * the subdirectory of the plugin directory, not
+			 * a ".libs" subdirectory of that subdirectory.
+			 */
+			g_free(plugin_dir_path);
+			plugin_dir_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+			    plugin_dir, name);
+		    }
+		    plugins_scan_dir(plugin_dir_path);
+		    g_free(plugin_dir_path);
+		}
+	    }
+	} else
+	    plugins_scan_dir(plugin_dir);
 
 	/*
 	 * If the program wasn't started with special privileges,
@@ -424,9 +414,9 @@ init_plugins(const char *plugin_dir)
 	 * reclaim them before each time we start capturing.)
 	 */
 	if (!started_with_special_privs()) {
-	    datafile_dir = get_plugins_pers_dir();
-	    plugins_scan_dir(datafile_dir);
-	    g_free(datafile_dir);
+	    plugins_pers_dir = get_plugins_pers_dir();
+	    plugins_scan_dir(plugins_pers_dir);
+	    g_free(plugins_pers_dir);
 	}
     }
 }

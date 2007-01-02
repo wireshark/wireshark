@@ -2138,6 +2138,11 @@ main(int argc, char *argv[])
    */
   get_credential_info();
 
+  /*
+   * Now attempt to get the pathname of the plugins.
+   */
+  init_plugin_dir();
+
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 
@@ -2356,7 +2361,7 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
+  epan_init(register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
   splash_update(splash_win, "Init tap listeners ...");

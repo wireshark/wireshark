@@ -50,6 +50,7 @@
 #endif
 
 #include "filesystem.h"
+#include "privileges.h"
 #include <wiretap/file_util.h>
 
 /*
@@ -478,6 +479,14 @@ get_progfile_dir(void)
  * Get the directory in which the global configuration and data files are
  * stored.
  *
+ * On Windows, we use the directory in which the executable for this
+ * process resides.
+ *
+ * On UN*X, we use the DATAFILE_DIR value supplied by the configure
+ * script, unless the WIRESHARK_RUN_FROM_BUILD_DIRECTORY environment
+ * variable is set, in which case we use the directory in which the
+ * executable for this process resides.
+ *
  * XXX - if we ever make libwireshark a real library, used by multiple
  * applications (more than just TShark and versions of Wireshark with
  * various UIs), should the configuration files belong to the library
@@ -511,10 +520,15 @@ get_datafile_dir(void)
 		return datafile_dir;
 
 #ifdef _WIN32
-
+	/*
+	 * See if we are running in a U3 environment.
+	 */
 	u3deviceexecpath = getenv_utf8("U3_DEVICE_EXEC_PATH");
 
 	if (u3deviceexecpath != NULL) {
+		/*
+		 * We are; use the U3 device executable path.
+		 */
 		datafile_dir = u3deviceexecpath;
 	} else {
 		/*
@@ -542,13 +556,128 @@ get_datafile_dir(void)
 		}
 	}
 #else
-	/*
-	 * Just use DATAFILE_DIR, as that's what the configure script
-	 * set it to be.
-	 */
-	datafile_dir = DATAFILE_DIR;
+	if (getenv("WIRESHARK_RUN_FROM_BUILD_DIRECTORY") != NULL
+	    && !started_with_special_privs() && progfile_dir != NULL) {
+		/*
+		 * WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set, and
+		 * we weren't started with special privileges, and
+		 * we were able to determine the directory in which
+		 * the program was found, so use that.
+		 */
+		datafile_dir = progfile_dir;
+	} else {
+		/*
+		 * Return the directory specified when the build
+		 * was configured.
+		 */
+		datafile_dir = DATAFILE_DIR;
+	}
+
 #endif
 	return datafile_dir;
+}
+
+/*
+ * Find the directory where the plugins are stored.
+ *
+ * On Windows, we use the "plugin" subdirectory of the datafile directory.
+ *
+ * On UN*X, we use the PLUGIN_DIR value supplied by the configure
+ * script, unless the WIRESHARK_RUN_FROM_BUILD_DIRECTORY environment
+ * variable is set, in which case we use the "plugin" subdirectory of
+ * the datafile directory.
+ *
+ * In both cases, we then use the subdirectory of that directory whose
+ * name is the version number.
+ *
+ * XXX - if WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set, perhaps we
+ * should have the plugin code not look in the version subdirectory
+ * of the plugin directory, but look in all of the subdirectories
+ * of the plugin directory, so it can just fetch the plugins built
+ * as part of the build process.
+ */
+static const char *plugin_dir;
+
+/*
+ * TRUE if we're running from the build directory.
+ */
+static gboolean running_in_build_directory_flag = FALSE;
+
+void
+init_plugin_dir(void)
+{
+#ifdef _WIN32
+	/*
+	 * On Windows, the data file directory is the installation
+	 * directory; the plugins are stored under it.
+	 *
+	 * Assume we're running the installed version of Wireshark;
+	 * on Windows, the data file directory is the directory
+	 * in which the Wireshark binary resides.
+	 */
+	plugin_dir = g_strdup_printf("%s\\plugins\\%s", get_datafile_dir(),
+	    VERSION);
+
+	/*
+	 * Make sure that pathname refers to a directory.
+	 */
+	if (test_for_directory(plugin_dir) != EISDIR) {
+		/*
+		 * Either it doesn't refer to a directory or it
+		 * refers to something that doesn't exist.
+		 *
+		 * Assume that means we're running a version of
+		 * Wireshark we've built in a build directory,
+		 * in which case {datafile dir}\plugins is the
+		 * top-level plugins source directory, and use
+		 * that directory and set the "we're running in
+		 * a build directory" flag, so the plugin
+		 * scanner will check all subdirectories of that
+		 * directory for plugins.
+		 */
+		g_free(plugin_dir);
+		plugin_dir = g_strdup_printf("%s\\plugins", get_datafile_dir());
+		running_in_build_directory_flag = TRUE;
+	}
+#else
+	if (getenv("WIRESHARK_RUN_FROM_BUILD_DIRECTORY") != NULL
+	    && !started_with_special_privs()) {
+		/*
+		 * WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set, and
+		 * we weren't started with special privileges, so
+		 * we'll use the "plugins" subdirectory of the
+		 * datafile directory (the datafile directory is
+		 * the build directory), and set the "we're running
+		 * in a build directory" flag, so the plugin scanner
+		 * will check all subdirectories of that directory
+		 * for plugins.  (If we were started with special
+		 * privileges, it's not safe to allow the user to
+		 * point us to some other directory.)
+		 */
+		plugin_dir = g_strdup_printf("%s/plugins", get_datafile_dir());
+		running_in_build_directory_flag = TRUE;
+	} else
+		plugin_dir = PLUGIN_DIR;
+#endif
+}
+
+/*
+ * Get the directory in which the plugins are stored.
+ */
+const char *
+get_plugin_dir(void)
+{
+	return plugin_dir;
+}
+
+/*
+ * Get the flag indicating whether we're running from a build
+ * directory.
+ */
+gboolean
+running_in_build_directory(void)
+{
+	return running_in_build_directory_flag;
 }
 
 /*

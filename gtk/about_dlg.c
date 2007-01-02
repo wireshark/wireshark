@@ -257,10 +257,8 @@ about_folders_page_new(void)
   g_free((void *) path);
 
   /* global plugins */
-  path = get_plugins_global_dir(PLUGIN_DIR);
-  about_folders_row(table, "Global Plugins", path,
+  about_folders_row(table, "Global Plugins", get_plugin_dir(),
       "dissector plugins");
-  g_free((void *) path);
 #endif
 
   gtk_container_add(GTK_CONTAINER(scrolledwindow), table);

@@ -67,17 +67,27 @@ main(int argc, char **argv)
 	dfilter_t	*df;
 
 	/*
+	 * Attempt to get the pathname of the executable file.
+	 */
+	init_progfile_dir(argv[0]);
+
+	/*
 	 * Get credential information for later use.
 	 */
 	get_credential_info();
 
+	/*
+	 * Now attempt to get the pathname of the plugins.
+	 */
+	init_plugin_dir();
+
 	timestamp_set_type(TS_RELATIVE);
 
-	/* register all dissectors; we must do this before checking for the
-	"-g" flag, as the "-g" flag dumps a list of fields registered
-	by the dissectors, and we must do it before we read the preferences,
-	in case any dissectors register preferences. */
-	epan_init(PLUGIN_DIR,register_all_protocols,
+	/* Register all dissectors; we must do this before checking for the
+	   "-g" flag, as the "-g" flag dumps a list of fields registered
+	   by the dissectors, and we must do it before we read the preferences,
+	   in case any dissectors register preferences. */
+	epan_init(register_all_protocols,
 		  register_all_protocol_handoffs,
 		  failure_message, open_failure_message, read_failure_message);
 

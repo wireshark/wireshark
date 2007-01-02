@@ -67,29 +67,8 @@ epan_get_version(void) {
   return VERSION;
 }
 
-/*
- * XXX - this takes the plugin directory as an argument, because
- * libwireshark now has its own configure script and "config.h" file,
- * which is what code in the "epan" directory includes, but we need
- * to define PLUGIN_DIR in the top-level directory, as it's used by,
- * for example, the Makefile for the Gryphon plugin, so it knows
- * where to install the plugin.
- *
- * Eventually, we should probably have an "epan-configure" script
- * (or "libwireshark-configure", or whatever), along the lines of what
- * GTK+ and GLib have, that can print, among other things, the directory
- * into which plugins should be installed.  That way, only libwireshark
- * need know what directory that is; programs using it won't, *and*
- * Makefiles for plugins can just use "epan-configure" to figure out
- * where to install the plugins.
- *
- * (Would that *more* libraries had configure scripts like that, so
- * that configure scripts didn't have to go through various contortions
- * to figure out where the header files and libraries for various
- * libraries are located.)
- */
 void
-epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
+epan_init(void (*register_all_protocols)(void),
 	  void (*register_all_handoffs)(void),
 	  void (*report_failure)(const char *, va_list),
 	  void (*report_open_failure)(const char *, int, gboolean),
@@ -115,7 +94,7 @@ epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
 	tvbuff_init();
 	oid_resolv_init();
 	tap_init();
-	proto_init(plugin_dir,register_all_protocols,register_all_handoffs);
+	proto_init(register_all_protocols, register_all_handoffs);
 	packet_init();
 	dfilter_init();
 	final_registration_all_protocols();

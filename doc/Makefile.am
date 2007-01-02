@@ -65,7 +65,7 @@ wireshark-tmp.pod: $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	wireshark-filter.pod > ../wireshark-filter.html
 
 wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
-	../tshark -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/wireshark-filter.pod.template > wireshark-filter.pod
+	WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ../tshark -G fields | $(PERL) $(srcdir)/dfilter2pod.pl $(srcdir)/wireshark-filter.pod.template > wireshark-filter.pod
 
 ../capinfos.1: capinfos.pod ../config.h
 	$(POD2MAN)					\

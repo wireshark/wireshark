@@ -724,8 +724,13 @@ main(int argc, char *argv[])
   get_credential_info();
 
   /*
-   * in order to have the -X otps assigned before the wslua machine starts
-   * we need to getopts before epan_init() gets called
+   * Now attempt to get the pathname of the plugins.
+   */
+  init_plugin_dir();
+
+  /*
+   * In order to have the -X opts assigned before the wslua machine starts
+   * we need to call getopts before epan_init() gets called.
    */
   opterr = 0;
   optind_initial = optind;
@@ -773,8 +778,8 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
-            failure_message,open_failure_message,read_failure_message);
+  epan_init(register_all_protocols, register_all_protocol_handoffs,
+            failure_message, open_failure_message, read_failure_message);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */

@@ -386,7 +386,7 @@ get_manuf_name_if_known
 get_oid_name
 get_oid_str_name
 get_persconffile_path
-get_plugins_global_dir
+get_plugin_dir
 get_plugins_pers_dir
 get_progfile_dir
 get_systemfile_dir
@@ -427,6 +427,7 @@ ieee802a_add_oui
 incomplete_tcp_stream           DATA
 InfoRequestNakReason_vals       DATA
 init_dissection
+init_plugin_dir
 init_progfile_dir
 ip6_to_str
 ipv4_get_net_order_addr
@@ -651,6 +652,7 @@ rtp_add_address
 rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
+running_in_build_directory
 scsi_mmc_vals					DATA
 scsi_smc_vals					DATA
 scsi_sbc_vals					DATA

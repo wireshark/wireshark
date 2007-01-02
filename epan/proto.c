@@ -279,12 +279,7 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(const char *plugin_dir
-#ifndef HAVE_PLUGINS
-				 _U_
-#endif
-	   ,
-	   void (register_all_protocols)(void),
+proto_init(void (register_all_protocols)(void),
 	   void (register_all_protocol_handoffs)(void))
 {
 	static hf_register_info hf[] = {
@@ -294,16 +289,16 @@ proto_init(const char *plugin_dir
 	};
 
 
-    proto_names = g_hash_table_new(g_int_hash, g_int_equal);
-    proto_short_names = g_hash_table_new(g_int_hash, g_int_equal);
-    proto_filter_names = g_hash_table_new(g_int_hash, g_int_equal);
+	proto_names = g_hash_table_new(g_int_hash, g_int_equal);
+	proto_short_names = g_hash_table_new(g_int_hash, g_int_equal);
+	proto_filter_names = g_hash_table_new(g_int_hash, g_int_equal);
 
 	proto_cleanup();
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(header_field_info),
-        INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
-        G_ALLOC_ONLY);
+        	INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
+	        G_ALLOC_ONLY);
 
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
@@ -327,7 +322,7 @@ proto_init(const char *plugin_dir
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
 	   their register routines to do the stuff described above. */
-	init_plugins(plugin_dir);
+	init_plugins();
 #endif
 
 	/* Now call the "handoff registration" routines of all built-in
@@ -341,8 +336,8 @@ proto_init(const char *plugin_dir
 	register_all_plugin_handoffs();
 #endif
 
-    /* sort the protocols by protocol name */
-    protocols = g_list_sort(protocols, proto_compare_name);
+	/* sort the protocols by protocol name */
+	protocols = g_list_sort(protocols, proto_compare_name);
 
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
