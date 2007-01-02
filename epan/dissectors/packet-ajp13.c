@@ -45,7 +45,7 @@
  * You need to be looking at: jk/doc/AJP13.html in the
  * jakarta-tomcat-connectors repository.
  *
- * If you're an wireshark dissector guru, then you can skip the rest of
+ * If you're a wireshark dissector guru, then you can skip the rest of
  * this. I'm writing it all down because I've written 3 dissectors so
  * far and every time I've forgotten it all and had to re-learn it
  * from scratch. Not this time, damnit.
