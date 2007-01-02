@@ -28,6 +28,8 @@
 #ifndef __AIRPCAP_LOADER_H__
 #define __AIRPCAP_LOADER_H__
 
+#include <epan/crypt/airpdcap_user.h>
+
 /* Error values from "get_airpcap_interface_list()". */
 #define	CANT_GET_AIRPCAP_INTERFACE_LIST	0	/* error getting list */
 #define	NO_AIRPCAP_INTERFACES_FOUND	1	/* list is empty */

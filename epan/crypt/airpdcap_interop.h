@@ -2,7 +2,7 @@
 #define	_AIRPDCAP_INTEROP_H
 
 /**
- * Cast data types commonly used in Windows (e.g. UINT16) to theirf
+ * Cast data types commonly used (e.g. UINT16) to their
  * GLib equivalents.
  */
 
@@ -57,7 +57,12 @@ typedef guchar	UCHAR;
 typedef	gsize	size_t;
 #endif
 
+#ifdef WIN32
+#include <winsock2.h>  /* ntohs() */
+#endif
+
 #ifndef	ntohs
+#undef     ntohs
 #define	ntohs(value)	g_ntohs(value)
 #endif
 
