@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2006-09-06)
+(last updated 2006-12-22)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2004,7 +2004,7 @@ Decimal
 497
   Leap Technology, Inc.
     George Economou
-      george@leap.com
+      ---none---
 498
   General DataComm, Inc.
     William Meltzer
@@ -3142,9 +3142,9 @@ Decimal
     Harald Jicha
       +43 1 50100 1264
 782
-  Network Solutions Inc.
-    Dave Putman
-      davep@netsol.com
+  Network Solutions, LLC
+    Donald E. Bynum
+      dbynum@networksolutions.com
 783
   Viaman Software
     Vikram Duvvoori
@@ -4210,9 +4210,9 @@ Decimal
     Mark Lindberg
       mlindber@andersen.com
 1049
-  ALLTEL
-    Andrew Hadenfeldt
-      snmp-admin@alltel.net
+  Windstream Communications
+    Rick Frey
+      snmp-admin@windstream.net
 1050
   Acer
     Jay Tao
@@ -4652,7 +4652,7 @@ Decimal
 1159
   Bureau of Meteorology
     Paul Hambleton
-      p.hambleton@bom.gov.au
+      paul.hambleton@bom.gov.au
 1160
   ELTRAX
     T. Max Devlin
@@ -5658,9 +5658,9 @@ Decimal
     Yoshio Kurishita
       kurishi@mb.tokyo.infoweb.or.jp
 1411
-  Funk Software, Inc.
-    Kevin Walsh
-      kevwal@funk.com
+  Juniper Networks/Funk Software
+    Kenneth Culbert
+      kculbert@juniper.net
 1412
   DunsGate, a Dun and Bradstreet Company
     David Willen
@@ -6620,7 +6620,7 @@ Decimal
 1651
   Wayne State University
     Mark Murphy
-      mark@opus.pass.wayne.edu
+      aa0028@wayne.edu
 1652
   SICC (SsangYong Information & Communications Corp.)
     Mi-Young, Lee
@@ -7146,9 +7146,9 @@ Decimal
     David Ma
       dma@powertv.com
 1783
-  Active Software, Inc.
-    Steve Jankowski
-      steve@activesw.com
+  webMethods
+    Andrew Mastropietro
+      amastrop@webmethods.com
 1784
   Enron Capitol & Trade Resources
     Steven R. Lovett
@@ -7179,7 +7179,7 @@ Decimal
       eisom@folio.com
 1791
   ECTF
-    
+    Joe Micozzi
       jam@voicetek.com
 1792
   WebPlanet
@@ -8344,7 +8344,7 @@ Decimal
 2082
   Tollgrade Communications, Inc.
     Jim Ostrosky
-      ostrosky@tollgrade.com
+      jostrosky@tollgrade.com
 2083
   Orange Services US
     Frank Drake
@@ -9050,9 +9050,9 @@ Decimal
     Joe Sheehan
       jsheehan@agrp.com
 2261
-  Codem Systems, Inc.
+  DRS Codem Systems
     Robert Hauck
-      hauck@codem.com
+      hauck@drs-cs.com
 2262
   RIGHT TIME WATCH CENTER FELIX
     ZALTSBERG
@@ -12550,9 +12550,9 @@ Decimal
     Robert Dijkman Dulkes
       R.DijkmanDulkes@Labouchere.nl
 3136
-  COMTREND CORPORATION
-    Annie Lin
-      annie@comtrend.com.tw
+  Comtrend Corporation
+    Frank Chuang
+      frankc@comtrend.com
 3137
   Berbee Information Networks Corp.
     Jim Berbee
@@ -17543,8 +17543,8 @@ Decimal
       Michael.McNeil@STime.ORG
 4386
   TDC A/S
-    Morten Storm Petersen
-      mosp@tdc.dk
+    Peter Lind Damkjaer
+      pld@tdc.dk
 4387
   Ubique Ltd.
     Yaron Yogev
@@ -17594,9 +17594,9 @@ Decimal
     Thomas Julian
       tjulian@bandl.com
 4399
-  Johnson Controls, Inc
-    Thomas Sheehan
-      tsheehan@email.com
+  Johnson Controls, Inc.
+    Clark Bobert
+      Clark.L.Bobert@jci.com
 4400
   Cypress Corporation
     Paul Vagnozzi
@@ -17726,9 +17726,9 @@ Decimal
     Eric Cocquerez
       e.cocquerez@netia.fr
 4432
-  NetLOCK Technologies, Inc.
-    Scott Mills
-      domains@netlock.com
+  Apani Networks
+    George Dzieciol
+      gdzieciol@apani.com
 4433
   Strategic Financial Planning
     Sam DeLuca
@@ -17759,8 +17759,8 @@ Decimal
       terren@desupernet.net
 4440
   Purdue University
-    Jeffrey Smith
-      jsmith@purdue.edu
+    David A. Halsema
+      halsema@purdue.edu
 4441
   GE Capital Fleet Services
     Thomas Cooper
@@ -19066,9 +19066,9 @@ Decimal
     Andre Giza
       is-net-ds@degussa.com
 4769
-  Ascential Software Corp.
-    Kevin Hoke
-      kevin.hoke@ascential.com
+  IBM Corporation
+    Victor Sample
+      vsample@us.ibm.com
 4770
   Ol'e Communications, Inc.
     Dustin Doo
@@ -20195,8 +20195,8 @@ Decimal
       scott@intermine.com.au
 5053
   Agilent Technologies
-    Vasu Thirumalai
-      vasu_thirumalai@agilent.com
+    Vivek KARWAL
+      pdl-agilent-iana-oid@agilent.com
 5054
   will
     koyongje
@@ -23479,9 +23479,9 @@ Mark Spitz
     Siegfried Rupietta
       Siegfried.Rupietta@nice.de
 5879
-  Hudson Technology
-    David Hay
-      david.hay@hudsontech.co.uk
+  Unassigned
+    Removed 2006-10-02
+      ---none---
 5880
   Opteway
     Pierre Sigrist
@@ -29668,8 +29668,8 @@ Mark Spitz
       theodore@nestinfotech.com
 7427
   Yokogawa Electric Corporation
-    Hoshino Hiroshi
-      snmpadmin@csv.yokogawa.co.jp
+    Yokogawa Electric Corporation Development Infrastructure Dept.
+      snmp0608@cs.jp.yokogawa.com
 7428
   PowerDsine
     Avi Berger
@@ -29687,9 +29687,9 @@ Mark Spitz
     Frederic Bernoud
       ldap.oid@altiva.fr
 7432
-  tComLabs N.V.
+  Excentis
     Wim De Ketelaere
-      deketelaere@tcomlabs.com
+      wim.deketelaere@excentis.com
 7433
   SITTI spa
     Marco Prosperi
@@ -30407,9 +30407,9 @@ Mark Spitz
     Bob Nasti
       bob.nasti@ids.frb.org
 7612
-  Digi-Data Corp.
-    Tom Rauscher
-      tgr@digidata.com
+  Digi-Data Corp
+    Ken Willis
+      kwillis@digidata.com
 7613
   Panther Software, Inc.
     Alex Krassel
@@ -30980,8 +30980,8 @@ Mark Spitz
       iamonte@infosquare.com
 7755
   Walt Disney Internet Group
-    Marc-Alan Dahle
-      Marc.Dahle@dig.com
+    Matthew McKenna
+      matthew.mckenna@dig.com
 7756
   Netarena Communications
     Michael Lum
@@ -34786,9 +34786,9 @@ PaulMayes@hbosplc.com
     Daniel Korem
       danny@ladpc.co.il
 8706
-  Universiteit Antwerpen - Ruca
-    Mark De Moor
-      Mark.DeMoor@ua.ac.be
+  Unassigned
+    Removed 2006-09-07
+      ---none---
 8707
   SpiderNet Services Ltd
     Ranko Zivojnovic
@@ -34931,8 +34931,8 @@ PaulMayes@hbosplc.com
       susany@sonicwall.com
 8742
   Alphion
-    Frank Hujber
-      frank@optosphere.com
+    Murali Sampath
+      msampath@alphion.com
 8743
   RadioFrame Networks
     Don Messenger
@@ -35499,8 +35499,8 @@ PaulMayes@hbosplc.com
       eric@moonlight.com
 8884
   Versant Corporation
-    Sanjeeb Kumar Sahoo
-      ssahoo@versant.com
+    Andreas Renner
+      arenner@versant.com
 8885
   Internet Security One Ltd.
     Zhao,Liang
@@ -36530,9 +36530,9 @@ PaulMayes@hbosplc.com
     Jeff Odom
       jeff@riptech.com
 9142
-  Infopaq ApS
-    Thomas Gravgaard
-      fehaar@infopaq.dk
+  Infopaq International A/S
+    Peter Thygeesn
+      palaka@infopaq.dk
 9143
   Edmunds.com
     Sergey Fokichev
@@ -42288,7 +42288,7 @@ PaulMayes@hbosplc.com
 10581
   Icomera
     Martin Bergek
-      martin.bergek@icomera.com
+      contact_iana@icomera.com
 10582
   Linear Systems Ltd.
     Tom Thorsteinson
@@ -45038,9 +45038,9 @@ PaulMayes@hbosplc.com
     James Q. Arnold
       jarnold@aastra.com
 11269
-  Aculab PLC
-    Graeme Mathieson
-      graeme.mathieson@ed.aculab.com
+  Aculab plc
+    Chris Brown
+      chris.brown@aculab.com
 11270
   Adelphia Business Solutions
     Somesh Batra
@@ -45276,7 +45276,7 @@ PaulMayes@hbosplc.com
 11328
   Rana
     Christian Schlegel
-      rana@rana.at
+      rana.iana@gmx.at
 11329
   LLNL-NIF
     Randy J Sanchez
@@ -45634,9 +45634,9 @@ PaulMayes@hbosplc.com
     Martin Bartosch
       m.bartosch@cynops.de
 11418
-  DFN-CERT GmbH
-    Reimer Karlsen
-      oidmaster@cert.dfn.de
+  DFN-CERT Services GmbH
+    Reimer Karlsen-Masur
+      oidmaster@dfn-cert.de
 11419
   FOTEL Corp.
     Calvin Hsieh
@@ -49735,8 +49735,8 @@ PaulMayes@hbosplc.com
       kcieplucha@unizeto.pl
 12543
   Virgil BV
-    Mark Brouwer
-      mark.brouwer@virgil.nl
+    Mark van Leeuwen
+      mark.van.leeuwen@virgil.nl
 12544
   AEGON Nederland N.V.
     Arthur Wijnschenk
@@ -52355,8 +52355,8 @@ PaulMayes@hbosplc.com
       ken@securityxing.com
 13198
   Signtrust
-    Christian Ibach
-      c.ibach@deutschepost.de
+    Eduward van der Zee
+      e.vanderzee@dpcom.de
 13199
   SiMind Inc
     Ki-Nam Choi
@@ -55687,9 +55687,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa".
     Remy C. Cool
       remy.cool@smartology.nl
 14031
-  STATO MAGGIORE DIFESA - REPARTO TEI
-    Roberto Massini
-      2ufficio@smdtei.inte.it
+  STATO MAGGIORE DIFESA - COMANDO C4
+    Roberto ALOE'
+      c4.cspkiff@smd.difesa.it
 14032
   SUNY Geneseo
     Kirk Anne
@@ -56996,8 +56996,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa".
       woodie@worldpac.com
 14358
   SnapGear Pty Ltd
-    Steve Bennett
-      steveb@snapgear.com
+    Tom Essebier
+      tom@snapgear.com
 14359
   Abacus
     Jae Shin
@@ -58067,9 +58067,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa".
     Janus Hao
       janush@pacbell.net
 14626
-  Application Networks Inc.
-    Deyan D. Bektchiev
-      dejan_bektchiev@appl.net
+  Reuters
+    Deyan Bektchiev
+      deyan.bektchiev@reuters.com
 14627
   Idt Corp
     Serge Aleynikov
@@ -59299,8 +59299,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa".
     eritta lin
       eritta@seed.net.tw
 14934
-  Oksijen Teknoloji Geliºtirme ve Biliºim Sistemleri
-    Zone Admin
+  Vodafone IT Hizmetleri A.S.
+    Ramazan Etik
       z_admin@oksijen.com
 14935
   FS Walker Hughes Limited
@@ -60900,8 +60900,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa".
       steve@globaltech-us.com
 15334
   MWVCAA
-    David Varieur
-      davar@mwvcaa.org
+    Gary Winters
+      wintersg@mwvcaa.org
 15335
   ITXC
     Matthew Krokosz
@@ -64290,7 +64290,7 @@ mer
 16181
   E3Switch LLC
     Tad Artis
-      mib@ds3switch.com
+      e3mib_removethispart@e3switch.com
 16182
   Whitesmiths Australia Pty Ltd
     Peter Marks
@@ -69233,7 +69233,7 @@ Universiti Utara Malaysia
 17416
   Root IT
     Jeroen Vriesman
-      joenix@gmx.net
+      linuxificator@gmail.com
 17417
   Portiva Corporation
     Jason Smith
@@ -69638,7 +69638,7 @@ und Informatik mbH
 17517
   Clementi Software
     Steve Clementi
-      sclementi@wi.rr.com
+      sclementi2@wi.rr.com
 17518
   Comba Telecom System(Guang Zhou) Ltd.
     Zhong Han,Su
@@ -70863,8 +70863,8 @@ Virginia University
       r.divoky@easytouch.at
 17823
   Arnes - Academic and Research Network of Slovenia
-    Chris van der Merwe
-      chris@arnes.si
+    Rok Pape¾
+      aaa-podpora@arnes.si
 17824
   Hisense Information Technology Ltd.
     Jiao HaiBo
@@ -83316,8 +83316,8 @@ Information Security of Pr
       ronald.muenzker@itdesign.at
 20935
   Anystream, Inc.
-    Rod McElrath
-      rmcelrath@anystream.com
+    Sebastian Fonss
+      sfonss@anystream.com
 20936
   CHINA COMMUNICATIONS STANDARDS ASSOCIATIONS
     LIUCHENGLONG
@@ -83508,8 +83508,8 @@ Information Security of Pr
       zerote@gmail.com
 20983
   IIT Madras
-    Devi Premila
-      devi@tenet.res.in
+    Prof. V.Jagadeesh Kumar
+      vjk@iitm.ac.in
 20984
   Geonetics
     George Zullich
@@ -84055,9 +84055,9 @@ Information Security of Pr
     Ales Smodis
       ales.smodis@guru.si
 21120
-  Aventis Pharma Ltd
+  Sanofi-Aventis
     Harjinder Nijjar
-      harjinder.nijjar@aventis.com
+      Harjinder.Nijjar@sanofi-aventis.com
 21121
   m0n0
     christopher snow
@@ -84527,9 +84527,9 @@ Information Security of Pr
     Benjamin Garfield
       benjamin_garfield@wrightexpress.com
 21238
-  KF Tecnologia Ltda.
+  BrasilSat Harald S/A
     Luiz Yoshio Enomoto
-      lye.desenvolvimento@kftec.com.br
+      lye.desenvolvimento@brasilsat.com.br
 21239
   Geist Manufacturing, Inc
     Brad Wilson or Jesse Preuss
@@ -87586,7 +87586,7 @@ Signature
 22002
   Michael Breuer
     Michael Breuer
-      mkb@gemko.com
+      mike.breuer@gmail.com
 22003
   mst
     Harald Gröne
@@ -89387,7 +89387,7 @@ Limited
     Gerald Van Baren
       vanbaren@cideas.com
 22452
-  Allgemeine Deutsche Direktbank AG
+  ING-DiBa AG
     Bernhard Duerl
       b.duerl@ing-diba.de
 22453
@@ -90046,7 +90046,7 @@ Limited
   Companhia de Sistemas - Compsis Consultoria e Comercio de
 Informatica Ltda
     Guilherme Buonfiglio de Castro Monteiro
-      guilherme.monteiro@compsis.com.br
+      guilherme.monteiro.domain@gmail.com
 22617
   Richland Community College
     James Jones
@@ -92042,7 +92042,7 @@ Urzêdzie Wojewódzkim w Olsztynie
       vk@comstar.ru
 23115
   Observatoire Midi-Pyrenees
-    ContactName
+    Dang duc
       dang@obs-mip.fr
 23116
   iVOD Inc.
@@ -94227,9 +94227,9 @@ Electrónica y Computación
     Richard T. Cerpa
       rcerpa@drs-c4i.com
 23661
-  American Telecare Inc.
-    Adrian Boac
-      adrian.boac@americantelecare.com
+  American TeleCare, Inc.
+    Malcolm Gates
+      malcolm.gates@americantelecare.com
 23662
   Blue Jungle, Inc
     Safdar Kureishy
@@ -95363,8 +95363,8 @@ Bahia
       webmaster@cmsa.ch
 23944
   DENIC eG
-    Matthias Helmling
-      helmling@denic.de
+    Jürgen Geinitz
+      sa-unix@denic.de
 23945
   Institute of Journalism, University Dortmund
     christian bossk holle
@@ -96940,7 +96940,7 @@ Bahia
 24338
   Situs Management Inc.
     Shinji KOMEDA
-      komeda@situs.co.jp
+      enterprise-number@situs.co.jp
 24339
   ADLINK TECHNOLOGY INC.
     Ryan Hsu
@@ -98587,10 +98587,9 @@ Minas Gerais
     Nathan Winant
       nw@scrutable.com
 24750
-  University of Applied Sciences Gelsenkirchen, Faculty of Computer
-Science
-    Malte Woelky
-      Malte.Woelky@informatik.fh-gelsenkirchen.de
+  Unassigned
+    Deregistration on 2006-10-23
+      none
 24751
   Cluster-Works GbR
     Martin Roesler
@@ -100572,7 +100571,7 @@ de Bruxelles, asbl
 25245
   Order of St. Charbel
     Bruce Sabalaskey
-      bsabalaskey@charbelites.org
+      webmaster@charbelites.org
 25246
   South-Russia State Technical University
     Timur Burykin
@@ -101011,9 +101010,9 @@ de Bruxelles, asbl
     Jack Trullinger, Jr.
       jtrullinger@travelsvcs.net
 25355
-  CompanyName
-    ContactName
-      ContactEmail
+  Shenzhen Haishuo Technologies Co.Ltd
+    Hao Huang
+      hilomenbit@gmail.com
 25356
   E2E IT Solutions Pty. Ltd.
     Ross Johnson
@@ -101035,17 +101034,17 @@ de Bruxelles, asbl
     Dominique Pineau
       d-pineau@smacl.fr
 25361
-  CompanyName
-    ContactName
-      ContactEmail
+  Dr. Jan-Hendrik Dörner
+    Dr. Jan-Hendrik Dörner
+      iana@doerner.net
 25362
   Headroom Broadcast GmbH
     Klaus Feige
       feige@headroom.de
 25363
-  CompanyName
-    ContactName
-      ContactEmail
+  Medical Imaging Software Amsterdam
+    Hans Kramer
+      hans.kramer@xs4all.nl
 25364
   Studio Tre s.r.l.
     Andrea Cotti-Cometti
@@ -101468,9 +101467,9 @@ University, Computing Center
     Mika Suomalainen
       mika.suomalainen@fortica.fi
 25469
-  Aliacom
+  Aliasource
     Anthony Prades
-      oid@aliacom.fr
+      oid@aliasource.fr
 25470
   North Suburban Access Corp.
     Ian R. Cobb
@@ -101498,7 +101497,7 @@ University, Computing Center
 25476
   VideoCells Ltd.
     Eran Bida
-      bida@videocells.com
+      snmp@videocells.com
 25477
   alpha nova BetriebsgesmbH
     Rudolf Hatheyer
@@ -101700,9 +101699,9 @@ University, Computing Center
     MELI Antoine
       snmp_pen@iprocess.fr
 25527
-  CompanyName
-    ContactName
-      ContactEmail
+  Nebraska Public Power District
+    Erik Weinmeister
+      etweinm@nppd.com
 25528
   Laboratório Nacional de Computação Científica
     Luiz M. R. Gadelha Jr.
@@ -101920,9 +101919,9 @@ University, Computing Center
     Mathieu Parent
       mathieuparent@users.sourceforge.net
 25582
-  CompanyName
-    ContactName
-      ContactEmail
+  Employease Inc.
+    Patrick Wolfe
+      pwolfe@employease.com
 25583
   gfk
     Gregor Kling
@@ -103551,7 +103550,7 @@ Association)
 25989
   Automata Software Inc.
     Jason Rohwedder
-      ContactEmail
+      iana-contact@automatasoft.com
 25990
   Security Compliance Corp
     IANA Admin
@@ -105716,9 +105715,9 @@ Authority
     Redouane Merrouch
       merrouch@cnrst.ma
 26530
-  CompanyName
-    ContactName
-      ContactEmail
+  Telemetry BTT
+    Kotov Oleg
+      kotovoe@btt.ru
 26531
   Kodak Imaging Network, Inc
     Thomas A. Bell
@@ -105952,9 +105951,9 @@ Authority
     Thomas Leseney
       thomas.leseney@nexcom.fr
 26589
-  CompanyName
-    ContactName
-      ContactEmail
+  CT Company Ltd.
+    Leonid Khvostov
+      khvostov@mtu-net.ru
 26590
   CLAIM GmbH & Co. KG
     C. Barth
@@ -106034,7 +106033,7 @@ Authority
 26609
   Pentair, Inc
     John Myers
-      john.myers@pentair-ep.com
+      john<dot>myers<at>pentair-ep.com
 26610
   Ultramain Systems Inc.
     Curt Wennekamp
@@ -107276,5 +107275,2961 @@ non-commercial organization "Regional Finance a
   Danpex Corporation
     Kwok Leung
       wing@danpex.com
+26920
+  TXT e-solutions SpA
+    Domenico Rotondi
+      Domenico.Rotondi@TXTGroup.Com
+26921
+  MPI for Mathematics
+    Fabian Urhausen
+      urhausen@mpim-bonn.mpg.de
+26922
+  TD2 Consulting, LLC
+    Trey Drake
+      treydrake@td2consulting.com
+26923
+  Baptist Health South Florida
+    Rodrigo Amarante
+      rodrigoa@baptisthealth.net
+26924
+  Knewco, Inc.
+    Kevin J Kalupson
+      kalupson@knewco.com
+26925
+  Enigma Data Solutions Ltd.
+    Laurence Barry
+      lbarry@enigmadata.com
+26926
+  Masstech Group, Inc
+    Wes Thiessen
+      wes.thiessen@masstechgroup.com
+26927
+  Extant Networks
+    Thomas Matysik
+      thomas@extant.net.nz
+26928
+  Aerohive Networks, Inc.
+    Gavin Zhu
+      gzhu@aerohive.com
+26929
+  jv consultant
+    jacques vincensini
+      contact@jvconsultant.fr
+26930
+  php-systems.com
+    Tim Wilkes
+      iana@php-systems.com
+26931
+  Reaktor Innovations Oy
+    Teemu Matilainen
+      teemu.matilainen@ri.fi
+26932
+  Visma Software ASA
+    Pål Bergan
+      pal.bergan@visma.no
+26933
+  Tridion B.V.
+    Dominique LeBlond
+      dominique.leblond@tridion.com
+26934
+  TattileS.r.l.
+    Paolo Boniotti
+      p.boniotti@tattile.com
+26935
+  Oseo
+    Xavier de Broca
+      arnaud.jumelet@ext.oseo.fr
+26936
+  Ville de Marseille
+    Claude MARCY
+      cmarcy@mairie-marseille.fr
+26937
+  Yahata Kosei Hospital
+    Akimichi Tatsukawa
+      akimichi_tatsukawa@yahoo.co.jp
+26938
+  Worldgroup Consulting Sdn Bhd
+    Erika
+      sinwee80@gmail.com
+26939
+  Tenwa Ltd.
+    Simon Dong
+      simon@tenwa.com.cn
+26940
+  The Economist
+    Michael Mann
+      michaelmann@economist.com
+26941
+  Johnstone Associates
+    David Johnstone
+      dtj@dtrack.com
+26942
+  AIM Professional Systems Ltd
+    David Wood
+      david.wood@aim.co.uk
+26943
+  dieMosers.org
+    Reinhard Moser
+      reinhard.moser@inode.at
+26944
+  Icross Technology
+    dbin yoon
+      dbin@icrosstech.com
+26945
+  INTECH
+    Michael Pelletier
+      mpelletier@intechjanus.com
+26946
+  Aditi Technologies
+    Watsh Rajneesh
+      rajneeshw@aditi.com
+26947
+  MIPC Ltd.
+    Arnaldo Nunes do Prado
+      arnaldo.prado@gmail.com
+26948
+  Lambda Research Inc.
+    David Quick
+      dquick@lambdares.com
+26949
+  InterComputer Corp.
+    Bruce James
+      Bruce.James@InterComputer.com
+26950
+  GUST / Ninja Services
+    Jonathan Hunter
+      jh-iana-oid@ninja.org.uk
+26951
+  RENAULT-NISSAN B.V.
+    Witold KLAUDEL
+      witold.klaudel@renault.com
+26952
+  Join Stock Commercial bank "SOYUZ"
+    Pavel Belyaev
+      pavel.belyaev@banksoyuz.ru
+26953
+  Astronix Technology Inc.
+    Antonio Saygbe
+      nukantonio@yahoo.com
+26954
+  INdustrias Sola Basic, SA de CV
+    Emilio Catan
+      ecatan@isbmex.com
+26955
+  Avalon Networks LLC
+    Binon Gorbutt
+      bgorbutt@avalonnetworks.us
+26956
+  AG04
+    Domagoj Maduniæ
+      domagoj.madunic@gmail.com
+26957
+  Kognita
+    Mr. Siniša Babiæ
+      sinisa@kognita.hr
+26958
+  Indu-Sol GmbH
+    Mr. René Heidl
+      heidl@indu-sol.com
+26959
+  www.brianmichael.org
+    Brian Michael
+      brian.michael@yahoo.com
+26960
+  VEM Manutenção e Engenharia S/A
+    Gerencia Redes
+      gerencia.redes@vem.aero
+26961
+  TantaComm Systems
+    David Arthur
+      darthur@tantacomm.com
+26962
+  KPMG International
+    Reede Taylor
+      dms@dipcon.com
+26963
+  ISEANE
+    Jerome JOUVENT
+      oid@iseane.com
+26964
+  van Deenen Support
+    Bart van Deenen
+      info@vandeenensupport.com
+26965
+  Thomas Parquette
+    Tom Parquette
+      thparque@orangemail.syr.edu
+26966
+  Iskoot Israel Ltd.
+    Yehudit Nathan
+      Yehudit@iskoot.com
+26967
+  Assotiation Mir Ltd
+    Denis Zagirov
+      info@mirgroup.ru
+26968
+  KielNET GmbH
+    Sven Juergensen
+      sj@kielnet.de
+26969
+  Bisping & Bisping GmbH & Co. KG
+    Magnus Schmidt
+      ms@bisping.de
+26970
+  Doellken Kunststoffverarbeitung GmbH
+    Ingo Gansert
+      ssladmin@doellken.com
+26971
+  Kudra Technical Services
+    Robert Sexton
+      robert@kudra.com
+26972
+  Quetz Limited
+    Keith Brazington
+      keith@quetz.co.uk
+26973
+  Tomato Vine, Inc.
+    Trevor Jorgenson
+      tjorgenson@tomatovine.com
+26974
+  Disk Bridge
+    Graham Wooden
+      graham@g-rock.net
+26975
+  CompanyName
+    ContactName
+      ContactEmail
+26976
+  NexG Co., Ltd.
+    Jae Hak, Lee
+      pubs@nexg.net
+26977
+  Qball Technologies Ltd.
+    Maayan Turner
+      produpd@qballtech.net
+26978
+  next layer GmbH.
+    Andreas Schoder
+      noc@nextlayer.at
+26979
+  Grenkeleasing AG
+    Frank Kessel
+      fkessel@grenkeleasing.de
+26980
+  Dudley PCT
+    Kevin Iddles
+      kevin.iddles@dudley.nhs.uk
+26981
+  Schrack Energietechnik GmbH
+    Konrad Podloucky
+      k.podloucky@schrack.com
+26982
+  R2 GmbH
+    Alexander Rosswog
+      alexander.rosswog@r2-gmbh.de
+26983
+  RWD Technologies
+    Marc Ciarniello
+      mciarniello@rwd.com
+26984
+  Otto-Petersen-Haus
+    Philipp Lay
+      ng@oph.rwth-aachen.de
+26985
+  ENET Inc.
+    Tshikazu Aso
+      domain@ene-t.com
+26986
+  Southwest Research Institute
+    Isaac Wagner
+      iwagner@swri.org
+26987
+  Gemini Mobile Technologies, Inc.
+    Andy Dunlap
+      domain-admin@geminimobile.com
+26988
+  7-Eleven, Inc
+    Jane Xia-Ballew
+      jxia01@7-11.com
+26989
+  INTEGRITY Ltd.
+    Szabolcs Gyuris
+      gyuris.szabolcs@integrity.hu
+26990
+  Hudson Digital Systems Inc.
+    Michael Andrews
+      mandrews@hudsondigitalsystems.com
+26991
+  Develer S.r.l.
+    Bernardo Innocenti
+      info@develer.com
+26992
+  ENTEL S.A.
+    Fernando Castillo Y.
+      fycastillo@entel.cl
+26993
+  Promwad Innovation Company
+    Petronenko Denis
+      petronenko@gmail.com
+26994
+  opensma
+    John Collaros
+      john.collaros@gmail.com
+26995
+  Public Joint-Stock Company  "Baltiyskiy Bank"
+    Mikhail Kopiev
+      Kopiev@baltbank.ru
+26996
+  Qmax Communications
+    Lim Hong Chuan
+      hongchuan@qmaxcom.com
+26997
+  Studer Professional Audio GmbH
+    Simon Gysi
+      simon.gysi@studer.ch
+26998
+  AudioSoft Ltd.
+    Ian Barrows
+      ian.barrows@audiosoft.co.uk
+26999
+  Grace Community Church of Howard County, Inc.
+    Gary Burnett
+      gary.burnett@gcconline.org
+27000
+  Magistrat Linz, AT
+    Hanspeter Klapf
+      hanspeter.klapf@mag.linz.at
+27001
+  optionsXpress, Inc.
+    Matt Connley
+      mconnley@optionsxpress.com
+27002
+  Onvoy, Inc.
+    David B. Walters
+      dave.walters@onvoy.com
+27003
+  Trigence Corp
+    Brigitte Gagne
+      bgagne@trigence.com
+27004
+  HOT Telecom Ltd.
+    Eyal Wax
+      eyal.wax@hot.net.il
+27005
+  Hackwerk.net
+    Peter H. Veerman
+      pveerman@hackwerk.net
+27006
+  Chalktime
+    David B. Walters
+      iana-snmp@chalktime.com
+27007
+  Luceor S.A.S.
+    Benoit Papillault
+      benoit.papillault@luceor.com
+27008
+  Unified Game
+    Stefan Penter
+      stefan@unifiedgame.com
+27009
+  Bitrail Networks
+    Support Center
+      support@bitrail.net
+27010
+  LBM Systems, LLC
+    Xavier Guzman
+      xguzman@lbmsys.com
+27011
+  Sagamore Systems, Inc
+    Eric Hedlund
+      ehedlund@sagamoresys.com
+27012
+  CASAudit, Inc.
+    Ed Goldgehn
+      edg@casaudit.com
+27013
+  TeleDirect International Inc.
+    Mark M. Moore
+      CTO@TDirect.com
+27014
+  CommGate Systems India Pvt Ltd
+    Abhik Biswas
+      abhik@commgate.net
+27015
+  East Coast Access (PTY) Ltd
+    Abdul Rehman Gani
+      abdulg@eastcoast.co.za
+27016
+  Alphito d.o.o.
+    Uros Indihar
+      indy@alphito.si
+27017
+  world-direct eBusiness Solutions GmbH
+    Florian Sailer
+      florian.sailer@world-direct.at
+27018
+  TDC Switzerland AG
+    Michael Bischof
+      michael.bischof@sunrise.net
+27019
+  Envision Network Technologies Pvt. Ltd.
+    Vishwanath H.R.
+      vishwa@entl.net
+27020
+  Pan Asian Certificate Policy Authority Limited
+    Fanny Tse
+      fanny.tse@tradelink.com.hk
+27021
+  Pactiv  Corp.
+    Marius Satas
+      msatas@pactiv.com
+27022
+  Instrumentation Technology Systems Corporation
+    Paul Hightower
+      phightower@itsamerica.com
+27023
+  Nexant, Inc.
+    Sergio Brignone
+      sbrignone@nexant.com
+27024
+  I-Connect Inc
+    Soheil Banifatemi
+      soheil@i-connect.tv
+27025
+  VisionAlive GmbH
+    Marc von Jaduczynski
+      marc@visionalive.de
+27026
+  ILIRIKA D.D.
+    Andrej Valencic
+      admin@ilirika.si
+27027
+  ESTEAM Software GmbH
+    David Matthew Bond
+      ldap@esteam.de
+27028
+  Torgservis Ltd.
+    Andrei Petrenko
+      a.petrenko@torgservis.com.ua
+27029
+  REH
+    Wolfgang Reh
+      reh@stsweilburg.de
+27030
+  Wichorus Inc.
+    Joseph L Raja
+      joseph@wichorus.com
+27031
+  CNS Technology Inc.
+    SooHyun Moon
+      shmoon@cnstec.com
+27032
+  Sobey  Digital  Technology  Co.  Ltd.
+    Mr.Wang  Jizheng
+      wangjizheng@sobey.com
+27033
+  OK soft GmbH
+    Oleg Kiriljuk
+      oleg.kiriljuk@ok-soft-gmbh.com
+27034
+  Hopling Technologies B.V.
+    Ivo van Ling
+      ivanling@hopling.com
+27035
+  Alamon Telco, Inc.
+    Dennis R. Gesker
+      gesker@alamon.com
+27036
+  Mercy College
+    Chris Peckham
+      cpeckham@mercy.edu
+27037
+  Netmarks, Inc.
+    Atsuo Masaki
+      masaki.atsuo@netmarks.co.jp
+27038
+  Robot Visual Systems Gmbh
+    Wolfgang Guse
+      wolfgang.guse@robot.de
+27039
+  Kehitysyhteistyön palvelukeskus ry.
+    Juho Vuori
+      juho.vuori@kepa.fi
+27040
+  Royal Canadian Mounted Police
+    Paul Dube
+      systems_tools_support@rcmp-grc.gc.ca
+27041
+  KEMET Corporation
+    Brian Burch
+      brianburch@kemet.com
+27042
+  UNIVERSIDAD DE COLIMA
+    RAYMUNDO BUENROSTRO MARISCAL
+      aldo.cuevas@ucol.mx
+27043
+  Centro de Informatica e Automacao do Estado de Santa Catarina
+    Reinaldo Sabatini Fernandes
+      reinaldo@ciasc.gov.br
+27044
+  CLUSTERPOINT LTD.
+    GINTS ERNESTSONS
+      gints@clusterpoint.com
+27045
+  Santillana de Ediciones S.A.
+    Federico Peñaranda Nervi
+      federicopenaranda@gmail.com
+27046
+  Alex Group, spol. s r.o.
+    Marian Ondrovic
+      marian.ondrovic@alexgroup.biz
+27047
+  ASK Interactive UK Ltd
+    Simon Willis
+      simon.willis@askinteractive.net
+27048
+  Opteq Systems International Ltd
+    Nikki Cliff
+      nikkic@opteqint.net
+27049
+  Symark Software
+    Gyle Iverson
+      giverson@symark.com
+27050
+  Warrior Technology Services, Inc
+    Victor Guerrero
+      jvguerrero@warriortech.com
+27051
+  Chipidea Microelectronica S.A.
+    Fabio Silva
+      support@chipidea.com
+27052
+  Bay Microsystems, Inc.
+    Bob Smedley
+      bob@baymicrosystems.com
+27053
+  Omnitromics Pty Ltd
+    Paul Whitfield
+      support@omnitronics.com.au
+27054
+  Oneida Baptist Institute
+    James Thompson
+      technology@oneidaschool.org
+27055
+  ZANDER LLC.
+    Fred Patterson
+      fcpatterson55@gmail.com
+27056
+  Zednax Limited
+    Alex Masidlover
+      alex.masidlover@zednax.com
+27057
+  3SOFT GmbH
+    Thomas Hofmann
+      Thomas.Hofmann@3soft.de
+27058
+  Ventelo Norge AS
+    Dag Stenstad
+      dag.stenstad@ventelo.no
+27059
+  SmartSol d.o.o.
+    Tomislav Randjic
+      tomislav.randjic@smartsol.co.yu
+27060
+  interactive instruments
+    Mr. Bernd Weidner
+      weidner@interactive-instruments.de
+27061
+  NetSENS SRL
+    Vasile Vladescu
+      operations@netsens.ro
+27062
+  OSTIUM-Soluções de Engenharia Lda
+    João Pedro Jacob
+      joao.jacob@ostium.pt
+27063
+  IMocha Consulting Sdn Bhd
+    Abid Altaf
+      abid@imocha.com.my
+27064
+  University of St. Thomas - Houston
+    Neil Gaede
+      neil@stthom.edu
+27065
+  Quagility, Inc.
+    Jonathan Mischo
+      oid@quagility.net
+27066
+  Rave Wireless, Inc.
+    Marc C. Poulin
+      mcp@ravewireless.com
+27067
+  Softinbox Inc.
+    Tzuoo-Hawn Yeh
+      tzuoohawnyeh@yahoo.com
+27068
+  Mooter Media Ltd
+    Mark Hetherington
+      mark.hetherington@mootermedia.com
+27069
+  Kaon Media Co., Ltd.
+    Jin, Lee
+      jlee@kaonmedia.com
+27070
+  DekTec Digital Video B.V.
+    Sito Dekker
+      sito.dekker@dektec.com
+27071
+  Hålogaland IKT-Senter as
+    Jan Åge Johnsen
+      janaage@hikt.no
+27072
+  Euro-emme s.r.l.
+    Paolo Signor
+      p.signor@euro-emme.com
+27073
+  Septentrio nv/sa
+    ing. Freddy Voorspoels
+      Freddy.Voorspoels@Septentrio.com
+27074
+  Point International
+    Thomas Conlon
+      tom.conlon@point.se
+27075
+  RDP B92 a.d.
+    Tomislav Randjic
+      tomislav.randjic@b92.net
+27076
+  Zot Inc.
+    Chris Edillon
+      jce@zot.com
+27077
+  Nanasoft Szoftverfejlesztõ Bt.
+    Peter MOLNAR
+      molnar.peter@nanasoft.hu
+27078
+  lohn.us
+    Josemar Müller Lohn
+      lohn@lohn.us
+27079
+  Listawood Holdings Ltd
+    Jason McClean
+      jason.mcclean@listawood.com
+27080
+  Sequanux
+    Gregory Oestreicher
+      greg@sequanux.org
+27081
+  Trimm, Inc.
+    Brian Burch
+      brianb@trimminc.com
+27082
+  CESMIC - Centro de Excelência em Servidores de Missão Crítica
+    Mauro Tapajos
+      camilamachado@gmail.com
+27083
+  Switching Technologies
+    John McDougald
+      admin@switchingtechnologies.com
+27084
+  Arnulf Wiedemann
+    Arnulf Wiedemann
+      arnulf@wiedemann-pri.de
+27085
+  Greenview Data, Inc.
+    Philippe Green
+      phil@vedit.com
+27086
+  Texas Transportation Institute
+    Brad Hoover
+      b-hoover@tamu.edu
+27087
+  Networking Systems
+    Brad Hoover
+      bjh6938@yahoo.com
+27088
+  Supreme Court of New Mexico
+    S. Azuma
+      sazuma@nmcourts.com
+27089
+  Guus Leeuw IT Solutions
+    Guus Leeuw jr.
+      leeuwg@guusleeuwit.com
+27090
+  Nectia SA
+    Claudio Pérez
+      cperez@nectia.com
+27091
+  Brilliant Telecommunications Inc.
+    George Zhao
+      george@brilliantwireless.com
+27092
+  Astronautics Corporation of America
+    Manager of Configuration Management
+      m.starr@astronautics.com
+27093
+  YUSO.JP
+    Yuso KANAMORI
+      iana@rcv.yuso.jp
+27094
+  RANEEN
+    Mohammad Alhashash
+      iana-oidreg@alhashash.net
+27095
+  Portfolio Wired
+    Suzanne Payne
+      mail@portfoliowired.co.uk
+27096
+  Cadet Family
+    Dudley Cadet
+      dudley@cadet.us
+27097
+  Aphelion Communications Inc
+    JIMMY FENG
+      jimmy@aphelions.com
+27098
+  SOE Software Pty Ltd
+    Simon Manners
+      simon.manners@soesoft.com
+27099
+  Bunda Mulia University
+    Edy Sulai
+      esulai@bundamulia.ac.id
+27100
+  SwiftView, Inc.
+    Tyler Walden
+      tyler@swiftview.com
+27101
+  EMBARC.biz, LLC
+    Dudley Cadet
+      dudley@embarc.biz
+27102
+  GDMC
+    Mark Murphy
+      mmurphy@wayne.edu
+27103
+  Romanian Space Agency (ROSA)
+    Cosmin NISTOR
+      cosmin.nistor@rosa.ro
+27104
+  CFT Ltd.
+    Likhatchev Evgueni
+      iana_contacts@cft.ru
+27105
+  SoftMethod GmbH
+    Felix Schupp
+      felix.schupp@softmethod.de
+27106
+  Averina Software
+    Can Balioglu
+      can.balioglu@averina.com
+27107
+  Supporting Open Source bvba
+    Christof Haerens
+      christof.haerens@sos.be
+27108
+  Micro Elektronische Producten BV
+    Leendert Blaauw
+      l.blaauw@mep-telecom.com
+27109
+  Barnaul State Pedagogical University
+    Alexander Mitrohin
+      swp@swp.pp.ru
+27110
+  Petrozavodsk State University, Computer Science Department
+    Vadim Ponomarev
+      vadim@cs.karelia.ru
+27111
+  Adamentium SAS
+    Daniel Teply
+      support@adamentium.com
+27112
+  MATHEMA Software GmbH
+    Michael Wiedeking
+      admin@mathema.de
+27113
+  APCO Worldwide
+    Jim Bullock
+      jbullock@apcoworldwide.com
+27114
+  electrolyte consulting
+    Steffen Voigt
+      iana-oid@electrolyte.de
+27115
+  Qbit GmbH
+    Michael Blaesi
+      snmp@qbit.de
+27116
+  Freesystems S.L.L.
+    Santiago Ramos
+      sramos@sysnetworks.net
+27117
+  Tux-Logic
+    Fabrice Mur
+      fmur@tux-logic.com
+27118
+  Grontmij NV
+    Dr Erik H. ten Winkel
+      erik.tenwinkel@grontmij.com
+27119
+  ID90 Technologies
+    Alejandro Pozzi
+      alejandro@id90.com
+27120
+  Smar Equipamentos Industriais LTDA
+    Marcelo Barros de Almeida
+      barros@smar.com.br
+27121
+  ikirby.net
+    kirby zhou
+      kirbyzhou@hotmail.com
+27122
+  Shadowcat Systems Ltd.
+    Chris Jackson
+      chrisj@shadowcatsystems.co.uk
+27123
+  ICOP Digital, Inc.
+    John Drakey
+      jdrakey@icop.com
+27124
+  Kociok Beratungsgesellschaft mbH
+    Gerhard Kociok
+      kociok.edv@gmx.de
+27125
+  Accuity LLP
+    Matthew White
+      anmwhite@yahoo.com
+27126
+  Universidade Federal de Sao Carlos
+    Helio Crestana Guardia
+      helio@dc.ufscar.br
+27127
+  Systems and Software, Inc.
+    Christopher F. Whelan
+      chris.whelan@ssivt.com
+27128
+  Landeshauptstadt Hannover
+    Rouven Siehndel
+      oid.admin@hannover-stadt.de
+27129
+  Department of Conservation, New Zealand
+    Ken Walker
+      kbwalker@doc.govt.nz
+27130
+  TehnoCom Ltd.
+    Alexander P. Otstavnov
+      alcaver@74mail.ru
+27131
+  kk+w GmbH
+    Roland Kantz
+      rkantz@planiglobe.com
+27132
+  APIS IT d.o.o.
+    Perica Simundic
+      oid.admin@apis-it.hr
+27133
+  Hensley, Elam & Associates
+    Sam Elam
+      sam@hea.biz
+27134
+  Bangladesh Online Limited
+    Syed Samiul Wadood
+      admin@bol-online.com
+27135
+  77 Elektronika Kft
+    Feher Istvan
+      ifeher@e77.hu
+27136
+  Osaka Gas Information System Research Institute Co.,Ltd.
+    Takashi Yahata
+      Yahata_Takashi@ogis-ri.co.jp
+27137
+  Proxicom, Inc.
+    Akil Franklin
+      akil.franklin@proxicom.com
+27138
+  Techno Viking
+    Dan Bullok
+      dan.iana@technoviking.com
+27139
+  My2do Solutions
+    Warren Strange
+      warren.strange@gmail.com
+27140
+  Acrodyne Industries, Inc.
+    Bill Soreth
+      iana-snmp@acrodyne.com
+27141
+  Applied Informatics Software Engineering GmbH
+    Günter Obiltschnig
+      guenter.obiltschnig@appinf.com
+27142
+  ALSTEC
+    Konstantin Tychkov
+      sit@alstec.ru
+27143
+  DirectPark GmbH
+    Florian Viertel
+      webmaster@directpark.de
+27144
+  Transact Limited
+    Alan Simes
+      alan.simes@transactgroup.net
+27145
+  GrahamCox.co.uk
+    Graham Cox
+      grahamcox@cwazy.co.uk
+27146
+  Infocentr Company Ltd.
+    Mihail Ohotin
+      ohotin@icentr.net
+27147
+  Mobissimo, Inc.
+    Hank Lee
+      mobissimo@mobissimo.com
+27148
+  ICP-SC
+    Gerente de Informática
+      icpsc@dtec.sc.gov.br
+27149
+  Wenzhou University
+    Miaobo Yao
+      ymbo.cn@gmail.com
+27150
+  Angelltech Co., Ltd.
+    Ren Jingyan
+      renjy@angelltech.com
+27151
+  SK C&C
+    MyoungHwan
+      nait@skcc.com
+27152
+  Institut für Kristallzüchtung Berlin
+    Peter Mehlhorn
+      pm@ikz-berlin.de
+27153
+  Matzke Softwareentwicklung
+    Sascha Matzke
+      sascha@scourbase.de
+27154
+  Telekomunikacja Polska S.A.
+    Jacek Borowski
+      idb.oid@telekomunikacja.pl
+27155
+  MR Copiadoras Digitais Ltda.
+    Warlei Alves
+      warlei@mrcopiadoras.com.br
+27156
+  Warlei Alves
+    Warlei Alves
+      warlei@teccomonline.com.br
+27157
+  Quartet Financial Systems Inc.
+    Jean Safar
+      jsa@quartetfs.com
+27158
+  Department of Internal Affairs, New Zealand
+    Matt Duguid
+      matt.duguid@dia.govt.nz
+27159
+  Persistent Systems, LLC
+    Herbert Rubens
+      hrubens@persistentsystems.com
+27160
+  PlaSec, Inc.
+    Terry Neely
+      terry@plasecinc.com
+27161
+  DeGooroo, Inc.
+    Duc Pham
+      dadm2006@degooroo.com
+27162
+  Serveis de Salut Integrats Baix Empordà
+    Pere Rodríguez
+      prr@hosppal.es
+27163
+  Dolphin Technology Inc
+    Network Administrator
+      mibcontact@gmail.com
+27164
+  CNET Networks Asia Pacific Pte Ltd
+    Nikk Eh
+      nikk.eh@cnet.com
+27165
+  UTFPR
+    Daniel Mealha Cabrita
+      dancab@utfpr.edu.br
+27166
+  Checchia.NET IT Consulting
+    Daniel Checchia
+      daniel@checchia.net
+27167
+  NIPPON ANTENNA CO.,LTD.
+    Osamu MINETA
+      o-mineta@nippon-antenna.co.jp
+27168
+  Edward Roper
+    Edward Roper
+      edro+iana@wanfear.net
+27169
+  Erlang Financial System (Pty) Ltd
+    Danie Schutte
+      danie@erlfinsys.net
+27170
+  ETHALON GmbH
+    Thomas Hackbarth
+      thomas.hackbarth@ethalon.de
+27171
+  Council of the European Union
+    Thierry Manté
+      thierry.mante@consilium.europa.eu
+27172
+  ArcaBit Ltd.
+    Grzegorz Michalek
+      grzesiek@arcabit.com
+27173
+  Software Consulting Markus Bernhardt GmbH
+    Markus Bernhardt
+      Markus.Bernhardt@scmb.de
+27174
+  Guenther Mair
+    Guenther Mair
+      guenther.mair@hoslo.ch
+27175
+  iO tech s.r.l.
+    Luca Salvadori
+      alliance@iotecno.com
+27176
+  Avinity Systems BV
+    Arnoud Zwemmer
+      snmp@avinity.net
+27177
+  Intendencia Municipal de Montevideo
+    Freddy Kugelmass Dodel
+      fkmass@informatica.imm.gub.uy
+27178
+  ISIB CNR
+    Paolo Bison
+      Paolo.Bison@isib.cnr.it
+27179
+  Ultri
+    Brian Winkers
+      bwinkers@gmail.com
+27180
+  Frontier Science and Technology Research Foundation, Inc.
+    Peter Meszynski
+      meszynsk@fstrf.org
+27181
+  Teak Technologies
+    Humphrey Liu
+      hcliu@teaktechnologies.com
+27182
+  CAI Networks, Inc.
+    Dev Manager
+      netadmin@cainetworks.com
+27183
+  Bluewave Networks Inc.
+    Mr. Guna Ramireddy
+      guna@bluewavenetworks.com
+27184
+  UNAVCO
+    Stephen Smith
+      ldapadmin@unavco.org
+27185
+  Vendorama LTD
+    Jason Morehouse
+      jm@vendorama.com
+27186
+  shenzhen qiaowei investment & development co.,Ltd
+    wang baohua
+      wangbh@qiaowei.net
+27187
+  VALIANT COMMUNICATIONS LIMITED
+    Inder mohan Sood
+      sood@valiantcom.com
+27188
+  SEP Software Engineering Partner GmbH
+    Peter Buehrer
+      peter.buehrer@sep.ch
+27189
+  DD NetService GmbH
+    Stefan Dreyer
+      ldap@ddnetservice.net
+27190
+  michaelbreuer.eu
+    Michael Breuer
+      mbreuer@michaelbreuer.eu
+27191
+  Godalming College
+    Daniel Ewen
+      danielewen@godalming.ac.uk
+27192
+  Soongsil University
+    Chang Ho-Jin
+      zzang70@gmail.com
+27193
+  Patrick Monahan (Drogheda) Ltd
+    Willie Lennon
+      wlennon@monahansdrogheda.ie
+27194
+  DELTA Resources Inc.
+    Keegan Mills
+      keegan@delta-va.com
+27195
+  Stadtwerke Duesseldorf AG
+    Ina Opitz
+      iopitz@swd-ag.de
+27196
+  Harder Software Ltd.
+    Ian Harder
+      ianh@hardersoft.com
+27197
+  Heteonix
+    Benjamin Su
+      benjamin@hetronix.com.tw
+27198
+  Réseau pour l'Excellence en Enseignement Supérieur de l'Afrique
+de l'Ouest(RESAO)
+    NDANATCHE Essowèmlou Geraud
+      ndana_geraud@yahoo.fr
+27199
+  Sepracor Inc.
+    Michele Liguori
+      michele.liguori@sepracor.com
+27200
+  Energy Options, Inc
+    Philip Basile
+      pbasile@energy-options.com
+27201
+  Vianel
+    Ali Altiparmak
+      ali@vianel.com
+27202
+  Business Systems UK Ltd
+    Simon Bill
+      sbill@businesssystemsuk.com
+27203
+  Celesio AG
+    Joachim Schlette
+      joachim.schlette@celesio.com
+27204
+  Seawolf Technologies Inc.
+    Jinjun Xu
+      jason@seawolftech.com
+27205
+  GridApp Systems, Inc
+    Dan Cohen
+      dcohen@gridapp.com
+27206
+  Bitshift, Berchtold IT Solutions
+    Patrick Berchtold
+      hostmaster@bitshift.ch
+27207
+  SevOne Inc
+    Vess Bakalov
+      vess@sevone.com
+27208
+  Opinsys Oy
+    Veli-Matti Lintu
+      vml@opinsys.fi
+27209
+  Lendworx, Inc.
+    Al Gifford
+      webadmin@lendworx.com
+27210
+  Suso Technology Services, Inc.
+    Mark Krenz
+      mark@suso.org
+27211
+  Engsound Technical Enterprise Co., Ltd.
+    Ching-Hong Huang
+      ch_huang@engsound.com.tw
+27212
+  Routing International NV
+    Karel Deconinck
+      Karel.Deconinck@Routing-International.com
+27213
+  Banka Slovenije
+    Martin Umek
+      Martin.Umek@bsi.si
+27214
+  Holzhausen Network
+    Robert Haensel
+      robert.c.haensel@fh-stralsund.de
+27215
+  MAGIX AG
+    Karsten Stange
+      kstange@magix.net
+27216
+  Patryk Sciborek
+    Patryk Sciborek
+      patryk@sciborek.com
+27217
+  Digisense Inc.
+    Michael MacKay
+      standards@digisenseinc.com
+27218
+  GASAG Berliner Gaswerke AG
+    Steffen Löber
+      sloeber@gasag.de
+27219
+  Funambol, Inc.
+    Harrie Hazewinkel
+      harrie@funambol.com
+27220
+  EFCO Corporation Inc.
+    John Bodoni
+      jbodoni@efcocorp.com
+27221
+  Nexus Software Inc
+    Richard Harris
+      rharris@nexussoft.co.uk
+27222
+  Pathway Connectivity Inc.
+    Gary Douglas
+      gdouglas@pathwayconnect.com
+27223
+  Alcon Technologies, Inc
+    Jorge Cano
+      jcano@alcon-tech.com
+27224
+  OhReally
+    Rob la Lau
+      rob@OhReally.nl
+27225
+  Chiris Networks, Inc.
+    Jesse Song
+      js@chiris.net
+27226
+  Grupo Universitario de Informática
+    Guillermo Rodríguez Cano
+      billy@gui.uva.es
+27227
+  SC SECPRAL COM SRL
+    Mihai Limbasan
+      mihailim@security.ro
+27228
+  DSP Group Inc.
+    Einam Schonberg
+      standards@dsp.co.il
+27229
+  Engineers Without Borders Canada
+    Francis Kung
+      francis@ewb.ca
+27230
+  E-Portal
+    Evgeny Skripa
+      skripa@e-portal.ru
+27231
+  Big Sky Computer Systems LLC.
+    James Hartley
+      james.hartley@gmail.com
+27232
+  BATM Advanced Communications GmbH
+    Markus Pestinger
+      mpestinger@batm.de
+27233
+  La-Events
+    Jeroen de Ruiter
+      la@la-events.nl
+27234
+  PortAuthority Technologies Inc.
+    Lidror Troyansky
+      lidror@portauthoritytech.com
+27235
+  Politechnika Gdanska
+    Adam Tlalka
+      adcent@pg.gda.pl
+27236
+  Netoracle Ltd.
+    Maciej Pedziwiatr
+      iana@netoracle.net
+27237
+  Smart Data Solutions, Inc.
+    Luis P. Rodriguez
+      luisrt@smartdatasol.com
+27238
+  Winbond Electronics Corp.
+    Chin-Wei Hsu
+      cwhsu2@winbond.com
+27239
+  USC-Satunama
+    Wahyu Widodo
+      t4mp4h@usc-satunama.org
+27240
+  Headnet aps
+    Sune Woeller
+      woeller@headnet.dk
+27241
+  IDC Informatica s.r.l.
+    Petrillo Giovanni
+      giovanni.petrillo@idc-informatica.it
+27242
+  Bilfinger Berger AG
+    Fußer,Tobias
+      tobias.fusser@bilfinger.de
+27243
+  Signal Networks Pvt. Ltd.
+    Anand Mallya
+      anandmallya@signal-networks.com
+27244
+  IronGate S.L.
+    Pablo Ruiz Garcia
+      pablo.ruiz@iron-gate.net
+27245
+  Maltacom plc
+    Ing. Charles Galea
+      charles.galea@maltacom.com
+27246
+  Järfälla Kommun, För- och Grundskolor
+    Thomas Hellström
+      thomas@jfog.net
+27247
+  Radian Group Inc.
+    Johnny Logan
+      john.logan@radian.biz
+27248
+  Computer Programs and Systems Inc. (CPSI)
+    Sean Wentworth
+      seanw@cpsinet.com
+27249
+  Picosoft Ltd.
+    Rob Melville
+      robmelville@blueyonder.co.uk
+27250
+  West Linn Paper Company
+    Penny Woods
+      pwoods@wlinpco.com
+27251
+  MedStreaming
+    wael elseaidy
+      w.elseaidy@comcast.net
+27252
+  Excapsa Services Inc.
+    Janet Post
+      janet.post@excapsa.ca
+27253
+  AusRegistry Pty Ltd
+    Chris Wright
+      chris@ausregistry.com.au
+27254
+  FIX Flyer LLC
+    George Kledaras
+      george@fixflyer.com
+27255
+  Tarkhany Regional (County) Open Joint-Stock Bank
+    Vladimir Privalov
+      lee@tarkhanybank.ru
+27256
+  NPF "KRUG"
+    Danila Chernetsov
+      chernetsovdv@krug2000.ru
+27257
+  Valimo Wireless Oy
+    Ilkka Pietikäinen
+      ilkka.pietikainen@valimo.com
+27258
+  NovaSecure AS
+    Kare Langedrag
+      kare@novasecure.no
+27259
+  Power-One
+    Juerg Labhart
+      juerg.labhart@power-one.com
+27260
+  DynaPel Systems Inc.
+    Dr. Dieter Koller
+      snmp@dynapel.com
+27261
+  Servicios Avanzados para las Instituciones S.L.
+    Raul Diaz
+      rdiaz@viavansi.com
+27262
+  DANTE Ltd.
+    Otto Kreiter
+      oidmaster@dante.org.uk
+27263
+  Netsmart Public Health, Inc.
+    Kevin Davidson
+      kdavidson@qstechnologies.com
+27264
+  Nmodel
+    Derek Smith
+      dereks_letterbox@aapt.net.au
+27265
+  Inlet Technologies, Inc.
+    Dawn Blalock
+      support@inlethd.com
+27266
+  freecode
+    Wijnand Modderman
+      wijnand@freecode.nl
+27267
+  Encryptanet, Inc.
+    Clay Cover
+      ccover@encryptanet.com
+27268
+  Hangar Eighteen Enterprises LLC
+    Mark McConnell
+      mnhangareighteen@gmail.com
+27269
+  Mainichi Communications Inc.
+    Terutake Usui
+      iana-contact@mycom.co.jp
+27270
+  KoSyS - Kockisch ITK Systems and Services
+    Michel Bretschneider
+      michel-bretschneider@itk-systems-and-services.de
+27271
+  Structured Software Systems Ltd
+    David Priestley
+      david.priestley@threesl.com
+27272
+  Envisioneering Medical Technologies
+    Stephen Lewis
+      slewis@envisioneeringmedical.com
+27273
+  Infinite Video Corporation
+    Pete Koat
+      prkoat@gmail.com
+27274
+  Fastfeed Inc.
+    Smruti Parida
+      smruti.parida@gmail.com
+27275
+  Alexcoder
+    Mohammed Habib
+      habib@alexcoder.com
+27276
+  Technovare Systems, Inc.
+    Srikanth Sherman
+      sri@technovare.com
+27277
+  SatPath Systems, Inc.
+    Herkea Jea
+      herkea@sat-path.com
+27278
+  Sindoricoh Co., Ltd.
+    Kyung Sik, Lee
+      kyungsiklee@sindo.com
+27279
+  GoldenNet Technology Inc.
+    Howard Chang
+      howard@togoldennet.com.tw
+27280
+  Università Degli Studi di Urbino "Carlo Bo"
+    Claudio Caracci
+      caracci@uniurb.it
+27281
+  Netcon Systems
+    Eric Anton
+      eric.anton@netconsys.com
+27282
+  Realtek Semiconductor corp.
+    Tom Chen
+      tom.chen@realtek.com.tw
+27283
+  Xcenium Technology
+    Laura Redruello
+      snmp@xcenium.com
+27284
+  Security Biometric Clearing Network
+    Patrick Osborne
+      pat.osborne@aaae.org
+27285
+  The Nisu research team
+    Manuel David Mollar Villanueva
+      mm.iana@nisu.org
+27286
+  Netopia, Inc.
+    Ken Haase
+      KHaase@netopia.com
+27287
+  University Of Perugia
+    Informatic Service Office
+      sysadm@unipg.it
+27288
+  MySystemAdmin
+    Chris Tucker
+      com@mysystemadmin.com
+27289
+  eGistics, Inc.
+    Brad Lee
+      blee@egisticsinc.com
+27290
+  Beijing Osee Digital Technology Co.Ltd
+    Chenrunhai
+      chenrunhai@osee-dig.com
+27291
+  Bundesministerium für Verkehr, Bau und Stadtentwicklung
+    Ulf Jakubke
+      snmp.contact@bmvbs.bund.de
+27292
+  Topex S.A
+    Bica Dumitru
+      dumitru.bica@topex.ro
+27293
+  Melian Italia SRL
+    Andres Kaswalder
+      melianitalia@melian.com
+27294
+  MacSpecialist
+    Adam Karneboge
+      adam@macspecialist.com
+27295
+  Axel Technology srl
+    Paolo Garuti
+      paolo.garuti@axeltechnology.com
+27296
+  Blizzard Entertainment
+    Greg Faltersack
+      gfaltersack@blizzard.com
+27297
+  SchechterTech LLC
+    Harry Schechter
+      hjs@schechter.net
+27298
+  Asia Pacific Broadband Wireless Communications
+    Brian Lin
+      brianlin@aptg.com.tw
+27299
+  Informed Computing
+    Roger Henry
+      r.henry@inform.co.uk
+27300
+  TRANSCOM TECHNOLOGIES CO.,LTD
+    Changbin Zhang
+      lampzhang@163.com
+27301
+  galaxy.io
+    oidmaster galaxy.io
+      oidmaster@galaxy.io
+27302
+  Der Senator für Bildung und Wissenschaft
+    Wolfgang Lühmann
+      wolfgang.luehmann@bildung.bremen.de
+27303
+  Clear Value
+    Adrien Bourland
+      oidmaster@clearvalue.eu
+27304
+  DKT A/S
+    Nikolaj Hermann
+      nih@dkt.dk
+27305
+  Satis Superque Merce BV
+    Harrie Hazewinkel
+      harrie@asemantics.com
+27306
+  Automated Computing Machinery, S.L.
+    Jose San Leandro
+      chous@acm-sl.com
+27307
+  Rankin County School District
+    Scot Hollingsworth
+      scoth@rcsd.ms
+27308
+  Unique Communications Inc.
+    Brandon Griffin
+      brandon@unique.net
+27309
+  SSRC Media, LLC
+    Adam Hebert
+      adam@candorworld.com
+27310
+  NetIDEAS, Inc.
+    Daniel Cushing
+      dan.cushing@netideasinc.com
+27311
+  Seni Systems, Inc.
+    Judet Useinovski
+      judet@senisystems.com
+27312
+  EDA LTD.
+    Dimitar Angelov
+      mitko@edabg.com
+27313
+  Sintrex Integration Services Pty. Ltd.
+    Adrienne Kotze
+      adrienne.kotze@sintrex.com
+27314
+  Del Systems d.o.o.
+    Marko Medos
+      ds@delsystems.net
+27315
+  Internet Management Technology Laboratory
+    Jong-Hyouk Lee
+      hurryon@gmail.com
+27316
+  Schoeppner
+    Sven Schoeppner
+      sven.schoeppner@gmail.com
+27317
+  Extreme Engineering Solutions, Inc
+    Matthew Starzewski
+      mstarzewski@xes-inc.com
+27318
+  ISE Inc.
+    Abboud Assaf
+      support@i-s-e.com
+27319
+  Nexen Inc.
+    I/T Security Manager
+      PKI-Admin@nexeninc.com
+27320
+  Kingsbury Inc.
+    S. Ohara
+      baw@kingsbury.com
+27321
+  Ready Technology Limited
+    Daniel Pocock
+      iana.contact@readytechnology.co.uk
+27322
+  21Net Ltd.
+    Kris Ceuppens
+      kris@21net.com
+27323
+  Kei Communication Technology Inc.
+    Takao Awata
+      info@ieee802.co.jp
+27324
+  Semejny Doktor
+    Alexander Galler
+      galler@kuzbass.net
+27325
+  Ubiquitech A/S
+    Lars Skjærlund
+      ls@ubiquitech.com
+27326
+  EUIT Telecomunicacion, Universidad Politécnica de Madrid
+    Daniel Martin
+      daniel.martin@upm.es
+27327
+  Mobizoom AG
+    Daniel Lusti
+      dl@mobizoom.com
+27328
+  ROSA - Dansk Rock Samråd
+    Rasmus Wehner
+      rasmus@rosa.org
+27329
+  Business Education Council of Niagara
+    Matt Watson
+      mwatson@becon.org
+27330
+  LKHP Inc.
+    Shinichiro Suzuki
+      s.suzuki@lkhp.ath.cx
+27331
+  JTG 99 ApS
+    Ilja Godau
+      ilja@godau.dk
+27332
+  Sogeti
+    Edouard JEANSON
+      edouard.jeanson@sogeti.com
+27333
+  Buzz Systems Ltd.
+    Danie Brink
+      danie.brink@gmail.com
+27334
+  Multidyne Electronics Inc.
+    Rick Hormigo
+      rickh@multidyne.com
+27335
+  Ritek ZRt.
+    Zsolt Balogh
+      iroda@ritek.hu
+27336
+  Converged Access, Inc.
+    Pat Cauduro
+      pcauduro@convergedaccess.com
+27337
+  CableServ Inc.
+    Audley Alexander
+      audley@cableserv.com
+27338
+  ATEME
+    Vincent CLERC
+      v.clerc@ateme.fr
+27339
+  Project Automation S.p.A.
+    Fulvio Zanzottera
+      oid@p-a.it
+27340
+  OpenVPN Solutions LLC.
+    James Yonan
+      jim@yonan.net
+27341
+  Medianstrip
+    Mike Ryan
+      iana.org@reg.elision.org
+27342
+  Haskology Consulting
+    Dr Thomas Conway
+      drtomc@gmail.com
+27343
+  "Telekom Srbija" a.d.
+    Information Technology Division
+      oid@telekom.yu
+27344
+  Dallmeier electronic GmbH & Co.KG
+    Norbert Niggemann
+      snmp@dallmeier-electronic.com
+27345
+  Alticor, Inc
+    Richard Mapes
+      itsecurity@alticor.com
+27346
+  VDA Elettronica spa
+    Leonardo Uzcudun
+      uzcudunl@vdavda.com
+27347
+  Alexandrow Webhosting
+    Paul Alexandrow
+      paul@alexandrow.org
+27348
+  Blue Spruce Technologies, Inc.
+    Charles Owens
+      iana@bspruce.com
+27349
+  Lonardi.org
+    Sandro Lonardi
+      sandro.lonardi@gmail.com
+27350
+  QEW Europe
+    David Persson
+      qeweurope@gmx.net
+27351
+  Medizinische Fakultät Carl Gustav Carus Dresden an der
+Technischen Universität Dresden
+    Thomas Kugel
+      thomas.kugel@uniklinikum-dresden.de
+27352
+  MAYWIDE TECHNOLOGY CO.,LTD.
+    Lydia (Li Bin)
+      L-suhexiang@126.com
+27353
+  ELTA
+    Pierre Dubarry
+      p.dubarry@elta.fr
+27354
+  epona.org
+    Ernesto de Miguel
+      emadruida@gmail.com
+27355
+  University Politechnical of Bucharest
+    Gorea Adrian Marius
+      admin@comm.pub.ro
+27356
+  DWESAB Engineering
+    Michel de Wolf
+      michel.de.wolf@dwesab.com
+27357
+  ANDROME NV
+    Chris Flerackers
+      cflerackers@androme.be
+27358
+  Technology Dynamics, Inc.
+    Aron Levy
+      linda@theallpower.com
+27359
+  HILTRON GmbH
+    Hans Ullrich
+      hj.ullrich@hiltron.de
+27360
+  NLS Technology LLC
+    Norm Siegel
+      nls@nlstechnology.com
+27361
+  Rizon Software Technology Co.,Ltd.
+    Quan Zhen
+      quanz@rizon.com.cn
+27362
+  Symbio Technologies, LLC
+    Gideon Romm
+      support@symbio-technologies.com
+27363
+  TvHead, Inc.
+    Cliff Mercer
+      cliff.mercer@tvhead.net
+27364
+  Axioma Inc.
+    Hollister Scholte
+      hscholte@axiomainc.com
+27365
+  Softech Worldwide LLC
+    Nadeem Khan
+      nadeem@softechww.com
+27366
+  INSIGNIA MOBILE COMMUNICATIONS,C.A.
+    RICARDO CARRILLO
+      ricardo.carrillo@insignia.com.ve
+27367
+  Visonys AG
+    Erwin Huber
+      iana-adm@visonys.com
+27368
+  Business I.T. Systems Ltd
+    Bryan Stone
+      info@bits.uk.com
+27369
+  Estçe Lauder Inc
+    Greg Daggett
+      gdaggett@estee.com
+27370
+  Hennepin County
+    Paul Edoff
+      paul.edoff@co.hennepin.mn.us
+27371
+  AspellClark
+    andy aspell-clark
+      aspellclark@yahoo.co.uk
+27372
+  Progenist Systems Inc.
+    Rudy Huang
+      iana@progenist.net
+27373
+  Quickpoint Solutions Limited
+    Brandon Wong
+      brandon.wong.nz@gmail.com
+27374
+  MakeITOpen.Net
+    Patrice LACHANCE
+      ldap@MakeITOpen.Net
+27375
+  IT-Systemhaus Thomas Wiese
+    Thomas Wiese
+      Thomas.Wiese@gmx.info
+27376
+  Triple-It ApS
+    Stefan Andersen
+      stefan@triple-it.dk
+27377
+  Groupster
+    Marek Jelen
+      marek.jelen@gmail.com
+27378
+  Belden
+    Brad Pope
+      brad.pope@belden.com
+27379
+  NESS Consulting Ltd
+    Ivor Potter
+      ivor.potter@nessconsulting.co.uk
+27380
+  PCS Process Control Systems AG
+    Rolf Stalder
+      rolf.stalder@pcs-ag.com
+27381
+  Myndit Pty Ltd
+    David Garrard
+      david@commsnet.com.au
+27382
+  OmniAccess S.L.
+    Richard Smith
+      richard@omniaccess.com
+27383
+  Theo Benning GmbH & CoKG
+    Ulrich Borkers
+      u.borkers@benning.de
+27384
+  Werner Industrielle Elektronik
+    Jürgen Platz
+      platz@werner-electronic.de
+27385
+  ELCON Systemtechnik GmbH
+    Ronny Priemer
+      priemer@elcon-system.de
+27386
+  Farmers Group Inc.
+    William Buthod
+      william.buthod@farmersinsurance.com
+27387
+  IHOP Corp.
+    Joe Meyer
+      joe.meyer@ihop.com
+27388
+  Wiremat Ltd
+    Karl Simon
+      helpdesk@wiremat.com
+27389
+  Splunk, Inc.
+    Carl Jackson
+      carl@splunk.com
+27390
+  iCoGo Inc.
+    Virgil Dimaguila
+      virgil@icogo.com
+27391
+  Braintribe IT Technologies
+    Roman Kurmanowytsch
+      roman.kurmanowytsch@braintribe.com
+27392
+  SCHILLER
+    MEYER Didier
+      didier.meyer@schiller.fr
+27393
+  Metrovacesa, S.A.
+    Alberto Martin
+      sistemas@metrovacesa.es
+27394
+  Cabo TV Madeirense
+    Eduardo Teles
+      eteles@cabotvm.pt
+27395
+  AVANSI C. por A.
+    Diego Gil Serrano
+      dgil@avansi.com
+27396
+  Open Journal Project
+    Alexey Remizov
+      rem@ojp.ru
+27397
+  Praxis Balster-De Beer
+    Wolfgang Balster
+      wolfgang@balster-balsterdebeer.de
+27398
+  Bernd Haug
+    Bernd Haug
+      bernd.haug@gmail.com
+27399
+  Ross Video Limited
+    Glenn Greig
+      ggreig@rossvideo.com
+27400
+  Randolph-Macon College
+    Jeff Hague
+      jhague@rmc.edu
+27401
+  Dataupia Corporation
+    John Chiu
+      jchiu@dataupia.com
+27402
+  TaTrad GmbH
+    Markus Michael
+      itadmin@tatrad.de
+27403
+  Frontier IT
+    Sean Mullen
+      sean@frontierit.com
+27404
+  SimpleComTools
+    Bill W. Crum
+      bcrum@simplecomtools.com
+27405
+  René Faigle AG
+    Mr. Adrian Nenning
+      adrian.nenning@faigle.ch
+27406
+  Center Communication Systems GmbH
+    Erich Freitag
+      e.freitag@centersystems.com
+27407
+  BUROTEC
+    ABAYAD Tarik
+      tabayad@burotec.fr
+27408
+  Hotelplan AG
+    Daniel Rüegg
+      sih.systemmanagement@hotelplan.ch
+27409
+  Mondi Packaging AG
+    Christian Loidolt
+      christian.loidolt@mondipackaging.com
+27410
+  SkoleSYS A/S
+    Jakob Simon-Gaarde
+      jakobsg@gmail.com
+27411
+  Curtis J Coleman
+    Curtis J Coleman
+      curtis-iana@spoonhenge.com
+27412
+  Icsoft Pty Ltd
+    Administrator
+      support@icsoft.com.au
+27413
+  Labs2 i Lund AB
+    Valdemar Mejstad
+      valdemar@labs2.se
+27414
+  Stadt Chemnitz
+    Klemens Lindenthal
+      klemens.lindenthal@stadt-chemnitz.de
+27415
+  SiRF Technology, Inc.
+    Riju Kallivalappil
+      rkallivalappil@sirf.com
+27416
+  Elvaco AB
+    David Vonasek
+      dv@elvaco.se
+27417
+  FAST TV-SERVER AG
+    Stefan Moeller
+      smr@tv-server.de
+27418
+  FiSEC GmbH
+    Dieter Vollstaedt
+      dieter.vollstaedt@fisec.de
+27419
+  University of New England
+    John Vedral
+      jvedral@une.edu
+27420
+  Southside Community Hospital
+    Kyle Hultman
+      khultman@sch-farmville.org
+27421
+  Synergy for Smart Solutions
+    Younes Ouadi
+      ouadi@eim.ae
+27422
+  Inter Cars S.A.
+    Piotr Polkowski
+      piotr.polkowski@intercars.com.pl
+27423
+  Potts Mullarkey
+    Christine Salvage
+      snmpenterprise@pottsmullarkey.com
+27424
+  Firstin Wireless Technology
+    Changhwan You
+      turbocpp@firstinwireless.com
+27425
+  Affinity Mobile, Inc.
+    Max Knake
+      mknake@affinitymobile.com
+27426
+  VIASOFT Ltd., Ukraine
+    Serg Ageyev
+      boss@viasoft.com.ua
+27427
+  Vecima Networks Inc.
+    Ryan Thompson
+      ryan.thompson@vecimanetworks.com
+27428
+  Intesys S.r.l.
+    Romano Rosponi
+      romano.rosponi@intesys.it
+27429
+  IT Service Zahner
+    Jens Zahner
+      info@it-zahner.de
+27430
+  Call Genie Inc
+    Tim Pushor
+      tim.pushor@callgenie.com
+27431
+  Steton Technology Group, Inc.
+    David Omer
+      dms@steton.com
+27432
+  Archalien.com
+    Bryan Hunwardsen
+      archalien@archalien.com
+27433
+  Centeris Corporation
+    John Geer
+      jgeer@centeris.com
+27434
+  Hal's Software, Inc.
+    Hal Finkel
+      half@halssoftware.com
+27435
+  Aozora Information Systems Co. Ltd.
+    Robert O'Grady
+      iana@aozora-is.co.jp
+27436
+  Jefferies & Company, Inc.
+    Henry Feusi
+      hfeusi@jefferies.com
+27437
+  TOA Corporation
+    Shigeru Sugita
+      sugita_shigeru@toa.co.jp
+27438
+  Eric Lindahl
+    Eric Lindahl
+      eric@ericlindahl.com
+27439
+  OpenAgentSystem
+    Justin Kim
+      jst.kim@gmail.com
+27440
+  Ingo Lantschner
+    Ingo Lantschner
+      ingo@binonabiso.com
+27441
+  PEM GmbH
+    Kevin Humphries
+      kevin.humphries@pem-systems.com
+27442
+  SAPERION AG
+    Bernhard Cygan
+      Bernhard.Cygan@saperion.com
+27443
+  yLabs SRL
+    Octavian Cerna
+      tavy@ylabs.com
+27444
+  Murphy Software B.V.
+    Ton Nijkes
+      ton@murphy.nl
+27445
+  InforMed, LLC
+    Ryan Frantz
+      ryanfrantz@informed-llc.com
+27446
+  PAHL.NET systems
+    Ole Pahl
+      op@pahl.net
+27447
+  Femtio Procent Data AB
+    Lars Nordberg
+      fpd@telia.com
+27448
+  The Aero Group, Inc.
+    Jason Nesheim
+      jason@aeroinc.net
+27449
+  Universidad de Buenos Aires
+    Carolina León Carri / Esteban Mocskos
+      mcarri@dc.uba.ar
+27450
+  RealOrganized, Inc.
+    Scott Schmitz
+      scott@realorganized.com
+27451
+  Aurcon Computer Services
+    Darren O'Connor
+      darren.oconnor@aurcon.com
+27452
+  Billings Clinic
+    Information Services
+      network@billingsclinic.org
+27453
+  LANE COMPANY
+    Tony Bowen
+      tbowen@lanecompany.com
+27454
+  NeoMentis Ltd
+    Will Daniels
+      mail@neomentis.com
+27455
+  Schlesinger Associates, Inc.
+    Joe Kreher
+      Joe@SchlesingerAssociates.com
+27456
+  University of Warwick
+    Jaroslaw Zachwieja
+      grok@warwick.ac.uk
+27457
+  Joomla! (OpenSourceMatter Inc)
+    Samuel Moffatt
+      sam.moffatt@joomla.org
+27458
+  Flo Healthcare
+    Karl Haiden
+      karl.haiden@flohealthcare.com
+27459
+  INTLNET
+    JFC Morfin
+      info@intlnet.org
+27460
+  Digital Maelstrom LLC
+    Jeff Hall
+      contact@digitalmaelstrom.net
+27461
+  Knit One Pearl One
+    Olivia Clarke
+      knitonepearlone@gmail.com
+27462
+  Bubble Motion Pte Ltd
+    Gunamony Madhan Dennis
+      madhan@bubblemotion.com
+27463
+  ThüCom GmbH
+    Bernd Wunder
+      b.wunder@thuecom.com
+27464
+  Projekty Bankowe Polsoft sp. z o.o.
+    Maciej Lewandowski
+      maciej.lewandowski@pbpolsoft.com.pl
+27465
+  Domodesk S.L.
+    Departamento de desarrollo
+      project@domotium.com
+27466
+  Inter IKEA Systems BV
+    Anders Östling
+      anders.ostling@inter-ikea.com
+27467
+  NETHINKS GmbH
+    Simon Walter
+      hostmaster@nethinks.com
+27468
+  ELTA-R
+    Stanimir Stoyanov
+      stani@elta.bg
+27469
+  Glowlink Communications Technology Inc.
+    Bob Estus
+      ushq@glowlink.com
+27470
+  Kuorem IT Consulting s.l.
+    Alfonso Rodriguez Fernandez-Cuesta
+      arodriguez@kuorem.com
+27471
+  Kotelett Group
+    Chris Qvigstad
+      hostmaster@kotelett.no
+27472
+  Peak Web Consulting, Inc.
+    Stephen Friedl
+      steve@peakwebconsulting.com
+27473
+  Consejo de la Magistratura de la Ciudad Autonoma de Buenos Aires
+    Gustavo Panizzo
+      root@jusbaires.gov.ar
+27474
+  Multi Co
+    KAZUYA YAMAGUCHI
+      pen-admin@multig.jp
+27475
+  CiriTech Systems, Inc.
+    Anumele Raja
+      araja@ciritech.com
+27476
+  MicsGarage
+    Michael Lumley
+      mic@micsgarage.com
+27477
+  Ethrix ltd.
+    Avi Kadosh
+      avik@ethrix.com
+27478
+  Boekingspunt Nederland BV
+    Wijnand Modderman
+      iana-contact@booking.com
+27479
+  Projekt 42! GmbH
+    Gerhard Strehle
+      gstrehle@zweiundvierzig.de
+27480
+  FORSIS GmbH
+    Steffen Poppe
+      steffen.poppe@forsis.de
+27481
+  Arzl Datentechnik
+    Markus Arzl
+      mark1@arzl.net
+27482
+  G2 Microsystems Pty Ltd
+    David Goodall
+      david.goodall@g2microsystems.com
+27483
+  OpenSER.ORG
+    Bogdan-Andrei Iancu
+      bogdan.iancu@voice-system.ro
+27484
+  Eightwire.com Limited
+    Daniel Hodson
+      daniel.hodson@eightwire.com
+27485
+  JSC  Public Key Infrastructure
+    Viktor Lapin
+      csk@ivk.org.ua
+27486
+  swissgeek.org
+    Olivier Beytrison
+      olivier@swissgeek.org
+27487
+  Kent County Council
+    Mick Mason
+      Mick Mason@kent.gov.uk
+27488
+  A.T.U Handels GmbH
+    Manfred Gerlach
+      manfred.gerlach@atu.de
+27489
+  Evangelisch-Lutherische Landeskirche in Braunschweig
+    Markus Reinmuth
+      edv.lka@lk-bs.de
+27490
+  SP Swedish National Testing and Research Institute
+    Per-Olof Eliasson ATa
+      per-olof.eliasson@sp.se
+27491
+  Freeport Technologies Inc.
+    David Tucker
+      dtucker@freeporttech.com
+27492
+  Major Hospital
+    Todd Goul
+      tgoul@majorhospital.com
+27493
+  Dirección de Tecnología Educativa
+    Guadalupe Miranda Zamora
+      gmiranda2@hotmail.com
+27494
+  Seatore Technology
+    Juer Lee
+      juer.lee@seatore.com
+27495
+  Optiway
+    Luca Berkovichi
+      enadmin@walla.com
+27496
+  MALAIWAH.COM
+    Michel Belleau
+      michel.belleau@malaiwah.com
+27497
+  Fiducial Staffing
+    Hubert FONGARNAND
+      informatique.internet@fiducial.fr
+27498
+  Innovative Technology Solutions, LLC
+    Leonard Danao
+      LDanao@itsllc.com
+27499
+  Operations Feedback Systems Pty. Ltd.
+    C. Charles Winchcombe
+      quinch@ofsystems.com
+27500
+  Dawning Ltd.
+    Yuan Ma
+      mayuan.ict@gmail.com
+27501
+  Seldon Systems, Inc.
+    Jeff Burgett
+      jburgett@seldonsystems.com
+27502
+  ARAB BANKING COPORATION
+    HUSAM SAOUDI
+      HUSAM.SAOUDI@ARABBANKING.COM
+27503
+  TD Computer Solutions GmbH & Co. KG
+    Thomas Duennemann
+      info@tdcs.de
+27504
+  Celtius Ltd
+    Lasse Kiviluoto
+      Lasse.Kiviluoto@celtius.com
+27505
+  KT-NET Communications GmbH
+    Dieter Klausner
+      domadmin@kt-net.at
+27506
+  Object Builder Software - Bulgaria
+    Georgi Stanchev
+      admins@obs.bg
+27507
+  Automation Control Products Inc.
+    Randy Cannady
+      randy@acpthinclient.com
+27508
+  TravelCenters of America
+    Neil Vergottini
+      vergottini.neil@tatravelcenters.com
+27509
+  Creanord Ltd.
+    Antti Pappila
+      antti.pappila@creanord.com
+27510
+  NetGain Systems Pte. Ltd.
+    Issac Dev Nirmal
+      issac@netgain-systems.com
+27511
+  Gigante Inc.
+    Yoshihisa Koizumi
+      koizumi@gigante.jp
+27512
+  M3 Technology Group
+    Nate Harris
+      m3support@m3tg.com
+27513
+  Pro-E Automation Sdn Bhd
+    Mr.Kanna / Mr.Magesh
+      kanna@pro-e.net
+27514
+  QTECH LLC
+    Basil Budko
+      budko@qtech.ru
+27515
+  Stockholms stad
+    Martin Dolk
+      martin.dolk@stadshuset.stockholm.se
+27516
+  NIVC AS
+    Alexey Ivanov
+      amis@amiga.org.ru
+27517
+  Secure Edge Srl
+    Sandro Fontana
+      sfontana@secure-edge.com
+27518
+  ProMedica Health System
+    Mark Dailey
+      mark.dailey@promedica.org
+27519
+  Pozicom Technologies, Inc.
+    Eric Mayo
+      eric@pozicom.net
+27520
+  International Electronic Communication Analysts (IECA), Inc.
+    Christopher Bonatti
+      BonattiC@ieca.com
+27521
+  eMusic.com, Inc.
+    hgoldwire@emusic.com
+      hgoldwire@emusic.com
+27522
+  Municipio de la Ciudad de Monterrey
+    Sergio Camarena
+      sergio@monterrey.gob.mx
+27523
+  runlevel3 GmbH
+    Stephan Hantigk
+      X.500@runlevel3.de
+27524
+  TRIAX CZ s.r.o.
+    Martin Bednar
+      bednar@triax.cz
+27525
+  DET 1 AFEREG
+    DAVE PHILLIPS
+      dave.phillips@oln-afmc.af.mil
+27526
+  Kanazawa University
+    Tomohiko Imachi
+      jimu@imc.kanazawa-u.ac.jp
+27527
+  ABB Ltd
+    Natalie Eliasson
+      domain.administration@abb.com
+27528
+  Dragon Stock labo Inc.
+    Hiroshi Ito
+      hi_02258@yahoo.co.jp
+27529
+  dri, Consultoria Informática Lda
+    Ricardo Melo
+      ricardo.melo@dri.pt
+27530
+  decontis GmbH
+    Michael Hanel
+      no_spam@decontis.com
+27531
+  Planned IT Solutions, Inc.
+    Scott Pascoe
+      manager@planneditsolutions.com
+27532
+  Hancock Regional Hospital
+    Dan Allee
+      dallee@hancockregional.org
+27533
+  BKE a.s.
+    Jiøí Raputa
+      jraputa@bke.cz
+27534
+  Widestore srl
+    Technical Department
+      tech@widestore.net
+27535
+  Artwork Systems nv
+    Pieter Van Landuyt
+      pvla@artwork-systems.com
+27536
+  SANTECLAIR
+    Benoît REY
+      brey@santeclair.fr
+27537
+  Educatio Public Services Non-profit Llc.
+    dr. Edit Polyák
+      edit.polyak@edukht.hu
+27538
+  ADTSystems s.r.o.
+    Petr Nyklicek
+      petr_nyklicek@adtsystems.cz
+27539
+  Pacific DataVision, Inc.
+    Mike Fox
+      mfox@pdvcorp.com
+27540
+  SIMPPLE S.L.
+    Pere Cortada
+      pere.cortada@simpple.com
+27541
+  ITSSeevia Group
+    Jean-Philippe Roze
+      jproze@itsgroup.fr
+27542
+  COSAT INC.
+    TOMIYAMA Yoshihiro
+      tmy@cosat.com
+27543
+  Gillware Data Services, LLC
+    Wesley Gill
+      wesley@gillware.com
+27544
+  NSK OpenSource, Inc
+    Mike Kilpatrick
+      mike_kilpatrick@nskopensource.com
+27545
+  NINOMIYA TOWN
+    EBIHARA, SHINICHI
+      jo-kan@town.tochigi-ninomiya.lg.jp
+27546
+  American University of Beirut
+    Samih Ajrouch
+      samih@aub.edu.lb
+27547
+  Four Batons Technology
+    Johnathan Mayo
+      johnathanm@fourbatons.com
+27548
+  KRS Hardware Monitoring Development
+    Erik Holzer
+      info@kraftstrom.at
+27549
+  TELESANTE AQUITAINE
+    Régis ROSE
+      exploitation@sante-aquitaine.org
+27550
+  Alchemy Group Limited
+    Dean Ashby
+      d.ashby@alchemy.co.nz
+27551
+  Farheap Solutions Inc.
+    Yashar Saberi
+      yashar.saberi@farheap.com
+27552
+  Nimbus, Inc.
+    Kang Kyung Wan
+      bigskang@gmail.com
+27553
+  Salem Academy and College
+    Adam Sommer
+      sommer@salem.edu
+27554
+  PureTech Systems Inc.
+    Monroe Thomas
+      monroe.thomas@soundprint.com
+27555
+  Rosum Corporation
+    Dave Gotwisner
+      dgotwisner@rosum.com
+27556
+  The PTR Group Inc
+    Keith Buchanan
+      Keith@theptrgroup.com
+27557
+  Botech AB
+    Henrik Johansson
+      henrik.johansson@botech.se
+27558
+  IHMC
+    James Lott
+      jlott@ihmc.us
+27559
+  Data Science Group, Inc
+    Christian L. Straight
+      clstraight@datasciencegroup.com
+27560
+  Alan Dick and Company Ltd
+    Matt Middleton
+      matt.middleton@alandick.com
+27561
+  Indeca
+    Luis Moreno
+      luis@indeca.info
+27562
+  daemon software
+    Håkan Carlsson
+      snmp@daemon.se
+27563
+  QStar Technologies, Inc.
+    cs@qstar.com
+      cs@qstar.com
+27564
+  UNIFAL - Universidade Federal de Alfenas
+    Anderson Francisco da Silva
+      anderson@unifal-mg.edu.br
+27565
+  Ministerio de Industria Turismo y Comercio
+    Carlos Maza
+      iana@mityc.es
+27566
+  Vizrt
+    Fabian Kroell
+      fkroell@vizrt.com
+27567
+  Baur GmbH
+    Martin Naumann
+      martinnaumann@mac.com
+27568
+  Kupetto
+    Marco Cupidi
+      kupo@atomictag.com
+27569
+  National Digital Medical Archive, Inc.
+    Andrew Schaefer
+      aschaefer@ndma.us
+27570
+  GiaRoCo
+    Roberto Giana
+      iana@giaroco.ch
+27571
+  Guenther Brunthaler EDV Dienstleistungen
+    Guenther Brunthaler
+      gb_about_gnu@gmx.net
+27572
+  CEOS Integradores de Sistemas C.A.
+    Oscar Pizarro
+      oscar.pizarro@ceos.com.ve
+27573
+  the-ferret.net
+    Derrick Oetting
+      derrick.oetting@gmail.com
+27574
+  10MT Co.
+    wang senlin
+      wangsenlin@vip.sina.com
+27575
+  DSL Internet Corporation
+    Javier Aguirre
+      jaguirre@dsli.net
+27576
+  Envysion, Inc
+    Robert Hagens
+      rhagens@envysion.com
+27577
+  R. D. Pierce
+    Dick Pierce
+      dpierce@cartchunk.org
+27578
+  cartchunk.org
+    Dick Pierce
+      dpierce@cartchunk.org
+27579
+  Keltron Corporation
+    Dick Pierce
+      dpierce@keltroncorp.com
+27580
+  Integrity Soluções em Informática Sociedade Simples
+    Rodrigo Grumiche Silva
+      grumiche@integrityit.com.br
+27581
+  Netum Oy
+    Petri Lappalainen
+      petri.lappalainen@netum.fi
+27582
+  pH Group Ltd
+    Hari Sekhon
+      hari.sekhon@phgroup.com
+27583
+  Metronik d.o.o.
+    Janez Zmuc
+      janez.zmuc@metronik.si
+27584
+  Upplysningscentralen AB
+    Anders Heintz
+      anders.heintz@uc.se
+27585
+  Orange Nederland BV
+    H. Kutukcuoglu
+      huseyin.kutukcuoglu@orange-ftgroup.com
+27586
+  Altai Technologies Limited
+    Sammy Chau
+      sammyc@altaitechnologies.com
+27587
+  Shinto Densan Corporation
+    Sachiko Motoyama
+      smotoyama@sdkk.co.jp
+27588
+  KingsIsle Entertainment, Inc.
+    Emil Ramirez
+      eramirez@kingsisle.com
+27589
+  ZBN (Zhengzhou Broadcasting TV Network) Co. Ltd.
+    Yang Xu
+      shiuyx-2006@yahoo.com.cn
+27590
+  Cardinal Information Systems Ltd.
+    Christian Kvikant
+      christian.kvikant@cardinal.fi
+27591
+  Bit-Side GmbH
+    Andreas Roedl
+      a.roedl@bit-side.com
+27592
+  Beijing NetEast Technologies Corporation Ltd
+    wang ting yu
+      w.t.y@163.com
+27593
+  Media Excel, Inc.
+    Jon Clegg
+      jon.clegg@mediaexcel.com
+27594
+  Skipper Wireless, Inc.
+    Sumitaka Matsumoto
+      sam@skipperwireless.com
+27595
+  NWP-Technologie Informatyczne
+    Przemek Michalski
+      przemek.michalski@nwp.pl
+27596
+  NONNIC
+    Steve Conley
+      ssc@sysoplink.net
+27597
+  CADIGS Ltd.
+    Maik Wittchen
+      mwittchen@cadigs.com
+27598
+  Ayuntamiento de Madrid - Policia Municipal
+    Fco. Javier Guerrero González
+      guerrerogja@munimadrid.es
+27599
+  BIT-Kazan Ltd.
+    Raskin Igor
+      barabanov@bit-kazan.ru
+27600
+  C?!., C por A
+    beno
+      sai+gar@2012.vi
+27601
+  Higher Institute for Applied Sciences and Technology (HIAST)
+    Iyad Seyd Darwish
+      isdarwish@hiast.edu.sy
+27602
+  Woodforest National Bank
+    Victor Chataboon
+      vchataboon@woodforest.com
+27603
+  Groove Mobile
+    Nicholas Saparoff
+      nick@groovemobile.net
+27604
+  Tetralogyx
+    Jean-Loup DARNAY
+      jeanloup.darnay@tetralogyx.fr
+27605
+  Urzad Miasta Stolecznego Warszawy
+    Krzysztof Teperek
+      netmaster@warszawa.um.gov.pl
+27606
+  Global NetWatch, Incorporated
+    Renae Mazur
+      renae.mazur@globalnetwatch.com
+27607
+  Skin and Cancer Foundation Inc.
+    Joe Mercuri
+      infotech@skincancer.asn.au
+27608
+  Wuhan Yangtze Optical Technology Co., Ltd
+    zhengzhi
+      zhengzhi@yotc.cn
+27609
+  Dash Navigation Inc.
+    Senthil Supramaniam
+      senthil@dash.net
+27610
+  Solarcore, Inc.
+    Darren E. Kiel
+      darren.kiel@solarcore.com
+27611
+  Traffix Systems Ltd
+    Ben Volkow
+      bvolkow@traffixsystems.com
+27612
+  SmartStream Technologies
+    Ameya Bhakay
+      ameya.bhakay@smartstream-stp.com
+27613
+  AlbaNova University Center, the Stockholm Center for Physics,
+Astronomy and Biotechnology
+    Iouri Belokopytov
+      yb@albanova.se
+27614
+  Ascom Sweden AB
+    Martin Kvarmo
+      martin.kvarmo@ascom.se
+27615
+  devolo
+    Christian Katsch
+      Christian.Katsch@devolo.de
+27616
+  Phaedrus Ltd
+    Roy Schofield
+      roy@phaedrusltd.com
+27617
+  PayEx Solutions AB
+    Pelle Johansson
+      pelle.johansson@payex.com
+27618
+  Sihl + Eika Papier AG
+    Thomas Moll
+      thomas.moll@papyrus.com
+27619
+  BeWAN Systems
+    VAN DEPUTTE
+      cvandeputte@bewan.com
+27620
+  GS1 Uruguay
+    Martin Rivadavia
+      mrivadavia@gs1uy.org
+27621
+  National Information Technologies JSC
+    Bagdat Musin
+      musin@nit.kz
+27622
+  Open Communication Security S.A.
+    Marcelo Fiori
+      mfiori@opencs.com.br
+27623
+  Shavlik Technologies LLC
+    Eric Schultze
+      eric.schultze@shavlik.com
+27624
+  Metanoia Communications Inc.
+    WuLung Hsu
+      wuulong@gmail.com
+27625
+  UZ Brussel
+    vital claeys
+      vital.claeys@az.vub.ac.be
+27626
+  SK-NIC, a.s.
+    Patrik Krauspe
+      patrik.krauspe@sk-nic.sk
+27627
+  Ceskoslovenska obchodni banka, a.s.
+    DAVID Zdenek
+      zdavid@csob.cz
+27628
+  UnumProvident Corporation
+    Jediah Logiodice
+      jlogiodice@unumprovident.com
+27629
+  Helenic Ministry of Interior Public Administration and
+Decentralization / Helenic Public Administra
+    Stasis Antonis
+      a.stasis@ypesdda.gov.gr
+27630
+  OSI ste civile etudes et recherches
+    Jose H. REMY
+      jose.remy@openosi.org
+27631
+  Touchstone Technologies Inc.
+    Robert Hicks
+      robert.hicks@touchstone-inc.com
+27632
+  MVNO Sherpa
+    Hugh McLenaghan
+      hmclenaghan@mvnosherpa.com
+27633
+  Eternix Ltd.
+    CTO
+      yoav.zobel@gmail.com
+27634
+  ABC Phones of NC Inc.
+    Jason DeTiberus
+      jason.detiberus@abcphones.com
+27635
+  Wholesale Communications Group P/L
+    Ben Jones
+      bjones@wcg.net.au
+27636
+  F. Camara Informática Ltda
+    Renato Cesar de Souza
+      rcdsouza@terra.com.br
+27637
+  Lateral Networks Ltd
+    Bob Berryman
+      bob@sanlogan.com
+27638
+  Gulf Interstate Engineering
+    James Delahanty
+      ianainfo@gie.com
+27639
+  Nashua Mobile (Pty) Ltd
+    Richard Mayhew
+      richardm@nashuamobile.com
+27640
+  Telefonica Moviles España, S.A.
+    Marc Mollà Roselló
+      marc.mollarosello@telefonica.es
+27641
+  SOPI - Junta de Extremadura
+    Francisco Ruiz
+      fjruiz@hac.juntaex.es
+27642
+  Manuel Linsmayer
+    Manuel Linsmayer
+      ldap@expersite.com
+27643
+  Zeda Ltd.
+    Richard Lawrence
+      r.lawrence@zeda.co.uk
+27644
+  CFC Informationssysteme Entwicklungsgesellschaft m.b.H.
+    Thomas Zellinger
+      office@cfc.at
+27645
+  PostgreSQL Global Development Group
+    Dave Page
+      dpage@postgresql.org
+27646
+  Systems Engineering & Assessment Ltd
+    Gavin Whitelaw
+      gjw@sea.co.uk
+27647
+  Iskra Zascite d.o.o.
+    Bostjan Kroselj
+      bostjan.kroselj@iskrazascite.si
+27648
+  ESPCI
+    Emmanuel Dreyfus
+      info@espci.fr
+27649
+  Hay Systems Limited
+    Neil Vince
+      neil.vince@haysystems.com
+27650
+  Herward Hoyer
+    Herward Hoyer
+      gua808@web.de
+27651
+  ProConsultant Informatique
+    BOURSON Thierry
+      tech@proconsultant.net
+27652
+  SUNY
+    David Powalyk
+      domainmaster@suny.edu
+27653
+  MyRunning.com
+    Josh Forester
+      josh.iana.org@myrunning.com
+27654
+  Involve Ltd.
+    Hans Engren
+      hans.engren@involve.com.mt
+27655
+  IFP
+    Rainer Faulstich
+      Rainer.Faulstich@ifp-beisch.com
+27656
+  HafenCity Universität Hamburg
+    Michael Knop
+      michael.knop@hcu-hamburg.de
+27657
+  Hugh McLenaghan
+    Hugh McLenaghan
+      hughmcl@hotmail.com
 
 End of Document
