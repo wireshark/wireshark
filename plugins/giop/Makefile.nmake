@@ -27,11 +27,11 @@ coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj $(L
 	link -dll /out:coseventcomm.dll $(LDFLAGS) packet-coseventcomm.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
-tango.dll tango.exp coseventcomm.lib : packet-tango.obj $(LINK_PLUGIN_WITH)
+tango.dll tango.exp tango.lib : packet-tango.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:tango.dll $(LDFLAGS) packet-tango.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
-parlay.dll parlay.exp coseventcomm.lib : packet-parlay.obj $(LINK_PLUGIN_WITH)
+parlay.dll parlay.exp parlay.lib : packet-parlay.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:parlay.dll $(LDFLAGS) packet-parlay.obj $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
