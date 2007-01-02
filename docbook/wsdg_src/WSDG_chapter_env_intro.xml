@@ -82,16 +82,14 @@
 	<section><title>Microsoft Windows</title>
     <para>
 	Thanks to the Win32 API, development on all Windows platforms will be 
-	done in a very similar way. However some differences between the platforms 
-	are existing (especially between the NT and 95 based platforms), the 
-	differences will be notified where appropriate. All Windows platforms 
-	referred to as Win32, Win or Windows may be used with the same meaning.
+	done in a very similar way. All Windows platforms referred to as Win32,
+	Win or Windows may be used with the same meaning.
+	Older Windows versions are no longer supported by Wireshark.
 	As Windows CE differs a lot compared to the other Windows platforms 
 	mentioned, Wireshark will not run on Windows CE and there are no plans to 
-	support it.
+	support it. 
 	<itemizedlist>
-	<listitem><para>Windows Me / 98 / 95</para></listitem>
-	<listitem><para>Windows Server 2003 / XP / 2000 / NT 4.0</para></listitem>
+	<listitem><para>Windows Server 2003 / XP / 2000</para></listitem>
 	</itemizedlist>
     </para>
 	</section>

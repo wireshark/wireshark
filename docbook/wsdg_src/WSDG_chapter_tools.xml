@@ -1442,8 +1442,8 @@ written by Larry Wall and Paul Eggert]]>
 	required DLL's and such.
 	</para>
 	<para>
-	To install it, simply download the latest released version (currently: 2.0
-	final) from <ulink url="http://nsis.sourceforge.net"/>
+	To install it, simply download the latest released version (currently: 2.22)
+	from <ulink url="http://nsis.sourceforge.net"/>
 	and start the downloaded installer. You will need NSIS version 2 final 
 	or higher.
 	</para>
