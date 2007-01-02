@@ -437,7 +437,7 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr);
 static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
                                       proto_tree *tree, guint32 lsr, guint32 dlsr);
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree, guint frame, guint delay);
+                                     proto_tree *tree, guint frame, gint delay);
 
 
 /* Set up an RTCP conversation using the info given */
@@ -2104,13 +2104,13 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			p_add_proto_data(pinfo->fd, proto_rtcp, p_packet_data);
 		}
 
-		/* Don't allow match seemingly calculated from same frame! */
-		if (pinfo->fd->num == p_conv_data->last_received_frame_number)
+		/* Don't allow match seemingly calculated from same (or later!) frame */
+		if (pinfo->fd->num <= p_conv_data->last_received_frame_number)
 		{
 			return;
 		}
-        
-		/* Any previous report must match the lsr given here */
+
+		/* The previous report must match the lsr given here */
 		if (p_conv_data->last_received_ts == lsr)
 		{
 			/* Look at time of since original packet was sent */
@@ -2124,15 +2124,8 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 			gint dlsr_ms = (int)(((double)dlsr/(double)65536) * 1000.0);
 			gint delay;
 
-			if (dlsr_ms > total_gap)
-			{
-				delay = 0;
-			}
-			else
-			{
-				/* Delay is gap - dlsr */
-				delay = total_gap - dlsr_ms;
-			}
+			/* Delay is gap - dlsr  (N.B. this is allowed to be -ve) */
+			delay = total_gap - dlsr_ms;
 
 			/* Record that the LSR matches */
 			p_packet_data->lsr_matched = TRUE;
@@ -2153,7 +2146,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 /* Show the calcaulted roundtrip delay info by adding protocol tree items
    and appending text to the info column */
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree, guint frame, guint delay)
+                                     proto_tree *tree, guint frame, gint delay)
 {
 	/* 'Last SR' frame used in calculation.  Show this even if no delay shown */
 	proto_item* item = proto_tree_add_uint(tree,
@@ -2162,32 +2155,39 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 	PROTO_ITEM_SET_GENERATED(item);
 
 	/* Don't report on calculated delays below the threshold.
-	   Won't report a delay of 0 (which also indicates no valid
-	   calculated value to report) */
-	if (delay < global_rtcp_show_roundtrip_calculation_minimum)
+	   Will report delays less than -threshold, to highlight
+	   problems with generated reports */
+	if (abs(delay) < global_rtcp_show_roundtrip_calculation_minimum)
 	{
 		return;
 	}
 
 	/* Calculated delay in ms */
-	item = proto_tree_add_uint(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0, delay);
+	item = proto_tree_add_int(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0, delay);
 	PROTO_ITEM_SET_GENERATED(item);
 
 	/* Add to expert info */
-	expert_add_info_format(pinfo, item,
-	                       PI_SEQUENCE, PI_NOTE,
-	                       "RTCP round-trip delay detected (%u ms)",
-	                       delay);
+	if (delay >= 0)
+	{
+		expert_add_info_format(pinfo, item,
+		                       PI_SEQUENCE, PI_NOTE,
+		                       "RTCP round-trip delay detected (%d ms)",
+		                       delay);
+	}
+	else
+	{
+		expert_add_info_format(pinfo, item,
+		                       PI_SEQUENCE, PI_ERROR,
+		                       "Negative RTCP round-trip delay detected (%d ms)",
+		                       delay);
+	}
 
 	/* Report delay in INFO column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		if (delay > 0)
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO,
-			                " (roundtrip delay <-> %s = %ums, using frame %u)",
-			                address_to_str(&pinfo->net_src), delay, frame);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+		                " (roundtrip delay <-> %s = %dms, using frame %u)  ",
+		                address_to_str(&pinfo->net_src), delay, frame);
 	}
 }
 
@@ -2234,7 +2234,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         {
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s   ",
                          val_to_str(packet_type, rtcp_packet_type_vals, "Unknown"));
-            col_set_fence(pinfo->cinfo, COL_INFO);
         }
 
         /*
@@ -2353,6 +2352,8 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset++;
                 break;
         }
+
+        col_set_fence(pinfo->cinfo, COL_INFO);
     }
     /* If the padding bit is set, the last octet of the
      * packet contains the length of the padding
@@ -3253,7 +3254,7 @@ proto_register_rtcp(void)
 			{
 				"Roundtrip Delay(ms)",
 				"rtcp.roundtrip-delay",
-				FT_UINT32,
+				FT_INT32,
 				BASE_DEC,
 				NULL,
 				0x0,
@@ -3838,8 +3839,8 @@ proto_register_rtcp(void)
 		&global_rtcp_show_roundtrip_calculation);
 
 	prefs_register_uint_preference(rtcp_module, "roundtrip_min_threshhold",
-		"Minimum roundtrip calculations to report (ms)",
-		"Minimum calculated roundtrip delay time in milliseconds that "
+		"Minimum roundtrip calculation to report (ms)",
+		"Minimum (absolute) calculated roundtrip delay time in milliseconds that "
 		"should be reported",
 		10, &global_rtcp_show_roundtrip_calculation_minimum);
 
