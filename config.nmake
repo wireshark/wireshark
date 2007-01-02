@@ -337,7 +337,7 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 
 # "Microsoft Visual Studio 6.0" - THE ONLY RECOMMENDED
 # Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
-#MSVC_VARIANT=MSVC6
+MSVC_VARIANT=MSVC6
 
 # "Microsoft Visual Studio .NET (2002)" - NOT YET WORKING
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
@@ -356,7 +356,7 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 # "Microsoft Visual C++ 2005 Express Edition" - NOT YET WORKING
 # The "Express Edition" needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-MSVC_VARIANT=MSVC2005	
+#MSVC_VARIANT=MSVC2005	
 
 
 # Compiler flags:
