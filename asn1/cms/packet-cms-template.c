@@ -41,7 +41,7 @@
 #include "packet-x509if.h"
 
 #include <epan/sha1.h>
-#include <epan/crypt-md5.h>
+#include <epan/crypt/crypt-md5.h>
 
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"
@@ -92,7 +92,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_starts(&sha1_ctx);
 
-    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
+    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
 		tvb_length(content));
 
     sha1_finish(&sha1_ctx, digest_buf);
@@ -103,19 +103,19 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     md5_init(&md5_ctx);
 
-    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
+    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
 	       tvb_length(content));
-    
+
     md5_finish(&md5_ctx, digest_buf);
 
     buffer_size = MD5_BUFFER_SIZE;
   }
 
   if(buffer_size) {
-    /* compare our computed hash with what we have received */  
+    /* compare our computed hash with what we have received */
 
     if(tvb_bytes_exist(tvb, offset, buffer_size) &&
-       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) { 
+       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) {
       proto_item_append_text(pi, " [incorrect, should be ");
       for(i = 0; i < buffer_size; i++)
 	proto_item_append_text(pi, "%02X", digest_buf[i]);

@@ -6,6 +6,7 @@
 
 #include "airpdcap_wep.h"
 #include "airpdcap_sha1.h"
+#include "crypt-md5.h"
 
 #include "airpdcap_debug.h"
 
@@ -151,9 +152,9 @@ INT AirPDcapValidateKey(
 
 INT AirPDcapRsnaMicCheck(
         UCHAR *eapol,
-        const USHORT eapol_len,
-        const UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
-        const USHORT key_ver)
+        USHORT eapol_len,
+        UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
+        USHORT key_ver)
         ;
 
 /**
@@ -317,12 +318,12 @@ INT AirPDcapPacketProcess(
 
                         /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
                         if (data[offset]==0xAA &&	/* DSAP=SNAP								*/
-                        data[offset+1]==0xAA &&	/*	SSAP=SNAP								*/
-                        data[offset+2]==0x03 &&	/*	Control field=Unnumbered frame	*/
-                        data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet			*/
+                        data[offset+1]==0xAA &&	/* SSAP=SNAP */
+                        data[offset+2]==0x03 &&	/* Control field=Unnumbered frame	*/
+                        data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet */
                         data[offset+4]==0x00 &&
                         data[offset+5]==0x00 &&
-                        data[offset+6]==0x88 &&	/*	Type: 802.1X authentication		*/
+                        data[offset+6]==0x88 &&	/* Type: 802.1X authentication */
                         data[offset+7]==0x8E) {
                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
@@ -967,30 +968,30 @@ INT AirPDcapRsna4WHandshake(
 
 INT AirPDcapRsnaMicCheck(
         UCHAR *eapol,
-        const USHORT eapol_len,
-        const UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
-        const USHORT key_ver)
+        USHORT eapol_len,
+        UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
+        USHORT key_ver)
 {
         UCHAR mic[AIRPDCAP_WPA_MICKEY_LEN];
-        UCHAR c_mic[20];	/* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes	*/
+        UCHAR c_mic[20];	/* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
 
         /* copy the MIC from the EAPOL packet	*/
         memcpy(mic, eapol+AIRPDCAP_WPA_MICKEY_OFFSET+4, AIRPDCAP_WPA_MICKEY_LEN);
 
-        /*	set to 0 the MIC in the EAPOL packet (to calculate the MIC)	*/
+        /* set to 0 the MIC in the EAPOL packet (to calculate the MIC) */
         memset(eapol+AIRPDCAP_WPA_MICKEY_OFFSET+4, 0, AIRPDCAP_WPA_MICKEY_LEN);
 
         if (key_ver==AIRPDCAP_WPA_KEY_VER_CCMP) {
-                /*	use HMAC-MD5 for the EAPOL-Key MIC	*/
-                AirPDcapAlgHmacMd5((UCHAR *)KCK, AIRPDCAP_WPA_KCK_LEN, eapol, eapol_len, c_mic);
+	    	/* use HMAC-MD5 for the EAPOL-Key MIC	*/
+		md5_hmac(eapol, eapol_len, KCK, AIRPDCAP_WPA_KCK_LEN, c_mic);
         } else if (key_ver==AIRPDCAP_WPA_KEY_VER_AES_CCMP) {
-                /*	use HMAC-SHA1-128 for the EAPOL-Key MIC	*/
+                /* use HMAC-SHA1-128 for the EAPOL-Key MIC */
                 AirPDcapAlgHmacSha1(KCK, AIRPDCAP_WPA_KCK_LEN, eapol, eapol_len, c_mic);
         } else
-                /*	key descriptor version not recognized	*/
+                /* key descriptor version not recognized */
                 return AIRPDCAP_RET_UNSUCCESS;
 
-        /* compare calculated MIC with the Key MIC and return result (0 means success)	*/
+        /* compare calculated MIC with the Key MIC and return result (0 means success) */
         return memcmp(mic, c_mic, AIRPDCAP_WPA_MICKEY_LEN);
 }
 

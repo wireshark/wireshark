@@ -99,9 +99,9 @@ static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
 #include "packet-spnego-fn.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
- * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also 
+ * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
  * ASN.1 wrapped by the looks of it. It conforms to RFC1964.
- */ 
+ */
 
 #define KRB_TOKEN_AP_REQ		0x0001
 #define KRB_TOKEN_AP_REP		0x0002
@@ -171,7 +171,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint32 tag;
 	guint32 len;
 
-	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset, 
+	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
@@ -181,7 +181,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * [APPLICATION 0] {
 	 *   OID,
 	 *   USHORT (0x0001 == AP-REQ, 0x0002 == AP-REP, 0x0003 == ERROR),
-	 *   OCTET STRING } 
+	 *   OCTET STRING }
          *
          * However, for some protocols, the KRB5 blob starts at the SHORT
 	 * and has no DER encoded header etc.
@@ -264,12 +264,12 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case KRB_TOKEN_AP_REQ:
 	case KRB_TOKEN_AP_REP:
 	case KRB_TOKEN_AP_ERR:
-	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE, NULL);
 	  break;
 
 	case KRB_TOKEN_GETMIC:
-	  offset = dissect_spnego_krb5_getmic_base(tvb, offset, pinfo, subtree); 
+	  offset = dissect_spnego_krb5_getmic_base(tvb, offset, pinfo, subtree);
 	  break;
 
 	case KRB_TOKEN_WRAP:
@@ -290,7 +290,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 #ifdef HAVE_KERBEROS
-#include <epan/crypt-md5.h>
+#include <epan/crypt/crypt-md5.h>
 
 #ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
@@ -315,23 +315,23 @@ arcfour_mic_key(void *key_data, size_t key_size, int key_type,
 
 	memcpy(L40 + 10, T, sizeof(T));
 	md5_hmac(
-                L40, 14,  
+                L40, 14,
                 key_data,
-                key_size, 
+                key_size,
 	    	k5_data);
 	memset(&k5_data[7], 0xAB, 9);
     } else {
 	md5_hmac(
-                T, 4,  
+                T, 4,
                 key_data,
                 key_size,
 	    	k5_data);
     }
 
     md5_hmac(
-	cksum_data, cksum_size,  
+	cksum_data, cksum_size,
 	k5_data,
-	16, 
+	16,
 	key6_data);
 
     return 0;
@@ -370,10 +370,10 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
     unsigned char digest[16];
     int rc4_usage;
     guint8 cksum[16];
-    
+
     rc4_usage=usage2arcfour(usage);
-    md5_hmac(signature, sizeof(signature), 
-		key_data, key_length, 
+    md5_hmac(signature, sizeof(signature),
+		key_data, key_length,
 		ksign_c);
     md5_init(&ms);
     t[0] = (rc4_usage >>  0) & 0xFF;
@@ -396,7 +396,7 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
  * Verify padding of a gss wrapped message and return its length.
  */
 static int
-gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length, 
+gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
 		   size_t datalen,
 		   size_t *padlen)
 {
@@ -460,7 +460,7 @@ decrypt_arcfour(packet_info *pinfo,
 
     {
 	rc4_state_struct rc4_state;
-	
+
 	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
 	memcpy(SND_SEQ, (unsigned char *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 8);
 	crypt_rc4(&rc4_state, SND_SEQ, 8);
@@ -502,11 +502,11 @@ decrypt_arcfour(packet_info *pinfo,
 	memcpy(output_message_buffer, input_message_buffer, datalen);
 	crypt_rc4(&rc4_state, output_message_buffer, datalen);
     } else {
-	memcpy(Confounder, 
-		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
+	memcpy(Confounder,
+		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8),
 		8); /* Confounder */
-	memcpy(output_message_buffer, 
-		input_message_buffer, 
+	memcpy(output_message_buffer,
+		input_message_buffer,
 	        datalen);
     }
     memset(k6_data, 0, sizeof(k6_data));
@@ -524,16 +524,16 @@ decrypt_arcfour(packet_info *pinfo,
     if(pinfo->decrypt_gssapi_tvb==DECRYPT_GSSAPI_NORMAL){
 	ret = arcfour_mic_cksum(key_value, key_size,
 			    KRB5_KU_USAGE_SEAL,
-			    cksum_data, 
+			    cksum_data,
 			    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 0, 8), 8,
 			    Confounder, sizeof(Confounder),
-			    output_message_buffer, 
+			    output_message_buffer,
 			    datalen + padlen);
 	if (ret) {
 	    return -10;
 	}
 
-	cmp = memcmp(cksum_data, 
+	cmp = memcmp(cksum_data,
 	    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
 	    8); /* SGN_CKSUM */
 	if (cmp) {
@@ -646,7 +646,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	/*
 	 * The KRB5 blob conforms to RFC1964:
 	 *   USHORT (0x0102 == GSS_Wrap)
-	 *   and so on } 
+	 *   and so on }
 	 */
 
 	/* Now, the sign and seal algorithms ... */
@@ -707,7 +707,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			int len;
 			len=tvb_reported_length_remaining(tvb,offset);
 			if(len>tvb_length_remaining(tvb, offset)){
-				/* no point in trying to decrypt, 
+				/* no point in trying to decrypt,
 				   we dont have the full pdu.
 				*/
 				return offset;
@@ -715,7 +715,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 			pinfo->gssapi_encrypted_tvb = tvb_new_subset(
 					tvb, offset, len, len);
 		}
-			
+
 		/* if this is KRB5 wrapped rc4-hmac */
 		if((token_id==KRB_TOKEN_WRAP)
 		 &&(sgn_alg==KRB_SGN_ALG_HMAC)
@@ -736,14 +736,14 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 				23 /* rc4-hmac */);
 #endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 		}
-	}	
+	}
 #endif
 	/*
 	 * Return the offset past the checksum, so that we know where
 	 * the data we're wrapped around starts.  Also, set the length
 	 * of our top-level item to that offset, so it doesn't cover
 	 * the data we're wrapped around.
-	 * 
+	 *
 	 * Note that for DCERPC the GSSAPI blobs comes after the data it wraps,
 	 * not before.
 	 */
@@ -761,7 +761,7 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	/*
 	 * The KRB5 blob conforms to RFC1964:
 	 *   USHORT (0x0101 == GSS_GetMIC)
-	 *   and so on } 
+	 *   and so on }
 	 */
 
 	/* Now, the sign algorithm ... */
@@ -842,7 +842,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/*
 	 * The KRB5 blob conforms to RFC1964:
 	 *   USHORT (0x0102 == GSS_Wrap)
-	 *   and so on } 
+	 *   and so on }
 	 */
 
 	/* First, the token ID ... */
@@ -883,7 +883,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 
-	item = proto_tree_add_item(tree, hf_spnego, tvb, offset, 
+	item = proto_tree_add_item(tree, hf_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -927,14 +927,14 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					     pinfo->destport, 0);
 
 	    if (conversation) {
-		next_level_value = conversation_get_proto_data(conversation, 
+		next_level_value = conversation_get_proto_data(conversation,
 							       proto_spnego);
 		if (next_level_value)
 		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
 	    }
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_spnego, tvb, offset, 
+	item = proto_tree_add_item(parent_tree, hf_spnego, tvb, offset,
 				   -1, FALSE);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
@@ -986,7 +986,7 @@ void proto_register_spnego(void) {
 		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
 		    BASE_NONE, NULL, 0, "krb5_blob", HFILL }},
 		{ &hf_spnego_krb5_oid,
-		  { "KRB5 OID", "spnego.krb5_oid", FT_STRING, 
+		  { "KRB5 OID", "spnego.krb5_oid", FT_STRING,
 		    BASE_NONE, NULL, 0, "KRB5 OID", HFILL }},
 		{ &hf_spnego_krb5_tok_id,
 		  { "krb5_tok_id", "spnego.krb5.tok_id", FT_UINT16, BASE_HEX,

@@ -47,7 +47,7 @@
 # include "strptime.h"
 #endif
 
-#include "epan/crypt-md5.h"
+#include "epan/crypt/crypt-md5.h"
 
 #include "svnversion.h"
 
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
 		struct tm starttm;
 
 		memset(&starttm,0,sizeof(struct tm));
-		
+
 		if(!strptime(optarg,"%F %T",&starttm)) {
 			fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n",
 					optarg);
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
 
 		check_startstop = TRUE;
 		starttm.tm_isdst = -1;
-		
+
 		starttime = mktime(&starttm);
 		break;
 	}

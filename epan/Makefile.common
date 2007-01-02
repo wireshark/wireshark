@@ -43,7 +43,6 @@ LIBWIRESHARK_SRC = 		\
 	crcdrm.c		\
 	crypt-des.c		\
 	crypt-md4.c		\
-	crypt-md5.c		\
 	crypt-rc4.c		\
 	dtd_grammar.c   \
 	dtd_parse.c		\
@@ -124,7 +123,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	crcdrm.h		\
 	crypt-des.h		\
 	crypt-md4.h		\
-	crypt-md5.h		\
 	crypt-rc4.h		\
 	dtd.h			\
 	dtd_grammar.h		\

@@ -197,7 +197,7 @@ capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).
 		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(capinfos_LIBS) image\capinfos.res
 <<
 
-editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt-md5.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan\crypt-md5.obj $(editcap_LIBS) image\editcap.res

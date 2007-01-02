@@ -58,7 +58,7 @@
 #include <string.h>
 #include <glib.h>  /* for g_malloc() */
 
-#include <epan/crypt-md5.h>
+#include "crypt-md5.h"
 
 #undef BYTE_ORDER	/* 1 = big-endian, -1 = little-endian, 0 = unknown */
 #ifdef WORDS_BIGENDIAN
@@ -399,8 +399,8 @@ md5_checksum(const md5_byte_t *data,
 }
 
 void
-md5_hmac(const md5_byte_t *data, 
-     int len, 
+md5_hmac(const md5_byte_t *data,
+     int len,
      md5_byte_t *key_data,
      int key_length,
      md5_byte_t digest[16])
@@ -410,7 +410,7 @@ md5_hmac(const md5_byte_t *data,
     md5_byte_t opad[80];
     int key_len;
     int i;
-    
+
     ipad = g_malloc(64 + len);
     if (ipad == NULL)
 	g_assert_not_reached();
@@ -438,7 +438,7 @@ md5_hmac(const md5_byte_t *data,
 		ipad,
 		64+len,
 		digest);
-    memcpy(opad + 64, digest, 
+    memcpy(opad + 64, digest,
 	   16);
     md5_checksum(
 		opad,

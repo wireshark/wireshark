@@ -64,7 +64,7 @@
 #include <epan/packet.h>
 
 #include <epan/prefs.h>
-#include <epan/crypt-md5.h>
+#include <epan/crypt/crypt-md5.h>
 #include <epan/emem.h>
 #include "packet-tacacs.h"
 

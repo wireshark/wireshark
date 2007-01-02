@@ -218,14 +218,14 @@ static const value_string njack_setresult_vals[] = {
 	{ 0,	NULL }
 };
 
-/* General settings TAB */ 
+/* General settings TAB */
 static const value_string njack_dhcpcontrol[] = {
 	{ 0,	"Disable" },
 	{ 1,	"Enable" },
 
 	{ 0,	NULL }
 };
-/* End General settings TAB */ 
+/* End General settings TAB */
 
 /* Port settings TAB */
 static const true_false_string tfs_port_state = {
@@ -507,7 +507,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 }
 
 #if 0
-#include <epan/crypt-md5.h>
+#include <epan/crypt/crypt-md5.h>
 
 static gboolean
 verify_password(tvbuff_t *tvb, const char *password)
@@ -551,7 +551,7 @@ verify_password(tvbuff_t *tvb, const char *password)
 		fprintf(stderr, "%02X", digest[i]); /* debugging */
 		if (digest[i] != *(packetdata + 12 + i)) {
 			is_valid = FALSE;
-			break;	
+			break;
 		}
 	}
 	fprintf(stderr, " (%d)\n", is_valid); /* debugging */
@@ -645,7 +645,7 @@ static gboolean
 test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
-	if ( !tvb_bytes_exist(tvb, 0, 6) || 
+	if ( !tvb_bytes_exist(tvb, 0, 6) ||
 		    g_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
         	return FALSE;
 	}

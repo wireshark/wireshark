@@ -49,7 +49,7 @@
 #include "packet-x509if.h"
 
 #include <epan/sha1.h>
-#include <epan/crypt-md5.h>
+#include <epan/crypt/crypt-md5.h>
 
 #define PNAME  "Cryptographic Message Syntax"
 #define PSNAME "CMS"
@@ -236,7 +236,7 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     sha1_starts(&sha1_ctx);
 
-    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
+    sha1_update(&sha1_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
 		tvb_length(content));
 
     sha1_finish(&sha1_ctx, digest_buf);
@@ -247,19 +247,19 @@ cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff
 
     md5_init(&md5_ctx);
 
-    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)), 
+    md5_append(&md5_ctx, tvb_get_ptr(content, 0, tvb_length(content)),
 	       tvb_length(content));
-    
+
     md5_finish(&md5_ctx, digest_buf);
 
     buffer_size = MD5_BUFFER_SIZE;
   }
 
   if(buffer_size) {
-    /* compare our computed hash with what we have received */  
+    /* compare our computed hash with what we have received */
 
     if(tvb_bytes_exist(tvb, offset, buffer_size) &&
-       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) { 
+       (memcmp(tvb_get_ptr(tvb, offset, buffer_size), digest_buf, buffer_size) != 0)) {
       proto_item_append_text(pi, " [incorrect, should be ");
       for(i = 0; i < buffer_size; i++)
 	proto_item_append_text(pi, "%02X", digest_buf[i]);
@@ -453,7 +453,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
   content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, top_tree ? top_tree : tree);
-  
+
   content_tvb = tvb_new_subset(tvb, content_offset, len, -1);
 
 
@@ -494,7 +494,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if(object_identifier_id) {
     name = get_oid_str_name(object_identifier_id);
-    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
+    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
   }
 
 
@@ -1487,14 +1487,14 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
- 
+
   pi = get_ber_last_created_item();
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
   old_offset = get_ber_length(tree, tvb, old_offset, NULL, NULL);
 
-  if(content_tvb) 
+  if(content_tvb)
     cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
 
 

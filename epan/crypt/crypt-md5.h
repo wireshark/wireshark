@@ -71,7 +71,7 @@ typedef struct md5_state_s {
 } md5_state_t;
 
 #ifdef __cplusplus
-extern "C" 
+extern "C"
 {
 #endif
 
@@ -85,7 +85,7 @@ void md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
 void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 
   /* compute the MD5 HMAC */
-void md5_hmac(const md5_byte_t *data, int len,  md5_byte_t *key_data, int key_length, md5_byte_t digest[16]);
+void md5_hmac(const md5_byte_t *data, int len, md5_byte_t *key_data, int key_length, md5_byte_t digest[16]);
 
 #ifdef __cplusplus
 }  /* end extern "C" */

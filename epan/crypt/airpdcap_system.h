@@ -1,19 +1,16 @@
 #ifndef	_AIRPDCAP_SYSTEM_H
 #define	_AIRPDCAP_SYSTEM_H
 
-/******************************************************************************/
-/*	File includes																					*/
-/*																										*/
+/************************************************************************/
+/*	File includes							*/
+
 #include "airpdcap_interop.h"
 #include "airpdcap_user.h"
-/*																										*/
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Constant definitions																			*/
-/*																										*/
-/*	General definitions																			*/
+/************************************************************************/
+/*	Constant definitions						*/
+
+/*	General definitions						*/
 #ifndef	TRUE
 #define	TRUE	1
 #endif
@@ -35,14 +32,14 @@
 #define	AIRPDCAP_MAX_KEYS_NR	        	 64
 #define	AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR	256
 
-/*	Decryption algorithms fields size definition (bytes)								*/
+/*	Decryption algorithms fields size definition (bytes)		*/
 #define	AIRPDCAP_WPA_NONCE_LEN		         32
 #define	AIRPDCAP_WPA_PTK_LEN			 64	/* TKIP uses 48 bytes, CCMP uses 64 bytes	*/
 #define	AIRPDCAP_WPA_MICKEY_LEN		         16
 
 #define	AIRPDCAP_WEP_128_KEY_LEN	         16	/* 128 bits	*/
 
-/* General 802.11 constants																	*/
+/* General 802.11 constants						*/
 #define	AIRPDCAP_MAC_LEN			   6
 #define	AIRPDCAP_RADIOTAP_HEADER_LEN	          24
 
@@ -50,7 +47,7 @@
 
 #define AIRPDCAP_TK_LEN                           16
 
-/* Max length of capture data																	*/
+/* Max length of capture data						*/
 #define	AIRPDCAP_MAX_CAPLEN			8192
 
 #define	AIRPDCAP_WEP_IVLEN	3       /* 24bit */
@@ -60,12 +57,12 @@
 #define	AIRPDCAP_WEP_TRAILER	AIRPDCAP_WEP_ICV
 
 /*
-* 802.11i defines an extended IV for use with non-WEP ciphers.
-* When the EXTIV bit is set in the key id byte an additional
-* 4 bytes immediately follow the IV for TKIP.  For CCMP the
-* EXTIV bit is likewise set but the 8 bytes represent the
-* CCMP header rather than IV+extended-IV.
-*/
+ * 802.11i defines an extended IV for use with non-WEP ciphers.
+ * When the EXTIV bit is set in the key id byte an additional
+ * 4 bytes immediately follow the IV for TKIP.  For CCMP the
+ * EXTIV bit is likewise set but the 8 bytes represent the
+ * CCMP header rather than IV+extended-IV.
+ */
 #define	AIRPDCAP_RSNA_EXTIV	0x20
 #define	AIRPDCAP_RSNA_EXTIVLEN	4       /* extended IV length */
 #define	AIRPDCAP_RSNA_MICLEN	8       /* trailing MIC */
@@ -79,29 +76,23 @@
 #define	AIRPDCAP_TKIP_TRAILER	AIRPDCAP_RSNA_MICLEN + AIRPDCAP_WEP_ICV
 
 #define	AIRPDCAP_CRC_LEN	4
-/*																										*/
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Macro definitions																				*/
-/*																										*/
-/*																										*/
-/*																										*/
-/******************************************************************************/
+/************************************************************************/
+/*	Macro definitions						*/
 
-/******************************************************************************/
-/*	Type definitions																				*/
-/*																										*/
+/************************************************************************/
+/*	Type definitions						*/
+
 typedef struct _AIRPDCAP_SEC_ASSOCIATION_ID {
 	UCHAR bssid[AIRPDCAP_MAC_LEN];
 	UCHAR sta[AIRPDCAP_MAC_LEN];
 } AIRPDCAP_SEC_ASSOCIATION_ID, *PAIRPDCAP_SEC_ASSOCIATION_ID;
 
 typedef struct _AIRPDCAP_SEC_ASSOCIATION {
-	/*!
-	This flag define whether this item is used or not. Accepted values are TRUE and FALSE
-	*/
+	/**
+	 * This flag define whether this item is used or not. Accepted
+         * values are TRUE and FALSE
+	 */
 	UINT8 used;
 	AIRPDCAP_SEC_ASSOCIATION_ID saId;
 	AIRPDCAP_KEY_ITEM *key;
@@ -110,10 +101,10 @@ typedef struct _AIRPDCAP_SEC_ASSOCIATION {
 
 	struct {
 		UINT8 key_ver;		/* Key descriptor version	*/
-		UINT64 pn;				/* only used with CCMP AES	-if needed replay check- */
+		UINT64 pn;		/* only used with CCMP AES -if needed replay check- */
 		UCHAR nonce[AIRPDCAP_WPA_NONCE_LEN];
-		/* used to derive PTK, ANonce stored, SNonce taken		*/
-		/* the 2nd packet of the 4W handshake						*/
+		/* used to derive PTK, ANonce stored, SNonce taken	*/
+		/* the 2nd packet of the 4W handshake			*/
 
 		UCHAR ptk[AIRPDCAP_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
 	} wpa;
@@ -129,13 +120,10 @@ typedef struct _AIRPDCAP_CONTEXT {
 	INT first_free_index;
 	INT last_stored_index;
 } AIRPDCAP_CONTEXT, *PAIRPDCAP_CONTEXT;
-/*																										*/
-/*																										*/
-/******************************************************************************/
 
-/******************************************************************************/
-/*	Function prototype declarations															*/
-/*																										*/
+/************************************************************************/
+/*	Function prototype declarations					*/
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -324,13 +312,6 @@ extern INT AirPDcapTkipDecrypt(
 	UCHAR TA[AIRPDCAP_MAC_LEN],
 	UCHAR TK[AIRPDCAP_TK_LEN])
 	;
-extern void AirPDcapAlgHmacMd5(
-	UCHAR *key,	        /* pointer to authentication key */
-	INT key_len,		/* length of authentication key */
-	const UCHAR *text,	/* pointer to data stream */
-	const INT text_len,	/* length of data stream */
-	UCHAR *digest)		/* caller digest to be filled in */
-	;
 extern void AirPDcapAlgHmacSha1(
 	const UCHAR *key_len,
 	const size_t keylen,
@@ -343,8 +324,5 @@ extern void AirPDcapAlgHmacSha1(
 #ifdef	__cplusplus
 }
 #endif
-/*																										*/
-/*																										*/
-/******************************************************************************/
 
 #endif /* _AIRPDCAP_SYSTEM_H */

@@ -71,7 +71,7 @@
 #include <nettle/des.h>
 #include <nettle/cbc.h>
 #endif
-#include "crypt-md5.h"
+#include <epan/crypt/crypt-md5.h>
 #include <sys/stat.h>	/* For keyfile manipulation */
 #endif
 
@@ -2130,7 +2130,7 @@ static int
 dissect_krb5_PW_SALT(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	/* Microsoft stores a special 12 byte blob here
-	 * guint32 NT_status    
+	 * guint32 NT_status
 	 * guint32 unknown
 	 * guint32 unknown
 	 * decode everything as this blob for now until we see if anyone
@@ -2406,7 +2406,7 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 		tree=proto_item_add_subtree(item, ett_krb_PAC_LOGON_INFO);
 	}
 
-	/* skip the first 16 bytes, they are some magic created by the idl 
+	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
 	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
@@ -2442,7 +2442,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_t
 		tree=proto_item_add_subtree(item, ett_krb_PAC_CONSTRAINED_DELEGATION);
 	}
 
-	/* skip the first 16 bytes, they are some magic created by the idl 
+	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
 	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
@@ -3056,7 +3056,7 @@ dissect_krb5_rfc1964_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_mutual, tvb, offset, 4, TRUE);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, TRUE);
 	offset += 4;
-	
+
 	/* the next fields are optional so we have to check that we have
 	 * more data in our buffers */
 	if(tvb_length_remaining(tvb, offset)<2){
@@ -3082,7 +3082,7 @@ dissect_krb5_rfc1964_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	/* this should now be a KRB_CRED message */
 	offset=dissect_ber_choice(pinfo, tree, tvb, offset, kerberos_applications_choice, -1, -1, NULL);
 
-		
+
 	return offset;
 }
 
@@ -4197,7 +4197,7 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
     return (dissect_kerberos_common(tvb, pinfo, tree, do_col_info, FALSE, FALSE, cb));
 }
 
-guint32 
+guint32
 kerberos_output_keytype(void)
 {
   return keytype;
@@ -4207,14 +4207,14 @@ static gint
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Some weird kerberos implementation apparently do krb4 on the krb5 port.
-       Since all (except weirdo transarc krb4 stuff) use 
+       Since all (except weirdo transarc krb4 stuff) use
        an opcode <=16 in the first byte, use this to see if it might
        be krb4.
        All krb5 commands start with an APPL tag and thus is >=0x60
        so if first byte is <=16  just blindly assume it is krb4 then
     */
     if(tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0)<=0x10){
-      if(krb4_handle){ 
+      if(krb4_handle){
 	gboolean res;
 
 	res=call_dissector_only(krb4_handle, tvb, pinfo, tree);
@@ -4333,7 +4333,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
 	offset += 4;
     } else {
-        /* Do some sanity checking here, 
+        /* Do some sanity checking here,
          * All krb5 packets start with a TAG class that is BER_CLASS_APP
          * and a tag value that is either of the values below:
          * If it doesnt look like kerberos, return 0 and let someone else have
