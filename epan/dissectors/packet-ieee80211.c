@@ -596,6 +596,8 @@ static int hf_seq_number = -1;
 /*                   Header values for Frame Check field                     */
 /* ************************************************************************* */
 static int hf_fcs = -1;
+static int hf_fcs_good = -1;
+static int hf_fcs_bad = -1;
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
@@ -770,6 +772,8 @@ static gint ett_rsn_cap_tree = -1;
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
 static gint ett_sched_tree = -1;
+
+static gint ett_fcs = -1;
 
 static const fragment_items frag_items = {
 	&ett_fragment,
@@ -2626,11 +2630,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_item *ti = NULL;
   proto_item *flag_item;
   proto_item *fc_item;
+  proto_item *fcs_item;
   proto_tree *hdr_tree = NULL;
   proto_tree *flag_tree;
   proto_tree *fc_tree;
+  proto_tree *fcs_tree;
   guint16 hdr_len, ohdr_len;
-  gboolean has_fcs;
+  gboolean has_fcs, fcs_good, fcs_bad;
   gint len, reported_len, ivlen;
   gboolean save_fragmented;
   tvbuff_t *volatile next_tvb = NULL;
@@ -3174,15 +3180,37 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		fcs = crc32_802_tvb_padded(tvb, ohdr_len, hdr_len, len);
 	      else
 		fcs = crc32_802_tvb(tvb, hdr_len + len);
-	      if (fcs == sent_fcs)
-		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+	      if (fcs == sent_fcs) {
+		      fcs_good = TRUE;
+		      fcs_bad = FALSE;
+	      } else {
+		      fcs_good = FALSE;
+		      fcs_bad = TRUE;
+	      }
+
+	      if(fcs_good)
+		fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
 			"Frame check sequence: 0x%08x [correct]", sent_fcs);
 	      else
-		proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
+		fcs_item = proto_tree_add_uint_format(hdr_tree, hf_fcs, tvb,
 			hdr_len + len, 4, sent_fcs,
 			"Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
 			sent_fcs, fcs);
+
+	      fcs_tree = proto_item_add_subtree(fcs_item, ett_fcs);
+
+	      fcs_item = proto_tree_add_boolean(fcs_tree,
+						hf_fcs_good, tvb,
+						hdr_len + len, 2,
+						fcs_good);
+	      PROTO_ITEM_SET_GENERATED(fcs_item);
+
+	      fcs_item = proto_tree_add_boolean(fcs_tree,
+						hf_fcs_bad, tvb,
+						hdr_len + len, 2,
+						fcs_bad);
+	      PROTO_ITEM_SET_GENERATED(fcs_item);
 	    }
 	}
     }
@@ -4343,6 +4371,14 @@ proto_register_ieee80211 (void)
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
       NULL, 0, "FCS", HFILL }},
 
+    {&hf_fcs_good,
+     {"Good", "wlan.fcs_good", FT_BOOLEAN, BASE_NONE,
+      NULL, 0, "True if the FCS is correct", HFILL }},
+
+    {&hf_fcs_bad,
+     {"Bad", "wlan.fcs_bad", FT_BOOLEAN, BASE_NONE,
+      NULL, 0, "True if the FCS is incorrect", HFILL }},
+
     {&hf_fragment_overlap,
       {"Fragment overlap", "wlan.fragment.overlap", FT_BOOLEAN, BASE_NONE,
        NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
@@ -4902,6 +4938,7 @@ proto_register_ieee80211 (void)
     &ett_80211_mgt_ie,
     &ett_tsinfo_tree,
     &ett_sched_tree,
+    &ett_fcs
   };
   module_t *wlan_module;
 
