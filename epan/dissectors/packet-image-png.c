@@ -6,8 +6,8 @@
  *
  * Copyright 2006 Ronnie Sahlberg
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or

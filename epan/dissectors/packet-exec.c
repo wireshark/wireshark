@@ -5,7 +5,7 @@
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * By Gerald Combs <gerald@wireshark.com>
  * Copyright 1998 Gerald Combs
  *
  * Based on BSD rexecd code/man page and parts of packet-rlogin.c

@@ -1858,7 +1858,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
 /*********************************************************************
  *
- * Standard Ethereal Protocol Registration and housekeeping
+ * Standard Wireshark Protocol Registration and housekeeping
  *
  *********************************************************************/
 void
