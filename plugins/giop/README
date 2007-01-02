@@ -1,8 +1,8 @@
-This directory contains Ethereal plugins that use the GIOP
+This directory contains Wireshark plugins that use the GIOP
 API (see packet-giop.h).
 
 It is intended that the tool "idl2wrs", now part of the standard
-Ethereal distribution, will be used generate these plugins.
+Wireshark distribution, will be used generate these plugins.
 
 Please read README.idl2wrs for information on using "idl2wrs"
 and README.plugins for incorporating CORBA GIOP plugins into
