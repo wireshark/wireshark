@@ -43,7 +43,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp \
+	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).exp \
 	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb
 
 distclean: clean

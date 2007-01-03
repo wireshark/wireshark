@@ -85,8 +85,9 @@ plugin.c: $(DISSECTOR_SRC)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp \
-	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb
+	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
+		$(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
+        $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
 
 distclean: clean
 
