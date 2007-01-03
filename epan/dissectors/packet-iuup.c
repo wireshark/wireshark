@@ -3,7 +3,7 @@
  *
  * (c) 2005 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
  
 
@@ -361,7 +361,7 @@ static const guint16 byte_crc10_table[256] = {
         0x012e, 0x031d, 0x037b, 0x0148, 0x03b7, 0x0184, 0x01e2, 0x03d1,
         0x022f, 0x001c, 0x007a, 0x0249, 0x00b6, 0x0285, 0x02e3, 0x00d0,
         0x011f, 0x032c, 0x034a, 0x0179, 0x0386, 0x01b5, 0x01d3, 0x03e0,
-        0x021e, 0x002d, 0x004b, 0x0278, 0x0087, 0x02b4, 0x02d2, 0x00e1,
+        0x021e, 0x002d, 0x004b, 0x0278, 0x0087, 0x02b4, 0x02d2, 0x00e1
 };
 
 /* update the data block's CRC-10 remainder one byte at a time */
@@ -893,17 +893,16 @@ static void init_iuup(void) {
     circuits = g_hash_table_new(g_direct_hash,g_direct_equal);
 
     if (!iuup_prefs_initialized) {
-		iuup_prefs_initialized = TRUE;
-    } else {
-        if ( dynamic_payload_type > 95 )
+        iuup_prefs_initialized = TRUE;
+    } else if ( dynamic_payload_type > 95 ) {
             dissector_delete("rtp.pt", dynamic_payload_type, iuup_handle);
-	}
+    }
     
     dynamic_payload_type = temp_dynamic_payload_type;
     
-    if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, iuup_handle);
-	}
+    if ( dynamic_payload_type > 95 ) {
+        dissector_add("rtp.pt", dynamic_payload_type, iuup_handle);
+    }
     
     dissector_add_string("rtp_dyn_payload_type","VND.3GPP.IUFP", iuup_handle);
 
@@ -1028,12 +1027,12 @@ void proto_register_iuup(void) {
 
     
     proto_iuup = proto_register_protocol("IuUP", "IuUP", "iuup");
-	proto_register_field_array(proto_iuup, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_iuup, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
     register_dissector("iuup", dissect_iuup, proto_iuup);
     register_init_routine(&init_iuup);
     
-	iuup_handle = create_dissector_handle(dissect_iuup, proto_iuup);
+    iuup_handle = create_dissector_handle(dissect_iuup, proto_iuup);
 
     iuup_module = prefs_register_protocol(proto_iuup, init_iuup);
     
