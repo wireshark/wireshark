@@ -52,13 +52,23 @@ MSVC_VARIANT=MSVC6
 
 
 
-##### Libraries #####
+##### Directories #####
 
 # 
-# Base directory, where your libraries reside, which needs to be 
-# compiling the sources. This setting is used only inside this file.
+# Base directory, where your libraries reside, which are needed to 
+# compile the sources. This setting is used only inside this file.
 #
 WIRESHARK_LIBS=C:\wireshark-win32-libs
+
+# 
+# Base directory, where your programs reside. 
+# This setting is used only inside this file.
+#
+PROGRAM_FILES=C:/Program Files
+
+
+
+##### Libraries #####
 
 #
 # Mandatory: GLib settings
@@ -333,7 +343,7 @@ YACC=bison
 # If you don't have NSIS, comment this line out, so that MAKENSIS
 # isn't defined.
 #
-MAKENSIS="%ProgramFiles%\nsis\makensis.exe"
+MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 
 #
 # Optional: To build the developers documentation with doxygen and dot.
@@ -348,7 +358,7 @@ MAKENSIS="%ProgramFiles%\nsis\makensis.exe"
 # If you don't want the developers documentation (or don't have the tools),
 # comment this line out, so that DOXYGEN isn't defined.
 #
-#DOXYGEN="%ProgramFiles%/doxygen/bin/doxygen.exe"
+#DOXYGEN="$(PROGRAM_FILES)/doxygen/bin/doxygen.exe"
 
 #
 # Optional: To build compressed html help format .chm and use it as online help format.
@@ -362,7 +372,7 @@ MAKENSIS="%ProgramFiles%\nsis\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-#HHC_DIR="%ProgramFiles%/HTML Help Workshop/"
+#HHC_DIR="$(PROGRAM_FILES)/HTML Help Workshop/"
 
 
 
