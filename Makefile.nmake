@@ -715,6 +715,9 @@ debug-tshark: tshark.exe
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 
+# generate and install Wireshark GTK2 in INSTALL2_DIR
+debug-dumpcap: dumpcap.exe
+
 
 # "install-deps" will copy all files needed to run Wwireshark/Tshark
 # to the INSTALL1_DIR/INSTALL2_DIR, so you can run/debug Wireshark/Tshark from there.
@@ -728,6 +731,8 @@ install-files1:
 	set INSTALL_DIR=$(INSTALL1_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	xcopy wireshark.exe $(INSTALL1_DIR) /d
+	if exist wireshark.exe.manifest xcopy wireshark.exe.manifest $(INSTALL1_DIR) /d
+	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL1_DIR) /d
 !ENDIF
 
 # install Wireshark GTK2 and other generated files
@@ -736,6 +741,8 @@ install-files2:
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	copy wireshark-gtk2.exe $(INSTALL2_DIR)\wireshark.exe
+	if exist wireshark-gtk2.exe.manifest copy wireshark-gtk2.exe.manifest $(INSTALL2_DIR)\wireshark.exe.manifest
+	if exist wireshark-gtk2.pdb copy wireshark-gtk2.pdb $(INSTALL2_DIR)\wireshark.pdb
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
 !ENDIF
 
@@ -746,13 +753,29 @@ install-common-files:
 	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d
 !ENDIF
 	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
+	if exist ".\wiretap\wiretap-$(WTAP_VERSION).dll.manifest" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll.manifest" $(INSTALL_DIR) /d	
+	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d	
 	xcopy ".\epan\libwireshark.dll" $(INSTALL_DIR) /d
+	if exist ".\epan\libwireshark.dll.manifest" xcopy ".\epan\libwireshark.dll.manifest" $(INSTALL_DIR) /d	
+	if exist ".\epan\libwireshark.pdb" xcopy ".\epan\libwireshark.pdb" $(INSTALL_DIR) /d	
 	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
-	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL2_DIR) /d
-	if exist mergecap.exe xcopy mergecap.exe $(INSTALL2_DIR) /d
-	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL2_DIR) /d
+	if exist tshark.exe.manifest xcopy tshark.exe.manifest $(INSTALL_DIR) /d	
+	if exist tshark.pdb xcopy tshark.pdb $(INSTALL_DIR) /d	
+	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL_DIR) /d
+	if exist dumpcap.exe.manifest xcopy dumpcap.exe.manifest $(INSTALL_DIR) /d	
+	if exist dumpcap.pdb xcopy dumpcap.pdb $(INSTALL_DIR) /d	
+	if exist mergecap.exe xcopy mergecap.exe $(INSTALL_DIR) /d
+	if exist mergecap.exe.manifest xcopy mergecap.exe.manifest $(INSTALL_DIR) /d	
+	if exist mergecap.pdb xcopy mergecap.pdb $(INSTALL_DIR) /d	
+	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL_DIR) /d
+	if exist text2pcap.exe.manifest xcopy text2pcap.exe.manifest $(INSTALL_DIR) /d	
+	if exist text2pcap.pdb xcopy text2pcap.pdb $(INSTALL_DIR) /d	
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
+	if exist capinfos.exe.manifest xcopy capinfos.exe.manifest $(INSTALL_DIR) /d	
+	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d	
 	if exist editcap.exe xcopy editcap.exe $(INSTALL_DIR) /d
+	if exist editcap.exe.manifest xcopy editcap.exe.manifest $(INSTALL_DIR) /d	
+	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d	
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
 	xcopy ".\FAQ" $(INSTALL_DIR) /d
