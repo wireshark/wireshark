@@ -7,7 +7,7 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
@@ -16,7 +16,7 @@ AIRPDCAP_OBJECTS= \
        airpdcap.obj \
        airpdcap_debug.obj \
        airpdcap_ccmp.obj \
-       airpdcap_md5.obj \
+       crypt-md5.obj \
        airpdcap_rijndael.obj \
        airpdcap_sha1.obj \
        airpdcap_tkip.obj \
@@ -32,11 +32,11 @@ airpdcap.obj: airpdcap.c
 airpdcap_debug.obj: airpdcap_debug.c
 	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_debug.c -o $@
 
-airpdcap_ccmp.obj: airpdcap_ccmp.c airpdcap_ccmp.h
+airpdcap_ccmp.obj: airpdcap_ccmp.c
 	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_ccmp.c -o $@
 
-airpdcap_md5.obj: airpdcap_md5.c airpdcap_md5.h
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_md5.c -o $@
+crypt-md5.obj: crypt-md5.c crypt-md5.h
+	$(CC) $(CFLAGS) -Fd.\ -c crypt-md5.c -o $@
 
 airpdcap_rijndael.obj: airpdcap_rijndael.c
 	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_rijndael.c -o $@
