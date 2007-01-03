@@ -23,6 +23,35 @@ WTAP_VERSION_MICRO=1
 
 
 
+##### Microsoft Visual C / Studio Variant #####
+# for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
+# only one of the following MSVC_VARIANT settings should be used
+
+# "Microsoft Visual Studio 6.0" - THE ONLY RECOMMENDED
+# Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
+MSVC_VARIANT=MSVC6
+
+# "Microsoft Visual Studio .NET (2002)" - NOT YET WORKING
+# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
+#MSVC_VARIANT=MSVC2002
+
+# "Microsoft Visual Studio .NET 2003" - NOT YET WORKING
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=MSVC2003
+
+# "Microsoft Visual C++ Toolkit 2003" - NOT YET WORKING
+# needs additional Platform SDK installation
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+#MSVC_VARIANT=VC2003TOOLKIT
+
+# "Microsoft Visual Studio 2005" - NOT YET WORKING
+# "Microsoft Visual C++ 2005 Express Edition" - EXPERIMENTAL
+# The "Express Edition" needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=MSVC2005
+
+
+
 ##### Libraries #####
 
 # 
@@ -113,7 +142,11 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
+# XXX - ZLIB must be recompiled on MSVC 2005 because of C runtime lib (msvcr)
+# problems, simply disable it for now on MSVC 2005 (and other none 6 versions)
+!IF "$(MSVC_VARIANT)" == "MSVC6"
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
+!ENDIF
 
 #
 # Optional: The Net-SNMP library enables SNMP OID to name resolvings
@@ -160,7 +193,10 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 # If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
 # isn't defined.
 #
+# XXX - GNUTLS headers doesn't compile on MSVC 2005
+!IF "$(MSVC_VARIANT)" == "MSVC6"
 GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.0-1
+!ENDIF
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -331,33 +367,6 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 
 
 ##### Flags, PATHs and Miscellaneous #####
-
-# for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
-# only one of the following MSVC_VARIANT settings should be used
-
-# "Microsoft Visual Studio 6.0" - THE ONLY RECOMMENDED
-# Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
-MSVC_VARIANT=MSVC6
-
-# "Microsoft Visual Studio .NET (2002)" - NOT YET WORKING
-# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
-#MSVC_VARIANT=MSVC2002
-
-# "Microsoft Visual Studio .NET 2003" - NOT YET WORKING
-# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=MSVC2003
-
-# "Microsoft Visual C++ Toolkit 2003" - NOT YET WORKING
-# needs additional Platform SDK installation
-# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=VC2003TOOLKIT		
-
-# "Microsoft Visual Studio 2005" - NOT YET WORKING
-# "Microsoft Visual C++ 2005 Express Edition" - NOT YET WORKING
-# The "Express Edition" needs additional Platform SDK installation
-# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=MSVC2005	
-
 
 # Compiler flags:
 # /W3  warning level 3 (0 less - 4 most, 1 default)
