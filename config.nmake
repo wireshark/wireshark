@@ -333,7 +333,7 @@ YACC=bison
 # If you don't have NSIS, comment this line out, so that MAKENSIS
 # isn't defined.
 #
-MAKENSIS="C:/program files/nsis/makensis.exe"
+MAKENSIS="%ProgramFiles%/nsis/makensis.exe"
 
 #
 # Optional: To build the developers documentation with doxygen and dot.
@@ -348,7 +348,7 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 # If you don't want the developers documentation (or don't have the tools),
 # comment this line out, so that DOXYGEN isn't defined.
 #
-#DOXYGEN="C:/program files/doxygen/bin/doxygen.exe"
+#DOXYGEN="%ProgramFiles%/doxygen/bin/doxygen.exe"
 
 #
 # Optional: To build compressed html help format .chm and use it as online help format.
@@ -362,7 +362,7 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-#HHC_DIR="C:/Program Files/HTML Help Workshop/"
+#HHC_DIR="%ProgramFiles%/HTML Help Workshop/"
 
 
 
