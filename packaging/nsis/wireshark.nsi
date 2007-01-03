@@ -299,6 +299,7 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
+File /nonfatal "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
 !ifdef ENABLE_LIBWIRESHARK
 File "..\..\epan\libwireshark.dll"
 !endif
