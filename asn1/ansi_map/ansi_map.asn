@@ -255,9 +255,9 @@ AuthenticationRequest ::= [PRIVATE 18] SET {
 
 -- AuthenticationRequest RETURN RESULT Parameters
 AuthenticationRequestRes ::= [PRIVATE 18] SET {
-	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord,
+	analogRedirectRecord					[225] IMPLICIT AnalogRedirectRecord OPTIONAL,
 	-- O 6.5.2.bd j
-	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion,
+	authenticationAlgorithmVersion			[77] IMPLICIT AuthenticationAlgorithmVersion OPTIONAL,
 	-- O 6.5.2.7 a
 	authenticationResponseUniqueChallenge	[37] IMPLICIT AuthenticationResponseUniqueChallenge OPTIONAL,
 	-- O 6.5.2.12 b
@@ -273,7 +273,7 @@ AuthenticationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.at j
 	denyAccess								[50] IMPLICIT DenyAccess OPTIONAL,
 	-- O 6.5.2.54 e
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	-- O 6.5.2.81 l
 	roamingIndication						[239] IMPLICIT RoamingIndication OPTIONAL,
 	-- O 6.5.2.br m
@@ -728,9 +728,9 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.2 b
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 c
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 d
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 d
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 d
@@ -1262,9 +1262,9 @@ InformationDirective ::= [PRIVATE 18] SET {
 	-- O 6.5.2.3 a
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 b
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 c
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
@@ -1297,9 +1297,9 @@ InformationForward ::= [PRIVATE 18] SET {
 	-- O 6.5.2.3 a
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 a
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 b
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 b
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 b
@@ -1353,9 +1353,9 @@ InterSystemPage ::= [PRIVATE 18] SET {
 	-- O 6.5.2.21 a
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
 	-- O 6.5.2.22 a
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 a
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 a
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 a
@@ -1481,9 +1481,9 @@ InterSystemPage2 ::= [PRIVATE 18] SET {
 	-- M 6.5.2.63
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
 	-- O 6.5.2.3 a
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 b
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 b
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 b
@@ -1585,9 +1585,9 @@ InterSystemSetup ::= [PRIVATE 18] SET {
 -- (IS-751)
 	alertCode								[75] IMPLICIT AlertCode OPTIONAL,
 	-- O 6.5.2.3 a, g
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 b, g
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 b, g
 
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
@@ -1693,9 +1693,9 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.1 c
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 d
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 e
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 e
 	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
 	-- O 6.5.2.f
@@ -1859,9 +1859,9 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	--	O 6.5.2.2 b
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 c
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 d, e
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 d, e
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL, 
 	--	O 6.5.2.25 d, e, f
@@ -2326,9 +2326,9 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.21 c, t	
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL, 
 	-- O 6.5.2.22 c, t	
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 c
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	--, O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
@@ -2674,9 +2674,9 @@ TransferToNumberRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.2 c
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 d
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 e
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 e
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 e, f
@@ -2795,9 +2795,9 @@ UnsolicitedResponseRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.21 d	
 	callingPartyNumberDigits2				[81] IMPLICIT CallingPartyNumberDigits2 OPTIONAL,
 	-- O 6.5.2.22 d
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 c
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 c
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 c
@@ -3035,9 +3035,9 @@ ServiceRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.6 e
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw a
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 a
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 a
 	callingPartySubaddress					[84] IMPLICIT CallingPartySubaddress OPTIONAL,
 	-- O 6.5.2.25 a
@@ -3461,9 +3461,9 @@ TBusyRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.2 b
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 c
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 d, e
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 d, e
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 l
@@ -3564,9 +3564,9 @@ TNoAnswerRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.2 b
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 c
-	callingPartyNumberString1				[84] IMPLICIT CallingPartyNumberString1 OPTIONAL,
+	callingPartyNumberString1				[82] IMPLICIT CallingPartyNumberString1 OPTIONAL,
 	-- O 6.5.2.23 d, e
-	callingPartyNumberString2				[85] IMPLICIT CallingPartyNumberString2 OPTIONAL,
+	callingPartyNumberString2				[83] IMPLICIT CallingPartyNumberString2 OPTIONAL,
 	-- O 6.5.2.24 d, e
 	carrierDigits							[86] IMPLICIT CarrierDigits OPTIONAL,
 	-- O 6.5.2.28 l
@@ -3757,7 +3757,7 @@ CallControlDirective ::= [PRIVATE 18] SET {
 }
 
 -- z-2 CallControlDirective RETURN RESULT Parameters
-CallControlDirectiveres ::= [PRIVATE 18] SET {
+CallControlDirectiveRes ::= [PRIVATE 18] SET {
 	callStatus								[310] IMPLICIT CallStatus OPTIONAL
 	-- O 6.5.2.en a
 
@@ -4461,7 +4461,7 @@ CallingPartyNumberDigits2 ::= DigitsType
 
 -- 6.5.2.23
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 0 1 0 1 0 0 1 0 (0x52)(84)
+-- 0 1 0 1 0 0 1 0 (0x52)(82)
 CallingPartyNumberString1 ::= DigitsType
 
 -- 6.5.2.24
@@ -5375,9 +5375,11 @@ SMS-OriginatingAddress ::= DigitsType
 SMS-OriginationRestrictions ::= OCTET STRING
 
 -- 6.5.2.137
+-- N.S0005-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 0 1 1 1 0 1 0 0 (0x74)(116)
-SMS-TeleserviceIdentifier ::= OCTET STRING
+-- SMS-TeleserviceIdentifier ::= OCTET STRING 
+SMS-TeleserviceIdentifier ::= INTEGER 
 
 -- 6.5.2.138
 -- 1 0 0 1 1 1 1 1 (0x9f)

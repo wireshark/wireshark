@@ -163,11 +163,11 @@ static int hf_ansi_map_trans_cap_uzci = -1;
 static int hf_ansi_map_trans_cap_ndss = -1;
 static int hf_ansi_map_trans_cap_nami = -1;
 static int hf_ansi_trans_cap_multerm = -1;
-static int hf_ansi_map_terminationtreatment_busy = -1;
-static int hf_ansi_map_terminationtreatment_rf = -1;
-static int hf_ansi_map_terminationtreatment_npr = -1;
-static int hf_ansi_map_terminationtreatment_na = -1;
-static int hf_ansi_map_terminationtreatment_nr = -1;
+static int hf_ansi_map_terminationtriggers_busy = -1;
+static int hf_ansi_map_terminationtriggers_rf = -1;
+static int hf_ansi_map_terminationtriggers_npr = -1;
+static int hf_ansi_map_terminationtriggers_na = -1;
+static int hf_ansi_map_terminationtriggers_nr = -1;
 static int hf_ansi_trans_cap_tl = -1;
 static int hf_ansi_trans_cap_waddr = -1;
 static int hf_ansi_map_MarketID = -1;
@@ -306,7 +306,7 @@ static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
-static gint32 ansi_map_sms_tele_id = -1;
+tvbuff_t *SMS_BearerData_tvb = NULL;
 static gboolean is683_ota;
 static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
@@ -2129,10 +2129,11 @@ static const value_string ansi_map_SMS_ChargeIndicator_vals[]  = {
 	original originator.
 	*/
 
-/* 6.5.2.130 SMS_NotificationIndicator */
+/* 6.5.2.130 SMS_NotificationIndicator N.S0005-0 v 1.0*/
 static const value_string ansi_map_SMS_NotificationIndicator_vals[]  = {
     {   0, "Not used"},
-    {   1, "Do not notify when available"},
+    {   1, "Notify when available"},
+    {   2, "Do not notify when available"},
 	{	0, NULL }
 };
 
@@ -2244,7 +2245,7 @@ static const value_string ansi_map_TerminationTreatment_vals[]  = {
 
 /* 6.5.2.159 TerminationTriggers */
 /* Busy (octet 1, bits A and B) */
-static const value_string ansi_map_terminationtreatment_busy_vals[]  = {
+static const value_string ansi_map_terminationtriggers_busy_vals[]  = {
     {   0, "Busy Call"},
     {   1, "Busy Trigger"},
     {   2, "Busy Leg"},
@@ -2252,7 +2253,7 @@ static const value_string ansi_map_terminationtreatment_busy_vals[]  = {
 	{	0, NULL }
 };
 /* Routing Failure (RF) (octet 1, bits C and D) */
-static const value_string ansi_map_terminationtreatment_rf_vals[]  = {
+static const value_string ansi_map_terminationtriggers_rf_vals[]  = {
     {   0, "Failed Call"},
     {   1, "Routing Failure Trigger"},
     {   2, "Failed Leg"},
@@ -2260,7 +2261,7 @@ static const value_string ansi_map_terminationtreatment_rf_vals[]  = {
 	{	0, NULL }
 };
 /* No Page Response (NPR) (octet 1, bits E and F) */
-static const value_string ansi_map_terminationtreatment_npr_vals[]  = {
+static const value_string ansi_map_terminationtriggers_npr_vals[]  = {
     {   0, "No Page Response Call"},
     {   1, "No Page Response Trigger"},
     {   2, "No Page Response Leg"},
@@ -2268,7 +2269,7 @@ static const value_string ansi_map_terminationtreatment_npr_vals[]  = {
 	{	0, NULL }
 };
 /* No Answer (NA) (octet 1, bits G and H) */
-static const value_string ansi_map_terminationtreatment_na_vals[]  = {
+static const value_string ansi_map_terminationtriggers_na_vals[]  = {
     {   0, "No Answer Call"},
     {   1, "No Answer Trigger"},
     {   2, "No Answer Leg"},
@@ -2276,15 +2277,15 @@ static const value_string ansi_map_terminationtreatment_na_vals[]  = {
 	{	0, NULL }
 };
 /* None Reachable (NR) (octet 2, bit A) */
-static const value_string ansi_map_terminationtreatment_nr_vals[]  = {
+static const value_string ansi_map_terminationtriggers_nr_vals[]  = {
     {   0, "Member Not Reachable"},
     {   1, "Group Not Reachable"},
 	{	0, NULL }
 };
 
-
+/* 6.5.2.159 TerminationTriggers N.S0005-0 v 1.0*/
 static void
-dissect_ansi_map_terminationtreatment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
     proto_item *item;
@@ -2294,18 +2295,18 @@ dissect_ansi_map_terminationtreatment(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	subtree = proto_item_add_subtree(item, ett_transactioncapability);
 	
 	/* Busy (octet 1, bits A and B) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtreatment_busy, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_busy, tvb, offset, 1, FALSE);
 	/* Routing Failure (RF) (octet 1, bits C and D) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtreatment_rf, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_rf, tvb, offset, 1, FALSE);
 	/* No Answer (NA) (octet 1, bits G and H) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtreatment_na, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_na, tvb, offset, 1, FALSE);
 	/* No Page Response (NPR) (octet 1, bits E and F) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtreatment_npr, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_npr, tvb, offset, 1, FALSE);
 
 	offset++;
 
 	/* None Reachable (NR) (octet 2, bit A) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtreatment_nr, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_nr, tvb, offset, 1, FALSE);
 }
 
 /* 6.5.2.160 TransactionCapability (TIA/EIA-41.5-D, page 5-315) */
@@ -3447,18 +3448,39 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
   switch(OperationCode){
+   case 1: /*Handoff Measurement Request*/
+	   offset = dissect_ansi_map_HandoffMeasurementRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
    case 2: /*Facilities Directive*/
 	   offset = dissect_ansi_map_FacilitiesDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
    case 4: /*Handoff Back*/
 	   offset = dissect_ansi_map_HandoffBackRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
-   case 6: /*Qualification Request*/
+   case 5: /*Facilities Release*/
+	   offset = dissect_ansi_map_FacilitiesReleaseRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+  case 6: /*Qualification Request*/
 	   offset = dissect_ansi_map_QualificationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case 10: /*Reset Circuit*/
+	   offset = dissect_ansi_map_ResetCircuitRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
    case 13: /*Registration Notification*/
 	  offset = dissect_ansi_map_RegistrationNotificationRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+   case  14: /*Registration Cancellation*/
+      offset = dissect_ansi_map_RegistrationCancellationRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+   case  15: /*Location Request*/
+	   offset = dissect_ansi_map_LocationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  16: /*Routing Request*/
+	   offset = dissect_ansi_map_RoutingRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  17: /*Feature Request*/
+	   offset = dissect_ansi_map_FeatureRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
    case  23: /*Transfer To Number Request*/
 	   offset = dissect_ansi_map_TransferToNumberRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
@@ -3477,8 +3499,17 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
    case  31: /*Count Request*/
 	   offset = dissect_ansi_map_CountRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
+   case  32: /*Inter System Page*/
+	   offset = dissect_ansi_map_InterSystemPageRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
    case  33: /*Unsolicited Response*/
 	   offset = dissect_ansi_map_UnsolicitedResponseRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  35: /*Handoff Measurement Request 2*/
+	   offset = dissect_ansi_map_HandoffMeasurementRequest2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  36: /*Facilities Directive 2*/
+	   offset = dissect_ansi_map_FacilitiesDirective2Res(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
    case  37: /*Handoff Back 2*/
 	   offset = dissect_ansi_map_HandoffBack2Res(TRUE, tvb, offset, pinfo, tree, -1);
@@ -3486,17 +3517,27 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
    case  38: /*Handoff To Third 2*/
 	   offset = dissect_ansi_map_HandoffToThird2Res(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
+   case  39: /*Authentication Directive Forward*/
+	   offset = dissect_ansi_map_AuthenticationDirectiveForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
    case  40: /*Authentication Status Report*/
 	   offset = dissect_ansi_map_AuthenticationStatusReportRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
+			 /*Reserved 41*/
    case  43: /*Information Forward*/
 	   offset = dissect_ansi_map_InformationForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   break;
+   case  45: /*Inter System Page 2*/
+	   offset = dissect_ansi_map_InterSystemPage2Res(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
    case  46: /*Inter System Setup*/
 	   offset = dissect_ansi_map_InterSystemSetupRes(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
   case  47: /*OriginationRequest*/
 	  offset = dissect_ansi_map_OriginationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  48: /*Random Variable Request*/
+	  offset = dissect_ansi_map_RandomVariableRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  50: /*Remote User Interaction Directive*/
 	  offset = dissect_ansi_map_RemoteUserInteractionDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
@@ -3517,17 +3558,27 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  offset = dissect_ansi_map_SMSRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
 	  /*  N.S0008-0 v 1.0 */
+  case  56: /*OTASP Request 6.4.2.CC*/
+	  offset = dissect_ansi_map_OTASPRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
   case  58: /*Change Facilities*/
 	  offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  59: /*Change Service*/
 	  offset = dissect_ansi_map_ChangeServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+  case  60: /*Parameter Request*/
+	  offset = dissect_ansi_map_ParameterRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
   case  61: /*TMSI Directive*/
 	  offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  63: /*Service Request*/
 	  offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+	  /* N.S0013 */
+  case  64: /*Analyzed Information Request*/
+	  offset = dissect_ansi_map_AnalyzedInformationRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  68: /*Facility Selected and Available*/
 	  offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, pinfo, tree, -1);
@@ -3541,11 +3592,17 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   case  73: /*Seize Resource*/
 	  offset = dissect_ansi_map_SeizeResourceRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
+  case  74: /*SRF Directive*/
+	  offset = dissect_ansi_map_SRFDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
   case  75: /*T Busy*/
 	  offset = dissect_ansi_map_TBusyRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  76: /*T NoAnswer*/
 	  offset = dissect_ansi_map_TNoAnswerRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  break;
+  case  81: /*Call Control Directive*/
+	  offset = dissect_ansi_map_CallControlDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
 	  break;
   case  83: /*O Disconnect*/
 	  offset = dissect_ansi_map_ODisconnectRes(TRUE, tvb, offset, pinfo, tree, -1);
@@ -3592,55 +3649,42 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ansi_map_tree = NULL;
     int        offset = 0;
 
+	SMS_BearerData_tvb = NULL;
     g_pinfo = pinfo;
-
+	g_tree = tree;
     /*
      * Make entry in the Protocol column on summary display
      */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ANSI MAP");
     }
-
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
-     */
-    if (tree)
-    {
-	g_tree = tree;
 
 	/*
 	 * create the ansi_map protocol tree
 	 */
-	ansi_map_item =
-	    proto_tree_add_item(tree, proto_ansi_map, tvb, 0, -1, FALSE);
-
-	ansi_map_tree =
-	    proto_item_add_subtree(ansi_map_item, ett_ansi_map);
-
-
-
+	ansi_map_item = proto_tree_add_item(tree, proto_ansi_map, tvb, 0, -1, FALSE);
+	ansi_map_tree = proto_item_add_subtree(ansi_map_item, ett_ansi_map);
 	ansi_map_is_invoke = FALSE;
 	is683_ota = FALSE;
 	is801_pld = FALSE;
 	dissect_ansi_map_ComponentPDU(FALSE, tvb, offset, pinfo, ansi_map_tree, -1);
 
-    }
 }
 
 static void range_delete_callback(guint32 ssn)
  {
-     if (ssn) {
- 	delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
- 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
-     }
+	if (ssn) {
+		delete_ansi_tcap_subdissector(ssn , ansi_map_handle);
+ 		add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+    }
  }
 
  static void range_add_callback(guint32 ssn)
  {
-     if (ssn) {
- 	add_ansi_tcap_subdissector(ssn , ansi_map_handle);
-     }
+	if (ssn) {
+		 add_ansi_tcap_subdissector(ssn , ansi_map_handle);
+	}
  }
 
  void
@@ -3835,25 +3879,25 @@ void proto_register_ansi_map(void) {
       { "Multiple Terminations", "ansi_map.trans_cap_multerm",
         FT_UINT8, BASE_DEC, VALS(ansi_map_trans_cap_multerm_vals), 0x0f,
         "Multiple Terminations", HFILL }},
-    { &hf_ansi_map_terminationtreatment_busy,
-      { "Busy", "ansi_map.terminationtreatment.busy",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtreatment_busy_vals), 0x03,
+    { &hf_ansi_map_terminationtriggers_busy,
+      { "Busy", "ansi_map.terminationtriggers.busy",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtriggers_busy_vals), 0x03,
         "Busy", HFILL }},
-    { &hf_ansi_map_terminationtreatment_rf,
-      { "Routing Failure (RF)", "ansi_map.terminationtreatment.rf",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtreatment_rf_vals), 0x0c,
+    { &hf_ansi_map_terminationtriggers_rf,
+      { "Routing Failure (RF)", "ansi_map.terminationtriggers.rf",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtriggers_rf_vals), 0x0c,
         "Routing Failure (RF)", HFILL }},
-    { &hf_ansi_map_terminationtreatment_npr,
-      { "No Page Response (NPR)", "ansi_map.terminationtreatment.npr",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtreatment_npr_vals), 0x30,
+    { &hf_ansi_map_terminationtriggers_npr,
+      { "No Page Response (NPR)", "ansi_map.terminationtriggers.npr",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtriggers_npr_vals), 0x30,
         "No Page Response (NPR)", HFILL }},
-    { &hf_ansi_map_terminationtreatment_na,
-      { "No Answer (NA)", "ansi_map.terminationtreatment.na",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtreatment_na_vals), 0xc0,
+    { &hf_ansi_map_terminationtriggers_na,
+      { "No Answer (NA)", "ansi_map.terminationtriggers.na",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtriggers_na_vals), 0xc0,
         "No Answer (NA)", HFILL }},
-    { &hf_ansi_map_terminationtreatment_nr,
-      { "None Reachable (NR)", "ansi_map.terminationtreatment.nr",
-        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtreatment_nr_vals), 0x01,
+    { &hf_ansi_map_terminationtriggers_nr,
+      { "None Reachable (NR)", "ansi_map.terminationtriggers.nr",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_terminationtriggers_nr_vals), 0x01,
         "None Reachable (NR)", HFILL }},
 	{ &hf_ansi_trans_cap_tl,
       { "TerminationList (TL)", "ansi_map.trans_cap_tl",

@@ -351,20 +351,32 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.124
-#.FN_BODY SMS-BearerData VAL_PTR = &parameter_tvb
-	tvbuff_t *parameter_tvb = NULL;
+#.FN_BODY SMS-BearerData VAL_PTR = &SMS_BearerData_tvb
+	SMS_BearerData_tvb = NULL;
 
 %(DEFAULT_BODY)s
 
-# 6.5.2.158 TerminationTreatment
-#.FN_PARS TerminationTreatment
+# 6.5.2.137
+# N.S0005-0 v 1.0
+#.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &ansi_map_sms_tele_id
+static gint32 ansi_map_sms_tele_id = -1;
+
+%(DEFAULT_BODY)s
+	if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
+	{
+	    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+	    ansi_map_sms_tele_id = -1;
+	}
+
+# 6.5.2.159 TerminationTriggers
+#.FN_PARS TerminationTriggers
 VAL_PTR = &parameter_tvb
 
-#.FN_BODY TerminationTreatment
+#.FN_BODY TerminationTriggers
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_terminationtreatment(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_terminationtriggers(parameter_tvb,pinfo,tree);
 	}
 
 # 6.5.2.160 TransactionCapability
