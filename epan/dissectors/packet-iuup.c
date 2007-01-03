@@ -26,10 +26,9 @@
  
 
 /*
- TO DO:
- - verify crc6(hdr) and crc10(payload)
-    - write crc6
-    - is the crc10 the same used for ATM OAM cells?
+   Patch by Polystar (Peter Vestman, Petter Edblom):
+	Corrected rfci handling in rate control messages
+	Added crc6 and crc10 checks for header and payload
 */
 
 #ifdef HAVE_CONFIG_H
@@ -43,6 +42,7 @@
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 
 typedef struct _iuup_rfci_t {
@@ -72,7 +72,9 @@ static int hf_iuup_frame_number = -1;
 static int hf_iuup_fqc = -1;
 static int hf_iuup_rfci = -1;
 static int hf_iuup_hdr_crc = -1;
+static int hf_iuup_hdr_crc_error = -1;
 static int hf_iuup_payload_crc = -1;
+static int hf_iuup_payload_crc_error = -1;
 
 static int hf_iuup_ack_nack = -1;
 static int hf_iuup_frame_number_t14 = -1;
@@ -318,6 +320,96 @@ static const value_string iuup_fqcs[] = {
     {3, "spare"},
     {0,NULL}
 };
+/*
+ * Charles Michael Heard's CRC-10 code, from
+ *
+ *      http://cell-relay.indiana.edu/cell-relay/publications/software/CRC/crc10.html
+ *
+ * with the CRC table initialized with values computed by
+ * his "gen_byte_crc10_table()" routine, rather than by calling that
+ * routine at run time, and with various data type cleanups.
+ */
+static const guint16 byte_crc10_table[256] = {
+        0x0000, 0x0233, 0x0255, 0x0066, 0x0299, 0x00aa, 0x00cc, 0x02ff,
+        0x0301, 0x0132, 0x0154, 0x0367, 0x0198, 0x03ab, 0x03cd, 0x01fe,
+        0x0031, 0x0202, 0x0264, 0x0057, 0x02a8, 0x009b, 0x00fd, 0x02ce,
+        0x0330, 0x0103, 0x0165, 0x0356, 0x01a9, 0x039a, 0x03fc, 0x01cf,
+        0x0062, 0x0251, 0x0237, 0x0004, 0x02fb, 0x00c8, 0x00ae, 0x029d,
+        0x0363, 0x0150, 0x0136, 0x0305, 0x01fa, 0x03c9, 0x03af, 0x019c,
+        0x0053, 0x0260, 0x0206, 0x0035, 0x02ca, 0x00f9, 0x009f, 0x02ac,
+        0x0352, 0x0161, 0x0107, 0x0334, 0x01cb, 0x03f8, 0x039e, 0x01ad,
+        0x00c4, 0x02f7, 0x0291, 0x00a2, 0x025d, 0x006e, 0x0008, 0x023b,
+        0x03c5, 0x01f6, 0x0190, 0x03a3, 0x015c, 0x036f, 0x0309, 0x013a,
+        0x00f5, 0x02c6, 0x02a0, 0x0093, 0x026c, 0x005f, 0x0039, 0x020a,
+        0x03f4, 0x01c7, 0x01a1, 0x0392, 0x016d, 0x035e, 0x0338, 0x010b,
+        0x00a6, 0x0295, 0x02f3, 0x00c0, 0x023f, 0x000c, 0x006a, 0x0259,
+        0x03a7, 0x0194, 0x01f2, 0x03c1, 0x013e, 0x030d, 0x036b, 0x0158,
+        0x0097, 0x02a4, 0x02c2, 0x00f1, 0x020e, 0x003d, 0x005b, 0x0268,
+        0x0396, 0x01a5, 0x01c3, 0x03f0, 0x010f, 0x033c, 0x035a, 0x0169,
+        0x0188, 0x03bb, 0x03dd, 0x01ee, 0x0311, 0x0122, 0x0144, 0x0377,
+        0x0289, 0x00ba, 0x00dc, 0x02ef, 0x0010, 0x0223, 0x0245, 0x0076,
+        0x01b9, 0x038a, 0x03ec, 0x01df, 0x0320, 0x0113, 0x0175, 0x0346,
+        0x02b8, 0x008b, 0x00ed, 0x02de, 0x0021, 0x0212, 0x0274, 0x0047,
+        0x01ea, 0x03d9, 0x03bf, 0x018c, 0x0373, 0x0140, 0x0126, 0x0315,
+        0x02eb, 0x00d8, 0x00be, 0x028d, 0x0072, 0x0241, 0x0227, 0x0014,
+        0x01db, 0x03e8, 0x038e, 0x01bd, 0x0342, 0x0171, 0x0117, 0x0324,
+        0x02da, 0x00e9, 0x008f, 0x02bc, 0x0043, 0x0270, 0x0216, 0x0025,
+        0x014c, 0x037f, 0x0319, 0x012a, 0x03d5, 0x01e6, 0x0180, 0x03b3,
+        0x024d, 0x007e, 0x0018, 0x022b, 0x00d4, 0x02e7, 0x0281, 0x00b2,
+        0x017d, 0x034e, 0x0328, 0x011b, 0x03e4, 0x01d7, 0x01b1, 0x0382,
+        0x027c, 0x004f, 0x0029, 0x021a, 0x00e5, 0x02d6, 0x02b0, 0x0083,
+        0x012e, 0x031d, 0x037b, 0x0148, 0x03b7, 0x0184, 0x01e2, 0x03d1,
+        0x022f, 0x001c, 0x007a, 0x0249, 0x00b6, 0x0285, 0x02e3, 0x00d0,
+        0x011f, 0x032c, 0x034a, 0x0179, 0x0386, 0x01b5, 0x01d3, 0x03e0,
+        0x021e, 0x002d, 0x004b, 0x0278, 0x0087, 0x02b4, 0x02d2, 0x00e1,
+};
+
+/* update the data block's CRC-10 remainder one byte at a time */
+static guint16
+update_crc10_by_bytes(guint16 crc10, const guint8 *data_blk_ptr,
+    		      int data_blk_size)
+{
+    register int i;
+    guint16 crc10_accum = 0;
+
+    for (i = 0;  i < data_blk_size; i++) {
+   	crc10_accum = ((crc10_accum << 8) & 0x3ff)
+         	^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
+                ^ *data_blk_ptr++;
+    }
+    crc10_accum = ((crc10_accum << 8) & 0x3ff)
+	            ^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
+                    ^ (crc10>>2);
+    crc10_accum = ((crc10_accum << 8) & 0x3ff)
+                    ^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
+	            ^ ((crc10<<6) & 0xFF);
+    
+    return crc10_accum;
+}
+
+
+static guint16
+update_crc6_by_bytes(guint16 crc6, unsigned char byte1, unsigned char byte2)
+{
+    char bit;
+    unsigned int remainder = 0;
+    unsigned int polynomial = 0x6F << 15;
+
+    unsigned int data = ( byte1<<8 | byte2 ) << 6;
+    remainder = data;
+
+    for (bit = 15; bit >= 0; --bit)
+    {
+        if (remainder & (0x40 << bit))
+        {
+            remainder ^= polynomial;
+        }
+        polynomial >>= 1;
+    }
+
+    return (remainder ^ crc6);
+}
+
 
 static proto_item*
 proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, gchar** buf) {
@@ -545,13 +637,13 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
 }
 
 static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree) {
-    guint num = tvb_get_guint8(tvb,3) & 0x3f;
+    guint num = tvb_get_guint8(tvb,4) & 0x3f;
     guint i;
     proto_item* pi;
     proto_tree* inds_tree;
-    int offset = 2;
+    int offset = 4;
     
-    pi = proto_tree_add_item(tree,hf_iuup_num_rfci_ind,tvb,3,1,FALSE);
+    pi = proto_tree_add_item(tree,hf_iuup_num_rfci_ind,tvb,4,1,FALSE);
     inds_tree = proto_item_add_subtree(pi,ett_rfciinds);
     
     for (i = 0; i < num; i++) {
@@ -559,6 +651,33 @@ static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
         proto_tree_add_item(inds_tree,hf_iuup_rfci_ratectl[i],tvb,offset,1,FALSE);
     }
     
+}
+
+proto_item *add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
+{
+   proto_item *crc_item;
+   if (crccheck) {
+      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,FALSE);
+      expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+   } else {
+      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
+   }
+   return crc_item;
+}
+
+proto_item *add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
+{
+   proto_item *crc_item;
+   int length = tvb_length(tvb);
+   guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
+   guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
+   if (crccheck) {
+      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,FALSE);
+      expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+   } else {
+      crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
+   }
+   return crc_item;
 }
 
 #define ACKNACK_MASK  0x0c
@@ -576,6 +695,8 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     guint8 second_octet;
     guint8 pdutype;
     guint phdr = 0;
+    guint16  hdrcrc6;
+    guint16  crccheck;
     tvbuff_t* tvb = tvb_in;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -600,6 +721,9 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     
     first_octet =  tvb_get_guint8(tvb,0);
     second_octet =  tvb_get_guint8(tvb,1);
+    hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
+    crccheck = update_crc6_by_bytes(hdrcrc6, first_octet, second_octet);
+    
     pdutype = ( first_octet & PDUTYPE_MASK ) >> 4;
     
     if (tree) {
@@ -629,8 +753,8 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
             }
                 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,FALSE);
-            proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
-            proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
+	    add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
+	    add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4);
             return;
         case PDUTYPE_DATA_NO_CRC:
@@ -647,7 +771,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
             }
                 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,FALSE);
-            proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
+	    add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3);
             return;
         case PDUTYPE_DATA_CONTROL_PROC:
@@ -656,7 +780,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                 proto_tree_add_item(iuup_tree,hf_iuup_frame_number_t14,tvb,0,1,FALSE);
                 proto_tree_add_item(iuup_tree,hf_iuup_mode_version,tvb,1,1,FALSE);
                 proc_item = proto_tree_add_item(iuup_tree,hf_iuup_procedure_indicator,tvb,1,1,FALSE);
-                proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
+	        add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             }
             
             if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -678,6 +802,9 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                             proto_tree_add_item(iuup_tree,hf_iuup_spare_ff,tvb,3,1,FALSE);
                             return;
                         case PROC_RATE:
+                    	    if (!tree) return;
+                    	    dissect_iuup_ratectl(tvb,pinfo,iuup_tree);
+                    	    return;
                         case PROC_TIME:
                         case PROC_ERROR:
                             break;
@@ -702,11 +829,12 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
             
             switch( second_octet & PROCEDURE_MASK ) {
                 case PROC_INIT:
-                    if (tree) proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
+                    if (tree) add_payload_crc(tvb, pinfo, iuup_tree);
                     dissect_iuup_init(tvb,pinfo,iuup_tree);
                     return;
                 case PROC_RATE:
                     if (!tree) return;
+                    add_payload_crc(tvb, pinfo, iuup_tree);
                     dissect_iuup_ratectl(tvb,pinfo,iuup_tree);
                     return;
                 case PROC_TIME:
@@ -788,7 +916,7 @@ void proto_reg_handoff_iuup(void) {
 
 
 #define HFS_RFCI(i) \
-{ &hf_iuup_rfci_ratectl[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, VALS(iuup_rfci_indicator),1<<(i%8),"",HFILL}}, \
+{ &hf_iuup_rfci_ratectl[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, VALS(iuup_rfci_indicator),0x80>>(i%8),"",HFILL}}, \
 { &hf_iuup_init_rfci[i], { "RFCI " #i, "iuup.rfci." #i, FT_UINT8, BASE_DEC, NULL,0x3f,"",HFILL}}, \
 { &hf_iuup_init_rfci_flow_len[i][0], { "RFCI " #i " Flow 0 Len", "iuup.rfci."#i".flow.0.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
 { &hf_iuup_init_rfci_flow_len[i][1], { "RFCI " #i " Flow 1 Len", "iuup.rfci."#i".flow.1.len", FT_UINT16, BASE_DEC, NULL,0x0,"",HFILL}}, \
@@ -821,7 +949,9 @@ void proto_register_iuup(void) {
         { &hf_iuup_fqc, { "FQC", "iuup.fqc", FT_UINT8, BASE_DEC, VALS(iuup_fqcs),0xc0,"Frame Quality Classification",HFILL}},
         { &hf_iuup_rfci, { "RFCI", "iuup.rfci", FT_UINT8, BASE_HEX, NULL, 0x3f, "RAB sub-Flow Combination Indicator",HFILL}},
         { &hf_iuup_hdr_crc, { "Header CRC", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,"",HFILL}},        
+        { &hf_iuup_hdr_crc_error, { "Header CRC [incorrect]", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,"",HFILL}},        
         { &hf_iuup_payload_crc, { "Payload CRC", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,"",HFILL}},
+        { &hf_iuup_payload_crc_error, { "Payload CRC [incorrect]", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,"",HFILL}},
         { &hf_iuup_ack_nack, { "Ack/Nack", "iuup.ack", FT_UINT8, BASE_DEC, VALS(iuup_acknack_vals),0x0c,"Ack/Nack",HFILL}},
         { &hf_iuup_frame_number_t14, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x03,"",HFILL}},
         { &hf_iuup_mode_version, { "Mode Version", "iuup.mode", FT_UINT8, BASE_HEX, NULL,0xf0,"",HFILL}},
