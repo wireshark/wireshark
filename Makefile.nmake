@@ -316,7 +316,7 @@ clean_gtk2.tmp:
 
 clean: clean_gtk2.tmp clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(EXTRA_OBJECTS) \
-		$(EXECUTABLES) $(PDB_FILE) \
+		$(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj getopt.obj\
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
 		rdps.pdb rdps.exe rdps.ilk config.h ps.c AUTHORS-SHORT \

@@ -400,9 +400,6 @@ LOCAL_LDFLAGS=/DEBUG /DEFAULTLIB:msvcrt /NODEFAULTLIB:libc /NODEFAULTLIB:libcmt
 WS_PLUGIN_LDFLAGS=/DEBUG /NOLOGO /INCREMENTAL:no /MACHINE:I386 
 
 
-# Set PDB_FILE according to your VC++ version 
-PDB_FILE=vc*.pdb
-
 # 
 # Optional: Use the User's Guide as the online help system
 # (currently experimental).

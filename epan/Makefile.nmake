@@ -93,7 +93,9 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 	cd epan
 
 clean:
-	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) libwireshark.lib libwireshark.dll libwireshark.lib libwireshark.exp $(PDB_FILE) doxygen.cfg html/*.*
+	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
+		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp libwireshark.pdb \
+		doxygen.cfg html/*.*
 	if exist html rmdir html	
 	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -119,7 +121,7 @@ clean:
 distclean: clean
 	rm -f config.h register.c mkstemp.c strptime.c radius_dict.c \
 		dtd_grammar.out	dtd_grammar.c dtd_grammar.h dtd_parse.c \
-		dtd_preparse.c
+		dtd_preparse.c sminmpec.c
 	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ftypes
