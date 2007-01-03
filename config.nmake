@@ -333,7 +333,7 @@ YACC=bison
 # If you don't have NSIS, comment this line out, so that MAKENSIS
 # isn't defined.
 #
-MAKENSIS="%ProgramFiles%/nsis/makensis.exe"
+MAKENSIS="%ProgramFiles%\nsis\makensis.exe"
 
 #
 # Optional: To build the developers documentation with doxygen and dot.
