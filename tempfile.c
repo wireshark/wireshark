@@ -39,7 +39,7 @@
 
 #include "file_util.h"
 
-#if GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
 #include <glib/gstdio.h>	/* available since GLib 2.6 only! */
 
 /* GLib2.6 or above, using new wrapper functions */

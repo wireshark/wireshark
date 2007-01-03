@@ -721,7 +721,7 @@ char *getenv_utf8(const char *varname)
 	envvar = getenv(varname);
 
 	/* since GLib 2.6 we need an utf8 version of the filename */
-#if GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
 	if (!G_WIN32_HAVE_WIDECHAR_API ()) {
 		/* Windows OT (9x, ME), convert from current code page to utf8 */
 		/* it's the best we can do here ... */

@@ -363,7 +363,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     case 'w':        /* Write to capture file x */
         capture_opts->saving_to_file = TRUE;
         g_free(capture_opts->save_file);
-#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
+#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
         /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
         capture_opts->save_file = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
 #else
