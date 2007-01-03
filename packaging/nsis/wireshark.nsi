@@ -307,11 +307,11 @@ File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 File "${ICONV_DIR}\bin\iconv.dll"
 File "${GETTEXT_DIR}\bin\intl.dll"
-File "..\..\*.manifest"
+; XXX - use MSVC_VARIANT setting from config.nmake instead of /nonfatal
+File /nonfatal "..\..\*.manifest"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
-IfFileExists ${ZLIB_DIR}\zlib1.dll.manifest 0 +2
-File "${ZLIB_DIR}\zlib1.dll.manifest"
+File /nonfatal "${ZLIB_DIR}\zlib1.dll.manifest"
 !endif
 !ifdef ADNS_DIR
 File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
