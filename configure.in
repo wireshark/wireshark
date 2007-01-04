@@ -236,6 +236,13 @@ AC_MSG_CHECKING(for platform-specific linker flags)
 case "$host_os" in
 darwin*)
 	#
+	# Add -Wl,-single_module to the LDFLAGS used with shared
+	# libraries, to fix some error that show up in some cases;
+	# some Apple documentation recommends it for most shared
+	# libraries.
+	#
+	SHAREDLIB_LDFLAGS="-Wl,-single_module"
+	#
 	# Add -Wl,-search_paths_first to make sure that if we search
 	# directories A and B, in that order, for a given library, a
 	# non-shared version in directory A, rather than a shared
@@ -245,7 +252,7 @@ darwin*)
 	# the system version in /usr/lib).
 	#
 	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
-	AC_MSG_RESULT(Apple linker - added -Wl,-search_paths_first)
+	AC_MSG_RESULT(Apple linker - added -Wl,-single_module and -Wl,-search_paths_first)
 	;;
 cygwin*)
 	#
@@ -259,6 +266,7 @@ cygwin*)
 	AC_MSG_RESULT(none needed)
 	;;
 esac
+AC_SUBST(SHAREDLIB_LDFLAGS)
 
 #
 # On OS X, if we find the headers for Core Foundation and Launch Services,

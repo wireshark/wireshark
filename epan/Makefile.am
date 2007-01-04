@@ -44,7 +44,7 @@ DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 lib_LTLIBRARIES = libwireshark.la
-libwireshark_la_LDFLAGS = -version-info 0:1:0
+libwireshark_la_LDFLAGS = -version-info 0:1:0 @SHAREDLIB_LDFLAGS@
 
 include Makefile.common
 
