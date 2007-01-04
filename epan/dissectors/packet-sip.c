@@ -2023,10 +2023,10 @@ separator_found2:
 							if (value[sub_value_offset] != ' ' &&
 						        value[sub_value_offset] != '\t')
 							{
-								cseq_no_offset = sub_value_offset;
 								break;
 							}
 						}
+						cseq_no_offset = sub_value_offset;
 
 						/* CSeq number */
 						for ( ; sub_value_offset < (gint)strlen(value); sub_value_offset++)
@@ -2095,11 +2095,10 @@ separator_found2:
 						}
 						/* Add 'Expires' string item to tree */
 						if(hdr_tree) {
-							proto_tree_add_string_format(hdr_tree,
-							                             hf_header_array[hf_index], tvb,
-							                             offset, next_offset - offset,
-							                             value, "%s",
-							                             tvb_format_text(tvb, offset, linelen));
+							proto_tree_add_uint(hdr_tree,
+							                    hf_header_array[hf_index], tvb,
+							                    offset, next_offset - offset,
+							                    atoi(value));
 						}
 					break;
 
@@ -2983,7 +2982,7 @@ void proto_register_sip(void)
 		},
                 { &hf_header_array[POS_EXPIRES],
 		       { "Expires", 		"sip.Expires",
-		       FT_STRING, BASE_NONE,NULL,0x0,
+		       FT_UINT32, BASE_DEC,NULL,0x0,
 			"RFC 3261: Expires Header", HFILL }
 		},
                 { &hf_header_array[POS_FROM],
