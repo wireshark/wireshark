@@ -368,11 +368,19 @@ static gint32 ansi_map_sms_tele_id = -1;
 	    ansi_map_sms_tele_id = -1;
 	}
 
-# 6.5.2.159 TerminationTriggers
-#.FN_PARS TerminationTriggers
-VAL_PTR = &parameter_tvb
+# 6.5.2.146 SystemCapabilities */
+# Updated in N.S0008-0 v 1.0 */
+#.FN_BODY SystemCapabilities VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_systemcapabilities(parameter_tvb,pinfo,tree);
+	}
 
-#.FN_BODY TerminationTriggers
+
+# 6.5.2.159 TerminationTriggers
+
+#.FN_BODY TerminationTriggers VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){

@@ -174,6 +174,13 @@ static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
 static int hf_ansi_map_idno = -1;
 static int hf_ansi_map_segcount = -1;
+static int hf_ansi_map_systemcapabilities_auth = -1;
+static int hf_ansi_map_systemcapabilities_se = -1;
+static int hf_ansi_map_systemcapabilities_vp = -1;
+static int hf_ansi_map_systemcapabilities_cave = -1;
+static int hf_ansi_map_systemcapabilities_ssd = -1;
+static int hf_ansi_map_systemcapabilities_dp = -1;
+
 static int hf_ansi_map_mslocation_lat = -1;
 static int hf_ansi_map_mslocation_long = -1;
 static int hf_ansi_map_mslocation_res = -1;
@@ -296,6 +303,7 @@ static gint ett_billingid = -1;
 static gint ett_mscid = -1;
 static gint ett_originationtriggers = -1;
 static gint ett_transactioncapability = -1;
+static gint ett_systemcapabilities = -1;
 
 #include "packet-ansi_map-ett.c"
 
@@ -2208,6 +2216,53 @@ static const value_string ansi_map_SSDUpdateReport_vals[]  = {
 
 /* 6.5.2.146 SystemCapabilities */
 /* Updated in N.S0008-0 v 1.0 */
+static const true_false_string ansi_map_systemcapabilities_auth_bool_val  = {
+  "Authentication parameters were requested on this system access (AUTH=1 in the OMT)",
+  "Authentication parameters were not requested on this system access (AUTH=0 in the OMT)."
+};
+
+static const true_false_string ansi_map_systemcapabilities_se_bool_val  = {
+  "Signaling Message Encryption supported by the system"
+  "Signaling Message Encryption not supported by the system"
+};
+
+static const true_false_string ansi_map_systemcapabilities_vp_bool_val  = {
+  "Voice Privacy supported by the system"
+  "Voice Privacy not supported by the system"
+};
+
+static const true_false_string ansi_map_systemcapabilities_cave_bool_val  = {
+  "System can execute the CAVE algorithm and share SSD for the indicated MS"
+  "System cannot execute the CAVE algorithm and cannot share SSD for the indicated MS"
+};
+
+static const true_false_string ansi_map_systemcapabilities_ssd_bool_val  = {
+  "SSD is shared with the system for the indicated MS"
+  "SSD is not shared with the system for the indicated MS"
+};
+
+static const true_false_string ansi_map_systemcapabilities_dp_bool_val  = {
+  "DP is supported by the system"
+  "DP is not supported by the system"
+};
+
+static void
+dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_systemcapabilities);
+	
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_auth, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_se, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_vp, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_dp, tvb, offset, 1, FALSE);
+}
 
 /* 6.5.2.151 TDMABurstIndicator */
 /* 6.5.2.152 TDMACallMode */
@@ -2589,9 +2644,19 @@ ansi_map_FeatureActivity_vals
  Full Rate data FeatureActivity FRATE-FA ( octet 2 bit C and D )
  Double Rate data FeatureActivity 2RATE-FA ( octet 2 bit E and F )
  Triple Rate data FeatureActivity 3RATE-FA ( octet g bit G and H )
+
+ Table 6.5.2.azt TDMADataFeaturesIndicator value
+ static const value_string ansi_map_TDMADataFeaturesIndicator_vals[]  = {
+    {   0, "Not Used"},
+    {   1, "Not Authorized"},
+    {   2, "Authorized, but de-activated"},
+    {   3, "Authorized and activated"},
+ 	{	0, NULL }
+
+};
 */
 
-/* 6.5.2.ba TDMADataMode */
+/* 6.5.2.ba TDMADataMode N.S0008-0 v 1.0*/
 
 /* 6.5.2.bb TDMAVoiceMode */
 
@@ -3924,6 +3989,31 @@ void proto_register_ansi_map(void) {
       { "Segment Counter", "ansi_map.segcount",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Segment Counter", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_auth,
+      { "Authentication Parameters Requested (AUTH)", "ansi_map.systemcapabilities.auth",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_auth_bool_val),0x01,
+        "Authentication Parameters Requested (AUTH)", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_se,
+      { "Signaling Message Encryption Capable (SE )", "ansi_map.systemcapabilities.se",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_se_bool_val),0x02,
+        "Signaling Message Encryption Capable (SE )", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_vp,
+      { "Voice Privacy Capable (VP )", "ansi_map.systemcapabilities.vp",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_vp_bool_val),0x04,
+        "Voice Privacy Capable (VP )", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_cave,
+      { "CAVE Algorithm Capable (CAVE)", "ansi_map.systemcapabilities.cave",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_cave_bool_val),0x08,
+        "CAVE Algorithm Capable (CAVE)", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_ssd,
+      { "Shared SSD (SSD)", "ansi_map.systemcapabilities.ssd",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_ssd_bool_val),0x10,
+        "Shared SSD (SSD)", HFILL }},
+	{ &hf_ansi_map_systemcapabilities_dp,
+      { "Data Privacy (DP)", "ansi_map.systemcapabilities.dp",
+        FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_dp_bool_val),0x20,
+        "Data Privacy (DP)", HFILL }},
+
 	{ &hf_ansi_map_mslocation_lat,
       { "Latitude in tenths of a second", "ansi_map.mslocation.lat",
         FT_UINT8, BASE_DEC, NULL, 0,
@@ -4388,6 +4478,7 @@ void proto_register_ansi_map(void) {
 	  &ett_mscid,
 	  &ett_originationtriggers,
 	  &ett_transactioncapability,
+	  &ett_systemcapabilities,
 #include "packet-ansi_map-ettarr.c"
   };
 
