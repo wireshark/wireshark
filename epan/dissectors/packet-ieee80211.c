@@ -5283,13 +5283,11 @@ parse_key(gchar* input_string)
 
 	/* Lower case... */
 	g_strdown(type);
-	g_strdown(key);
 
 	/* Maybe there is a third token (an ssid, if everything else is ok) */
 	if(n >= 3)
 	{
 		ssid = g_strdup(tokens[2]);
-		g_strdown(ssid);
 	}
 	else
 	{
