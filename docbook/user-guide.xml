@@ -60,11 +60,11 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
   <!ENTITY DocumentCopyrightHolder2 "Richard Sharpe ">
   <!ENTITY DocumentCopyrightHolder3 "Ed Warnicke ">
-  <!ENTITY DocumentCopyrightYear "2004-2006">
+  <!ENTITY DocumentCopyrightYear "2004-2007">
 
   <!ENTITY DocumentEdition "Third ">
   <!ENTITY DocumentVersion "V3.0.2">
-  <!ENTITY DocumentPubDate "2006">
+  <!ENTITY DocumentPubDate "2007">
 
   <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
   %SvnVersionFile;
@@ -73,7 +73,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.3">
+  <!ENTITY WiresharkCurrentVersion "0.99.5">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
