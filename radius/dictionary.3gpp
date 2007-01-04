@@ -30,9 +30,9 @@ ATTRIBUTE	3GPP-Charging-Gateway-IPv6-Address			14		ipv6addr
 ATTRIBUTE	3GPP-SGSN-IPv6-Address					15		ipv6addr
 ATTRIBUTE	3GPP-GGSN-IPv6-Address					16		ipv6addr
 ATTRIBUTE	3GPP-IPv6-DNS-Servers						17		ipv6addr
-ATTRIBUTE	3GPP-SGSN MCC-MNC						18		string
-ATTRIBUTE	3GPP-Teardown Indicator						19		octets
-ATTRIBUTE	3GGP- IMEISV							20		octets
+ATTRIBUTE	3GPP-SGSN-MCC-MNC						18		string
+ATTRIBUTE	3GPP-Teardown-Indicator						19		octets
+ATTRIBUTE	3GGP-IMEISV							20		octets
 ATTRIBUTE	3GPP-RAT-Type							21		octets
 ATTRIBUTE	3GPP-User-Location-Info						22		octets
 ATTRIBUTE	3GPP-MS-TimeZone						23		octets
@@ -45,7 +45,7 @@ ATTRIBUTE	3GPP-Negotiated-DSCP						26		string
 #	Why the heck couldn't they just send multiple attributes?
 #
 ATTRIBUTE	3GPP-IPv6-DNS-Servers				17		octets 
-ATTRIBUTE	3GPP-SGSN MCC-MNC					18		string
+ATTRIBUTE	3GPP-SGSN-MCC-MNC					18		string
 
 # Below set to RADIUS_BINSTRING untill "proper" decoding is added ( Comment from old radius dissector ) 
 
