@@ -33,7 +33,7 @@
 #include "packet-umts_fp.h"
 
 /* TODO:
-   - IU interface-specific formats
+   - IUR interface-specific formats
    - verify header & payload CRCs
    - look for (and report as expert info) possible spare extension bytes
    - R7?

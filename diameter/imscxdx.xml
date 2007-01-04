@@ -28,7 +28,7 @@
                                 <gavp name="Server-Name"/>
                         </grouped>
 		</avp>
-		<avp name="Mandatory-Capability" code="5" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Mandatory-Capability" code="5" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Optional-Capability" code="6" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -37,7 +37,7 @@
 		<avp name="User-Data" code="7" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="SIP-Number-Auth-Items" code="8" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="SIP-Number-Auth-Items" code="8" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="SIP-Authentication-Scheme" code="9" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -155,11 +155,11 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Server-Capabilities" code="603" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-                        <grouped>
-                                <gavp name="Mandatory-Capability"/>
-                                <gavp name="Optional-Capability"/>
-                                <gavp name="Server-Name"/>
-                        </grouped>
+			<grouped>
+				<gavp name="Mandatory-Capability"/>
+				<gavp name="Optional-Capability"/>
+				<gavp name="Server-Name"/>
+			</grouped>
 		</avp>
 		<avp name="Mandatory-Capability" code="604" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Unsigned32"/>

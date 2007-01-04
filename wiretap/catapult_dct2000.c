@@ -27,7 +27,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-/*#include <inttypes.h>*/
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -48,6 +47,8 @@
 #define AAL_HEADER_CHARS           12
 
 /* TODO:
+   - support for FP over AAL0
+   - support for IuR interface FP
    - support for x.25?
 */
 

@@ -2560,7 +2560,7 @@ proto_register_sigcomp(void)
     static enum_val_t udvm_detail_vals[] = {
 	{"no-printout", "No-Printout", 0},
 	{"low-detail", "Low-detail", 1},
-	{"medium-detail", "medium-detail", 2},
+	{"medium-detail", "Medium-detail", 2},
 	{"high-detail", "High-detail", 3},
 	{NULL, NULL, -1}
     };

@@ -2030,7 +2030,6 @@ static void remember_outgoing_sr(packet_info *pinfo, long lsr)
 	/* Copy current conversation data into packet info */
 	p_packet_data->last_received_set = TRUE;
 	p_packet_data->last_received_frame_number = p_conv_data->last_received_frame_number;
-	p_packet_data->last_received_timestamp = p_conv_data->last_received_timestamp;
 }
 
 
