@@ -668,6 +668,7 @@ smb2_cmd_vals                    DATA
 sminmpec_values                 DATA
 ssl_dissector_add
 ssl_dissector_delete
+ssl_set_master_secret
 start_requested_stats
 started_with_special_privs
 stats_tree_branch_max_namelen

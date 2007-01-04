@@ -633,7 +633,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* try decryption only the first time we see this packet
      * (to keep cipher syncronized)and only if we have
      * the server private key*/
-    if (!ssl_session->private_key || pinfo->fd->flags.visited)
+    if (pinfo->fd->flags.visited)
          ssl_session = NULL;
 
     /* Initialize the protocol column; we'll set it later when we
@@ -780,19 +780,26 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 {
     gint ret;
     gint direction;
+    StringInfo* data_for_iv;
+    gint data_for_iv_len;
     SslDecoder* decoder;
     ret = 0;
     /* if we can decrypt and decryption have success
     * add decrypted data to this packet info*/
     ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl, state 0x%02X\n",
         record_length, ssl->state);
+    direction = ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
     if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
         ssl_debug_printf("decrypt_ssl3_record: no session key\n");
+        /* save data to update IV if session key is obtained later */
+        data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
+        data_for_iv_len = (record_length < 24) ? record_length : 24;
+        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
         return ret;
     }
 
     /* retrive decoder for this packet direction*/
-    if ((direction = ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
+    if (direction != 0) {
         ssl_debug_printf("decrypt_ssl3_record: using server decoder\n");
         decoder = &ssl->server;
     }
@@ -819,6 +826,13 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
           content_type, tvb_get_ptr(tvb, offset, record_length),
           record_length,  ssl_decrypted_data.data, &ssl_decrypted_data_avail) == 0)
         ret = 1;
+    /*  */
+    if (!ret) {
+        /* save data to update IV if valid session key is obtained later */
+        data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
+        data_for_iv_len = (record_length < 24) ? record_length : 24;
+        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+    }
     if (ret && save_plaintext)
     {
         SslPacketInfo* pi;
@@ -1152,8 +1166,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* show decrypted data info, if available */
         pi = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (pi && pi->app_data.data && (pi->app_data.data_len > 0) &&
-	    first_record_in_frame)
+        if (pi && pi->app_data.data && (pi->app_data.data_len > 0) /**/&& first_record_in_frame/**/)
         {
             tvbuff_t* new_tvb;
 
@@ -3028,6 +3041,130 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
 }
 
 
+void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli, 
+                           port_type ptype, guint32 port_srv, guint32 port_cli,
+                           guint32 version, gint cipher, const guchar *_master_secret,
+                           const guchar *_client_random, const guchar *_server_random,
+                           guint32 client_seq, guint32 server_seq)
+{
+  conversation_t *conversation = NULL;
+  void *conv_data = NULL;
+  SslDecryptSession *ssl = NULL;
+  guint iv_len;
+
+  ssl_debug_printf("\nssl_set_master_secret enter frame #%u\n", frame_num);
+
+  conversation = find_conversation(frame_num, addr_srv, addr_cli, ptype, port_srv, port_cli, 0);
+
+  if (!conversation) {
+    /* create a new conversation */
+    conversation = conversation_new(frame_num, addr_srv, addr_cli, ptype, port_srv, port_cli, 0);
+  }
+  conv_data = conversation_get_proto_data(conversation, proto_ssl);
+
+  if (conv_data) {
+    ssl = conv_data;
+  } else {
+    ssl = se_alloc0(sizeof(SslDecryptSession));
+    ssl_session_init(ssl);
+    ssl->version = SSL_VER_UNKNOWN;
+    conversation_add_proto_data(conversation, proto_ssl, ssl);
+  }
+
+  /* version */
+  if ((ssl->version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
+    switch (version) {
+      case SSL_VER_SSLv3:
+        ssl->version = SSL_VER_SSLv3;
+        ssl->version_netorder = SSLV3_VERSION;
+        ssl->state |= SSL_VERSION;
+        ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+        break;
+
+      case SSL_VER_TLS:
+        ssl->version = SSL_VER_TLS;
+        ssl->version_netorder = TLSV1_VERSION;
+        ssl->state |= SSL_VERSION;
+        ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+        break;
+
+      case SSL_VER_TLSv1DOT1:
+        ssl->version = SSL_VER_TLSv1DOT1;
+        ssl->version_netorder = TLSV1DOT1_VERSION;
+        ssl->state |= SSL_VERSION;
+        ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+        break;
+    }
+  }
+
+  /* cipher */
+  if (cipher > 0) {
+    ssl->cipher = cipher;
+    if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
+        ssl_debug_printf("ssl_set_master_secret can't find cipher suite 0x%X\n", ssl->cipher);
+    } else {
+        ssl->state |= SSL_CIPHER;
+        ssl_debug_printf("ssl_set_master_secret set CIPHER 0x%04X -> state 0x%02X\n", ssl->cipher, ssl->state);
+    }
+  }
+
+  /* client random */
+  if (_client_random) {
+    ssl_data_set(&ssl->client_random, _client_random, 32);
+    ssl->state |= SSL_CLIENT_RANDOM;
+    ssl_debug_printf("ssl_set_master_secret set CLIENT RANDOM -> state 0x%02X\n", ssl->state);
+  }
+
+  /* server random */
+  if (_server_random) {
+    ssl_data_set(&ssl->server_random, _server_random, 32);
+    ssl->state |= SSL_SERVER_RANDOM;
+    ssl_debug_printf("ssl_set_master_secret set SERVER RANDOM -> state 0x%02X\n", ssl->state);
+  }
+
+  /* master secret */
+  if (_master_secret) {
+    ssl_data_set(&ssl->master_secret, _master_secret, 48);
+    ssl->state |= SSL_MASTER_SECRET;    
+    ssl_debug_printf("ssl_set_master_secret set MASTER SECRET -> state 0x%02X\n", ssl->state);
+  }
+
+  if ((ssl->state &
+          (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) !=
+          (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET)) {
+      ssl_debug_printf("ssl_set_master_secret not enough data to generate key (has 0x%02X but required 0x%02X)\n",
+          ssl->state, (SSL_CIPHER|SSL_CLIENT_RANDOM|SSL_SERVER_RANDOM|SSL_VERSION|SSL_MASTER_SECRET));
+      return;
+  }
+
+  ssl_debug_printf("ssl_set_master_secret trying to generate keys\n");
+  if (ssl_generate_keyring_material(ssl)<0) {
+      ssl_debug_printf("ssl_set_master_secret can't generate keyring material\n");
+      return;
+  }
+  ssl->state |= SSL_HAVE_SESSION_KEY;
+
+  /* update seq numbers is available */
+  if (client_seq != (guint32)-1) {
+    ssl->client.seq = client_seq;
+    ssl_debug_printf("ssl_set_master_secret client.seq updated to %lu\n", ssl->client.seq);
+  }
+  if (server_seq != (guint32)-1) {
+    ssl->server.seq = server_seq;
+    ssl_debug_printf("ssl_set_master_secret server.seq updated to %lu\n", ssl->server.seq);
+  }
+
+  /* update IV from last data */
+  iv_len = (ssl->cipher_suite.block>1) ? ssl->cipher_suite.block : 8;
+  if ((ssl->client.seq > 0) || (ssl->client_data_for_iv.data_len > iv_len)) {
+    ssl_cipher_setiv(&ssl->client.evp, ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
+    ssl_print_data("ssl_set_master_secret client IV updated",ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
+  }
+  if ((ssl->server.seq > 0) || (ssl->server_data_for_iv.data_len > iv_len)) {
+    ssl_cipher_setiv(&ssl->server.evp, ssl->server_data_for_iv.data + ssl->server_data_for_iv.data_len - iv_len, iv_len);
+    ssl_print_data("ssl_set_master_secret server IV updated",ssl->server_data_for_iv.data + ssl->server_data_for_iv.data_len - iv_len, iv_len);
+  }
+}
 
 
 /*********************************************************************

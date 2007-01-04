@@ -34,7 +34,7 @@
 static gint ver_major, ver_minor, ver_patch;
 
 void 
-ssl_data_set(StringInfo* str, guchar* data, guint len)
+ssl_data_set(StringInfo* str, const guchar* data, guint len)
 {
     memcpy(str->data, data, len);
     str->data_len = len;
@@ -149,7 +149,7 @@ ssl_md5_cleanup(SSL_MD5_CTX* md)
     gcry_md_close(*(md));
 }
 
-static gint
+gint
 ssl_cipher_setiv(gcry_cipher_hd_t *cipher,guchar* iv, gint iv_len)
 {
   /* guchar * ivp; */
@@ -1369,6 +1369,10 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->client_random.data = ssl_session->_client_random;
     ssl_session->server_random.data = ssl_session->_server_random;
     ssl_session->master_secret.data_len = 48;
+    ssl_session->server_data_for_iv.data = 0;
+    ssl_session->server_data_for_iv.data = ssl_session->_server_data_for_iv;
+    ssl_session->client_data_for_iv.data = 0;
+    ssl_session->client_data_for_iv.data = ssl_session->_client_data_for_iv;
     ssl_session->app_data_segment.data=NULL;
     ssl_session->app_data_segment.data_len=0;
 }
@@ -1465,6 +1469,11 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
 		   (assoc->tcp)?"TCP":"UDP", port, protocol, assoc->handle);
 
   
+  if (!assoc->handle) {
+    ssl_debug_printf("association_add could not find handle for protocol '%s', try to find 'data' dissector\n", protocol);
+    assoc->handle = find_dissector("data"); 
+  }
+
   if(!assoc->handle){
     fprintf(stderr, "association_add() could not find handle for protocol:%s\n",protocol);
   } else {

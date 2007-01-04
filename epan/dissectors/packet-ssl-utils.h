@@ -643,6 +643,10 @@ typedef struct _SslDecryptSession {
     StringInfo client_random;
     StringInfo master_secret;
     StringInfo pre_master_secret;
+    guchar _server_data_for_iv[24];
+    StringInfo server_data_for_iv;
+    guchar _client_data_for_iv[24];
+    StringInfo client_data_for_iv;
     
     gint cipher;
     gint state;
@@ -685,7 +689,10 @@ ssl_session_init(SslDecryptSession* ssl);
  @param src the data source 
  @param len the source data len */
 extern void 
-ssl_data_set(StringInfo* buf, guchar* src, guint len);
+ssl_data_set(StringInfo* buf, const guchar* src, guint len);
+
+extern gint
+ssl_cipher_setiv(gcry_cipher_hd_t *cipher,guchar* iv, gint iv_len);
 
 /** Load an RSA private key from specified file
  @param fp the file that contain the key data
