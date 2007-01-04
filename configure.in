@@ -236,11 +236,6 @@ AC_MSG_CHECKING(for platform-specific linker flags)
 case "$host_os" in
 darwin*)
 	#
-	# Add -Wl,-single_module; see the checkin comment for details
-	# of why we do that (it's considered preferable, at least in
-	# OS X 10.4 and later, by Apple, and it's needed for some
-	# packaged build work).
-	#
 	# Add -Wl,-search_paths_first to make sure that if we search
 	# directories A and B, in that order, for a given library, a
 	# non-shared version in directory A, rather than a shared
@@ -249,7 +244,7 @@ darwin*)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	LDFLAGS="-Wl,-single_module -Wl,-search_paths_first $LDFLAGS"
+	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
 	AC_MSG_RESULT(Apple linker - added -Wl,-search_paths_first)
 	;;
 cygwin*)
