@@ -776,7 +776,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CPPFLAGS="$CPPFLAGS -I$lua_dir/include"
 		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -L$lua_dir/lib -llua"
+		LIBS="$LIBS -L$lua_dir/lib -llua -lm"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
 	else 
@@ -788,7 +788,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -llua"
+		LIBS="$LIBS -llua -lm"
 	fi
 
 	#
@@ -859,10 +859,10 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				# the beginning of CFLAGS, CPPFLAGS,
 				# LDFLAGS, and LIBS.
 				#
-				LUA_LIBS="-L$lua_dir/lib -llua"
+				LUA_LIBS="-L$lua_dir/lib -llua -lm"
 				LUA_INCLUDES="-I$lua_dir/include"
 			else
-				LUA_LIBS="-llua"
+				LUA_LIBS="-llua -lm"
 				LUA_INCLUDES=""
 			fi
 
