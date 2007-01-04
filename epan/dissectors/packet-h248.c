@@ -15,8 +15,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -971,8 +971,8 @@ static const value_string h248_reasons[] = {
 };
 
 static const value_string wildcard_modes[] = {
-    { 0, "All" },
-    { 1, "Choose" },
+    { 0, "Choose" },
+    { 1, "All" },
     { 0, NULL }
 };
 
