@@ -150,7 +150,7 @@ ssl_md5_cleanup(SSL_MD5_CTX* md)
 }
 
 gint
-ssl_cipher_setiv(gcry_cipher_hd_t *cipher,guchar* iv, gint iv_len)
+ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len)
 {
   /* guchar * ivp; */
   gint ret;
@@ -1353,6 +1353,13 @@ ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct,
         "decoder %p ct %d, in %p inl %d out %p outl %p\n", ssl, decoder, ct,
         in, inl, out, outl);
     return 0;
+}
+
+gint
+ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len)
+{
+    ssl_debug_printf("ssl_cipher_setiv: impossible without glutls.\n");
+    return 0; 
 }
 
 #endif /* HAVE_LIBGNUTLS */

@@ -692,7 +692,7 @@ extern void
 ssl_data_set(StringInfo* buf, const guchar* src, guint len);
 
 extern gint
-ssl_cipher_setiv(gcry_cipher_hd_t *cipher,guchar* iv, gint iv_len);
+ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 
 /** Load an RSA private key from specified file
  @param fp the file that contain the key data
