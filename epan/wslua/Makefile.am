@@ -50,7 +50,7 @@ BUILT_SOURCES = \
 	register_wslua.c \
 	declare_wslua.h
 
-pkgdata_DATA = \
+dist_pkgdata_DATA = \
 	init.lua \
 	console.lua \
 	dtd_gen.lua
@@ -70,7 +70,6 @@ MAINTAINERCLEANFILES = \
 	init.lua
 
 EXTRA_DIST = \
-	$(pkgdata_DATA) \
 	declare_wslua.h \
 	register_wslua.c \
 	taps \
