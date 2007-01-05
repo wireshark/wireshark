@@ -60,7 +60,6 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
 
 #define PER_NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, 0, 0, "something unknown here [%s]",x); \
-fprintf(stderr,"[%s %u] Not decoded yet in packet : %d  [%s]\n", __FILE__, __LINE__, actx->pinfo->fd->num,x); \
 if (check_col(actx->pinfo->cinfo, COL_INFO)){ \
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", x); \
 } \
