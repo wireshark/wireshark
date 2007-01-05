@@ -1,5 +1,5 @@
 /*
- *  lua_dumper.c
+ *  wslua_dumper.c
  *
  * Wireshark's interface to the Lua Programming Language
  *
@@ -167,6 +167,25 @@ WSLUA_CLASS_DEFINE(Dumper,FAIL_ON_NULL("Dumper already closed"),NOP);
 static GHashTable* dumper_encaps = NULL;
 #define DUMPER_ENCAP(d) GPOINTER_TO_INT(g_hash_table_lookup(dumper_encaps,d))
 
+static const char* cross_plat_fname(const char* fname) {
+	static char fname_clean[256];
+	char* f;
+
+	strncpy(fname_clean,fname,256);
+
+	for(f = fname_clean; *f; f++) {
+		switch(*f) {
+			case '/': case '\\':
+				*f = *(G_DIR_SEPARATOR_S);
+				break;
+			default:
+				break;
+		}
+	}
+	
+	return fname_clean;
+}
+
 WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 	/*
 	 Creates a file to write packets.
@@ -176,13 +195,16 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created */
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
     Dumper d;
-    const char* filename = luaL_checkstring(L,1);
+    const char* fname = luaL_checkstring(L,1);
     int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
     int encap  = luaL_optint(L,3,WTAP_ENCAP_ETHERNET);
     int err = 0;
+    const char* filename;
+	
+    if (! fname) return 0;
     
-    if (! filename) return 0;
-    
+	filename = cross_plat_fname(fname);
+		
     if (!wtap_dump_can_write_encap(filetype, encap))
         WSLUA_ERROR(Dumper_new,"not every filetype handles every encap");
     
@@ -285,11 +307,16 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 	 */
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
 	Dumper d;
-    const char* filename = luaL_checkstring(L,1);
+    const char* fname = luaL_checkstring(L,1);
     int filetype = luaL_optint(L,2,WTAP_FILE_PCAP);
     int encap;
     int err = 0;
+	const char* filename;
+	
+    if (! fname) return 0;
     
+	filename = cross_plat_fname(fname);
+	
     if (! lua_pinfo )
 		WSLUA_ERROR(Dumper_new_for_current,"cannot be used outside a tap or a dissector");
     

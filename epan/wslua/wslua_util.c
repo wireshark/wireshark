@@ -154,7 +154,7 @@ const char* wslua_get_actual_filename(const char* fname) {
 	for(f = fname_clean; *f; f++) {
 		switch(*f) {
 			case '/': case '\\':
-				*f = G_DIR_SEPARATOR_S;
+				*f = *(G_DIR_SEPARATOR_S);
 				break;
 			default:
 				break;
