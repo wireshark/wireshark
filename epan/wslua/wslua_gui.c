@@ -621,17 +621,17 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* open an url in a browse
 
 WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* open an file in a browser */
 #define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The url. */
-	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
+	const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
-	if (!ops->browser_open_url) {
+	if (!ops->browser_open_data_file) {
 		WSLUA_ERROR(browser_open_data_file, "does not work on TShark");
 	}
 
-	if (!url) {
+	if (!file) {
 		WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"must be a string");
 	}
 
-	ops->browser_open_data_file(url);
+	ops->browser_open_data_file(file);
 
 	return 0;
 }
