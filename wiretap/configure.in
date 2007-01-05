@@ -92,19 +92,51 @@ else
 		CFLAGS="-no-cpp-precomp $CFLAGS"
 		AC_MSG_RESULT(Apple GCC - added -no-cpp-precomp)
 		;;
-	cygwin*)
-		#
-		# Shared libraries in cygwin/Win32 must never contain
-		# undefined symbols.
-		#
-		LDFLAGS="$LDFLAGS -no-undefined"
-		AC_MSG_RESULT(CygWin GCC - added -no-undefined to LDFLAGS)
-		;;
 	*)
 	AC_MSG_RESULT(none needed)
 	;;
 	esac
 fi
+
+
+#
+# Add any platform-specific linker flags needed.
+#
+AC_MSG_CHECKING(for platform-specific linker flags)
+case "$host_os" in
+darwin*)
+	#
+	# Add -Wl,-single_module to the LDFLAGS used with shared
+	# libraries, to fix some error that show up in some cases;
+	# some Apple documentation recommends it for most shared
+	# libraries.
+	#
+	SHAREDLIB_LDFLAGS="-Wl,-single_module"
+	#
+	# Add -Wl,-search_paths_first to make sure that if we search
+	# directories A and B, in that order, for a given library, a
+	# non-shared version in directory A, rather than a shared
+	# version in directory B, is chosen (so we can use
+	# --with-pcap=/usr/local to force all programs to be linked
+	# with a static version installed in /usr/local/lib rather than
+	# the system version in /usr/lib).
+	#
+	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
+	AC_MSG_RESULT(Apple linker - added -Wl,-single_module and -Wl,-search_paths_first)
+	;;
+cygwin*)
+	#
+	# Shared libraries in cygwin/Win32 must never contain
+	# undefined symbols.
+	#
+	LDFLAGS="$LDFLAGS -no-undefined"
+	AC_MSG_RESULT(CygWin GNU ld - added -no-undefined)
+	;;
+*)
+	AC_MSG_RESULT(none needed)
+	;;
+esac
+AC_SUBST(SHAREDLIB_LDFLAGS)
 
 AC_ARG_ENABLE(profile-build,
 [  --enable-profile-build  build profile-ready binaries.  [default=no]],enable_profile_build=$enableval,enable_profile_build=no)
