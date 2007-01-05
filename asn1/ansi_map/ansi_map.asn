@@ -1715,11 +1715,11 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.60 i
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 i
-	dmh-RedirectionIndicator				[88] DMH-RedirectionIndicator OPTIONAL,
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 j
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei q
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 k
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 i
@@ -5785,7 +5785,7 @@ SystemOperatorCode ::= OCTET STRING
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 1 1 0 0 1 (0x59)()
--- SecondInterMSCCircuitID
+-- SecondInterMSCCircuitID N.S0008-0 v 1.0
 
 -- 6.5.2.ak (N.S0007-0 v 1.0)
 -- 1 0 1 1 1 1 1 1 (0x9f)
@@ -5874,7 +5874,7 @@ DataPrivacyParameters ::= OCTET STRING
 -- 0 1 0 1 1 0 0 1 (0x59)(217)
 ISLPInformation ::= OCTET STRING
 
--- 6.5.2.aw ReasonList
+-- 6.5.2.aw ReasonList N.S0008-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 1 1 0 1 0 (0x5a)(218)
@@ -5888,14 +5888,14 @@ ReasonList ::= ENUMERATED {
 	required-parameters-unavailable (6)
 	}
 
--- 6.5.2.ay
+-- 6.5.2.ay N.S0008-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 1 1 1 0 0 (0x5c)(220)
 TDMABandwidth ::= OCTET STRING
 
 
--- 6.5.2.az
+-- 6.5.2.az N.S0008-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 0 1 1 1 0 1 (0x5d)(221)

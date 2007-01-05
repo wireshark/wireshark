@@ -35,42 +35,26 @@ OriginationRequestRes
 
 #.FN_BODY RejectParameters
 
-#.FN_PARS PrivateOperationCode
-
-VAL_PTR = &OperationCode
-
-#.FN_BODY PrivateOperationCode
+#.FN_BODY PrivateOperationCode VAL_PTR = &OperationCode
  %(DEFAULT_BODY)s
  proto_tree_add_item(tree, hf_ansi_map_op_code_fam, tvb, offset-2,1,FALSE);
  proto_tree_add_item(tree, hf_ansi_map_op_code, tvb, offset-1,1,FALSE);
 
-#.FN_PARS MINType
-
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY MINType
+#.FN_BODY MINType VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_min_type(parameter_tvb,pinfo,tree);
 	}
 
-#.FN_PARS DigitsType
-
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY DigitsType
+#.FN_BODY DigitsType VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
 	}
 
-#.FN_PARS Subaddress
-
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY Subaddress
+#.FN_BODY Subaddress VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -78,10 +62,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.3 AlertCode
-#.FN_PARS AlertCode
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY AlertCode
+#.FN_BODY AlertCode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -89,10 +70,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.5 AnnouncementCode
-#.FN_PARS AnnouncementCode
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY AnnouncementCode
+#.FN_BODY AnnouncementCode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -100,10 +78,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.14 AuthorizationPeriod
-#.FN_PARS AuthorizationPeriod
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY AuthorizationPeriod
+#.FN_BODY AuthorizationPeriod VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -112,10 +87,7 @@ VAL_PTR = &parameter_tvb
 
 
 # 6.5.2.16 BillingID
-#.FN_PARS BillingID
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY BillingID
+#.FN_BODY BillingID VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -123,30 +95,21 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.20 CallingFeaturesIndicator
-#.FN_PARS CallingFeaturesIndicator
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CallingFeaturesIndicator
+#.FN_BODY CallingFeaturesIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,pinfo,tree);
 	}
 # 6.5.2.29 CDMACallMode
-#.FN_PARS CDMACallMode
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CDMACallMode
+#.FN_BODY CDMACallMode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_cdmacallmode(parameter_tvb,pinfo,tree);
 	}
 # 6.5.2.41 CDMAStationClassMark
-#.FN_PARS CDMAStationClassMark
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CDMAStationClassMark
+#.FN_BODY CDMAStationClassMark VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -154,10 +117,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.47 ChannelData
-#.FN_PARS ChannelData
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY ChannelData
+#.FN_BODY ChannelData VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -165,10 +125,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.50 ConfidentialityModes
-#.FN_PARS ConfidentialityModes
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY ConfidentialityModes
+#.FN_BODY ConfidentialityModes VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -176,10 +133,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.53 DeniedAuthorizationPeriod
-#.FN_PARS DeniedAuthorizationPeriod
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY DeniedAuthorizationPeriod
+#.FN_BODY DeniedAuthorizationPeriod VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -187,10 +141,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.64 ExtendedMSCID
-#.FN_PARS ExtendedMSCID
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY ExtendedMSCID
+#.FN_BODY ExtendedMSCID VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -198,20 +149,14 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.65 ExtendedSystemMyTypeCode
-#.FN_PARS ExtendedSystemMyTypeCode
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY ExtendedSystemMyTypeCode
+#.FN_BODY ExtendedSystemMyTypeCode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_extendedsystemmytypecode(parameter_tvb,pinfo,tree);
 	}
 #6.5.2.71 HandoffState
-#.FN_PARS HandoffState
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY HandoffState
+#.FN_BODY HandoffState VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -219,10 +164,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.72 InterMSCCircuitID
-#.FN_PARS InterMSCCircuitID
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY InterMSCCircuitID
+#.FN_BODY InterMSCCircuitID VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -230,10 +172,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.78 MessageWaitingNotificationCount 
-#.FN_PARS MessageWaitingNotificationCount
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY MessageWaitingNotificationCount
+#.FN_BODY MessageWaitingNotificationCount VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -241,10 +180,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.79 MessageWaitingNotificationType
-#.FN_PARS MessageWaitingNotificationType
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY MessageWaitingNotificationType
+#.FN_BODY MessageWaitingNotificationType VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -253,20 +189,15 @@ VAL_PTR = &parameter_tvb
 
 
 # 6.5.2.82 MSCID
-#.FN_PARS MSCID
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY MSCID
+#.FN_BODY MSCID VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
 	}
-# 6.5.2.84 MSLocation
-#.FN_PARS MSLocation
-VAL_PTR = &parameter_tvb
 
-#.FN_BODY MSLocation
+# 6.5.2.84 MSLocation
+#.FN_BODY MSLocation VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -274,10 +205,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.85 NAMPSCallMode
-#.FN_PARS NAMPSCallMode
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY NAMPSCallMode
+#.FN_BODY NAMPSCallMode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -285,10 +213,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.86 NAMPSChannelData
-#.FN_PARS NAMPSChannelData
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY NAMPSChannelData
+#.FN_BODY NAMPSChannelData VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -296,10 +221,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.88 OneTimeFeatureIndicator
-#.FN_PARS OneTimeFeatureIndicator
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY OneTimeFeatureIndicator
+#.FN_BODY OneTimeFeatureIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -307,10 +229,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.90 OriginationTriggers
-#.FN_PARS OriginationTriggers
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY OriginationTriggers
+#.FN_BODY OriginationTriggers VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -318,10 +237,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.91 PACAIndicator
-#.FN_PARS PACAIndicator
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY PACAIndicator
+#.FN_BODY PACAIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -329,10 +245,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.93 PC_SSN
-#.FN_PARS PC-SSN
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY PC-SSN
+#.FN_BODY PC-SSN VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -340,10 +253,8 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.94 PilotBillingID
-#.FN_PARS PilotBillingID
-VAL_PTR = &parameter_tvb
+#.FN_BODY PilotBillingID VAL_PTR = &parameter_tvb
 
-#.FN_BODY PilotBillingID
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -379,7 +290,6 @@ static gint32 ansi_map_sms_tele_id = -1;
 
 
 # 6.5.2.159 TerminationTriggers
-
 #.FN_BODY TerminationTriggers VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -388,10 +298,7 @@ static gint32 ansi_map_sms_tele_id = -1;
 	}
 
 # 6.5.2.160 TransactionCapability
-#.FN_PARS TransactionCapability
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY TransactionCapability
+#.FN_BODY TransactionCapability VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -402,10 +309,7 @@ VAL_PTR = &parameter_tvb
 # -- XXX Same code as ISLPinformation???
 
 # 6.5.2.bw CallingPartyName N.S0012-0 v 1.0
-#.FN_PARS CallingPartyName
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY CallingPartyName
+#.FN_BODY CallingPartyName VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -413,10 +317,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.df TriggerCapability
-#.FN_PARS TriggerCapability
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY TriggerCapability
+#.FN_BODY TriggerCapability VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -424,10 +325,7 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.dj WINOperationsCapability
-#.FN_PARS WINOperationsCapability
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY WINOperationsCapability
+#.FN_BODY WINOperationsCapability VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
@@ -435,16 +333,35 @@ VAL_PTR = &parameter_tvb
 	}
 
 # 6.5.2.ek ControlNetworkID
-#.FN_PARS ControlNetworkID
-VAL_PTR = &parameter_tvb
-
-#.FN_BODY ControlNetworkID
+#.FN_BODY ControlNetworkID VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		dissect_ansi_map_controlnetworkid(parameter_tvb,pinfo,tree);
 	}
 
+#6.5.2.wB ServiceIndicator
+#.FN_BODY ServiceIndicator VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+	guint8 ServiceIndicator;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		if (SMS_BearerData_tvb !=NULL)
+		{
+			ServiceIndicator = tvb_get_guint8(parameter_tvb,0);
+			switch(ServiceIndicator){
+				case 1: /* CDMA OTASP Service */
+				case 3: /* CDMA OTAPA Service */
+					dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					break;
+				case 4: /* CDMA Position Determination Service */
+					dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					break;
+				default:
+					break;
+			}
+		}
+	}
 	 
 #.TYPE_ATTR
 ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)

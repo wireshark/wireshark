@@ -133,6 +133,7 @@ static int hf_ansi_map_digits_enc = -1;
 static int hf_ansi_map_np = -1;
 static int hf_ansi_map_nr_digits = -1;
 static int hf_ansi_map_bcd_digits = -1;
+static int hf_ansi_map_ia5_digits = -1;
 static int hf_ansi_map_subaddr_type = -1;
 static int hf_ansi_map_subaddr_odd_even = -1;
 static int hf_ansi_alertcode_cadence = -1;
@@ -636,12 +637,23 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	case 2:/* Telephony Numbering (ITU-T Rec. E.164,E.163). */
 	case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
 	case 7:/* Private Numbering Plan */
-		if ((octet&0xf) == 1){
+		proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+		offset++;
+		switch ((octet&0xf)){
+		case 1:
 			/* BCD Coding */
-			proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
-			offset++;
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			break;
+		case 2:
+			/* IA5 Coding */
+			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			break;
+		case 3:
+			/* Octet string */
+			break;
+		default:
+			break;
 		}
 		break;
 	case 13:/* ANSI SS7 Point Code (PC) and Subsystem Number (SSN). */
@@ -2009,17 +2021,26 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
     proto_item *item;
     proto_tree *subtree;
+	guint8 b1,b2,b3,b4;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
 	/* Type (octet 1) */
 	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
 	offset++;
-	/* TODO Put this info in the tree ( use function from MTP3 ? )
 	/* Point Code Member Number octet 2 */
+	b1 = tvb_get_guint8(tvb,offset);
+	offset++;
 	/* Point Code Cluster Number octet 3 */
+	b2 = tvb_get_guint8(tvb,offset);
+	offset++;
 	/* Point Code Network Number octet 4 */
+	b3 = tvb_get_guint8(tvb,offset);
+	offset++;
 	/* Subsystem Number (SSN) octet 5 */
+	b4 = tvb_get_guint8(tvb,offset);
+	proto_tree_add_text(subtree, tvb, offset-3, 4 ,	"Point Code %u-%u-%u  SSN %u",
+		b3, b2, b1, b4);
 
 }
 /* 6.5.2.94 PilotBillingID */
@@ -3158,11 +3179,17 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   if (pinfo->private_data != NULL){
 	  p_private_tcap=pinfo->private_data;
 	  opcode = g_malloc(sizeof(gint));
-	  *opcode = OperationCode&0x00ff;
+	  OperationCode = OperationCode&0x00ff;
+	  *opcode = OperationCode;
 	  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
   }
 
-  switch(OperationCode & 0x00ff){
+  ansi_map_is_invoke = TRUE;	
+  if (check_col(pinfo->cinfo, COL_INFO)){
+	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  }
+
+  switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
 	   offset = dissect_ansi_map_HandoffMeasurementRequest(TRUE, tvb, offset, pinfo, tree, -1);
 	   break;
@@ -3511,6 +3538,10 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
   item = proto_tree_add_text(tree, tvb, offset, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
   PROTO_ITEM_SET_GENERATED(item);
 
+  if (check_col(pinfo->cinfo, COL_INFO)){
+	  col_clear(pinfo->cinfo, COL_INFO);
+	  col_add_fstr(pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  }
 
   switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
@@ -3826,6 +3857,10 @@ void proto_register_ansi_map(void) {
       { "BCD digits", "gsm_map.bcd_digits",
         FT_STRING, BASE_NONE, NULL, 0,
         "BCD digits", HFILL }},
+	{ &hf_ansi_map_ia5_digits,
+      { "IA5 digits", "gsm_map.ia5_digits",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "IA5 digits", HFILL }},
 	{ &hf_ansi_map_subaddr_type,
       { "Type of Subaddress", "ansi_subaddr_type",
         FT_UINT8, BASE_DEC, VALS(ansi_map_sub_addr_type_vals), 0x70,
