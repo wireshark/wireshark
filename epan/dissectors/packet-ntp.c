@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -145,6 +145,18 @@ static const value_string mode_types[] = {
 	{ NTP_MODE_BCAST,	"broadcast" },
 	{ NTP_MODE_CTRL,	"reserved for NTP control message"},
 	{ NTP_MODE_PRIV,	"reserved for private use" },
+	{ 0,		NULL}
+};
+
+static const value_string info_mode_types[] = {
+	{ NTP_MODE_RSV,		"NTP reserved" },
+	{ NTP_MODE_SYMACT,	"NTP symmetric active" },
+	{ NTP_MODE_SYMPAS,	"NTP symmetric passive" },
+	{ NTP_MODE_CLIENT,	"NTP client" },
+	{ NTP_MODE_SERVER,	"NTP server" },
+	{ NTP_MODE_BCAST,	"NTP broadcast" },
+	{ NTP_MODE_CTRL,	"NTP control"},
+	{ NTP_MODE_PRIV,	"NTP private" },
 	{ 0,		NULL}
 };
 
@@ -418,7 +430,6 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *ntp_tree;
 	proto_item	*ti;
 	guint8		flags;
-	const char *infostr;
 	void (*dissector)(tvbuff_t *, proto_item *, guint8);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -430,21 +441,19 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	flags = tvb_get_guint8(tvb, 0);
 	switch (flags & NTP_MODE_MASK) {
 	default:
-		infostr = "NTP";
 		dissector = dissect_ntp_std;
 		break;
 	case NTP_MODE_CTRL:
-		infostr = "NTP control";
 		dissector = dissect_ntp_ctrl;
 		break;
 	case NTP_MODE_PRIV:
-		infostr = "NTP private";
 		dissector = dissect_ntp_priv;
 		break;
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, infostr);
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	if (tree) {
 		/* Adding NTP item and subtree */
@@ -949,7 +958,7 @@ proto_register_ntp(void)
 			VALS(priv_impl_types), 0, "Implementation", HFILL }},
 		{ &hf_ntppriv_reqcode, {
 			"Request code", "ntppriv.reqcode", FT_UINT8, BASE_DEC,
-			VALS(priv_rc_types), 0, "Request code", HFILL }},
+			VALS(priv_rc_types), 0, "Request code", HFILL }}
         };
 	static gint *ett[] = {
 		&ett_ntp,
@@ -957,7 +966,7 @@ proto_register_ntp(void)
 		&ett_ntp_ext,
 		&ett_ntp_ext_flags,
 		&ett_ntpctrl_flags2,
-		&ett_ntppriv_auth_seq,
+		&ett_ntppriv_auth_seq
 	};
 
 	proto_ntp = proto_register_protocol("Network Time Protocol", "NTP",
