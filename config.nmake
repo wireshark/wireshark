@@ -23,6 +23,22 @@ WTAP_VERSION_MICRO=1
 
 
 
+##### Directories #####
+
+# 
+# Base directory, where your libraries reside, which are needed to 
+# compile the sources. This setting is used only inside this file.
+#
+WIRESHARK_LIBS=C:\wireshark-win32-libs
+
+# 
+# Base directory, where your programs reside. 
+# This setting is used only inside this file.
+#
+PROGRAM_FILES=C:/Program Files
+
+
+
 ##### Microsoft Visual C / Studio Variant #####
 # for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
 # only one of the following MSVC_VARIANT settings should be used
@@ -55,21 +71,15 @@ MSVC_VARIANT=MSVC6
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=MSVC2005
 
-
-
-##### Directories #####
-
-# 
-# Base directory, where your libraries reside, which are needed to 
-# compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-win32-libs
-
-# 
-# Base directory, where your programs reside. 
-# This setting is used only inside this file.
+# Optional: Microsoft Platform SDK.
+# (Mandatory for some MSVC_VARIANTs, see above)
 #
-PROGRAM_FILES=C:/Program Files
+# If you don't have the PSDK, comment this line out, so that 
+# PLATFORM_SDK_DIR isn't defined.
+#
+# If you have installed a platform SDK, set this to the directory where it reside
+#PLATFORM_SDK_DIR=$(PROGRAM_FILES)\Microsoft Platform SDK for Windows Server 2003 R2
 
 
 
