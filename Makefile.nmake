@@ -560,7 +560,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF AIRPCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. AirPcap_Devpack_1_0_0_594.zip
+		AirPcap_Devpack_1_0_0_594 AirPcap_Devpack_1_0_0_594.zip
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -700,8 +700,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
-    rm -r -f $(WIRESHARK_LIBS)/Airpcap_Devpack
-    rm -r -f $(WIRESHARK_LIBS)/WinPcap_Devpack
+    rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
 
 ################################################################################
