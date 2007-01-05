@@ -28,6 +28,7 @@
 
 #include "wslua.h"
 #include <math.h>
+#include <epan/stat_cmd_args.h>
 
 WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
 	gboolean val = FALSE;
@@ -143,20 +144,34 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 	return 0;
 }
 
-const char* get_actual_filename(const char* fname) {
-	const char* filename;
+const char* wslua_get_actual_filename(const char* fname) {
+	static char fname_clean[256];
+	char* f;
+	char* filename;
 	
-	if ( file_exists(fname) ) {
-		return fname;
+	strncpy(fname_clean,fname,256);
+	
+	for(f = fname_clean; *f; f++) {
+		switch(*f) {
+			case '/': case '\\':
+				*f = G_DIR_SEPARATOR_S;
+				break;
+			default:
+				break;
+		}
+	}
+		
+	if ( file_exists(fname_clean) ) {
+		return fname_clean;
 	}
 	
-	filename = get_persconffile_path(fname,FALSE);
+	filename = get_persconffile_path(fname_clean,FALSE);
 	
 	if ( file_exists(filename) ) {
 		return filename;
 	}
 	
-	filename = get_datafile_path(fname);
+	filename = get_datafile_path(fname_clean);
 
 	return filename;
 }
@@ -168,7 +183,7 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
 	const char* filename;
 	
-	filename = get_actual_filename(given_fname);
+	filename = wslua_get_actual_filename(given_fname);
 	
 	if (!filename) WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
 	
@@ -191,7 +206,7 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	
 	if (!given_fname) WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
 	
-	filename = get_actual_filename(given_fname);
+	filename = wslua_get_actual_filename(given_fname);
 	
 	if (!filename)  WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
 	
@@ -231,12 +246,16 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 	const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
 	const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
 	Dir dir;
-
+	const char* dirname_clean;
+	
 	if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
-	if (!test_for_directory(dirname))  WSLUA_ARG_ERROR(Dir_open, PATHNAME, "must be a directory");
+
+	dirname_clean = wslua_get_actual_filename(dirname);
+	
+	if (!test_for_directory(dirname_clean))  WSLUA_ARG_ERROR(Dir_open, PATHNAME, "must be a directory");
 
 	dir = g_malloc(sizeof(struct _wslua_dir));
-	dir->dir = OPENDIR_OP(dirname);
+	dir->dir = OPENDIR_OP(dirname_clean);
 	dir->ext = extension ? g_strdup(extension) : NULL;
 #if GLIB_MAJOR_VERSION >= 2
 	dir->dummy = g_malloc(sizeof(GError *));
@@ -348,4 +367,57 @@ int Dir_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Dir);
 	
     return 1;
+}
+
+
+typedef struct _statcmd_t {
+	lua_State* L;
+	int func_ref;
+} statcmd_t;
+
+int statcmd_init_cb_error_handler(lua_State* L) {
+	(void)L;
+	return 0;
+}
+
+void statcmd_init(const char *optarg, void* userdata) {
+	statcmd_t* sc = userdata;
+    lua_State* L = sc->L;
+    
+    lua_settop(L,0);
+    lua_pushcfunction(L,statcmd_init_cb_error_handler);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, sc->func_ref);
+    
+	lua_pushstring(L,optarg);
+	
+    switch ( lua_pcall(L,1,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling statcmd callback");
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling statcmd callback");
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
+	
+}
+
+WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
+	/*  Register a function to handle a -z option */
+#define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /*  */
+#define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /*  */
+	const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
+	statcmd_t* sc = g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
+	
+	sc->L = L;
+	lua_pushvalue(L, WSLUA_OPTARG_register_stat_cmd_arg_ACTION);
+	sc->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_remove(L,1);
+
+	register_stat_cmd_arg(arg, statcmd_init, sc);
+	return 0;
 }
