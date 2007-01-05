@@ -548,7 +548,7 @@ setup: verify_tools
 		gettext-0.14.5 gettext-0.14.5.zip
 !IFDEF NET_SNMP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. net-snmp-5.3.1.zip
+		. net-snmp-5.4.zip
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -557,6 +557,10 @@ setup: verify_tools
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		. WpdPack_3_1.zip
+!ENDIF
+!IFDEF AIRPCAP_DIR
+	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
+		. AirPcap_Devpack_1_0_0_594.zip
 !ENDIF
 !IFDEF ADNS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -578,7 +582,7 @@ setup: verify_tools
 !ENDIF
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		. gnutls-1.6.0-1.zip
+		. gnutls-1.6.1-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
@@ -631,9 +635,9 @@ setup: verify_tools
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.4/gtk+-dev-2.4.14.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.4/atk-1.6.0.zip
+		gtk2 gtk2.4/atk-1.6.1.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.4/atk-dev-1.6.0.zip
+		gtk2 gtk2.4/atk-dev-1.6.1.zip
 !ELSE
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2/gtk+-2.2.4-20040124.zip
@@ -684,18 +688,20 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
     rm -r -f $(WIRESHARK_LIBS)/glib
-    rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.0-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
     rm -r -f $(WIRESHARK_LIBS)/kfw-2.5
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
-    rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.3.1
+    rm -r -f $(WIRESHARK_LIBS)/net-snmp-5.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
+    rm -r -f $(WIRESHARK_LIBS)/Airpcap_Devpack
+    rm -r -f $(WIRESHARK_LIBS)/WinPcap_Devpack
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
 
 ################################################################################

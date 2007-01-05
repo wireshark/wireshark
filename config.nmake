@@ -173,7 +173,7 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
 # If you don't have Net-SNMP, comment this line out, so that NET_SNMP_DIR
 # isn't defined.
 #
-NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.3.1
+NET_SNMP_DIR=$(WIRESHARK_LIBS)\net-snmp-5.4
 
 #
 # Optional: the ADNS library enables asynchronous (nonblocking) DNS 
@@ -210,7 +210,7 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
 #
 # XXX - GNUTLS headers doesn't compile on MSVC 2005
 !IF "$(MSVC_VARIANT)" == "MSVC6"
-GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.0-1
+GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.1-1
 !ENDIF
 
 #
@@ -291,7 +291,7 @@ GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 # If you don't have the AirPcap developer's pack, comment this line out, 
 # so that AIRPCAP_DIR isn't defined.
 #
-#AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap
+AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack
 
 
 
