@@ -35,7 +35,7 @@ WIRESHARK_LIBS=C:\wireshark-win32-libs
 # Base directory, where your programs reside. 
 # This setting is used only inside this file.
 #
-PROGRAM_FILES=C:/Program Files
+PROGRAM_FILES=C:/Programme
 
 
 
@@ -55,14 +55,14 @@ MSVC_VARIANT=MSVC6
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=MSVC2003
 
-# "Microsoft Visual C++ Toolkit 2003" - NOT YET WORKING
+# "Microsoft Visual C++ Toolkit 2003" - DOESN'T WORK
 # needs additional Platform SDK installation
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=VC2003TOOLKIT
 
-# "Microsoft .Net Framework SDK Version 1.1" - NOT YET WORKING
+# "Microsoft .Net Framework SDK Version 1.1" - EXPERIMENTAL
 # needs additional Platform SDK installation
-# XXX - Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
+# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=DOTNET11FRAMEWORK
 
 # "Microsoft Visual Studio 2005" - EXPERIMENTAL
@@ -70,6 +70,11 @@ MSVC_VARIANT=MSVC6
 # The "Express Edition" needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=MSVC2005
+
+# "Microsoft .Net Framework 2.0 SDK" - EXPERIMENTAL
+# needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=DOTNET20FRAMEWORK
 
 #
 # Optional: Microsoft Platform SDK.
@@ -399,9 +404,9 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # /D_CRT_SECURE_NO_DEPRECATE don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
 # /D_CRT_NONSTDC_NO_DEPRECATE don't warn for "Deprecated CRT Functions" as MSDN calls this
 #
-!IF "$(MSVC_VARIANT)" == "MSVC6"
+!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "DOTNET11FRAMEWORK" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" 
 LOCAL_CFLAGS=/Zi /W3
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "DOTNET20FRAMEWORK"
 LOCAL_CFLAGS=/Zi /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 !ELSE
 !ERROR MSVC_VARIANT unknown
@@ -415,14 +420,17 @@ LOCAL_CFLAGS=/Zi /W3 /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 # 
 !IF "$(MSVC_VARIANT)" == "MSVC6"
 LOCAL_LDFLAGS=/DEBUG 
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
-#LOCAL_LDFLAGS=/DEBUG /DEFAULTLIB:msvcrt /NODEFAULTLIB:libc /NODEFAULTLIB:libcmt
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" || "$(MSVC_VARIANT)" == "DOTNET11FRAMEWORK" || "$(MSVC_VARIANT)" == "DOTNET20FRAMEWORK"
 LOCAL_LDFLAGS=/DEBUG /DEFAULTLIB:msvcrt /NODEFAULTLIB:libc /NODEFAULTLIB:libcmt
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
-WS_PLUGIN_LDFLAGS=/DEBUG /NOLOGO /INCREMENTAL:no /MACHINE:I386 
+!IF "$(MSVC_VARIANT)" == "DOTNET11FRAMEWORK"
+PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386
+!ELSE
+PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+!ENDIF
 
 
 # 
