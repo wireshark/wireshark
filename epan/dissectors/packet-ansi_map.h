@@ -1,9 +1,16 @@
+/* Do not modify this file.                                                   */
+/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
+/* .\packet-ansi_map.h                                                        */
+/* ../../tools/asn2wrs.py -b -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+
+/* Input file: packet-ansi_map-template.h */
+
+#line 1 "packet-ansi_map-template.h"
 /* packet-ansi_map.h
+ * Routines for ansi_map packet dissection
+ * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
- *
- * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
- * In association with Telos Technology Inc.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,8 +28,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef PACKET_ANSI_MAP_H
+#define PACKET_ANSI_MAP_H
 
 #define	ANSI_MAP_MAX_NUM_MESSAGE_TYPES	256
 
@@ -38,4 +48,11 @@ typedef struct _ansi_map_tap_rec_t {
  * libwireshark.dll, we need a special declaration.
  */
 WS_VAR_IMPORT const value_string ansi_map_opr_code_strings[];
+
+
+
+/*#include "packet-ansi_map-exp.h" */
+
+#endif  /* PACKET_ansi_map_H */
+
 

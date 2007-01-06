@@ -5,6 +5,10 @@ MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Networ
 DEFINITIONS ::=
 
 BEGIN
+-- Import from GSM MAP for convenience
+IMPORTS
+	IMSI
+	FROM MAP-Protocol;
 
 -- TCAP part
 
@@ -6061,7 +6065,8 @@ MSID ::= CHOICE {
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 1 1 1 0 0 1 0 (0x72)(242)
-IMSI ::= OCTET STRING
+-- Import from GSM MAP for convenience
+-- IMSI ::= OCTET STRING
 
 -- 6.5.2.bw N.S0012-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)

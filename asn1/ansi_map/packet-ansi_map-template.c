@@ -2243,27 +2243,27 @@ static const true_false_string ansi_map_systemcapabilities_auth_bool_val  = {
 };
 
 static const true_false_string ansi_map_systemcapabilities_se_bool_val  = {
-  "Signaling Message Encryption supported by the system"
+  "Signaling Message Encryption supported by the system",
   "Signaling Message Encryption not supported by the system"
 };
 
 static const true_false_string ansi_map_systemcapabilities_vp_bool_val  = {
-  "Voice Privacy supported by the system"
+  "Voice Privacy supported by the system",
   "Voice Privacy not supported by the system"
 };
 
 static const true_false_string ansi_map_systemcapabilities_cave_bool_val  = {
-  "System can execute the CAVE algorithm and share SSD for the indicated MS"
+  "System can execute the CAVE algorithm and share SSD for the indicated MS",
   "System cannot execute the CAVE algorithm and cannot share SSD for the indicated MS"
 };
 
 static const true_false_string ansi_map_systemcapabilities_ssd_bool_val  = {
-  "SSD is shared with the system for the indicated MS"
+  "SSD is shared with the system for the indicated MS",
   "SSD is not shared with the system for the indicated MS"
 };
 
 static const true_false_string ansi_map_systemcapabilities_dp_bool_val  = {
-  "DP is supported by the system"
+  "DP is supported by the system",
   "DP is not supported by the system"
 };
 

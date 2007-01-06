@@ -3,7 +3,7 @@
 # Copyright 2005-2007 Anders Broman 
 # $Id$
 
-
+#.INCLUDE ../gsmmap/gsm_map-exp.cnf
 #.EXPORTS
 
 #.PDU
