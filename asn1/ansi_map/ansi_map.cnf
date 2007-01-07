@@ -24,12 +24,36 @@ OriginationRequestRes
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ReturnParameters
-	  if(tvb_length_remaining(tvb, offset)<=0){
-		  return offset;
-	  }
+  gint   *opcode;
+  struct tcap_private_t *p_private_tcap;
+  proto_item *item;
 
-	proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
-	offset = dissect_returnData(pinfo, tree, tvb, offset);
+  /* Data from the TCAP dissector */
+  if (pinfo->private_data != NULL){
+	  p_private_tcap=pinfo->private_data;
+	  opcode = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  if(opcode){
+		  OperationCode = *opcode;
+	  }else{
+		  OperationCode = OperationCode & 0x00ff;
+	  }
+  }else{
+	  OperationCode = OperationCode & 0x00ff;
+  }
+  if (check_col(pinfo->cinfo, COL_INFO)){
+	  col_clear(pinfo->cinfo, COL_INFO);
+	  col_add_fstr(pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  }
+  /* No Data */
+  if(tvb_length_remaining(tvb, offset)<=0){
+	  return offset;
+  }
+
+  item = proto_tree_add_text(tree, tvb, 0, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
+  PROTO_ITEM_SET_GENERATED(item);
+
+  proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
+  offset = dissect_returnData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ErrorParameters
 

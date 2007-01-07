@@ -3519,29 +3519,6 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
  }
 
 static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  gint   *opcode;
-  struct tcap_private_t *p_private_tcap;
-  proto_item *item;
-
-  /* Data from the TCAP dissector */
-  if (pinfo->private_data != NULL){
-	  p_private_tcap=pinfo->private_data;
-	  opcode = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
-	  if(opcode){
-		  OperationCode = *opcode;
-	  }else{
-		  OperationCode = OperationCode & 0x00ff;
-	  }
-  }else{
-	  OperationCode = OperationCode & 0x00ff;
-  }
-  item = proto_tree_add_text(tree, tvb, offset, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
-  PROTO_ITEM_SET_GENERATED(item);
-
-  if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_clear(pinfo->cinfo, COL_INFO);
-	  col_add_fstr(pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-  }
 
   switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
