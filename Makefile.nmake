@@ -431,12 +431,12 @@ $(ZLIB_DIR)\zlib1.dll:
 !IF "$(MSVC_VARIANT)" != "MSVC6" 
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E
 	cd zlib.tmp
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
 	copy zlib1.dll $(ZLIB_DIR)
-	copy zlib1.dll.manifest $(ZLIB_DIR)
+	if exist copy zlib1.dll.manifest $(ZLIB_DIR)
 	copy zdll.lib $(ZLIB_DIR)\lib
 	copy zconf.h $(ZLIB_DIR)\include
 	copy zlib.h $(ZLIB_DIR)\include
@@ -444,7 +444,7 @@ $(ZLIB_DIR)\zlib1.dll:
     rm -r -f zlib.tmp
 !ENDIF
 
-wiretap: $(ZLIB_DIR)\zlib1.dll
+wiretap:: $(ZLIB_DIR)\zlib1.dll
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
