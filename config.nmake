@@ -174,8 +174,10 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 #
 # XXX - ZLIB must be recompiled on MSVC 2005 because of C runtime lib (msvcr)
 # problems, simply disable it for now on MSVC 2005 (and other none 6 versions)
-!IF "$(MSVC_VARIANT)" == "MSVC6"
+!IF "$(MSVC_VARIANT)" == "MSVC6" 
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
+!ELSE
+ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 !ENDIF
 
 #
