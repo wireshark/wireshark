@@ -163,7 +163,7 @@ packaging_zip: packaging_zip1 packaging_zip2
 
 $(RESOURCES): image
 
-wiretap\wiretap-$(WTAP_VERSION).lib: image wiretap
+wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DIR)\zlib1.dll wiretap
 
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
@@ -427,7 +427,7 @@ image::
 # therefore compile the zlib dll from source ZLIB_DIR package.
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
-$(ZLIB_DIR)\zlib1.dll:
+$(ZLIB_DIR)\zlib1.dll::
 !IF "$(MSVC_VARIANT)" != "MSVC6" 
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E
 	cd zlib.tmp
@@ -444,7 +444,7 @@ $(ZLIB_DIR)\zlib1.dll:
     rm -r -f zlib.tmp
 !ENDIF
 
-wiretap:: $(ZLIB_DIR)\zlib1.dll
+wiretap::
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
