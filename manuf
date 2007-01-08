@@ -6837,6 +6837,95 @@
 00:1A:A8	MamiyaDigi             # Mamiya Digital Imaging Co., Ltd.
 00:1A:A9	FujianStar             # FUJIAN STAR-NET COMMUNICATION CO.,LTD
 00:1A:AA	Analogic               # Analogic Corp.
+00:1A:AB	EwingsSRL              # eWings s.r.l.
+00:1A:AC	Corelatus              # Corelatus AB
+00:1A:AD	MotorolaCh             # Motorola CHS
+00:1A:AE	SavantLlc              # Savant Systems LLC
+00:1A:AF	BlusensTec             # BLUSENS TECHNOLOGY
+00:1A:B0	SignalNetw             # Signal Networks Pvt. Ltd.,
+00:1A:B1	AsiaPacifi             # Asia Pacific Satellite Industries Co., Ltd.
+00:1A:B2	CyberSolut             # Cyber Solutions Inc.
+00:1A:B3	Visionite              # VISIONITE INC.
+00:1A:B4	Ffei                   # FFEI Ltd.
+00:1A:B5	HomeNetwor             # Home Network System
+00:1A:B6	LuminaryMi             # Luminary Micro Inc
+00:1A:B7	EthosNetwo             # Ethos Networks LTD.
+00:1A:B8	Anseri                 # Anseri Corporation
+00:1A:B9	Pmc
+00:1A:BA	CatonOvers             # Caton Overseas Limited
+00:1A:BB	FontalTech             # Fontal Technology Incorporation
+00:1A:BC	U4eaTechno             # U4EA Technologies Ltd
+00:1A:BD	Impatica               # Impatica Inc.
+00:1A:BE	ComputerHi             # COMPUTER HI-TECH INC.
+00:1A:BF	TrumpfLase             # TRUMPF Laser Marking Systems AG
+00:1A:C0	JoybienTec             # JOYBIEN TECHNOLOGIES CO., LTD.
+00:1A:C1	3comEurope             # 3COM EUROPE
+00:1A:C2	Yec                    # YEC Co.,Ltd.
+00:1A:C3	Scientific             # Scientific-Atlanta, Inc
+00:1A:C4	2wire                  # 2Wire, Inc
+00:1A:C5	Breakingpo             # BreakingPoint Systems, Inc.
+00:1A:C6	MicroContr             # Micro Control Designs
+00:1A:C7	Unipoint
+00:1A:C8	IslInstrum             # ISL (Instrumentation Scientifique de Laboratoire)
+00:1A:C9	Suzuken                # SUZUKEN CO.,LTD
+00:1A:CA	Tilera                 # Tilera Corporation
+00:1A:CB	AutocomPro             # Autocom Products Ltd
+00:1A:CC	CelestialS             # Celestial Semiconductor, Ltd
+00:1A:CD	TidelEngin             # Tidel Engineering LP
+00:1A:CE	YupiteruIn             # YUPITERU INDUSTRIES CO., LTD.
+00:1A:CF	CTElettron             # C.T. ELETTRONICA
+00:1A:D0	SiemensSch             # Siemens Schweiz AG
+00:1A:D1	Fargo                  # FARGO CO., LTD.
+00:1A:D2	Eletronica             # Eletronica Nitron Ltda
+00:1A:D3	Vamp                   # Vamp Ltd.
+00:1A:D4	IpoxTechno             # iPOX Technology Co., Ltd.
+00:1A:D5	KmcChainIn             # KMC CHAIN INDUSTRIAL CO., LTD.
+00:1A:D6	JiagnsuAet             # JIAGNSU AETNA ELECTRIC CO.,LTD
+00:1A:D7	ChristieDi             # Christie Digital Systems, Inc.
+00:1A:D8	Alsteraero             # AlsterAero GmbH
+00:1A:D9	Internatio             # International Broadband Electric Communications, Inc.
+00:1A:DA	Biz-2-Me               # Biz-2-Me Inc.
+00:1A:DB	MotorolaMo             # Motorola Mobile Devices
+00:1A:DC	NokiaDanma             # Nokia Danmark A/S
+00:1A:DD	Pepwave                # PePWave Ltd
+00:1A:DE	MotorolaCh             # Motorola CHS
+00:1A:DF	Interactiv             # Interactivetv Pty Limited
+00:1A:E0	MythologyT             # Mythology Tech Express Inc.
+00:1A:E1	EdgeAccess             # EDGE ACCESS INC
+00:1A:E2	Cisco                  # Cisco Systems
+00:1A:E3	Cisco                  # Cisco Systems
+00:1A:E4	Liposonix              # Liposonix Inc,
+00:1A:E5	MvoxTechno             # Mvox Technologies Inc.
+00:1A:E6	AtlantaAdv             # Atlanta Advanced Communications Holdings Limited
+00:1A:E7	AztekNetwo             # Aztek Networks, Inc.
+00:1A:E8	SiemensEnt             # Siemens Enterprise Communications GmbH & Co. KG
+00:1A:E9	Nintendo               # Nintendo Co., Ltd.
+00:1A:EA	RadioTermi             # Radio Terminal Systems Pty Ltd
+00:1A:EB	AlliedTele             # Allied Telesis K.K.
+00:1A:EC	KeumbeeEle             # Keumbee Electronics Co.,Ltd.
+00:1A:ED	Incotec                # INCOTEC GmbH
+00:1A:EE	Shenztech              # Shenztech Ltd
+00:1A:EF	LoopcommTe             # Loopcomm Technology, Inc.
+00:1A:F0	Alcatel-Ip             # Alcatel - IPD
+00:1A:F1	EmbeddedAr             # Embedded Artists AB
+00:1A:F2	Dynavision             # Dynavisions GmbH
+00:1A:F3	SamyoungEl             # Samyoung Electronics
+00:1A:F4	Handreamne             # Handreamnet
+00:1A:F5	Pentaone               # PENTAONE. CO., LTD.
+00:1A:F6	Woven                  # Woven Systems, Inc.
+00:1A:F7	Dataschalt             # dataschalt e+a GmbH
+00:1A:F8	CopleyCont             # Copley Controls Corporation
+00:1A:F9	Aerovironm             # AeroVIronment (AV Inc)
+00:1A:FA	WelchAllyn             # Welch Allyn, Inc.
+00:1A:FB	Joby                   # Joby Inc.
+00:1A:FC	Moduslink              # ModusLink Corporation
+00:1A:FD	Evolis
+00:1A:FE	Sofacreal
+00:1A:FF	WizyoungTe             # Wizyoung Tech.
+00:1B:00	NeopostTec             # Neopost Technologies
+00:1B:01	AppliedRad             # Applied Radio Technologies
+00:1B:02	Ed                     # ED Co.Ltd
+00:1B:03	ActionTech             # Action Technology (SZ) Co., Ltd
 00:1C:7C	Perq                   # PERQ SYSTEMS CORPORATION
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
 00:20:01	DspSolutio             # DSP SOLUTIONS, INC.
