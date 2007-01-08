@@ -1,10 +1,12 @@
 /****************************************************************************/
 /*	File includes								*/
 
+#include <epan/tvbuff.h>
+#include <epan/crc32.h>
+
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_wep.h"
 #include "airpdcap_sha1.h"
 #include "crypt-md5.h"
 
@@ -194,12 +196,6 @@ void AirPDcapRsnaPrfX(
         const UCHAR snonce[32],
         const INT x,	/*	for TKIP 512, for CCMP 384	*/
         UCHAR *ptk)
-        ;
-
-INT AirPDcapAlgCrc32(
-        UCHAR *buf,
-        size_t nr,
-        ULONG *cval)
         ;
 
 #ifdef	__cplusplus
@@ -625,7 +621,7 @@ INT AirPDcapRsnaMng(
 
         if (fcsPresent) {
                 /* calculate FCS	*/
-                AirPDcapAlgCrc32(decrypt_data, *decrypt_len, &crc);
+                crc = crc32_ccitt(decrypt_data, *decrypt_len);
                 *(unsigned long*)(decrypt_data+*decrypt_len)=crc;
 
                 /* add FCS in packet	*/
@@ -736,7 +732,7 @@ INT AirPDcapWepMng(
 
         if (fcsPresent) {
                 /* calculate FCS and append it at the end of the decrypted packet	*/
-                AirPDcapAlgCrc32(decrypt_data, *decrypt_len, &crc);
+                crc = crc32_ccitt(decrypt_data, *decrypt_len);
                 *(unsigned long*)(decrypt_data+*decrypt_len)=crc;
 
                 /* add FCS in packet	*/
@@ -1282,43 +1278,6 @@ INT AirPDcapRsnaPwd2Psk(
         AirPDcapRsnaPwd2PskStep(password, ssid, ssidLength, 4096, 2, &m_output[AIRPDCAP_SHA_DIGEST_LEN]);
 
         memcpy(output, m_output, AIRPDCAP_WPA_PSK_LEN);
-
-        return 0;
-}
-
-/*
- * The following code come from freeBSD and implements the AUTODIN II
- * polynomial used by 802.11.
- * It can be used to calculate multicast address hash indices.
- * It assumes that the low order bits will be transmitted first,
- * and consequently the low byte should be sent first when
- * the crc computation is finished.  The crc should be complemented
- * before transmission.
- * The variable corresponding to the macro argument "crc" should
- * be an unsigned long and should be preset to all ones for Ethernet
- * use.  An error-free packet will leave 0xDEBB20E3 in the crc.
- */
-INT AirPDcapAlgCrc32(
-        UCHAR *buf,
-        size_t nr,
-        ULONG *cval)
-{
-        ULONG crc32_total = 0 ;
-        ULONG crc = ~(ULONG)0;
-        UCHAR *p ;
-        size_t len;
-
-        len = 0 ;
-        crc32_total = ~crc32_total ;
-
-        for(len += nr, p = buf; nr--; ++p)
-        {
-                CRC(crc, *p) ;
-                CRC(crc32_total, *p) ;
-        }
-
-        *cval = ~crc ;
-        crc32_total = ~crc32_total ;
 
         return 0;
 }

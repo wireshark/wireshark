@@ -4,8 +4,6 @@
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_wep.h"
-
 #include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/

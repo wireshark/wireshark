@@ -1,19 +1,18 @@
-/******************************************************************************/
-/*	File includes																					*/
-/*																										*/
+/************************************************************************/
+/*	File includes							*/
+
+#include <epan/tvbuff.h>
+#include <epan/crc32.h>
+
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_wep.h"
-
 #include "airpdcap_debug.h"
-/*																										*/
-/******************************************************************************/
 
-extern const UINT32 crc32_table[256];
+/************************************************************************/
 
-/* Note: copied from FreeBSD source code, RELENG 6,									*/
-/*		sys/net80211/ieee80211_crypto_wep.c, 391											*/
+/* Note: copied from FreeBSD source code, RELENG 6,			*/
+/*		sys/net80211/ieee80211_crypto_wep.c, 391		*/
 INT AirPDcapWepDecrypt(
 	const UCHAR *seed,
 	const size_t seed_len,
@@ -42,7 +41,7 @@ INT AirPDcapWepDecrypt(
 		j = (j + S[i]) & 0xff;
 		S_SWAP(i, j);
 		*cypher_text ^= S[(S[i] + S[j]) & 0xff];
-		crc = crc32_table[(crc ^ *cypher_text) & 0xff] ^ (crc >> 8);
+		crc = crc32_ccitt_table[(crc ^ *cypher_text) & 0xff] ^ (crc >> 8);
 		cypher_text++;
 	}
 
