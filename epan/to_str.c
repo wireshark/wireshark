@@ -323,7 +323,7 @@ usb_addr_to_str_buf(const guint8 *addrp, gchar *buf, int buf_len)
   if(pletohl(&addrp[0])==0xffffffff){
     g_snprintf(buf, buf_len, "host");
   } else {
-    g_snprintf(buf, buf_len, "%d", pletohl(&addrp[0]));
+    g_snprintf(buf, buf_len, "%d.%d", pletohl(&addrp[0]), pletohl(&addrp[4]));
   }
 }
 
