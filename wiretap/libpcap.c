@@ -867,9 +867,11 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	if (aix) {
 		/*
-		 * Yes.  Skip all the tests for other mutant formats.
+		 * Yes.  Skip all the tests for other mutant formats,
+		 * and set the precision to nanosecond precision.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_AIX;
+		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 		return 1;
 	}
 
@@ -1595,11 +1597,6 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 		hdr->incl_len = BSWAP32(hdr->incl_len);
 		hdr->orig_len = BSWAP32(hdr->orig_len);
 	}
-
-	/* If this is AIX, convert the time stamp from seconds/nanoseconds
-	   to seconds/microseconds.  */
-	if (wth->file_type == WTAP_FILE_PCAP_AIX)
-		hdr->ts_usec = hdr->ts_usec/1000;
 
 	/* Swap the "incl_len" and "orig_len" fields, if necessary. */
 	switch (wth->capture.pcap->lengths_swapped) {
