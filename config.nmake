@@ -35,7 +35,7 @@ WIRESHARK_LIBS=C:\wireshark-win32-libs
 # Base directory, where your programs reside. 
 # This setting is used only inside this file.
 #
-PROGRAM_FILES=C:/Programme
+PROGRAM_FILES=C:/Program Files
 
 
 
