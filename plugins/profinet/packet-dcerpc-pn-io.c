@@ -269,7 +269,7 @@ static int hf_pn_io_multicast_boundary = -1;
 static int hf_pn_io_adjust_properties = -1;
 static int hf_pn_io_mau_type = -1;
 static int hf_pn_io_port_state = -1;
-static int hf_pn_io_propagation_delay_factor = -1;
+static int hf_pn_io_line_delay = -1;
 static int hf_pn_io_number_of_peers = -1;
 static int hf_pn_io_length_peer_port_id = -1;
 static int hf_pn_io_peer_port_id = -1;
@@ -420,7 +420,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0207, "PDIRFrameData"},
 	{ 0x0209, "AdjustDomainBoundary"},
 	{ 0x020A, "CheckPeers"},
-	{ 0x020B, "CheckPropagationDelayFactor"},
+	{ 0x020B, "CheckLineDelay"},
 	{ 0x020C, "Checking MAUType"},
 	{ 0x020E, "Adjusting MAUType"},
 	{ 0x020F, "PDPortDataReal"},
@@ -1810,7 +1810,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     char *pPeerPortID;
     guint8 u8LengthPeerChassisID;
     char *pPeerChassisID;
-    guint32 u32PropagationDelayFactor;
+    guint32 u32LineDelay;
     guint8 mac[6];
     guint16 u16MAUType;
     guint32 u32DomainBoundary;
@@ -1889,9 +1889,9 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
             break;
         }
 
-        /* PropagationDelayFactor */
+        /* LineDelay */
 	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
-                            hf_pn_io_propagation_delay_factor, &u32PropagationDelayFactor);
+                            hf_pn_io_line_delay, &u32LineDelay);
 
         /* PeerMACAddress */
         offset = dissect_MAC(tvb, offset, pinfo, tree, 
@@ -2058,19 +2058,22 @@ dissect_CheckMAUType_block(tvbuff_t *tvb, int offset,
 }
 
 
-/* dissect the CheckPropagationDelayFactor block */
+/* dissect the CheckLineDelay block */
 static int
-dissect_CheckPropagationDelayFactor_block(tvbuff_t *tvb, int offset,
+dissect_CheckLineDelay_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
 {
-    guint32 u32PropagationDelayFactor;
+    guint32 u32LineDelay;
 
 
-    /* PropagationDelayFactor */
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* LineDelay */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_propagation_delay_factor, &u32PropagationDelayFactor);
+                        hf_pn_io_line_delay, &u32LineDelay);
 
-    proto_item_append_text(item, ": PropagationDelayFactor:%uns", u32PropagationDelayFactor);
+    proto_item_append_text(item, ": LineDelay:%uns", u32LineDelay);
 
     return offset;
 }
@@ -3290,7 +3293,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_CheckPeers_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x020B):
-        dissect_CheckPropagationDelayFactor_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        dissect_CheckLineDelay_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x020C):
         dissect_CheckMAUType_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4337,8 +4340,8 @@ proto_register_pn_io (void)
       { "MAUType", "pn_io.mau_type", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0, "", HFILL }},
     { &hf_pn_io_port_state,
       { "PortState", "pn_io.port_state", FT_UINT16, BASE_HEX, VALS(pn_io_port_state), 0x0, "", HFILL }},
-    { &hf_pn_io_propagation_delay_factor,
-      { "PropagationDelayFactor", "pn_io.propagation_delay_factor", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_line_delay,
+      { "LineDelay", "pn_io.line_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "LineDelay in nanoseconds", HFILL }},
     { &hf_pn_io_number_of_peers,
       { "NumberOfPeers", "pn_io.number_of_peers", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_length_peer_port_id,
