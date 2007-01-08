@@ -65,12 +65,11 @@ typedef unsigned short eth_sa_family_t;
 
 /* sockaddr_storage problem with different MSVC versions
  * - MSVC 6   (1200) doesn't define this
- * - MSVC 7   (1300) unknown
+ * - MSVC 7   (1300) does
  * - MSVC 7.1 (1310) does
  * - MSVC 8   (1400) does */
 /* we might need to tweak this #if, see version_info for _MSC_VER values */
-/* XXX - is this more of a Platform SDK issue? */
-#if _MSC_VER < 1310
+#if _MSC_VER < 1300
 struct sockaddr_storage {
     eth_sa_family_t  __ss_family;     /* address family */
     /* Following fields are implementation specific */
