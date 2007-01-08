@@ -28,11 +28,11 @@
 # Possible values are:
 #
 #   enable     - Enable or disable versioning.  Zero (0) disables, nonzero
-#                enables.
+#		 enables.
 #   svn_client - Use svn client i.s.o. ugly internal SVN file hack
 #   format     - A strftime() formatted string to use as a template for
-#                the version string.  The sequence "%#" will substitute
-#                the SVN revision number.
+#		 the version string.  The sequence "%#" will substitute
+#		 the SVN revision number.
 #   pkg_enable - Enable or disable package versioning.
 #   pkg_format - Like "format", but used for the package version.
 #
@@ -84,23 +84,37 @@ sub read_svn_info {
 	my $package_format = "";
 	my $in_entries = 0;
 	my $svn_name;
+	my $repo_version;
 
 	if ($version_pref{"pkg_enable"}) {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if ($version_pref{"svn_client"}) {
+	if (!$version_pref{"svn_client"}) {
+		# Start of ugly internal SVN file hack
+		if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
+			print ("Unable to open $srcdir/.svn/entries, trying 'svn info'\n");
+			# Fall back to "svn info"
+			$version_pref{"svn_client"} = 1;
+		}
+
+		# We need to find out whether our parser can handle the entries file
+		$line = <ENTRIES>;
+		chomp $line;
+		if ($line eq '<?xml version="1.0" encoding="utf-8"?>') {
+			$repo_version = "pre1.4";
+		} elsif ($line =~ /^8$/) {
+			$repo_version = "1.4";
+		} else {
+			$repo_version = "unknown";
+		}
+	}
+	if ($version_pref{"svn_client"} || ($repo_version ne "pre1.4")) {
 		$line = qx{svn info};
 		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
 		}
 		if ($line =~ /Last Changed Rev: (\d+)/) { $revision = $1; }
-		return;
-	}
-
-        # Start of ugly internal SVN file hack
-	if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
-		print ("Unable to get SVN info.\n");
 		return;
 	}
 
