@@ -46,17 +46,17 @@
 
 #define ECHO g_string_append(current,yytext);
 
-GString* current;
-GString* output;
-GHashTable* entities;
-gchar* entity_name;
-GString* error;
+static GString* current;
+static GString* output;
+static GHashTable* entities;
+static gchar* entity_name;
+static GString* error;
 
-const gchar* dtd_dirname;
-const gchar* filename;
-guint linenum;
+static const gchar* dtd_dirname;
+static const gchar* filename;
+static guint linenum;
 
-GString* textstr;
+static GString* textstr;
 
 static gchar* replace_entity(gchar* s);
 static const gchar* location(void);
