@@ -60,13 +60,8 @@
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include <epan/next_tvb.h>
-#include <epan/crypt/hmac.h>
-#include <epan/expert.h>
-#include <epan/report_err.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
-#include <epan/crypt/airpdcap_sha1.h>
-#include <epan/crypt/crypt-md5.h>
 
 
 #include "packet-ber.h"
@@ -99,6 +94,12 @@
 #endif /* HAVE_NET_SNMP */
 #include "packet-snmp.h"
 #include "format-oid.h"
+
+#include <epan/crypt/airpdcap_sha1.h>
+#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/hmac.h>
+#include <epan/expert.h>
+#include <epan/report_err.h>
 
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>

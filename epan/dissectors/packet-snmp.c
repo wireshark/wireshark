@@ -68,13 +68,8 @@
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include <epan/next_tvb.h>
-#include <epan/crypt/hmac.h>
-#include <epan/expert.h>
-#include <epan/report_err.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
-#include <epan/crypt/airpdcap_sha1.h>
-#include <epan/crypt/crypt-md5.h>
 
 
 #include "packet-ber.h"
@@ -107,6 +102,12 @@
 #endif /* HAVE_NET_SNMP */
 #include "packet-snmp.h"
 #include "format-oid.h"
+
+#include <epan/crypt/airpdcap_sha1.h>
+#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/hmac.h>
+#include <epan/expert.h>
+#include <epan/report_err.h>
 
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
@@ -281,7 +282,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 189 "packet-snmp-template.c"
+#line 190 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -324,7 +325,7 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 203 "packet-snmp-template.c"
+#line 204 "packet-snmp-template.c"
 
 
 static const true_false_string auth_flags = {
@@ -2975,7 +2976,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1261 "packet-snmp-template.c"
+#line 1262 "packet-snmp-template.c"
 
 
 guint
@@ -3850,7 +3851,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1799 "packet-snmp-template.c"
+#line 1800 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3891,7 +3892,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1811 "packet-snmp-template.c"
+#line 1812 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
