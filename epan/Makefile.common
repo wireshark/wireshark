@@ -61,6 +61,7 @@ LIBWIRESHARK_SRC = 		\
 	in_cksum.c		\
 	ipproto.c		\
 	ipv4.c			\
+	load_snmp_users_file.c \
 	next_tvb.c		\
 	nstime.c		\
 	oid_resolv.c		\

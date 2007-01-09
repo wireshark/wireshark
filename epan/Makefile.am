@@ -68,6 +68,7 @@ EXTRA_DIST = \
 	dtd_grammar.lemon \
 	dtd_parse.l \
 	dtd_preparse.l \
+	load_snmp_users_file.l \
 	enterprise-numbers  \
 	libwireshark.def	\
 	Makefile.common	\
@@ -89,6 +90,7 @@ DISTCLEANFILES = \
 	dtd_grammar.h		\
 	dtd_parse.c		\
 	dtd_preparse.c		\
+	load_snmp_users_file.c		\
 	radius_dict.c
 	
 
@@ -111,6 +113,9 @@ exntest: exntest.o except.o
 
 radius_dict.c: radius_dict.l
 	$(LEX) $^
+
+load_snmp_users_file.c: load_snmp_users_file.l
+	$(LEX) -oload_snmp_users_file.c $(srcdir)/load_snmp_users_file.l
 	
 dtd_parse.c : dtd_parse.l
 	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l

@@ -12,6 +12,8 @@
  * Updated to use the asn2wrs compiler made by Tomas Kukosa
  * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
  *
+ * See RFC 3414 for User-based Security Model for SNMPv3
+ * Copyright (C) 2007 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * $Id$
  *
@@ -58,8 +60,13 @@
 #include <epan/sminmpec.h>
 #include <epan/emem.h>
 #include <epan/next_tvb.h>
+#include <epan/crypt/hmac.h>
+#include <epan/expert.h>
+#include <epan/report_err.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
+#include <epan/crypt/airpdcap_sha1.h>
+#include <epan/crypt/crypt-md5.h>
 
 
 #include "packet-ber.h"
@@ -90,9 +97,13 @@
 # define VALTYPE_COUNTER64	ASN_COUNTER64
 
 #endif /* HAVE_NET_SNMP */
-
 #include "packet-snmp.h"
 #include "format-oid.h"
+
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#endif
+
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string,
@@ -131,6 +142,11 @@ static const gchar *mib_modules = DEF_MIB_MODULES;
 static gboolean display_oid = TRUE;
 static gboolean snmp_var_in_tree = TRUE;
 
+static const gchar* ue_assocs_filename = "";
+static const gchar* ue_assocs_filename_loaded = "";
+static snmp_ue_assoc_t* ue_assocs = NULL;
+static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
 
@@ -166,6 +182,8 @@ static int hf_snmp_engineid_text = -1;
 static int hf_snmp_engineid_time = -1;
 static int hf_snmp_engineid_data = -1;
 static int hf_snmp_counter64 = -1;
+static int hf_snmp_decryptedPDU = -1;
+static int hf_snmp_msgAuthentication = -1;
 
 #include "packet-snmp-hf.c"
 
@@ -177,8 +195,17 @@ static gint ett_smux = -1;
 static gint ett_snmp = -1;
 static gint ett_engineid = -1;
 static gint ett_msgFlags = -1;
+static gint ett_encryptedPDU = -1;
+static gint ett_decrypted = -1;
+static gint ett_authParameters = -1;
 
 #include "packet-snmp-ett.c"
+
+
+static const true_false_string auth_flags = {
+	"OK",
+	"Failed"
+};
 
 /* defined in net-SNMP; include/net-snmp/library/snmp.h */
 #undef SNMP_MSG_GET
@@ -822,7 +849,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &vb_integer_value);
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &(vb_integer_value));
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -1020,7 +1047,218 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	return;
 }
 
+static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb) {
+	static snmp_ue_assoc_t* a;
+	guint given_username_len;
+	guint8* given_username;
+	guint given_engine_len;
+	guint8* given_engine;
+	
+	if ( ! ue_assocs ) return NULL;
+
+	if (! ( user_tvb && engine_tvb ) ) return NULL;
+	
+	given_username_len = tvb_length_remaining(user_tvb,0);
+	given_username = ep_tvb_memdup(user_tvb,0,-1);
+	given_engine_len = tvb_length_remaining(engine_tvb,0);
+	given_engine = ep_tvb_memdup(engine_tvb,0,-1);
+
+	for(a = ue_assocs; a->user.userName.data; a++) {
+		guint username_len = a->user.userName.len;
+		
+		if ( given_username_len == username_len
+			 && memcmp(a->user.userName.data, given_username, given_username_len) == 0 ) {
+			
+			const guint8* engine_data = a->engine.data;
+			guint engine_len = a->engine.len;
+		
+			if ( engine_data ) {
+				if ( engine_len == given_engine_len
+					 && memcmp(given_engine,engine_data,engine_len) == 0 ) {
+					return a;
+				}
+			} else {
+				return a;
+			}
+		}
+	}
+	
+	return NULL;
+}
+
+#ifdef DEBUG_USM
+#define DUMP_DATA(n,b,l) { unsigned i; printf("%s: ",n); for (i=0;i<(unsigned)l;i++) printf("%.2x",b[i]); printf("\n"); }
+#define D(p) 	printf p
+#else
+#define DUMP_DATA(n,b,l)
+#define D(p)
+#endif
+
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar** error) {
+	guint msg_len;
+	guint8* msg;
+	guint auth_len;
+	guint8* auth;
+	guint8* key;
+	guint key_len;
+	guint8 calc_auth[16];
+	guint start;
+	guint end;
+	guint i;
+	
+	if (!p->auth_tvb) {
+		*error = "No Authenticator";
+		return FALSE;		
+	}
+	
+	key = p->user_assoc->user.authKey.data;
+	key_len = p->user_assoc->user.authKey.len;
+	
+	if (! key ) {
+		*error = "User has no authKey";
+		return FALSE;
+	}
+	
+	
+	auth_len = tvb_length_remaining(p->auth_tvb,0);
+	
+	if (auth_len != 12) {
+		*error = "Authenticator length wrong";
+		return FALSE;
+	}
+	
+	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
+	
+
+	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
+
+	start = p->auth_offset - p->start_offset;
+	end = 	start + auth_len;
+
+	/* fill the authenticator with zeros */
+	for ( i = start ; i < end ; i++ ) {
+		msg[i] = '\0';
+	}
+
+	md5_hmac(msg, msg_len, key, key_len, calc_auth);
+	
+	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
+}
+
+
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar** error _U_) {
+	*error = "SHA1 authentication Not Yet Implemented";
+	return FALSE;
+}
+
+tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+#ifdef HAVE_LIBGCRYPT
+    gcry_error_t err;
+    gcry_cipher_hd_t hd = NULL;
+	
+	guint8* cleartext;
+	guint8* des_key = p->user_assoc->user.privKey.data; /* first 8 bytes */
+	guint8* pre_iv = &(p->user_assoc->user.privKey.data[8]); /* last 8 bytes */
+	guint8* salt;
+	gint salt_len;
+	gint cryptgrm_len;
+	guint8* cryptgrm;
+	tvbuff_t* clear_tvb;
+	guint8 iv[8];;
+	guint i;
+	
+	
+	salt_len = tvb_length_remaining(p->priv_tvb,0);
+	D(("salt_len=%d\n",salt_len));
+	
+	if (salt_len != 8)  {
+		*error = "msgPrivacyParameters lenght != 8";
+		return NULL;
+	}	
+
+	salt = ep_tvb_memdup(p->priv_tvb,0,salt_len);
+
+	DUMP_DATA("salt",salt,salt_len);
+	DUMP_DATA("pre_iv",iv,8);
+
+	/*
+	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
+	 */
+	for (i=0; i<8; i++) {
+		iv[i] = pre_iv[i] ^ salt[i];
+	}
+	
+	DUMP_DATA("iv",iv,8);
+	DUMP_DATA("des_key",des_key,8);
+
+	cryptgrm_len = tvb_length_remaining(encryptedData,0);
+	D(("cryptgrm_len=%d\n",cryptgrm_len));
+
+	if (cryptgrm_len % 8) {
+		*error = "the length of the encrypted data is noty a mutiple of 8";
+		return NULL;
+	}
+	
+	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
+	DUMP_DATA("cryptgrm",cryptgrm,cryptgrm_len);
+
+	cleartext = ep_alloc(cryptgrm_len);
+	
+	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+    err = gcry_cipher_setiv(hd, iv, 8);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	err = gcry_cipher_setkey(hd,des_key,8);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	err = gcry_cipher_decrypt(hd, cleartext, cryptgrm_len, cryptgrm, cryptgrm_len);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	gcry_cipher_close(hd);
+	
+	DUMP_DATA("cleartext",cryptgrm,cryptgrm_len);
+
+	/*
+	 ???
+			The first ciphertext block is decrypted, the decryption output is
+		 XOR-ed with the Initialization Vector, and the result is the first
+		 plaintext block.
+		 
+		 For each subsequent block, the ciphertext block is decrypted, the
+		 decryption output is XOR-ed with the previous ciphertext block and
+		 the result is the plaintext block.
+	 */
+	
+	
+	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	
+	return clear_tvb;
+	
+on_gcry_error:
+	*error = (void*)gpg_strerror(err);
+	if (hd) gcry_cipher_close(hd);
+	return NULL;
+#else
+	*error = "libgcrypt not present, cannot decrypt";
+	return NULL;
+#endif
+}
+
+tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+#ifdef HAVE_LIBGCRYPT
+	*error = "AES decryption Not Yet Implemented";
+	return NULL;
+#else
+	*error = "libgcrypt not present, cannot decrypt";
+	return NULL;
+#endif
+}
+
 #include "packet-snmp-fn.c"
+
 
 guint
 dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -1039,6 +1277,18 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
 
+	usm_p.msg_tvb = tvb;
+	usm_p.start_offset = offset_from_real_beginning(tvb,0) ;
+	usm_p.engine_tvb = NULL;
+	usm_p.user_tvb = NULL;
+	usm_p.auth_item = NULL;
+	usm_p.auth_tvb = NULL;
+	usm_p.auth_offset = 0;
+	usm_p.priv_tvb = NULL;
+	usm_p.user_assoc = NULL;
+	usm_p.authenticated = FALSE;
+	usm_p.encrypted = FALSE;
+	
 	/*
 	 * This will throw an exception if we don't have any data left.
 	 * That's what we want.  (See "tcp_dissect_pdus()", which is
@@ -1268,6 +1518,132 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_SMUX_PDUs_PDU(tvb, pinfo, tree);
 }
 
+
+/*
+  MD5 Password to Key Algorithm
+  from RFC 3414 A.2.1 
+*/
+void snmp_usm_password_to_key_md5(
+								  guint8 *password,    /* IN */
+								  guint   passwordlen, /* IN */
+								  guint8 *engineID,    /* IN  - pointer to snmpEngineID  */
+								  guint   engineLength,/* IN  - length of snmpEngineID */
+								  guint8 *key)         /* OUT - pointer to caller 16-octet buffer */
+								  
+								  {
+	md5_state_t     MD;
+	guint8     *cp, password_buf[64];
+	guint32      password_index = 0;
+	guint32      count = 0, i;
+	guint8		key1[16];
+	md5_init(&MD);   /* initialize MD5 */
+	
+	/**********************************************/
+	/* Use while loop until we've done 1 Megabyte */
+	/**********************************************/
+	while (count < 1048576) {
+		cp = password_buf;
+		for (i = 0; i < 64; i++) {
+			/*************************************************/
+			/* Take the next octet of the password, wrapping */
+			/* to the beginning of the password as necessary.*/
+			/*************************************************/
+			*cp++ = password[password_index++ % passwordlen];
+		}
+		md5_append(&MD, password_buf, 64);
+		count += 64;
+	}
+	md5_finish(&MD, key1);          /* tell MD5 we're done */
+	
+	/*****************************************************/
+	/* Now localize the key with the engineID and pass   */
+	/* through MD5 to produce final key                  */
+	/* May want to ensure that engineLength <= 32,       */
+	/* otherwise need to use a buffer larger than 64     */
+	/*****************************************************/
+	
+	md5_init(&MD);
+	md5_append(&MD, key1, 16);
+	md5_append(&MD, engineID, engineLength);
+	md5_append(&MD, key1, 16);
+	md5_finish(&MD, key);
+	
+	return;
+}
+
+
+						 
+						 
+/*
+   SHA1 Password to Key Algorithm COPIED from RFC 3414 A.2.2
+ */
+#define SHAUpdate(c,b,l) sha1_loop((c),(b),(l))
+#define SHAFinal(d,c) sha1_result((c),(d))
+
+void snmp_usm_password_to_key_sha1(
+						 guint8 *password,    /* IN */
+						 guint   passwordlen, /* IN */
+						 guint8 *engineID,    /* IN  - pointer to snmpEngineID  */
+						 guint   engineLength,/* IN  - length of snmpEngineID */
+						 guint8 *key)         /* OUT - pointer to caller 20-octet buffer */
+						 {
+	SHA1_CONTEXT     SH;
+	guint8     *cp, password_buf[72];
+	guint32      password_index = 0;
+	guint32      count = 0, i;
+	
+	sha1_init (&SH);   /* initialize SHA */
+	
+	/**********************************************/
+	/* Use while loop until we've done 1 Megabyte */
+	/**********************************************/
+	while (count < 1048576) {
+		cp = password_buf;
+		for (i = 0; i < 64; i++) {
+			/*************************************************/
+			/* Take the next octet of the password, wrapping */
+			/* to the beginning of the password as necessary.*/
+			/*************************************************/
+			*cp++ = password[password_index++ % passwordlen];
+		}
+		SHAUpdate (&SH, password_buf, 64);
+		count += 64;
+	}
+	SHAFinal (key, &SH);          /* tell SHA we're done */
+	
+	/*****************************************************/
+	/* Now localize the key with the engineID and pass   */
+	/* through SHA to produce final key                  */
+	/* May want to ensure that engineLength <= 32,       */
+	/* otherwise need to use a buffer larger than 72     */
+	/*****************************************************/
+	memcpy(password_buf, key, 20);
+	memcpy(password_buf+20, engineID, engineLength);
+	memcpy(password_buf+20+engineLength, key, 20);
+	
+	sha1_init(&SH);
+	SHAUpdate(&SH, password_buf, 40+engineLength);
+	SHAFinal(key, &SH);
+	return;
+ }
+
+
+
+static void destroy_ue_assocs(snmp_ue_assoc_t* assocs) {
+	if (assocs) {
+		snmp_ue_assoc_t* a;
+		
+		for(a = assocs; a->user.userName.data; a++) {
+			g_free(a->user.userName.data);
+			if (a->user.authKey.data) g_free(a->user.authKey.data);
+			if (a->user.privKey.data) g_free(a->user.privKey.data);
+			if (a->engine.data) g_free(a->engine.data);
+		}
+		
+		g_free(ue_assocs);
+	}
+}
+
 static void
 process_prefs(void)
 {
@@ -1322,17 +1698,55 @@ process_prefs(void)
 	read_configs();
 	mibs_loaded = TRUE;
 #endif /* HAVE_NET_SNMP */
+	
+	if ( g_str_equal(ue_assocs_filename_loaded,ue_assocs_filename) ) return;
+	ue_assocs_filename_loaded = ue_assocs_filename;
+	
+	if (ue_assocs) destroy_ue_assocs(ue_assocs);
+	
+	if ( *ue_assocs_filename ) {
+		gchar* err = load_snmp_users_file(ue_assocs_filename,&ue_assocs);
+		if (err) report_failure("Error while loading SNMP's users file:\n%s",err);
+	}
+	
+#ifdef DUMP_USMDATA
+	{
+		GString* s = g_string_new(">>");
+		g_string_sprintfa(s,"File: %s\n",ue_assocs_filename);
+		
+#define DUMP(s,n,b,l) { unsigned i; g_string_sprintfa(s,"%s: ",n); for (i=0;i<l;i++) g_string_sprintfa(s,"%.2x",b[i]); g_string_sprintfa(s,"\n"); }
+		if (ue_assocs) {
+			snmp_ue_assoc_t* a;
+			
+			for(a = ue_assocs; a->user.userName.data; a++) {
+				if (a->engine.data) DUMP(s,"engine",a->engine.data,a->engine.len);
+				DUMP(s,"userName",a->user.userName.data,a->user.userName.len);
+				DUMP(s,"authPassword",a->user.authPassword.data,a->user.authPassword.len);
+				if (a->user.authKey.data) DUMP(s,"authKey",a->user.authKey.data,a->user.authKey.len);
+				DUMP(s,"privPassword",a->user.privPassword.data,a->user.privPassword.len);
+				if (a->user.privKey.data) DUMP(s,"privKey",a->user.privKey.data,a->user.privKey.len);
+				g_string_sprintfa(s,"\n");
+			}
+			
+		}
+		
+		report_failure("%s",s->str);
+		g_string_free(s,TRUE);
+	}
+#endif
 }
-/*--- proto_register_snmp -------------------------------------------*/
-void proto_register_snmp(void) {
-
+	
+	
+	
+	/*--- proto_register_snmp -------------------------------------------*/
+void proto_register_snmp(void) {	
 #if defined(_WIN32) && defined(HAVE_NET_SNMP)
 	char *mib_path;
 	int mib_path_len;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
 	gchar *tmp_mib_modules;
-
+		
   /* List of fields */
   static hf_register_info hf[] = {
 		{ &hf_snmp_v3_flags_auth,
@@ -1374,7 +1788,13 @@ void proto_register_snmp(void) {
 		{ &hf_snmp_counter64, {
 		    "Value", "snmp.counter64", FT_INT64, BASE_DEC,
 		    NULL, 0, "A counter64 value", HFILL }},
-
+		  { &hf_snmp_msgAuthentication,
+				{ "Authentication OK", "snmp.v3.authOK", FT_BOOLEAN, 8,
+					TFS(&auth_flags), 0, "", HFILL }},
+		  { &hf_snmp_decryptedPDU, {
+					"Decrypted PDU", "snmp.decryptedPdu", FT_BYTES, BASE_HEX,
+					NULL, 0, "Decrypted PDU", HFILL }},
+	  
 #include "packet-snmp-hfarr.c"
   };
 
@@ -1383,7 +1803,10 @@ void proto_register_snmp(void) {
 	  &ett_snmp,
 	  &ett_engineid,
 	  &ett_msgFlags,
-
+	  &ett_encryptedPDU,
+	  &ett_decrypted,
+	  &ett_authParameters,
+	  
 #include "packet-snmp-ettarr.c"
   };
 	module_t *snmp_module;
@@ -1459,6 +1882,11 @@ void proto_register_snmp(void) {
 		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
 		&snmp_var_in_tree);
 
+  prefs_register_string_preference(snmp_module, "users_file",
+								   "USMuserTable",
+								   "The filename of the user table used for authentication/decryption",
+								   &ue_assocs_filename);
+ 	  
 	variable_oid_dissector_table =
 	    register_dissector_table("snmp.variable_oid",
 	      "SNMP Variable OID", FT_STRING, BASE_NONE);

@@ -33,6 +33,61 @@
 #ifndef PACKET_SNMP_H
 #define PACKET_SNMP_H
 
+typedef struct _snmp_usm_key {
+	guint8* data;
+	guint len;
+} snmp_usm_key_t;
+
+typedef struct _snmp_ue_assoc_t snmp_ue_assoc_t;
+typedef struct _snmp_usm_params_t snmp_usm_params_t;
+
+typedef gboolean (*snmp_usm_authenticator_t)(snmp_usm_params_t*, gchar** error);
+typedef tvbuff_t* (*snmp_usm_decoder_t)(snmp_usm_params_t*, tvbuff_t* encryptedData, gchar** error);
+typedef void (*snmp_usm_password_to_key_t)(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
+
+typedef struct _snmp_usm_auth_model_t {
+	snmp_usm_password_to_key_t pass2key;
+	snmp_usm_authenticator_t authenticate;
+	guint key_size;
+} snmp_usm_auth_model_t;
+
+typedef struct _snmp_user_t {
+	snmp_usm_key_t userName;
+
+	snmp_usm_auth_model_t* authModel;
+	snmp_usm_key_t authPassword;
+	snmp_usm_key_t authKey;
+
+	snmp_usm_decoder_t privProtocol;
+	snmp_usm_key_t privPassword;
+	snmp_usm_key_t privKey;
+} snmp_user_t;
+
+typedef struct {
+	guint8* data;
+	guint len;
+} snmp_engine_id_t;
+
+struct _snmp_ue_assoc_t {
+	snmp_user_t user;
+	snmp_engine_id_t engine;
+};
+
+struct _snmp_usm_params_t {
+	gboolean authenticated;
+	gboolean encrypted;
+	guint start_offset;
+	guint auth_offset;
+	
+	tvbuff_t* engine_tvb;
+	tvbuff_t* user_tvb;
+	proto_item* auth_item;
+	tvbuff_t* auth_tvb;
+	tvbuff_t* priv_tvb;
+	tvbuff_t* msg_tvb;
+	snmp_ue_assoc_t* user_assoc;
+};
+
 /*
  * Guts of the SNMP dissector - exported for use by protocols such as
  * ILMI.
@@ -40,6 +95,24 @@
 extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
     int, gint, gboolean);
 extern int dissect_snmp_engineid(proto_tree *, tvbuff_t *, int, int);
+
+/* SNMPv3 USM authentication functions */
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar**);
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, gchar**);
+
+/* SNMPv3 USM privacy functions */
+tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar**);
+tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t*, tvbuff_t*, gchar**);
+
+
+void snmp_usm_password_to_key_md5(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
+void snmp_usm_password_to_key_sha1(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
+								  
+
+/* defined in load_snmp_users_file.l */
+/* returns NULL when OK or else the error string */
+extern gchar* load_snmp_users_file(const char* filename, snmp_ue_assoc_t** assocs);
+
 
 /*#include "packet-snmp-exp.h"*/
 

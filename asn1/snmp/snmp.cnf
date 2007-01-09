@@ -8,6 +8,13 @@
 SMUX-PDUs
 
 #.NO_EMIT
+GetNextRequest-PDU
+GetResponse-PDU
+SetRequest-PDU
+GetRequest-PDU
+Gauge32
+NotificationName
+SnmpEngineID
 
 #.TYPE_RENAME
 
@@ -20,7 +27,6 @@ BulkPDU/request-id bulkPDU_request-id
 	VAL_PTR = &pdu_type 
 
 #.FN_BODY PDUs
-
 gint pdu_type;
 
 %(DEFAULT_BODY)s
@@ -167,32 +173,105 @@ gint pdu_type;
 
 	VAL_PTR = &MsgSecurityModel
 
-#.FN_BODY SNMPv3Message/msgSecurityParameters
+#.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
+	tvbuff_t *parameter_tvb = NULL;
 
-	switch(MsgSecurityModel){
-	case SNMP_SEC_USM:	/* 3 */
-		offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
-		break;
-	case SNMP_SEC_ANY:	/* 0 */
-	case SNMP_SEC_V1:	/* 1 */
-	case SNMP_SEC_V2C:	/* 2 */
-	default:
-		%(DEFAULT_BODY)s
-		break;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &usm_p.engine_tvb);
+	 if (parameter_tvb) {
+		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
 
-#.FN_PARS SnmpEngineID
+#.FN_PARS UsmSecurityParameters/msgUserName
+	VAL_PTR = &usm_p.user_tvb
+	
+#.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
+	if (usm_p.auth_tvb) {
+		usm_p.auth_item = get_ber_last_created_item();
+		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
+	}
+#.FN_PARS UsmSecurityParameters/msgPrivacyParameters
+	VAL_PTR = &usm_p.priv_tvb
 
-	VAL_PTR = &parameter_tvb
+#.FN_BODY ScopedPduData/encryptedPDU
+	tvbuff_t* crypt_tvb;
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
-#.FN_BODY SnmpEngineID
-	tvbuff_t *parameter_tvb = NULL;
-	proto_tree *engineid_tree = NULL;
-	proto_item *item = NULL;
+	if( usm_p.encrypted && crypt_tvb
+		&& usm_p.user_assoc
+		&& usm_p.user_assoc->user.privProtocol ) {
+			gchar* error = NULL;
 
- %(DEFAULT_BODY)s
- if (parameter_tvb)
-	dissect_snmp_engineid(tree, parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p,
+														   crypt_tvb,
+														   &error );
+
+		if (! cleartext_tvb) {
+			proto_item* item = get_ber_last_created_item();
+			expert_add_info_format( pinfo, item, PI_UNDECODED, PI_WARN, "Failed to decrypt encryptedPDU: %%s", error );
+		} else {
+			proto_tree* decrypted_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_decrypted);
+			
+            add_new_data_source(pinfo, cleartext_tvb, "Decrypted ScopedPDU");
+			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
+			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, pinfo, decrypted_tree, -1);
+		 }
+
+	}
+
+#.FN_BODY SNMPv3Message/msgSecurityParameters
+
+//	printf(">msgSecurityParameters\n");
+	switch(MsgSecurityModel){
+		case SNMP_SEC_USM:	/* 3 */		
+			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
+			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
+			break;
+		case SNMP_SEC_ANY:	/* 0 */
+		case SNMP_SEC_V1:	/* 1 */
+		case SNMP_SEC_V2C:	/* 2 */
+		default:
+			%(DEFAULT_BODY)s
+			break;
+	}
+
+#.FN_FTR SNMPv3Message
+
+	if( usm_p.authenticated
+		&& usm_p.user_assoc
+		&& usm_p.user_assoc->user.authModel ) {
+		gchar* error = NULL;
+		proto_item* authen_item;
+		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
+		
+		gboolean authen_ok = usm_p.user_assoc->user.authModel->authenticate(
+													 &usm_p,
+                                                     &error );
+
+		if (error) {
+			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Messsage authenticity: %s", error);
+			PROTO_ITEM_SET_GENERATED(authen_item);
+			expert_add_info_format( pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
+		} else {
+			int severity;
+			gchar* fmt;			
+
+			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, authen_ok);
+			PROTO_ITEM_SET_GENERATED(authen_item);
+			
+			if (authen_ok) {
+				fmt = "SNMP Authentication OK";
+				severity = PI_CHAT;
+			} else {
+				fmt = "SNMP Authentication Error";
+				severity = PI_WARN;
+			}
+
+			expert_add_info_format( pinfo, authen_item, PI_CHECKSUM, severity, fmt );
+		}
+	}
 
 #.FN_PARS HeaderData/msgFlags
  
@@ -203,10 +282,14 @@ gint pdu_type;
 
  %(DEFAULT_BODY)s
  if (parameter_tvb){
-
+	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
+	
 	proto_tree_add_item(tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
+	
+	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
+	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;
   }
 
 #.FN_BODY VarBind
