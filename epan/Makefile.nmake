@@ -207,6 +207,9 @@ dtd_parse.c : dtd_parse.l
 dtd_preparse.c : dtd_preparse.l
 	$(LEX) -odtd_preparse.c dtd_preparse.l
 
+load_snmp_users_file.c : load_snmp_users_file.l
+	$(LEX) -oload_snmp_users_file.c load_snmp_users_file.l
+
 dtd_grammar.h: dtd_grammar.c
 
 LEMON=..\tools\lemon
