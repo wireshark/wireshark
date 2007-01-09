@@ -38,6 +38,7 @@ EXTRA_DIST = \
 	acse/packet-acse-template.h	\
 	ansi_map/ansi_map.asn	\
 	ansi_map/ansi_map.cnf	\
+	ansi_map/Makefile	\
 	ansi_map/Makefile.nmake	\
 	ansi_map/packet-ansi_map-template.c	\
 	ansi_map/packet-ansi_map-template.h	\

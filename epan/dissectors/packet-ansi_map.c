@@ -6061,7 +6061,7 @@ static int dissect_cdmaTargetOneWayDelay_impl(packet_info *pinfo, proto_tree *tr
 static const ber_sequence_t CDMATargetMAHOInformation_sequence[] = {
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
   { BER_CLASS_CON, 65, BER_FLAGS_IMPLTAG, dissect_cdmaPilotStrength_impl },
-  { BER_CLASS_CON, 9999, BER_FLAGS_IMPLTAG, dissect_cdmaTargetOneWayDelay_impl },
+  { BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_cdmaTargetOneWayDelay_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -6078,7 +6078,7 @@ static int dissect_CDMATargetMAHOList_item_impl(packet_info *pinfo, proto_tree *
 
 
 static const ber_sequence_t CDMATargetMAHOList_sequence_of[1] = {
-  { BER_CLASS_CON, 9999, BER_FLAGS_IMPLTAG, dissect_CDMATargetMAHOList_item_impl },
+  { BER_CLASS_CON, 135, BER_FLAGS_IMPLTAG, dissect_CDMATargetMAHOList_item_impl },
 };
 
 static int
@@ -6108,7 +6108,7 @@ static int dissect_cdmaSignalQuality_impl(packet_info *pinfo, proto_tree *tree, 
 
 static const ber_sequence_t CDMATargetMeasurementInformation_sequence[] = {
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
-  { BER_CLASS_CON, 9999, BER_FLAGS_IMPLTAG, dissect_cdmaSignalQuality_impl },
+  { BER_CLASS_CON, 64, BER_FLAGS_IMPLTAG, dissect_cdmaSignalQuality_impl },
   { BER_CLASS_CON, 61, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetOneWayDelay_impl },
   { 0, 0, 0, NULL }
 };
@@ -6318,6 +6318,9 @@ dissect_ansi_map_TDMATerminalCapability(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 static int dissect_tdmaTerminalCapability(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ansi_map_TDMATerminalCapability(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tdmaTerminalCapability);
+}
+static int dissect_tdmaTerminalCapability_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TDMATerminalCapability(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tdmaTerminalCapability);
 }
 
 
@@ -7050,9 +7053,6 @@ dissect_ansi_map_DMH_RedirectionIndicator(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_dmh_RedirectionIndicator(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ansi_map_DMH_RedirectionIndicator(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_dmh_RedirectionIndicator);
-}
 static int dissect_dmh_RedirectionIndicator_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ansi_map_DMH_RedirectionIndicator(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_dmh_RedirectionIndicator);
 }
@@ -7643,8 +7643,8 @@ static const ber_sequence_t FeatureRequestRes_set[] = {
   { BER_CLASS_CON, 140, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AccountCodeDigits_impl },
   { BER_CLASS_CON, 141, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_AlternateBillingDigits_impl },
   { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
-  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL, dissect_dmh_RedirectionIndicator },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
   { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
   { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
@@ -7847,7 +7847,7 @@ static const ber_sequence_t HandoffMeasurementRequest_set[] = {
   { BER_CLASS_CON, 207, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellIDList_impl },
   { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
   { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
+  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -7930,7 +7930,7 @@ static const ber_sequence_t HandoffMeasurementRequest2_set[] = {
   { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
   { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
   { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
+  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -8012,7 +8012,7 @@ static const ber_sequence_t HandoffToThird_set[] = {
   { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
   { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
   { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
-  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL, dissect_tdmaTerminalCapability },
+  { BER_CLASS_CON, 179, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaTerminalCapability_impl },
   { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
   { BER_CLASS_CON, 47, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_terminalType_impl },
   { BER_CLASS_CON, 48, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_voicePrivacyMask_impl },
@@ -9209,7 +9209,7 @@ static const ber_sequence_t OriginationRequestRes_set[] = {
   { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
   { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
   { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
   { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
@@ -10633,7 +10633,7 @@ static const ber_sequence_t TransferToNumberRequest_set[] = {
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
   { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
@@ -11211,7 +11211,7 @@ static const ber_sequence_t ServiceRequestRes_set[] = {
   { BER_CLASS_CON, 311, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ChargeInformation_impl },
   { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
   { BER_CLASS_CON, 96, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_noAnswerTime_impl },
   { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
@@ -11409,7 +11409,7 @@ static const ber_sequence_t FacilitySelectedAndAvailable_set[] = {
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
@@ -11911,7 +11911,7 @@ static const ber_sequence_t TBusy_set[] = {
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
@@ -11951,7 +11951,7 @@ static const ber_sequence_t TBusyRes_set[] = {
   { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
   { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
   { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
   { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },
@@ -11984,7 +11984,7 @@ static const ber_sequence_t TNoAnswer_set[] = {
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
@@ -12025,7 +12025,7 @@ static const ber_sequence_t TNoAnswerRes_set[] = {
   { BER_CLASS_CON, 142, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_BillingDigits_impl },
   { BER_CLASS_CON, 88, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_RedirectionIndicator_impl },
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dmh_ServiceID_impl },
-  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL, dissect_groupInformation },
+  { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 97, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_oneTimeFeatureIndicator_impl },
   { BER_CLASS_CON, 168, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pilotNumber_impl },
   { BER_CLASS_CON, 147, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_preferredLanguageIndicator_impl },

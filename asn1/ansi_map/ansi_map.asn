@@ -756,9 +756,9 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.60 g
 	dmh-BillingDigits						[142] IMPLICIT DMH-BillingDigits OPTIONAL,
 	-- O 6.5.2.61 g
-	dmh-RedirectionIndicator				[88] DMH-RedirectionIndicator OPTIONAL,
+	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 d
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 h
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 g
@@ -794,7 +794,7 @@ FeatureRequestRes ::= [PRIVATE 18] SET {
 FlashRequest ::= [PRIVATE 18] SET {
 	digits		 							[4] IMPLICIT Digits,
 	-- (Dialed) M 6.5.2.58 a
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
@@ -811,7 +811,7 @@ FlashRequest ::= [PRIVATE 18] SET {
 HandoffBack ::= [PRIVATE 18] SET {
 	channelData								[5] IMPLICIT ChannelData,
 	-- (Serving) M 6.5.2.47 a
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
@@ -857,7 +857,7 @@ HandoffBackRes ::= [PRIVATE 18] SET {
 HandoffBack2 ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- M 6.5.2.16
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
@@ -915,7 +915,7 @@ HandoffBack2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.85 e, m
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 n
-	pdsnAddress								[349]	IMPLICIT PDSNAddress OPTIONAL,
+	pdsnAddress								[349] IMPLICIT PDSNAddress OPTIONAL,
 	-- O 6.5.2.gf hh
 	pdsnProtocolType						[350] IMPLICIT PDSNProtocolType OPTIONAL,
 	-- O 6.5.2.gg ii
@@ -1003,7 +1003,7 @@ HandoffMeasurementRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.152 b
 	tdmaChannelData							[28] IMPLICIT TDMAChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.153 c
-	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL
+	tdmaTerminalCapability					[179] IMPLICIT TDMATerminalCapability OPTIONAL
 	-- O 6 .5.2.j h
 	}
 
@@ -1050,7 +1050,7 @@ HandoffMeasurementRequest2 ::= [PRIVATE 18] SET {
 	-- (Serving) O 6.5.2.153 f
 	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
 	-- O 6.5.2.i
-	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL
+	tdmaTerminalCapability					[179] IMPLICIT TDMATerminalCapability OPTIONAL
 	-- O 6.5.2.j
 	}
 
@@ -1066,7 +1066,7 @@ HandoffMeasurementRequest2Res ::= [PRIVATE 18] SET {
 HandoffToThird ::= [PRIVATE 18] SET {
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	interSwitchCount						[7] IMPLICIT InterSwitchCount,
 	-- (Serving) M 6.5.2.73
@@ -1102,7 +1102,7 @@ HandoffToThird ::= [PRIVATE 18] SET {
 	-- (Serving) O 6.5.2.153 e
 	tdmaServiceCode							[178] IMPLICIT TDMAServiceCode OPTIONAL,
 	-- O 6 .5.2.i x
-	tdmaTerminalCapability					[179] TDMATerminalCapability OPTIONAL,
+	tdmaTerminalCapability					[179] IMPLICIT TDMATerminalCapability OPTIONAL,
 	-- y O 6 .5.2.j x
 	tdmaVoiceCoder							[180] IMPLICIT TDMAVoiceCoder OPTIONAL,
 	-- O 6.5.2.k u
@@ -1132,7 +1132,7 @@ HandoffToThird2 ::= [PRIVATE 18] SET {
 	-- M 6.5.2.16
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	interSwitchCount						[7] IMPLICIT InterSwitchCount,
 	-- (Serving) M 6.5.2.73
@@ -1190,7 +1190,7 @@ HandoffToThird2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.85 e, l
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Serving) O 6.5.2.86 m
-	pdsnAddress								[349]	IMPLICIT PDSNAddress OPTIONAL,
+	pdsnAddress								[349] IMPLICIT PDSNAddress OPTIONAL,
 	-- O 6.5.2.gf hh
 	pdsnProtocolType						[350] IMPLICIT PDSNProtocolType OPTIONAL,
 	-- O 6.5.2,gg ii
@@ -1246,7 +1246,7 @@ HandoffToThird2Res ::= [PRIVATE 18] SET {
 	-- (Actual) O 6.5.2.50 c
 	nampsChannelData						[74] IMPLICIT NAMPSChannelData OPTIONAL,
 	-- (Target) O 6.5.2.86 d
-	targetCellID								[3] IMPLICIT TargetCellID,
+	targetCellID							[3] IMPLICIT TargetCellID,
 	-- O 6.5.2.148 e
 	tdmaBurstIndicator						[31] IMPLICIT TDMABurstIndicator OPTIONAL,
 	-- (Target) O 6.5.2.151 f
@@ -1332,7 +1332,7 @@ InformationForwardRes ::= [PRIVATE 18] SET {
 -- 6.4.2.23 InterSystemAnswer
 
 InterSystemAnswer ::= [PRIVATE 18] SET {
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
 	-- M 6.5.2.72
 	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
@@ -1889,7 +1889,7 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.62 i, j
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei s
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 k
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL, 
 	--	 O 6.5.2.80 i
@@ -2646,7 +2646,7 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.25 c
 	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
 	-- O 6.5.2.f
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 b
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 c
@@ -3065,7 +3065,7 @@ ServiceRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.62 a
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei i
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 a
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 a
@@ -3254,7 +3254,7 @@ FacilitySelectedAndAvailable ::= [PRIVATE 18] SET {
 	-- O 6.5.2.25 c
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 c
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 c
@@ -3419,7 +3419,7 @@ TBusy ::= [PRIVATE 18] SET {
 	-- O 6.5.2.25 e
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 f
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 f
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
@@ -3481,7 +3481,7 @@ TBusyRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.62 f
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei n
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 g
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 h
@@ -3524,7 +3524,7 @@ TNoAnswer ::= [PRIVATE 18] SET {
 	-- O 6.5.2.25 e
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 f
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 f
 	legInformation							[288] IMPLICIT LegInformation OPTIONAL,
 	-- O 6.5.2.75 f
@@ -3586,7 +3586,7 @@ TNoAnswerRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.62 f
 	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei n
-	groupInformation						[163] GroupInformation OPTIONAL,
+	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 g
 	oneTimeFeatureIndicator					[97] IMPLICIT OneTimeFeatureIndicator OPTIONAL,
 	-- O 6.5.2.88 h
@@ -3620,7 +3620,7 @@ ChangeFacilities ::= [PRIVATE 18] SET {
 	-- O 6.5.2.au i, f
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 c
-	interMSCCircuitID						[6] IMPLICIT	InterMSCCircuitID OPTIONAL,
+	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID OPTIONAL,
 	-- O 6.5.2.72 a, c
 	ilspInformation							[217] IMPLICIT ISLPInformation OPTIONAL,
 	-- O 6.5.2.av d
@@ -4563,7 +4563,7 @@ CDMAServingOneWayDelay ::= OCTET STRING
 
 -- 6.5.2.39
 -- 1 0 0 1 1 1 1 1 (0x9f)
--- 0 1 0 0 0 0 0 0
+-- 0 1 0 0 0 0 0 0 (0x40) (64)
 CDMASignalQuality ::= OCTET STRING
 
 -- 6.5.2.40
@@ -4584,14 +4584,14 @@ CDMAStationClassMark ::= OCTET STRING
 CDMATargetMAHOInformation ::= SEQUENCE {
 	targetCellID			[3] IMPLICIT TargetCellID,
 	cdmaPilotStrength		[65] IMPLICIT CDMAPilotStrength,
-	cdmaTargetOneWayDelay	[9999] IMPLICIT CDMATargetOneWayDelay
+	cdmaTargetOneWayDelay	[61] IMPLICIT CDMATargetOneWayDelay
 	}
 	
 -- 6.5.2.43
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81) 
 -- 0 0 0 0 1 0 0 0 (0x08)(136)
-CDMATargetMAHOList ::= SEQUENCE OF [9999] IMPLICIT CDMATargetMAHOInformation
+CDMATargetMAHOList ::= SEQUENCE OF [135] IMPLICIT CDMATargetMAHOInformation
 --	cdmaTargetMAHOInformation	[9999] IMPLICIT CDMATargetMAHOInformation,
 --	cdmaTargetMAHOInformation	[9999] IMPLICIT CDMATargetMAHOInformation OPTIONAL
 --	}
@@ -4602,7 +4602,7 @@ CDMATargetMAHOList ::= SEQUENCE OF [9999] IMPLICIT CDMATargetMAHOInformation
 -- 0 0 0 0 0 1 0 1 (0x05)(133)
 CDMATargetMeasurementInformation ::= SEQUENCE {
 	targetCellID			[3] IMPLICIT TargetCellID,
-	cdmaSignalQuality		[9999] IMPLICIT CDMASignalQuality,
+	cdmaSignalQuality		[64] IMPLICIT CDMASignalQuality,
 	cdmaTargetOneWayDelay	[61] IMPLICIT CDMATargetOneWayDelay OPTIONAL
 	}
 

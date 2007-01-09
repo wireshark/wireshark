@@ -8,6 +8,7 @@ all: ber per
 ber: \
 	acse	\
 	acp133 \
+	ansi_map \
 	camel	\
 	cdt	\
 	cmip	\
@@ -74,6 +75,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
 	cd ..
 	cd acp133
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
+	cd ..
+	cd ansi_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	clean	
 	cd ..
 	cd camel
@@ -262,6 +266,11 @@ acse::
 
 acp133::
 	cd acp133
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
+	cd ..
+
+ansi_map::
+	cd ansi_map
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	copy_files	
 	cd ..
 
