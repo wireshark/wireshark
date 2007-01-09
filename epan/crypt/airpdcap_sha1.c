@@ -24,27 +24,6 @@
 /*																										*/
 /******************************************************************************/
 
-/******************************************************************************/
-/*	Type definitions																				*/
-/*																										*/
-/* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.h, 41		*/
-typedef struct _SHA1_CONTEXT {
-	union {
-		UCHAR b8[20];
-		UINT b32[5];
-	} h;
-	union {
-		UCHAR b8[8];
-		ULONGLONG b64[1];
-	} c;
-	union {
-		UCHAR b8[64];
-		UINT b32[16];
-	} m;
-	size_t count;
-} SHA1_CONTEXT;
-/*																										*/
-/******************************************************************************/
 
 /******************************************************************************/
 /*	Internal macros																				*/
@@ -79,13 +58,6 @@ static UINT32 _K[] = { 0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6 };
 /******************************************************************************/
 /*	Function prototypes used internally														*/
 /*																										*/
-void sha1_init(
-	SHA1_CONTEXT *ctxt)
-	;
-void sha1_result(
-	SHA1_CONTEXT *ctxt,
-	UCHAR *digest0)
-	;
 void sha1_pad(
 	SHA1_CONTEXT *ctxt)
 	;
