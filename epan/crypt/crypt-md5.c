@@ -286,6 +286,11 @@ static void MD5Transform(guint32 buf[4], guint32 const in[16])
 #define MD5Update md5_append
 #define MD5Final(c,s) md5_finish((s), (c))
 
+#ifdef _WIN32
+#define bcopy(s,d,l) memcpy(d,s,l)
+#define bzero(b,l) memset(b,0,l)
+#endif
+
 /* from RFC 2104 HMAC  Appendix -- Sample Code */
 
 /*
