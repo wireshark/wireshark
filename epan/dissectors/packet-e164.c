@@ -21,10 +21,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Ref ITU-T E.164 05/97 
- *
+ *     Annex to ITU Operational Bulletin No. 835 - 1.V.2005
  */
 
 #ifdef HAVE_CONFIG_H
@@ -100,6 +100,7 @@ const value_string E164_country_code_value[] = {
 	{ 0x0268,"Swaziland"},
 	{ 0x0269,"Comoros Mayotte"},
 	{ 0x027,"South Africa"},
+	{ 0x0280,"spare code"},
 	{ 0x0281,"spare code"},
 	{ 0x0282,"spare code"},
 	{ 0x0283,"spare code"},
@@ -146,7 +147,7 @@ const value_string E164_country_code_value[] = {
 	{ 0x0378,"San Marino"}, 
 	{ 0x0379,"Vatican"},
 	{ 0x0380,"Ukraine"},
-	{ 0x0381,"Yugoslavia"}, 
+	{ 0x0381,"Serbia and Montenegro"}, 
 	{ 0x0382,"spare code"},
 	{ 0x0383,"spare code"},
 	{ 0x0384,"spare code"},
@@ -224,7 +225,7 @@ const value_string E164_country_code_value[] = {
 	{ 0x0681,"Wallis and Futuna"},
 	{ 0x0682,"Cook Islands"},
 	{ 0x0683,"Niue"},
-	{ 0x0684,"American Samoa"},
+	{ 0x0684,"Spare code"},
 	{ 0x0685,"Samoa"},
 	{ 0x0686,"Kiribati"},
 	{ 0x0687,"New Caledonia"},
@@ -266,7 +267,7 @@ const value_string E164_country_code_value[] = {
 	{ 0x084,"Viet Nam"},
 	{ 0x0850,"Democratic People's Republic of Korea"}, 
 	{ 0x0851,"Spare code"},
-	{ 0x0852,"Hongkong, China"}, 
+	{ 0x0852,"Hong Kong, China"}, 
 	{ 0x0853,"Macau, China"},
 	{ 0x0854,"Spare code"},
 	{ 0x0855,"Cambodia"},
@@ -341,16 +342,16 @@ const value_string E164_country_code_value[] = {
 	{ 0x0996,"Kyrgyz Republic"}, 
 	{ 0x0997,"Spare code"},
 	{ 0x0998,"Uzbekistan"},
-	{ 0x0999,"Spare code"},
+	{ 0x0999,"Reserved"},
 	{ 0,	NULL }
 };    
 const value_string E164_International_Networks_vals[] = {
 	{   0x10, "British Telecommunications"}, 
 	{   0x11, "Singapore Telecommunications"},
-	{   0x12, "MCIWorldCom"},
+	{   0x12, "MCI"},
 	{   0x13, "Telespazio"},
 	{   0x14, "GTE"},
-	{   0x15, "Telstra"}, 
+	{   0x15, "Reach"}, 
 	{   0x16, "United Arab Emirates"}, 
 	{   0x17, "AT&T"},
 	{   0x18, "Teledesic"}, 
@@ -359,9 +360,18 @@ const value_string E164_International_Networks_vals[] = {
 	{   0x21, "Ameritech"},
 	{   0x22, "Cable & Wireless"}, 
 	{   0x23, "Sita-Equant"},
-	{   0x24, "Telia AB"},
+	{   0x24, "TeliaSonera AB"},
 	{   0x25, "Constellation Communications"}, 
 	{   0x26, "SBC Communications"},
+	{   0x28, "Deutsche Telekom"},
+	{   0x29, "Q-Tel"},
+	{   0x30, "Singapore Telecom"},
+	{   0x31, "Telekom Malaysia"},
+	{   0x32, "Maritime Communications Partners"},
+	{   0x33, "Oration Technologies"},
+	{   0x34, "Global Networks"},
+	{   0x98, "SITA"},
+	{   0x99, "Telenor"},
 	{ 0,	NULL }
 };    
 
@@ -372,8 +382,7 @@ static int hf_E164_called_party_number		= -1;
 
 
 void
-dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset,
-								  int length,e164_info_t e164_info)
+dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length,e164_info_t e164_info)
 {
 	switch (e164_info.e164_number_type){
 	case CALLING_PARTY_NUMBER :
@@ -386,8 +395,7 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset,
 				length, e164_info.E164_number_str);
 		break;
 
-
-	default:;
+	default:
 		break;
 	}
 
@@ -395,7 +403,7 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset,
 void
 dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded){
 
-	int		cc_offset;
+	int	cc_offset;
 	guint8	address_digit_pair;
 	guint16	id_code;
 	guint8	cc_length;
@@ -422,7 +430,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		cc = cc << 4;
 		cc_offset = cc_offset + 1;
 		address_digit_pair = tvb_get_guint8(tvb, cc_offset);
-		cc = cc | address_digit_pair &0x0f;
+		cc = cc | (address_digit_pair &0x0f);
 
 	}
 
@@ -463,7 +471,7 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 			cc_length = 3;
 			break;
 		}
-			break;
+		break;
 	case 0x0400 : 
 		switch ( cc & 0x00f0 ) {
 		case 0x20 :
@@ -500,7 +508,8 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		}
 		break;
 
-	case 0x0700 : cc_length = 1;	
+	case 0x0700 : 
+		cc_length = 1;	
 		break;
 
 	case 0x0800 : 
@@ -534,16 +543,17 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		}
 		break;
 
-	default: 
+	default :
+		cc_length = 0;
 		break;
 	}/* End switch cc */
 
 	switch ( cc_length ) {
-	case 0x1 :
+	case 1 :
 		cc = cc >> 8;
 		length = 1;
 		break;
-	case 0x2 :
+	case 2 :
 		cc = cc >> 4;
 		length = 1;
 		break;
@@ -561,7 +571,8 @@ dissect_e164_cc(tvbuff_t *tvb, proto_tree *tree, int offset, gboolean bcd_coded)
 		proto_tree_add_text(tree,tvb, (cc_offset + 1), 2,"Identification Code: %x %s ",id_code,
 						val_to_str(id_code,E164_International_Networks_vals,"unknown (%x)"));
 		break;
-	default:;
+	default:
+		break;
 	}
 
 }
@@ -577,7 +588,7 @@ void
 proto_register_e164(void)
 {
 
-/* Setup list of header fields  See Section 1.6.1 for details */
+	/* Setup list of header fields  See Section 1.6.1 for details */
 	static hf_register_info hf[] = {
 		{ &hf_E164_calling_party_number,
 		  { "E.164 Calling party number digits", "e164.calling_party_number.digits",
@@ -587,7 +598,7 @@ proto_register_e164(void)
 		{ &hf_E164_called_party_number,
 		  { "E.164 Called party number digits", "e164.called_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
-			"", HFILL }},
+			"", HFILL }}
 	};
 
 	/*
