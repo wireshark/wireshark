@@ -1799,6 +1799,24 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 	tvb_signals_end_offset   = tvb_RBRKT;
 	tvb_signals_start_offset = tvb_previous_offset;
 
+	if(toupper(tvb_get_guint8(tvb, tvb_previous_offset+1))=='G')
+	  tokenlen = 2;								/* token is compact text (SG) */
+	else
+	  tokenlen = 7;								/* token must be verbose text (Signals) */
+
+	tvb_current_offset = tvb_skip_wsp(tvb, tvb_previous_offset+tokenlen);    
+
+	if(tvb_get_guint8(tvb, tvb_current_offset)!='{') {			/* {} has been omitted */
+
+	  proto_tree_add_text(megaco_tree_command_line, tvb, tvb_signals_start_offset, tokenlen,
+				"%s", "Empty Signal Descriptor");
+
+	  if(check_col(pinfo->cinfo, COL_INFO))
+	    col_append_str(pinfo->cinfo, COL_INFO, " (Signal:none)");		/* then say so */
+
+	  return;								/* and return */
+	}
+
 	tvb_LBRKT = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
 	tokenlen =  (tvb_LBRKT+1) - tvb_signals_start_offset;
 
