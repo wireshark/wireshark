@@ -40,7 +40,7 @@
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/crypt-rc4.h>
+#include <epan/crypt/crypt-rc4.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 

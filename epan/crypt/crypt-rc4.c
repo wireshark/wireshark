@@ -1,23 +1,23 @@
-/* 
+/*
    Unix SMB/CIFS implementation.
 
-   a partial implementation of RC4 designed for use in the 
+   a partial implementation of RC4 designed for use in the
    SMB authentication protocol
 
    Copyright (C) Andrew Tridgell 1998
 
    $Id$
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -30,18 +30,18 @@
 #include <glib.h>
 #include <string.h>
 
-#include <epan/crypt-rc4.h>
+#include <epan/crypt/crypt-rc4.h>
 
 /* Perform RC4 on a block of data using specified key.  "data" is a pointer
    to the block to be processed.  Output is written to same memory as input,
    so caller may need to make a copy before calling this function, since
-   the input will be overwritten.  
-   
+   the input will be overwritten.
+
    Taken from Samba source code.  Modified to allow us to maintain state
    between calls to crypt_rc4.
 */
 
-void crypt_rc4_init(rc4_state_struct *rc4_state, 
+void crypt_rc4_init(rc4_state_struct *rc4_state,
 		    const unsigned char *key, int key_len)
 {
   int ind;
@@ -50,7 +50,7 @@ void crypt_rc4_init(rc4_state_struct *rc4_state,
 
   memset(rc4_state, 0, sizeof(rc4_state_struct));
   s_box = rc4_state->s_box;
-  
+
   for (ind = 0; ind < 256; ind++)
   {
     s_box[ind] = (unsigned char)ind;

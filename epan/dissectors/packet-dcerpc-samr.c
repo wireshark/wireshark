@@ -32,8 +32,8 @@
 #include <epan/packet.h>
 #include <string.h>
 #include <epan/prefs.h>
-#include <epan/crypt-md4.h>
-#include <epan/crypt-rc4.h>
+#include <epan/crypt/crypt-md4.h>
+#include <epan/crypt/crypt-rc4.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-samr.h"
@@ -514,7 +514,7 @@ struct access_mask_info samr_group_access_mask_info = {
 };
 
 static int
-dissect_ndr_nt_SID_no_hf(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_nt_SID_no_hf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
@@ -661,7 +661,7 @@ samr_dissect_query_dispinfo_rqst(tvbuff_t *tvb, int offset,
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(
-			pinfo->cinfo, COL_INFO, ", level %d, start_idx %d", 
+			pinfo->cinfo, COL_INFO, ", level %d, start_idx %d",
 			level, start_idx);
 
         return offset;
@@ -1181,7 +1181,7 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
 				       TRUE, FALSE);
@@ -1219,7 +1219,7 @@ samr_dissect_connect3_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
 				       TRUE, FALSE);
@@ -1257,7 +1257,7 @@ samr_dissect_connect4_reply(tvbuff_t *tvb, int offset,
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
-	
+
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, &policy_hnd, &hnd_item,
 				       TRUE, FALSE);
@@ -1446,7 +1446,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 	/* SID */
 	dcv->private_data=NULL;
         offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep, dissect_ndr_nt_SID_no_hf, 
+		tvb, offset, pinfo, tree, drep, dissect_ndr_nt_SID_no_hf,
 		NDR_POINTER_REF, "SID:", -1, NULL, NULL);
 	sid=dcv->private_data;
 	if(!sid)
@@ -1800,17 +1800,17 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
   guint16 bc;
   int result_length;
 
-  /* The length of the new password is represented in the last four 
+  /* The length of the new password is represented in the last four
      octets of the decrypted buffer.  Since the password length cannot
-     exceed 512, we can check the contents of those bytes to determine 
-     if decryption was successful.  If the decrypted contents of those 
+     exceed 512, we can check the contents of those bytes to determine
+     if decryption was successful.  If the decrypted contents of those
      four bytes is less than 512, then there is a 99% chance that
      we decrypted the buffer successfully.  Of course, this isn't good
-     enough for a security application, (NT uses the "verifier" field 
+     enough for a security application, (NT uses the "verifier" field
      to come to the same conclusion), but it should be good enough for
      our dissector. */
-  
-  new_password_len = tvb_get_letohl(tvb, 512);  
+
+  new_password_len = tvb_get_letohl(tvb, 512);
 
   if (new_password_len <= 512)
     {
@@ -1818,13 +1818,13 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
       proto_tree_add_text (tree, tvb, offset, -1,
 			   "Decryption of NT Password Encrypted block successful");
 
-      /* Whatever is before the password is pseudorandom data.  We calculate 
+      /* Whatever is before the password is pseudorandom data.  We calculate
 	 the length by examining the password length (at the end), and working
-	 backward */    
+	 backward */
       pseudorandom_len = NT_BLOCK_SIZE - new_password_len - 4;
 
       /* Pseudorandom data padding up to password */
-      proto_tree_add_item(tree, hf_samr_nt_passchange_block_pseudorandom, 
+      proto_tree_add_item(tree, hf_samr_nt_passchange_block_pseudorandom,
 			  tvb, offset, pseudorandom_len, TRUE);
       offset += pseudorandom_len;
 
@@ -1835,7 +1835,7 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 						       &result_length,
 						       FALSE, TRUE, &bc);
       proto_tree_add_string(tree, hf_samr_nt_passchange_block_newpass,
-			    tvb, offset, result_length, 
+			    tvb, offset, result_length,
 			    printable_password);
       offset += new_password_len;
 
@@ -1848,7 +1848,7 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
       /* Decryption failure.  Just show the encrypted block */
       proto_tree_add_text (tree, tvb, offset, -1,
 			   "Decryption of NT Passchange block failed");
-      
+
       proto_tree_add_item(tree, hf_samr_nt_passchange_block_decrypted, tvb,
 			  offset, NT_BLOCK_SIZE, TRUE);
     }
@@ -1867,16 +1867,16 @@ decrypt_tvb_using_nt_password(packet_info *pinfo, tvbuff_t *tvb, int offset, int
 	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
 
 	if (nt_password[0] == '\0') {
-		/* We dont have an NT password, so we cant decrypt the 
+		/* We dont have an NT password, so we cant decrypt the
 		   blob. */
 		return NULL;
 	}
 
-	/* This implements the the algorithm discussed in lkcl -"DCE/RPC 
+	/* This implements the the algorithm discussed in lkcl -"DCE/RPC
 	   over SMB" page 257.  Note that this code does not properly support
 	   Unicode. */
 
-	/* Convert the password provided in the Wireshark GUI to Unicode 
+	/* Convert the password provided in the Wireshark GUI to Unicode
 	   (UCS-2).  Since the input is always ASCII, we can just fake
 	   it and pad every other byte with a NUL.  If we ever support
 	   UTF-8 in the GUI, we would have to perform a real UTF-8 to
@@ -1890,13 +1890,13 @@ decrypt_tvb_using_nt_password(packet_info *pinfo, tvbuff_t *tvb, int offset, int
 	}
 
 	/* Run MD4 against the resulting Unicode password.  This will
-	   be used to perform RC4 decryption on the blob.  
+	   be used to perform RC4 decryption on the blob.
 	   Then free the Unicode password, as we're done
 	   with it. */
 	crypt_md4(password_md4_hash, password_unicode,
 	    password_len_unicode);
 	g_free(password_unicode);
-	
+
 	/* Copy the block into a temporary buffer so we can decrypt
 	   it */
 	block = g_malloc(len);
@@ -1924,7 +1924,7 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di;
 	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
-	
+
 	di=pinfo->private_data;
 	if(di->conformant_run){
 		/* just a run to handle conformant arrays, no scalars to dissect */
@@ -1964,7 +1964,7 @@ samr_dissect_LM_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	proto_tree_add_item(tree, hf_samr_lm_passchange_block, tvb, offset, 
+	proto_tree_add_item(tree, hf_samr_lm_passchange_block, tvb, offset,
 			    516, TRUE);
 	offset += 516;
 	return offset;
@@ -4310,7 +4310,7 @@ samr_dissect_close_hnd_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	char *name;
 
         offset = dissect_nt_policy_hnd(
-		tvb, offset, pinfo, tree, drep, hf_samr_hnd, &policy_hnd, 
+		tvb, offset, pinfo, tree, drep, hf_samr_hnd, &policy_hnd,
 		NULL, FALSE, TRUE);
 
 	dcerpc_smb_fetch_pol(&policy_hnd, &name, NULL, NULL, pinfo->fd->num);
@@ -5021,7 +5021,7 @@ samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    hf_samr_unknown_long, NULL);
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-                                      hf_samr_hnd, &policy_hnd, 
+                                      hf_samr_hnd, &policy_hnd,
                                       &hnd_item, TRUE, FALSE);
 
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
@@ -5242,7 +5242,7 @@ static dcerpc_sub_dissector dcerpc_samr_dissectors[] = {
 	{ SAMR_UNICODE_CHANGE_PASSWORD_USER3, "SamrUnicodeChangePasswordUser3",
 		NULL, NULL },
 	{ SAMR_CONNECT5, "SamrConnect5",
-		samr_dissect_connect5_rqst, 
+		samr_dissect_connect5_rqst,
 		samr_dissect_connect5_reply },
 	{ SAMR_RID_TO_SID, "SamrRidToSid", NULL, NULL },
 	{ SAMR_SET_DSRM_PASSWORD, "SamrSetDSRMPassword", NULL, NULL },
@@ -5431,26 +5431,26 @@ proto_register_dcerpc_samr(void)
 		NULL, 0, "NT Password Verifier", HFILL }},
 
 	{ &hf_samr_lm_passchange_block, {
-		"Encrypted Block", "samr.lm_passchange_block", FT_BYTES, 
+		"Encrypted Block", "samr.lm_passchange_block", FT_BYTES,
 		BASE_HEX, NULL, 0, "Lan Manager Password Change Block",
 		HFILL }},
 
 	{ &hf_samr_nt_passchange_block, {
-		"Encrypted Block", "samr.nt_passchange_block", FT_BYTES, 
+		"Encrypted Block", "samr.nt_passchange_block", FT_BYTES,
 		BASE_HEX, NULL, 0, "NT Password Change Block", HFILL }},
 
 	{ &hf_samr_nt_passchange_block_decrypted, {
 		"Decrypted Block", "samr.nt_passchange_block_decrypted",
-		FT_BYTES, BASE_HEX, NULL, 0, 
+		FT_BYTES, BASE_HEX, NULL, 0,
 		"NT Password Change Decrypted Block", HFILL }},
 
 	{ &hf_samr_nt_passchange_block_newpass, {
-		"New NT Password", "samr.nt_passchange_block_new_ntpassword", 
+		"New NT Password", "samr.nt_passchange_block_new_ntpassword",
 		FT_STRING, BASE_NONE, NULL, 0, "New NT Password", HFILL }},
 
 	{ &hf_samr_nt_passchange_block_newpass_len, {
-		"New NT Unicode Password length", 
-		"samr.nt_passchange_block_new_ntpassword_len", FT_UINT32, 
+		"New NT Unicode Password length",
+		"samr.nt_passchange_block_new_ntpassword_len", FT_UINT32,
 		BASE_DEC, NULL, 0, "New NT Password Unicode Length", HFILL }},
 
 	{ &hf_samr_nt_passchange_block_pseudorandom, {
@@ -5544,15 +5544,15 @@ proto_register_dcerpc_samr(void)
 		{ "Alias Desc", "samr.alias.desc", FT_STRING, BASE_NONE,
 		NULL, 0, "Alias (Local Group) Description", HFILL }},
 	{ &hf_samr_alias_num_of_members,
-		{ "Num of Members in Alias", "samr.alias.num_of_members", 
-		  FT_UINT32, BASE_DEC, NULL, 0, 
+		{ "Num of Members in Alias", "samr.alias.num_of_members",
+		  FT_UINT32, BASE_DEC, NULL, 0,
 		 "Number of members in Alias (Local Group)", HFILL }},
 	{ &hf_samr_group_desc,
 		{ "Group Desc", "samr.group.desc", FT_STRING, BASE_NONE,
 		NULL, 0, "Group Description", HFILL }},
 	{ &hf_samr_group_num_of_members,
-		{ "Num of Members in Group", "samr.group.num_of_members", 
-		  FT_UINT32, BASE_DEC, NULL, 0, 
+		{ "Num of Members in Group", "samr.group.num_of_members",
+		  FT_UINT32, BASE_DEC, NULL, 0,
 		 "Number of members in Group", HFILL }},
 
         /* Object specific access rights */
@@ -5812,7 +5812,7 @@ proto_register_dcerpc_samr(void)
         proto_register_subtree_array(ett, array_length(ett));
 
 	dcerpc_samr_module = prefs_register_protocol(proto_dcerpc_samr, NULL);
-	
+
 	prefs_register_string_preference(dcerpc_samr_module, "nt_password",
 					 "NT Password",
 					 "NT Password (used to verify password changes)",

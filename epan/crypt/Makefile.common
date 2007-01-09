@@ -31,7 +31,10 @@ LIBAIRPDCAP_SRC =		\
 	airpdcap_sha1.c		\
 	airpdcap_tkip.c		\
 	airpdcap_wep.c		\
-	crypt-md5.c			\
+	crypt-des.c		\
+	crypt-md4.c		\
+	crypt-md5.c		\
+	crypt-rc4.c 		\
 	hmac.c
 
 LIBAIRPDCAP_INCLUDES =	\
@@ -43,6 +46,9 @@ LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_system.h	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
+	crypt-des.h		\
+	crypt-md4.h		\
 	crypt-md5.h		\
-	hmac.h \
+	crypt-rc4.h		\
+	hmac.h 			\
 	wep-wpadefs.h

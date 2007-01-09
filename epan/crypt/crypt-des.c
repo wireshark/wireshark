@@ -1,23 +1,23 @@
-/* 
+/*
    Unix SMB/CIFS implementation.
 
-   a partial implementation of DES designed for use in the 
+   a partial implementation of DES designed for use in the
    SMB authentication protocol
 
    Copyright (C) Andrew Tridgell 1998
 
    $Id$
-   
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -28,12 +28,12 @@
 #endif
 #include <glib.h>
 
-#include <epan/crypt-des.h>
+#include <epan/crypt/crypt-des.h>
 
-/* NOTES: 
+/* NOTES:
 
    This code makes no attempt to be fast! In fact, it is a very
-   slow implementation 
+   slow implementation
 
    This code is NOT a complete DES implementation. It implements only
    the minimum necessary for SMB authentication, as used by all SMB
@@ -209,8 +209,8 @@ static void dohash(char *out, char *in, char *key, int forw)
 		lshift(c, sc[i], 28);
 		lshift(d, sc[i], 28);
 
-		concat(cd, c, d, 28, 28); 
-		permute(ki[i], cd, perm2, 48); 
+		concat(cd, c, d, 28, 28);
+		permute(ki[i], cd, perm2, 48);
 	}
 
 	permute(pd1, in, perm3, 64);
@@ -240,10 +240,10 @@ static void dohash(char *out, char *in, char *key, int forw)
 			int m, n;
 			m = (b[j][0]<<1) | b[j][5];
 
-			n = (b[j][1]<<3) | (b[j][2]<<2) | (b[j][3]<<1) | b[j][4]; 
+			n = (b[j][1]<<3) | (b[j][2]<<2) | (b[j][3]<<1) | b[j][4];
 
-			for (k=0;k<4;k++) 
-				b[j][k] = (sbox[j][m][n] & (1<<(3-k)))?1:0; 
+			for (k=0;k<4;k++)
+				b[j][k] = (sbox[j][m][n] & (1<<(3-k)))?1:0;
 		}
 
 		for (j=0;j<8;j++)

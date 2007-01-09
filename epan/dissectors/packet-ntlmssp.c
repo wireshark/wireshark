@@ -40,9 +40,9 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
-#include <epan/crypt-rc4.h>
-#include <epan/crypt-md4.h>
-#include <epan/crypt-des.h>
+#include <epan/crypt/crypt-rc4.h>
+#include <epan/crypt/crypt-md4.h>
+#include <epan/crypt/crypt-des.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 
@@ -223,7 +223,7 @@ static const char *nt_password = NULL;
 #define MAX_BLOB_SIZE 256
 typedef struct _ntlmssp_blob {
   guint16 length;
-  guint8 contents[MAX_BLOB_SIZE];  
+  guint8 contents[MAX_BLOB_SIZE];
 } ntlmssp_blob;
 
 /* Used in the conversation function */
@@ -259,11 +259,11 @@ static GSList *decrypted_payloads;
   Returns output in response, which is expected to be 24 bytes.
 */
 static int ntlmssp_generate_challenge_response(guint8 *response,
-					       const guint8 *passhash, 
+					       const guint8 *passhash,
 					       const guint8 *challenge)
 {
   guint8 pw21[21]; /* Password hash padded to 21 bytes */
-  
+
   memset(pw21, 0x0, sizeof(pw21));
   memcpy(pw21, passhash, 16);
 
@@ -276,14 +276,14 @@ static int ntlmssp_generate_challenge_response(guint8 *response,
   return 1;
 }
 
-/* Create an NTLMSSP version 1 key.  
+/* Create an NTLMSSP version 1 key.
  * password points to the ANSI password to encrypt, challenge points to
  * the 8 octet challenge string, key128 will do a 128 bit key if set to 1,
- * otherwise it will do a 40 bit key.  The result is stored in 
+ * otherwise it will do a 40 bit key.  The result is stored in
  * sspkey (expected to be 16 octets)
  */
 static void
-create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge, 
+create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
 		      int use_key_128, guint8 *sspkey)
 {
   unsigned char lm_password_upper[16];
@@ -293,7 +293,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
   guint8 pw21[21]; /* Password hash padded to 21 bytes */
   size_t password_len;
   unsigned int i;
-  unsigned char lmhash_key[] = 
+  unsigned char lmhash_key[] =
     {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
 
   memset(lm_password_upper, 0, sizeof(lm_password_upper));
@@ -311,13 +311,13 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
 
   crypt_des_ecb(lm_password_hash, lmhash_key, lm_password_upper, 1);
   crypt_des_ecb(lm_password_hash+8, lmhash_key, lm_password_upper+7, 1);
-  
+
   /* Generate the LanMan Challenge Response */
   ntlmssp_generate_challenge_response(lm_challenge_response,
 				      lm_password_hash, challenge);
-  
+
   /* Generate the NTLMSSP-v1 RC4 Key.
-   * The RC4 key is derived from the Lan Manager Hash.  
+   * The RC4 key is derived from the Lan Manager Hash.
    * See lkcl "DCE/RPC over SMB" page 254 for the algorithm.
    */
   memset(pw21, 0xBD, sizeof(pw21));
@@ -327,7 +327,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
   crypt_des_ecb(rc4key, lm_challenge_response, pw21, 1);
   crypt_des_ecb(rc4key + 8, lm_challenge_response, pw21 + 7, 1);
   crypt_des_ecb(rc4key + 16, lm_challenge_response, pw21 + 14, 1);
-  
+
   /* Create the SSP Key */
   memset(sspkey, 0, sizeof(sspkey));
   if (use_key_128) {
@@ -354,7 +354,7 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *challenge,
 */
 static int
 dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
-			proto_tree *ntlmssp_tree, 
+			proto_tree *ntlmssp_tree,
 			gboolean unicode_strings,
 			int string_hf, int *start, int *end,
 			const char **stringp)
@@ -414,7 +414,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 */
 static int
 dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
-		      proto_tree *ntlmssp_tree, 
+		      proto_tree *ntlmssp_tree,
 		      int blob_hf, int *end, ntlmssp_blob *result)
 {
   proto_item *tf = NULL;
@@ -432,7 +432,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
   }
 
   if (ntlmssp_tree) {
-    tf = proto_tree_add_item (ntlmssp_tree, blob_hf, tvb, 
+    tf = proto_tree_add_item (ntlmssp_tree, blob_hf, tvb,
 			      blob_offset, blob_length, FALSE);
     tree = proto_item_add_subtree(tf, ett_ntlmssp_blob);
   }
@@ -617,7 +617,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 	if (tree) {
 		ntlmv2_item = proto_tree_add_item(
-			tree, hf_ntlmssp_ntlmv2_response, tvb, 
+			tree, hf_ntlmssp_ntlmv2_response, tvb,
 			offset, len, TRUE);
 		ntlmv2_tree = proto_item_add_subtree(
 			ntlmv2_item, ett_ntlmssp_ntlmv2_response);
@@ -667,7 +667,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
 		if (ntlmv2_tree) {
 			name_item = proto_tree_add_item(
-				ntlmv2_tree, hf_ntlmssp_ntlmv2_response_name, 
+				ntlmv2_tree, hf_ntlmssp_ntlmv2_response_name,
 				tvb, offset, 0, TRUE);
 			name_tree = proto_item_add_subtree(
 				name_item, ett_ntlmssp_ntlmv2_response_name);
@@ -693,13 +693,13 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 		case NTLM_NAME_END:
 			name = "NULL";
 			proto_item_append_text(
-				name_item, "%s", 
+				name_item, "%s",
 				val_to_str(name_type, ntlm_name_types,
 					   "Unknown"));
 			break;
 		case NTLM_NAME_CLIENT_TIME:
 			dissect_nt_64bit_time(
-				tvb, name_tree, offset, 
+				tvb, name_tree, offset,
 				hf_ntlmssp_ntlmv2_response_client_time);
 			proto_item_append_text(
 				name_item, "Client Time");
@@ -713,7 +713,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 				tvb, offset, name_len / 2, TRUE);
 
 			proto_tree_add_text(
-				name_tree, tvb, offset, name_len, 
+				name_tree, tvb, offset, name_len,
 				"Name: %s", name);
 			proto_item_append_text(
 				name_item, "%s, %s",
@@ -764,10 +764,10 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
    * sent at all, presumably meaning the length of the message
    * isn't enough to contain them.
    */
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_domain,
 				  &start, &workstation_end, NULL);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, FALSE,
 				  hf_ntlmssp_negotiate_workstation,
 				  &start, &domain_end, NULL);
 
@@ -778,8 +778,8 @@ dissect_ntlmssp_negotiate (tvbuff_t *tvb, int offset, proto_tree *ntlmssp_tree, 
 
 
 static int
-dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset, 
-			      proto_tree *ntlmssp_tree, 
+dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
+			      proto_tree *ntlmssp_tree,
 			      int *end)
 {
   guint16 list_length = tvb_get_letohs(tvb, offset);
@@ -802,7 +802,7 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
   }
 
   if (ntlmssp_tree) {
-    tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_address_list, tvb, 
+    tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_address_list, tvb,
 			      list_offset, list_length, FALSE);
     tree = proto_item_add_subtree(tf, ett_ntlmssp_address_list);
   }
@@ -880,7 +880,7 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     }
 
     /* Now show the actual bytes that made up the summary line */
-    addr_tree = proto_item_add_subtree (addr_tf, 
+    addr_tree = proto_item_add_subtree (addr_tf,
 					ett_ntlmssp_address_list_item);
     proto_tree_add_item (addr_tree, hf_ntlmssp_address_list_item_type,
 			 tvb, type_offset, 2, TRUE);
@@ -909,7 +909,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   ntlmssp_info *conv_ntlmssp_info;
   conversation_t *conversation;
   gboolean unicode_strings = FALSE;
-  guint8 challenge[8];  
+  guint8 challenge[8];
   guint8 sspkey[16]; /* NTLMSSP cipher key */
   guint8 ssp_key_len; /* Either 8 or 16 (40 bit or 128) */
 
@@ -923,7 +923,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * XXX - the davenport document calls this the "Target Name",
    * presumably because non-domain targets are supported.
    */
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, unicode_strings,
 			 hf_ntlmssp_challenge_domain,
 			 &item_start, &item_end, NULL);
   data_start = item_start;
@@ -946,7 +946,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
 				   pinfo->ptype, pinfo->srcport,
 				   pinfo->destport, 0);
   if (!conversation) { /* Create one */
-    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, 
+    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 				    pinfo->srcport, pinfo->destport, 0);
   }
 
@@ -1090,8 +1090,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* domain name */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
-				  unicode_strings, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+				  unicode_strings,
 				  hf_ntlmssp_auth_domain,
 				  &item_start, &item_end, &(ntlmssph->domain_name));
   data_start = MIN(data_start, item_start);
@@ -1099,8 +1099,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* user name */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
-				  unicode_strings, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+				  unicode_strings,
 				  hf_ntlmssp_auth_username,
 				  &item_start, &item_end, &(ntlmssph->acct_name));
   data_start = MIN(data_start, item_start);
@@ -1112,8 +1112,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* hostname */
   item_start = tvb_get_letohl(tvb, offset+4);
-  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree, 
-				  unicode_strings, 
+  offset = dissect_ntlmssp_string(tvb, offset, ntlmssp_tree,
+				  unicode_strings,
 				  hf_ntlmssp_auth_hostname,
 				  &item_start, &item_end, &(ntlmssph->host_name));
   data_start = MIN(data_start, item_start);
@@ -1183,11 +1183,11 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
 			 tvb, offset, 4, TRUE);
     ntlmssph->type = tvb_get_letohl (tvb, offset);
-    offset += 4; 
+    offset += 4;
 
     if (check_col(pinfo->cinfo, COL_INFO))
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-			    val_to_str(ntlmssph->type, 
+			    val_to_str(ntlmssph->type,
 				       ntlmssp_message_types,
 				       "Unknown message type"));
 
@@ -1222,7 +1222,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * Get the encryption state tied to this conversation.  cryptpeer indicates 
+ * Get the encryption state tied to this conversation.  cryptpeer indicates
  * whether to retrieve the data for peer1 or peer2.
  */
 static rc4_state_struct *
@@ -1323,7 +1323,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
     /* Setup the buffer to decrypt to */
     tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
 	       offset, encrypted_block_length);
-    
+
     /* Do the actual decryption of the verifier */
     crypt_rc4(rc4_state, packet_ntlmssp_info->verifier,
 	      encrypted_block_length);
@@ -1353,7 +1353,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   /* Show the decrypted payload in the tree */
   tf = proto_tree_add_text(tree, decr_tvb, 0, -1,
 			   "Decrypted Verifier (%d byte%s)",
-			   encrypted_block_length, 
+			   encrypted_block_length,
 			   plurality(encrypted_block_length, "", "s"));
   decr_tree = proto_item_add_subtree (tf, ett_ntlmssp);
 
@@ -1420,7 +1420,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
 			 tvb, offset, 4, TRUE);
     offset += 4;
-  
+
     /* Encrypted body */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
 			 tvb, offset, encrypted_block_length, TRUE);
@@ -1439,10 +1439,10 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static tvbuff_t *
-dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb, 
+dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 				  tvbuff_t *auth_tvb _U_,
 				  int offset,
-				  packet_info *pinfo, 
+				  packet_info *pinfo,
 				  dcerpc_auth_info *auth_info _U_)
 {
   tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
@@ -1464,7 +1464,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
     memset(packet_ntlmssp_info, 0, sizeof(ntlmssp_packet_info));
     p_add_proto_data(pinfo->fd, proto_ntlmssp, packet_ntlmssp_info);
   }
-  
+
   if (!packet_ntlmssp_info->payload_decrypted) {
     /* Pull the challenge info from the conversation */
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -1474,14 +1474,14 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
       /* There is no conversation, thus no encryption state */
       return NULL;
     }
-    
+
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
 						    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* There is no NTLMSSP state tied to the conversation */
 	    return NULL;
     }
-    
+
     /* Get the pair of RC4 state structures.  One is used for to decrypt the
        payload.  The other is used to re-encrypt the payload to represent
        the peer */
@@ -1492,7 +1492,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
       rc4_state = get_encrypted_state(pinfo, 0);
       rc4_state_peer = get_encrypted_state(pinfo, 1);
     }
-    
+
     if (rc4_state == NULL || rc4_state_peer == NULL) {
       /* There is no encryption state, so we cannot decrypt */
       return NULL;
@@ -1504,11 +1504,11 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
                                                         encrypted_block_length);
     decrypted_payloads = g_slist_prepend(decrypted_payloads,
                                          packet_ntlmssp_info->decrypted_payload);
-    
+
     /* Do the decryption of the payload */
-    crypt_rc4(rc4_state, packet_ntlmssp_info->decrypted_payload, 
+    crypt_rc4(rc4_state, packet_ntlmssp_info->decrypted_payload,
 	      encrypted_block_length);
-    
+
     /* We setup a temporary buffer so we can re-encrypt the payload after
        decryption.  This is to update the opposite peer's RC4 state */
     peer_block = g_malloc(encrypted_block_length);
@@ -1516,7 +1516,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 	   encrypted_block_length);
     crypt_rc4(rc4_state_peer, peer_block, encrypted_block_length);
     g_free(peer_block);
-    
+
     packet_ntlmssp_info->payload_decrypted = TRUE;
   }
 
@@ -1526,7 +1526,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *data_tvb,
 			       encrypted_block_length);
 
   tvb_set_child_real_data_tvbuff(data_tvb, decr_tvb);
-  
+
   offset += encrypted_block_length;
 
   return decr_tvb;
@@ -1750,7 +1750,7 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_ntlmv2_response_name
   };
   module_t *ntlmssp_module;
-  
+
   proto_ntlmssp = proto_register_protocol (
 					   "NTLM Secure Service Provider", /* name */
 					   "NTLMSSP",	/* short name */
@@ -1761,7 +1761,7 @@ proto_register_ntlmssp(void)
   register_init_routine(&ntlmssp_init_protocol);
 
   ntlmssp_module = prefs_register_protocol(proto_ntlmssp, NULL);
-  
+
   prefs_register_string_preference(ntlmssp_module, "nt_password",
 				   "NT Password",
 				   "NT Password (used to decrypt payloads)",
@@ -1771,7 +1771,7 @@ proto_register_ntlmssp(void)
   new_register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
 }
 
-static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
@@ -1779,13 +1779,13 @@ static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	auth_tvb = tvb_new_subset(
 		tvb, offset, tvb_length_remaining(tvb, offset),
 		tvb_length_remaining(tvb, offset));
-	
+
 	dissect_ntlmssp(auth_tvb, pinfo, tree);
 
 	return tvb_length_remaining(tvb, offset);
 }
 
-static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				     proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
@@ -1793,7 +1793,7 @@ static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pin
 	auth_tvb = tvb_new_subset(
 		tvb, offset, tvb_length_remaining(tvb, offset),
 		tvb_length_remaining(tvb, offset));
-	
+
 	return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
 }
 
@@ -1819,14 +1819,14 @@ static dcerpc_auth_subdissector_fns ntlmssp_seal_fns = {
 
 void
 proto_reg_handoff_ntlmssp(void)
-{     
+{
   dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
   /* Register protocol with the GSS-API module */
 
   ntlmssp_handle = find_dissector("ntlmssp");
   ntlmssp_wrap_handle = find_dissector("ntlmssp_verf");
-  gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp, 
+  gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp,
 		  ntlmssp_handle, ntlmssp_wrap_handle,
 		  "NTLMSSP - Microsoft NTLM Security Support Provider");
 

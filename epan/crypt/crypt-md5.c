@@ -1,5 +1,5 @@
 /* $Id$ */
-/* 
+/*
  * Copyright (C) 2003-2006 Benny Prijono <benny@prijono.org>
  *
  * Wireshark - Network traffic analyzer
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 
@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "crypt-md5.h"
+#include <epan/crypt/crypt-md5.h>
 /*
  * This code implements the MD5 message-digest algorithm.
  * The algorithm is due to Ron Rivest.  This code was
@@ -136,7 +136,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
 }
 
 /*
- * Final wrapup - pad to 64-byte boundary with the bit pattern 
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
 void md5_finish(md5_state_t *ctx, unsigned char digest[16])
@@ -309,17 +309,17 @@ void md5_hmac(const guint8* text, gint text_len, const guint8* key, gint key_len
 	int i;
 	/* if key is longer than 64 bytes reset it to key=MD5(key) */
 	if (key_len > 64) {
-		
+
 		MD5_CTX      tctx;
-		
+
 		MD5Init(&tctx);
 		MD5Update(&tctx, key, key_len);
 		MD5Final(tk, &tctx);
-		
+
 		key = tk;
 		key_len = 16;
 	}
-	
+
 	/*
 	 * the HMAC_MD5 transform looks like:
 	 *
@@ -327,24 +327,24 @@ void md5_hmac(const guint8* text, gint text_len, const guint8* key, gint key_len
 	 *
 	 * where K is an n byte key
 	 * ipad is the byte 0x36 repeated 64 times
-	 
-	 
-	 
+
+
+
 	 Krawczyk, et. al.            Informational                      [Page 8]
-	 
+
 	 RFC 2104                          HMAC                     February 1997
-	 
-	 
+
+
 	 * opad is the byte 0x5c repeated 64 times
 	 * and text is the data being protected
 	 */
-	
+
 	/* start out by storing key in pads */
 	bzero( k_ipad, sizeof k_ipad);
 	bzero( k_opad, sizeof k_opad);
 	bcopy( key, k_ipad, key_len);
 	bcopy( key, k_opad, key_len);
-	
+
 	/* XOR key with ipad and opad values */
 	for (i=0; i<64; i++) {
 		k_ipad[i] ^= 0x36;
