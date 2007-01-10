@@ -299,7 +299,6 @@ SetShellVarContext all
 
 SetOutPath $INSTDIR
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
-File /nonfatal "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
 !ifdef ENABLE_LIBWIRESHARK
 File "..\..\epan\libwireshark.dll"
 !endif
@@ -308,11 +307,8 @@ File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 File "${ICONV_DIR}\bin\iconv.dll"
 File "${GETTEXT_DIR}\bin\intl.dll"
-; XXX - use MSVC_VARIANT setting from config.nmake instead of /nonfatal
-File /nonfatal "..\..\*.manifest"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
-File /nonfatal "${ZLIB_DIR}\zlib1.dll.manifest"
 !endif
 !ifdef ADNS_DIR
 File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
@@ -350,6 +346,18 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
+
+; manifest files needed for MSVC2005 / .NET SDK 2.0
+!if ${MSVC_VARIANT} == "MSVC2005"
+File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
+File "..\..\*.manifest"
+File "${ZLIB_DIR}\zlib1.dll.manifest"
+!endif
+!if ${MSVC_VARIANT} == "DOTNET20"
+File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
+File "..\..\*.manifest"
+File "${ZLIB_DIR}\zlib1.dll.manifest"
+!endif
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
