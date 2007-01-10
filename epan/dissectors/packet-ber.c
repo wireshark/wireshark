@@ -2165,6 +2165,12 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
 			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
 		}
+		if((seq->flags == BER_FLAGS_IMPLTAG)&&(seq->class==BER_CLASS_CON)) {
+			/* Constructed sequence of with a tag */
+			/* dissect header and len for field */
+			hoffset = dissect_ber_identifier(pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
+			hoffset = dissect_ber_length(pinfo, tree, tvb, hoffset, NULL, NULL);
+		}
 
 		/* call the dissector for this field */
 		count=seq->func(pinfo, tree, tvb, hoffset)-hoffset;

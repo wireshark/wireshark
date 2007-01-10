@@ -1193,8 +1193,11 @@ static const true_false_string ansi_map_CDMACallMode_cls10_bool_val  = {
 static void
 dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
+	int length; 
     proto_item *item;
     proto_tree *subtree;
+
+	length = tvb_length_remaining(tvb,offset); 
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -1214,6 +1217,10 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, FALSE);
 	/* Call Mode (octet 1, bit H) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls5, tvb, offset, 1, FALSE);
+
+	length--; 
+	if ( length == 0)
+		return;
 	offset++;
 
 	/* Call Mode (octet 2, bit A) */
