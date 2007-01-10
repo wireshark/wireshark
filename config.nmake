@@ -42,39 +42,35 @@ PROGRAM_FILES=C:/Program Files
 ##### Microsoft Visual C / Studio Variant #####
 # for the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
 # only one of the following MSVC_VARIANT settings should be used
+# BTW: The "Microsoft Visual C++ Toolkit 2003" DOESN'T WORK for WS!
 
-# "Microsoft Visual Studio 6.0" - THE ONLY RECOMMENDED
+# "Microsoft Visual Studio 6.0" - RECOMMENDED
 # Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
 MSVC_VARIANT=MSVC6
 
-# "Microsoft Visual Studio .NET (2002)" - EXPERIMENTAL
+# "Microsoft Visual Studio .NET (2002)" - WORKS
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=MSVC2002
 
-# "Microsoft Visual Studio .NET 2003" - EXPERIMENTAL
+# "Microsoft Visual Studio .NET 2003" - WORKS
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=MSVC2003
 
-# "Microsoft Visual C++ Toolkit 2003" - DOESN'T WORK
+# "Microsoft .Net Framework SDK Version 1.1" - WORKS
 # needs additional Platform SDK installation
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=VC2003TOOLKIT
+#MSVC_VARIANT=DOTNET11
 
-# "Microsoft .Net Framework SDK Version 1.1" - EXPERIMENTAL
-# needs additional Platform SDK installation
-# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=DOTNET11FRAMEWORK
-
-# "Microsoft Visual Studio 2005" - EXPERIMENTAL
-# "Microsoft Visual C++ 2005 Express Edition" - EXPERIMENTAL
+# "Microsoft Visual Studio 2005" - WORKS
+# "Microsoft Visual C++ 2005 Express Edition" - WORKS
 # The "Express Edition" needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=MSVC2005
 
-# "Microsoft .Net Framework 2.0 SDK" - EXPERIMENTAL
+# "Microsoft .Net Framework 2.0 SDK" - WORKS
 # needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=DOTNET20FRAMEWORK
+#MSVC_VARIANT=DOTNET20
 
 #
 # Optional: Microsoft Platform SDK.
@@ -172,8 +168,8 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
 # defined.
 #
-# XXX - ZLIB must be recompiled on MSVC 2005 because of C runtime lib (msvcr)
-# problems, simply disable it for now on MSVC 2005 (and other none 6 versions)
+# ZLIB must be recompiled on none MSVC 6 compilers, otherwise C runtime 
+# lib (msvcr)version conflicts appear.
 !IF "$(MSVC_VARIANT)" == "MSVC6" 
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123-dll
 !ELSE
@@ -401,12 +397,13 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # Compiler flags:
 # /W3  warning level 3 (0 less - 4 most, 1 default)
 # /Zi  create .pdb file for debugging
+# /MD  use "Multithreading Debug" libraries
 # /D_CRT_SECURE_NO_DEPRECATE don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
 # /D_CRT_NONSTDC_NO_DEPRECATE don't warn for "Deprecated CRT Functions" as MSDN calls this
 #
-!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11FRAMEWORK" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" 
+!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" 
 LOCAL_CFLAGS=/Zi /W3 /MD
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "DOTNET20FRAMEWORK"
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "DOTNET20"
 LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 !ELSE
 !ERROR MSVC_VARIANT unknown
@@ -418,13 +415,7 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 # /DEFAULTLIB:xxx use xxx as the standard C library
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
 # 
-!IF "$(MSVC_VARIANT)" == "MSVC6"
-LOCAL_LDFLAGS=/DEBUG 
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" || "$(MSVC_VARIANT)" == "DOTNET11FRAMEWORK" || "$(MSVC_VARIANT)" == "DOTNET20FRAMEWORK"
 LOCAL_LDFLAGS=/DEBUG
-!ELSE
-!ERROR MSVC_VARIANT unknown
-!ENDIF
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
