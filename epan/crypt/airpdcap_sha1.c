@@ -1,11 +1,45 @@
+/*  airpdcap_sha1.c
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+ */
+
+
 /******************************************************************************/
 /*	File includes																					*/
 /*																										*/
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include "airpdcap_sha1.h"
 
 #include "airpdcap_debug.h"
 /*																										*/
 /******************************************************************************/
+
+#if WORDS_BIGENDIAN == 1
+#define  BIG_ENDIAN
+#else
+#define  LITTLE_ENDIAN
+#endif
 
 /******************************************************************************/
 /*	Internal definitions																			*/
@@ -96,6 +130,7 @@ void sha1_loop(
 	size_t gapstart;
 	size_t off;
 	size_t copysiz;
+	
 	off = 0;
 
 	while (off < len) {
@@ -104,7 +139,7 @@ void sha1_loop(
 
 		copysiz = (gaplen < len - off) ? gaplen : len - off;
 		memcpy(&ctxt->m.b8[gapstart], input+off, copysiz);
-		COUNT += (UCHAR)copysiz;
+		COUNT += copysiz;
 		COUNT %= 64;
 		ctxt->c.b64[0] += copysiz * 8;
 		if (COUNT % 64 == 0)
@@ -120,7 +155,7 @@ static void sha1_step(
 	UINT32 a, b, c, d, e;
 	size_t t, s;
 	UINT32 tmp;
-
+#ifdef LITTLE_ENDIAN
 	SHA1_CONTEXT tctxt;
 	memcpy(&tctxt.m.b8[0], &ctxt->m.b8[0], 64);
 	ctxt->m.b8[0] = tctxt.m.b8[3]; ctxt->m.b8[1] = tctxt.m.b8[2];
@@ -155,7 +190,10 @@ static void sha1_step(
 	ctxt->m.b8[58] = tctxt.m.b8[57]; ctxt->m.b8[59] = tctxt.m.b8[56];
 	ctxt->m.b8[60] = tctxt.m.b8[63]; ctxt->m.b8[61] = tctxt.m.b8[62];
 	ctxt->m.b8[62] = tctxt.m.b8[61]; ctxt->m.b8[63] = tctxt.m.b8[60];
-
+#else
+#warning BIG ENDIAN 1
+#endif
+	
 	a = H(0); b = H(1); c = H(2); d = H(3); e = H(4);
 
 	for (t = 0; t < 20; t++) {
@@ -216,11 +254,19 @@ void sha1_pad(
 	memset(&ctxt->m.b8[padstart], 0, padlen - 8);
 	COUNT += (padlen - 8);
 	COUNT %= 64;
+#ifdef BIG_ENDIAN
+#warning BIG ENDIAN 2
 
+	PUTPAD(ctxt->c.b8[0]); PUTPAD(ctxt->c.b8[1]);
+	PUTPAD(ctxt->c.b8[2]); PUTPAD(ctxt->c.b8[3]);
+	PUTPAD(ctxt->c.b8[4]); PUTPAD(ctxt->c.b8[5]);
+	PUTPAD(ctxt->c.b8[6]); PUTPAD(ctxt->c.b8[7]);
+#else
 	PUTPAD(ctxt->c.b8[7]); PUTPAD(ctxt->c.b8[6]);
 	PUTPAD(ctxt->c.b8[5]); PUTPAD(ctxt->c.b8[4]);
 	PUTPAD(ctxt->c.b8[3]); PUTPAD(ctxt->c.b8[2]);
 	PUTPAD(ctxt->c.b8[1]); PUTPAD(ctxt->c.b8[0]);
+#endif
 }
 
 /* Note: copied from FreeBSD source code, RELENG 6, sys/crypto/sha1.c, 251		*/
@@ -232,7 +278,11 @@ void sha1_result(
 
 	digest = (UINT8 *)digest0;
 	sha1_pad(ctxt);
-
+	
+#ifdef BIG_ENDIAN
+#warning BIG ENDIAN 3
+	bcopy(&ctxt->h.b8[0], digest, 20);
+#else
 	digest[0] = ctxt->h.b8[3]; digest[1] = ctxt->h.b8[2];
 	digest[2] = ctxt->h.b8[1]; digest[3] = ctxt->h.b8[0];
 	digest[4] = ctxt->h.b8[7]; digest[5] = ctxt->h.b8[6];
@@ -243,6 +293,7 @@ void sha1_result(
 	digest[14] = ctxt->h.b8[13]; digest[15] = ctxt->h.b8[12];
 	digest[16] = ctxt->h.b8[19]; digest[17] = ctxt->h.b8[18];
 	digest[18] = ctxt->h.b8[17]; digest[19] = ctxt->h.b8[16];
+#endif
 }
 
 void AirPDcapAlgHmacSha1(
