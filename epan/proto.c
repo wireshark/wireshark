@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -3902,8 +3902,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	int					ret;	/*tmp return value */
 
 	header_field_info		*hfinfo = fi->hfinfo;
-	static const true_false_string	default_tf = { "True", "False" };
-	const true_false_string		*tfstring = &default_tf;
+	const true_false_string		*tfstring = &tfs_true_false;
 
 	if (hfinfo->strings) {
 		tfstring = (const struct true_false_string*) hfinfo->strings;

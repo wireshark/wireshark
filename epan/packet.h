@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifndef __PACKET_H__
@@ -44,6 +44,7 @@
 #include "packet_info.h"
 #include "column-utils.h"
 #include "epan.h"
+#include "tfs.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -83,18 +84,6 @@ typedef enum {
 	CHAR_ASCII	 = 0,	/* ASCII */
 	CHAR_EBCDIC	 = 1	/* EBCDIC */
 } char_enc;
-
-/* Struct for boolean enumerations */
-typedef struct true_false_string {
-	const char	*true_string;
-	const char	*false_string;
-} true_false_string;
-
-/**
-* A default set of true/false strings that dissectors can use for 
-* FT_BOOLEAN header fields.
-**/
-extern const true_false_string flags_set_truth;
 
 extern void packet_init(void);
 extern void packet_cleanup(void);

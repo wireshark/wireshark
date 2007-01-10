@@ -1594,7 +1594,7 @@ behavior collapses to the one of value_string.
 FT_BOOLEANS have a default map of 0 = "False", 1 (or anything else) = "True".
 Sometimes it is useful to change the labels for boolean values (e.g.,
 to "Yes"/"No", "Fast"/"Slow", etc.).  For these mappings, a struct called
-true_false_string is used. (This struct is new as of Wireshark 0.7.6).
+true_false_string is used.
 
 	typedef struct true_false_string {
 		char	*true_string;
@@ -1616,6 +1616,9 @@ string representing falsehood.  For FT_BOOLEAN fields that need a
 
 If the Boolean field is to be displayed as "False" or "True", the
 'strings' field would be set to NULL.
+
+Wireshark predefines a whole range of ready made "true_false_string"s
+in tfs.h, included via packet.h.
 
 bitmask
 -------

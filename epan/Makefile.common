@@ -21,7 +21,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 LIBWIRESHARK_SRC = 		\
 	addr_and_mask.c		\
@@ -85,6 +85,7 @@ LIBWIRESHARK_SRC = 		\
 	tap.c			\
 	tcap-persistentdata.c	\
 	timestamp.c		\
+	tfs.c			\
 	to_str.c		\
 	tvbparse.c		\
 	tvbuff.c		\
@@ -182,6 +183,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	tap.h			\
 	tcap-persistentdata.h	\
 	timestamp.h    		\
+	tfs.h			\
 	to_str.h		\
 	tvbparse.h		\
 	tvbuff.h		\

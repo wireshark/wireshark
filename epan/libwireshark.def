@@ -688,6 +688,25 @@ tap_queue_packet
 tcp_dissect_pdus
 test_for_directory
 test_for_fifo
+tfs_true_false                  DATA
+tfs_yes_no                      DATA
+tfs_set_notset                  DATA
+tfs_enabled_disabled            DATA
+tfs_ok_error                    DATA
+tfs_success_fail                DATA
+tfs_on_off                      DATA
+tfs_ack_nack                    DATA
+tfs_odd_even                    DATA
+tfs_allow_block                 DATA
+tfs_restricted_allowed          DATA
+tfs_accept_reject               DATA
+tfs_more_nomore                 DATA
+tfs_present_absent              DATA
+tfs_active_inactive             DATA
+tfs_found_not_found             DATA
+tfs_command_response            DATA
+tfs_capable_not_capable         DATA
+tfs_supported_not_supported     DATA
 time_msecs_to_str
 time_secs_to_str
 timestamp_get_precision
