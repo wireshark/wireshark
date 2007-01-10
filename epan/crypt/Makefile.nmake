@@ -1,9 +1,10 @@
-## Makefile for building codecs.lib with Microsoft C and nmake
+## Makefile for building airpdcap.lib with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 # $Id$
 
 include ..\..\config.nmake
+include Makefile.common
 
 ############### no need to modify below this line #########
 
@@ -12,45 +13,10 @@ CFLAGS=-DHAVE_CONFIG_H $(GLIB_CFLAGS) -D_U_="" /I../.. $(LOCAL_CFLAGS)
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
 
-AIRPDCAP_OBJECTS= \
-       airpdcap.obj \
-       airpdcap_debug.obj \
-       airpdcap_ccmp.obj \
-       airpdcap_rijndael.obj \
-       airpdcap_sha1.obj \
-       airpdcap_tkip.obj \
-       airpdcap_wep.obj \
-       crypt-des.obj \
-       crypt-md4.obj \
-       crypt-md5.obj \
-       crypt-rc4.obj
+AIRPDCAP_OBJECTS = $(LIBAIRPDCAP_SRC:.c=.obj)
 
 airpdcap.lib: $(AIRPDCAP_OBJECTS) 
 	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS) 
-
-airpdcap.obj: airpdcap.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap.c -o $@
-	
-airpdcap_debug.obj: airpdcap_debug.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_debug.c -o $@
-
-airpdcap_ccmp.obj: airpdcap_ccmp.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_ccmp.c -o $@
-
-crypt-md5.obj: crypt-md5.c crypt-md5.h
-	$(CC) $(CFLAGS) -Fd.\ -c crypt-md5.c -o $@
-
-airpdcap_rijndael.obj: airpdcap_rijndael.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_rijndael.c -o $@
-	
-airpdcap_sha1.obj: airpdcap_sha1.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_sha1.c -o $@
-	
-airpdcap_tkip.obj: airpdcap_tkip.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_tkip.c -o $@
-	
-airpdcap_wep.obj: airpdcap_wep.c
-	$(CC) $(CFLAGS) -Fd.\ -c airpdcap_wep.c -o $@
 
 clean:
         rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb
