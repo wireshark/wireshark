@@ -346,6 +346,7 @@ File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
+File "..\..\example_snmp_users_file"
 
 ; manifest files needed for MSVC2005 / .NET SDK 2.0
 !if ${MSVC_VARIANT} == "MSVC2005"

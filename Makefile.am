@@ -512,6 +512,7 @@ EXTRA_DIST = \
 	dumpcap.c	\
 	editcap.c		\
 	epan/libwireshark.def	\
+	example_snmp_users_file	\
 	wireshark.desktop	\
 	image/capinfos.rc.in	\
 	image/clist_ascend.xpm	\
