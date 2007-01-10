@@ -16,12 +16,14 @@ AIRPDCAP_OBJECTS= \
        airpdcap.obj \
        airpdcap_debug.obj \
        airpdcap_ccmp.obj \
-       crypt-md5.obj \
        airpdcap_rijndael.obj \
        airpdcap_sha1.obj \
        airpdcap_tkip.obj \
        airpdcap_wep.obj \
-
+       crypt-des.obj \
+       crypt-md4.obj \
+       crypt-md5.obj \
+       crypt-rc4.obj
 
 airpdcap.lib: $(AIRPDCAP_OBJECTS) 
 	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS) 
