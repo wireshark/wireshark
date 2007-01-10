@@ -429,14 +429,14 @@ image::
 # compile and copy the resulting files back to (source) ZLIB_DIR
 $(ZLIB_DIR)\zlib1.dll::
 !IF "$(MSVC_VARIANT)" != "MSVC6" 
-	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E
+	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
-	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll
+	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE" 
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
 	copy zlib1.dll $(ZLIB_DIR)
-	if exist copy zlib1.dll.manifest $(ZLIB_DIR)
+	if exist zlib1.dll.manifest copy zlib1.dll.manifest $(ZLIB_DIR)
 	copy zdll.lib $(ZLIB_DIR)\lib
 	copy zconf.h $(ZLIB_DIR)\include
 	copy zlib.h $(ZLIB_DIR)\include
