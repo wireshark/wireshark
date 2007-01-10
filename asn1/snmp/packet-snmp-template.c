@@ -13,6 +13,7 @@
  * Copyright (C) 2005 - 2006 Anders Broman [AT] ericsson.com
  *
  * See RFC 3414 for User-based Security Model for SNMPv3
+ * See RFC 3826 for  (AES) Cipher Algorithm in the SNMP USM
  * Copyright (C) 2007 Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * $Id$
@@ -149,7 +150,7 @@ static gboolean snmp_var_in_tree = TRUE;
 static const gchar* ue_assocs_filename = "";
 static const gchar* ue_assocs_filename_loaded = "";
 static snmp_ue_assoc_t* ue_assocs = NULL;
-static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
@@ -1228,7 +1229,7 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
 	
 	if (salt_len != 8)  {
-		*error = "msgPrivacyParameters lenght != 8";
+		*error = "decryptionError: msgPrivacyParameters lenght != 8";
 		return NULL;
 	}	
 
@@ -1244,7 +1245,7 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
 
 	if (cryptgrm_len % 8) {
-		*error = "the length of the encrypted data is noty a mutiple of 8";
+		*error = "decryptionError: the length of the encrypted data is not a mutiple of 8 octets";
 		return NULL;
 	}
 	
@@ -1282,7 +1283,61 @@ on_gcry_error:
 
 tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
-	*error = "AES decryption Not Yet Implemented";
+    gcry_error_t err;
+    gcry_cipher_hd_t hd = NULL;
+	
+	guint8* cleartext;
+	guint8* aes_key = p->user_assoc->user.privKey.data; /* first 16 bytes */
+	guint8* iv;
+	gint iv_len;
+	gint cryptgrm_len;
+	guint8* cryptgrm;
+	tvbuff_t* clear_tvb;
+
+	iv_len = tvb_length_remaining(p->priv_tvb,0);
+	
+	if (iv_len != 8)  {
+		*error = "decryptionError: msgPrivacyParameters lenght != 8";
+		return NULL;
+	}	
+	
+	iv = ep_alloc(16);
+	iv[0] = (p->boots & 0xff000000) >> 24;
+	iv[1] = (p->boots & 0x00ff0000) >> 16;
+	iv[2] = (p->boots & 0x0000ff00) >> 8;
+	iv[3] = (p->boots & 0x000000ff);
+	iv[4] = (p->time & 0xff000000) >> 24;
+	iv[5] = (p->time & 0x00ff0000) >> 16;
+	iv[6] = (p->time & 0x0000ff00) >> 8;
+	iv[7] = (p->time & 0x000000ff);
+	tvb_memcpy(p->priv_tvb,&(iv[8]),0,8);
+	
+	cryptgrm_len = tvb_length_remaining(encryptedData,0);
+	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
+	
+	cleartext = ep_alloc(cryptgrm_len);
+	
+	err = gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CFB, 0);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+    err = gcry_cipher_setiv(hd, iv, 16);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	err = gcry_cipher_setkey(hd,aes_key,16);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	err = gcry_cipher_decrypt(hd, cleartext, cryptgrm_len, cryptgrm, cryptgrm_len);
+	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
+	
+	gcry_cipher_close(hd);
+	
+	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
+	
+	return clear_tvb;
+	
+on_gcry_error:
+		*error = (void*)gpg_strerror(err);
+	if (hd) gcry_cipher_close(hd);
 	return NULL;
 #else
 	*error = "libgcrypt not present, cannot decrypt";
@@ -1326,6 +1381,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	usm_p.user_assoc = NULL;
 	usm_p.authenticated = FALSE;
 	usm_p.encrypted = FALSE;
+	usm_p.boots = 0;
+	usm_p.time = 0;
 	
 	/*
 	 * This will throw an exception if we don't have any data left.

@@ -173,6 +173,14 @@ gint pdu_type;
 
 	VAL_PTR = &MsgSecurityModel
 
+#.FN_PARS UsmSecurityParameters/msgAuthoritativeEngineBoots
+
+	VAL_PTR = &usm_p.boots
+
+#.FN_PARS UsmSecurityParameters/msgAuthoritativeEngineTime
+
+	VAL_PTR = &usm_p.time
+
 #.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
 	tvbuff_t *parameter_tvb = NULL;
 

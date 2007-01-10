@@ -71,6 +71,8 @@ struct _snmp_usm_params_t {
 	guint start_offset;
 	guint auth_offset;
 	
+	guint32 boots;
+	guint32 time;
 	tvbuff_t* engine_tvb;
 	tvbuff_t* user_tvb;
 	proto_item* auth_item;
