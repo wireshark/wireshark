@@ -31,22 +31,36 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2006-02.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-01.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem><para>
-	  TCP reassembly could crash.
-	  <!-- Fixed in ? -->
-	  <!-- Bug IDs: ? -->
-	  Versions affected: ?
+	  The TCP dissector could hang or crash while reassembling HTTP packets.
+	  <!-- Fixed in r19859 -->
+	  <!-- Bug IDs: 1200 -->
+	  Versions affected: 0.99.2 to 0.99.4
+        </para></listitem>
+
+        <listitem><para>
+	  The HTTP dissector could crash.
+	  <!-- Fixed in 19899 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.99.3 to 0.99.4
         </para></listitem>
 
         <listitem><para>
 	  On some systems, the IEEE 802.11 dissector could crash.
 	  <!-- Fixed in 20126 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: ?
+	  Versions affected: 0.10.14 to 0.99.4
+        </para></listitem>
+
+        <listitem><para>
+	  On some systems, the LLT dissector could crash.
+	  <!-- Fixed in 20007 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.99.3 to 0.99.4
         </para></listitem>
 
       </itemizedlist>
@@ -59,59 +73,52 @@ Wireshark Info
 
       <itemizedlist>
 
+        <para>
+          On Windows systems the packet list scroll bar could sometimes
+          disappear or become unusable.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
+          220</ulink>)
+        </para>
+
         <listitem><para>
-          The file set dialog could grow excessively large.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=331">Bug
-          331</ulink>)
+          The end of HTTP chunked encoding wasn't being displayed.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=646">Bug
+          646</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Trying to save flow data may crash Wireshark.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396">Bug
-          396</ulink>)
+          The Follow TCP Stream window could omit characters.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1043">Bug
+          1043</ulink>)
         </para></listitem>
 
         <listitem><para>
-          It may not be possible to re-order coloring rules under Windows.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699">Bug
-          699</ulink>)
+          Opening a flow graph could crash Wireshark.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1117">Bug
+          1117</ulink>)
         </para></listitem>
 
         <listitem><para>
-          Printing each packet to a new page didn't work under Windows.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=707">Bug
-          707</ulink>)
+          Follow TCP Stream would sometimes get the direction wrong.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1138">Bug
+          1138</ulink>)
         </para></listitem>
 
         <listitem><para>
-          The personal hosts configuration file wasn't being parsed correctly.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=795">Bug
-          795</ulink>)
+          The foreground text in the coloring rules editor was always black..
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1164">Bug
+          1164</ulink>)
         </para></listitem>
 
         <listitem><para>
-          "Save as" to an existing file wasn't allowed.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=927">Bug
-          927</ulink>)
+          The CSV export format was incorrect.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1173">Bug
+          1173</ulink>)
         </para></listitem>
 
-        <listitem><para>
-          The SNMP dissector was not handling 64-bit counters properly.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1047">Bug
-          1047</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark and TShark would fail to start under Windows while trying to acquire a crypto context.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1096">Bug
-          1096</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Invalid characters could show up in PDML output.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1110">Bug
-          1110</ulink>)
-        </para></listitem>
+	<listitem><para>
+	  On some Windows systems Wireshark could take a long time to start up.
+	</para></listitem>
 
       </itemizedlist>
     </para>
@@ -125,58 +132,40 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-        <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>,
+        WPA and WPA2 decryption support has been added.  The TDS / MS SQL
+        dissector now de-obfuscates passwords.
+        </para></listitem>
+
+        <listitem><para>
+        64-bit file handling has been improved.
+        </para></listitem>
+
+        <listitem><para>
+        The <command>Find</command> function now selects the corresponding.
+        packet detail item.
+        </para></listitem>
+
+        <listitem><para>
+        <command>Find</command> functionality has been added to the TCP and
+        SSL stream dialogs.
+        </para></listitem>
+
+        <listitem><para>
+        Main window keyboard navigation has been improved.
+        </para></listitem>
+
+        <listitem><para>
+        <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>
         support (which provides raw mode capture under Windows) has been
         enhanced to allow capturing on multiple AirPcap adapters
         simultaneously using the Multi-Channel Aggregator.
         </para></listitem>
 
         <listitem><para>
-        VoIP call playback has been enhanced.  If Wireshark is linked with
-        the PortAudio library, you can play back G.711 conversations.  This
-        feature is present in the standard Windows installer.
+        You can no longer install Wireshark on Windows 95, 98, or ME.  (OK,
+        so it's not a <emphasis>feature</emphasis> per se&#2026;)
         </para></listitem>
 
-        <listitem><para>
-        The capture interface dialog display has been enhanced.
-        </para></listitem>
-
-        <listitem><para>
-        The "Save" button has been removed from the "Ok" / "Apply" / "Cancel"
-        button group in the following dialogs:
-        <itemizedlist>
-          <listitem><para>Edit/Preferences</para></listitem>
-          <listitem><para>View/Coloring Rules</para></listitem>
-          <listitem><para>Capture/Capture Filters</para></listitem>
-          <listitem><para>Analyze/Display Filters</para></listitem>
-          <listitem><para>"Analyze/Enabled Protocols</para></listitem>
-        </itemizedlist>
-        If you're fond of the "Save" button it can be resurrected in the
-        User Interface preferences.
-        </para></listitem>
-
-        <listitem><para>
-        Reading from stdin ("-i -") now works under Windows.
-        </para></listitem>
-
-        <listitem><para>
-        Expert analysis has been improved.
-        </para></listitem>
-
-        <listitem><para>
-        Wireshark now supports USB as a media type.  If you're running a
-        Linux distribution with version 2.6.11 of the kernel or greater
-        <emphasis>and</emphasis> you have the usbmon module enabled <emphasis>and</emphasis>
-        you have a recent CVS version of libpcap (post-0.9.5) installed
-        you can also do live captures.  More details can be found at the
-        <ulink url="http://wiki.wireshark.org/CaptureSetup/USB">USB
-        capture setup</ulink> page on the wiki.
-        </para></listitem>
-
-        <listitem><para>
-        The number of WEP keys that the user can specify in the IEEE 802.11
-        protocol preferences has been increased from 4 to 64.
-        </para></listitem>
 
       </itemizedlist>
     </para>
@@ -185,119 +174,117 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
-Enea LINX,
-Ethernet Powerlink (v1 and v2),
-H.248 Q.1950 Annex A,
-Linux pktgen,
-MP2T,
-NEWMAIL,
-PNG,
-SCSI OSD,
-UDLD,
-UMTS FP,
-USB,
-WLCCP,
-WZCSVC,
+DMP,
+NBD,
+OMAPI,
+RGMP,
+Roofnet,
+STUN v2
 
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
 
-3Com NJACK,
-802.11,
-ACSE,
-AH,
-ALCAP,
+2dparityfec,
+ACN,
+AIM,
+AMR,
+ANSI 637,
+ANSI A,
 ANSI MAP,
-ATM,
-ASN.1,
+ARP,
+ASN.1 BER,
+ASN.1 PER,
 BACapp,
-BER,
-BGP,
-BSSAP,
-Camel,
-Catapult DCT2000,
-CFlow,
-CLNP,
-Common Windows networking,
-DAP,
-DCERPC (DCERPC, ATSVC, DFS, EFS, EPM, EVENTLOG, INITSHUTDOWN, MAPI, NT, PIPE, SAMR, SPOOLSS, SRVSVC, SVCCTL, WINREG),
-DCOM (DCOM, CBA-ACCO, SYSACT),
-DIAMETER,
-DISP,
+BPDU,
+CAMEL,
+DCERPC (DCERPC, EFS, EVENTLOG, NSPI, PN-IO, WINREG),
+DCOM CBA,
+DCP,
+DHCP,
+DHCPv6,
+DMP,
 DNS,
-DOP,
-DSP,
-ESP,
-Ethernet,
-FC,
+EAP,
+EPL,
+ETSI DCP,
 FCP,
+GIOP,
 GSM A,
-GSM MAP,
-GSM SMS,
-GSSAPI,
-GTP,
-H.225,
 H.245,
 H.248,
+HPSW,
 HTTP,
-ICQ,
-IKE,
+ICMP,
+ICMPv6,
+IEEE 802.11,
+IMAP,
+INAP,
+IPMI,
+IPsec,
+IRC,
 ISAKMP,
 iSCSI,
-ISUP,
+ISIS LSP,
 IUUP,
-Kerberos 4,
-LAP-D,
+K12,
+Kerberos,
 LDAP,
-LLC,
-LogotypeCertExtn,
+LLDP,
 MEGACO,
+MGCP,
 MIME Multipart,
-MIP6,
 MMS,
+MMSE,
 MSRP,
-MTP3,
-NCP,
-NDMP,
-NDPS,
+MySQL,
+NetFlow,
 NFS,
+NTLMSSP,
 NTP,
-OSI,
-PER,
-PN-MRP,
-PPP,
-19154Q.931,
+OSPF,
+PN-PTCP,
+PPPoE,
+Q.931,
+Radiotap,
 RADIUS,
-Redback,
 RPC,
+RSVP,
 RTCP,
-RTP,
+S4406,
 SCCP,
 SCSI,
 SDP,
+SES,
+sFlow,
+SIGCOMP,
 SIP,
-SMB,
-SMRSE,
-SNMP,
+SIR,
+Skinny,
+SMB (SMB, NETLOGON),
+SMTP,
+SPNEGO,
 SSL,
-STANAG 5066,
-STP,
-TCAP,
+T.38,
 TCP,
-TFTP,
+TDS,
+text/media,
 TIPC,
+UDP Lite,
 UDP,
 UMA,
-VLAN,
+UMTS FP,
+USB,
 VNC,
-VRRP,
-X.509ce
-X11,
-YMSG,
-WTLS,
-
+WBXML,
+WLCCP,
+WSP,
+X.411,
+X.420,
+XML,
+XOT,
+YMSG
 
     </para>
     </section>
@@ -305,7 +292,7 @@ WTLS,
     <section><title>New and Updated Capture File Support</title>
     <para>
 
-Catapult DCT2000, EyeSDN, iSeries
+Catapult DCT2000, Netttl, Windows Sniffer / NetXray
 
     </para>
     </section>
@@ -348,14 +335,6 @@ Catapult DCT2000, EyeSDN, iSeries
   </section>
 
   <section id="KnownProblems"><title>Known Problems</title>
-
-    <para>
-      On Windows systems the packet list scroll bar can sometimes disappear
-      or become unusable.  Until the problem is fixed you can work around it
-      by resizing the packet list or the main window.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
-      220</ulink>)
-    </para>
 
     <para>
       The <guibutton>Filter</guibutton> button is nonfunctional in the
