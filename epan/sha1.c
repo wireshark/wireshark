@@ -286,6 +286,49 @@ void sha1_finish( sha1_context *ctx, guint8 digest[20] )
     PUT_UINT32( ctx->state[4], digest, 16 );
 }
 
+
+/*
+ ** Function: hmac_sha1
+ */
+/*
+ * Output HMAC-SHA-1(key,buf)
+ */
+void sha1_hmac( const guint8 *key, guint keylen, const guint8 *buf, guint buflen,
+                guint8 digest[20] )
+{
+    guint i;
+    sha1_context ctx;
+    guint8 k_ipad[64];
+    guint8 k_opad[64];
+    guint8 tmpbuf[20];
+	
+    memset( k_ipad, 0x36, 64 );
+    memset( k_opad, 0x5C, 64 );
+	
+    for( i = 0; i < keylen; i++ )
+    {
+        if( i >= 64 ) break;
+		
+        k_ipad[i] ^= key[i];
+        k_opad[i] ^= key[i];
+    }
+	
+    sha1_starts( &ctx );
+    sha1_update( &ctx, k_ipad, 64 );
+    sha1_update( &ctx, buf, buflen );
+    sha1_finish( &ctx, tmpbuf );
+	
+    sha1_starts( &ctx );
+    sha1_update( &ctx, k_opad, 64 );
+    sha1_update( &ctx, tmpbuf, 20 );
+    sha1_finish( &ctx, digest );
+	
+    memset( k_ipad, 0, 64 );
+    memset( k_opad, 0, 64 );
+    memset( tmpbuf, 0, 20 );
+    memset( &ctx, 0, sizeof( sha1_context ) );
+}
+
 #ifdef TEST
 
 #include <stdlib.h>
