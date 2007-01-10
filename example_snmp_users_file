@@ -1,0 +1,34 @@
+# this is an example snmp_users_file
+
+# comments start with a # and finish at the end of line
+# empty lines are ignored 
+
+# each record has the following fileds
+# engine-id username auth_pass priv_pass auth_proto priv_proto
+# fileds are separated by whitespace
+# engine-id, username and passwds can be either "double quoted" or hex
+# double quoted strings are c-style strings and take escape chars
+# a '*' as engine-id matches any any given engine-id
+# auth_proto can be either MD5 or SHA1.
+# priv_proto can be either DES or AES Defaults to DES if not given
+# protocols are case-insensitive (md5 == MD5)
+# first match wins (place localized entries before those for any engine)
+
+80001F888059DC486145A26322 "pippo" "plutoxxx" "PLUTOxxx" MD5 DES
+
+# pippo for any engine will use DES and MD5
+* "pippo" "plutoxxx" "PLUTOxxx"
+
+
+# SHA + DES
+80001F888059DC486145A26322 "pippo2" "plutoxxx" "PLUTOxxx" SHA
+
+# SHA + AES
+80001F888059DC486145A26322 "pippo3" "plutoxxx" "PLUTOxxx" SHA AES
+
+# MD5 + AES
+80001F888059DC486145A26322 "pippo4" "plutoxxx" "PLUTOxxx" AES
+
+# example passwords from RFC3414
+000000000000000000000002 "RFC3414_hd5" "maplesyrup" "XXX" MD5
+000000000000000000000002 "RFC3414_sha" "maplesyrup" "XXX" SHA1
