@@ -229,9 +229,9 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 !endif
 !ifdef GNUTLS_DIR
 	$(COPY) $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(HOST) $(COPY_FLAGS)
-	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-14.dll $(HOST) $(COPY_FLAGS)
-	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-extra-14.dll $(HOST) $(COPY_FLAGS)
-	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-openssl-14.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-13.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-extra-13.dll $(HOST) $(COPY_FLAGS)
+	$(COPY) $(GNUTLS_DIR)\bin\libgnutls-openssl-13.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GNUTLS_DIR)\bin\libtasn1-3.dll $(HOST) $(COPY_FLAGS)
 !endif
@@ -280,7 +280,7 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
 
 package:	distribution
-	zip -r wireshark.u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) 
+	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) 
 
 u3util_LIBS= user32.lib shell32.lib 
 
@@ -295,7 +295,7 @@ clean:
 	rm -rf $(DATA)	
 	rm -rf $(MANIFEST)	
 	rm -rf u3util.{exe,obj}
-	rm -rf wireshark.u3p
+	rm -rf wireshark-*.u3p
    	rm -rf *~
 
 distclean:	clean
