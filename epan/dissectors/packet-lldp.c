@@ -100,6 +100,14 @@ static int hf_profinet_cm_mac = -1;
 static int hf_profinet_master_source_address = -1;
 static int hf_profinet_subdomain_uuid = -1;
 static int hf_profinet_ir_data_uuid = -1;
+static int hf_profinet_length_of_period_valid = -1;
+static int hf_profinet_length_of_period_length = -1;
+static int hf_profinet_red_period_begin_valid = -1;
+static int hf_profinet_red_period_begin_offset = -1;
+static int hf_profinet_orange_period_begin_valid = -1;
+static int hf_profinet_orange_period_begin_offset = -1;
+static int hf_profinet_green_period_begin_valid = -1;
+static int hf_profinet_green_period_begin_offset = -1;
 static int hf_unknown_subtype = -1;
 
 /* Initialize the subtree pointers */
@@ -122,6 +130,7 @@ static gint ett_802_3_autoneg_advertised = -1;
 static gint ett_802_3_power = -1;
 static gint ett_802_3_aggregation = -1;
 static gint ett_media_capabilities = -1;
+static gint ett_profinet_period = -1;
 
 static const value_string tlv_types[] = {
 	{ END_OF_LLDPDU_TLV_TYPE, 			"End of LLDPDU"},
@@ -2058,6 +2067,27 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 }
 
 
+static guint32
+dissect_profinet_period(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gchar *name, int hf_valid, int hf_value)
+{
+    guint32 period;
+    proto_tree	*period_tree;
+    proto_item 	*period_item;
+
+
+    period = tvb_get_ntohl(tvb, offset);
+
+    period_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: %s, %uns",
+        name, (period & 0x80000000) ? "Valid" : "Invalid", period & 0x7FFFFFFF);
+    period_tree = proto_item_add_subtree(period_item, ett_profinet_period);
+
+    proto_tree_add_uint(period_tree, hf_valid, tvb, offset, 4, period);
+    proto_tree_add_uint(period_tree, hf_value, tvb, offset, 4, period);
+    offset+=4;
+
+    return offset;
+}
+
 
 /* Dissect PROFINET TLVs */
 static void
@@ -2170,11 +2200,22 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
 	    proto_tree_add_guid(tree, hf_profinet_subdomain_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
 	    offset += 16;
-            /* IRDataUUID */
+        /* IRDataUUID */
 	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
 	    proto_tree_add_guid(tree, hf_profinet_ir_data_uuid, tvb, offset, 16, (e_guid_t *) &uuid);
 	    offset += 16;
-
+        /* LengthOfPeriod */
+        offset = dissect_profinet_period(tvb, tree, offset, "LengthOfPeriod",
+            hf_profinet_length_of_period_valid, hf_profinet_length_of_period_length);
+        /* RedPeriodBegin */
+        offset = dissect_profinet_period(tvb, tree, offset, "RedPeriodBegin",
+            hf_profinet_red_period_begin_valid, hf_profinet_red_period_begin_offset);
+        /* OrangePeriodBegin */
+        offset = dissect_profinet_period(tvb, tree, offset, "OrangePeriodBegin",
+            hf_profinet_orange_period_begin_valid, hf_profinet_orange_period_begin_offset);
+        /* GreenPeriodBegin */
+        offset = dissect_profinet_period(tvb, tree, offset, "GreenPeriodBegin",
+            hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
         break;
     }
 	default:
@@ -2568,6 +2609,38 @@ proto_register_lldp(void)
 			{ "IRDataUUID",	"lldp.profinet.ir_data_uuid", FT_GUID, BASE_NONE,
 	   		NULL, 0x0, "", HFILL }
 		},
+		{ &hf_profinet_length_of_period_valid,
+			{ "LengthOfPeriod.Valid",	"lldp.profinet.length_of_period_valid", FT_UINT32, BASE_DEC,
+	   		NULL, 0x80000000, "Length field is valid/invalid", HFILL }
+		},
+		{ &hf_profinet_length_of_period_length,
+			{ "LengthOfPeriod.Length",	"lldp.profinet.length_of_period_length", FT_UINT32, BASE_DEC,
+	   		NULL, 0x7FFFFFFF, "Duration of a cycle in nanoseconds", HFILL }
+		},
+		{ &hf_profinet_red_period_begin_valid,
+			{ "RedPeriodBegin.Valid",	"lldp.profinet.red_period_begin_valid", FT_UINT32, BASE_DEC,
+	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+		},
+		{ &hf_profinet_red_period_begin_offset,
+			{ "RedPeriodBegin.Offset",	"lldp.profinet.red_period_begin_offset", FT_UINT32, BASE_DEC,
+	   		NULL, 0x7FFFFFFF, "RT_CLASS_3 period, offset to cycle begin in nanoseconds", HFILL }
+		},
+		{ &hf_profinet_orange_period_begin_valid,
+			{ "OrangePeriodBegin.Valid",	"lldp.profinet.orange_period_begin_valid", FT_UINT32, BASE_DEC,
+	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+		},
+		{ &hf_profinet_orange_period_begin_offset,
+			{ "OrangePeriodBegin.Offset","lldp.profinet.orange_period_begin_offset", FT_UINT32, BASE_DEC,
+	   		NULL, 0x7FFFFFFF, "RT_CLASS_2 period, offset to cycle begin in nanoseconds", HFILL }
+		},
+		{ &hf_profinet_green_period_begin_valid,
+			{ "GreenPeriodBegin.Valid",	"lldp.profinet.green_period_begin_valid", FT_UINT32, BASE_DEC,
+	   		NULL, 0x80000000, "Offset field is valid/invalid", HFILL }
+		},
+		{ &hf_profinet_green_period_begin_offset,
+			{ "GreenPeriodBegin.Offset",	"lldp.profinet.green_period_begin_offset", FT_UINT32, BASE_DEC,
+	   		NULL, 0x7FFFFFFF, "Unrestricted period, offset to cycle begin in nanoseconds", HFILL }
+		},
 		{ &hf_unknown_subtype,
 			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_HEX,
 	   		NULL, 0x0, "", HFILL }
@@ -2595,6 +2668,7 @@ proto_register_lldp(void)
 		&ett_802_3_power,
 		&ett_802_3_aggregation,
 		&ett_media_capabilities,
+		&ett_profinet_period
 	};
 
 	/* Register the protocol name and description */
