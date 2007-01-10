@@ -103,11 +103,14 @@
 #include "packet-snmp.h"
 #include "format-oid.h"
 
-#include <epan/crypt/airpdcap_sha1.h>
+#include <epan/sha1.h>
 #include <epan/crypt/crypt-md5.h>
-#include <epan/crypt/hmac.h>
 #include <epan/expert.h>
 #include <epan/report_err.h>
+
+#ifdef _WIN32
+#include <winposixtype.h>
+#endif /* _WIN32 */
 
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
@@ -282,7 +285,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 190 "packet-snmp-template.c"
+#line 193 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -325,7 +328,7 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 204 "packet-snmp-template.c"
+#line 207 "packet-snmp-template.c"
 
 
 static const true_false_string auth_flags = {
@@ -975,7 +978,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &(vb_integer_value));
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, (void*)&(vb_integer_value));
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -1173,6 +1176,11 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	return;
 }
 
+
+
+
+
+
 static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb) {
 	static snmp_ue_assoc_t* a;
 	guint given_username_len;
@@ -1220,7 +1228,7 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 #define D(p)
 #endif
 
-gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar** error) {
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const** error) {
 	guint msg_len;
 	guint8* msg;
 	guint auth_len;
@@ -1273,12 +1281,59 @@ gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar** error) {
 }
 
 
-gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar** error _U_) {
-	*error = "SHA1 authentication Not Yet Implemented";
-	return FALSE;
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar const** error _U_) {
+	guint msg_len;
+	guint8* msg;
+	guint auth_len;
+	guint8* auth;
+	guint8* key;
+	guint key_len;
+	guint8 calc_auth[20];
+	guint start;
+	guint end;
+	guint i;
+	
+	if (!p->auth_tvb) {
+		*error = "No Authenticator";
+		return FALSE;		
+	}
+	
+	key = p->user_assoc->user.authKey.data;
+	key_len = p->user_assoc->user.authKey.len;
+	
+	if (! key ) {
+		*error = "User has no authKey";
+		return FALSE;
+	}
+	
+	
+	auth_len = tvb_length_remaining(p->auth_tvb,0);
+	
+	
+	if (auth_len != 12) {
+		*error = "Authenticator length wrong";
+		return FALSE;
+	}
+	
+	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
+
+	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	
+	start = p->auth_offset - p->start_offset;
+	end = 	start + auth_len;
+	
+	/* fill the authenticator with zeros */
+	for ( i = start ; i < end ; i++ ) {
+		msg[i] = '\0';
+	}
+	
+	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
+	
+	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
-tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1291,12 +1346,11 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	gint cryptgrm_len;
 	guint8* cryptgrm;
 	tvbuff_t* clear_tvb;
-	guint8 iv[8];;
+	guint8 iv[8];
 	guint i;
 	
 	
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
-	D(("salt_len=%d\n",salt_len));
 	
 	if (salt_len != 8)  {
 		*error = "msgPrivacyParameters lenght != 8";
@@ -1305,21 +1359,14 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 
 	salt = ep_tvb_memdup(p->priv_tvb,0,salt_len);
 
-	DUMP_DATA("salt",salt,salt_len);
-	DUMP_DATA("pre_iv",iv,8);
-
 	/*
 	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
 	 */
 	for (i=0; i<8; i++) {
 		iv[i] = pre_iv[i] ^ salt[i];
 	}
-	
-	DUMP_DATA("iv",iv,8);
-	DUMP_DATA("des_key",des_key,8);
 
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
-	D(("cryptgrm_len=%d\n",cryptgrm_len));
 
 	if (cryptgrm_len % 8) {
 		*error = "the length of the encrypted data is noty a mutiple of 8";
@@ -1327,7 +1374,6 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	}
 	
 	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
-	DUMP_DATA("cryptgrm",cryptgrm,cryptgrm_len);
 
 	cleartext = ep_alloc(cryptgrm_len);
 	
@@ -1345,20 +1391,6 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	
 	gcry_cipher_close(hd);
 	
-	DUMP_DATA("cleartext",cryptgrm,cryptgrm_len);
-
-	/*
-	 ???
-			The first ciphertext block is decrypted, the decryption output is
-		 XOR-ed with the Initialization Vector, and the result is the first
-		 plaintext block.
-		 
-		 For each subsequent block, the ciphertext block is decrypted, the
-		 decryption output is XOR-ed with the previous ciphertext block and
-		 the result is the plaintext block.
-	 */
-	
-	
 	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
 	
 	return clear_tvb;
@@ -1373,7 +1405,7 @@ on_gcry_error:
 #endif
 }
 
-tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
 	*error = "AES decryption Not Yet Implemented";
 	return NULL;
@@ -1382,6 +1414,11 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	return NULL;
 #endif
 }
+
+
+
+
+
 
 
 /*--- Included file: packet-snmp-fn.c ---*/
@@ -1409,7 +1446,7 @@ static int dissect_subtree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 static int
 dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 316 "snmp.cnf"
+#line 321 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1427,7 +1464,7 @@ static int dissect_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 310 "snmp.cnf"
+#line 315 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, &value_tvb);
@@ -1445,7 +1482,7 @@ static int dissect_string_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 322 "snmp.cnf"
+#line 327 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1463,7 +1500,7 @@ static int dissect_objectID_value(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 328 "snmp.cnf"
+#line 333 "snmp.cnf"
 	guint length;
 	
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
@@ -1855,7 +1892,7 @@ static const ber_sequence_t VarBind_sequence[] = {
 
 static int
 dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 296 "snmp.cnf"
+#line 301 "snmp.cnf"
 	oid_tvb = NULL;
 	value_tvb = NULL;
    offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
@@ -2505,7 +2542,7 @@ static int dissect_msgMaxSize(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int
 dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 281 "snmp.cnf"
+#line 286 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -2567,9 +2604,8 @@ static int dissect_msgGlobalData(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
 static int
 dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 225 "snmp.cnf"
+#line 231 "snmp.cnf"
 
-//	printf(">msgSecurityParameters\n");
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */		
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
@@ -2623,7 +2659,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-			gchar* error = NULL;
+			const gchar* error = NULL;
 
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p,
 														   crypt_tvb,
@@ -2633,10 +2669,16 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 			proto_item* item = get_ber_last_created_item();
 			expert_add_info_format( pinfo, item, PI_UNDECODED, PI_WARN, "Failed to decrypt encryptedPDU: %s", error );
 		} else {
-			proto_tree* decrypted_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_decrypted);
-			
+			proto_tree* encryptedpdu_tree;
+			proto_item* decrypted_item;
+			proto_tree* decrypted_tree;
+
             add_new_data_source(pinfo, cleartext_tvb, "Decrypted ScopedPDU");
 			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
+			
+			encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
+			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
+			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, pinfo, decrypted_tree, -1);
 		 }
 
@@ -2689,12 +2731,12 @@ dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
-#line 241 "snmp.cnf"
+#line 246 "snmp.cnf"
 
 	if( usm_p.authenticated
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.authModel ) {
-		gchar* error = NULL;
+		const gchar* error = NULL;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		
@@ -2976,7 +3018,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1262 "packet-snmp-template.c"
+#line 1299 "packet-snmp-template.c"
 
 
 guint
@@ -3296,8 +3338,6 @@ void snmp_usm_password_to_key_md5(
 /*
    SHA1 Password to Key Algorithm COPIED from RFC 3414 A.2.2
  */
-#define SHAUpdate(c,b,l) sha1_loop((c),(b),(l))
-#define SHAFinal(d,c) sha1_result((c),(d))
 
 void snmp_usm_password_to_key_sha1(
 						 guint8 *password,    /* IN */
@@ -3306,12 +3346,12 @@ void snmp_usm_password_to_key_sha1(
 						 guint   engineLength,/* IN  - length of snmpEngineID */
 						 guint8 *key)         /* OUT - pointer to caller 20-octet buffer */
 						 {
-	SHA1_CONTEXT     SH;
+	sha1_context     SH;
 	guint8     *cp, password_buf[72];
 	guint32      password_index = 0;
 	guint32      count = 0, i;
 	
-	sha1_init (&SH);   /* initialize SHA */
+	sha1_starts(&SH);   /* initialize SHA */
 	
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
@@ -3325,10 +3365,10 @@ void snmp_usm_password_to_key_sha1(
 			/*************************************************/
 			*cp++ = password[password_index++ % passwordlen];
 		}
-		SHAUpdate (&SH, password_buf, 64);
+		sha1_update (&SH, password_buf, 64);
 		count += 64;
 	}
-	SHAFinal (key, &SH);          /* tell SHA we're done */
+	sha1_finish(&SH, key);
 	
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
@@ -3340,9 +3380,9 @@ void snmp_usm_password_to_key_sha1(
 	memcpy(password_buf+20, engineID, engineLength);
 	memcpy(password_buf+20+engineLength, key, 20);
 	
-	sha1_init(&SH);
-	SHAUpdate(&SH, password_buf, 40+engineLength);
-	SHAFinal(key, &SH);
+	sha1_starts(&SH);
+	sha1_update(&SH, password_buf, 40+engineLength);
+	sha1_finish(&SH, key);
 	return;
  }
 
@@ -3511,7 +3551,7 @@ void proto_register_snmp(void) {
 				{ "Authentication OK", "snmp.v3.authOK", FT_BOOLEAN, 8,
 					TFS(&auth_flags), 0, "", HFILL }},
 		  { &hf_snmp_decryptedPDU, {
-					"Decrypted PDU", "snmp.decryptedPdu", FT_BYTES, BASE_HEX,
+					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
 					NULL, 0, "Decrypted PDU", HFILL }},
 	  
 
@@ -3851,7 +3891,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1800 "packet-snmp-template.c"
+#line 1835 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3892,7 +3932,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1812 "packet-snmp-template.c"
+#line 1847 "packet-snmp-template.c"
   };
 	module_t *snmp_module;
 
