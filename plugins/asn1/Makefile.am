@@ -33,6 +33,7 @@ asn1_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 asn1_la_LDFLAGS = -module -avoid-version
 asn1_la_LIBADD = @PLUGIN_LIBS@

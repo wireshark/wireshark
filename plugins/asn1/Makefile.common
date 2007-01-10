@@ -28,4 +28,14 @@ PLUGIN_NAME = asn1
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-asn1.c asn1.c
+	packet-asn1.c
+
+# corresponding headers
+DISSECTOR_INCLUDES =	\
+	asn1.h
+
+# Dissector helpers.  They're included in the source files in this
+# directory, but they're not dissectors themselves, i.e. they're not
+# used to generate "register.c").
+DISSECTOR_SUPPORT_SRC =	\
+	asn1.c
