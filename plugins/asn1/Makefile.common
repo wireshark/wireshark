@@ -28,4 +28,4 @@ PLUGIN_NAME = asn1
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
-	packet-asn1.c
+	packet-asn1.c asn1.c

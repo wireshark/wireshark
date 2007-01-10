@@ -28,7 +28,6 @@ LIBWIRESHARK_SRC = 		\
 	addr_resolv.c		\
 	adler32.c		\
 	afn.c			\
-	asn1.c			\
 	atalk-utils.c		\
 	base64.c		\
 	bitswap.c		\
@@ -103,7 +102,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	aftypes.h		\
 	arcnet_pids.h		\
 	arptypes.h		\
-	asn1.h			\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\

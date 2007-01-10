@@ -96,9 +96,6 @@ static gboolean cops_desegment = TRUE;
 
 static guint cops_tcp_port = 0;
 
-/*Some local globals needed to read COPS-PR ASN.1 Types from PIB-MIBs */
-/*MAX_OID_LEN from NET-SNMP's asn1.h*/
-
 #ifdef HAVE_NET_SNMP
 static  subid_t last_decoded_prid_oid[MAX_OID_LEN]={0};
 static  subid_t last_decoded_prid_oid_length=0;

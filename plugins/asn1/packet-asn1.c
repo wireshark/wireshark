@@ -83,7 +83,7 @@
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-ber.h>
-#include <epan/asn1.h>
+#include <plugins/asn1/asn1.h>
 #include <wiretap/file_util.h>
 
 #ifdef DISSECTOR_WITH_GUI

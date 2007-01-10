@@ -67,7 +67,7 @@
 #include <glib.h>
 
 #include <epan/tvbuff.h>
-#include <epan/asn1.h>
+#include <plugins/asn1/asn1.h>
 #include <epan/emem.h>
 
 /*

@@ -26,31 +26,6 @@ ansi_a_ios401_dtap_strings      DATA
 ansi_a_ios501_bsmap_strings     DATA
 ansi_a_ios501_dtap_strings      DATA
 ansi_map_opr_code_strings       DATA
-asn1_bits_decode
-asn1_bool_decode
-asn1_close
-asn1_eoc
-asn1_eoc_decode
-asn1_err_to_str
-asn1_header_decode
-asn1_id_decode
-asn1_id_decode1
-asn1_int32_decode
-asn1_int32_value_decode
-asn1_length_decode
-asn1_null_decode
-asn1_octet_decode
-asn1_octet_string_decode
-asn1_oid_decode
-asn1_oid_value_decode
-asn1_open
-asn1_sequence_decode
-asn1_string_decode
-asn1_string_value_decode
-asn1_subid_decode
-asn1_tag_decode
-asn1_uint32_decode
-asn1_uint32_value_decode
 asn1_ctx_init
 BandRejectReason_vals           DATA
 build_follow_filter
