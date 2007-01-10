@@ -118,7 +118,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\capinfos.res image\editcap.res image\mergecap.res \
 	image\text2pcap.res image\wiretap.res image\dumpcap.res
 
-all: config.h tools image codecs wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
+all: config.h tools image codecs $(ZLIB_DIR)\zlib1.dll wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
 
 packaging: all
 	cd packaging
