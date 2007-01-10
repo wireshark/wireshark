@@ -202,7 +202,7 @@ gint pdu_type;
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-			gchar* error = NULL;
+			const gchar* error = NULL;
 
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p,
 														   crypt_tvb,
@@ -212,10 +212,16 @@ gint pdu_type;
 			proto_item* item = get_ber_last_created_item();
 			expert_add_info_format( pinfo, item, PI_UNDECODED, PI_WARN, "Failed to decrypt encryptedPDU: %%s", error );
 		} else {
-			proto_tree* decrypted_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_decrypted);
-			
+			proto_tree* encryptedpdu_tree;
+			proto_item* decrypted_item;
+			proto_tree* decrypted_tree;
+
             add_new_data_source(pinfo, cleartext_tvb, "Decrypted ScopedPDU");
 			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
+			
+			encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
+			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
+			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, pinfo, decrypted_tree, -1);
 		 }
 
@@ -223,7 +229,6 @@ gint pdu_type;
 
 #.FN_BODY SNMPv3Message/msgSecurityParameters
 
-//	printf(">msgSecurityParameters\n");
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */		
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
@@ -242,7 +247,7 @@ gint pdu_type;
 	if( usm_p.authenticated
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.authModel ) {
-		gchar* error = NULL;
+		const gchar* error = NULL;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		

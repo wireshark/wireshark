@@ -95,11 +95,14 @@
 #include "packet-snmp.h"
 #include "format-oid.h"
 
-#include <epan/crypt/airpdcap_sha1.h>
+#include <epan/sha1.h>
 #include <epan/crypt/crypt-md5.h>
-#include <epan/crypt/hmac.h>
 #include <epan/expert.h>
 #include <epan/report_err.h>
+
+#ifdef _WIN32
+#include <winposixtype.h>
+#endif /* _WIN32 */
 
 #ifdef HAVE_LIBGCRYPT
 #include <gcrypt.h>
@@ -850,7 +853,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	switch (vb_type) {
 
 	case SNMP_INTEGER:
-		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, &(vb_integer_value));
+		offset = dissect_ber_integer(FALSE, pinfo, NULL, tvb, start, -1, (void*)&(vb_integer_value));
 		length = offset - vb_value_start;
 		if (snmp_tree) {
 #ifdef HAVE_NET_SNMP
@@ -1048,6 +1051,11 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 	return;
 }
 
+
+
+
+
+
 static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb) {
 	static snmp_ue_assoc_t* a;
 	guint given_username_len;
@@ -1095,7 +1103,7 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 #define D(p)
 #endif
 
-gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar** error) {
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const** error) {
 	guint msg_len;
 	guint8* msg;
 	guint auth_len;
@@ -1148,12 +1156,59 @@ gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar** error) {
 }
 
 
-gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar** error _U_) {
-	*error = "SHA1 authentication Not Yet Implemented";
-	return FALSE;
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar const** error _U_) {
+	guint msg_len;
+	guint8* msg;
+	guint auth_len;
+	guint8* auth;
+	guint8* key;
+	guint key_len;
+	guint8 calc_auth[20];
+	guint start;
+	guint end;
+	guint i;
+	
+	if (!p->auth_tvb) {
+		*error = "No Authenticator";
+		return FALSE;		
+	}
+	
+	key = p->user_assoc->user.authKey.data;
+	key_len = p->user_assoc->user.authKey.len;
+	
+	if (! key ) {
+		*error = "User has no authKey";
+		return FALSE;
+	}
+	
+	
+	auth_len = tvb_length_remaining(p->auth_tvb,0);
+	
+	
+	if (auth_len != 12) {
+		*error = "Authenticator length wrong";
+		return FALSE;
+	}
+	
+	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
+
+	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	
+	start = p->auth_offset - p->start_offset;
+	end = 	start + auth_len;
+	
+	/* fill the authenticator with zeros */
+	for ( i = start ; i < end ; i++ ) {
+		msg[i] = '\0';
+	}
+	
+	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
+	
+	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
-tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
@@ -1166,12 +1221,11 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	gint cryptgrm_len;
 	guint8* cryptgrm;
 	tvbuff_t* clear_tvb;
-	guint8 iv[8];;
+	guint8 iv[8];
 	guint i;
 	
 	
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
-	D(("salt_len=%d\n",salt_len));
 	
 	if (salt_len != 8)  {
 		*error = "msgPrivacyParameters lenght != 8";
@@ -1180,21 +1234,14 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 
 	salt = ep_tvb_memdup(p->priv_tvb,0,salt_len);
 
-	DUMP_DATA("salt",salt,salt_len);
-	DUMP_DATA("pre_iv",iv,8);
-
 	/*
 	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
 	 */
 	for (i=0; i<8; i++) {
 		iv[i] = pre_iv[i] ^ salt[i];
 	}
-	
-	DUMP_DATA("iv",iv,8);
-	DUMP_DATA("des_key",des_key,8);
 
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
-	D(("cryptgrm_len=%d\n",cryptgrm_len));
 
 	if (cryptgrm_len % 8) {
 		*error = "the length of the encrypted data is noty a mutiple of 8";
@@ -1202,7 +1249,6 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	}
 	
 	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
-	DUMP_DATA("cryptgrm",cryptgrm,cryptgrm_len);
 
 	cleartext = ep_alloc(cryptgrm_len);
 	
@@ -1220,20 +1266,6 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	
 	gcry_cipher_close(hd);
 	
-	DUMP_DATA("cleartext",cryptgrm,cryptgrm_len);
-
-	/*
-	 ???
-			The first ciphertext block is decrypted, the decryption output is
-		 XOR-ed with the Initialization Vector, and the result is the first
-		 plaintext block.
-		 
-		 For each subsequent block, the ciphertext block is decrypted, the
-		 decryption output is XOR-ed with the previous ciphertext block and
-		 the result is the plaintext block.
-	 */
-	
-	
 	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
 	
 	return clear_tvb;
@@ -1248,7 +1280,7 @@ on_gcry_error:
 #endif
 }
 
-tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar** error _U_) {
+tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar const** error _U_) {
 #ifdef HAVE_LIBGCRYPT
 	*error = "AES decryption Not Yet Implemented";
 	return NULL;
@@ -1257,6 +1289,11 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	return NULL;
 #endif
 }
+
+
+
+
+
 
 #include "packet-snmp-fn.c"
 
@@ -1578,8 +1615,6 @@ void snmp_usm_password_to_key_md5(
 /*
    SHA1 Password to Key Algorithm COPIED from RFC 3414 A.2.2
  */
-#define SHAUpdate(c,b,l) sha1_loop((c),(b),(l))
-#define SHAFinal(d,c) sha1_result((c),(d))
 
 void snmp_usm_password_to_key_sha1(
 						 guint8 *password,    /* IN */
@@ -1588,12 +1623,12 @@ void snmp_usm_password_to_key_sha1(
 						 guint   engineLength,/* IN  - length of snmpEngineID */
 						 guint8 *key)         /* OUT - pointer to caller 20-octet buffer */
 						 {
-	SHA1_CONTEXT     SH;
+	sha1_context     SH;
 	guint8     *cp, password_buf[72];
 	guint32      password_index = 0;
 	guint32      count = 0, i;
 	
-	sha1_init (&SH);   /* initialize SHA */
+	sha1_starts(&SH);   /* initialize SHA */
 	
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
@@ -1607,10 +1642,10 @@ void snmp_usm_password_to_key_sha1(
 			/*************************************************/
 			*cp++ = password[password_index++ % passwordlen];
 		}
-		SHAUpdate (&SH, password_buf, 64);
+		sha1_update (&SH, password_buf, 64);
 		count += 64;
 	}
-	SHAFinal (key, &SH);          /* tell SHA we're done */
+	sha1_finish(&SH, key);
 	
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
@@ -1622,9 +1657,9 @@ void snmp_usm_password_to_key_sha1(
 	memcpy(password_buf+20, engineID, engineLength);
 	memcpy(password_buf+20+engineLength, key, 20);
 	
-	sha1_init(&SH);
-	SHAUpdate(&SH, password_buf, 40+engineLength);
-	SHAFinal(key, &SH);
+	sha1_starts(&SH);
+	sha1_update(&SH, password_buf, 40+engineLength);
+	sha1_finish(&SH, key);
 	return;
  }
 
@@ -1793,7 +1828,7 @@ void proto_register_snmp(void) {
 				{ "Authentication OK", "snmp.v3.authOK", FT_BOOLEAN, 8,
 					TFS(&auth_flags), 0, "", HFILL }},
 		  { &hf_snmp_decryptedPDU, {
-					"Decrypted PDU", "snmp.decryptedPdu", FT_BYTES, BASE_HEX,
+					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
 					NULL, 0, "Decrypted PDU", HFILL }},
 	  
 #include "packet-snmp-hfarr.c"
