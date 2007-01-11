@@ -150,7 +150,10 @@ static gboolean snmp_var_in_tree = TRUE;
 static const gchar* ue_assocs_filename = "";
 static const gchar* ue_assocs_filename_loaded = "";
 static snmp_ue_assoc_t* ue_assocs = NULL;
-static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+static snmp_ue_assoc_t* localized_ues = NULL;
+static snmp_ue_assoc_t* unlocalized_ues = NULL;
+
+static snmp_usm_params_t usm_p = {FALSE,FALSE,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,FALSE};
 
 /* Subdissector tables */
 static dissector_table_t variable_oid_dissector_table;
@@ -1056,6 +1059,62 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 
 
 
+#define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
+
+static void renew_ue_cache() {
+	if (ue_assocs) {
+		static snmp_ue_assoc_t* a;
+
+		localized_ues = NULL;
+		unlocalized_ues = NULL;
+		
+		for(a = ue_assocs; a->user.userName.data; a++) {
+			if (a->engine.data) {
+				CACHE_INSERT(localized_ues,a);
+			} else {
+				CACHE_INSERT(unlocalized_ues,a);
+			}
+			
+		}
+	}
+}
+
+
+static snmp_ue_assoc_t* localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len ) {
+	snmp_ue_assoc_t* n = se_memdup(o,sizeof(snmp_ue_assoc_t));
+	guint key_size = n->user.authModel->key_size;
+	
+	n->engine.data = se_memdup(engine,engine_len);
+	n->engine.len = engine_len;
+	
+	n->user.authKey.data = se_alloc(key_size);
+	n->user.authKey.len = key_size;
+	n->user.authModel->pass2key(n->user.authPassword.data,
+								n->user.authPassword.len,
+								engine,
+								engine_len,
+								n->user.authKey.data);
+
+	n->user.privKey.data = se_alloc(key_size);
+	n->user.privKey.len = key_size;
+	n->user.authModel->pass2key(n->user.privPassword.data,
+								n->user.privPassword.len,
+								engine,
+								engine_len,
+								n->user.privKey.data);
+
+	return n;
+}
+
+
+#define localized_match(a,u,ul,e,el) \
+	( a->user.userName.len == ul \
+	&& a->engine.len == el \
+	&& memcmp( a->user.userName.data, u, (a->user.userName.len < ul) ? a->user.userName.len : ul ) == 0 \
+	&& memcmp( a->engine.data,   e, (a->engine.len   < el) ? a->engine.len   : el ) == 0 )
+
+#define unlocalized_match(a,u,l) \
+	( a->user.userName.len == l && memcmp( a->user.userName.data, u, a->user.userName.len < l ? a->user.userName.len : l) == 0 )
 
 static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb) {
 	static snmp_ue_assoc_t* a;
@@ -1064,7 +1123,7 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	guint given_engine_len;
 	guint8* given_engine;
 	
-	if ( ! ue_assocs ) return NULL;
+	if ( ! (localized_ues || unlocalized_ues ) ) return NULL;
 
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
 	
@@ -1072,37 +1131,39 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	given_username = ep_tvb_memdup(user_tvb,0,-1);
 	given_engine_len = tvb_length_remaining(engine_tvb,0);
 	given_engine = ep_tvb_memdup(engine_tvb,0,-1);
-
-	for(a = ue_assocs; a->user.userName.data; a++) {
-		guint username_len = a->user.userName.len;
-		
-		if ( given_username_len == username_len
-			 && memcmp(a->user.userName.data, given_username, given_username_len) == 0 ) {
-			
-			const guint8* engine_data = a->engine.data;
-			guint engine_len = a->engine.len;
-		
-			if ( engine_data ) {
-				if ( engine_len == given_engine_len
-					 && memcmp(given_engine,engine_data,engine_len) == 0 ) {
-					return a;
-				}
-			} else {
-				return a;
-			}
+	
+	for (a = localized_ues; a; a = a->next) {
+		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
+			return a;
+		}
+	}
+	
+	for (a = unlocalized_ues; a; a = a->next) {
+		if ( unlocalized_match(a, given_username, given_username_len) ) {
+			snmp_ue_assoc_t* n = localize_ue( a, given_engine, given_engine_len );
+			CACHE_INSERT(localized_ues,n);
+			return n;
 		}
 	}
 	
 	return NULL;
 }
 
-#ifdef DEBUG_USM
-#define DUMP_DATA(n,b,l) { unsigned i; printf("%s: ",n); for (i=0;i<(unsigned)l;i++) printf("%.2x",b[i]); printf("\n"); }
-#define D(p) 	printf p
-#else
-#define DUMP_DATA(n,b,l)
-#define D(p)
-#endif
+static void destroy_ue_assocs(snmp_ue_assoc_t* assocs) {
+	if (assocs) {
+		snmp_ue_assoc_t* a;
+		
+		for(a = assocs; a->user.userName.data; a++) {
+			g_free(a->user.userName.data);
+			if (a->user.authKey.data) g_free(a->user.authKey.data);
+			if (a->user.privKey.data) g_free(a->user.privKey.data);
+			if (a->engine.data) g_free(a->engine.data);
+		}
+		
+		g_free(ue_assocs);
+	}
+}
+
 
 gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const** error) {
 	guint msg_len;
@@ -1348,8 +1409,6 @@ on_gcry_error:
 
 
 
-
-
 #include "packet-snmp-fn.c"
 
 
@@ -1383,6 +1442,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	usm_p.encrypted = FALSE;
 	usm_p.boots = 0;
 	usm_p.time = 0;
+	usm_p.authOK = FALSE;
 	
 	/*
 	 * This will throw an exception if we don't have any data left.
@@ -1618,14 +1678,11 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   MD5 Password to Key Algorithm
   from RFC 3414 A.2.1 
 */
-void snmp_usm_password_to_key_md5(
-								  guint8 *password,    /* IN */
-								  guint   passwordlen, /* IN */
-								  guint8 *engineID,    /* IN  - pointer to snmpEngineID  */
-								  guint   engineLength,/* IN  - length of snmpEngineID */
-								  guint8 *key)         /* OUT - pointer to caller 16-octet buffer */
-								  
-								  {
+void snmp_usm_password_to_key_md5(const guint8 *password,
+								  guint   passwordlen,
+								  const guint8 *engineID,
+								  guint   engineLength,
+								  guint8 *key)  {
 	md5_state_t     MD;
 	guint8     *cp, password_buf[64];
 	guint32      password_index = 0;
@@ -1673,13 +1730,11 @@ void snmp_usm_password_to_key_md5(
    SHA1 Password to Key Algorithm COPIED from RFC 3414 A.2.2
  */
 
-void snmp_usm_password_to_key_sha1(
-						 guint8 *password,    /* IN */
-						 guint   passwordlen, /* IN */
-						 guint8 *engineID,    /* IN  - pointer to snmpEngineID  */
-						 guint   engineLength,/* IN  - length of snmpEngineID */
-						 guint8 *key)         /* OUT - pointer to caller 20-octet buffer */
-						 {
+void snmp_usm_password_to_key_sha1(const guint8 *password, 
+								   guint   passwordlen,
+								   const guint8 *engineID,
+								   guint   engineLength,
+								   guint8 *key ) {
 	sha1_context     SH;
 	guint8     *cp, password_buf[72];
 	guint32      password_index = 0;
@@ -1720,23 +1775,7 @@ void snmp_usm_password_to_key_sha1(
 	return;
  }
 
-
-
-static void destroy_ue_assocs(snmp_ue_assoc_t* assocs) {
-	if (assocs) {
-		snmp_ue_assoc_t* a;
-		
-		for(a = assocs; a->user.userName.data; a++) {
-			g_free(a->user.userName.data);
-			if (a->user.authKey.data) g_free(a->user.authKey.data);
-			if (a->user.privKey.data) g_free(a->user.privKey.data);
-			if (a->engine.data) g_free(a->engine.data);
-		}
-		
-		g_free(ue_assocs);
-	}
-}
-
+									   
 static void
 process_prefs(void)
 {
@@ -1800,33 +1839,9 @@ process_prefs(void)
 	if ( *ue_assocs_filename ) {
 		gchar* err = load_snmp_users_file(ue_assocs_filename,&ue_assocs);
 		if (err) report_failure("Error while loading SNMP's users file:\n%s",err);
+	} else {
+		ue_assocs = NULL;
 	}
-	
-#ifdef DUMP_USMDATA
-	{
-		GString* s = g_string_new(">>");
-		g_string_sprintfa(s,"File: %s\n",ue_assocs_filename);
-		
-#define DUMP(s,n,b,l) { unsigned i; g_string_sprintfa(s,"%s: ",n); for (i=0;i<l;i++) g_string_sprintfa(s,"%.2x",b[i]); g_string_sprintfa(s,"\n"); }
-		if (ue_assocs) {
-			snmp_ue_assoc_t* a;
-			
-			for(a = ue_assocs; a->user.userName.data; a++) {
-				if (a->engine.data) DUMP(s,"engine",a->engine.data,a->engine.len);
-				DUMP(s,"userName",a->user.userName.data,a->user.userName.len);
-				DUMP(s,"authPassword",a->user.authPassword.data,a->user.authPassword.len);
-				if (a->user.authKey.data) DUMP(s,"authKey",a->user.authKey.data,a->user.authKey.len);
-				DUMP(s,"privPassword",a->user.privPassword.data,a->user.privPassword.len);
-				if (a->user.privKey.data) DUMP(s,"privKey",a->user.privKey.data,a->user.privKey.len);
-				g_string_sprintfa(s,"\n");
-			}
-			
-		}
-		
-		report_failure("%s",s->str);
-		g_string_free(s,TRUE);
-	}
-#endif
 }
 	
 	
@@ -1976,13 +1991,15 @@ void proto_register_snmp(void) {
 		&snmp_var_in_tree);
 
   prefs_register_string_preference(snmp_module, "users_file",
-								   "USMuserTable",
-								   "The filename of the user table used for authentication/decryption",
+								   "USMuserTable file",
+								   "The filename of the user table used for authentication and decryption",
 								   &ue_assocs_filename);
  	  
 	variable_oid_dissector_table =
 	    register_dissector_table("snmp.variable_oid",
 	      "SNMP Variable OID", FT_STRING, BASE_NONE);
+	
+	register_init_routine(renew_ue_cache);
 }
 
 

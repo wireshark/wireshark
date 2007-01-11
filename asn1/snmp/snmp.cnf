@@ -259,7 +259,7 @@ gint pdu_type;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
 		
-		gboolean authen_ok = usm_p.user_assoc->user.authModel->authenticate(
+		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate(
 													 &usm_p,
                                                      &error );
 
@@ -271,10 +271,10 @@ gint pdu_type;
 			int severity;
 			gchar* fmt;			
 
-			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, authen_ok);
+			authen_item = proto_tree_add_boolean(authen_tree, hf_snmp_msgAuthentication, tvb, 0, 0, usm_p.authOK);
 			PROTO_ITEM_SET_GENERATED(authen_item);
 			
-			if (authen_ok) {
+			if (usm_p.authOK) {
 				fmt = "SNMP Authentication OK";
 				severity = PI_CHAT;
 			} else {
@@ -296,10 +296,11 @@ gint pdu_type;
  %(DEFAULT_BODY)s
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
+	proto_tree* flags_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_msgFlags);
 	
-	proto_tree_add_item(tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
-	proto_tree_add_item(tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
-	proto_tree_add_item(tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_auth, parameter_tvb, 0, 1, FALSE);
 	
 	usm_p.encrypted = v3_flags & TH_CRYPT ? TRUE : FALSE;
 	usm_p.authenticated = v3_flags & TH_AUTH ? TRUE : FALSE;

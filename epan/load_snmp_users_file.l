@@ -100,13 +100,14 @@
 
 hex_bytes [0-9A-Fa-f]+
 quoted_string \042([^\042]|\134\042)*\042
+any_engine \052
 whitespace [ \t]+
 newline [\r]?\n
 dash -
 des [dD][Ee][Ss]
 aes [aA][Ee][Ss]
 md5 [mM][dD]5
-sha [sS][hH][aA]
+sha [sS][hH][aA][1]?
 comment [ \t]*\043[^\n]*\n
 
 %START START_ENGINE STOP_ENGINE
@@ -125,6 +126,7 @@ comment [ \t]*\043[^\n]*\n
 
 <START_ENGINE>{quoted_string} { engine = undquote(yytext, yyleng, &engine_len); BEGIN STOP_ENGINE; }
 <START_ENGINE>{hex_bytes} { engine = unhexbytes(yytext, yyleng, &engine_len); BEGIN STOP_ENGINE; }
+<START_ENGINE>{any_engine} { engine =  NULL; engine_len = 0; BEGIN STOP_ENGINE; }
 <START_ENGINE>. { ERR("Invalid engineId"); }
 
 <STOP_ENGINE>{whitespace} { BEGIN START_USER; }
@@ -314,45 +316,47 @@ static void add_engine(void) {
 			a.user.authModel = &model_sha1;
 			break;
 		default:
-			a.user.authModel = NULL;
+			g_assert_not_reached();
 			break;
 	}
 	
-	if (engine) {
-		a.engine.data = engine;
-		a.engine.len = engine_len;
-		
-		if (a.user.authModel) {
-			a.user.authKey.data = g_malloc(a.user.authModel->key_size);
-			a.user.authKey.len = a.user.authModel->key_size;
-			a.user.privKey.data = g_malloc(a.user.authModel->key_size);
-			a.user.privKey.len = a.user.authModel->key_size;
-			a.user.authModel->pass2key( auth_password, auth_password_len, engine, engine_len, a.user.authKey.data);
-			a.user.authModel->pass2key( priv_password, priv_password_len, engine, engine_len, a.user.privKey.data);
-		} else {
-			a.user.authKey.data = NULL;
-			a.user.authKey.len = 0;
-			a.user.privKey.data = NULL;
-			a.user.privKey.len = 0;
-		}
-		
-		switch(enc) {
+	switch(enc) {
 		case PRIV_DES:
 			a.user.privProtocol = snmp_usm_priv_des;
 			break;
 		case PRIV_AES:
 			a.user.privProtocol = snmp_usm_priv_aes;
-			/* XXXX */
 			break;
 		default:
-			a.user.privProtocol = NULL;
+			g_assert_not_reached();
 			break;
 	}
-	
 
+	if (engine) {
+			a.engine.data = engine;
+			a.engine.len = engine_len;
+			
+			if (a.user.authModel) {
+				a.user.authKey.data = g_malloc(a.user.authModel->key_size);
+				a.user.authKey.len = a.user.authModel->key_size;
+				a.user.privKey.data = g_malloc(a.user.authModel->key_size);
+				a.user.privKey.len = a.user.authModel->key_size;
+				a.user.authModel->pass2key( auth_password, auth_password_len, engine, engine_len, a.user.authKey.data);
+				a.user.authModel->pass2key( priv_password, priv_password_len, engine, engine_len, a.user.privKey.data);
+			} else {
+				a.user.authKey.data = NULL;
+				a.user.authKey.len = 0;
+				a.user.privKey.data = NULL;
+				a.user.privKey.len = 0;
+			}
+			
 	} else {
 		a.engine.data = NULL;
 		a.engine.len = 0;
+		a.user.authKey.data = NULL;
+		a.user.authKey.len = 0;
+		a.user.privKey.data = NULL;
+		a.user.privKey.len = 0;		
 	}
 	
 	g_array_append_val(assoc_arr,a);

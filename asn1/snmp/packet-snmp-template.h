@@ -35,7 +35,7 @@ typedef struct _snmp_usm_params_t snmp_usm_params_t;
 
 typedef gboolean (*snmp_usm_authenticator_t)(snmp_usm_params_t*, gchar const** error);
 typedef tvbuff_t* (*snmp_usm_decoder_t)(snmp_usm_params_t*, tvbuff_t* encryptedData, gchar const** error);
-typedef void (*snmp_usm_password_to_key_t)(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
+typedef void (*snmp_usm_password_to_key_t)(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
 
 typedef struct _snmp_usm_auth_model_t {
 	snmp_usm_password_to_key_t pass2key;
@@ -63,6 +63,7 @@ typedef struct {
 struct _snmp_ue_assoc_t {
 	snmp_user_t user;
 	snmp_engine_id_t engine;
+	struct _snmp_ue_assoc_t* next;
 };
 
 struct _snmp_usm_params_t {
@@ -80,6 +81,8 @@ struct _snmp_usm_params_t {
 	tvbuff_t* priv_tvb;
 	tvbuff_t* msg_tvb;
 	snmp_ue_assoc_t* user_assoc;
+
+	gboolean authOK;
 };
 
 /*
@@ -99,8 +102,8 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar const**);
 tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t*, tvbuff_t*, gchar const**);
 
 
-void snmp_usm_password_to_key_md5(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
-void snmp_usm_password_to_key_sha1(guint8 *password, guint passwordlen, guint8 *engineID, guint engineLength, guint8 *key);
+void snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
+void snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
 								  
 
 /* defined in load_snmp_users_file.l */
