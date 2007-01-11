@@ -1551,6 +1551,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     prev_frame = fdata;
   }
 
+  /* Re-sort the list using the previously selected order */
+  packet_list_set_sort_column();
+
   if (redissect) {
     /* Clear out what remains of the visited flags and per-frame data
        pointers.

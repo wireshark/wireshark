@@ -65,6 +65,7 @@ void packet_list_set_cls_time_width(gint);
 gpointer packet_list_get_row_data(gint);
 void packet_list_set_selected_row(gint);
 gint packet_list_get_sort_column(void);
+void packet_list_set_sort_column(void);
 
 
 #ifdef __cplusplus

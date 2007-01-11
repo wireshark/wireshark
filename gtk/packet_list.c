@@ -893,3 +893,16 @@ packet_list_get_sort_column(void)
 {
     return ETH_CLIST(packet_list)->sort_column;
 }
+
+/* Re-sort the clist by the previously selected sort */
+void
+packet_list_set_sort_column(void)
+{
+    packet_list_freeze();
+
+    eth_clist_set_sort_column(ETH_CLIST(packet_list), packet_list_get_sort_column());
+
+    eth_clist_sort(ETH_CLIST(packet_list));
+
+    packet_list_thaw();
+}
