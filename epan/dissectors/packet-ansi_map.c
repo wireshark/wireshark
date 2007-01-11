@@ -132,6 +132,9 @@ static int proto_ansi_map = -1;
 
 static int hf_ansi_map_op_code_fam = -1;
 static int hf_ansi_map_op_code = -1;
+
+static int hf_ansi_map_reservedBitH = -1;
+
 static int hf_ansi_map_type_of_digits = -1;
 static int hf_ansi_map_na = -1;
 static int hf_ansi_map_pi = -1;
@@ -232,6 +235,18 @@ static int hf_ansi_map_cdmacallmode_cls7 = -1;
 static int hf_ansi_map_cdmacallmode_cls8 = -1;
 static int hf_ansi_map_cdmacallmode_cls9 = -1;
 static int hf_ansi_map_cdmacallmode_cls10 = -1;
+static int hf_ansi_map_cdmachanneldata_Frame_Offset = -1;
+static int hf_ansi_map_cdmachanneldata_CDMA_ch_no = -1;
+static int hf_ansi_map_cdmachanneldata_band_cls = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b6 = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b5 = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b4 = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b3 = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b2 = -1;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b1 = -1;
+static int hf_ansi_map_cdmachanneldata_np_ext = -1;
+static int hf_ansi_map_cdmachanneldata_nominal_pwr = -1;
+static int hf_ansi_map_cdmachanneldata_nr_preamble = -1;
  
 static int hf_ansi_map_cdmastationclassmark_pc = -1;
 static int hf_ansi_map_cdmastationclassmark_dtx = -1;
@@ -669,14 +684,21 @@ static int hf_ansi_map_serviceManagementSystemGapInterval = -1;  /* ServiceManag
 static int hf_ansi_map_mobileStationIMSI = -1;    /* MobileStationIMSI */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 298 "packet-ansi_map-template.c"
+#line 313 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
 static gint ett_mintype = -1;
 static gint ett_digitstype = -1;
 static gint ett_billingid = -1;
+static gint ett_extendedmscid = -1;
+static gint ett_extendedsystemmytypecode = -1;
+static gint ett_handoffstate = -1;
 static gint ett_mscid = -1;
+static gint ett_cdmachanneldata = -1;
+static gint ett_cdmastationclassmark = -1;
+static gint ett_channeldata = -1;
+static gint ett_confidentialitymodes = -1;
 static gint ett_originationtriggers = -1;
 static gint ett_transactioncapability = -1;
 static gint ett_systemcapabilities = -1;
@@ -893,7 +915,7 @@ static gint ett_ansi_map_MobileStationMSID = -1;
 static gint ett_ansi_map_NewlyAssignedMSID = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 310 "packet-ansi_map-template.c"
+#line 332 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_handle_t data_handle=NULL;
@@ -1824,8 +1846,58 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 /* 6.5.2.30 CDMAChannelData */
 /* Updated with N.S0010-0 v 1.0 */
-/* TODO Add decoding here */
 
+static const value_string ansi_map_cdmachanneldata_band_cls_vals[]  = {
+	{   0, "800 MHz Cellular System"},
+	{	0, NULL }
+};
+
+static void
+dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+	int length; 
+    proto_item *item;
+    proto_tree *subtree;
+
+	length = tvb_length_remaining(tvb,offset);
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_cdmachanneldata);
+
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_Frame_Offset, tvb, offset, 1, FALSE);
+	/* CDMA Channel Number */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_CDMA_ch_no, tvb, offset, 2, FALSE);
+	offset = offset + 2;
+	length = length -2;
+	/* Band Class */
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_band_cls, tvb, offset, 1, FALSE);
+	/* Long Code Mask */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b6, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b5, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b4, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b3, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b2, tvb, offset, 1, FALSE);
+	offset++;
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b1, tvb, offset, 1, FALSE);
+	length = length - 6;
+	if (length == 0)
+		return;
+	offset++;
+	/* NP_EXT */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_np_ext, tvb, offset, 1, FALSE);
+	/* Nominal Power */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nominal_pwr, tvb, offset, 1, FALSE);
+	/* Number Preamble */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nr_preamble, tvb, offset, 1, FALSE);
+
+}
 /* 6.5.2.31 CDMACodeChannel */
 
 /* 6.5.2.41 CDMAStationClassMark */
@@ -1861,7 +1933,7 @@ dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_mscid);
+	subtree = proto_item_add_subtree(item, ett_cdmastationclassmark);
 
 	/* Dual-mode Indicator(DMI) (octet 1, bit G) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, FALSE);
@@ -1890,7 +1962,7 @@ dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_mscid);
+	subtree = proto_item_add_subtree(item, ett_channeldata);
 
 	/* SAT Color Code (SCC) (octet 1, bits H and G) */
 	proto_tree_add_item(subtree, hf_ansi_map_channeldata_scc, tvb, offset, 1, FALSE);
@@ -1920,7 +1992,7 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_mscid);
+	subtree = proto_item_add_subtree(item, ett_confidentialitymodes);
 
 	/* DataPrivacy (DP) Confidentiality Status (octet 1, bit C) */
 	proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_dp, tvb, offset, 1, FALSE);
@@ -2014,7 +2086,7 @@ dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_billingid);
+	subtree = proto_item_add_subtree(item, ett_extendedmscid);
 	/* Type (octet 1) */
 	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
 	offset++;
@@ -2032,7 +2104,7 @@ dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo, pro
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_billingid);
+	subtree = proto_item_add_subtree(item, ett_extendedsystemmytypecode);
 	/* Type (octet 1) */
 	proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
 	offset++;
@@ -2070,7 +2142,7 @@ dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_billingid);
+	subtree = proto_item_add_subtree(item, ett_handoffstate);
 	/* Party Involved (PI) (octet 1, bit A) */
 	proto_tree_add_item(subtree, hf_ansi_map_handoffstate_pi, tvb, offset, 1, FALSE);
 }
@@ -2963,16 +3035,16 @@ dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_transactioncapability);
-	
-	/* Busy (octet 1, bits A and B) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_busy, tvb, offset, 1, FALSE);
-	/* Routing Failure (RF) (octet 1, bits C and D) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_rf, tvb, offset, 1, FALSE);
-	/* No Answer (NA) (octet 1, bits G and H) */
-	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_na, tvb, offset, 1, FALSE);
+
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);	
 	/* No Page Response (NPR) (octet 1, bits E and F) */
 	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_npr, tvb, offset, 1, FALSE);
-
+	/* No Answer (NA) (octet 1, bits G and H) */
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_na, tvb, offset, 1, FALSE);
+	/* Routing Failure (RF) (octet 1, bits C and D) */
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_rf, tvb, offset, 1, FALSE);
+	/* Busy (octet 1, bits A and B) */
+	proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_busy, tvb, offset, 1, FALSE);
 	offset++;
 
 	/* None Reachable (NR) (octet 2, bit A) */
@@ -4362,7 +4434,7 @@ static int dissect_mobileStationMIN_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_MSCID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 217 "ansi_map.cnf"
+#line 225 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4549,7 +4621,7 @@ dissect_ansi_map_AuthenticationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_ansi_map_InterMSCCircuitID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 192 "ansi_map.cnf"
+#line 200 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4693,7 +4765,7 @@ static int dissect_systemAccessType_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_SystemCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 309 "ansi_map.cnf"
+#line 317 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4853,7 +4925,7 @@ static int dissect_cdmaNetworkIdentification_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_ansi_map_ConfidentialityModes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 153 "ansi_map.cnf"
+#line 161 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4911,7 +4983,7 @@ static int dissect_digits_Carrier_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_PC_SSN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 273 "ansi_map.cnf"
+#line 281 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4981,7 +5053,7 @@ static int dissect_suspiciousAccess_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_TransactionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 326 "ansi_map.cnf"
+#line 334 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5248,7 +5320,7 @@ static int dissect_reauthenticationReport_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 369 "ansi_map.cnf"
+#line 377 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	guint8 ServiceIndicator;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5510,7 +5582,7 @@ static int dissect_billingID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_ChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 145 "ansi_map.cnf"
+#line 153 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5608,7 +5680,7 @@ static int dissect_handoffReason_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_HandoffState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 184 "ansi_map.cnf"
+#line 192 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5782,8 +5854,16 @@ static int dissect_cdmaCallMode_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_ansi_map_CDMAChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 137 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		dissect_ansi_map_cdmachanneldata(parameter_tvb,pinfo,tree);
+	}
+
+
 
   return offset;
 }
@@ -6012,7 +6092,7 @@ static int dissect_cdmaServingOneWayDelay_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_CDMAStationClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 137 "ansi_map.cnf"
+#line 145 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6168,7 +6248,7 @@ static int dissect_ilspInformation_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_ansi_map_MSLocation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 225 "ansi_map.cnf"
+#line 233 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6189,7 +6269,7 @@ static int dissect_msLocation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_NAMPSCallMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 233 "ansi_map.cnf"
+#line 241 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6210,7 +6290,7 @@ static int dissect_nampsCallMode_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_NAMPSChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 241 "ansi_map.cnf"
+#line 249 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6384,7 +6464,7 @@ static const ber_sequence_t FacilitiesDirective2_set[] = {
   { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
   { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
-  { BER_CLASS_CON, 134, BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
+  { BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
   { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
   { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
   { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
@@ -6579,7 +6659,7 @@ static const ber_sequence_t FacilitiesDirective2Res_set[] = {
   { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
   { BER_CLASS_CON, 74, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_nampsChannelData_impl },
   { BER_CLASS_CON, 205, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sOCStatus_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
   { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
   { BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaChannelData_impl },
   { BER_CLASS_CON, 180, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaVoiceCoder_impl },
@@ -6674,7 +6754,7 @@ static int dissect_acgencountered_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_CallingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 337 "ansi_map.cnf"
+#line 345 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6786,7 +6866,7 @@ static int dissect_mSCIdentificationNumber_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_ansi_map_OneTimeFeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 249 "ansi_map.cnf"
+#line 257 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7101,7 +7181,7 @@ static int dissect_noAnswerTime_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_ansi_map_PACAIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 265 "ansi_map.cnf"
+#line 273 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7237,7 +7317,7 @@ static int dissect_legInformation_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_TerminationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 318 "ansi_map.cnf"
+#line 326 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8199,7 +8279,7 @@ dissect_ansi_map_InformationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_ansi_map_MessageWaitingNotificationCount(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 200 "ansi_map.cnf"
+#line 208 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8220,7 +8300,7 @@ static int dissect_messageWaitingNotificationCount_impl(packet_info *pinfo, prot
 
 static int
 dissect_ansi_map_MessageWaitingNotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 208 "ansi_map.cnf"
+#line 216 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8312,7 +8392,7 @@ static int dissect_cdmaSlotCycleIndex_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_ansi_map_ExtendedMSCID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 169 "ansi_map.cnf"
+#line 177 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8333,7 +8413,7 @@ static int dissect_extendedMSCID_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_ExtendedSystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 177 "ansi_map.cnf"
+#line 185 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8417,7 +8497,7 @@ static int dissect_pageResponseTime_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_PilotBillingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 281 "ansi_map.cnf"
+#line 289 "ansi_map.cnf"
 
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -8859,7 +8939,7 @@ static int dissect_terminationAccessType_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_ansi_map_TriggerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 345 "ansi_map.cnf"
+#line 353 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8880,7 +8960,7 @@ static int dissect_triggerCapability_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ansi_map_WINOperationsCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 353 "ansi_map.cnf"
+#line 361 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8966,7 +9046,7 @@ dissect_ansi_map_LocationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_ansi_map_ControlNetworkID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 361 "ansi_map.cnf"
+#line 369 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9113,7 +9193,7 @@ dissect_ansi_map_MSInactive(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 static int
 dissect_ansi_map_OriginationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 257 "ansi_map.cnf"
+#line 265 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9322,7 +9402,7 @@ static int dissect_authorizationPeriod_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_ansi_map_DeniedAuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 161 "ansi_map.cnf"
+#line 169 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -10141,7 +10221,7 @@ dissect_ansi_map_RoutingRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 static int
 dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 290 "ansi_map.cnf"
+#line 298 "ansi_map.cnf"
 	SMS_BearerData_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -10160,7 +10240,7 @@ static int dissect_sms_BearerData_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 297 "ansi_map.cnf"
+#line 305 "ansi_map.cnf"
 static gint32 ansi_map_sms_tele_id = -1;
 
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -13209,7 +13289,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3179 "packet-ansi_map-template.c"
+#line 3251 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
@@ -13222,7 +13302,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  opcode = g_malloc(sizeof(gint));
 	  OperationCode = OperationCode&0x00ff;
 	  *opcode = OperationCode;
-	  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
+	  if (!pinfo->fd->flags.visited)
+		  /* Only do this once XXX I hope its the right thing to do */
+		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
   }
 
   ansi_map_is_invoke = TRUE;	
@@ -13835,6 +13917,10 @@ void proto_register_ansi_map(void) {
       { "Operation Code Family", "ansi_map.op_code_fam",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Operation Code Family", HFILL }},
+	{ &hf_ansi_map_reservedBitH,
+      { "Reserved", "ansi_map.reserved_bitH",
+        FT_BOOLEAN, 8, NULL,0x80,
+        "Reserved", HFILL }},
     { &hf_ansi_map_op_code,
       { "Operation Code", "ansi_map.op_code",
         FT_UINT8, BASE_DEC, VALS(ansi_map_opr_code_strings), 0x0,
@@ -14242,6 +14328,54 @@ void proto_register_ansi_map(void) {
       { "Call Mode", "ansi_map.cdmacallmode.cls10",
         FT_BOOLEAN, 8, TFS(&ansi_map_CDMACallMode_cls10_bool_val),0x10,
         "Call Mode", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_Frame_Offset,
+      { "Frame Offset", "ansi_map.cdmachanneldata.frameoffset",
+        FT_UINT8, BASE_DEC, NULL, 0x78,
+        "Frame Offset", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_CDMA_ch_no,
+      { "CDMA Channel Number", "ansi_map.cdmachanneldata.cdma_ch_no",
+        FT_UINT16, BASE_DEC, NULL, 0x07FF,
+        "CDMA Channel Number", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_band_cls,
+      { "Band Class", "ansi_map.cdmachanneldata.band_cls",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_cdmachanneldata_band_cls_vals), 0x7c,
+        "Band Class", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b6,
+      { "Long Code Mask MSB (byte 6)", "ansi_map.cdmachanneldata.lc_mask_b6",
+        FT_UINT8, BASE_HEX, NULL, 0x03,
+        "Long Code Mask MSB (byte 6)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b5,
+      { "Long Code Mask (byte 5)", "ansi_map.cdmachanneldata.lc_mask_b5",
+        FT_UINT8, BASE_HEX, NULL, 0x03,
+        "Long Code Mask (byte 5)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b4,
+      { "Long Code Mask (byte 4)", "ansi_map.cdmachanneldata.lc_mask_b4",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Long Code Mask (byte 4)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b3,
+      { "Long Code Mask (byte 3)", "ansi_map.cdmachanneldata.lc_mask_b3",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Long Code Mask (byte 3)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b2,
+      { "Long Code Mask (byte 2)", "ansi_map.cdmachanneldata.lc_mask_b2",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Long Code Mask (byte 2)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_lc_mask_b1,
+      { "Long Code Mask LSB(byte 1)", "ansi_map.cdmachanneldata.lc_mask_b1",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        "Long Code Mask LSB(byte 1)", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_np_ext,
+      { "NP EXT", "ansi_map.cdmachanneldata.np_ext",
+        FT_BOOLEAN, 8, NULL,0x80,
+        "NP EXT", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_nominal_pwr,
+      { "Nominal Power", "ansi_map.cdmachanneldata.nominal_pwr",
+        FT_UINT8, BASE_DEC, NULL, 0x71,
+        "Nominal Power", HFILL }},
+	{&hf_ansi_map_cdmachanneldata_nr_preamble,
+      { "Number Preamble", "ansi_map.cdmachanneldata.nr_preamble",
+        FT_UINT8, BASE_DEC, NULL, 0x07,
+        "Number Preamble", HFILL }},
 
 	{ &hf_ansi_map_cdmastationclassmark_pc,
       { "Power Class: (PC)", "ansi_map.cdmastationclassmark.pc",
@@ -15972,7 +16106,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.MobileStationIMSI", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4489 "packet-ansi_map-template.c"
+#line 4615 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -15981,7 +16115,14 @@ void proto_register_ansi_map(void) {
 	  &ett_mintype,
 	  &ett_digitstype,
 	  &ett_billingid,
+	  &ett_extendedmscid,
+	  &ett_extendedsystemmytypecode,
+	  &ett_handoffstate,
 	  &ett_mscid,
+	  &ett_cdmachanneldata,
+	  &ett_cdmastationclassmark,
+	  &ett_channeldata,
+	  &ett_confidentialitymodes,
 	  &ett_originationtriggers,
 	  &ett_transactioncapability,
 	  &ett_systemcapabilities,
@@ -16197,7 +16338,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_NewlyAssignedMSID,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4502 "packet-ansi_map-template.c"
+#line 4635 "packet-ansi_map-template.c"
   };
 
 

@@ -132,6 +132,14 @@ OriginationRequestRes
 	if (parameter_tvb){
 		dissect_ansi_map_cdmacallmode(parameter_tvb,pinfo,tree);
 	}
+# 6.5.2.30 CDMAChannelData
+#.FN_BODY CDMAChannelData VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_cdmachanneldata(parameter_tvb,pinfo,tree);
+	}
+
 # 6.5.2.41 CDMAStationClassMark
 #.FN_BODY CDMAStationClassMark VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
