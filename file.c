@@ -1603,6 +1603,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
            have to select the first displayed frame after the selected
            frame. */
         selected_row = following_row;
+      } else {
+        /* Frames before and after the selected frame passed the filter, so
+	   we'll select the previous frame */
+        selected_row = preceding_row;
       }
     }
   }
