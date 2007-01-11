@@ -121,7 +121,7 @@ clean:
 distclean: clean
 	rm -f config.h register.c mkstemp.c strptime.c radius_dict.c \
 		dtd_grammar.out	dtd_grammar.c dtd_grammar.h dtd_parse.c \
-		dtd_preparse.c sminmpec.c
+		dtd_preparse.c load_snmp_users_file.c sminmpec.c
 	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ftypes
