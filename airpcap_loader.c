@@ -1829,7 +1829,7 @@ merge_key_list(GList* list1, GList* list2)
 	    new_dk->bits = dk1->bits;
 	    new_dk->type = dk1->type;
 	    new_dk->key  = g_string_new(dk1->key->str);
-	    new_dk->ssid = g_byte_array_dup(dk1->ssid);
+	    new_dk->ssid = byte_array_dup(dk1->ssid);
 
 	    /* Check the total length of the merged list */
 	    if(g_list_length(merged_list) < MAX_ENCRYPTION_KEYS)

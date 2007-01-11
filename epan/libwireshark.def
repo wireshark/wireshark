@@ -19,6 +19,8 @@ AirPDcapDestroyContext
 AirPDcapInitContext
 AdmissionRejectReason_vals      DATA
 airpdcap_ctx                    DATA
+byte_array_dup
+byte_array_equal
 ansi_a_bsmap_strings     DATA
 ansi_a_dtap_strings     DATA
 ansi_a_ios401_bsmap_strings     DATA
@@ -359,6 +361,7 @@ get_hostname
 get_hostname6
 get_host_ipaddr
 get_host_ipaddr6
+get_key_string
 get_manuf_name_if_known
 get_oid_name
 get_oid_str_name
@@ -440,6 +443,7 @@ num_tree_types                  DATA
 offset_from_real_beginning
 oid_has_dissector
 other_decode_bitfield_value
+parse_key_string
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA
