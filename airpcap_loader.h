@@ -530,17 +530,4 @@ get_compiled_airpcap_version(GString *str);
 void
 get_runtime_airpcap_version(GString *str);
 
-/*
- * Returns the decryption_key_t struct given a string describing the key.
- * Returns NULL if the key_string cannot be parsed.
- */
-decryption_key_t*
-parse_key_string(gchar* key_string);
-
-/*
- * Returns a newly allocated string representing the given decryption_key_t struct
- */
-gchar*
-get_key_string(decryption_key_t* dk);
-
 #endif

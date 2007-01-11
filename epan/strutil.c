@@ -505,6 +505,67 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 	return TRUE;
 }
 
+/*
+ * Turn an RFC 3986 percent-encoded string into a byte array.
+ * XXX - We don't check for reserved characters.
+ */
+#define HEX_DIGIT_BUF_LEN 3
+gboolean
+uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
+	guint8		val;
+	const char	*p;
+	char		hex_digit[HEX_DIGIT_BUF_LEN];
+
+	g_byte_array_set_size(bytes, 0);
+	if (! uri_str) {
+		return FALSE;
+	}
+
+	p = uri_str;
+
+	while (*p) {
+		if (! isascii(*p) || ! isprint(*p))
+			return FALSE;
+		if (*p == '%') {
+			p++;
+			g_strlcpy(hex_digit, p, HEX_DIGIT_BUF_LEN);
+			if (strlen(hex_digit) != 2)
+				return FALSE;
+			if (! isxdigit(hex_digit[0]) || ! isxdigit(hex_digit[1]))
+				return FALSE;
+			val = (guint8) strtoul(hex_digit, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			p ++;
+		} else {
+			g_byte_array_append(bytes, (guint8 *) p, 1);
+		}
+		p++;
+
+	}
+g_warning("ba %s  len: %d", format_text(bytes->data, bytes->len), bytes->len);
+	return TRUE;
+}
+
+/**
+ * Create a copy of a GByteArray
+ *
+ * @param ba The byte array to be copied.
+ * @return If ba exists, a freshly allocated copy.  NULL otherwise.
+ *
+ * XXX - Should this be in strutil.c?
+ */
+GByteArray *
+byte_array_dup(GByteArray *ba) {
+    GByteArray *new_ba;
+
+    if (!ba)
+	return NULL;
+
+    new_ba = g_byte_array_new();
+    g_byte_array_append(new_ba, ba->data, ba->len);
+    return new_ba;
+}
+
 #define SUBID_BUF_LEN 5
 gboolean
 oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
@@ -561,6 +622,31 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
   }
 
   return TRUE;
+}
+
+/**
+ * Compare the contents of two GByteArrays
+ *
+ * @param ba1 A byte array
+ * @param ba2 A byte array
+ * @return If both arrays are non-NULL and their lengths are equal and
+ *         their contents are equal, returns TRUE.  Otherwise, returns
+ *         FALSE.
+ *
+ * XXX - Should this be in strutil.c?
+ */
+gboolean
+byte_array_equal(GByteArray *ba1, GByteArray *ba2) {
+    if (!ba1 || !ba2)
+	return FALSE;
+
+    if (ba1->len != ba2->len)
+	return FALSE;
+
+    if (memcmp(ba1->data, ba2->data, ba1->len) != 0)
+	return FALSE;
+
+    return TRUE;
 }
 
 

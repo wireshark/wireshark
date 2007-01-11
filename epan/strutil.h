@@ -101,6 +101,15 @@ gchar*     bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct);
 gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
     gboolean force_separators);
 
+/** Turn an RFC 3986 percent-encoded string into a byte array.
+ *
+ * @param uri_str The string of hex digits.
+ * @param bytes The GByteArray that will receive the bytes.  This
+ *        must be initialized by the caller.
+ * @return True if the string was converted successfully
+ */
+gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
+
 /** Turn a OID string representation (dot notaion) into a byte array.
  *
  * @param oid_str The OID string (dot notaion).
@@ -110,6 +119,30 @@ gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
  */
 gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
 
+/**
+ * Create a copy of a GByteArray
+ *
+ * @param ba The byte array to be copied.
+ * @return If ba exists, a freshly allocated copy.  NULL otherwise.
+ *
+ * XXX - Should this be in strutil.c?
+ */
+GByteArray *byte_array_dup(GByteArray *ba);
+
+/**
+ * Compare the contents of two GByteArrays
+ *
+ * @param ba1 A byte array
+ * @param ba2 A byte array
+ * @return If both arrays are non-NULL and their lengths are equal and
+ *         their contents are equal, returns TRUE.  Otherwise, returns
+ *         FALSE.
+ *
+ * XXX - Should this be in strutil.c?
+ */
+gboolean byte_array_equal(GByteArray *ba1, GByteArray *ba2);
+
+
 /** Return a XML escaped representation of the unescaped string.
  *  The returned string must be freed when no longer in use.
  *
@@ -118,7 +151,8 @@ gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
  */
 gchar*     xml_escape(const gchar *unescaped);
 
-/* Return the first occurrence of needle in haystack.
+/**
+ * Return the first occurrence of needle in haystack.
  * Algorithm copied from GNU's glibc 2.3.2 memcmp()
  *
  * @param haystack The data to search

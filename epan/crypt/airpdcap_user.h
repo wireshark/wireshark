@@ -51,10 +51,10 @@
  * Struct to store info about a specific decryption key.
  */
 typedef struct {
-    GString *key;
-    GString *ssid;
-    guint   bits;
-    guint   type;
+    GString    *key;
+    GByteArray *ssid;
+    guint       bits;
+    guint       type;
 } decryption_key_t;
 
 /**
@@ -159,9 +159,20 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
 
 /******************************************************************************/
 /*	Function prototype declarations															*/
-/*																										*/
-/*																										*/
-/*																										*/
+
+/*
+ * Returns the decryption_key_t struct given a string describing the key.
+ * Returns NULL if the key_string cannot be parsed.
+ */
+decryption_key_t*
+parse_key_string(gchar* key_string);
+
+/*
+ * Returns a newly allocated string representing the given decryption_key_t struct
+ */
+gchar*
+get_key_string(decryption_key_t* dk);
+
 /******************************************************************************/
 
 #endif /* _AIRPDCAP_USER_H */
