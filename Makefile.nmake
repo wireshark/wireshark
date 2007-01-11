@@ -427,7 +427,7 @@ image::
 # therefore compile the zlib dll from source ZLIB_DIR package.
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
-$(ZLIB_DIR)\zlib1.dll::
+$(ZLIB_DIR)\zlib1.dll:
 !IF "$(MSVC_VARIANT)" != "MSVC6" 
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
