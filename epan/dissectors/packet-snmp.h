@@ -41,7 +41,7 @@ typedef struct _snmp_usm_key {
 typedef struct _snmp_ue_assoc_t snmp_ue_assoc_t;
 typedef struct _snmp_usm_params_t snmp_usm_params_t;
 
-typedef gboolean (*snmp_usm_authenticator_t)(snmp_usm_params_t*, gchar const** error);
+typedef gboolean (*snmp_usm_authenticator_t)(snmp_usm_params_t*, guint8** calc_auth, guint* calc_auth_len, gchar const** error);
 typedef tvbuff_t* (*snmp_usm_decoder_t)(snmp_usm_params_t*, tvbuff_t* encryptedData, gchar const** error);
 typedef void (*snmp_usm_password_to_key_t)(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
 
@@ -102,8 +102,8 @@ extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
 extern int dissect_snmp_engineid(proto_tree *, tvbuff_t *, int, int);
 
 /* SNMPv3 USM authentication functions */
-gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const**);
-gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, gchar const**);
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
 /* SNMPv3 USM privacy functions */
 tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar const**);

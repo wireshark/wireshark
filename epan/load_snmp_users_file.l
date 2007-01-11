@@ -359,6 +359,8 @@ static void add_engine(void) {
 		a.user.privKey.len = 0;		
 	}
 	
+	a.next = NULL;
+	
 	g_array_append_val(assoc_arr,a);
 	loaded++;
 	

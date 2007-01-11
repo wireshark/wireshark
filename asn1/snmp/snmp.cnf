@@ -210,29 +210,40 @@ gint pdu_type;
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
 		&& usm_p.user_assoc->user.privProtocol ) {
-			const gchar* error = NULL;
-
-		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p,
-														   crypt_tvb,
-														   &error );
+		
+		const gchar* error = NULL;
+		proto_tree* encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
+		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
 
 		if (! cleartext_tvb) {
-			proto_item* item = get_ber_last_created_item();
-			expert_add_info_format( pinfo, item, PI_UNDECODED, PI_WARN, "Failed to decrypt encryptedPDU: %%s", error );
+			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
+				"Failed to decrypt encryptedPDU: %%s", error);
+			
+			expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN,
+				"Failed to decrypt encryptedPDU: %%s", error);
+				
+			return offset;
 		} else {
-			proto_tree* encryptedpdu_tree;
 			proto_item* decrypted_item;
 			proto_tree* decrypted_tree;
+
+			if (! check_ScopedPdu(cleartext_tvb)) {
+				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
+											"Decrypted data not formated as expected, wrong key?");
+				
+				expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN,
+									   "Decrypted data not formated as expected");
+				
+				return offset;
+			}
 
             add_new_data_source(pinfo, cleartext_tvb, "Decrypted ScopedPDU");
 			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
 			
-			encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
 			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, pinfo, decrypted_tree, -1);
 		 }
-
 	}
 
 #.FN_BODY SNMPv3Message/msgSecurityParameters
@@ -258,10 +269,10 @@ gint pdu_type;
 		const gchar* error = NULL;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
+		guint8* calc_auth;
+		guint calc_auth_len;
 		
-		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate(
-													 &usm_p,
-                                                     &error );
+		usm_p.authOK = usm_p.user_assoc->user.authModel->authenticate( &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
 			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Messsage authenticity: %s", error);
@@ -278,6 +289,8 @@ gint pdu_type;
 				fmt = "SNMP Authentication OK";
 				severity = PI_CHAT;
 			} else {
+				gchar* calc_auth_str = bytestring_to_str(calc_auth,calc_auth_len,' ');
+				proto_item_append_text(authen_item, " calcuated = %s", calc_auth_str);
 				fmt = "SNMP Authentication Error";
 				severity = PI_WARN;
 			}

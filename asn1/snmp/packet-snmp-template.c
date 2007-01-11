@@ -1061,7 +1061,7 @@ snmp_variable_decode(tvbuff_t *tvb, proto_tree *snmp_tree, packet_info *pinfo,tv
 
 #define CACHE_INSERT(c,a) if (c) { snmp_ue_assoc_t* t = c; c = a; c->next = t; } else { c = a; a->next = NULL; }
 
-static void renew_ue_cache() {
+static void renew_ue_cache(void) {
 	if (ue_assocs) {
 		static snmp_ue_assoc_t* a;
 
@@ -1165,7 +1165,7 @@ static void destroy_ue_assocs(snmp_ue_assoc_t* assocs) {
 }
 
 
-gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const** error) {
+gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_len_p, gchar const** error) {
 	guint msg_len;
 	guint8* msg;
 	guint auth_len;
@@ -1214,11 +1214,14 @@ gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, gchar const** error) {
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
 	
+	if (calc_auth_p) *calc_auth_p = calc_auth;
+	if (calc_auth_len_p) *calc_auth_len_p = 12;
+
 	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
 
-gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar const** error _U_) {
+gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_auth_len_p,  gchar const** error _U_) {
 	guint msg_len;
 	guint8* msg;
 	guint auth_len;
@@ -1266,6 +1269,9 @@ gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, gchar const** error _U_) {
 	}
 	
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
+	
+	if (calc_auth_p) *calc_auth_p = calc_auth;
+	if (calc_auth_len_p) *calc_auth_len_p = 12;
 	
 	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
@@ -1349,20 +1355,19 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	
 	guint8* cleartext;
 	guint8* aes_key = p->user_assoc->user.privKey.data; /* first 16 bytes */
-	guint8* iv;
-	gint iv_len;
+	guint8 iv[16];
+	gint priv_len;
 	gint cryptgrm_len;
 	guint8* cryptgrm;
 	tvbuff_t* clear_tvb;
 
-	iv_len = tvb_length_remaining(p->priv_tvb,0);
+	priv_len = tvb_length_remaining(p->priv_tvb,0);
 	
-	if (iv_len != 8)  {
+	if (priv_len != 8)  {
 		*error = "decryptionError: msgPrivacyParameters lenght != 8";
 		return NULL;
 	}	
 	
-	iv = ep_alloc(16);
 	iv[0] = (p->boots & 0xff000000) >> 24;
 	iv[1] = (p->boots & 0x00ff0000) >> 16;
 	iv[2] = (p->boots & 0x0000ff00) >> 8;
@@ -1397,7 +1402,7 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	return clear_tvb;
 	
 on_gcry_error:
-		*error = (void*)gpg_strerror(err);
+	*error = (void*)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
 	return NULL;
 #else
@@ -1407,7 +1412,40 @@ on_gcry_error:
 }
 
 
+gboolean check_ScopedPdu(tvbuff_t* tvb) {
+	int offset;
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	int hoffset, eoffset;
+	guint32 len;
 
+	offset = get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	offset = get_ber_length(NULL, tvb, offset, NULL, NULL);
+	
+	if ( ! (((class!=BER_CLASS_APP) && (class!=BER_CLASS_PRI) )
+			&& ( (!pc) || (class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
+			)) return FALSE;
+
+	if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0))
+		return TRUE;
+	
+	hoffset = offset;
+
+	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	offset = get_ber_length(NULL, tvb, offset, &len, NULL);
+	eoffset = offset + len;
+	
+	if (eoffset <= hoffset) return FALSE;
+	
+	if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
+		if( (class!=BER_CLASS_UNI)
+			||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) )
+			return FALSE;
+	
+	return TRUE;
+	
+}
 
 #include "packet-snmp-fn.c"
 
@@ -1897,7 +1935,7 @@ void proto_register_snmp(void) {
 		    "Value", "snmp.counter64", FT_INT64, BASE_DEC,
 		    NULL, 0, "A counter64 value", HFILL }},
 		  { &hf_snmp_msgAuthentication,
-				{ "Authentication OK", "snmp.v3.authOK", FT_BOOLEAN, 8,
+				{ "Authentication", "snmp.v3.auth", FT_BOOLEAN, 8,
 					TFS(&auth_flags), 0, "", HFILL }},
 		  { &hf_snmp_decryptedPDU, {
 					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
