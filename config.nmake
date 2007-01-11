@@ -52,6 +52,11 @@ MSVC_VARIANT=MSVC6
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=MSVC2002
 
+# "Microsoft .Net Framework SDK Version 1.0" - EXPERIMENTAL
+# needs additional Platform SDK installation
+# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
+#MSVC_VARIANT=DOTNET10
+
 # "Microsoft Visual Studio .NET 2003" - WORKS
 # Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
 #MSVC_VARIANT=MSVC2003
@@ -401,7 +406,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # /D_CRT_SECURE_NO_DEPRECATE don't warn for "insecure" calls, see MSDN "Security Enhancements in the CRT"
 # /D_CRT_NONSTDC_NO_DEPRECATE don't warn for "Deprecated CRT Functions" as MSDN calls this
 #
-!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11" || "$(MSVC_VARIANT)" == "VC2003TOOLKIT" 
+!IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "DOTNET20"
 LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
