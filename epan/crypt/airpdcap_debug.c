@@ -12,7 +12,7 @@ extern "C" {
 #endif
 	void print_debug_line(CHAR *function, CHAR *msg, INT level) {
 		if (level<=AIRPDCAP_DEBUG_USED_LEVEL)
-			printf("dbg(%d)|(%s) %s\n", level, function, msg);
+			g_warning("dbg(%d)|(%s) %s", level, function, msg);
 	}
 #ifdef	__cplusplus
 }

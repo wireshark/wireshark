@@ -277,6 +277,7 @@ find_val_for_string
 flags_set_truth                 DATA
 follow_tcp_stats
 format_text
+format_uri
 fragment_add
 fragment_add_check
 fragment_add_multiple_ok
@@ -774,6 +775,7 @@ tvb_strsize
 tvb_uncompress
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
+uri_str_to_bytes
 utf_8to16
 utf_16to8
 vals_pdu_type                   DATA

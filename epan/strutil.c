@@ -39,6 +39,9 @@
 #include <wchar.h>
 #endif
 
+static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
+			      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
 /*
  * Given a pointer into a data buffer, and to the end of the buffer,
  * find the end of the (putative) line at that position in the data
@@ -387,8 +390,6 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   gchar        *cur;
   gchar        *p;
   int           len;
-  static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
   p = cur;
@@ -542,8 +543,78 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 		p++;
 
 	}
-g_warning("ba %s  len: %d", format_text(bytes->data, bytes->len), bytes->len);
 	return TRUE;
+}
+
+/*
+ * Given a GByteArray, generate a string from it that shows non-printable
+ * characters as percent-style escapes, and return a pointer to it.
+ */
+gchar *
+format_uri(const GByteArray *bytes, const gchar *reserved_chars)
+{
+  static gchar *fmtbuf[3];
+  static guint fmtbuf_len[3];
+  static guint idx;
+  const gchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
+  const gchar *reserved = reserved_def;
+  guint8 c;
+  guint column, i;
+  gboolean is_reserved = FALSE;
+
+  if (! bytes)
+    return "";
+
+  idx = (idx + 1) % 3;
+  if (reserved_chars)
+    reserved = reserved_chars;
+
+  /*
+   * Allocate the buffer if it's not already allocated.
+   */
+  if (fmtbuf[idx] == NULL) {
+    fmtbuf[idx] = g_malloc(INITIAL_FMTBUF_SIZE);
+    fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
+  }
+  for (column = 0; column < bytes->len; column++) {
+    /*
+     * Is there enough room for this character, if it expands to
+     * a percent plus 2 hex digits (which is the most it can
+     * expand to), and also enough room for a terminating '\0'?
+     */
+    if (column+2+1 >= fmtbuf_len[idx]) {
+      /*
+       * Double the buffer's size if it's not big enough.
+       * The size of the buffer starts at 128, so doubling its size
+       * adds at least another 128 bytes, which is more than enough
+       * for one more character plus a terminating '\0'.
+       */
+      fmtbuf_len[idx] = fmtbuf_len[idx] * 2;
+      fmtbuf[idx] = g_realloc(fmtbuf[idx], fmtbuf_len[idx]);
+    }
+    c = bytes->data[column];
+
+    if (!isascii(c) || !isprint(c) || c == '%') {
+      is_reserved = TRUE;
+    }
+
+    for (i = 0; i < strlen(reserved); i++) {
+      if (c == reserved[i])
+	is_reserved = TRUE;
+    }
+
+    if (!is_reserved) {
+      fmtbuf[idx][column] = c;
+    } else {
+      fmtbuf[idx][column] = '%';
+      column++;
+      fmtbuf[idx][column] = hex[c >> 4];
+      column++;
+      fmtbuf[idx][column] = hex[c & 0xF];
+    }
+  }
+  fmtbuf[idx][column] = '\0';
+  return fmtbuf[idx];
 }
 
 /**

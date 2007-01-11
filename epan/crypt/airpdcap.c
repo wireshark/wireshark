@@ -1551,9 +1551,6 @@ parse_key_string(gchar* input_string)
 		return NULL;
 	    }
 
-	    /*
-	    * XXX - Maybe we need some check on the characters? I'm not sure if only standard ASCII are ok...
-	    */
 	    if(ssid_ba->len > WPA_SSID_MAX_CHAR_SIZE)
 	    {
 		g_string_free(key_string, TRUE);
@@ -1575,8 +1572,7 @@ parse_key_string(gchar* input_string)
 	dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
 	dk->key  = g_string_new(key);
 	dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
-	if(ssid != NULL)
-	    dk->ssid = byte_array_dup(ssid_ba);
+	dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
 
 	g_string_free(key_string, TRUE);
 	if (ssid_ba != NULL)
@@ -1595,7 +1591,11 @@ parse_key_string(gchar* input_string)
 
     g_free(type);
     g_free(key);
-    if(ssid != NULL) g_free(ssid); /* It is not always present */
+    if(ssid != NULL)
+	g_free(ssid); /* It is not always present */
+    if (ssid_ba != NULL)
+	g_byte_array_free(ssid_ba, TRUE);
+
     /* Free the array of strings */
     g_strfreev(tokens);
 
