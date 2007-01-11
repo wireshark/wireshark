@@ -498,6 +498,10 @@ typedef enum {
 	OTHER_LINE
 } line_type_t;
 
+/* Preferences */
+static guint sip_tcp_port = TCP_PORT_SIP;
+static guint sip_tls_port = TLS_PORT_SIP;
+
 /* global_sip_raw_text determines whether we are going to display		*/
 /* the raw text of the SIP message, much like the MEGACO dissector does.	*/
 static gboolean global_sip_raw_text = FALSE;
@@ -517,6 +521,12 @@ static gboolean sip_desegment_headers = TRUE;
  */
 static gboolean sip_desegment_body = TRUE;
 
+/* Gloabl variables */
+static guint saved_sip_tcp_port;
+static guint saved_sip_tls_port;
+
+/* Forward declaration we need below */
+void proto_reg_handoff_sip(void);
 static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur, gboolean use_reassembly);
 static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, gint linelen,
@@ -3541,7 +3551,16 @@ void proto_register_sip(void)
 	/* SIP content type and internet media type used by other dissectors are the same */
 	media_type_dissector_table = find_dissector_table("media_type");
 
-	sip_module = prefs_register_protocol(proto_sip, NULL);
+	sip_module = prefs_register_protocol(proto_sip, proto_reg_handoff_sip);
+
+  prefs_register_uint_preference(sip_module, "tcp.port",
+                                 "SIP TCP Port",
+                                 "SIP Server TCP Port",
+                                 10, &sip_tcp_port);
+  prefs_register_uint_preference(sip_module, "tls.port",
+                                 "SIP TLS Port",
+                                 "SIP Server TLS Port",
+                                 10, &sip_tls_port);
 
 	prefs_register_bool_preference(sip_module, "display_raw_text",
 		"Display raw text for SIP message",
@@ -3581,13 +3600,23 @@ void proto_register_sip(void)
 void
 proto_reg_handoff_sip(void)
 {
+  static gboolean sip_prefs_initialized = FALSE;
+
+  if (sip_prefs_initialized) {
+    dissector_delete("tcp.port", saved_sip_tcp_port, sip_handle);
+    ssl_dissector_delete(saved_sip_tls_port, "sip", TRUE);
+  } else {
+    sip_prefs_initialized = TRUE;
+  }
+  /* Set our port number for future use */
+  saved_sip_tcp_port = sip_tcp_port;
+  dissector_add("tcp.port", saved_sip_tcp_port, sip_handle);
+  saved_sip_tls_port = sip_tls_port;
+  ssl_dissector_add(saved_sip_tls_port, "sip", TRUE);
 
 	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 	dissector_add_string("media_type", "message/sip", sip_handle);
 	sigcomp_handle = find_dissector("sigcomp");
-
-	dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
-    ssl_dissector_add(TLS_PORT_SIP, "sip.tcp", TRUE);
 
 	heur_dissector_add("udp", dissect_sip_heur, proto_sip);
 	heur_dissector_add("tcp", dissect_sip_tcp_heur, proto_sip);
