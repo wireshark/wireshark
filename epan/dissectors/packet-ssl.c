@@ -867,7 +867,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
   add_new_data_source(pinfo, next_tvb, "Decrypted SSL data");
 
   /* Can we desegment this segment? */
-  if (ssl_desegment_app_data) {
+  if (FALSE /*ssl_desegment_app_data ignore till implemented well */) {
     /* Yes. */
     /*desegment_ssl(next_tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
         tcp_tree, tcpd);*/
