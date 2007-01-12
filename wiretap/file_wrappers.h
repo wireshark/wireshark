@@ -40,7 +40,7 @@ extern FILE_T file_open(const char *path, const char *mode);
 #define file_eof gzeof
 
 #else /* No zLib */
-/* XXX - mixing eth_xxx and fxxx calls might not be a good idea with MSVC 2005! */
+
 #define file_open(path, mode) eth_fopen(path, mode)
 #define filed_open fdopen
 #define file_read fread

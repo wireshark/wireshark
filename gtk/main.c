@@ -2620,7 +2620,7 @@ main(int argc, char *argv[])
 	/* We may set "last_open_dir" to "cf_name", and if we change
 	   "last_open_dir" later, we free the old value, so we have to
 	   set "cf_name" to something that's been allocated. */
-#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
+#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
         /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
         cf_name = g_locale_to_utf8(optarg, -1, NULL, NULL, NULL);
 #else
@@ -2691,7 +2691,7 @@ main(int argc, char *argv[])
        * file - yes, you could have "-r" as the last part of the command,
        * but that's a bit ugly.
        */
-#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
+#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
       /* since GLib 2.6, we need to convert filenames to utf8 for Win32 */
       cf_name = g_locale_to_utf8(argv[0], -1, NULL, NULL, NULL);
 #else

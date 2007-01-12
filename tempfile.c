@@ -39,20 +39,12 @@
 
 #include "file_util.h"
 
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
-#include <glib/gstdio.h>	/* available since GLib 2.6 only! */
-
-/* GLib2.6 or above, using new wrapper functions */
-#define eth_mkstemp g_mkstemp
-#else
-#define eth_mkstemp mkstemp
-#endif
-
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
 
 #include "tempfile.h"
+#include "mkstemp.h"
 
 static const char *
 setup_tmpdir(const char *dir)
@@ -99,7 +91,7 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	   permissions, attempt to create the file, and then put
 	   the umask back. */
 	old_umask = umask(0077);
-	tmp_fd = eth_mkstemp(namebuf);
+	tmp_fd = mkstemp(namebuf);
 	umask(old_umask);
 	return tmp_fd;
 }

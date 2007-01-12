@@ -721,16 +721,7 @@ char *getenv_utf8(const char *varname)
 	envvar = getenv(varname);
 
 	/* since GLib 2.6 we need an utf8 version of the filename */
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
-	if (!G_WIN32_HAVE_WIDECHAR_API ()) {
-		/* Windows OT (9x, ME), convert from current code page to utf8 */
-		/* it's the best we can do here ... */
-        envvar = g_locale_to_utf8(envvar, -1, NULL, NULL, NULL);
-		/* XXX - memleak */
-		return envvar;
-	}
-
-	/* Windows NT, 2000, XP, ... */
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
 	/* using the wide char version of getenv should work under all circumstances */
 
 	/* convert given varname to utf16, needed by _wgetenv */

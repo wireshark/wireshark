@@ -40,22 +40,30 @@ extern "C" {
 #endif
 
 
-/* Since GLib2.6, wrappers were added around functions which provides filenames to library functions, 
-	like open() does. */
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6)) && (!defined _MSC_VER || _MSC_VER < 1300)
-#include <glib/gstdio.h>	/* available since GLib 2.6 only! */
+/* Win32: Since GLib2.6, we use UTF8 throughout the code, so file functions must tweak a given filename
+	from UTF8 to UTF16 as we use NT Unicode (Win9x - now unsupported - used locale based encoding here). */
+#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
+#include <stdio.h>
 
-/* GLib2.6 or above, using new wrapper functions */
-#define eth_open	g_open
-#define eth_rename	g_rename
-#define eth_mkdir	g_mkdir
-#define eth_stat	g_stat
-#define eth_unlink	g_unlink
-#define eth_remove	g_remove
-#define eth_fopen	g_fopen
-#define eth_freopen	g_freopen
+extern int eth_stdio_open (const gchar *filename, int flags, int mode);
+extern int eth_stdio_rename (const gchar *oldfilename, const gchar *newfilename);
+extern int eth_stdio_mkdir (const gchar *filename, int mode);
+extern int eth_stdio_stat (const gchar *filename, struct stat *buf);
+extern int eth_stdio_unlink (const gchar *filename);
+extern int eth_stdio_remove (const gchar *filename);
+extern FILE * eth_stdio_fopen (const gchar *filename, const gchar *mode);
+extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream);
 
-#else	/* GLIB_MAJOR_VERSION */
+#define eth_open	eth_stdio_open
+#define eth_rename	eth_stdio_rename
+#define eth_mkdir	eth_stdio_mkdir
+#define eth_stat	eth_stdio_stat
+#define eth_unlink	eth_stdio_unlink
+#define eth_remove	eth_stdio_remove
+#define eth_fopen	eth_stdio_fopen
+#define eth_freopen	eth_stdio_freopen
+
+#else	/* _WIN32 && GLIB_MAJOR_VERSION */
 
 /* GLib 2.4 or below, using "old school" functions */
 #ifdef _WIN32
@@ -68,17 +76,17 @@ extern "C" {
 #define eth_stat	stat
 #define eth_unlink	unlink
 #define eth_mkdir(dir,mode)	mkdir(dir,mode)
-#endif
+#endif /* _WIN32 */
 
 #define eth_rename	rename
 #define eth_remove	remove
 #define eth_fopen	fopen
 #define eth_freopen	freopen
 
-#endif	/* GLIB_MAJOR_VERSION */
+#endif	/* _WIN32 && GLIB_MAJOR_VERSION */
 
 
-/* some common differences between UNIX and WIN32 */
+/* some common file function differences between UNIX and WIN32 */
 #ifdef _WIN32
 /* the Win32 API prepends underscores for whatever reasons */
 #define eth_read  _read
@@ -93,8 +101,9 @@ extern "C" {
 #define eth_dup   dup
 #define eth_lseek lseek
 #define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
-#endif
+#endif /* _WIN32 */
 
+/* directory handling */
 #if GLIB_MAJOR_VERSION >= 2
 #define ETH_DIR				GDir
 #define ETH_DIRENT			const char
@@ -111,7 +120,7 @@ extern "C" {
 #define eth_dir_get_name(dirent)	(gchar *)file->d_name
 #define eth_dir_rewind			rewinddir
 #define eth_dir_close			closedir
-#endif
+#endif /* GLIB_MAJOR_VERSION */
 
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */
