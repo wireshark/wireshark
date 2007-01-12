@@ -78,3 +78,5 @@ WS_VAR_IMPORT const ext_value_string_t *ansi_a_elem_1_strings;
  * array
  */
 #define	ANSI_A_MAX_NUM_IOS_ELEM_1_STRINGS	255
+
+void dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len);

@@ -326,7 +326,14 @@ static gint ett_cdmachanneldata = -1;
 static gint ett_cdmastationclassmark = -1;
 static gint ett_channeldata = -1;
 static gint ett_confidentialitymodes = -1;
+static gint ett_CDMA2000HandoffInvokeIOSData = -1;
+static gint ett_CDMA2000HandoffResponseIOSData = -1;
 static gint ett_originationtriggers = -1;
+static gint ett_pacaindicator = -1;
+static gint ett_callingpartyname = -1;
+static gint ett_triggercapability = -1;
+static gint ett_winoperationscapability = -1;
+static gint ett_controlnetworkid = -1;
 static gint ett_transactioncapability = -1;
 static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
@@ -1226,38 +1233,38 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
-	/* Call Mode (octet 1, bit A) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit B) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_amps, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit C) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_namps, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit D) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls1, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit E) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls2, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit F) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls3, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 1, bit G) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, FALSE);
 	/* Call Mode (octet 1, bit H) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls5, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit G) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit F) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls3, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit E) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls2, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls1, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_namps, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_amps, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 1, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, FALSE);
 
 	length--; 
 	if ( length == 0)
 		return;
 	offset++;
 
-	/* Call Mode (octet 2, bit A) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls6, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 2, bit B) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls7, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 2, bit C) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls8, tvb, offset, 1, FALSE);
-	/* Call Mode (octet 2, bit D) */
-	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls9, tvb, offset, 1, FALSE);
 	/* Call Mode (octet 2, bit E) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls10, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit D) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls9, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit C) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls8, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit B) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls7, tvb, offset, 1, FALSE);
+	/* Call Mode (octet 2, bit A) */
+	proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls6, tvb, offset, 1, FALSE);
 
 }
 /* 6.5.2.30 CDMAChannelData */
@@ -2083,7 +2090,7 @@ dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	subtree = proto_item_add_subtree(item, ett_pacaindicator);
 	/* PACA Level (octet 1, bits B-E) */
 	proto_tree_add_item(subtree, hf_ansi_map_PACA_Level, tvb, offset,	1, FALSE);
 	/* Permanent Activation (PA) (octet 1, bit A) */
@@ -3001,7 +3008,7 @@ dissect_ansi_map_callingpartyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	subtree = proto_item_add_subtree(item, ett_callingpartyname);
 	/* Availability (octet 1, bit E) N.S0012-0 v 1.0*/
 
 	/* Presentation Status (octet 1, bits A and B) */
@@ -3053,7 +3060,7 @@ dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	subtree = proto_item_add_subtree(item, ett_triggercapability);
 
 
 	/* O_No_Answer (ONA) (octet 1, bit H)*/
@@ -3136,7 +3143,7 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, prot
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	subtree = proto_item_add_subtree(item, ett_winoperationscapability);
 	
 	/* PositionRequest (POS) (octet 1, bit C) */
 	proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_pos, tvb, offset,	1, FALSE);
@@ -3156,7 +3163,7 @@ dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree *subtree;
 
 	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_originationtriggers);
+	subtree = proto_item_add_subtree(item, ett_controlnetworkid);
 	/* MarketID octet 1 and 2 */
 	proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
 	offset = offset + 2;
@@ -4419,29 +4426,29 @@ void proto_register_ansi_map(void) {
         FT_UINT8, BASE_DEC, VALS(ansi_map_cdmachanneldata_band_cls_vals), 0x7c,
         "Band Class", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b6,
-      { "Long Code Mask MSB (byte 6)", "ansi_map.cdmachanneldata.lc_mask_b6",
+      { "Long Code Mask (byte 6) MSB", "ansi_map.cdmachanneldata.lc_mask_b6",
         FT_UINT8, BASE_HEX, NULL, 0x03,
         "Long Code Mask MSB (byte 6)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b5,
       { "Long Code Mask (byte 5)", "ansi_map.cdmachanneldata.lc_mask_b5",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0xff,
         "Long Code Mask (byte 5)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b4,
       { "Long Code Mask (byte 4)", "ansi_map.cdmachanneldata.lc_mask_b4",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0xff,
         "Long Code Mask (byte 4)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b3,
       { "Long Code Mask (byte 3)", "ansi_map.cdmachanneldata.lc_mask_b3",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0xff,
         "Long Code Mask (byte 3)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b2,
       { "Long Code Mask (byte 2)", "ansi_map.cdmachanneldata.lc_mask_b2",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0xff,
         "Long Code Mask (byte 2)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b1,
       { "Long Code Mask LSB(byte 1)", "ansi_map.cdmachanneldata.lc_mask_b1",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
-        "Long Code Mask LSB(byte 1)", HFILL }},
+        FT_UINT8, BASE_HEX, NULL, 0xff,
+        "Long Code Mask (byte 1)LSB", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_np_ext,
       { "NP EXT", "ansi_map.cdmachanneldata.np_ext",
         FT_BOOLEAN, 8, NULL,0x80,
@@ -4748,7 +4755,14 @@ void proto_register_ansi_map(void) {
 	  &ett_cdmastationclassmark,
 	  &ett_channeldata,
 	  &ett_confidentialitymodes,
+	  &ett_CDMA2000HandoffInvokeIOSData,
+	  &ett_CDMA2000HandoffResponseIOSData,
 	  &ett_originationtriggers,
+	  &ett_pacaindicator,
+	  &ett_callingpartyname,
+	  &ett_triggercapability,
+	  &ett_winoperationscapability,
+	  &ett_controlnetworkid,
 	  &ett_transactioncapability,
 	  &ett_cdmaserviceoption,
 	  &ett_systemcapabilities,

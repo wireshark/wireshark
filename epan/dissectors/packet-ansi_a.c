@@ -10904,6 +10904,60 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
     NULL,	/* NONE */
 };
 
+/* Utillity function to dissect CDMA200 A1 elements in ANSI MAP messages */
+void
+dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, guint32 offset, guint len){
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+	/* 0x22 IS-95 Channel Identity */
+	ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
+	/* 0x09 IS-2000 Channel Identity */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
+	/* 0x0f IS-2000 Non-Negotiable Service */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+	/* 0x62 IS-95/IS-2000 Cause Value */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
+	/* 0x10 Extended Handoff Direction Parameters */
+	ELEM_OPT_TLV(ANSI_A_E_EXT_HO_DIR_PARAMS, "");
+	/* 0x16 Hard Handoff Parameters */
+	ELEM_OPT_TLV(ANSI_A_E_HHO_PARAMS, "");
+	/* 0x11 IS-2000 Mobile Capabilities */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+	/* 0x0e IS-2000 Service Configuration Record */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
+	/* 0x14 PDSN IP Address */
+    switch (a_variant)
+    {
+    case A_VARIANT_IOS401:
+		ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+		break;
+    case A_VARIANT_IOS501:
+		ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+		break;
+    }
+	/* 0x18 Protocol Type */
+	ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
+	ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
+	/* 0x2a Service Option List */
+	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+	/* Source RNC to Target RNC Transparent Container */
+	ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
+	/* 0x3a Target RNC to source RNC Transparent Container */
+	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+	/* Slot Cycle Index */
+	ELEM_OPT_TLV(ANSI_A_E_SCI, ""); /* XXX TV used elswhere?? */
+	ELEM_OPT_TLV(ANSI_A_E_ACC_NET_ID, "");/* XXX TV used elswhere?? */
+	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+	/* 0x2a Service Option List ( XX in Response this is mentioned last
+	 * need to repete it here?
+	 */
+	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+}
+
 /* GENERIC MAP DISSECTOR FUNCTIONS */
 
 static void
