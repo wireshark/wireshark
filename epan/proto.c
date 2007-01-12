@@ -3145,16 +3145,14 @@ proto_item_get_subtree(proto_item *pi) {
 
 proto_item*
 proto_item_get_parent(proto_item *ti) {
-	/* dont bother if tree is not visible */
-	if( (!ti) || (!(PTREE_DATA(ti)->visible)) )
+	if (!ti)
 		return (NULL);
 	return ti->parent;
 }
 
 proto_item*
 proto_item_get_parent_nth(proto_item *ti, int gen) {
-	/* dont bother if tree is not visible */
-	if( (!ti) || (!(PTREE_DATA(ti)->visible)) )
+	if (!ti)
 		return (NULL);
 	while (gen--) {
 		ti = ti->parent;
@@ -3167,16 +3165,14 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 
 proto_item*
 proto_tree_get_parent(proto_tree *tree) {
-	/* dont bother if tree is not visible */
-	if( (!tree) || (!(PTREE_DATA(tree)->visible)) )
+	if (!tree)
 		return (NULL);
 	return (proto_item*) tree;
 }
 
 proto_tree*
 proto_tree_get_root(proto_tree *tree) {
-	/* dont bother if tree is not visible */
-	if( (!tree) || (!(PTREE_DATA(tree)->visible)) )
+	if (!tree)
 		return (NULL);
 	while (tree->parent) {
 		tree = tree->parent;
