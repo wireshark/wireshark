@@ -126,7 +126,7 @@ static GList *follow_infos;
 
 typedef struct {
     gboolean is_server;
-    StringInfo* data;
+    StringInfo data;
 } SslDecryptedRecord;
 
 /* Add a "follow_info_t" structure to the list. */
@@ -148,15 +148,26 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
 {
     follow_info_t* follow_info = tapdata;
     SslDecryptedRecord* rec;
+    SslDataInfo* appl_data;
+    gint total_len;
+    guchar *p;
     int proto_ssl = (int) ssl;
     SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
 
     /* skip packet without decrypted data payload*/    
-    if (!pi || !pi->app_data.data)
+    if (!pi || !pi->appl_data)
         return 0;
+
+    /* compute total length */
+    total_len = 0;
+    appl_data = pi->appl_data;
+    do {
+      total_len += appl_data->plain_data.data_len; 
+      appl_data = appl_data->next;
+    } while (appl_data);
     
     /* compute packet direction */
-    rec = g_malloc(sizeof(SslDecryptedRecord));
+    rec = g_malloc(sizeof(SslDecryptedRecord) + total_len);
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -170,10 +181,18 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
         rec->is_server = 1;
 
     /* update stream counter */
-    follow_info->bytes_written[rec->is_server] += pi->app_data.data_len;
+    follow_info->bytes_written[rec->is_server] += total_len;
     
     /* extract decrypted data and queue it locally */    
-    rec->data = &pi->app_data;
+    rec->data.data = (guchar*)(rec + 1);
+    rec->data.data_len = total_len;
+    appl_data = pi->appl_data;
+    p = rec->data.data;
+    do {
+      memcpy(p, appl_data->plain_data.data, appl_data->plain_data.data_len);
+      p += appl_data->plain_data.data_len; 
+      appl_data = appl_data->next;
+    } while (appl_data);
     follow_info->ssl_decrypted_data = g_list_append(
         follow_info->ssl_decrypted_data,rec);
 
@@ -625,8 +644,8 @@ follow_read_stream(follow_info_t *follow_info,
 	}
 
         if (!skip) {
-            size_t nchars = rec->data->data_len;
-            char* buffer = (char*) rec->data->data;
+            size_t nchars = rec->data.data_len;
+            char* buffer = (char*) rec->data.data;
             
             switch (follow_info->show_type) {
     
