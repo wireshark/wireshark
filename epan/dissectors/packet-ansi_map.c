@@ -134,6 +134,7 @@ static int hf_ansi_map_op_code_fam = -1;
 static int hf_ansi_map_op_code = -1;
 
 static int hf_ansi_map_reservedBitH = -1;
+static int hf_ansi_map_reservedBitED = -1;
 
 static int hf_ansi_map_type_of_digits = -1;
 static int hf_ansi_map_na = -1;
@@ -181,6 +182,7 @@ static int hf_ansi_map_terminationtriggers_npr = -1;
 static int hf_ansi_map_terminationtriggers_na = -1;
 static int hf_ansi_map_terminationtriggers_nr = -1;
 static int hf_ansi_trans_cap_tl = -1;
+static int hf_ansi_map_cdmaserviceoption = -1;
 static int hf_ansi_trans_cap_waddr = -1;
 static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
@@ -636,7 +638,6 @@ static int hf_ansi_map_TerminationList_item = -1;  /* TerminationList_item */
 static int hf_ansi_map_intersystemTermination = -1;  /* IntersystemTermination */
 static int hf_ansi_map_localTermination = -1;     /* LocalTermination */
 static int hf_ansi_map_pstnTermination = -1;      /* PSTNTermination */
-static int hf_ansi_map_cDMAServiceOption = -1;    /* OCTET_STRING */
 static int hf_ansi_map_CDMAServiceOptionList_item = -1;  /* CDMAServiceOption */
 static int hf_ansi_map_pSID_RSIDInformation1 = -1;  /* PSID_RSIDInformation */
 static int hf_ansi_map_targetCellID1 = -1;        /* TargetCellID */
@@ -684,7 +685,7 @@ static int hf_ansi_map_serviceManagementSystemGapInterval = -1;  /* ServiceManag
 static int hf_ansi_map_mobileStationIMSI = -1;    /* MobileStationIMSI */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 313 "packet-ansi_map-template.c"
+#line 315 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -701,6 +702,7 @@ static gint ett_channeldata = -1;
 static gint ett_confidentialitymodes = -1;
 static gint ett_originationtriggers = -1;
 static gint ett_transactioncapability = -1;
+static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
 
 
@@ -874,7 +876,6 @@ static gint ett_ansi_map_TargetMeasurementInformation = -1;
 static gint ett_ansi_map_TargetMeasurementList = -1;
 static gint ett_ansi_map_TerminationList = -1;
 static gint ett_ansi_map_TerminationList_item = -1;
-static gint ett_ansi_map_CDMAServiceOption = -1;
 static gint ett_ansi_map_CDMAServiceOptionList = -1;
 static gint ett_ansi_map_PSID_RSIDList = -1;
 static gint ett_ansi_map_TargetCellIDList = -1;
@@ -915,7 +916,7 @@ static gint ett_ansi_map_MobileStationMSID = -1;
 static gint ett_ansi_map_NewlyAssignedMSID = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 332 "packet-ansi_map-template.c"
+#line 335 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_handle_t data_handle=NULL;
@@ -1935,10 +1936,12 @@ dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_cdmastationclassmark);
 
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
 	/* Dual-mode Indicator(DMI) (octet 1, bit G) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, FALSE);
 	/* Slotted Mode Indicator: (SMI) (octet 1, bit F) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_smi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitED, tvb, offset, 1, FALSE);
 	/* Analog Transmission: (DTX) (octet 1, bit C) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dtx, tvb, offset, 1, FALSE);
 	/* Power Class: (PC) (octet 1, bits A and B) */
@@ -3177,6 +3180,113 @@ static const value_string ansi_map_UniqueChallengeReport_vals[]  = {
 same as that of Service Configuration Record in TSB74, and J-STD-008.
 */
 
+/* 6.5.2.f CDMAServiceOption N.S0010-0 v 1.0 */
+
+/* values copied from old ANSi map dissector */
+static const range_string cdmaserviceoption_vals[] = {
+	{ 1, 1, "Basic Variable Rate Voice Service (8 kbps)" }, 
+	{ 2, 2, "Mobile Station Loopback (8 kbps)" }, 
+	{ 3, 3, "Enhanced Variable Rate Voice Service (8 kbps)" }, 
+	{ 4, 4, "Asynchronous Data Service (9.6 kbps)" }, 
+	{ 5, 5, "Group 3 Facsimile (9.6 kbps)" },
+	{ 6, 6, "Short Message Services (Rate Set 1)" }, 
+	{ 7, 7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" }, 
+	{ 8, 8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" }, 
+	{ 9, 9, "Mobile Station Loopback (13 kbps)" }, 
+	{ 10, 10, "STU-III Transparent Service" }, 
+	{ 11, 11, "STU-III Non-Transparent Service" }, 
+	{ 12, 12, "Asynchronous Data Service (14.4 or 9.6 kbps)" }, 
+	{ 13, 13, "Group 3 Facsimile (14.4 or 9.6 kbps)" }, 
+	{ 14, 14, "Short Message Services (Rate Set 2)" }, 
+	{ 15, 15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" }, 
+	{ 16, 16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" }, 
+	{ 17, 17, "High Rate Voice Service (13 kbps)" }, 
+	{ 18, 18, "Over-the-Air Parameter Administration (Rate Set 1)" }, 
+	{ 19, 19, "Over-the-Air Parameter Administration (Rate Set 2)" }, 
+	{ 20, 20, "Group 3 Analog Facsimile (Rate Set 1)" }, 
+	{ 21, 21, "Group 3 Analog Facsimile (Rate Set 2)" }, 
+	{ 22, 22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" }, 
+	{ 23, 23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" }, 
+	{ 24, 24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" }, 
+	{ 25, 25, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)" },
+	{ 26, 26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" }, 
+	{ 27, 27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" }, 
+	{ 28, 28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" }, 
+	{ 29, 29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" }, 
+	{ 30, 30, "Supplemental Channel Loopback Test for Rate Set 1" }, 
+	{ 31, 31, "Supplemental Channel Loopback Test for Rate Set 2" }, 
+	{ 32, 32, "Test Data Service Option (TDSO)" }, 
+	{ 33, 33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" }, 
+	{ 34, 34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" }, 
+	{ 35, 35, "Location Services, Rate Set 1 (9.6 kbps)" },
+	{ 36, 36, "Location Services, Rate Set 2 (14.4 kbps)" }, 
+	{ 37, 37, "ISDN Interworking Service (64 kbps)" }, 
+	{ 38, 38, "GSM Voice" }, 
+	{ 39, 39, "GSM Circuit Data" }, 
+	{ 40, 40, "GSM Packet Data" }, 
+	{ 41, 41, "GSM Short Message Service" }, 
+	{ 42, 42, "None Reserved for MC-MAP standard service options" }, 
+	{ 54, 54, "Markov Service Option (MSO)" }, 
+	{ 55, 55, "Loopback Service Option (LSO)" },
+	{ 56, 56, "Selectable Mode Vocoder" }, 
+	{ 57, 57, "32 kbps Circuit Video Conferencing" }, 
+	{ 58, 58, "64 kbps Circuit Video Conferencing" }, 
+	{ 59, 59, "HRPD Accounting Records Identifier" }, 
+	{ 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" }, 
+	{ 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" }, 
+	{ 62, 4099, "None Reserved for standard service options" }, 
+	{ 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4102, 4102, "Reserved for standard service option" },
+	{ 4103, 4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4104, 4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4105, 32767, "Reserved for standard service options" }, 
+	{ 32768, 32768, "QCELP (13 kbps)" }, 
+	{ 32769, 32771, "Proprietary QUALCOMM Incorporated" }, 
+	{ 32772, 32775, "Proprietary OKI Telecom" }, 
+	{ 32776, 32779, "Proprietary Lucent Technologies" }, 
+	{ 32780, 32783, "Nokia" }, 
+	{ 32784, 32787, "NORTEL NETWORKS" }, 
+	{ 32788, 32791, "Sony Electronics Inc" }, 
+	{ 32792, 32795, "Motorola" }, 
+	{ 32796, 32799, "QUALCOMM Incorporated" }, 
+	{ 32800, 32803, "QUALCOMM Incorporated" }, 
+	{ 32804, 32807, "QUALCOMM Incorporated" }, 
+	{ 32808, 32811, "QUALCOMM Incorporated" }, 
+	{ 32812, 32815, "Lucent Technologies" }, 
+	{ 32816, 32819, "Denso International" }, 
+	{ 32820, 32823, "Motorola" }, 
+	{ 32824, 32827, "Denso International" }, 
+	{ 32828, 32831, "Denso International" }, 
+	{ 32832, 32835, "Denso International" }, 
+	{ 32836, 32839, "NEC America" },
+	{ 32840, 32843, "Samsung Electrnics" },
+	{ 32844, 32847, "Texas Instruments Incorporated" },
+	{ 32848, 32851, "Toshiba Corporation" },
+	{ 32852, 32855, "LG Electronics Inc." },
+	{ 32856, 32859, "VIA Telecom Inc." },
+	{ 0,           0,          NULL                   }
+};
+
+static void
+dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+	guint16 so;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_cdmaserviceoption);
+
+	so = tvb_get_ntohs(tvb,offset);
+    proto_tree_add_uint_format(subtree, hf_ansi_map_cdmaserviceoption,
+					       tvb, offset, 2, so,
+					       "CDMAServiceOption: %u %s", so,
+					       rval_to_str(so,cdmaserviceoption_vals ,"Unknown"));
+
+
+}
 /* 6.5.2.f (TSB76) CDMAServiceOption N.S0008-0 v 1.0*/
 /* This field carries the CDMA Service Option. The bit-layout is the same as that of
 Service Option in TSB74 and J-STD-008.*/
@@ -5064,7 +5174,6 @@ dissect_ansi_map_TransactionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb,
 
 
 
-
   return offset;
 }
 static int dissect_transactionCapability_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -5320,7 +5429,7 @@ static int dissect_reauthenticationReport_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 377 "ansi_map.cnf"
+#line 385 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	guint8 ServiceIndicator;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5887,40 +5996,26 @@ static int dissect_cdmaConnectionReference_impl(packet_info *pinfo, proto_tree *
 
 
 static int
-dissect_ansi_map_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-static int dissect_cDMAServiceOption_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ansi_map_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_cDMAServiceOption);
-}
-
-
-static const value_string ansi_map_CDMAServiceOption_vals[] = {
-  { 175, "cDMAServiceOption" },
-  { 0, NULL }
-};
-
-static const ber_choice_t CDMAServiceOption_choice[] = {
-  { 175, BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_cDMAServiceOption_impl },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
 dissect_ansi_map_CDMAServiceOption(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 CDMAServiceOption_choice, hf_index, ett_ansi_map_CDMAServiceOption,
-                                 NULL);
+#line 342 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		dissect_ansi_map_cdmaserviceoption(parameter_tvb,pinfo,tree);
+	}
+
+
+
 
   return offset;
 }
 static int dissect_cdmaServiceOption_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_ansi_map_CDMAServiceOption(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_cdmaServiceOption);
 }
-static int dissect_CDMAServiceOptionList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ansi_map_CDMAServiceOption(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_CDMAServiceOptionList_item);
+static int dissect_CDMAServiceOptionList_item_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CDMAServiceOption(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_CDMAServiceOptionList_item);
 }
 
 
@@ -5965,7 +6060,7 @@ static int dissect_cdmaServiceOptionConnectionIdentifier_impl(packet_info *pinfo
 
 static const ber_sequence_t CDMAConnectionReferenceInformation_sequence[] = {
   { BER_CLASS_CON, 208, BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReference_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 213, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaState_impl },
   { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
   { BER_CLASS_CON, 361, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionConnectionIdentifier_impl },
@@ -6060,14 +6155,14 @@ static int dissect_cdmaServiceConfigurationRecord_impl(packet_info *pinfo, proto
 }
 
 
-static const ber_sequence_t CDMAServiceOptionList_set_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_CDMAServiceOptionList_item },
+static const ber_sequence_t CDMAServiceOptionList_sequence_of[1] = {
+  { BER_CLASS_CON, 175, BER_FLAGS_IMPLTAG, dissect_CDMAServiceOptionList_item_impl },
 };
 
 static int
 dissect_ansi_map_CDMAServiceOptionList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
-                                 CDMAServiceOptionList_set_of, hf_index, ett_ansi_map_CDMAServiceOptionList);
+  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+                                      CDMAServiceOptionList_sequence_of, hf_index, ett_ansi_map_CDMAServiceOptionList);
 
   return offset;
 }
@@ -6754,7 +6849,7 @@ static int dissect_acgencountered_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_CallingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 345 "ansi_map.cnf"
+#line 353 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8606,7 +8701,7 @@ static const ber_sequence_t InterSystemPage_set[] = {
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaBandClass_impl },
   { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
   { BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSlotCycleIndex_impl },
   { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
@@ -8682,7 +8777,7 @@ static int dissect_conditionallyDeniedReason_impl(packet_info *pinfo, proto_tree
 static const ber_sequence_t InterSystemPageRes_set[] = {
   { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conditionallyDeniedReason_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_impl },
   { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
@@ -8759,7 +8854,7 @@ static const ber_sequence_t InterSystemPage2_set[] = {
   { BER_CLASS_CON, 170, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaBandClass_impl },
   { BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaMobileProtocolRevision_impl },
   { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
   { BER_CLASS_CON, 166, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaSlotCycleIndex_impl },
   { BER_CLASS_CON, 59, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark_impl },
@@ -8826,7 +8921,7 @@ static const ber_sequence_t InterSystemPage2Res_set[] = {
   { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
   { BER_CLASS_CON, 36, BER_FLAGS_IMPLTAG, dissect_authenticationResponseBaseStation_impl },
   { BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callHistoryCount_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_randc_impl },
   { BER_CLASS_CON, 41, BER_FLAGS_IMPLTAG, dissect_randomVariableBaseStation_impl },
   { BER_CLASS_CON, 34, BER_FLAGS_IMPLTAG, dissect_systemAccessType_impl },
@@ -8868,7 +8963,7 @@ static const ber_sequence_t InterSystemSetup_set[] = {
   { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
   { BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaPrivateLongCodeMask_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 176, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOptionList_impl },
   { BER_CLASS_CON, 214, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_changeServiceAttributes_impl },
   { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
@@ -8908,7 +9003,7 @@ static int dissect_setupResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 static const ber_sequence_t InterSystemSetupRes_set[] = {
   { BER_CLASS_CON, 212, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaConnectionReferenceList_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 217, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ilspInformation_impl },
   { BER_CLASS_CON, 151, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_setupResult_impl },
   { 0, 0, 0, NULL }
@@ -8939,7 +9034,7 @@ static int dissect_terminationAccessType_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_ansi_map_TriggerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 353 "ansi_map.cnf"
+#line 361 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8960,7 +9055,7 @@ static int dissect_triggerCapability_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ansi_map_WINOperationsCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 361 "ansi_map.cnf"
+#line 369 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9018,7 +9113,7 @@ static const ber_sequence_t LocationRequest_set[] = {
   { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
   { BER_CLASS_CON, 32, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pc_ssn_impl },
   { BER_CLASS_CON, 100, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_redirectingNumberDigits_impl },
@@ -9046,7 +9141,7 @@ dissect_ansi_map_LocationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
 static int
 dissect_ansi_map_ControlNetworkID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 369 "ansi_map.cnf"
+#line 377 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9085,7 +9180,7 @@ static const ber_sequence_t LocationRequestRes_set[] = {
   { BER_CLASS_CON, 130, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_announcementList_impl },
   { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
   { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 307, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlNetworkID_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_carrier_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_dest_impl },
@@ -9244,7 +9339,7 @@ static const ber_sequence_t OriginationRequest_set[] = {
   { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 33, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_locationAreaID_impl },
   { BER_CLASS_CON, 93, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mobileDirectoryNumber_impl },
   { BER_CLASS_CON, 306, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_featureIndicator_impl },
@@ -9606,7 +9701,7 @@ static const ber_sequence_t RedirectionRequest_set[] = {
   { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
   { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
   { BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_redirectionReason_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
   { BER_CLASS_CON, 178, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaServiceCode_impl },
@@ -10153,7 +10248,7 @@ static const ber_sequence_t RoutingRequest_set[] = {
   { BER_CLASS_CON, 82, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString1_impl },
   { BER_CLASS_CON, 83, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberString2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 199, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_controlChannelMode_impl },
   { BER_CLASS_CON, 87, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_destinationDigits_impl },
   { BER_CLASS_CON, 244, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_displayText_impl },
@@ -10200,7 +10295,7 @@ static const ber_sequence_t RoutingRequestRes_set[] = {
   { BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_mscid_impl },
   { BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_accessDeniedReason_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 162, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_conditionallyDeniedReason_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
   { BER_CLASS_CON, 94, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mSCIdentificationNumber_impl },
@@ -10723,7 +10818,7 @@ static const ber_sequence_t TransferToNumberRequest_set[] = {
   { BER_CLASS_CON, 80, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits1_impl },
   { BER_CLASS_CON, 81, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartyNumberDigits2_impl },
   { BER_CLASS_CON, 84, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_callingPartySubaddress_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 163, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_groupInformation_impl },
   { BER_CLASS_CON, 288, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_legInformation_impl },
   { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
@@ -10865,7 +10960,7 @@ static const ber_sequence_t UnsolicitedResponse_set[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
   { BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_mobileIdentificationNumber_impl },
-  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_cdmaServiceOption_impl },
+  { BER_CLASS_CON, 175, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaServiceOption_impl },
   { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_digits_Destination_impl },
   { BER_CLASS_CON, 53, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedMSCID_impl },
   { BER_CLASS_CON, 54, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extendedSystemMyTypeCode_impl },
@@ -13289,7 +13384,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3251 "packet-ansi_map-template.c"
+#line 3363 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
@@ -13921,6 +14016,10 @@ void proto_register_ansi_map(void) {
       { "Reserved", "ansi_map.reserved_bitH",
         FT_BOOLEAN, 8, NULL,0x80,
         "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitED,
+      { "Reserved", "ansi_map.reserved_bitED",
+        FT_BOOLEAN, 8, NULL,0x18,
+        "Reserved", HFILL }},
     { &hf_ansi_map_op_code,
       { "Operation Code", "ansi_map.op_code",
         FT_UINT8, BASE_DEC, VALS(ansi_map_opr_code_strings), 0x0,
@@ -14107,6 +14206,10 @@ void proto_register_ansi_map(void) {
       { "TerminationList (TL)", "ansi_map.trans_cap_tl",
         FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_tl_bool_val),0x10,
         "TerminationList (TL)", HFILL }},
+	{ &hf_ansi_map_cdmaserviceoption,
+      { "CDMAServiceOption", "ansi_map.cdmaserviceoption",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "CDMAServiceOption", HFILL }},
 	{ &hf_ansi_trans_cap_waddr,
       { "WIN Addressing (WADDR)", "ansi_map.trans_cap_waddr",
         FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_waddr_bool_val),0x20,
@@ -14346,7 +14449,7 @@ void proto_register_ansi_map(void) {
         "Long Code Mask MSB (byte 6)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b5,
       { "Long Code Mask (byte 5)", "ansi_map.cdmachanneldata.lc_mask_b5",
-        FT_UINT8, BASE_HEX, NULL, 0x03,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         "Long Code Mask (byte 5)", HFILL }},
 	{&hf_ansi_map_cdmachanneldata_lc_mask_b4,
       { "Long Code Mask (byte 4)", "ansi_map.cdmachanneldata.lc_mask_b4",
@@ -15330,7 +15433,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.CDMABandClass", HFILL }},
     { &hf_ansi_map_cdmaServiceOption,
       { "cdmaServiceOption", "ansi_map.cdmaServiceOption",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_CDMAServiceOption_vals), 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.CDMAServiceOption", HFILL }},
     { &hf_ansi_map_cdmaSlotCycleIndex,
       { "cdmaSlotCycleIndex", "ansi_map.cdmaSlotCycleIndex",
@@ -15920,13 +16023,9 @@ void proto_register_ansi_map(void) {
       { "pstnTermination", "ansi_map.pstnTermination",
         FT_NONE, BASE_NONE, NULL, 0,
         "ansi_map.PSTNTermination", HFILL }},
-    { &hf_ansi_map_cDMAServiceOption,
-      { "cDMAServiceOption", "ansi_map.cDMAServiceOption",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ansi_map.OCTET_STRING", HFILL }},
     { &hf_ansi_map_CDMAServiceOptionList_item,
       { "Item", "ansi_map.CDMAServiceOptionList_item",
-        FT_UINT32, BASE_DEC, VALS(ansi_map_CDMAServiceOption_vals), 0,
+        FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.CDMAServiceOption", HFILL }},
     { &hf_ansi_map_pSID_RSIDInformation1,
       { "pSID-RSIDInformation1", "ansi_map.pSID_RSIDInformation1",
@@ -16106,7 +16205,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.MobileStationIMSI", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4615 "packet-ansi_map-template.c"
+#line 4735 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -16125,6 +16224,7 @@ void proto_register_ansi_map(void) {
 	  &ett_confidentialitymodes,
 	  &ett_originationtriggers,
 	  &ett_transactioncapability,
+	  &ett_cdmaserviceoption,
 	  &ett_systemcapabilities,
 
 /*--- Included file: packet-ansi_map-ettarr.c ---*/
@@ -16297,7 +16397,6 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_TargetMeasurementList,
     &ett_ansi_map_TerminationList,
     &ett_ansi_map_TerminationList_item,
-    &ett_ansi_map_CDMAServiceOption,
     &ett_ansi_map_CDMAServiceOptionList,
     &ett_ansi_map_PSID_RSIDList,
     &ett_ansi_map_TargetCellIDList,
@@ -16338,7 +16437,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_NewlyAssignedMSID,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4635 "packet-ansi_map-template.c"
+#line 4756 "packet-ansi_map-template.c"
   };
 
 

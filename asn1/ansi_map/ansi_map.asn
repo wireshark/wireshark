@@ -4572,7 +4572,7 @@ CDMASignalQuality ::= OCTET STRING
 -- 0 0 1 0 0 1 1 0 (0x26)(166)
 CDMASlotCycleIndex ::= OCTET STRING
 
--- 6.5.2.41
+-- 6.5.2.41 N.S0005-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 0 0 1 1 1 0 1 1 (0x3b)(59)
 CDMAStationClassMark ::= OCTET STRING
@@ -5671,7 +5671,7 @@ CDMAServiceConfigurationRecord ::= OCTET STRING
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 0 1 1 1 1 (0x2f)(175)
 --CDMAServiceOption ::= OCTET STRING
-CDMAServiceOption ::=  CHOICE { cDMAServiceOption [175] IMPLICIT OCTET STRING }
+CDMAServiceOption ::=  OCTET STRING
 --a.	This field carries the CDMA Service Option. The bit-layout is the same as that of
 --		Service Option in TSB74 and J-STD-008.
 
@@ -5679,7 +5679,7 @@ CDMAServiceOption ::=  CHOICE { cDMAServiceOption [175] IMPLICIT OCTET STRING }
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 0 1 (0x81)
 -- 0 0 1 1 0 0 0 0 (0x30)(176)
-CDMAServiceOptionList ::= SET OF CDMAServiceOption
+CDMAServiceOptionList ::= SEQUENCE OF [175] IMPLICIT CDMAServiceOption
 
 -- 6.5.2.h N.S0010-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)

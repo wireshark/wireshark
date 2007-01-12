@@ -337,6 +337,14 @@ static gint32 ansi_map_sms_tele_id = -1;
 		dissect_ansi_map_transactioncapability(parameter_tvb,pinfo,tree);
 	}
 
+# 6.5.2.f (TSB76) CDMAServiceOption N.S0010-0 v 1.0
+#.FN_BODY CDMAServiceOption VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_cdmaserviceoption(parameter_tvb,pinfo,tree);
+	}
+
 # 6.5.2.aj SecondInterMSCCircuitID
 # -- XXX Same code as ISLPinformation???
 

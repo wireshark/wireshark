@@ -126,6 +126,7 @@ static int hf_ansi_map_op_code_fam = -1;
 static int hf_ansi_map_op_code = -1;
 
 static int hf_ansi_map_reservedBitH = -1;
+static int hf_ansi_map_reservedBitED = -1;
 
 static int hf_ansi_map_type_of_digits = -1;
 static int hf_ansi_map_na = -1;
@@ -173,6 +174,7 @@ static int hf_ansi_map_terminationtriggers_npr = -1;
 static int hf_ansi_map_terminationtriggers_na = -1;
 static int hf_ansi_map_terminationtriggers_nr = -1;
 static int hf_ansi_trans_cap_tl = -1;
+static int hf_ansi_map_cdmaserviceoption = -1;
 static int hf_ansi_trans_cap_waddr = -1;
 static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
@@ -326,6 +328,7 @@ static gint ett_channeldata = -1;
 static gint ett_confidentialitymodes = -1;
 static gint ett_originationtriggers = -1;
 static gint ett_transactioncapability = -1;
+static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
 
 #include "packet-ansi_map-ett.c"
@@ -1348,10 +1351,12 @@ dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_cdmastationclassmark);
 
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
 	/* Dual-mode Indicator(DMI) (octet 1, bit G) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, FALSE);
 	/* Slotted Mode Indicator: (SMI) (octet 1, bit F) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_smi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitED, tvb, offset, 1, FALSE);
 	/* Analog Transmission: (DTX) (octet 1, bit C) */
 	proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dtx, tvb, offset, 1, FALSE);
 	/* Power Class: (PC) (octet 1, bits A and B) */
@@ -2590,6 +2595,113 @@ static const value_string ansi_map_UniqueChallengeReport_vals[]  = {
 same as that of Service Configuration Record in TSB74, and J-STD-008.
 */
 
+/* 6.5.2.f CDMAServiceOption N.S0010-0 v 1.0 */
+
+/* values copied from old ANSi map dissector */
+static const range_string cdmaserviceoption_vals[] = {
+	{ 1, 1, "Basic Variable Rate Voice Service (8 kbps)" }, 
+	{ 2, 2, "Mobile Station Loopback (8 kbps)" }, 
+	{ 3, 3, "Enhanced Variable Rate Voice Service (8 kbps)" }, 
+	{ 4, 4, "Asynchronous Data Service (9.6 kbps)" }, 
+	{ 5, 5, "Group 3 Facsimile (9.6 kbps)" },
+	{ 6, 6, "Short Message Services (Rate Set 1)" }, 
+	{ 7, 7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" }, 
+	{ 8, 8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" }, 
+	{ 9, 9, "Mobile Station Loopback (13 kbps)" }, 
+	{ 10, 10, "STU-III Transparent Service" }, 
+	{ 11, 11, "STU-III Non-Transparent Service" }, 
+	{ 12, 12, "Asynchronous Data Service (14.4 or 9.6 kbps)" }, 
+	{ 13, 13, "Group 3 Facsimile (14.4 or 9.6 kbps)" }, 
+	{ 14, 14, "Short Message Services (Rate Set 2)" }, 
+	{ 15, 15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" }, 
+	{ 16, 16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" }, 
+	{ 17, 17, "High Rate Voice Service (13 kbps)" }, 
+	{ 18, 18, "Over-the-Air Parameter Administration (Rate Set 1)" }, 
+	{ 19, 19, "Over-the-Air Parameter Administration (Rate Set 2)" }, 
+	{ 20, 20, "Group 3 Analog Facsimile (Rate Set 1)" }, 
+	{ 21, 21, "Group 3 Analog Facsimile (Rate Set 2)" }, 
+	{ 22, 22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" }, 
+	{ 23, 23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" }, 
+	{ 24, 24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" }, 
+	{ 25, 25, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)" },
+	{ 26, 26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" }, 
+	{ 27, 27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" }, 
+	{ 28, 28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" }, 
+	{ 29, 29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" }, 
+	{ 30, 30, "Supplemental Channel Loopback Test for Rate Set 1" }, 
+	{ 31, 31, "Supplemental Channel Loopback Test for Rate Set 2" }, 
+	{ 32, 32, "Test Data Service Option (TDSO)" }, 
+	{ 33, 33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" }, 
+	{ 34, 34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" }, 
+	{ 35, 35, "Location Services, Rate Set 1 (9.6 kbps)" },
+	{ 36, 36, "Location Services, Rate Set 2 (14.4 kbps)" }, 
+	{ 37, 37, "ISDN Interworking Service (64 kbps)" }, 
+	{ 38, 38, "GSM Voice" }, 
+	{ 39, 39, "GSM Circuit Data" }, 
+	{ 40, 40, "GSM Packet Data" }, 
+	{ 41, 41, "GSM Short Message Service" }, 
+	{ 42, 42, "None Reserved for MC-MAP standard service options" }, 
+	{ 54, 54, "Markov Service Option (MSO)" }, 
+	{ 55, 55, "Loopback Service Option (LSO)" },
+	{ 56, 56, "Selectable Mode Vocoder" }, 
+	{ 57, 57, "32 kbps Circuit Video Conferencing" }, 
+	{ 58, 58, "64 kbps Circuit Video Conferencing" }, 
+	{ 59, 59, "HRPD Accounting Records Identifier" }, 
+	{ 60, 60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" }, 
+	{ 61, 61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" }, 
+	{ 62, 4099, "None Reserved for standard service options" }, 
+	{ 4100, 4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4101, 4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4102, 4102, "Reserved for standard service option" },
+	{ 4103, 4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4104, 4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" }, 
+	{ 4105, 32767, "Reserved for standard service options" }, 
+	{ 32768, 32768, "QCELP (13 kbps)" }, 
+	{ 32769, 32771, "Proprietary QUALCOMM Incorporated" }, 
+	{ 32772, 32775, "Proprietary OKI Telecom" }, 
+	{ 32776, 32779, "Proprietary Lucent Technologies" }, 
+	{ 32780, 32783, "Nokia" }, 
+	{ 32784, 32787, "NORTEL NETWORKS" }, 
+	{ 32788, 32791, "Sony Electronics Inc" }, 
+	{ 32792, 32795, "Motorola" }, 
+	{ 32796, 32799, "QUALCOMM Incorporated" }, 
+	{ 32800, 32803, "QUALCOMM Incorporated" }, 
+	{ 32804, 32807, "QUALCOMM Incorporated" }, 
+	{ 32808, 32811, "QUALCOMM Incorporated" }, 
+	{ 32812, 32815, "Lucent Technologies" }, 
+	{ 32816, 32819, "Denso International" }, 
+	{ 32820, 32823, "Motorola" }, 
+	{ 32824, 32827, "Denso International" }, 
+	{ 32828, 32831, "Denso International" }, 
+	{ 32832, 32835, "Denso International" }, 
+	{ 32836, 32839, "NEC America" },
+	{ 32840, 32843, "Samsung Electrnics" },
+	{ 32844, 32847, "Texas Instruments Incorporated" },
+	{ 32848, 32851, "Toshiba Corporation" },
+	{ 32852, 32855, "LG Electronics Inc." },
+	{ 32856, 32859, "VIA Telecom Inc." },
+	{ 0,           0,          NULL                   }
+};
+
+static void
+dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+	guint16 so;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_cdmaserviceoption);
+
+	so = tvb_get_ntohs(tvb,offset);
+    proto_tree_add_uint_format(subtree, hf_ansi_map_cdmaserviceoption,
+					       tvb, offset, 2, so,
+					       "CDMAServiceOption: %u %s", so,
+					       rval_to_str(so,cdmaserviceoption_vals ,"Unknown"));
+
+
+}
 /* 6.5.2.f (TSB76) CDMAServiceOption N.S0008-0 v 1.0*/
 /* This field carries the CDMA Service Option. The bit-layout is the same as that of
 Service Option in TSB74 and J-STD-008.*/
@@ -3879,6 +3991,10 @@ void proto_register_ansi_map(void) {
       { "Reserved", "ansi_map.reserved_bitH",
         FT_BOOLEAN, 8, NULL,0x80,
         "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitED,
+      { "Reserved", "ansi_map.reserved_bitED",
+        FT_BOOLEAN, 8, NULL,0x18,
+        "Reserved", HFILL }},
     { &hf_ansi_map_op_code,
       { "Operation Code", "ansi_map.op_code",
         FT_UINT8, BASE_DEC, VALS(ansi_map_opr_code_strings), 0x0,
@@ -4065,6 +4181,10 @@ void proto_register_ansi_map(void) {
       { "TerminationList (TL)", "ansi_map.trans_cap_tl",
         FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_tl_bool_val),0x10,
         "TerminationList (TL)", HFILL }},
+	{ &hf_ansi_map_cdmaserviceoption,
+      { "CDMAServiceOption", "ansi_map.cdmaserviceoption",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "CDMAServiceOption", HFILL }},
 	{ &hf_ansi_trans_cap_waddr,
       { "WIN Addressing (WADDR)", "ansi_map.trans_cap_waddr",
         FT_BOOLEAN, 8, TFS(&ansi_map_trans_cap_waddr_bool_val),0x20,
@@ -4630,6 +4750,7 @@ void proto_register_ansi_map(void) {
 	  &ett_confidentialitymodes,
 	  &ett_originationtriggers,
 	  &ett_transactioncapability,
+	  &ett_cdmaserviceoption,
 	  &ett_systemcapabilities,
 #include "packet-ansi_map-ettarr.c"
   };
