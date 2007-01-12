@@ -28,20 +28,19 @@ LIBAIRPDCAP_SRC =		\
 	airpdcap_ccmp.c		\
 	airpdcap_debug.c	\
 	airpdcap_rijndael.c	\
-	airpdcap_sha1.c		\
 	airpdcap_tkip.c		\
 	airpdcap_wep.c		\
 	crypt-des.c		\
 	crypt-md4.c		\
 	crypt-md5.c		\
-	crypt-rc4.c
+	crypt-rc4.c		\
+	crypt-sha1.c
 
 LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_debug.h	\
 	airpdcap_interop.h	\
 	airpdcap_int.h		\
 	airpdcap_rijndael.h	\
-	airpdcap_sha1.h		\
 	airpdcap_system.h	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
@@ -49,4 +48,5 @@ LIBAIRPDCAP_INCLUDES =	\
 	crypt-md4.h		\
 	crypt-md5.h		\
 	crypt-rc4.h		\
+	crypt-sha1.h		\
 	wep-wpadefs.h

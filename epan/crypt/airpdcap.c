@@ -8,7 +8,7 @@
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "airpdcap_sha1.h"
+#include "crypt-sha1.h"
 #include "crypt-md5.h"
 
 #include "airpdcap_debug.h"
@@ -985,7 +985,7 @@ INT AirPDcapRsnaMicCheck(
 		md5_hmac(eapol, eapol_len, KCK, AIRPDCAP_WPA_KCK_LEN, c_mic);
         } else if (key_ver==AIRPDCAP_WPA_KEY_VER_AES_CCMP) {
                 /* use HMAC-SHA1-128 for the EAPOL-Key MIC */
-                AirPDcapAlgHmacSha1(KCK, AIRPDCAP_WPA_KCK_LEN, eapol, eapol_len, c_mic);
+                sha1_hmac(KCK, AIRPDCAP_WPA_KCK_LEN, eapol, eapol_len, c_mic);
         } else
                 /* key descriptor version not recognized */
                 return AIRPDCAP_RET_UNSUCCESS;
@@ -1226,7 +1226,7 @@ void AirPDcapRsnaPrfX(
         for(i = 0; i < (x+159)/160; i++)
         {
                 R[offset] = i;
-                AirPDcapAlgHmacSha1(pmk, 32, R, 100, ptk + i * 20);
+                sha1_hmac(pmk, 32, R, 100, ptk + i * 20);
         }
 }
 
@@ -1247,13 +1247,13 @@ INT AirPDcapRsnaPwd2PskStep(
         digest[ssidLength+1] = (UCHAR)((count>>16) & 0xff);
         digest[ssidLength+2] = (UCHAR)((count>>8) & 0xff);
         digest[ssidLength+3] = (UCHAR)(count & 0xff);
-        AirPDcapAlgHmacSha1((UCHAR *)password, strlen(password), digest, ssidLength+4, digest1);
+        sha1_hmac((UCHAR *)password, strlen(password), digest, ssidLength+4, digest1);
 
         /* output = U1 */
         memcpy(output, digest1, AIRPDCAP_SHA_DIGEST_LEN);
         for (i = 1; i < iterations; i++) {
                 /* Un = PRF(P, Un-1) */
-                AirPDcapAlgHmacSha1((UCHAR *)password, strlen(password), digest1, AIRPDCAP_SHA_DIGEST_LEN, digest);
+                sha1_hmac((UCHAR *)password, strlen(password), digest1, AIRPDCAP_SHA_DIGEST_LEN, digest);
 
                 memcpy(digest1, digest, AIRPDCAP_SHA_DIGEST_LEN);
                 /* output = output xor Un */

@@ -24,8 +24,8 @@
  *  References: http://www.ietf.org/rfc/rfc3174.txt?number=3174
  */
 
-#ifndef _SHA1_H
-#define _SHA1_H
+#ifndef _CRYPT_SHA1_H
+#define _CRYPT_SHA1_H
 
 
 typedef struct
@@ -42,4 +42,4 @@ void sha1_finish( sha1_context *ctx, guint8 digest[20] );
 void sha1_hmac( const guint8 *key, guint keylen, const guint8 *buf, guint buflen,
                 guint8 digest[20] );
 
-#endif /* sha1.h */
+#endif /* crypt-sha1.h */

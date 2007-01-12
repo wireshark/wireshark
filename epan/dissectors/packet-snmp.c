@@ -104,7 +104,7 @@
 #include "packet-snmp.h"
 #include "format-oid.h"
 
-#include <epan/sha1.h>
+#include <epan/crypt/crypt-sha1.h>
 #include <epan/crypt/crypt-md5.h>
 #include <epan/expert.h>
 #include <epan/report_err.h>
@@ -1192,14 +1192,14 @@ static void renew_ue_cache(void) {
 
 		localized_ues = NULL;
 		unlocalized_ues = NULL;
-		
+
 		for(a = ue_assocs; a->user.userName.data; a++) {
 			if (a->engine.data) {
 				CACHE_INSERT(localized_ues,a);
 			} else {
 				CACHE_INSERT(unlocalized_ues,a);
 			}
-			
+
 		}
 	}
 }
@@ -1208,10 +1208,10 @@ static void renew_ue_cache(void) {
 static snmp_ue_assoc_t* localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len ) {
 	snmp_ue_assoc_t* n = se_memdup(o,sizeof(snmp_ue_assoc_t));
 	guint key_size = n->user.authModel->key_size;
-	
+
 	n->engine.data = se_memdup(engine,engine_len);
 	n->engine.len = engine_len;
-	
+
 	n->user.authKey.data = se_alloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
@@ -1247,22 +1247,22 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	guint8* given_username;
 	guint given_engine_len;
 	guint8* given_engine;
-	
+
 	if ( ! (localized_ues || unlocalized_ues ) ) return NULL;
 
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
-	
+
 	given_username_len = tvb_length_remaining(user_tvb,0);
 	given_username = ep_tvb_memdup(user_tvb,0,-1);
 	given_engine_len = tvb_length_remaining(engine_tvb,0);
 	given_engine = ep_tvb_memdup(engine_tvb,0,-1);
-	
+
 	for (a = localized_ues; a; a = a->next) {
 		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
 			return a;
 		}
 	}
-	
+
 	for (a = unlocalized_ues; a; a = a->next) {
 		if ( unlocalized_match(a, given_username, given_username_len) ) {
 			snmp_ue_assoc_t* n = localize_ue( a, given_engine, given_engine_len );
@@ -1270,21 +1270,21 @@ static snmp_ue_assoc_t* get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 			return n;
 		}
 	}
-	
+
 	return NULL;
 }
 
 static void destroy_ue_assocs(snmp_ue_assoc_t* assocs) {
 	if (assocs) {
 		snmp_ue_assoc_t* a;
-		
+
 		for(a = assocs; a->user.userName.data; a++) {
 			g_free(a->user.userName.data);
 			if (a->user.authKey.data) g_free(a->user.authKey.data);
 			if (a->user.privKey.data) g_free(a->user.privKey.data);
 			if (a->engine.data) g_free(a->engine.data);
 		}
-		
+
 		g_free(ue_assocs);
 	}
 }
@@ -1301,31 +1301,31 @@ gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* ca
 	guint start;
 	guint end;
 	guint i;
-	
+
 	if (!p->auth_tvb) {
 		*error = "No Authenticator";
-		return FALSE;		
+		return FALSE;
 	}
-	
+
 	key = p->user_assoc->user.authKey.data;
 	key_len = p->user_assoc->user.authKey.len;
-	
+
 	if (! key ) {
 		*error = "User has no authKey";
 		return FALSE;
 	}
-	
-	
+
+
 	auth_len = tvb_length_remaining(p->auth_tvb,0);
-	
+
 	if (auth_len != 12) {
 		*error = "Authenticator length wrong";
 		return FALSE;
 	}
-	
+
 	msg_len = tvb_length_remaining(p->msg_tvb,0);
 	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
-	
+
 
 	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
 
@@ -1338,7 +1338,7 @@ gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* ca
 	}
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
-	
+
 	if (calc_auth_p) *calc_auth_p = calc_auth;
 	if (calc_auth_len_p) *calc_auth_len_p = 12;
 
@@ -1357,47 +1357,47 @@ gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guin
 	guint start;
 	guint end;
 	guint i;
-	
+
 	if (!p->auth_tvb) {
 		*error = "No Authenticator";
-		return FALSE;		
+		return FALSE;
 	}
-	
+
 	key = p->user_assoc->user.authKey.data;
 	key_len = p->user_assoc->user.authKey.len;
-	
+
 	if (! key ) {
 		*error = "User has no authKey";
 		return FALSE;
 	}
-	
-	
+
+
 	auth_len = tvb_length_remaining(p->auth_tvb,0);
-	
-	
+
+
 	if (auth_len != 12) {
 		*error = "Authenticator length wrong";
 		return FALSE;
 	}
-	
+
 	msg_len = tvb_length_remaining(p->msg_tvb,0);
 	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
 
 	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
-	
+
 	start = p->auth_offset - p->start_offset;
 	end = 	start + auth_len;
-	
+
 	/* fill the authenticator with zeros */
 	for ( i = start ; i < end ; i++ ) {
 		msg[i] = '\0';
 	}
-	
+
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
-	
+
 	if (calc_auth_p) *calc_auth_p = calc_auth;
 	if (calc_auth_len_p) *calc_auth_len_p = 12;
-	
+
 	return ( memcmp(auth,calc_auth,12) != 0 ) ? FALSE : TRUE;
 }
 
@@ -1405,7 +1405,7 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
-	
+
 	guint8* cleartext;
 	guint8* des_key = p->user_assoc->user.privKey.data; /* first 8 bytes */
 	guint8* pre_iv = &(p->user_assoc->user.privKey.data[8]); /* last 8 bytes */
@@ -1416,14 +1416,14 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	tvbuff_t* clear_tvb;
 	guint8 iv[8];
 	guint i;
-	
-	
+
+
 	salt_len = tvb_length_remaining(p->priv_tvb,0);
-	
+
 	if (salt_len != 8)  {
 		*error = "decryptionError: msgPrivacyParameters lenght != 8";
 		return NULL;
-	}	
+	}
 
 	salt = ep_tvb_memdup(p->priv_tvb,0,salt_len);
 
@@ -1440,29 +1440,29 @@ tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 		*error = "decryptionError: the length of the encrypted data is not a mutiple of 8 octets";
 		return NULL;
 	}
-	
+
 	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
 
 	cleartext = ep_alloc(cryptgrm_len);
-	
+
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
     err = gcry_cipher_setiv(hd, iv, 8);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	err = gcry_cipher_setkey(hd,des_key,8);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	err = gcry_cipher_decrypt(hd, cleartext, cryptgrm_len, cryptgrm, cryptgrm_len);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	gcry_cipher_close(hd);
-	
+
 	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
-	
+
 	return clear_tvb;
-	
+
 on_gcry_error:
 	*error = (void*)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
@@ -1477,7 +1477,7 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 #ifdef HAVE_LIBGCRYPT
     gcry_error_t err;
     gcry_cipher_hd_t hd = NULL;
-	
+
 	guint8* cleartext;
 	guint8* aes_key = p->user_assoc->user.privKey.data; /* first 16 bytes */
 	guint8 iv[16];
@@ -1487,12 +1487,12 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	tvbuff_t* clear_tvb;
 
 	priv_len = tvb_length_remaining(p->priv_tvb,0);
-	
+
 	if (priv_len != 8)  {
 		*error = "decryptionError: msgPrivacyParameters lenght != 8";
 		return NULL;
-	}	
-	
+	}
+
 	iv[0] = (p->boots & 0xff000000) >> 24;
 	iv[1] = (p->boots & 0x00ff0000) >> 16;
 	iv[2] = (p->boots & 0x0000ff00) >> 8;
@@ -1502,30 +1502,30 @@ tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U
 	iv[6] = (p->time & 0x0000ff00) >> 8;
 	iv[7] = (p->time & 0x000000ff);
 	tvb_memcpy(p->priv_tvb,&(iv[8]),0,8);
-	
+
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
 	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
-	
+
 	cleartext = ep_alloc(cryptgrm_len);
-	
+
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
     err = gcry_cipher_setiv(hd, iv, 16);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	err = gcry_cipher_setkey(hd,aes_key,16);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	err = gcry_cipher_decrypt(hd, cleartext, cryptgrm_len, cryptgrm, cryptgrm_len);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
-	
+
 	gcry_cipher_close(hd);
-	
+
 	clear_tvb = tvb_new_real_data(cleartext, cryptgrm_len, cryptgrm_len);
-	
+
 	return clear_tvb;
-	
+
 on_gcry_error:
 	*error = (void*)gpg_strerror(err);
 	if (hd) gcry_cipher_close(hd);
@@ -1547,29 +1547,29 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 
 	offset = get_ber_identifier(tvb, 0, &class, &pc, &tag);
 	offset = get_ber_length(NULL, tvb, offset, NULL, NULL);
-	
+
 	if ( ! (((class!=BER_CLASS_APP) && (class!=BER_CLASS_PRI) )
 			&& ( (!pc) || (class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
 			)) return FALSE;
 
 	if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0))
 		return TRUE;
-	
+
 	hoffset = offset;
 
 	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset = get_ber_length(NULL, tvb, offset, &len, NULL);
 	eoffset = offset + len;
-	
+
 	if (eoffset <= hoffset) return FALSE;
-	
+
 	if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
 		if( (class!=BER_CLASS_UNI)
 			||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) )
 			return FALSE;
-	
+
 	return TRUE;
-	
+
 }
 
 
@@ -3238,7 +3238,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	usm_p.boots = 0;
 	usm_p.time = 0;
 	usm_p.authOK = FALSE;
-	
+
 	/*
 	 * This will throw an exception if we don't have any data left.
 	 * That's what we want.  (See "tcp_dissect_pdus()", which is
@@ -3471,7 +3471,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*
   MD5 Password to Key Algorithm
-  from RFC 3414 A.2.1 
+  from RFC 3414 A.2.1
 */
 void snmp_usm_password_to_key_md5(const guint8 *password,
 								  guint   passwordlen,
@@ -3484,7 +3484,7 @@ void snmp_usm_password_to_key_md5(const guint8 *password,
 	guint32      count = 0, i;
 	guint8		key1[16];
 	md5_init(&MD);   /* initialize MD5 */
-	
+
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
 	/**********************************************/
@@ -3501,31 +3501,31 @@ void snmp_usm_password_to_key_md5(const guint8 *password,
 		count += 64;
 	}
 	md5_finish(&MD, key1);          /* tell MD5 we're done */
-	
+
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
 	/* through MD5 to produce final key                  */
 	/* May want to ensure that engineLength <= 32,       */
 	/* otherwise need to use a buffer larger than 64     */
 	/*****************************************************/
-	
+
 	md5_init(&MD);
 	md5_append(&MD, key1, 16);
 	md5_append(&MD, engineID, engineLength);
 	md5_append(&MD, key1, 16);
 	md5_finish(&MD, key);
-	
+
 	return;
 }
 
 
-						 
-						 
+
+
 /*
    SHA1 Password to Key Algorithm COPIED from RFC 3414 A.2.2
  */
 
-void snmp_usm_password_to_key_sha1(const guint8 *password, 
+void snmp_usm_password_to_key_sha1(const guint8 *password,
 								   guint   passwordlen,
 								   const guint8 *engineID,
 								   guint   engineLength,
@@ -3534,9 +3534,9 @@ void snmp_usm_password_to_key_sha1(const guint8 *password,
 	guint8     *cp, password_buf[72];
 	guint32      password_index = 0;
 	guint32      count = 0, i;
-	
+
 	sha1_starts(&SH);   /* initialize SHA */
-	
+
 	/**********************************************/
 	/* Use while loop until we've done 1 Megabyte */
 	/**********************************************/
@@ -3553,7 +3553,7 @@ void snmp_usm_password_to_key_sha1(const guint8 *password,
 		count += 64;
 	}
 	sha1_finish(&SH, key);
-	
+
 	/*****************************************************/
 	/* Now localize the key with the engineID and pass   */
 	/* through SHA to produce final key                  */
@@ -3563,14 +3563,14 @@ void snmp_usm_password_to_key_sha1(const guint8 *password,
 	memcpy(password_buf, key, 20);
 	memcpy(password_buf+20, engineID, engineLength);
 	memcpy(password_buf+20+engineLength, key, 20);
-	
+
 	sha1_starts(&SH);
 	sha1_update(&SH, password_buf, 40+engineLength);
 	sha1_finish(&SH, key);
 	return;
  }
 
-									   
+
 static void
 process_prefs(void)
 {
@@ -3625,12 +3625,12 @@ process_prefs(void)
 	read_configs();
 	mibs_loaded = TRUE;
 #endif /* HAVE_NET_SNMP */
-	
+
 	if ( g_str_equal(ue_assocs_filename_loaded,ue_assocs_filename) ) return;
 	ue_assocs_filename_loaded = ue_assocs_filename;
-	
+
 	if (ue_assocs) destroy_ue_assocs(ue_assocs);
-	
+
 	if ( *ue_assocs_filename ) {
 		gchar* err = load_snmp_users_file(ue_assocs_filename,&ue_assocs);
 		if (err) report_failure("Error while loading SNMP's users file:\n%s",err);
@@ -3638,18 +3638,18 @@ process_prefs(void)
 		ue_assocs = NULL;
 	}
 }
-	
-	
-	
+
+
+
 	/*--- proto_register_snmp -------------------------------------------*/
-void proto_register_snmp(void) {	
+void proto_register_snmp(void) {
 #if defined(_WIN32) && defined(HAVE_NET_SNMP)
 	char *mib_path;
 	int mib_path_len;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
 	gchar *tmp_mib_modules;
-		
+
   /* List of fields */
   static hf_register_info hf[] = {
 		{ &hf_snmp_v3_flags_auth,
@@ -3697,7 +3697,7 @@ void proto_register_snmp(void) {
 		  { &hf_snmp_decryptedPDU, {
 					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
 					NULL, 0, "Decrypted PDU", HFILL }},
-	  
+
 
 /*--- Included file: packet-snmp-hfarr.c ---*/
 #line 1 "packet-snmp-hfarr.c"
@@ -4046,7 +4046,7 @@ void proto_register_snmp(void) {
 	  &ett_encryptedPDU,
 	  &ett_decrypted,
 	  &ett_authParameters,
-	  
+
 
 /*--- Included file: packet-snmp-ettarr.c ---*/
 #line 1 "packet-snmp-ettarr.c"
@@ -4155,11 +4155,11 @@ void proto_register_snmp(void) {
 								   "USMuserTable file",
 								   "The filename of the user table used for authentication and decryption",
 								   &ue_assocs_filename);
- 	  
+
 	variable_oid_dissector_table =
 	    register_dissector_table("snmp.variable_oid",
 	      "SNMP Variable OID", FT_STRING, BASE_NONE);
-	
+
 	register_init_routine(renew_ue_cache);
 }
 

@@ -312,14 +312,6 @@ extern INT AirPDcapTkipDecrypt(
 	UCHAR TA[AIRPDCAP_MAC_LEN],
 	UCHAR TK[AIRPDCAP_TK_LEN])
 	;
-extern void AirPDcapAlgHmacSha1(
-	const UCHAR *key_len,
-	const size_t keylen,
-	UCHAR *buffer,
-	const size_t digest_len,
-	UCHAR digest[20])
-	;
-
 
 #ifdef	__cplusplus
 }

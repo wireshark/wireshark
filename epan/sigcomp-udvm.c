@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -43,7 +43,7 @@
 #include "strutil.h"
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
-#include "sha1.h"
+#include "crypt/crypt-sha1.h"
 #include "crc16.h"
 #include "except.h"
 
@@ -117,14 +117,14 @@ static int decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint
 static int dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *value, guint *result_dest);
 static int decode_udvm_multitype_operand(guint8 *buff,guint operand_address,guint16 *value);
 static int decode_udvm_address_operand(guint8 *buff,guint operand_address, guint16 *value,guint current_address);
-static int decomp_dispatch_get_bits(tvbuff_t *message_tvb,proto_tree *udvm_tree,guint8 bit_order, 
+static int decomp_dispatch_get_bits(tvbuff_t *message_tvb,proto_tree *udvm_tree,guint8 bit_order,
 			guint8 *buff,guint16 *old_input_bit_order, guint16 *remaining_bits,
 			guint16	*input_bits, guint *input_address, guint16 length, guint16 *result_code,guint msg_end);
 
 
 tvbuff_t*
 decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet_info *pinfo,
-						   proto_tree *udvm_tree, gint udvm_mem_dest, 
+						   proto_tree *udvm_tree, gint udvm_mem_dest,
 						   gint print_flags, gint hf_id,
 						   gint header_len,
 						   gint byte_code_state_len, gint byte_code_id_len,
@@ -257,7 +257,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 
 	/* UDVM memory must be initialised to zero */
 	memset(buff, 0, UDVM_MEMORY_SIZE);
-	/* Set initial UDVM data 
+	/* Set initial UDVM data
 	 *  The first 32 bytes of UDVM memory are then initialized to special
 	 *  values as illustrated in Figure 5.
 	 *
@@ -300,7 +300,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 
 	cycles_per_bit = buff[2] << 8;
 	cycles_per_bit = cycles_per_bit | buff[3];
-	/* 
+	/*
 	 * maximum_UDVM_cycles = (8 * n + 1000) * cycles_per_bit
 	 */
 	maximum_UDVM_cycles = (( 8 * (header_len + msg_end) ) + 1000) * cycles_per_bit;
@@ -328,7 +328,7 @@ decompress_sigcomp_message(tvbuff_t *bytecode_tvb, tvbuff_t *message_tvb, packet
 	current_address = udvm_start_ip;
 	input_address = 0;
 	operand_address = 0;
-	
+
 	proto_tree_add_text(udvm_tree, bytecode_tvb, offset, 1,"UDVM EXECUTION STARTED at Address: %u Message size %u",
 		current_address, msg_end);
 
@@ -354,12 +354,12 @@ execute_next_instruction:
 			/* At least something got decompressed, show it */
 			decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
 			/* Arrange that the allocated packet data copy be freed when the
-			 * tvbuff is freed. 
+			 * tvbuff is freed.
 			 */
 			tvb_set_free_cb( decomp_tvb, g_free );
 			/* Add the tvbuff to the list of tvbuffs to which the tvbuff we
 			 * were handed refers, so it'll get cleaned up when that tvbuff
-			 * is cleaned up. 
+			 * is cleaned up.
 			 */
 			tvb_set_child_real_data_tvbuff(message_tvb,decomp_tvb);
 			add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message(Incomplete)");
@@ -384,7 +384,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -400,14 +400,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 & operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 
 		break;
@@ -426,7 +426,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -442,14 +442,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 | operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 
 		break;
@@ -477,14 +477,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 ^ 0xffff;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 
@@ -502,7 +502,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -518,14 +518,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 << operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 
 		break;
@@ -543,7 +543,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -559,14 +559,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 >> operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_ADD: /* 6 ADD ($operand_1, %operand_2) */
@@ -583,7 +583,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -599,14 +599,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 + operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 
 	case SIGCOMP_INSTR_SUBTRACT: /* 7 SUBTRACT ($operand_1, %operand_2) */
@@ -623,7 +623,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -639,14 +639,14 @@ execute_next_instruction:
 		/* execute the instruction */
 		result = operand_1 - operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"               Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 
@@ -664,7 +664,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -677,7 +677,7 @@ execute_next_instruction:
 				"Addr: %u ## MULTIPLY (operand_1=%u, operand_2=%u)",
 				current_address, operand_1, operand_2);
 		}
-		/* 
+		/*
 		 * execute the instruction
 		 * MULTIPLY (m, n)  := m * n (modulo 2^16)
 		 */
@@ -687,14 +687,14 @@ execute_next_instruction:
 		}
 		result = operand_1 * operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 
@@ -712,7 +712,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -725,7 +725,7 @@ execute_next_instruction:
 				"Addr: %u ## DIVIDE (operand_1=%u, operand_2=%u)",
 				current_address, operand_1, operand_2);
 		}
-		/* 
+		/*
 		 * execute the instruction
 		 * DIVIDE (m, n)    := floor(m / n)
 		 * Decompression failure occurs if a DIVIDE or REMAINDER instruction
@@ -737,14 +737,14 @@ execute_next_instruction:
 		}
 		result = operand_1 / operand_2;
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 
@@ -762,7 +762,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      operand_1 %u",
 				operand_address, operand_1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %operand_2*/
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &operand_2);
 		if (show_instr_detail_level == 2 ){
@@ -775,7 +775,7 @@ execute_next_instruction:
 				"Addr: %u ## REMAINDER (operand_1=%u, operand_2=%u)",
 				current_address, operand_1, operand_2);
 		}
-		/* 
+		/*
 		 * execute the instruction
 		 * REMAINDER (m, n) := m - n * floor(m / n)
 		 * Decompression failure occurs if a DIVIDE or REMAINDER instruction
@@ -787,14 +787,14 @@ execute_next_instruction:
 		}
 		result = operand_1 - operand_2 * (operand_1 / operand_2);
 		lsb = result & 0xff;
-		msb = result >> 8;		
+		msb = result >> 8;
 		buff[result_dest] = msb;
 		buff[result_dest+1] = lsb;
 		if (print_level_1 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"     Loading result %u at %u",
 				result, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		goto execute_next_instruction;
 		break;
 	case SIGCOMP_INSTR_SORT_ASCENDING: /* 11 SORT-ASCENDING (%start, %n, %k) */
@@ -838,7 +838,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
 				operand_address, position);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %length */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -854,7 +854,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      $destination %u",
 				operand_address, ref_destination);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
 
 		n = 0;
@@ -892,7 +892,7 @@ execute_next_instruction:
 
 		sha1_finish( &ctx, sha1_digest_buf );
 
-		k = ref_destination; 
+		k = ref_destination;
 
 		for ( n=0; n< STATE_BUFFER_SIZE; n++ ) {
 
@@ -929,7 +929,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
 				operand_address, address);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %value */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &value);
 		if (show_instr_detail_level == 1)
@@ -973,7 +973,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
 				operand_address, address);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* #n */
 		next_operand_address = decode_udvm_literal_operand(buff,operand_address, &n);
@@ -987,7 +987,7 @@ execute_next_instruction:
 				"Addr: %u ## MULTILOAD (%%address=%u, #n=%u, value_0, ..., value_%d)",
 				current_address, address, n, n-1);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		used_udvm_cycles = used_udvm_cycles + 1 + n;
 		while ( n > 0) {
 			n = n - 1;
@@ -1010,13 +1010,13 @@ execute_next_instruction:
 				operand_address, value, address, value, value);
 			}
 			address = address + 2;
-			operand_address = next_operand_address; 
+			operand_address = next_operand_address;
 		}
 		current_address = next_operand_address;
 		goto execute_next_instruction;
 
 		break;
-			 
+
 	case SIGCOMP_INSTR_PUSH: /* 16 PUSH (%value) */
 		if (show_instr_detail_level == 2){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
@@ -1036,11 +1036,11 @@ execute_next_instruction:
 				"Addr: %u ## PUSH (value=%u)",
 				current_address, value);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 
-		/* Push the value address onto the stack */ 
+		/* Push the value address onto the stack */
 		stack_location = (buff[70] << 8) | buff[71];
-		stack_fill = (buff[stack_location] << 8) 
+		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 
@@ -1052,7 +1052,7 @@ execute_next_instruction:
 
 		if (stack_location >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
-		
+
 		stack_fill = (stack_fill + 1) & 0xFFFF;
 		buff[stack_location] = (stack_fill >> 8) & 0x00FF;
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
@@ -1081,11 +1081,11 @@ execute_next_instruction:
 				"Addr: %u ## POP (address=%u)",
 				current_address, destination);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 
-		/* Pop value from the top of the stack */ 
+		/* Pop value from the top of the stack */
 		stack_location = (buff[70] << 8) | buff[71];
-		stack_fill = (buff[stack_location] << 8) 
+		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
 		if (stack_fill == 0)
 		{
@@ -1105,7 +1105,7 @@ execute_next_instruction:
 		if (address >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 
-		value = (buff[address] << 8) 
+		value = (buff[address] << 8)
 			   | buff[(address+1) & 0xFFFF];
 
 		/* ... and store the popped value. */
@@ -1132,7 +1132,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
 				operand_address, position);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %length */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -1166,10 +1166,10 @@ execute_next_instruction:
 		 * Set k := m + 1 (modulo 2^16)
 		 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 		 *
-		 */ 
+		 */
 
 		n = 0;
-		k = destination; 
+		k = destination;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -1219,7 +1219,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
 				operand_address, position);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %length */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -1242,7 +1242,7 @@ execute_next_instruction:
 				"Addr: %u ## COPY-LITERAL (position=%u, length=%u, $destination=%u)",
 				current_address, position, length, destination);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 
 
 		/*
@@ -1256,10 +1256,10 @@ execute_next_instruction:
 		 * Set k := m + 1 (modulo 2^16)
 		 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 		 *
-		 */ 
+		 */
 
 		n = 0;
-		k = ref_destination; 
+		k = ref_destination;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -1273,7 +1273,7 @@ execute_next_instruction:
 			buff[k] = buff[position];
 			if (print_level_2 ){
 				proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-					"               Copying value: %u (0x%x) to Addr: %u", 
+					"               Copying value: %u (0x%x) to Addr: %u",
 					buff[position], buff[position], k);
 			}
 			position = ( position + 1 ) & 0xffff;
@@ -1299,7 +1299,7 @@ execute_next_instruction:
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
 		goto execute_next_instruction;
 		break;
- 
+
 	case SIGCOMP_INSTR_COPY_OFFSET: /* 20 COPY-OFFSET (%offset, %length, $destination) */
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
@@ -1313,7 +1313,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      offset %u",
 				operand_address, multy_offset);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %length */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -1337,13 +1337,13 @@ execute_next_instruction:
 				"Addr: %u ## COPY-OFFSET (offset=%u, length=%u, $destination=%u)",
 				current_address, multy_offset, length, result_dest);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 
 		/* Execute the instruction:
 		 * To derive the value of the position operand, starting at the memory
 		 * address specified by destination, the UDVM counts backwards a total
 		 * of offset memory addresses.
-		 * 
+		 *
 		 * If the memory address specified in byte_copy_left is reached, the
 		 * next memory address is taken to be (byte_copy_right - 1) modulo 2^16.
 		 */
@@ -1392,10 +1392,10 @@ execute_next_instruction:
 		 * Set k := m + 1 (modulo 2^16)
 		 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 		 *
-		 */ 
+		 */
 
 		n = 0;
-		k = ref_destination; 
+		k = ref_destination;
 		if (print_level_2 ){
 			proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
 					"               byte_copy_left = %u byte_copy_right = %u", byte_copy_left, byte_copy_right);
@@ -1444,7 +1444,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Address %u",
 				operand_address, address);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/*  %length, */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -1459,7 +1459,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      start_value %u",
 				operand_address, start_value);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %offset */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &multy_offset);
@@ -1473,15 +1473,15 @@ execute_next_instruction:
 				"Addr: %u ## MEMSET (address=%u, length=%u, start_value=%u, offset=%u)",
 				current_address, address, length, start_value, multy_offset);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 		/* exetute the instruction
 		 * The sequence of values used by the MEMSET instruction is specified by
 		 * the following formula:
-		 * 
+		 *
 		 * Seq[n] := (start_value + n * offset) modulo 256
 		 */
 		n = 0;
-		k = address; 
+		k = address;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -1629,18 +1629,18 @@ execute_next_instruction:
 				"Addr: %u ## CALL (@address=%u)",
 				current_address, at_address);
 		}
-		current_address = next_operand_address; 
+		current_address = next_operand_address;
 
-		/* Push the current address onto the stack */ 
+		/* Push the current address onto the stack */
 		stack_location = (buff[70] << 8) | buff[71];
-		stack_fill = (buff[stack_location] << 8) 
+		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
 		if (address >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
 		buff[address] = (current_address >> 8) & 0x00FF;
 		buff[(address+1) & 0xFFFF] = current_address & 0x00FF;
-		
+
 		stack_fill = (stack_fill + 1) & 0xFFFF;
 		if (stack_location >= UDVM_MEMORY_SIZE - 1)
 			goto decompression_failure;
@@ -1662,9 +1662,9 @@ execute_next_instruction:
 				current_address);
 		}
 
-		/* Pop value from the top of the stack */ 
+		/* Pop value from the top of the stack */
 		stack_location = (buff[70] << 8) | buff[71];
-		stack_fill = (buff[stack_location] << 8) 
+		stack_fill = (buff[stack_location] << 8)
 			   | buff[(stack_location+1) & 0xFFFF];
 		if (stack_fill == 0)
 		{
@@ -1679,7 +1679,7 @@ execute_next_instruction:
 		buff[(stack_location+1) & 0xFFFF] = stack_fill & 0x00FF;
 
 		address = (stack_location + stack_fill * 2 + 2) & 0xFFFF;
-		at_address = (buff[address] << 8) 
+		at_address = (buff[address] << 8)
 			   | buff[(address+1) & 0xFFFF];
 
 		/* ... and set the PC to the popped value */
@@ -1695,7 +1695,7 @@ execute_next_instruction:
 		 * When a SWITCH instruction is encountered the UDVM reads the value of
 		 * j. It then continues instruction execution at the address specified
 		 * by address j.
-		 * 
+		 *
 		 * Decompression failure occurs if j specifies a value of n or more, or
 		 * if the address lies beyond the overall UDVM memory size.
 		 */
@@ -1706,7 +1706,7 @@ execute_next_instruction:
 				current_address);
 		}
 		operand_address = current_address + 1;
-		/* #n 
+		/* #n
 		 * Number of addresses in the instruction
 		 */
 		next_operand_address = decode_udvm_literal_operand(buff,operand_address, &n);
@@ -1714,7 +1714,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      n %u",
 				operand_address, n);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		/* %j */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &j);
 		if (print_level_1 ){
@@ -1767,7 +1767,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      Value %u",
 				operand_address, value);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %position */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &position);
@@ -1775,7 +1775,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      position %u",
 				operand_address, position);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 
 		/* %length */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &length);
@@ -1794,7 +1794,7 @@ execute_next_instruction:
 		}
 		 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
 		used_udvm_cycles = used_udvm_cycles + 1 + length;
-		
+
 		n = 0;
 		k = position;
 		byte_copy_right = buff[66] << 8;
@@ -1880,7 +1880,7 @@ execute_next_instruction:
 				"Addr: %u ## INPUT-BYTES length=%u, destination=%u, @address=%u)",
 				current_address, length, destination, at_address);
 		}
-		/* execute the instruction TODO insert checks 
+		/* execute the instruction TODO insert checks
 		 * RFC 3320 :
 		 *
 		 *    0             7 8            15
@@ -1893,7 +1893,7 @@ execute_next_instruction:
 		 *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 *   |        stack_location         |  70 - 71
 		 *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 * 
+		 *
 		 * Figure 7: Memory addresses of the UDVM registers
 		 * :
 		 * 8.4.  Byte copying
@@ -1906,10 +1906,10 @@ execute_next_instruction:
 		 * Set k := m + 1 (modulo 2^16)
 		 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 		 *
-		 */ 
+		 */
 
 		n = 0;
-		k = destination; 
+		k = destination;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -1945,7 +1945,7 @@ execute_next_instruction:
 			 * execution to the address specified by the address operand.
 			 */
 
-			
+
 			k = ( k + 1 ) & 0xffff;
 			n++;
 		}
@@ -1958,7 +1958,7 @@ execute_next_instruction:
 		 * The length operand indicates the requested number of bits.
 		 * Decompression failure occurs if this operand does not lie between 0
 		 * and 16 inclusive.
-		 * 
+		 *
 		 * The destination operand specifies the memory address to which the
 		 * compressed data should be copied.  Note that the requested bits are
 		 * interpreted as a 2-byte integer ranging from 0 to 2^length - 1, as
@@ -2009,7 +2009,7 @@ execute_next_instruction:
 		/*
 		 * Execute actual instr.
 		 * The input_bit_order register contains the following three flags:
-		 * 
+		 *
 		 *            0             7 8            15
 		 *           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 *           |         reserved        |F|H|P|  68 - 69
@@ -2032,11 +2032,11 @@ execute_next_instruction:
 			goto decompression_failure;
 		}
 
-		/* 
-		 * Transfer F bit to bit_order to tell decomp dispatcher which bit order to use 
+		/*
+		 * Transfer F bit to bit_order to tell decomp dispatcher which bit order to use
 		 */
 		bit_order = ( input_bit_order & 0x0004 ) >> 2;
-		value = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order, 
+		value = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order,
 				buff, &old_input_bit_order, &remaining_bits,
 				&input_bits, &input_address, length, &result_code, msg_end);
 		if ( result_code == 11 ){
@@ -2094,7 +2094,7 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      n %u",
 				operand_address, n);
 		}
-		operand_address = next_operand_address; 
+		operand_address = next_operand_address;
 		if (show_instr_detail_level == 1)
 		{
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
@@ -2108,38 +2108,38 @@ execute_next_instruction:
 		 * Note that if n = 0 then the INPUT-HUFFMAN instruction is ignored and
 		 * program execution resumes at the following instruction.
 		 * Decompression failure occurs if (bits_1 + ... + bits_n) > 16.
-		 * 
+		 *
 		 * In all other cases, the behavior of the INPUT-HUFFMAN instruction is
 		 * defined below:
-		 * 
+		 *
 		 * 1. Set j := 1 and set H := 0.
-		 * 
+		 *
 		 * 2. Request bits_j compressed bits.  Interpret the returned bits as an
 		 * integer k from 0 to 2^bits_j - 1, as explained in Section 8.2.
-		 * 
+		 *
 		 * 3. Set H := H * 2^bits_j + k.
-		 * 
+		 *
 		 * 4. If data is requested that lies beyond the end of the SigComp
 		 * message, terminate the INPUT-HUFFMAN instruction and move program
 		 * execution to the memory address specified by the address operand.
-		 * 
+		 *
 		 * 5. If (H < lower_bound_j) or (H > upper_bound_j) then set j := j + 1.
 		 * Then go back to Step 2, unless j > n in which case decompression
 		 * failure occurs.
-		 * 
+		 *
 		 * 6. Copy (H + uncompressed_j - lower_bound_j) modulo 2^16 to the
 		 * memory address specified by the destination operand.
-		 * 
+		 *
 		 */
 		/*
 		 * The input_bit_order register contains the following three flags:
-		 * 
+		 *
 		 *            0             7 8            15
 		 *           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 *           |         reserved        |F|H|P|  68 - 69
 		 *           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		 *
-		 * Transfer H bit to bit_order to tell decomp dispatcher which bit order to use 
+		 * Transfer H bit to bit_order to tell decomp dispatcher which bit order to use
 		 */
 		input_bit_order = buff[68] << 8;
 		input_bit_order = input_bit_order | buff[69];
@@ -2157,7 +2157,7 @@ execute_next_instruction:
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      bits_n %u",
 					operand_address, bits_n);
 			}
-			operand_address = next_operand_address; 
+			operand_address = next_operand_address;
 
 			/* %lower_bound_n */
 			next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &lower_bound_n);
@@ -2165,14 +2165,14 @@ execute_next_instruction:
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      lower_bound_n %u",
 					operand_address, lower_bound_n);
 			}
-			operand_address = next_operand_address; 
+			operand_address = next_operand_address;
 			/* %upper_bound_n */
 			next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &upper_bound_n);
 			if (print_in_loop ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      upper_bound_n %u",
 					operand_address, upper_bound_n);
 			}
-			operand_address = next_operand_address; 
+			operand_address = next_operand_address;
 			/* %uncompressed_n */
 			next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &uncompressed_n);
 			if (print_in_loop ){
@@ -2186,7 +2186,7 @@ execute_next_instruction:
 				 * 2. Request bits_j compressed bits.  Interpret the returned bits as an
 				 *    integer k from 0 to 2^bits_j - 1, as explained in Section 8.2.
 				 */
-				k = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order, 
+				k = decomp_dispatch_get_bits( message_tvb, udvm_tree, bit_order,
 						buff, &old_input_bit_order, &remaining_bits,
 						&input_bits, &input_address, bits_n, &result_code, msg_end);
 				if ( result_code == 11 ){
@@ -2199,7 +2199,7 @@ execute_next_instruction:
 					goto execute_next_instruction;
 				}
 
-				/* 
+				/*
 				 * 3. Set H := H * 2^bits_j + k.
 				 * [In practice is a shift+OR operation.]
 				 */
@@ -2238,10 +2238,10 @@ execute_next_instruction:
 					buff[destination + 1]=lsb;
 					if (print_level_1 ){
 						proto_tree_add_text(udvm_tree, message_tvb, input_address, 1,
-					"               Loading H: %u (0x%x) at Addr: %u,j = %u remaining_bits: %u", 
+					"               Loading H: %u (0x%x) at Addr: %u,j = %u remaining_bits: %u",
 						H, H, destination,( n - m + 1 ), remaining_bits);
 					}
-					
+
 				}
 
 
@@ -2268,7 +2268,7 @@ execute_next_instruction:
 		}
 		operand_address = current_address + 1;
 
-		/* 
+		/*
 		 * %partial_identifier_start
 		 */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_start);
@@ -2339,10 +2339,10 @@ execute_next_instruction:
 					"               byte_copy_right = %u, byte_copy_left = %u", byte_copy_right,byte_copy_left);
 		}
 
-		result_code = udvm_state_access(message_tvb, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length, 
+		result_code = udvm_state_access(message_tvb, udvm_tree, buff, p_id_start, p_id_length, state_begin, &state_length,
 			&state_address, &state_instruction, hf_id);
 		if ( result_code != 0 ){
-			goto decompression_failure; 
+			goto decompression_failure;
 		}
 		used_udvm_cycles = used_udvm_cycles + 1 + state_length;
 		goto execute_next_instruction;
@@ -2431,15 +2431,15 @@ execute_next_instruction:
 		no_of_state_create++;
 		if ( no_of_state_create > 4 ){
 			result_code = 12;
-			goto decompression_failure; 
+			goto decompression_failure;
 		}
 		if (( minimum_access_length < 6 ) || ( minimum_access_length > STATE_BUFFER_SIZE )){
 			result_code = 1;
-			goto decompression_failure; 
+			goto decompression_failure;
 		}
 		if ( state_retention_priority == 65535 ){
 			result_code = 13;
-			goto decompression_failure; 
+			goto decompression_failure;
 		}
 		state_length_buff[no_of_state_create] = state_length;
 		state_address_buff[no_of_state_create] = state_address;
@@ -2482,7 +2482,7 @@ execute_next_instruction:
 				current_address);
 		}
 		operand_address = current_address + 1;
-		/* 
+		/*
 		 * %partial_identifier_start
 		 */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_start);
@@ -2524,7 +2524,7 @@ execute_next_instruction:
 				current_address);
 		}
 		operand_address = current_address + 1;
-		/* 
+		/*
 		 * %output_start
 		 */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &output_start);
@@ -2533,7 +2533,7 @@ execute_next_instruction:
 				operand_address, output_start);
 		}
 		operand_address = next_operand_address;
-		/* 
+		/*
 		 * %output_length
 		 */
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &output_length);
@@ -2549,8 +2549,8 @@ execute_next_instruction:
 		}
 		current_address = next_operand_address;
 
-		/* 
-		 * Execute instruction 
+		/*
+		 * Execute instruction
 		 * 8.4.  Byte copying
 		 * :
 		 * The string of bytes is copied in ascending order of memory address,
@@ -2561,10 +2561,10 @@ execute_next_instruction:
 		 * Set k := m + 1 (modulo 2^16)
 		 * If k = byte_copy_right then set n := byte_copy_left, else set n := k
 		 *
-		 */ 
+		 */
 
 		n = 0;
-		k = output_start; 
+		k = output_start;
 		byte_copy_right = buff[66] << 8;
 		byte_copy_right = byte_copy_right | buff[67];
 		byte_copy_left = buff[64] << 8;
@@ -2679,7 +2679,7 @@ execute_next_instruction:
 		no_of_state_create++;
 		if ( no_of_state_create > 4 ){
 			result_code = 12;
-			goto decompression_failure; 
+			goto decompression_failure;
 		}
 		state_length_buff[no_of_state_create] = state_length;
 		state_address_buff[no_of_state_create] = state_address;
@@ -2687,7 +2687,7 @@ execute_next_instruction:
 		/* Not used ? */
 		state_minimum_access_length_buff[no_of_state_create] = minimum_access_length;
 		state_state_retention_priority_buff[no_of_state_create] = state_retention_priority;
-		
+
 		/* Execute the instruction
 		 */
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"no_of_state_create %u",no_of_state_create);
@@ -2705,7 +2705,7 @@ execute_next_instruction:
 				sha1buff[2] = state_address_buff[n] >> 8;
 				sha1buff[3] = state_address_buff[n] & 0xff;
 				sha1buff[4] = state_instruction_buff[n] >> 8;
-				sha1buff[5] = state_instruction_buff[n] & 0xff;	
+				sha1buff[5] = state_instruction_buff[n] & 0xff;
 				sha1buff[6] = state_minimum_access_length_buff[n] >> 8;
 				sha1buff[7] = state_minimum_access_length_buff[n] & 0xff;
 				if (print_level_3 ){
@@ -2731,12 +2731,12 @@ execute_next_instruction:
 					proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"SHA1 digest %s",bytes_to_str(sha1_digest_buf, STATE_BUFFER_SIZE));
 
 				}
-/* begin partial state-id change cco@iptel.org */				
+/* begin partial state-id change cco@iptel.org */
 #if 0
 				udvm_state_create(sha1buff, sha1_digest_buf, state_minimum_access_length_buff[n]);
-#endif				
+#endif
 				udvm_state_create(sha1buff, sha1_digest_buf, STATE_MIN_ACCESS_LEN);
-/* end partial state-id change cco@iptel.org */				
+/* end partial state-id change cco@iptel.org */
 				proto_tree_add_text(udvm_tree,bytecode_tvb, 0, -1,"### Creating state ###");
 				proto_tree_add_string(udvm_tree,hf_id, bytecode_tvb, 0, 0, bytes_to_str(sha1_digest_buf, state_minimum_access_length_buff[n]));
 
@@ -2750,7 +2750,7 @@ execute_next_instruction:
 		/* At least something got decompressed, show it */
 		decomp_tvb = tvb_new_real_data(out_buff,output_address,output_address);
 		/* Arrange that the allocated packet data copy be freed when the
-		 * tvbuff is freed. 
+		 * tvbuff is freed.
 		 */
 		tvb_set_free_cb( decomp_tvb, g_free );
 
@@ -2758,7 +2758,7 @@ execute_next_instruction:
 		add_new_data_source(pinfo, decomp_tvb, "Decompressed SigComp message");
 		/*
 		proto_tree_add_text(udvm_tree, decomp_tvb, 0, -1,"SigComp message Decompressed");
-		*/	
+		*/
 		used_udvm_cycles = used_udvm_cycles + 1 + state_length;
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"maximum_UDVM_cycles %u used_udvm_cycles %u",
 			maximum_UDVM_cycles, used_udvm_cycles);
@@ -2773,7 +2773,7 @@ execute_next_instruction:
 		g_free(out_buff);
 		return NULL;
 decompression_failure:
-		
+
 		proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"DECOMPRESSION FAILURE: %s",
 				    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
 		THROW(ReportedBoundsError);
@@ -2781,7 +2781,7 @@ decompression_failure:
 		return NULL;
 
 }
-	
+
  /*  The simplest operand type is the literal (#), which encodes a
   * constant integer from 0 to 65535 inclusive.  A literal operand may
   * require between 1 and 3 bytes depending on its value.
@@ -2794,7 +2794,7 @@ decompression_failure:
   *
   */
 static int
-decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value) 
+decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
 {
 	guint	bytecode;
 	guint16 operand;
@@ -2858,7 +2858,7 @@ decode_udvm_literal_operand(guint8 *buff,guint operand_address, guint16 *value)
  *            Figure 9: Bytecode for a reference ($) operand
  */
 static int
-dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *value,guint *result_dest) 
+dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *value,guint *result_dest)
 {
 	guint bytecode;
 	guint16 operand;
@@ -2924,7 +2924,7 @@ dissect_udvm_reference_operand(guint8 *buff,guint operand_address, guint16 *valu
 	 * Bytecode:                       Operand value:      Range:               HEX val
 	 * 00nnnnnn                        N                   0 - 63				0x00
 	 * 01nnnnnn                        memory[2 * N]       0 - 65535			0x40
-	 * 1000011n                        2 ^ (N + 6)        64 , 128				0x86	
+	 * 1000011n                        2 ^ (N + 6)        64 , 128				0x86
 	 * 10001nnn                        2 ^ (N + 8)    256 , ... , 32768			0x88
 	 * 111nnnnn                        N + 65504       65504 - 65535			0xe0
 	 * 1001nnnn nnnnnnnn               N + 61440       61440 - 65535			0x90
@@ -2949,7 +2949,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 	test_bits = ( bytecode & 0xc0 ) >> 6;
 	switch (test_bits ){
 	case 0:
-		/*  
+		/*
 		 * 00nnnnnn                        N                   0 - 63
 		 */
 		operand =  buff[operand_address];
@@ -2960,7 +2960,7 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 		offset ++;
 		break;
 	case 1:
-		/*  
+		/*
 		 * 01nnnnnn                        memory[2 * N]       0 - 65535
 		 */
 		memmory_addr = ( bytecode & 0x3f) * 2;
@@ -3061,12 +3061,12 @@ decode_udvm_multitype_operand(guint8 *buff,guint operand_address, guint16 *value
 			temp_data16 = buff[memmory_addr] << 8;
 			temp_data16 = temp_data16 | buff[memmory_addr+1];
 			*value = temp_data16;
-			/*  debug 
+			/*  debug
 			 * g_warning("Reading 0x%x From address %u",temp_data16,memmory_addr);
 			 */
 			offset = offset +2;
 		}
-			
+
 	default :
 		break;
 	}
@@ -3146,13 +3146,13 @@ static int
 decomp_dispatch_get_bits(
 		tvbuff_t *message_tvb,
 		proto_tree *udvm_tree,
-		guint8 bit_order, 
+		guint8 bit_order,
 		guint8 *buff,
-		guint16 *old_input_bit_order, 
+		guint16 *old_input_bit_order,
 		guint16 *remaining_bits,
-		guint16	*input_bits, 
-		guint *input_address, 
-		guint16 length, 
+		guint16	*input_bits,
+		guint *input_address,
+		guint16 length,
 		guint16 *result_code,
 		guint msg_end)
 {
@@ -3191,11 +3191,11 @@ decomp_dispatch_get_bits(
 		return 0xfbad;
 	}
 
-	/* Note: This is never called with length > 16, so the following loop 
+	/* Note: This is never called with length > 16, so the following loop
 	*       never loops more than three time. */
 	while (bits_still_required > 0)
 	{
-		/* 
+		/*
 		 * We only put anything into input_bits if we know we will remove
 		 * at least one bit. That ensures we can simply discard the spare
 		 * bits if the P-bit changes.
@@ -3224,7 +3224,7 @@ decomp_dispatch_get_bits(
 		*input_bits <<= bits_to_use;           /* Shift bits into MSByte */
 		value = (value << bits_to_use)         /* Then add to the accumulated value */
 			| ((*input_bits >> 8) & 0xFF);
-		*remaining_bits -= bits_to_use;            
+		*remaining_bits -= bits_to_use;
 		*input_bits &= 0x00FF;                 /* Leave just the remaining bits */
 	}
 

@@ -72,7 +72,6 @@ LIBWIRESHARK_SRC = 		\
 	reassemble.c		\
 	reedsolomon.c		\
 	req_resp_hdrs.c		\
-	sha1.c			\
 	sigcomp_state_hdlr.c	\
 	sigcomp-udvm.c		\
 	sminmpec.c		\
@@ -168,7 +167,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	req_resp_hdrs.h		\
 	rtp_pt.h		\
 	sctpppids.h		\
-	sha1.h			\
 	sigcomp_state_hdlr.h	\
 	sigcomp-udvm.h		\
 	slab.h			\

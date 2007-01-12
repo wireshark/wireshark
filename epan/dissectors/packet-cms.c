@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-cms.c                                                             */
+/* ./packet-cms.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
@@ -48,7 +48,7 @@
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 
-#include <epan/sha1.h>
+#include <epan/crypt/crypt-sha1.h>
 #include <epan/crypt/crypt-md5.h>
 
 #define PNAME  "Cryptographic Message Syntax"
@@ -453,7 +453,7 @@ dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   pdu_offset = get_ber_identifier(tvb, pdu_offset, &class, &pc, &tag);
   content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, top_tree ? top_tree : tree);
-
+  
   content_tvb = tvb_new_subset(tvb, content_offset, len, -1);
 
 
@@ -494,7 +494,7 @@ dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if(object_identifier_id) {
     name = get_oid_str_name(object_identifier_id);
-    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id);
+    proto_item_append_text(tree, " (%s)", name ? name : object_identifier_id); 
   }
 
 
@@ -1487,14 +1487,14 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
-
+ 
   pi = get_ber_last_created_item();
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
   old_offset = get_ber_length(tree, tvb, old_offset, NULL, NULL);
 
-  if(content_tvb)
+  if(content_tvb) 
     cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
 
 
