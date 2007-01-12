@@ -26,7 +26,7 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 include Makefile.common
 
 lib_LTLIBRARIES = libwiretap.la
-libwiretap_la_LDFLAGS = -version-info 0:1:0 @SHAREDLIB_LDFLAGS@
+libwiretap_la_LDFLAGS = -version-info 0:1:0 @LDFLAGS_SHAREDLIB@
 
 CLEANFILES = \
 	libwiretap.a		\

@@ -241,7 +241,7 @@ darwin*)
 	# some Apple documentation recommends it for most shared
 	# libraries.
 	#
-	SHAREDLIB_LDFLAGS="-Wl,-single_module"
+	LDFLAGS_SHAREDLIB="-Wl,-single_module"
 	#
 	# Add -Wl,-search_paths_first to make sure that if we search
 	# directories A and B, in that order, for a given library, a
@@ -266,7 +266,7 @@ cygwin*)
 	AC_MSG_RESULT(none needed)
 	;;
 esac
-AC_SUBST(SHAREDLIB_LDFLAGS)
+AC_SUBST(LDFLAGS_SHAREDLIB)
 
 #
 # On OS X, if we find the headers for Core Foundation and Launch Services,
