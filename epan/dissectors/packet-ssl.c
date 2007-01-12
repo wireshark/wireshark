@@ -323,6 +323,7 @@ ssl_add_app_data(SslDecryptSession* ssl, guchar* data, gint data_len){
   }
 }
 
+#if 0
 static void
 ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
    SslPacketInfo* pi;
@@ -417,6 +418,7 @@ ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
 
 
 }
+#endif /* 0 */
 /*********************************************************************
  *
  * Forward Declarations
@@ -833,46 +835,54 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         data_for_iv_len = (record_length < 24) ? record_length : 24;
         ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
     }
-    if (ret && save_plaintext)
-    {
-        SslPacketInfo* pi;
-        pi = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (!pi)
-        {
-            ssl_debug_printf("decrypt_ssl3_record: allocating app_data %d "
-                "bytes for app data\n", ssl_decrypted_data_avail);
-            /* first app data record: allocate and put packet data*/
-            pi = se_alloc0(sizeof(SslPacketInfo));
-            pi->app_data.data = se_alloc(ssl_decrypted_data_avail);
-            pi->app_data.data_len = ssl_decrypted_data_avail;
-            memcpy(pi->app_data.data, ssl_decrypted_data.data, ssl_decrypted_data_avail);
-        }
-        else {
-            guchar* store;
-            /* update previus record*/
-            ssl_debug_printf("decrypt_ssl3_record: reallocating app_data "
-                "%d bytes for app data (total %d appdata bytes)\n",
-                ssl_decrypted_data_avail, pi->app_data.data_len + ssl_decrypted_data_avail);
-            store = se_alloc(pi->app_data.data_len + ssl_decrypted_data_avail);
-            memcpy(store, pi->app_data.data, pi->app_data.data_len);
-            memcpy(&store[pi->app_data.data_len], ssl_decrypted_data.data, ssl_decrypted_data_avail);
-            pi->app_data.data_len += ssl_decrypted_data_avail;
-
-            /* old decrypted data ptr here appare to be leaked, but it's
-             * collected by emem allocator */
-            pi->app_data.data = store;
-
-            /* data ptr is changed, so remove old one and re-add the new one*/
-            ssl_debug_printf("decrypt_ssl3_record: removing old app_data ptr\n");
-            p_remove_proto_data(pinfo->fd, proto_ssl);
-        }
-
-        ssl_debug_printf("decrypt_ssl3_record: setting decrypted app_data ptr %p\n",pi);
-        p_add_proto_data(pinfo->fd, proto_ssl, pi);
+    if (ret && save_plaintext) {
+      ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, decoder->byte_seq);
+      decoder->byte_seq += ssl_decrypted_data_avail;
     }
     return ret;
 }
 
+void
+dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, SslAssociation* association)
+{
+  gboolean save_fragmented;
+  SslDataInfo *appl_data;
+  proto_tree *ti;
+  tvbuff_t *next_tvb;
+
+  /* show decrypted data info, if available */
+  appl_data = ssl_get_data_info(proto_ssl, pinfo, TVB_RAW_OFFSET(tvb)+offset);
+  if (!appl_data || !appl_data->plain_data.data_len) return;
+
+  /* try to dissect decrypted data*/
+  ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", appl_data->plain_data.data_len);
+
+  /* create a new TVB structure for desegmented data */
+  next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
+  
+  /* add this tvb as a child to the original one */
+  tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+  /* add desegmented data to the data source list */
+  add_new_data_source(pinfo, next_tvb, "Decrypted SSL data");
+
+  /* Can we desegment this segment? */
+  if (ssl_desegment_app_data) {
+    /* Yes. */
+    /*desegment_ssl(next_tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
+        tcp_tree, tcpd);*/
+  } else if (association && association->handle) {
+    /* No - just call the subdissector.
+       Mark this as fragmented, so if somebody throws an exception,
+       we don't report it as a malformed frame. */
+    save_fragmented = pinfo->fragmented;
+    pinfo->fragmented = TRUE;
+    ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
+    ssl_print_text_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
+    call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+    pinfo->fragmented = save_fragmented;
+  }
+}
 
 
 /*********************************************************************
@@ -911,9 +921,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     guint8 next_byte;
     proto_tree *ti;
     proto_tree *ssl_record_tree;
-    guint32 available_bytes;
-    SslPacketInfo* pi;
     SslAssociation* association;
+    guint32 available_bytes;
     ti = NULL;
     ssl_record_tree = NULL;
     available_bytes = 0;
@@ -1138,11 +1147,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 	    decrypt_ssl3_record(tvb, pinfo, offset,
 			    record_length, content_type, ssl, TRUE);
 	    /* if application data desegmentation is allowed and needed */
-	    if(ssl_desegment_app_data && *need_desegmentation)
+	    /*if(ssl_desegment_app_data && *need_desegmentation)
 		ssl_desegment_ssl_app_data(ssl,pinfo);
-
+        */
         }
-
 
         /* show on info colum what we are decoding */
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -1155,44 +1163,16 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
 
         proto_item_set_text(ssl_record_tree,
-            "%s Record Layer: %s Protocol: %s",
+           "%s Record Layer: %s Protocol: %s",
             ssl_version_short_names[*conv_version],
             val_to_str(content_type, ssl_31_content_type, "unknown"),
             association?association->info:"Application Data");
 
-
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
                        offset, record_length, 0);
 
-        /* show decrypted data info, if available */
-        pi = p_get_proto_data(pinfo->fd, proto_ssl);
-        if (pi && pi->app_data.data && (pi->app_data.data_len > 0) /**/&& first_record_in_frame/**/)
-        {
-            tvbuff_t* new_tvb;
+		dissect_ssl_payload(tvb, pinfo, offset, tree, association);
 
-            /* try to dissect decrypted data*/
-            ssl_debug_printf("dissect_ssl3_record decrypted len %d\n",
-                pi->app_data.data_len);
-
-            /* create new tvbuff for the decrypted data */
-            new_tvb = tvb_new_real_data(pi->app_data.data,
-                pi->app_data.data_len, pi->app_data.data_len);
-
-	    /* add this tvb as a child to the original one */
-	    tvb_set_child_real_data_tvbuff(tvb, new_tvb);
-
-	    /* add desegmented data to the data source list */
-	    add_new_data_source(pinfo, new_tvb, "Decrypted SSL data");
-
-            /* find out a dissector using server port*/
-            if (association && association->handle) {
-                ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
-                ssl_print_text_data("decrypted app data",pi->app_data.data,
-                    pi->app_data.data_len);
-
-                call_dissector(association->handle, new_tvb, pinfo, tree?tree->parent:NULL);
-            }
-        }
         break;
 
     default:

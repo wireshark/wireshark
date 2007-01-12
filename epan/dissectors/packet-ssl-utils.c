@@ -648,6 +648,7 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     dec->mac_key.data = dec->_mac_key;
     ssl_data_set(&dec->mac_key, mk, cipher_suite->dig_len);
     dec->seq = 0;
+    dec->byte_seq = 0;
     
     if (dec->evp)
         ssl_cipher_cleanup(&dec->evp);
@@ -1585,6 +1586,55 @@ ssl_get_record_info(int proto, packet_info *pinfo, gint record_id)
   for (rec = pi->handshake_data; rec; rec = rec->next)
     if (rec->id == record_id)
       return rec->tvb;
+
+  return NULL;
+}
+
+void
+ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, guint32 seq)
+{
+  SslDataInfo *rec, **prec;
+  SslPacketInfo *pi;
+
+  pi = p_get_proto_data(pinfo->fd, proto);
+  if (!pi)
+    {
+      pi = se_alloc0(sizeof(SslPacketInfo));
+      p_add_proto_data(pinfo->fd, proto,pi);
+    }
+    
+  rec = se_alloc(sizeof(SslDataInfo)+data_len);
+  rec->key = key;
+  rec->plain_data.data = (guchar*)(rec + 1);
+  memcpy(rec->plain_data.data, data, data_len);
+  rec->plain_data.data_len = data_len;
+  rec->seq = seq;
+  rec->nxtseq = seq + data_len;
+  rec->next = NULL;
+
+  /* insertion */
+  prec = &pi->appl_data;
+  while (*prec) prec = &(*prec)->next;
+  *prec = rec;
+
+  ssl_debug_printf("ssl_add_data_info: new data inserted data_len = %d, seq = %u, nxtseq = %u\n", 
+                   rec->plain_data.data_len, rec->seq, rec->nxtseq);
+}
+
+SslDataInfo* 
+ssl_get_data_info(int proto, packet_info *pinfo, gint key)
+{
+  SslDataInfo* rec;
+  SslPacketInfo* pi;
+  pi = p_get_proto_data(pinfo->fd, proto);
+
+  if (!pi) return NULL;
+
+  rec = pi->appl_data;
+  while (rec) {
+    if (rec->key == key) return rec;
+    rec = rec->next;
+  }
 
   return NULL;
 }

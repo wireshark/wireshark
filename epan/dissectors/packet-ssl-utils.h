@@ -599,6 +599,7 @@ typedef struct _SslDecoder {
     SSL_CIPHER_CTX evp;    
     guint32 seq;
     guint16 epoch;
+    guint32 byte_seq;
 } SslDecoder;
 
 #define KEX_RSA         0x10
@@ -628,8 +629,16 @@ typedef struct _SslRecordInfo {
     struct _SslRecordInfo* next;
 } SslRecordInfo;
 
+typedef struct _SslDataInfo {
+    gint key;
+    StringInfo plain_data;
+    guint32 seq;
+    guint32 nxtseq;
+    struct _SslDataInfo *next;
+} SslDataInfo;
+
 typedef struct {
-    StringInfo app_data;
+    SslDataInfo *appl_data;
     SslRecordInfo* handshake_data; 
 } SslPacketInfo;
 
@@ -787,6 +796,12 @@ ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len,
 /* search in packet data the tvbuff associated to the specified id */
 extern tvbuff_t* 
 ssl_get_record_info(gint proto, packet_info *pinfo, gint record_id);
+
+void
+ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, guint32 seq);
+
+SslDataInfo* 
+ssl_get_data_info(int proto, packet_info *pinfo, gint key);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void 

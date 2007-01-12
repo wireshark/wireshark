@@ -477,44 +477,11 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 			 content_type, tvb_get_ptr(tvb, offset, record_length),
 			 record_length,  dtls_decrypted_data.data, &dtls_decrypted_data_avail) == 0)
     ret = 1;
-  if (ret && save_plaintext)
-    {
-      SslPacketInfo* pi;
-      pi = p_get_proto_data(pinfo->fd, proto_dtls);
 
-      if (!pi) 
-        {
-	  ssl_debug_printf("decrypt_dtls_record: allocating app_data %d "
-			   "bytes for app data\n", dtls_decrypted_data_avail);
-	  /* first app data record: allocate and put packet data*/
-	  pi = se_alloc0(sizeof(SslPacketInfo));
-	  pi->app_data.data = se_alloc(dtls_decrypted_data_avail);
-	  pi->app_data.data_len = dtls_decrypted_data_avail;
-	  memcpy(pi->app_data.data, dtls_decrypted_data.data, dtls_decrypted_data_avail);
-        }
-      else { 
-	guchar* store;
-	/* update previus record*/
-	ssl_debug_printf("decrypt_dtls_record: reallocating app_data "
-			 "%d bytes for app data (total %d appdata bytes)\n", 
-			 dtls_decrypted_data_avail, pi->app_data.data_len + dtls_decrypted_data_avail);
-	store = se_alloc(pi->app_data.data_len + dtls_decrypted_data_avail);
-	memcpy(store, pi->app_data.data, pi->app_data.data_len);
-	memcpy(&store[pi->app_data.data_len], dtls_decrypted_data.data, dtls_decrypted_data_avail);
-	pi->app_data.data_len += (dtls_decrypted_data_avail);
-            
-	/* old decrypted data ptr here appare to be leaked, but it's 
-	 * collected by emem allocator */
-	pi->app_data.data = store;
-            
-	/* data ptr is changed, so remove old one and re-add the new one*/
-	ssl_debug_printf("decrypt_dtls_record: removing old app_data ptr\n");
-	p_remove_proto_data(pinfo->fd, proto_dtls);
-      }
-     
-      ssl_debug_printf("decrypt_dtls_record: setting decrypted app_data ptr %p\n",pi);
-      p_add_proto_data(pinfo->fd, proto_dtls, pi);
+    if (ret && save_plaintext) {
+      ssl_add_data_info(proto_dtls, pinfo, dtls_decrypted_data.data, dtls_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, 0);
     }
+
   return ret;
 }
 
@@ -564,8 +531,8 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *ti;
   proto_tree *dtls_record_tree;
   guint32 available_bytes;
-  SslPacketInfo* pi;
   SslAssociation* association;
+  SslDataInfo *appl_data;
   ti              = NULL;
   dtls_record_tree = NULL;
   available_bytes = tvb_length_remaining(tvb, offset);
@@ -777,30 +744,28 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 			offset, record_length, 0);
 
     /* show decrypted data info, if available */         
-    pi = p_get_proto_data(pinfo->fd, proto_dtls);
-    if (pi && pi->app_data.data)
+    appl_data = ssl_get_data_info(proto_dtls, pinfo, TVB_RAW_OFFSET(tvb)+offset);
+    if (appl_data && (appl_data->plain_data.data_len > 0))
       {
-	tvbuff_t* new_tvb;
-            
+		tvbuff_t *next_tvb;
 	/* try to dissect decrypted data*/
 	ssl_debug_printf("dissect_dtls_record decrypted len %d\n", 
-			 pi->app_data.data_len);
+			 appl_data->plain_data.data_len);
             
-	/* create new tvbuff for the decrypted data */
-	new_tvb = tvb_new_real_data(pi->app_data.data, 
-				    pi->app_data.data_len, pi->app_data.data_len);
-	tvb_set_free_cb(new_tvb, g_free);
-	/* tvb_set_child_real_data_tvbuff(tvb, new_tvb); */
-            
-	add_new_data_source(pinfo, new_tvb, "Decrypted DTLS data");
+		/* create a new TVB structure for desegmented data */
+		next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
+
+		/* add this tvb as a child to the original one */
+		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+	add_new_data_source(pinfo, next_tvb, "Decrypted DTLS data");
 
 	/* find out a dissector using server port*/
 	if (association && association->handle) {
 	  ssl_debug_printf("dissect_dtls_record found association %p\n", association);
-	  ssl_print_text_data("decrypted app data",pi->app_data.data, 
-			      pi->app_data.data_len);
+	  ssl_print_text_data("decrypted app data",appl_data->plain_data.data, appl_data->plain_data.data_len);
                 
-	  call_dissector(association->handle, new_tvb, pinfo, top_tree);
+	  call_dissector(association->handle, next_tvb, pinfo, top_tree);
 	}
       }     
     break;
