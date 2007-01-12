@@ -51,6 +51,7 @@ EXTRA_DIST = \
 	Makefile.common		\
 	Makefile.nmake		\
 	wtap.def		\
+	file_util.c		\
 	$(GENERATED_FILES)
 
 # Any POSIX-compatible YACC should honor the -p flag

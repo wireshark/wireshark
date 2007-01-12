@@ -105,9 +105,6 @@ NONGENERATED_HEADER_FILES = \
 	wtap-capture.h		\
 	wtap-int.h
 
-EXTRA_DIST = \
-	file_util.c
-
 # Files that generate compileable files
 GENERATOR_SOURCES = \
 	ascend-grammar.y	\
