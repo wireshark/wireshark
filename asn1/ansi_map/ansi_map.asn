@@ -1677,7 +1677,7 @@ LocationRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.i h	
 	transactionCapability					[123] IMPLICIT TransactionCapability OPTIONAL,
 	-- O 6.5.2.160 e
-	triggerType								[279] IMPLICIT TriggerType,
+	triggerType								[279] IMPLICIT TriggerType OPTIONAL,
 	-- O 6.5.2.dh f
 	winCapability							[280] IMPLICIT WINCapability OPTIONAL,
 	-- O 6.5.2.di
@@ -2510,7 +2510,9 @@ SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 --	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	-- O 6.5.2.81 a
 	-- Exchanged by MSID
-	msid									MSID OPTIONAL,
+--	msid									MSID OPTIONAL,
+	imsi									[242] IMPLICIT IMSI OPTIONAL,
+	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber OPTIONAL,
 	--6.5.2.bv
 	newlyAssignedMIN						[187] IMPLICIT NewlyAssignedMIN OPTIONAL,
 	-- O 6.5.2.rB j
@@ -2552,7 +2554,7 @@ SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.63 d
 	mobileStationMSID						MobileStationMSID OPTIONAL,
 	-- O 6.5.2.oC e
-	mscid									[21] IMPLICIT MSCID,
+	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- O 6.5.2.82 f
 	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
 	-- O 6.5.2.124 a
@@ -2634,7 +2636,7 @@ TransferToNumberRequest ::= [PRIVATE 18] SET {
 	-- (MSC) M 6.5.2.147
 	acgencountered							[340] IMPLICIT ACGEncountered OPTIONAL,
 	-- O 6.5.2.fv h
-	billingID								[1] IMPLICIT BillingID,
+	billingID								[1] IMPLICIT BillingID OPTIONAL,
 	-- (Originating) O 6.5.2.16 a
 	callingPartyName						[243] IMPLICIT CallingPartyName OPTIONAL,
 	-- O 6.5.2.bw r, u, v
@@ -5382,8 +5384,8 @@ SMS-OriginationRestrictions ::= OCTET STRING
 -- N.S0005-0 v 1.0
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 0 1 1 1 0 1 0 0 (0x74)(116)
--- SMS-TeleserviceIdentifier ::= OCTET STRING 
-SMS-TeleserviceIdentifier ::= INTEGER 
+SMS-TeleserviceIdentifier ::= OCTET STRING 
+-- SMS-TeleserviceIdentifier ::= INTEGER 
 
 -- 6.5.2.138
 -- 1 0 0 1 1 1 1 1 (0x9f)

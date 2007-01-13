@@ -20,6 +20,29 @@ OriginationRequestRes
 #.FIELD_RENAME
 
 #.FN_BODY InvokeParameters
+  gint   *opcode;
+  struct tcap_private_t * p_private_tcap;
+
+  /* Data from the TCAP dissector */
+  if (pinfo->private_data != NULL){
+	  p_private_tcap=pinfo->private_data;
+	  opcode = g_malloc(sizeof(gint));
+	  OperationCode = OperationCode&0x00ff;
+	  *opcode = OperationCode;
+	  if (!pinfo->fd->flags.visited)
+		  /* Only do this once XXX I hope its the right thing to do */
+		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
+  }
+
+  ansi_map_is_invoke = TRUE;	
+  if (check_col(pinfo->cinfo, COL_INFO)){
+	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  }
+  /* No Data */
+  if(tvb_length_remaining(tvb, offset)<=0){
+	  return offset;
+
+  }
 	proto_tree_add_item(tree, hf_ansi_map_invokeParameters, tvb, offset,-1,FALSE);
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
 
@@ -301,14 +324,19 @@ OriginationRequestRes
 
 # 6.5.2.137
 # N.S0005-0 v 1.0
-#.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &ansi_map_sms_tele_id
+#.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &parameter_tvb
+
+tvbuff_t *parameter_tvb = NULL;
 static gint32 ansi_map_sms_tele_id = -1;
 
 %(DEFAULT_BODY)s
-	if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
-	{
-	    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
-	    ansi_map_sms_tele_id = -1;
+	if (parameter_tvb){
+		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
+		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
+		{
+		    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+		    ansi_map_sms_tele_id = -1;
+		}
 	}
 
 # 6.5.2.146 SystemCapabilities */
@@ -418,7 +446,7 @@ SMS-AccessDeniedReason  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi
 SMS-CauseCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_SMS_CauseCode_vals)
 SMS-ChargeIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_ChargeIndicator_vals)
 SMS-NotificationIndicator TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_SMS_NotificationIndicator_vals)
-SMS-TeleserviceIdentifier TYPE = FT_UINT16  DISPLAY = BASE_DEC STRINGS = VALS(ansi_map_SMS_TeleserviceIdentifier_vals)
+#SMS-TeleserviceIdentifier TYPE = FT_UINT16  DISPLAY = BASE_DEC STRINGS = VALS(ansi_map_SMS_TeleserviceIdentifier_vals)
 TDMABandwidth TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(ansi_map_TDMABandwidth_vals)
 TDMAServiceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_TDMAServiceCode_vals)
 OTASP-ResultCode TYPE = FT_UINT8  DISPLAY = BASE_DEC   STRINGS = VALS(ansi_map_OTASP_ResultCode_vals)
