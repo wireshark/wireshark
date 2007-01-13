@@ -4099,7 +4099,7 @@ dissect_ansi_map_InvokeParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 	  opcode = g_malloc(sizeof(gint));
 	  OperationCode = OperationCode&0x00ff;
 	  *opcode = OperationCode;
-	  if (!pinfo->fd->flags.visited)
+	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str))
 		  /* Only do this once XXX I hope its the right thing to do */
 		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
   }

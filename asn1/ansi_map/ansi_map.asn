@@ -6595,7 +6595,7 @@ CallRecoveryIDList ::= SET OF [303] IMPLICIT CallRecoveryID
 --	callRecoveryIDopt	[303] IMPLICIT CallRecoveryID OPTIONAL,
 --	}
 
--- 6.5.2.ei
+-- 6.5.2.ei TIA/EIA-41.5-D Modifications N.S0018Re
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 1 1 0 0 0 1 (0x31)(305)

@@ -3206,6 +3206,11 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, prot
 
 }
 
+/* 6.5.2.ei TIA/EIA-41.5-D Modifications N.S0018Re */
+/* Octet 1,2 1st MarketID */
+/* Octet 3 1st MarketSegmentID */
+/* Octet 4,5 1st DMH_ServiceID value */
+/* Second marcet ID etc */
 /* 6.5.2.ek ControlNetworkID N.S0018*/
 static void
 dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
