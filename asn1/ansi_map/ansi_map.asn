@@ -1721,7 +1721,7 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 i
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 j
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei q
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 k
@@ -1887,7 +1887,7 @@ OriginationRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.eo i, t
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 i, j
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei s
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 k
@@ -2700,7 +2700,7 @@ TransferToNumberRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 h
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 h
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei k
 	groupInformation						[163] GroupInformation OPTIONAL,
 	-- O 6.5.2.69 i
@@ -2968,7 +2968,7 @@ ServiceRequest ::= [PRIVATE 18] SET {
 	-- (Dialed) O 6.5.2.58 a
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 c
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ej c, r
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber OPTIONAL,
 	-- O 6.5.2.63 c, s
@@ -3065,7 +3065,7 @@ ServiceRequestRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.eo a, k
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 a
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei i
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 a
@@ -3165,7 +3165,7 @@ AnalyzedInformation ::= [PRIVATE 18] SET {
 	}
 
 --AnalyzedInformation RETURN RESULT Parameters
-
+-- Analyzed Information Request
 AnalyzedInformationRes ::= [PRIVATE 18] SET {
 	accessDeniedReason						[20] IMPLICIT AccessDeniedReason OPTIONAL,
 	-- O 6.5.2.1 a
@@ -3189,7 +3189,7 @@ AnalyzedInformationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 g
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 h
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei n
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
 	-- O 6.5.2.87 i
@@ -3197,7 +3197,7 @@ AnalyzedInformationRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.88 j
 	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 d
-	resumePIC								[394] IMPLICIT ResumePIC,
+	resumePIC								[394] IMPLICIT ResumePIC OPTIONAL,
 	-- O 6.5.2.cu k
 	routingDigits							[150] IMPLICIT RoutingDigits OPTIONAL,
 	-- O 6.5.2.114 d
@@ -3312,7 +3312,7 @@ FacilitySelectedAndAvailableRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.eo e, l
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 e, f
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei k
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
 	-- O 6.5.2.87 g
@@ -3481,7 +3481,7 @@ TBusyRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 f
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 f
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei n
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 g
@@ -3586,7 +3586,7 @@ TNoAnswerRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.61 f
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 f
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei n
 	groupInformation						[163] IMPLICIT GroupInformation OPTIONAL,
 	-- O 6.5.2.69 g
@@ -3838,13 +3838,13 @@ ODisconnect ::= [PRIVATE 18] SET {
 ODisconnectRes ::= [PRIVATE 18] SET {
 	announcementList						[130] IMPLICIT AnnouncementList OPTIONAL,
 	-- O 6.5.2.6 a
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL
 	-- O 6.5.2.ei b
 	}
 -- 6.4.2.ac CallRecoveryReport
 
 CallRecoveryReport ::= [PRIVATE 18] SET {
-	callRecoveryIDList						[303] IMPLICIT CallRecoveryIDList
+	callRecoveryIDList						[304] IMPLICIT CallRecoveryIDList
 	-- M 6.5.2.eh a
 	}
 
@@ -3923,7 +3923,7 @@ TDisconnect ::= [PRIVATE 18] SET {
 
 -- Table ae-2 TDisconnect RETURN RESULT Parameters
 TDisconnectRes ::= [PRIVATE 18] SET {
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL
 	-- O 6.5.2.ei a
 	}
 
@@ -4009,7 +4009,7 @@ OCalledPartyBusyRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.eo e, d
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 e, f
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei g
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
 	-- O 6.5.2.87 h
@@ -4093,7 +4093,7 @@ ONoAnswerRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.eo e, d
 	dmh-RedirectionIndicator				[88] IMPLICIT DMH-RedirectionIndicator OPTIONAL,
 	-- O 6.5.2.62 e, f
-	dmh-ServiceID							[177] IMPLICIT DMH-ServiceID OPTIONAL,
+	dmh-ServiceID							[305] IMPLICIT DMH-ServiceID OPTIONAL,
 	-- O 6.5.2.ei g
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
 	-- O 6.5.2.87 h
@@ -4733,10 +4733,33 @@ DMH-BillingDigits ::= DigitsType
 -- 6.5.2.62 
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 0 1 0 1 1 0 0 0 (0x58)(88)
--- XXX Check
+
 DMH-RedirectionIndicator ::= ENUMERATED {
-	not-specified	( 0 ),
-	...
+	not-specified			(0),
+	cfu						(1),
+	cfb						(2),
+	cfna					(3),
+	cfo						(4),
+	cd-Unspecified			(5),
+	cd-PSTN					(6),
+	cd-Private				(7),
+	pstn-Tandem				(8),
+	private					(9),
+	busy					(10),
+	inactive				(11),
+	unassigned				(12),
+	termination-denied		(13),
+	cd-failure				(14),
+	ect						(15),
+	mah						(16),
+	fa						(17),
+	abandoned-call-leg		(18),
+	pca-call-refused		(19),
+	sca-call-refused		(20),
+	dialogue				(21),
+	cfd						(22),
+	cd-local				(23),
+	voice-mail-retrieval	(24)
 }
 
 -- 6.5.2.63		
@@ -6381,7 +6404,7 @@ TriggerAddressList ::= SET OF SET{
 --	O 6.5.2.dg a
 }
 
--- 6.5.2.df
+-- 6.5.2.df TIA/EIA/IS-848 N.S0004
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 0 1 0 1 0 1 (0x15)(277)
@@ -6565,7 +6588,7 @@ CallRecoveryID ::= SET{
 -- 6.5.2.eh
 -- 1 0 1 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 1 1 0 0 0 0
+-- 0 0 1 1 0 0 0 0 (0x30)(304)
 CallRecoveryIDList ::= SET OF [303] IMPLICIT CallRecoveryID
 
 --	callRecoveryID		[303] IMPLICIT CallRecoveryID,
@@ -6575,7 +6598,7 @@ CallRecoveryIDList ::= SET OF [303] IMPLICIT CallRecoveryID
 -- 6.5.2.ei
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
--- 0 0 1 1 0 0 0 1 (0x31)(177)
+-- 0 0 1 1 0 0 0 1 (0x31)(305)
 DMH-ServiceID  ::= OCTET STRING
 
 -- 6.5.2.ej

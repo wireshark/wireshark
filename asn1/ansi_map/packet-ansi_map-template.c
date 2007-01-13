@@ -126,6 +126,8 @@ static int hf_ansi_map_op_code_fam = -1;
 static int hf_ansi_map_op_code = -1;
 
 static int hf_ansi_map_reservedBitH = -1;
+static int hf_ansi_map_reservedBitD = -1;
+static int hf_ansi_map_reservedBitHG = -1;
 static int hf_ansi_map_reservedBitED = -1;
 
 static int hf_ansi_map_type_of_digits = -1;
@@ -635,6 +637,7 @@ static void
 dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	
 	guint8 octet;
+	guint8 b1,b2,b3,b4;
 	int offset = 0;
 	char		*digit_str;
     proto_item *item;
@@ -647,7 +650,9 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(subtree, hf_ansi_map_type_of_digits, tvb, offset, 1, FALSE);
 	offset++;
 	/* Octet 2 */
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_ansi_map_si, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitD, tvb, offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_ansi_map_navail, tvb, offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_ansi_map_pi, tvb, offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_ansi_map_na, tvb, offset, 1, FALSE);
@@ -660,6 +665,23 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* Octet 4 - */
 	switch(octet>>4){
 	case 0:/* Unknown or not applicable */
+		switch ((octet&0xf)){
+		case 1:
+			/* BCD Coding */
+			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
+			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			break;
+		case 2:
+			/* IA5 Coding */
+			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			break;
+		case 3:
+			/* Octet string */
+			break;
+		default:
+			break;
+		}
+		break;
 	case 1:/* ISDN Numbering (not used in this Standard). */
 	case 3:/* Data Numbering (ITU-T Rec. X.121) (not used in this Standard). */
 	case 4:/* Telex Numbering (ITU-T Rec. F.69) (not used in this Standard). */
@@ -689,6 +711,26 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 		break;
 	case 13:/* ANSI SS7 Point Code (PC) and Subsystem Number (SSN). */
+		switch ((octet&0xf)){
+		case 3:
+			/* Octet string */
+			/* Point Code Member Number octet 2 */
+			b1 = tvb_get_guint8(tvb,offset);
+			offset++;
+			/* Point Code Cluster Number octet 3 */
+			b2 = tvb_get_guint8(tvb,offset);
+			offset++;
+			/* Point Code Network Number octet 4 */
+			b3 = tvb_get_guint8(tvb,offset);
+			offset++;
+			/* Subsystem Number (SSN) octet 5 */
+			b4 = tvb_get_guint8(tvb,offset);
+			proto_tree_add_text(subtree, tvb, offset-3, 4 ,	"Point Code %u-%u-%u  SSN %u",
+				b3, b2, b1, b4);
+			break;
+		default:
+			break;
+		}
 		break;
 	case 14:/* Internet Protocol (IP) Address. */
 		break;
@@ -1078,9 +1120,11 @@ static const value_string ansi_map_FeatureActivity_vals[]  = {
 static void
 dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
+	int length; 
     proto_item *item;
     proto_tree *subtree;
 
+	length = tvb_length_remaining(tvb,offset); 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
 
@@ -1093,6 +1137,7 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	/* Call Forwarding Unconditional FeatureActivity, CFU-FA (Octet 1 bits AB )	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfufa, tvb, offset, 1, FALSE);
 	offset++;
+	length--;
 
 	/* Call Transfer: FeatureActivity, CT-FA (Octet 2 bits GH )		*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ctfa, tvb, offset, 1, FALSE);
@@ -1104,6 +1149,7 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	/* Three-Way Calling FeatureActivity, 3WC-FA (Octet 2 bits AB )	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_3wcfa, tvb, offset, 1, FALSE);
 	offset++;
+	length--;
 
 
 	/* Calling Number Identification Restriction Override FeatureActivity CNIROver-FA (Octet 3 bits GH )	*/
@@ -1114,6 +1160,9 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip2fa, tvb, offset, 1, FALSE);
 	/* Calling Number Identification Presentation: FeatureActivity CNIP1-FA (Octet 3 bits AB ) 	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip1fa, tvb, offset, 1, FALSE);
+	length--;
+	if ( length == 0)
+		return;
 	offset++;
 
 	/* USCF divert to voice mail: FeatureActivity USCFvm-FA (Octet 4 bits GH ) 	*/
@@ -1124,6 +1173,9 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_dpfa, tvb, offset, 1, FALSE);
 	/* Priority Call Waiting FeatureActivity PCW-FA (Octet 4 bits AB )	*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_pcwfa, tvb, offset, 1, FALSE);
+	length--;
+	if ( length == 0)
+		return;
 	offset++;
 
 	/* USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA (Octet 5 bits AB ) */
@@ -1134,13 +1186,13 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, pro
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cpdsfa, tvb, offset, 1, FALSE);
 	/* CDMA-Concurrent Service:FeatureActivity. CCS-FA (Octet 5 bits GH ) N.S0029-0 v1.0*/
 	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ccsfa, tvb, offset, 1, FALSE);
+	length--;
+	if ( length == 0)
+		return;
 	offset++;
 
-	if ( tvb_length_remaining(tvb,offset) > 0){
-		/* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
-		proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
-	}
-
+	/* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
+	proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
 }
 
 
@@ -2367,13 +2419,13 @@ dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_systemcapabilities);
-	
-	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_auth, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_se, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_vp, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, FALSE);
 	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_dp, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_vp, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_se, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_auth, tvb, offset, 1, FALSE);
 }
 
 /* 6.5.2.151 TDMABurstIndicator */
@@ -2577,10 +2629,10 @@ dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	/* WIN Addressing (WADDR) (octet 2, bit F) */
 	proto_tree_add_item(subtree, hf_ansi_trans_cap_waddr, tvb, offset, 1, FALSE);
-	/* Multiple Terminations (octet 2, bits A-D) */
-	proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, FALSE);
 	/* TerminationList (TL) (octet 2, bit E) */
 	proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, FALSE);
+	/* Multiple Terminations (octet 2, bits A-D) */
+	proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, FALSE);
 }
 
 /* 6.5.2.162 UniqueChallengeReport */
@@ -3370,24 +3422,6 @@ static const value_string ansi_map_VoicePrivacyReport_vals[]  = {
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
-  gint   *opcode;
-  struct tcap_private_t * p_private_tcap;
-
-  /* Data from the TCAP dissector */
-  if (pinfo->private_data != NULL){
-	  p_private_tcap=pinfo->private_data;
-	  opcode = g_malloc(sizeof(gint));
-	  OperationCode = OperationCode&0x00ff;
-	  *opcode = OperationCode;
-	  if (!pinfo->fd->flags.visited)
-		  /* Only do this once XXX I hope its the right thing to do */
-		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
-  }
-
-  ansi_map_is_invoke = TRUE;	
-  if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
-  }
 
   switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
@@ -3998,10 +4032,18 @@ void proto_register_ansi_map(void) {
       { "Reserved", "ansi_map.reserved_bitH",
         FT_BOOLEAN, 8, NULL,0x80,
         "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitD,
+      { "Reserved", "ansi_map.reserved_bitH",
+        FT_BOOLEAN, 8, NULL,0x08,
+        "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitHG,
+      { "Reserved", "ansi_map.reserved_bitHG",
+       FT_UINT8, BASE_DEC, NULL, 0x18,
+         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitED,
       { "Reserved", "ansi_map.reserved_bitED",
-        FT_BOOLEAN, 8, NULL,0x18,
-        "Reserved", HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0x18,
+         "Reserved", HFILL }},
     { &hf_ansi_map_op_code,
       { "Operation Code", "ansi_map.op_code",
         FT_UINT8, BASE_DEC, VALS(ansi_map_opr_code_strings), 0x0,
