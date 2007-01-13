@@ -68,7 +68,7 @@ MSVC_VARIANT=MSVC6
 
 # "Microsoft Visual Studio 2005" - WORKS
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-MSVC_VARIANT=MSVC2005
+#MSVC_VARIANT=MSVC2005
 
 # "Microsoft Visual C++ 2005 Express Edition" - WORKS
 # needs additional Platform SDK installation
