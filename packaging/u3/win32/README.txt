@@ -12,15 +12,14 @@ You will need the cygwin zip archive package to build the package itself. Once y
 A few minor changes have been made to Wireshark itself:
 1) Wireshark will write a <pid>.pid file while running. This allows the utility to close down Wireshark when the device is removed.
 2) filesystem.c has been changed to take advantage of the U3 "datafile_dir" and "persconffile_dir". Personal settings are then stored on the device.
+3) The files in the 'recent' file are written in a form that allows the U3 device path to change.
 
 There is a [self-]certification process for U3 packages which could be undertaken if there is sufficient interest for this package format. Wireshark could then be placed on Software Central - http://software.u3.com/SoftwareCentral.aspx?skip=1.
-
 
 Known Issues:
 =============
 
-1) The U3 package does not include WinPcap - so that must be installed separately on the machine into which the U3 device is plugged into.
+1) The U3 package tries to install WinPcap if it is not already installed when it is first run. It will be automatically removed when the device is removed. But this is not the best approach.
 2) The distribution of the files across the U3 host and U3 device needs to be verified for all protocols.
 3) The list of files should be derived from a common source (e.g. nsis/wireshark.nsi)
-4) Should there be a Wiki page? Yes - but where?
-5) Wireshark does not close down cleanly when a dialog is up.
+4) Wireshark does not close down cleanly when a dialog is up.

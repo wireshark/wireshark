@@ -25,36 +25,36 @@ all:	package
 manifest.u3i:	manifest.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(VERSION)/$(VERSION)/g' < manifest.tmpl > manifest.u3i
 
-$(HOST):
-	$(MKDIR) $(HOST)
-	$(MKDIR) $(HOST)\etc
-	$(MKDIR) $(HOST)\etc\gtk-2.0
-	$(MKDIR) $(HOST)\etc\pango
-	$(MKDIR) $(HOST)\lib
-	$(MKDIR) $(HOST)\lib\gtk-2.0
-	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)
-	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
-	$(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
-	$(MKDIR) $(HOST)\$(GTK_WIMP_DLLDST_DIR)
+host-dirs:
+	if not exist $(HOST) $(MKDIR) $(HOST)
+	if not exist $(HOST)\etc $(MKDIR) $(HOST)\etc
+	if not exist $(HOST)\etc\gtk-2.0 $(MKDIR) $(HOST)\etc\gtk-2.0
+	if not exist $(HOST)\etc\pango $(MKDIR) $(HOST)\etc\pango
+	if not exist $(HOST)\lib $(MKDIR) $(HOST)\lib
+	if not exist $(HOST)\lib\gtk-2.0 $(MKDIR) $(HOST)\lib\gtk-2.0
+	if not exist $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR) $(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)
+	if not exist $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders $(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
+	if not exist $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules $(MKDIR) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	if not exist $(HOST)\$(GTK_WIMP_DLLDST_DIR) $(MKDIR) $(HOST)\$(GTK_WIMP_DLLDST_DIR)
 
-$(DEVICE):
-	$(MKDIR) $(DEVICE)
-	$(MKDIR) $(DEVICE)\plugins
-	$(MKDIR) $(DEVICE)\plugins\$(VERSION)
-	$(MKDIR) $(DEVICE)\help
-	$(MKDIR) $(DEVICE)\snmp
-	$(MKDIR) $(DEVICE)\snmp\mibs
-	$(MKDIR) $(DEVICE)\diameter
-	$(MKDIR) $(DEVICE)\dtds
-	$(MKDIR) $(DEVICE)\radius
+device-dirs:
+	if not exist $(DEVICE) $(MKDIR) $(DEVICE)
+	if not exist $(DEVICE)\plugins $(MKDIR) $(DEVICE)\plugins
+	if not exist $(DEVICE)\plugins\$(VERSION) $(MKDIR) $(DEVICE)\plugins\$(VERSION)
+	if not exist $(DEVICE)\help $(MKDIR) $(DEVICE)\help
+	if not exist $(DEVICE)\snmp $(MKDIR) $(DEVICE)\snmp
+	if not exist $(DEVICE)\snmp\mibs $(MKDIR) $(DEVICE)\snmp\mibs
+	if not exist $(DEVICE)\diameter $(MKDIR) $(DEVICE)\diameter
+	if not exist $(DEVICE)\dtds $(MKDIR) $(DEVICE)\dtds
+	if not exist $(DEVICE)\radius $(MKDIR) $(DEVICE)\radius
 
-$(DATA):
-	$(MKDIR) $(DATA)
+data-dirs:
+	if not exist $(DATA) $(MKDIR) $(DATA)
 
-$(MANIFEST):
-	$(MKDIR) $(MANIFEST)
+manifest-dirs:
+	if not exist $(MANIFEST) $(MKDIR) $(MANIFEST)
 
-distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
+distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe
 # manifest
 	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
@@ -258,8 +258,8 @@ distribution: $(HOST) $(DEVICE) $(DATA) $(MANIFEST) manifest.u3i u3util.exe
 !ENDIF 
 	$(COPY) $(GTK2_DIR)\etc\gtk-2.0\*.* $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\etc\pango\pango.* $(HOST)\etc\pango $(COPY_FLAGS)
-	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
-	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
+	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders $(COPY_FLAGS)
+	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules $(COPY_FLAGS)
 !IFDEF GTK_WIMP_DIR
 	$(COPY) $(GTK_WIMP_DLLSRC_DIR)\libwimp.dll $(HOST)\$(GTK_WIMP_DLLDST_DIR) $(COPY_FLAGS)
 	$(COPY) $(GTK_WIMP_RCSRC_DIR)\gtkrc $(HOST)\$(GTK_WIMP_RCDST_DIR) $(COPY_FLAGS)
@@ -295,8 +295,8 @@ clean:
 	rm -rf $(DATA)	
 	rm -rf $(MANIFEST)	
 	rm -rf u3util.{exe,obj}
-	rm -rf wireshark-*.u3p
-   	rm -rf *~
+	rm -rf wireshark*.u3p
+   	rm -rf *~ *.*~
 
 distclean:	clean
 
