@@ -52,7 +52,7 @@ MSVC_VARIANT=MSVC6
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=MSVC2002
 
-# "Microsoft .Net Framework SDK Version 1.0" - EXPERIMENTAL
+# "Microsoft .Net Framework SDK Version 1.0" - WORKS
 # needs additional Platform SDK installation
 # Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
 #MSVC_VARIANT=DOTNET10
@@ -67,25 +67,18 @@ MSVC_VARIANT=MSVC6
 #MSVC_VARIANT=DOTNET11
 
 # "Microsoft Visual Studio 2005" - WORKS
-# "Microsoft Visual C++ 2005 Express Edition" - WORKS
-# The "Express Edition" needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=MSVC2005
+MSVC_VARIANT=MSVC2005
+
+# "Microsoft Visual C++ 2005 Express Edition" - WORKS
+# needs additional Platform SDK installation
+# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
+#MSVC_VARIANT=MSVC2005EE
 
 # "Microsoft .Net Framework 2.0 SDK" - WORKS
 # needs additional Platform SDK installation
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=DOTNET20
-
-#
-# Optional: Microsoft Platform SDK.
-# (Mandatory for some MSVC_VARIANTs, see above)
-#
-# If you don't have the PSDK, comment this line out, so that 
-# PLATFORM_SDK_DIR isn't defined.
-#
-# If you have installed a platform SDK, set this to the directory where it reside
-#PLATFORM_SDK_DIR=$(PROGRAM_FILES)\Microsoft Platform SDK for Windows Server 2003 R2
 
 
 
@@ -408,7 +401,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 #
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "DOTNET20"
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 !ELSE
 !ERROR MSVC_VARIANT unknown
@@ -454,6 +447,53 @@ INSTALL1_DIR=wireshark-gtk1
 #
 # install (debug) directory for Wireshark GTK2 version (relative to your source dir)
 INSTALL2_DIR=wireshark-gtk2
+
+
+
+##### C-Runtime Redistributable #####
+#
+# The C-Runtime since Version 7 must be shipped together with 
+# the program installer, to avoid missing msvcr*.dll files on
+# the target machine.
+#
+# The location of these files differ on the various compiler 
+# packages, the following will use the default paths depending
+# on the package version.
+#
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+# msvcrt.dll will already be available on target machines - nothing additional to install
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002"
+# you probably need to tweak this directory if you don't use the professional edition!
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET\Visual Studio .NET Professional - English\msvcr70.dll
+
+!ELSEIF "$(MSVC_VARIANT)" == "DOTNET10"
+# no redistributable available for this package!
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2003"
+# you probably need to tweak this directory if you don't use the professional edition!
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET 2003\Visual Studio .NET Professional 2003 - English\msvcr71.dll
+
+!ELSEIF "$(MSVC_VARIANT)" == "DOTNET11"
+# no redistributable available for this package!
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\*.*
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005EE"
+# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
+# and copy it to the lib folder!!!
+VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
+
+!ELSEIF "$(MSVC_VARIANT)" == "DOTNET20"
+# you need to download the redistributable package vcredist_x86.exe from Microsoft first,
+# and copy it to the lib folder!!!
+VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
+
+!ELSE
+!ERROR MSVC_VARIANT unknown
+!ENDIF
+
 
 
 

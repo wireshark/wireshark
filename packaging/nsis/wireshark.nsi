@@ -348,8 +348,13 @@ File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 File "..\..\example_snmp_users_file"
 
-; manifest files needed for MSVC2005 / .NET SDK 2.0
+; manifest files needed for MSVC2005 / MSVC2005EE / DOTNET20
 !if ${MSVC_VARIANT} == "MSVC2005"
+File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
+File "..\..\*.manifest"
+File "${ZLIB_DIR}\zlib1.dll.manifest"
+!endif
+!if ${MSVC_VARIANT} == "MSVC2005EE"
 File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
 File "..\..\*.manifest"
 File "${ZLIB_DIR}\zlib1.dll.manifest"
@@ -359,6 +364,24 @@ File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
 File "..\..\*.manifest"
 File "${ZLIB_DIR}\zlib1.dll.manifest"
 !endif
+
+; C-runtime redistributable 
+!ifdef VCREDIST_EXE
+; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer
+File "${VCREDIST_EXE}"
+ExecWait '"$INSTDIR\vcredist_x86.exe"' $0
+DetailPrint "vcredist_x86 returned $0"
+!else
+!ifdef MSVCR_DLL
+; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
+File "${MSVCR_DLL}"
+!else
+!if ${MSVC_VARIANT} != "MSVC6"
+!error "C-Runtime redistributable for this package not available / not redistributable!"
+!endif
+!endif	; MSVCR_DLL
+!endif	; VCREDIST_EXE
+
 
 ; global config files - don't overwrite if already existing 
 ;IfFileExists cfilters dont_overwrite_cfilters
