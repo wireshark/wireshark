@@ -22,6 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+gboolean u3_active();
 
 void u3_register_pid(void);
 void u3_deregister_pid(void);
+
+char * u3_expand_device_path(char *path);
+char * u3_contract_device_path(char *path);

@@ -47,6 +47,7 @@
 #include "cfilter_combo_utils.h"
 #include "simple_dialog.h"
 #include "file_util.h"
+#include "u3.h"
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -259,7 +260,11 @@ write_recent(void)
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
-    fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
+
+    if(u3_active())
+      fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", u3_contract_device_path(get_last_open_dir()));
+    else
+      fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
   }
 
   window_geom_recent_write_all(rf);
@@ -434,7 +439,10 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     recent.gui_geometry_status_pane = num;
     recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
-    set_last_open_dir(value);
+    if(u3_active())
+      set_last_open_dir(u3_expand_device_path(value));
+    else
+      set_last_open_dir(value);
   } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
     /* now have something like "gui.geom.main.x", split it into win and sub_key */
     char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
@@ -455,7 +463,10 @@ static prefs_set_pref_e
 read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
 {
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
-	add_menu_recent_capture_file(value);
+    if(u3_active())
+      add_menu_recent_capture_file(u3_expand_device_path(value));
+    else
+      add_menu_recent_capture_file(value);
   } else if (strcmp(key, RECENT_KEY_DISPLAY_FILTER) == 0) {
 	dfilter_combo_add_recent(value);
   } else if (strcmp(key, RECENT_KEY_CAPTURE_FILTER) == 0) {

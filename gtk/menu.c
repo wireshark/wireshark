@@ -81,6 +81,7 @@
 #include "ssl-dlg.h"
 #include "sctp_stat.h"
 #include "firewall_dlg.h"
+#include "u3.h"
 
 GtkWidget *popup_menu_object;
 
@@ -1521,6 +1522,9 @@ menu_recent_file_write_all(FILE *rf) {
         /* get capture filename from the menu item label */
         cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
         if (cf_name) {
+	  if(u3_active())
+            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+	  else
             fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
         }
 

@@ -51,8 +51,26 @@
 
 #include <gtk/u3.h>
 
+#define U3_DEVICE_PATH_VAR   "$U3_DEVICE_PATH"
 
 static char *pid_file = NULL;
+static char *u3devicepath = (char*)-1;
+static gchar *newpath = NULL;
+
+static char *u3_change_path(char *path, const char *old, const char *new);
+
+gboolean u3_active() 
+{
+
+  return (
+#ifdef _WIN32
+      getenv_utf8
+#else
+      getenv
+#endif 
+      ("U3_HOST_EXEC_PATH") != NULL);
+
+}
 
 void u3_register_pid()
 {
@@ -99,4 +117,51 @@ void u3_deregister_pid()
     pid_file = NULL;
 
   }
+}
+
+char *u3_expand_device_path(char *path)
+{
+  return u3_change_path(path, U3_DEVICE_PATH_VAR, NULL);
+}
+
+
+char *u3_contract_device_path(char *path)
+{
+  return u3_change_path(path, NULL, U3_DEVICE_PATH_VAR);
+}
+
+static char *u3_change_path(char *path, const char *old, const char *new) 
+{
+
+  if(u3devicepath == (char*)-1) {
+    /* cache the device path */
+    u3devicepath = 
+#ifdef _WIN32
+      getenv_utf8
+#else
+      getenv
+#endif 
+      ("U3_DEVICE_PATH");
+  }
+  
+  if(new == NULL)
+    new = u3devicepath;
+  if(old == NULL)
+    old = u3devicepath;
+
+  if(newpath == NULL) {
+    g_free(newpath);
+    newpath = NULL;
+  }
+
+  if((path != NULL) && (u3devicepath != NULL) && (strncmp(path, old, strlen(old)) == 0)) {
+    
+    newpath = g_strconcat(new, path + strlen(old), NULL);
+
+    return newpath;
+
+  }
+
+  return path;
+
 }
