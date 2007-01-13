@@ -30,6 +30,9 @@ ansi_a_ios501_dtap_strings      DATA
 ansi_map_opr_code_strings       DATA
 asn1_ctx_init
 BandRejectReason_vals           DATA
+ber_decode_as
+ber_decode_as_foreach
+ber_set_filename
 build_follow_filter
 bytes_to_str_punct
 bytes_to_str
@@ -599,6 +602,8 @@ reassembled_table_init
 register_all_plugin_tap_listeners
 register_all_protocols
 register_all_protocol_handoffs
+register_ber_syntax_dissector
+register_ber_oid_syntax
 register_dissector
 register_dissector_table
 register_final_registration_routine

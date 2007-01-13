@@ -108,9 +108,14 @@ static gint ett_ber_SEQUENCE = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 
+static gchar *decode_as_syntax = NULL;
+static gchar *ber_filename = NULL;
+
 proto_item *ber_last_created_item=NULL;
 
 static dissector_table_t ber_oid_dissector_table=NULL;
+static dissector_table_t ber_syntax_dissector_table=NULL;
+static GHashTable *syntax_table=NULL;
 
 static const value_string ber_class_codes[] = {
 	{ BER_CLASS_UNI,	"UNIVERSAL" },
@@ -158,6 +163,11 @@ static const value_string ber_uni_tag_codes[] = {
 	{ 0, NULL }
 };
 
+typedef struct _da_data {
+  GHFunc   func;
+  gpointer user_data;
+} da_data;
+
 
 proto_item *get_ber_last_created_item(void) {
   return ber_last_created_item;
@@ -186,6 +196,94 @@ register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, co
 	dissector_handle=create_dissector_handle(dissector, proto);
 	dissector_add_string("ber.oid", oid, dissector_handle);
 	add_oid_str_name(oid, name);
+}
+
+void 
+register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissector)
+{
+  dissector_handle_t dissector_handle;
+
+  dissector_handle=create_dissector_handle(dissector, proto);
+  dissector_add_string("ber.syntax", syntax, dissector_handle);
+  
+}
+
+void
+register_ber_oid_syntax(const char *oid, const char *name, const char *syntax)
+{
+
+  if(syntax && *syntax)
+    g_hash_table_insert(syntax_table, (gpointer)oid, (gpointer)syntax);
+
+  if(name && *name)
+    register_ber_oid_name(oid, name);
+}
+
+/* Register the oid name to get translation in proto dissection */
+void
+register_ber_oid_name(const char *oid, const char *name)
+{
+	add_oid_str_name(oid, name);
+}
+
+static void ber_decode_as_dt(gchar *table_name, ftenum_t selector_type, gpointer key, gpointer value, gpointer user_data)
+{
+  da_data *decode_as_data;
+  
+  decode_as_data = (da_data *)user_data;
+
+  decode_as_data->func(key, value, decode_as_data->user_data);
+}
+
+void ber_decode_as_foreach(GHFunc func, gpointer user_data) 
+{
+  da_data decode_as_data;
+
+  decode_as_data.func = func;
+  decode_as_data.user_data = user_data;
+
+  dissector_table_foreach("ber.syntax",  ber_decode_as_dt, &decode_as_data);
+
+}
+
+void ber_decode_as(gchar *syntax)
+{
+
+  if(decode_as_syntax) {
+    g_free(decode_as_syntax);
+    decode_as_syntax = NULL;
+  }
+
+  if(syntax)
+    decode_as_syntax = g_strdup(syntax);
+}
+
+/* Get oid syntax from hash table to get translation in proto dissection(packet-per.c) */
+const char *
+get_ber_oid_syntax(const char *oid)
+{
+	return g_hash_table_lookup(syntax_table, oid);
+}
+
+void ber_set_filename(gchar *filename)
+{
+  gchar      *ptr;
+
+  if(ber_filename) {
+    g_free(ber_filename);
+    ber_filename = NULL;
+  }
+
+  if(filename) {
+
+    ber_filename = g_strdup(filename);
+
+    if((ptr = strrchr(ber_filename, '.')) != NULL) {
+      
+      ber_decode_as(get_ber_oid_syntax(ptr));
+
+    }
+  }
 }
 
 int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint8 tag_cls, gint32 tag_tag, gboolean tag_impl, ber_type_fn type)
@@ -431,6 +529,38 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 
 	return offset;
 }
+
+int
+call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	tvbuff_t *next_tvb;
+	const char *fsyntax = NULL;
+
+	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if(syntax == NULL ||
+	    !dissector_try_string(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree)){
+	  proto_item *item=NULL;
+	  proto_tree *next_tree=NULL;
+
+	  if (syntax == NULL)
+	    item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: No syntax supplied to call_ber_syntax_callback");
+	  else
+	    item=proto_tree_add_text(tree, next_tvb, 0, tvb_length_remaining(tvb, offset), "BER: Dissector for syntax: %s not implemented. Contact Wireshark developers if you want this supported", syntax);
+	  if(item){
+	    next_tree=proto_item_add_subtree(item, ett_ber_unknown);
+	  }
+	  dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+	}
+
+	/*XXX until we change the #.REGISTER signature for _PDU()s
+	 * into new_dissector_t   we have to do this kludge with
+	 * manually step past the content in the ANY type.
+	 */
+	offset+=tvb_length_remaining(tvb, offset);
+
+	return offset;
+}
+
 
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
@@ -2416,16 +2546,38 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 static void
 dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  const char *name;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s", "Unknown BER");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BER");
+
+  if (check_col(pinfo->cinfo, COL_DEF_SRC))
+    col_set_str(pinfo->cinfo, COL_DEF_SRC, "BER encoded file");
+
+  if(!decode_as_syntax) {
+ 
+    /* if we got here we couldn't find anything better */
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_clear(pinfo->cinfo, COL_INFO);
+      col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown BER");
+    }
+
+    (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
+
+  } else {
+
+    (void) call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+
+      /* see if we have a better name */
+      name = get_ber_oid_syntax(decode_as_syntax);
+
+      col_clear(pinfo->cinfo, COL_PROTOCOL);
+      col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "%s", name ? name : decode_as_syntax);
+    }
   }
-
-  (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
-
 }
-
 
 void
 proto_register_ber(void)
@@ -2521,6 +2673,8 @@ proto_register_ber(void)
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
+    ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
+    syntax_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
 }
 
 void

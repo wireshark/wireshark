@@ -170,5 +170,12 @@ void proto_reg_handoff_x509af(void) {
 
 	register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
 
+	register_ber_syntax_dissector("Certificate", proto_x509af, dissect_Certificate_PDU); 
+	register_ber_oid_syntax(".cer", NULL, "Certificate");
+	register_ber_oid_syntax(".crt", NULL, "Certificate");
+	register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU); 
+	register_ber_oid_syntax(".crl", NULL, "CertificateList");
+	register_ber_syntax_dissector("CrossCertificatePair", proto_x509af, dissect_CertificatePair_PDU); 
+
 }
 

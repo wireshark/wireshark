@@ -55,6 +55,7 @@ WIRESHARK_GTK_SRC = \
 	colors.c	\
 	column_prefs.c	\
 	conversations_table.c	\
+	decode_as_ber.c	\
 	decode_as_dlg.c	\
 	decode_as_dcerpc.c	\
 	dfilter_expr_dlg.c	\

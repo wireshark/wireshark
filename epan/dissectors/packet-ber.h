@@ -26,6 +26,7 @@
 #ifndef __PACKET_BER_H__
 #define __PACKET_BER_H__
 
+#include <epan/proto.h>
 #include <epan/to_str.h>
 
 #define BER_NOT_DECODED_YET(x) \
@@ -174,7 +175,14 @@ extern proto_item *get_ber_last_created_item(void);
 int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
 void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
+void register_ber_syntax_dissector(const char *oid, int proto, dissector_t dissector);
+void register_ber_oid_name(const char *oid, const char *name);
+void register_ber_oid_syntax(const char *oid, const char *name, const char *syntax);
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+void ber_decode_as_foreach(GHFunc func, gpointer user_data); /* iterate through known syntaxes */
+void ber_decode_as(gchar *syntax); /* decode the current capture as this syntax */
+void ber_set_filename(gchar *filename); /* name of current BER-encoded file */
 
 gboolean oid_has_dissector(const char *oid);
 

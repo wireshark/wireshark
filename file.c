@@ -72,6 +72,7 @@
 #include "stat_menu.h"
 #include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
+#include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
 #include "file_util.h"
 
@@ -264,6 +265,11 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf_change_time_formats(cf);
 
   fileset_file_opened(fname);
+
+  if(cf->cd_t == WTAP_FILE_BER) {
+    /* tell the BER dissector the file name */
+    ber_set_filename(cf->filename);
+  }
 
   return CF_OK;
 

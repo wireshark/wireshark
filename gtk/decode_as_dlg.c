@@ -39,6 +39,7 @@
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
 #include "decode_as_dcerpc.h"
+#include "decode_as_ber.h"
 #include "help_dlg.h"
 
 #undef DEBUG
@@ -71,6 +72,8 @@ enum srcdst_type {
 #define E_PAGE_DPORT "dport"
 #define E_PAGE_SPORT "sport"
 #define E_PAGE_PPID  "ppid"
+#define E_PAGE_ASN1  "asn1"
+
 
 /*
  * Columns for a "Display" list
@@ -1770,7 +1773,8 @@ gboolean
 decode_as_ok(void)
 {
     return cfile.edt->pi.ethertype || cfile.edt->pi.ipproto ||
-	cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP;
+	cfile.edt->pi.ptype == PT_TCP || cfile.edt->pi.ptype == PT_UDP || 
+        cfile.cd_t == WTAP_FILE_BER;
 }
 
 
@@ -1842,6 +1846,13 @@ decode_add_notebook (GtkWidget *format_hb)
 	    label = gtk_label_new("DCE-RPC");
 	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
         OBJECT_SET_DATA(decode_w, E_PAGE_DCERPC, page);
+    }
+
+    if(cfile.cd_t == WTAP_FILE_BER) {
+	    page = decode_ber_add_page(&cfile.edt->pi);
+	    label = gtk_label_new("ASN.1");
+	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
+        OBJECT_SET_DATA(decode_w, E_PAGE_ASN1, page);
     }
 
     /* Select the last added page (selects first by default) */
