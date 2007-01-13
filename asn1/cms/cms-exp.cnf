@@ -20,6 +20,8 @@ SignedAttributes         BER_CLASS_UNI BER_UNI_TAG_SET
 UnsignedAttributes       BER_CLASS_UNI BER_UNI_TAG_SET
 SignatureValue           BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
 EnvelopedData            BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+Digest                   BER_CLASS_UNI BER_UNI_TAG_OCTETSTRING
+DigestAlgorithmIdentifier BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 IssuerAndSerialNumber    BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Countersignature         BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 #.END
@@ -37,6 +39,8 @@ SignedAttributes         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  
 UnsignedAttributes       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 SignatureValue           TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
 EnvelopedData            TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Digest                   TYPE = FT_BYTES   DISPLAY = BASE_HEX   STRINGS = NULL  BITMASK = 0
+DigestAlgorithmIdentifier TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 IssuerAndSerialNumber    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Countersignature         TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 #.END

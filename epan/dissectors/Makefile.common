@@ -519,8 +519,9 @@ DISSECTOR_SRC =	\
 	packet-pgm.c	\
 	packet-pim.c	\
 	packet-pingpongprotocol.c	\
-	packet-pn-rt.c   \
+	packet-pn-rt.c  \
 	packet-pkcs1.c	\
+	packet-pkcs12.c	\
 	packet-pkix1explicit.c	\
 	packet-pkix1implicit.c	\
 	packet-pkixproxy.c	\
@@ -908,6 +909,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pflog.h	\
 	packet-pim.h	\
 	packet-pkcs1.h	\
+	packet-pkcs12.h	\
 	packet-pkix1explicit.h	\
 	packet-pkix1implicit.h	\
 	packet-pkixproxy.h	\

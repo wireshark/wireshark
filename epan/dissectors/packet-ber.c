@@ -259,7 +259,7 @@ void ber_decode_as(gchar *syntax)
 }
 
 /* Get oid syntax from hash table to get translation in proto dissection(packet-per.c) */
-const char *
+const gchar *
 get_ber_oid_syntax(const char *oid)
 {
 	return g_hash_table_lookup(syntax_table, oid);
@@ -280,7 +280,7 @@ void ber_set_filename(gchar *filename)
 
     if((ptr = strrchr(ber_filename, '.')) != NULL) {
       
-      ber_decode_as(get_ber_oid_syntax(ptr));
+      ber_decode_as((gchar *)get_ber_oid_syntax(ptr));
 
     }
   }

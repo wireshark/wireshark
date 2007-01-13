@@ -162,5 +162,8 @@ void proto_register_cms(void) {
 /*--- proto_reg_handoff_cms -------------------------------------------*/
 void proto_reg_handoff_cms(void) {
 #include "packet-cms-dis-tab.c"
+
+  add_oid_str_name("1.2.840.113549.1.7.1", "id-data");
+
 }
 

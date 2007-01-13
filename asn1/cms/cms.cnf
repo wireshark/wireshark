@@ -10,6 +10,8 @@
 ContentInfo
 ContentType
 Countersignature
+Digest
+DigestAlgorithmIdentifier
 DigestAlgorithmIdentifiers
 EncapsulatedContentInfo
 EnvelopedData
@@ -24,6 +26,7 @@ UnsignedAttributes
 
 #.REGISTER
 ContentInfo       B "1.2.840.113549.1.9.16.1.6" "id-ct-contentInfo"
+#OctetString	B "1.2.840.113549.1.7.1"      "id-data"			 see x509sat.cnf
 SignedData        B "1.2.840.113549.1.7.2"      "id-signedData"
 EnvelopedData     B "1.2.840.113549.1.7.3"      "id-envelopedData"
 DigestedData      B "1.2.840.113549.1.7.5"      "id-digestedData"
@@ -52,16 +55,22 @@ EncryptedContentInfo/contentType	encryptedContentType
   content_tvb = NULL;
   top_tree = NULL;
 
-#.FN_BODY ContentInfo/contentType
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, &object_identifier_id);
+#.FN_PARS ContentType
+	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+
+#.FN_BODY ContentType
+  	const char *name = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(object_identifier_id) {  
+		name = get_oid_str_name(object_identifier_id);
+		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
+	}
 
 #.FN_BODY ContentInfo/content
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
-#.FN_BODY EncapsulatedContentInfo/eContentType
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
-                                         hf_cms_ci_contentType, &object_identifier_id);
 
 #.FN_BODY EncapsulatedContentInfo/eContent
   gint8 class;
@@ -78,6 +87,7 @@ EncryptedContentInfo/contentType	encryptedContentType
   content_offset = pdu_offset = get_ber_length(tree, tvb, pdu_offset, &len, &ind);
   pdu_offset = call_ber_oid_callback(object_identifier_id, tvb, pdu_offset, pinfo, top_tree ? top_tree : tree);
   
+  /* save the content for checking the message digest */	
   content_tvb = tvb_new_subset(tvb, content_offset, len, -1);
 
 #.FN_PARS OtherKeyAttribute/keyAttrId

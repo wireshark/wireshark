@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-x509sat.c                                                         */
+/* ./packet-x509sat.c                                                         */
 /* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
@@ -2897,6 +2897,19 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.143", dissect_DirectoryString_PDU, proto_x509sat, "id-at-adminConversion");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.144", dissect_SyntaxPrintableString_PDU, proto_x509sat, "id-at-tCCG");
   register_ber_oid_dissector("2.16.840.1.101.2.2.1.145", dissect_DirectoryString_PDU, proto_x509sat, "id-at-usdConversion");
+  register_ber_oid_dissector("1.2.840.113549.1.9.1", dissect_SyntaxIA5String_PDU, proto_x509sat, "pkcs-9-at-emailAddress");
+  register_ber_oid_dissector("1.2.840.113549.1.9.7", dissect_DirectoryString_PDU, proto_x509sat, "pkcs-9-at-challengePassword");
+  register_ber_oid_dissector("1.2.840.113549.1.9.8", dissect_DirectoryString_PDU, proto_x509sat, "pkcs-9-at-unstructuredAddress");
+  register_ber_oid_dissector("1.2.840.113549.1.9.13", dissect_DirectoryString_PDU, proto_x509sat, "pkcs-9-at-signingDescription");
+  register_ber_oid_dissector("1.2.840.113549.1.9.20", dissect_SyntaxBMPString_PDU, proto_x509sat, "pkcs-9-at-friendlyName");
+  register_ber_oid_dissector("1.2.840.113549.1.9.21", dissect_OctetString_PDU, proto_x509sat, "pkcs-9-at-localKeyId");
+  register_ber_oid_dissector("1.2.840.113549.1.9.25.3", dissect_OctetString_PDU, proto_x509sat, "pkcs-9-at-randomNonce");
+  register_ber_oid_dissector("1.2.840.113549.1.9.25.4", dissect_Integer_PDU, proto_x509sat, "pkcs-9-at-sequenceNumber");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.1", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "pkcs-9-at-dateOfBirth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.2", dissect_DirectoryString_PDU, proto_x509sat, "pkcs-9-at-placeOfBirth");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-gender");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfCitizenship");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfResidence");
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
