@@ -370,6 +370,7 @@ get_manuf_name_if_known
 get_oid_name
 get_oid_str_name
 get_persconffile_path
+get_persdatafile_dir
 get_plugin_dir
 get_plugins_pers_dir
 get_progfile_dir

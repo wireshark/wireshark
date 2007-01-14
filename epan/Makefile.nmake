@@ -74,7 +74,7 @@ libwireshark.exp: libwireshark.dll
 libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt ftypes dfilter $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                  crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib $(WSLUA_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
-	$(link) $(dlllflags) $(conlibsdll) \
+	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) \
 		/DEF:libwireshark.def /OUT:libwireshark.dll \
 		/IMPLIB:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \

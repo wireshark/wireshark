@@ -26,44 +26,6 @@
 #define FILESYSTEM_H
 
 /*
- * Given a pathname, return the last component.
- */
-extern const char *get_basename(const char *);
-
-/*
- * Given a pathname, return a string containing everything but the
- * last component.  NOTE: this overwrites the pathname handed into
- * it....
- */
-extern char *get_dirname(char *);
-
-/*
- * Given a pathname, return:
- *
- *	the errno, if an attempt to "stat()" the file fails;
- *
- *	EISDIR, if the attempt succeeded and the file turned out
- *	to be a directory;
- *
- *	0, if the attempt succeeded and the file turned out not
- *	to be a directory.
- */
-extern int test_for_directory(const char *);
-
-/*
- * Given a pathname, return:
- *
- *	the errno, if an attempt to "stat()" the file fails;
- *
- *	ESPIPE, if the attempt succeeded and the file turned out
- *	to be a FIFO;
- *
- *	0, if the attempt succeeded and the file turned out not
- *	to be a FIFO.
- */
-extern int test_for_fifo(const char *);
-
-/*
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.
@@ -74,12 +36,6 @@ extern char *init_progfile_dir(const char *arg0);
  * Get the directory in which the program resides.
  */
 extern const char *get_progfile_dir(void);
-
-/*
- * Get the directory in which global configuration and data files are
- * stored.
- */
-extern const char *get_datafile_dir(void);
 
 /*
  * Find the directory in which plugins are stored; this must be called
@@ -97,6 +53,12 @@ extern const char *get_plugin_dir(void);
  * directory.
  */
 extern gboolean running_in_build_directory(void);
+
+/*
+ * Get the directory in which global configuration files are
+ * stored.
+ */
+extern const char *get_datafile_dir(void);
 
 /*
  * Construct the path name of a global configuration file, given the
@@ -134,15 +96,20 @@ extern int create_persconffile_dir(char **pf_dir_path_return);
 extern char *get_persconffile_path(const char *filename, gboolean for_writing);
 
 /*
+ * Get the (default) directory in which personal data is stored.
+ *
+ * On Win32, this is the "My Documents" folder in the personal profile.
+ * On UNIX this is simply the current directory.
+ */
+extern char *get_persdatafile_dir(void);
+
+/*
  * Construct the path name of a file in $TMP/%TEMP% directory.
  * Or "/tmp/<filename>" (C:\<filename>) if that fails.
  *
  * Return value is malloced so the caller should free it.
  */
 extern char *get_tempfile_path(const char *filename);
-
-/* Delete a file */
-extern gboolean deletefile (const char *path);
 
 /*
  * Return an error message for UNIX-style errno indications on open or
@@ -155,6 +122,47 @@ extern const char *file_open_error_message(int err, gboolean for_writing);
  * operations.
  */
 extern const char *file_write_error_message(int err);
+
+/*
+ * Given a pathname, return the last component.
+ */
+extern const char *get_basename(const char *);
+
+/*
+ * Given a pathname, return a string containing everything but the
+ * last component.  NOTE: this overwrites the pathname handed into
+ * it....
+ */
+extern char *get_dirname(char *);
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	EISDIR, if the attempt succeeded and the file turned out
+ *	to be a directory;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a directory.
+ */
+extern int test_for_directory(const char *);
+
+/*
+ * Given a pathname, return:
+ *
+ *	the errno, if an attempt to "stat()" the file fails;
+ *
+ *	ESPIPE, if the attempt succeeded and the file turned out
+ *	to be a FIFO;
+ *
+ *	0, if the attempt succeeded and the file turned out not
+ *	to be a FIFO.
+ */
+extern int test_for_fifo(const char *);
+
+/* Delete a file */
+extern gboolean deletefile (const char *path);
 
 /*
  * Check, if file is existing.

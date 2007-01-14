@@ -44,6 +44,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
+#include <shlobj.h>
 #include "epan/unicode-utils.h"
 #else
 #include <pwd.h>
@@ -905,6 +906,36 @@ create_persconffile_dir(char **pf_dir_path_return)
 	if (ret == -1)
 		*pf_dir_path_return = g_strdup(pf_dir_path);
 	return ret;
+}
+
+/*
+ * Get the (default) directory in which personal data is stored.
+ *
+ * On Win32, this is the "My Documents" folder in the personal profile.
+ * On UNIX this is simply the current directory.
+ */
+/* XXX - should this and the get_home_dir() be merged? */
+/* XXX - is U3 affected somehow? */
+extern char *
+get_persdatafile_dir(void)
+{
+#ifdef _WIN32
+  {
+    TCHAR tszPath[MAX_PATH];
+	char *szPath;
+	HRESULT hrRet;
+
+	hrRet = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, tszPath);
+	if(hrRet == S_OK) {
+		szPath = utf_16to8(tszPath);
+		return szPath;
+	} else {
+		return "";
+	}
+  }
+#else
+  return "";
+#endif
 }
 
 #ifdef _WIN32
