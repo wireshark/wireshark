@@ -690,13 +690,11 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   opt_len_type      len_type;
   unsigned int      optlen;
   const char       *name;
-#define NAME_STR_LEN 7+1+1+2+2+1+1	/* "Unknown (0x%02x)" */
-  char             *name_str;
+  char             *name_str = NULL;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
 				int, guint, packet_info *, proto_tree *);
   guint             len;
 
-  name_str=ep_alloc(NAME_STR_LEN);
   while (length > 0) {
     opt = tvb_get_guint8(tvb, offset);
     for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
@@ -711,7 +709,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       optp = NULL;	/* indicate that we don't know this option */
       len_type = VARIABLE_LENGTH;
       optlen = 2;
-      g_snprintf(name_str, NAME_STR_LEN, "Unknown (0x%02x)", opt);
+	  name_str = ep_strdup_printf("Unknown (0x%02x)", opt);
       name = name_str;
       dissect = NULL;
     } else {
