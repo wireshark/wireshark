@@ -175,7 +175,7 @@ win32_open_file (HWND h_wnd) {
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
 	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn->lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
     ofn->lpstrTitle = _T("Wireshark: Open Capture File");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
@@ -242,11 +242,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
-    } else {
-	ofn->lpstrInitialDir = NULL;
-    }
+	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Save file as");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -361,7 +357,7 @@ win32_merge_file (HWND h_wnd) {
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
 	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn->lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     }
     ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
@@ -466,11 +462,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
-    } else {
-	ofn->lpstrInitialDir = NULL;
-    }
+	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export File");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -574,11 +566,7 @@ win32_export_raw_file(HWND h_wnd) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
-    } else {
-	ofn->lpstrInitialDir = NULL;
-    }
+	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Raw Data");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -645,7 +633,7 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = NULL;
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Color Filters");
     ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
@@ -692,7 +680,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = NULL;
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Import Color Filters");
     ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |

@@ -1052,7 +1052,7 @@ init_prefs(void) {
   prefs.gui_console_open           = console_open_never;
   prefs.gui_fileopen_style         = FO_STYLE_LAST_OPENED;
   prefs.gui_recent_files_count_max = 10;
-  prefs.gui_fileopen_dir           = g_strdup("");
+  prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
   prefs.gui_fileopen_preview       = 3;
   prefs.gui_ask_unsaved            = TRUE;
   prefs.gui_find_wrap              = TRUE;

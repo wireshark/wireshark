@@ -2143,6 +2143,9 @@ main(int argc, char *argv[])
    */
   init_plugin_dir();
 
+  /* Init the "Open file" dialog directory */
+  set_last_open_dir(get_persdatafile_dir());
+
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
 
@@ -2948,9 +2951,7 @@ main(int argc, char *argv[])
            good thing, given that "get_dirname()" does write over its
            argument. */
         s = get_dirname(cf_name);
-        /* we might already set this from the recent file, don't overwrite this */
-        if(get_last_open_dir() == NULL)
-          set_last_open_dir(s);
+        set_last_open_dir(s);
         g_free(cf_name);
         cf_name = NULL;
       } else {
