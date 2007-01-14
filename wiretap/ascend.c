@@ -94,11 +94,17 @@ static gint64 ascend_seek(wtap *wth, int *err)
   gint64 date_off = -1, cur_off, packet_off;
   guint string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
-
+  guint excessive_read_count = 262144;
+  
   memset(&string_level, 0, sizeof(string_level));
 
   while (((byte = file_getc(wth->fh)) != EOF)) {
-
+    excessive_read_count--;
+	  
+    if (!excessive_read_count) {
+      return -1;
+    }
+	  
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
       guint len           = strlen(strptr);
