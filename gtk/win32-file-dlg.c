@@ -133,48 +133,64 @@ char *dfilter_merge_str = NULL;
 
 gboolean
 win32_open_file (HWND h_wnd) {
-    static OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     int    err;
     char  *dirname;
     dfilter_t *dfp;
+	int    ofnsize;
 
-    /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
-       where appropriate */
-    ZeroMemory(&ofn, sizeof(ofn));
-#ifdef OPENFILENAME_SIZE_VERSION_400
-    of.lStructSize = OPENFILENAME_SIZE_VERSION_400;
-#else
-    ofn.lStructSize = sizeof(ofn);
-#endif
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_OPEN_DEFAULT;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
+	/* Remarks on OPENFILENAME_SIZE_VERSION_400:
+	 *
+	 * MSDN states that OPENFILENAME_SIZE_VERSION_400 should be used with
+	 * WINVER and _WIN32_WINNT >= 0x0500.
+	 * Unfortunately all these are compiler constants, while the underlying is a
+	 * problem based is a length check of the runtime version used.
+	 *
+	 * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc 
+	 * the OPENFILENAME size plus 12 bytes.
+	 * These 12 bytes are the difference between the two versions of this struct.
+	 *
+	 * Interestingly this fixes a bug, so the places bar e.g. "My Documents" 
+	 * is displayed - which wasn't the case with the former implementation.
+	 *
+	 * XXX - It's unclear if this length+12 works on all supported platforms,
+	 * NT4 is the question here. However, even if it fails, we must calculate
+	 * the length based on the runtime, not the compiler version anyway ...
+	 */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_OPEN_DEFAULT;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn.lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Open Capture File");
-    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+    ofn->lpstrTitle = _T("Wireshark: Open Capture File");
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
     if(topic_available(HELP_OPEN_WIN32_DIALOG)) {
-        ofn.Flags |= OFN_SHOWHELP;
+        ofn->Flags |= OFN_SHOWHELP;
     }
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = open_file_hook_proc;
-    ofn.lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = open_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
 
-    if (GetOpenFileName(&ofn)) {
-    g_free( (void *) ofn.lpstrFilter);
+    if (GetOpenFileName(ofn)) {
+    g_free( (void *) ofn->lpstrFilter);
+    g_free( (void *) ofn);
 
 	if (cf_open(&cfile, utf_16to8(file_name), FALSE, &err) != CF_OK) {
 	    return FALSE;
@@ -193,53 +209,57 @@ win32_open_file (HWND h_wnd) {
                 return TRUE;
                 break;
 	}
-    }
+	} else {
+	g_free( (void *) ofn->lpstrFilter);
+	g_free( (void *) ofn);
+	}
     return FALSE;
 }
 
 
 void
 win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data) {
-    static OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
     GString *file_name8;
     gchar *file_last_dot;
     gchar *dirname;
     int save_index;
+	int    ofnsize;
 
-    /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
-       where appropriate */
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(TRUE /*save*/, &save_index);
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = save_index;
-    ofn.lpstrFile = file_name16;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = build_file_type_list(TRUE /*save*/, &save_index);
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = save_index;
+    ofn->lpstrFile = file_name16;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn.lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Save file as");
-    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+    ofn->lpstrTitle = _T("Wireshark: Save file as");
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     if(topic_available(HELP_SAVE_WIN32_DIALOG)) {
-        ofn.Flags |= OFN_SHOWHELP;
+        ofn->Flags |= OFN_SHOWHELP;
     }
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = save_as_file_hook_proc;
-    ofn.lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = save_as_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
-    if (GetSaveFileName(&ofn)) {
-    filetype = file_type_from_list_index(TRUE /*save*/, ofn.nFilterIndex);
-    g_free( (void *) ofn.lpstrFilter);
+    if (GetSaveFileName(ofn)) {
+    filetype = file_type_from_list_index(TRUE /*save*/, ofn->nFilterIndex);
 
     /* append the default file extension if there's none given by the user */
     /* (we expect a file extension to be at most 5 chars + the dot) */
@@ -262,6 +282,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	if (cf_save(&cfile, file_name8->str, &range, filetype, FALSE) != CF_OK) {
 	    /* The write failed.  Try again. */
         g_string_free(file_name8, TRUE /* free_segment */);
+		g_free( (void *) ofn->lpstrFilter);
+		g_free( (void *) ofn);
 	    win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
 	    return;
 	}
@@ -304,12 +326,14 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 	}
     }
     g_sf_hwnd = NULL;
+    g_free( (void *) ofn->lpstrFilter);
+    g_free( (void *) ofn);
 }
 
 
 void
 win32_merge_file (HWND h_wnd) {
-    static      OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR       file_name[MAX_PATH] = _T("");
     char       *dirname;
     cf_status_t merge_status;
@@ -317,42 +341,43 @@ win32_merge_file (HWND h_wnd) {
     int         err;
     char       *tmpname;
     dfilter_t *dfp;
+	int    ofnsize;
 
-    /* XXX - Check for temp file and prompt accordingly */
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
 
-    /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
-       where appropriate */
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_MERGE_DEFAULT;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_MERGE_DEFAULT;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn.lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Merge with capture file");
-    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+    ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
 	    OFN_ENABLEHOOK;
     if(topic_available(HELP_MERGE_WIN32_DIALOG)) {
-        ofn.Flags |= OFN_SHOWHELP;
+        ofn->Flags |= OFN_SHOWHELP;
     }
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = merge_file_hook_proc;
-    ofn.lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = merge_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
 
-    if (GetOpenFileName(&ofn)) {
+    if (GetOpenFileName(ofn)) {
 	filetype = cfile.cd_t;
-    g_free( (void *) ofn.lpstrFilter);
+    g_free( (void *) ofn->lpstrFilter);
+    g_free( (void *) ofn);
 
 	/* merge or append the two files */
 
@@ -412,45 +437,50 @@ win32_merge_file (HWND h_wnd) {
             case CF_READ_ABORTED:
                 break;
         }
-    }
+	} else {
+	g_free( (void *) ofn->lpstrFilter);
+	g_free( (void *) ofn);
+	}
 }
 
 void
 win32_export_file(HWND h_wnd, export_type_e export_type) {
-    static            OPENFILENAME ofn;
+    OPENFILENAME     *ofn;
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
     cf_print_status_t status;
+	int    ofnsize;
 
-    /* XXX - Check for version and set OPENFILENAME_SIZE_VERSION_400
-       where appropriate */
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = FILE_TYPES_EXPORT;
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = export_type;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = FILE_TYPES_EXPORT;
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = export_type;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn.lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Export File");
-    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+    ofn->lpstrTitle = _T("Wireshark: Export File");
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
-        ofn.Flags |= OFN_SHOWHELP;
+        ofn->Flags |= OFN_SHOWHELP;
     }
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = export_file_hook_proc;
-    ofn.lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = export_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
 
     /* Fill in our print (and export) args */
 
@@ -462,9 +492,10 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     print_args.print_hex           = FALSE;
     print_args.print_formfeed      = FALSE;
 
-    if (GetSaveFileName(&ofn)) {
+    if (GetSaveFileName(ofn)) {
+    g_free( (void *) ofn);
 	print_args.file = utf_16to8(file_name);
-	switch (ofn.nFilterIndex) {
+	switch (ofn->nFilterIndex) {
 	    case export_type_text:	/* Text */
 		print_args.stream = print_stream_text_new(TRUE, print_args.file);
 		if (print_args.stream == NULL) {
@@ -507,17 +538,20 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-    }
+	} else {
+	g_free( (void *) ofn);
+	}
 }
 
 void
 win32_export_raw_file(HWND h_wnd) {
-    static        OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR         file_name[MAX_PATH] = _T("");
     char         *dirname;
     const guint8 *data_p = NULL;
     const char   *file = NULL;
     int           fd;
+	int           ofnsize;
 
     if (!cfile.finfo_selected) {
 	/* This shouldn't happen */
@@ -525,41 +559,45 @@ win32_export_raw_file(HWND h_wnd) {
 	return;
     }
 
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = FILE_TYPES_RAW;
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_RAW_DEFAULT;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = FILE_TYPES_RAW;
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_RAW_DEFAULT;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
     if (prefs.gui_fileopen_style == FO_STYLE_SPECIFIED && prefs.gui_fileopen_dir[0] != '\0') {
-	ofn.lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
+	ofn->lpstrInitialDir = utf_8to16(prefs.gui_fileopen_dir);
     } else {
-	ofn.lpstrInitialDir = NULL;
+	ofn->lpstrInitialDir = NULL;
     }
-    ofn.lpstrTitle = _T("Wireshark: Export Raw Data");
-    ofn.Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
+    ofn->lpstrTitle = _T("Wireshark: Export Raw Data");
+    ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     if(topic_available(HELP_EXPORT_BYTES_WIN32_DIALOG)) {
-        ofn.Flags |= OFN_SHOWHELP;
+        ofn->Flags |= OFN_SHOWHELP;
     }
-    ofn.lpstrDefExt = NULL;
-    ofn.lCustData = cfile.finfo_selected->length;
-    ofn.lpfnHook = export_raw_file_hook_proc;
-    ofn.lpTemplateName = _T("WIRESHARK_EXPORTRAWFILENAME_TEMPLATE");
+    ofn->lpstrDefExt = NULL;
+    ofn->lCustData = cfile.finfo_selected->length;
+    ofn->lpfnHook = export_raw_file_hook_proc;
+    ofn->lpTemplateName = _T("WIRESHARK_EXPORTRAWFILENAME_TEMPLATE");
 
     /*
      * XXX - The GTK+ code uses get_byte_view_data_and_length().  We just
      * grab the info from cfile.finfo_selected.  Which is more "correct"?
      */
 
-    if (GetSaveFileName(&ofn)) {
+    if (GetSaveFileName(ofn)) {
+		g_free( (void *) ofn);
 	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
 		cfile.finfo_selected->start;
         fd = open(utf_16to8(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
@@ -580,85 +618,101 @@ win32_export_raw_file(HWND h_wnd) {
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-    }
+	} else {
+		g_free( (void *) ofn);
+	}
 }
 
 void
 win32_export_color_file(HWND h_wnd, gpointer filter_list) {
-    static OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
+	int    ofnsize;
 
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = FILE_TYPES_COLOR;
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_DEFAULT_COLOR;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.lpstrTitle = _T("Wireshark: Export Color Filters");
-    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = FILE_TYPES_COLOR;
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_DEFAULT_COLOR;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
+    ofn->lpstrInitialDir = NULL;
+    ofn->lpstrTitle = _T("Wireshark: Export Color Filters");
+    ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = NULL;
-    ofn.lpTemplateName = NULL;
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = NULL;
+    ofn->lpTemplateName = NULL;
 
     filetype = cfile.cd_t;
 
     /* XXX - Support marked filters */
-    if (GetSaveFileName(&ofn)) {
+    if (GetSaveFileName(ofn)) {
+		g_free( (void *) ofn);
 	if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */))
 	    return;
 
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-    }
+	} else {
+		g_free( (void *) ofn);
+	}
 }
 
 void
 win32_import_color_file(HWND h_wnd, gpointer color_filters) {
-    static OPENFILENAME ofn;
+    OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
+	int    ofnsize;
 
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = h_wnd;
-    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
-    ofn.lpstrFilter = FILE_TYPES_COLOR;
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nMaxCustFilter = 0;
-    ofn.nFilterIndex = FILE_DEFAULT_COLOR;
-    ofn.lpstrFile = file_name;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.lpstrTitle = _T("Wireshark: Import Color Filters");
-    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
+	/* see OPENFILENAME comment in win32_open_file */
+    ofnsize = sizeof(OPENFILENAME) + 12;
+	ofn = g_malloc0(ofnsize);
+
+    ofn->lStructSize = ofnsize;
+    ofn->hwndOwner = h_wnd;
+    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    ofn->lpstrFilter = FILE_TYPES_COLOR;
+    ofn->lpstrCustomFilter = NULL;
+    ofn->nMaxCustFilter = 0;
+    ofn->nFilterIndex = FILE_DEFAULT_COLOR;
+    ofn->lpstrFile = file_name;
+    ofn->nMaxFile = MAX_PATH;
+    ofn->lpstrFileTitle = NULL;
+    ofn->nMaxFileTitle = 0;
+    ofn->lpstrInitialDir = NULL;
+    ofn->lpstrTitle = _T("Wireshark: Import Color Filters");
+    ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
 	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    ofn.lpstrDefExt = NULL;
-    ofn.lpfnHook = NULL;
-    ofn.lpTemplateName = NULL;
+    ofn->lpstrDefExt = NULL;
+    ofn->lpfnHook = NULL;
+    ofn->lpTemplateName = NULL;
 
     /* XXX - Support export limited to selected filters */
-    if (GetOpenFileName(&ofn)) {
+    if (GetOpenFileName(ofn)) {
+		g_free( (void *) ofn);
 	if (!color_filters_import(utf_16to8(file_name), color_filters))
 	    return;
 
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-    }
+	} else {
+		g_free( (void *) ofn);
+	}
 }
 
 
