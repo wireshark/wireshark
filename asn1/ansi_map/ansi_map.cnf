@@ -21,7 +21,7 @@ OriginationRequestRes
 
 #.FN_BODY InvokeParameters
   gint   *opcode;
-  struct tcap_private_t * p_private_tcap;
+  struct tcap_private_t *p_private_tcap;
 
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
@@ -29,11 +29,11 @@ OriginationRequestRes
 	  opcode = g_malloc(sizeof(gint));
 	  OperationCode = OperationCode&0x00ff;
 	  *opcode = OperationCode;
-	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str))
+	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
 		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
+	  }	
   }
-
   ansi_map_is_invoke = TRUE;	
   if (check_col(pinfo->cinfo, COL_INFO)){
 	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
@@ -43,7 +43,7 @@ OriginationRequestRes
 	  return offset;
 
   }
-	proto_tree_add_item(tree, hf_ansi_map_invokeParameters, tvb, offset,-1,FALSE);
+
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ReturnParameters
@@ -75,7 +75,6 @@ OriginationRequestRes
   item = proto_tree_add_text(tree, tvb, 0, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
   PROTO_ITEM_SET_GENERATED(item);
 
-  proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
   offset = dissect_returnData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ErrorParameters
@@ -318,24 +317,48 @@ OriginationRequestRes
 
 # 6.5.2.124
 #.FN_BODY SMS-BearerData VAL_PTR = &SMS_BearerData_tvb
+	int length;
+    proto_item *item;
+    proto_tree *subtree;
 	SMS_BearerData_tvb = NULL;
 
 %(DEFAULT_BODY)s
+	if (SMS_BearerData_tvb){
+		/* A zero length OCTET STRING will return a zero length tvb */
+		length = tvb_length_remaining(SMS_BearerData_tvb,0);
+		if (length <=0){
+			item = get_ber_last_created_item();
+			subtree = proto_item_add_subtree(item, ett_sms_bearer_data);
+			proto_item_append_text(item," length %%u",length);
+			SMS_BearerData_tvb = NULL;
+			return offset;
+		}
+	}
 
 # 6.5.2.137
 # N.S0005-0 v 1.0
 #.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &parameter_tvb
 
-tvbuff_t *parameter_tvb = NULL;
-static gint32 ansi_map_sms_tele_id = -1;
+	int length;
+    proto_item *item;
+    proto_tree *subtree;
+	tvbuff_t *parameter_tvb = NULL;
+	static gint32 ansi_map_sms_tele_id = -1;
 
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
+		/* A zero length OCTET STRING will return a zero length tvb */
+		length = tvb_length_remaining(parameter_tvb,0);
+		if (length <=0){
+			item = get_ber_last_created_item();
+			subtree = proto_item_add_subtree(item, ett_sms_teleserviceIdentifier);
+			proto_item_append_text(item, " length %%u",length);
+			return offset;
+		}
 		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
 		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
 		{
 		    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
-		    ansi_map_sms_tele_id = -1;
 		}
 	}
 
@@ -466,6 +489,7 @@ CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_Ca
 GeographicAuthorization TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_GeographicAuthorization_vals)
 InterMSCCircuitID TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 MobileIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MobileStationMIN TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CountUpdateReport_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)

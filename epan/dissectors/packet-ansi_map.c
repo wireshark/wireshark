@@ -685,6 +685,149 @@ static int hf_ansi_map_CallRecoveryIDList_item = -1;  /* CallRecoveryID */
 static int hf_ansi_map_sCFOverloadGapInterval = -1;  /* SCFOverloadGapInterval */
 static int hf_ansi_map_serviceManagementSystemGapInterval = -1;  /* ServiceManagementSystemGapInterval */
 static int hf_ansi_map_mobileStationIMSI = -1;    /* MobileStationIMSI */
+static int hf_ansi_map_handoffMeasurementRequest = -1;  /* HandoffMeasurementRequest */
+static int hf_ansi_map_facilitiesDirective = -1;  /* FacilitiesDirective */
+static int hf_ansi_map_handoffBack = -1;          /* HandoffBack */
+static int hf_ansi_map_facilitiesRelease = -1;    /* FacilitiesRelease */
+static int hf_ansi_map_qualificationRequest = -1;  /* QualificationRequest */
+static int hf_ansi_map_qualificationDirective = -1;  /* QualificationDirective */
+static int hf_ansi_map_blocking = -1;             /* Blocking */
+static int hf_ansi_map_unblocking = -1;           /* Unblocking */
+static int hf_ansi_map_resetCircuit = -1;         /* ResetCircuit */
+static int hf_ansi_map_trunkTest = -1;            /* TrunkTest */
+static int hf_ansi_map_trunkTestDisconnect = -1;  /* TrunkTestDisconnect */
+static int hf_ansi_map_registrationNotification = -1;  /* RegistrationNotification */
+static int hf_ansi_map_registrationCancellation = -1;  /* RegistrationCancellation */
+static int hf_ansi_map_locationRequest = -1;      /* LocationRequest */
+static int hf_ansi_map_routingRequest = -1;       /* RoutingRequest */
+static int hf_ansi_map_featureRequest = -1;       /* FeatureRequest */
+static int hf_ansi_map_unreliableRoamerDataDirective = -1;  /* UnreliableRoamerDataDirective */
+static int hf_ansi_map_mSInactive = -1;           /* MSInactive */
+static int hf_ansi_map_transferToNumberRequest = -1;  /* TransferToNumberRequest */
+static int hf_ansi_map_redirectionRequest = -1;   /* RedirectionRequest */
+static int hf_ansi_map_handoffToThird = -1;       /* HandoffToThird */
+static int hf_ansi_map_flashRequest = -1;         /* FlashRequest */
+static int hf_ansi_map_authenticationDirective = -1;  /* AuthenticationDirective */
+static int hf_ansi_map_authenticationRequest = -1;  /* AuthenticationRequest */
+static int hf_ansi_map_baseStationChallenge = -1;  /* BaseStationChallenge */
+static int hf_ansi_map_authenticationFailureReport = -1;  /* AuthenticationFailureReport */
+static int hf_ansi_map_countRequest = -1;         /* CountRequest */
+static int hf_ansi_map_interSystemPage = -1;      /* InterSystemPage */
+static int hf_ansi_map_unsolicitedResponse = -1;  /* UnsolicitedResponse */
+static int hf_ansi_map_bulkDeregistration = -1;   /* BulkDeregistration */
+static int hf_ansi_map_handoffMeasurementRequest2 = -1;  /* HandoffMeasurementRequest2 */
+static int hf_ansi_map_facilitiesDirective2 = -1;  /* FacilitiesDirective2 */
+static int hf_ansi_map_handoffBack2 = -1;         /* HandoffBack2 */
+static int hf_ansi_map_handoffToThird2 = -1;      /* HandoffToThird2 */
+static int hf_ansi_map_authenticationDirectiveForward = -1;  /* AuthenticationDirectiveForward */
+static int hf_ansi_map_authenticationStatusReport = -1;  /* AuthenticationStatusReport */
+static int hf_ansi_map_informationDirective = -1;  /* InformationDirective */
+static int hf_ansi_map_informationForward = -1;   /* InformationForward */
+static int hf_ansi_map_interSystemAnswer = -1;    /* InterSystemAnswer */
+static int hf_ansi_map_interSystemPage2 = -1;     /* InterSystemPage2 */
+static int hf_ansi_map_interSystemSetup = -1;     /* InterSystemSetup */
+static int hf_ansi_map_originationRequest = -1;   /* OriginationRequest */
+static int hf_ansi_map_randomVariableRequest = -1;  /* RandomVariableRequest */
+static int hf_ansi_map_redirectionDirective = -1;  /* RedirectionDirective */
+static int hf_ansi_map_remoteUserInteractionDirective = -1;  /* RemoteUserInteractionDirective */
+static int hf_ansi_map_sMSDeliveryBackward = -1;  /* SMSDeliveryBackward */
+static int hf_ansi_map_sMSDeliveryForward = -1;   /* SMSDeliveryForward */
+static int hf_ansi_map_sMSDeliveryPointToPoint = -1;  /* SMSDeliveryPointToPoint */
+static int hf_ansi_map_sMSNotification = -1;      /* SMSNotification */
+static int hf_ansi_map_sMSRequest = -1;           /* SMSRequest */
+static int hf_ansi_map_oTASPRequest = -1;         /* OTASPRequest */
+static int hf_ansi_map_changeFacilities = -1;     /* ChangeFacilities */
+static int hf_ansi_map_changeService = -1;        /* ChangeService */
+static int hf_ansi_map_parameterRequest = -1;     /* ParameterRequest */
+static int hf_ansi_map_tMSIDirective = -1;        /* TMSIDirective */
+static int hf_ansi_map_serviceRequest = -1;       /* ServiceRequest */
+static int hf_ansi_map_analyzedInformation = -1;  /* AnalyzedInformation */
+static int hf_ansi_map_connectionFailureReport = -1;  /* ConnectionFailureReport */
+static int hf_ansi_map_connectResource = -1;      /* ConnectResource */
+static int hf_ansi_map_facilitySelectedAndAvailable = -1;  /* FacilitySelectedAndAvailable */
+static int hf_ansi_map_modify = -1;               /* Modify */
+static int hf_ansi_map_search = -1;               /* Search */
+static int hf_ansi_map_seizeResource = -1;        /* SeizeResource */
+static int hf_ansi_map_sRFDirective = -1;         /* SRFDirective */
+static int hf_ansi_map_tBusy = -1;                /* TBusy */
+static int hf_ansi_map_tNoAnswer = -1;            /* TNoAnswer */
+static int hf_ansi_map_messageDirective = -1;     /* MessageDirective */
+static int hf_ansi_map_bulkDisconnection = -1;    /* BulkDisconnection */
+static int hf_ansi_map_callControlDirective = -1;  /* CallControlDirective */
+static int hf_ansi_map_oAnswer = -1;              /* OAnswer */
+static int hf_ansi_map_oDisconnect = -1;          /* ODisconnect */
+static int hf_ansi_map_callRecoveryReport = -1;   /* CallRecoveryReport */
+static int hf_ansi_map_tAnswer = -1;              /* TAnswer */
+static int hf_ansi_map_tDisconnect = -1;          /* TDisconnect */
+static int hf_ansi_map_unreliableCallData = -1;   /* UnreliableCallData */
+static int hf_ansi_map_oCalledPartyBusy = -1;     /* OCalledPartyBusy */
+static int hf_ansi_map_oNoAnswer = -1;            /* ONoAnswer */
+static int hf_ansi_map_positionRequest = -1;      /* PositionRequest */
+static int hf_ansi_map_positionRequestForward = -1;  /* PositionRequestForward */
+static int hf_ansi_map_aCGDirective = -1;         /* ACGDirective */
+static int hf_ansi_map_roamerDatabaseVerificationRequest = -1;  /* RoamerDatabaseVerificationRequest */
+static int hf_ansi_map_addService = -1;           /* AddService */
+static int hf_ansi_map_dropService = -1;          /* DropService */
+static int hf_ansi_map_handoffMeasurementRequestRes = -1;  /* HandoffMeasurementRequestRes */
+static int hf_ansi_map_facilitiesDirectiveRes = -1;  /* FacilitiesDirectiveRes */
+static int hf_ansi_map_handoffBackRes = -1;       /* HandoffBackRes */
+static int hf_ansi_map_facilitiesReleaseRes = -1;  /* FacilitiesReleaseRes */
+static int hf_ansi_map_qualificationRequestRes = -1;  /* QualificationRequestRes */
+static int hf_ansi_map_resetCircuitRes = -1;      /* ResetCircuitRes */
+static int hf_ansi_map_registrationNotificationRes = -1;  /* RegistrationNotificationRes */
+static int hf_ansi_map_registrationCancellationRes = -1;  /* RegistrationCancellationRes */
+static int hf_ansi_map_locationRequestRes = -1;   /* LocationRequestRes */
+static int hf_ansi_map_routingRequestRes = -1;    /* RoutingRequestRes */
+static int hf_ansi_map_featureRequestRes = -1;    /* FeatureRequestRes */
+static int hf_ansi_map_transferToNumberRequestRes = -1;  /* TransferToNumberRequestRes */
+static int hf_ansi_map_handoffToThirdRes = -1;    /* HandoffToThirdRes */
+static int hf_ansi_map_authenticationDirectiveRes = -1;  /* AuthenticationDirectiveRes */
+static int hf_ansi_map_authenticationRequestRes = -1;  /* AuthenticationRequestRes */
+static int hf_ansi_map_authenticationFailureReportRes = -1;  /* AuthenticationFailureReportRes */
+static int hf_ansi_map_countRequestRes = -1;      /* CountRequestRes */
+static int hf_ansi_map_interSystemPageRes = -1;   /* InterSystemPageRes */
+static int hf_ansi_map_unsolicitedResponseRes = -1;  /* UnsolicitedResponseRes */
+static int hf_ansi_map_handoffMeasurementRequest2Res = -1;  /* HandoffMeasurementRequest2Res */
+static int hf_ansi_map_facilitiesDirective2Res = -1;  /* FacilitiesDirective2Res */
+static int hf_ansi_map_handoffBack2Res = -1;      /* HandoffBack2Res */
+static int hf_ansi_map_handoffToThird2Res = -1;   /* HandoffToThird2Res */
+static int hf_ansi_map_authenticationDirectiveForwardRes = -1;  /* AuthenticationDirectiveForwardRes */
+static int hf_ansi_map_authenticationStatusReportRes = -1;  /* AuthenticationStatusReportRes */
+static int hf_ansi_map_informationForwardRes = -1;  /* InformationForwardRes */
+static int hf_ansi_map_interSystemPage2Res = -1;  /* InterSystemPage2Res */
+static int hf_ansi_map_interSystemSetupRes = -1;  /* InterSystemSetupRes */
+static int hf_ansi_map_originationRequestRes = -1;  /* OriginationRequestRes */
+static int hf_ansi_map_randomVariableRequestRes = -1;  /* RandomVariableRequestRes */
+static int hf_ansi_map_remoteUserInteractionDirectiveRes = -1;  /* RemoteUserInteractionDirectiveRes */
+static int hf_ansi_map_sMSDeliveryBackwardRes = -1;  /* SMSDeliveryBackwardRes */
+static int hf_ansi_map_sMSDeliveryForwardRes = -1;  /* SMSDeliveryForwardRes */
+static int hf_ansi_map_sMSDeliveryPointToPointRes = -1;  /* SMSDeliveryPointToPointRes */
+static int hf_ansi_map_sMSNotificationRes = -1;   /* SMSNotificationRes */
+static int hf_ansi_map_sMSRequestRes = -1;        /* SMSRequestRes */
+static int hf_ansi_map_oTASPRequestRes = -1;      /* OTASPRequestRes */
+static int hf_ansi_map_changeFacilitiesRes = -1;  /* ChangeFacilitiesRes */
+static int hf_ansi_map_changeServiceRes = -1;     /* ChangeServiceRes */
+static int hf_ansi_map_parameterRequestRes = -1;  /* ParameterRequestRes */
+static int hf_ansi_map_tMSIDirectiveRes = -1;     /* TMSIDirectiveRes */
+static int hf_ansi_map_serviceRequestRes = -1;    /* ServiceRequestRes */
+static int hf_ansi_map_analyzedInformationRes = -1;  /* AnalyzedInformationRes */
+static int hf_ansi_map_facilitySelectedAndAvailableRes = -1;  /* FacilitySelectedAndAvailableRes */
+static int hf_ansi_map_modifyRes = -1;            /* ModifyRes */
+static int hf_ansi_map_searchRes = -1;            /* SearchRes */
+static int hf_ansi_map_seizeResourceRes = -1;     /* SeizeResourceRes */
+static int hf_ansi_map_sRFDirectiveRes = -1;      /* SRFDirectiveRes */
+static int hf_ansi_map_tBusyRes = -1;             /* TBusyRes */
+static int hf_ansi_map_tNoAnswerRes = -1;         /* TNoAnswerRes */
+static int hf_ansi_map_callControlDirectiveRes = -1;  /* CallControlDirectiveRes */
+static int hf_ansi_map_oDisconnectRes = -1;       /* ODisconnectRes */
+static int hf_ansi_map_tDisconnectRes = -1;       /* TDisconnectRes */
+static int hf_ansi_map_oCalledPartyBusyRes = -1;  /* OCalledPartyBusyRes */
+static int hf_ansi_map_oNoAnswerRes = -1;         /* ONoAnswerRes */
+static int hf_ansi_map_positionRequestRes = -1;   /* PositionRequestRes */
+static int hf_ansi_map_positionRequestForwardRes = -1;  /* PositionRequestForwardRes */
+static int hf_ansi_map_roamerDatabaseVerificationRequestRes = -1;  /* RoamerDatabaseVerificationRequestRes */
+static int hf_ansi_map_addServiceRes = -1;        /* AddServiceRes */
+static int hf_ansi_map_dropServiceRes = -1;       /* DropServiceRes */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
 #line 317 "packet-ansi_map-template.c"
@@ -694,6 +837,8 @@ static gint ett_ansi_map = -1;
 static gint ett_mintype = -1;
 static gint ett_digitstype = -1;
 static gint ett_billingid = -1;
+static gint ett_sms_bearer_data = -1;
+static gint ett_sms_teleserviceIdentifier = -1;
 static gint ett_extendedmscid = -1;
 static gint ett_extendedsystemmytypecode = -1;
 static gint ett_handoffstate = -1;
@@ -923,9 +1068,11 @@ static gint ett_ansi_map_CallRecoveryIDList = -1;
 static gint ett_ansi_map_GapInterval = -1;
 static gint ett_ansi_map_MobileStationMSID = -1;
 static gint ett_ansi_map_NewlyAssignedMSID = -1;
+static gint ett_ansi_map_InvokeData = -1;
+static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 344 "packet-ansi_map-template.c"
+#line 346 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_handle_t data_handle=NULL;
@@ -4060,7 +4207,7 @@ static int dissect_nationaler_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_PrivateOperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 86 "ansi_map.cnf"
+#line 85 "ansi_map.cnf"
    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &OperationCode);
 
@@ -4106,7 +4253,7 @@ static int
 dissect_ansi_map_InvokeParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 23 "ansi_map.cnf"
   gint   *opcode;
-  struct tcap_private_t * p_private_tcap;
+  struct tcap_private_t *p_private_tcap;
 
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
@@ -4114,11 +4261,11 @@ dissect_ansi_map_InvokeParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 	  opcode = g_malloc(sizeof(gint));
 	  OperationCode = OperationCode&0x00ff;
 	  *opcode = OperationCode;
-	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str))
+	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
 		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
+	  }	
   }
-
   ansi_map_is_invoke = TRUE;	
   if (check_col(pinfo->cinfo, COL_INFO)){
 	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
@@ -4128,7 +4275,7 @@ dissect_ansi_map_InvokeParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 	  return offset;
 
   }
-	proto_tree_add_item(tree, hf_ansi_map_invokeParameters, tvb, offset,-1,FALSE);
+
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
 
 
@@ -4207,7 +4354,6 @@ dissect_ansi_map_ReturnParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
   item = proto_tree_add_text(tree, tvb, 0, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
   PROTO_ITEM_SET_GENERATED(item);
 
-  proto_tree_add_item(tree, hf_ansi_map_returnResult, tvb, offset,-1,FALSE);
   offset = dissect_returnData(pinfo, tree, tvb, offset);
 
 
@@ -4281,7 +4427,7 @@ static int dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
 static int
 dissect_ansi_map_RejectParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 84 "ansi_map.cnf"
+#line 83 "ansi_map.cnf"
 
 
 
@@ -4386,7 +4532,7 @@ dissect_ansi_map_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 static int
 dissect_ansi_map_ErrorParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 82 "ansi_map.cnf"
+#line 81 "ansi_map.cnf"
 
 
 
@@ -4413,7 +4559,7 @@ static int dissect_lectronicSerialNumber_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_ansi_map_MINType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 91 "ansi_map.cnf"
+#line 90 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4533,7 +4679,7 @@ static int dissect_cdmaPrivateLongCodeMask_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_ansi_map_DigitsType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 98 "ansi_map.cnf"
+#line 97 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4641,7 +4787,7 @@ static int dissect_mobileStationMIN_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_MSCID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 248 "ansi_map.cnf"
+#line 247 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4809,6 +4955,9 @@ dissect_ansi_map_AuthenticationDirective(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_authenticationDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirective);
+}
 
 
 static const ber_sequence_t AuthenticationDirectiveRes_set[] = {
@@ -4823,12 +4972,15 @@ dissect_ansi_map_AuthenticationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
+static int dissect_authenticationDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveRes);
+}
 
 
 
 static int
 dissect_ansi_map_InterMSCCircuitID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 223 "ansi_map.cnf"
+#line 222 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4861,6 +5013,9 @@ dissect_ansi_map_AuthenticationDirectiveForward(gboolean implicit_tag _U_, tvbuf
                               AuthenticationDirectiveForward_set, hf_index, ett_ansi_map_AuthenticationDirectiveForward);
 
   return offset;
+}
+static int dissect_authenticationDirectiveForward(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationDirectiveForward(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveForward);
 }
 
 
@@ -4902,6 +5057,9 @@ dissect_ansi_map_AuthenticationDirectiveForwardRes(gboolean implicit_tag _U_, tv
                               AuthenticationDirectiveForwardRes_set, hf_index, ett_ansi_map_AuthenticationDirectiveForwardRes);
 
   return offset;
+}
+static int dissect_authenticationDirectiveForwardRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationDirectiveForwardRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveForwardRes);
 }
 
 
@@ -4972,7 +5130,7 @@ static int dissect_systemAccessType_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_SystemCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 345 "ansi_map.cnf"
+#line 368 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5062,6 +5220,9 @@ dissect_ansi_map_AuthenticationFailureReport(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
+static int dissect_authenticationFailureReport(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationFailureReport(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationFailureReport);
+}
 
 
 static const ber_sequence_t AuthenticationFailureReportRes_set[] = {
@@ -5087,6 +5248,9 @@ dissect_ansi_map_AuthenticationFailureReportRes(gboolean implicit_tag _U_, tvbuf
                               AuthenticationFailureReportRes_set, hf_index, ett_ansi_map_AuthenticationFailureReportRes);
 
   return offset;
+}
+static int dissect_authenticationFailureReportRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationFailureReportRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationFailureReportRes);
 }
 
 
@@ -5132,7 +5296,7 @@ static int dissect_cdmaNetworkIdentification_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_ansi_map_ConfidentialityModes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 184 "ansi_map.cnf"
+#line 183 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5190,7 +5354,7 @@ static int dissect_digits_Carrier_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_PC_SSN(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 304 "ansi_map.cnf"
+#line 303 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5260,7 +5424,7 @@ static int dissect_suspiciousAccess_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_TransactionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 362 "ansi_map.cnf"
+#line 385 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5307,6 +5471,9 @@ dissect_ansi_map_AuthenticationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb,
                               AuthenticationRequest_set, hf_index, ett_ansi_map_AuthenticationRequest);
 
   return offset;
+}
+static int dissect_authenticationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationRequest);
 }
 
 
@@ -5508,6 +5675,9 @@ dissect_ansi_map_AuthenticationRequestRes(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
+static int dissect_authenticationRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationRequestRes);
+}
 
 
 
@@ -5526,7 +5696,7 @@ static int dissect_reauthenticationReport_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 439 "ansi_map.cnf"
+#line 462 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	guint8 ServiceIndicator;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -5621,6 +5791,9 @@ dissect_ansi_map_AuthenticationStatusReport(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
+static int dissect_authenticationStatusReport(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationStatusReport(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationStatusReport);
+}
 
 
 static const ber_sequence_t AuthenticationStatusReportRes_set[] = {
@@ -5645,6 +5818,9 @@ dissect_ansi_map_AuthenticationStatusReportRes(gboolean implicit_tag _U_, tvbuff
                               AuthenticationStatusReportRes_set, hf_index, ett_ansi_map_AuthenticationStatusReportRes);
 
   return offset;
+}
+static int dissect_authenticationStatusReportRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AuthenticationStatusReportRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationStatusReportRes);
 }
 
 
@@ -5676,6 +5852,9 @@ dissect_ansi_map_BaseStationChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb, 
                               BaseStationChallenge_set, hf_index, ett_ansi_map_BaseStationChallenge);
 
   return offset;
+}
+static int dissect_baseStationChallenge(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_BaseStationChallenge(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_baseStationChallenge);
 }
 
 
@@ -5718,6 +5897,9 @@ dissect_ansi_map_Blocking(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
+static int dissect_blocking(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_Blocking(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_blocking);
+}
 
 
 static const ber_sequence_t BulkDeregistration_set[] = {
@@ -5731,6 +5913,9 @@ dissect_ansi_map_BulkDeregistration(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                               BulkDeregistration_set, hf_index, ett_ansi_map_BulkDeregistration);
 
   return offset;
+}
+static int dissect_bulkDeregistration(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_BulkDeregistration(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_bulkDeregistration);
 }
 
 
@@ -5748,6 +5933,9 @@ dissect_ansi_map_CountRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_countRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CountRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_countRequest);
+}
 
 
 static const ber_sequence_t CountRequestRes_set[] = {
@@ -5762,12 +5950,15 @@ dissect_ansi_map_CountRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+static int dissect_countRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CountRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_countRequestRes);
+}
 
 
 
 static int
 dissect_ansi_map_BillingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 138 "ansi_map.cnf"
+#line 137 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5788,7 +5979,7 @@ static int dissect_billingID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_ChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 176 "ansi_map.cnf"
+#line 175 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5886,7 +6077,7 @@ static int dissect_handoffReason_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_HandoffState(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 215 "ansi_map.cnf"
+#line 214 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5971,6 +6162,9 @@ dissect_ansi_map_FacilitiesDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
+static int dissect_facilitiesDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective);
+}
 
 
 static const ber_sequence_t FacilitiesDirectiveRes_set[] = {
@@ -5987,6 +6181,9 @@ dissect_ansi_map_FacilitiesDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb
                               FacilitiesDirectiveRes_set, hf_index, ett_ansi_map_FacilitiesDirectiveRes);
 
   return offset;
+}
+static int dissect_facilitiesDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirectiveRes);
 }
 
 
@@ -6006,7 +6203,7 @@ static int dissect_baseStationManufacturerCode_impl(packet_info *pinfo, proto_tr
 
 static int
 dissect_ansi_map_AlertCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 113 "ansi_map.cnf"
+#line 112 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6027,7 +6224,7 @@ static int dissect_alertCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 413 "ansi_map.cnf"
+#line 436 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	proto_item *item;
     proto_tree *subtree;
@@ -6053,7 +6250,7 @@ static int dissect_cdma2000HandoffInvokeIOSData_impl(packet_info *pinfo, proto_t
 
 static int
 dissect_ansi_map_CDMACallMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 153 "ansi_map.cnf"
+#line 152 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6073,7 +6270,7 @@ static int dissect_cdmaCallMode_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_ansi_map_CDMAChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 160 "ansi_map.cnf"
+#line 159 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6107,7 +6304,7 @@ static int dissect_cdmaConnectionReference_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_ansi_map_CDMAServiceOption(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 370 "ansi_map.cnf"
+#line 393 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6297,7 +6494,7 @@ static int dissect_cdmaServingOneWayDelay_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_CDMAStationClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 168 "ansi_map.cnf"
+#line 167 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6453,7 +6650,7 @@ static int dissect_ilspInformation_impl(packet_info *pinfo, proto_tree *tree, tv
 
 static int
 dissect_ansi_map_MSLocation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 256 "ansi_map.cnf"
+#line 255 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6474,7 +6671,7 @@ static int dissect_msLocation_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_NAMPSCallMode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 264 "ansi_map.cnf"
+#line 263 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6495,7 +6692,7 @@ static int dissect_nampsCallMode_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_NAMPSChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 272 "ansi_map.cnf"
+#line 271 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6708,6 +6905,9 @@ dissect_ansi_map_FacilitiesDirective2(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
   return offset;
 }
+static int dissect_facilitiesDirective2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesDirective2(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective2);
+}
 
 
 
@@ -6726,7 +6926,7 @@ static int dissect_bsmcstatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 426 "ansi_map.cnf"
+#line 449 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	proto_item *item;
     proto_tree *subtree;
@@ -6891,6 +7091,9 @@ dissect_ansi_map_FacilitiesDirective2Res(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_facilitiesDirective2Res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesDirective2Res(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective2Res);
+}
 
 
 static const value_string ansi_map_ReleaseReason_vals[] = {
@@ -6940,6 +7143,9 @@ dissect_ansi_map_FacilitiesRelease(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
   return offset;
 }
+static int dissect_facilitiesRelease(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesRelease(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesRelease);
+}
 
 
 static const ber_sequence_t FacilitiesReleaseRes_set[] = {
@@ -6953,6 +7159,9 @@ dissect_ansi_map_FacilitiesReleaseRes(gboolean implicit_tag _U_, tvbuff_t *tvb, 
                               FacilitiesReleaseRes_set, hf_index, ett_ansi_map_FacilitiesReleaseRes);
 
   return offset;
+}
+static int dissect_facilitiesReleaseRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitiesReleaseRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesReleaseRes);
 }
 
 
@@ -6972,7 +7181,7 @@ static int dissect_acgencountered_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_CallingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 381 "ansi_map.cnf"
+#line 404 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7017,7 +7226,7 @@ static int dissect_callingPartyNumberDigits2_impl(packet_info *pinfo, proto_tree
 
 static int
 dissect_ansi_map_Subaddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 105 "ansi_map.cnf"
+#line 104 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7084,7 +7293,7 @@ static int dissect_mSCIdentificationNumber_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_ansi_map_OneTimeFeatureIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 280 "ansi_map.cnf"
+#line 279 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7155,6 +7364,9 @@ dissect_ansi_map_FeatureRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+static int dissect_featureRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FeatureRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_featureRequest);
+}
 
 
 static const value_string ansi_map_FeatureResult_vals[] = {
@@ -7224,7 +7436,7 @@ static int dissect_ctionCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_AnnouncementCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 121 "ansi_map.cnf"
+#line 120 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7423,7 +7635,7 @@ static int dissect_noAnswerTime_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 
 static int
 dissect_ansi_map_PACAIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 296 "ansi_map.cnf"
+#line 295 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7559,7 +7771,7 @@ static int dissect_legInformation_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_TerminationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 354 "ansi_map.cnf"
+#line 377 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8002,6 +8214,9 @@ dissect_ansi_map_FeatureRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
   return offset;
 }
+static int dissect_featureRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FeatureRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_featureRequestRes);
+}
 
 
 static const ber_sequence_t FlashRequest_set[] = {
@@ -8019,6 +8234,9 @@ dissect_ansi_map_FlashRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
                               FlashRequest_set, hf_index, ett_ansi_map_FlashRequest);
 
   return offset;
+}
+static int dissect_flashRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FlashRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_flashRequest);
 }
 
 
@@ -8047,6 +8265,9 @@ dissect_ansi_map_HandoffBack(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+static int dissect_handoffBack(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffBack(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack);
+}
 
 
 static const ber_sequence_t HandoffBackRes_set[] = {
@@ -8063,6 +8284,9 @@ dissect_ansi_map_HandoffBackRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
                               HandoffBackRes_set, hf_index, ett_ansi_map_HandoffBackRes);
 
   return offset;
+}
+static int dissect_handoffBackRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffBackRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBackRes);
 }
 
 
@@ -8124,6 +8348,9 @@ dissect_ansi_map_HandoffBack2(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_handoffBack2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffBack2(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack2);
+}
 
 
 static const ber_sequence_t HandoffBack2Res_set[] = {
@@ -8152,6 +8379,9 @@ dissect_ansi_map_HandoffBack2Res(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               HandoffBack2Res_set, hf_index, ett_ansi_map_HandoffBack2Res);
 
   return offset;
+}
+static int dissect_handoffBack2Res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffBack2Res(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack2Res);
 }
 
 
@@ -8190,6 +8420,9 @@ dissect_ansi_map_HandoffMeasurementRequest(gboolean implicit_tag _U_, tvbuff_t *
                               HandoffMeasurementRequest_set, hf_index, ett_ansi_map_HandoffMeasurementRequest);
 
   return offset;
+}
+static int dissect_handoffMeasurementRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffMeasurementRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest);
 }
 
 
@@ -8244,6 +8477,9 @@ dissect_ansi_map_HandoffMeasurementRequestRes(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
+static int dissect_handoffMeasurementRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffMeasurementRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequestRes);
+}
 
 
 static const ber_sequence_t HandoffMeasurementRequest2_set[] = {
@@ -8273,6 +8509,9 @@ dissect_ansi_map_HandoffMeasurementRequest2(gboolean implicit_tag _U_, tvbuff_t 
                               HandoffMeasurementRequest2_set, hf_index, ett_ansi_map_HandoffMeasurementRequest2);
 
   return offset;
+}
+static int dissect_handoffMeasurementRequest2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffMeasurementRequest2(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest2);
 }
 
 
@@ -8323,6 +8562,9 @@ dissect_ansi_map_HandoffMeasurementRequest2Res(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
+static int dissect_handoffMeasurementRequest2Res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffMeasurementRequest2Res(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest2Res);
+}
 
 
 static const ber_sequence_t HandoffToThird_set[] = {
@@ -8359,6 +8601,9 @@ dissect_ansi_map_HandoffToThird(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+static int dissect_handoffToThird(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffToThird(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird);
+}
 
 
 static const ber_sequence_t HandoffToThirdRes_set[] = {
@@ -8375,6 +8620,9 @@ dissect_ansi_map_HandoffToThirdRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int
                               HandoffToThirdRes_set, hf_index, ett_ansi_map_HandoffToThirdRes);
 
   return offset;
+}
+static int dissect_handoffToThirdRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffToThirdRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThirdRes);
 }
 
 
@@ -8437,6 +8685,9 @@ dissect_ansi_map_HandoffToThird2(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+static int dissect_handoffToThird2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffToThird2(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird2);
+}
 
 
 static const ber_sequence_t HandoffToThird2Res_set[] = {
@@ -8464,6 +8715,9 @@ dissect_ansi_map_HandoffToThird2Res(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_handoffToThird2Res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_HandoffToThird2Res(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird2Res);
+}
 
 
 static const ber_sequence_t InformationDirective_set[] = {
@@ -8488,6 +8742,9 @@ dissect_ansi_map_InformationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, 
                               InformationDirective_set, hf_index, ett_ansi_map_InformationDirective);
 
   return offset;
+}
+static int dissect_informationDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InformationDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_informationDirective);
 }
 
 
@@ -8521,7 +8778,7 @@ dissect_ansi_map_InformationDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_ansi_map_MessageWaitingNotificationCount(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 231 "ansi_map.cnf"
+#line 230 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8542,7 +8799,7 @@ static int dissect_messageWaitingNotificationCount_impl(packet_info *pinfo, prot
 
 static int
 dissect_ansi_map_MessageWaitingNotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 239 "ansi_map.cnf"
+#line 238 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8586,6 +8843,9 @@ dissect_ansi_map_InformationForward(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_informationForward(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InformationForward(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_informationForward);
+}
 
 
 static const ber_sequence_t InformationForwardRes_set[] = {
@@ -8599,6 +8859,9 @@ dissect_ansi_map_InformationForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb,
                               InformationForwardRes_set, hf_index, ett_ansi_map_InformationForwardRes);
 
   return offset;
+}
+static int dissect_informationForwardRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InformationForwardRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_informationForwardRes);
 }
 
 
@@ -8615,6 +8878,9 @@ dissect_ansi_map_InterSystemAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int
                               InterSystemAnswer_set, hf_index, ett_ansi_map_InterSystemAnswer);
 
   return offset;
+}
+static int dissect_interSystemAnswer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemAnswer(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemAnswer);
 }
 
 
@@ -8634,7 +8900,7 @@ static int dissect_cdmaSlotCycleIndex_impl(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_ansi_map_ExtendedMSCID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 200 "ansi_map.cnf"
+#line 199 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8655,7 +8921,7 @@ static int dissect_extendedMSCID_impl(packet_info *pinfo, proto_tree *tree, tvbu
 
 static int
 dissect_ansi_map_ExtendedSystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 208 "ansi_map.cnf"
+#line 207 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -8739,7 +9005,7 @@ static int dissect_pageResponseTime_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_PilotBillingID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 312 "ansi_map.cnf"
+#line 311 "ansi_map.cnf"
 
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -8900,6 +9166,9 @@ dissect_ansi_map_InterSystemPage(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+static int dissect_interSystemPage(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemPage(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage);
+}
 
 
 static const value_string ansi_map_ConditionallyDeniedReason_vals[] = {
@@ -8941,6 +9210,9 @@ dissect_ansi_map_InterSystemPageRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                               InterSystemPageRes_set, hf_index, ett_ansi_map_InterSystemPageRes);
 
   return offset;
+}
+static int dissect_interSystemPageRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemPageRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPageRes);
 }
 
 
@@ -9036,6 +9308,9 @@ dissect_ansi_map_InterSystemPage2(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_interSystemPage2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemPage2(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage2);
+}
 
 
 
@@ -9086,6 +9361,9 @@ dissect_ansi_map_InterSystemPage2Res(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
+static int dissect_interSystemPage2Res(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemPage2Res(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage2Res);
+}
 
 
 
@@ -9133,6 +9411,9 @@ dissect_ansi_map_InterSystemSetup(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_interSystemSetup(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemSetup(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemSetup);
+}
 
 
 
@@ -9163,6 +9444,9 @@ dissect_ansi_map_InterSystemSetupRes(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
+static int dissect_interSystemSetupRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_InterSystemSetupRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemSetupRes);
+}
 
 
 
@@ -9181,7 +9465,7 @@ static int dissect_terminationAccessType_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_ansi_map_TriggerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 389 "ansi_map.cnf"
+#line 412 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9202,7 +9486,7 @@ static int dissect_triggerCapability_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ansi_map_WINOperationsCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 397 "ansi_map.cnf"
+#line 420 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9283,12 +9567,15 @@ dissect_ansi_map_LocationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+static int dissect_locationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_LocationRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_locationRequest);
+}
 
 
 
 static int
 dissect_ansi_map_ControlNetworkID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 405 "ansi_map.cnf"
+#line 428 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9362,6 +9649,9 @@ dissect_ansi_map_LocationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_locationRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_LocationRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_locationRequestRes);
+}
 
 
 static const value_string ansi_map_DeregistrationType_vals[] = {
@@ -9430,12 +9720,15 @@ dissect_ansi_map_MSInactive(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
+static int dissect_mSInactive(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_MSInactive(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_mSInactive);
+}
 
 
 
 static int
 dissect_ansi_map_OriginationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 288 "ansi_map.cnf"
+#line 287 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9510,6 +9803,9 @@ dissect_ansi_map_OriginationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_originationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OriginationRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_originationRequest);
+}
 
 
 
@@ -9565,6 +9861,9 @@ dissect_ansi_map_OriginationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb,
                               OriginationRequestRes_set, hf_index, ett_ansi_map_OriginationRequestRes);
 
   return offset;
+}
+static int dissect_originationRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OriginationRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_originationRequestRes);
 }
 
 
@@ -9622,7 +9921,7 @@ static int dissect_authorizationDenied_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_ansi_map_AuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 129 "ansi_map.cnf"
+#line 128 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9644,7 +9943,7 @@ static int dissect_authorizationPeriod_impl(packet_info *pinfo, proto_tree *tree
 
 static int
 dissect_ansi_map_DeniedAuthorizationPeriod(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 192 "ansi_map.cnf"
+#line 191 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9689,6 +9988,9 @@ dissect_ansi_map_QualificationDirective(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
+static int dissect_qualificationDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_QualificationDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationDirective);
+}
 
 
 static const ber_sequence_t QualificationRequest_set[] = {
@@ -9717,6 +10019,9 @@ dissect_ansi_map_QualificationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 
   return offset;
 }
+static int dissect_qualificationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_QualificationRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationRequest);
+}
 
 
 static const ber_sequence_t QualificationRequestRes_set[] = {
@@ -9742,6 +10047,9 @@ dissect_ansi_map_QualificationRequestRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_qualificationRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_QualificationRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationRequestRes);
+}
 
 
 static const ber_sequence_t RandomVariableRequest_set[] = {
@@ -9757,6 +10065,9 @@ dissect_ansi_map_RandomVariableRequest(gboolean implicit_tag _U_, tvbuff_t *tvb,
                               RandomVariableRequest_set, hf_index, ett_ansi_map_RandomVariableRequest);
 
   return offset;
+}
+static int dissect_randomVariableRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RandomVariableRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_randomVariableRequest);
 }
 
 
@@ -9786,6 +10097,9 @@ dissect_ansi_map_RandomVariableRequestRes(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
+static int dissect_randomVariableRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RandomVariableRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_randomVariableRequestRes);
+}
 
 
 static const ber_sequence_t RedirectionDirective_set[] = {
@@ -9811,6 +10125,9 @@ dissect_ansi_map_RedirectionDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, 
                               RedirectionDirective_set, hf_index, ett_ansi_map_RedirectionDirective);
 
   return offset;
+}
+static int dissect_redirectionDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RedirectionDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_redirectionDirective);
 }
 
 
@@ -9861,6 +10178,9 @@ dissect_ansi_map_RedirectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                               RedirectionRequest_set, hf_index, ett_ansi_map_RedirectionRequest);
 
   return offset;
+}
+static int dissect_redirectionRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RedirectionRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_redirectionRequest);
 }
 
 
@@ -9934,6 +10254,9 @@ dissect_ansi_map_RegistrationCancellation(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
+static int dissect_registrationCancellation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RegistrationCancellation(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_registrationCancellation);
+}
 
 
 static const value_string ansi_map_CancellationDenied_vals[] = {
@@ -9972,6 +10295,9 @@ dissect_ansi_map_RegistrationCancellationRes(gboolean implicit_tag _U_, tvbuff_t
                               RegistrationCancellationRes_set, hf_index, ett_ansi_map_RegistrationCancellationRes);
 
   return offset;
+}
+static int dissect_registrationCancellationRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RegistrationCancellationRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_registrationCancellationRes);
 }
 
 
@@ -10068,6 +10394,9 @@ dissect_ansi_map_RegistrationNotification(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
+static int dissect_registrationNotification(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RegistrationNotification(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_registrationNotification);
+}
 
 
 
@@ -10086,7 +10415,7 @@ static int dissect_authenticationCapability_impl(packet_info *pinfo, proto_tree 
 
 static int
 dissect_ansi_map_CallingFeaturesIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 146 "ansi_map.cnf"
+#line 145 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -10279,6 +10608,9 @@ dissect_ansi_map_RegistrationNotificationRes(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
+static int dissect_registrationNotificationRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RegistrationNotificationRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_registrationNotificationRes);
+}
 
 
 
@@ -10307,6 +10639,9 @@ dissect_ansi_map_RemoteUserInteractionDirective(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
+static int dissect_remoteUserInteractionDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RemoteUserInteractionDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_remoteUserInteractionDirective);
+}
 
 
 static const ber_sequence_t RemoteUserInteractionDirectiveRes_set[] = {
@@ -10321,6 +10656,9 @@ dissect_ansi_map_RemoteUserInteractionDirectiveRes(gboolean implicit_tag _U_, tv
 
   return offset;
 }
+static int dissect_remoteUserInteractionDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RemoteUserInteractionDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_remoteUserInteractionDirectiveRes);
+}
 
 
 static const ber_sequence_t ResetCircuit_set[] = {
@@ -10334,6 +10672,9 @@ dissect_ansi_map_ResetCircuit(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
                               ResetCircuit_set, hf_index, ett_ansi_map_ResetCircuit);
 
   return offset;
+}
+static int dissect_resetCircuit(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ResetCircuit(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_resetCircuit);
 }
 
 
@@ -10367,6 +10708,9 @@ dissect_ansi_map_ResetCircuitRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               ResetCircuitRes_set, hf_index, ett_ansi_map_ResetCircuitRes);
 
   return offset;
+}
+static int dissect_resetCircuitRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ResetCircuitRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_resetCircuitRes);
 }
 
 
@@ -10436,6 +10780,9 @@ dissect_ansi_map_RoutingRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+static int dissect_routingRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RoutingRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_routingRequest);
+}
 
 
 static const ber_sequence_t RoutingRequestRes_set[] = {
@@ -10458,17 +10805,34 @@ dissect_ansi_map_RoutingRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
   return offset;
 }
+static int dissect_routingRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RoutingRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_routingRequestRes);
+}
 
 
 
 static int
 dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 321 "ansi_map.cnf"
+#line 320 "ansi_map.cnf"
+	int length;
+    proto_item *item;
+    proto_tree *subtree;
 	SMS_BearerData_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &SMS_BearerData_tvb);
 
+	if (SMS_BearerData_tvb){
+		/* A zero length OCTET STRING will return a zero length tvb */
+		length = tvb_length_remaining(SMS_BearerData_tvb,0);
+		if (length <=0){
+			item = get_ber_last_created_item();
+			subtree = proto_item_add_subtree(item, ett_sms_bearer_data);
+			proto_item_append_text(item," length %u",length);
+			SMS_BearerData_tvb = NULL;
+			return offset;
+		}
+	}
 
 
 
@@ -10482,20 +10846,30 @@ static int dissect_sms_BearerData_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 328 "ansi_map.cnf"
+#line 341 "ansi_map.cnf"
 
-tvbuff_t *parameter_tvb = NULL;
-static gint32 ansi_map_sms_tele_id = -1;
+	int length;
+    proto_item *item;
+    proto_tree *subtree;
+	tvbuff_t *parameter_tvb = NULL;
+	static gint32 ansi_map_sms_tele_id = -1;
 
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 	if (parameter_tvb){
+		/* A zero length OCTET STRING will return a zero length tvb */
+		length = tvb_length_remaining(parameter_tvb,0);
+		if (length <=0){
+			item = get_ber_last_created_item();
+			subtree = proto_item_add_subtree(item, ett_sms_teleserviceIdentifier);
+			proto_item_append_text(item, " length %u",length);
+			return offset;
+		}
 		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
 		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
 		{
 		    dissector_try_port(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
-		    ansi_map_sms_tele_id = -1;
 		}
 	}
 
@@ -10616,6 +10990,9 @@ dissect_ansi_map_SMSDeliveryBackward(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
+static int dissect_sMSDeliveryBackward(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryBackward(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryBackward);
+}
 
 
 
@@ -10644,6 +11021,9 @@ dissect_ansi_map_SMSDeliveryBackwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
+static int dissect_sMSDeliveryBackwardRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryBackwardRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryBackwardRes);
+}
 
 
 static const ber_sequence_t SMSDeliveryForward_set[] = {
@@ -10669,6 +11049,9 @@ dissect_ansi_map_SMSDeliveryForward(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_sMSDeliveryForward(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryForward(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryForward);
+}
 
 
 static const ber_sequence_t SMSDeliveryForwardRes_set[] = {
@@ -10683,6 +11066,9 @@ dissect_ansi_map_SMSDeliveryForwardRes(gboolean implicit_tag _U_, tvbuff_t *tvb,
                               SMSDeliveryForwardRes_set, hf_index, ett_ansi_map_SMSDeliveryForwardRes);
 
   return offset;
+}
+static int dissect_sMSDeliveryForwardRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryForwardRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryForwardRes);
 }
 
 
@@ -10816,6 +11202,9 @@ dissect_ansi_map_SMSDeliveryPointToPoint(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_sMSDeliveryPointToPoint(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryPointToPoint(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryPointToPoint);
+}
 
 
 
@@ -10874,6 +11263,9 @@ dissect_ansi_map_SMSDeliveryPointToPointRes(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
+static int dissect_sMSDeliveryPointToPointRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSDeliveryPointToPointRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryPointToPointRes);
+}
 
 
 
@@ -10906,6 +11298,9 @@ dissect_ansi_map_SMSNotification(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
+static int dissect_sMSNotification(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSNotification(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSNotification);
+}
 
 
 static const ber_sequence_t SMSNotificationRes_set[] = {
@@ -10919,6 +11314,9 @@ dissect_ansi_map_SMSNotificationRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                               SMSNotificationRes_set, hf_index, ett_ansi_map_SMSNotificationRes);
 
   return offset;
+}
+static int dissect_sMSNotificationRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSNotificationRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSNotificationRes);
 }
 
 
@@ -10939,6 +11337,9 @@ dissect_ansi_map_SMSRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
+static int dissect_sMSRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSRequest);
+}
 
 
 static const ber_sequence_t SMSRequestRes_set[] = {
@@ -10956,6 +11357,9 @@ dissect_ansi_map_SMSRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
                               SMSRequestRes_set, hf_index, ett_ansi_map_SMSRequestRes);
 
   return offset;
+}
+static int dissect_sMSRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SMSRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sMSRequestRes);
 }
 
 
@@ -10991,6 +11395,9 @@ dissect_ansi_map_TransferToNumberRequest(gboolean implicit_tag _U_, tvbuff_t *tv
                               TransferToNumberRequest_set, hf_index, ett_ansi_map_TransferToNumberRequest);
 
   return offset;
+}
+static int dissect_transferToNumberRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TransferToNumberRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_transferToNumberRequest);
 }
 
 
@@ -11030,6 +11437,9 @@ dissect_ansi_map_TransferToNumberRequestRes(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
+static int dissect_transferToNumberRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TransferToNumberRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_transferToNumberRequestRes);
+}
 
 
 static const value_string ansi_map_SeizureType_vals[] = {
@@ -11064,6 +11474,9 @@ dissect_ansi_map_TrunkTest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_trunkTest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TrunkTest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_trunkTest);
+}
 
 
 static const ber_sequence_t TrunkTestDisconnect_set[] = {
@@ -11077,6 +11490,9 @@ dissect_ansi_map_TrunkTestDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, i
                               TrunkTestDisconnect_set, hf_index, ett_ansi_map_TrunkTestDisconnect);
 
   return offset;
+}
+static int dissect_trunkTestDisconnect(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TrunkTestDisconnect(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_trunkTestDisconnect);
 }
 
 
@@ -11092,6 +11508,9 @@ dissect_ansi_map_Unblocking(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
+static int dissect_unblocking(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_Unblocking(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_unblocking);
+}
 
 
 static const ber_sequence_t UnreliableRoamerDataDirective_set[] = {
@@ -11106,6 +11525,9 @@ dissect_ansi_map_UnreliableRoamerDataDirective(gboolean implicit_tag _U_, tvbuff
                               UnreliableRoamerDataDirective_set, hf_index, ett_ansi_map_UnreliableRoamerDataDirective);
 
   return offset;
+}
+static int dissect_unreliableRoamerDataDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_UnreliableRoamerDataDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_unreliableRoamerDataDirective);
 }
 
 
@@ -11129,6 +11551,9 @@ dissect_ansi_map_UnsolicitedResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, i
                               UnsolicitedResponse_set, hf_index, ett_ansi_map_UnsolicitedResponse);
 
   return offset;
+}
+static int dissect_unsolicitedResponse(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_UnsolicitedResponse(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_unsolicitedResponse);
 }
 
 
@@ -11174,6 +11599,9 @@ dissect_ansi_map_UnsolicitedResponseRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
+static int dissect_unsolicitedResponseRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_UnsolicitedResponseRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_unsolicitedResponseRes);
+}
 
 
 
@@ -11207,6 +11635,9 @@ dissect_ansi_map_ParameterRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                               ParameterRequest_set, hf_index, ett_ansi_map_ParameterRequest);
 
   return offset;
+}
+static int dissect_parameterRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ParameterRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_parameterRequest);
 }
 
 
@@ -11250,6 +11681,9 @@ dissect_ansi_map_ParameterRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, i
                               ParameterRequestRes_set, hf_index, ett_ansi_map_ParameterRequestRes);
 
   return offset;
+}
+static int dissect_parameterRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ParameterRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_parameterRequestRes);
 }
 
 
@@ -11295,6 +11729,9 @@ dissect_ansi_map_TMSIDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
+static int dissect_tMSIDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TMSIDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tMSIDirective);
+}
 
 
 static const ber_sequence_t TMSIDirectiveRes_set[] = {
@@ -11311,6 +11748,9 @@ dissect_ansi_map_TMSIDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                               TMSIDirectiveRes_set, hf_index, ett_ansi_map_TMSIDirectiveRes);
 
   return offset;
+}
+static int dissect_tMSIDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TMSIDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tMSIDirectiveRes);
 }
 
 
@@ -11529,6 +11969,9 @@ dissect_ansi_map_ServiceRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
+static int dissect_serviceRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ServiceRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_serviceRequest);
+}
 
 
 static const ber_sequence_t ServiceRequestRes_set[] = {
@@ -11569,6 +12012,9 @@ dissect_ansi_map_ServiceRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int
                               ServiceRequestRes_set, hf_index, ett_ansi_map_ServiceRequestRes);
 
   return offset;
+}
+static int dissect_serviceRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ServiceRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_serviceRequestRes);
 }
 
 
@@ -11636,6 +12082,9 @@ dissect_ansi_map_AnalyzedInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
+static int dissect_analyzedInformation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AnalyzedInformation(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_analyzedInformation);
+}
 
 
 static const ber_sequence_t AnalyzedInformationRes_set[] = {
@@ -11668,6 +12117,9 @@ dissect_ansi_map_AnalyzedInformationRes(gboolean implicit_tag _U_, tvbuff_t *tvb
                               AnalyzedInformationRes_set, hf_index, ett_ansi_map_AnalyzedInformationRes);
 
   return offset;
+}
+static int dissect_analyzedInformationRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AnalyzedInformationRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_analyzedInformationRes);
 }
 
 
@@ -11718,6 +12170,9 @@ dissect_ansi_map_ConnectionFailureReport(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_connectionFailureReport(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ConnectionFailureReport(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_connectionFailureReport);
+}
 
 
 static const ber_sequence_t ConnectResource_set[] = {
@@ -11733,6 +12188,9 @@ dissect_ansi_map_ConnectResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               ConnectResource_set, hf_index, ett_ansi_map_ConnectResource);
 
   return offset;
+}
+static int dissect_connectResource(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ConnectResource(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_connectResource);
 }
 
 
@@ -11774,6 +12232,9 @@ dissect_ansi_map_FacilitySelectedAndAvailable(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
+static int dissect_facilitySelectedAndAvailable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitySelectedAndAvailable(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitySelectedAndAvailable);
+}
 
 
 static const ber_sequence_t FacilitySelectedAndAvailableRes_set[] = {
@@ -11801,6 +12262,9 @@ dissect_ansi_map_FacilitySelectedAndAvailableRes(gboolean implicit_tag _U_, tvbu
                               FacilitySelectedAndAvailableRes_set, hf_index, ett_ansi_map_FacilitySelectedAndAvailableRes);
 
   return offset;
+}
+static int dissect_facilitySelectedAndAvailableRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_FacilitySelectedAndAvailableRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_facilitySelectedAndAvailableRes);
 }
 
 
@@ -11917,6 +12381,9 @@ dissect_ansi_map_Modify(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
                               Modify_set, hf_index, ett_ansi_map_Modify);
 
   return offset;
+}
+static int dissect_modify(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_Modify(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_modify);
 }
 
 
@@ -12063,6 +12530,9 @@ dissect_ansi_map_ModifyRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_modifyRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ModifyRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_modifyRes);
+}
 
 
 static const ber_sequence_t Search_set[] = {
@@ -12078,6 +12548,9 @@ dissect_ansi_map_Search(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
+static int dissect_search(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_Search(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_search);
+}
 
 
 static const ber_sequence_t SearchRes_set[] = {
@@ -12091,6 +12564,9 @@ dissect_ansi_map_SearchRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
                               SearchRes_set, hf_index, ett_ansi_map_SearchRes);
 
   return offset;
+}
+static int dissect_searchRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SearchRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_searchRes);
 }
 
 
@@ -12134,6 +12610,9 @@ dissect_ansi_map_SeizeResource(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
+static int dissect_seizeResource(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SeizeResource(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_seizeResource);
+}
 
 
 static const ber_sequence_t SeizeResourceRes_set[] = {
@@ -12147,6 +12626,9 @@ dissect_ansi_map_SeizeResourceRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                               SeizeResourceRes_set, hf_index, ett_ansi_map_SeizeResourceRes);
 
   return offset;
+}
+static int dissect_seizeResourceRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SeizeResourceRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_seizeResourceRes);
 }
 
 
@@ -12209,6 +12691,9 @@ dissect_ansi_map_SRFDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_sRFDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SRFDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sRFDirective);
+}
 
 
 
@@ -12236,6 +12721,9 @@ dissect_ansi_map_SRFDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               SRFDirectiveRes_set, hf_index, ett_ansi_map_SRFDirectiveRes);
 
   return offset;
+}
+static int dissect_sRFDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_SRFDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_sRFDirectiveRes);
 }
 
 
@@ -12276,6 +12764,9 @@ dissect_ansi_map_TBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
+static int dissect_tBusy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TBusy(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tBusy);
+}
 
 
 static const ber_sequence_t TBusyRes_set[] = {
@@ -12309,6 +12800,9 @@ dissect_ansi_map_TBusyRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
                               TBusyRes_set, hf_index, ett_ansi_map_TBusyRes);
 
   return offset;
+}
+static int dissect_tBusyRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TBusyRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tBusyRes);
 }
 
 
@@ -12349,6 +12843,9 @@ dissect_ansi_map_TNoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_tNoAnswer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TNoAnswer(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tNoAnswer);
+}
 
 
 static const ber_sequence_t TNoAnswerRes_set[] = {
@@ -12384,6 +12881,9 @@ dissect_ansi_map_TNoAnswerRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_tNoAnswerRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TNoAnswerRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tNoAnswerRes);
+}
 
 
 static const ber_sequence_t ChangeFacilities_set[] = {
@@ -12409,6 +12909,9 @@ dissect_ansi_map_ChangeFacilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_changeFacilities(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ChangeFacilities(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_changeFacilities);
+}
 
 
 static const ber_sequence_t ChangeFacilitiesRes_set[] = {
@@ -12422,6 +12925,9 @@ dissect_ansi_map_ChangeFacilitiesRes(gboolean implicit_tag _U_, tvbuff_t *tvb, i
                               ChangeFacilitiesRes_set, hf_index, ett_ansi_map_ChangeFacilitiesRes);
 
   return offset;
+}
+static int dissect_changeFacilitiesRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ChangeFacilitiesRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_changeFacilitiesRes);
 }
 
 
@@ -12459,6 +12965,9 @@ dissect_ansi_map_ChangeService(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
+static int dissect_changeService(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ChangeService(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_changeService);
+}
 
 
 static const ber_sequence_t ChangeServiceRes_set[] = {
@@ -12482,6 +12991,9 @@ dissect_ansi_map_ChangeServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_changeServiceRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ChangeServiceRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_changeServiceRes);
+}
 
 
 static const ber_sequence_t MessageDirective_set[] = {
@@ -12497,6 +13009,9 @@ dissect_ansi_map_MessageDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
                               MessageDirective_set, hf_index, ett_ansi_map_MessageDirective);
 
   return offset;
+}
+static int dissect_messageDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_MessageDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_messageDirective);
 }
 
 
@@ -12515,6 +13030,9 @@ dissect_ansi_map_BulkDisconnection(gboolean implicit_tag _U_, tvbuff_t *tvb, int
                               BulkDisconnection_set, hf_index, ett_ansi_map_BulkDisconnection);
 
   return offset;
+}
+static int dissect_bulkDisconnection(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_BulkDisconnection(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_bulkDisconnection);
 }
 
 
@@ -12544,6 +13062,9 @@ dissect_ansi_map_CallControlDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, 
                               CallControlDirective_set, hf_index, ett_ansi_map_CallControlDirective);
 
   return offset;
+}
+static int dissect_callControlDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CallControlDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_callControlDirective);
 }
 
 
@@ -12580,6 +13101,9 @@ dissect_ansi_map_CallControlDirectiveRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
+static int dissect_callControlDirectiveRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CallControlDirectiveRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_callControlDirectiveRes);
+}
 
 
 static const ber_sequence_t OAnswer_set[] = {
@@ -12605,6 +13129,9 @@ dissect_ansi_map_OAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
                               OAnswer_set, hf_index, ett_ansi_map_OAnswer);
 
   return offset;
+}
+static int dissect_oAnswer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OAnswer(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oAnswer);
 }
 
 
@@ -12655,6 +13182,9 @@ dissect_ansi_map_ODisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+static int dissect_oDisconnect(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ODisconnect(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oDisconnect);
+}
 
 
 static const ber_sequence_t ODisconnectRes_set[] = {
@@ -12669,6 +13199,9 @@ dissect_ansi_map_ODisconnectRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
                               ODisconnectRes_set, hf_index, ett_ansi_map_ODisconnectRes);
 
   return offset;
+}
+static int dissect_oDisconnectRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ODisconnectRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oDisconnectRes);
 }
 
 
@@ -12719,6 +13252,9 @@ dissect_ansi_map_CallRecoveryReport(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_callRecoveryReport(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_CallRecoveryReport(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_callRecoveryReport);
+}
 
 
 static const ber_sequence_t TAnswer_set[] = {
@@ -12748,6 +13284,9 @@ dissect_ansi_map_TAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
   return offset;
 }
+static int dissect_tAnswer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TAnswer(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tAnswer);
+}
 
 
 static const ber_sequence_t TDisconnect_set[] = {
@@ -12776,6 +13315,9 @@ dissect_ansi_map_TDisconnect(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+static int dissect_tDisconnect(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TDisconnect(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tDisconnect);
+}
 
 
 static const ber_sequence_t TDisconnectRes_set[] = {
@@ -12789,6 +13331,9 @@ dissect_ansi_map_TDisconnectRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
                               TDisconnectRes_set, hf_index, ett_ansi_map_TDisconnectRes);
 
   return offset;
+}
+static int dissect_tDisconnectRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_TDisconnectRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_tDisconnectRes);
 }
 
 
@@ -12804,6 +13349,9 @@ dissect_ansi_map_UnreliableCallData(gboolean implicit_tag _U_, tvbuff_t *tvb, in
                               UnreliableCallData_set, hf_index, ett_ansi_map_UnreliableCallData);
 
   return offset;
+}
+static int dissect_unreliableCallData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_UnreliableCallData(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_unreliableCallData);
 }
 
 
@@ -12841,6 +13389,9 @@ dissect_ansi_map_OCalledPartyBusy(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 
   return offset;
 }
+static int dissect_oCalledPartyBusy(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OCalledPartyBusy(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oCalledPartyBusy);
+}
 
 
 static const ber_sequence_t OCalledPartyBusyRes_set[] = {
@@ -12869,6 +13420,9 @@ dissect_ansi_map_OCalledPartyBusyRes(gboolean implicit_tag _U_, tvbuff_t *tvb, i
                               OCalledPartyBusyRes_set, hf_index, ett_ansi_map_OCalledPartyBusyRes);
 
   return offset;
+}
+static int dissect_oCalledPartyBusyRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OCalledPartyBusyRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oCalledPartyBusyRes);
 }
 
 
@@ -12905,6 +13459,9 @@ dissect_ansi_map_ONoAnswer(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
+static int dissect_oNoAnswer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ONoAnswer(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oNoAnswer);
+}
 
 
 static const ber_sequence_t ONoAnswerRes_set[] = {
@@ -12933,6 +13490,9 @@ dissect_ansi_map_ONoAnswerRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
                               ONoAnswerRes_set, hf_index, ett_ansi_map_ONoAnswerRes);
 
   return offset;
+}
+static int dissect_oNoAnswerRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ONoAnswerRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oNoAnswerRes);
 }
 
 
@@ -12965,6 +13525,9 @@ dissect_ansi_map_PositionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               PositionRequest_set, hf_index, ett_ansi_map_PositionRequest);
 
   return offset;
+}
+static int dissect_positionRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_PositionRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequest);
 }
 
 
@@ -13002,6 +13565,9 @@ dissect_ansi_map_PositionRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
   return offset;
 }
+static int dissect_positionRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_PositionRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestRes);
+}
 
 
 static const ber_sequence_t PositionRequestForward_set[] = {
@@ -13020,6 +13586,9 @@ dissect_ansi_map_PositionRequestForward(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
+static int dissect_positionRequestForward(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_PositionRequestForward(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestForward);
+}
 
 
 static const ber_sequence_t PositionRequestForwardRes_set[] = {
@@ -13036,6 +13605,9 @@ dissect_ansi_map_PositionRequestForwardRes(gboolean implicit_tag _U_, tvbuff_t *
                               PositionRequestForwardRes_set, hf_index, ett_ansi_map_PositionRequestForwardRes);
 
   return offset;
+}
+static int dissect_positionRequestForwardRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_PositionRequestForwardRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestForwardRes);
 }
 
 
@@ -13146,6 +13718,9 @@ dissect_ansi_map_ACGDirective(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_aCGDirective(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_ACGDirective(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_aCGDirective);
+}
 
 
 
@@ -13190,6 +13765,9 @@ dissect_ansi_map_RoamerDatabaseVerificationRequest(gboolean implicit_tag _U_, tv
 
   return offset;
 }
+static int dissect_roamerDatabaseVerificationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RoamerDatabaseVerificationRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_roamerDatabaseVerificationRequest);
+}
 
 
 static const ber_sequence_t RoamerDatabaseVerificationRequestRes_set[] = {
@@ -13203,6 +13781,9 @@ dissect_ansi_map_RoamerDatabaseVerificationRequestRes(gboolean implicit_tag _U_,
                               RoamerDatabaseVerificationRequestRes_set, hf_index, ett_ansi_map_RoamerDatabaseVerificationRequestRes);
 
   return offset;
+}
+static int dissect_roamerDatabaseVerificationRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_RoamerDatabaseVerificationRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_roamerDatabaseVerificationRequestRes);
 }
 
 
@@ -13223,6 +13804,9 @@ dissect_ansi_map_AddService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
+static int dissect_addService(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AddService(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_addService);
+}
 
 
 static const ber_sequence_t AddServiceRes_set[] = {
@@ -13239,6 +13823,9 @@ dissect_ansi_map_AddServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
                               AddServiceRes_set, hf_index, ett_ansi_map_AddServiceRes);
 
   return offset;
+}
+static int dissect_addServiceRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_AddServiceRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_addServiceRes);
 }
 
 
@@ -13259,6 +13846,9 @@ dissect_ansi_map_DropService(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
+static int dissect_dropService(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_DropService(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_dropService);
+}
 
 
 static const ber_sequence_t DropServiceRes_set[] = {
@@ -13272,6 +13862,9 @@ dissect_ansi_map_DropServiceRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
                               DropServiceRes_set, hf_index, ett_ansi_map_DropServiceRes);
 
   return offset;
+}
+static int dissect_dropServiceRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_DropServiceRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_dropServiceRes);
 }
 
 
@@ -13353,6 +13946,9 @@ dissect_ansi_map_OTASPRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
+static int dissect_oTASPRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OTASPRequest(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oTASPRequest);
+}
 
 
 
@@ -13428,6 +14024,9 @@ dissect_ansi_map_OTASPRequestRes(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
                               OTASPRequestRes_set, hf_index, ett_ansi_map_OTASPRequestRes);
 
   return offset;
+}
+static int dissect_oTASPRequestRes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_ansi_map_OTASPRequestRes(FALSE, tvb, offset, pinfo, tree, hf_ansi_map_oTASPRequestRes);
 }
 
 
@@ -13520,6 +14119,175 @@ dissect_ansi_map_SRFCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
   return offset;
 }
 
+
+static const ber_sequence_t InvokeData_sequence[] = {
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesRelease },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_blocking },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unblocking },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_resetCircuit },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_trunkTest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_trunkTestDisconnect },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationNotification },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationCancellation },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_locationRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_routingRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_featureRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unreliableRoamerDataDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_mSInactive },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_transferToNumberRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_redirectionRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_flashRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_baseStationChallenge },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationFailureReport },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_countRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unsolicitedResponse },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_bulkDeregistration },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest2 },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective2 },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack2 },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird2 },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveForward },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationStatusReport },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationForward },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemAnswer },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage2 },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemSetup },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_originationRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_randomVariableRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_redirectionDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_remoteUserInteractionDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryBackward },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryForward },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryPointToPoint },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSNotification },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oTASPRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeFacilities },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeService },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_parameterRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tMSIDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_serviceRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_analyzedInformation },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_connectionFailureReport },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_connectResource },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitySelectedAndAvailable },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_modify },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_search },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_seizeResource },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sRFDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tBusy },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tNoAnswer },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_messageDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_bulkDisconnection },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callControlDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oAnswer },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oDisconnect },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callRecoveryReport },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tAnswer },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tDisconnect },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unreliableCallData },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oCalledPartyBusy },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oNoAnswer },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestForward },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_aCGDirective },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_roamerDatabaseVerificationRequest },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_addService },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_dropService },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_InvokeData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   InvokeData_sequence, hf_index, ett_ansi_map_InvokeData);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ReturnData_sequence[] = {
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBackRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesReleaseRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_qualificationRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_resetCircuitRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationNotificationRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_registrationCancellationRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_locationRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_routingRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_featureRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_transferToNumberRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThirdRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationFailureReportRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_countRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPageRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_unsolicitedResponseRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffMeasurementRequest2Res },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitiesDirective2Res },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffBack2Res },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_handoffToThird2Res },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationDirectiveForwardRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_authenticationStatusReportRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_informationForwardRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemPage2Res },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_interSystemSetupRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_originationRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_randomVariableRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_remoteUserInteractionDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryBackwardRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryForwardRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSDeliveryPointToPointRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSNotificationRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sMSRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oTASPRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeFacilitiesRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_changeServiceRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_parameterRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tMSIDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_serviceRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_analyzedInformationRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_facilitySelectedAndAvailableRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_modifyRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_searchRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_seizeResourceRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_sRFDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tBusyRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tNoAnswerRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_callControlDirectiveRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oDisconnectRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_tDisconnectRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oCalledPartyBusyRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_oNoAnswerRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_positionRequestForwardRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_roamerDatabaseVerificationRequestRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_addServiceRes },
+  { BER_CLASS_PRI, 18, BER_FLAGS_NOOWNTAG, dissect_dropServiceRes },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ReturnData_sequence, hf_index, ett_ansi_map_ReturnData);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_AuthenticationDirective_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -13537,62 +14305,62 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3437 "packet-ansi_map-template.c"
+#line 3439 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
 
   switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
-	   offset = dissect_ansi_map_HandoffMeasurementRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffMeasurementRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest);
 	   break;
    case 2: /*Facilities Directive*/
-	   offset = dissect_ansi_map_FacilitiesDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective);
 	   break;
    case 3: /*Mobile On Channel*/
 	   proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
 	   break;
    case 4: /*Handoff Back*/
-	   offset = dissect_ansi_map_HandoffBack(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffBack(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack);
 	   break;
    case 5: /*Facilities Release*/
-	   offset = dissect_ansi_map_FacilitiesRelease(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesRelease(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesRelease);
 	   break;
    case 6: /*Qualification Request*/
-	   offset = dissect_ansi_map_QualificationRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_QualificationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationRequest);
 	   break;
    case 7: /*Qualification Directive*/
-	   offset = dissect_ansi_map_QualificationDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_QualificationDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationDirective);
 	   break;
    case 8: /*Blocking*/
-	   offset = dissect_ansi_map_Blocking(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_Blocking(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_blocking);
 	   break;
    case 9: /*Unblocking*/
-	   offset = dissect_ansi_map_Unblocking(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_Unblocking(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_unblocking);
 	   break;
    case 10: /*Reset Circuit*/
-	   offset = dissect_ansi_map_ResetCircuit(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_ResetCircuit(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_resetCircuit);
 	   break;
    case 11: /*Trunk Test*/
-	   offset = dissect_ansi_map_TrunkTest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_TrunkTest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_trunkTest);
 	   break;
    case 12: /*Trunk Test Disconnect*/
-	  offset = dissect_ansi_map_TrunkTestDisconnect(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TrunkTestDisconnect(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_trunkTestDisconnect);
 	  break;
    case  13: /*Registration Notification*/
-	  offset = dissect_ansi_map_RegistrationNotification(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RegistrationNotification(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_registrationNotification);
 	  break;
    case  14: /*Registration Cancellation*/
-	   offset = dissect_ansi_map_RegistrationCancellation(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_RegistrationCancellation(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_registrationCancellation);
 	  break;
    case  15: /*Location Request*/
-	   offset = dissect_ansi_map_LocationRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_LocationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_locationRequest);
 	   break;
    case  16: /*Routing Request*/
-	   offset = dissect_ansi_map_RoutingRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_RoutingRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_routingRequest);
 	   break;
    case  17: /*Feature Request*/
-	   offset = dissect_ansi_map_FeatureRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FeatureRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_featureRequest);
 	   break;
    case  18: /*Reserved 18 (Service Profile Request, IS-41-C)*/
 	   proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(18 (Service Profile Request, IS-41-C)");
@@ -13601,118 +14369,118 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	   proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(19 Service Profile Directive, IS-41-C)");
 	   break;
    case  20: /*Unreliable Roamer Data Directive*/
-	   offset = dissect_ansi_map_UnreliableRoamerDataDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_UnreliableRoamerDataDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_unreliableRoamerDataDirective);
 	   break;
    case  21: /*Reserved 21 (Call Data Request, IS-41-C)*/
 	   proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 21 (Call Data Request, IS-41-C)");
 	   break;
    case  22: /*MS Inactive*/
-	   offset = dissect_ansi_map_MSInactive(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_MSInactive(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_mSInactive);
 	   break;
    case  23: /*Transfer To Number Request*/
-	   offset = dissect_ansi_map_TransferToNumberRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_TransferToNumberRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_transferToNumberRequest);
 	   break;
    case  24: /*Redirection Request*/
-	   offset = dissect_ansi_map_RedirectionRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_RedirectionRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_redirectionRequest);
 	   break;
    case  25: /*Handoff To Third*/
-	   offset = dissect_ansi_map_HandoffToThird(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffToThird(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird);
 	   break;
    case  26: /*Flash Request*/
-	   offset = dissect_ansi_map_FlashRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FlashRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_flashRequest);
 	   break;
    case  27: /*Authentication Directive*/
-	   offset = dissect_ansi_map_AuthenticationDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirective);
 	   break;
    case  28: /*Authentication Request*/
-	   offset = dissect_ansi_map_AuthenticationRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationRequest);
 	   break;
    case  29: /*Base Station Challenge*/
-	   offset = dissect_ansi_map_BaseStationChallenge(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_BaseStationChallenge(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_baseStationChallenge);
 	   break;
    case  30: /*Authentication Failure Report*/
-	   offset = dissect_ansi_map_AuthenticationFailureReport(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationFailureReport(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationFailureReport);
 	   break;
    case  31: /*Count Request*/
-	   offset = dissect_ansi_map_CountRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_CountRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_countRequest);
 	   break;
    case  32: /*Inter System Page*/
-	   offset = dissect_ansi_map_InterSystemPage(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemPage(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage);
 	   break;
    case  33: /*Unsolicited Response*/
-	   offset = dissect_ansi_map_UnsolicitedResponse(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_UnsolicitedResponse(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_unsolicitedResponse);
 	   break;
    case  34: /*Bulk Deregistration*/
-	   offset = dissect_ansi_map_BulkDeregistration(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_BulkDeregistration(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_bulkDeregistration);
 	   break;
    case  35: /*Handoff Measurement Request 2*/
-	   offset = dissect_ansi_map_HandoffMeasurementRequest2(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffMeasurementRequest2(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest2);
 	   break;
    case  36: /*Facilities Directive 2*/
-	   offset = dissect_ansi_map_FacilitiesDirective2(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesDirective2(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective2);
 	   break;
    case  37: /*Handoff Back 2*/
-	   offset = dissect_ansi_map_HandoffBack2(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffBack2(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack2);
 	   break;
    case  38: /*Handoff To Third 2*/
-	   offset = dissect_ansi_map_HandoffToThird2(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffToThird2(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird2);
 	   break;
    case  39: /*Authentication Directive Forward*/
-	   offset = dissect_ansi_map_AuthenticationDirectiveForward(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationDirectiveForward(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveForward);
 	   break;
    case  40: /*Authentication Status Report*/
-	   offset = dissect_ansi_map_AuthenticationStatusReport(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationStatusReport(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationStatusReport);
 	   break;
    case  41: /*Reserved 41*/
 	   proto_tree_add_text(tree, tvb, offset, -1, "Reserved 41, Unknown invokeData blob");
 	   break;
    case  42: /*Information Directive*/
-	   offset = dissect_ansi_map_InformationDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InformationDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_informationDirective);
 	   break;
    case  43: /*Information Forward*/
-	   offset = dissect_ansi_map_InformationForward(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InformationForward(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_informationForward);
 	   break;
    case  44: /*Inter System Answer*/
-	   offset = dissect_ansi_map_InterSystemAnswer(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemAnswer(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemAnswer);
 	   break;
    case  45: /*Inter System Page 2*/
-	   offset = dissect_ansi_map_InterSystemPage2(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemPage2(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage2);
 	   break;
    case  46: /*Inter System Setup*/
-	   offset = dissect_ansi_map_InterSystemSetup(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemSetup(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemSetup);
 	   break;
   case  47: /*OriginationRequest*/
-	  offset = dissect_ansi_map_OriginationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_OriginationRequest_PDU);
+	  offset = dissect_ansi_map_OriginationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_originationRequest);
 	  break;
   case  48: /*Random Variable Request*/
-	  offset = dissect_ansi_map_RandomVariableRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RandomVariableRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_randomVariableRequest);
 	  break;
   case  49: /*Redirection Directive*/
-	  offset = dissect_ansi_map_RedirectionDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RedirectionDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_redirectionDirective);
 	  break;
   case  50: /*Remote User Interaction Directive*/
-	  offset = dissect_ansi_map_RemoteUserInteractionDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RemoteUserInteractionDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_remoteUserInteractionDirective);
 	  break;
   case  51: /*SMS Delivery Backward*/
-	  offset = dissect_ansi_map_SMSDeliveryBackward(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryBackward(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryBackward);
 	  break;
   case  52: /*SMS Delivery Forward*/
-	  offset = dissect_ansi_map_SMSDeliveryForward(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryForward(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryForward);
 	  break;
   case  53: /*SMS Delivery Point to Point*/
-	  offset = dissect_ansi_map_SMSDeliveryPointToPoint(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryPointToPoint(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryPointToPoint);
 	  break;
   case  54: /*SMS Notification*/
-	  offset = dissect_ansi_map_SMSNotification(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSNotification(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSNotification);
 	  break;
   case  55: /*SMS Request*/
-	  offset = dissect_ansi_map_SMSRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSRequest);
 	  break;
 	  /* End N.S0005*/
 	  /* N.S0010-0 v 1.0 */
 	  /* N.S0011-0 v 1.0 */
   case  56: /*OTASP Request 6.4.2.CC*/
-	  offset = dissect_ansi_map_OTASPRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OTASPRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oTASPRequest);
 	  break;
 	  /*End N.S0011-0 v 1.0 */
   case  57: /*Information Backward*/
@@ -13720,64 +14488,64 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  break;
 	  /*  N.S0008-0 v 1.0 */
   case  58: /*Change Facilities*/
-	  offset = dissect_ansi_map_ChangeFacilities(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ChangeFacilities(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_changeFacilities);
 	  break;
   case  59: /*Change Service*/
-	  offset = dissect_ansi_map_ChangeService(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ChangeService(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_changeService);
 	  break;
 	  /* End N.S0008-0 v 1.0 */	
   case  60: /*Parameter Request*/
-	  offset = dissect_ansi_map_ParameterRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ParameterRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_parameterRequest);
 	  break;
   case  61: /*TMSI Directive*/
-	  offset = dissect_ansi_map_TMSIDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TMSIDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tMSIDirective);
 	  break;
 	  /*End  N.S0010-0 v 1.0 */
   case  62: /*Reserved 62*/
 	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob(Reserved 62)");
 	  break;
   case  63: /*Service Request N.S0012-0 v 1.0*/
-	  offset = dissect_ansi_map_ServiceRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ServiceRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_serviceRequest);
 	  break;
 	  /* N.S0013 */
   case  64: /*Analyzed Information Request*/
-	  offset = dissect_ansi_map_AnalyzedInformation(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_AnalyzedInformation(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_analyzedInformation);
 	  break;
   case  65: /*Connection Failure Report*/
-	  offset = dissect_ansi_map_ConnectionFailureReport(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ConnectionFailureReport(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_connectionFailureReport);
 	  break;
   case  66: /*Connect Resource*/
-	  offset = dissect_ansi_map_ConnectResource(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ConnectResource(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_connectResource);
 	  break;
   case  67: /*Disconnect Resource*/
 	  /* No data */
 	  break;
   case  68: /*Facility Selected and Available*/
-	  offset = dissect_ansi_map_FacilitySelectedAndAvailable(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_FacilitySelectedAndAvailable(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitySelectedAndAvailable);
 	  break;
   case  69: /*Instruction Request*/
 	  /* No data */
 	  break;
   case  70: /*Modify*/
-	  offset = dissect_ansi_map_Modify(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_Modify(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_modify);
 	  break;
   case  71: /*Reset Timer*/
 	  /*No Data*/
 	  break;
   case  72: /*Search*/
-	  offset = dissect_ansi_map_Search(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_Search(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_search);
 	  break;
   case  73: /*Seize Resource*/
-	  offset = dissect_ansi_map_SeizeResource(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SeizeResource(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_seizeResource);
 	  break;
   case  74: /*SRF Directive*/
-	  offset = dissect_ansi_map_SRFDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SRFDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sRFDirective);
 	  break;
   case  75: /*T Busy*/
-	  offset = dissect_ansi_map_TBusy(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TBusy(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tBusy);
 	  break;
   case  76: /*T NoAnswer*/
-	  offset = dissect_ansi_map_TNoAnswer(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TNoAnswer(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tNoAnswer);
 	  break;
 	  /*END N.S0013 */
   case  77: /*Release*/
@@ -13788,47 +14556,47 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  break;
 	  /* N.S0024*/
   case  79: /*Message Directive*/
-	  offset = dissect_ansi_map_MessageDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_MessageDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_messageDirective);
 	  break;
 	  /*END N.S0024*/
 	  /* N.S0018 PN-4287*/
   case  80: /*Bulk Disconnection*/
-	  offset = dissect_ansi_map_BulkDisconnection(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_BulkDisconnection(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_bulkDisconnection);
 	  break;
   case  81: /*Call Control Directive*/
-	  offset = dissect_ansi_map_CallControlDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_CallControlDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_callControlDirective);
 	  break;
   case  82: /*O Answer*/
-	  offset = dissect_ansi_map_OAnswer(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OAnswer(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oAnswer);
 	  break;
   case  83: /*O Disconnect*/
-	  offset = dissect_ansi_map_ODisconnect(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ODisconnect(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oDisconnect);
 	  break;
   case  84: /*Call Recovery Report*/
-	  offset = dissect_ansi_map_CallRecoveryReport(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_CallRecoveryReport(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_callRecoveryReport);
 	  break;
   case  85: /*T Answer*/
-	  offset = dissect_ansi_map_TAnswer(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TAnswer(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tAnswer);
 	  break;
   case  86: /*T Disconnect*/
-	  offset = dissect_ansi_map_TDisconnect(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TDisconnect(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tDisconnect);
 	  break;
   case  87: /*Unreliable Call Data*/
-	  offset = dissect_ansi_map_UnreliableCallData(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_UnreliableCallData(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_unreliableCallData);
 	  break;
 	  /* N.S0018 PN-4287*/
 	  /*N.S0004 */
   case  88: /*O CalledPartyBusy*/
-	  offset = dissect_ansi_map_OCalledPartyBusy(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OCalledPartyBusy(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oCalledPartyBusy);
 	  break;
   case  89: /*O NoAnswer*/
-	  offset = dissect_ansi_map_ONoAnswer(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ONoAnswer(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oNoAnswer);
 	  break;
   case  90: /*Position Request*/
-	  offset = dissect_ansi_map_PositionRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_PositionRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequest);
 	  break;
   case  91: /*Position Request Forward*/
-	  offset = dissect_ansi_map_PositionRequestForward(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_PositionRequestForward(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestForward);
 	  break;
 	   /*END N.S0004 */
   case  92: /*Call Termination Report*/
@@ -13848,18 +14616,18 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 	  break;
 	  /* 3GPP2 N.S0023-0 */
   case  97: /*ACG Directive*/
-	  offset = dissect_ansi_map_ACGDirective(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ACGDirective(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_aCGDirective);
 	  break;
 	  /* END 3GPP2 N.S0023-0 */
   case  98: /*Roamer Database Verification Request*/
-	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequest(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequest(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_roamerDatabaseVerificationRequest);
 	  break;
 	  /* N.S0029 */
   case  99: /*Add Service*/
-	  offset = dissect_ansi_map_AddService(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_AddService(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_addService);
 	  break;
   case  100: /*Drop Service*/
-	  offset = dissect_ansi_map_DropService(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_DropService(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_dropService);
 	  break;
 	  /*End N.S0029 */
   default:
@@ -13875,187 +14643,187 @@ static int dissect_returnData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
   switch(OperationCode){
    case 1: /*Handoff Measurement Request*/
-	   offset = dissect_ansi_map_HandoffMeasurementRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffMeasurementRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequestRes);
 	   break;
    case 2: /*Facilities Directive*/
-	   offset = dissect_ansi_map_FacilitiesDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirectiveRes);
 	   break;
    case 4: /*Handoff Back*/
-	   offset = dissect_ansi_map_HandoffBackRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffBackRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBackRes);
 	   break;
    case 5: /*Facilities Release*/
-	   offset = dissect_ansi_map_FacilitiesReleaseRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesReleaseRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesReleaseRes);
 	   break;
   case 6: /*Qualification Request*/
-	   offset = dissect_ansi_map_QualificationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_QualificationRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_qualificationRequestRes);
 	   break;
    case 10: /*Reset Circuit*/
-	   offset = dissect_ansi_map_ResetCircuitRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_ResetCircuitRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_resetCircuitRes);
 	   break;
    case 13: /*Registration Notification*/
-	  offset = dissect_ansi_map_RegistrationNotificationRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RegistrationNotificationRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_registrationNotificationRes);
 	  break;
    case  14: /*Registration Cancellation*/
-      offset = dissect_ansi_map_RegistrationCancellationRes(TRUE, tvb, offset, pinfo, tree, -1);
+      offset = dissect_ansi_map_RegistrationCancellationRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_registrationCancellationRes);
 	  break;
    case  15: /*Location Request*/
-	   offset = dissect_ansi_map_LocationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_LocationRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_locationRequestRes);
 	   break;
    case  16: /*Routing Request*/
-	   offset = dissect_ansi_map_RoutingRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_RoutingRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_routingRequestRes);
 	   break;
    case  17: /*Feature Request*/
-	   offset = dissect_ansi_map_FeatureRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FeatureRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_featureRequestRes);
 	   break;
    case  23: /*Transfer To Number Request*/
-	   offset = dissect_ansi_map_TransferToNumberRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_TransferToNumberRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_transferToNumberRequestRes);
 	   break;
    case  25: /*Handoff To Third*/
-	   offset = dissect_ansi_map_HandoffToThirdRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffToThirdRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThirdRes);
 	   break;
    case  27: /*Authentication Directive*/
-	   offset = dissect_ansi_map_AuthenticationDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveRes);
 	   break;
    case  28: /*Authentication Request*/
-	   offset = dissect_ansi_map_AuthenticationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationRequestRes);
 	   break;
    case  30: /*Authentication Failure Report*/
-	   offset = dissect_ansi_map_AuthenticationFailureReportRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationFailureReportRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationFailureReportRes);
 	   break;
    case  31: /*Count Request*/
-	   offset = dissect_ansi_map_CountRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_CountRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_countRequestRes);
 	   break;
    case  32: /*Inter System Page*/
-	   offset = dissect_ansi_map_InterSystemPageRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemPageRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPageRes);
 	   break;
    case  33: /*Unsolicited Response*/
-	   offset = dissect_ansi_map_UnsolicitedResponseRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_UnsolicitedResponseRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_unsolicitedResponseRes);
 	   break;
    case  35: /*Handoff Measurement Request 2*/
-	   offset = dissect_ansi_map_HandoffMeasurementRequest2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffMeasurementRequest2Res(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffMeasurementRequest2Res);
 	   break;
    case  36: /*Facilities Directive 2*/
-	   offset = dissect_ansi_map_FacilitiesDirective2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_FacilitiesDirective2Res(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitiesDirective2Res);
 	   break;
    case  37: /*Handoff Back 2*/
-	   offset = dissect_ansi_map_HandoffBack2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffBack2Res(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffBack2Res);
 	   break;
    case  38: /*Handoff To Third 2*/
-	   offset = dissect_ansi_map_HandoffToThird2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_HandoffToThird2Res(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_handoffToThird2Res);
 	   break;
    case  39: /*Authentication Directive Forward*/
-	   offset = dissect_ansi_map_AuthenticationDirectiveForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationDirectiveForwardRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationDirectiveForwardRes);
 	   break;
    case  40: /*Authentication Status Report*/
-	   offset = dissect_ansi_map_AuthenticationStatusReportRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_AuthenticationStatusReportRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_authenticationStatusReportRes);
 	   break;
 			 /*Reserved 41*/
    case  43: /*Information Forward*/
-	   offset = dissect_ansi_map_InformationForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InformationForwardRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_informationForwardRes);
 	   break;
    case  45: /*Inter System Page 2*/
-	   offset = dissect_ansi_map_InterSystemPage2Res(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemPage2Res(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemPage2Res);
 	   break;
    case  46: /*Inter System Setup*/
-	   offset = dissect_ansi_map_InterSystemSetupRes(TRUE, tvb, offset, pinfo, tree, -1);
+	   offset = dissect_ansi_map_InterSystemSetupRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_interSystemSetupRes);
 	   break;
   case  47: /*OriginationRequest*/
-	  offset = dissect_ansi_map_OriginationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OriginationRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_originationRequestRes);
 	  break;
   case  48: /*Random Variable Request*/
-	  offset = dissect_ansi_map_RandomVariableRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RandomVariableRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_randomVariableRequestRes);
 	  break;
   case  50: /*Remote User Interaction Directive*/
-	  offset = dissect_ansi_map_RemoteUserInteractionDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RemoteUserInteractionDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_remoteUserInteractionDirectiveRes);
 	  break;
   case  51: /*SMS Delivery Backward*/
-	  offset = dissect_ansi_map_SMSDeliveryBackwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryBackwardRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryBackwardRes);
 	  break;
   case  52: /*SMS Delivery Forward*/
-	  offset = dissect_ansi_map_SMSDeliveryForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryForwardRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryForwardRes);
 	  break;
   case  53: /*SMS Delivery Point to Point*/
-	  offset = dissect_ansi_map_SMSDeliveryPointToPointRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSDeliveryPointToPointRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSDeliveryPointToPointRes);
 	  break;
   case  54: /*SMS Notification*/
-	  offset = dissect_ansi_map_SMSNotificationRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSNotificationRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSNotificationRes);
 	  break;
   case  55: /*SMS Request*/
-	  offset = dissect_ansi_map_SMSRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SMSRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sMSRequestRes);
 	  break;
 	  /*  N.S0008-0 v 1.0 */
   case  56: /*OTASP Request 6.4.2.CC*/
-	  offset = dissect_ansi_map_OTASPRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OTASPRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oTASPRequestRes);
 	  break;
   case  58: /*Change Facilities*/
-	  offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ChangeFacilitiesRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_changeFacilitiesRes);
 	  break;
   case  59: /*Change Service*/
-	  offset = dissect_ansi_map_ChangeServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ChangeServiceRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_changeServiceRes);
 	  break;
   case  60: /*Parameter Request*/
-	  offset = dissect_ansi_map_ParameterRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ParameterRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_parameterRequestRes);
 	  break;
   case  61: /*TMSI Directive*/
-	  offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TMSIDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tMSIDirectiveRes);
 	  break;
   case  63: /*Service Request*/
-	  offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ServiceRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_serviceRequestRes);
 	  break;
 	  /* N.S0013 */
   case  64: /*Analyzed Information Request*/
-	  offset = dissect_ansi_map_AnalyzedInformationRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_AnalyzedInformationRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_analyzedInformationRes);
 	  break;
   case  68: /*Facility Selected and Available*/
-	  offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_FacilitySelectedAndAvailableRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_facilitySelectedAndAvailableRes);
 	  break;
   case  70: /*Modify*/
-	  offset = dissect_ansi_map_ModifyRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ModifyRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_modifyRes);
 	  break;
   case  72: /*Search*/
-	  offset = dissect_ansi_map_SearchRes(TRUE, tvb, offset, pinfo, tree, -1);;
+	  offset = dissect_ansi_map_SearchRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_searchRes);;
 	  break;
   case  73: /*Seize Resource*/
-	  offset = dissect_ansi_map_SeizeResourceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SeizeResourceRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_seizeResourceRes);
 	  break;
   case  74: /*SRF Directive*/
-	  offset = dissect_ansi_map_SRFDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_SRFDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_sRFDirectiveRes);
 	  break;
   case  75: /*T Busy*/
-	  offset = dissect_ansi_map_TBusyRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TBusyRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tBusyRes);
 	  break;
   case  76: /*T NoAnswer*/
-	  offset = dissect_ansi_map_TNoAnswerRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TNoAnswerRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tNoAnswerRes);
 	  break;
   case  81: /*Call Control Directive*/
-	  offset = dissect_ansi_map_CallControlDirectiveRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_CallControlDirectiveRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_callControlDirectiveRes);
 	  break;
   case  83: /*O Disconnect*/
-	  offset = dissect_ansi_map_ODisconnectRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ODisconnectRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oDisconnectRes);
 	  break;
   case  86: /*T Disconnect*/
-	  offset = dissect_ansi_map_TDisconnectRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_TDisconnectRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_tDisconnectRes);
 	  break;
   case  88: /*O CalledPartyBusy*/
-	  offset = dissect_ansi_map_OCalledPartyBusyRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_OCalledPartyBusyRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oCalledPartyBusyRes);
 	  break;
    case  89: /*O NoAnswer*/
-	  offset = dissect_ansi_map_ONoAnswerRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_ONoAnswerRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_oNoAnswerRes);
 	  break;
   case  90: /*Position Request*/
-	  offset = dissect_ansi_map_PositionRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_PositionRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestRes);
 	  break;
   case  91: /*Position Request Forward*/
-	  offset = dissect_ansi_map_PositionRequestForwardRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_PositionRequestForwardRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_positionRequestForwardRes);
 	  break;
   case  98: /*Roamer Database Verification Request*/
-	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequestRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_RoamerDatabaseVerificationRequestRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_roamerDatabaseVerificationRequestRes);
 	  break;
   case  99: /*Add Service*/
-	  offset = dissect_ansi_map_AddServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_AddServiceRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_addServiceRes);
 	  break;
   case  100: /*Drop Service*/
-	  offset = dissect_ansi_map_DropServiceRes(TRUE, tvb, offset, pinfo, tree, -1);
+	  offset = dissect_ansi_map_DropServiceRes(TRUE, tvb, offset, pinfo, tree, hf_ansi_map_dropServiceRes);
 	  break;
 	  /*End N.S0029 */
 
@@ -15044,7 +15812,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.RandomVariableReauthentication", HFILL }},
     { &hf_ansi_map_mobileStationMIN,
       { "mobileStationMIN", "ansi_map.mobileStationMIN",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_DEC, NULL, 0,
         "ansi_map.MobileStationMIN", HFILL }},
     { &hf_ansi_map_mscid,
       { "mscid", "ansi_map.mscid",
@@ -16346,9 +17114,581 @@ void proto_register_ansi_map(void) {
       { "mobileStationIMSI", "ansi_map.mobileStationIMSI",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ansi_map.MobileStationIMSI", HFILL }},
+    { &hf_ansi_map_handoffMeasurementRequest,
+      { "handoffMeasurementRequest", "ansi_map.handoffMeasurementRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffMeasurementRequest", HFILL }},
+    { &hf_ansi_map_facilitiesDirective,
+      { "facilitiesDirective", "ansi_map.facilitiesDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesDirective", HFILL }},
+    { &hf_ansi_map_handoffBack,
+      { "handoffBack", "ansi_map.handoffBack",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffBack", HFILL }},
+    { &hf_ansi_map_facilitiesRelease,
+      { "facilitiesRelease", "ansi_map.facilitiesRelease",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesRelease", HFILL }},
+    { &hf_ansi_map_qualificationRequest,
+      { "qualificationRequest", "ansi_map.qualificationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationRequest", HFILL }},
+    { &hf_ansi_map_qualificationDirective,
+      { "qualificationDirective", "ansi_map.qualificationDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationDirective", HFILL }},
+    { &hf_ansi_map_blocking,
+      { "blocking", "ansi_map.blocking",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.Blocking", HFILL }},
+    { &hf_ansi_map_unblocking,
+      { "unblocking", "ansi_map.unblocking",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.Unblocking", HFILL }},
+    { &hf_ansi_map_resetCircuit,
+      { "resetCircuit", "ansi_map.resetCircuit",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ResetCircuit", HFILL }},
+    { &hf_ansi_map_trunkTest,
+      { "trunkTest", "ansi_map.trunkTest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TrunkTest", HFILL }},
+    { &hf_ansi_map_trunkTestDisconnect,
+      { "trunkTestDisconnect", "ansi_map.trunkTestDisconnect",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TrunkTestDisconnect", HFILL }},
+    { &hf_ansi_map_registrationNotification,
+      { "registrationNotification", "ansi_map.registrationNotification",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RegistrationNotification", HFILL }},
+    { &hf_ansi_map_registrationCancellation,
+      { "registrationCancellation", "ansi_map.registrationCancellation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RegistrationCancellation", HFILL }},
+    { &hf_ansi_map_locationRequest,
+      { "locationRequest", "ansi_map.locationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.LocationRequest", HFILL }},
+    { &hf_ansi_map_routingRequest,
+      { "routingRequest", "ansi_map.routingRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RoutingRequest", HFILL }},
+    { &hf_ansi_map_featureRequest,
+      { "featureRequest", "ansi_map.featureRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FeatureRequest", HFILL }},
+    { &hf_ansi_map_unreliableRoamerDataDirective,
+      { "unreliableRoamerDataDirective", "ansi_map.unreliableRoamerDataDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.UnreliableRoamerDataDirective", HFILL }},
+    { &hf_ansi_map_mSInactive,
+      { "mSInactive", "ansi_map.mSInactive",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.MSInactive", HFILL }},
+    { &hf_ansi_map_transferToNumberRequest,
+      { "transferToNumberRequest", "ansi_map.transferToNumberRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TransferToNumberRequest", HFILL }},
+    { &hf_ansi_map_redirectionRequest,
+      { "redirectionRequest", "ansi_map.redirectionRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RedirectionRequest", HFILL }},
+    { &hf_ansi_map_handoffToThird,
+      { "handoffToThird", "ansi_map.handoffToThird",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffToThird", HFILL }},
+    { &hf_ansi_map_flashRequest,
+      { "flashRequest", "ansi_map.flashRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FlashRequest", HFILL }},
+    { &hf_ansi_map_authenticationDirective,
+      { "authenticationDirective", "ansi_map.authenticationDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationDirective", HFILL }},
+    { &hf_ansi_map_authenticationRequest,
+      { "authenticationRequest", "ansi_map.authenticationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationRequest", HFILL }},
+    { &hf_ansi_map_baseStationChallenge,
+      { "baseStationChallenge", "ansi_map.baseStationChallenge",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.BaseStationChallenge", HFILL }},
+    { &hf_ansi_map_authenticationFailureReport,
+      { "authenticationFailureReport", "ansi_map.authenticationFailureReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationFailureReport", HFILL }},
+    { &hf_ansi_map_countRequest,
+      { "countRequest", "ansi_map.countRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CountRequest", HFILL }},
+    { &hf_ansi_map_interSystemPage,
+      { "interSystemPage", "ansi_map.interSystemPage",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPage", HFILL }},
+    { &hf_ansi_map_unsolicitedResponse,
+      { "unsolicitedResponse", "ansi_map.unsolicitedResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.UnsolicitedResponse", HFILL }},
+    { &hf_ansi_map_bulkDeregistration,
+      { "bulkDeregistration", "ansi_map.bulkDeregistration",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.BulkDeregistration", HFILL }},
+    { &hf_ansi_map_handoffMeasurementRequest2,
+      { "handoffMeasurementRequest2", "ansi_map.handoffMeasurementRequest2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffMeasurementRequest2", HFILL }},
+    { &hf_ansi_map_facilitiesDirective2,
+      { "facilitiesDirective2", "ansi_map.facilitiesDirective2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesDirective2", HFILL }},
+    { &hf_ansi_map_handoffBack2,
+      { "handoffBack2", "ansi_map.handoffBack2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffBack2", HFILL }},
+    { &hf_ansi_map_handoffToThird2,
+      { "handoffToThird2", "ansi_map.handoffToThird2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffToThird2", HFILL }},
+    { &hf_ansi_map_authenticationDirectiveForward,
+      { "authenticationDirectiveForward", "ansi_map.authenticationDirectiveForward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationDirectiveForward", HFILL }},
+    { &hf_ansi_map_authenticationStatusReport,
+      { "authenticationStatusReport", "ansi_map.authenticationStatusReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationStatusReport", HFILL }},
+    { &hf_ansi_map_informationDirective,
+      { "informationDirective", "ansi_map.informationDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InformationDirective", HFILL }},
+    { &hf_ansi_map_informationForward,
+      { "informationForward", "ansi_map.informationForward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InformationForward", HFILL }},
+    { &hf_ansi_map_interSystemAnswer,
+      { "interSystemAnswer", "ansi_map.interSystemAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemAnswer", HFILL }},
+    { &hf_ansi_map_interSystemPage2,
+      { "interSystemPage2", "ansi_map.interSystemPage2",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPage2", HFILL }},
+    { &hf_ansi_map_interSystemSetup,
+      { "interSystemSetup", "ansi_map.interSystemSetup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemSetup", HFILL }},
+    { &hf_ansi_map_originationRequest,
+      { "originationRequest", "ansi_map.originationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OriginationRequest", HFILL }},
+    { &hf_ansi_map_randomVariableRequest,
+      { "randomVariableRequest", "ansi_map.randomVariableRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RandomVariableRequest", HFILL }},
+    { &hf_ansi_map_redirectionDirective,
+      { "redirectionDirective", "ansi_map.redirectionDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RedirectionDirective", HFILL }},
+    { &hf_ansi_map_remoteUserInteractionDirective,
+      { "remoteUserInteractionDirective", "ansi_map.remoteUserInteractionDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RemoteUserInteractionDirective", HFILL }},
+    { &hf_ansi_map_sMSDeliveryBackward,
+      { "sMSDeliveryBackward", "ansi_map.sMSDeliveryBackward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryBackward", HFILL }},
+    { &hf_ansi_map_sMSDeliveryForward,
+      { "sMSDeliveryForward", "ansi_map.sMSDeliveryForward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryForward", HFILL }},
+    { &hf_ansi_map_sMSDeliveryPointToPoint,
+      { "sMSDeliveryPointToPoint", "ansi_map.sMSDeliveryPointToPoint",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryPointToPoint", HFILL }},
+    { &hf_ansi_map_sMSNotification,
+      { "sMSNotification", "ansi_map.sMSNotification",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSNotification", HFILL }},
+    { &hf_ansi_map_sMSRequest,
+      { "sMSRequest", "ansi_map.sMSRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSRequest", HFILL }},
+    { &hf_ansi_map_oTASPRequest,
+      { "oTASPRequest", "ansi_map.oTASPRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OTASPRequest", HFILL }},
+    { &hf_ansi_map_changeFacilities,
+      { "changeFacilities", "ansi_map.changeFacilities",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ChangeFacilities", HFILL }},
+    { &hf_ansi_map_changeService,
+      { "changeService", "ansi_map.changeService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ChangeService", HFILL }},
+    { &hf_ansi_map_parameterRequest,
+      { "parameterRequest", "ansi_map.parameterRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ParameterRequest", HFILL }},
+    { &hf_ansi_map_tMSIDirective,
+      { "tMSIDirective", "ansi_map.tMSIDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TMSIDirective", HFILL }},
+    { &hf_ansi_map_serviceRequest,
+      { "serviceRequest", "ansi_map.serviceRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ServiceRequest", HFILL }},
+    { &hf_ansi_map_analyzedInformation,
+      { "analyzedInformation", "ansi_map.analyzedInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AnalyzedInformation", HFILL }},
+    { &hf_ansi_map_connectionFailureReport,
+      { "connectionFailureReport", "ansi_map.connectionFailureReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ConnectionFailureReport", HFILL }},
+    { &hf_ansi_map_connectResource,
+      { "connectResource", "ansi_map.connectResource",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ConnectResource", HFILL }},
+    { &hf_ansi_map_facilitySelectedAndAvailable,
+      { "facilitySelectedAndAvailable", "ansi_map.facilitySelectedAndAvailable",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitySelectedAndAvailable", HFILL }},
+    { &hf_ansi_map_modify,
+      { "modify", "ansi_map.modify",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.Modify", HFILL }},
+    { &hf_ansi_map_search,
+      { "search", "ansi_map.search",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.Search", HFILL }},
+    { &hf_ansi_map_seizeResource,
+      { "seizeResource", "ansi_map.seizeResource",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SeizeResource", HFILL }},
+    { &hf_ansi_map_sRFDirective,
+      { "sRFDirective", "ansi_map.sRFDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SRFDirective", HFILL }},
+    { &hf_ansi_map_tBusy,
+      { "tBusy", "ansi_map.tBusy",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TBusy", HFILL }},
+    { &hf_ansi_map_tNoAnswer,
+      { "tNoAnswer", "ansi_map.tNoAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TNoAnswer", HFILL }},
+    { &hf_ansi_map_messageDirective,
+      { "messageDirective", "ansi_map.messageDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.MessageDirective", HFILL }},
+    { &hf_ansi_map_bulkDisconnection,
+      { "bulkDisconnection", "ansi_map.bulkDisconnection",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.BulkDisconnection", HFILL }},
+    { &hf_ansi_map_callControlDirective,
+      { "callControlDirective", "ansi_map.callControlDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CallControlDirective", HFILL }},
+    { &hf_ansi_map_oAnswer,
+      { "oAnswer", "ansi_map.oAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OAnswer", HFILL }},
+    { &hf_ansi_map_oDisconnect,
+      { "oDisconnect", "ansi_map.oDisconnect",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ODisconnect", HFILL }},
+    { &hf_ansi_map_callRecoveryReport,
+      { "callRecoveryReport", "ansi_map.callRecoveryReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CallRecoveryReport", HFILL }},
+    { &hf_ansi_map_tAnswer,
+      { "tAnswer", "ansi_map.tAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TAnswer", HFILL }},
+    { &hf_ansi_map_tDisconnect,
+      { "tDisconnect", "ansi_map.tDisconnect",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TDisconnect", HFILL }},
+    { &hf_ansi_map_unreliableCallData,
+      { "unreliableCallData", "ansi_map.unreliableCallData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.UnreliableCallData", HFILL }},
+    { &hf_ansi_map_oCalledPartyBusy,
+      { "oCalledPartyBusy", "ansi_map.oCalledPartyBusy",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OCalledPartyBusy", HFILL }},
+    { &hf_ansi_map_oNoAnswer,
+      { "oNoAnswer", "ansi_map.oNoAnswer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ONoAnswer", HFILL }},
+    { &hf_ansi_map_positionRequest,
+      { "positionRequest", "ansi_map.positionRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionRequest", HFILL }},
+    { &hf_ansi_map_positionRequestForward,
+      { "positionRequestForward", "ansi_map.positionRequestForward",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionRequestForward", HFILL }},
+    { &hf_ansi_map_aCGDirective,
+      { "aCGDirective", "ansi_map.aCGDirective",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ACGDirective", HFILL }},
+    { &hf_ansi_map_roamerDatabaseVerificationRequest,
+      { "roamerDatabaseVerificationRequest", "ansi_map.roamerDatabaseVerificationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RoamerDatabaseVerificationRequest", HFILL }},
+    { &hf_ansi_map_addService,
+      { "addService", "ansi_map.addService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AddService", HFILL }},
+    { &hf_ansi_map_dropService,
+      { "dropService", "ansi_map.dropService",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.DropService", HFILL }},
+    { &hf_ansi_map_handoffMeasurementRequestRes,
+      { "handoffMeasurementRequestRes", "ansi_map.handoffMeasurementRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffMeasurementRequestRes", HFILL }},
+    { &hf_ansi_map_facilitiesDirectiveRes,
+      { "facilitiesDirectiveRes", "ansi_map.facilitiesDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesDirectiveRes", HFILL }},
+    { &hf_ansi_map_handoffBackRes,
+      { "handoffBackRes", "ansi_map.handoffBackRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffBackRes", HFILL }},
+    { &hf_ansi_map_facilitiesReleaseRes,
+      { "facilitiesReleaseRes", "ansi_map.facilitiesReleaseRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesReleaseRes", HFILL }},
+    { &hf_ansi_map_qualificationRequestRes,
+      { "qualificationRequestRes", "ansi_map.qualificationRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.QualificationRequestRes", HFILL }},
+    { &hf_ansi_map_resetCircuitRes,
+      { "resetCircuitRes", "ansi_map.resetCircuitRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ResetCircuitRes", HFILL }},
+    { &hf_ansi_map_registrationNotificationRes,
+      { "registrationNotificationRes", "ansi_map.registrationNotificationRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RegistrationNotificationRes", HFILL }},
+    { &hf_ansi_map_registrationCancellationRes,
+      { "registrationCancellationRes", "ansi_map.registrationCancellationRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RegistrationCancellationRes", HFILL }},
+    { &hf_ansi_map_locationRequestRes,
+      { "locationRequestRes", "ansi_map.locationRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.LocationRequestRes", HFILL }},
+    { &hf_ansi_map_routingRequestRes,
+      { "routingRequestRes", "ansi_map.routingRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RoutingRequestRes", HFILL }},
+    { &hf_ansi_map_featureRequestRes,
+      { "featureRequestRes", "ansi_map.featureRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FeatureRequestRes", HFILL }},
+    { &hf_ansi_map_transferToNumberRequestRes,
+      { "transferToNumberRequestRes", "ansi_map.transferToNumberRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TransferToNumberRequestRes", HFILL }},
+    { &hf_ansi_map_handoffToThirdRes,
+      { "handoffToThirdRes", "ansi_map.handoffToThirdRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffToThirdRes", HFILL }},
+    { &hf_ansi_map_authenticationDirectiveRes,
+      { "authenticationDirectiveRes", "ansi_map.authenticationDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationDirectiveRes", HFILL }},
+    { &hf_ansi_map_authenticationRequestRes,
+      { "authenticationRequestRes", "ansi_map.authenticationRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationRequestRes", HFILL }},
+    { &hf_ansi_map_authenticationFailureReportRes,
+      { "authenticationFailureReportRes", "ansi_map.authenticationFailureReportRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationFailureReportRes", HFILL }},
+    { &hf_ansi_map_countRequestRes,
+      { "countRequestRes", "ansi_map.countRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CountRequestRes", HFILL }},
+    { &hf_ansi_map_interSystemPageRes,
+      { "interSystemPageRes", "ansi_map.interSystemPageRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPageRes", HFILL }},
+    { &hf_ansi_map_unsolicitedResponseRes,
+      { "unsolicitedResponseRes", "ansi_map.unsolicitedResponseRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.UnsolicitedResponseRes", HFILL }},
+    { &hf_ansi_map_handoffMeasurementRequest2Res,
+      { "handoffMeasurementRequest2Res", "ansi_map.handoffMeasurementRequest2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffMeasurementRequest2Res", HFILL }},
+    { &hf_ansi_map_facilitiesDirective2Res,
+      { "facilitiesDirective2Res", "ansi_map.facilitiesDirective2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitiesDirective2Res", HFILL }},
+    { &hf_ansi_map_handoffBack2Res,
+      { "handoffBack2Res", "ansi_map.handoffBack2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffBack2Res", HFILL }},
+    { &hf_ansi_map_handoffToThird2Res,
+      { "handoffToThird2Res", "ansi_map.handoffToThird2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.HandoffToThird2Res", HFILL }},
+    { &hf_ansi_map_authenticationDirectiveForwardRes,
+      { "authenticationDirectiveForwardRes", "ansi_map.authenticationDirectiveForwardRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationDirectiveForwardRes", HFILL }},
+    { &hf_ansi_map_authenticationStatusReportRes,
+      { "authenticationStatusReportRes", "ansi_map.authenticationStatusReportRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AuthenticationStatusReportRes", HFILL }},
+    { &hf_ansi_map_informationForwardRes,
+      { "informationForwardRes", "ansi_map.informationForwardRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InformationForwardRes", HFILL }},
+    { &hf_ansi_map_interSystemPage2Res,
+      { "interSystemPage2Res", "ansi_map.interSystemPage2Res",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemPage2Res", HFILL }},
+    { &hf_ansi_map_interSystemSetupRes,
+      { "interSystemSetupRes", "ansi_map.interSystemSetupRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.InterSystemSetupRes", HFILL }},
+    { &hf_ansi_map_originationRequestRes,
+      { "originationRequestRes", "ansi_map.originationRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OriginationRequestRes", HFILL }},
+    { &hf_ansi_map_randomVariableRequestRes,
+      { "randomVariableRequestRes", "ansi_map.randomVariableRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RandomVariableRequestRes", HFILL }},
+    { &hf_ansi_map_remoteUserInteractionDirectiveRes,
+      { "remoteUserInteractionDirectiveRes", "ansi_map.remoteUserInteractionDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RemoteUserInteractionDirectiveRes", HFILL }},
+    { &hf_ansi_map_sMSDeliveryBackwardRes,
+      { "sMSDeliveryBackwardRes", "ansi_map.sMSDeliveryBackwardRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryBackwardRes", HFILL }},
+    { &hf_ansi_map_sMSDeliveryForwardRes,
+      { "sMSDeliveryForwardRes", "ansi_map.sMSDeliveryForwardRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryForwardRes", HFILL }},
+    { &hf_ansi_map_sMSDeliveryPointToPointRes,
+      { "sMSDeliveryPointToPointRes", "ansi_map.sMSDeliveryPointToPointRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSDeliveryPointToPointRes", HFILL }},
+    { &hf_ansi_map_sMSNotificationRes,
+      { "sMSNotificationRes", "ansi_map.sMSNotificationRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSNotificationRes", HFILL }},
+    { &hf_ansi_map_sMSRequestRes,
+      { "sMSRequestRes", "ansi_map.sMSRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SMSRequestRes", HFILL }},
+    { &hf_ansi_map_oTASPRequestRes,
+      { "oTASPRequestRes", "ansi_map.oTASPRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OTASPRequestRes", HFILL }},
+    { &hf_ansi_map_changeFacilitiesRes,
+      { "changeFacilitiesRes", "ansi_map.changeFacilitiesRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ChangeFacilitiesRes", HFILL }},
+    { &hf_ansi_map_changeServiceRes,
+      { "changeServiceRes", "ansi_map.changeServiceRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ChangeServiceRes", HFILL }},
+    { &hf_ansi_map_parameterRequestRes,
+      { "parameterRequestRes", "ansi_map.parameterRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ParameterRequestRes", HFILL }},
+    { &hf_ansi_map_tMSIDirectiveRes,
+      { "tMSIDirectiveRes", "ansi_map.tMSIDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TMSIDirectiveRes", HFILL }},
+    { &hf_ansi_map_serviceRequestRes,
+      { "serviceRequestRes", "ansi_map.serviceRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ServiceRequestRes", HFILL }},
+    { &hf_ansi_map_analyzedInformationRes,
+      { "analyzedInformationRes", "ansi_map.analyzedInformationRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AnalyzedInformationRes", HFILL }},
+    { &hf_ansi_map_facilitySelectedAndAvailableRes,
+      { "facilitySelectedAndAvailableRes", "ansi_map.facilitySelectedAndAvailableRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.FacilitySelectedAndAvailableRes", HFILL }},
+    { &hf_ansi_map_modifyRes,
+      { "modifyRes", "ansi_map.modifyRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ModifyRes", HFILL }},
+    { &hf_ansi_map_searchRes,
+      { "searchRes", "ansi_map.searchRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SearchRes", HFILL }},
+    { &hf_ansi_map_seizeResourceRes,
+      { "seizeResourceRes", "ansi_map.seizeResourceRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SeizeResourceRes", HFILL }},
+    { &hf_ansi_map_sRFDirectiveRes,
+      { "sRFDirectiveRes", "ansi_map.sRFDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.SRFDirectiveRes", HFILL }},
+    { &hf_ansi_map_tBusyRes,
+      { "tBusyRes", "ansi_map.tBusyRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TBusyRes", HFILL }},
+    { &hf_ansi_map_tNoAnswerRes,
+      { "tNoAnswerRes", "ansi_map.tNoAnswerRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TNoAnswerRes", HFILL }},
+    { &hf_ansi_map_callControlDirectiveRes,
+      { "callControlDirectiveRes", "ansi_map.callControlDirectiveRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.CallControlDirectiveRes", HFILL }},
+    { &hf_ansi_map_oDisconnectRes,
+      { "oDisconnectRes", "ansi_map.oDisconnectRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ODisconnectRes", HFILL }},
+    { &hf_ansi_map_tDisconnectRes,
+      { "tDisconnectRes", "ansi_map.tDisconnectRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.TDisconnectRes", HFILL }},
+    { &hf_ansi_map_oCalledPartyBusyRes,
+      { "oCalledPartyBusyRes", "ansi_map.oCalledPartyBusyRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.OCalledPartyBusyRes", HFILL }},
+    { &hf_ansi_map_oNoAnswerRes,
+      { "oNoAnswerRes", "ansi_map.oNoAnswerRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.ONoAnswerRes", HFILL }},
+    { &hf_ansi_map_positionRequestRes,
+      { "positionRequestRes", "ansi_map.positionRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionRequestRes", HFILL }},
+    { &hf_ansi_map_positionRequestForwardRes,
+      { "positionRequestForwardRes", "ansi_map.positionRequestForwardRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.PositionRequestForwardRes", HFILL }},
+    { &hf_ansi_map_roamerDatabaseVerificationRequestRes,
+      { "roamerDatabaseVerificationRequestRes", "ansi_map.roamerDatabaseVerificationRequestRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.RoamerDatabaseVerificationRequestRes", HFILL }},
+    { &hf_ansi_map_addServiceRes,
+      { "addServiceRes", "ansi_map.addServiceRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.AddServiceRes", HFILL }},
+    { &hf_ansi_map_dropServiceRes,
+      { "dropServiceRes", "ansi_map.dropServiceRes",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ansi_map.DropServiceRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4799 "packet-ansi_map-template.c"
+#line 4801 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -16357,6 +17697,8 @@ void proto_register_ansi_map(void) {
 	  &ett_mintype,
 	  &ett_digitstype,
 	  &ett_billingid,
+	  &ett_sms_bearer_data,
+	  &ett_sms_teleserviceIdentifier,
 	  &ett_extendedmscid,
 	  &ett_extendedsystemmytypecode,
 	  &ett_handoffstate,
@@ -16585,9 +17927,11 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_GapInterval,
     &ett_ansi_map_MobileStationMSID,
     &ett_ansi_map_NewlyAssignedMSID,
+    &ett_ansi_map_InvokeData,
+    &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4827 "packet-ansi_map-template.c"
+#line 4831 "packet-ansi_map-template.c"
   };
 
 
