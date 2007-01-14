@@ -149,7 +149,7 @@ static char *u3_change_path(char *path, const char *old, const char *new)
   if(old == NULL)
     old = u3devicepath;
 
-  if(newpath == NULL) {
+  if(newpath != NULL) {
     g_free(newpath);
     newpath = NULL;
   }
