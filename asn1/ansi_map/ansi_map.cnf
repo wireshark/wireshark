@@ -408,6 +408,32 @@ static gint32 ansi_map_sms_tele_id = -1;
 		dissect_ansi_map_controlnetworkid(parameter_tvb,pinfo,tree);
 	}
 
+#6.5.2.gm CDMA2000HandoffInvokeIOSData
+#.FN_BODY CDMA2000HandoffInvokeIOSData VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+	proto_item *item;
+    proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		item = get_ber_last_created_item();
+		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffInvokeIOSData);
+		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+			0, tvb_length_remaining(parameter_tvb,0));
+	}
+#6.5.2.gn CDMA2000HandoffResponseIOSData
+#.FN_BODY CDMA2000HandoffResponseIOSData VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+	proto_item *item;
+    proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		item = get_ber_last_created_item();
+		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffResponseIOSData);
+		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+			0, tvb_length_remaining(parameter_tvb,0));
+	}
 #6.5.2.wB ServiceIndicator
 #.FN_BODY ServiceIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
@@ -438,7 +464,8 @@ AlertResult   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_Alert
 AvailabilityType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AvailabilityType_vals)
 CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CancellationType_vals)
 GeographicAuthorization TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_GeographicAuthorization_vals)
-
+InterMSCCircuitID TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MobileIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CountUpdateReport_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)

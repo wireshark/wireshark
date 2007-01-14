@@ -631,6 +631,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	
 	digit_str = unpack_digits2(tvb, offset, &Dgt1_9_bcd);
 	proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+	proto_item_append_text(item, " - %s", digit_str);
 }
 
 static void 
@@ -670,10 +671,12 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			/* BCD Coding */
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			proto_item_append_text(item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
 			break;
 		case 3:
 			/* Octet string */
@@ -698,10 +701,12 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			/* BCD Coding */
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			proto_item_append_text(item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
 			break;
 		case 3:
 			/* Octet string */
@@ -727,6 +732,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			b4 = tvb_get_guint8(tvb,offset);
 			proto_tree_add_text(subtree, tvb, offset-3, 4 ,	"Point Code %u-%u-%u  SSN %u",
 				b3, b2, b1, b4);
+			proto_item_append_text(item, " - Point Code %u-%u-%u  SSN %u", b3, b2, b1, b4);
 			break;
 		default:
 			break;
@@ -1632,14 +1638,18 @@ dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int offset = 0;
     proto_item *item;
     proto_tree *subtree;
+	guint8 octet, octet2;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
 	/* Trunk Group Number (G) Octet 1 */
+	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
 	offset++;
 	/* Trunk Member Number (M) Octet2 */
+	octet2 = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+	proto_item_append_text(item, " (G %u/M %u)", octet, octet2);
 }
 
 /* 6.5.2.78 MessageWaitingNotificationCount */
@@ -4510,9 +4520,9 @@ void proto_register_ansi_map(void) {
         "Number Preamble", HFILL }},
 
 	{ &hf_ansi_map_cdmastationclassmark_pc,
-      { "Power Class: (PC)", "ansi_map.cdmastationclassmark.pc",
+      { "Power Class(PC)", "ansi_map.cdmastationclassmark.pc",
         FT_UINT8, BASE_DEC, VALS(ansi_map_CDMAStationClassMark_pc_vals), 0x03,
-        "Power Class: (PC)", HFILL }},
+        "Power Class(PC)", HFILL }},
 
 	{ &hf_ansi_map_cdmastationclassmark_dtx,
       { "Analog Transmission: (DTX)", "ansi_map.cdmastationclassmark.dtx",

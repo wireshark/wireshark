@@ -1216,6 +1216,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	
 	digit_str = unpack_digits2(tvb, offset, &Dgt1_9_bcd);
 	proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+	proto_item_append_text(item, " - %s", digit_str);
 }
 
 static void 
@@ -1255,10 +1256,12 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			/* BCD Coding */
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			proto_item_append_text(item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
 			break;
 		case 3:
 			/* Octet string */
@@ -1283,10 +1286,12 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			/* BCD Coding */
 			digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
 			proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
+			proto_item_append_text(item, " - %s", digit_str);
 			break;
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
 			break;
 		case 3:
 			/* Octet string */
@@ -1312,6 +1317,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			b4 = tvb_get_guint8(tvb,offset);
 			proto_tree_add_text(subtree, tvb, offset-3, 4 ,	"Point Code %u-%u-%u  SSN %u",
 				b3, b2, b1, b4);
+			proto_item_append_text(item, " - Point Code %u-%u-%u  SSN %u", b3, b2, b1, b4);
 			break;
 		default:
 			break;
@@ -2217,14 +2223,18 @@ dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int offset = 0;
     proto_item *item;
     proto_tree *subtree;
+	guint8 octet, octet2;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
 	/* Trunk Group Number (G) Octet 1 */
+	octet = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
 	offset++;
 	/* Trunk Member Number (M) Octet2 */
+	octet2 = tvb_get_guint8(tvb,offset);
 	proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+	proto_item_append_text(item, " (G %u/M %u)", octet, octet2);
 }
 
 /* 6.5.2.78 MessageWaitingNotificationCount */
@@ -3791,6 +3801,11 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, prot
 
 }
 
+/* 6.5.2.ei TIA/EIA-41.5-D Modifications N.S0018Re */
+/* Octet 1,2 1st MarketID */
+/* Octet 3 1st MarketSegmentID */
+/* Octet 4,5 1st DMH_ServiceID value */
+/* Second marcet ID etc */
 /* 6.5.2.ek ControlNetworkID N.S0018*/
 static void
 dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
@@ -5511,7 +5526,7 @@ static int dissect_reauthenticationReport_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 413 "ansi_map.cnf"
+#line 439 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	guint8 ServiceIndicator;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -6012,8 +6027,21 @@ static int dissect_alertCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 413 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+	proto_item *item;
+    proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		item = get_ber_last_created_item();
+		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffInvokeIOSData);
+		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+			0, tvb_length_remaining(parameter_tvb,0));
+	}
+
 
   return offset;
 }
@@ -6698,8 +6726,21 @@ static int dissect_bsmcstatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 426 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
+	proto_item *item;
+    proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		item = get_ber_last_created_item();
+		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffResponseIOSData);
+		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+			0, tvb_length_remaining(parameter_tvb,0));
+	}
+
 
   return offset;
 }
@@ -13496,7 +13537,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3422 "packet-ansi_map-template.c"
+#line 3437 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
@@ -14583,9 +14624,9 @@ void proto_register_ansi_map(void) {
         "Number Preamble", HFILL }},
 
 	{ &hf_ansi_map_cdmastationclassmark_pc,
-      { "Power Class: (PC)", "ansi_map.cdmastationclassmark.pc",
+      { "Power Class(PC)", "ansi_map.cdmastationclassmark.pc",
         FT_UINT8, BASE_DEC, VALS(ansi_map_CDMAStationClassMark_pc_vals), 0x03,
-        "Power Class: (PC)", HFILL }},
+        "Power Class(PC)", HFILL }},
 
 	{ &hf_ansi_map_cdmastationclassmark_dtx,
       { "Analog Transmission: (DTX)", "ansi_map.cdmastationclassmark.dtx",
@@ -15043,11 +15084,11 @@ void proto_register_ansi_map(void) {
         "ansi_map.UpdateCount", HFILL }},
     { &hf_ansi_map_interMSCCircuitID,
       { "interMSCCircuitID", "ansi_map.interMSCCircuitID",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_DEC, NULL, 0,
         "ansi_map.InterMSCCircuitID", HFILL }},
     { &hf_ansi_map_mobileIdentificationNumber,
       { "mobileIdentificationNumber", "ansi_map.mobileIdentificationNumber",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_DEC, NULL, 0,
         "ansi_map.MobileIdentificationNumber", HFILL }},
     { &hf_ansi_map_countUpdateReport,
       { "countUpdateReport", "ansi_map.countUpdateReport",
@@ -16307,7 +16348,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.MobileStationIMSI", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4784 "packet-ansi_map-template.c"
+#line 4799 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -16546,7 +16587,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_NewlyAssignedMSID,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4812 "packet-ansi_map-template.c"
+#line 4827 "packet-ansi_map-template.c"
   };
 
 
