@@ -895,11 +895,13 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		gint length_remaining;
 
 		length_remaining = tvb_length_remaining(tvb, offset);
+#if 0
 		if(length_remaining<1){
 			if(out_tvb)
 				*out_tvb=NULL;
 			return end_offset;
 		}
+#endif
 
 		if(len<=(guint32)length_remaining){
 			length_remaining=len;
@@ -1523,7 +1525,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 		}
 	}
 
-	/* record the mandatory elements of the set so we can check we founf everything at the end
+	/* record the mandatory elements of the set so we can check we found everything at the end
 	   we can only record 32 elements for now ... */
 	for(set_idx = 0; (cset=&set[set_idx])->func && (set_idx < MAX_SET_ELEMENTS); set_idx++) {
 
@@ -1628,7 +1630,9 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 			}
 			count=cset->func(pinfo, tree, next_tvb, 0);
 
-			if(count) {
+			/* if we consumed some bytes, 
+			   or we knew the length was zero (during the first pass only) */
+			if(count || (first_pass && (len == 0))) {
 			    /* we found it! */
 			    if(set_idx < MAX_SET_ELEMENTS)
 				  mandatory_fields &= ~(1 << set_idx);
