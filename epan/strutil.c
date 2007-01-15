@@ -529,9 +529,12 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 			return FALSE;
 		if (*p == '%') {
 			p++;
-			g_strlcpy(hex_digit, p, HEX_DIGIT_BUF_LEN);
-			if (strlen(hex_digit) != 2)
-				return FALSE;
+			if (*p == '\0') return FALSE;
+			hex_digit[0] = *p;
+			p++;
+			if (*p == '\0') return FALSE;
+			hex_digit[1] = *p;
+			hex_digit[2] = '\0';
 			if (! isxdigit(hex_digit[0]) || ! isxdigit(hex_digit[1]))
 				return FALSE;
 			val = (guint8) strtoul(hex_digit, NULL, 16);
