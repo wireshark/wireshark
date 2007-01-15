@@ -404,9 +404,20 @@ ansi_map_init_protocol(void)
 
 /* Store Invoke information needed for the corresponding reply */
 static void
-update_saved_invokedata(packet_info *pinfo){
+update_saved_invokedata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb){
   struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
   struct tcap_private_t *p_private_tcap;
+  guint32 framenum = (guint32)pinfo->fd->num;
+  address* src = &(pinfo->src);
+  address* dst = &(pinfo->dst);
+  guint8 *src_str;
+  guint8 *dst_str;
+  char *buf;
+
+  buf=ep_alloc(1024);
+
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
 
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
@@ -416,9 +427,15 @@ update_saved_invokedata(packet_info *pinfo){
 	  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
+		  buf = p_private_tcap->TransactionID_str;
+	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
+		  strcat(buf,src_str);
+		  strcat(buf,dst_str);
+		  strcat(buf,"\0");
 		  g_hash_table_insert(TransactionId_table, 
-				g_strdup(p_private_tcap->TransactionID_str),
+				g_strdup(buf),
 				ansi_map_saved_invokedata);
+		  proto_tree_add_text(tree, tvb, 0, 1, "HAsh string %s",buf);
 	  }	
   }
 

@@ -30,22 +30,39 @@ OriginationRequestRes
   }
   /* No Data */
   if(tvb_length_remaining(tvb, offset)<=0){
-		update_saved_invokedata(pinfo);
+		update_saved_invokedata(pinfo, tree, tvb);
 	  return offset;
 
   }
 
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
-	update_saved_invokedata(pinfo);
+	update_saved_invokedata(pinfo, tree, tvb);
 
 #.FN_BODY ReturnParameters
   struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
   struct tcap_private_t *p_private_tcap;
   proto_item *item;
+  address* src = &(pinfo->src);
+  address* dst = &(pinfo->dst);
+  guint8 *src_str;
+  guint8 *dst_str;
+  char *buf;
+
+  buf=ep_alloc(1024);
+  src_str = address_to_str(src);
+  dst_str = address_to_str(dst);
 
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
 	  p_private_tcap=pinfo->private_data;
+	  /* The hash string needs to contain src and dest to distiguish differnt flows */
+	  src_str = address_to_str(src);
+	  dst_str = address_to_str(dst);
+		  buf = p_private_tcap->TransactionID_str;
+		  /* Reverse order to invoke */
+		  strcat(buf,dst_str);
+		  strcat(buf,src_str);
+		  strcat(buf,"\0");
 	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
 	  if(ansi_map_saved_invokedata){
 		  OperationCode = ansi_map_saved_invokedata->opcode;
