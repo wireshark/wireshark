@@ -96,7 +96,7 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
     if(bd->proto_root)
         g_free(bd->proto_root);
 
-	bd->proto_root = g_strdup(Name->text);
+	bd->proto_root = Name->text;
     
 	g_strdown(bd->proto_name);
     

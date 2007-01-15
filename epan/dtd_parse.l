@@ -337,6 +337,8 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 
 	yyrestart(NULL);
 	
+	if (location) g_free(location);
+	
 	location = NULL;
     
 	DtdParseFree(pParser, g_free );
