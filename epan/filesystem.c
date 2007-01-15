@@ -923,10 +923,18 @@ get_persdatafile_dir(void)
   {
     TCHAR tszPath[MAX_PATH];
 	char *szPath;
+/* SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
+#if 0
 	HRESULT hrRet;
 
 	hrRet = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, tszPath);
 	if(hrRet == S_OK) {
+#else
+        BOOL bRet;
+
+        bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
+	if(bRet == TRUE) {
+#endif
 		szPath = utf_16to8(tszPath);
 		return szPath;
 	} else {
