@@ -636,7 +636,7 @@ init_plugin_dir(void)
 		 * scanner will check all subdirectories of that
 		 * directory for plugins.
 		 */
-		g_free(plugin_dir);
+		g_free( (gpointer) plugin_dir);
 		plugin_dir = g_strdup_printf("%s\\plugins", get_datafile_dir());
 		running_in_build_directory_flag = TRUE;
 	}
