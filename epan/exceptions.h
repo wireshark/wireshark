@@ -67,6 +67,12 @@
 **/
 #define ScsiBoundsError		5	
 
+/**
+    Running out of memory.
+    A dissector tried to allocate memory but that failed. 
+**/
+#define OutOfMemoryError	6
+
 
 /* Usage:
  *

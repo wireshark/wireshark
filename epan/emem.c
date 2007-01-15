@@ -288,7 +288,9 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		/* XXX - is MEM_COMMIT|MEM_RESERVE correct? */
 		npc->buf = VirtualAlloc(NULL, EMEM_PACKET_CHUNK_SIZE,
 			MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-		g_assert(npc->buf != NULL);
+                if(npc->buf == NULL) {
+                    THROW(OutOfMemoryError);
+		}
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
 		/* Align our guard pages on page-sized boundaries */
@@ -308,7 +310,10 @@ emem_create_chunk(emem_chunk_t **free_list) {
 #elif defined(USE_GUARD_PAGES)
 		npc->buf = mmap(NULL, EMEM_PACKET_CHUNK_SIZE,
 			PROT_READ|PROT_WRITE, ANON_PAGE_MODE, ANON_FD, 0);
-		g_assert(npc->buf != MAP_FAILED);
+                if(npc->buf == MAP_FAILED) {
+                    /* XXX - what do we have to cleanup here? */
+                    THROW(OutOfMemoryError);
+		}
 		buf_end = npc->buf + EMEM_PACKET_CHUNK_SIZE;
 
 		/* Align our guard pages on page-sized boundaries */
@@ -325,11 +330,14 @@ emem_create_chunk(emem_chunk_t **free_list) {
 		npc->free_offset = npc->free_offset_init;
 
 #else /* Is there a draft in here? */
+		npc->buf = malloc(EMEM_PACKET_CHUNK_SIZE);
+                if(npc->buf == NULL) {
+                    THROW(OutOfMemoryError);
+		}
 		npc->amount_free_init = EMEM_PACKET_CHUNK_SIZE;
 		npc->amount_free = npc->amount_free_init;
 		npc->free_offset_init = 0;
 		npc->free_offset = npc->free_offset_init;
-		npc->buf = g_malloc(EMEM_PACKET_CHUNK_SIZE);
 #endif /* USE_GUARD_PAGES */
 	}
 }

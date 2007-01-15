@@ -338,6 +338,9 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 			g_assert_not_reached();
 		}
 	}
+	CATCH(OutOfMemoryError) {
+		RETHROW;
+	}
 	ENDTRY;
 
 	fd->flags.visited = 1;
@@ -546,6 +549,9 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 			 */
 			ret = tvb_length(tvb);
 		}
+	        CATCH(OutOfMemoryError) {
+		        RETHROW;
+	        }
 		ENDTRY;
 
 		col_set_writable(pinfo->cinfo, save_writable);

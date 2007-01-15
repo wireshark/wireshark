@@ -313,6 +313,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 #endif
 	}
+	CATCH(OutOfMemoryError) {
+		RETHROW;
+	}
 	CATCH_ALL {
 		show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 	}

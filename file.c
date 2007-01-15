@@ -363,6 +363,12 @@ cf_close(capture_file *cf)
   cf_callback_invoke(cf_cb_file_closed, cf);
 }
 
+/* an out of memory exception occured, wait for a user button press to exit */
+void outofmemory_cb(gpointer dialog, gint btn, gpointer data)
+{
+    main_window_exit();
+}
+
 cf_read_status_t
 cf_read(capture_file *cf)
 {
@@ -481,7 +487,30 @@ cf_read(capture_file *cf)
          hours even on fast machines) just to see that it was the wrong file. */
       break;
     }
-    read_packet(cf, dfcode, data_offset);
+    TRY {
+        read_packet(cf, dfcode, data_offset);
+    }
+    CATCH(OutOfMemoryError) {
+        gpointer dialog;
+
+        dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+              "%sOut Of Memory!%s\n"
+              "\n"
+              "Sorry, but Wireshark has to terminate now!\n"
+              "\n"
+              "Some infos / workarounds can be found at:\n"
+              "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+              simple_dialog_primary_start(), simple_dialog_primary_end());
+        /* we have to terminate, as we cannot recover from the memory error */
+        simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
+        while(1) {
+            main_window_update();
+            /* XXX - how to avoid a busy wait? */
+            /* Sleep(100); */
+        };
+        break;
+    }
+    ENDTRY;
   }
 
   /* Cleanup and release all dfilter resources */
@@ -617,9 +646,36 @@ cf_continue_tail(capture_file *cf, int to_read, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    if (read_packet(cf, dfcode, data_offset) != -1) {
-        newly_displayed_packets++;
+    TRY{
+        if (read_packet(cf, dfcode, data_offset) != -1) {
+            newly_displayed_packets++;
+        }
     }
+    CATCH(OutOfMemoryError) {
+        gpointer dialog;
+
+        dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+              "%sOut Of Memory!%s\n"
+              "\n"
+              "Sorry, but Wireshark has to terminate now!\n"
+              "\n"
+              "The capture file is not lost, it can be found at:\n"
+              "%s\n"
+              "\n"
+              "Some infos / workarounds can be found at:\n"
+              "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+              simple_dialog_primary_start(), simple_dialog_primary_end(), cf->filename);
+        /* we have to terminate, as we cannot recover from the memory error */
+        simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
+        while(1) {
+            main_window_update();
+            /* XXX - how to avoid a busy wait? */
+            /* Sleep(100); */
+        };
+        packet_list_thaw();
+        return CF_READ_ABORTED;
+    }
+    ENDTRY;
     to_read--;
   }
 
@@ -691,7 +747,7 @@ cf_finish_tail(capture_file *cf, int *err)
 	 aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, dfcode, data_offset);
+        read_packet(cf, dfcode, data_offset);
   }
 
   /* Cleanup and release all dfilter resources */

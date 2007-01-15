@@ -216,6 +216,9 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		   else. */
 		 RETHROW;
 	}
+	CATCH(OutOfMemoryError) {
+		 RETHROW;
+	}
 	CATCH_ALL {
 		/* Somebody threw an exception other than BoundsError, which
 		   means that a dissector was found, so we don't need to
