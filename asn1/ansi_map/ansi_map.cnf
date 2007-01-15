@@ -20,43 +20,36 @@ OriginationRequestRes
 #.FIELD_RENAME
 
 #.FN_BODY InvokeParameters
-  gint   *opcode;
-  struct tcap_private_t *p_private_tcap;
 
-  /* Data from the TCAP dissector */
-  if (pinfo->private_data != NULL){
-	  p_private_tcap=pinfo->private_data;
-	  opcode = g_malloc(sizeof(gint));
-	  OperationCode = OperationCode&0x00ff;
-	  *opcode = OperationCode;
-	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
-		  /* Only do this once XXX I hope its the right thing to do */
-		  g_hash_table_insert(TransactionId_table, g_strdup(p_private_tcap->TransactionID_str), opcode);
-	  }	
-  }
+  ServiceIndicator = 0;
+  OperationCode = OperationCode&0x00ff;
+
   ansi_map_is_invoke = TRUE;	
   if (check_col(pinfo->cinfo, COL_INFO)){
 	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
   }
   /* No Data */
   if(tvb_length_remaining(tvb, offset)<=0){
+		update_saved_invokedata(pinfo);
 	  return offset;
 
   }
 
 	offset = dissect_invokeData(pinfo, tree, tvb, offset);
+	update_saved_invokedata(pinfo);
 
 #.FN_BODY ReturnParameters
-  gint   *opcode;
+  struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
   struct tcap_private_t *p_private_tcap;
   proto_item *item;
 
   /* Data from the TCAP dissector */
   if (pinfo->private_data != NULL){
 	  p_private_tcap=pinfo->private_data;
-	  opcode = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
-	  if(opcode){
-		  OperationCode = *opcode;
+	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  if(ansi_map_saved_invokedata){
+		  OperationCode = ansi_map_saved_invokedata->opcode;
+		  ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
 	  }else{
 		  OperationCode = OperationCode & 0x00ff;
 	  }
@@ -75,6 +68,7 @@ OriginationRequestRes
   item = proto_tree_add_text(tree, tvb, 0, -1, "OperationCode %s",val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown %u"));
   PROTO_ITEM_SET_GENERATED(item);
 
+  ansi_map_is_invoke = FALSE;
   offset = dissect_returnData(pinfo, tree, tvb, offset);
 
 #.FN_BODY ErrorParameters
@@ -333,6 +327,19 @@ OriginationRequestRes
 			SMS_BearerData_tvb = NULL;
 			return offset;
 		}
+		if(!ansi_map_is_invoke){
+			switch(ServiceIndicator){
+				case 1: /* CDMA OTASP Service */
+				case 3: /* CDMA OTAPA Service */
+					dissector_try_port(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					break;
+				case 4: /* CDMA Position Determination Service */
+					dissector_try_port(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 # 6.5.2.137
@@ -457,10 +464,9 @@ OriginationRequestRes
 		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
-#6.5.2.wB ServiceIndicator
+#6.5.2.wB ServiceIndicator N.S0011-0 v 1.0
 #.FN_BODY ServiceIndicator VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
-	guint8 ServiceIndicator;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
 		if (SMS_BearerData_tvb !=NULL)
@@ -481,15 +487,33 @@ OriginationRequestRes
 	}
 	 
 #.TYPE_ATTR
+# Dont't put the bytes after the name in the display
+InterMSCCircuitID TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MobileIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MobileStationMIN TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+CallingPartyNumberString1 TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+CallingPartyNumberString2 TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SMS-Address TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SMS-DestinationAddress TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SMS-OriginatingAddress TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SMS-OriginalOriginatingAddress TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SMS-OriginalDestinationAddress TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+SenderIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MobileDirectoryNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+Digits TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+MSCIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+NewlyAssignedMIN TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+RedirectingNumberDigits = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+RedirectingNumberString = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+CallingPartyNumberDigits1 = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+CallingPartyNumberDigits2 = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
+
 ActionCode   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ActionCode_vals)
 AuthenticationCapability TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AuthenticationCapability_vals) 
 AlertResult   TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AlertResult_result_vals)
 AvailabilityType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_AvailabilityType_vals)
 CancellationType TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CancellationType_vals)
 GeographicAuthorization TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_GeographicAuthorization_vals)
-InterMSCCircuitID TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
-MobileIdentificationNumber TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
-MobileStationMIN TYPE = FT_NONE DISPLAY = BASE_DEC STRINGS = NULL
 CountUpdateReport TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_CountUpdateReport_vals)
 ControlChannelMode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_ControlChannelMode_vals)
 PageIndicator  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ansi_map_PageIndicator_vals)

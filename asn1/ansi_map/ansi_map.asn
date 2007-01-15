@@ -1735,7 +1735,7 @@ LocationRequestRes ::= [PRIVATE 18] SET {
 	-- (Serving MSC or VLR) O 6.5.2.93 n
 	preferredLanguageIndicator				[147] IMPLICIT PreferredLanguageIndicator OPTIONAL,
 	-- O 6.5.2.96 f, r
-	edirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
+	redirectingNumberDigits					[100] IMPLICIT RedirectingNumberDigits OPTIONAL,
 	-- O 6.5.2.107 j
 	redirectingNumberString					[101] IMPLICIT RedirectingNumberString OPTIONAL,
 	-- O 6.5.2.108 f
@@ -2086,8 +2086,9 @@ RedirectionRequest ::= [PRIVATE 18] SET {
 	-- (Originating) M 6.5.2.16
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
+	msid									MSID,
 	redirectionReason						[19] IMPLICIT RedirectionReason,
 	-- M 6.5.2.110
 	cdmaServiceOption						[175] IMPLICIT CDMAServiceOption OPTIONAL,
@@ -2358,8 +2359,9 @@ RoutingRequest ::= [PRIVATE 18] SET {
 	-- O 6.5.2.77 f, h
 	mobileDirectoryNumber					[93] IMPLICIT MobileDirectoryNumber OPTIONAL,
 	-- O 6.5.2.80 f
-	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
+--	mobileIdentificationNumber				[8] IMPLICIT MobileIdentificationNumber,
 	-- M 6.5.2.81
+	msid									MSID,
 	mSCIdentificationNumber					[94] IMPLICIT MSCIdentificationNumber OPTIONAL,
 	-- O 6.5.2.83 i
 	noAnswerTime							[96] IMPLICIT NoAnswerTime OPTIONAL,
@@ -6595,11 +6597,11 @@ CallRecoveryIDList ::= SET OF [303] IMPLICIT CallRecoveryID
 --	callRecoveryIDopt	[303] IMPLICIT CallRecoveryID OPTIONAL,
 --	}
 
--- 6.5.2.ei TIA/EIA-41.5-D Modifications N.S0018Re
+-- 6.5.2.ei TIA/EIA-41.5-D Modifications N.S0018Re ??
 -- 1 0 0 1 1 1 1 1 (0x9f)
 -- 1 0 0 0 0 0 1 0 (0x82)
 -- 0 0 1 1 0 0 0 1 (0x31)(305)
-DMH-ServiceID  ::= OCTET STRING
+DMH-ServiceID ::= OCTET STRING
 
 -- 6.5.2.ej
 -- 1 0 0 1 1 1 1 1 (0x9f)

@@ -356,6 +356,14 @@ static gboolean is683_ota;
 static gboolean is801_pld;
 static gboolean ansi_map_is_invoke;
 static guint32 OperationCode;
+static guint8 ServiceIndicator;
+
+
+struct amsi_map_invokedata_t {
+  guint32 opcode;
+  guint8 ServiceIndicator;
+};
+
 
 /* Transaction table */
 static GHashTable *TransactionId_table=NULL;
@@ -363,14 +371,14 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-	guint8 *opcode = value;
+	struct amsi_map_invokedata_t *ansi_map_saved_invokedata = value;
 	gchar *TransactionId_str = key;
 
 	if ( TransactionId_str ){
 		g_free(TransactionId_str);
 	}
-	if (opcode){
-		g_free(opcode);
+	if (ansi_map_saved_invokedata){
+		g_free(ansi_map_saved_invokedata);
 	}
 
 }
@@ -393,6 +401,28 @@ ansi_map_init_protocol(void)
 {
 	ansi_map_init_transaction_table();
 } 
+
+/* Store Invoke information needed for the corresponding reply */
+static void
+update_saved_invokedata(packet_info *pinfo){
+  struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
+  struct tcap_private_t *p_private_tcap;
+
+  /* Data from the TCAP dissector */
+  if (pinfo->private_data != NULL){
+	  p_private_tcap=pinfo->private_data;
+	  ansi_map_saved_invokedata = g_malloc(sizeof(ansi_map_saved_invokedata));
+	  ansi_map_saved_invokedata->opcode = OperationCode;
+	  ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
+	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
+		  /* Only do this once XXX I hope its the right thing to do */
+		  g_hash_table_insert(TransactionId_table, 
+				g_strdup(p_private_tcap->TransactionID_str),
+				ansi_map_saved_invokedata);
+	  }	
+  }
+
+}
 /* value strings */
 const value_string ansi_map_opr_code_strings[] = {
     { 1,	"Handoff Measurement Request" },
@@ -678,7 +708,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
-			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
 		case 3:
 			/* Octet string */
@@ -708,7 +738,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		case 2:
 			/* IA5 Coding */
 			proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, FALSE);
-			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,-1));
+			proto_item_append_text(item, " - %s", tvb_get_string(tvb,offset,tvb_length_remaining(tvb,offset)));
 			break;
 		case 3:
 			/* Octet string */
