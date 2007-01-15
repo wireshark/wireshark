@@ -82,9 +82,6 @@
  *   Answer Hold
  *			3GPP2 N.S0022-0 v1.0	IS-837
  *
- *   UIM
- *			3GPP2 N.S0003
- *
  */ 
 
 #ifdef HAVE_CONFIG_H
@@ -128,6 +125,7 @@ static int hf_ansi_map_op_code = -1;
 static int hf_ansi_map_reservedBitH = -1;
 static int hf_ansi_map_reservedBitD = -1;
 static int hf_ansi_map_reservedBitHG = -1;
+static int hf_ansi_map_reservedBitHGFE = -1;
 static int hf_ansi_map_reservedBitED = -1;
 
 static int hf_ansi_map_type_of_digits = -1;
@@ -182,6 +180,9 @@ static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
 static int hf_ansi_map_idno = -1;
 static int hf_ansi_map_segcount = -1;
+static int hf_ansi_map_sms_originationrestrictions_fmc = -1;
+static int hf_ansi_map_sms_originationrestrictions_direct = -1;
+static int hf_ansi_map_sms_originationrestrictions_default = -1;
 static int hf_ansi_map_systemcapabilities_auth = -1;
 static int hf_ansi_map_systemcapabilities_se = -1;
 static int hf_ansi_map_systemcapabilities_vp = -1;
@@ -341,6 +342,7 @@ static gint ett_controlnetworkid = -1;
 static gint ett_transactioncapability = -1;
 static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
+static gint ett_sms_originationrestrictions = -1;
 
 #include "packet-ansi_map-ett.c"
 
@@ -2389,6 +2391,20 @@ static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val
   "Force Indirect",
   "No effect"
 };
+dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_sms_originationrestrictions);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_fmc, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_direct, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_default, tvb, offset, 1, FALSE);
+
+}
 
 /* 6.5.2.137 SMS_TeleserviceIdentifier */
 /* Updated with N.S0011-0 v 1.0 */
@@ -4104,6 +4120,10 @@ void proto_register_ansi_map(void) {
       { "Reserved", "ansi_map.reserved_bitHG",
        FT_UINT8, BASE_DEC, NULL, 0x18,
          "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitHGFE,
+      { "Reserved", "ansi_map.reserved_bitED",
+       FT_UINT8, BASE_DEC, NULL, 0xf0,
+         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitED,
       { "Reserved", "ansi_map.reserved_bitED",
        FT_UINT8, BASE_DEC, NULL, 0x18,
@@ -4319,6 +4339,19 @@ void proto_register_ansi_map(void) {
       { "Segment Counter", "ansi_map.segcount",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Segment Counter", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_direct,
+      { "DIRECT", "ansi_map.originationrestrictions.direct",
+        FT_BOOLEAN, 8, TFS(&ansi_map_SMS_OriginationRestrictions_direct_bool_val),0x04,
+        "DIRECT", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_default,
+      { "DEFAULT", "ansi_map.originationrestrictions.default",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_SMS_OriginationRestrictions_default_vals), 0x03,
+        "DEFAULT", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_fmc,
+      { "Force Message Center (FMC)", "ansi_map.originationrestrictions.fmc",
+        FT_BOOLEAN, 8, TFS(&ansi_map_SMS_OriginationRestrictions_fmc_bool_val),0x08,
+        "Force Message Center (FMC)", HFILL }},
+
 	{ &hf_ansi_map_systemcapabilities_auth,
       { "Authentication Parameters Requested (AUTH)", "ansi_map.systemcapabilities.auth",
         FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_auth_bool_val),0x01,
@@ -4873,6 +4906,7 @@ void proto_register_ansi_map(void) {
 	  &ett_controlnetworkid,
 	  &ett_transactioncapability,
 	  &ett_cdmaserviceoption,
+	  &ett_sms_originationrestrictions,
 	  &ett_systemcapabilities,
 #include "packet-ansi_map-ettarr.c"
   };

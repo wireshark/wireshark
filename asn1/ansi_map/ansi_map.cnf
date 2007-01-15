@@ -359,6 +359,14 @@ OriginationRequestRes
 		}
 	}
 
+# 6.5.2.136 SMS-OriginationRestrictions
+#.FN_BODY SMS-OriginationRestrictions VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,pinfo,tree);
+	}
+
 # 6.5.2.137
 # N.S0005-0 v 1.0
 #.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &parameter_tvb

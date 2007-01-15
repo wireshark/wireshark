@@ -90,9 +90,6 @@
  *   Answer Hold
  *			3GPP2 N.S0022-0 v1.0	IS-837
  *
- *   UIM
- *			3GPP2 N.S0003
- *
  */ 
 
 #ifdef HAVE_CONFIG_H
@@ -136,6 +133,7 @@ static int hf_ansi_map_op_code = -1;
 static int hf_ansi_map_reservedBitH = -1;
 static int hf_ansi_map_reservedBitD = -1;
 static int hf_ansi_map_reservedBitHG = -1;
+static int hf_ansi_map_reservedBitHGFE = -1;
 static int hf_ansi_map_reservedBitED = -1;
 
 static int hf_ansi_map_type_of_digits = -1;
@@ -190,6 +188,9 @@ static int hf_ansi_map_MarketID = -1;
 static int hf_ansi_map_swno = -1;
 static int hf_ansi_map_idno = -1;
 static int hf_ansi_map_segcount = -1;
+static int hf_ansi_map_sms_originationrestrictions_fmc = -1;
+static int hf_ansi_map_sms_originationrestrictions_direct = -1;
+static int hf_ansi_map_sms_originationrestrictions_default = -1;
 static int hf_ansi_map_systemcapabilities_auth = -1;
 static int hf_ansi_map_systemcapabilities_se = -1;
 static int hf_ansi_map_systemcapabilities_vp = -1;
@@ -829,7 +830,7 @@ static int hf_ansi_map_addServiceRes = -1;        /* AddServiceRes */
 static int hf_ansi_map_dropServiceRes = -1;       /* DropServiceRes */
 
 /*--- End of included file: packet-ansi_map-hf.c ---*/
-#line 317 "packet-ansi_map-template.c"
+#line 318 "packet-ansi_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ansi_map = -1;
@@ -857,6 +858,7 @@ static gint ett_controlnetworkid = -1;
 static gint ett_transactioncapability = -1;
 static gint ett_cdmaserviceoption = -1;
 static gint ett_systemcapabilities = -1;
+static gint ett_sms_originationrestrictions = -1;
 
 
 /*--- Included file: packet-ansi_map-ett.c ---*/
@@ -1071,7 +1073,7 @@ static gint ett_ansi_map_InvokeData = -1;
 static gint ett_ansi_map_ReturnData = -1;
 
 /*--- End of included file: packet-ansi_map-ett.c ---*/
-#line 346 "packet-ansi_map-template.c"
+#line 348 "packet-ansi_map-template.c"
 
 /* Global variables */
 static dissector_handle_t data_handle=NULL;
@@ -3118,6 +3120,20 @@ static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val
   "Force Indirect",
   "No effect"
 };
+dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+
+	int offset = 0;
+    proto_item *item;
+    proto_tree *subtree;
+
+	item = get_ber_last_created_item();
+	subtree = proto_item_add_subtree(item, ett_sms_originationrestrictions);
+	proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_fmc, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_direct, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_default, tvb, offset, 1, FALSE);
+
+}
 
 /* 6.5.2.137 SMS_TeleserviceIdentifier */
 /* Updated with N.S0011-0 v 1.0 */
@@ -5187,7 +5203,7 @@ static int dissect_systemAccessType_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_SystemCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 392 "ansi_map.cnf"
+#line 400 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5481,7 +5497,7 @@ static int dissect_suspiciousAccess_impl(packet_info *pinfo, proto_tree *tree, t
 
 static int
 dissect_ansi_map_TransactionCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 409 "ansi_map.cnf"
+#line 417 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -5753,7 +5769,7 @@ static int dissect_reauthenticationReport_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_ansi_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 486 "ansi_map.cnf"
+#line 494 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6280,7 +6296,7 @@ static int dissect_alertCode_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 static int
 dissect_ansi_map_CDMA2000HandoffInvokeIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 460 "ansi_map.cnf"
+#line 468 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	proto_item *item;
     proto_tree *subtree;
@@ -6360,7 +6376,7 @@ static int dissect_cdmaConnectionReference_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_ansi_map_CDMAServiceOption(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 417 "ansi_map.cnf"
+#line 425 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -6982,7 +6998,7 @@ static int dissect_bsmcstatus_impl(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_CDMA2000HandoffResponseIOSData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 473 "ansi_map.cnf"
+#line 481 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 	proto_item *item;
     proto_tree *subtree;
@@ -7237,7 +7253,7 @@ static int dissect_acgencountered_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_CallingPartyName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 428 "ansi_map.cnf"
+#line 436 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -7824,7 +7840,7 @@ static int dissect_legInformation_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_TerminationTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 401 "ansi_map.cnf"
+#line 409 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9518,7 +9534,7 @@ static int dissect_terminationAccessType_impl(packet_info *pinfo, proto_tree *tr
 
 static int
 dissect_ansi_map_TriggerCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 436 "ansi_map.cnf"
+#line 444 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9539,7 +9555,7 @@ static int dissect_triggerCapability_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ansi_map_WINOperationsCapability(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 444 "ansi_map.cnf"
+#line 452 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -9628,7 +9644,7 @@ static int dissect_locationRequest(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static int
 dissect_ansi_map_ControlNetworkID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 452 "ansi_map.cnf"
+#line 460 "ansi_map.cnf"
 	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -10539,8 +10555,16 @@ static int dissect_restrictionDigits_impl(packet_info *pinfo, proto_tree *tree, 
 
 static int
 dissect_ansi_map_SMS_OriginationRestrictions(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 364 "ansi_map.cnf"
+	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,pinfo,tree);
+	}
+
+
 
   return offset;
 }
@@ -10912,7 +10936,7 @@ static int dissect_sms_BearerData_impl(packet_info *pinfo, proto_tree *tree, tvb
 
 static int
 dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
-#line 365 "ansi_map.cnf"
+#line 373 "ansi_map.cnf"
 
 	int length;
     proto_item *item;
@@ -14371,7 +14395,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3486 "packet-ansi_map-template.c"
+#line 3502 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
@@ -14993,6 +15017,10 @@ void proto_register_ansi_map(void) {
       { "Reserved", "ansi_map.reserved_bitHG",
        FT_UINT8, BASE_DEC, NULL, 0x18,
          "Reserved", HFILL }},
+	{ &hf_ansi_map_reservedBitHGFE,
+      { "Reserved", "ansi_map.reserved_bitED",
+       FT_UINT8, BASE_DEC, NULL, 0xf0,
+         "Reserved", HFILL }},
 	{ &hf_ansi_map_reservedBitED,
       { "Reserved", "ansi_map.reserved_bitED",
        FT_UINT8, BASE_DEC, NULL, 0x18,
@@ -15208,6 +15236,19 @@ void proto_register_ansi_map(void) {
       { "Segment Counter", "ansi_map.segcount",
         FT_UINT8, BASE_DEC, NULL, 0,
         "Segment Counter", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_direct,
+      { "DIRECT", "ansi_map.originationrestrictions.direct",
+        FT_BOOLEAN, 8, TFS(&ansi_map_SMS_OriginationRestrictions_direct_bool_val),0x04,
+        "DIRECT", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_default,
+      { "DEFAULT", "ansi_map.originationrestrictions.default",
+        FT_UINT8, BASE_DEC, VALS(ansi_map_SMS_OriginationRestrictions_default_vals), 0x03,
+        "DEFAULT", HFILL }},
+	{ &hf_ansi_map_sms_originationrestrictions_fmc,
+      { "Force Message Center (FMC)", "ansi_map.originationrestrictions.fmc",
+        FT_BOOLEAN, 8, TFS(&ansi_map_SMS_OriginationRestrictions_fmc_bool_val),0x08,
+        "Force Message Center (FMC)", HFILL }},
+
 	{ &hf_ansi_map_systemcapabilities_auth,
       { "Authentication Parameters Requested (AUTH)", "ansi_map.systemcapabilities.auth",
         FT_BOOLEAN, 8, TFS(&ansi_map_systemcapabilities_auth_bool_val),0x01,
@@ -17750,7 +17791,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.DropServiceRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4848 "packet-ansi_map-template.c"
+#line 4881 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -17779,6 +17820,7 @@ void proto_register_ansi_map(void) {
 	  &ett_controlnetworkid,
 	  &ett_transactioncapability,
 	  &ett_cdmaserviceoption,
+	  &ett_sms_originationrestrictions,
 	  &ett_systemcapabilities,
 
 /*--- Included file: packet-ansi_map-ettarr.c ---*/
@@ -17993,7 +18035,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4878 "packet-ansi_map-template.c"
+#line 4912 "packet-ansi_map-template.c"
   };
 
 
