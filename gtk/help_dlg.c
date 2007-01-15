@@ -226,30 +226,48 @@ gboolean topic_available(topic_action_e action) {
 }
 
 /*
- * Open the help dialog and show a specific help page.
+ * Open the help dialog and show a specific HTML help page.
  */
-static void help_topic(const gchar *topic) {
+static void help_topic_html(const gchar *topic) {
+    GString *url;
 
+
+    /* try to open local .chm file */
 #ifdef HHC_DIR
     HWND hw;
-    GString *url = g_string_new("");
 
-    g_string_append_printf(url, "%s\\user-guide.chm::/%s>Wireshark Help",
+    url = g_string_new("");
+
+    g_string_append_printf(url, "%s\\user-guide.chm::/wsug_chm/%s>Wireshark Help",
         get_datafile_dir(), topic);
 
     hw = HtmlHelpW(NULL,
         utf_8to16(url->str),
         HH_DISPLAY_TOPIC, 0);
 
-    if(hw == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open help file: %s\\user-guide.chm",
-            get_datafile_dir());
-    }
-
     g_string_free(url, TRUE /* free_segment */);
 
-    return;
-#else
+    /* if the .chm file could be opened, stop here */
+    if(hw != NULL) {
+        return;
+    }
+#endif /* HHC_DIR */
+
+    url = g_string_new("");
+
+    /* try to open the HTML page from wireshark.org instead */
+    g_string_append_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", topic);
+
+    browser_open_url(url->str);
+
+    g_string_free(url, TRUE /* free_segment */);
+}
+
+
+/*
+ * Open the help dialog and show a specific GTK help page.
+ */
+static void help_topic_gtk(const gchar *topic) {
     gchar       *page_topic;
     GtkWidget   *help_nb;
     GSList      *help_page_ent;
@@ -275,7 +293,6 @@ static void help_topic(const gchar *topic) {
         }
         page_num++;
     }
-#endif
 
     /* topic page not found, default (first page) will be shown */
 }
@@ -323,14 +340,6 @@ void help_redraw(void)
   }
 }
 
-
-#ifdef HHC_DIR
-#define ONLINE_HELP_CALL help_topic
-#define ONLINE_HELP_PREFIX "wsug_chm/"
-#else
-#define ONLINE_HELP_CALL browser_open_data_file
-#define ONLINE_HELP_PREFIX "wsug_html_chunked/"
-#endif
 
 static void
 topic_action(topic_action_e action)
@@ -382,107 +391,107 @@ topic_action(topic_action_e action)
 #ifdef ENABLE_WSUG
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "index.html");
+        help_topic_html( "index.html");
         break;
     case(HELP_CAPTURE_OPTIONS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChCapCaptureOptions.html");
+        help_topic_html("ChCapCaptureOptions.html");
         break;
     case(HELP_CAPTURE_FILTERS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChWorkDefineFilterSection.html");
+        help_topic_html("ChWorkDefineFilterSection.html");
         break;
     case(HELP_DISPLAY_FILTERS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX "ChWorkDefineFilterSection.html");
+        help_topic_html("ChWorkDefineFilterSection.html");
         break;
     case(HELP_COLORING_RULES_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustColorizationSection.html");
+        help_topic_html("ChCustColorizationSection.html");
         break;
     case(HELP_PRINT_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOPrintSection.html");
+        help_topic_html("ChIOPrintSection.html");
         break;
     case(HELP_FIND_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChWorkFindPacketSection.html");
+        help_topic_html("ChWorkFindPacketSection.html");
         break;
     case(HELP_GOTO_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChWorkGoToPacketSection.html");
+        help_topic_html("ChWorkGoToPacketSection.html");
         break;
     case(HELP_CAPTURE_INTERFACES_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapInterfaceSection.html");
+        help_topic_html("ChCapInterfaceSection.html");
         break;
     case(HELP_CAPTURE_INFO_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapRunningSection.html");
+        help_topic_html("ChCapRunningSection.html");
         break;
     case(HELP_ENABLED_PROTOCOLS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
+        help_topic_html("ChCustProtocolDissectionSection.html");
         break;
     case(HELP_DECODE_AS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
+        help_topic_html("ChCustProtocolDissectionSection.html");
         break;
     case(HELP_DECODE_AS_SHOW_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustProtocolDissectionSection.html");
+        help_topic_html("ChCustProtocolDissectionSection.html");
         break;
     case(HELP_FOLLOW_TCP_STREAM_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChAdvFollowTCPSection.html");
+        help_topic_html("ChAdvFollowTCPSection.html");
         break;
     case(HELP_STATS_SUMMARY_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatSummary.html");
+        help_topic_html("ChStatSummary.html");
         break;
     case(HELP_STATS_PROTO_HIERARCHY_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatHierarchy.html");
+        help_topic_html("ChStatHierarchy.html");
         break;
     case(HELP_STATS_ENDPOINTS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatEndpoints.html");
+        help_topic_html("ChStatEndpoints.html");
         break;
     case(HELP_STATS_CONVERSATIONS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatConversations.html");
+        help_topic_html("ChStatConversations.html");
         break;
     case(HELP_STATS_IO_GRAPH_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChStatIOGraphs.html");
+        help_topic_html("ChStatIOGraphs.html");
         break;
     case(HELP_FILESET_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOFileSetSection.html");
+        help_topic_html("ChIOFileSetSection.html");
         break;
     case(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCapInterfaceDetailsSection.html");
+        help_topic_html("ChCapInterfaceDetailsSection.html");
         break;
     case(HELP_PREFERENCES_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChCustPreferencesSection.html");
+        help_topic_html("ChCustPreferencesSection.html");
         break;
     case(HELP_EXPORT_FILE_DIALOG):
     case(HELP_EXPORT_FILE_WIN32_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOExportSection.html");
+        help_topic_html("ChIOExportSection.html");
         break;
     case(HELP_EXPORT_BYTES_DIALOG):
     case(HELP_EXPORT_BYTES_WIN32_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOExportSection.html#ChIOExportSelectedDialog");
+        help_topic_html("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
     case(HELP_OPEN_DIALOG):
     case(HELP_OPEN_WIN32_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOOpenSection.html");
+        help_topic_html("ChIOOpenSection.html");
         break;
     case(HELP_MERGE_DIALOG):
     case(HELP_MERGE_WIN32_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOMergeSection.html");
+        help_topic_html("ChIOMergeSection.html");
         break;
     case(HELP_SAVE_DIALOG):
     case(HELP_SAVE_WIN32_DIALOG):
-        ONLINE_HELP_CALL(ONLINE_HELP_PREFIX  "ChIOSaveSection.html");
+        help_topic_html("ChIOSaveSection.html");
         break;
 #else
     /* only some help pages are available for offline reading */
     case(HELP_CONTENT):
-        help_topic("Overview");
+        help_topic_gtk("Overview");
         break;
     case(HELP_GETTING_STARTED):
-        help_topic("Getting Started");
+        help_topic_gtk("Getting Started");
         break;
     case(HELP_CAPTURE_OPTIONS_DIALOG):
-        help_topic("Capturing");
+        help_topic_gtk("Capturing");
         break;
     case(HELP_CAPTURE_FILTERS_DIALOG):
-        help_topic("Capture Filters");
+        help_topic_gtk("Capture Filters");
         break;
     case(HELP_DISPLAY_FILTERS_DIALOG):
-        help_topic("Display Filters");
+        help_topic_gtk("Display Filters");
         break;
 #endif
 
