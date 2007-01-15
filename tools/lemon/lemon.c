@@ -3245,6 +3245,8 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   for(i=0; i<rp->nrhs; i++) used[i] = 0;
   lhsused = 0;
 
+  if (! rp->code) rp->code = "\n";
+  
   append_str(0,0,0,0);
   for(cp=rp->code; *cp; cp++){
     if( safe_isalpha(*cp) && (cp==rp->code || (!safe_isalnum(cp[-1]) && cp[-1]!='_')) ){
@@ -3875,7 +3877,7 @@ void ReportTable(
 
   /* Generate code which execution during each REDUCE action */
   for(rp=lemp->rule; rp; rp=rp->next){
-    if( rp->code ) translate_code(lemp, rp);
+		translate_code(lemp, rp);
   }
   for(rp=lemp->rule; rp; rp=rp->next){
     struct rule *rp2;
