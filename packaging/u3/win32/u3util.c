@@ -51,6 +51,8 @@
 #define WINPCAP_UNINSTALL    "UninstallString"
 #define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
 
+#define MY_CAPTURES          "\\My Captures"
+
 #define BUFSIZ          256
 
 static char *extensions[] = {
@@ -392,7 +394,7 @@ void disassociate(char *extension)
 Configure the host for the U3 Wireshark. This involves:
 1) registering the U3 Wireshark with capture file types
 2) installing WinPcap if not already installed
-
+3) create a "My Captures" folder on the U3 device if it doesn't already exist
 */
 
 void host_configure(void)
@@ -403,8 +405,10 @@ void host_configure(void)
   char *u3_host_exec_path;
   char *u3_device_exec_path;
   char *u3_device_serial;
+  char *u3_device_document_path;
   char wireshark_path[MAX_PATH+1];
   char winpcap_path[MAX_PATH+1];
+  char my_captures_path[MAX_PATH+1];
   char reg_key[BUFSIZ];
   char buffer[BUFSIZ];
   int  buflen = BUFSIZ;
@@ -494,6 +498,16 @@ void host_configure(void)
 
     }
   }
+
+  /* CREATE THE "My Captures" FOLDER IF IT DOESN'T ALREADY EXIST */
+
+  u3_device_document_path = getenv("U3_DEVICE_DOCUMENT_PATH");
+  strncpy(my_captures_path, u3_device_document_path, strlen(u3_device_document_path) + 1);
+  strncat(my_captures_path, MY_CAPTURES, strlen(MY_CAPTURES) + 1);
+
+  /* don't care if it succeeds or fails */
+  (void) CreateDirectory(my_captures_path, NULL);
+  
 }
 
 /* host_cleanup

@@ -54,6 +54,8 @@
 #include "privileges.h"
 #include <wiretap/file_util.h>
 
+#define U3_MY_CAPTURES  "\\My Captures"
+
 /*
  * Given a pathname, return a pointer to the last pathname separator
  * character in the pathname, or NULL if the pathname contains no
@@ -913,25 +915,43 @@ create_persconffile_dir(char **pf_dir_path_return)
  *
  * On Win32, this is the "My Documents" folder in the personal profile.
  * On UNIX this is simply the current directory.
+ * On a U3 device this is "$U3_DEVICE_DOCUMENT_PATH\My Captures" folder.
  */
 /* XXX - should this and the get_home_dir() be merged? */
-/* XXX - is U3 affected somehow? */
 extern char *
 get_persdatafile_dir(void)
 {
 #ifdef _WIN32
-  {
+    char *u3devicedocumentpath;
     TCHAR tszPath[MAX_PATH];
 	char *szPath;
 /* SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
 #if 0
 	HRESULT hrRet;
+#else
+        BOOL bRet;
+#endif 
+	/*
+	 * See if we are running in a U3 environment.
+	 */
+	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
 
+	if (u3devicedocumentpath != NULL) {
+	  
+	  /* the "My Captures" sub-directory is created (if it doesn't exist) 
+	     by u3util.exe when the U3 Wireshark is first run */
+	  
+	  szPath = g_malloc(strlen(u3devicedocumentpath) + strlen(U3_MY_CAPTURES) + 1);
+	  strcpy(szPath, u3devicedocumentpath);
+	  strcat(szPath, U3_MY_CAPTURES);
+
+	  return szPath;
+
+        } else {
+#if 0
 	hrRet = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, tszPath);
 	if(hrRet == S_OK) {
 #else
-        BOOL bRet;
-
         bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
 	if(bRet == TRUE) {
 #endif
@@ -940,7 +960,7 @@ get_persdatafile_dir(void)
 	} else {
 		return "";
 	}
-  }
+ }
 #else
   return "";
 #endif
