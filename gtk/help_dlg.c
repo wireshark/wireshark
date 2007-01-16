@@ -266,7 +266,6 @@ static void help_topic_html(const gchar *topic) {
 }
 
 
-#if (GLIB_MAJOR_VERSION >= 2)
 /*
  * Open the help dialog and show a specific GTK help page.
  */
@@ -299,7 +298,6 @@ static void help_topic_gtk(const gchar *topic) {
 
     /* topic page not found, default (first page) will be shown */
 }
-#endif
 
 
 /*
