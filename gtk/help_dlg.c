@@ -194,8 +194,9 @@ void help_dialog(void)
 
 gboolean topic_available(topic_action_e action) {
 
-#ifdef ENABLE_WSUG
+#if (GLIB_MAJOR_VERSION >= 2)
     if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
+        /* XXX - add the page HELP_CAPTURE_INTERFACES_DETAILS_DIALOG and remove this if */
         /* page currently not existing in user's guide */
         return FALSE;
     }
@@ -224,6 +225,7 @@ gboolean topic_available(topic_action_e action) {
     }
 #endif
 }
+
 
 /*
  * Open the help dialog and show a specific HTML help page.
@@ -264,6 +266,7 @@ static void help_topic_html(const gchar *topic) {
 }
 
 
+#if (GLIB_MAJOR_VERSION >= 2)
 /*
  * Open the help dialog and show a specific GTK help page.
  */
@@ -296,6 +299,7 @@ static void help_topic_gtk(const gchar *topic) {
 
     /* topic page not found, default (first page) will be shown */
 }
+#endif
 
 
 /*
@@ -388,7 +392,7 @@ topic_action(topic_action_e action)
         browser_open_data_file("text2pcap.html");
         break;
 
-#ifdef ENABLE_WSUG
+#if (GLIB_MAJOR_VERSION >= 2)
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
         help_topic_html( "index.html");
@@ -493,7 +497,7 @@ topic_action(topic_action_e action)
     case(HELP_DISPLAY_FILTERS_DIALOG):
         help_topic_gtk("Display Filters");
         break;
-#endif
+#endif /* GLIB_MAJOR_VERSION */
 
     default:
         g_assert_not_reached();

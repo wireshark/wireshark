@@ -417,15 +417,6 @@ LOCAL_LDFLAGS=/DEBUG
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
-# 
-# Optional: Use the User's Guide as the online help system
-# (currently experimental).
-#
-# If you don't have the User's Guide, comment this line out, so that 
-# ENABLE_WSUG isn't defined.
-#
-#ENABLE_WSUG=USE
-
 #
 # According to http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=403
 # XCOPY under Windows NT doesn't support the "/Y" flag.  This works
@@ -773,12 +764,6 @@ HHC_LIBS=
 LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
 !ELSE
 LIBWIRESHARK_CONFIG=
-!ENDIF
-
-!IFDEF ENABLE_WSUG
-WSUG_CFLAGS=-DENABLE_WSUG
-!ELSE
-WSUG_CFLAGS=
 !ENDIF
 
 # Construct the path
