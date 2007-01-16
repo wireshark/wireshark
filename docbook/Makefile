@@ -49,10 +49,9 @@ XSLTPROC?="xsltproc"
 XMLLINT?="xmllint"
 
 # Automatically generate .pdf files from .fo files
+# Suse needs FOP_OPTS, Debian needs JAVA_OPTS
 .fo.pdf:
-#	FOP_OPTS="$(FOP_OPTS)" $(FOP) $< $@
-# On Debian use this line
-	JAVA_OPTS="$(FOP_OPTS)" $(FOP) $< $@
+	FOP_OPTS="$(FOP_OPTS) $(JAVA_OPTS)" $(FOP) $< $@
 
 WSUG_FILES =	\
 	wsug_src/WSUG_app_files.xml		\
