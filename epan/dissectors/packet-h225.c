@@ -10778,18 +10778,17 @@ proto_reg_handoff_h225(void)
 	static gboolean h225_prefs_initialized = FALSE;
 
     if (h225_prefs_initialized) {
+      ssl_dissector_delete(saved_h225_tls_port, "q931.tpkt", TRUE);
     } else {
-	  h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
-	  dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
-	  dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
-
-      ssl_dissector_delete(saved_h225_tls_port, "q931", TRUE);
-
       h225_prefs_initialized = TRUE;
     }
 
     saved_h225_tls_port = h225_tls_port;
     ssl_dissector_add(saved_h225_tls_port, "q931.tpkt", TRUE);
+
+	h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
+	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
+	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
 
 	H323UserInformation_handle=find_dissector("h323ui");
 
