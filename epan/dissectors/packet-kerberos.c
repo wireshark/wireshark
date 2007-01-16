@@ -60,6 +60,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
 #include <ctype.h>
 
 #ifdef HAVE_LIBNETTLE
@@ -74,8 +75,6 @@
 #include <epan/crypt/crypt-md5.h>
 #include <sys/stat.h>	/* For keyfile manipulation */
 #endif
-
-#include <glib.h>
 
 #include <epan/packet.h>
 
@@ -96,6 +95,8 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include <epan/dissectors/packet-gssapi.h>
+
+#include <wiretap/file_util.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
