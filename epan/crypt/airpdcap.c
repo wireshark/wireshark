@@ -1663,7 +1663,7 @@ get_key_string(decryption_key_t* dk)
 		else
 			output_string = g_strdup_printf("%s:%s:%s",
 			    STRING_KEY_TYPE_WPA_PWD,dk->key->str,
-			    format_text((guchar *)dk->ssid->data, dk->ssid->len);
+			    format_text((guchar *)dk->ssid->data, dk->ssid->len));
 	}
 	else if(dk->type == AIRPDCAP_KEY_TYPE_WPA_PMK)
 	{
