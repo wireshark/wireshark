@@ -227,6 +227,7 @@ gboolean topic_available(topic_action_e action) {
 }
 
 
+#if (GLIB_MAJOR_VERSION >= 2)
 /*
  * Open the help dialog and show a specific HTML help page.
  */
@@ -264,6 +265,7 @@ static void help_topic_html(const gchar *topic) {
 
     g_string_free(url, TRUE /* free_segment */);
 }
+#endif
 
 
 /*
