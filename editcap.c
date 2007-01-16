@@ -15,6 +15,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*
+ * Just make sure we include the prototype for strptime as well
+ * (needed for glibc 2.2)
+ */
+
+#define __USE_XOPEN
+#include <time.h>
 #include <glib.h>
 
 #ifdef HAVE_UNISTD_H
@@ -22,13 +30,7 @@
 #endif
 
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2)
- */
-#define __USE_XOPEN
 
-#include <time.h>
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
