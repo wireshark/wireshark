@@ -50,9 +50,7 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__ = "2.1"
-
-import types
+__version__ = "2.2"
 
 #-----------------------------------------------------------------------------
 #                     === User configurable parameters ===
@@ -88,6 +86,8 @@ class YaccError(Exception):   pass
 #        .value      = Symbol value
 #        .lineno     = Starting line number
 #        .endlineno  = Ending line number (optional, set automatically)
+#        .lexpos     = Starting lex position
+#        .endlexpos  = Ending lex position (optional, set automatically)
 
 class YaccSymbol:
     def __str__(self):    return self.type
@@ -99,7 +99,8 @@ class YaccSymbol:
 # The lineno() method returns the line number of a given
 # item (or 0 if not defined).   The linespan() method returns
 # a tuple of (startline,endline) representing the range of lines
-# for a symbol.
+# for a symbol.  The lexspan() method returns a tuple (lexpos,endlexpos)
+# representing the range of positional information for a symbol.
 
 class YaccProduction:
     def __init__(self,s,stack=None):
@@ -127,6 +128,14 @@ class YaccProduction:
         startline = getattr(self.slice[n],"lineno",0)
         endline = getattr(self.slice[n],"endlineno",startline)
         return startline,endline
+
+    def lexpos(self,n):
+        return getattr(self.slice[n],"lexpos",0)
+
+    def lexspan(self,n):
+        startpos = getattr(self.slice[n],"lexpos",0)
+        endpos = getattr(self.slice[n],"endlexpos",startpos)
+        return startpos,endpos
 
     def pushback(self,n):
         if n <= 0:
@@ -269,6 +278,8 @@ class Parser:
                         try:
                             sym.lineno = targ[1].lineno
                             sym.endlineno = getattr(targ[-1],"endlineno",targ[-1].lineno)
+                            sym.lexpos = targ[1].lexpos
+                            sym.endlexpos = getattr(targ[-1],"endlexpos",targ[-1].lexpos)
                         except AttributeError:
                             sym.lineno = 0
                         del symstack[-plen:]
@@ -582,11 +593,8 @@ class Production:
 class MiniProduction:
     pass
 
-# Utility function
-def is_identifier(s):
-    for c in s:
-        if not (c.isalnum() or c == '_'): return 0
-    return 1
+# regex matching identifiers
+_is_identifier = re.compile(r'^[a-zA-Z0-9_-]+$')
 
 # -----------------------------------------------------------------------------
 # add_production()
@@ -614,7 +622,7 @@ def add_production(f,file,line,prodname,syms):
         sys.stderr.write("%s:%d: Illegal rule name '%s'. error is a reserved word.\n" % (file,line,prodname))
         return -1
                 
-    if not is_identifier(prodname):
+    if not _is_identifier.match(prodname):
         sys.stderr.write("%s:%d: Illegal rule name '%s'\n" % (file,line,prodname))
         return -1
 
@@ -632,7 +640,7 @@ def add_production(f,file,line,prodname,syms):
                  continue
              except SyntaxError:
                  pass
-        if not is_identifier(s) and s != '%prec':
+        if not _is_identifier.match(s) and s != '%prec':
             sys.stderr.write("%s:%d: Illegal name '%s' in rule '%s'\n" % (file,line,s, prodname))
             return -1
 
@@ -1677,7 +1685,7 @@ def lr_parse_table(method):
                                         action[st,a] = None
                                     else:
                                         # Hmmm. Guess we'll keep the shift
-                                        if not slevel and not rlevel:
+                                        if not rlevel:
                                             _vfc.write("shift/reduce conflict in state %d resolved as shift.\n" % st)
                                             _vf.write("  ! shift/reduce conflict for %s resolved as shift.\n" % a)
                                             n_srconflict +=1                                    
@@ -1724,7 +1732,7 @@ def lr_parse_table(method):
                                         # We decide to shift here... highest precedence to shift
                                         action[st,a] = j
                                         actionp[st,a] = p
-                                        if not slevel and not rlevel:
+                                        if not rlevel:
                                             n_srconflict += 1
                                             _vfc.write("shift/reduce conflict in state %d resolved as shift.\n" % st)
                                             _vf.write("  ! shift/reduce conflict for %s resolved as shift.\n" % a)
