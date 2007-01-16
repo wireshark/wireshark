@@ -196,6 +196,13 @@ OriginationRequestRes
 	if (parameter_tvb){
 		dissect_ansi_map_confidentialitymodes(parameter_tvb,pinfo,tree);
 	}
+# 6.5.2.51 ControlChannelData
+#.FN_BODY ControlChannelData VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		dissect_ansi_map_controlchanneldata(parameter_tvb,pinfo,tree);
+	}
 
 # 6.5.2.53 DeniedAuthorizationPeriod
 #.FN_BODY DeniedAuthorizationPeriod VAL_PTR = &parameter_tvb
