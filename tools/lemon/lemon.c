@@ -407,8 +407,6 @@ static int actioncmp(const void *ap1_arg, const void *ap2_arg)
   rc = ap1->sp->index - ap2->sp->index;
   if( rc==0 ) rc = (int)ap1->type - (int)ap2->type;
   if( rc==0 ){
-    assert( ap1->type==REDUCE || ap1->type==RD_RESOLVED || ap1->type==CONFLICT);
-    assert( ap2->type==REDUCE || ap2->type==RD_RESOLVED || ap2->type==CONFLICT);
     rc = ap1->x.rp->index - ap2->x.rp->index;
   }
   return rc;
@@ -1044,6 +1042,10 @@ static int resolve_conflict(
   struct symbol *spx, *spy;
   int errcnt = 0;
   assert( apx->sp==apy->sp );  /* Otherwise there would be no conflict */
+  if( apx->type==SHIFT && apy->type==SHIFT ){
+    apy->type = CONFLICT;
+    errcnt++;
+  }
   if( apx->type==SHIFT && apy->type==REDUCE ){
     spx = apx->sp;
     spy = apy->x.rp->precsym;
@@ -3245,10 +3247,8 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   for(i=0; i<rp->nrhs; i++) used[i] = 0;
   lhsused = 0;
 
-  if (! rp->code) rp->code = "\n";
-  
   append_str(0,0,0,0);
-  for(cp=rp->code; *cp; cp++){
+  for(cp=(rp->code?rp->code:""); *cp; cp++){
     if( safe_isalpha(*cp) && (cp==rp->code || (!safe_isalnum(cp[-1]) && cp[-1]!='_')) ){
       char saved;
       for(xp= &cp[1]; safe_isalnum(*xp) || *xp=='_'; xp++);
@@ -3672,7 +3672,7 @@ void ReportTable(
   n = acttab_size(pActtab);
   for(i=j=0; i<n; i++){
     int action = acttab_yyaction(pActtab, i);
-    if( action<0 ) action = lemp->nsymbol + lemp->nrule + 2;
+    if( action<0 ) action = lemp->nstate + lemp->nrule + 2;
     if( j==0 ) fprintf(out," /* %5d */ ", i);
     fprintf(out, " %4d,", action);
     if( j==9 || i==n-1 ){
