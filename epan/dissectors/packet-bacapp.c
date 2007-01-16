@@ -386,6 +386,11 @@ BACnetObjectType [] = {
 	{22,"life-safety-zone object"},
 	{23,"accumulator object"},
 	{24,"pulse-converter object"},
+	{25,"event-log object"},
+	{26,"global-group object"},
+	{27,"trend-log-multiple object"},
+	{28,"load-control object"},
+	{29,"structured-view object"},
 	{0, NULL}
 /* Enumerated values 0-127 are reserved for definition by ASHRAE.
    Enumerated values 128-1023 may be used by others subject to
@@ -784,7 +789,7 @@ BACnetPropertyIdentifier [] = {
 	{130,"event-time-stamp"},
 	{131,"log-buffer"},
 	{132,"log-device-object-property"},
-	{133,"log-enable"},
+	{133,"enable"}, /* per ANSI/ASHRAE 135-2004 addendum B */
 	{134,"log-interval"},
 	{135,"maximum-value"},
 	{136,"minimum-value"},
@@ -844,6 +849,27 @@ BACnetPropertyIdentifier [] = {
 	{190,"value-before-change"},
 	{191,"value-set"},
 	{192,"value-change-time"},
+	{193,"align-intervals"},
+	{194,"group-member-names"},
+	{195,"interval-offset"},
+	{196,"last-restart-reason"},
+	{197,"logging-type"},
+	{198,"member-status-flags"},
+	{199,"notification-period"},
+	{200,"previous-notify-record"},
+	{201,"requested-update-interval"},
+	{202,"restart-notification-recipients"},
+	{203,"time-of-device-restart"},
+	{204,"time-synchronization-recipients"},
+	{205,"trigger"},
+	{206,"UTC-time-synchronization-recipients"},
+        /* enumerations 207-211 are used in Addendum d to 
+           ANSI/ASHRAE 135-2004 */
+	{207,"node-subtype"},
+	{208,"node-type"},
+	{209,"structured-object-list"},
+	{210,"subordinate-annotations"},
+	{211,"subordinate-list"},
   	{0, NULL}
 /* Enumerated values 0-511 are reserved for definition by ASHRAE.
    Enumerated values 512-4194303 may be used by others subject to
@@ -1015,7 +1041,7 @@ days [] = {
 	{6,"Saturday" },
 	{7,"Sunday" },
 	{255,"any day of week" },
-	{0,NULL },
+	{0,NULL }
 };
 
 static const value_string
@@ -1027,7 +1053,7 @@ BACnetErrorClass [] = {
 	{4,"security" },
 	{5,"services" },
 	{6,"vt" },
-	{0,NULL },
+	{0,NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values64-65535 may be used by others subject to
    the procedures and constraints described in Clause 23. */
@@ -1042,7 +1068,7 @@ BACnetVTClass [] = {
 	{4,"dec-vt200" },
 	{5,"hp-700-94" },
 	{6,"ibm-3130" },
-	{0,NULL },
+	{0,NULL }
 };
 
 static const value_string
@@ -1059,7 +1085,7 @@ BACnetEventType [] = {
 	{9,"extended" },
 	{10,"buffer-ready" },
 	{11,"unsigned-range" },
-	{0,NULL },
+	{0,NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values 64-65535 may be used by others subject to
    the procedures and constraints described in Clause 23.
@@ -1076,7 +1102,7 @@ BACnetEventState [] = {
 	{3,"high-limit" },
 	{4,"low-limit" },
 	{5,"life-safety-alarm" },
-	{0,NULL },
+	{0,NULL }
 /* Enumerated values 0-63 are reserved for definition by ASHRAE.
    Enumerated values 64-65535 may be used by others subject to
    the procedures and constraints described in Clause 23.  */
@@ -1086,7 +1112,7 @@ static const value_string
 BACnetLogStatus [] = {
 	{0,"log-disabled" },
 	{1,"buffer-purged" },
-	{0,NULL },
+	{0,NULL }
 };
 
 static const value_string
@@ -1095,7 +1121,7 @@ BACnetMaintenance [] = {
 	{1,"periodic-test" },
 	{2,"need-service-operational" },
 	{3,"need-service-inoperative" },
-	{0,NULL },
+	{0,NULL }
 };
 
 static const value_string
@@ -1103,7 +1129,7 @@ BACnetNotifyType [] = {
 	{0,"alarm" },
 	{1,"event" },
 	{2,"ack-notification" },
-	{0,NULL },
+	{0,NULL }
 };
 
 static const value_string
@@ -5685,14 +5711,14 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_tag_initiatingObjectType,
 			{ "ObjectType",           "bacapp.objectType",
 			FT_UINT16, BASE_DEC, VALS(BACnetObjectType), 0x00, "Object Type", HFILL }
-		},
+		}
 	};
 	static gint *ett[] = {
 		&ett_bacapp,
 		&ett_bacapp_control,
 		&ett_bacapp_tag,
 		&ett_bacapp_list,
-		&ett_bacapp_value,
+		&ett_bacapp_value
 	};
 	proto_bacapp = proto_register_protocol("Building Automation and Control Network APDU",
 	    "BACapp", "bacapp");
