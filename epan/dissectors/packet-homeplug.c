@@ -3,7 +3,7 @@
  *
  * Copyright 2006, Sebastien Tandel <sebastien[AT]tandel.be>
  *
- * $Id: packet-sccp.c 20220 2006-12-26 22:27:46Z morriss $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
