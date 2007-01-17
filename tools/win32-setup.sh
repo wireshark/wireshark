@@ -4,7 +4,7 @@
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-01-08/packages"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-01-17/packages"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
@@ -78,7 +78,7 @@ case "$1" in
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
 	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
-	unzip -nq "$DEST_PATH/$PACKAGE" ||
+	unzip -oq "$DEST_PATH/$PACKAGE" ||
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
 	echo "Verifying that the DLLs in $DEST_PATH/$DEST_SUBDIR are executable."
 	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
