@@ -2554,6 +2554,10 @@ Davide Schiera		<davide.schiera [AT] cacetech.com> {
 	WPA and WPA2 decryption
 }
 
+Sebastien Tandel	<sebastien [AT] tandel.be> {
+	Homeplug support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2686,7 +2690,6 @@ Taner Kurtulus		<taner.kurtulus [AT] tubitak.gov.tr>
 Joe Breher		<linux [AT] q-music.com>
 Patrick vd Lageweg	<patrick [AT] bitwizard.nl>
 Thomas Sillaber		<Thomas.Sillaber [AT] gmx.de>
-Sebastien Tandel	<sebastien [AT] tandel.be>
 Sake Blok 		<sake [AT] euronet.nl>
 Mike Davies		<m.davies [AT] btinternet.com>
 

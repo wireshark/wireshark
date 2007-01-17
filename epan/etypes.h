@@ -246,6 +246,10 @@
 #define ETHERTYPE_MS_NLB_HEARTBEAT	0x886f	/* MS Network Load Balancing heartbeat http://www.microsoft.com/technet/treeview/default.asp?url=/TechNet/prodtechnol/windows2000serv/deploy/confeat/nlbovw.asp */
 #endif
 
+#ifndef ETHERTYPE_HOMEPLUG
+#define ETHERTYPE_HOMEPLUG    0x887B  /* IEEE assigned Ethertype */
+#endif
+
 #ifndef ETHERTYPE_CDMA2000_A10_UBS
 #define ETHERTYPE_CDMA2000_A10_UBS	0x8881	/* the byte stream protocol that is used for IP based micro-mobility bearer interfaces (A10) in CDMA2000(R)-based wireless networks */
 #endif

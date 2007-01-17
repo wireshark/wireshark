@@ -353,6 +353,7 @@ DISSECTOR_SRC =	\
 	packet-h450.c	\
 	packet-hci_h4.c	\
 	packet-hclnfsd.c	\
+	packet-homeplug.c \
 	packet-hpext.c	\
 	packet-hpsw.c	\
 	packet-hsrp.c	\
