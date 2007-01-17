@@ -27,7 +27,7 @@
 %token_destructor		{stnode_free($$);}
 
 %type		sentence	{stnode_t*}
-%destructor	sentence	{stnode_free($$);}
+
 
 %type		expr		{stnode_t*}
 %destructor	expr		{stnode_free($$);}
