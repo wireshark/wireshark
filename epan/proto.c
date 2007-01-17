@@ -2974,6 +2974,9 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 	}
 
 	fi = PITEM_FINFO(pi);
+	if (fi==NULL) {
+		return;
+	}
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		va_start(ap, format);
