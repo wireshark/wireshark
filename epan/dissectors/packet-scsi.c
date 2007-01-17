@@ -1814,7 +1814,7 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
                 if(tvb_length_remaining(tvb, offset)<3)
                     return;
                 proto_tree_add_text (scsi_tree, tvb, offset, 3, "No. of Blocks: %u",
-                                     tvb_get_ntohl (tvb, offset));
+                                     tvb_get_ntoh24 (tvb, offset));
                 offset += 3;
 
 		offset++; /* reserved */
