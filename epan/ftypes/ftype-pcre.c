@@ -189,11 +189,14 @@ ftype_register_pcre(void)
 		pcre_repr_len,		/* len_string_repr */
 
 		pcre_fvalue_set,	/* set_value */
-		NULL,			/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,			/* set_value_integer64 */
 		NULL,			/* set_value_floating */
 
 		pcre_fvalue_get,	/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,			/* get_value_integer */
 		NULL,			/* get_value_integer64 */
 		NULL,			/* get_value_floating */
