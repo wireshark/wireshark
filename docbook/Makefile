@@ -271,6 +271,7 @@ clean:
 FORCE:
 
 svn_version_check: FORCE
+	dos2unix ./check_svn_version.sh
 	@ ./check_svn_version.sh
 
 svn_version.xml: svn_version_check
