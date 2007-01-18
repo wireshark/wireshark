@@ -78,7 +78,7 @@ noinst_HEADERS = \
 	isprint.h	\
 	keys.h		\
 	layout_prefs.h	\
-	macro_dlg.h	\
+	macros_dlg.h	\
 	main.h		\
 	menu.h		\
 	mtp3_stat.h	\
