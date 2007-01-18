@@ -120,6 +120,10 @@ Wireshark Info
 	  On some Windows systems Wireshark could take a long time to start up.
 	</para></listitem>
 
+	<listitem><para>
+	  Malformed UDLD packets could cause an exception.
+	</para></listitem>
+
       </itemizedlist>
     </para>
 
@@ -289,6 +293,7 @@ TCP,
 TDS,
 text/media,
 TIPC,
+UDLD,
 UDP Lite,
 UDP,
 UMA,

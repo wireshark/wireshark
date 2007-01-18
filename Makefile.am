@@ -23,6 +23,8 @@
 
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
+INCLUDES= @LUA_INCLUDES@
+
 #
 # This is a hideous hack.
 #
