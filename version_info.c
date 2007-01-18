@@ -70,7 +70,7 @@
 #include <windows.h>
 #endif
 
-#ifdef HAVE_LUA
+#ifdef HAVE_LUA_5_1
 #include <lua.h>
 #endif
 
