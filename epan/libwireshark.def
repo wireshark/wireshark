@@ -113,6 +113,7 @@ dfilter_compile
 dfilter_dump
 dfilter_error_msg               DATA
 dfilter_free
+dfilter_macro_foreach
 DisengageReason_vals            DATA
 DisengageRejectReason_vals      DATA
 dissector_add
