@@ -206,12 +206,12 @@ get_epan_compiled_version_info(GString *str)
 
         /* LUA */
 	g_string_append(str, ", ");
-#ifdef HAVE_LUA
+#ifdef HAVE_LUA_5_1
 	g_string_append(str, "with ");
 	g_string_append(str, LUA_VERSION);
 #else
 	g_string_append(str, "without Lua");
-#endif /* HAVE_LUA */
+#endif /* HAVE_LUA_5_1 */
 
         /* GnuTLS */
 	g_string_append(str, ", ");
