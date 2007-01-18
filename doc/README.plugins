@@ -81,9 +81,8 @@ toplevel configure.in file.
 
 3.1  Changes to plugins/Makefile.am
 
-The plugins directory contains a Makefile.am.
-You need to change the SUBDIRS directive to reflect the addition of 
-your plugin:
+The plugins directory contains a Makefile.am.  You need to change the 
+SUBDIRS directive to reflect the addition of your plugin:
 
 SUBDIRS = \
 	gryphon \
@@ -102,12 +101,12 @@ all: \
 
 then add a rule for your plugin:
 
-xxx::
+xxx:
 	cd xxx
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-and finally add to the clean rule support for cleaning up after your 
+and add to the clean rules support for cleaning up after your 
 plugin:
 
 clean:
@@ -142,6 +141,10 @@ maintainer-clean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 
+Finally add a copy command to install-plugins rule:
+
+        xcopy mgcp\*.dll $(VERSION) /d
+        xcopy xxx\*.dll $(VERSION) /d
 
 3.3 Changes to the top level Makefile.am
 
@@ -195,18 +198,24 @@ If you want to include your plugin in an installer you have to add lines
 in the NSIS installer wireshark.nsi file, and U3 installer makefile.nmake 
 file.
 
-4. Development and plugins
+4. Development and plugins on Unix
 
 Plugins make some aspects of development easier and some harder.
 
+The first thing is that you'll have to run autogen.sh and configure
+once more to setup your build environment.
+
 The good news is that if you are working on a single plugin 
 then you will find recompiling the plugin MUCH faster than 
-recompiling a dissector and then linking it back into wireshark.
+recompiling a dissector and then linking it back into Wireshark.
 
-The bad news is that wireshark will not use the plugin unless the 
-plugin is installed in one of the places it expects to look.
+The bad news is that Wireshark will not use the plugins unless the 
+plugins are installed in one of the places it expects them to find.
 
-One way to deal with this problem is to set up a working root for 
+One way of dealing with this problem is to set an environment variable
+when running Wireshark: WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1.
+
+Another way to deal with this problem is to set up a working root for 
 wireshark, say in $HOME/build/root and build wireshark to install
 there
 
