@@ -133,7 +133,7 @@ mk_uint32_fvalue(guint32 val)
 	fvalue_t *fv;
 
 	fv = fvalue_new(FT_UINT32);
-	fvalue_set_integer(fv, val);
+	fvalue_set_uinteger(fv, val);
 
 	return fv;
 }

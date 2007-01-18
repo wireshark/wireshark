@@ -169,12 +169,14 @@ ftype_register_double(void)
 		float_val_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		NULL,				/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_snteger */
 		NULL,				/* set_value_integer64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		value_get_floating,		/* get_value_floating */
 
@@ -205,12 +207,14 @@ ftype_register_double(void)
 		double_val_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		NULL,				/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		double_fvalue_set_floating,	/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_snteger */
 		NULL,				/* get_value_integer64 */
 		value_get_floating,		/* get_value_floating */
 

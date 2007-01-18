@@ -44,12 +44,14 @@ ftype_register_none(void)
 		NULL,				/* len_string_repr */
 
 		NULL,				/* set_value */
-		NULL,				/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 

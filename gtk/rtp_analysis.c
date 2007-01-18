@@ -3604,7 +3604,7 @@ static gboolean process_node(proto_node *ptree_node, header_field_info *hfinform
 					*p_result = ipv4_get_net_order_addr(ipv4);
 				}
 				else {
-					*p_result = fvalue_get_integer(&finfo->value);
+					*p_result = fvalue_get_uinteger(&finfo->value);
 				}
 				return TRUE;
 			}

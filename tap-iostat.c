@@ -120,7 +120,20 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			for(i=0;i<gp->len;i++){
-				it->counter+=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+				switch(proto_registrar_get_ftype(it->hf_index)){
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+					it->counter+=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+					break;
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+					it->counter+=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+					break;
+				}
 			}
 		}
 		break;
@@ -138,7 +151,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 				case FT_UINT16:
 				case FT_UINT24:
 				case FT_UINT32:
-					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -149,12 +162,12 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if((gint32)val<(gint32)(it->counter)){
 						it->counter=val;
-					}				
+					}
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
@@ -183,7 +196,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 				case FT_UINT16:
 				case FT_UINT24:
 				case FT_UINT32:
-					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -194,7 +207,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if((gint32)val>(gint32)(it->counter)){
@@ -229,11 +242,14 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 				case FT_UINT16:
 				case FT_UINT24:
 				case FT_UINT32:
+					val=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+					it->counter+=val;
+					break;
 				case FT_INT8:
 				case FT_INT16:
 				case FT_INT24:
 				case FT_INT32:
-					val=fvalue_get_integer(&((field_info *)gp->pdata[i])->value);
+					val=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
 					it->counter+=val;
 					break;
 				case FT_RELATIVE_TIME:

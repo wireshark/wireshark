@@ -48,20 +48,34 @@
 static void
 int_fvalue_new(fvalue_t *fv)
 {
-	fv->value.integer = 0;
+	fv->value.uinteger = 0;
 }
 
 static void
-set_integer(fvalue_t *fv, guint32 value)
+set_uinteger(fvalue_t *fv, guint32 value)
 {
-	fv->value.integer = value;
+	fv->value.uinteger = value;
 }
 
-static guint32
-get_integer(fvalue_t *fv)
+static void
+set_sinteger(fvalue_t *fv, gint32 value)
 {
-	return fv->value.integer;
+	fv->value.sinteger = value;
 }
+
+
+static guint32
+get_uinteger(fvalue_t *fv)
+{
+	return fv->value.uinteger;
+}
+
+static gint32
+get_sinteger(fvalue_t *fv)
+{
+	return fv->value.sinteger;
+}
+
 
 static gboolean
 val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
@@ -104,7 +118,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		return FALSE;
 	}
 
-	fv->value.integer = value;
+	fv->value.uinteger = value;
 	return TRUE;
 }
 
@@ -117,7 +131,7 @@ integer_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 integer_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%d", fv->value.integer);
+	sprintf(buf, "%d", fv->value.sinteger);
 }
 
 static int
@@ -129,7 +143,7 @@ uinteger_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%u", fv->value.integer);
+	sprintf(buf, "%u", fv->value.uinteger);
 }
 
 static gboolean
@@ -149,7 +163,7 @@ ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 
 	val = get_ipxnet_addr(s, &known);
 	if (known) {
-		fv->value.integer = val;
+		fv->value.uinteger = val;
 		return TRUE;
 	}
 
@@ -166,73 +180,73 @@ ipxnet_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 ipxnet_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "0x%08x", fv->value.integer);
+	sprintf(buf, "0x%08x", fv->value.uinteger);
 }
 
 static gboolean
 cmp_eq(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer == b->value.integer;
+	return a->value.uinteger == b->value.uinteger;
 }
 
 static gboolean
 cmp_ne(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer != b->value.integer;
+	return a->value.uinteger != b->value.uinteger;
 }
 
 static gboolean
 u_cmp_gt(fvalue_t *a, fvalue_t *b)
 {
-	return (int)a->value.integer > (int)b->value.integer;
+	return a->value.uinteger > b->value.uinteger;
 }
 
 static gboolean
 u_cmp_ge(fvalue_t *a, fvalue_t *b)
 {
-	return (int)a->value.integer >= (int)b->value.integer;
+	return a->value.uinteger >= b->value.uinteger;
 }
 
 static gboolean
 u_cmp_lt(fvalue_t *a, fvalue_t *b)
 {
-	return (int)a->value.integer < (int)b->value.integer;
+	return a->value.uinteger < b->value.uinteger;
 }
 
 static gboolean
 u_cmp_le(fvalue_t *a, fvalue_t *b)
 {
-	return (int)a->value.integer <= (int)b->value.integer;
+	return a->value.uinteger <= b->value.uinteger;
 }
 
 static gboolean
 s_cmp_gt(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer > b->value.integer;
+	return a->value.sinteger > b->value.sinteger;
 }
 
 static gboolean
 s_cmp_ge(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer >= b->value.integer;
+	return a->value.sinteger >= b->value.sinteger;
 }
 
 static gboolean
 s_cmp_lt(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer < b->value.integer;
+	return a->value.sinteger < b->value.sinteger;
 }
 
 static gboolean
 s_cmp_le(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer <= b->value.integer;
+	return a->value.sinteger <= b->value.sinteger;
 }
 
 static gboolean
 cmp_bitwise_and(fvalue_t *a, fvalue_t *b)
 {
-	return ((a->value.integer & b->value.integer) != 0);
+	return ((a->value.uinteger & b->value.uinteger) != 0);
 }
 
 static void
@@ -393,7 +407,7 @@ cmp_bitwise_and64(fvalue_t *a, fvalue_t *b)
 static void
 boolean_fvalue_new(fvalue_t *fv)
 {
-	fv->value.integer = TRUE;
+	fv->value.uinteger = TRUE;
 }
 
 static int
@@ -405,15 +419,15 @@ boolean_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 boolean_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-	sprintf(buf, "%s", fv->value.integer ? "1" : "0");
+	sprintf(buf, "%s", fv->value.uinteger ? "1" : "0");
 }
 
 /* Checks for equality with zero or non-zero */
 static gboolean
 bool_eq(fvalue_t *a, fvalue_t *b)
 {
-	if (a->value.integer) {
-		if (b->value.integer) {
+	if (a->value.uinteger) {
+		if (b->value.uinteger) {
 			return TRUE;
 		}
 		else {
@@ -421,7 +435,7 @@ bool_eq(fvalue_t *a, fvalue_t *b)
 		}
 	}
 	else {
-		if (b->value.integer) {
+		if (b->value.uinteger) {
 			return FALSE;
 		}
 		else {
@@ -456,12 +470,14 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,		/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -491,12 +507,14 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,			/* get_value_integer */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -526,12 +544,14 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_integer */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,			/* get_value_integer */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -561,12 +581,14 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,		/* get_value_integer */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -596,13 +618,15 @@ ftype_register_integers(void)
 		uinteger64_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		NULL,				/* set_value_integer */
-		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_integer64,		/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_integer */
-		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_integer64,		/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -631,12 +655,14 @@ ftype_register_integers(void)
 		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		set_sinteger,		/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -666,12 +692,14 @@ ftype_register_integers(void)
 		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		set_sinteger,		/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		get_sinteger,		/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -701,12 +729,14 @@ ftype_register_integers(void)
 		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		set_sinteger,		/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		get_sinteger,			/* get_value_integer */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -736,12 +766,14 @@ ftype_register_integers(void)
 		integer_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_uinteger */
+		set_sinteger,		/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		get_sinteger,		/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -771,13 +803,15 @@ ftype_register_integers(void)
 		integer64_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		NULL,				/* set_value_integer */
-		set_integer64,			/* set_value_integer64 */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		set_integer64,		/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		NULL,				/* get_value_integer */
-		get_integer64,			/* get_value_integer64 */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		get_integer64,		/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -806,12 +840,14 @@ ftype_register_integers(void)
 		boolean_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,		/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -842,12 +878,14 @@ ftype_register_integers(void)
 		ipxnet_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,		/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -878,12 +916,14 @@ ftype_register_integers(void)
 		uinteger_repr_len,		/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_integer,			/* get_value_integer */
+		get_uinteger,		/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 

@@ -417,11 +417,19 @@ fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 }
 
 void
-fvalue_set_integer(fvalue_t *fv, guint32 value)
+fvalue_set_uinteger(fvalue_t *fv, guint32 value)
 {
-	g_assert(fv->ftype->set_value_integer);
-	fv->ftype->set_value_integer(fv, value);
+	g_assert(fv->ftype->set_value_uinteger);
+	fv->ftype->set_value_uinteger(fv, value);
 }
+
+void
+fvalue_set_sinteger(fvalue_t *fv, gint32 value)
+{
+	g_assert(fv->ftype->set_value_sinteger);
+	fv->ftype->set_value_sinteger(fv, value);
+}
+
 
 void
 fvalue_set_integer64(fvalue_t *fv, guint64 value)
@@ -446,11 +454,19 @@ fvalue_get(fvalue_t *fv)
 }
 
 guint32
-fvalue_get_integer(fvalue_t *fv)
+fvalue_get_uinteger(fvalue_t *fv)
 {
-	g_assert(fv->ftype->get_value_integer);
-	return fv->ftype->get_value_integer(fv);
+	g_assert(fv->ftype->get_value_uinteger);
+	return fv->ftype->get_value_uinteger(fv);
 }
+
+gint32
+fvalue_get_sinteger(fvalue_t *fv)
+{
+	g_assert(fv->ftype->get_value_sinteger);
+	return fv->ftype->get_value_sinteger(fv);
+}
+
 
 guint64
 fvalue_get_integer64(fvalue_t *fv)

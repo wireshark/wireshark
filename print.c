@@ -373,7 +373,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 				fputs("\" value=\"", pdata->fh);
 
 				if (fi->hfinfo->bitmask!=0) {
-					fprintf(pdata->fh, "%X", fvalue_get_integer(&fi->value));
+					fprintf(pdata->fh, "%X", fvalue_get_uinteger(&fi->value));
 					fputs("\" unmaskedvalue=\"", pdata->fh);
 					write_pdml_field_hex_value(pdata, fi);
 				}
@@ -440,7 +440,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
-	num = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	num = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
 	g_ptr_array_free(finfo_array, FALSE);
 
 	/* frame.pkt_len --> geninfo.len */
@@ -448,7 +448,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
-	len = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	len = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
 	g_ptr_array_free(finfo_array, FALSE);
 
 	/* frame.cap_len --> geninfo.caplen */
@@ -456,7 +456,7 @@ print_pdml_geninfo(proto_tree *tree, FILE *fh)
 	if (g_ptr_array_len(finfo_array) < 1) {
 		return;
 	}
-	caplen = fvalue_get_integer(&((field_info*)finfo_array->pdata[0])->value);
+	caplen = fvalue_get_uinteger(&((field_info*)finfo_array->pdata[0])->value);
 	g_ptr_array_free(finfo_array, FALSE);
 
 	/* frame.time --> geninfo.timestamp */

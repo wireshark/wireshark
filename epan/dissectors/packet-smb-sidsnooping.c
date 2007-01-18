@@ -124,7 +124,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		return 0;
 	}
 	fi=gp->pdata[0];
-	info_level=fi->value.value.integer;
+	info_level=fi->value.value.sinteger;
 
 	if(info_level!=1){
 		return 0;
@@ -209,7 +209,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		fi_name=gp_names->pdata[num_rids-1];
 		strncpy(sid_name, sid, len);
 		sid_name[len++]='-';
-		g_snprintf(sid_name+len, 256-len, "%d",fi_rid->value.value.integer);
+		g_snprintf(sid_name+len, 256-len, "%d",fi_rid->value.value.sinteger);
 		add_sid_name_mapping(sid_name, fi_name->value.value.string);
 	}
 	return 1;
@@ -235,7 +235,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 		return 0;
 	}
 	fi=gp->pdata[0];
-	info_level=fi->value.value.integer;
+	info_level=fi->value.value.sinteger;
 
 	switch(info_level){
 	case 3:

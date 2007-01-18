@@ -1663,10 +1663,10 @@ get_finfo_value_integer(field_info *finfo)
 	   since we sometimes fake the entries to speed things up.
 	   this dissector should not call fvalue_ functions directly.
 	*/
-	if(!finfo->value.ftype->get_value_integer){
+	if(!finfo->value.ftype->get_value_uinteger){
 		return 0;
 	}
-	return fvalue_get_integer(&finfo->value);
+	return fvalue_get_uinteger(&finfo->value);
 }
 static guint
 get_item_value(proto_item *item)

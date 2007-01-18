@@ -1450,7 +1450,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 static void
 proto_tree_set_ipxnet(field_info *fi, guint32 value)
 {
-	fvalue_set_integer(&fi->value, value);
+	fvalue_set_uinteger(&fi->value, value);
 }
 
 /* Add a FT_IPv4 to a proto_tree */
@@ -1531,7 +1531,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_ipv4(field_info *fi, guint32 value)
 {
-	fvalue_set_integer(&fi->value, value);
+	fvalue_set_uinteger(&fi->value, value);
 }
 
 /* Add a FT_IPv6 to a proto_tree */
@@ -2403,7 +2403,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 			integer >>= hfinfo->bitshift;
 		}
 	}
-	fvalue_set_integer(&fi->value, integer);
+	fvalue_set_uinteger(&fi->value, integer);
 }
 
 /* Add FT_UINT64 to a proto_tree */
@@ -2567,7 +2567,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 			integer >>= hfinfo->bitshift;
 		}
 	}
-	fvalue_set_integer(&fi->value, integer);
+	fvalue_set_sinteger(&fi->value, integer);
 }
 
 /* Add FT_INT64 to a proto_tree */
@@ -3801,7 +3801,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IPXNET:
-			integer = fvalue_get_integer(&fi->value);
+			integer = fvalue_get_uinteger(&fi->value);
 			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s (0x%08X)", hfinfo->name,
 				get_ipxnet_name(integer), integer);
@@ -3907,7 +3907,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 		tfstring = (const struct true_false_string*) hfinfo->strings;
 	}
 
-	value = fvalue_get_integer(&fi->value);
+	value = fvalue_get_uinteger(&fi->value);
 	if (hfinfo->bitmask) {
 		/* Figure out the bit width */
 		bitwidth = hfinfo_bitwidth(hfinfo);
@@ -3952,7 +3952,7 @@ fill_label_enumerated_bitfield(field_info *fi, gchar *label_str)
 	format = hfinfo_uint_vals_format(hfinfo);
 
 	/* Un-shift bits */
-	unshifted_value = fvalue_get_integer(&fi->value);
+	unshifted_value = fvalue_get_uinteger(&fi->value);
 	value = unshifted_value;
 	if (hfinfo->bitshift > 0) {
 		unshifted_value <<= hfinfo->bitshift;
@@ -3989,7 +3989,7 @@ fill_label_numeric_bitfield(field_info *fi, gchar *label_str)
 	format = hfinfo_uint_format(hfinfo);
 
 	/* Un-shift bits */
-	unshifted_value = fvalue_get_integer(&fi->value);
+	unshifted_value = fvalue_get_uinteger(&fi->value);
 	value = unshifted_value;
 	if (hfinfo->bitshift > 0) {
 		unshifted_value <<= hfinfo->bitshift;
@@ -4023,7 +4023,7 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 	/* Pick the proper format string */
 	format = hfinfo_uint_vals_format(hfinfo);
 
-	value = fvalue_get_integer(&fi->value);
+	value = fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
 	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -4043,7 +4043,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 
 	/* Pick the proper format string */
 	format = hfinfo_uint_format(hfinfo);
-	value = fvalue_get_integer(&fi->value);
+	value = fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
@@ -4091,7 +4091,7 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 
 	/* Pick the proper format string */
 	format = hfinfo_int_vals_format(hfinfo);
-	value = fvalue_get_integer(&fi->value);
+	value = fvalue_get_sinteger(&fi->value);
 
 	/* Fill in the textual info */
 	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -4111,7 +4111,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 
 	/* Pick the proper format string */
 	format = hfinfo_int_format(hfinfo);
-	value = fvalue_get_integer(&fi->value);
+	value = fvalue_get_sinteger(&fi->value);
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
@@ -5074,6 +5074,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	int			dfilter_len, i;
 	gint			start, length, length_remaining;
 	guint8			c;
+	gchar			is_signed_num = FALSE;
 
 	hfinfo = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
@@ -5101,14 +5102,15 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	 */
 	switch(hfinfo->type) {
 
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+			is_signed_num = TRUE;
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
 		case FT_FRAMENUM:
 			/*
 			 * 4 bytes for " == ".
@@ -5132,7 +5134,8 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				format = hfinfo_numeric_format(hfinfo);
 				g_snprintf(*filter, dfilter_len, format,
 				    hfinfo->abbrev,
-				    fvalue_get_integer(&finfo->value));
+				    is_signed_num ? fvalue_get_sinteger(&finfo->value)
+				                  : fvalue_get_uinteger(&finfo->value));
 			}
 			break;
 

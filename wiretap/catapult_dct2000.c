@@ -940,6 +940,13 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
             atm_header_present = TRUE;
         }
     }
+    else if (strcmp(protocol_name, "fpiur_r5") == 0)
+    {
+        /* FP (IuR) over AAL2 */
+        *encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
+        atm_header_present = TRUE;
+    }
+
 
     else
     if (strcmp(protocol_name, "ppp") == 0)

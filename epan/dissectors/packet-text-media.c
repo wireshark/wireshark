@@ -157,4 +157,5 @@ proto_reg_handoff_text_lines(void)
 
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
 	dissector_add_string("media_type", "application/vnd.poc.refer-to", text_lines_handle);
+	dissector_add_string("media_type", "application/vnd.drm.message", text_lines_handle);
 }

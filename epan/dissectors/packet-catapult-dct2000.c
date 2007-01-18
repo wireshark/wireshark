@@ -400,7 +400,8 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0))
+        (strcmp(protocol_name, "fp_r6") == 0) ||
+        (strcmp(protocol_name, "fpiur_r5") == 0))
     {
         return find_dissector("fp");
     }
@@ -485,8 +486,9 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     }
     memset(p_fp_info, 0, sizeof(struct _fp_info));
 
-    /* Read values from array into their places */
-    if (outhdr_values_found < 5)
+    /* Check that the number of outhdr values looks sensible */
+    if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
+        (outhdr_values_found < 5))
     {
         return;
     }
@@ -508,6 +510,10 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     {
         p_fp_info->release = 6;
     }
+    else if (strcmp(protocol_name, "fpiur_r5") == 0)
+    {
+        p_fp_info->release = 5;
+    }
     else
     {
         return;
@@ -524,6 +530,14 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
 
     p_fp_info->is_uplink = (( received  && (p_fp_info->node_type == 2)) ||
                             (!received  && (p_fp_info->node_type == 1)));
+
+    /* IUR only uses the above... */
+    if (strcmp(protocol_name, "fpiur_r5") == 0)
+    {
+        /* Store info in packet */
+        p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
+        return;
+    }
 
     /* DCH CRC present */
     p_fp_info->dch_crc_present = outhdr_values[i++];
@@ -702,7 +716,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0))
+        (strcmp(protocol_name, "fp_r6") == 0) ||
+        (strcmp(protocol_name, "fpiur_r5") == 0))
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));
         attach_fp_info(pinfo, direction, protocol_name,

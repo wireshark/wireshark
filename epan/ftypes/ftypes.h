@@ -149,7 +149,8 @@ typedef struct _fvalue_t {
 	union {
 		/* Put a few basic types in here */
 		gpointer	pointer;
-		guint32		integer;
+		guint32		uinteger;
+		gint32		sinteger;
 		guint64		integer64;
 		gdouble		floating;
 		gchar		*string;
@@ -181,12 +182,14 @@ typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*);
 typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
 
 typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
-typedef void (*FvalueSetIntegerFunc)(fvalue_t*, guint32);
+typedef void (*FvalueSetUnsignedIntegerFunc)(fvalue_t*, guint32);
+typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, gint32);
 typedef void (*FvalueSetInteger64Func)(fvalue_t*, guint64);
 typedef void (*FvalueSetFloatingFunc)(fvalue_t*, gdouble);
 
 typedef gpointer (*FvalueGetFunc)(fvalue_t*);
-typedef guint32 (*FvalueGetIntegerFunc)(fvalue_t*);
+typedef guint32 (*FvalueGetUnsignedIntegerFunc)(fvalue_t*);
+typedef gint32  (*FvalueGetSignedIntegerFunc)(fvalue_t*);
 typedef guint64 (*FvalueGetInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 
@@ -209,13 +212,15 @@ struct _ftype_t {
 
 	/* could be union */
 	FvalueSetFunc		set_value;
-	FvalueSetIntegerFunc	set_value_integer;
+	FvalueSetUnsignedIntegerFunc	set_value_uinteger;
+	FvalueSetSignedIntegerFunc		set_value_sinteger;
 	FvalueSetInteger64Func	set_value_integer64;
 	FvalueSetFloatingFunc	set_value_floating;
 
 	/* could be union */
 	FvalueGetFunc		get_value;
-	FvalueGetIntegerFunc	get_value_integer;
+	FvalueGetUnsignedIntegerFunc	get_value_uinteger;
+	FvalueGetSignedIntegerFunc		get_value_sinteger;
 	FvalueGetInteger64Func	get_value_integer64;
 	FvalueGetFloatingFunc	get_value_floating;
 
@@ -299,7 +304,10 @@ void
 fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied);
 
 void
-fvalue_set_integer(fvalue_t *fv, guint32 value);
+fvalue_set_uinteger(fvalue_t *fv, guint32 value);
+
+void
+fvalue_set_sinteger(fvalue_t *fv, gint32 value);
 
 void
 fvalue_set_integer64(fvalue_t *fv, guint64 value);
@@ -311,7 +319,10 @@ gpointer
 fvalue_get(fvalue_t *fv);
 
 extern guint32
-fvalue_get_integer(fvalue_t *fv);
+fvalue_get_uinteger(fvalue_t *fv);
+
+extern gint32
+fvalue_get_sinteger(fvalue_t *fv);
 
 guint64
 fvalue_get_integer64(fvalue_t *fv);

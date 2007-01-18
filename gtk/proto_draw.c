@@ -1882,7 +1882,7 @@ tree_view_follow_link(field_info   *fi)
     gchar *url;
 
     if(fi->hfinfo->type == FT_FRAMENUM) {
-        cf_goto_frame(&cfile, fi->value.value.integer);
+        cf_goto_frame(&cfile, fi->value.value.uinteger);
     }
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
       url = g_strndup(tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);

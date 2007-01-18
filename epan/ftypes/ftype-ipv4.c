@@ -33,7 +33,7 @@
 
 
 static void
-set_integer(fvalue_t *fv, guint32 value)
+set_uinteger(fvalue_t *fv, guint32 value)
 {
 	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), value);
 	ipv4_addr_set_netmask_bits(&(fv->value.ipv4), 32);
@@ -99,7 +99,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		if (!nmask_fvalue) {
 			return FALSE;
 		}
-		nmask_bits = fvalue_get_integer(nmask_fvalue);
+		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
 		FVALUE_FREE(nmask_fvalue);
 
 		if (nmask_bits > 32) {
@@ -206,12 +206,14 @@ ftype_register_ipv4(void)
 		val_repr_len,			/* len_string_repr */
 
 		NULL,				/* set_value */
-		set_integer,			/* set_value_integer */
+		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
-		NULL,				/* get_value_integer */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 

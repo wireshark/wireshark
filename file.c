@@ -3160,7 +3160,7 @@ cf_goto_framenum(capture_file *cf)
     hfinfo = cf->finfo_selected->hfinfo;
     g_assert(hfinfo);
     if (hfinfo->type == FT_FRAMENUM) {
-      framenum = fvalue_get_integer(&cf->finfo_selected->value);
+      framenum = fvalue_get_uinteger(&cf->finfo_selected->value);
       if (framenum != 0)
         return cf_goto_frame(cf, framenum);
       }
