@@ -260,6 +260,14 @@ proto_register_udld(void)
 	{ "Flags",		"udld.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
 	  "", HFILL }},
 
+	{ &hf_udld_flags_rt,
+	{ "Recommended timeout",		"udld.flags.rt", FT_UINT8, BASE_HEX, NULL, 0x80,
+	  "", HFILL }},
+
+	{ &hf_udld_flags_rsy,
+	{ "ReSynch",		"udld.flags.rsy", FT_UINT8, BASE_HEX, NULL, 0x40,
+	  "", HFILL }},
+
 	{ &hf_udld_checksum,
 	{ "Checksum",		"udld.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  "", HFILL }},
