@@ -197,7 +197,6 @@ ftype_register_pcre(void)
 		pcre_fvalue_get,	/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		NULL,			/* get_value_integer */
 		NULL,			/* get_value_integer64 */
 		NULL,			/* get_value_floating */
 
