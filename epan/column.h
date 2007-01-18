@@ -25,6 +25,10 @@
 #ifndef __COLUMN_H__
 #define __COLUMN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 typedef struct _fmt_data {
   gchar *title;
   gchar *fmt;
@@ -39,5 +43,9 @@ gchar               *get_column_title(gint);
 const gchar         *get_column_width_string(gint, gint);
 const char          *get_column_longest_string(gint);
 gint                 get_column_char_width(gint format);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* column.h */

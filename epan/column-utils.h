@@ -31,6 +31,10 @@
 #include "column_info.h"
 #include "packet_info.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** Maximum length of columns (except COL_INFO).
  * Internal, don't use this in dissectors!
  */
@@ -205,5 +209,8 @@ extern void	col_append_sep_fstr(column_info *cinfo, gint col, const gchar *sep,
 		const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 4, 5);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __COLUMN_UTILS_H__ */

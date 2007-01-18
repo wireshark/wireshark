@@ -24,6 +24,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __CRC32_H_
+#define __CRC32_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 extern const guint32 crc32_ccitt_table[256];
 
 /** Compute CRC32 CCITT checksum of a buffer of data.
@@ -80,3 +87,8 @@ extern guint32 crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
  @return The IEEE 802.x CRC32 checksum. */
 extern guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* crc32.h */

@@ -25,6 +25,10 @@
 #ifndef __AFN_H__
 #define __AFN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Address family numbers, from
  *
@@ -59,5 +63,9 @@
 #define AFNUM_L2VPN     25
 #define AFNUM_L2VPN_OLD 196
 extern const value_string afn_vals[];
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __AFN_H__ */

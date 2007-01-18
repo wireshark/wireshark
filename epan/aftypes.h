@@ -24,6 +24,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __AFTYPES_H__
+#define __AFTYPES_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* BSD AF_ values. */
 #define BSD_AF_INET		2
 #define BSD_AF_ISO		7
@@ -32,3 +39,9 @@
 #define BSD_AF_INET6_BSD	24	/* OpenBSD (and probably NetBSD), BSD/OS */
 #define BSD_AF_INET6_FREEBSD	28
 #define BSD_AF_INET6_DARWIN	30
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* aftypes.h */

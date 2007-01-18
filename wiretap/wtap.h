@@ -35,6 +35,10 @@
 #include <stdio.h>
 #include <time.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Encapsulation types. Choose names that truly reflect
  * what is contained in the packet trace file.
  *
@@ -681,5 +685,8 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 #define	WTAP_ERR_ZLIB_MAX			-100
 #define	WTAP_ERR_ZLIB_MIN			-300
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __WTAP_H__ */

@@ -26,6 +26,10 @@
 #ifndef __BRIDGED_PID_H__
 #define __BRIDGED_PID_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define BPID_ETH_WITH_FCS	0x0001	/* 802.3/Ethernet with preserved FCS */
 #define BPID_ETH_WITHOUT_FCS	0x0007	/* 802.3/Ethernet without preserved FCS */
 
@@ -47,4 +51,8 @@
 
 #define BPID_SR_BPDU		0x000F	/* Source Routing BPDUs */
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* bridged_pid.h */

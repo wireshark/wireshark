@@ -4,9 +4,8 @@
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +22,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __BITSWAP_H__
+#define __BITSWAP_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 extern guint8 swaptab[256];
 
 #define BIT_SWAP(b)	(swaptab[b])
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* bitswap.h */

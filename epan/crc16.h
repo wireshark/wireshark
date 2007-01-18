@@ -26,6 +26,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+#ifndef __CRC16_H_
+#define __CRC16_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Calculate the CCITT/ITU/CRC-16 16-bit CRC
 
    (parameters for this CRC are:
@@ -95,4 +102,8 @@ extern guint16 crc16_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint16 seed);
 extern guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
                                            guint len, guint16 seed);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* crc16.h */

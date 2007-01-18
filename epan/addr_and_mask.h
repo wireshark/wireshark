@@ -26,6 +26,10 @@
 #ifndef __ADDR_AND_MASK_H__
 #define __ADDR_AND_MASK_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * These routines return PREFIX_LEN_OK on success, PREFIX_LEN_TOO_LONG if
  * the prefix length is too long, and PREFIX_LEN_ZERO if the prefix length
@@ -41,5 +45,9 @@ extern int ipv4_addr_and_mask(tvbuff_t *tvb, int offset, guint8 *addr,
 
 extern int ipv6_addr_and_mask(tvbuff_t *tvb, int offset,
     struct e_in6_addr *addr, guint32 prefix_len);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __ADDR_AND_MASK_H__  */

@@ -36,6 +36,10 @@
 
 #include <epan/address.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif
@@ -186,5 +190,9 @@ gboolean get_host_ipaddr6(const char *host, struct e_in6_addr *addrp);
  * that we don't know)
  */
 const char* host_ip_af(const char *host);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __RESOLV_H__ */

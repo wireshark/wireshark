@@ -25,6 +25,10 @@
 #ifndef __CONVERSATION_H__
 #define __CONVERSATION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Flags to pass to "conversation_new()" to indicate that the address 2
  * and/or port 2 values for the conversation should be wildcards.
@@ -98,5 +102,9 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 
 extern void conversation_set_port2(conversation_t *conv, guint32 port);
 extern void conversation_set_addr2(conversation_t *conv, address *addr);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* conversation.h */

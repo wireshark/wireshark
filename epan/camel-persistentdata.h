@@ -23,13 +23,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __camelsrt_HASH__
-#define __camelsrt_HASH__
+#ifndef __CAMEL_PERSISTENTDATA_H__
+#define __CAMEL_PERSISTENTDATA_H__
 
-#include "epan/packet.h"
-#include "epan/conversation.h"
-#include "epan/dissectors/packet-camel.h"
-#include "epan/tcap-persistentdata.h"
+#include <epan/packet.h>
+#include <epan/conversation.h>
+#include <epan/dissectors/packet-camel.h>
+#include <epan/tcap-persistentdata.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define NB_CAMELSRT_CATEGORY 9+1 /* Number of type of message */
 /* for example TC_BEGIN with InitalDP, and TC_CONT with RequestReportBCSMEvent
@@ -114,4 +118,8 @@ void camelsrt_call_matching(tvbuff_t *tvb,
 
 WS_VAR_IMPORT gboolean gcamel_StatSRT;
 
-#endif /* __camelsrt_HASH__*/
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* camel-persistentdata.h */

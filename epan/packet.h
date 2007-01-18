@@ -46,6 +46,10 @@
 #include "epan.h"
 #include "tfs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
 
@@ -401,5 +405,9 @@ extern void dissector_dump_decodes(void);
  */
 extern void register_postdissector(dissector_handle_t);
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* packet.h */

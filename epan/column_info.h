@@ -27,6 +27,10 @@
 
 #include <glib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define COL_MAX_LEN 256
 #define COL_MAX_INFO_LEN 4096
 
@@ -102,13 +106,14 @@ enum {
   COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
   COL_DSCP_VALUE,     /* IP DSCP Value */
   COL_COS_VALUE,      /* L2 COS Value */
-  COL_TEI,            /* q.921 TEI */
-  COL_FR_DLCI,		  /* Frame Relay DLCI */
-  COL_BSSGP_TLLI,	  /* GPRS BSSGP IE TLLI */
+  COL_TEI,            /* Q.921 TEI */
+  COL_FR_DLCI,	      /* Frame Relay DLCI */
+  COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
   NUM_COL_FMTS        /* Should always be last */
 };
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif /* __COLUMN_INFO_H__ */
-
-
-

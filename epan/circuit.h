@@ -27,6 +27,10 @@
 
 #include "packet.h"		/* for circuit dissector type */
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Data structure representing a circuit.
  */
@@ -69,5 +73,8 @@ extern gboolean
 try_circuit_dissector(circuit_type ctype, guint32 circuit_id, guint32 frame,
    tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree);
 
-#endif /* circuit.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* circuit.h */

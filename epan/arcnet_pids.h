@@ -23,6 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef __ARCNET_PIDS_H__
+#define __ARCNET_PIDS_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* RFC 1051 */
 #define ARCNET_PROTO_IP_1051	240
 #define ARCNET_PROTO_ARP_1051	241
@@ -55,3 +62,9 @@
 #define ARCNET_PROTO_DIAGNOSE	128	/* as per ANSI/ATA 878.1 */
 
 #define ARCNET_PROTO_BACNET	205
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* arcnet_pids.h */

@@ -25,6 +25,10 @@
 #ifndef __ARPTYPES_H__
 #define __ARPTYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
 	http://www.iana.org/assignments/arp-parameters
@@ -60,5 +64,9 @@
 #define ARPHRD_MAPOS	25		/* MAPOS			*/
 #define ARPHRD_TWINAX	26		/* Twinaxial			*/
 #define ARPHRD_EUI_64	27		/* EUI-64			*/
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* arptypes.h */
