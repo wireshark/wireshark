@@ -21,7 +21,6 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 OBJECTS = \
 	dfilter.obj		\
 	dfilter-macro.obj \
-	dfilter_macro_expand.obj \
 	dfilter_macro_load.obj \
 	dfunctions.obj	\
 	dfvm.obj		\
@@ -66,9 +65,6 @@ distclean: clean
 
 maintainer-clean: distclean
 
-
-dfilter_macro_expand.c : dfilter_macro_expand.l
-	$(LEX) -Pdf_ -odfilter_macro_expand.c $(srcdir)/dfilter_macro_expand.l
 
 dfilter_macro_load.c : dfilter_macro_load.l
 	$(LEX) -Pdf_ -odfilter_macro_load.c $(srcdir)/dfilter_macro_load.l
