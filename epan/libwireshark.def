@@ -309,7 +309,8 @@ fvalue_t_free_list              DATA
 fvalue_from_unparsed
 fvalue_get
 fvalue_get_floating
-fvalue_get_integer
+fvalue_get_uinteger
+fvalue_get_sinteger
 fvalue_get_integer64
 fvalue_to_string_repr
 funnel_get_funnel_ops
