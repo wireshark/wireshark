@@ -3127,11 +3127,11 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
   /* update seq numbers is available */
   if (client_seq != (guint32)-1) {
     ssl->client.seq = client_seq;
-    ssl_debug_printf("ssl_set_master_secret client.seq updated to %lu\n", ssl->client.seq);
+    ssl_debug_printf("ssl_set_master_secret client.seq updated to %u\n", ssl->client.seq);
   }
   if (server_seq != (guint32)-1) {
     ssl->server.seq = server_seq;
-    ssl_debug_printf("ssl_set_master_secret server.seq updated to %lu\n", ssl->server.seq);
+    ssl_debug_printf("ssl_set_master_secret server.seq updated to %u\n", ssl->server.seq);
   }
 
   /* update IV from last data */
