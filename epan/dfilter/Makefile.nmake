@@ -67,7 +67,7 @@ maintainer-clean: distclean
 
 
 dfilter_macro_load.c : dfilter_macro_load.l
-	$(LEX) -Pdf_ -odfilter_macro_load.c $(srcdir)/dfilter_macro_load.l
+	$(LEX) -Pdf_ -odfilter_macro_load.c dfilter_macro_load.l
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c scanner.l
