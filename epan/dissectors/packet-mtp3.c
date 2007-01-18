@@ -11,7 +11,7 @@
  *   management messages) is not done.
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
- * Updated for ANSI Chinese ITU, and Japan support by
+ * Updated for ANSI, Chinese ITU, and Japan support by
  *  Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
  * $Id$
@@ -59,6 +59,7 @@ static module_t *mtp3_module;
 static int hf_mtp3_service_indicator = -1;
 static int hf_mtp3_network_indicator = -1;
 static int hf_mtp3_itu_spare = -1;
+static int hf_mtp3_itu_priority = -1;
 static int hf_mtp3_ansi_priority = -1;
 static int hf_mtp3_itu_pc = -1;
 static int hf_mtp3_24bit_pc = -1;
@@ -117,6 +118,7 @@ gint mtp3_standard = ITU_STANDARD;
 
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
+static gboolean mtp3_show_itu_priority = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 
@@ -456,7 +458,15 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
     break;
   case ITU_STANDARD:
   case CHINESE_ITU_STANDARD:
+    if (mtp3_show_itu_priority)
+      proto_tree_add_uint(sio_tree, hf_mtp3_itu_priority, tvb, SIO_OFFSET, SIO_LENGTH, sio);
+    else
+      proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET, SIO_LENGTH, sio);
+    break;
   case JAPAN_STANDARD:
+    /*  The Japan variant has priority but it's on the LI which belongs to
+     *  layer 2.  Not sure what we can do about that...
+     */
     proto_tree_add_uint(sio_tree, hf_mtp3_itu_spare, tvb, SIO_OFFSET, SIO_LENGTH, sio);
     break;
   }
@@ -686,7 +696,8 @@ proto_register_mtp3(void)
     { &hf_mtp3_service_indicator,     { "Service indicator",        "mtp3.service_indicator", FT_UINT8,  BASE_HEX,  VALS(mtp3_service_indicator_code_vals), SERVICE_INDICATOR_MASK,     "", HFILL }},
     { &hf_mtp3_network_indicator,     { "Network indicator",        "mtp3.network_indicator", FT_UINT8,  BASE_HEX,  VALS(network_indicator_vals),           NETWORK_INDICATOR_MASK,     "", HFILL }},
     { &hf_mtp3_itu_spare,             { "Spare",                    "mtp3.spare",             FT_UINT8,  BASE_HEX,  NULL,                                   SPARE_MASK,                 "", HFILL }},
-    { &hf_mtp3_ansi_priority,         { "Priority",                 "mtp3.priority",          FT_UINT8,  BASE_HEX,  NULL,                                   ANSI_PRIORITY_MASK,         "", HFILL }},
+    { &hf_mtp3_itu_priority,          { "ITU priority",             "mtp3.priority",          FT_UINT8,  BASE_DEC,  NULL,                                   SPARE_MASK,                 "", HFILL }},
+    { &hf_mtp3_ansi_priority,         { "ANSI Priority",            "mtp3.priority",          FT_UINT8,  BASE_DEC,  NULL,                                   ANSI_PRIORITY_MASK,         "", HFILL }},
     { &hf_mtp3_itu_opc,               { "OPC",                      "mtp3.opc",               FT_UINT32, BASE_DEC,  NULL,                                   ITU_OPC_MASK,               "", HFILL }},
     { &hf_mtp3_itu_pc,                { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   0x0,                        "", HFILL }},
     { &hf_mtp3_24bit_pc,              { "PC",                       "mtp3.pc",                FT_UINT32, BASE_DEC,  NULL,                                   ANSI_PC_MASK,               "", HFILL }},
@@ -798,6 +809,12 @@ proto_register_mtp3(void)
   prefs_register_enum_preference(mtp3_module, "addr_format", "Address Format",
                                  "Format for point code in the address columns",
                                  &mtp3_addr_fmt, mtp3_addr_fmt_str_e, FALSE);
+
+  prefs_register_bool_preference(mtp3_module, "itu_priority",
+                                 "Show MSU priority (national option, ITU and China ITU only)",
+                                 "Decode the spare bits of the SIO as the MSU priority (a national option in ITU)",
+                                 &mtp3_show_itu_priority);
+
 }
 
 void
