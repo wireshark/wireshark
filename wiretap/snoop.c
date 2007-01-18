@@ -95,6 +95,8 @@ static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
+static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -226,6 +228,10 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_ENCAP_ETHERNET,	/* Gigabit Ethernet */
 		WTAP_ENCAP_TOKEN_RING,	/* "IEEE 802.5 Shomiti" */
 		WTAP_ENCAP_TOKEN_RING,	/* "4MB IEEE 802.5 Shomiti" */
+		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_UNKNOWN,	/* Other */
+		WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 	};
 	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
 	int file_encap;
@@ -402,6 +408,18 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
+typedef struct {
+	guint8 pad[4];
+	guint8 undecrypt[2];
+	guint8 rate;
+	guint8 preamble;
+	guint8 code;
+	guint8 signal;
+	guint8 qual;
+	guint8 channel;
+} shomiti_wireless_header;
+
+
 /* Read the next packet */
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
@@ -494,6 +512,30 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		else
 			wth->pseudo_header.eth.fcs_len = 0;
 		break;
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+		if (packet_size < sizeof (shomiti_wireless_header)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("snoop: Shomiti wireless file has a %u-byte packet, too small to have even a wireless pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!snoop_read_shomiti_wireless_pseudoheader(wth->fh,
+		    &wth->pseudo_header, err))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		rec_size -= sizeof (shomiti_wireless_header);
+		orig_size -= sizeof (shomiti_wireless_header);
+		packet_size -= sizeof (shomiti_wireless_header);
+		wth->data_offset += sizeof (shomiti_wireless_header);
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -581,6 +623,14 @@ snoop_seek_read(wtap *wth, gint64 seek_off,
 			pseudo_header->eth.fcs_len = 4;
 		else
 			pseudo_header->eth.fcs_len = 0;
+		break;
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+		if (!snoop_read_shomiti_wireless_pseudoheader(wth->random_fh,
+		    pseudo_header, err)) {
+			/* Read error */
+			return FALSE;
+		}
 		break;
 	}
 
@@ -689,6 +739,30 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->atm.aal5t_u2u = 0;
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
+
+	return TRUE;
+}
+
+static gboolean
+snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	shomiti_wireless_header whdr;
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&whdr, 1, sizeof (shomiti_wireless_header), fh);
+	if (bytes_read != sizeof (shomiti_wireless_header)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	pseudo_header->ieee_802_11.fcs_len = 4;
+	pseudo_header->ieee_802_11.channel = whdr.channel;
+	pseudo_header->ieee_802_11.data_rate = whdr.rate;
+	pseudo_header->ieee_802_11.signal_level = whdr.signal;
 
 	return TRUE;
 }
