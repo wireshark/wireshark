@@ -82,6 +82,7 @@
 #include "sctp_stat.h"
 #include "firewall_dlg.h"
 #include "u3.h"
+#include "macros_dlg.h"
 
 GtkWidget *popup_menu_object;
 
@@ -523,6 +524,11 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+	
+    ITEM_FACTORY_ENTRY("/View/Display Filter _Macros...", NULL, macros_dialog_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+	
+	
     ITEM_FACTORY_ENTRY("/View/Show Packet in New _Window", NULL,
                        new_window_cb, 0, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Reload", "<control>R", file_reload_cmd_cb,

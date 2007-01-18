@@ -34,6 +34,8 @@ DISTCLEANFILES = \
 	grammar.h
 
 MAINTAINERCLEANFILES = \
+	dfilter-macro.c \
+	dfilter_macro_load.c \
 	Makefile.in	\
 	grammar.c	\
 	grammar.h	\
@@ -46,6 +48,9 @@ libdfilter_la_SOURCES = \
 	dfilter.c		\
 	dfilter.h		\
 	dfilter-int.h		\
+	dfilter-macro.h \
+	dfilter-macro.c \
+	dfilter_macro_load.c \
 	dfunctions.c	\
 	dfunctions.h	\
 	dfvm.c			\
@@ -78,6 +83,9 @@ EXTRA_DIST = \
 	scanner.l		\
 	Makefile.nmake		
 
+dfilter_macro_load.c : dfilter_macro_load.l
+	$(LEX) -Pdf_ -odfilter_macro_load.c $(srcdir)/dfilter_macro_load.l
+
 scanner.c : scanner.l
 	@if [ ! -x "$(LEX)" ]; then \
 		echo "Neither lex nor flex was found"; \
@@ -93,4 +101,3 @@ grammar.h : grammar.c
 grammar.c : grammar.lemon $(LEMON)/lemon$(EXEEXT)
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
-

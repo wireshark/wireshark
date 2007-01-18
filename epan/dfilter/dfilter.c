@@ -34,6 +34,8 @@
 #include "dfvm.h"
 #include <epan/epan_dissect.h>
 #include "dfilter.h"
+#include "dfilter-macro.h"
+#include <epan/report_err.h>
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 
@@ -42,7 +44,7 @@ static gchar dfilter_error_msg_buf[1024];
 gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
 /* From scanner.c */
-void    df_scanner_text(const char *text);
+void df_scanner_text(const char *text);
 void    df_scanner_cleanup(void);
 int     df_lex(void);
 
@@ -71,6 +73,8 @@ dfilter_fail(const char *format, ...)
 void
 dfilter_init(void)
 {
+	gchar* err;
+
 	if (ParserObj) {
 		g_message("I expected ParserObj to be NULL\n");
 		/* Free the Lemon Parser object */
@@ -86,9 +90,15 @@ dfilter_init(void)
 	/* Trace parser */
 	DfilterTrace(stdout, "lemon> ");
 #endif
-
+	
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
+	
+	if ( ! dfilter_macro_load(&err) )  {
+		if (err) {
+			report_failure("%s",err);
+		}			
+	}
 }
 
 /* Clean-up the dfilter module */
@@ -182,8 +192,7 @@ dfwork_free(dfwork_t *dfw)
 	if (dfw->insns) {
 		free_insns(dfw->insns);
 	}
-
-
+	
 	g_free(dfw);
 }
 
@@ -195,9 +204,13 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
 	gboolean failure = FALSE;
-
+		
 	dfilter_error_msg = NULL;
 
+	if ( !( text = dfilter_macro_apply(text, 0, &dfilter_error_msg) ) ) {
+		return FALSE;
+	}
+	
 	dfw = dfwork_new();
 
 	df_scanner_text(text);
