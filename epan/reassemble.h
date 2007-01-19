@@ -138,9 +138,13 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id
  * head of the fragment list.
  *
  * If this is the first fragment we've seen, and "more_frags" is false,
- * "fragment_add_seq_802_11()" does nothing to the fragment data list,
- * and returns a pointer to the head of that (empty) list.  The other
- * routines return NULL.
+ * the fragment is added to the list.  "fragment_add_seq_check()" will
+ * return NULL (waiting for the earlier sequence numbers) while
+ * "fragment_add_seq_802_11()" (a special hack for the 802.11 dissector) and
+ * "fragment_add_seq_next()" will return a pointer to the (one element) list.
+ * In this latter case reassembly wasn't done (since there was only one
+ * fragment in the packet); dissectors can check the 'next' pointer on the
+ * returned list to see if this case was hit or not.
  *
  * Otherwise, they return NULL.
  *

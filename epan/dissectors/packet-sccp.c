@@ -1938,14 +1938,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
 
     /* Reasemble */
-    if (!sccp_xudt_desegment){
+    if (!sccp_xudt_desegment) {
 	proto_tree_add_text(sccp_tree, tvb, variable_pointer1,
 			    tvb_get_guint8(tvb, variable_pointer1)+1,
 			    "Segmented Data");
 	dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 					PARAMETER_DATA, variable_pointer1);
 
-    }else{
+    } else {
 	save_fragmented = pinfo->fragmented;
 	pinfo->fragmented = TRUE;
 	frag_msg = fragment_add_seq_next(tvb, variable_pointer1 + 1, pinfo,
@@ -1960,13 +1960,13 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 					   &sccp_xudt_msg_frag_items, NULL,
 					   tree);
 
-	if (frag_msg) { /* Reassembled */
+	if (frag_msg && frag_msg->next) { /* Reassembled */
 	    if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_str(pinfo->cinfo, COL_INFO,
-			       " (Message Reassembled)");
-	} else { /* Not last packet of reassembled Short Message */
+			       "(Message reassembled) ");
+	} else if (more) { /* Not last packet of reassembled message */
 	    if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment )");
+		col_append_str(pinfo->cinfo, COL_INFO, "(Message fragment) ");
 	}
 
 	pinfo->fragmented = save_fragmented;
@@ -2201,11 +2201,11 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 	    if (frag_msg) { /* Reassembled */
 		if (check_col(pinfo->cinfo, COL_INFO))
 		    col_append_str(pinfo->cinfo, COL_INFO,
-				   " (Message Reassembled)");
-	    } else { /* Not last packet of reassembled Short Message */
+				   "(Message reassembled) ");
+	    } else { /* Not last packet of reassembled message */
 		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_fstr(pinfo->cinfo, COL_INFO,
-				    " (Message fragment )");
+		    col_append_str(pinfo->cinfo, COL_INFO,
+				    "(Message fragment) ");
 	    }
 
 	    pinfo->fragmented = save_fragmented;

@@ -1463,30 +1463,20 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id
  * the fragment number.
  *
  * If this is the first fragment seen for this datagram, a new
- * "fragment_data" structure is allocated to refer to the reassembled,
- * packet, and:
+ * "fragment_data" structure is allocated to refer to the reassembled
+ * packet.
  *
- *	if "more_frags" is false and "frag_802_11_hack" is true, the
- *	structure is not added to the hash table, and not given any
- *	fragments to refer to, but is just returned - this is a special
- *	hack for the 802.11 dissector (see packet-80211.c);
+ * This fragment is added to the linked list of fragments for this packet.
  *
- *	otherwise, this fragment is added to the linked list of fragments
- *	for this packet, and the "fragment_data" structure is put into
- *	the hash table.
- *
- * Otherwise, this fragment is just added to the linked list of fragments
- * for this packet.
+ * If "more_frags" is false and "frag_802_11_hack" (as the name implies,
+ * a special hack for 802.11) or "no_frag_number" (implying messages must be
+ * in order since there's no sequence number) are true, then this (one
+ * element) list is returned.
  *
  * If, after processing this fragment, we have all the fragments,
  * "fragment_add_seq_check_work()" removes that from the fragment hash
  * table if necessary and adds it to the table of reassembled fragments,
  * and returns a pointer to the head of the fragment list.
- *
- * If this is the first fragment we've seen, and "more_frags" is false
- * and "frag_802_11_hack" is true, "fragment_add_seq_check_work()" does
- * nothing to the fragment data list, and returns a pointer to the head
- * of that (empty) list.
  *
  * Otherwise, it returns NULL.
  *
