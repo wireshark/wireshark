@@ -277,7 +277,7 @@ svn_version_check: FORCE
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -337,6 +337,10 @@ ifdef HHC
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
+
+user-guide.zip: user-guide.chm
+	rm -f user-guide.zip
+	zip user-guide.zip user-guide.chm
 endif
 
 
