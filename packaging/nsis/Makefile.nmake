@@ -102,7 +102,12 @@ all: NEWS.txt $(DEST)-setup-$(VERSION).exe
 NEWS.txt: ../../NEWS
 	$(UNIX2DOS) < ../../NEWS > NEWS.txt
 
-$(DEST)-setup-$(VERSION).exe : $(NSI) $(DELIVERABLES) Makefile.nmake
+# fetch the latest available user-guide.chm version
+user-guide.chm::
+	if exist ..\..\docbook\user-guide.chm xcopy ..\..\docbook\user-guide.chm . /Y /D
+	if exist $(WIRESHARK_LIBS)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIBS)\user-guide\user-guide.chm . /Y /D
+
+$(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
 	/DDEST=$(DEST) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
@@ -172,6 +177,7 @@ clean:
 	rm -f wireshark-gtk1-setup-$(VERSION).exe
 	rm -f wireshark-gtk2-setup-$(VERSION).exe
 	rm -f NEWS.txt
+	rm -f user-guide.chm
 
 distclean: clean
 	rm -f wireshark-setup-*.exe
