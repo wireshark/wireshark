@@ -405,8 +405,24 @@ struct p2p_phdr {
 	gboolean	sent; /* TRUE=sent, FALSE=received */
 };
 
-/* Packet "pseudo-header" information for 802.11
-   Radio information is only present for WTAP_ENCAP_IEEE_802_11_WITH_RADIO. */
+/*
+ * Packet "pseudo-header" information for 802.11.
+ * Radio information is only present for WTAP_ENCAP_IEEE_802_11_WITH_RADIO.
+ *
+ * Signal strength, etc. information:
+ *
+ * Raw signal strength can be measured in milliwatts.
+ * It can also be represented as dBm, which is 10 times the log base 10
+ * of the signal strength in mW.
+ *
+ * The Receive Signal Strength Indicator is an integer in the range 0 to 255.
+ * The actual RSSI value for a given signal strength is dependent on the
+ * vendor (and perhaps on the adapter).  The maximum possible RSSI value
+ * is also dependent on the vendor and perhaps the adapter.
+ *
+ * The signal strength can be represented as a percentage, which is 100
+ * times the ratio of the RSSI and the maximum RSSI.
+ */
 struct ieee_802_11_phdr {
 	gint	fcs_len;	/* Number of bytes of FCS - -1 means "unknown" */
 	guint8	channel;	/* Channel number */
