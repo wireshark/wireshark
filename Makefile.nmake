@@ -531,12 +531,11 @@ verify_tools:
 	@$(SH) tools\win32-setup.sh --appverify $(REQUIRED_TOOLS)
 
 # Download and install all the required libraries into WIRESHARK_LIBS.
-# If you used this setup target before, consider doing a clean_setup.
-setup: verify_tools
+# A clean_setup is done first to ensure that the target dirs don't 
+# contain old files remaining from a previous setup run.
+setup: verify_tools clean_setup
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.10"
-# ran into problems probably due to stuff left in gtk dir, remove it 
-	rm -rf $(WIRESHARK_LIBS)/gtk2
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.7.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
