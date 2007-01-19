@@ -13,6 +13,11 @@
  * by   Maria-Luiza Crivat <luizacri@gmail.com>
  * &    Brice Augustin <bricecotte@gmail.com>
  *
+ * Wednesday, January 17, 2006
+ * Support for the CIPSO IPv4 option
+ * (http://sourceforge.net/docman/display_doc.php?docid=34650&group_id=174379)
+ * by   Paul Moore <paul.moore@hp.com>
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -124,6 +129,7 @@ static gint ett_ip_options = -1;
 static gint ett_ip_option_sec = -1;
 static gint ett_ip_option_route = -1;
 static gint ett_ip_option_timestamp = -1;
+static gint ett_ip_option_cipso = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
 static gint ett_ip_checksum = -1;
@@ -326,6 +332,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define IPOPT_SEC	(2 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_LSRR	(3 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_TIMESTAMP	(4 |IPOPT_MEASUREMENT)
+#define IPOPT_CIPSO	(6 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_RR	(7 |IPOPT_CONTROL)
 #define IPOPT_SID	(8 |IPOPT_CONTROL|IPOPT_COPY)
 #define IPOPT_SSRR	(9 |IPOPT_CONTROL|IPOPT_COPY)
@@ -339,6 +346,7 @@ static gint ett_icmp_mpls_stack_object = -1;
 #define IPOLEN_SID      4
 #define IPOLEN_SSRR_MIN 3
 #define IPOLEN_RA       4
+#define IPOLEN_CIPSO_MIN 10
 
 #define IPSEC_UNCLASSIFIED	0x0000
 #define	IPSEC_CONFIDENTIAL	0xF135
@@ -459,6 +467,254 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 	      tvb_get_guint8(tvb, offset),
 	      tvb_get_guint8(tvb, offset + 1),
 	      tvb_get_guint8(tvb, offset + 2));
+}
+
+/* USHRT_MAX can hold at most 5 (base 10) digits (6 for the NULL byte) */
+#define USHRT_MAX_STRLEN 6
+
+/* Maximum CIPSO tag length:
+ * (IP hdr max)60 - (IPv4 hdr std)20 - (CIPSO base)6 = 34 */
+#define CIPSO_TAG_LEN_MAX 34
+
+/* The Commercial IP Security Option (CIPSO) is defined in IETF draft
+ * draft-ietf-cipso-ipsecurity-01.txt and FIPS 188, a copy of both documents
+ * can be found at the NetLabel project page, http://netlabel.sf.net. */
+static void
+dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                    guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+  proto_tree *field_tree = NULL;
+  proto_item *tf;
+  guint      tagtype, taglen;
+  int        offset_max = offset + optlen;
+
+  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  offset += 2;
+
+  proto_tree_add_text(field_tree, tvb, offset, 4, "DOI: %u",
+		      tvb_get_ntohl(tvb, offset));
+  offset += 4;
+
+  /* loop through all of the tags in the CIPSO option */
+  while (offset < offset_max) {
+    tagtype = tvb_get_guint8(tvb, offset);
+
+    if ((offset + 1) < offset_max)
+      taglen = tvb_get_guint8(tvb, offset + 1);
+    else
+      taglen = 1;
+
+    switch (tagtype) {
+    case 0:
+      /* padding - skip this tag */
+      offset += 1;
+      continue;
+      break;
+    case 1:
+      /* restrictive bitmap, see CIPSO draft section 3.4.2 for tag format */
+      if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
+	  ((offset + (int)taglen - 1) > offset_max)) {
+	proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
+			    "Malformed CIPSO tag");
+        return;
+      }
+
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+                          "Tag Type: Restrictive Category Bitmap (%u)",
+			  tagtype);
+
+      /* skip past alignment octet */
+      offset += 3;
+
+      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
+			  tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      if (taglen > 4) {
+	guint bit_spot = 0;
+	guint byte_spot = 0;
+	unsigned char bitmask;
+	char *cat_str;
+	char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN);
+	size_t cat_str_len;
+	const guint8 *val_ptr = tvb_get_ptr(tvb, offset, taglen - 4);
+
+	/* this is just a guess regarding string size, but we grow it below
+	 * if needed */
+	cat_str_len = 256;
+	cat_str = ep_alloc0(cat_str_len);
+
+	/* we checked the length above so the highest category value
+	 * possibile here is 240 */
+	while (byte_spot < (taglen - 4)) {
+	  bitmask = 0x80;
+	  bit_spot = 0;
+	  while (bit_spot < 8) {
+	    if (val_ptr[byte_spot] & bitmask) {
+	      g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
+		       byte_spot * 8 + bit_spot);
+	      cat_str_tmp[USHRT_MAX_STRLEN - 1] = '\0';
+	      if (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN)) {
+		char *cat_str_new;
+		while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
+		  cat_str_len += cat_str_len;
+		cat_str_new = ep_alloc(cat_str_len);
+		strncpy(cat_str_new, cat_str, cat_str_len);
+		cat_str_new[cat_str_len - 1] = '\0';
+		cat_str = cat_str_new;
+	      }
+	      if (cat_str[0] != '\0')
+		strncat(cat_str, ",", cat_str_len - 1);
+	      strncat(cat_str, cat_str_tmp, cat_str_len - 1);
+	    }
+	    bit_spot++;
+	    bitmask >>= 1;
+	  }
+	  byte_spot++;
+	}
+
+	if (cat_str)
+	  proto_tree_add_text(field_tree, tvb, offset, taglen - 4,
+			      "Categories: %s", cat_str);
+	else
+	  proto_tree_add_text(field_tree, tvb, offset, taglen - 4,
+			      "Categories: ERROR PARSING CATEGORIES");
+
+        offset += taglen - 4;
+      }
+      break;
+    case 2:
+      /* enumerated categories, see CIPSO draft section 3.4.3 for tag format */
+      if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
+	  ((offset + (int)taglen - 1) > offset_max)) {
+	proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
+			    "Malformed CIPSO tag");
+        return;
+      }
+
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+                          "Tag Type: Enumerated Categories (%u)", tagtype);
+
+      /* skip past alignment octet */
+      offset += 3;
+
+      /* sensitvity level */
+      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
+			  tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      if (taglen > 4) {
+	int offset_max_cat = offset + taglen - 4;
+	char *cat_str = ep_alloc0(USHRT_MAX_STRLEN * 15);
+	char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN);
+
+	while ((offset + 2) <= offset_max_cat) {
+	  g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
+		   tvb_get_ntohs(tvb, offset));
+	  offset += 2;
+	  cat_str_tmp[USHRT_MAX_STRLEN - 1] = '\0';
+	  if (cat_str[0] != '\0')
+	    strncat(cat_str, ",", USHRT_MAX_STRLEN * 15 - 1);
+	  strncat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15 - 1);
+	}
+
+	proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,
+			    "Categories: %s", cat_str);
+      }
+      break;
+    case 5:
+      /* ranged categories, see CIPSO draft section 3.4.4 for tag format */
+      if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
+	  ((offset + (int)taglen - 1) > offset_max)) {
+	proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
+			    "Malformed CIPSO tag");
+        return;
+      }
+
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+                          "Tag Type: Ranged Categories (%u)", tagtype);
+
+      /* skip past alignment octet */
+      offset += 3;
+
+      /* sensitvity level */
+      proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
+			  tvb_get_guint8(tvb, offset));
+      offset += 1;
+
+      if (taglen > 4) {
+	guint16 cat_low, cat_high;
+	int offset_max_cat = offset + taglen - 4;
+	char *cat_str = ep_alloc0(USHRT_MAX_STRLEN * 16);
+	char *cat_str_tmp = ep_alloc(USHRT_MAX_STRLEN * 2);
+
+	while ((offset + 2) <= offset_max_cat) {
+	  cat_high = tvb_get_ntohs(tvb, offset);
+	  if ((offset + 4) <= offset_max_cat) {
+	    cat_low = tvb_get_ntohs(tvb, offset + 2);
+	    offset += 4;
+	  } else {
+	    cat_low = 0;
+	    offset += 2;
+	  }
+	  if (cat_low != cat_high)
+	    g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u-%u",
+		     cat_high, cat_low);
+	  else
+	    g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
+	  if (cat_str[0] != '\0')
+	    strncat(cat_str, ",", USHRT_MAX_STRLEN * 16 - 1);
+	  strncat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16 - 1);
+	}
+
+	proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,
+			    "Categories: %s", cat_str);
+      }
+      break;
+    case 6:
+      /* permissive categories, see FIPS 188 section 6.9 for tag format */
+      if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
+	  ((offset + (int)taglen - 1) > offset_max)) {
+	proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
+			    "Malformed CIPSO tag");
+        return;
+      }
+
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+                          "Tag Type: Permissive Categories (%u)", tagtype);
+      proto_tree_add_text(field_tree, tvb, offset + 2, taglen - 2, "Tag data");
+      offset += taglen;
+      break;
+    case 7:
+      /* free form, see FIPS 188 section 6.10 for tag format */
+      if ((taglen < 2) || (taglen > CIPSO_TAG_LEN_MAX) ||
+	  ((offset + (int)taglen - 1) > offset_max)) {
+	proto_tree_add_text(field_tree, tvb, offset, offset_max - offset,
+			    "Malformed CIPSO tag");
+        return;
+      }
+
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+                          "Tag Type: Free Form (%u)", tagtype);
+      proto_tree_add_text(field_tree, tvb, offset + 2, taglen - 2, "Tag data");
+      offset += taglen;
+      break;
+    default:
+      /* unknown tag - stop parsing this IPv4 option */
+      if ((offset + 1) <= offset_max) {
+	taglen = tvb_get_guint8(tvb, offset + 1);
+	proto_tree_add_text(field_tree, tvb, offset, 1,
+			    "Tag Type: Unknown (%u) (%u bytes)",
+			    tagtype, taglen);
+	return;
+      }
+      proto_tree_add_text(field_tree, tvb, offset, 1,
+			  "Tag Type: Unknown (%u) (invalid format)",
+			  tagtype);
+      return;
+    }
+  }
 }
 
 static void
@@ -642,6 +898,14 @@ static const ip_tcp_opt ipopts[] = {
     VARIABLE_LENGTH,
     IPOLEN_LSRR_MIN,
     dissect_ipopt_route
+  },
+  {
+    IPOPT_CIPSO,
+    "Commercial IP security option",
+    &ett_ip_option_cipso,
+    VARIABLE_LENGTH,
+    IPOLEN_CIPSO_MIN,
+    dissect_ipopt_cipso
   },
   {
     IPOPT_RR,
@@ -2124,6 +2388,7 @@ proto_register_ip(void)
 		&ett_ip_option_sec,
 		&ett_ip_option_route,
 		&ett_ip_option_timestamp,
+		&ett_ip_option_cipso,
 		&ett_ip_fragments,
 		&ett_ip_fragment,
         &ett_ip_checksum,
