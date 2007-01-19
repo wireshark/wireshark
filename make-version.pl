@@ -114,37 +114,42 @@ sub read_svn_info {
 		if ($line =~ /Last Changed Date: (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 			$last = timegm($6, $5, $4, $3, $2 - 1, $1);
 		}
-		if ($line =~ /Last Changed Rev: (\d+)/) { $revision = $1; }
-		return;
-	}
-
-	# The entries schema is flat, so we can use regexes to parse its contents.
-	while ($line = <ENTRIES>) {
-		if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
-			$in_entries = 1;
-			$svn_name = "";
+		if ($line =~ /Last Changed Rev: (\d+)/) {
+			$revision = $1;
 		}
-		if ($in_entries) {
-			if ($line =~ /name="(.*)"/) { $svn_name = $1; }
-			if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
-				$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+	} else {
+		# The entries schema is flat, so we can use regexes to parse its contents.
+		while ($line = <ENTRIES>) {
+			if ($line =~ /<entry$/ || $line =~ /<entry\s/) {
+				$in_entries = 1;
+				$svn_name = "";
 			}
-			if ($line =~ /revision="(\d+)"/) { $revision = $1; }
-		}
-		if ($line =~ /\/>/) {
-			if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
-					$last && $revision) {
-				$in_entries = 0;
-				$version_format =~ s/%#/$revision/;
-
-				$package_format =~ s/%#/$revision/;
-				$package_string = strftime($package_format, gmtime($last));
-
-				last;
+			if ($in_entries) {
+				if ($line =~ /name="(.*)"/) { $svn_name = $1; }
+				if ($line =~ /committed-date="(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)/) {
+					$last = timegm($6, $5, $4, $3, $2 - 1, $1);
+				}
+				if ($line =~ /revision="(\d+)"/) { $revision = $1; }
+			}
+			if ($line =~ /\/>/) {
+				if (($svn_name eq "" || $svn_name eq "svn:this_dir") &&
+						$last && $revision) {
+					$in_entries = 0;
+					last;
+				}
 			}
 		}
+		close ENTRIES;
 	}
-	close ENTRIES;
+
+	# If we picked up the revision and modification time, 
+	# generate our strings.
+	if ($revision && $last) {
+		$version_format =~ s/%#/$revision/;
+		$package_format =~ s/%#/$revision/;
+		$package_string = strftime($package_format, gmtime($last));
+	}
+		
 }
 
 
