@@ -105,7 +105,7 @@ static const value_string sccp_message_type_values[] = {
   { MESSAGE_TYPE_XUDTS,  "Extended Unitdata Service" },
   { MESSAGE_TYPE_LUDT,   "Long Unitdata (ITU)" },
   { MESSAGE_TYPE_LUDTS,  "Long Unitdata Service (ITU)" },
-  { 0,                   NULL } };
+  { 0,			 NULL } };
 
 /* Same as above but in acronym form (for the Info column) */
 static const value_string sccp_message_type_acro_values[] = {
@@ -129,35 +129,35 @@ static const value_string sccp_message_type_acro_values[] = {
   { MESSAGE_TYPE_XUDTS,  "XUDTS" },
   { MESSAGE_TYPE_LUDT,   "LUDT" },
   { MESSAGE_TYPE_LUDTS,  "LUDTS" },
-  { 0,                   NULL } };
+  { 0,			 NULL } };
 
 #define PARAMETER_LENGTH_LENGTH 1
 #define PARAMETER_LONG_DATA_LENGTH_LENGTH 2
 #define PARAMETER_TYPE_LENGTH 1
 
-#define PARAMETER_END_OF_OPTIONAL_PARAMETERS   0x00
-#define PARAMETER_DESTINATION_LOCAL_REFERENCE  0x01
-#define PARAMETER_SOURCE_LOCAL_REFERENCE       0x02
-#define PARAMETER_CALLED_PARTY_ADDRESS         0x03
-#define PARAMETER_CALLING_PARTY_ADDRESS        0x04
-#define PARAMETER_CLASS                        0x05
-#define PARAMETER_SEGMENTING_REASSEMBLING      0x06
-#define PARAMETER_RECEIVE_SEQUENCE_NUMBER      0x07
-#define PARAMETER_SEQUENCING_SEGMENTING        0x08
-#define PARAMETER_CREDIT                       0x09
-#define PARAMETER_RELEASE_CAUSE                0x0a
-#define PARAMETER_RETURN_CAUSE                 0x0b
-#define PARAMETER_RESET_CAUSE                  0x0c
-#define PARAMETER_ERROR_CAUSE                  0x0d
-#define PARAMETER_REFUSAL_CAUSE                0x0e
-#define PARAMETER_DATA                         0x0f
-#define PARAMETER_SEGMENTATION                 0x10
-#define PARAMETER_HOP_COUNTER                  0x11
+#define PARAMETER_END_OF_OPTIONAL_PARAMETERS	0x00
+#define PARAMETER_DESTINATION_LOCAL_REFERENCE	0x01
+#define PARAMETER_SOURCE_LOCAL_REFERENCE	0x02
+#define PARAMETER_CALLED_PARTY_ADDRESS		0x03
+#define PARAMETER_CALLING_PARTY_ADDRESS		0x04
+#define PARAMETER_CLASS				0x05
+#define PARAMETER_SEGMENTING_REASSEMBLING	0x06
+#define PARAMETER_RECEIVE_SEQUENCE_NUMBER	0x07
+#define PARAMETER_SEQUENCING_SEGMENTING		0x08
+#define PARAMETER_CREDIT			0x09
+#define PARAMETER_RELEASE_CAUSE			0x0a
+#define PARAMETER_RETURN_CAUSE			0x0b
+#define PARAMETER_RESET_CAUSE			0x0c
+#define PARAMETER_ERROR_CAUSE			0x0d
+#define PARAMETER_REFUSAL_CAUSE			0x0e
+#define PARAMETER_DATA				0x0f
+#define PARAMETER_SEGMENTATION			0x10
+#define PARAMETER_HOP_COUNTER			0x11
 /* The below 2 are ITU only */
-#define PARAMETER_IMPORTANCE                   0x12
-#define PARAMETER_LONG_DATA                    0x13
+#define PARAMETER_IMPORTANCE			0x12
+#define PARAMETER_LONG_DATA			0x13
 /* ISNI is ANSI only */
-#define PARAMETER_ISNI                         0xfa
+#define PARAMETER_ISNI				0xfa
 
 static const value_string sccp_parameter_values[] = {
   { PARAMETER_END_OF_OPTIONAL_PARAMETERS, "End of Optional Parameters" },
@@ -165,52 +165,52 @@ static const value_string sccp_parameter_values[] = {
   { PARAMETER_SOURCE_LOCAL_REFERENCE,     "Source Local Reference" },
   { PARAMETER_CALLED_PARTY_ADDRESS,       "Called Party Address" },
   { PARAMETER_CALLING_PARTY_ADDRESS,      "Calling Party Address" },
-  { PARAMETER_CLASS,                      "Protocol Class" },
+  { PARAMETER_CLASS,			  "Protocol Class" },
   { PARAMETER_SEGMENTING_REASSEMBLING,    "Segmenting/Reassembling" },
   { PARAMETER_RECEIVE_SEQUENCE_NUMBER,    "Receive Sequence Number" },
   { PARAMETER_SEQUENCING_SEGMENTING,      "Sequencing/Segmenting" },
-  { PARAMETER_CREDIT,                     "Credit" },
-  { PARAMETER_RELEASE_CAUSE,              "Release Cause" },
-  { PARAMETER_RETURN_CAUSE,               "Return Cause" },
-  { PARAMETER_RESET_CAUSE,                "Reset Cause" },
-  { PARAMETER_ERROR_CAUSE,                "Error Cause" },
-  { PARAMETER_REFUSAL_CAUSE,              "Refusal Cause" },
-  { PARAMETER_DATA,                       "Data" },
-  { PARAMETER_SEGMENTATION,               "Segmentation" },
-  { PARAMETER_HOP_COUNTER,                "Hop Counter" },
-  { PARAMETER_IMPORTANCE,                 "Importance (ITU)" },
-  { PARAMETER_LONG_DATA,                  "Long Data (ITU)" },
-  { PARAMETER_ISNI,                       "Intermediate Signaling Network Identification (ANSI)" },
-  { 0,                                    NULL } };
+  { PARAMETER_CREDIT,			  "Credit" },
+  { PARAMETER_RELEASE_CAUSE,		  "Release Cause" },
+  { PARAMETER_RETURN_CAUSE,		  "Return Cause" },
+  { PARAMETER_RESET_CAUSE,		  "Reset Cause" },
+  { PARAMETER_ERROR_CAUSE,		  "Error Cause" },
+  { PARAMETER_REFUSAL_CAUSE,		  "Refusal Cause" },
+  { PARAMETER_DATA,			  "Data" },
+  { PARAMETER_SEGMENTATION,		  "Segmentation" },
+  { PARAMETER_HOP_COUNTER,		  "Hop Counter" },
+  { PARAMETER_IMPORTANCE,		  "Importance (ITU)" },
+  { PARAMETER_LONG_DATA,		  "Long Data (ITU)" },
+  { PARAMETER_ISNI,			  "Intermediate Signaling Network Identification (ANSI)" },
+  { 0,					  NULL } };
 
 
-#define END_OF_OPTIONAL_PARAMETERS_LENGTH   1
-#define DESTINATION_LOCAL_REFERENCE_LENGTH  3
-#define SOURCE_LOCAL_REFERENCE_LENGTH       3
-#define PROTOCOL_CLASS_LENGTH               1
-#define RECEIVE_SEQUENCE_NUMBER_LENGTH      1
-#define CREDIT_LENGTH                       1
-#define RELEASE_CAUSE_LENGTH                1
-#define RETURN_CAUSE_LENGTH                 1
-#define RESET_CAUSE_LENGTH                  1
-#define ERROR_CAUSE_LENGTH                  1
-#define REFUSAL_CAUSE_LENGTH                1
-#define HOP_COUNTER_LENGTH                  1
-#define IMPORTANCE_LENGTH                   1
+#define END_OF_OPTIONAL_PARAMETERS_LENGTH	1
+#define DESTINATION_LOCAL_REFERENCE_LENGTH	3
+#define SOURCE_LOCAL_REFERENCE_LENGTH		3
+#define PROTOCOL_CLASS_LENGTH			1
+#define RECEIVE_SEQUENCE_NUMBER_LENGTH		1
+#define CREDIT_LENGTH				1
+#define RELEASE_CAUSE_LENGTH			1
+#define RETURN_CAUSE_LENGTH			1
+#define RESET_CAUSE_LENGTH			1
+#define ERROR_CAUSE_LENGTH			1
+#define REFUSAL_CAUSE_LENGTH			1
+#define HOP_COUNTER_LENGTH			1
+#define IMPORTANCE_LENGTH			1
 
 
 /* Parts of the Called and Calling Address parameters */
 /* Address Indicator */
-#define ADDRESS_INDICATOR_LENGTH   1
-#define ITU_RESERVED_MASK          0x80
-#define ANSI_NATIONAL_MASK         0x80
-#define ROUTING_INDICATOR_MASK     0x40
-#define GTI_MASK                   0x3C
-#define GTI_SHIFT		   2
-#define ITU_SSN_INDICATOR_MASK     0x02
-#define ITU_PC_INDICATOR_MASK      0x01
-#define ANSI_PC_INDICATOR_MASK     0x02
-#define ANSI_SSN_INDICATOR_MASK    0x01
+#define ADDRESS_INDICATOR_LENGTH	1
+#define ITU_RESERVED_MASK		0x80
+#define ANSI_NATIONAL_MASK		0x80
+#define ROUTING_INDICATOR_MASK		0x40
+#define GTI_MASK			0x3C
+#define GTI_SHIFT			2
+#define ITU_SSN_INDICATOR_MASK		0x02
+#define ITU_PC_INDICATOR_MASK		0x01
+#define ANSI_PC_INDICATOR_MASK		0x02
+#define ANSI_SSN_INDICATOR_MASK		0x01
 
 static const value_string sccp_national_indicator_values[] = {
   { 0x0,  "Address coded to International standard" },
@@ -222,27 +222,27 @@ static const value_string sccp_routing_indicator_values[] = {
   { 0x1, "Route on SSN" },
   { 0,   NULL } };
 
-#define AI_GTI_NO_GT             0x0
-#define ITU_AI_GTI_NAI           0x1
-#define AI_GTI_TT                0x2
-#define ITU_AI_GTI_TT_NP_ES      0x3
-#define ITU_AI_GTI_TT_NP_ES_NAI  0x4
+#define AI_GTI_NO_GT		0x0
+#define ITU_AI_GTI_NAI		0x1
+#define AI_GTI_TT		0x2
+#define ITU_AI_GTI_TT_NP_ES	0x3
+#define ITU_AI_GTI_TT_NP_ES_NAI	0x4
 static const value_string sccp_itu_global_title_indicator_values[] = {
-  { AI_GTI_NO_GT,             "No Global Title" },
-  { ITU_AI_GTI_NAI,           "Nature of Address Indicator only" },
-  { AI_GTI_TT,                "Translation Type only" },
-  { ITU_AI_GTI_TT_NP_ES,      "Translation Type, Numbering Plan, and Encoding Scheme included" },
-  { ITU_AI_GTI_TT_NP_ES_NAI,  "Translation Type, Numbering Plan, Encoding Scheme, and Nature of Address Indicator included" },
-  { 0,                        NULL } };
+  { AI_GTI_NO_GT,		"No Global Title" },
+  { ITU_AI_GTI_NAI,		"Nature of Address Indicator only" },
+  { AI_GTI_TT,			"Translation Type only" },
+  { ITU_AI_GTI_TT_NP_ES,	"Translation Type, Numbering Plan, and Encoding Scheme included" },
+  { ITU_AI_GTI_TT_NP_ES_NAI,	"Translation Type, Numbering Plan, Encoding Scheme, and Nature of Address Indicator included" },
+  { 0,				NULL } };
 
-/* #define AI_GTI_NO_GT     0x0 */
-#define ANSI_AI_GTI_TT_NP_ES  0x1
-/* #define AI_GTI_TT          0x2 */
+/* #define AI_GTI_NO_GT		0x0 */
+#define ANSI_AI_GTI_TT_NP_ES	0x1
+/* #define AI_GTI_TT		0x2 */
 static const value_string sccp_ansi_global_title_indicator_values[] = {
-  { AI_GTI_NO_GT,          "No Global Title" },
-  { ANSI_AI_GTI_TT_NP_ES,  "Translation Type, Numbering Plan, and Encoding Scheme included" },
-  { AI_GTI_TT,             "Translation Type only" },
-  { 0,                     NULL } };
+  { AI_GTI_NO_GT,		"No Global Title" },
+  { ANSI_AI_GTI_TT_NP_ES,	"Translation Type, Numbering Plan, and Encoding Scheme included" },
+  { AI_GTI_TT,			"Translation Type only" },
+  { 0,				NULL } };
 
 static const value_string sccp_ai_pci_values[] = {
   { 0x1,  "Point Code present" },
@@ -315,9 +315,9 @@ static const value_string sccp_nai_values[] = {
 #define GT_OE_EVEN 0
 #define GT_OE_ODD  1
 static const value_string sccp_oe_values[] = {
-  { GT_OE_EVEN,  "Even number of address signals" },
-  { GT_OE_ODD,   "Odd number of address signals" },
-  { 0,           NULL } };
+  { GT_OE_EVEN,	"Even number of address signals" },
+  { GT_OE_ODD,	"Odd number of address signals" },
+  { 0,		NULL } };
 
 #define GT_SIGNAL_LENGTH     1
 #define GT_ODD_SIGNAL_MASK   0x0f
@@ -375,12 +375,12 @@ static const value_string sccp_np_values[] = {
 #define GT_ES_NATIONAL 0x3
 #define GT_ES_RESERVED 0xf
 static const value_string sccp_es_values[] = {
-  { GT_ES_UNKNOWN,  "Unknown" },
-  { GT_ES_BCD_ODD,  "BCD, odd number of digits" },
-  { GT_ES_BCD_EVEN, "BCD, even number of digits" },
-  { GT_ES_NATIONAL, "National specific" },
-  { GT_ES_RESERVED, "Reserved (ITU)/Spare (ANSI)" },
-  { 0,           NULL } };
+  { GT_ES_UNKNOWN,	"Unknown" },
+  { GT_ES_BCD_ODD,	"BCD, odd number of digits" },
+  { GT_ES_BCD_EVEN,	"BCD, even number of digits" },
+  { GT_ES_NATIONAL,	"National specific" },
+  { GT_ES_RESERVED,	"Reserved (ITU)/Spare (ANSI)" },
+  { 0,			NULL } };
 
 /* Address signals above */
 
@@ -408,25 +408,25 @@ static const value_string sccp_class_handling_values [] = {
 #define MORE_DATA    1
 /* This is also used by sequencing-segmenting parameter */
 static const value_string sccp_segmenting_reassembling_values [] = {
-  { NO_MORE_DATA, "No more data" },
-  { MORE_DATA,    "More data" },
-  { 0,            NULL } };
+  { NO_MORE_DATA,	"No more data" },
+  { MORE_DATA,		"More data" },
+  { 0,			NULL } };
 
 
-#define RECEIVE_SEQUENCE_NUMBER_LENGTH 1
-#define RSN_MASK                       0xfe
+#define RECEIVE_SEQUENCE_NUMBER_LENGTH	1
+#define RSN_MASK			0xfe
 
-#define SEQUENCING_SEGMENTING_LENGTH    2
-#define SEQUENCING_SEGMENTING_SSN_LENGTH 1
-#define SEQUENCING_SEGMENTING_RSN_LENGTH 1
-#define SEND_SEQUENCE_NUMBER_MASK       0xfe
-#define RECEIVE_SEQUENCE_NUMBER_MASK    0xfe
-#define SEQUENCING_SEGMENTING_MORE_MASK 0x01
+#define SEQUENCING_SEGMENTING_LENGTH		2
+#define SEQUENCING_SEGMENTING_SSN_LENGTH	1
+#define SEQUENCING_SEGMENTING_RSN_LENGTH	1
+#define SEND_SEQUENCE_NUMBER_MASK		0xfe
+#define RECEIVE_SEQUENCE_NUMBER_MASK		0xfe
+#define SEQUENCING_SEGMENTING_MORE_MASK		0x01
 
 
 #define CREDIT_LENGTH 1
 
-#define RELEASE_CAUSE_LENGTH                  1
+#define RELEASE_CAUSE_LENGTH 1
 static const value_string sccp_release_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "End user congestion" },
@@ -448,7 +448,7 @@ static const value_string sccp_release_cause_values [] = {
   { 0,     NULL } };
 
 
-#define RETURN_CAUSE_LENGTH               1
+#define RETURN_CAUSE_LENGTH 1
 static const value_string sccp_return_cause_values [] = {
   { 0x00,  "No translation for an address of such nature" },
   { 0x01,  "No translation for this specific address" },
@@ -473,7 +473,7 @@ static const value_string sccp_return_cause_values [] = {
   { 0,     NULL } };
 
 
-#define RESET_CAUSE_LENGTH                 1
+#define RESET_CAUSE_LENGTH 1
 static const value_string sccp_reset_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "SCCP user originated" },
@@ -491,7 +491,7 @@ static const value_string sccp_reset_cause_values [] = {
   { 0,     NULL } };
 
 
-#define ERROR_CAUSE_LENGTH      1
+#define ERROR_CAUSE_LENGTH 1
 static const value_string sccp_error_cause_values [] = {
   { 0x00,  "Local Reference Number (LRN) mismatch - unassigned destination LRN" },
   { 0x01,  "Local Reference Number (LRN) mismatch - inconsistent source LRN" },
@@ -501,7 +501,7 @@ static const value_string sccp_error_cause_values [] = {
   { 0,     NULL } };
 
 
-#define REFUSAL_CAUSE_LENGTH                     1
+#define REFUSAL_CAUSE_LENGTH 1
 static const value_string sccp_refusal_cause_values [] = {
   { 0x00,  "End user originated" },
   { 0x01,  "End user congestion" },
@@ -526,11 +526,11 @@ static const value_string sccp_refusal_cause_values [] = {
   { 0,     NULL } };
 
 
-#define SEGMENTATION_LENGTH		 4
-#define SEGMENTATION_FIRST_SEGMENT_MASK  0x80
-#define SEGMENTATION_CLASS_MASK          0x40
-#define SEGMENTATION_SPARE_MASK          0x30
-#define SEGMENTATION_REMAINING_MASK      0x0f
+#define SEGMENTATION_LENGTH		4
+#define SEGMENTATION_FIRST_SEGMENT_MASK	0x80
+#define SEGMENTATION_CLASS_MASK		0x40
+#define SEGMENTATION_SPARE_MASK		0x30
+#define SEGMENTATION_REMAINING_MASK	0x0f
 static const value_string sccp_segmentation_first_segment_values [] = {
   { 1,  "First segment" },
   { 0,  "Not first segment" },
@@ -543,19 +543,18 @@ static const value_string sccp_segmentation_class_values [] = {
 
 #define HOP_COUNTER_LENGTH 1
 
-#define IMPORTANCE_LENGTH          1
-#define IMPORTANCE_IMPORTANCE_MASK 0x7
+#define IMPORTANCE_LENGTH		1
+#define IMPORTANCE_IMPORTANCE_MASK	0x7
 
 
 #define ANSI_ISNI_ROUTING_CONTROL_LENGTH 1
-#define ANSI_ISNI_MI_MASK                0x01
-#define ANSI_ISNI_IRI_MASK               0x06
-#define ANSI_ISNI_RES_MASK               0x08
-#define ANSI_ISNI_TI_MASK                0x10
-#define ANSI_ISNI_TI_SHIFT               4
-#define ANSI_ISNI_COUNTER_MASK           0xe0
-
-#define ANSI_ISNI_NETSPEC_MASK           0x03
+#define ANSI_ISNI_MI_MASK		 0x01
+#define ANSI_ISNI_IRI_MASK		 0x06
+#define ANSI_ISNI_RES_MASK		 0x08
+#define ANSI_ISNI_TI_MASK		 0x10
+#define ANSI_ISNI_TI_SHIFT		 4
+#define ANSI_ISNI_COUNTER_MASK		 0xe0
+#define ANSI_ISNI_NETSPEC_MASK		 0x03
 
 static const value_string sccp_isni_mark_for_id_values [] = {
   { 0x0,  "Do not identify networks" },
@@ -572,9 +571,9 @@ static const value_string sccp_isni_iri_values [] = {
 #define ANSI_ISNI_TYPE_0 0x0
 #define ANSI_ISNI_TYPE_1 0x1
 static const value_string sccp_isni_ti_values [] = {
-  { ANSI_ISNI_TYPE_0,  "Type zero ISNI parameter format" },
-  { ANSI_ISNI_TYPE_1,  "Type one ISNI parameter format" },
-  { 0,                 NULL } };
+  { ANSI_ISNI_TYPE_0,	"Type zero ISNI parameter format" },
+  { ANSI_ISNI_TYPE_1,	"Type one ISNI parameter format" },
+  { 0,			NULL } };
 
 
 /* Initialize the protocol and registered fields */
@@ -740,131 +739,134 @@ static emem_tree_t* assocs = NULL;
 sccp_assoc_info_t* assoc;
 sccp_assoc_info_t no_assoc = {0,0,0,0,FALSE,FALSE,SCCP_PLOAD_NONE,NULL};
 
-static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr, guint dst_lr) {
+static sccp_assoc_info_t* sccp_assoc(address* opc, address* dpc, guint src_lr,
+				     guint dst_lr) {
     guint32 opck, dpck;
-	
+
     if (assoc)
-        return assoc;
-    
+	return assoc;
+
     if (!src_lr && !dst_lr){
-        return &no_assoc;
-	}
-	opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
-	dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
-	
-    switch (message_type) {
-        case MESSAGE_TYPE_CR:
-        {
-			/* Calling and called is seen from initiator of CR */
-			emem_tree_key_t key[] = {
-				{1,NULL},
-				{1,NULL},
-				{1,NULL},
-				{0,NULL}
-			};
-			
-            key[0].key = &dpck;
-            key[1].key = &opck;
-            key[2].key = &src_lr;
-
-            if (! ( assoc = se_tree_lookup32_array(assocs,key) ) ) {
-                assoc = se_alloc(sizeof(sccp_assoc_info_t));
-                
-                assoc->calling_dpc = dpck;
-                assoc->called_dpc = opck;
-                assoc->calling_ssn = INVALID_SSN;
-                assoc->called_ssn = INVALID_SSN;
-				assoc->has_calling_key = FALSE;
-				assoc->has_called_key = TRUE;
-				assoc->pload = SCCP_PLOAD_NONE;
-				assoc->private_data = NULL;
-				
-                se_tree_insert32_array(assocs,key,assoc);
-            }
-            break;
-        }
-        case MESSAGE_TYPE_CC:
-        {
-			/* Calling and called is seen from initiator of CR */
-			emem_tree_key_t called_key[] = {
-				{1,NULL},
-				{1,NULL},
-				{1,NULL},
-				{0,NULL}
-			};
-			emem_tree_key_t calling_key[] = {
-				{1,NULL},
-				{1,NULL},
-				{1,NULL},
-				{0,NULL}
-			};
-
-            called_key[0].key = &opck;
-            called_key[1].key = &dpck;
-            called_key[2].key = &dst_lr;
-
-            calling_key[0].key = &dpck;
-            calling_key[1].key = &opck;
-            calling_key[2].key = &src_lr;
-
-            if (( assoc = se_tree_lookup32_array(assocs,calling_key) )) {
-                if ( ! assoc->has_called_key ) {
-                    se_tree_insert32_array(assocs,called_key,assoc);
-					assoc->has_called_key = TRUE;
-                }
-            } else if (( assoc = se_tree_lookup32_array(assocs,called_key) )) {
-				if ( ! assoc->has_calling_key ) {
-                    se_tree_insert32_array(assocs,calling_key,assoc);
-					assoc->has_calling_key = TRUE;
-                }
-            } else {
-                assoc = se_alloc(sizeof(sccp_assoc_info_t));
-                
-				assoc->calling_dpc = dpck;
-                assoc->called_dpc = opck;
-                assoc->calling_ssn = INVALID_SSN;
-                assoc->called_ssn = INVALID_SSN;
-				assoc->has_calling_key = TRUE;
-				assoc->has_called_key = TRUE;
-				assoc->pload = SCCP_PLOAD_NONE;
-				assoc->private_data = NULL;
-				                
-                se_tree_insert32_array(assocs,calling_key,assoc);
-                se_tree_insert32_array(assocs,called_key,assoc);
-            }
-            break;
-        }
-        default:
-        {
-			emem_tree_key_t calling_key[] = {
-				{1,NULL},
-				{1,NULL},
-				{1,NULL},
-				{0,NULL}
-			};
-			
-            calling_key[0].key = &opck;
-            calling_key[1].key = &dpck;
-            calling_key[2].key = &dst_lr;
-
-            assoc = se_tree_lookup32_array(assocs,calling_key);
-			/* Should a check be made on pinfo->p2p_dir ??? */
-			if (!assoc){
-				emem_tree_key_t called_key[] = {
-					{1,NULL},
-					{1,NULL},
-					{1,NULL},
-					{0,NULL}
-				};
-				called_key[0].key = &dpck;
-				called_key[1].key = &opck;
-				called_key[2].key = &dst_lr;
-				assoc = se_tree_lookup32_array(assocs,called_key);
-			}
-            break;
-        }
+	return &no_assoc;
     }
-    
+
+    opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
+    dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
+
+    switch (message_type) {
+	case MESSAGE_TYPE_CR:
+	{
+	    /* Calling and called is seen from initiator of CR */
+	    emem_tree_key_t key[] = {
+		{1, NULL},
+		{1, NULL},
+		{1, NULL},
+		{0, NULL}
+	    };
+
+	    key[0].key = &dpck;
+	    key[1].key = &opck;
+	    key[2].key = &src_lr;
+
+	    if (! ( assoc = se_tree_lookup32_array(assocs,key) ) ) {
+		assoc = se_alloc(sizeof(sccp_assoc_info_t));
+
+		assoc->calling_dpc = dpck;
+		assoc->called_dpc = opck;
+		assoc->calling_ssn = INVALID_SSN;
+		assoc->called_ssn = INVALID_SSN;
+		assoc->has_calling_key = FALSE;
+		assoc->has_called_key = TRUE;
+		assoc->pload = SCCP_PLOAD_NONE;
+		assoc->private_data = NULL;
+
+		se_tree_insert32_array(assocs,key,assoc);
+	    }
+	    break;
+	}
+	case MESSAGE_TYPE_CC:
+	{
+	    /* Calling and called is seen from initiator of CR */
+	    emem_tree_key_t called_key[] = {
+		{1, NULL},
+		{1, NULL},
+		{1, NULL},
+		{0, NULL}
+	    };
+	    emem_tree_key_t calling_key[] = {
+		{1, NULL},
+		{1, NULL},
+		{1, NULL},
+		{0, NULL}
+	    };
+
+	    called_key[0].key = &opck;
+	    called_key[1].key = &dpck;
+	    called_key[2].key = &dst_lr;
+
+	    calling_key[0].key = &dpck;
+	    calling_key[1].key = &opck;
+	    calling_key[2].key = &src_lr;
+
+	    if (( assoc = se_tree_lookup32_array(assocs,calling_key) )) {
+		if ( ! assoc->has_called_key ) {
+		    se_tree_insert32_array(assocs,called_key,assoc);
+		    assoc->has_called_key = TRUE;
+		}
+	    } else if (( assoc = se_tree_lookup32_array(assocs,called_key) )) {
+		if ( ! assoc->has_calling_key ) {
+		    se_tree_insert32_array(assocs,calling_key,assoc);
+		    assoc->has_calling_key = TRUE;
+		}
+	    } else {
+		assoc = se_alloc(sizeof(sccp_assoc_info_t));
+
+		assoc->calling_dpc = dpck;
+		assoc->called_dpc = opck;
+		assoc->calling_ssn = INVALID_SSN;
+		assoc->called_ssn = INVALID_SSN;
+		assoc->has_calling_key = TRUE;
+		assoc->has_called_key = TRUE;
+		assoc->pload = SCCP_PLOAD_NONE;
+		assoc->private_data = NULL;
+
+		se_tree_insert32_array(assocs,calling_key,assoc);
+		se_tree_insert32_array(assocs,called_key,assoc);
+	    }
+	    break;
+	}
+	default:
+	{
+	    emem_tree_key_t calling_key[] = {
+		{1, NULL},
+		{1, NULL},
+		{1, NULL},
+		{0, NULL}
+	    };
+
+	    calling_key[0].key = &opck;
+	    calling_key[1].key = &dpck;
+	    calling_key[2].key = &dst_lr;
+
+	    assoc = se_tree_lookup32_array(assocs,calling_key);
+	    /* Should a check be made on pinfo->p2p_dir ??? */
+	    if (!assoc){
+		emem_tree_key_t called_key[] = {
+		    {1, NULL},
+		    {1, NULL},
+		    {1, NULL},
+		    {0, NULL}
+		};
+
+		called_key[0].key = &dpck;
+		called_key[1].key = &opck;
+		called_key[2].key = &dst_lr;
+		assoc = se_tree_lookup32_array(assocs,called_key);
+	    }
+	    break;
+	}
+    }
+
     return assoc ? assoc : &no_assoc;
 }
 
@@ -903,7 +905,7 @@ static void
 dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   proto_item* lr_item;
-  
+
   slr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, slr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, slr);
@@ -927,7 +929,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 
     strncat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
 				 "Unknown"), GT_MAX_SIGNALS - strlen(gt_digits));
-    
+
     /* If the last signal is NOT filler */
     if (offset != (length - 1) || even_length == TRUE)
       strncat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
@@ -938,13 +940,11 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 
   proto_tree_add_string_format(tree, called ? hf_sccp_called_gt_digits
 					    : hf_sccp_calling_gt_digits,
-			     tvb, 0, length,
-			     gt_digits,
+			     tvb, 0, length, gt_digits,
 			     "Address information (digits): %s", gt_digits);
   proto_tree_add_string_hidden(tree, called ? hf_sccp_gt_digits
 					    : hf_sccp_gt_digits,
-			     tvb, 0, length,
-			     gt_digits);
+			       tvb, 0, length, gt_digits);
 }
 
 static void
@@ -1032,16 +1032,16 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
   /* Decode address signal(s) */
   if (length < offset)
     return;
+
   signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			       (length - offset));
   dissect_sccp_gt_address_information(signals_tvb, gt_tree, (length - offset),
-				      even,
-				      called);
+				      even, called);
 }
 
 static int
 dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
-                     gboolean called)
+		      gboolean called)
 {
   int *hf_pc;
 
@@ -1163,7 +1163,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 			    tvb, offset, JAPAN_PC_LENGTH, TRUE);
 
 	offset += JAPAN_PC_LENGTH;
-      
+
       } else /* CHINESE_ITU_STANDARD */ {
 
 	offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
@@ -1191,13 +1191,17 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
        * And print it's name.
        */
       ssn_dissector = dissector_get_port_handle(sccp_ssn_dissector_table, ssn);
+
       if (ssn_dissector) {
 	  ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+
 	  if(ssn_dissector_short_name) {
 	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
 	      PROTO_ITEM_SET_GENERATED(item);
+
 	      if (strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
 		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+
 		      if(tcap_ssn_dissector){
 			  tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
 			  proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
@@ -1213,7 +1217,8 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
       if (length < offset)
-        return;
+	return;
+
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
       dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
@@ -1266,7 +1271,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
     /* Dissect GT (if present) */
     if (gti != AI_GTI_NO_GT) {
       if (length < offset)
-        return;
+	return;
       gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			      (length - offset));
       dissect_sccp_global_title(gt_tvb, call_tree, (length - offset), gti,
@@ -1405,7 +1410,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn;
     guint8 other_ssn;
-    
+
     if (assoc) {
 	other_ssn = INVALID_SSN;
 
@@ -1420,20 +1425,20 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ssn = assoc->called_ssn;
 		other_ssn = assoc->calling_ssn;
 		break;
-        }
+	}
     } else {
 	ssn = assoc->called_ssn;
 	other_ssn = assoc->calling_ssn;
     }
-    
+
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
 	return;
     }
-    
+
     if (other_ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
 	return;
     }
-    
+
     /* try heuristic subdissector list to see if there are any takers */
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
 	return;
@@ -1557,7 +1562,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     case PARAMETER_LONG_DATA:
     case PARAMETER_SOURCE_LOCAL_REFERENCE:
     case PARAMETER_DESTINATION_LOCAL_REFERENCE:
-        
+
       /*  These parameters must be dissected even if !sccp_tree (so that
        *  assoc information can be created).
        */
@@ -1565,7 +1570,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     default:
       if (!sccp_tree)
-        return(parameter_length);
+	return(parameter_length);
 
     }
 
@@ -1713,8 +1718,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
     length_length = PARAMETER_LONG_DATA_LENGTH_LENGTH;
   }
 
-  if (sccp_tree &&
-    sccp_show_length)
+  if (sccp_tree && sccp_show_length)
   {
     proto_tree_add_text(sccp_tree, tvb, offset, length_length,
 			"%s length: %d",
@@ -1804,7 +1808,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		    val_to_str(message_type, sccp_message_type_acro_values, "Unknown"));
+		 val_to_str(message_type, sccp_message_type_acro_values, "Unknown"));
 
   if (sccp_tree) {
     /* add the message type to the protocol tree */
@@ -1813,7 +1817,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   };
 
-  /* Starting a new message dissection; clear the global assoc,SLR and DLR values */
+  /* Starting a new message dissection; clear the global assoc, SLR, and DLR values */
   dlr = 0;
   slr = 0;
   assoc = NULL;
@@ -1831,7 +1835,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   /*  TTC and NTT (Japan) say that the connection-oriented messages are
    *  deleted (not standardized), but they appear to be used anyway, so
    *  we'll dissect it...
-   */ 
+   */
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
@@ -1862,9 +1866,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
+
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -1876,13 +1880,13 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_REFUSAL_CAUSE, offset,
 				     REFUSAL_CAUSE_LENGTH);
-      OPTIONAL_POINTER(POINTER_LENGTH);
+    OPTIONAL_POINTER(POINTER_LENGTH);
     break;
 
   case MESSAGE_TYPE_RLSD:
@@ -1893,15 +1897,15 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
+
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RELEASE_CAUSE, offset,
 				     RELEASE_CAUSE_LENGTH);
 
-      OPTIONAL_POINTER(POINTER_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    OPTIONAL_POINTER(POINTER_LENGTH);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_RLC:
@@ -1912,63 +1916,66 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     break;
 
   case MESSAGE_TYPE_DT1:
-	source_local_ref = tvb_get_letoh24(tvb, offset);
+    source_local_ref = tvb_get_letoh24(tvb, offset);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-	
-	assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
-	
-	more = tvb_get_guint8(tvb, offset) & SEGMENTING_REASSEMBLING_MASK;
 
-	offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
+    more = tvb_get_guint8(tvb, offset) & SEGMENTING_REASSEMBLING_MASK;
+
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEGMENTING_REASSEMBLING,
 				     offset, SEGMENTING_REASSEMBLING_LENGTH);
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
-	/* Reasemble */
 
-	if (!sccp_xudt_desegment){
-		proto_tree_add_text(sccp_tree, tvb, variable_pointer1, tvb_get_guint8(tvb, variable_pointer1)+1, "Segmented Data"  );
-		dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
-				    variable_pointer1);
+    /* Reasemble */
+    if (!sccp_xudt_desegment){
+	proto_tree_add_text(sccp_tree, tvb, variable_pointer1,
+			    tvb_get_guint8(tvb, variable_pointer1)+1,
+			    "Segmented Data");
+	dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+					PARAMETER_DATA, variable_pointer1);
 
-	}else{
-		save_fragmented = pinfo->fragmented;
-		pinfo->fragmented = TRUE;
-		frag_msg = fragment_add_seq_next(tvb, variable_pointer1 + 1, pinfo,
-			source_local_ref,									/* ID for fragments belonging together */  
-			sccp_xudt_msg_fragment_table,						/* list of message fragments */
-			sccp_xudt_msg_reassembled_table,					/* list of reassembled messages */
-			tvb_get_guint8(tvb,variable_pointer1),				/* fragment length - to the end */
-			more);												/* More fragments? */
-			
+    }else{
+	save_fragmented = pinfo->fragmented;
+	pinfo->fragmented = TRUE;
+	frag_msg = fragment_add_seq_next(tvb, variable_pointer1 + 1, pinfo,
+			     source_local_ref,			/* ID for fragments belonging together */
+			     sccp_xudt_msg_fragment_table,	/* list of message fragments */
+			     sccp_xudt_msg_reassembled_table,	/* list of reassembled messages */
+			     tvb_get_guint8(tvb,variable_pointer1),/* fragment length - to the end */
+			     more);				/* More fragments? */
 
-		new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
-			"Reassembled Message", frag_msg, &sccp_xudt_msg_frag_items,
-			NULL, tree);
+	new_tvb = process_reassembled_data(tvb, variable_pointer1 + 1, pinfo,
+					   "Reassembled Message", frag_msg,
+					   &sccp_xudt_msg_frag_items, NULL,
+					   tree);
 
-		if (frag_msg) { /* Reassembled */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO, 
-				" (Message Reassembled)");
-		} else { /* Not last packet of reassembled Short Message */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO,
-				" (Message fragment )");
-		}		
-		pinfo->fragmented = save_fragmented;
-		if (new_tvb)
-			dissect_sccp_data_param(new_tvb, pinfo, tree);
+	if (frag_msg) { /* Reassembled */
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO,
+			       " (Message Reassembled)");
+	} else { /* Not last packet of reassembled Short Message */
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment )");
 	}
 
-/* End reassemble */
+	pinfo->fragmented = save_fragmented;
+
+	if (new_tvb)
+	    dissect_sccp_data_param(new_tvb, pinfo, tree);
+    }
+
+    /* End reassemble */
     break;
 
   case MESSAGE_TYPE_DT2:
@@ -1977,9 +1984,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-	assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
-	offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
+    offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEQUENCING_SEGMENTING, offset,
 				     SEQUENCING_SEGMENTING_LENGTH);
     break;
@@ -1989,14 +1996,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
+
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RECEIVE_SEQUENCE_NUMBER,
 				     offset, RECEIVE_SEQUENCE_NUMBER_LENGTH);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CREDIT, offset, CREDIT_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_UDT:
@@ -2008,14 +2015,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
     assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
-      
+
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
 				    variable_pointer1);
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
-      
+
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer3);
     break;
@@ -2038,7 +2045,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
-      
+
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer3);
     break;
@@ -2049,10 +2056,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
-      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
-      
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
+
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer1);
     break;
@@ -2062,7 +2069,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
     break;
 
@@ -2077,7 +2084,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RESET_CAUSE, offset,
 				     RESET_CAUSE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_RSC:
@@ -2088,7 +2095,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_ERR:
@@ -2099,7 +2106,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_ERROR_CAUSE, offset,
 				     ERROR_CAUSE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     break;
 
   case MESSAGE_TYPE_IT:
@@ -2110,7 +2117,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-      assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
+    assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2134,9 +2141,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
 
-	/* Optional parameters are Segmentation and Importance 
-	 * NOTE 2 - Segmentation Should not be present in case of a single XUDT message.
-	 */
+    /*  Optional parameters are Segmentation and Importance
+     *  NOTE 2 - Segmentation Should not be present in case of a single XUDT
+     *  message.
+     */
 
     assoc = sccp_assoc(&(pinfo->src), &(pinfo->dst), slr, dlr);
 
@@ -2147,60 +2155,68 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    PARAMETER_CALLING_PARTY_ADDRESS,
 				    variable_pointer2);
 
-	if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) ==
-		PARAMETER_SEGMENTATION){
-		if (!sccp_xudt_desegment){
-			proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data"  );
+    if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) == PARAMETER_SEGMENTATION){
+	if (!sccp_xudt_desegment){
+	    proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data"  );
 
-		}else{
-			guint8 octet;
-			gboolean more_frag = TRUE;
+	} else {
+	    guint8 octet;
+	    gboolean more_frag = TRUE;
 
 
-			/* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
-			 * Bit 8 of octet 1 is used for First segment indication
-			 * Bit 7 of octet 1 is used to keep in the message in sequence delivery option required by the SCCP user
-			 * Bits 6 and 5 in octet 1 are spare bits.
-			 * Bits 4-1 of octet 1 are used to indicate the number of remaining segments. 
-			 * The values 0000 to 1111 are possible; the value 0000 indicates the last segment.
-			 */
-			octet = tvb_get_guint8(tvb,optional_pointer+2);
-			source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
-			if ((octet&0x0f) == 0) 
-				more_frag = FALSE;
-			save_fragmented = pinfo->fragmented;
-			pinfo->fragmented = TRUE;
-			frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
-				source_local_ref,									/* ID for fragments belonging together */  
-				sccp_xudt_msg_fragment_table,						/* list of message fragments */
-				sccp_xudt_msg_reassembled_table,					/* list of reassembled messages */
-				tvb_get_guint8(tvb,variable_pointer3),				/* fragment length - to the end */
-				more_frag);											/* More fragments? */
-			
-			if ((octet&0x80) == 0x80)/*First segment, set number of segments*/
-				fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
+	    /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
+	     * Bit 8 of octet 1 is used for First segment indication
+	     * Bit 7 of octet 1 is used to keep in the message in sequence
+	     *	     delivery option required by the SCCP user
+	     * Bits 6 and 5 in octet 1 are spare bits.
+	     * Bits 4-1 of octet 1 are used to indicate the number of
+	     *		remaining segments.
+	     * The values 0000 to 1111 are possible; the value 0000 indicates
+	     * the last segment.
+	     */
+	    octet = tvb_get_guint8(tvb,optional_pointer+2);
+	    source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
 
-			new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1, pinfo,
-				"Reassembled Message", frag_msg, &sccp_xudt_msg_frag_items,
-				NULL, tree);
+	    if ((octet&0x0f) == 0)
+		more_frag = FALSE;
 
-			if (frag_msg) { /* Reassembled */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_str(pinfo->cinfo, COL_INFO, 
-					" (Message Reassembled)");
-			} else { /* Not last packet of reassembled Short Message */
-				if (check_col(pinfo->cinfo, COL_INFO))
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-					" (Message fragment )");
-			}		
-			pinfo->fragmented = save_fragmented;
-			if (new_tvb)
-				dissect_sccp_data_param(new_tvb, pinfo, tree);
-		}
-	}else{
-	    dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
-				    variable_pointer3);
+	    save_fragmented = pinfo->fragmented;
+	    pinfo->fragmented = TRUE;
+	    frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
+		    source_local_ref,				/* ID for fragments belonging together */
+		    sccp_xudt_msg_fragment_table,		/* list of message fragments */
+		    sccp_xudt_msg_reassembled_table,		/* list of reassembled messages */
+		    tvb_get_guint8(tvb,variable_pointer3),	/* fragment length - to the end */
+		    more_frag);					/* More fragments? */
+
+	    if ((octet&0x80) == 0x80) /*First segment, set number of segments*/
+		fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
+
+	    new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
+					       pinfo, "Reassembled Message",
+					       frag_msg,
+					       &sccp_xudt_msg_frag_items,
+					       NULL, tree);
+
+	    if (frag_msg) { /* Reassembled */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		    col_append_str(pinfo->cinfo, COL_INFO,
+				   " (Message Reassembled)");
+	    } else { /* Not last packet of reassembled Short Message */
+		if (check_col(pinfo->cinfo, COL_INFO))
+		    col_append_fstr(pinfo->cinfo, COL_INFO,
+				    " (Message fragment )");
+	    }
+
+	    pinfo->fragmented = save_fragmented;
+
+	    if (new_tvb)
+		dissect_sccp_data_param(new_tvb, pinfo, tree);
 	}
+    } else {
+	dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+					PARAMETER_DATA, variable_pointer3);
+    }
     break;
 
   case MESSAGE_TYPE_XUDTS:
@@ -2293,7 +2309,6 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   if (orig_opt_ptr)
     dissect_sccp_optional_parameters(tvb, pinfo, sccp_tree, tree,
 				     optional_pointer);
-
 }
 
 static void
@@ -2307,13 +2322,14 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ((mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->src.data)->type <= CHINESE_ITU_STANDARD))
   {
     /*
-	 * Allow a protocol beneath to specify how the SCCP layer should be dissected.
-	 *
-	 * It is possible to have multiple sets of SCCP traffic some of which is ITU
-	 * and some of which is ANSI.
-	 * An example is A-interface traffic having ANSI MTP3/ANSI SCCP/3GPP2 IOS
-	 * and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
-	 */
+     *  Allow a protocol beneath to specify how the SCCP layer should be
+     *  dissected.
+     *
+     *  It is possible to have multiple sets of SCCP traffic some of which is
+     *  ITU and some of which is ANSI.
+     *  An example is A-interface traffic having ANSI MTP3/ANSI SCCP/3GPP2 IOS
+     *  and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
+     */
     decode_mtp3_standard = mtp3_addr_p->type;
   }
   else
@@ -2325,18 +2341,18 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     switch(decode_mtp3_standard) {
       case ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
+	break;
       case ANSI_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
+	break;
       case CHINESE_ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
+	break;
       case JAPAN_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Japan)");
-        break;
-    };      
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Japan)");
+	break;
+    };
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
@@ -2382,8 +2398,10 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void init_sccp(void) {
-	fragment_table_init (&sccp_xudt_msg_fragment_table);
-	reassembled_table_init(&sccp_xudt_msg_reassembled_table);
+
+    fragment_table_init (&sccp_xudt_msg_fragment_table);
+    reassembled_table_init(&sccp_xudt_msg_reassembled_table);
+
 }
 
 /* Register the protocol with Wireshark */
@@ -2421,7 +2439,6 @@ proto_register_sccp(void)
 	"sccp.digits",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL }},
-
     { &hf_sccp_called_national_indicator,
       { "National Indicator", "sccp.called.ni",
 	FT_UINT8, BASE_HEX, VALS(sccp_national_indicator_values), ANSI_NATIONAL_MASK,
@@ -2519,7 +2536,6 @@ proto_register_sccp(void)
 	"sccp.called.digits",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL }},
-
     { &hf_sccp_calling_national_indicator,
       { "National Indicator", "sccp.calling.ni",
 	FT_UINT8, BASE_HEX, VALS(sccp_national_indicator_values), ANSI_NATIONAL_MASK,
@@ -2617,7 +2633,6 @@ proto_register_sccp(void)
 	"sccp.calling.digits",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL }},
-
     { &hf_sccp_dlr,
       { "Destination Local Reference", "sccp.dlr",
 	FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -2706,7 +2721,6 @@ proto_register_sccp(void)
       { "Importance", "sccp.importance",
 	FT_UINT8, BASE_HEX, NULL, IMPORTANCE_IMPORTANCE_MASK,
 	"", HFILL}},
-
     /* ISNI is ANSI only */
     { &hf_sccp_ansi_isni_mi,
       { "ISNI Mark for Identification Indicator", "sccp.isni.mi",
@@ -2728,39 +2742,38 @@ proto_register_sccp(void)
       { "ISNI Counter", "sccp.isni.counter",
 	FT_UINT8, BASE_HEX, NULL, ANSI_ISNI_COUNTER_MASK,
 	"", HFILL}},
-		{&hf_sccp_xudt_msg_fragments,
-			{"Message fragments", "isup_apm.msg.fragments",
-			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment,
-			{"Message fragment", "isup_apm.msg.fragment",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment_overlap,
-			{"Message fragment overlap", "isup_apm.msg.fragment.overlap",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment_overlap_conflicts,
-			{"Message fragment overlapping with conflicting data","isup_apm.msg.fragment.overlap.conflicts",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment_multiple_tails,
-			{"Message has multiple tail fragments", "isup_apm.msg.fragment.multiple_tails", 
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment_too_long_fragment,
-			{"Message fragment too long", "isup_apm.msg.fragment.too_long_fragment",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_fragment_error,
-			{"Message defragmentation error", "isup_apm.msg.fragment.error",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-		{&hf_sccp_xudt_msg_reassembled_in,
-			{"Reassembled in", "isup_apm.msg.reassembled.in",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } 
-		},
-
+    {&hf_sccp_xudt_msg_fragments,
+	{"Message fragments", "sccp.msg.fragments",
+	FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment,
+	{"Message fragment", "sccp.msg.fragment",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment_overlap,
+	{"Message fragment overlap", "sccp.msg.fragment.overlap",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment_overlap_conflicts,
+	{"Message fragment overlapping with conflicting data", "sccp.msg.fragment.overlap.conflicts",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment_multiple_tails,
+	{"Message has multiple tail fragments", "sccp.msg.fragment.multiple_tails",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment_too_long_fragment,
+	{"Message fragment too long", "sccp.msg.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_fragment_error,
+	{"Message defragmentation error", "sccp.msg.fragment.error",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    {&hf_sccp_xudt_msg_reassembled_in,
+	{"Reassembled in", "sccp.msg.reassembled.in",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    }
   };
 
   /* Setup protocol subtree array */
@@ -2778,7 +2791,7 @@ proto_register_sccp(void)
     &ett_sccp_segmentation,
     &ett_sccp_ansi_isni_routing_control,
     &ett_sccp_xudt_msg_fragment,
-    &ett_sccp_xudt_msg_fragments,
+    &ett_sccp_xudt_msg_fragments
   };
 
   /* Register the protocol name and description */
@@ -2802,18 +2815,17 @@ proto_register_sccp(void)
 				 "The source point code (usually MSC) (to determine whether message is uplink or downlink)",
 				 16, &sccp_source_pc_global);
 
-  prefs_register_bool_preference(sccp_module, "show_length",
-      "Show length",
-      "Show parameter length in the protocol tree",
-      &sccp_show_length);
-  
+  prefs_register_bool_preference(sccp_module, "show_length", "Show length",
+				 "Show parameter length in the protocol tree",
+				 &sccp_show_length);
+
   prefs_register_bool_preference(sccp_module, "defragment_xudt",
-		"Reassemble XUDT messages",
-		"Whether XUDT messages dshould be reassembled",
-		&sccp_xudt_desegment);	
+				 "Reassemble XUDT messages",
+				 "Whether XUDT messages should be reassembled",
+				 &sccp_xudt_desegment);
 
   register_init_routine(&init_sccp);
-  
+
   assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sccp_associations");
 
 }
@@ -2830,3 +2842,4 @@ proto_reg_handoff_sccp(void)
 
   data_handle = find_dissector("data");
 }
+
