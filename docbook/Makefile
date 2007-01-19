@@ -255,6 +255,7 @@ CLEANFILES =	\
 	release-notes.html	\
 	release-notes.txt	\
 	svn_version.xml		\
+	user-guide.zip		\
 
 
 all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
