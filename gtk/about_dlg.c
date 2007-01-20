@@ -105,7 +105,7 @@ splash_new(char *message)
     main_lb = gtk_label_new(message);
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
     OBJECT_SET_DATA(win, "splash_label", main_lb);
-    
+
     gtk_widget_show_all(win);
 
     splash_update(win, message);
@@ -209,7 +209,7 @@ about_folders_page_new(void)
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_SHADOW_IN);
 #endif
 
@@ -228,7 +228,7 @@ about_folders_page_new(void)
 
   /* pers conf */
   path = get_persconffile_path("", FALSE);
-  about_folders_row(table, "Personal configuration", path, 
+  about_folders_row(table, "Personal configuration", path,
       "\"dfilters\", \"preferences\", \"ethers\", ...");
   g_free((void *) path);
 
@@ -310,7 +310,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 #else
   gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER);
 #endif
-  /* setting the size is dangerous here, as making it too short will 
+  /* setting the size is dangerous here, as making it too short will
    * clip content on GTK1, so simply use the natural size */
   /*gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);*/
   gtk_container_border_width(GTK_CONTAINER(about_wireshark_w), 6);
@@ -355,6 +355,8 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
   ok_btn = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  gtk_widget_grab_focus(ok_btn);
+  gtk_widget_grab_default(ok_btn);
   window_set_cancel_button(about_wireshark_w, ok_btn, window_cancel_button_cb);
 
   SIGNAL_CONNECT(about_wireshark_w, "delete_event", window_delete_event_cb, NULL);

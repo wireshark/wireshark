@@ -24,7 +24,7 @@
 
 /** @defgroup dialog_group Dialogs
  *
- * Dialogs are specially created windows and are related to their parent windows (usually the main window). 
+ * Dialogs are specially created windows and are related to their parent windows (usually the main window).
  * See: @ref howto_window_page for details.
  *
  * Normal dialogs are created using dlg_window_new().
@@ -61,7 +61,7 @@
  */
 
 /** @file
- * Utilities for dialog boxes. Depending on the window functions in 
+ * Utilities for dialog boxes. Depending on the window functions in
  * gui_utils.h, see: @ref howto_window_page for details.
  * @ingroup dialog_group
  */
@@ -71,7 +71,7 @@
 
 
 /** Create a dialog box window that belongs to Wireshark's main window.
- * If you want to create a window, use window_new() instead. 
+ * If you want to create a window, use window_new() instead.
  * See window_new() for general window usage.
  *
  * @param title the title for the new dialog
@@ -98,6 +98,13 @@ extern GtkWidget *dlg_button_row_new(const gchar *stock_id_first, ...);
  */
 extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
 
+/** Set the focus and default for the nth item in a button row.
+ *
+ * @param hbox A button row returned by dlg_button_row_new().
+ * @param focus_item The button to focus (0 is the first).
+ * @see dlg_button_row_new()
+ */
+void dlg_button_focus_nth(GtkWidget *hbox, gint focus_item);
 
 /** used by compat_macros.h only, don't use directly */
 extern GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,

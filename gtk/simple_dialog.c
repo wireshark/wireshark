@@ -58,7 +58,7 @@ typedef struct {
 	gint	btn_mask;
 	char	*message;
 } queued_message_t;
-	
+
 static GSList *message_queue;
 
 static GtkWidget *
@@ -172,6 +172,8 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 #if GTK_MAJOR_VERSION >= 2
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
+  g_object_set(gtk_widget_get_settings(msg_label),
+    "gtk-label-select-on-focus", FALSE, NULL);
 #endif
 
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
@@ -228,12 +230,12 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
       OBJECT_SET_DATA(save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
       SIGNAL_CONNECT(save_bt, "clicked", simple_dialog_cancel_cb, win);
   }
-  
+
   dont_save_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_DONT_SAVE);
   if (dont_save_bt) {
       OBJECT_SET_DATA(dont_save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
-      SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);  	
-  }      
+      SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);
+  }
   bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
   if(bt) {
       OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
@@ -265,6 +267,8 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
           window_set_cancel_button(win, ok_bt, simple_dialog_cancel_cb);
       }
   }
+
+  dlg_button_focus_nth(bbox, 0);
 
   gtk_widget_show(win);
 
@@ -325,9 +329,9 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
     state = gdk_window_get_state(top_level->window);
   }
 
-  /* If we don't yet have a main window or it's iconified, don't show the 
-     dialog. If showing up a dialog, while main window is iconified, program 
-     will become unresponsive! */     
+  /* If we don't yet have a main window or it's iconified, don't show the
+     dialog. If showing up a dialog, while main window is iconified, program
+     will become unresponsive! */
   if (top_level == NULL || state & GDK_WINDOW_STATE_ICONIFIED) {
 #else
 
