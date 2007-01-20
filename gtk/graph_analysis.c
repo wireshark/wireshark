@@ -564,7 +564,7 @@ on_save_bt_clicked                    (GtkButton       *button _U_,
 		return;
 	}
 
-	save_to_file_w = gtk_file_selection_new("Wireshark: Save graph to file");
+	save_to_file_w = gtk_file_selection_new("Wireshark: Save graph to plain text file");
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
