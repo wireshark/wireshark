@@ -1,4 +1,4 @@
-/* ethertype.c
+/* packet-ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
  * $Id$
@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -73,6 +73,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_PPPOES,				"PPPoE Session"			},
     {ETHERTYPE_INTEL_ANS,			"Intel ANS probe"		},
     {ETHERTYPE_MS_NLB_HEARTBEAT,	"MS NLB heartbeat"	},
+    {ETHERTYPE_HOMEPLUG,			"Homeplug"			},
     {ETHERTYPE_VLAN,				"802.1Q Virtual LAN"		},
     {ETHERTYPE_EAPOL,				"802.1X Authentication"         },
     {ETHERTYPE_RSN_PREAUTH,			"802.11i Pre-Authentication"    },

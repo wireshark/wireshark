@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -472,7 +472,7 @@ proto_register_eth(void)
 		{ "Length",		"eth.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
-		/* registered here but handled in ethertype.c */
+		/* registered here but handled in packet-ethertype.c */
 		{ &hf_eth_type,
 		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
 			"", HFILL }},
@@ -492,13 +492,13 @@ proto_register_eth(void)
                 { &hf_eth_lg,
 		{ "LG bit", "eth.lg", FT_BOOLEAN, 24,
 		  TFS(&lg_tfs), 0x020000,
-		  "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+		  "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }}
 
 	};
 	static gint *ett[] = {
 		&ett_ieee8023,
 		&ett_ether2,
-		&ett_addr,
+		&ett_addr
 	};
 	module_t *eth_module;
 
