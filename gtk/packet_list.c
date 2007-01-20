@@ -474,6 +474,11 @@ packet_list_set_font(FONT_TYPE *font)
 #else
         PangoLayout *layout;
 
+	/* Manually set the font so it can be used right away in the
+	 * pango_layout_get_pixel_size call below.  The gtk_widget_modify_font
+	 * function only takes effect after the widget is displayed. */
+	packet_list->style->font_desc = pango_font_description_copy(font);
+
         gtk_widget_modify_font(packet_list, font);
 #endif
 
