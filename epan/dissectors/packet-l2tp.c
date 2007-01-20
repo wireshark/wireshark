@@ -166,29 +166,38 @@ static gint l2tpv3_l2_specific = L2TPv3_L2_SPECIFIC_DEFAULT;
 #define AVP_Reserved1 13
 #define AVP_CDN       14
 
-#define NUM_CONTROL_CALL_TYPES  20
+#define NUM_CONTROL_CALL_TYPES  27
 static const char *calltypestr[NUM_CONTROL_CALL_TYPES+1] = {
   "Unknown Call Type           ",
   "Start_Control_Request       ",
   "Start_Control_Reply         ",
   "Start_Control_Connected     ",
   "Stop_Control_Notification   ",
-  "Reserved                    ",
+  "Reserved                    ", /* 5*/
   "Hello                       ",
   "Outgoing_Call_Request       ",
   "Outgoing_Call_Reply         ",
   "Outgoing_Call_Connected     ",
-  "Incoming_Call_Request       ",
+  "Incoming_Call_Request       ", /* 10 */
   "Incoming_Call_Reply         ",
   "Incoming_Call_Connected     ",
   "Reserved                    ",
   "Call_Disconnect_Notification",
-  "WAN_Error_Notify            ",
+  "WAN_Error_Notify            ", /* 15 */
   "Set_Link_Info               ",
   "Modem_Status                ",
   "Service_Relay_Request_Msg   ",
   "Service_Relay_Reply_Message ",
-  "Explicit_Acknowledgement    ",
+  "Explicit_Acknowledgement    ", /* 20 */
+  "Failover_Session_Query_Message",			/* [draft-ietf-l2tpext-failover-04.txt] */
+  "Failover_Session_Response_Message",		/* [draft-ietf-l2tpext-failover-04.txt] */
+  /* Multicast Management */
+  "Multicast-Session-Request   ",			/*[RFC4045]*/
+  "Multicast-Session-Response  ",			/*[RFC4045]*/
+  "Multicast-Session-Establishment", /* 25 */ /*[RFC4045]*/
+  "Multicast-Session-Information",			/*[RFC4045]*/
+  "Multicast-Session-End-Notify",			/*[RFC4045]*/
+
 };
 
 static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
@@ -197,22 +206,30 @@ static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
   "SCCRP   ",
   "SCCCN   ",
   "StopCCN ",
-  "Reserved",
+  "Reserved", /* 5 */
   "Hello   ",
   "OCRQ    ",
   "OCRP    ",
   "OCCN    ",
-  "ICRQ    ",
+  "ICRQ    ", /* 10 */
   "ICRP    ",
   "ICCN    ",
   "Reserved",
   "CDN     ",
-  "WEN     ",
+  "WEN     ", /* 15 */
   "SLI     ",
   "MDMST   ",
   "SRRQ    ",
   "SRRP    ",
-  "ACK     ",
+  "ACK     ", /* 20 */
+  "FSQ     ", 
+  "FSR     ", 
+  "MSRQ    ", 
+  "MSRP    ", 
+  "MSE     ", /* 25 */
+  "MSI     ", 
+  "MSEN    ", 
+
 };
 
 
@@ -245,11 +262,13 @@ static const true_false_string l2tp_priority_truth =
 
 static const value_string authen_type_vals[] = {
   { 0, "Reserved" },
-  { 1, "Textual username and password" },
+  { 1, "Textual username/password exchange" },
   { 2, "PPP CHAP" },
   { 3, "PPP PAP" },
   { 4, "No Authentication" },
   { 5, "Microsoft CHAP Version 1" },
+  { 6, "Reserved" },
+  { 7, "EAP" },
   { 0, NULL }
 };
 
@@ -300,6 +319,18 @@ static const value_string result_code_cdn_vals[] = {
   { 14, "Session not established due to unsupported PW type", },
   { 15, "Session not established, sequencing required without valid L2-Specific Sublayer", },
   { 16, "Finite state machine error or timeout", },
+  { 17, "FR PVC was deleted permanently (no longer provisioned) ", },      /* [RFC4591] */
+  { 18, "FR PVC has been INACTIVE for an extended period of time", },      /* [RFC4591] */
+  { 19, "Mismatched FR Header Length", },                                  /* [RFC4591] */
+  { 20, "HDLC Link was deleted permanently (no longer provisioned)", },    /* [RFC4349] */
+  { 21, "HDLC Link has been INACTIVE for an extended period of time", },   /* [RFC4349] */
+  { 22, "Session not established due to other LCCE can not support the OAM Cell Emulation", },    /* [RFC4454] */
+  { 23, "Mismatching interface MTU", },                                    /* [RFC4667] */
+  { 24, "Attempt to connect to non-existent forwarder", },                 /* [RFC4667] */
+  { 25, "Attempt to connect to unauthorized forwarder", },                 /* [RFC4667] */
+  { 26, "Loop Detected", },                                                /* [draft-ietf-l2tpext-tunnel-switching-06.txt] */
+
+
   { 0, NULL }
 };
 
@@ -314,6 +345,9 @@ static const value_string error_code_vals[] = {
   { 7, "Try another", },
   { 8, "Receipt of an unknown AVP with the M bit set", },
   { 9, "Try another directed", },
+  { 10, "Next hop unreachable", },
+  { 11, "Next hop busy", },
+  { 12, "TSA busy", },
   { 0, NULL }
 };
 
@@ -375,7 +409,7 @@ static const value_string error_code_vals[] = {
 #define  TX_CONNECT_SPEED_V3		74
 #define  RX_CONNECT_SPEED_V3		75
 
-#define NUM_AVP_TYPES  76
+#define NUM_AVP_TYPES  96
 static const value_string avp_type_vals[] = {
   { CONTROL_MESSAGE,           "Control Message" },
   { RESULT_ERROR_CODE,         "Result-Error Code" },
@@ -434,37 +468,60 @@ static const value_string avp_type_vals[] = {
   { CTL_MSG_AUTH_NONCE,        "Control Message Authentication Nonce" },
   { TX_CONNECT_SPEED_V3,       "Tx Connect Speed Version 3" },
   { RX_CONNECT_SPEED_V3,       "Rx Connect Speed Version 3" },
+  { 76,							"Failover Capability" },							/*[draft-ietf-l2tpext-failover-04.txt] */
+  { 77,							"Tunnel Recovery" },								/*[draft-ietf-l2tpext-failover-04.txt] */
+  { 78,							"Suggested Control Sequence" },						/*[draft-ietf-l2tpext-failover-04.txt] */
+  { 79,							"Failover Session State" },							/*[draft-ietf-l2tpext-failover-04.txt] */
+  { 80,							"Multicast Capability" },							/*[RFC4045] */
+  { 81,							"New Outgoing Sessions" },							/*[RFC4045] */
+  { 82,							"New Outgoing Sessions Acknowledgement" },			/*[RFC4045] */
+  { 83,							"Withdraw Outgoing Sessions" },						/*[RFC4045] */
+  { 84,							"Multicast Packets Priority" },						/*[RFC4045] */
+  { 85,							"Frame-Relay Header Length" },						/*[RFC4591] */
+  { 86,							"ATM Maximum Concatenated Cells AVP" },				/*[RFC4454] */
+  { 87,							"OAM Emulation Required AVP" },						/*[RFC4454] */
+  { 88,							"ATM Alarm Status AVP" },							/*[RFC4454] */
+    /*        Also, see ATM Alarm Status AVP Values below */
+  { 89,							"Attachment Group Identifier" },					/*[RFC4667] */
+  { 90,							"Local End Identifier" },							/*[RFC4667] */
+  { 91,							"Interface Maximum Transmission Unit" },			/*[RFC4667] */
+  { 92,							"FCS Retention" },									/*[RFC4720] */
+  { 93,							"Tunnel Switching Aggregator ID AVP" },				/*[draft-ietf-l2tpext-tunnel-switching-06.txt] */
+  { 94,							"Maximum Receive Unit (MRU) AVP" },					/*[RFC4623] */
+  { 95,							"Maximum Reassembled Receive Unit (MRRU) AVP" },	/*[RFC4623] */
+
+
   { 0,                         NULL }
 };
 
 #define CISCO_ASSIGNED_CONNECTION_ID	1
-#define CISCO_PW_CAPABILITY_LIST	2
-#define CISCO_LOCAL_SESSION_ID		3
-#define CISCO_REMOTE_SESSION_ID		4
-#define CISCO_ASSIGNED_COOKIE		5
-#define CISCO_REMOTE_END_ID		6
-#define CISCO_PW_TYPE			7
-#define CISCO_CIRCUIT_STATUS		8
-#define CISCO_SESSION_TIE_BREAKER	9
-#define CISCO_DRAFT_AVP_VERSION		10
-#define CISCO_MESSAGE_DIGEST		12
-#define CISCO_AUTH_NONCE		13
-#define CISCO_INTERFACE_MTU		14
+#define CISCO_PW_CAPABILITY_LIST		2
+#define CISCO_LOCAL_SESSION_ID			3
+#define CISCO_REMOTE_SESSION_ID			4
+#define CISCO_ASSIGNED_COOKIE			5
+#define CISCO_REMOTE_END_ID				6
+#define CISCO_PW_TYPE					7
+#define CISCO_CIRCUIT_STATUS			8
+#define CISCO_SESSION_TIE_BREAKER		9
+#define CISCO_DRAFT_AVP_VERSION			10
+#define CISCO_MESSAGE_DIGEST			12
+#define CISCO_AUTH_NONCE				13
+#define CISCO_INTERFACE_MTU				14
 
 static const value_string cisco_avp_type_vals[] = {
   { CISCO_ASSIGNED_CONNECTION_ID,	"Assigned Connection ID" },
   { CISCO_PW_CAPABILITY_LIST,		"Pseudowire Capabilities List" },
-  { CISCO_LOCAL_SESSION_ID,		"Local Session ID" },
+  { CISCO_LOCAL_SESSION_ID,			"Local Session ID" },
   { CISCO_REMOTE_SESSION_ID,		"Remote Session ID" },
-  { CISCO_ASSIGNED_COOKIE,		"Assigned Cookie" },
-  { CISCO_REMOTE_END_ID,		"Remote End ID" },
-  { CISCO_PW_TYPE,			"Pseudowire Type" },
-  { CISCO_CIRCUIT_STATUS,		"Circuit Status" },
+  { CISCO_ASSIGNED_COOKIE,			"Assigned Cookie" },
+  { CISCO_REMOTE_END_ID,			"Remote End ID" },
+  { CISCO_PW_TYPE,					"Pseudowire Type" },
+  { CISCO_CIRCUIT_STATUS,			"Circuit Status" },
   { CISCO_SESSION_TIE_BREAKER,		"Session Tie Breaker" },
   { CISCO_DRAFT_AVP_VERSION,		"Draft AVP Version" },
   { CISCO_MESSAGE_DIGEST,       	"Message Digest" },
   { CISCO_AUTH_NONCE,        		"Control Message Authentication Nonce" },
-  { CISCO_INTERFACE_MTU,		"Interface MTU" },
+  { CISCO_INTERFACE_MTU,			"Interface MTU" },
   { 0,                         		NULL }
 };
 
