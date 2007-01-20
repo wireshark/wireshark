@@ -29,26 +29,12 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#if 0
-#include <epan/filesystem.h>
-#endif
-
-#if 0
-#include "globals.h"
-#endif
-
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
-#if 0
-#include "main.h"
-#endif
 
 #include <string.h>
-#if 0
-#include <stdio.h>
-#endif
 #include <stdarg.h>
 
 static void
@@ -83,7 +69,7 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
 	return;
 
     button_hbox = OBJECT_GET_DATA(hbox, BUTTON_HBOX_KEY);
-    children = gtk_container_get_children(GTK_CONTAINER(button_hbox));
+    children = gtk_container_children(GTK_CONTAINER(button_hbox));
 
     while (children) {
 	if (cur_item == focus_item) {
