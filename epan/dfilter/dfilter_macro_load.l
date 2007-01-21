@@ -6,7 +6,7 @@
 %{
 /* dfilter_macro_load.l
  *
- * $Id: dfilter_macro_expand.l 18197 2006-05-21 05:12:17Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
