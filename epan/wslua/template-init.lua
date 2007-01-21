@@ -51,7 +51,9 @@ end
 -- to avoid output to stdout which can cause problems lua's print ()
 -- has been suppresed so that it yields an error.
 -- have print() call info() instead.
-print = info
+if gui_enabled() then
+	print = info
+end
 
 -- %WTAP_ENCAPS%
 
