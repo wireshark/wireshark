@@ -2133,11 +2133,16 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *    If octet_1 == 0x00 and octet_2 == length(tvb) - 2
      * or if octet_1 == 0x01 and octet_3 == length(tvb) - 3
      * then we'll assume it is a bssap packet
+     *    If octet_1 == 0x00 a further check is done
+     *    to differentiate a BSSMAP BLOCK message from a
+     *    RANAP DirectTransfer (under certain conditions)
      */
     switch (tvb_get_guint8(tvb, 0))
     {
     case 0x00:
 	if (tvb_get_guint8(tvb, 1) != (tvb_length(tvb) - 2)) { return(FALSE); }
+    if (tvb_get_guint8(tvb, 2) == 0x40 && tvb_get_guint8(tvb, 3) != 0x01) { 
+        return(FALSE); }
 	break;
 
     case 0x01:
