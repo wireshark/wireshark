@@ -45,7 +45,8 @@ static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
 static int hf_frame_time_relative = -1;
 int hf_frame_number = -1;
-int hf_frame_packet_len = -1;
+int hf_frame_packet_len = -1; /* Deprecated in favor of hf_frame_len */
+int hf_frame_len = -1;
 int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
@@ -107,7 +108,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree	*fh_tree=NULL;
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
-	int		cap_len = 0, pkt_len = 0;
+	int		cap_len = 0, frame_len = 0;
 	proto_tree	*tree;
         proto_item  *item;
 	int frame_number;
@@ -164,10 +165,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* Put in frame header information. */
 	if (tree) {
 	  cap_len = tvb_length(tvb);
-	  pkt_len = tvb_reported_length(tvb);
+	  frame_len = tvb_reported_length(tvb);
 
 	  ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, pkt_len, cap_len);
+	    "Frame %u (%u bytes on wire, %u bytes captured)", pinfo->fd->num, frame_len, cap_len);
 
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 	}
@@ -209,9 +210,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  proto_tree_add_uint(fh_tree, hf_frame_number, tvb,
 		0, 0, pinfo->fd->num);
 
-	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, tvb,
-		0, 0, pkt_len, "Packet Length: %d byte%s", pkt_len,
-		plurality(pkt_len, "", "s"));
+	  /* Deprecated in favor of hf_frame_len */
+	  item = proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, tvb,
+		0, 0, frame_len, "Packet Length: %d byte%s", frame_len,
+		plurality(frame_len, "", "s"));
+	  PROTO_ITEM_SET_HIDDEN(item);
+
+	  proto_tree_add_uint_format(fh_tree, hf_frame_len, tvb,
+		0, 0, frame_len, "Frame Length: %d byte%s", frame_len,
+		plurality(frame_len, "", "s"));
 
 	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, tvb,
 		0, 0, cap_len, "Capture Length: %d byte%s", cap_len,
@@ -450,7 +457,7 @@ proto_register_frame(void)
 			"The timestamp from the capture is out of the valid range", HFILL }},
 
 		{ &hf_frame_time_delta,
-		{ "Time delta from previous packet",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+		{ "Time delta from previous frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
 			"Time delta since previous displayed frame", HFILL }},
 
@@ -463,8 +470,13 @@ proto_register_frame(void)
 		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
+		/* Deprecated and hidden in favor of hf_frame_len / frame.len */
 		{ &hf_frame_packet_len,
 		{ "Frame length on the wire",		"frame.pkt_len", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"", HFILL }},
+
+		{ &hf_frame_len,
+		{ "Frame length on the wire",		"frame.len", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_frame_capture_len,
