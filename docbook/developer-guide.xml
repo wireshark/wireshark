@@ -76,6 +76,7 @@ FILE SECTION
   <!ENTITY BookMetaInformation SYSTEM "wsdg_src/WSDG_meta_info.xml">
   <!ENTITY Preface SYSTEM "wsdg_src/WSDG_preface.xml">
   <!ENTITY EnvIntroduction SYSTEM "wsdg_src/WSDG_chapter_env_intro.xml">
+  <!ENTITY QuickSetup SYSTEM "wsdg_src/WSDG_chapter_quick_setup.xml">
   <!ENTITY Tools SYSTEM "wsdg_src/WSDG_chapter_tools.xml">
   <!ENTITY Libraries SYSTEM "wsdg_src/WSDG_chapter_libraries.xml">
   <!ENTITY Sources SYSTEM "wsdg_src/WSDG_chapter_sources.xml">
@@ -117,9 +118,10 @@ to change the sources (e.g. adding a new dissector).
 </para>
 </partintro>
 &EnvIntroduction;
+&QuickSetup;
+&Sources;
 &Tools;
 &Libraries;
-&Sources;
 </part>
 <part id="PartDevelopment" label="II">
 <title>Wireshark Development (incomplete)</title>

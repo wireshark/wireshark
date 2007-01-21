@@ -1,0 +1,455 @@
+<?xml version='1.0' encoding='utf-8'?>
+<chapter id="ChapterSetup">
+  <title>Quick Setup</title>
+  <section id="ChSetupUNIX">
+    <title>UNIX: Installation</title>
+    <para>All the tools required are usually installed on a UNIX
+    developer machine.</para>
+    <para>If a tool is not already installed on your system, you
+    will typically use the installation package from your
+    distribution (by your favourite package manager: apt, yum,
+    synaptics, ...).</para>
+    <para>If an install package is not available, or you have a
+    reason not to use it (maybe because it's simply too old), you
+    can install that tool from source code. The following sections
+    will provide you with the webpage addresses where you can get
+    these sources.</para>
+  </section>
+  <section id="ChSetupWin32">
+    <title>Win32: Step-by-Step Guide</title>
+    <para>A quick setup guide for Win32 with recommended
+    configuration.</para>
+    <warning>
+      <title>Warning!</title>
+      <para>
+        <command>Unless you know exactly what you are doing, you
+        should strictly follow the recommendations!</command>
+      </para>
+    </warning>
+    <section id="ChSetupMSVC">
+      <title>Install Microsoft C compiler and Platform SDK</title>
+      <para>You need to install: 
+      <orderedlist>
+        <listitem>
+          <para>C compiler: 
+          <ulink url="http://msdn.microsoft.com/vstudio/express/visualc/download/">
+          Download</ulink>(474MB) and install "Visual C++ 2005
+          Express Edition"</para>
+        </listitem>
+        <listitem>
+          <para>Platform SDK : 
+          <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en">
+          Download</ulink>(420MB) and install Platform SDK Server
+          2003 R2</para>
+        </listitem>
+      </orderedlist></para>
+      <para>Install MSVC the usual way. Don't forget to install
+      vcvars32.bat or call it manually before building Wireshark.
+      vcvars32.bat will set some required environment (e.g. the
+      PATH) settings.</para>
+      <tip>
+        <title>Other Microsoft C compiler variants
+        possible!</title>
+        <para>It's possible to compile compile Wireshark with a
+        wide range of Microsoft C compiler variants, for details
+        see 
+        <xref linkend="ChToolsMSChain" />!</para>
+      </tip>
+      <warning>
+        <title>Recent sources required!</title>
+        <para>Support for MSVC compiler versions != 6 has been
+        recently add. If you use an existing "older" source tree
+        than SVN XXX (or release 0.99.5) you must update.</para>
+      </warning>
+      <warning>
+        <title>Don't use cygwin's gcc!</title>
+        <para>Using cygwin's gcc is not recommended and will
+        certainly not work (at least without a lot of advanced
+        tweaking). For further details on this topic, see 
+        <xref linkend="ChToolsGNUChain" />.</para>
+      </warning>
+      <para>XXX - mention the compiler and PSDK web installers -
+      which significantly reduce download size - and find out the
+      required components</para>
+      <para>XXX - how to get the right PATH settings?</para>
+      <para>Why this is recommended: While this is a huge download,
+      the 2005 express edition is the only free (as in beer)
+      version that includes the Visual Studio integrated
+      debugger.</para>
+    </section>
+    <section id="ChSetupCygwin">
+      <title>Install Cygwin</title>
+      <para>
+      <ulink url="http://www.cygwin.com/setup.exe">
+      Download</ulink>the cygwin installer and start it.</para>
+      <para>At the "Select Packages" page, you'll need to select
+      some additional packages, which are not installed by default.
+      Navigate to the required Category/Package row and click on
+      the "Skip" item in the "New" column so it shows a version
+      number for: 
+      <itemizedlist>
+        <listitem>
+          <para>Archive/unzip</para>
+        </listitem>
+        <listitem>
+          <para>Devel/bison</para>
+        </listitem>
+        <listitem>
+          <para>Devel/flex</para>
+        </listitem>
+        <listitem>
+          <para>Interpreters/perl</para>
+        </listitem>
+        <listitem>
+          <para>Utils/patch</para>
+        </listitem>
+        <listitem>
+          <para>Web/wget</para>
+        </listitem>
+      </itemizedlist></para>
+      <para>After clicking the Next button several times, the setup
+      will then download and install the selected packages (this
+      may take a while).</para>
+      <para>Why this is recommended: Cygwin's bash version is
+      required, as no native Win32 version is available. As
+      additional packages can easily be added, the perl and alike
+      packages are also used.</para>
+    </section>
+    <section id="ChSetupPython">
+      <title>Install Python</title>
+      <para>Get the python installer from: 
+      <ulink url="http://python.org/download/" />and install python
+      into the default location (currently: C:/Python24).</para>
+      <para>Why this is recommended: Cygwin's python package
+      doesn't work on some machines, so the Win32 native package is
+      recommended.</para>
+    </section>
+    <section id="ChSetupsubversion">
+      <title>Install Subversion Client</title>
+      <para>Please note that the following is not required to build
+      Wireshark, but can be quite helpful when working with the
+      sources.</para>
+      <para>Why this is recommended: updating a personal source
+      tree is significantly easier to do with subversion than
+      downloading a zip file and merging new sources into a
+      personal source tree "by hand".</para>
+      <section>
+        <title>Subversion</title>
+        <para>If you want to work with the Wireshark subversion
+        source repositories (which is highly recommended, see 
+        <xref linkend="ChSrcObtain" />), it's recommended to
+        install Subversion. This makes the first time setup easy
+        and enables the Wireshark build process to determine your
+        current source code revision. You can download the setup
+        from 
+        <ulink url="http://subversion.tigris.org/" />and simply
+        install it.</para>
+      </section>
+      <section>
+        <title>TortoiseSVN</title>
+        <para>If you want to work with the Wireshark subversion
+        source repositories (which is highly recommended, see 
+        <xref linkend="ChSrcObtain" />), it's recommended to use
+        TortoiseSVN for your everyday work. You can download the
+        setup from 
+        <ulink url="http://tortoisesvn.tigris.org/" />and simply
+        install it.</para>
+      </section>
+    </section>
+    <section>
+      <title>Install and Prepare Sources</title>
+      <para>Tip: It's a good idea to successfully compile and run
+      Wireshark at least once before you start hacking the
+      Wireshark sources for your own project! 
+      <orderedlist>
+        <listitem>
+          <para>Download sources : Download Wireshark sources into:
+          C:\wireshark using TortoiseSVN</para>
+          <para>
+            <orderedlist>
+              <listitem>
+                <para>right click on the C:\ drive in Windows
+                Explorer</para>
+              </listitem>
+              <listitem>
+                <para>in the upcoming context menu select "SVN
+                checkout..." and then set:</para>
+              </listitem>
+              <listitem>
+                <para>
+                  <orderedlist>
+                    <listitem>
+                      <para>URL of repository: " 
+                      <literal>
+                      http://anonsvn.wireshark.org/wireshark/trunk/</literal>"</para>
+                    </listitem>
+                    <listitem>
+                      <para>Checkout directory:
+                      "C:\wireshark"</para>
+                    </listitem>
+                  </orderedlist>
+                </para>
+              </listitem>
+              <listitem>
+                <para>TortoiseSVN might ask you to create this
+                directory - say yes</para>
+              </listitem>
+              <listitem>
+                <para>TortoiseSVN starts downloading the
+                sources</para>
+              </listitem>
+              <listitem>
+                <para>if the download fails you may be behind a
+                restrictive firewall, see - XXX add link -
+                Obtaining Sources Section for alternative download
+                methods</para>
+              </listitem>
+            </orderedlist>
+          </para>
+        </listitem>
+        <listitem>
+          <para>edit config.nmake: edit the settings in
+          C:\wireshark\config.nmake, especially:</para>
+          <para>
+            <orderedlist>
+              <listitem>
+                <para>VERSION_EXTRA : give Wireshark your "private"
+                version info, e.g.: -myprotocol123 - to distinguish
+                it from an official release!</para>
+              </listitem>
+              <listitem>
+                <para>PROGRAM_FILES : where your programs reside,
+                usually just keep the default: C:/Program Files 
+                <superscript>2</superscript></para>
+              </listitem>
+              <listitem>
+                <para>MSVC_VARIANT : search for the line:
+                #MSVC_VARIANT=MSVC2005EE and remove the tailing #
+                comment char from this line 
+                <superscript>1</superscript></para>
+              </listitem>
+            </orderedlist>
+          </para>
+        </listitem>
+      </orderedlist>
+      <superscript>1</superscript>Compiler dependent: This step
+      depends on the compiler variant used, for other variants than
+      the recommended Visual C++ 2005 Express Edition see the table
+      above!</para>
+      <para>
+      <superscript>2</superscript>International Windows might use
+      different values here, e.g. a german version uses
+      C:/Programme - take this also in account where C:\Program
+      Files appears elsewhere</para>
+    </section>
+    <section>
+      <title>Prepare command.com</title>
+      <para>Prepare command.com - set environment and current dir. 
+      <orderedlist>
+        <listitem>
+          <para>start command.com</para>
+        </listitem>
+        <listitem>
+          <para>call "C:\Program Files\Microsoft Visual Studio
+          8\VC\bin\vcvars32.bat" to set environment variables of
+          Visual C++ 2005 Express Edition 
+          <superscript>12</superscript></para>
+        </listitem>
+        <listitem>
+          <para>call "C:\Program Files\Microsoft Platform SDK for
+          Windows Server 2003 R2\ SetEnv.Cmd" to set environment
+          variables of Platform SDK Server 2003 R2 
+          <superscript>12</superscript></para>
+        </listitem>
+        <listitem>
+          <para>cd C:\wireshark to jump into the source
+          directory</para>
+        </listitem>
+      </orderedlist>
+      <superscript>1</superscript>Compiler dependent: This step
+      depends on the compiler variant used, for other variants than
+      the recommended Visual C++ 2005 Express Edition see the table
+      above!</para>
+      <para>
+      <superscript>2</superscript>International Windows might use
+      different values here, e.g. a german version uses
+      C:/Programme - take this also in account where C:\Program
+      Files appears elsewhereNote: You need to repeat steps 1 - 4
+      each time you open a new command.com!</para>
+    </section>
+    <section id="ChToolsWin32Verify">
+      <title>Verify installed tools</title>
+      <para>After you've installed the Wireshark sources (see 
+      <xref linkend="ChSrcObtain" />), you can check the correct
+      installation of all tools by using the verify_tools target of
+      the 
+      <filename>Makefile.nmake</filename>from the source
+      package.</para>
+      <warning>
+        <title>Warning!</title>
+        <para>You will need the Wireshark sources and some tools
+        (nmake, bash) installed, before this verification is able
+        to work.</para>
+      </warning>
+      <para>Enter at the command line (cmd.exe, not Cygwin's
+      bash!):</para>
+      <para>
+        <prompt>&gt;</prompt>
+        <userinput>nmake -f Makefile.nmake verify_tools</userinput>
+      </para>
+      <para>This will check for the various tools needed to build
+      Wireshark:</para>
+      <para>
+        <programlisting>
+          <![CDATA[Checking for required applications:
+        cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
+        link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
+        nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
+
+        bash: /usr/bin/bash
+        bison: /usr/bin/bison
+        flex: /usr/bin/flex
+        env: /usr/bin/env
+        grep: /usr/bin/grep
+        /usr/bin/find: /usr/bin/find
+        perl: /usr/bin/perl
+        env: /usr/bin/env
+        C:/python24/python.exe: /cygdrive/c/python24/python.exe
+        sed: /usr/bin/sed
+        unzip: /usr/bin/unzip
+        wget: /usr/bin/wget]]>
+</programlisting>
+      </para>
+      <para>If you have problems with all the first three ones,
+      check if you called ...\Microsoft Visual
+      Studio\VC98\Bin\vcvars32.bat before (which will "fix" your
+      PATH settings).</para>
+      <para>Unfortunately, the link command is defined both from
+      cygwin and from MSVC with completely different purpose,
+      you'll need the MSVC link. If your link command looks
+      something like: /usr/bin/link, the link command of cygwin
+      takes precedence over the MSVC one. To fix this, you can
+      change your PATH environment setting or simply renaming the
+      link.exe in cygwin. If you rename it, make sure to remember
+      that a cygwin update may provide a new version of it.</para>
+    </section>
+    <section>
+      <title>Install Libraries</title>
+      <orderedlist>
+        <listitem>
+          <para>If you've closed command.com in the meantime,
+          prepare command.com again</para>
+        </listitem>
+        <listitem>
+          <para>nmake -f Makefile.nmake verify_tools verify
+          installed tools -&gt; check your PATH and tools
+          installations if problems arise</para>
+        </listitem>
+        <listitem>
+          <para>nmake -f Makefile.nmake setup downloads libraries
+          using wget and installs them - this may take a while
+          ...</para>
+        </listitem>
+        <listitem>
+          <para>if the download fails you may be behind a
+          restrictive firewall, see the wget manual for ways to use
+          a proxy</para>
+        </listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Distclean Sources</title>
+      <para>The released Wireshark sources contain files that are
+      prepared for a UNIX build (e.g. config.h).</para>
+      <para>You must distclean your sources before building the
+      first time! 
+      <orderedlist>
+        <listitem>
+          <para>If you've closed command.com in the meantime,
+          prepare command.com again</para>
+        </listitem>
+        <listitem>
+          <para>nmake -f Makefile.nmake distclean to cleanup the
+          Wireshark sources</para>
+        </listitem>
+      </orderedlist></para>
+    </section>
+    <section>
+      <title>Build Wireshark</title>
+      <para>Now it's time to build Wireshark ... 
+      <orderedlist>
+        <listitem>
+          <para>If you've closed command.com in the meantime,
+          prepare command.com again</para>
+        </listitem>
+        <listitem>
+          <para>nmake -f Makefile.nmake all to build
+          Wireshark</para>
+        </listitem>
+        <listitem>
+          <para>wait for Wireshark to compile - this may take a
+          while!</para>
+        </listitem>
+        <listitem>
+          <para>run C:\wireshark\wireshark-gtk2\wireshark.exe and
+          check if it starts</para>
+        </listitem>
+        <listitem>
+          <para>check Help/About if it shows your "private" program
+          version, e.g.: Version 0.99.4-myprotocol123 - you might
+          run a release version previously installed!</para>
+        </listitem>
+      </orderedlist>Tip: If compilation fails for suspicious
+      reasons after you changed some source files try to distclean
+      the sources and make "all" again</para>
+    </section>
+    <section>
+      <title>Debug Environment Setup (XXX)</title>
+      <para>XXX - debug needs to be written, e.g. an idea is the
+      create a simple MSVC 6 workspace/project(s) to ease Visual
+      Studio debugging</para>
+    </section>
+    <section>
+      <title>Create a Wireshark Installer</title>
+      <para>Note: You should have successfully build Wireshark
+      before doing the following!</para>
+      <para>If you want to build your own wireshark-setup.exe,
+      you'll need NSIS. 
+      <orderedlist>
+        <listitem>
+          <para>NSIS: 
+          <ulink url="http://nsis.sourceforge.net">
+          Download</ulink>and install NSIS</para>
+          <para>You may check the MAKENSIS setting in the file 
+          <filename>config.nmake</filename>of the Wireshark
+          sources.</para>
+        </listitem>
+        <listitem>
+          <para>vcredist_x86.exe : 
+          <ulink url="#">Download</ulink>the C-Runtime
+          redistributable for Visual C++ 2005 Express Edition
+          (vcredist_x86.exe) and copy it into
+          C:\wireshark-win32-libs 
+          <superscript>1</superscript></para>
+        </listitem>
+        <listitem>
+          <para>If you've closed command.com in the meantime,
+          prepare command.com again</para>
+        </listitem>
+        <listitem>
+          <para>nmake -f Makefile.nmake packaging build Wireshark
+          installer</para>
+        </listitem>
+        <listitem>
+          <para>run
+          C:\wireshark\packaging\nsis\wireshark-setup-&lt;version&gt;.exe
+          and test it</para>
+        </listitem>
+      </orderedlist>
+      <superscript>1</superscript>Compiler dependent: This step
+      depends on the compiler variant used, for other variants than
+      the recommended Visual C++ 2005 Express Edition see the table
+      above!</para>
+    </section>
+  </section>
+</chapter>

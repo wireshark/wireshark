@@ -192,6 +192,7 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_dissection.xml	\
 	wsdg_src/WSDG_chapter_env_intro.xml	\
 	wsdg_src/WSDG_chapter_libraries.xml	\
+	wsdg_src/WSDG_chapter_quick_setup.xml	\
 	wsdg_src/WSDG_chapter_sources.xml	\
 	wsdg_src/WSDG_chapter_tools.xml		\
 	wsdg_src/WSDG_chapter_userinterface.xml	\

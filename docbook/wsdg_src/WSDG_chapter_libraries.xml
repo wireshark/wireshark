@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 
 <chapter id="ChapterLibraries">
-  <title>Libraries</title>
+  <title>Library Reference</title>
   
   <section id="ChLibIntro">
 	<title>Introduction</title>
@@ -43,8 +43,7 @@
     <title>Binary library formats</title>
 	<para>
 	Binary libraries are available in different formats, depending on the C 
-	compiler (see <xref linkend="ChToolsCompiler"/>) used to build it and of 
-	course the platform they were build for.
+	compiler used to build it and of course the platform they were build for.
 	</para>
 	
 	<section id="ChLibsFormatUnix">
@@ -57,23 +56,11 @@
 	</para>
 	</section>
 
-	<section id="ChLibsFormatWin32MSVC6">
-	<title>Win32: MSVC V6</title>
+	<section id="ChLibsFormatWin32">
+	<title>Win32: MSVC</title>
 	<para>
-	Recommended for current Win32 Wireshark releases.
 	Most of the Win32 binary libraries you will find on the web are in this
 	format. You will recognize MSVC libraries by the .lib/.dll file extension.
-	</para>
-	</section>
-
-	<section id="ChLibsFormatWin32MSVC2003">
-	<title>Win32: MSVC 2003</title>
-	<para>
-	Currently not widely available, but the first libraries in that format can 
-	be seen on the web. These libraries have the same .lib/.dll file 
-	extension, but unfortunately they are not completely compatible as they 
-	are linked with different dependant libraries, see <xref 
-	linkend="ChToolsCompiler"/> for some further explanations.
 	</para>
 	</section>
 
