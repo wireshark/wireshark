@@ -524,18 +524,63 @@ extern guint8* stats_tree_get_abbr(const guint8* optarg) {
 }
 
 
+/*
+ * This function accepts an input string which should define a long integer range.
+ * The normal result is a struct containing the floor and ceil value of this
+ * range.
+ *
+ * It is allowed to define a range string in the following ways :
+ *
+ * "0-10" -> { 0, 10 }
+ * "-0" -> { G_MININT, 0 }
+ * "0-" -> { 0, G_MAXINT }
+ * "-" -> { G_MININT, G_MAXINT }
+ *
+ * Note that this function is robust to buggy input string. If in some cases it
+ * returns NULL, it but may also return a pair with undefined values.
+ *
+ */
 static range_pair_t* get_range(guint8* rngstr) {
 	gchar** split;
-	range_pair_t* rng = g_malloc(sizeof(range_pair_t));
+	range_pair_t* rng;
 	
-	split =  g_strsplit(rngstr,"-",2);
+	split = g_strsplit((gchar*)rngstr,"-",2);
 
-	rng->floor = strtol(split[0],NULL,10);
-	rng->ceil  = strtol(split[1],NULL,10);
+	/* empty string */
+	if (split[0] == NULL) {
+	  g_strfreev(split);
+	  return NULL;
+	}
+
+#if GLIB_MAJOR_VERSION >= 2
+	/* means we have a non empty string 
+	 * which does not contain a delimiter */
+	if (split[1] == NULL) {
+	  g_strfreev(split);
+	  return NULL;
+	}
+#endif
+
+	rng = g_malloc(sizeof(range_pair_t));
+
+	/* string == "X-?" */
+	if (*(split[0]) != '\0') {
+	    rng->floor = strtol(split[0],NULL,10);
+	} else
+	  /* string == "-?" */
+	  rng->floor = G_MININT;
+
+	/* string != "?-" */
+#if GLIB_MAJOR_VERSION >= 2
+	if (*(split[1]) != '\0') {
+#else
+	if (split[1] != NULL) {
+#endif
+	  rng->ceil  = strtol(split[1],NULL,10);
+	} else
+	  /* string == "?-" */
+	  rng->ceil = G_MAXINT;
 	
-	if (rng->ceil == 0) rng->ceil = G_MAXINT;
-	if (rng->floor == 0) rng->floor = G_MININT;
-
 	g_strfreev(split);
 	
 	return rng;
