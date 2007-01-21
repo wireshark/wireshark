@@ -238,8 +238,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
     GList       *if_list;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-    gchar       *cant_get_if_list_errstr;
+    gchar       *err_str;
 
 
     /*
@@ -262,18 +261,16 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
         return 1;
       }
       if (adapter_index == 0) {
-        cmdarg_err("there is no interface with that adapter index");
+        cmdarg_err("There is no interface with that adapter index");
         return 1;
       }
-      if_list = get_interface_list(&err, err_str);
+      if_list = get_interface_list(&err, &err_str);
       if (if_list == NULL) {
         switch (err) {
 
         case CANT_GET_INTERFACE_LIST:
-            cant_get_if_list_errstr =
-                cant_get_if_list_error_message(err_str);
-            cmdarg_err("%s", cant_get_if_list_errstr);
-            g_free(cant_get_if_list_errstr);
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
             break;
 
         case NO_INTERFACES_FOUND:
@@ -284,7 +281,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
       }
       if_info = g_list_nth_data(if_list, adapter_index - 1);
       if (if_info == NULL) {
-        cmdarg_err("there is no interface with that adapter index");
+        cmdarg_err("There is no interface with that adapter index");
         return 1;
       }
       capture_opts->iface = g_strdup(if_info->name);
@@ -396,17 +393,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 
 int capture_opts_list_link_layer_types(capture_options *capture_opts)
 {
-    gchar err_str[CAPTURE_PCAP_ERRBUF_SIZE];
+    gchar *err_str;
     GList *lt_list, *lt_entry;
     data_link_info_t *data_link_info;
 
     /* Get the list of link-layer types for the capture device. */
-    lt_list = get_pcap_linktype_list(capture_opts->iface, err_str);
+    lt_list = get_pcap_linktype_list(capture_opts->iface, &err_str);
     if (lt_list == NULL) {
-      if (err_str[0] != '\0') {
+      if (err_str != NULL) {
         cmdarg_err("The list of data link types for the capture device \"%s\" could not be obtained (%s)."
          "Please check to make sure you have sufficient permissions, and that\n"
          "you have the proper interface or pipe specified.\n", capture_opts->iface, err_str);
+        g_free(err_str);
       } else
         cmdarg_err("The capture device \"%s\" has no data link types.", capture_opts->iface);
       return 2;
@@ -434,8 +432,7 @@ int capture_opts_list_interfaces()
     GList       *if_entry;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-    gchar       *cant_get_if_list_errstr;
+    gchar       *err_str;
     int         i;
 #if 0
     GSList      *ip_addr;
@@ -444,13 +441,12 @@ int capture_opts_list_interfaces()
 #endif
 
 
-    if_list = get_interface_list(&err, err_str);
+    if_list = get_interface_list(&err, &err_str);
     if (if_list == NULL) {
         switch (err) {
         case CANT_GET_INTERFACE_LIST:
-            cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-            cmdarg_err("%s", cant_get_if_list_errstr);
-            g_free(cant_get_if_list_errstr);
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
         break;
 
         case NO_INTERFACES_FOUND:
@@ -520,8 +516,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
     GList       *if_list;
     if_info_t   *if_info;
     int         err;
-    gchar       err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-    gchar       *cant_get_if_list_errstr;
+    gchar       *err_str;
 
 
     /* Did the user specify an interface to use? */
@@ -532,14 +527,13 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
           capture_opts->iface = g_strdup(capture_device);
       } else {
         /* No - pick the first one from the list of interfaces. */
-        if_list = get_interface_list(&err, err_str);
+        if_list = get_interface_list(&err, &err_str);
         if (if_list == NULL) {
           switch (err) {
 
           case CANT_GET_INTERFACE_LIST:
-              cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-              cmdarg_err("%s", cant_get_if_list_errstr);
-              g_free(cant_get_if_list_errstr);
+              cmdarg_err("%s", err_str);
+              g_free(err_str);
               break;
 
           case NO_INTERFACES_FOUND:

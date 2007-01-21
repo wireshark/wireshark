@@ -84,9 +84,8 @@ capture_prefs_show(void)
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
-	char		err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-    int         row = 0;
-    GtkTooltips *tooltips = gtk_tooltips_new();
+	int		row = 0;
+	GtkTooltips *tooltips = gtk_tooltips_new();
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
@@ -109,7 +108,7 @@ capture_prefs_show(void)
 	/*
 	 * XXX - what if we can't get the list?
 	 */
-	if_list = get_interface_list(&err, err_str);
+	if_list = get_interface_list(&err, NULL);
 	combo_list = build_capture_combo_list(if_list, FALSE);
 	free_interface_list(if_list);
 	if (combo_list != NULL) {
@@ -120,11 +119,11 @@ capture_prefs_show(void)
 		gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry),
 		    prefs.capture_device);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_cb, 1, 2, row, row+1);
-    gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
-        "The default interface to be captured from.", NULL);
+	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry, 
+	    "The default interface to be captured from.", NULL);
 	gtk_widget_show(if_cb);
 	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
-    row++;
+	row++;
 
 	/* Interface properties */
 	ifopts_lb = gtk_label_new("Interfaces:");
@@ -133,27 +132,27 @@ capture_prefs_show(void)
 	gtk_widget_show(ifopts_lb);
 
 	ifopts_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-    gtk_tooltips_set_tip(tooltips, ifopts_bt, 
-        "Open a dialog box to set various interface options.", NULL);
+	gtk_tooltips_set_tip(tooltips, ifopts_bt, 
+	    "Open a dialog box to set various interface options.", NULL);
 	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
-    row++;
+	row++;
 
 	/* Promiscuous mode */
 	promisc_cb = create_preference_check_button(main_tb, row++,
 	    "Capture packets in promiscuous mode:", NULL,
 	    prefs.capture_prom_mode);
-    gtk_tooltips_set_tip(tooltips, promisc_cb, 
-        "Usually a network card will only capture the traffic sent to its own network address. "
-        "If you want to capture all traffic that the network card can \"see\", mark this option. "
-        "See the FAQ for some more details of capturing packets from a switched network.", NULL);
+	gtk_tooltips_set_tip(tooltips, promisc_cb, 
+	    "Usually a network card will only capture the traffic sent to its own network address. "
+	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
+	    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
 	OBJECT_SET_DATA(main_vb, PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, row++,
 	    "Update list of packets in real time:", NULL,
 	    prefs.capture_real_time);
-    gtk_tooltips_set_tip(tooltips, sync_cb,
+	gtk_tooltips_set_tip(tooltips, sync_cb,
         "Update the list of packets while capture is in progress. "
         "Don't use this option if you notice packet drops.", NULL);
 	OBJECT_SET_DATA(main_vb, CAPTURE_REAL_TIME_KEY, sync_cb);
@@ -162,7 +161,7 @@ capture_prefs_show(void)
 	auto_scroll_cb = create_preference_check_button(main_tb, row++,
 	    "Automatic scrolling in live capture:", NULL,
 	    prefs.capture_auto_scroll);
-    gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
+	gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
         "Automatic scrolling of the packet list while live capture is in progress. ", NULL);
 	OBJECT_SET_DATA(main_vb, AUTO_SCROLL_KEY, auto_scroll_cb);
 
@@ -170,8 +169,8 @@ capture_prefs_show(void)
 	show_info_cb = create_preference_check_button(main_tb, row++,
 	    "Hide capture info dialog:", NULL,
 	    !prefs.capture_show_info);
-    gtk_tooltips_set_tip(tooltips, show_info_cb,
-        "Hide the capture info dialog while capturing. ", NULL);
+	gtk_tooltips_set_tip(tooltips, show_info_cb,
+	    "Hide the capture info dialog while capturing. ", NULL);
 	OBJECT_SET_DATA(main_vb, SHOW_INFO_KEY, show_info_cb);
 
 	/* Show 'em what we got */
@@ -692,19 +691,15 @@ ifopts_if_clist_add(void)
 {
 	GList		*if_list;
 	int		err;
-	char		err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-	gchar		*cant_get_if_list_errstr;
+	gchar		*err_str;
 	if_info_t	*if_info;
 	guint		i;
 	guint		nitems;
 	
-	if_list = get_interface_list(&err, err_str);
+	if_list = get_interface_list(&err, &err_str);
 	if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-		cant_get_if_list_errstr =
-		    cant_get_if_list_error_message(err_str);
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-		    cant_get_if_list_errstr);
-		g_free(cant_get_if_list_errstr);
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+		g_free(err_str);
 		return;
 	}
 	
@@ -719,7 +714,7 @@ ifopts_if_clist_add(void)
 		if (if_info == NULL)
 			continue;
 
-        /* fill current options CList with current preference values */
+		/* fill current options CList with current preference values */
 		ifopts_options_add(GTK_CLIST(cur_clist), if_info);
 	}
 	

@@ -35,10 +35,6 @@ extern "C" {
 
 #include <pcap.h>
 
-/* declaration of pcap_t here, to reduce pcap dependencies */
-/*typedef struct pcap pcap_t;*/
-
-
 /*
  * XXX - this is also the traditional default snapshot size in
  * tcpdump - but, if IPv6 is enabled, it defaults to 96, to get an
@@ -48,9 +44,6 @@ extern "C" {
  * to impose a minimum, but it's not always 68.
  */
 #define MIN_PACKET_SIZE 68	/* minimum amount of packet data we can read */
-
-/* XXX - this must be optimized, removing the dependency!!! */
-#define CAPTURE_PCAP_ERRBUF_SIZE PCAP_ERRBUF_SIZE
 
 /*
  * The list of interfaces returned by "get_interface_list()" is
@@ -74,19 +67,13 @@ typedef struct {
 	} ip_addr;
 } if_addr_t;
 
-GList *get_interface_list(int *err, char *err_str);
+GList *get_interface_list(int *err, char **err_str);
 
 /* Error values from "get_interface_list()". */
 #define	CANT_GET_INTERFACE_LIST	0	/* error getting list */
 #define	NO_INTERFACES_FOUND	1	/* list is empty */
 
 void free_interface_list(GList *if_list);
-
-/*
- * Get an error message string for a CANT_GET_INTERFACE_LIST error from
- * "get_interface_list()".
- */
-gchar *cant_get_if_list_error_message(const char *err_str);
 
 /*
  * The list of data link types returned by "get_pcap_linktype_list()" is
@@ -98,7 +85,7 @@ typedef struct {
 	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
 } data_link_info_t;
 
-GList *get_pcap_linktype_list(const char *devname, char *err_buf);
+GList *get_pcap_linktype_list(const char *devname, char **err_str);
 void free_pcap_linktype_list(GList *linktype_list);
 
 /* get/set the link type of an interface */

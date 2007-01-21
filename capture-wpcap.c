@@ -465,7 +465,7 @@ int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
  * fall back on "pcap_lookupdev()".
  */
 GList *
-get_interface_list(int *err, char *err_str)
+get_interface_list(int *err, char **err_str)
 {
 	GList  *il = NULL;
 	wchar_t *names;
@@ -473,6 +473,7 @@ get_interface_list(int *err, char *err_str)
 	char ascii_name[MAX_WIN_IF_NAME_LEN + 1];
 	char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
 	int i, j;
+	char errbuf[PCAP_ERRBUF_SIZE];
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 	if (p_pcap_findalldevs != NULL)
@@ -522,7 +523,7 @@ get_interface_list(int *err, char *err_str)
 	 * description of the Nth adapter.
 	 */
 
-	names = (wchar_t *)pcap_lookupdev(err_str);
+	names = (wchar_t *)pcap_lookupdev(errbuf);
 	i = 0;
 
 	if (names) {
@@ -609,6 +610,8 @@ get_interface_list(int *err, char *err_str)
 		 * No interfaces found.
 		 */
 		*err = NO_INTERFACES_FOUND;
+		if (err_str != NULL)
+			*err_str = NULL;
 	}
 
 	return il;

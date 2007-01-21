@@ -178,7 +178,6 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   if_info_t *if_info;
   GList *lt_list;
   int err;
-  char err_buf[CAPTURE_PCAP_ERRBUF_SIZE];
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
   data_link_info_t *data_link_info;
@@ -237,7 +236,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     /*
      * Try to get the list of known interfaces.
      */
-    if_list = get_interface_list(&err, err_buf);
+    if_list = get_interface_list(&err, NULL);
     if (if_list != NULL) {
       /*
        * We have the list - check it.
@@ -250,7 +249,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 	   * It's in the list.
 	   * Get the list of link-layer types for it.
 	   */
-	  lt_list = get_pcap_linktype_list(if_name, err_buf);
+	  lt_list = get_pcap_linktype_list(if_name, NULL);
 
 	  /* create string of list of IP addresses of this interface */
 	  for (; (curr_ip = g_slist_nth(if_info->ip_addr, ips)) != NULL; ips++) {
@@ -591,8 +590,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GList         *if_list, *combo_list, *cfilter_list;
   int           row;
   int           err;
-  char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-  gchar         *cant_get_if_list_errstr;
+  gchar         *err_str;
 #ifdef _WIN32
   GtkAdjustment *buffer_size_adj;
   GtkWidget     *buffer_size_lb, *buffer_size_sb;
@@ -623,28 +621,25 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
-  if_list = get_interface_list(&err, err_str);
+  if_list = get_interface_list(&err, &err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                  cant_get_if_list_errstr);
-    g_free(cant_get_if_list_errstr);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    g_free(err_str);
   }
 
 #ifdef HAVE_AIRPCAP
   /* update airpcap interface list */
-  	/* load the airpcap interfaces */
-	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
 
-	decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-	update_decryption_mode_list(decryption_cm);
+  /* load the airpcap interfaces */
+  airpcap_if_list = get_airpcap_interface_list(&err, err_str);
 
-	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-    cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                  cant_get_if_list_errstr);
-    g_free(cant_get_if_list_errstr);
-	}
+  decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  update_decryption_mode_list(decryption_cm);
+
+  if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    g_free(err_str);
+  }
 
 	/* select the first ad default (THIS SHOULD BE CHANGED) */
 	airpcap_if_active = airpcap_get_default_if(airpcap_if_list);

@@ -249,14 +249,17 @@ if_info_ip(if_info_t *if_info, pcap_if_t *d)
 }
 
 GList *
-get_interface_list_findalldevs(int *err, char *err_str)
+get_interface_list_findalldevs(int *err, char **err_str)
 {
 	GList  *il = NULL;
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
+	char errbuf[PCAP_ERRBUF_SIZE];
 
-	if (pcap_findalldevs(&alldevs, err_str) == -1) {
+	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
 		*err = CANT_GET_INTERFACE_LIST;
+		if (err_str != NULL)
+			*err_str = cant_get_if_list_error_message(errbuf);
 		return NULL;
 	}
 
@@ -265,6 +268,8 @@ get_interface_list_findalldevs(int *err, char *err_str)
 		 * No interfaces found.
 		 */
 		*err = NO_INTERFACES_FOUND;
+		if (err_str != NULL)
+			*err_str = NULL;
 		return NULL;
 	}
 
@@ -349,28 +354,33 @@ create_data_link_info(int dlt)
 }
 
 GList *
-get_pcap_linktype_list(const char *devname, char *err_buf)
+get_pcap_linktype_list(const char *devname, char **err_str)
 {
 	GList *linktype_list = NULL;
 	pcap_t *pch;
 	int deflt;
+	char errbuf[PCAP_ERRBUF_SIZE];
 #ifdef HAVE_PCAP_SET_DATALINK
 	int *linktypes;
 	int i, nlt;
 #endif
 	data_link_info_t *data_link_info;
 
-	pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, err_buf);
-	if (pch == NULL)
+	pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
+	if (pch == NULL) {
+		if (err_str != NULL)
+			*err_str = g_strdup(errbuf);
 		return NULL;
-	err_buf[0] = '\0';	/* an empty list doesn't mean an error */
+	}
 	deflt = get_pcap_linktype(pch, devname);
 #ifdef HAVE_PCAP_LIST_DATALINKS
 	nlt = pcap_list_datalinks(pch, &linktypes);
-    if (nlt == 0 || linktypes == NULL) {
+	if (nlt == 0 || linktypes == NULL) {
 		pcap_close(pch);
+		if (err_str != NULL)
+			*err_str = NULL;	/* an empty list doesn't mean an error */
 		return NULL;
-    }
+	}
 	for (i = 0; i < nlt; i++) {
 		data_link_info = create_data_link_info(linktypes[i]);
 

@@ -189,7 +189,7 @@ capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
 static void
 open_if(gchar *name, if_dlg_data_t *if_dlg_data)
 {
-  gchar       open_err_str[CAPTURE_PCAP_ERRBUF_SIZE];
+  gchar       open_err_str[PCAP_ERRBUF_SIZE];
 
   /*
    * XXX - on systems with BPF, the number of BPF devices limits the
@@ -412,8 +412,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
   GtkTooltips   *tooltips;
   int           err;
-  char          err_str[CAPTURE_PCAP_ERRBUF_SIZE];
-  gchar         *cant_get_if_list_errstr;
+  gchar         *err_str;
   GtkRequisition requisition;
   int           row, height;
   if_dlg_data_t *if_dlg_data;
@@ -444,46 +443,38 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   /* LOAD THE INTERFACES */
-  if_list = get_interface_list(&err, err_str);
+  if_list = get_interface_list(&err, &err_str);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    cant_get_if_list_errstr = cant_get_if_list_error_message(err_str);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-                  cant_get_if_list_errstr);
-    g_free(cant_get_if_list_errstr);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    g_free(err_str);
     return;
   }
 
 #ifdef HAVE_AIRPCAP
   /* LOAD AIRPCAP INTERFACES */
-	/* load the airpcap interfaces */
-	airpcap_if_list = get_airpcap_interface_list(&err, err_str);
-	if(airpcap_if_list == NULL) airpcap_if_active = airpcap_if_selected = NULL;
+  airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+  if (airpcap_if_list == NULL)
+    airpcap_if_active = airpcap_if_selected = NULL;
 
-	decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-	update_decryption_mode_list(decryption_cm);
+  decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  update_decryption_mode_list(decryption_cm);
 
-	if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-	cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-				  cant_get_if_list_errstr);
-	g_free(cant_get_if_list_errstr);
-	}
+  if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    g_free(err_str);
+  }
 
-	/* If no airpcap interface is present, gray everything */
-	if(airpcap_if_active == NULL)
-		{
-		if(airpcap_if_list == NULL)
-			{
-			/*No airpcap device found */
-			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
-			}
-		else
-			{
-			/* default adapter is not airpcap... or is airpcap but is not found*/
-			airpcap_set_toolbar_stop_capture(airpcap_if_active);
-			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
-			}
-		}
+  /* If no airpcap interface is present, gray everything */
+  if (airpcap_if_active == NULL) {
+    if (airpcap_if_list == NULL) {
+      /*No airpcap device found */
+      airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
+    } else {
+      /* default adapter is not airpcap... or is airpcap but is not found*/
+      airpcap_set_toolbar_stop_capture(airpcap_if_active);
+      airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
+    }
+  }
 
   airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif

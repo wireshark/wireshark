@@ -109,7 +109,6 @@ get_interface_descriptive_name(const char *if_name)
   GList *if_entry;
   if_info_t *if_info;
   int err;
-  char err_buf[CAPTURE_PCAP_ERRBUF_SIZE];
 
   /* Do we have a user-supplied description? */
   descr = capture_dev_user_descr_find(if_name);
@@ -120,7 +119,7 @@ get_interface_descriptive_name(const char *if_name)
     /* No, we don't have a user-supplied description; did we get
        one from the OS or libpcap? */
     descr = NULL;
-    if_list = get_interface_list(&err, err_buf);
+    if_list = get_interface_list(&err, NULL);
     if (if_list != NULL) {
       if_entry = if_list;
       do {

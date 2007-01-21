@@ -649,7 +649,7 @@ save_wlan_wireshark_wep_keys(GList* key_ls)
  * Get an error message string for a CANT_GET_INTERFACE_LIST error from
  * "get_airpcap_interface_list()".
  */
-gchar *
+static gchar *
 cant_get_airpcap_if_list_error_message(const char *err_str)
 {
 	return g_strdup_printf("Can't get list of Wireless interfaces: %s", err_str);
@@ -1125,19 +1125,20 @@ free_airpcap_interface_list(GList *if_list)
  * Will return null if no device is found.
  */
 GList*
-get_airpcap_interface_list(int *err, char *err_str)
+get_airpcap_interface_list(int *err, char **err_str)
 {
     GList  *il = NULL;
     airpcap_if_info_t *if_info;
     int i, n_adapts;
     AirpcapDeviceDescription *devsList, *adListEntry;
+    char errbuf[PCAP_ERRBUF_SIZE];
 
-    if (err)
-	    *err = NO_AIRPCAP_INTERFACES_FOUND;
-
-    if(!AirpcapLoaded || !g_PAirpcapGetDeviceList(&devsList, err_str))
+    if(!AirpcapLoaded || !g_PAirpcapGetDeviceList(&devsList, errbuf))
     {
 	    /* No interfaces, return il = NULL; */
+	    *err = CANT_GET_AIRPCAP_INTERFACE_LIST;
+	    if (err_str != NULL)
+		*err_str = cant_get_airpcap_if_list_error_message(errbuf);
 	    return il;
     }
 
@@ -1156,6 +1157,9 @@ get_airpcap_interface_list(int *err, char *err_str)
     {
 	    /* No interfaces, return il= NULL */
 	    g_PAirpcapFreeDeviceList(devsList);
+	    *err = NO_AIRPCAP_INTERFACES_FOUND;
+	    if (err_str != NULL)
+		*err_str = NULL;
 	    return il;
     }
 
@@ -1165,14 +1169,15 @@ get_airpcap_interface_list(int *err, char *err_str)
     adListEntry = devsList;
     for(i = 0; i < n_adapts; i++)
     {
-	    if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
-    il = g_list_append(il, if_info);
+      if_info = airpcap_if_info_new(adListEntry->Name, adListEntry->Description);
+      il = g_list_append(il, if_info);
 
-	    adListEntry = adListEntry->next;
+      adListEntry = adListEntry->next;
     }
 
     g_PAirpcapFreeDeviceList(devsList);
 
+    *err = 0;
     return il;
 }
 

@@ -2157,8 +2157,8 @@ main(int argc, char *argv[])
   wpcap_packet_load();
 
 #ifdef HAVE_AIRPCAP
-   /* Load the airpcap.dll.  This must also be done before collecting
-    * run-time version information. */
+  /* Load the airpcap.dll.  This must also be done before collecting
+   * run-time version information. */
   airpcap_dll_ret_val = load_airpcap();
 
   switch (airpcap_dll_ret_val) {
@@ -2167,9 +2167,8 @@ main(int argc, char *argv[])
     airpcap_if_list = get_airpcap_interface_list(&err, err_str);
 
     if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
-      cant_get_if_list_errstr = cant_get_airpcap_if_list_error_message(err_str);
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", cant_get_if_list_errstr);
-      g_free(cant_get_if_list_errstr);
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+      g_free(err_str);
     }
     /* select the first ad default (THIS SHOULD BE CHANGED) */
     airpcap_if_active = airpcap_get_default_if(airpcap_if_list);

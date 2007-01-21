@@ -74,7 +74,7 @@ search_for_if_cb(gpointer data, gpointer user_data);
 #endif
 
 GList *
-get_interface_list(int *err, char *err_str)
+get_interface_list(int *err, char **err_str)
 {
 #ifdef HAVE_PCAP_FINDALLDEVS
 	return get_interface_list_findalldevs(err, err_str);
@@ -90,11 +90,15 @@ get_interface_list(int *err, char *err_str)
 	int len, lastlen;
 	char *buf;
 	if_info_t *if_info;
+	char errbuf[PCAP_ERRBUF_SIZE];
 
 	if (sock < 0) {
 		*err = CANT_GET_INTERFACE_LIST;
-		g_snprintf(err_str, PCAP_ERRBUF_SIZE, "Error opening socket: %s",
-		    strerror(errno));
+		if (err_str != NULL) {
+			*err_str = g_strdup_printf(
+			    "Can't get list of interfaces: error opening socket: %s",
+			    strerror(errno));
+		}
 		return NULL;
 	}
 
@@ -111,15 +115,19 @@ get_interface_list(int *err, char *err_str)
 		memset (buf, 0, len);
 		if (ioctl(sock, SIOCGIFCONF, &ifc) < 0) {
 			if (errno != EINVAL || lastlen != 0) {
-				g_snprintf(err_str, PCAP_ERRBUF_SIZE,
-					"SIOCGIFCONF ioctl error getting list of interfaces: %s",
-					strerror(errno));
+				if (err_str != NULL) {
+					*err_str = g_strdup_printf(
+					    "Can't get list of interfaces: SIOCGIFCONF ioctl error: %s",
+					    strerror(errno));
+				}
 				goto fail;
 			}
 		} else {
 			if ((unsigned) ifc.ifc_len < sizeof(struct ifreq)) {
-				g_snprintf(err_str, PCAP_ERRBUF_SIZE,
-					"SIOCGIFCONF ioctl gave too small return buffer");
+				if (err_str != NULL) {
+					*err_str = g_strdup(
+					    "Can't get list of interfaces: SIOCGIFCONF ioctl gave too small return buffer");
+				}
 				goto fail;
 			}
 			if (ifc.ifc_len == lastlen)
@@ -165,9 +173,11 @@ get_interface_list(int *err, char *err_str)
 		if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifrflags) < 0) {
 			if (errno == ENXIO)
 				goto next;
-			g_snprintf(err_str, PCAP_ERRBUF_SIZE,
-				"SIOCGIFFLAGS error getting flags for interface %s: %s",
-			    ifr->ifr_name, strerror(errno));
+			if (err_str != NULL) {
+				*err_str = g_strdup_printf(
+				    "Can't get list of interfaces: SIOCGIFFLAGS error getting flags for interface %s: %s",
+				    ifr->ifr_name, strerror(errno));
+			}
 			goto fail;
 		}
 
@@ -184,7 +194,7 @@ get_interface_list(int *err, char *err_str)
 		 * supplied is too large, rather than just truncating it.
 		 */
 		pch = pcap_open_live(ifr->ifr_name, MIN_PACKET_SIZE, 0, 0,
-		    err_str);
+		    errbuf);
 		if (pch == NULL)
 			goto next;
 		pcap_close(pch);
@@ -230,7 +240,7 @@ get_interface_list(int *err, char *err_str)
 	 * Try opening it and, if that succeeds, add it to the end of
 	 * the list of interfaces.
 	 */
-	pch = pcap_open_live("any", MIN_PACKET_SIZE, 0, 0, err_str);
+	pch = pcap_open_live("any", MIN_PACKET_SIZE, 0, 0, errbuf);
 	if (pch != NULL) {
 		/*
 		 * It worked; we can use the "any" device.
@@ -250,6 +260,8 @@ get_interface_list(int *err, char *err_str)
 		 * No interfaces found.
 		 */
 		*err = NO_INTERFACES_FOUND;
+		if (err_str != NULL)
+			*err_str = NULL;
 	}
 	return il;
 

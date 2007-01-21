@@ -305,13 +305,6 @@ airpcap_if_info_t* airpcap_driver_fake_if_info_new();
 int load_airpcap(void);
 
 /*
- * Get an error message string for a CANT_GET_INTERFACE_LIST error from
- * "get_airpcap_interface_list()".
- */
-gchar*
-cant_get_airpcap_if_list_error_message(const char *err_str);
-
-/*
  * This function will use the airpcap.dll to find all the airpcap devices.
  * Will return null if no device is found.
  */

@@ -30,8 +30,15 @@
 extern if_info_t *if_info_new(char *name, char *description);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_FINDALLDEVS
-extern GList *get_interface_list_findalldevs(int *err, char *err_str);
+extern GList *get_interface_list_findalldevs(int *err, char **err_str);
 #endif
+
+/*
+ * Get an error message string for a CANT_GET_INTERFACE_LIST error from
+ * "get_interface_list()".  This is used to let the error message string
+ * be platform-dependent.
+ */
+extern gchar *cant_get_if_list_error_message(const char *err_str);
 
 #endif /* HAVE_LIBPCAP */
 
