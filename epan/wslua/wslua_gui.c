@@ -42,7 +42,7 @@ static int menu_cb_error_handler(lua_State* L) {
 }
 
 WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
-    lua_pushboolean(L,GPOINTER_TO_INT(ops));
+    lua_pushboolean(L,GPOINTER_TO_INT(ops && ops->add_button));
     WSLUA_RETURN(1); /* A boolean: true if it is enabled, false if it isn't. */
 }
 
