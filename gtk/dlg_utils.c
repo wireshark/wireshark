@@ -29,26 +29,12 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#if 0
-#include <epan/filesystem.h>
-#endif
-
-#if 0
-#include "globals.h"
-#endif
-
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
-#if 0
-#include "main.h"
-#endif
 
 #include <string.h>
-#if 0
-#include <stdio.h>
-#endif
 #include <stdarg.h>
 
 static void
@@ -68,10 +54,40 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, const gchar *stock_id)
     return button;
 }
 
+/*
+ * Set the focus and default for the nth item in a button row, with
+ * 0 being the first item.
+ */
+#define BUTTON_HBOX_KEY "button_hbox"
+void
+dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
+    GtkWidget *button_hbox, *button;
+    GList *children;
+    gint cur_item = 0;
+
+    if (!hbox)
+	return;
+
+    button_hbox = OBJECT_GET_DATA(hbox, BUTTON_HBOX_KEY);
+    children = gtk_container_children(GTK_CONTAINER(button_hbox));
+
+    while (children) {
+	if (cur_item == focus_item) {
+	    button = children->data;
+	    gtk_widget_grab_focus(button);
+	    gtk_widget_grab_default(button);
+	    break;
+	}
+	children = g_list_next(children);
+	cur_item++;
+    }
+
+    g_list_free(children);
+}
 
 /* create a button row for a dialog */
 
-/* The purpose of this is, to have one place available, where all button rows 
+/* The purpose of this is, to have one place available, where all button rows
  * from all dialogs are laid out. This will:
  *
  * a.) keep the button layout more consistent over the different dialogs
@@ -123,7 +139,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
             save = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_DONT_SAVE) == 0) {
-        	dont_save = stock_id;  
+        	dont_save = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
             cancel = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLOSE) == 0) {
@@ -166,6 +182,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 
     button_hbox = gtk_hbutton_box_new();
     gtk_box_pack_end(GTK_BOX(hbox), button_hbox, TRUE, TRUE, 0);
+    OBJECT_SET_DATA(hbox, BUTTON_HBOX_KEY, button_hbox);
     gtk_widget_show(button_hbox);
 
     help_hbox = gtk_hbutton_box_new();
