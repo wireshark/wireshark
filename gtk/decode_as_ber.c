@@ -140,7 +140,7 @@ decode_add_ber_menu (GtkWidget *page, const gchar *table_name _U_)
 
 /* add a BER page to the notebook */
 GtkWidget *
-decode_ber_add_page (packet_info *pinfo)
+decode_ber_add_page (packet_info *pinfo _U_)
 {
     GtkWidget	*page_hb, *info_vb, *label, *scrolled_window;
 

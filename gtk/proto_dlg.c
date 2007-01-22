@@ -414,7 +414,7 @@ proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
   return FALSE;
 }
 
-static void proto_write(gpointer parent_w)
+static void proto_write(gpointer parent_w _U_)
 {
   char *pf_dir_path;
   char *pf_path;

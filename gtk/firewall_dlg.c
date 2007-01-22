@@ -548,7 +548,7 @@ set_rule_text(rule_info_t *rule_info) {
 
 /* Rule text functions */
 /* Dummy */
-static void sf_dummy(GString *rtxt, gchar *addr _U_, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny _U_) {
+static void sf_dummy(GString *rtxt _U_, gchar *addr _U_, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny _U_) {
 }
 
 /* MAC */

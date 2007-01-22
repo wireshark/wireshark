@@ -358,7 +358,7 @@ range_entry(GtkWidget *widget _U_, gpointer data)
 
 
 static void
-range_entry_in_event(GtkWidget *widget, GdkEventFocus *event _U_, gpointer user_data)
+range_entry_in_event(GtkWidget *widget _U_, GdkEventFocus *event _U_, gpointer user_data _U_)
 {
     /* This event is called, if the "enter" key is pressed while the key focus (right name?) */
     /* is in the range entry field. */

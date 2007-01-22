@@ -1621,7 +1621,7 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 
 /* Import color filters */
 void
-file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list)
+file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 {
 #if GTK_MAJOR_VERSION >= 2 && _WIN32
   win32_import_color_file(GDK_WINDOW_HWND(top_level->window), color_filters);

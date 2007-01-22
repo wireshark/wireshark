@@ -490,7 +490,6 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data)
         GtkTreeModel *model;
         gchar *pkt;
         gchar *grp;
-        error_equiv_table *err=data;
 
         if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
