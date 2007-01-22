@@ -61,7 +61,7 @@ clean:
 # the same for now.
 #
 distclean: clean
-	rm -f scanner.c grammar.c grammar.h grammar.out
+	rm -f scanner.c grammar.c grammar.h grammar.out dfilter_macro_load.c
 
 maintainer-clean: distclean
 
