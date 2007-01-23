@@ -443,6 +443,7 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 #endif
 
 static const luaL_reg Tvb_methods[] = {
+    {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
     {0,0}
