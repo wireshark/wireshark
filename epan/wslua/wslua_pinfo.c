@@ -817,12 +817,15 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching */
     {"match", Pinfo_match, pushnil_param, PARAM_NONE },
 
-	/* WSLUA_ATTRIBUTE Pinfo_match RO Which Protocol are we dissecting */
+	/* WSLUA_ATTRIBUTE Pinfo_curr_proto RO Which Protocol are we dissecting */
     {"curr_proto", Pinfo_curr_proto, pushnil_param, PARAM_NONE },
 
 	/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns */
-    {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
+    {"columns", Pinfo_columns, pushnil_param, PARAM_NONE },
 
+	/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.cols) */
+    {"cols", Pinfo_columns, pushnil_param, PARAM_NONE },
+	
 	{NULL,NULL,NULL,PARAM_NONE}
 };
 
