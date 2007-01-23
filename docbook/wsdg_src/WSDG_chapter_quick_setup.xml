@@ -426,10 +426,10 @@
         </listitem>
         <listitem>
           <para>vcredist_x86.exe : 
-          <ulink url="#">Download</ulink>the C-Runtime
-          redistributable for Visual C++ 2005 Express Edition
-          (vcredist_x86.exe) and copy it into
-          C:\wireshark-win32-libs 
+          <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en">
+          Download</ulink>the C-Runtime redistributable for Visual
+          C++ 2005 Express Edition (vcredist_x86.exe) and copy it
+          into C:\wireshark-win32-libs 
           <superscript>1</superscript></para>
         </listitem>
         <listitem>
