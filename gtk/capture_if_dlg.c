@@ -452,7 +452,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_AIRPCAP
   /* LOAD AIRPCAP INTERFACES */
-  airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+  airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
   if (airpcap_if_list == NULL)
     airpcap_if_active = airpcap_if_selected = NULL;
 

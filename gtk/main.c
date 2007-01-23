@@ -2107,7 +2107,7 @@ main(int argc, char *argv[])
   int                  status;
 
 #ifdef HAVE_AIRPCAP
-  char			err_str[AIRPCAP_ERRBUF_SIZE];
+  char			*err_str;
   gchar			*cant_get_if_list_errstr;
 #endif
 
@@ -2164,7 +2164,7 @@ main(int argc, char *argv[])
   switch (airpcap_dll_ret_val) {
   case AIRPCAP_DLL_OK:
     /* load the airpcap interfaces */
-    airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+    airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
     if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);

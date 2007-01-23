@@ -196,7 +196,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   /* Deallocate the existing menu for Datalink header type */
   if (dl_hdr_menu != NULL)
     gtk_widget_destroy(dl_hdr_menu);
-  
+
   lt_menu = gtk_menu_new();
   dl_hdr_menu= lt_menu;
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
@@ -557,7 +557,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
                 *filter_hb, *filter_bt, *filter_te, *filter_cm,
-				
+
                 *file_fr, *file_vb,
                 *file_hb, *file_bt, *file_lb, *file_te,
                 *multi_tb, *multi_files_on_cb,
@@ -631,7 +631,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* update airpcap interface list */
 
   /* load the airpcap interfaces */
-  airpcap_if_list = get_airpcap_interface_list(&err, err_str);
+  airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
   decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
   update_decryption_mode_list(decryption_cm);
@@ -1403,7 +1403,7 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   int new_linktype = GPOINTER_TO_INT(data);
   GtkWidget *linktype_om = OBJECT_GET_DATA(w, E_CAP_LT_OM_KEY);
   int old_linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
-  
+
   /* If the link is changed, update the menu and store the index and the value
      to reuse later when the dialog window will be reopened */
   if (old_linktype != new_linktype) {

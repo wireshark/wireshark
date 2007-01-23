@@ -309,7 +309,7 @@ int load_airpcap(void);
  * Will return null if no device is found.
  */
 GList*
-get_airpcap_interface_list(int *err, char *err_str);
+get_airpcap_interface_list(int *err, char **err_str);
 
 /*
  * Returns the ASCII string of a key given the key bites
