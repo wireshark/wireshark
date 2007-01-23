@@ -109,7 +109,7 @@ static int hf_iscsi_immediate_data = -1;
 static int hf_iscsi_write_data = -1;
 static int hf_iscsi_read_data = -1;
 static int hf_iscsi_error_pdu_data = -1;
-static int hf_iscsi_async_message_data = -1;
+static int hf_iscsi_async_event_data = -1;
 static int hf_iscsi_vendor_specific_data = -1;
 static int hf_iscsi_Opcode = -1;
 static int hf_iscsi_Flags = -1;
@@ -1452,10 +1452,13 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_DesiredDataLength, tvb, offset + 44, 4, FALSE);
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
     } else if(opcode == ISCSI_OPCODE_ASYNC_MESSAGE) {
+	    int dsl, snsl;
+
 	    /* Asynchronous Message */
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    }
+	    dsl=tvb_get_ntoh24(tvb, offset+5);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
@@ -1467,7 +1470,35 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    proto_tree_add_item(ti, hf_iscsi_Parameter2, tvb, offset + 40, 2, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_Parameter3, tvb, offset + 42, 2, FALSE);
 	    offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
-	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_async_message_data);
+
+	    /* If we have a datasegment this contains scsi sense info followed
+	     * by iscsi event data. (rfc3720 10.9.4)
+	     */
+	    if(dsl){
+		snsl=tvb_get_ntohs(tvb, offset);
+		offset+=2;
+		if(snsl){
+		    tvbuff_t *data_tvb;
+		    int tvb_len, tvb_rlen;
+
+		    tvb_len=tvb_length_remaining(tvb, offset);
+		    if(tvb_len>snsl)
+			tvb_len=snsl;
+		    tvb_rlen=tvb_reported_length_remaining(tvb, offset);
+		    if(tvb_rlen>snsl)
+			tvb_rlen=snsl;
+		    data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
+		    dissect_scsi_snsinfo (data_tvb, pinfo, tree, 0,
+					  tvb_len,
+					  &cdata->itlq, itl);
+
+		    offset+=snsl;
+		}
+		if((end_offset-offset)>0){
+		    proto_tree_add_item(ti, hf_iscsi_async_event_data, tvb, offset, end_offset-offset, FALSE);
+		}
+	    }
+	    offset=end_offset;
     } else if(opcode == ISCSI_OPCODE_REJECT) {
 	    /* Reject */
 	    proto_tree_add_item(ti, hf_iscsi_Reject_Reason, tvb, offset + 2, 1, FALSE);
@@ -2528,10 +2559,10 @@ proto_register_iscsi(void)
 	    FT_BYTES, BASE_HEX, NULL, 0,
 	    "Error PDU Data", HFILL }
 	},
-	{ &hf_iscsi_async_message_data,
-	  { "AsyncMessageData", "iscsi.asyncmessagedata",
+	{ &hf_iscsi_async_event_data,
+	  { "AsyncEventData", "iscsi.asynceventdata",
 	    FT_BYTES, BASE_HEX, NULL, 0,
-	    "Async Message Data", HFILL }
+	    "Async Event Data", HFILL }
 	},
 	{ &hf_iscsi_vendor_specific_data,
 	  { "VendorSpecificData", "iscsi.vendorspecificdata",
