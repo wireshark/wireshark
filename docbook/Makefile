@@ -339,8 +339,10 @@ ifdef HHC
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
+endif
 
 user-guide.zip: user-guide.chm
+ifdef HHC
 	rm -f user-guide.zip
 	zip user-guide.zip user-guide.chm
 endif
