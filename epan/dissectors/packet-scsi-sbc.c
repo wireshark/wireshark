@@ -1432,7 +1432,9 @@ const value_string scsi_sbc_vals[] = {
     {SCSI_SBC_REGENERATE16      , "Regenerate(16)"},
     {SCSI_SBC_REGENERATE32      , "Regenerate(32)"},
     {SCSI_SPC2_RELEASE6          , "Release(6)"}, /* obsolete in SBC2 and later */
+    {SCSI_SPC2_RELEASE10         , "Release(10)"},/* obsolete in SBC2 and later */
     {SCSI_SPC2_RESERVE6          , "Reserve(6)"}, /* obsolete in SBC2 and later */
+    {SCSI_SPC2_RESERVE10         , "Reserve(10)"},/* obsolete in SBC2 and later */
     {SCSI_SBC_SEEK10            , "Seek(10)"},
     {SCSI_SPC2_SENDDIAG          , "Send Diagnostic"},
     {SCSI_SBC_SETLIMITS10       , "Set Limits(10)"},
@@ -1555,8 +1557,8 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x53*/{dissect_sbc_xdwriteread10},
 /*SBC 0x54*/{NULL},
 /*SPC 0x55*/{dissect_spc3_modeselect10},
-/*SBC 0x56*/{NULL},
-/*SBC 0x57*/{NULL},
+/*SPC 0x56*/{dissect_spc2_reserve10},/* obsolete in SBC2 and later */
+/*SPC 0x57*/{dissect_spc2_release10},/* obsolete in SBC2 and later */
 /*SBC 0x58*/{NULL},
 /*SBC 0x59*/{NULL},
 /*SPC 0x5a*/{dissect_spc3_modesense10},
