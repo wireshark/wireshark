@@ -1,8 +1,8 @@
 $Id$
 
-== August 23, 2006
+== January 29, 2007
 
-Wireshark 0.99.3 has been released.
+Wireshark 0.99.5 has been released.
 
    ------------------------------------------------------------------
 
@@ -16,80 +16,119 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed:
+   The following vulnerabilities have been fixed. See the [1]security
+   advisory for details and a workaround.
 
-     o The SCSI dissector could crash. Versions affected: 0.99.2.
+     o The TCP dissector could hang or crash while reassembling HTTP
+       packets. Versions affected: 0.99.2 to 0.99.4
 
-     o If Wireshark was compiled with ESP decryption support, the
-       IPsec ESP preference parser was susceptible to off-by-one
-       errors. Versions affected: 0.99.2.
+     o The HTTP dissector could crash. Versions affected: 0.99.3 to
+       0.99.4
 
-     o The DHCP dissector (and possibly others) in the Windows
-       version of Wireshark could trigger a bug in Glib and crash.
-       Versions affected: 0.10.13 - 0.99.2.
+     o On some systems, the IEEE 802.11 dissector could crash.
+       Versions affected: 0.10.14 to 0.99.4
 
-     o If the SSCOP dissector has a port range configured and the
-       SSCOP payload protocol is Q.2931, a malformed packet could
-       make the Q.2931 dissector use up available memory. No port
-       range is configured by default. Versions affected: 0.7.9 -
-       0.99.2.
+     o On some systems, the LLT dissector could crash. Versions
+       affected: 0.99.3 to 0.99.4
 
    The following bugs have been fixed:
 
-     o The VOIP call analysis feature could cause an assertion.
+     o On Windows systems the packet list scroll bar could sometimes
+       disappear or become unusable. ([2]Bug 220)
 
-     o The RTP analysis feature could freeze for an extended period.
+     o The end of HTTP chunked encoding wasn't being displayed.
+       ([3]Bug 646)
 
-     o Selecting "Apply as Filter" wouldn't work for some tree items.
+     o The Follow TCP Stream window could omit characters. ([4]Bug
+       1043)
+
+     o Opening a flow graph could crash Wireshark. ([5]Bug 1117)
+
+     o Follow TCP Stream would sometimes get the direction wrong.
+       ([6]Bug 1138)
+
+     o The foreground text in the coloring rules editor was always
+       black.. ([7]Bug 1164)
+
+     o The CSV export format was incorrect. ([8]Bug 1173)
+
+     o On some Windows systems Wireshark could take a long time to
+       start up.
+
+     o Malformed UDLD packets could cause an exception.
 
   New and Updated Features
 
    The following features are new (or have been significantly
    updated) since the last release:
 
-     o ESP, Kerberos, and SSL decryption are now supported in the
-       Windows installer. (As as result, Wireshark is now subject to
-       United States export controls.)
+     o We are now offering Wireshark as a U3 package for Windows. U3
+       packages are suitable for using on USB drives and CD-ROMs.
+       It's still experimental, but you're welcome to try it out and
+       report any problems or successes.
 
-     o The packet list context menu now includes a conversation
-       filter.
+     o Decryption support for WPA/WPA2 and SNMPv3 has been added. The
+       TDS / MS SQL dissector now de-obfuscates passwords.
 
-     o Wireshark can now generate ACL rules for several popular
-       firewall products.
+     o 64-bit file handling has been improved.
 
-     o Wireshark now supports AirPcap, including raw 802.11 captures
-       under Windows.
+     o The Find function now selects the corresponding packet detail
+       item. Find functionality has been added to the TCP and SSL
+       stream dialogs.
+
+     o Main window keyboard navigation has been improved.
+
+     o Windows file dialogs now show the navigation bar. File dialogs
+       now default to "My Documents" in accordance with Microsoft's
+       HIG.
+
+     o [9]AirPcap support (which provides raw mode capture under
+       Windows) has been enhanced to allow capturing on multiple
+       AirPcap adapters simultaneously.
+
+     o You can no longer install Wireshark on Windows 95, 98, or ME.
+       (OK, so it's not a feature per se, but it's an important
+       change)
+
+     o ASN.1 BER-encoded files can now be dissected according to a
+       user-specified syntax.
 
   New Protocol Support
 
-   Daytime, JPEG (RTP payload), Pegasus Lightweight Stream Control,
-   Pro-MPEG FEC, UMTS RRC, Veritas Low Latency Transport
+   DMP, Homeplug (INT51X1), NBD, OMAPI, PKCS#12, RGMP, Roofnet, STUN
+   v2
 
   Updated Protocol Support
 
-   All ASN.1 dissectors, 3G A11, 802.11, AIM SST, AJP13, ANSI 637,
-   AVS WLAN, BACapp, BFD, CDP, Cisco WIDS, DCERPC (DCERPC, CONV, DFS,
-   EPM, FLDB, NETLOGON, NT, PN-IO, RS_PGO), DCOM, DHCP, DIAMETER,
-   DTLS, EAPOL, ESP, H.225, H.245, H.450, HTTP, IPv6, ISAKMP,
-   Juniper, Kerberos, L2TP, LDAP, MSRP, NTLMSSP, PN-CBA, PN-RT,
-   Prism, RSVP, RTCP, RUDP, SCSI, SCTP, SDP, SIP, SIPFRAG, Skinny,
-   SMB, SSL, TCP, text/media, Time, XML
+   2dparityfec, ACN, AIM, AMR, ANSI 637, ANSI A, ANSI MAP, ARP, ASN.1
+   BER, ASN.1 PER, BACapp, BPDU, CAMEL, DCERPC (DCERPC, EFS,
+   EVENTLOG, NSPI, PN-IO, WINREG), DCOM CBA, DCP, DHCP, DHCPv6, DMP,
+   DNS, E.164, EAP, EPL, ETSI DCP, FCP, GIOP, GSM A, H.245, H.248,
+   HPSW, HTTP, ICMP, ICMPv6, IEEE 802.11, IMAP, INAP, IPMI, IPsec,
+   IRC, ISAKMP, iSCSI, ISIS LSP, IuUP, K12, Kerberos, LDAP, LLDP,
+   MEGACO, MGCP, MIME Multipart, MMS, MMSE, MSRP, MySQL, NetFlow,
+   NFS, NTLMSSP, NTP, OSPF, PN-PTCP, PPPoE, Q.931, Radiotap, RADIUS,
+   RPC, RSVP, RTCP, S4406, SCCP, SCSI, SDP, SES, sFlow, SIGCOMP, SIP,
+   SIR, Skinny, SMB (SMB, NETLOGON), SMTP, SNMP, SPNEGO, SSL, T.38,
+   TCP, TDS, text/media, TIPC, UDLD, UDP Lite, UDP, UMA, UMTS FP,
+   USB, VNC, WBXML, WLCCP, WSP, X.411, X.420, XML, XOT, YMSG
 
   New and Updated Capture File Support
 
-   Catapult DCT2000, nettl
+   Catapult DCT2000, Netttl, Windows Sniffer / NetXray
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [1]download page on the main web site.
+   the [10]download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
-   You can install or upgrade Wireshark using the package management
-   system specific to that platform. A list of third-party packages
-   can be found on the [2]download page on the Wireshark web site.
+   You can usually install or upgrade Wireshark using the package
+   management system specific to that platform. A list of third-party
+   packages can be found on the [11]download page on the Wireshark
+   web site.
 
 File Locations
 
@@ -100,47 +139,37 @@ File Locations
 
 Known Problems
 
-   On Windows systems the packet list scroll bar can sometimes
-   disappear or become unusable. Until the problem is fixed you can
-   work around it by resizing the packet list or the main window.
-   ([3]Bug #220)
-
    The Filter button is nonfunctional in the file dialogs under
-   Windows.
-
-   Trying to save flow data may crash Wireshark. ([4]Bug #396)
-
-   It may not be possible to re-order coloring rules under Windows.
-   ([5]Bug #699)
-
-   Multiple tap interfaces may cause a crash under FreeBSD. ([6]Bug
-   #757)
-
-   Wireshark may crash while viewing TCP streams. ([7]Bug #852)
+   Windows. ([12]Bug 942)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [8]the web site.
+   mailing lists can be found on [13]the web site.
 
    Commercial support, training, and development services are
-   available from [9]CACE Technologies.
+   available from [14]CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [10]Wireshark web site.
+   A complete FAQ is available on the [15]Wireshark web site.
 
 References
 
    Visible links
-   1. http://www.wireshark.org/download.html
-   2. http://www.wireshark.org/download.html#otherplat
-   3. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220
-   4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=396
-   5. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=699
-   6. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=757
-   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=852
-   8. http://www.wireshark.org/lists/
-   9. http://www.cacetech.com/
-  10. http://www.wireshark.org/faq.html
+   1. http://www.wireshark.org/security/wnpa-sec-2007-01.html
+   2. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220
+   3. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=646
+   4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1043
+   5. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1117
+   6. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1138
+   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1164
+   8. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1173
+   9. http://www.cacetech.com/products/airpcap.htm
+  10. http://www.wireshark.org/download.html
+  11. http://www.wireshark.org/download.html#otherplat
+  12. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942
+  13. http://www.wireshark.org/lists/
+  14. http://www.cacetech.com/
+  15. http://www.wireshark.org/faq.html
