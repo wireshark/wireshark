@@ -140,6 +140,10 @@ compute_timestamp_diff(gint *diffsec, gint *diffusec,
 const gchar *get_conn_cfilter(void) {
 	static GString *filter_str = NULL;
 	gchar *env, **tokens;
+	char *lastp, *lastc, *p;
+	char *pprotocol = NULL;
+	char *phostname = NULL;
+	size_t hostlen;
 
 	if (filter_str == NULL) {
 		filter_str = g_string_new("");
@@ -164,27 +168,147 @@ const gchar *get_conn_cfilter(void) {
 		g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
 		return filter_str->str;
 	} else if ((env = getenv("DISPLAY")) != NULL) {
-		tokens = g_strsplit(env, ":", 2);
-		if (tokens[0] && tokens[0][0] != 0) {
-			if (strcasecmp(tokens[0], "localhost") == 0 ||
-					strcmp(tokens[0], "127.0.0.1") == 0) {
+		/*
+		 * This mirrors what _X11TransConnectDisplay() does.
+		 * Note that, on some systems, the hostname can
+		 * being with "/", which means that it's a pathname
+		 * of a UNIX domain socket to connect to.
+		 *
+		 * The comments mirror those in _X11TransConnectDisplay(),
+		 * too. :-)
+		 *
+		 * Display names may be of the following format:
+		 *
+		 *    [protoco./] [hostname] : [:] displaynumber [.screennumber]
+		 *
+		 * A string with exactly two colons separating hostname
+		 * from the display indicates a DECnet style name.  Colons
+		 * in the hostname may occur if an IPv6 numeric address
+		 * is used as the hostname.  An IPv6 numeric address may
+		 * also end in a double colon, so three colons in a row
+		 * indicates an IPv6 address ending in :: followed by
+		 * :display.  To make it easier for people to read, an
+		 * IPv6 numeric address hostname may be surrounded by []
+		 * in a similar fashion to the IPv6 numeric address URL
+		 * syntax defined by IETF RFC 2732.
+		 *
+		 * If no hostname and no protocol is specified, the string
+		 * is interpreted as the most efficient local connection
+		 * to a server on the same machine.  This is usually:
+		 *
+		 *    o shared memory
+		 *    o local stream
+		 *    o UNIX domain socket
+		 *    o TCP to local host.
+		 */
+
+		p = env;
+
+		/*
+		 * Step 0, find the protocol.  This is delimited by
+		 * the optional slash ('/').
+		 */
+		for (lastp = p; *p != '\0' && *p != ':' && *p != '/'; p++)
+			;
+		if (*p == '\0')
+			return "";	/* must have a colon */
+
+		if (p != lastp && *p != ':') {	/* protocol given? */
+			/* Yes */
+			pprotocol = p;
+
+			/* Is it TCP? */
+			if (p - lastp != 3 || strncasecmp(lastp, "tcp", 3) != 0)
+				return "";	/* not TCP */
+			p++;			/* skip the '/' */
+		} else
+			p = env;		/* reset the pointer in
+						   case no protocol was given */
+
+		/*
+		 * Step 1, find the hostname.  This is delimited either by
+		 * one colon, or two colons in the case of DECnet (DECnet
+		 * Phase V allows a single colon in the hostname).  (See
+		 * note above regarding IPv6 numeric addresses with
+		 * triple colons or [] brackets.)
+		 */
+		lastp = p;
+		lastc = NULL;
+		for (; *p != '\0'; p++)
+			if (*p == ':')
+				lastc = p;
+
+		if (lastc == NULL)
+			return "";		/* must have a colon */
+
+		if ((lastp != lastc) && (*(lastc - 1) == ':')
+		    && (((lastc - 1) == lastp) || (*(lastc - 2) != ':'))) {
+		    	/* DECnet display specified */
+		    	return "";
+		} else
+			hostlen = lastc - lastp;
+
+		if (hostlen == 0)
+			return "";	/* no hostname supplied */
+
+		phostname = g_malloc(hostlen + 1);
+		memcpy(phostname, lastp, hostlen);
+		phostname[hostlen] = '\0';
+
+		if (pprotocol == NULL) {
+			/*
+			 * No protocol was explicitly specified, so it
+			 * could be a local connection over a transport
+			 * that we won't see.
+			 *
+			 * Does the host name refer to the local host?
+			 * If so, the connection would probably be a
+			 * local connection.
+			 *
+			 * XXX - compare against our host name?
+			 * _X11TransConnectDisplay() does.
+			 */
+			if (strcasecmp(phostname, "localhost") == 0 ||
+			    strcmp(phostname, "127.0.0.1") == 0) {
+			    	g_free(phostname);
 				return "";
 			}
-			g_string_sprintf(filter_str, "not %s host %s",
-				host_ip_af(tokens[0]), tokens[0]);
-			return filter_str->str;
+
+			/*
+			 * A host name of "unix" (case-sensitive) also
+			 * causes a local connection.
+			 */
+			if (strcmp(phostname, "unix") == 0) {
+			    	g_free(phostname);
+				return "";
+			}
+
+			/*
+			 * Does the host name begin with "/"?  If so,
+			 * it's presumed to be the pathname of a
+			 * UNIX domain socket.
+			 */
+			if (phostname[0] == '/') {
+				g_free(phostname);
+				return "";
+			}
 		}
+
+		g_string_sprintf(filter_str, "not %s host %s",
+			host_ip_af(phostname), phostname);
+		g_free(phostname);
+		return filter_str->str;
 	} else if ((env = getenv("SESSIONNAME")) != NULL) {
-        /* Apparently the KB article at
-         * http://technet2.microsoft.com/WindowsServer/en/library/6caf87bf-3d70-4801-9485-87e9ec3df0171033.mspx?mfr=true
-         * is incorrect.  There are _plenty_ of cases where CLIENTNAME
-         * and SESSIONNAME are set outside of a Terminal Terver session.
-         * It looks like Terminal Server sets SESSIONNAME to RDP-TCP#<number>
-         * for "real" sessions.
-         *
-         * XXX - There's a better way to do this described at
-         * http://www.microsoft.com/technet/archive/termsrv/maintain/featusability/tsrvapi.mspx?mfr=true
-         */
+		/* Apparently the KB article at
+		 * http://technet2.microsoft.com/WindowsServer/en/library/6caf87bf-3d70-4801-9485-87e9ec3df0171033.mspx?mfr=true
+		 * is incorrect.  There are _plenty_ of cases where CLIENTNAME
+		 * and SESSIONNAME are set outside of a Terminal Terver session.
+		 * It looks like Terminal Server sets SESSIONNAME to RDP-TCP#<number>
+		 * for "real" sessions.
+		 *
+		 * XXX - There's a better way to do this described at
+		 * http://www.microsoft.com/technet/archive/termsrv/maintain/featusability/tsrvapi.mspx?mfr=true
+		 */
 		if (g_strncasecmp(env, "rdp", 3) == 0) {
 			g_string_sprintf(filter_str, "not tcp port 3389");
 			return filter_str->str;
