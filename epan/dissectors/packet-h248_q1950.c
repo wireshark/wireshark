@@ -47,6 +47,7 @@ static const value_string h248_pkg_BCP_parameters[] = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
 	{0,     NULL}
 };
+
 /* Properties */
 h248_pkg_param_t h248_pkg_BCP_props[] = {
 	{ 0x0001, &hf_h248_pkg_BCP_BNCChar, h248_param_ber_integer, NULL },
@@ -122,6 +123,45 @@ static h248_package_t h248_pkg_bcg = {
 	NULL						/* statistics */
 };
 
+
+static dissector_handle_t sdp_dissector = NULL;
+
+static int hf_h248_pkg_bct = -1;
+static int hf_h248_pkg_bct_tind = -1;
+
+static gint ett_h248_pkg_bct = -1;
+static gint ett_h248_pkg_bct_tind = -1;
+
+static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
+	tvbuff_t* sdp_tvb;
+	dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
+	call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
+}
+
+static h248_pkg_param_t h248_pkg_bct_tind[] = {
+	{ 0x0001, &hf_h248_pkg_bct_tind, dissect_bct_tind_bit, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Events */
+static h248_pkg_evt_t h248_pkg_bct_events[] = {
+	{ 0x0001, &hf_h248_pkg_bct_tind, &ett_h248_pkg_bct_tind, h248_pkg_bct_tind},
+	{ 0, NULL, NULL, NULL}
+};
+
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_bct = {
+	0x0022,
+	&hf_h248_pkg_bct,
+	NULL,
+	&ett_h248_pkg_bct,
+	NULL,						/* Properties */
+	NULL,		/* signals */
+	h248_pkg_bct_events,						/* events */
+	NULL						/* statistics */
+};
+
 /* Register dissector */
 void proto_register_q1950(void) {
 	static hf_register_info hf[] = {
@@ -183,10 +223,21 @@ void proto_register_q1950(void) {
 			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy", 
 			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
 		},
+		{ &ett_h248_pkg_bct,
+			{ "BCT (Bearer Control Tunneling)", "h248.pkg.bct", 
+			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_bct_tind,
+			{ "tind (Tunnel INDication)", "h248.pkg.bct.tind", 
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		
 	};
 
 	static gint *ett[] = {
-		&ett_h248_pkg_BCP
+		&ett_h248_pkg_BCP,
+		&ett_h248_pkg_bct,
+		&ett_h248_pkg_bct_tind
 	};
 	proto_q1950 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
@@ -197,7 +248,10 @@ void proto_register_q1950(void) {
 	/* Register the packages */
 	h248_register_package(&h248_pkg_BCP);
 	h248_register_package(&h248_pkg_bcg);
+	h248_register_package(&h248_pkg_bct);
 }
 
 void proto_reg_handoff_q1950(void) {
+	sdp_dissector = find_dissector("sdp");
+	
 }
