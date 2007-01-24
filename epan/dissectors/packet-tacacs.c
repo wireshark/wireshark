@@ -87,6 +87,8 @@ static int hf_tacacs_result3 = -1;
 
 static gint ett_tacacs = -1;
 
+static gboolean tacplus_preference_desegment = TRUE;
+
 static const char *tacplus_opt_key;
 static GSList *tacplus_keys = NULL;
 
@@ -926,6 +928,15 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	request=( pinfo->destport == TCP_PORT_TACACS );
 	const char	*key=NULL;
 
+	len = tvb_get_ntohl(tvb, 8);
+	
+	if(len > (guint)tvb_length_remaining(tvb, 12) &&
+	   pinfo->can_desegment && tacplus_preference_desegment) {
+		pinfo->desegment_offset = 0;
+		pinfo->desegment_len = len;
+		return;
+	}
+	
 	if( request ) {
 		key=find_key( &pinfo->dst, &pinfo->src );
 	} else {
@@ -985,7 +996,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb, 3, 1, flags);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_session_id, tvb, 4, 4,
 		    FALSE);
-		len = tvb_get_ntohl(tvb,8);
+
 		if ((gint) len < 1) {
 			proto_tree_add_text(tacplus_tree, tvb, 8, 4,
 				"Invalid length: %u", len);
@@ -1088,6 +1099,9 @@ proto_register_tacplus(void)
 	proto_register_field_array(proto_tacplus, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	tacplus_module = prefs_register_protocol (proto_tacplus, tacplus_pref_cb );
+
+        prefs_register_bool_preference(tacplus_module, "desegment", "Reassemble TACACS+ messages spanning multiple TCP segments.", "Whether the TACACS+ dissector should reasssemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &tacplus_preference_desegment);
+
 	prefs_register_string_preference ( tacplus_module, "key",
 	"TACACS+ Encryption Key", "TACACS+ Encryption Key", &tacplus_opt_key );
 }
