@@ -1223,8 +1223,8 @@ static const value_string wpa_keymgmt_vals[] =
 static void
 dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
-      guint tag_off = 0;
-      guint tag_len = tvb_length_remaining(tag_tvb, 0);
+      gint tag_off = 0;
+      gint tag_len = tvb_length_remaining(tag_tvb, 0);
       gchar out_buff[SHORT_STR];
       guint i, byte1, byte2;
 
@@ -3320,14 +3320,14 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	} /* end of qos control field */
 
 #ifdef	HAVE_AIRPDCAP
-		/*	Davide Schiera (2006-11-21): process handshake packet with AirPDcap		*/
-		/*		the processing will take care of 4-way handshake sessions for WPA		*/
-		/*		and WPA2 decryption																	*/
-		if (enable_decryption && !pinfo->fd->flags.visited) {
-			const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
-			AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len+reported_len, NULL, 0, NULL, FALSE, FALSE, TRUE, FALSE);
-		}
-		/* Davide Schiera --------------------------------------------------------	*/
+        /*	Davide Schiera (2006-11-21): process handshake packet with AirPDcap		*/
+        /*		the processing will take care of 4-way handshake sessions for WPA		*/
+        /*		and WPA2 decryption																	*/
+        if (enable_decryption && !pinfo->fd->flags.visited) {
+          const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
+          AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len+reported_len, NULL, 0, NULL, FALSE, FALSE, TRUE, FALSE);
+        }
+        /* Davide Schiera --------------------------------------------------------	*/
 #endif
 
       /*
@@ -3347,8 +3347,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   if (IS_PROTECTED(FCF_FLAGS(fcf))) {
     /*
-		* It's a WEP or WPA encrypted frame; dissect the protections parameters
-		* and decrypt the data, if we have a matching key. Otherwise display it as data.
+     * It's a WEP or WPA encrypted frame; dissect the protections parameters
+     * and decrypt the data, if we have a matching key. Otherwise display it as data.
      */
 
     gboolean can_decrypt = FALSE;
@@ -3356,7 +3356,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     guint32 iv;
     guint8 key, keybyte;
 
-		/* Davide Schiera (2006-11-27): define algorithms constants and macros	*/
+    /* Davide Schiera (2006-11-27): define algorithms constants and macros	*/
 #ifdef	HAVE_AIRPDCAP
 #define	PROTECTION_ALG_TKIP	AIRPDCAP_KEY_TYPE_TKIP
 #define	PROTECTION_ALG_CCMP	AIRPDCAP_KEY_TYPE_CCMP
@@ -3368,22 +3368,22 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 #define	PROTECTION_ALG_CCMP	2
 #define	PROTECTION_ALG_RSNA	PROTECTION_ALG_CCMP | PROTECTION_ALG_TKIP
 #endif
-		guint8 algorithm=-1;
-		/* Davide Schiera (2006-11-27): added macros to check the algorithm		*/
-		/*		used could be TKIP or CCMP														*/
+    guint8 algorithm=-1;
+    /* Davide Schiera (2006-11-27): added macros to check the algorithm		*/
+    /*		used could be TKIP or CCMP														*/
 #define	IS_TKIP(tvb, hdr_len)	(tvb_get_guint8(tvb, hdr_len + 1) & 0x20)
 #define	IS_CCMP(tvb, hdr_len)	(tvb_get_guint8(tvb, hdr_len + 2) == 0)
-		/* Davide Schiera -----------------------------------------------------	*/
+    /* Davide Schiera -----------------------------------------------------	*/
 
 #ifdef	HAVE_AIRPDCAP
-		/* Davide Schiera (2006-11-21): recorded original lengths to pass them	*/
-		/*		to the packets process function												*/
-		guint32 sec_header=0;
-		guint32 sec_trailer=0;
+    /* Davide Schiera (2006-11-21): recorded original lengths to pass them	*/
+    /*		to the packets process function												*/
+    guint32 sec_header=0;
+    guint32 sec_trailer=0;
 
-		next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer);
+    next_tvb = try_decrypt(tvb, hdr_len, reported_len, &algorithm, &sec_header, &sec_trailer);
 #endif
-		/* Davide Schiera -----------------------------------------------------	*/
+    /* Davide Schiera -----------------------------------------------------	*/
 
     keybyte = tvb_get_guint8(tvb, hdr_len + 3);
     key = KEY_OCTET_WEP_KEY(keybyte);
@@ -3395,37 +3395,37 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	proto_item *extiv_fields;
 
 #ifdef	HAVE_AIRPDCAP
-				/* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if	*/
-				/*		it's possible																*/
-				if (algorithm==PROTECTION_ALG_TKIP)
-					extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-					"TKIP parameters");
-				else if (algorithm==PROTECTION_ALG_CCMP)
-					extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-					"CCMP parameters");
-				else {
-					/* Davide Schiera --------------------------------------------	*/
+        /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if	*/
+        /*		it's possible																*/
+        if (algorithm==PROTECTION_ALG_TKIP)
+                extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+                "TKIP parameters");
+        else if (algorithm==PROTECTION_ALG_CCMP)
+                extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+                "CCMP parameters");
+        else {
+                /* Davide Schiera --------------------------------------------	*/
 #endif
-					/* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
-					/*		it's possible															*/
-					if (IS_TKIP(tvb, hdr_len)) {
-						algorithm=PROTECTION_ALG_TKIP;
-						extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-							"TKIP parameters");
-					} else if (IS_CCMP(tvb, hdr_len)) {
-						algorithm=PROTECTION_ALG_CCMP;
-						extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
-							"CCMP parameters");
-					} else
-	extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+          /* Davide Schiera (2006-11-27): differentiated CCMP and TKIP if*/
+          /*		it's possible															*/
+          if (IS_TKIP(tvb, hdr_len)) {
+                  algorithm=PROTECTION_ALG_TKIP;
+                  extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+                          "TKIP parameters");
+          } else if (IS_CCMP(tvb, hdr_len)) {
+                  algorithm=PROTECTION_ALG_CCMP;
+                  extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
+                          "CCMP parameters");
+          } else
+            extiv_fields = proto_tree_add_text(hdr_tree, tvb, hdr_len, 8,
 					   "TKIP/CCMP parameters");
 #ifdef	HAVE_AIRPDCAP
-				}
+        }
 #endif
 
 	wep_tree = proto_item_add_subtree (extiv_fields, ett_wep_parameters);
 
-				if (algorithm==PROTECTION_ALG_TKIP) {
+        if (algorithm==PROTECTION_ALG_TKIP) {
 	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len),
@@ -3452,28 +3452,28 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        * parse TKIP Michael MIC+ICV or CCMP MIC. */
 
 #ifdef	HAVE_AIRPDCAP
-			/*	Davide Schiera (2006-11-21): enable TKIP and CCMP decryption			*/
-			/*		checking for the trailer														*/
-			if (next_tvb!=NULL) {
-				if (reported_len < sec_trailer) {
-					/* There is no space for a trailer, ignore it and don't decrypt	*/
-					;
-				} else if (len < reported_len) {
-					/* There is space for a trailer, but we haven't capture all the	*/
-					/* packet. Slice off the trailer, but don't try to decrypt			*/
-					reported_len -= sec_trailer;
-					if (len > reported_len)
-						len = reported_len;
-				} else {
-					/* Ok, we have a trailer and the whole packet. Decrypt it!			*/
-					/* TODO: At the moment we won't add the trailer to the tree,		*/
-					/* so don't remove the trailer from the packet							*/
-					len -= sec_trailer;
-					reported_len -= sec_trailer;
-					can_decrypt = TRUE;
-				}
-			}
-			/* Davide Schiera --------------------------------------------------	*/
+      /*	Davide Schiera (2006-11-21): enable TKIP and CCMP decryption			*/
+      /*		checking for the trailer														*/
+      if (next_tvb!=NULL) {
+        if (reported_len < sec_trailer) {
+          /* There is no space for a trailer, ignore it and don't decrypt	*/
+          ;
+        } else if (len < reported_len) {
+          /* There is space for a trailer, but we haven't capture all the	*/
+          /* packet. Slice off the trailer, but don't try to decrypt			*/
+          reported_len -= sec_trailer;
+          if (len > reported_len)
+                  len = reported_len;
+        } else {
+          /* Ok, we have a trailer and the whole packet. Decrypt it!			*/
+          /* TODO: At the moment we won't add the trailer to the tree,		*/
+          /* so don't remove the trailer from the packet							*/
+          len -= sec_trailer;
+          reported_len -= sec_trailer;
+          can_decrypt = TRUE;
+        }
+      }
+      /* Davide Schiera --------------------------------------------------	*/
 #endif
     } else {
       /* No Ext. IV - WEP packet */
@@ -3511,9 +3511,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       reported_len -= 4;
       ivlen = 4;
 
-			/* Davide Schiera (2006-11-27): Even if the decryption was not			*/
-			/*		successful, set the algorithm												*/
-			algorithm=PROTECTION_ALG_WEP;
+      /* Davide Schiera (2006-11-27): Even if the decryption was not */
+      /* successful, set the algorithm                               */
+      algorithm=PROTECTION_ALG_WEP;
 
       /*
        * Well, this packet should, in theory, have an ICV.
@@ -3557,11 +3557,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
 
 #ifndef	HAVE_AIRPDCAP
-		if (can_decrypt)
-			next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8);
+    if (can_decrypt)
+      next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8);
 #else
-		/* Davide Schiera (2006-11-26): decrypted before parsing header and		*/
-		/*		protection header																	*/
+    /* Davide Schiera (2006-11-26): decrypted before parsing header and		*/
+    /*		protection header																	*/
 #endif
 		if (!can_decrypt || next_tvb == NULL) {
       /*
@@ -3570,51 +3570,51 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        */
       next_tvb = tvb_new_subset(tvb, hdr_len + ivlen, len, reported_len);
 
-			if (tree) {
-				/* Davide Schiera (2006-11-21): added WEP or WPA separation			*/
-				if (algorithm==PROTECTION_ALG_WEP) {
-					if (can_decrypt)
-	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
+      if (tree) {
+        /* Davide Schiera (2006-11-21): added WEP or WPA separation			*/
+        if (algorithm==PROTECTION_ALG_WEP) {
+          if (can_decrypt)
+            proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
 				    hdr_len + ivlen + len, 4,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
 				    "WEP ICV: 0x%08x (not verified)",
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
-				} else if (algorithm==PROTECTION_ALG_CCMP) {
-				} else if (algorithm==PROTECTION_ALG_TKIP) {
-				}
-				/* Davide Schiera (2006-11-21) ----------------------------------	*/
+        } else if (algorithm==PROTECTION_ALG_CCMP) {
+        } else if (algorithm==PROTECTION_ALG_TKIP) {
+        }
+        /* Davide Schiera (2006-11-21) ----------------------------------	*/
 
-      if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
-      {
-        /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        goto end_of_wlan;
+        if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
+        {
+          /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
+          call_dissector(data_handle, next_tvb, pinfo, tree);
+          goto end_of_wlan;
+        }
       }
-			}
     } else {
-			/* Davide Schiera (2006-11-21): added WEP or WPA separation				*/
-			if (algorithm==PROTECTION_ALG_WEP) {
-      if (tree)
-	proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
+      /* Davide Schiera (2006-11-21): added WEP or WPA separation				*/
+      if (algorithm==PROTECTION_ALG_WEP) {
+        if (tree)
+          proto_tree_add_uint_format (wep_tree, hf_wep_icv, tvb,
 				    hdr_len + ivlen + len, 4,
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len),
 				    "WEP ICV: 0x%08x (correct)",
 				    tvb_get_ntohl(tvb, hdr_len + ivlen + len));
 
-      add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
-			} else if (algorithm==PROTECTION_ALG_CCMP) {
-				add_new_data_source(pinfo, next_tvb, "Decrypted CCMP data");
-			} else if (algorithm==PROTECTION_ALG_TKIP) {
-				add_new_data_source(pinfo, next_tvb, "Decrypted TKIP data");
-			}
-			/* Davide Schiera (2006-11-21) -------------------------------------	*/
-			/* Davide Schiera (2006-11-27): undefine macros and definitions		*/
+        add_new_data_source(pinfo, next_tvb, "Decrypted WEP data");
+      } else if (algorithm==PROTECTION_ALG_CCMP) {
+        add_new_data_source(pinfo, next_tvb, "Decrypted CCMP data");
+      } else if (algorithm==PROTECTION_ALG_TKIP) {
+        add_new_data_source(pinfo, next_tvb, "Decrypted TKIP data");
+      }
+      /* Davide Schiera (2006-11-21) -------------------------------------	*/
+      /* Davide Schiera (2006-11-27): undefine macros and definitions	*/
 #undef	IS_TKIP
 #undef	IS_CCMP
 #undef	PROTECTION_ALG_CCMP
 #undef	PROTECTION_ALG_TKIP
 #undef	PROTECTION_ALG_WEP
-			/* Davide Schiera --------------------------------------------------	*/
+      /* Davide Schiera --------------------------------------------------	*/
     }
 
     /*
