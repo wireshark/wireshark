@@ -54,7 +54,12 @@ data-dirs:
 manifest-dirs:
 	if not exist $(MANIFEST) $(MKDIR) $(MANIFEST)
 
-distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe
+user-guide.chm:
+	cd ../../nsis
+	nmake -f Makefile.nmake user-guide.chm
+	cd ../u3/win32
+
+distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util.exe user-guide.chm
 # manifest
 	$(COPY) manifest.u3i $(MANIFEST) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
@@ -90,6 +95,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\dtds\watcherinfo.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\dumpcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\editcap.html $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\example_snmp_users_file $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\toc $(DEVICE)\help $(COPY_FLAGS) 
 	$(COPY) $(TOPDIR)\help\overview.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\getting_started.txt $(DEVICE)\help $(COPY_FLAGS)
@@ -98,6 +104,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\help\display_filters.txt $(DEVICE)\help $(COPY_FLAGS) 
 	$(COPY) $(TOPDIR)\help\faq.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\manuf $(DEVICE) $(COPY_FLAGS)
+!IFDEF HHC_DIR
+	$(COPY) $(TOPDIR)\packaging\nsis\user-guide.chm $(DEVICE) $(COPY_FLAGS)
+!ENDIF
 !IFDEF PCRE_DIR
 	$(COPY) $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(DEVICE) $(COPY_FLAGS)
 !ENDIF
@@ -190,7 +199,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\radius\dictionary.versanet $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.wispr $(DEVICE)\radius $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\radius\dictionary.xedia $(DEVICE)\radius $(COPY_FLAGS)
+!IFDEF NET_SNMP_DIR
 	$(COPY) $(NET_SNMP_DIR)\mibs\*.txt $(DEVICE)\snmp\mibs $(COPY_FLAGS)
+!ENDIF
 	$(COPY) $(TOPDIR)\doc\text2pcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\tshark.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\wireshark.html $(DEVICE) $(COPY_FLAGS)
@@ -203,9 +214,10 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\packaging\nsis\WinPcap_3_1.exe $(DEVICE) $(COPY_FLAGS)
 # host
 #
-# these files are copy onto the U3 host and are required to make Wireshark stable
+# these files are copied onto the U3 host and are required to make Wireshark stable
 #
 	$(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll $(HOST) $(COPY_FLAGS)	
+	if exist $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(HOST) $(COPY_FLAGS)	
 !IFDEF ENABLE_LIBWIRESHARK
 	$(COPY) $(TOPDIR)\epan\libwireshark.dll $(HOST) $(COPY_FLAGS)	
 !ENDIF
