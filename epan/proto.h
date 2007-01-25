@@ -198,13 +198,13 @@ typedef struct _item_label_t {
 /** Contains the field information for the proto_item. */
 typedef struct field_info {
 	header_field_info	*hfinfo;    /**< pointer to registered field information */
-	gint				start;      /**< current start of data in field_info.ds_tvb */
-	gint				length;     /**< current data length of item in field_info.ds_tvb */
-	gint				tree_type;  /**< one of ETT_ or -1 */
+	gint			start;      /**< current start of data in field_info.ds_tvb */
+	gint			length;     /**< current data length of item in field_info.ds_tvb */
+	gint			tree_type;  /**< one of ETT_ or -1 */
 	item_label_t		*rep;       /**< string for GUI tree */
-	int					flags;      /**< bitfield like FI_GENERATED, ... */
-	tvbuff_t			*ds_tvb;    /**< data source tvbuff */
-	fvalue_t			value;
+	int			flags;      /**< bitfield like FI_GENERATED, ... */
+	tvbuff_t		*ds_tvb;    /**< data source tvbuff */
+	fvalue_t		value;
 } field_info;
 
 
