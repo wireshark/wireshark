@@ -854,7 +854,7 @@ INT AirPDcapRsna4WHandshake(
                                 /* -> not checked; the Supplicant will send another message 2 (hopefully!)										*/
 
                                 /* now you can derive the PTK	*/
-                                for (key_index=0; key_index<(INT)ctx->keys_nr || sa->key!=NULL; key_index++) {
+                                for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
                                         /* use the cached one, or try all keys	*/
                                         if (!useCache) {
                                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Try WPA key...", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1602,7 +1602,7 @@ parse_key_string(gchar* input_string)
 
 	dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
 	dk->key  = g_string_new(key);
-	dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
+	dk->bits = 256; /* This is the length of the array pf bytes that will be generated using key+ssid ...*/
 	dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
 
 	g_string_free(key_string, TRUE);

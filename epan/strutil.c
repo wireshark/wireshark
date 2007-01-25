@@ -539,7 +539,6 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 				return FALSE;
 			val = (guint8) strtoul(hex_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
-			p ++;
 		} else {
 			g_byte_array_append(bytes, (guint8 *) p, 1);
 		}
