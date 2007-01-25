@@ -34,6 +34,7 @@
 #include <wtap.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 
 /* Update the progress bar this many times when scanning the packet list. */
@@ -107,6 +108,14 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	proto_sibling_node = ptree_node->next;
 
 	if (proto_sibling_node) {
+		/* If the name does not exist for this proto_sibling_node, then it is
+		 * not a normal protocol in the top-level tree.  It was instead
+		 * added as a normal tree such as IPv6's Hop-by-hop Option Header and
+		 * should be skipped when creating the protocol hierarchy display. */
+		if(strlen(proto_sibling_node->finfo->hfinfo->name) == 0 &&
+		   ptree_node->next)
+			proto_sibling_node = proto_sibling_node->next;
+
 		process_node(proto_sibling_node, stat_node, ps, pkt_len);
 	}
 	else {
