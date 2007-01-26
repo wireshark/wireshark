@@ -165,7 +165,7 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 
 /*
  * Get compile-time information used only by applications that use
- * libethereal.
+ * libwireshark.
  */
 void
 get_epan_compiled_version_info(GString *str)

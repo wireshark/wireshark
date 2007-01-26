@@ -321,7 +321,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 
 /** Handle a PFT packet which has the fragmentation header. This uses the
- * standard ethereal methods for reassembling fragments. If FEC is used,
+ * standard wireshark methods for reassembling fragments. If FEC is used,
  * the FEC is handled too. For the moment, all the fragments must be
  * available but this could be improved.
  *  \param[in,out] tvb The buffer containing the current fragment
