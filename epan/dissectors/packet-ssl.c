@@ -929,6 +929,17 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     available_bytes = tvb_length_remaining(tvb, offset);
 
+    /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
+    if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1) && 
+        (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
+      proto_tree_add_text(tree, tvb, offset, available_bytes, "Ignored Unknown Record");
+      if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_str(pinfo->cinfo, COL_INFO, "Ignored Unknown Record");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, ssl_version_short_names[*conv_version]);
+      return offset + available_bytes;
+    }
+
    /*
      * Can we do reassembly?
      */
