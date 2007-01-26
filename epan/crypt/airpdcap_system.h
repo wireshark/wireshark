@@ -148,6 +148,9 @@ typedef struct _AIRPDCAP_CONTEXT {
 	AIRPDCAP_KEY_ITEM keys[AIRPDCAP_MAX_KEYS_NR];
 	size_t keys_nr;
 
+        CHAR pkt_ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
+        size_t pkt_ssid_len;
+
 	INT index;
 	INT first_free_index;
 	INT last_stored_index;
@@ -293,6 +296,25 @@ INT AirPDcapGetKeys(
 	AIRPDCAP_KEY_ITEM keys[],
 	const size_t keys_nr)
 	;
+
+/**
+ * Sets the "last seen" SSID.  This allows us to pick up previous
+ * SSIDs and use them when "wildcard" passphrases are specified
+ * in the preferences.
+ * @param ctx [IN|OUT] pointer to a preallocated context structure
+ * @param pkt_ssid [IN] pointer to the packet's SSID
+ * @param pkt_ssid_len [IN] length of the packet's SSID
+ * @return
+ *   AIRPDCAP_RET_SUCCESS: The key has been set.
+ *   AIRPDCAP_RET_UNSUCCESS: The has not been set, e.g. the length was
+ *   too long.
+ */
+INT AirPDcapSetLastSSID(
+        PAIRPDCAP_CONTEXT ctx,
+        CHAR *pkt_ssid,
+        size_t pkt_ssid_len)
+	;
+
 /**
  * Initialize a context used to manage decryption and keys collection.
  * @param ctx [IN|OUT] pointer to a preallocated context structure

@@ -1720,6 +1720,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         guint8 *ssid; /* The SSID may consist of arbitrary bytes */
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
+#ifdef HAVE_AIRPDCAP
+        AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
+#endif
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                                tag_len, (char *) ssid);
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -5221,13 +5224,13 @@ void set_airpdcap_keys()
 
 				/* XXX - This just lops the end if the key off if it's too long.
 				 *       Should we handle this more gracefully? */
-				strncpy(key.KeyData.Wpa.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN);
+				strncpy(key.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN);
 
-				key.KeyData.Wpa.UserPwd.SsidLen = 0;
+				key.UserPwd.SsidLen = 0;
 				if(dk->ssid != NULL && dk->ssid->len <= AIRPDCAP_WPA_SSID_MAX_LEN)
 				{
-					memcpy(key.KeyData.Wpa.UserPwd.Ssid, dk->ssid->data, dk->ssid->len);
-					key.KeyData.Wpa.UserPwd.SsidLen = dk->ssid->len;
+					memcpy(key.UserPwd.Ssid, dk->ssid->data, dk->ssid->len);
+					key.UserPwd.SsidLen = dk->ssid->len;
 				}
 
 				keys->Keys[keys->nKeys] = key;

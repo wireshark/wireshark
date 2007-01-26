@@ -146,30 +146,31 @@ typedef struct _AIRPDCAP_KEY_ITEM {
 		 * calculated.
 		 */
 		union AIRPDCAP_KEY_ITEMDATA_WPA {
-			struct AIRPDCAP_KEY_ITEMDATA_PWD {
-				/**
-				 * The string (null-terminated) value of
-				 * the passphrase.
-				 */
-				CHAR Passphrase[AIRPDCAP_WPA_PASSPHRASE_MAX_LEN+1];
-				/**
-				 * The value of the SSID (up to
-				 * AIRPDCAP_WPA_SSID_MAX_LEN octets).
-				 * @note
-				 * A zero-length SSID indicates broadcast.
-				 */
-				CHAR Ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
-				/**
-				 *The length of the SSID
-				 */
-				size_t SsidLen;
-			} UserPwd;
 
 			UCHAR Psk[AIRPDCAP_WPA_PSK_LEN];
 
 			UCHAR Pmk[AIRPDCAP_WPA_PMK_LEN];
 		} Wpa;
 	} KeyData;
+
+        struct AIRPDCAP_KEY_ITEMDATA_PWD {
+                /**
+                 * The string (null-terminated) value of
+                 * the passphrase.
+                 */
+                CHAR Passphrase[AIRPDCAP_WPA_PASSPHRASE_MAX_LEN+1];
+                /**
+                 * The value of the SSID (up to
+                 * AIRPDCAP_WPA_SSID_MAX_LEN octets).
+                 * @note
+                 * A zero-length SSID indicates broadcast.
+                 */
+                CHAR Ssid[AIRPDCAP_WPA_SSID_MAX_LEN];
+                /**
+                 *The length of the SSID
+                 */
+                size_t SsidLen;
+        } UserPwd;
 } AIRPDCAP_KEY_ITEM, *PAIRPDCAP_KEY_ITEM;
 
 /**
