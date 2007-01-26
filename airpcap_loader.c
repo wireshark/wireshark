@@ -53,7 +53,7 @@
 #include "airpcap_loader.h"
 
 /*
- * We load dinamically the dag library in order link it only when
+ * We load dynamically the dag library in order link it only when
  * it's present on the system
  */
 static HMODULE AirpcapLib = NULL;
@@ -262,7 +262,7 @@ load_wlan_driver_wep_keys()
 
     prefs_apply(wlan_prefs);
 
-    write_wlan_driver_wep_keys_to_regitry(user_data->list);
+    write_wlan_driver_wep_keys_to_registry(user_data->list);
 
     /* FREE MEMORY */
     /* free the WEP key string */
@@ -287,7 +287,7 @@ load_wlan_driver_wep_keys()
  * This will be stored into the registry...
  */
 BOOL
-write_wlan_wep_keys_to_regitry(airpcap_if_info_t* info_if, GList* key_list)
+write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
 {
     UINT i,j;
     GString *new_key;
@@ -377,7 +377,7 @@ write_wlan_wep_keys_to_regitry(airpcap_if_info_t* info_if, GList* key_list)
  * This will be stored into the registry...
  */
 BOOL
-write_wlan_driver_wep_keys_to_regitry(GList* key_list)
+write_wlan_driver_wep_keys_to_registry(GList* key_list)
 {
     UINT i,j,k,n,y;
     GString *new_key;

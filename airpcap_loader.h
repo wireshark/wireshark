@@ -142,7 +142,7 @@ save_wlan_wep_keys(airpcap_if_info_t* info_if);
  * This will be stored into the registry...
  */
 gboolean
-write_wlan_wep_keys_to_regitry(airpcap_if_info_t* info_if, GList* key_list);
+write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list);
 
 /* Returs TRUE if the WEP key is valid, false otherwise */
 gboolean
@@ -407,7 +407,7 @@ airpcap_if_info_free(airpcap_if_info_t *if_info);
  * This will be stored into the registry...
  */
 BOOL
-write_wlan_driver_wep_keys_to_regitry(GList* key_list);
+write_wlan_driver_wep_keys_to_registry(GList* key_list);
 
 /*
  * Clear keys and decryption status for the specified interface

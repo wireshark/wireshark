@@ -998,13 +998,13 @@ airpcap_save_decryption_keys(GList* key_list, GList* adapters_list)
     key_n = g_list_length(key_list);
 
     /* Set the driver's global list of keys. */
-    write_wlan_driver_wep_keys_to_regitry(key_list);
+    write_wlan_driver_wep_keys_to_registry(key_list);
 
     /* Empty the key list for each interface */
     for(i = 0; i < if_n; i++)
     {
 	curr_if = (airpcap_if_info_t*)g_list_nth_data(adapters_list,i);
-	write_wlan_wep_keys_to_regitry(curr_if,empty_key_list);
+	write_wlan_wep_keys_to_registry(curr_if,empty_key_list);
     }
 
     /*
