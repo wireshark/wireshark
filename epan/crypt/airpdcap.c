@@ -1685,7 +1685,6 @@ get_key_string(decryption_key_t* dk)
 	if(dk == NULL)
 		return NULL;
 
-#ifdef HAVE_AIRPDCAP
 	if(dk->type == AIRPDCAP_KEY_TYPE_WEP)
 	{
 		if(dk->key == NULL) /* Should NOT happen at all... */
@@ -1716,9 +1715,6 @@ get_key_string(decryption_key_t* dk)
 	{
 		return NULL;
 	}
-#else /* not HAVE_AIRPDCAP*/
-	output_string = g_strdup(dk->key->str);
-#endif
 
 	return output_string;
 }
