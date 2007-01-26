@@ -682,7 +682,6 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_real_data(decompressed_buffer, orig_size, orig_size);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Decompressed Data");
-		tvb_set_free_cb(next_tvb, g_free);
 	} else {
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	}

@@ -2809,7 +2809,7 @@ else {
 
     /* create the conversation with your data pointer  */
 
-    conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
 	    pinfo->srcport, pinfo->destport, 0);
     conversation_add_proto_data(conversation, my_proto, (void *)data_ptr);
 }
