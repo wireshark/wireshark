@@ -888,26 +888,23 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 		return;
 	}
 
-	ip_src = g_malloc(edt->pi.src.len);
-	memcpy(ip_src, edt->pi.src.data, edt->pi.src.len);
-	ip_dst = g_malloc(edt->pi.dst.len);
-	memcpy(ip_dst, edt->pi.dst.data, edt->pi.dst.len);
+	ip_src = g_malloc(edt->pi.net_src.len);
+	memcpy(ip_src, edt->pi.net_src.data, edt->pi.net_src.len);
+	ip_dst = g_malloc(edt->pi.net_dst.len);
+	memcpy(ip_dst, edt->pi.net_dst.data, edt->pi.net_dst.len);
 	srcport = edt->pi.srcport;
 	dstport = edt->pi.destport;
-
 	list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
 	while (list)
 	{
 		assoc = (sctp_assoc_info_t*)(list->data);
-
 		if (assoc->port1 == srcport && assoc->port2 == dstport)
 		{	
 			srclist = g_list_first(assoc->addr1);
 			while(srclist)
 			{
 				src = (address *)(srclist->data);
-				
 				if (*src->data == *ip_src)
 				{
 					dstlist = g_list_first(assoc->addr2);
@@ -938,10 +935,13 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 				else
 					srclist = g_list_next(srclist);
 			}
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
-			return;
+			if (assoc->port2 != assoc->port1)
+			{
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
+				return;
+			}
 		}
-		else if (assoc->port2 == srcport && assoc->port1 == dstport)
+		if (assoc->port2 == srcport && assoc->port1 == dstport)
 		{
 			srclist = g_list_first(assoc->addr2);
 			while(srclist)
