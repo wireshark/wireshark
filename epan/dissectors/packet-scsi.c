@@ -3050,20 +3050,20 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_text (tree, tvb, offset, 4, "Generation Number: 0x%08x",
                              tvb_get_ntohl (tvb, offset));
         len = tvb_get_ntohl (tvb, offset+4);
-        proto_tree_add_text (tree, tvb, offset, 4, "Additional Length: %u",
+        proto_tree_add_text (tree, tvb, offset+4, 4, "Additional Length: %u",
                              len);
         len = (payload_len > len) ? len : payload_len;
 
         if ((flags & 0x1F) == SCSI_SPC2_RESVIN_SVCA_RDKEYS) {
 	    /* XXX - what if len is < 8?  That may be illegal, but
 	       that doesn't make it impossible.... */
-            numrec = (len - 8)/8;
+            numrec = len / 8;
             offset += 8;
 
             for (i = 0; i < numrec; i++) {
                 proto_tree_add_item (tree, hf_scsi_persresv_key, tvb, offset,
                                      8, 0);
-                offset -= 8;
+                offset += 8;
             }
         }
         else if ((flags & 0x1F) == SCSI_SPC2_RESVIN_SVCA_RDRESV) {
