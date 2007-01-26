@@ -1039,7 +1039,8 @@ static int dissect_cops_object(tvbuff_t *tvb, packet_info *pinfo, guint8 op_code
   offset++;
 
   type_str = cops_c_type_to_str(c_num, c_type);
-  proto_tree_add_text(obj_tree, tvb, offset, 1, "C-Type: %s%s%u%s",
+  proto_tree_add_uint_format_value(obj_tree, hf_cops_obj_c_type, tvb, offset, 1, c_type,
+                      "%s%s%u%s",
                       type_str,
                       strlen(type_str) ? " (" : "",
                       c_type,
