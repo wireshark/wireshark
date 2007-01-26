@@ -158,7 +158,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	 *tftp_tree = NULL;
 	proto_item	 *ti;
-	conversation_t   *conversation;
+	conversation_t   *conversation = NULL;
 	gint		 offset = 0;
 	guint16		 opcode;
 	guint16		 bytes;
@@ -196,7 +196,11 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	  DISSECTOR_ASSERT(conversation);
+	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
+	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
+					    pinfo->destport, pinfo->srcport, 0);
+            conversation_set_dissector(conversation, tftp_handle);
+	  }
 	}
 	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
         if (!tftp_info) {
