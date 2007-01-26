@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" 
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+<!-- $Id$ -->
+
+<!--
+BIOGRAPHICAL SECTION
+-Use this section to encode all biographical information
+-->
+
+<!-- Author's Names -->
+  <!ENTITY AuthorFullName "Luis E. Garcia Ontanon">
+  <!ENTITY AuthorFirstName "Luis">
+  <!ENTITY AuthorOtherName "Enrrique">
+  <!ENTITY AuthorSurname "Garcia Ontanon">
+
+<!--Author's Affiliation -->
+  <!ENTITY AuthorShortAffiliation "">
+  <!ENTITY AuthorJobTitle "">
+  <!ENTITY AuthorOrgName "">
+  <!ENTITY AuthorOrgDiv "">
+  <!ENTITY AuthorEmail "luis.ontanon[at]gmail.com">
+
+<!--
+DOCUMENT SECTION
+-Use this section to encode all document information
+-->
+
+  <!ENTITY DocumentTitle "Wireshark's LUA API Reference Manual">
+  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &WiresharkCurrentVersion;">
+  <!ENTITY DocumentTitleAbbreviation "WSLUARM">
+
+  <!ENTITY DocumentCopyrightHolder1 "Luis E. Garcia Ontanon">
+  <!ENTITY DocumentCopyrightYear "2006">
+
+  <!ENTITY DocumentEdition "First ">
+  <!ENTITY DocumentVersion "V0.1">
+  <!ENTITY DocumentPubDate "2006">
+
+  <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
+
+<!--
+Wireshark Info
+-->
+  <!ENTITY WiresharkCurrentVersion "0.99.3">
+  
+<!--
+Gnu info
+-->
+  <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
+
+<!--
+Timezone info
+-->
+  <!ENTITY TimezoneGMTSite "http://wwp.greenwichmeantime.com/">
+  <!ENTITY TimezoneWorldClockSite "http://www.timeanddate.com/worldclock/">
+  <!ENTITY NTPSite "http://www.ntp.org/">
+  <!ENTITY WikipediaWebsite "http://en.wikipedia.org">
+  <!ENTITY WikipediaTimezone "&WikipediaWebsite;/wiki/Time_zone">
+  <!ENTITY WikipediaDaylightSaving "&WikipediaWebsite;/wiki/Daylight_saving">
+  <!ENTITY WikipediaUTC "&WikipediaWebsite;/wiki/Coordinated_Universal_Time">
+
+<!--
+FILE SECTION
+-Use this section to specify the files that make up the book. Use FPI (public identifiers)
+-->
+<!-- These refer to graphics files and figures contained in the document -->
+
+<!-- These are the actual files that make up the document -->
+  <!-- WSLUA_MODULE_ENTITIES -->
+]>
+
+<book>
+  <title>&DocumentTitle;</title>
+  <!-- WSLUA_MODULE_TEXT -->
+</book>

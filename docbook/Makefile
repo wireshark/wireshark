@@ -17,7 +17,7 @@ FOP_OPTS?=-Xmx256m
 #
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP?=fop-0.20.5/fop.bat
+FOP?=fop-0.20.5/fop.sh
 #
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
@@ -257,9 +257,10 @@ CLEANFILES =	\
 	release-notes.txt	\
 	svn_version.xml		\
 	user-guide.zip		\
+	wsluarm.xml \
+	wsluarm_src/*.xml
 
-
-all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
+all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes wsluarm
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -453,4 +454,83 @@ ifdef HHC
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
 endif
+
+PERL = perl
+
+WSLUA_MODULES = \
+	../epan/wslua/wslua_dumper.c \
+	../epan/wslua/wslua_field.c \
+	../epan/wslua/wslua_gui.c \
+	../epan/wslua/wslua_listener.c \
+	../epan/wslua/wslua_pinfo.c \
+	../epan/wslua/wslua_proto.c \
+	../epan/wslua/wslua_tree.c \
+	../epan/wslua/wslua_tvb.c \
+	../epan/wslua/wslua_util.c
+
+WSLUA_FILES = \
+	wslua_dumper.xml \
+	wslua_field.xml \
+	wslua_gui.xml \
+	wslua_listener.xml \
+	wslua_pinfo.xml \
+	wslua_proto.xml \
+	wslua_tree.xml \
+	wslua_tvb.xml \
+	wslua_util.xml 
+
+WSLUARM_SOURCE = \
+	wsluarm.xml \
+	svn_version.xml		\
+	Makefile		\
+	$(WSLUA_FILES)
+
+wsluarm.xml: make-wsluarm.pl template-wsluarm.xml $(WSLUA_MODULES)
+	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
+
+wsluarm: wsluarm.html wsluarm.txt wsluarm.pdf wsluarm.pdf wsluarm.chm
+
+# validate the content
+wsluarm.validated: $(WSLUARM_SOURCE)
+	@ echo --- WSLUARM - VALIDATING XML ---
+	$(XMLLINT) --valid --noout $<
+	touch $@
+
+# create html single page file
+wsluarm.html: $(WSLUARM_SOURCE)
+	@ echo --- WSLUARM - HTML ---
+	$(XSLTPROC) --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< > $@
+
+# create txt single page file (through HTML)
+wsluarm.txt: $(WSLUARM_SOURCE)
+	@ echo --- WSLUARM - TXT ---
+	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(HTML2TXT) > $@
+
+# create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
+# you will get lot's of errors, but that's ok
+wsluarm-us.fo: $(WSLUARM_SOURCE) custom_layer_pdf.xsl
+ifdef FOP
+	@ echo --- WSLUARM - PDF US PAPER ---
+	$(XSLTPROC) --stringparam paper.type letter --nonet custom_layer_pdf.xsl $< > $@
+endif
+
+# create pdf file (through XSL-FO), portrait pages on A4 paper
+# you will get lot's of errors, but that's ok
+wsluarm-a4.fo: $(WSLUARM_SOURCE) custom_layer_pdf.xsl
+ifdef FOP
+	@ echo --- WSLUARM - PDF A4 PAPER ---
+	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
+endif
+
+# create MS html help file (through html chunked pages)
+wsluarm.chm: $(WSLUARM_SOURCE)
+ifdef HHC
+	@ echo --- WSLUARM - MICROSOFT HTML HELP ---
+	$(XSLTPROC) --stringparam base.dir release_notes_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
+	-$(HHC) htmlhelp.hhp
+	-mv htmlhelp.chm $@
+	-rm -r htmlhelp.hhp
+	-rm -r toc.hhc
+endif
+
 
