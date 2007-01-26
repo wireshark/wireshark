@@ -90,6 +90,9 @@ ATTRIBUTE	Tunnel_Police_Burst		68	integer		Redback
 ATTRIBUTE	Tunnel_L2F_Second_Password	69	string		Redback
 ATTRIBUTE	TTY_Level_Max			72	integer		Redback 
 ATTRIBUTE	TTY_Level_Start			73	integer		Redback
+ATTRIBUTE	Agent-Circuit-Id		97	string		Redback
+ATTRIBUTE	Platform_Type			98	integer		Redback
+ATTRIBUTE	OS_Version			112	string		Redback
 ATTRIBUTE	Acct_Input_Octets_64		128	octets		Redback
 ATTRIBUTE	Acct_Output_Octets_64		129	octets		Redback
 ATTRIBUTE	Acct_Input_Packets_64		130	octets		Redback
@@ -106,6 +109,12 @@ ATTRIBUTE	LAC_Real_Port_Type		140	integer		Redback
 ATTRIBUTE	Acct_Dyn_Ac_Ent			141	string		Redback
 ATTRIBUTE	Session_Error_Code		142	integer		Redback
 ATTRIBUTE	Session_Error_Msg		143	string		Redback
+ATTRIBUTE	MAC-Address			145	string		Redback
+
+VALUE		Platform_Type	SMS		1
+VALUE           Platform_Type	SmartEdge-400	2
+VALUE		Platform_Type	SmartEdge-800	3
+
 
 VALUE	PVC_Encapsulation_Type	AAA_ENCAPS_ATM_RAW		1
 VALUE	PVC_Encapsulation_Type	AAA_ENCAPS_ATM_ROUTE1483	2
