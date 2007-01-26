@@ -710,7 +710,7 @@
 			<enum name="Port Administratively Disabled" code="22"/>
 		</avp>
 		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
-			<type type-name="Unsigned32"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Acct-Link-Count" code="51" mandatory="may">
 			<type type-name="Integer32"/>
@@ -1055,7 +1055,10 @@
 			<enum name="AUTHORIZE_ONLY" code="0"/>
 			<enum name="AUTHORIZE_AUTHENTICATE" code="1"/>
 		</avp>
-<!-- 286-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
+		<avp name="Accounting-Sub-Session-Id" code="287" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned64"/>
+		</avp>
+<!-- 286 & 288-290    Unallocated http://www.iana.org/assignments/aaa-parameters (last updated 20 September 2005)?? -->
 		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="Integer32"/>
 		</avp>
