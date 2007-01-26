@@ -2527,6 +2527,9 @@ void proto_register_cops(void)
   proto_register_field_array(proto_cops, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Make dissector findable by name */
+  register_dissector("cops", dissect_cops, proto_cops);
+
   /* Register our configuration options for cops */
   cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);
   prefs_register_uint_preference(cops_module,"tcp.cops_port",
