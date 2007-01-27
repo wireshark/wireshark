@@ -69,20 +69,20 @@ my $docbook_template = {
 	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
 	function_descr => "\t\t\t\t<para>%s</para>\n",
 	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
-	function_args_header => "\t\t\t\t\t<command>Arguments</command>\t\t\t\t<variablelist>\n",
-	function_args_footer => "\t\t\t\t</variablelist>\n",
+	function_args_header => "\t\t\t\t\t<section><title>Arguments</title>\t\t\t\t<variablelist>\n",
+	function_args_footer => "\t\t\t\t</variablelist></section>\n",
 	function_arg_header => "\t\t\t\t<varlistentry><term>%s</term>\n",
 	function_arg_descr => "\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
 	function_arg_footer => "\t\t\t\t</varlistentry> <!-- function_arg_footer: %s -->\n",
-	function_argerror_header => "\t\t\t\t\t<command>Errors</command>\n\t\t\t\t\t\t<itemizedlist>\n",
-	function_argerror => "\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_argerror_footer => "\t\t\t\t\t\t</itemizedlist> <!-- function_argerror_footer: %s -->\n",
-	function_returns_header => "\t\t\t\t<command>Returns</command>\n",
-#	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
+	function_argerror_header => "", #"\t\t\t\t\t<section><title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
+	function_argerror => "", #"\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_argerror_footer => "", #"\t\t\t\t\t\t</itemizedlist></section> <!-- function_argerror_footer: %s -->\n",
+	function_returns_header => "\t\t\t\t<section><title>Returns</title>\n",
+	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
 	function_returns => "\t\t\t\t\t<para>%s</para>\n",
-	function_errors_header => "\t\t\t\t<command>Errors</command><itemizedlist>\n",
+	function_errors_header => "\t\t\t\t<section><title>Errors</title><itemizedlist>\n",
 	function_errors => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_errors_footer => "\t\t\t\t\t</itemizedlist> <!-- function_error_footer: %s -->\n",
+	function_errors_footer => "\t\t\t\t\t</itemizedlist></section> <!-- function_error_footer: %s -->\n",
 	non_method_functions_header => "\t\t<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
 	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
 };
@@ -351,7 +351,9 @@ while ( $file =  shift) {
 		
 		if ( $#{${$cl}{attributes}} >= 0) {
 			for my $a (@{${$cl}{attributes}}) {
-				printf D ${$template_ref}{class_attr_header}, ${$a}{name}, ${$a}{name};
+				my $a_id = ${$a}{name};
+				$a_id =~ s/[^a-zA-Z0-9]/_/g;
+				printf D ${$template_ref}{class_attr_header}, $a_id, ${$a}{name};
 				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, ${$a}{descr} if ${$a}{descr};
 				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
 				
@@ -414,7 +416,10 @@ sub function_descr {
 	if (defined $label ) {
 		$label =~ s/>/&gt;/;
 		$label =~ s/</&lt;/;
-		printf D ${$template_ref}{function_header}, ${$f}{section_name}, $label;
+		my $section_name =  ${$f}{section_name};
+		$section_name =~ s/[^a-zA-Z0-9]/_/g;
+
+		printf D ${$template_ref}{function_header}, $section_name, $label;
 	} else {
 		my $arglist = '';
 		
@@ -425,8 +430,10 @@ sub function_descr {
 		}
 		
 		$arglist =~ s/, $//;
+		my $section_name =  "${$f}{name}($arglist)";
+		$section_name =~ s/[^a-zA-Z0-9]/_/g;
 			
-		printf D ${$template_ref}{function_header}, "${$f}{name}($arglist)", "${$f}{name}($arglist)";
+		printf D ${$template_ref}{function_header}, $section_name , "${$f}{name}($arglist)";
 	}	
 	
 	printf D ${$template_ref}{function_descr}, ${$f}{descr} if ${$f}{descr};

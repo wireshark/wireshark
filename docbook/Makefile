@@ -260,7 +260,7 @@ CLEANFILES =	\
 	wsluarm.xml \
 	wsluarm_src/*.xml
 
-all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes wsluarm
+all: svn_version_check wsug.validated wsdg.validated wsluarm.validated release_notes.validated wsug wsdg release_notes wsluarm
 
 clean:
 	rm -rf $(CLEANFILES)
@@ -484,6 +484,8 @@ WSLUARM_SOURCE = \
 	svn_version.xml		\
 	Makefile		\
 	$(WSLUA_FILES)
+	
+$(WSLUA_FILES): wsluarm.xml
 
 wsluarm.xml: make-wsluarm.pl template-wsluarm.xml $(WSLUA_MODULES)
 	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
