@@ -17,7 +17,7 @@ FOP_OPTS?=-Xmx256m
 #
 # for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
 # not use $FOP_OPTS)
-FOP?=fop-0.20.5/fop.sh
+FOP?=fop-0.20.5/fop.bat
 #
 # for unix like environments (if you have problems with fop, try to use an absolute path here)
 #FOP=fop-0.20.5/fop.sh
