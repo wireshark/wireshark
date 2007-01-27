@@ -179,7 +179,7 @@ const char* wslua_get_actual_filename(const char* fname) {
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	/* Lua's loadfile() has been modified so that if a file does not exist
 	in the current directory it will look for it in wireshark's user and system directories */
-#define WSLUA_ARG_loadfile_FILENAME 1
+#define WSLUA_ARG_loadfile_FILENAME 1 /* name of the file to be loaded */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
 	const char* filename;
 	
@@ -199,7 +199,7 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	/* Lua's dofile() has been modified so that if a file does not exist
 	in the current directory it will look for it in wireshark's user and system directories */
-#define WSLUA_ARG_dofile_FILENAME 1
+#define WSLUA_ARG_dofile_FILENAME 1 /* name of the file to be run */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
 	const char* filename;
 	int n;

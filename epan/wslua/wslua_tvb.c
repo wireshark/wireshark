@@ -88,8 +88,8 @@ static int ByteArray_gc(lua_State* L) {
 
 WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
 	/* concatenate two ByteArrays */
-#define WSLUA_ARG_ByteArray__cat_FIRST 1
-#define WSLUA_ARG_ByteArray__cat_SECOND 1
+#define WSLUA_ARG_ByteArray__cat_FIRST 1 /* first array */
+#define WSLUA_ARG_ByteArray__cat_SECOND 1 /* second array */
 
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,2);
@@ -105,7 +105,7 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
 
 WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 	/* prepend a ByteArray to this ByteArray */
-#define WSLUA_ARG_ByteArray_prepend_PREPENDED 2
+#define WSLUA_ARG_ByteArray_prepend_PREPENDED 2 /* array to be prepended */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,2);
 
@@ -120,7 +120,7 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 
 WSLUA_METHOD ByteArray_append(lua_State* L) {
 	/* append a ByteArray to this ByteArray */
-#define WSLUA_ARG_ByteArray_append_APPENDED 2
+#define WSLUA_ARG_ByteArray_append_APPENDED 2 /* array to be appended */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,2);
 
@@ -135,7 +135,7 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
 
 WSLUA_METHOD ByteArray_set_size(lua_State* L) {
 	/* Sets the size of a ByteArray, either truncating it or filling it with zeros. */
-#define WSLUA_ARG_ByteArray_set_size_SIZE 2
+#define WSLUA_ARG_ByteArray_set_size_SIZE 2 /* new size of the array*/
 
     ByteArray ba = checkByteArray(L,1);
     int siz = luaL_checkint(L,2);
@@ -430,12 +430,6 @@ WSLUA_METHOD Tvb_offset(lua_State* L) {
 
 
 #if USED_FOR_DOC_PURPOSES
-WSLUA_METHOD Tvb_range(lua_State* L) {
-	/* creates a tvbr from this Tvb. This is used also as the Tvb:__call() metamethod. */
-#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the begining of the Tvb. Defaults to 0. */
-#define WSLUA_OPTARG_Tvb_range_LENGTH 2 /* The length (in octets) of the range. Defaults to until the end of the Tvb. */
-	return 0;
-}
 WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 	/* equivalent to tvb:range(...) */
 	return 0;
