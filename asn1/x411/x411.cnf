@@ -681,5 +681,19 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, pinfo, tree);
 
+#.FN_BODY T_bilateral_information
+	proto_item *item = NULL;
+	int 	    loffset = 0;
+	guint32	    len = 0;
 
+	/* work out the length */
+	loffset = dissect_ber_identifier(pinfo, tree, tvb, offset, NULL, NULL, NULL);
+	(void) dissect_ber_length(pinfo, tree, tvb, loffset, &len, NULL);
+
+	/* create some structure so we can tell what this unknown ASN.1 represents */	
+	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+	tree = proto_item_add_subtree(item, ett_x411_bilateral_information);
+
+	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+	
 #.END

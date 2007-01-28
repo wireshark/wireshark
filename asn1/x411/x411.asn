@@ -386,7 +386,8 @@ PerDomainBilateralInformation ::= SEQUENCE {
               SEQUENCE {administration-domain-name
                           [0]  AdministrationDomainName,
                         private-domain-identifier
-                          [1]  PrivateDomainIdentifier}}
+                          [1]  PrivateDomainIdentifier}},
+  bilateral-information  ANY
 }
 
 MTARecipientName ::= ORAddressAndOptionalDirectoryName

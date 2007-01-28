@@ -206,6 +206,7 @@ static int hf_x411_bilateral_domain = -1;         /* T_bilateral_domain */
 static int hf_x411_administration_domain_name = -1;  /* AdministrationDomainName */
 static int hf_x411_private_domain = -1;           /* T_private_domain */
 static int hf_x411_private_domain_identifier = -1;  /* PrivateDomainIdentifier */
+static int hf_x411_bilateral_information = -1;    /* T_bilateral_information */
 static int hf_x411_arrival_time = -1;             /* ArrivalTime */
 static int hf_x411_converted_encoded_information_types = -1;  /* ConvertedEncodedInformationTypes */
 static int hf_x411_trace_report_type = -1;        /* ReportType */
@@ -559,6 +560,7 @@ static int hf_x411_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 /* Initialize the subtree pointers */
 static gint ett_x411 = -1;
 static gint ett_x411_content_unknown = -1;
+static gint ett_x411_bilateral_information = -1;
 
 /*--- Included file: packet-x411-ett.c ---*/
 #line 1 "packet-x411-ett.c"
@@ -737,7 +739,7 @@ static gint ett_x411_SecurityCategories = -1;
 static gint ett_x411_SecurityCategory = -1;
 
 /*--- End of included file: packet-x411-ett.c ---*/
-#line 80 "packet-x411-template.c"
+#line 81 "packet-x411-template.c"
 
 
 /*--- Included file: packet-x411-fn.c ---*/
@@ -2611,9 +2613,37 @@ static int dissect_bilateral_domain(packet_info *pinfo, proto_tree *tree, tvbuff
 }
 
 
+
+static int
+dissect_x411_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 685 "x411.cnf"
+	proto_item *item = NULL;
+	int 	    loffset = 0;
+	guint32	    len = 0;
+
+	/* work out the length */
+	loffset = dissect_ber_identifier(pinfo, tree, tvb, offset, NULL, NULL, NULL);
+	(void) dissect_ber_length(pinfo, tree, tvb, loffset, &len, NULL);
+
+	/* create some structure so we can tell what this unknown ASN.1 represents */	
+	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+	tree = proto_item_add_subtree(item, ett_x411_bilateral_information);
+
+	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+	
+
+
+  return offset;
+}
+static int dissect_bilateral_information(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x411_T_bilateral_information(FALSE, tvb, offset, pinfo, tree, hf_x411_bilateral_information);
+}
+
+
 static const ber_sequence_t PerDomainBilateralInformation_sequence[] = {
   { BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_country_name },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_bilateral_domain },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_bilateral_information },
   { 0, 0, 0, NULL }
 };
 
@@ -7008,7 +7038,6 @@ dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 
 
-
   return offset;
 }
 static int dissect_value_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
@@ -7365,7 +7394,7 @@ static void dissect_BindTokenEncryptedData_PDU(tvbuff_t *tvb, packet_info *pinfo
 
 
 /*--- End of included file: packet-x411-fn.c ---*/
-#line 82 "packet-x411-template.c"
+#line 83 "packet-x411-template.c"
 
 static int
 call_x411_oid_callback(char *base_oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
@@ -7991,6 +8020,10 @@ void proto_register_x411(void) {
       { "private-domain-identifier", "x411.private_domain_identifier",
         FT_UINT32, BASE_DEC, VALS(x411_PrivateDomainIdentifier_vals), 0,
         "x411.PrivateDomainIdentifier", HFILL }},
+    { &hf_x411_bilateral_information,
+      { "bilateral-information", "x411.bilateral_information",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x411.T_bilateral_information", HFILL }},
     { &hf_x411_arrival_time,
       { "arrival-time", "x411.arrival_time",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -9373,13 +9406,14 @@ void proto_register_x411(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-x411-hfarr.c ---*/
-#line 209 "packet-x411-template.c"
+#line 210 "packet-x411-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
     &ett_x411,
     &ett_x411_content_unknown,
+    &ett_x411_bilateral_information,
 
 /*--- Included file: packet-x411-ettarr.c ---*/
 #line 1 "packet-x411-ettarr.c"
@@ -9558,7 +9592,7 @@ void proto_register_x411(void) {
     &ett_x411_SecurityCategory,
 
 /*--- End of included file: packet-x411-ettarr.c ---*/
-#line 216 "packet-x411-template.c"
+#line 218 "packet-x411-template.c"
   };
 
   /* Register protocol */
@@ -9653,7 +9687,7 @@ void proto_reg_handoff_x411(void) {
 
 
 /*--- End of included file: packet-x411-dis-tab.c ---*/
-#line 233 "packet-x411-template.c"
+#line 235 "packet-x411-template.c"
 
   /* APPLICATION CONTEXT */
 
