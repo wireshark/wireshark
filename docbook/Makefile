@@ -490,7 +490,7 @@ $(WSLUA_FILES): wsluarm.xml
 wsluarm.xml: make-wsluarm.pl template-wsluarm.xml $(WSLUA_MODULES)
 	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
 
-wsluarm: wsluarm.html wsluarm.txt wsluarm.pdf wsluarm.pdf wsluarm.chm
+wsluarm: wsluarm.html wsluarm.txt wsluarm-a4.pdf wsluarm-us.pdf wsluarm.chm
 
 # validate the content
 wsluarm.validated: $(WSLUARM_SOURCE)
