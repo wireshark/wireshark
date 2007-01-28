@@ -29,10 +29,27 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
+capture_test_output_print() {
+	wait
+	for f in "$@"; do
+		if [[ -f "$f" ]]; then
+		printf " --> $f\n"
+		cat "$f"
+                printf "\n"
+		fi
+	done
+}
+
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
-	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
+##	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
+	ping -n 20 www.wireshark.org > ./testout_ping.txt 2>&1 &
+}
+
+ping_cleanup() {
+	wait
+	rm -f ./testout_ping.txt
 }
 
 # capture exactly 10 packets
@@ -52,7 +69,7 @@ capture_step_10packets() {
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout.txt
 		# part of the Prerequisite checks
 		# wrong interface ? output the possible interfaces
 		$TSHARK -D
@@ -62,18 +79,19 @@ capture_step_10packets() {
 
 	# we should have an output file now
 	if [ ! -f "./testout.pcap" ]; then
+	capture_test_output ./testout.txt
 		test_step_failed "No output file!"
 		return
 	fi
 
 	# ok, we got a capture file, does it contain exactly 10 packets?
-	$CAPINFOS ./testout.pcap > ./testout.txt
-	grep -i 'Number of packets: 10' ./testout.txt > /dev/null
+	$CAPINFOS ./testout.pcap > ./testout2.txt
+	grep -i 'Number of packets: 10' ./testout2.txt > /dev/null
 	if [ $? -eq 0 ]; then
 		test_step_ok
 	else
 		echo
-		cat ./testout.txt
+		capture_test_output_print ./testout_ping.txt ./testout.txt ./testout2.txt
 		# part of the Prerequisite checks
 		# probably wrong interface, output the possible interfaces
 		$TSHARK -D
@@ -333,6 +351,7 @@ dumpcap_capture_suite() {
 }
 
 capture_cleanup_step() {
+	ping_cleanup
 	rm -f ./testout.txt
 	rm -f ./testout2.txt
 	rm -f ./testout.pcap
