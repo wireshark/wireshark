@@ -297,6 +297,16 @@ extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm
  */
 extern void copy_to_clipboard(GString *str);
 
+#if (GTK_MAJOR_VERSION >= 2)
+/** Copy an array of bytes to the clipboard.
+ * Copies as mime-type application/octet_stream in GTK 2.
+ *
+ * @param data_p Pointer to data to be copied.
+ * @param len Number of bytes in the data to be copied.
+ */
+extern void copy_binary_to_clipboard(const guint8* data_p, int len);
+#endif
+
 /** Create a new window title that includes user-defined preference string.
  *
  * @param caption string you want included in title (appended to user-defined string)

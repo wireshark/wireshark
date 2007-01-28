@@ -74,6 +74,7 @@
 #define eth_clist_find_row_from_data		gtk_clist_find_row_from_data
 #define eth_clist_freeze			gtk_clist_freeze
 #define eth_clist_get_row_data			gtk_clist_get_row_data
+#define eth_clist_get_text			gtk_clist_get_text
 #define eth_clist_get_selection_info		gtk_clist_get_selection_info
 #define eth_clist_moveto			gtk_clist_moveto
 #define eth_clist_new				gtk_clist_new
@@ -897,6 +898,32 @@ gint
 packet_list_get_sort_column(void)
 {
     return ETH_CLIST(packet_list)->sort_column;
+}
+
+void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type)
+{
+    gint row;
+    gint col;
+    gchar separator;
+    gchar* celltext = NULL;
+
+    GString* text = g_string_new("");
+    separator = (CS_CSV == copy_type) ? ',' : '\t';
+    if (cfile.current_frame) {
+        /* XXX hum, should better have a "cfile->current_row" here ... */
+        row = eth_clist_find_row_from_data(ETH_CLIST(packet_list),
+			        cfile.current_frame);
+        for(col = 0; col < cfile.cinfo.num_cols; ++col) {
+            if(col != 0) {
+                g_string_append_c(text,separator);
+            }
+            if(0 != eth_clist_get_text(ETH_CLIST(packet_list),row,col,&celltext)) {
+                g_string_append(text,celltext);
+            }
+        }
+        copy_to_clipboard(text);
+    }
+    g_string_free(text,TRUE);
 }
 
 /* Re-sort the clist by the previously selected sort */

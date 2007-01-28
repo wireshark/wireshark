@@ -819,16 +819,104 @@ savehex_dlg_destroy_cb(void)
         savehex_dlg = NULL;
 }
 
+
+static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int data_len, gboolean append_text)
+{
+    const int byte_line_length = 16; /* Print out data for 16 bytes on one line */
+    int i, j;
+    gboolean end_of_line = TRUE; /* Initial state is end of line */
+    int byte_line_part_length;
+
+    GString* hex_str;
+    GString* char_str;
+
+    /* Write hex data for a line, then ascii data, then concatenate and add to buffer */
+    hex_str = g_string_new("");
+    char_str= g_string_new("");
+
+    i = 0;
+	while (i<data_len){
+        if(end_of_line) {
+            g_string_sprintfa(hex_str,"%04x  ",i); /* Offset - note that we _append_ here */
+        }
+
+        g_string_sprintfa(hex_str," %02x",*data_p);
+        if(append_text) {
+            g_string_sprintfa(char_str,"%c",isprint(*data_p) ? *data_p : '.');
+        }
+
+        ++data_p;
+
+        /* Look ahead to see if this is the end of the data */
+        byte_line_part_length = (++i) % byte_line_length;
+        if(i == data_len){
+            /* End of data - need to fill in spaces in hex string and then do "end of line".
+             * 
+             */
+            for(j = 0; append_text && (j < (byte_line_length - byte_line_part_length)); ++j) {
+                g_string_append(hex_str,"   "); /* Three spaces for each missing byte */
+            }
+            end_of_line = TRUE;
+        } else {
+            end_of_line = (byte_line_part_length == 0 ? TRUE : FALSE);
+        }
+        
+
+        if (end_of_line){
+            /* End of line */
+            g_string_append(copy_buffer, hex_str->str);
+            if(append_text) {
+                /* Two spaces between hex and text */
+                g_string_append_c(copy_buffer, ' ');
+                g_string_append_c(copy_buffer, ' ');
+                g_string_append(copy_buffer, char_str->str);
+            }
+            /* Setup ready for next line */
+            g_string_assign(char_str,"");
+            g_string_assign(hex_str, "\n");
+        }
+	}
+
+	g_string_free(hex_str, TRUE);
+	g_string_free(char_str, TRUE);
+}
+
+static 
+int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_len _U_)
+{
+
+    gchar to_append;
+
+    if(isprint(*data_p)) {
+        to_append = *data_p;
+    } else if(*data_p==0x0a) {
+        to_append = '\n'; /* Copied from old copy_hex_cb function; not sure why this is needed - portablity?*/
+    } else {
+        return 1; /* Just ignore non-printable bytes */
+    }
+    g_string_append_c(copy_buffer,to_append);
+    return 1;
+}
+
+static 
+int copy_hex_bytes_hex(GString* copy_buffer, const guint8* data_p, int data_len _U_)
+{
+    g_string_sprintfa(copy_buffer, "%02x", *data_p);
+    return 1;
+}
+
 void
-copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, int data_type)
+copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 {
 	GtkWidget *bv;
-	int len;
-	int i=0;
-	const guint8 *data_p = NULL;
-	GString *ASCII_representation = g_string_new("");
-	GString *byte_str = g_string_new("");
-	GString *text_str = g_string_new("");
+
+    int len;
+    int bytes_consumed = 0;
+    int flags;
+
+    const guint8* data_p;
+
+	GString* copy_buffer = g_string_new(""); /* String to copy to clipboard */
 
 	bv = get_notebook_bv_ptr(byte_nb_ptr);
 	if (bv == NULL) {
@@ -840,50 +928,68 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, int data_type)
 	data_p = get_byte_view_data_and_length(bv, &len);
 	g_assert(data_p != NULL);
 
-    g_string_sprintfa(byte_str,"%04x  ",i); /* Offset 0000 */
-	for (i=0; i<len; i++){
-        if (data_type==1) {
-            if (isprint(*data_p)) {
-                g_string_sprintfa(ASCII_representation,"%c", *data_p);
-            }
-            else
-            {
-                if (*data_p==0x0a) {
-                    g_string_sprintfa(ASCII_representation,"\n");
-                }
-            }
-        }
-        else
-        {
-            g_string_sprintfa(ASCII_representation,"%c",isprint(*data_p) ? *data_p : '.');
-        }
-        g_string_sprintfa(byte_str," %02x",*data_p++);
-        if ((i+1)%16==0 && i!=0){
-            g_string_sprintfa(byte_str,"  %s\n%04x  ",ASCII_representation->str,i+1);
-            g_string_sprintfa(text_str,"%s",ASCII_representation->str);
+    flags = data_type & CD_FLAGSMASK;
+    data_type = data_type & CD_TYPEMASK;
 
-            g_string_assign (ASCII_representation,"");
-        }
-	}
+    if(flags & CD_FLAGS_SELECTEDONLY) {
+        int start, end;
+        
+        /* Get the start and end of the highlighted bytes.
+         * XXX The keys appear to be REVERSED start <-> end throughout this file!
+         * Should this be fixed? There is one exception - packet_hex_reprint,
+         * so can't just change it round without functional change.
+         */
+	    end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
+	    start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
 
-	if(ASCII_representation->len){
-	  for (i=ASCII_representation->len; i<16; i++){
-	    g_string_sprintfa(byte_str,"   ");
-	  }
-	  g_string_sprintfa(byte_str,"  %s\n",ASCII_representation->str);
-	  g_string_sprintfa(text_str,"%s",ASCII_representation->str);
-	}
-	/* Now that we have the byte data, copy it into the default clipboard */
-    if (data_type==1) {
-        copy_to_clipboard(text_str);
+        if(start >= 0 && end > start && (end - start <= len)) {
+            len = end - start;
+            data_p += start;
+        }
     }
-    else
-    {
-        copy_to_clipboard(byte_str);
+
+    switch(data_type) {
+    case(CD_ALLINFO):
+        /* This is too different from other text formats - handle separately */
+        copy_hex_all_info(copy_buffer, data_p, len, TRUE);
+        break;
+    case(CD_HEXCOLUMNS):
+        /* This could be done incrementally, but it is easier to mingle with the code for CD_ALLINFO */
+        copy_hex_all_info(copy_buffer, data_p, len, FALSE);
+        break;
+#if (GTK_MAJOR_VERSION >= 2)
+    case(CD_BINARY):
+        /* Completely different logic to text copies - leave copy buffer alone */
+        copy_binary_to_clipboard(data_p,len);
+        break;
+#endif
+    default:
+        /* Incrementally write to text buffer in various formats */
+	    while (len > 0){
+            switch(data_type) {
+            case (CD_TEXTONLY):
+                bytes_consumed = copy_hex_bytes_text_only(copy_buffer, data_p, len);
+                break;
+            case (CD_HEX):
+                bytes_consumed = copy_hex_bytes_hex(copy_buffer, data_p, len);
+                break;
+            default:
+                g_assert_not_reached();
+                break;
+            }
+
+            g_assert(bytes_consumed>0);
+            data_p += bytes_consumed;
+            len -= bytes_consumed;
+        }
+        break;
     }
-	g_string_free(byte_str, TRUE);                       /* Free the memory */
-	g_string_free(text_str, TRUE);                       /* Free the memory */
-	g_string_free(ASCII_representation, TRUE);           /* Free the memory */
+    
+    if(copy_buffer->len > 0) {
+        copy_to_clipboard(copy_buffer);
+    }
+
+	g_string_free(copy_buffer, TRUE);  
 }
 
 /* save the current highlighted hex data */

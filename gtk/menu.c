@@ -710,6 +710,19 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
+    ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Summary (Text)", NULL, packet_list_copy_summary_cb, CS_TEXT, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Summary (CSV)", NULL, packet_list_copy_summary_cb, CS_CSV, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Hex and Text", NULL, copy_hex_cb, CD_ALLINFO, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Text Only", NULL, copy_hex_cb, CD_TEXTONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Hex Columns", NULL, copy_hex_cb, CD_HEXCOLUMNS, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Hex Stream", NULL, copy_hex_cb, CD_HEX, NULL, NULL),
+#if GTK_MAJOR_VERSION >= 2
+    ITEM_FACTORY_ENTRY("/Copy/Binary Stream", NULL, copy_hex_cb, CD_BINARY, NULL, NULL),
+#endif
+
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+
     ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, WIRESHARK_STOCK_DECODE_AS),
     ITEM_FACTORY_STOCK_ENTRY("/Print...", NULL, file_print_selected_cmd_cb, 0, GTK_STOCK_PRINT),
     ITEM_FACTORY_ENTRY("/Show Packet in New Window", NULL, new_window_cb,
@@ -726,6 +739,14 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Copy", NULL, copy_selected_plist_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As/Hex and Text", NULL, copy_hex_cb, CD_ALLINFO | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As/Text Only", NULL, copy_hex_cb, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As/Hex Columns", NULL, copy_hex_cb, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As/Hex Stream", NULL, copy_hex_cb, CD_HEX | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+#if GTK_MAJOR_VERSION >= 2
+    ITEM_FACTORY_ENTRY("/Copy Selected Bytes As/Binary Stream", NULL, copy_hex_cb, CD_BINARY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+#endif
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
@@ -779,9 +800,9 @@ static GtkItemFactoryEntry hexdump_menu_items[] =
 {
     ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Copy/All Information", NULL, copy_hex_cb,
-                       0, NULL, NULL),
+                       CD_ALLINFO, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/Text Only", NULL, copy_hex_cb,
-                       1, NULL, NULL),
+                       CD_TEXTONLY, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
 };

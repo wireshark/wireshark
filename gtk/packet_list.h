@@ -106,5 +106,17 @@ extern void packet_list_next();
  */
 extern void packet_list_prev();
 
+/* Different modes of copying summary data */
+typedef enum {
+    CS_TEXT, /* Packet summary data (tab separated) */
+    CS_CSV   /* Packet summary data (comma separated) */
+} copy_summary_type;
 
+/** Called when user clicks on menu item to copy summary data.
+ *
+ *  @param w Not used.
+ *  @param data Not used.
+ *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
+ */
+extern void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type);
 #endif /* __PACKET_LIST_H__ */

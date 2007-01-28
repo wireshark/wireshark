@@ -1062,6 +1062,77 @@ copy_to_clipboard(GString *str)
 #endif
 }
 
+
+typedef struct _copy_binary_t {
+    guint8* data;
+    int len;
+} copy_binary_t;
+
+#if GTK_MAJOR_VERSION >= 2
+static
+copy_binary_t* create_copy_binary_t(const guint8* data, int len)
+{
+    copy_binary_t* copy_data;
+
+    g_assert(len > 0);
+    copy_data = g_new(copy_binary_t,1);
+    copy_data->data = g_new(guint8,len);
+    copy_data->len = len;
+    memcpy(copy_data->data,data,len * sizeof(guint8));
+    return copy_data;
+}
+
+static void destroy_copy_binary_t(copy_binary_t* copy_data) {
+    g_free(copy_data->data);
+    g_free(copy_data);
+}
+
+static
+void copy_binary_free_cb(GtkClipboard *clipboard _U_, gpointer user_data_or_owner)
+{
+    copy_binary_t* copy_data;
+    copy_data = user_data_or_owner;
+    destroy_copy_binary_t(copy_data);
+}
+
+static
+void copy_binary_get_cb(GtkClipboard *clipboard _U_, GtkSelectionData *selection_data, guint info _U_, gpointer user_data_or_owner)
+{
+    copy_binary_t* copy_data;
+
+    copy_data = user_data_or_owner;
+
+    /* Just do a dumb set as binary data */
+    gtk_selection_data_set(selection_data, GDK_NONE, 8, copy_data->data, copy_data->len);
+}
+
+void copy_binary_to_clipboard(const guint8* data_p, int len)
+{
+    static GtkTargetEntry target_entry[] = {
+         {"application/octet_stream", 0, 0}}; /* XXX - this not understood by most applications, 
+                                             * but can be pasted into the better hex editors - is
+                                             * there something better that we can do?
+                                             */
+
+    GtkClipboard    *cb;
+    copy_binary_t* copy_data;
+    gboolean ret;
+
+    if(len <= 0) {
+        return; /* XXX would it be better to clear the clipboard? */
+    }
+    cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
+    copy_data = create_copy_binary_t(data_p,len);
+
+    ret = gtk_clipboard_set_with_data(cb,target_entry,1,
+        copy_binary_get_cb, copy_binary_free_cb,copy_data);
+
+    if(!ret) {
+        destroy_copy_binary_t(copy_data);
+    }                
+}
+#endif /* GTK_MAJOR_VERSION >= 2 */
+
 /*
  * Create a new window title string with user-defined title preference.
  * (Or ignore it if unspecified).

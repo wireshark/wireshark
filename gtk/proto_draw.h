@@ -127,12 +127,29 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
  */
 extern void savehex_cb(GtkWidget * w, gpointer data);
 
+/** Format of packet data to copy to clipboard.
+ *  Lower nibble holds data type, next nibble holds flags.
+ */
+typedef enum {
+    CD_ALLINFO,     /* All information - columated hex with text in separate column */
+    CD_TEXTONLY,    /* Printable characters */
+    CD_HEX,         /* Hex, space separated, no linebreaks */
+    CD_HEXCOLUMNS,  /* Like "All Information" but with no ASCII */
+    CD_BINARY,      /* Raw binary octets */
+
+    CD_TYPEMASK = 0x0000FFFF,          /* Mask for extracting type */
+    CD_FLAGSMASK = 0xFFFF0000,         /* Mask for extracting flags */
+
+    CD_FLAGS_SELECTEDONLY = 0x00010000 /* Copy only selected bytes */
+} copy_data_type;
+
+
 /** Callback for "Copy packet bytes to clipboard" operation.
  *
  * @param w unused
  * @param data unused
  */
-extern void copy_hex_cb(GtkWidget * w, gpointer data, int data_type);
+extern void copy_hex_cb(GtkWidget * w, gpointer data, copy_data_type data_type);
 
 /** Redraw a given byte view window.
  *
