@@ -220,6 +220,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	if exist $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(HOST) $(COPY_FLAGS)	
 !IFDEF ENABLE_LIBWIRESHARK
 	$(COPY) $(TOPDIR)\epan\libwireshark.dll $(HOST) $(COPY_FLAGS)	
+	if exist $(TOPDIR)\epan\libwireshark.dll.manifest $(COPY) $(TOPDIR)\epan\libwireshark.dll.manifest $(HOST) /d
 !ENDIF
 	$(COPY) $(GLIB_DIR)\bin\libglib-2.0-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(HOST) $(COPY_FLAGS)
@@ -255,6 +256,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS) 
 # can't get /i to work with $(COPY) above to do the rename there
 	mv $(HOST)\wireshark-gtk2.exe $(HOST)\wireshark.exe
+	if exist $(TOPDIR)\wireshark-gtk2.exe.manifest $(COPY) $(TOPDIR)\wireshark-gtk2.exe.manifest $(HOST) $(COPY_FLAGS) 
+# can't get /i to work with $(COPY) above to do the rename there
+	mv $(HOST)\wireshark-gtk2.exe.manifest $(HOST)\wireshark.exe.manifest
 	$(COPY) $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
