@@ -35,7 +35,7 @@
 #include <prefs.h>
 #include "packet-sscop.h"
 
-static int proto_sscop = -1;
+int proto_sscop = -1;
 
 static int hf_sscop_type = -1;
 static int hf_sscop_sq = -1;
@@ -52,6 +52,8 @@ static gint ett_stat = -1;
 static dissector_handle_t q2931_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t sscf_nni_handle;
+static dissector_handle_t alcap_handle;
+static dissector_handle_t nbap_handle;
 
 static module_t *sscop_module;
 
@@ -60,17 +62,13 @@ static range_t *udp_port_range;
 
 static dissector_handle_t sscop_handle;
 
-typedef enum {
-  DATA_DISSECTOR = 1,
-  Q2931_DISSECTOR = 2,
-  SSCF_NNI_DISSECTOR = 3
-} Dissector_Option;
-
 
 static enum_val_t sscop_payload_dissector_options[] = {
   { "data",	"Data (no further dissection)",	DATA_DISSECTOR },
-  { "Q.2931",	"Q.2931",			Q2931_DISSECTOR },
+  { "Q.2931",	"Q.2931",	Q2931_DISSECTOR },
   { "SSCF-NNI",	"SSCF-NNI (MTP3-b)",		SSCF_NNI_DISSECTOR },
+  { "ALCAP",	"ALCAP",			ALCAP_DISSECTOR },
+  { "NBAP",	"NBAP",				NBAP_DISSECTOR },
   { NULL,	NULL,				0 }
 };
 
@@ -343,7 +341,22 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 
 static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
 {
-	dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
+    struct _sscop_payload_info  *p_sscop_info;
+    dissector_handle_t subdissector;
+	
+	/* Look for packet info for subdissector information */
+    p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
+    
+	if ( p_sscop_info
+		 && ( subdissector = p_sscop_info->subdissector )
+		 && ( subdissector == data_handle
+			  || subdissector == q2931_handle
+			  || subdissector == sscf_nni_handle
+			  || subdissector == alcap_handle
+			  || subdissector == nbap_handle) )
+		dissect_sscop_and_payload(tvb,pinfo,tree,subdissector);
+    else
+		dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
 }
 
 
@@ -360,19 +373,40 @@ static void range_add_callback(guint32 port)
 	dissector_add("udp.port", port, sscop_handle);
     }
 }
+
+/* Make sure handles for various protocols are initialized */
+static void initialize_handles_once(void) {
+    static gboolean initialized = FALSE;
+    if (!initialized) {
+		sscop_handle = create_dissector_handle(dissect_sscop, proto_sscop);
+
+		q2931_handle = find_dissector("q2931");
+		data_handle = find_dissector("data");
+		sscf_nni_handle = find_dissector("sscf-nni");
+		alcap_handle = find_dissector("alcap");
+		nbap_handle = find_dissector("nbap");
+
+		initialized = TRUE;
+    }
+}
+
+gboolean sscop_allowed_subdissector(dissector_handle_t handle)
+{
+    initialize_handles_once();
+    if (handle == q2931_handle || handle == data_handle
+	|| handle == sscf_nni_handle || handle == alcap_handle
+	|| handle == nbap_handle)
+	return TRUE;
+    return FALSE;
+}
+
 void
 proto_reg_handoff_sscop(void)
 {
   static int prefs_initialized = FALSE;
 
   if (!prefs_initialized) {
-
-    sscop_handle = create_dissector_handle(dissect_sscop, proto_sscop);
-
-    q2931_handle = find_dissector("q2931");
-    data_handle = find_dissector("data");
-    sscf_nni_handle = find_dissector("sscf-nni");
-
+    initialize_handles_once();
     prefs_initialized = TRUE;
 
   } else {
@@ -390,6 +424,8 @@ proto_reg_handoff_sscop(void)
 	  case DATA_DISSECTOR: default_handle = data_handle; break;
 	  case Q2931_DISSECTOR: default_handle = q2931_handle; break;
 	  case SSCF_NNI_DISSECTOR: default_handle = sscf_nni_handle; break;
+	  case ALCAP_DISSECTOR: default_handle = alcap_handle; break;
+	  case NBAP_DISSECTOR: default_handle = nbap_handle; break;
 	}
   
 }

@@ -36,6 +36,7 @@
 #include <prefs.h>
 #include <epan/report_err.h>
 #include <epan/emem.h>
+#include "packet-sscop.h"
 
 static int proto_k12 = -1;
 
@@ -54,6 +55,9 @@ static gint ett_port = -1;
 
 static dissector_handle_t k12_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t sscop_handle;
+
+extern int proto_sscop;
 
 static module_t *k12_module;
 
@@ -101,6 +105,10 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
                                                   (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
                                                   (guint)pinfo->pseudo_header->k12.input_info.atm.cid);
             
+			/*
+			 * XXX: this is prone to collisions!
+			 * we need an uniform way to manage circuits between dissectors
+			 */
             pinfo->circuit_id = g_str_hash(circuit_str);
             
 			proto_tree_add_uint(k12_tree, hf_k12_atm_vp, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vp);
@@ -116,18 +124,40 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	if (! k12_cfg ) {
 		sub_handle = data_handle;
 	} else {
-		sub_handle = g_hash_table_lookup(k12_cfg,pinfo->pseudo_header->k12.stack_file);
+		dissector_handle_t* handles;
+		handles = g_hash_table_lookup(k12_cfg,pinfo->pseudo_header->k12.stack_file);
 
-		if (! sub_handle )
+		if (! handles )
 			sub_handle = data_handle;
+		else {
+			guint i;
+			sub_handle = handles[0];
+					/* Setup subdissector information */
+			for (i = 0; handles[i] && handles[i+1]; ++i) {
+				if (handles[i] == sscop_handle) {
+					sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
+					if (p_sscop_info)
+						p_sscop_info->subdissector = handles[i+1];
+					else {
+						p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
+						if (p_sscop_info) {
+							p_sscop_info->subdissector = handles[i+1];
+							p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
+						}
+					}
+				}
+					/* Add more protocols here */
+			}
+		}
 	}
 
 	call_dissector(sub_handle, tvb, pinfo, tree);
 
 }
 
-static gboolean free_just_key (gpointer k, gpointer v _U_, gpointer p _U_) {
+static gboolean free_key_value (gpointer k, gpointer v _U_, gpointer p _U_) {
 	g_free(k);
+	g_free(v);
 	return TRUE;
 }
 
@@ -138,9 +168,11 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	size_t len;
 	GHashTable* hash;
 	gchar** curr;
+	gchar** protos;
 	gchar** lines = NULL;
-	guint i;
-	dissector_handle_t handle;
+	guint i, j, k;
+	guint num_protos;
+	dissector_handle_t *handles;
 
 	/* XXX: should look for the file in common locations */
 
@@ -165,27 +197,64 @@ static GHashTable* k12_load_config(const gchar* filename) {
 			if(*(lines[i]) == '#' || *(lines[i]) == '\0')
 				continue;
 
-			curr = g_strsplit(lines[i]," ",0);
+			curr = g_strsplit(lines[i]," ",2);
+			g_strstrip(curr[0]);
 
 			if (! (curr[0] != NULL && *(curr[0]) != '\0' && curr[1] != NULL  && *(curr[1]) != '\0' ) ) {
 				report_failure("K12xx: Format error in line %u",i+1);
 				g_strfreev(curr);
 				g_strfreev(lines);
-				g_hash_table_foreach_remove(hash,free_just_key,NULL);
+				g_hash_table_foreach_remove(hash,free_key_value,NULL);
 				g_hash_table_destroy(hash);
 				return NULL;
 			}
 
-			g_strstrip(curr[0]);
-			g_strstrip(curr[1]);
-			handle = find_dissector(curr[1]);
+			protos = g_strsplit(curr[1],":",0);
+			for (j = 0; protos[j]; j++)
+				g_strstrip(protos[j]);
+			num_protos = j;
 
-			if (! handle ) {
-				report_failure("k12: proto %s not found",curr[1]);
-				handle = data_handle;
+					/* Allocate extra space for NULL marker */
+			handles = g_malloc(sizeof(dissector_handle_t)*(num_protos+1));
+			for (j = 0; j <= num_protos; j++)
+				handles[j] = NULL;
+
+			for (j = 0; j < num_protos; j++) {
+				if (protos[j][0] == '\0') {
+					report_failure("K12xx: empty protocol in line %u",i+1);
+					break;
+				}
+
+				handles[j] = find_dissector(protos[j]);
+				if (! handles[j]) {
+					report_failure("K12xx: protocol %s not found",protos[j]);
+					break;
+				}
+
+				if (j > 0) {
+					if (handles[j-1] != sscop_handle) {
+						report_failure("K12xx: only sscop protocol support subdissector format");
+						break;
+					}
+					if (!sscop_allowed_subdissector(handles[j])) {
+						report_failure("K12xx: %s cannot be subdissector of %s",protos[j],protos[j-1]);
+						break;
+					}
+					for (k = 0; k < j; k++)
+						if (handles[k] == handles[j]) {
+							report_failure("K12xx: cannot nest protocol %s inside itself",protos[j]);
+							break;
+						}
+				}
 			}
 
-			g_hash_table_insert(hash,g_strdup(curr[0]),handle);
+					/* Revert to data_handle when all
+					   protocol seen is error */
+			if (handles[0] == NULL)
+				handles[0] = data_handle;
+
+			g_hash_table_insert(hash,g_strdup(curr[0]),handles);
+			g_strfreev(protos);
 			g_strfreev(curr);
 
 		}
@@ -202,23 +271,33 @@ static GHashTable* k12_load_config(const gchar* filename) {
 	return NULL;
 }
 
+/* Make sure handles for various protocols are initialized */
+static void initialize_handles_once(void) {
+	static gboolean initialized = FALSE;
+	if (!initialized) {
+		k12_handle = find_dissector("k12");
+		data_handle = find_dissector("data");
+		sscop_handle = find_dissector("sscop");
+		initialized = TRUE;
+	}
+}
 
 static void k12_load_prefs(void) {
 	if (k12_cfg) {
-		g_hash_table_foreach_remove(k12_cfg,free_just_key,NULL);
+		g_hash_table_foreach_remove(k12_cfg,free_key_value,NULL);
 		g_hash_table_destroy(k12_cfg);
 		k12_cfg = NULL;
 	}
 
 	if (*k12_config_filename != '\0') {
+		initialize_handles_once();
 		k12_cfg = k12_load_config(k12_config_filename);
 		return;
 	}
 }
 
 void proto_reg_handoff_k12(void) {
-	k12_handle = find_dissector("k12");
-	data_handle = find_dissector("data");
+	initialize_handles_once();
 	dissector_add("wtap_encap", WTAP_ENCAP_K12, k12_handle);
 }
 

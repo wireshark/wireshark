@@ -2253,8 +2253,15 @@ Kelly Byrd		<kbyrd-ethereal [AT] memcpy.com> {
 }
 
 Luis Ontanon		<luis.ontanon[AT]gmail.com> {
-	RADIUS and ISUP enhancements
 	MATE plugin
+	H.248 context tracing
+	ALCAP call tracing
+	RADIUS dictionary support
+	XML dissector (DTD support)
+	IuUP dissector
+	Lua interface
+	Tektronix K12 rf5 file support
+	SNMPv3 decryption support
 }
 
 Luca Deri		<deri [AT] ntop.org> {
@@ -2560,6 +2567,11 @@ Sebastien Tandel	<sebastien [AT] tandel.be> {
 
 Clay Jones		<clay.jones [AT] email.com> {
 	Shomiti wireless packet support
+}
+
+Kriang Lerdsuwanakij <lerdsuwa [AT] users.sourceforge.net> {
+	SSCOP improvements
+	K12-rf5 file format improvements	
 }
 
 and by:

@@ -28,4 +28,17 @@ typedef struct _sscop_info_t {
 	guint32 payload_len;
 } sscop_info_t;
 
+typedef struct _sscop_payload_info {
+	dissector_handle_t subdissector;
+} sscop_payload_info;
+
+typedef enum {
+  DATA_DISSECTOR = 1,
+  Q2931_DISSECTOR = 2,
+  SSCF_NNI_DISSECTOR = 3,
+  ALCAP_DISSECTOR = 4,
+  NBAP_DISSECTOR = 5
+} Dissector_Option;
+
+extern gboolean sscop_allowed_subdissector(dissector_handle_t handle);
 extern void dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_handle_t handle);
