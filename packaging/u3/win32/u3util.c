@@ -81,6 +81,9 @@ static char *extensions[] = {
   ".pfx",
   ".asn",
   ".spf",
+  ".p7c",
+  ".p7s",
+  ".p7m",
   NULL
 };
 
@@ -477,8 +480,11 @@ void host_configure(void)
     RegCloseKey(key);
   }
 
-  if(!hasWinPcap) {
-    /* XXX: we should ask the user if they want to install - and remember it */
+  if(!hasWinPcap && 
+     (MessageBox(NULL, 
+		 TEXT("If you want to capture packets from the network you will need to install WinPcap.\nIt will be uninstalled when you remove your U3 device.\n\nDo you want to install WinPcap?"), 
+		 TEXT("U3 Wireshark: Install WinPcap?"), 
+		 MB_YESNO|MB_TOPMOST|MB_ICONQUESTION) == IDYES)) {
 
     /* compute the U3 path to the WinPcap installation package - it stays on the device */
     u3_device_exec_path = getenv("U3_DEVICE_EXEC_PATH");
