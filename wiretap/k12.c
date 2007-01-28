@@ -627,11 +627,11 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
             k12_dbg(5,"k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input);
 #endif
             
-			if (extra_len == 0 || name_len == 0 || stack_len == 0
+			if (name_len == 0 || stack_len == 0
 				|| 0x20 + extra_len + name_len + stack_len > rec_len ) {
 				g_free(rec);
 #ifdef DEBUG_K12
-                k12_dbg(5,"k12_open: failed (extra_len == 0 || name_len == 0 || stack_len == 0 "
+                k12_dbg(5,"k12_open: failed (name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i");
 #endif
                 
