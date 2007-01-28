@@ -262,6 +262,9 @@ SyntaxPrintableString	B "1.3.6.1.5.5.7.9.3"		"pkcs-9-at-gender"
 SyntaxPrintableString B "1.3.6.1.5.5.7.9.4"		"pkcs-9-at-countryOfCitizenship"
 SyntaxPrintableString	B "1.3.6.1.5.5.7.9.5"		"pkcs-9-at-countryOfResidence"
 
+# unknown X.420 PerRecipientExtensionField
+Integer B "1.2.826.0.1063.7.0.0.0" "unknown-UK-organisation-defined-extension"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
