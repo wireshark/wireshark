@@ -105,8 +105,8 @@ print_stats(capture_info *cf_info)
   if (cap_file_size) printf("File size: %" PRId64 " bytes\n", cf_info->filesize);
   if (cap_data_size) printf("Data size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
   if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
-  if (cap_start_time) printf("Start time: %s", ctime (&start_time_t));
-  if (cap_end_time) printf("End time: %s", ctime (&stop_time_t));
+  if (cap_start_time) printf("Start time: %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
+  if (cap_end_time) printf("End time: %s",     (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
   if (cap_data_rate_byte) printf("Data rate: %.2f bytes/s\n", cf_info->data_rate);
   if (cap_data_rate_bit) printf("Data rate: %.2f bits/s\n", cf_info->data_rate*8);
   if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
@@ -186,11 +186,14 @@ process_cap_file(wtap *wth, const char *filename)
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
   
-  /* Data rate per second */
-  cf_info.data_rate = (double)bytes / (stop_time-start_time);
-  
-  /* Avg packet size */
-  cf_info.packet_size = (double)bytes/packet;
+  if (packet > 0) {
+    cf_info.data_rate   = (double)bytes / (stop_time-start_time);  /* Data rate per second */
+    cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
+  }
+  else {
+    cf_info.data_rate   = 0.0;
+    cf_info.packet_size = 0.0;
+  }
   
   printf("File name: %s\n", filename);
   print_stats(&cf_info);
