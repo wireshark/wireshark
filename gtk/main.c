@@ -2108,7 +2108,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_AIRPCAP
   char			*err_str;
-  gchar			*cant_get_if_list_errstr;
+  /*gchar			*cant_get_if_list_errstr;*/
 #endif
 
 #define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
