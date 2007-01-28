@@ -276,20 +276,20 @@ Countersignature ::= SignerInfo
 -- 
 -- Algorithm Parameters
 -- 
--- KeyWrapAlgorithm ::= AlgorithmIdentifier
--- 
--- RC2wrapParameter ::= RC2ParameterVersion
--- 
--- RC2ParameterVersion ::= INTEGER
--- 
--- CBCParameter ::= IV
--- 
--- IV ::= OCTET STRING
--- 
--- RC2CBCParameter ::= SEQUENCE {
---   rc2ParameterVersion INTEGER,
---   iv OCTET STRING  }
--- 
+KeyWrapAlgorithm ::= AlgorithmIdentifier
+
+RC2WrapParameter ::= RC2ParameterVersion
+
+RC2ParameterVersion ::= INTEGER
+ 
+CBCParameter ::= IV
+ 
+IV ::= OCTET STRING
+ 
+RC2CBCParameter ::= SEQUENCE {
+   rc2ParameterVersion INTEGER,
+   iv OCTET STRING  }
+
 -- 
 -- Content Type Object Identifiers
 -- 
@@ -345,6 +345,31 @@ ExtendedCertificateInfo ::= SEQUENCE {
   attributes UnauthAttributes }
 
 Signature ::= BIT STRING
+
+-- From S/MIME
+
+SMIMECapabilities ::= SEQUENCE OF SMIMECapability
+
+SMIMECapability ::= SEQUENCE {
+  capability OBJECT IDENTIFIER,
+  parameters ANY OPTIONAL
+}
+
+SMIMEEncryptionKeyPreference ::= CHOICE {
+  issuerAndSerialNumber 	[0] IssuerAndSerialNumber,
+  recipientKeyId		[1] RecipientKeyIdentifier,
+  subjectAltKeyIdentifier	[2] SubjectKeyIdentifier
+
+}
+
+-- some implememtations do not seem to use the RC2CBCParameter with 1.2.840.113549.3.2 as per RFC 2630 12.4.2
+-- so we create this CHOICE to workaround this problem until we understand what is really the correct solution
+
+RC2CBCParameters ::= CHOICE {
+  rc2WrapParameter  RC2WrapParameter,
+  rc2CBCParameter   RC2CBCParameter
+
+}
 
 
 END -- of CryptographicMessageSyntax

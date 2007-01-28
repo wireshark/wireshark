@@ -62,6 +62,7 @@ static const char *object_identifier_id;
 static tvbuff_t *content_tvb = NULL;
 
 static proto_tree *top_tree=NULL;
+static proto_tree *cap_tree=NULL;
 
 #define HASH_SHA1 "1.3.14.3.2.26"
 #define SHA1_BUFFER_SIZE  20
@@ -156,6 +157,12 @@ void proto_register_cms(void) {
   proto_register_field_array(proto_cms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_ber_syntax_dissector("ContentInfo", proto_cms, dissect_ContentInfo_PDU); 
+  register_ber_oid_syntax(".p7s", NULL, "ContentInfo");
+  register_ber_oid_syntax(".p7m", NULL, "ContentInfo");
+  register_ber_oid_syntax(".p7c", NULL, "ContentInfo");
+
+
 }
 
 
@@ -164,6 +171,8 @@ void proto_reg_handoff_cms(void) {
 #include "packet-cms-dis-tab.c"
 
   add_oid_str_name("1.2.840.113549.1.7.1", "id-data");
+  add_oid_str_name("1.2.840.113549.3.7", "id-alg-des-ede3-cbc");
+  add_oid_str_name("1.3.14.3.2.7", "id-alg-des-cbc");
 
 }
 
