@@ -116,6 +116,9 @@ radius_dict.c: radius_dict.l
 
 load_snmp_users_file.c: load_snmp_users_file.l
 	$(LEX) -oload_snmp_users_file.c $(srcdir)/load_snmp_users_file.l
+
+uat_load.c: uat_load.l
+	$(LEX) -ouat_load.c $(srcdir)/uat_load.l
 	
 dtd_parse.c : dtd_parse.l
 	$(LEX) -odtd_parse.c $(srcdir)/dtd_parse.l
