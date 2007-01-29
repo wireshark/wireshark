@@ -21,7 +21,6 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 OBJECTS = \
 	dfilter.obj		\
 	dfilter-macro.obj \
-	dfilter_macro_load.obj \
 	dfunctions.obj	\
 	dfvm.obj		\
 	drange.obj		\
@@ -61,13 +60,9 @@ clean:
 # the same for now.
 #
 distclean: clean
-	rm -f scanner.c grammar.c grammar.h grammar.out dfilter_macro_load.c
+	rm -f scanner.c grammar.c grammar.h grammar.out
 
 maintainer-clean: distclean
-
-
-dfilter_macro_load.c : dfilter_macro_load.l
-	$(LEX) -Pdf_ -odfilter_macro_load.c dfilter_macro_load.l
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c scanner.l

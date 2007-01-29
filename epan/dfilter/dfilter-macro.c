@@ -35,14 +35,22 @@
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include <epan/emem.h>
+#include <epan/uat.h>
+#include <epan/report_err.h>
 
-dfilter_macro_t* macros = NULL;
+#if 0
+#define DUMP_MACROS
+#endif
+
+static uat_t* dfilter_macro_uat = NULL;
+static dfilter_macro_t* macros = NULL;
+static guint num_macros;
 
 void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
-	dfilter_macro_t* c;
-
-	for (c = macros; c; c = c->next) {
-		cb(c,data);
+	guint i;
+	
+	for (i = 0; i < num_macros; i++) {
+		cb(&(macros[i]),data);
 	}
 	return;
 }
@@ -73,8 +81,8 @@ static void macro_dump(dfilter_macro_t* m _U_, void* ud _U_) {
 	gchar** part = m->parts;
 	int* args_pos = m->args_pos;
 
-	printf("\n->%s\t%s\t%d\n\t'%s'\n",
-		   m->name, m->text, m->argc, *(part++));
+	printf("\n->%s\t%s\t%d [%d]\n\t'%s'\n",
+		   m->name, m->text, m->argc, m->usable, *(part++));
 	
 	while (*part) {
 		printf("\t$%d '%s'\n",*args_pos,*part);
@@ -91,23 +99,28 @@ void dfilter_macro_dump(void) {
 #endif
 }
 
-gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
+static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	GString* text;
 	int argc = 0;
-	dfilter_macro_t* m;
+	dfilter_macro_t* m = NULL;
 	int* arg_pos_p;
 	gchar** parts;
 	gchar* ret;
-		
-	for (m = macros; m; m = m->next) {
-		if ( g_str_equal(m->name,name) ) break;
+	guint i;
+	
+	for (i = 0; i < num_macros; i++) {
+		dfilter_macro_t* c = &(macros[i]);
+		if ( c->usable && g_str_equal(c->name,name) ) {
+			m = c;
+			break;
+		}
 	}
-
+	
 	if (!m) {
 		*error = ep_strdup_printf("macro '%s' does not exist", name);
 		return NULL;
 	}
-
+	
 	if (args) {
 		while(args[argc]) argc++;
 	}
@@ -117,10 +130,10 @@ gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 								  name, m->argc, argc);
 		return NULL;
 	}
-
+	
 	arg_pos_p = m->args_pos;
 	parts = m->parts;
-
+	
 	text = g_string_new(*(parts++));
 	
 	while (*parts) {
@@ -130,131 +143,11 @@ gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 	}
 	
 	ret = ep_strdup(text->str);
-
+	
 	g_string_free(text,TRUE);
-		
+	
 	return ret;
 }
-
-void dfilter_macro_add(const gchar* name, const gchar* text, gchar** error) {
-	dfilter_macro_t* m;
-	GPtrArray* parts;
-	GArray* args_pos;
-	const gchar* r;
-	gchar* w;
-	gchar* part;
-	int argc = 0;
-
-	*error = NULL;
-	
-	for (m = macros; m; m = m->next) {
-		if ( g_str_equal(m->name,name) ) {
-			*error = ep_strdup_printf("macro '%s' exists already", name);
-			return;
-		}
-	}
-	
-	m = g_malloc(sizeof(dfilter_macro_t));
-	m->name = g_strdup(name);
-	m->text = g_strdup(text);
-	
-	parts = g_ptr_array_new();
-	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
-
-	m->priv = part =  w = g_strdup(text);
-	r = text;
-	g_ptr_array_add(parts,part);
-	
-	do {
-		
-		switch (*r) { 
-			default:
-				*(w++) = *(r++);
-				break;
-			case '\0':
-				*(w++) = *(r++);
-				goto done;
-			case '\\':
-				*(w++) = *(++r);
-				r++;
-				break;
-			case '$': {
-				int cnt = 0;
-				int arg_pos = 0;
-				do {
-					char c = *(r+1);
-					if (c >= '0' && c <= '9') {
-						cnt++;
-						r++;
-						arg_pos *= 10;
-						arg_pos += c - '0';
-					} else {
-						break;
-					}
-				} while(1);
-				
-				if (cnt) {
-					*(w++) = '\0';
-					r++;
-					argc = argc < arg_pos ? arg_pos : argc;
-					arg_pos--;
-					g_array_append_val(args_pos,arg_pos);
-					g_ptr_array_add(parts,w);
-				} else {
-					*(w++) = *(r++);
-				}
-				break;
-			}
-		}
-				
-	} while(1);
-
-done:
-	g_ptr_array_add(parts,NULL);
-	m->parts = (gchar**)parts->pdata;
-	
-	m->args_pos = (int*)args_pos->data;
-
-	g_ptr_array_free(parts,FALSE);
-	g_array_free(args_pos,FALSE);
-	
-	m->argc = argc;
-	m->next = macros;
-	macros = m;
-	
-	return;
-}
-
-void dfilter_macro_remove(const gchar* name, gchar** error) {
-	dfilter_macro_t* m;
-	dfilter_macro_t* p = NULL;
-	
-	for (m = macros; m; m = m->next) {
-		if ( g_str_equal(m->name,name) ) {
-			p = m;
-			break;
-		}
-	}
-	
-	if (!m) {
-		*error = ep_strdup_printf("macro '%s' does not exist", name);
-		return;
-	}
-	
-	if (p) {
-		p->next = m->next;
-	} else {
-		macros = m->next;
-	}
-	
-	g_free(m->name);
-	g_free(m->text);
-	g_free(m->priv);
-	g_free(m->parts);
-	g_free(m->args_pos);
-	g_free(m);
-}
-
 
 
 gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error) {
@@ -424,4 +317,209 @@ on_error:
 			g_string_free(out,TRUE);
 			return NULL;
 		}
+}
+
+static void macro_update(void* mp, gchar** error) {
+	dfilter_macro_t* m = mp;
+	GPtrArray* parts;
+	GArray* args_pos;
+	const gchar* r;
+	gchar* w;
+	gchar* part;
+	int argc = 0;
+	guint i;
+	
+	*error = NULL;
+	
+	for (i = 0; i < num_macros; i++) {
+		if (m == &(macros[i])) continue;
+		
+		if ( g_str_equal(m->name,macros[i].name) ) {
+			*error = ep_strdup_printf("macro '%s' exists already", m->name);
+			m->usable = FALSE;
+			return;
+		}
+	}
+	
+	parts = g_ptr_array_new();
+	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
+
+	m->priv = part = w = g_strdup(m->text);
+	r = m->text;
+	g_ptr_array_add(parts,part);
+	
+	do {
+		
+		switch (*r) { 
+			default:
+				*(w++) = *(r++);
+				break;
+			case '\0':
+				*(w++) = *(r++);
+				goto done;
+			case '\\':
+				*(w++) = *(++r);
+				r++;
+				break;
+			case '$': {
+				int cnt = 0;
+				int arg_pos = 0;
+				do {
+					char c = *(r+1);
+					if (c >= '0' && c <= '9') {
+						cnt++;
+						r++;
+						arg_pos *= 10;
+						arg_pos += c - '0';
+					} else {
+						break;
+					}
+				} while(1);
+				
+				if (cnt) {
+					*(w++) = '\0';
+					r++;
+					argc = argc < arg_pos ? arg_pos : argc;
+					arg_pos--;
+					g_array_append_val(args_pos,arg_pos);
+					g_ptr_array_add(parts,w);
+				} else {
+					*(w++) = *(r++);
+				}
+				break;
+			}
+		}
+				
+	} while(1);
+
+done:
+	g_ptr_array_add(parts,NULL);
+
+	if (m->parts) g_free(m->parts);
+
+	m->parts = (gchar**)parts->pdata;
+	
+	if (m->args_pos) g_free(m->args_pos);
+	
+	m->args_pos = (int*)args_pos->data;
+
+	g_ptr_array_free(parts,FALSE);
+	g_array_free(args_pos,FALSE);
+	
+	m->argc = argc;
+	
+	m->usable = TRUE;
+	
+	return;
+}
+
+static void macro_free(void* r) {
+	dfilter_macro_t* m = r;
+		
+	g_free(m->name);
+	g_free(m->text);
+	g_free(m->priv);
+	g_free(m->parts);
+	g_free(m->args_pos);
+}
+
+static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
+	dfilter_macro_t* d = dest;
+	const dfilter_macro_t* m = orig;
+	guint nparts = 0;
+
+	d->name = g_strdup(m->name);
+	d->text = g_strdup(m->text);
+	d->usable = m->usable;
+
+	if (m->parts) {
+		do nparts++; while (m->parts[nparts]); 
+		d->priv = g_strdup(m->priv);
+		d->parts = g_memdup(m->parts,nparts*sizeof(void*));
+		d->args_pos = g_memdup(m->args_pos,(--nparts)*sizeof(int));
+	}
+	
+	
+	return d;
+}
+
+gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, char** error) {
+	guint i;
+	
+	for (i=0; i < name_len; i++) {
+		if (!(in_name[i] == '_' || isalnum(in_name[i]) ) ) {
+			*error = "invalid char in name";
+			return FALSE;
+		}
+	}
+	
+	return TRUE;
+}
+
+static void macro_name_set(void* r, const char* in_name, unsigned len) {
+	dfilter_macro_t* m = r;
+	char* name = g_malloc(len+1);
+	memcpy(name,in_name,len);
+	name[len] = '\0';
+	g_free(m->text);
+	m->name = name;
+}
+
+static void macro_name_tostr(void* r, char** out_name, unsigned* out_len) {
+	dfilter_macro_t* m = r;
+	*out_len = strlen(m->name);
+	*out_name = m->name;
+}
+
+gboolean macro_text_chk(void* r _U_, const char* in_name, unsigned name_len, char** error) {
+	guint i;
+	
+	for (i=0; i < name_len; i++) {
+		if (! isprint(in_name[i]) ) {
+			*error = "invalid char in text";
+			return FALSE;
+		}
+	}
+	
+	return TRUE;
+}
+
+static void macro_text_set(void* r, const char* in_name, unsigned len) {
+	dfilter_macro_t* m = r;
+	char* text = g_malloc(len+1);
+	memcpy(text,in_name,len);
+	text[len] = '\0';
+	g_free(m->text);
+	m->text = text;
+}
+
+static void macro_text_tostr(void* r, char** out_name, unsigned* out_len) {
+	dfilter_macro_t* m = r;
+	*out_len = strlen(m->text);
+	*out_name = m->text;
+}
+
+void dfilter_macro_init(void) {
+	char* error = NULL;
+	dfilter_macro_uat = uat_new("Display Filter Macros",
+								sizeof(dfilter_macro_t),
+								"dfilter_macros",
+								(void**) &macros,
+								&num_macros,
+								macro_copy,
+								macro_update,
+								macro_free,
+								&error,
+								"name", PT_TXTMOD_STRING, macro_name_chk, macro_name_set, macro_name_tostr,
+								"text", PT_TXTMOD_STRING, macro_text_chk, macro_text_set, macro_text_tostr,
+								NULL );
+	
+	if(error) {
+		report_failure("error while loading dfilter_macros:\n%s",error);
+	}
+	
+#ifdef DUMP_MACROS
+	dfilter_macro_dump();
+#endif
+	
 }

@@ -94,11 +94,7 @@ dfilter_init(void)
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
 	
-	if ( ! dfilter_macro_load(&err) )  {
-		if (err) {
-			report_failure("%s",err);
-		}			
-	}
+	dfilter_macro_init();
 }
 
 /* Clean-up the dfilter module */

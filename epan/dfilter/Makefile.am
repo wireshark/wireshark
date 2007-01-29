@@ -35,7 +35,6 @@ DISTCLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	dfilter-macro.c \
-	dfilter_macro_load.c \
 	Makefile.in	\
 	grammar.c	\
 	grammar.h	\
@@ -50,7 +49,6 @@ libdfilter_la_SOURCES = \
 	dfilter-int.h		\
 	dfilter-macro.h \
 	dfilter-macro.c \
-	dfilter_macro_load.c \
 	dfunctions.c	\
 	dfunctions.h	\
 	dfvm.c			\
@@ -79,13 +77,9 @@ libdfilter_la_SOURCES = \
 	syntax-tree.h
 
 EXTRA_DIST = \
-	dfilter_macro_load.l	\
 	grammar.lemon		\
 	scanner.l		\
 	Makefile.nmake		
-
-dfilter_macro_load.c : dfilter_macro_load.l
-	$(LEX) -Pdf_ -odfilter_macro_load.c $(srcdir)/dfilter_macro_load.l
 
 scanner.c : scanner.l
 	@if [ ! -x "$(LEX)" ]; then \
