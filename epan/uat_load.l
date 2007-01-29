@@ -3,6 +3,7 @@
 %option prefix="uat_load_"
 %option never-interactive
 %option yylineno
+%option reject
 
 %{
 	/*
@@ -59,20 +60,20 @@
 	static char* unbinstring(const char* si, guint in_len, guint* len_p);
 	static char* undquote(const char* si, guint in_len, guint* len_p);
 	
-#define ERROR(txt) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,yylineno,txt); yyterminate(); } while(0)
+#define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,yylineno,ep_strdup_printf fmtd); yyterminate(); } while(0)
 
 #define SET_FIELD() \
 	{ gchar* err; \
 	if (uat_fld->chk_cb) { \
 		if ( ! uat_fld->chk_cb(record, ptr, len, &err) ) { \
-			ERROR(err); \
+			ERROR(("%s",err)); \
 		}\
 	}\
 	uat_fld->set_cb(record, ptr, len);\
 	g_free(ptr);\
 	} while(0)
 
-#if 1
+#ifdef DEBUG_UAT_LOAD
 #define DUMP_FIELD(str) \
 		{ guint i; printf("%s: '",str); for(i=0;i<len;i++) putc(ptr[i],stdout); printf("'[%d]\n",len); }
 
@@ -90,13 +91,13 @@ newline [ \t]*[\r]?\n
 ws [ \t]+
 comment #[^\n]*\n
 
-%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED
+%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED UNUSED
 %%
 <START_OF_LINE,NEXT_FIELD>{ws} ;
 <START_OF_LINE>{newline} ;
 <START_OF_LINE>{comment} ;
 <NEXT_FIELD>{newline} {
-	ERROR("expecting more fields in previuos line");
+	ERROR(("expecting %s field in previuos line",uat_fld->name));
 	BEGIN START_OF_LINE;
 }
 
@@ -117,7 +118,7 @@ comment #[^\n]*\n
 	ptr = unbinstring(yytext,yyleng,&len);
 
 	if (!ptr) {
-		ERROR("uneven hexstring");
+		ERROR(("uneven hexstring for field %s",uat_fld->name));
 	}
 	
 	if ( uat_fld->next ) {
@@ -136,24 +137,24 @@ comment #[^\n]*\n
 	SET_FIELD();
 
 	if ( ! (uat_fld = uat_fld->next) ) {
-		ERROR("more fields than required");
+		ERROR(("more fields than required"));
 	}
 	
 	BEGIN NEXT_FIELD;
 }
 
 <SEPARATOR>{newline} {
-	ERROR("expecting more fields in previuos line");
+	ERROR(("expecting field %s in previuos line",uat_fld->name));
 	BEGIN START_OF_LINE;
 }
 
 <SEPARATOR>. {
-	ERROR("unexpected char while looking for next field");
+	ERROR(("unexpected char while looking for field %s",uat_fld->name));
 	BEGIN ERRORED;
 }
 
 <END_OF_RECORD>{separator} {
-	ERROR("more fields than required");
+	ERROR(("more fields than required"));
 	BEGIN ERRORED;
 }
 
@@ -171,7 +172,7 @@ comment #[^\n]*\n
 		uat->update_cb(rec,&err);
 	
 	if (err) {
-		ERROR(err);
+		ERROR(("%s",err));
 	}
 	
 	uat_fld = uat->fields;
@@ -183,15 +184,17 @@ comment #[^\n]*\n
  }
 
 <END_OF_RECORD>. {
-	ERROR("unexpected char while looking for end of line");
+	ERROR(("unexpected char while looking for end of line"));
 	BEGIN ERRORED;
 }
 
 <ERRORED>{newline} BEGIN START_OF_LINE;
 <ERRORED>. ;
 
-{newline} { ERROR("incomplete record"); }
-. { ERROR("unexpected input"); }
+{newline} { ERROR(("incomplete record")); }
+. { ERROR(("unexpected input")); }
+
+<UNUSED>\042\042\042 { yy_flex_realloc(NULL,1); REJECT;} /* avoid cc warnings about unused labels and functions */
 %%
 
 static int xton(char d) {

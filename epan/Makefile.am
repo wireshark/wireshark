@@ -68,7 +68,6 @@ EXTRA_DIST = \
 	dtd_grammar.lemon \
 	dtd_parse.l \
 	dtd_preparse.l \
-	load_snmp_users_file.l \
 	enterprise-numbers  \
 	libwireshark.def	\
 	Makefile.common	\
@@ -76,6 +75,7 @@ EXTRA_DIST = \
 	make-sminmpec.pl \
 	radius_dict.l   \
 	tvbtest.c	\
+	uat_load.l	\
 	exntest.c	\
 	doxygen.cfg.in
 
