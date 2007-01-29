@@ -74,6 +74,7 @@ EXTRA_DIST = \
 	Makefile.nmake	\
 	make-sminmpec.pl \
 	radius_dict.l   \
+	load_snmp_users_file.l \
 	tvbtest.c	\
 	uat_load.l	\
 	exntest.c	\
