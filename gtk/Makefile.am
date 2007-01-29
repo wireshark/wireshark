@@ -111,6 +111,7 @@ noinst_HEADERS = \
 	text_page.h	\
 	toolbar.h	\
 	u3.h \
+	uat_gui.h \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h

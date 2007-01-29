@@ -20,5 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
-void macros_dialog_cb(GtkWidget *w _U_, gpointer data _U_);
+#ifndef __MACROS_DLG_H_
+#define __MACROS_DLG_H_
+	void macros_dialog_cb(GtkWidget*, gpointer);
+#endif

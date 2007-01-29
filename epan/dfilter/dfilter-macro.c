@@ -503,7 +503,7 @@ void dfilter_macro_init(void) {
 	char* error = NULL;
 	dfilter_macro_uat = uat_new("Display Filter Macros",
 								sizeof(dfilter_macro_t),
-								"dfilter_macros",
+								DFILTER_MACRO_FILENAME,
 								(void**) &macros,
 								&num_macros,
 								macro_copy,
@@ -515,11 +515,12 @@ void dfilter_macro_init(void) {
 								NULL );
 	
 	if(error) {
-		report_failure("error while loading dfilter_macros:\n%s",error);
+		report_failure("error while loading '" DFILTER_MACRO_FILENAME "':\n%s",error);
 	}
 	
-#ifdef DUMP_MACROS
-	dfilter_macro_dump();
-#endif
-	
 }
+
+void dfilter_macro_get_uat(void** p) {
+	*p = dfilter_macro_uat;
+}
+

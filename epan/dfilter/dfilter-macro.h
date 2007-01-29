@@ -24,7 +24,7 @@
 #ifndef _DFILTER_MACRO_H
 #define _DFILTER_MACRO_H
 
-#define DFILTER_MACRO_FILENAME "df_macros"
+#define DFILTER_MACRO_FILENAME "dfilter_macros"
 
 
 typedef struct _dfilter_macro_t {
@@ -48,5 +48,7 @@ void dfilter_macro_dump(void);
 gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error);
 
 void dfilter_macro_init(void);
+
+void dfilter_macro_get_uat(void**);
 
 #endif /* _DFILTER_MACRO_H */

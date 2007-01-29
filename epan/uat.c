@@ -59,6 +59,10 @@ uat_t* uat_start(const char* name,
 				 uat_free_cb_t free_cb) {
 	
 	uat_t* uat = g_malloc(sizeof(uat_t));
+
+	if (!all_uats)
+		all_uats = g_ptr_array_new();
+	
 	g_ptr_array_add(all_uats,uat);
 	
 	g_assert(name && size && filename && data_ptr && num_items_ptr);

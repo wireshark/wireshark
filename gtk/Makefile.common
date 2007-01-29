@@ -113,6 +113,7 @@ WIRESHARK_GTK_SRC = \
 	text_page.c	\
 	toolbar.c	\
 	u3.c \
+	uat_gui.c \
 	voip_calls.c \
 	webbrowser.c
 

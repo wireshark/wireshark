@@ -82,5 +82,5 @@ gboolean uat_save(uat_t* dt, char** error);
 gboolean uat_load(uat_t* dt, char** error);
 
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
-
+#define UAT_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
 #endif

@@ -73,8 +73,6 @@ dfilter_fail(const char *format, ...)
 void
 dfilter_init(void)
 {
-	gchar* err;
-
 	if (ParserObj) {
 		g_message("I expected ParserObj to be NULL\n");
 		/* Free the Lemon Parser object */
