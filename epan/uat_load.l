@@ -2,10 +2,37 @@
 %option nounput
 %option prefix="uat_load_"
 %option never-interactive
+%option yylineno
 
 %{
 	/*
-	 * one parser to fit them all
+	 * uat_load.c
+	 *
+	 * $Id$
+	 *
+	 *  User Accessible Tables
+	 *  Mantain an array of user accessible data strucures
+	 *  One parser to fit them all
+	 *
+	 * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+	 *
+	 * Wireshark - Network traffic analyzer
+	 * By Gerald Combs <gerald@wireshark.org>
+	 * Copyright 2001 Gerald Combs
+	 * 
+	 * This program is free software; you can redistribute it and/or
+	 * modify it under the terms of the GNU General Public License
+	 * as published by the Free Software Foundation; either version 2
+	 * of the License, or (at your option) any later version.
+	 * 
+	 * This program is distributed in the hope that it will be useful,
+	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 * GNU General Public License for more details.
+	 * 
+	 * You should have received a copy of the GNU General Public License
+	 * along with this program; if not, write to the Free Software
+	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	 */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -32,7 +59,7 @@
 	static char* unbinstring(const char* si, guint in_len, guint* len_p);
 	static char* undquote(const char* si, guint in_len, guint* len_p);
 	
-#define ERROR(txt) do { error = txt; yyterminate(); } while(0)
+#define ERROR(txt) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,yylineno,txt); yyterminate(); } while(0)
 
 #define SET_FIELD() \
 	{ gchar* err; \
@@ -45,53 +72,97 @@
 	g_free(ptr);\
 	} while(0)
 
+#if 1
+#define DUMP_FIELD(str) \
+		{ guint i; printf("%s: '",str); for(i=0;i<len;i++) putc(ptr[i],stdout); printf("'[%d]\n",len); }
 
+#define DUMP(str) printf("%s\n",str)
+#else
+#define DUMP_FIELD(s)
+#define DUMP(s)
+#endif
 %}
 
 quoted_string \042([^\042]|\134\042)*\042
 binstring ([0-9a-zA-Z][0-9a-zA-Z])+
-separator ,
+separator [ \t]*,
 newline [ \t]*[\r]?\n
+ws [ \t]+
+comment #[^\n]*\n
 
-%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD
+%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED
 %%
+<START_OF_LINE,NEXT_FIELD>{ws} ;
+<START_OF_LINE>{newline} ;
+<START_OF_LINE>{comment} ;
+<NEXT_FIELD>{newline} {
+	ERROR("expecting more fields in previuos line");
+	BEGIN START_OF_LINE;
+}
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
 	ptr = undquote(yytext,yyleng,&len);
-		
-	if (( uat_fld = uat_fld->next )) {
+	
+	
+	if (uat_fld->next) {
+		DUMP("quoted_str->s");
 		BEGIN SEPARATOR;
 	} else {
+		DUMP("quoted_str->eor");
 		BEGIN END_OF_RECORD;
 	}
 }
 
 <START_OF_LINE,NEXT_FIELD>{binstring} {
 	ptr = unbinstring(yytext,yyleng,&len);
-	
+
 	if (!ptr) {
 		ERROR("uneven hexstring");
 	}
 	
-	if (( uat_fld = uat_fld->next )) {
+	if ( uat_fld->next ) {
+		DUMP("binstring->s");
 		BEGIN SEPARATOR;
 	} else {
+		DUMP("binstring->eor");
 		BEGIN END_OF_RECORD;
 	}
 }
 
 <SEPARATOR>{separator} {
+	
+	DUMP_FIELD("separator->next");
+
 	SET_FIELD();
-	uat_fld = uat_fld->next;
-	if (! uat_fld ) {
+
+	if ( ! (uat_fld = uat_fld->next) ) {
 		ERROR("more fields than required");
 	}
+	
+	BEGIN NEXT_FIELD;
+}
+
+<SEPARATOR>{newline} {
+	ERROR("expecting more fields in previuos line");
+	BEGIN START_OF_LINE;
+}
+
+<SEPARATOR>. {
+	ERROR("unexpected char while looking for next field");
+	BEGIN ERRORED;
+}
+
+<END_OF_RECORD>{separator} {
+	ERROR("more fields than required");
+	BEGIN ERRORED;
 }
 
 <END_OF_RECORD>{newline} {
 	void* rec;
 	gchar* err = NULL;
 	
+	DUMP_FIELD("newline->start");
+
 	SET_FIELD();
 	
 	rec = uat_add_record(uat, record);
@@ -110,6 +181,14 @@ newline [ \t]*[\r]?\n
 	
 	BEGIN START_OF_LINE;
  }
+
+<END_OF_RECORD>. {
+	ERROR("unexpected char while looking for end of line");
+	BEGIN ERRORED;
+}
+
+<ERRORED>{newline} BEGIN START_OF_LINE;
+<ERRORED>. ;
 
 {newline} { ERROR("incomplete record"); }
 . { ERROR("unexpected input"); }
@@ -251,12 +330,12 @@ done:
 	return buf;
 }
 
-gboolean uat_load(uat_t* dt_in, char** err) {
-	gchar* fname = uat_get_actual_filename(uat, FALSE);
+gboolean uat_load(uat_t* uat_in, char** err) {
+	gchar* fname = uat_get_actual_filename(uat_in, FALSE);
 	
-	g_assert(uat->finalized && uat->locked);
+	g_assert(uat_in->finalized);
 	
-	uat = dt_in;
+	uat = uat_in;
 	
 	;
 	if (!(yyin = fopen(fname,"r"))) {

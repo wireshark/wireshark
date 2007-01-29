@@ -4,8 +4,26 @@
  *  User Accessible Tables
  *  Mantain an array of user accessible data strucures
  *  
- *  (c) 2007, Luis E. Garcia Ontanon
  *
+ * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 2001 Gerald Combs
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #ifndef _UAT_H_
@@ -199,6 +217,7 @@ uat_t* uat_new(const char* name,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
+			   char** error,
 			   ...);
 
 

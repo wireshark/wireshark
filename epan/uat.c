@@ -1,9 +1,30 @@
 /*
  *  uat.c
  *
+ * $Id$
+ *
  *  User Accessible Tables
  *  Mantain an array of user accessible data strucures
  *
+ * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 2001 Gerald Combs
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -108,6 +129,7 @@ uat_t* uat_new(const char* uat_name,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
+			   char** error,
 			   ...) {
 	uat_t* uat = uat_start(uat_name, size, filename, data_ptr, numitems_ptr, copy_cb, update_cb, free_cb);
 	va_list ap;
@@ -116,7 +138,7 @@ uat_t* uat_new(const char* uat_name,
 	uat_fld_chk_cb_t chk_cb;
 	uat_fld_set_cb_t set_cb;
 	uat_fld_tostr_cb_t tostr_cb;
-	va_start(ap,free_cb);
+	va_start(ap,error);
 	
 	name = va_arg(ap,char*);
 	
@@ -134,6 +156,8 @@ uat_t* uat_new(const char* uat_name,
 	va_end(ap);
 	
 	uat_finalize(uat);
+	
+	uat_load(uat,error);
 	
 	return uat;
 }
