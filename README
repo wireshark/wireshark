@@ -40,7 +40,7 @@ Wireshark is known to compile and run on the following systems:
   - Tru64 UNIX (formerly Digital UNIX) (3.2 and later)
   - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
-  - Win32 (98, NT, 2000, XP)
+  - Win32 (NT, 2000, 2003, XP)
 
 and possibly on other versions of those OSes.  It should run on other
 Unix-ish systems without too much trouble.
