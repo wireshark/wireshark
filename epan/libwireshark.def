@@ -114,6 +114,7 @@ dfilter_dump
 dfilter_error_msg               DATA
 dfilter_free
 dfilter_macro_foreach
+dfilter_macro_get_uat
 DisengageReason_vals            DATA
 DisengageRejectReason_vals      DATA
 dissector_add
@@ -781,6 +782,9 @@ tvb_strneql
 tvb_strnlen
 tvb_strsize
 tvb_uncompress
+uat_add_record
+uat_remove_record_idx
+uat_save
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
