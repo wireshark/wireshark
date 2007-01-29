@@ -407,7 +407,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
     adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
 
     tp->is_dummy_entry = TRUE;
-    ip_to_str_buf((guint8 *)&addr, tp->name);
+    ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
     return tp->name;
   }
 #endif /* HAVE_GNU_ADNS */
@@ -453,7 +453,7 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
 
   /* unknown host or DNS timeout */
 
-  ip_to_str_buf((guint8 *)&addr, tp->name);
+  ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
   tp->is_dummy_entry = TRUE;
   *found = FALSE;
 

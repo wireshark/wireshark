@@ -97,11 +97,12 @@ ipv4_get_host_order_addr(ipv4_addr *ipv4)
 	return ipv4->addr;
 }
 
+/* We're assuming the buffer is at least MAX_IP_STR_LEN (16 bytes) */
 void
 ipv4_addr_str_buf(const ipv4_addr *ipv4, gchar *buf)
 {
 	guint32	ipv4_host_order = g_htonl(ipv4->addr);
-	ip_to_str_buf((guint8*)&ipv4_host_order, buf);
+	ip_to_str_buf((guint8*)&ipv4_host_order, buf, MAX_IP_STR_LEN);
 }
 
 

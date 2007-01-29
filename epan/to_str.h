@@ -32,6 +32,8 @@
 
 #define MAX_OID_STR_LEN 256
 #define GUID_STR_LEN 37
+#define MAX_IP_STR_LEN 16
+#define MAX_ADDR_STR_LEN 256
 
 /*
  * Resolution of a time stamp.
@@ -57,7 +59,7 @@ extern void     address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 extern gchar*   bytestring_to_str(const guint8 *, guint32, char);
 extern gchar*	ether_to_str(const guint8 *);
 extern gchar*	ip_to_str(const guint8 *);
-extern void	ip_to_str_buf(const guint8 *, gchar *);
+extern void	ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len);
 extern gchar*	fc_to_str(const guint8 *);
 extern gchar*	fcwwn_to_str (const guint8 *);
 extern gchar*	ip6_to_str(const struct e_in6_addr *);

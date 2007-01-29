@@ -63,6 +63,14 @@ Wireshark Info
 	  Versions affected: 0.99.3 to 0.99.4
         </para></listitem>
 
+        <listitem><para>
+          The ISUP statistics report could overflow a buffer and crash when
+          displaying IPv6 addresses.
+	  <!-- Fixed in 20607 -->
+	  <!-- Bug IDs: None -->
+	  Versions affected: 0.10.12 to 0.99.4
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -73,12 +81,12 @@ Wireshark Info
 
       <itemizedlist>
 
-        <para>
+        <listitem><para>
           On Windows systems the packet list scroll bar could sometimes
           disappear or become unusable.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
           220</ulink>)
-        </para>
+        </para></listitem>
 
         <listitem><para>
           The end of HTTP chunked encoding wasn't being displayed.
@@ -120,6 +128,10 @@ Wireshark Info
 	  On some Windows systems Wireshark could take a long time to start up.
 	</para></listitem>
 
+	<listitem><para>
+	  Malformed UDLD packets could cause an exception.
+	</para></listitem>
+
       </itemizedlist>
     </para>
 
@@ -132,8 +144,15 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-        WPA and WPA2 decryption support has been added.  The TDS / MS SQL
-        dissector now de-obfuscates passwords.
+        We are now offering Wireshark as a U3 package for Windows.  U3
+        packages are suitable for using on USB drives and CD-ROMs.  It's
+        still experimental, but you're welcome to try it out and report
+        any problems or successes.
+        </para></listitem>
+
+        <listitem><para>
+        Decryption support for WPA/WPA2 and SNMPv3 has been added.  The TDS /
+        MS SQL dissector now de-obfuscates passwords.
         </para></listitem>
 
         <listitem><para>
@@ -141,13 +160,10 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        The <command>Find</command> function now selects the corresponding.
-        packet detail item.
-        </para></listitem>
-
-        <listitem><para>
-        <command>Find</command> functionality has been added to the TCP and
-        SSL stream dialogs.
+        The <guimenuitem>Find</guimenuitem> function now selects the
+        corresponding packet detail item.
+        <guimenuitem>Find</guimenuitem> functionality has been added to the TCP
+        and SSL stream dialogs.
         </para></listitem>
 
         <listitem><para>
@@ -155,21 +171,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        SNMPv3 decryption.
+        Windows file dialogs now show the navigation bar.  File dialogs now
+        default to "My Documents" in accordance with Microsoft's HIG.
         </para></listitem>
 
         <listitem><para>
         <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>
         support (which provides raw mode capture under Windows) has been
         enhanced to allow capturing on multiple AirPcap adapters
-        simultaneously using the Multi-Channel Aggregator.
+        simultaneously.
         </para></listitem>
 
         <listitem><para>
         You can no longer install Wireshark on Windows 95, 98, or ME.  (OK,
-        so it's not a <emphasis>feature</emphasis> per se&#2026;)
+        so it's not a <emphasis>feature</emphasis> per se, but it's an
+        important change)
         </para></listitem>
 
+        <listitem><para>
+        ASN.1 BER-encoded files can now be dissected according to a
+        user-specified syntax.
+        </para></listitem>
 
       </itemizedlist>
     </para>
@@ -179,8 +201,10 @@ Wireshark Info
     <para>
 
 DMP,
+Homeplug (INT51X1),
 NBD,
 OMAPI,
+PKCS#12,
 RGMP,
 Roofnet,
 STUN v2
@@ -210,6 +234,7 @@ DHCP,
 DHCPv6,
 DMP,
 DNS,
+E.164,
 EAP,
 EPL,
 ETSI DCP,
@@ -276,6 +301,7 @@ TCP,
 TDS,
 text/media,
 TIPC,
+UDLD,
 UDP Lite,
 UDP,
 UMA,

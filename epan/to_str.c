@@ -135,8 +135,8 @@ gchar *
 ip_to_str(const guint8 *ad) {
   gchar *buf;
 
-  buf=ep_alloc(16);
-  ip_to_str_buf(ad, buf);
+  buf=ep_alloc(MAX_IP_STR_LEN);
+  ip_to_str_buf(ad, buf, MAX_IP_STR_LEN);
   return buf;
 }
 
@@ -179,10 +179,17 @@ static const char * const fast_strings[] = {
 "248", "249", "250", "251", "252", "253", "254", "255"
 };
 void
-ip_to_str_buf(const guint8 *ad, gchar *buf)
+ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
 {
 	register gchar const *p;
 	register gchar *b=buf;
+
+	if (buf_len < MAX_IP_STR_LEN) {
+		/* XXX - Should we return an error string instead of cowardly
+		 * bailing out with an empty string? */
+		*b = 0;
+		return;
+	}
 
 	p=fast_strings[*ad++];
 	do {
@@ -554,7 +561,7 @@ display_epoch_time(gchar *buf, int buflen, time_t sec, gint32 frac,
 	const char *sign;
 	double elapsed_secs;
 
-	elapsed_secs = difftime(sec,(time_t)0); 
+	elapsed_secs = difftime(sec,(time_t)0);
 
 	/* This code copied from display_signed_time; keep it in case anyone
 	   is looking at captures from before 1970 (???).
@@ -824,8 +831,8 @@ address_to_str(const address *addr)
 {
   gchar *str;
 
-  str=ep_alloc(256);
-  address_to_str_buf(addr, str, 256);
+  str=ep_alloc(MAX_ADDR_STR_LEN);
+  address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
   return str;
 }
 
@@ -842,10 +849,15 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
     break;
   case AT_IPv4:
-    ip_to_str_buf(addr->data, buf);
+    ip_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_IPv6:
-    inet_ntop(AF_INET6, addr->data, buf, INET6_ADDRSTRLEN);
+    /* XXX - Should we return an error string instead of cowardly
+     * bailing out with an empty string? */
+    if (buf_len < INET6_ADDRSTRLEN)
+      *buf = '\0';
+    else
+      inet_ntop(AF_INET6, addr->data, buf, INET6_ADDRSTRLEN);
     break;
   case AT_IPX:
     g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
