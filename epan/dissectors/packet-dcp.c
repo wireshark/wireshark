@@ -6,7 +6,7 @@
  * 
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
- * $Id: README.developer 11973 2004-09-11 23:10:14Z guy $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -43,6 +43,10 @@
  * Nov 13, 2006: removes the case where checksums are zero
  * (unlike UDP/packet-udp, from which the code stems,
  * zero checksums are illegal in DCCP (as in TCP))
+ * (Gerrit Renker)
+ *
+ * Jan 29, 2007: updates the offsets of the timestamps to be
+ * compliant to (cf. RFC 4342, sec. 13).
  * (Gerrit Renker)
  */
 
@@ -499,14 +503,14 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp_echo, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
 				
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 4, 2, 
-						    tvb_get_ntohs(tvb, offset + 4));
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 6, 2,
+						    tvb_get_ntohs(tvb, offset + 6));
 			} else if (option_len==10) {
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp_echo, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
 				
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 4, 4, 
-						    tvb_get_ntohl(tvb, offset + 4));
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 6, 4, 
+						    tvb_get_ntohl(tvb, offset + 6));
 			} else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong Timestamp Echo length");
 			break;
@@ -1103,13 +1107,13 @@ void proto_register_dcp(void)
 
 		{ &hf_dcp_options,
 		{ "Options", "dcp.options", FT_NONE, BASE_DEC, NULL, 0x0,
-		  "DCP Options fields", HFILL }},
+		  "DCP Options fields", HFILL }}
 
 	};
 
 	static gint *ett[] = {
 		&ett_dcp,
-		&ett_dcp_options,
+		&ett_dcp_options
 	};
 
 	proto_dcp = proto_register_protocol("Datagram Congestion Control Protocol", "DCP", "dcp");
