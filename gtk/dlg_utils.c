@@ -124,6 +124,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *yes          = NULL;
     const gchar *no           = NULL;
     const gchar *filter_stream= NULL;
+    const gchar *delete       = NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -168,6 +169,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             no = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_FILTER_OUT_STREAM) == 0) {
             filter_stream = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_DELETE) == 0) {
+            delete = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();
@@ -271,6 +274,11 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             dlg_button_new(hbox, button_hbox, cap_stop);
             return hbox;
         }
+        if (delete && cancel) {
+            dlg_button_new(hbox, button_hbox, cancel);
+            dlg_button_new(hbox, button_hbox, delete);
+            return hbox;
+        }
     }
     if (buttons == 3) {
         if (ok && save && close) {
@@ -324,6 +332,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 
     /* beware: sequence of buttons is important! */
     if (ok      != NULL) dlg_button_new(hbox, button_hbox, ok);
+    if (delete  != NULL) dlg_button_new(hbox, button_hbox, delete);
     if (jump    != NULL) dlg_button_new(hbox, button_hbox, jump);
     if (find    != NULL) dlg_button_new(hbox, button_hbox, find);
     if (print   != NULL) dlg_button_new(hbox, button_hbox, print);
