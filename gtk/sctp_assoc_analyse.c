@@ -848,7 +848,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	epan_dissect_t *edt;
 	gint err;
 	gchar *err_info;
-	gboolean frame_matched, frame_found = FALSE;;
+	gboolean frame_matched, frame_found = FALSE;
 	frame_data *fdata;
 	gchar filter_text[256];
 	sctp_assoc_info_t* assoc = NULL;
