@@ -199,7 +199,7 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 	gchar* pers_fname =  get_persconffile_path(uat->filename,for_writing);
 	
-	if (! file_exists(pers_fname)) {
+	if (! (file_exists(pers_fname) || for_writing) ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
 		
 		if (file_exists(data_fname)) {
@@ -264,8 +264,8 @@ gboolean uat_save(uat_t* uat, char** error) {
 
 	*error = NULL;
 
-	for ( i = 0 ; i < uat->user_data->len - 1 ; i++ ) {
-		void* rec = uat->user_data->data + (uat->record_size * (uat->user_data->len-1));
+	for ( i = 0 ; i < uat->user_data->len ; i++ ) {
+		void* rec = uat->user_data->data + (uat->record_size * i);
 		uat_fld_t* f;
 		
 		f = uat->fields;

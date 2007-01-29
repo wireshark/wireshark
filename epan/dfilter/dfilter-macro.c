@@ -38,10 +38,6 @@
 #include <epan/uat.h>
 #include <epan/report_err.h>
 
-#if 0
-#define DUMP_MACROS
-#endif
-
 static uat_t* dfilter_macro_uat = NULL;
 static dfilter_macro_t* macros = NULL;
 static guint num_macros;
@@ -91,6 +87,8 @@ static void macro_dump(dfilter_macro_t* m _U_, void* ud _U_) {
 		part++;
 	}
 }
+#else
+#define macro_dump(a,b)
 #endif
 
 void dfilter_macro_dump(void) {
@@ -410,6 +408,8 @@ done:
 	
 	m->usable = TRUE;
 	
+	macro_dump(m,NULL);
+	
 	return;
 }
 
@@ -461,7 +461,7 @@ static void macro_name_set(void* r, const char* in_name, unsigned len) {
 	char* name = g_malloc(len+1);
 	memcpy(name,in_name,len);
 	name[len] = '\0';
-	g_free(m->text);
+	g_free(m->name);
 	m->name = name;
 }
 
