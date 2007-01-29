@@ -372,12 +372,14 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 			selected_stream->port1,
 			selected_stream->port2,
 			selected_stream->verification_tag1,
-			selected_stream->verification_tag2,
+			/*selected_stream->verification_tag2,*/
+			selected_stream->initiate_tag,
 			selected_stream->verification_tag2,
 			selected_stream->port2,
 			selected_stream->port1,
 			selected_stream->verification_tag2,
-			selected_stream->verification_tag1,
+			/*selected_stream->verification_tag1,*/
+			selected_stream->initiate_tag,
 			selected_stream->verification_tag1);
 			filter_string = f_string;
 		}
@@ -840,18 +842,18 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	guint16 srcport;
 	guint8* ip_dst;
 	guint16 dstport;
-	GList *list, *srclist, *dstlist;
+	GList *list, *framelist;
 	dfilter_t *sfcode;
 	capture_file *cf;
 	epan_dissect_t *edt;
 	gint err;
 	gchar *err_info;
-	gboolean frame_matched;
+	gboolean frame_matched, frame_found = FALSE;;
 	frame_data *fdata;
 	gchar filter_text[256];
 	sctp_assoc_info_t* assoc = NULL;
-	address *src, *dst;
 	int i;
+	guint32 *fn; //frame_number
 
 	strcpy(filter_text,"sctp");
 	if (!dfilter_compile(filter_text, &sfcode)) {
@@ -899,91 +901,40 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	while (list)
 	{
 		assoc = (sctp_assoc_info_t*)(list->data);
-		if (assoc->port1 == srcport && assoc->port2 == dstport)
-		{	
-			srclist = g_list_first(assoc->addr1);
-			while(srclist)
-			{
-				src = (address *)(srclist->data);
-				if (*src->data == *ip_src)
-				{
-					dstlist = g_list_first(assoc->addr2);
-					while(dstlist)
-					{
-						dst = (address *)(dstlist->data);
-						if (*dst->data == *ip_dst)
-						{
-							u_data->assoc = assoc;
-							u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
-							static_assoc.addr_chunk_count = assoc->addr_chunk_count;
-							static_assoc.port1 = assoc->port1;
-							static_assoc.port2 = assoc->port2;
-							for (i=0; i<NUM_CHUNKS; i++)
-							{
-								static_assoc.chunk_count[i]     = assoc->chunk_count[i];
-								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
-								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
-							}
-							if (ext == FALSE)
-								create_analyse_window(u_data);
-							return;
-						}
-						else
-							dstlist = g_list_next(dstlist);
-					}
-				}
-				else
-					srclist = g_list_next(srclist);
-			}
-			if (assoc->port2 != assoc->port1)
-			{
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
-				return;
-			}
-		}
-		if (assoc->port2 == srcport && assoc->port1 == dstport)
+		framelist = g_list_first(assoc->frame_numbers);
+		while(framelist)
 		{
-			srclist = g_list_first(assoc->addr2);
-			while(srclist)
+			fn = (guint32 *)framelist->data;
+			if (*fn == fdata->num)
 			{
-				src = (address *)(srclist->data);
-				if (*src->data == *ip_src)
-				{
-					dstlist = g_list_first(assoc->addr1);
-					while(dstlist)
-					{
-						dst = (address *)(dstlist->data);
-						if (*dst->data == *ip_dst)
-						{
-							u_data->assoc = assoc;
-							u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
-							static_assoc.addr_chunk_count = assoc->addr_chunk_count;
-							static_assoc.port1 = assoc->port1;
-							static_assoc.port2 = assoc->port2;
-							for (i=0; i<NUM_CHUNKS; i++)
-							{
-								static_assoc.chunk_count[i]     = assoc->chunk_count[i];
-								static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
-								static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
-							}
-							if (ext == FALSE)
-								create_analyse_window(u_data);
-							return;
-						}
-						else
-							dstlist = g_list_next(dstlist);
-					}
-				}
-				else
-					srclist = g_list_next(srclist);
+				frame_found = TRUE;
+				break;
 			}
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
+			framelist = g_list_next(framelist);
+		}
+		if (frame_found)
+		{
+			u_data->assoc = assoc;
+			u_data->assoc->addr_chunk_count = assoc->addr_chunk_count;
+			static_assoc.addr_chunk_count = assoc->addr_chunk_count;
+			static_assoc.port1 = assoc->port1;
+			static_assoc.port2 = assoc->port2;
+			for (i=0; i<NUM_CHUNKS; i++)
+			{
+				static_assoc.chunk_count[i]     = assoc->chunk_count[i];
+				static_assoc.ep1_chunk_count[i] = assoc->ep1_chunk_count[i];
+				static_assoc.ep2_chunk_count[i] = assoc->ep2_chunk_count[i];
+			}
+			if (ext == FALSE)
+				create_analyse_window(u_data);
 			return;
 		}
 		else
 			list = g_list_next(list);
 
 	}
+	if (!frame_found)
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Assoc not found!");
 }
 
 void sctp_set_assoc_filter(void)

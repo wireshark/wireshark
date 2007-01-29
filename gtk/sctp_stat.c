@@ -303,6 +303,12 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	if (a == NULL || b == NULL)
 		return(ASSOC_NOT_FOUND);
 
+	if ((a->port1 == b->port1) &&
+	    (a->port2 == b->port2) &&
+	    (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
+	    (a->initiate_tag != b->initiate_tag ))
+		return(ASSOC_NOT_FOUND);   //two INITs that belong to different assocs
+
 	/* assoc known*/
 	if ((a->port1 == b->port1) &&
 	    (a->port2 == b->port2) &&
@@ -591,6 +597,7 @@ static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 		while (list)
 		{
 			cmp=sctp_assoc_vtag_cmp(needle, (sctp_assoc_info_t*)(list->data));
+
 			/*if (cmp==ASSOC_NOT_FOUND)
 			{
 				cmp=sctp_assoc_address_cmp(needle, (sctp_assoc_info_t*)(list->data));
@@ -827,6 +834,14 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 		tmp_info.verification_tag2 = 0;
 	}
 	tmp_info.n_tvbs = 0;
+	if (tvb_get_guint8(sctp_info->tvb[0],0) == SCTP_INIT_CHUNK_ID)
+	{
+		tmp_info.initiate_tag = tvb_get_ntohl(sctp_info->tvb[0], 4);
+	}
+	else
+	{
+		tmp_info.initiate_tag = 0;
+	}
 
 	info = find_assoc(&tmp_info);
 	if (!info)
@@ -852,6 +867,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			info->port2 = tmp_info.port2;
 			info->verification_tag1 = tmp_info.verification_tag1;
 			info->verification_tag2 = tmp_info.verification_tag2;
+			info->initiate_tag 	= tmp_info.initiate_tag;
 			info->n_tvbs            = tmp_info.n_tvbs;
 			info->init              = FALSE;
 			info->initack           = FALSE;
