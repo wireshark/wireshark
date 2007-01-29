@@ -1,0 +1,4 @@
+#!/bin/sh
+svn add $*
+svn ps svn:keywords Id $*
+svn ps svn:eol-style native $*
