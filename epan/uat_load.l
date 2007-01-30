@@ -3,7 +3,6 @@
 %option prefix="uat_load_"
 %option never-interactive
 %option yylineno
-%option reject
 
 %{
 	/*
@@ -91,7 +90,7 @@ newline [ \t]*[\r]?\n
 ws [ \t]+
 comment #[^\n]*\n
 
-%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED UNUSED
+%x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED
 %%
 <START_OF_LINE,NEXT_FIELD>{ws} ;
 <START_OF_LINE>{newline} ;
@@ -194,7 +193,6 @@ comment #[^\n]*\n
 {newline} { ERROR(("incomplete record")); }
 . { ERROR(("unexpected input")); }
 
-<UNUSED>\042\042\042 { yy_flex_realloc(NULL,1); REJECT;} /* avoid cc warnings about unused labels and functions */
 %%
 
 static int xton(char d) {
