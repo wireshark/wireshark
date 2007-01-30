@@ -258,7 +258,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	mv $(HOST)\wireshark-gtk2.exe $(HOST)\wireshark.exe
 	if exist $(TOPDIR)\wireshark-gtk2.exe.manifest $(COPY) $(TOPDIR)\wireshark-gtk2.exe.manifest $(HOST) $(COPY_FLAGS) 
 # can't get /i to work with $(COPY) above to do the rename there
-	mv $(HOST)\wireshark-gtk2.exe.manifest $(HOST)\wireshark.exe.manifest
+	if exist $(HOST)\wireshark-gtk2.exe.manifest mv $(HOST)\wireshark-gtk2.exe.manifest $(HOST)\wireshark.exe.manifest
 	$(COPY) $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(HOST) $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
