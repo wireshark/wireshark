@@ -852,7 +852,7 @@ Section "User's Guide" SecUsersGuide
 SectionIn 1 2
 !endif
 SetOutPath $INSTDIR
-File "..\..\docbook\user-guide.chm"
+File "user-guide.chm"
 SectionEnd
 !endif
 

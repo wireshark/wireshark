@@ -255,6 +255,7 @@ CLEANFILES =	\
 	release-notes.html	\
 	release-notes.txt	\
 	svn_version.xml		\
+	user-guide.zip		\
 
 
 all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
@@ -271,12 +272,13 @@ clean:
 FORCE:
 
 svn_version_check: FORCE
+	dos2unix ./check_svn_version.sh
 	@ ./check_svn_version.sh
 
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -336,6 +338,10 @@ ifdef HHC
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
+
+user-guide.zip: user-guide.chm
+	rm -f user-guide.zip
+	zip user-guide.zip user-guide.chm
 endif
 
 
