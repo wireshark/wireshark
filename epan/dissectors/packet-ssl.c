@@ -658,7 +658,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * packets.
      *
      * Handling the single ssl record across multiple packets
-     * may be possible using ethereal conversations, but
+     * may be possible using wireshark conversations, but
      * probably not cleanly.  May have to wait for tcp stream
      * reassembly.
      */

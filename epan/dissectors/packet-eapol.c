@@ -30,6 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/crypt/wep-wpadefs.h>
 #include "packet-ieee80211.h"
 #include <epan/etypes.h>
 
@@ -185,7 +186,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 1;
       if (keydesc_type == EAPOL_WPA_KEY || keydesc_type == EAPOL_RSN_KEY) {
 	keyinfo = tvb_get_ntohs(tvb, offset);
-	keyinfo_item = 
+	keyinfo_item =
 	  proto_tree_add_uint(eapol_tree, hf_eapol_wpa_keydes_keyinfo, tvb,
 			      offset, 2, keyinfo);
 
@@ -329,64 +330,64 @@ proto_register_eapol(void)
 		BASE_HEX, NULL, 0x0, "WPA key info", HFILL }},
 
 	{ &hf_eapol_wpa_keydes_keyinfo_keydes_ver, {
-		"Key Descriptor Version", 
-		"eapol.keydes.key_info.keydes_ver", 
+		"Key Descriptor Version",
+		"eapol.keydes.key_info.keydes_ver",
 		FT_UINT16, BASE_DEC, VALS(&keydes_ver),
-		KEY_INFO_KEYDES_VER_MASK, 
+		KEY_INFO_KEYDES_VER_MASK,
 		"Key Descriptor Version Type", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_type, {
-		"Key Type", 
-		"eapol.keydes.key_info.key_type", 
-		FT_BOOLEAN, 16, TFS(&tfs_keyinfo_key_type), 
-		KEY_INFO_KEY_TYPE_MASK, 
+		"Key Type",
+		"eapol.keydes.key_info.key_type",
+		FT_BOOLEAN, 16, TFS(&tfs_keyinfo_key_type),
+		KEY_INFO_KEY_TYPE_MASK,
 		"Key Type (Pairwise or Group)", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_index, {
-		"Key Index", 
-		"eapol.keydes.key_info.key_index", 
-		FT_UINT16, BASE_DEC, NULL, 
-		KEY_INFO_KEY_INDEX_MASK, 
+		"Key Index",
+		"eapol.keydes.key_info.key_index",
+		FT_UINT16, BASE_DEC, NULL,
+		KEY_INFO_KEY_INDEX_MASK,
 		"Key Index (0-3) (RSN: Reserved)", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_install, {
-		"Install flag", 
-		"eapol.keydes.key_info.install", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_INSTALL_MASK, 
+		"Install flag",
+		"eapol.keydes.key_info.install",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_INSTALL_MASK,
 		"Install flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_ack, {
-		"Key Ack flag", 
-		"eapol.keydes.key_info.key_ack", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_KEY_ACK_MASK, 
+		"Key Ack flag",
+		"eapol.keydes.key_info.key_ack",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_KEY_ACK_MASK,
 		"Key Ack flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_mic, {
-		"Key MIC flag", 
-		"eapol.keydes.key_info.key_mic", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_KEY_MIC_MASK, 
+		"Key MIC flag",
+		"eapol.keydes.key_info.key_mic",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_KEY_MIC_MASK,
 		"Key MIC flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_secure, {
-		"Secure flag", 
-		"eapol.keydes.key_info.secure", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_SECURE_MASK, 
+		"Secure flag",
+		"eapol.keydes.key_info.secure",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_SECURE_MASK,
 		"Secure flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_error, {
-		"Error flag", 
-		"eapol.keydes.key_info.error", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_ERROR_MASK, 
+		"Error flag",
+		"eapol.keydes.key_info.error",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_ERROR_MASK,
 		"Error flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_request, {
-		"Request flag", 
-		"eapol.keydes.key_info.request", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_REQUEST_MASK, 
+		"Request flag",
+		"eapol.keydes.key_info.request",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_REQUEST_MASK,
 		"Request flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_encr_key_data, {
-		"Encrypted Key Data flag", 
-		"eapol.keydes.key_info.encr_key_data", 
-		FT_BOOLEAN, 16, TFS(&flags_set_truth), 
-		KEY_INFO_ENCR_KEY_DATA_MASK, 
+		"Encrypted Key Data flag",
+		"eapol.keydes.key_info.encr_key_data",
+		FT_BOOLEAN, 16, TFS(&flags_set_truth),
+		KEY_INFO_ENCR_KEY_DATA_MASK,
 		"Encrypted Key Data flag", HFILL }},
 	{ &hf_eapol_wpa_keydes_nonce, {
 		"Nonce", "eapol.keydes.nonce", FT_BYTES, BASE_NONE,

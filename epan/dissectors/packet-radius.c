@@ -439,7 +439,7 @@ void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
 	guint32 ip;
-	gchar buf[16];
+	gchar buf[MAX_IP_STR_LEN];
 
 	if (len != 4) {
 		proto_item_append_text(avp_item, "[wrong length for IP address]");
@@ -450,7 +450,7 @@ void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
 
-	ip_to_str_buf((guint8 *)&ip, buf);
+	ip_to_str_buf((guint8 *)&ip, buf, MAX_IP_STR_LEN);
 	proto_item_append_text(avp_item, "%s", buf);
 }
 

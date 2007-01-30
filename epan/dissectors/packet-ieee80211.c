@@ -108,8 +108,9 @@ static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static void init_wepkeys(void);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
+#ifndef	HAVE_AIRPDCAP
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
-#ifdef	HAVE_AIRPDCAP
+#else
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2	*/
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
 #endif
@@ -1719,6 +1720,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         guint8 *ssid; /* The SSID may consist of arbitrary bytes */
 
         ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
+#ifdef HAVE_AIRPDCAP
+        AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
+#endif
         proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                                tag_len, (char *) ssid);
         if (check_col (pinfo->cinfo, COL_INFO)) {
@@ -5073,11 +5077,12 @@ proto_reg_handoff_ieee80211(void)
 /*		WPA and return a tvb to the caller to add a new tab. It returns the		*/
 /*		algorithm used for decryption (WEP, TKIP, CCMP) and the header and		*/
 /*		trailer lengths.																			*/
-static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer) {
+static tvbuff_t *
+try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer) {
 	const guint8 *enc_data;
 	guint8 *tmp = NULL;
 	tvbuff_t *decr_tvb = NULL;
-	guint32 dec_caplen;
+	size_t dec_caplen;
 	guchar dec_data[AIRPDCAP_MAX_CAPLEN];
 	AIRPDCAP_KEY_ITEM used_key;
 
@@ -5092,20 +5097,20 @@ static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 
 	{
 		*algorithm=used_key.KeyType;
 		switch (*algorithm) {
-	case AIRPDCAP_KEY_TYPE_WEP:
-		*sec_header=AIRPDCAP_WEP_HEADER;
-		*sec_trailer=AIRPDCAP_WEP_TRAILER;
-		break;
-	case AIRPDCAP_KEY_TYPE_CCMP:
-		*sec_header=AIRPDCAP_RSNA_HEADER;
-		*sec_trailer=AIRPDCAP_CCMP_TRAILER;
-		break;
-	case AIRPDCAP_KEY_TYPE_TKIP:
-		*sec_header=AIRPDCAP_RSNA_HEADER;
-		*sec_trailer=AIRPDCAP_TKIP_TRAILER;
-		break;
-	default:
-		return NULL;
+			case AIRPDCAP_KEY_TYPE_WEP:
+				*sec_header=AIRPDCAP_WEP_HEADER;
+				*sec_trailer=AIRPDCAP_WEP_TRAILER;
+				break;
+			case AIRPDCAP_KEY_TYPE_CCMP:
+				*sec_header=AIRPDCAP_RSNA_HEADER;
+				*sec_trailer=AIRPDCAP_CCMP_TRAILER;
+				break;
+			case AIRPDCAP_KEY_TYPE_TKIP:
+				*sec_header=AIRPDCAP_RSNA_HEADER;
+				*sec_trailer=AIRPDCAP_TKIP_TRAILER;
+				break;
+			default:
+				return NULL;
 		}
 
 		/* allocate buffer for decrypted payload											*/
@@ -5125,7 +5130,7 @@ static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 
 	return decr_tvb;
 }
 /*	Davide Schiera -----------------------------------------------------------	*/
-#endif
+#else
 
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   const guint8 *enc_data;
@@ -5168,6 +5173,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
   return decr_tvb;
 }
+#endif
 
 #ifdef	HAVE_AIRPDCAP
 static
@@ -5177,7 +5183,7 @@ void set_airpdcap_keys()
 	AIRPDCAP_KEY_ITEM key;
 	PAIRPDCAP_KEYS_COLLECTION keys;
 	decryption_key_t* dk = NULL;
-	GByteArray *bytes;
+	GByteArray *bytes = NULL;
 	gboolean res;
 	gchar* tmpk = NULL;
 
@@ -5199,14 +5205,14 @@ void set_airpdcap_keys()
 				bytes = g_byte_array_new();
 				res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
-				if (dk->key->str && res && bytes->len > 0)
+				if (dk->key->str && res && bytes->len > 0 && bytes->len <= AIRPDCAP_WEP_KEY_MAXLEN)
 				{
 					/*
-					* WEP key is correct (well, the can be even or odd, so it is not
-					* a real check, I think... is a check performed somewhere in the
-					* AirPDcap function??? )
-					*/
-					memcpy(key.KeyData.Wep.WepKey,bytes->data,bytes->len);
+					 * WEP key is correct (well, the can be even or odd, so it is not
+					 * a real check, I think... is a check performed somewhere in the
+					 * AirPDcap function??? )
+					 */
+					memcpy(key.KeyData.Wep.WepKey, bytes->data, bytes->len);
 					key.KeyData.Wep.WepKeyLen = bytes->len;
 					keys->Keys[keys->nKeys] = key;
 					keys->nKeys++;
@@ -5216,24 +5222,15 @@ void set_airpdcap_keys()
 			{
 				key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
 
-				/* XXX - Maybe check the lenght passed... */
-				memcpy(key.KeyData.Wpa.UserPwd.Passphrase,dk->key->str,dk->key->len+1);
+				/* XXX - This just lops the end if the key off if it's too long.
+				 *       Should we handle this more gracefully? */
+				strncpy(key.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN);
 
-				if(dk->ssid != NULL)
+				key.UserPwd.SsidLen = 0;
+				if(dk->ssid != NULL && dk->ssid->len <= AIRPDCAP_WPA_SSID_MAX_LEN)
 				{
-					if(dk->ssid->len > 0)
-					{
-						memcpy(key.KeyData.Wpa.UserPwd.Ssid,dk->ssid->data,dk->ssid->len);
-						key.KeyData.Wpa.UserPwd.SsidLen = dk->ssid->len;
-					}
-					else /* The GString is not NULL, but the 'ssid' name is just "\0" */
-					{
-						key.KeyData.Wpa.UserPwd.SsidLen = 0;
-					}
-				}
-				else
-				{
-					key.KeyData.Wpa.UserPwd.SsidLen = 0;
+					memcpy(key.UserPwd.Ssid, dk->ssid->data, dk->ssid->len);
+					key.UserPwd.SsidLen = dk->ssid->len;
 				}
 
 				keys->Keys[keys->nKeys] = key;
@@ -5246,11 +5243,13 @@ void set_airpdcap_keys()
 				bytes = g_byte_array_new();
 				res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
-				/* XXX - PAss the correct array of bytes... */
-				memcpy(key.KeyData.Wpa.Pmk,bytes->data,bytes->len);
+				/* XXX - Pass the correct array of bytes... */
+				if (bytes-> len <= AIRPDCAP_WPA_PMK_LEN) {
+					memcpy(key.KeyData.Wpa.Pmk, bytes->data, bytes->len);
 
-				keys->Keys[keys->nKeys] = key;
-				keys->nKeys++;
+					keys->Keys[keys->nKeys] = key;
+					keys->nKeys++;
+				}
 			}
 		}
 		if(tmpk != NULL) g_free(tmpk);
@@ -5258,7 +5257,9 @@ void set_airpdcap_keys()
 
 	/* Now set the keys */
 	AirPDcapSetKeys(&airpdcap_ctx,keys->Keys,keys->nKeys);
-        g_free(keys);
+	g_free(keys);
+	if (bytes)
+		g_byte_array_free(bytes, TRUE);
 
 }
 #endif

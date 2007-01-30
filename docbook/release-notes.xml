@@ -124,6 +124,11 @@ Wireshark Info
 	  Malformed UDLD packets could cause an exception.
 	</para></listitem>
 
+        <listitem><para>
+          The ISUP statistics report could overflow a buffer and crash when
+          displaying IPv6 addresses.
+        </para></listitem>
+
       </itemizedlist>
     </para>
 

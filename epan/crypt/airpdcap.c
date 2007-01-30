@@ -118,8 +118,8 @@ extern "C" {
  * @param output [OUT] pointer to a preallocated buffer of
  * AIRPDCAP_SHA_DIGEST_LEN characters that will contain a part of the key
  */
-INT AirPDcapRsnaPwd2PskStep(
-        const CHAR *password,
+static INT AirPDcapRsnaPwd2PskStep(
+        CHAR *password,
         const CHAR *ssid,
         const size_t ssidLength,
         const INT iterations,
@@ -139,14 +139,14 @@ INT AirPDcapRsnaPwd2PskStep(
  * @note
  * Described in 802.11i-2004, page 165
  */
-INT AirPDcapRsnaPwd2Psk(
-        const CHAR *password,
+static INT AirPDcapRsnaPwd2Psk(
+        CHAR *password,
         const CHAR *ssid,
         const size_t ssidLength,
         UCHAR *output)
         ;
 
-INT AirPDcapRsnaMng(
+static INT AirPDcapRsnaMng(
         UCHAR *decrypt_data,
         size_t *decrypt_len,
         PAIRPDCAP_KEY_ITEM key,
@@ -155,7 +155,7 @@ INT AirPDcapRsnaMng(
         UINT8 fcsPresent)
         ;
 
-INT AirPDcapWepMng(
+static INT AirPDcapWepMng(
         PAIRPDCAP_CONTEXT ctx,
         UCHAR *decrypt_data,
         size_t *decrypt_len,
@@ -165,7 +165,7 @@ INT AirPDcapWepMng(
         UINT8 fcsPresent)
         ;
 
-INT AirPDcapRsna4WHandshake(
+static INT AirPDcapRsna4WHandshake(
         PAIRPDCAP_CONTEXT ctx,
         const UCHAR *data,
         AIRPDCAP_SEC_ASSOCIATION *sa,
@@ -182,11 +182,11 @@ INT AirPDcapRsna4WHandshake(
  * - TRUE: the key contains valid fields and values
  * - FALSE: the key has some invalid field or value
  */
-INT AirPDcapValidateKey(
+static INT AirPDcapValidateKey(
         PAIRPDCAP_KEY_ITEM key)
         ;
 
-INT AirPDcapRsnaMicCheck(
+static INT AirPDcapRsnaMicCheck(
         UCHAR *eapol,
         USHORT eapol_len,
         UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
@@ -201,30 +201,30 @@ INT AirPDcapRsnaMicCheck(
  * - index of the Security Association structure if found
  * - -1, if the specified addresses pair BSSID-STA MAC has not been found
  */
-INT AirPDcapGetSa(
+static INT AirPDcapGetSa(
         PAIRPDCAP_CONTEXT ctx,
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
         ;
 
-INT AirPDcapFreeSa(
+static INT AirPDcapFreeSa(
         PAIRPDCAP_CONTEXT ctx,
         INT index)	/* index of the structure to free		*/
         ;
 
-INT AirPDcapStoreSa(
+static INT AirPDcapStoreSa(
         PAIRPDCAP_CONTEXT ctx,
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
         ;
 
-UCHAR * AirPDcapGetStaAddress(
+static UCHAR * AirPDcapGetStaAddress(
         PAIRPDCAP_MAC_FRAME frame)
         ;
 
-UCHAR * AirPDcapGetBssidAddress(
+static UCHAR * AirPDcapGetBssidAddress(
         PAIRPDCAP_MAC_FRAME frame)
         ;
 
-void AirPDcapRsnaPrfX(
+static void AirPDcapRsnaPrfX(
         AIRPDCAP_SEC_ASSOCIATION *sa,
         const UCHAR pmk[32],
         const UCHAR snonce[32],
@@ -347,60 +347,60 @@ INT AirPDcapPacketProcess(
                         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
 
                         /* check if the packet as an LLC header and the packet is 802.1X authentication (IEEE 802.1X-2004, pg. 24)	*/
-                        if (data[offset]==0xAA &&	/* DSAP=SNAP								*/
-                        data[offset+1]==0xAA &&	/* SSAP=SNAP */
-                        data[offset+2]==0x03 &&	/* Control field=Unnumbered frame	*/
-                        data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet */
-                        data[offset+4]==0x00 &&
-                        data[offset+5]==0x00 &&
-                        data[offset+6]==0x88 &&	/* Type: 802.1X authentication */
-                        data[offset+7]==0x8E) {
-                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
+                        if (		data[offset]==0xAA &&	/* DSAP=SNAP								*/
+					data[offset+1]==0xAA &&	/* SSAP=SNAP */
+					data[offset+2]==0x03 &&	/* Control field=Unnumbered frame	*/
+					data[offset+3]==0x00 &&	/* Org. code=encaps. Ethernet */
+					data[offset+4]==0x00 &&
+					data[offset+5]==0x00 &&
+					data[offset+6]==0x88 &&	/* Type: 802.1X authentication */
+					data[offset+7]==0x8E) {
+				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Authentication: EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
 
-                                        /* skip LLC header	*/
-                                        offset+=8;
+				/* skip LLC header	*/
+				offset+=8;
 
-                                        /* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24)	*/
-                                        /* TODO EAPOL protocol version to check?	*/
-                                        /*if (data[offset]!=2) {
-                                        AIRPDCAP_DEBUG_PRINT_LINE("EAPOL protocol version not recognized", AIRPDCAP_DEBUG_LEVEL_5);
-                                        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                                        }*/
+				/* check the version of the EAPOL protocol used (IEEE 802.1X-2004, pg. 24)	*/
+				/* TODO EAPOL protocol version to check?	*/
+				/*if (data[offset]!=2) {
+					AIRPDCAP_DEBUG_PRINT_LINE("EAPOL protocol version not recognized", AIRPDCAP_DEBUG_LEVEL_5);
+					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+				}*/
 
-                                        /*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
-                                        if (data[offset+1]!=3) {
-                                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_5);
-                                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                                        }
+				/*	check if the packet is a EAPOL-Key (0x03) (IEEE 802.1X-2004, pg. 25)	*/
+				if (data[offset+1]!=3) {
+					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not EAPOL-Key", AIRPDCAP_DEBUG_LEVEL_5);
+					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+				}
 
-                                        /* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
-                                        bodyLength=ntohs(*(UINT16 *)(data+offset+2));
-                                        if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
-                                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
-                                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                                        }
+				/* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
+				bodyLength=ntohs(*(UINT16 *)(data+offset+2));
+				if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
+					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
+					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+				}
 
-                                        /* skip EAPOL MPDU and go to the first byte of the body	*/
-                                        offset+=4;
+				/* skip EAPOL MPDU and go to the first byte of the body	*/
+				offset+=4;
 
-                                        /* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
-                                        if (/*data[offset]!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
-                                                data[offset]!=0x2 &&		/* IEEE 802.11 Key Descriptor Type			*/
-                                                data[offset]!=0xFE)		/* TODO what's this value???					*/
-                                        {
-                                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_5);
-                                                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                                        }
+				/* check if the key descriptor type is valid (IEEE 802.1X-2004, pg. 27)	*/
+				if (/*data[offset]!=0x1 &&*/	/* RC4 Key Descriptor Type (deprecated)	*/
+					data[offset]!=0x2 &&		/* IEEE 802.11 Key Descriptor Type			*/
+					data[offset]!=0xFE)		/* TODO what's this value???					*/
+				{
+					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Not valid key descriptor type", AIRPDCAP_DEBUG_LEVEL_5);
+					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+				}
 
-                                        /* start with descriptor body	*/
-                                        offset+=1;
+				/* start with descriptor body	*/
+				offset+=1;
 
-                                        /*	manage the 4-way handshake to define the key	*/
-                                        return AirPDcapRsna4WHandshake(ctx, data, sa, key, offset);
+				/*	manage the 4-way handshake to define the key	*/
+				return AirPDcapRsna4WHandshake(ctx, data, sa, key, offset);
                         } else {
-                                /* cleartext message, not authentication	*/
-                                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "No authentication data", AIRPDCAP_DEBUG_LEVEL_5);
-                                return AIRPDCAP_RET_NO_DATA_ENCRYPTED;
+				/* cleartext message, not authentication	*/
+				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "No authentication data", AIRPDCAP_DEBUG_LEVEL_5);
+				return AIRPDCAP_RET_NO_DATA_ENCRYPTED;
                         }
                 }
         } else {
@@ -466,7 +466,7 @@ INT AirPDcapSetKeys(
                 if (AirPDcapValidateKey(keys+i)==TRUE) {
                         if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WPA_PWD) {
                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a WPA-PWD key", AIRPDCAP_DEBUG_LEVEL_4);
-                                AirPDcapRsnaPwd2Psk(keys[i].KeyData.Wpa.UserPwd.Passphrase, keys[i].KeyData.Wpa.UserPwd.Ssid, keys[i].KeyData.Wpa.UserPwd.SsidLen, keys[i].KeyData.Wpa.Psk);
+                                AirPDcapRsnaPwd2Psk(keys[i].UserPwd.Passphrase, keys[i].UserPwd.Ssid, keys[i].UserPwd.SsidLen, keys[i].KeyData.Wpa.Psk);
                         }
 #ifdef	_DEBUG
                         else if (keys[i].KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK) {
@@ -477,10 +477,7 @@ INT AirPDcapSetKeys(
                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapSetKeys", "Set a key", AIRPDCAP_DEBUG_LEVEL_4);
                         }
 #endif
-
-                        ctx->keys[success].KeyType=keys[i].KeyType;
-                        memcpy(&ctx->keys[success].KeyData, &keys[i].KeyData, sizeof(keys[i].KeyData));
-
+                        memcpy(&ctx->keys[success], &keys[i], sizeof(keys[i]));
                         success++;
                 }
         }
@@ -534,8 +531,7 @@ INT AirPDcapGetKeys(
                 return (INT)ctx->keys_nr;
         } else {
                 for (i=0, j=0; i<ctx->keys_nr && i<keys_nr && i<AIRPDCAP_MAX_KEYS_NR; i++) {
-                        keys[j].KeyType=ctx->keys[i].KeyType;
-                        memcpy(&keys[j].KeyData, &ctx->keys[i].KeyData, sizeof(keys[j].KeyData));
+                        memcpy(&keys[j], &ctx->keys[i], sizeof(keys[j]));
                         j++;
                         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapGetKeys", "Got a key", AIRPDCAP_DEBUG_LEVEL_5);
                 }
@@ -543,6 +539,26 @@ INT AirPDcapGetKeys(
                 AIRPDCAP_DEBUG_TRACE_END("AirPDcapGetKeys");
                 return j;
         }
+}
+
+/*
+ * XXX - This won't be reliable if a packet containing SSID "B" shows
+ * up in the middle of a 4-way handshake for SSID "A".
+ * We should probably use a small array or hash table to keep multiple
+ * SSIDs.
+ */
+INT AirPDcapSetLastSSID(
+        PAIRPDCAP_CONTEXT ctx,
+        CHAR *pkt_ssid,
+        size_t pkt_ssid_len)
+{
+	if (!ctx || !pkt_ssid || pkt_ssid_len < 1 || pkt_ssid_len > WPA_SSID_MAX_SIZE)
+		return AIRPDCAP_RET_UNSUCCESS;
+
+	memcpy(ctx->pkt_ssid, pkt_ssid, pkt_ssid_len);
+	ctx->pkt_ssid_len = pkt_ssid_len;
+
+	return AIRPDCAP_RET_SUCCESS;
 }
 
 INT AirPDcapInitContext(
@@ -561,6 +577,7 @@ INT AirPDcapInitContext(
         ctx->first_free_index=0;
         ctx->index=-1;
         ctx->last_stored_index=-1;
+        ctx->pkt_ssid_len = 0;
 
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapInitContext", "Context initialized!", AIRPDCAP_DEBUG_LEVEL_5);
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapInitContext");
@@ -602,7 +619,8 @@ INT AirPDcapDestroyContext(
 extern "C" {
 #endif
 
-INT AirPDcapRsnaMng(
+static INT
+AirPDcapRsnaMng(
         UCHAR *decrypt_data,
         size_t *decrypt_len,
         PAIRPDCAP_KEY_ITEM key,
@@ -674,7 +692,8 @@ INT AirPDcapRsnaMng(
         return AIRPDCAP_RET_SUCCESS;
 }
 
-INT AirPDcapWepMng(
+static INT
+AirPDcapWepMng(
         PAIRPDCAP_CONTEXT ctx,
         UCHAR *decrypt_data,
         size_t *decrypt_len,
@@ -777,14 +796,15 @@ INT AirPDcapWepMng(
 }
 
 /* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85	*/
-INT AirPDcapRsna4WHandshake(
+static INT
+AirPDcapRsna4WHandshake(
         PAIRPDCAP_CONTEXT ctx,
         const UCHAR *data,
         AIRPDCAP_SEC_ASSOCIATION *sa,
         PAIRPDCAP_KEY_ITEM key,
         INT offset)
 {
-        AIRPDCAP_KEY_ITEM *tmp_key;
+        AIRPDCAP_KEY_ITEM *tmp_key, pkt_key;
         INT key_index;
         INT ret_value=1;
         UCHAR useCache=FALSE;
@@ -841,8 +861,8 @@ INT AirPDcapRsna4WHandshake(
                 if (AIRPDCAP_EAP_SEC(data[offset])==0) {
 
                         /* PATCH:	some implementations set secure bit to 0 also in the 4th message		*/
-                        /*				to recognize which message is this check if wep_key data lenght is 0	*/
-                        /*				in the 4th message																	*/
+                        /*		to recognize which message is this check if wep_key data lenght is 0		*/
+                        /*		in the 4th message								*/
                         if (*(UINT16 *)(data+offset+92)!=0) {
                                 /* message 2	*/
                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 2", AIRPDCAP_DEBUG_LEVEL_3);
@@ -854,7 +874,7 @@ INT AirPDcapRsna4WHandshake(
                                 /* -> not checked; the Supplicant will send another message 2 (hopefully!)										*/
 
                                 /* now you can derive the PTK	*/
-                                for (key_index=0; key_index<(INT)ctx->keys_nr || sa->key!=NULL; key_index++) {
+                                for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
                                         /* use the cached one, or try all keys	*/
                                         if (!useCache) {
                                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "Try WPA key...", AIRPDCAP_DEBUG_LEVEL_3);
@@ -878,26 +898,36 @@ INT AirPDcapRsna4WHandshake(
                                                 tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PSK ||
                                                 tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WPA_PMK)
                                         {
-                                                /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce	*/
-                                                AirPDcapRsnaPrfX(sa,					/* authenticator nonce, bssid, station mac	*/
-                                                        tmp_key->KeyData.Wpa.Pmk,	/* PMK	*/
-                                                        data+offset+12,				/*	supplicant nonce	*/
-                                                        512,
-                                                        sa->wpa.ptk);
+						if (tmp_key->KeyType == AIRPDCAP_KEY_TYPE_WPA_PWD && tmp_key->UserPwd.SsidLen == 0 && ctx->pkt_ssid_len > 0 && ctx->pkt_ssid_len <= AIRPDCAP_WPA_SSID_MAX_LEN) {
+							/* We have a "wildcard" SSID.  Use the one from the packet. */
+							memcpy(&pkt_key, tmp_key, sizeof(pkt_key));
+							memcpy(&pkt_key.UserPwd.Ssid, ctx->pkt_ssid, ctx->pkt_ssid_len);
+                                                     pkt_key.UserPwd.SsidLen = ctx->pkt_ssid_len;
+							AirPDcapRsnaPwd2Psk(pkt_key.UserPwd.Passphrase, pkt_key.UserPwd.Ssid,
+								pkt_key.UserPwd.SsidLen, pkt_key.KeyData.Wpa.Psk);
+							tmp_key = &pkt_key;
+						}
 
-                                                /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK)	*/
-                                                eapol_len=(USHORT)(ntohs(*(UINT16 *)(data+offset-3))+4);
-                                                memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
-                                                ret_value=AirPDcapRsnaMicCheck(eapol,						/*	eapol frame (header also)		*/
-                                                        eapol_len,													/*	eapol frame length				*/
-                                                        sa->wpa.ptk,												/*	Key Confirmation Key				*/
-                                                        AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1]));		/*	EAPOL-Key description version	*/
+						/* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce	*/
+						AirPDcapRsnaPrfX(sa,			/* authenticator nonce, bssid, station mac	*/
+							tmp_key->KeyData.Wpa.Pmk,	/* PMK	*/
+							data+offset+12,		/* supplicant nonce	*/
+							512,
+							sa->wpa.ptk);
 
-                                                /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches		*/
-                                                /* that from the (Re)Association Request message.																		*/
-                                                /*		i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request	*/
-                                                /* primitive to terminate the association.																				*/
-                                                /*		ii) If they do match bit-wise, the Authenticator constructs Message 3.									*/
+						/* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK)	*/
+						eapol_len=(USHORT)(ntohs(*(UINT16 *)(data+offset-3))+4);
+						memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
+						ret_value=AirPDcapRsnaMicCheck(eapol,						/*	eapol frame (header also)		*/
+							eapol_len,													/*	eapol frame length				*/
+							sa->wpa.ptk,												/*	Key Confirmation Key				*/
+							AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1]));		/*	EAPOL-Key description version	*/
+
+						/* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches		*/
+						/* that from the (Re)Association Request message.																		*/
+						/*		i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request	*/
+						/* primitive to terminate the association.																				*/
+						/*		ii) If they do match bit-wise, the Authenticator constructs Message 3.									*/
                                         }
 
                                         if (!ret_value &&
@@ -996,7 +1026,8 @@ INT AirPDcapRsna4WHandshake(
         return AIRPDCAP_RET_UNSUCCESS;
 }
 
-INT AirPDcapRsnaMicCheck(
+static INT
+AirPDcapRsnaMicCheck(
         UCHAR *eapol,
         USHORT eapol_len,
         UCHAR KCK[AIRPDCAP_WPA_KCK_LEN],
@@ -1025,7 +1056,8 @@ INT AirPDcapRsnaMicCheck(
         return memcmp(mic, c_mic, AIRPDCAP_WPA_MICKEY_LEN);
 }
 
-INT AirPDcapValidateKey(
+static INT
+AirPDcapValidateKey(
         PAIRPDCAP_KEY_ITEM key)
 {
         size_t len;
@@ -1039,58 +1071,59 @@ INT AirPDcapValidateKey(
         }
 
         switch (key->KeyType) {
-case AIRPDCAP_KEY_TYPE_WEP:
-        /* check key size limits	*/
-        len=key->KeyData.Wep.WepKeyLen;
-        if (len<AIRPDCAP_WEP_KEY_MINLEN || len>AIRPDCAP_WEP_KEY_MAXLEN) {
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WEP key: key length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
-                ret=FALSE;
-        }
-        break;
+		case AIRPDCAP_KEY_TYPE_WEP:
+			/* check key size limits	*/
+			len=key->KeyData.Wep.WepKeyLen;
+			if (len<AIRPDCAP_WEP_KEY_MINLEN || len>AIRPDCAP_WEP_KEY_MAXLEN) {
+				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WEP key: key length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
+				ret=FALSE;
+			}
+			break;
 
-case AIRPDCAP_KEY_TYPE_WEP_40:
-        /* set the standard length	and use a generic WEP key type	*/
-        key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_40_KEY_LEN;
-        key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
-        break;
+		case AIRPDCAP_KEY_TYPE_WEP_40:
+			/* set the standard length	and use a generic WEP key type	*/
+			key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_40_KEY_LEN;
+			key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
+			break;
 
-case AIRPDCAP_KEY_TYPE_WEP_104:
-        /* set the standard length	and use a generic WEP key type	*/
-        key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_104_KEY_LEN;
-        key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
-        break;
+		case AIRPDCAP_KEY_TYPE_WEP_104:
+			/* set the standard length	and use a generic WEP key type	*/
+			key->KeyData.Wep.WepKeyLen=AIRPDCAP_WEP_104_KEY_LEN;
+			key->KeyType=AIRPDCAP_KEY_TYPE_WEP;
+			break;
 
-case AIRPDCAP_KEY_TYPE_WPA_PWD:
-        /* check passphrase and SSID size limits	*/
-        len=strlen(key->KeyData.Wpa.UserPwd.Passphrase);
-        if (len<AIRPDCAP_WPA_PASSPHRASE_MIN_LEN || len>AIRPDCAP_WPA_PASSPHRASE_MAX_LEN) {
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: passphrase length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
-                ret=FALSE;
-        }
+		case AIRPDCAP_KEY_TYPE_WPA_PWD:
+			/* check passphrase and SSID size limits	*/
+			len=strlen(key->UserPwd.Passphrase);
+			if (len<AIRPDCAP_WPA_PASSPHRASE_MIN_LEN || len>AIRPDCAP_WPA_PASSPHRASE_MAX_LEN) {
+				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: passphrase length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
+				ret=FALSE;
+			}
 
-        len=key->KeyData.Wpa.UserPwd.SsidLen;
-        if (len>AIRPDCAP_WPA_SSID_MAX_LEN) {
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: ssid length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
-                ret=FALSE;
-        }
+			len=key->UserPwd.SsidLen;
+			if (len>AIRPDCAP_WPA_SSID_MAX_LEN) {
+				AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapValidateKey", "WPA-PWD key: ssid length not accepted", AIRPDCAP_DEBUG_LEVEL_5);
+				ret=FALSE;
+			}
 
-        break;
+			break;
 
-case AIRPDCAP_KEY_TYPE_WPA_PSK:
-        break;
+		case AIRPDCAP_KEY_TYPE_WPA_PSK:
+			break;
 
-case AIRPDCAP_KEY_TYPE_WPA_PMK:
-        break;
+		case AIRPDCAP_KEY_TYPE_WPA_PMK:
+			break;
 
-default:
-        ret=FALSE;
+		default:
+			ret=FALSE;
         }
 
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapValidateKey");
         return ret;
 }
 
-INT AirPDcapGetSa(
+static INT
+AirPDcapGetSa(
         PAIRPDCAP_CONTEXT ctx,
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
 {
@@ -1112,7 +1145,8 @@ INT AirPDcapGetSa(
         return -1;
 }
 
-INT AirPDcapFreeSa(
+static INT
+AirPDcapFreeSa(
         PAIRPDCAP_CONTEXT ctx,
         INT index)								/* index of the structure to free		*/
 {
@@ -1134,7 +1168,8 @@ INT AirPDcapFreeSa(
         return ctx->index;
 }
 
-INT AirPDcapStoreSa(
+static INT
+AirPDcapStoreSa(
         PAIRPDCAP_CONTEXT ctx,
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
 {
@@ -1178,7 +1213,8 @@ INT AirPDcapStoreSa(
         return ctx->index;
 }
 
-UCHAR * AirPDcapGetStaAddress(
+static UCHAR *
+AirPDcapGetStaAddress(
         PAIRPDCAP_MAC_FRAME frame)
 {
         if (AIRPDCAP_TO_DS(frame->fc[1])==0) {
@@ -1194,7 +1230,8 @@ UCHAR * AirPDcapGetStaAddress(
         }
 }
 
-UCHAR * AirPDcapGetBssidAddress(
+static UCHAR *
+AirPDcapGetBssidAddress(
         PAIRPDCAP_MAC_FRAME frame)
 {
         if (AIRPDCAP_TO_DS(frame->fc[1])==0) {
@@ -1211,7 +1248,8 @@ UCHAR * AirPDcapGetBssidAddress(
 }
 
 /* Function used to derive the PTK. Refer to IEEE 802.11I-2004, pag. 74	*/
-void AirPDcapRsnaPrfX(
+static void
+AirPDcapRsnaPrfX(
         AIRPDCAP_SEC_ASSOCIATION *sa,
         const UCHAR pmk[32],
         const UCHAR snonce[32],
@@ -1261,8 +1299,9 @@ void AirPDcapRsnaPrfX(
         }
 }
 
-INT AirPDcapRsnaPwd2PskStep(
-        const CHAR *password,
+static INT
+AirPDcapRsnaPwd2PskStep(
+        CHAR *password,
         const CHAR *ssid,
         const size_t ssidLength,
         const INT iterations,
@@ -1296,8 +1335,9 @@ INT AirPDcapRsnaPwd2PskStep(
         return AIRPDCAP_RET_SUCCESS;
 }
 
-INT AirPDcapRsnaPwd2Psk(
-        const CHAR *password,
+static INT
+AirPDcapRsnaPwd2Psk(
+        CHAR *password,
         const CHAR *ssid,
         const size_t ssidLength,
         UCHAR *output)
@@ -1602,7 +1642,7 @@ parse_key_string(gchar* input_string)
 
 	dk->type = AIRPDCAP_KEY_TYPE_WPA_PWD;
 	dk->key  = g_string_new(key);
-	dk->bits = 256; /* This is the lenght of the array pf bytes that will be generated using key+ssid ...*/
+	dk->bits = 256; /* This is the length of the array pf bytes that will be generated using key+ssid ...*/
 	dk->ssid = byte_array_dup(ssid_ba); /* NULL if ssid_ba is NULL */
 
 	g_string_free(key_string, TRUE);
@@ -1645,7 +1685,6 @@ get_key_string(decryption_key_t* dk)
 	if(dk == NULL)
 		return NULL;
 
-#ifdef HAVE_AIRPDCAP
 	if(dk->type == AIRPDCAP_KEY_TYPE_WEP)
 	{
 		if(dk->key == NULL) /* Should NOT happen at all... */
@@ -1676,9 +1715,6 @@ get_key_string(decryption_key_t* dk)
 	{
 		return NULL;
 	}
-#else /* not HAVE_AIRPDCAP*/
-	output_string = g_strdup(dk->key->str);
-#endif
 
 	return output_string;
 }

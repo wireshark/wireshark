@@ -1,6 +1,6 @@
 -- init.lua
 --
--- initilaize ethereal's lua
+-- initialize wireshark's lua
 --
 --  This file is going to be executed before any other lua script.
 --  It can be used to load libraries, disable functions and more.

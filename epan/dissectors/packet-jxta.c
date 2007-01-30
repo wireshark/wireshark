@@ -1,8 +1,8 @@
 /* packet-jxta.c
  * Routines for JXTA packet dissection
  * Copyright 2004-06, Mike Duigou <bondolo@jxta.org>
- * Heavily based on packet-jabber.c, which in turn is heavily based on 
- * on packet-acap.c, which in turn is heavily based on 
+ * Heavily based on packet-jabber.c, which in turn is heavily based on
+ * on packet-acap.c, which in turn is heavily based on
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
  * $Id$
@@ -55,7 +55,7 @@ static const gchar JXTA_MSGELEM_SIG[] = { 'j', 'x', 'e', 'l' };
 
 static const gchar JXTA_WELCOME_MSG_SIG[] = { 'J', 'X', 'T', 'A', 'H', 'E', 'L', 'L', 'O', ' ' };
 
-static const gchar* JXTA_WELCOME_MSG_VERSION_1_1 = "1.1"; 
+static const gchar* JXTA_WELCOME_MSG_VERSION_1_1 = "1.1";
 
 static int proto_jxta = -1;
 static int proto_message_jxta = -1;
@@ -263,7 +263,7 @@ static gint ett_jxta_msg = -1;
 static gint ett_jxta_elem = -1;
 static gint ett_jxta_elem_flags = -1;
 
-/** 
+/**
 *   JXTA Protocol subtree array
 **/
 static gint *const ett[] = {
@@ -277,7 +277,7 @@ static gint *const ett[] = {
     &ett_jxta_elem_flags
 };
 
-/** 
+/**
 *   global preferences
 **/
 static gboolean gDESEGMENT = TRUE;
@@ -380,7 +380,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 
 /**
 *   Heuristically dissect a tvbuff containing a JXTA TCP Stream
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
@@ -440,7 +440,7 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
 
 /**
 *   Heuristically dissect a tvbuff containing a JXTA SCTP Stream
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
@@ -496,11 +496,11 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
 
 /**
 *   Dissect a tvbuff containing a JXTA UDP header, JXTA Message framing and a JXTA Message
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -556,7 +556,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             needed = -processed;
             break;
         }
-        
+
         /* Redo header processing, this time populating the tree. */
         processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, tree, &content_length, &content_type);
 
@@ -588,7 +588,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         guint tree_offset = 0;
         proto_item *jxta_tree_item =
             proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
-        proto_tree *jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);        
+        proto_tree *jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
         proto_item *jxta_udp_tree_item =
             proto_tree_add_none_format(jxta_tree, hf_jxta_udp, tvb, tree_offset, -1, "JXTA UDP Message");
         proto_tree *jxta_udp_tree = proto_item_add_subtree(jxta_udp_tree_item, ett_jxta_udp);
@@ -639,11 +639,11 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 *   <p/>The stream (in both directions) will consist of a JXTA Welcome Message
 *   followed by an indeterminate number of JXTA Message Framing Headers and
 *   JXTA Messages.
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -657,7 +657,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     jxta_stream_conversation_data *tpt_conv_data = NULL;
     proto_item *jxta_tree_item = NULL;
     proto_tree *jxta_tree = NULL;
-    
+
     /*g_message("Dissecting %s : %d", (NULL != tree) ? "for display" : "", pinfo->fd->num );*/
 
     if (available < sizeof(JXTA_WELCOME_MSG_SIG)) {
@@ -708,12 +708,12 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         }
 
         processed = dissect_jxta_welcome(tvb, pinfo, NULL, welcome_addr, initiator);
-        
+
         if( processed < 0 ) {
             needed = -processed;
             goto Common_Exit;
         }
-        
+
         /* redo, this time creating the display tree. */
         jxta_tree_item =
             proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
@@ -726,7 +726,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         gchar *content_type = NULL;
         gint headers_len = dissect_jxta_message_framing(tvb, pinfo, NULL, &content_length, &content_type);
 
-        /*g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %u", pinfo->fd->num, 
+        /*g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %u", pinfo->fd->num,
                               address_to_str(&pinfo->src), pinfo->srcport,
                               address_to_str(&pinfo->dst), pinfo->destport,
                               tvb_reported_length_remaining(tvb, 0),
@@ -742,7 +742,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             needed = -headers_len;
             goto Common_Exit;
         }
-        
+
         jxta_tree_item =
             proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
         jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
@@ -855,7 +855,7 @@ Common_Exit:
 /**
 *   Find or possibly create a transport conversation object for the connection
 *   which is associated with the packet info.
-*   
+*
 *   @param pinfo  The packet info from the underlying transport.
 *   @param create If TRUE then create a new conversation object if necessary.
 **/
@@ -911,7 +911,7 @@ static conversation_t *get_tpt_conversation(packet_info * pinfo, gboolean create
 *   @param  tree The protocol tree.
 *   @param  found_addr The address found in the welcome message.
 *   @param  initiator If TRUE then we believe this welcome message to be the initiator's.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -1045,18 +1045,18 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         if (NULL != *current_token) {
             int variable_tokens = 0;
             gchar **variable_token = current_token;
-            
+
             while(NULL != *variable_token) {
                 variable_tokens++;
                 variable_token++;
             }
-        
+
             if( variable_tokens < 1 ) {
               /* invalid welcome message */
               afterwelcome = 0;
               goto Common_Exit;
             }
-            
+
             if( (2 == variable_tokens) && (0 == strcmp(JXTA_WELCOME_MSG_VERSION_1_1, current_token[variable_tokens -1])) ) {
                   if (jxta_welcome_tree) {
                       proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_noProp, tvb, token_offset, strlen(*current_token), FALSE);
@@ -1064,20 +1064,20 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
                   token_offset += strlen(*current_token) + 1;
                   current_token++;
-                  
+
                   if (jxta_welcome_tree) {
                       proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, strlen(*current_token), FALSE);
                   }
             } else {
                 /* Unrecognized Welcome Version */
                 int each_variable_token;
-                
+
                 for( each_variable_token = 0; each_variable_token < variable_tokens; each_variable_token++ ) {
                   if (jxta_welcome_tree) {
-                      jxta_welcome_tree_item = proto_tree_add_item(jxta_welcome_tree, 
+                      jxta_welcome_tree_item = proto_tree_add_item(jxta_welcome_tree,
                         (each_variable_token < (variable_tokens -1) ? hf_jxta_welcome_variable : hf_jxta_welcome_version),
                         tvb, token_offset, strlen(*current_token), FALSE);
-                        
+
                         proto_item_append_text(jxta_welcome_tree_item, " (UNRECOGNIZED)");
                   }
 
@@ -1102,15 +1102,15 @@ Common_Exit:
 
 /**
 *   Dissect a tvbuff containing JXTA Message framing.
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
-*   @param  content_length Pointer to a buffer for storing the value of the 
+*   @param  content_length Pointer to a buffer for storing the value of the
 *           "content-length" header or NULL.
-*   @param  content_type Pointer-to-a-pointer for a new buffer for storing the 
+*   @param  content_type Pointer-to-a-pointer for a new buffer for storing the
 *           value of the "content_type-length" header or NULL.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -1257,11 +1257,11 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
 
 /**
 *   Dissect a tvbuff containing a JXTA Message.
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -1356,7 +1356,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
                 if (0 == processed) {
                     /* XXX bondolo Not really clear what we should do! */
-                    g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->fd->num ); 
+                    g_warning( "Failure processing message element #%d of %d of frame %d", each_elem, elem_count, pinfo->fd->num );
                     return 0;
                 }
 
@@ -1378,8 +1378,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        gchar src_addr[256];
-        gchar dst_addr[256];
+        gchar src_addr[MAX_ADDR_STR_LEN];
+        gchar dst_addr[MAX_ADDR_STR_LEN];
 
         address_to_str_buf(&pinfo->src, src_addr, sizeof src_addr);
         address_to_str_buf(&pinfo->dst, dst_addr, sizeof dst_addr);
@@ -1503,11 +1503,11 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
 /**
 *   Dissect a tvbuff containing a JXTA Message Element.
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -1759,13 +1759,13 @@ static int dissect_jxta_message_element(tvbuff_t * tvb, packet_info * pinfo, pro
                 }
             } else if (0 == strcmp("application/gzip", mediatype)) {
                 tvbuff_t *uncomp_tvb = tvb_uncompress(element_content_tvb, 0, tvb_length(element_content_tvb));
-                
+
                 if( NULL != uncomp_tvb ) {
                     proto_item_append_text( jxta_elem_length_item, " -> (%u uncompressed)", tvb_length(uncomp_tvb) );
 
                     tvb_set_child_real_data_tvbuff(element_content_tvb, uncomp_tvb);
 		    add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
-                
+
                     /* XXX bondolo 20060201 Force XML for uncompressed data. */
                     media_type_recognized = dissector_try_string(media_type_dissector_table,
                                                              "text/xml", uncomp_tvb, pinfo, jxta_elem_tree);
@@ -1848,7 +1848,7 @@ void proto_register_jxta(void)
 }
 
 /**
-*   Update registrations in response to 
+*   Update registrations in response to
 **/
 void proto_reg_handoff_jxta(void)
 {
