@@ -8,5 +8,5 @@ EXTRA_DIST = \
 	servicelib.nsh \
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini \
-	WinPcap_3_1.exe \
+	WinPcap_4_0.exe \
 	Makefile.nmake
