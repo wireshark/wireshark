@@ -4026,27 +4026,27 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
 
-    channel_list = g_list_append(channel_list, "1");
-    channel_list = g_list_append(channel_list, "2");
-    channel_list = g_list_append(channel_list, "3");
-    channel_list = g_list_append(channel_list, "4");
-    channel_list = g_list_append(channel_list, "5");
-    channel_list = g_list_append(channel_list, "6");
-    channel_list = g_list_append(channel_list, "7");
-    channel_list = g_list_append(channel_list, "8");
-    channel_list = g_list_append(channel_list, "9");
-    channel_list = g_list_append(channel_list, "10");
-    channel_list = g_list_append(channel_list, "11");
-    channel_list = g_list_append(channel_list, "12");
-    channel_list = g_list_append(channel_list, "13");
-    channel_list = g_list_append(channel_list, "14");
+    channel_list = g_list_append(channel_list, "1 (2412MHz)");
+    channel_list = g_list_append(channel_list, "2 (2417MHz)");
+    channel_list = g_list_append(channel_list, "3 (2422MHz)");
+    channel_list = g_list_append(channel_list, "4 (2427MHz)");
+    channel_list = g_list_append(channel_list, "5 (2432MHz)");
+    channel_list = g_list_append(channel_list, "6 (2437MHz)");
+    channel_list = g_list_append(channel_list, "7 (2442MHz)");
+    channel_list = g_list_append(channel_list, "8 (2447MHz)");
+    channel_list = g_list_append(channel_list, "9 (2452MHz)");
+    channel_list = g_list_append(channel_list, "10 (2457MHz)");
+    channel_list = g_list_append(channel_list, "11 (2462MHz)");
+    channel_list = g_list_append(channel_list, "12 (2467MHz)");
+    channel_list = g_list_append(channel_list, "13 (2472MHz)");
+    channel_list = g_list_append(channel_list, "14 (2484MHz)");
 
     gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list) ;
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
 		"Change the 802.11 RF channel", NULL);
 
-    WIDGET_SET_SIZE(channel_cm, 90, 28);
+    WIDGET_SET_SIZE(channel_cm, 100, 28);
 
     if(airpcap_if_active != NULL)
         gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), airpcap_get_channel_name(airpcap_if_active->channel));
