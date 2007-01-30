@@ -1,6 +1,6 @@
 $Id$
 
-== January 29, 2007
+== February 1, 2007
 
 Wireshark 0.99.5 has been released.
 
@@ -56,6 +56,9 @@ What's New
        start up.
 
      o Malformed UDLD packets could cause an exception.
+
+     o The ISUP statistics report could overflow a buffer and crash
+       when displaying IPv6 addresses.
 
   New and Updated Features
 
