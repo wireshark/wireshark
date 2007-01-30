@@ -187,14 +187,15 @@ sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
 	port1=atoi(text[0]);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 1, text);
 	port2=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 2, text);
-	packets=atoi(text[0]);
+
 	gtk_clist_get_text(GTK_CLIST(clist), row, 4, text);
-	checksum=atoi(text[0]);
+	packets=atoi(text[0]);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 5, text);
+	checksum=atoi(text[0]);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 7, text);
 	data_chunks=atoi(text[0]);
 
-	gtk_clist_get_text(GTK_CLIST(clist), row, 6, text);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 8, text);
 	data_bytes=atoi(text[0]);
 
 	list = g_list_first(sctp_assocs->assoc_info_list);
@@ -254,12 +255,14 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 			selected_stream->port1,
 			selected_stream->port2,
 			selected_stream->verification_tag1,
-			selected_stream->verification_tag2,
+			/*selected_stream->verification_tag2,*/
+			selected_stream->initiate_tag,
 			selected_stream->verification_tag2,
 			selected_stream->port2,
 			selected_stream->port1,
 			selected_stream->verification_tag2,
-			selected_stream->verification_tag1,
+			/*selected_stream->verification_tag1,*/
+			selected_stream->initiate_tag,
 			selected_stream->verification_tag1);
 			filter_string = f_string;
 		}
@@ -473,7 +476,6 @@ gtk_sctpstat_dlg(void)
 	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 100);
-
 
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);

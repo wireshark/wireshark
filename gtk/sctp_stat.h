@@ -100,6 +100,7 @@ typedef struct _sctp_tmp_info {
 	guint16 port2;
 	guint32 verification_tag1;
 	guint32 verification_tag2;
+	guint32 initiate_tag;
 	guint32 n_tvbs;
 } sctp_tmp_info_t;
 
@@ -136,6 +137,7 @@ typedef struct _sctp_assoc_info {
 	guint16   port2;
 	guint32   verification_tag1;
 	guint32   verification_tag2;
+	guint32   initiate_tag;
 	guint32   n_tvbs;
 	GList     *addr1;
 	GList     *addr2;
