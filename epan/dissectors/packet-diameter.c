@@ -1917,10 +1917,10 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 							                    tvb, offset, 2, FALSE);
 							if (tvb_get_ntohs(tvb, offset) == 0x0001) {
 								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
-								                    tvb, offset+2, avpDataLength-2, FALSE);
+								                    tvb, offset+2, 4, FALSE);
 							} else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
 								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
-								                    tvb, offset+2, avpDataLength-2, FALSE);
+								                    tvb, offset+2, 16, FALSE);
 							} else {
 								proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 								                            tvb, offset, avpDataLength,
