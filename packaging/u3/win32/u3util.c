@@ -22,11 +22,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Adapted from Microsoft Knowledge Base Article 178893 
- * 
+/* Adapted from Microsoft Knowledge Base Article 178893
+ *
  * http://support.microsoft.com/?kbid=178893
  *
- * and the U3 Answer 106 
+ * and the U3 Answer 106
  *
  * https://u3.custhelp.com/cgi-bin/u3/php/enduser/std_adp.php?p_faqid=106
  *
@@ -46,7 +46,7 @@
 #define SHELL_OPEN_COMMAND   "\\Shell\\open\\command"
 #define DEFAULT_ICON         "\\DefaultIcon"
 
-#define WINPCAP_PACKAGE      "\\WinPcap_3_1.exe"
+#define WINPCAP_PACKAGE      "\\WinPcap_4_0.exe"
 #define WINPCAP_KEY          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinPcapInst"
 #define WINPCAP_UNINSTALL    "UninstallString"
 #define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
@@ -81,6 +81,9 @@ static char *extensions[] = {
   ".pfx",
   ".asn",
   ".spf",
+  ".p7c",
+  ".p7s",
+  ".p7m",
   NULL
 };
 
@@ -123,7 +126,7 @@ BOOL CALLBACK Terminate16AppEnum( HWND hwnd, LPARAM lParam ) ;
       TA_SUCCESS_KILL - if the process was shut down with
          TerminateProcess().
       NOTE:  See header for these defines.
-   ----------------------------------------------------------------*/ 
+   ----------------------------------------------------------------*/
 
 DWORD TerminateApp( DWORD dwPID, DWORD dwTimeout )
 {
@@ -192,7 +195,7 @@ DWORD TerminateApp( DWORD dwPID, DWORD dwTimeout )
    NOTE:
       You can get the Win16 task and thread ID through the
       VDMEnumTaskWOW() or the VDMEnumTaskWOWEx() functions.
-   ----------------------------------------------------------------*/ 
+   ----------------------------------------------------------------*/
 
 DWORD Terminate16App( DWORD dwPID, DWORD dwThread, WORD w16Task, DWORD dwTimeout )
 {
@@ -279,7 +282,7 @@ void ExecuteAndWait(char *buffer)
   if(CreateProcess(NULL, buffer, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
     /* wait for the uninstall to finish */
     (void) WaitForSingleObject(pi.hProcess, INFINITE);
-      
+
     (void)CloseHandle(pi.hProcess);
     (void)CloseHandle(pi.hThread);
 
@@ -316,7 +319,7 @@ void app_stop(DWORD timeOut)
       strncpy(file_name, u3_host_exec_path, strlen(u3_host_exec_path) + 1);
       strncat(file_name, "\\", 2);
       strncat(file_name, find_file_data.cFileName, strlen(find_file_data.cFileName) + 1);
-      
+
       DeleteFile(TEXT(file_name));
 
     } while(FindNextFile(hFind, &find_file_data) != 0);
@@ -328,9 +331,9 @@ void app_stop(DWORD timeOut)
 }
 
 /* associate
-  
+
 Associate an filetype (extension) with the U3 Wireshark if it doesn't already have an association
-   
+
 */
 
 void associate(char *extension)
@@ -357,9 +360,9 @@ void associate(char *extension)
 }
 
 /* disassociate
-  
+
 Remove any file types that are associated with the U3 Wireshark (which is being removed)
-   
+
 */
 
 
@@ -390,7 +393,7 @@ void disassociate(char *extension)
 }
 
 /* host_configure
-   
+
 Configure the host for the U3 Wireshark. This involves:
 1) registering the U3 Wireshark with capture file types
 2) installing WinPcap if not already installed
@@ -420,7 +423,7 @@ void host_configure(void)
   strncat(wireshark_path, "\\wireshark.exe", 15);
 
   /* CREATE THE U3 Wireshark TYPE */
-  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC, 0, NULL, 0, 
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC, 0, NULL, 0,
 		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
 
     (void)RegSetValueEx(key, "", 0, REG_SZ, WIRESHARK_DESC, strlen(WIRESHARK_DESC) + 1);
@@ -432,7 +435,7 @@ void host_configure(void)
   strncat(reg_key, SHELL_OPEN_COMMAND, strlen(SHELL_OPEN_COMMAND) + 1);
 
   /* associate the application */
-  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0, 
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0,
 		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
 
     (void)RegSetValueEx(key, "", 0, REG_SZ, wireshark_path, strlen(wireshark_path) + 1);
@@ -448,7 +451,7 @@ void host_configure(void)
   strncat(wireshark_path, ",1", 3);
 
   /* associate the application */
-  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0, 
+  if(RegCreateKeyEx(HKEY_CLASSES_ROOT, reg_key, 0, NULL, 0,
 		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
 
     (void)RegSetValueEx(key, "", 0, REG_SZ, wireshark_path, strlen(wireshark_path) + 1);
@@ -473,12 +476,15 @@ void host_configure(void)
       if(buffer[0] != '\0')
 	hasWinPcap = TRUE;
     }
-    
+
     RegCloseKey(key);
   }
 
-  if(!hasWinPcap) {
-    /* XXX: we should ask the user if they want to install - and remember it */
+  if(!hasWinPcap &&
+     (MessageBox(NULL,
+		 TEXT("If you want to capture packets from the network you will need to install WinPcap.\nIt will be uninstalled when you remove your U3 device.\n\nDo you want to install WinPcap?"),
+		 TEXT("U3 Wireshark: Install WinPcap?"),
+		 MB_YESNO|MB_TOPMOST|MB_ICONQUESTION) == IDYES)) {
 
     /* compute the U3 path to the WinPcap installation package - it stays on the device */
     u3_device_exec_path = getenv("U3_DEVICE_EXEC_PATH");
@@ -486,14 +492,14 @@ void host_configure(void)
     strncat(winpcap_path, u3_device_exec_path, strlen(u3_device_exec_path) + 1);
     strncat(winpcap_path, WINPCAP_PACKAGE, strlen(WINPCAP_PACKAGE) + 1);
     strncat(winpcap_path, "\"", 2);
-    
+
     ExecuteAndWait(winpcap_path);
 
     /* if installation was successful this key will now exist */
     if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINPCAP_KEY, 0, (KEY_READ | KEY_WRITE), &key) == ERROR_SUCCESS) {
 
       u3_device_serial = getenv("U3_DEVICE_SERIAL");
-      
+
       (void)RegSetValueEx(key, WINPCAP_U3INSTALLED, 0, REG_SZ, u3_device_serial, strlen(u3_device_serial) + 1);
 
     }
@@ -507,14 +513,14 @@ void host_configure(void)
 
   /* don't care if it succeeds or fails */
   (void) CreateDirectory(my_captures_path, NULL);
-  
+
 }
 
 /* host_cleanup
 
 Remove any references to the U3 Wireshark from the host. This involves:
 1) Removing the U3 Wireshark file type associations
-2) Uninstalling WinPcap if we installed it. 
+2) Uninstalling WinPcap if we installed it.
    If the user cancels the uninstallation of WinPcap, we will not try and remove it again.
 
 */
@@ -529,7 +535,7 @@ void host_clean_up(void)
   int buflen = BUFSIZ;
   char reg_key[BUFSIZ];
 
-  /* the device has been removed - 
+  /* the device has been removed -
      just close the application as quickly as possible */
 
   app_stop(0);
@@ -583,7 +589,7 @@ void host_clean_up(void)
       if(!strncmp(buffer, u3_device_serial, strlen(u3_device_serial) + 1)) {
 
 	buffer[0] = '"';
-	buflen = BUFSIZ-1;	
+	buflen = BUFSIZ-1;
 	/* we installed WinPcap - we should now uninstall it - read the uninstall string */
 	(void) RegQueryValueEx(key, WINPCAP_UNINSTALL, NULL, NULL, &buffer[1], &buflen);
 	strncat(buffer, "\"", 2); /* close the quotes */
@@ -596,10 +602,10 @@ void host_clean_up(void)
 	buffer[0] = '\0';
       }
     }
-    
+
     RegCloseKey(key);
   }
-  
+
   if(*buffer) {
     /* we have an uninstall string */
     ExecuteAndWait(buffer);
@@ -620,14 +626,14 @@ main(int argc, char *argv[])
     time_out = 5000; /* 5 seconds */
 
   if(argc > 1) {
-  
+
     if(!strncmp(argv[1], "hostConfigure", 13))
       host_configure();
     else if(!strncmp(argv[1], "appStop", 8))
       app_stop(time_out);
     else if(!strncmp(argv[1], "hostCleanUp", 11))
       host_clean_up();
-    
+
   }
 
   exit(0);

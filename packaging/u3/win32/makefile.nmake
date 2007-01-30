@@ -200,7 +200,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\epan\wslua\console.lua $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\epan\wslua\dtd_gen.lua $(DEVICE) $(COPY_FLAGS)
 !ENDIF
-	$(COPY) $(TOPDIR)\packaging\nsis\WinPcap_3_1.exe $(DEVICE) $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\packaging\nsis\WinPcap_4_0.exe $(DEVICE) $(COPY_FLAGS)
 # host
 #
 # these files are copy onto the U3 host and are required to make Wireshark stable
