@@ -182,16 +182,17 @@ extern "C" {
 #define WTAP_ENCAP_JUNIPER_FRELAY               85
 #define WTAP_ENCAP_JUNIPER_CHDLC                86
 #define WTAP_ENCAP_JUNIPER_GGSN                 87
-#define WTAP_ENCAP_LINUX_LAPD			88
+#define WTAP_ENCAP_LINUX_LAPD                   88
 #define WTAP_ENCAP_CATAPULT_DCT2000             89
 #define WTAP_ENCAP_BER                          90
 #define WTAP_ENCAP_JUNIPER_VP                   91
-#define WTAP_ENCAP_USB				92
+#define WTAP_ENCAP_USB                          92
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS		93
 #define WTAP_ENCAP_NETTL_RAW_TELNET		94
+#define WTAP_ENCAP_USB_LINUX                    95
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			95
+#define WTAP_NUM_ENCAP_TYPES			96
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -526,6 +527,11 @@ struct k12_phdr {
 #define K12_PORT_DS1       0x00100008
 #define K12_PORT_ATMPVC    0x01020000
 
+struct lapd_phdr {
+	guint16 pkttype;    /* packet type */
+	guint8 we_network;
+};
+
 struct wtap;
 struct catapult_dct2000_phdr
 {
@@ -539,11 +545,58 @@ struct catapult_dct2000_phdr
 	struct wtap *wth;
 };
 
-struct lapd_phdr {
-	guint16 pkttype;    /* packet type */
-	guint8 we_network;
+/*
+ * possible event type
+ */
+#define URB_SUBMIT        'S'
+#define URB_COMPLETE      'C'
+#define URB_ERROR         'E'
+
+/*
+ * possible transfer mode
+ */
+#define URB_ISOCHRONOUS   0x0
+#define URB_INTERRUPT     0x1
+#define URB_CONTROL       0x2
+#define URB_BULK          0x3
+
+#define URB_TRANSFER_IN   0x80		/* to host */
+
+/*
+ * USB setup header as defined in USB specification 
+ */
+struct usb_request_hdr {
+    gint8 bmRequestType;
+    guint8 bRequest;
+    guint16 wValue;
+    guint16 wIndex;
+    guint16 wLength;
 };
 
+/*
+ * Header prepended by Linux kernel to each USB event.
+ * Followed by a struct usb_request_hdr, although that header is valid
+ * only if setup_flag is 0.
+ * (Setup flag is '-', 'D', 'Z', or 0.  Data flag is '<', '>', 'Z', or 0.)
+ *
+ * We present this as a pseudo-header; the values are in host byte order.
+ */
+struct linux_usb_phdr {
+    guint64 id;             /* urb id, to link submission and completion events*/
+    guint8 event_type;      /* Submit ('S'), Completed ('C'), Error ('E')  */
+    guint8 transfer_type;   /* ISO (0), Intr, Control, Bulk (3) */
+    guint8 endpoint_number; /* Endpoint number (0-15) and transfer direction */
+    guint8 device_address;  /* 0-127 */
+    guint16 bus_id;
+    gint8 setup_flag;       /*if !=0 the urb setup header is not present*/
+    gint8 data_flag;        /*if !=0 no urb data is present*/
+    gint64 ts_sec;
+    gint32 ts_usec;
+    gint32 status;
+    guint32 urb_len;        /* whole len of urb this event refers to */
+    guint32 data_len;       /* amount of urb data really present in this event*/
+};
+    
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -559,13 +612,13 @@ union wtap_pseudo_header {
 	struct k12_phdr		k12;
 	struct lapd_phdr	lapd;
 	struct catapult_dct2000_phdr dct2000;
+	struct linux_usb_phdr	linux_usb;
 };
 
 struct wtap_nstime {
 	time_t	secs;
 	int	nsecs;
 };
-
 
 struct wtap_pkthdr {
 	struct wtap_nstime ts;

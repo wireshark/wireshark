@@ -138,6 +138,8 @@ static gboolean libpcap_get_lapd_pseudoheader(const struct lapd_sll_hdr *lapd_ph
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_read_lapd_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
     int *err);
 static void libpcap_close(wtap *wth);
@@ -416,6 +418,8 @@ static const struct {
 	{ 187, 		WTAP_ENCAP_BLUETOOTH_H4 },
 	/* IEEE 802.16 MAC Common Part Sublayer */
 	{ 188,		WTAP_ENCAP_IEEE802_16_MAC_CPS },
+	/* USB packets with Linux-specified header */
+	{ 189, 		WTAP_ENCAP_USB_LINUX },
 
 	/*
 	 * To repeat:
@@ -639,7 +643,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	gboolean modified;
 	gboolean aix;
 	int file_encap;
-
 
 	/* Read in the number that should be at the start of a "libpcap" file */
 	errno = WTAP_ERR_CANT_READ;
@@ -1307,6 +1310,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		packet_size -= sizeof (struct irda_sll_hdr);
 		wth->data_offset += sizeof (struct irda_sll_hdr);
 		break;
+
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		if (packet_size < sizeof (struct mtp2_hdr)) {
 			/*
@@ -1351,6 +1355,29 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		orig_size -= sizeof (struct lapd_sll_hdr);
 		packet_size -= sizeof (struct lapd_sll_hdr);
 		wth->data_offset += sizeof (struct lapd_sll_hdr);
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+		if (packet_size < sizeof (struct linux_usb_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: Linux USB file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_linux_usb_pseudoheader(wth, wth->fh,
+		    &wth->pseudo_header, err))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= sizeof (struct linux_usb_phdr);
+		packet_size -= sizeof (struct linux_usb_phdr);
+		wth->data_offset += sizeof (struct linux_usb_phdr);
 		break;
 	}
 
@@ -1455,6 +1482,7 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 			return FALSE;
 		}
 		break;
+
 	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		if (!libpcap_read_mtp2_pseudoheader(wth->random_fh, pseudo_header,
 		    err, err_info)) {
@@ -1469,6 +1497,12 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 			/* Read error */
 			return FALSE;
 		}
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+		if (!libpcap_read_linux_usb_pseudoheader(wth, wth->random_fh,
+		    pseudo_header, err))
+			return FALSE;	/* Read error */
 		break;
 	}
 
@@ -1855,6 +1889,38 @@ libpcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 	    err_info);
 }
 
+static void
+libpcap_swap_linux_usb_pseudoheader(struct linux_usb_phdr *phdr)
+{
+	phdr->id = GUINT64_SWAP_LE_BE(phdr->id);
+	phdr->bus_id = GUINT16_SWAP_LE_BE(phdr->bus_id);
+	phdr->ts_sec = GUINT64_SWAP_LE_BE(phdr->ts_sec);
+	phdr->ts_usec = GUINT32_SWAP_LE_BE(phdr->ts_usec);
+	phdr->status = GUINT32_SWAP_LE_BE(phdr->status);
+	phdr->urb_len = GUINT32_SWAP_LE_BE(phdr->urb_len);
+	phdr->data_len = GUINT32_SWAP_LE_BE(phdr->data_len);
+}
+
+static gboolean
+libpcap_read_linux_usb_pseudoheader(wtap *wth, FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&pseudo_header->linux_usb, 1,
+	    sizeof (struct linux_usb_phdr), fh);
+	if (bytes_read != sizeof (struct linux_usb_phdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	if (wth->capture.pcap->byte_swapped)
+		libpcap_swap_linux_usb_pseudoheader(&pseudo_header->linux_usb);
+	return TRUE;
+}
+
 static gboolean
 libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 {
@@ -1969,7 +2035,9 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (linktype == WTAP_ENCAP_ATM_PDUS) {
+	switch (linktype) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (whdr->caplen < sizeof (struct sunatm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -1996,8 +2064,9 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		 */
 		if (pseudo_header->atm.type == TRAF_LANE)
 			atm_guess_lane_type(pd, whdr->caplen, pseudo_header);
-	}
-	else if (linktype == WTAP_ENCAP_IRDA) {
+		break;
+
+	case WTAP_ENCAP_IRDA:
 		if (whdr->caplen < sizeof (struct irda_sll_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -2018,8 +2087,9 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= sizeof (struct irda_sll_hdr);
 		whdr->caplen -= sizeof (struct irda_sll_hdr);
 		pd += sizeof (struct irda_sll_hdr);
-	}
-	else if (linktype == WTAP_ENCAP_MTP2_WITH_PHDR) {
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		if (whdr->caplen < sizeof (struct mtp2_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -2039,8 +2109,9 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= sizeof (struct mtp2_hdr);
 		whdr->caplen -= sizeof (struct mtp2_hdr);
 		pd += sizeof (struct mtp2_hdr);
-	}
-	else if (linktype == WTAP_ENCAP_LINUX_LAPD) {
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
 		if (whdr->caplen < sizeof (struct lapd_sll_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -2061,6 +2132,27 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
 		whdr->len -= sizeof (struct lapd_sll_hdr);
 		whdr->caplen -= sizeof (struct lapd_sll_hdr);
 		pd += sizeof (struct lapd_sll_hdr);
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+		if (whdr->caplen < sizeof (struct linux_usb_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: Linux USB file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct linux_usb_phdr);
+		whdr->caplen -= sizeof (struct linux_usb_phdr);
+		pd += sizeof (struct linux_usb_phdr);
+		break;
 	}
 	return pd;
 }
@@ -2178,14 +2270,32 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	struct mtp2_hdr mtp2_hdr;
 	int hdrsize;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
+	switch (wdh->encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		hdrsize = sizeof (struct sunatm_hdr);
-	else if (wdh->encap == WTAP_ENCAP_IRDA)
+		break;
+
+	case WTAP_ENCAP_IRDA:
 		hdrsize = sizeof (struct irda_sll_hdr);
-	else if (wdh->encap == WTAP_ENCAP_LINUX_LAPD)
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+		hdrsize = sizeof (struct mtp2_hdr);
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
 		hdrsize = sizeof (struct lapd_sll_hdr);
-	else
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+		hdrsize = sizeof (struct linux_usb_phdr);
+		break;
+
+	default:
 		hdrsize = 0;
+		break;
+	}
 
 	rec_hdr.hdr.ts_sec = phdr->ts.secs;
 	if(wdh->tsprecision == WTAP_FILE_TSPREC_NSEC) {
@@ -2265,7 +2375,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	}
 	wdh->bytes_dumped += hdr_size;
 
-	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wdh->encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		/*
 		 * Write the ATM header.
 		 */
@@ -2309,8 +2421,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof atm_hdr;
-	}
-	else if (wdh->encap == WTAP_ENCAP_IRDA) {
+		break;
+
+	case WTAP_ENCAP_IRDA:
 		/*
 		 * Write the IrDA header.
 		 */
@@ -2326,8 +2439,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(irda_hdr);
-	}
-	else if (wdh->encap == WTAP_ENCAP_MTP2_WITH_PHDR) {
+		break;
+
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		/*
 		 * Write the MTP2 header.
 		 */
@@ -2344,8 +2458,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(mtp2_hdr);
-	}
-	else if (wdh->encap == WTAP_ENCAP_LINUX_LAPD) {
+		break;
+
+	case WTAP_ENCAP_LINUX_LAPD:
 		/*
 		 * Write the LAPD header.
 		 */
@@ -2362,6 +2477,26 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
+
+	case WTAP_ENCAP_USB_LINUX:
+		/*
+		 * Write out the pseudo-header; it has the same format
+		 * as the Linux USB header, and that header is supposed
+		 * to be written in the host byte order of the machine
+		 * writing the file.
+		 */
+		nwritten = fwrite(&pseudo_header->linux_usb, 1,
+		    sizeof(pseudo_header->linux_usb), wdh->fh);
+		if (nwritten != sizeof(pseudo_header->linux_usb)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
 	}
 
 	nwritten = wtap_dump_file_write(wdh, pd, phdr->caplen);
