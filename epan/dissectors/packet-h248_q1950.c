@@ -43,7 +43,7 @@ static int hf_h248_pkg_BCP_BNCChar = -1;
 
 static int ett_h248_pkg_BCP = -1;
 
-static gboolean implicit = TRUE;
+static gboolean implicit = FALSE;
 
 static const value_string h248_pkg_BCP_parameters[] = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
@@ -67,10 +67,55 @@ static h248_package_t h248_pkg_BCP = {
 	NULL,						/* events */
 	NULL						/* statistics */
 };
+/* A.6 Generic bearer connection package 
+	Package Name: GB
+	Package ID: 0x0021
+ */
 
+/* A.7 Bearer control tunnelling package */
+static dissector_handle_t sdp_dissector = NULL;
+
+static int hf_h248_pkg_bct = -1;
+static int hf_h248_pkg_bct_param = -1;
+static int hf_h248_pkg_bct_tind = -1;
+
+static gint ett_h248_pkg_bct = -1;
+static gint ett_h248_pkg_bct_tind = -1;
+
+static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
+	tvbuff_t* sdp_tvb;
+	dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
+	if(sdp_tvb)
+		call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
+}
+
+static h248_pkg_param_t h248_pkg_bct_tind[] = {
+	{ 0x0001, &hf_h248_pkg_bct_tind, dissect_bct_tind_bit, &implicit },
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Events */
+static h248_pkg_evt_t h248_pkg_bct_events[] = {
+	{ 0x0001, &hf_h248_pkg_bct_tind, &ett_h248_pkg_bct_tind, h248_pkg_bct_tind},
+	{ 0, NULL, NULL, NULL}
+};
+
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_bct = {
+	0x0022,
+	&hf_h248_pkg_bct,
+	&hf_h248_pkg_bct_param,
+	&ett_h248_pkg_bct,
+	NULL,						/* Properties */
+	NULL,						/* signals */
+	h248_pkg_bct_events,		/* events */
+	NULL						/* statistics */
+};
 
 /* A.8 Basic call progress tones generator with directionality */
 static int hf_h248_pkg_bcg = -1;
+static int hf_h248_pkg_bcg_param = -1;
 static int hf_h248_pkg_bcg_sig_bdt_par_btd = -1;
 static int hf_h248_pkg_bcg_sig_bdt = -1;
 static int hf_h248_pkg_bcg_sig_brt = -1;
@@ -117,7 +162,7 @@ static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 static h248_package_t h248_pkg_bcg = {
 	0x0023,
 	&hf_h248_pkg_bcg,
-	NULL,
+	&hf_h248_pkg_bcg_param,
 	&ett_h248_pkg_bcg,
 	NULL,						/* Properties */
 	h248_pkg_bcg_signals,		/* signals */
@@ -126,43 +171,6 @@ static h248_package_t h248_pkg_bcg = {
 };
 
 
-static dissector_handle_t sdp_dissector = NULL;
-
-static int hf_h248_pkg_bct = -1;
-static int hf_h248_pkg_bct_tind = -1;
-
-static gint ett_h248_pkg_bct = -1;
-static gint ett_h248_pkg_bct_tind = -1;
-
-static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
-	tvbuff_t* sdp_tvb;
-	dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
-	call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
-}
-
-static h248_pkg_param_t h248_pkg_bct_tind[] = {
-	{ 0x0001, &hf_h248_pkg_bct_tind, dissect_bct_tind_bit, NULL },
-	{ 0, NULL, NULL, NULL}
-};
-
-/* Events */
-static h248_pkg_evt_t h248_pkg_bct_events[] = {
-	{ 0x0001, &hf_h248_pkg_bct_tind, &ett_h248_pkg_bct_tind, h248_pkg_bct_tind},
-	{ 0, NULL, NULL, NULL}
-};
-
-
-/* Packet defenitions */
-static h248_package_t h248_pkg_bct = {
-	0x0022,
-	&hf_h248_pkg_bct,
-	NULL,
-	&ett_h248_pkg_bct,
-	NULL,						/* Properties */
-	NULL,						/* signals */
-	h248_pkg_bct_events,		/* events */
-	NULL						/* statistics */
-};
 
 /* Register dissector */
 void proto_register_q1950(void) {

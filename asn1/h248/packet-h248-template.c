@@ -329,6 +329,7 @@ static const value_string event_name_vals[] = {
   {   0x000c0001, "rtp, Payload Transition" },
   {   0x00210000, "Generic Bearer Connection Q.1950 Annex A" },
   {   0x00210001, "GB/BNCChange" },
+  {   0x00220001, "BT/TIND (Tunnel Indication)" },
   {   0x002a0001, "H.245/h245msg (Incoming H.245 Message)" },
   {   0x002a0004, "H.245/h245ChC (H.245 Channel Closed)" },
   {   0x00450000, "Inactivity Timer H.248.14" },
@@ -810,10 +811,12 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
 
 		if (name_major == pkg->id) {
 			break;
+		} else {
+			pkg = NULL;
 		}
 	}
 
-	if (!pkg->hfid) pkg = &no_package;
+	if (! pkg ) pkg = &no_package;
 
 	curr_info.pkg = pkg;
 
