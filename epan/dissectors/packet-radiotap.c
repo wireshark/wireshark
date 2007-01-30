@@ -40,6 +40,7 @@
 /* Written with info from:
  *
  * http://madwifi.org/wiki/DevDocs/RadiotapHeader
+ * NetBSD's ieee80211_radiotap.h file
  */
 
 struct ieee80211_radiotap_header {
@@ -79,7 +80,7 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
-	IEEE80211_RADIOTAP_FCS = 14,
+    IEEE80211_RADIOTAP_FCS = 14,
     IEEE80211_RADIOTAP_EXT = 31
 };
 
@@ -323,16 +324,19 @@ proto_register_radiotap(void)
   static hf_register_info hf[] = {
     { &hf_radiotap_version,
       { "Header revision", "radiotap.version",
-	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Version of radiotap header format", HFILL } },
     { &hf_radiotap_pad,
       { "Header pad", "radiotap.pad",
-	FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT8, BASE_DEC, NULL, 0x0,
+	"Padding", HFILL } },
     { &hf_radiotap_length,
        { "Header length", "radiotap.length",
-	 FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+	 FT_UINT16, BASE_DEC, NULL, 0x0,
+	 "Length of header including version, pad, length and data fields", HFILL } },
     { &hf_radiotap_present,
        { "Present flags", "radiotap.present",
-	 FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
+	 FT_UINT32, BASE_HEX, NULL, 0x0, "Bitmask indicating which fields are present", HFILL } },
 
 #define RADIOTAP_MASK_TSFT                  0x00000001
 #define RADIOTAP_MASK_FLAGS                 0x00000002
@@ -354,141 +358,210 @@ proto_register_radiotap(void)
     /* Boolean 'present' flags */
     { &hf_radiotap_present_tsft,
       { "TSFT", "radiotap.present.tsft",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TSFT, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TSFT,
+	"Specifies if the Time Synchronization Function Timer field is present", HFILL } },
+
     { &hf_radiotap_present_flags,
       { "Flags", "radiotap.present.flags",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FLAGS, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FLAGS,
+	"Specifies if the channel flags field is present", HFILL } },
+
     { &hf_radiotap_present_rate,
       { "Rate", "radiotap.present.rate",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RATE, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_RATE,
+	"Specifies if the transmit/receive rate field is present", HFILL } },
+
     { &hf_radiotap_present_channel,
       { "Channel", "radiotap.present.channel",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_CHANNEL, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_CHANNEL,
+	"Specifies if the transmit/receive frequency field is present", HFILL } },
+
     { &hf_radiotap_present_fhss,
       { "FHSS", "radiotap.present.fhss",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FHSS, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FHSS,
+	"Specifies if the hop set and pattern is present for frequency hopping radios", HFILL } },
+
     { &hf_radiotap_present_dbm_antsignal,
       { "DBM Antenna Signal", "radiotap.present.dbm_antsignal",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTSIGNAL, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTSIGNAL,
+	"Specifies if the antenna signal strength in dBm is present", HFILL } },
+
     { &hf_radiotap_present_dbm_antnoise,
       { "DBM Antenna Noise", "radiotap.present.dbm_antnoise",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTNOISE, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_ANTNOISE,
+	"Specifies if the RF noise power at antenna field is present", HFILL } },
+
     { &hf_radiotap_present_lock_quality,
       { "Lock Quality", "radiotap.present.lock_quality",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_LOCK_QUALITY, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_LOCK_QUALITY,
+	"Specifies if the signal quality field is present", HFILL } },
+
     { &hf_radiotap_present_tx_attenuation,
       { "TX Attenuation", "radiotap.present.tx_attenuation",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TX_ATTENUATION, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_TX_ATTENUATION,
+	"Specifies if the transmit power from max power field is present", HFILL } },
+
     { &hf_radiotap_present_db_tx_attenuation,
       { "DB TX Attenuation", "radiotap.present.db_tx_attenuation",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_TX_ATTENUATION, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_TX_ATTENUATION,
+	"Specifies if the transmit power from max power (in dB) field is present", HFILL } },
+
     { &hf_radiotap_present_dbm_tx_attenuation,
       { "DBM TX Attenuation", "radiotap.present.dbm_tx_attenuation",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_TX_ATTENUATION, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DBM_TX_ATTENUATION,
+	"Specifies if the transmit power from max power (in dBm) field is present", HFILL } },
+
     { &hf_radiotap_present_antenna,
       { "Antenna", "radiotap.present.antenna",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_ANTENNA, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_ANTENNA,
+	"Specifies if the antenna number field is present", HFILL } },
+
     { &hf_radiotap_present_db_antsignal,
       { "DB Antenna Signal", "radiotap.present.db_antsignal",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTSIGNAL, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTSIGNAL,
+	"Specifies if the RF signal power at antenna in dB field is present", HFILL } },
+
     { &hf_radiotap_present_db_antnoise,
       { "DB Antenna Noise", "radiotap.present.db_antnoise",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTNOISE, "", HFILL } },
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_DB_ANTNOISE,
+	"Specifies if the RF signal power at antenna in dBm field is present", HFILL } },
+
     { &hf_radiotap_present_fcs,
       { "FCS in header", "radiotap.present.fcs",
 	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_FCS,
-    "Radiotap header contains FCS", HFILL } },
+	"Specifies if the FCS field is present", HFILL } },
+
     { &hf_radiotap_present_ext,
       { "Ext", "radiotap.present.ext",
-	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_EXT, "", HFILL } },
-
+	FT_BOOLEAN, 32, NULL, RADIOTAP_MASK_EXT,
+	"Specifies if there are any extensions to the header present", HFILL } },
 
     /* Boolean 'present.flags' flags */
     { &hf_radiotap_flags,
       { "Flags", "radiotap.flags",
 	FT_UINT8, BASE_HEX, NULL,  0x0, "", HFILL } },
+
     { &hf_radiotap_flags_cfp,
       { "CFP", "radiotap.flags.cfp",
 	FT_BOOLEAN, 8, NULL,  IEEE80211_RADIOTAP_F_CFP,
-    "Sent/Received during CFP", HFILL } },
+	"Sent/Received during CFP", HFILL } },
+
     { &hf_radiotap_flags_preamble,
       { "Preamble", "radiotap.flags.preamble",
 	FT_BOOLEAN, 8, TFS(&preamble_type),  IEEE80211_RADIOTAP_F_SHORTPRE,
-    "Sent/Received with short preamble", HFILL } },
+	"Sent/Received with short preamble", HFILL } },
+
     { &hf_radiotap_flags_wep,
       { "WEP", "radiotap.flags.wep",
 	FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_WEP,
-    "Sent/Received with WEP encryption", HFILL } },
+	"Sent/Received with WEP encryption", HFILL } },
+
     { &hf_radiotap_flags_frag,
       { "Fragmentation", "radiotap.flags.frag",
 	FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FRAG,
-    "Sent/Received with fragmentation", HFILL } },
+	"Sent/Received with fragmentation", HFILL } },
+
     { &hf_radiotap_flags_fcs,
       { "FCS at end", "radiotap.flags.fcs",
 	FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_FCS,
     "Frame includes FCS at end", HFILL } },
+
     { &hf_radiotap_flags_datapad,
       { "Data Pad", "radiotap.flags.datapad",
 	FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_F_DATAPAD,
-    "Frame has padding between 802.11 heaer and payload", HFILL } },
+    "Frame has padding between 802.11 header and payload", HFILL } },
 
 
     { &hf_radiotap_mactime,
        { "MAC timestamp", "radiotap.mactime",
-	 FT_UINT64, BASE_DEC, NULL, 0x0, "", HFILL } },
+	 FT_UINT64, BASE_DEC, NULL, 0x0,
+	 " Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC.", HFILL } },
+
     { &hf_radiotap_quality,
        { "Signal Quality", "radiotap.quality",
-	 FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+	 FT_UINT16, BASE_DEC, NULL, 0x0,
+	 "Signal quality (unitless measure)", HFILL } },
+
     { &hf_radiotap_fcs,
        { "802.11 FCS", "radiotap.fcs",
-	 FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL } },
+	 FT_UINT32, BASE_HEX, NULL, 0x0,
+	 "Frame check sequence of this frame", HFILL } },
+
     { &hf_radiotap_channel,
       { "Channel", "radiotap.channel",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"802.11 channel number that this frame was sent/received on", HFILL } },
+
     { &hf_radiotap_channel_frequency,
       { "Channel frequency", "radiotap.channel.freq",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Channel frequency in megahertz that this frame was sent/received on", HFILL } },
+
     { &hf_radiotap_channel_flags,
       { "Channel type", "radiotap.channel.flags",
-	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0, "", HFILL } },
+	FT_UINT16, BASE_HEX, VALS(phy_type), 0x0,
+	"", HFILL } },
+
     { &hf_radiotap_fhss_hopset,
       { "FHSS Hop Set", "radiotap.fhss.hopset",
-	FT_UINT8, BASE_DEC, NULL,  0x0, "", HFILL } },
+	FT_UINT8, BASE_DEC, NULL,  0x0,
+	"Frequency Hopping Spread Spectrum hopset", HFILL } },
+
     { &hf_radiotap_fhss_pattern,
       { "FHSS Pattern", "radiotap.fhss.pattern",
-	FT_UINT8, BASE_DEC, NULL,  0x0, "", HFILL } },
+	FT_UINT8, BASE_DEC, NULL,  0x0,
+	"Frequency Hopping Spread Spectrum hop pattern", HFILL } },
+
     { &hf_radiotap_datarate,
       { "Data rate", "radiotap.datarate",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Speed this frame was sent/received at", HFILL } },
+
     { &hf_radiotap_antenna,
       { "Antenna", "radiotap.antenna",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Antenna number this frame was sent/received over (starting at 0)", HFILL } },
+
     { &hf_radiotap_dbm_antsignal,
       { "SSI Signal (dBm)", "radiotap.dbm_antsignal",
-	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_INT32, BASE_DEC, NULL, 0x0,
+	"RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL } },
+
     { &hf_radiotap_db_antsignal,
       { "SSI Signal (dB)", "radiotap.db_antsignal",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"RF signal power at the antenna from a fixed, arbitrary value in decibels", HFILL } },
+
     { &hf_radiotap_dbm_antnoise,
       { "SSI Noise (dBm)", "radiotap.dbm_antnoise",
-	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_INT32, BASE_DEC, NULL, 0x0,
+	"RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt", HFILL } },
+
     { &hf_radiotap_db_antnoise,
       { "SSI Noise (dB)", "radiotap.db_antnoise",
-	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"RF noise power at the antenna from a fixed, arbitrary value in decibels", HFILL } },
+
     { &hf_radiotap_tx_attenuation,
       { "Transmit attenuation", "radiotap.txattenuation",
-	FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Transmit power expressed as unitless distance from max power set at factory (0 is max power)", HFILL } },
+
     { &hf_radiotap_db_tx_attenuation,
       { "Transmit attenuation (dB)", "radiotap.db_txattenuation",
-	FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Transmit power expressed as decibels from max power set at factory (0 is max power)", HFILL } },
+
     { &hf_radiotap_txpower,
       { "Transmit power", "radiotap.txpower",
-	FT_INT32, BASE_DEC, NULL, 0x0, "", HFILL } },
+	FT_INT32, BASE_DEC, NULL, 0x0,
+	"Transmit power in decibels per one milliwatt (dBm)", HFILL } },
 
     /* Special variables */
     { &hf_radiotap_fcs_bad,
       { "Bad FCS", "radiotap.fcs_bad",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL } },
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"Specifies if this frame has a bad frame check sequence", HFILL } },
 
   };
   static gint *ett[] = {
