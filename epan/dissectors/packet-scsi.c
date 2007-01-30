@@ -3090,7 +3090,7 @@ dissect_spc3_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset,
+        proto_tree_add_item (tree, hf_scsi_persresvout_svcaction, tvb, offset,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_persresv_scope, tvb, offset+1, 1, 0);
         proto_tree_add_item (tree, hf_scsi_persresv_type, tvb, offset+1, 1, 0);
