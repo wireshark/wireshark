@@ -1427,7 +1427,7 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 }
 
 
-void 
+void
 emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
@@ -1514,9 +1514,14 @@ static void
 emem_tree_print_nodes(emem_tree_node_t* node, int level)
 {
 	int i;
+
+	if (!node)
+		return;
+
 	for(i=0;i<level;i++){
 		printf("    ");
 	}
+
 	printf("NODE:%08x parent:%08x left:0x%08x right:%08x key:%d data:0x%08x\n",(int)node,(int)node->parent,(int)node->left,(int)node->right,node->key32,(int)node->data);
 	if(node->left)
 		emem_tree_print_nodes(node->left, level+1);
@@ -1526,6 +1531,9 @@ emem_tree_print_nodes(emem_tree_node_t* node, int level)
 void
 emem_print_tree(emem_tree_t* emem_tree)
 {
+	if (!emem_tree)
+		return;
+
 	printf("EMEM tree type:%d name:%s tree:0x%08x\n",emem_tree->type,emem_tree->name,(int)emem_tree->tree);
 	if(emem_tree->tree)
 		emem_tree_print_nodes(emem_tree->tree, 0);

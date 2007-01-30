@@ -1132,12 +1132,14 @@ get_airpcap_interface_list(int *err, char *err_str)
     int i, n_adapts;
     AirpcapDeviceDescription *devsList, *adListEntry;
 
-    if (err)
-	    *err = NO_AIRPCAP_INTERFACES_FOUND;
+    if(!AirpcapLoaded)
+        return il;
 
-    if(!AirpcapLoaded || !g_PAirpcapGetDeviceList(&devsList, err_str))
+    if(!g_PAirpcapGetDeviceList(&devsList, err_str))
     {
 	    /* No interfaces, return il = NULL; */
+            *err = CANT_GET_AIRPCAP_INTERFACE_LIST;
+            cant_get_airpcap_if_list_error_message(err_str);
 	    return il;
     }
 

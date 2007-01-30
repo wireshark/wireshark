@@ -1,8 +1,8 @@
 /* packet-dcp-etsi.c
- * Routines for ETSI Distribution & Communication Protocol 
- * Copyright 2006, British Broadcasting Corporation 
+ * Routines for ETSI Distribution & Communication Protocol
+ * Copyright 2006, British Broadcasting Corporation
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -151,9 +151,9 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   sync = tvb_get_string (tvb, 0, 2);
   if((sync[0]!='A' && sync[0]!='P') || sync[1]!='F')
     return FALSE;
-  
+
   pinfo->current_proto = "DCP (ETSI)";
-  
+
   /* Clear out stuff in the info column */
   if (check_col (pinfo->cinfo, COL_INFO)) {
     col_clear (pinfo->cinfo, COL_INFO);
@@ -179,7 +179,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 #define PFT_RS_P (PFT_RS_K - PFT_RS_N_MAX)
 
 
-static 
+static
 void rs_deinterleave(const guint8 *input, guint8 *output, guint16 plen, guint32 fcount)
 {
   guint fidx;
@@ -193,9 +193,9 @@ void rs_deinterleave(const guint8 *input, guint8 *output, guint16 plen, guint32 
   }
 }
 
-static 
-gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output, 
- guint32 c_max, guint16 rsk, guint16 rsz)
+static
+gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output,
+ guint32 c_max, guint16 rsk, guint16 rsz _U_)
 {
   guint32 i, index_coded = 0, index_out = 0;
   int err_corr;
@@ -223,7 +223,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   guint16 seq,
   gint offset,
   guint16 plen,
-  gboolean fec,
+  gboolean fec _U_,
   guint16 rsk,
   guint16 rsz,
   fragment_data *fd
@@ -272,7 +272,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       memset(dummy_data, 0, plen);
       for(i=0,j=0; i<fragments; i++,j++) {
         while(j<got[i]) {
-          frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,	
+          frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
             dcp_fragment_table, dcp_reassembled_table, j, plen, (j+1!=fcount));
 	  if(tree) {
               proto_tree_add_text (tree, tvb, 0, -1, "missing %d", j);
@@ -356,10 +356,10 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   last = fcount == (findex+1);
   frag_edcp = fragment_add_seq_check (
      tvb, offset, pinfo,
-     seq,	
-	 dcp_fragment_table, dcp_reassembled_table,	
+     seq,
+	 dcp_fragment_table, dcp_reassembled_table,
 	 findex,
-     plen,	
+     plen,
 	 !last);
   if(fec) {
     new_tvb = dissect_pft_fec_detailed(
@@ -464,7 +464,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree) {
     proto_item *ci = NULL;
     guint header_len = offset+2;
-    const guint8 *crc_buf = tvb_get_ptr(tvb, 0, header_len);
+    const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, header_len);
     unsigned long c = crc_drm(crc_buf, header_len, 16, 0x11021, 1);
     ci = proto_tree_add_item (pft_tree, hf_edcp_hcrc, tvb, offset, 2, FALSE);
     proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
@@ -480,7 +480,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       if(li)
         proto_item_append_text(li, " (length error (%d))", real_len);
     }
-    next_tvb = dissect_pft_fragmented(tvb, pinfo, pft_tree, 
+    next_tvb = dissect_pft_fragmented(tvb, pinfo, pft_tree,
                                       findex, fcount, seq, offset, real_len,
                                       fec, rsk, rsz
                                       );
@@ -559,7 +559,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     ci = proto_tree_add_item (af_tree, hf_edcp_crc, tvb, offset, 2, FALSE);
   if (ver & 0x80) { /* crc valid */
     guint len = offset+2;
-    const guint8 *crc_buf = tvb_get_ptr(tvb, 0, len);
+    const char *crc_buf = (const char *) tvb_get_ptr(tvb, 0, len);
     unsigned long c = crc_drm(crc_buf, len, 16, 0x11021, 1);
     if (tree) {
    	  proto_item_append_text(ci, " (%s)", (c==0xe2f0)?"Ok":"bad");
@@ -570,7 +570,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   dissector_try_port(af_dissector_table, pt, next_tvb, pinfo, tree);
 }
 
-/** Dissect the Tag Packet Layer. 
+/** Dissect the Tag Packet Layer.
  *  Split the AF packet into its tag items. Each tag item has a 4 character
  *  tag, a length in bits and a value. The *ptr tag is dissected in the routine.
  *  All other tags are listed and may be handled by other dissectors.
@@ -585,49 +585,45 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   proto_tree *tpl_tree = NULL;
   guint offset=0;
-  char *prot=NULL;  
+  char *prot=NULL;
   guint16 maj, min;
 
   pinfo->current_proto = "DCP-TPL";
   if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
   }
-  
+
   if(tree) {
     proto_item *ti = NULL;
     ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, FALSE);
     tpl_tree = proto_item_add_subtree (ti, ett_tpl);
   }
   while(offset<tvb_length(tvb)) {
-	  guint32 bits;
-	  guint32 bytes;
-	  char *tag = (char*)tvb_get_string (tvb, offset, 4); offset += 4;
-	  bits = tvb_get_ntohl(tvb, offset); offset += 4;
-	  bytes = bits / 8;
-	  if(bits % 8)
-		  bytes++;
-	  if(tree) {
+    guint32 bits;
+    guint32 bytes;
+    char *tag = (char*)tvb_get_string (tvb, offset, 4); offset += 4;
+    bits = tvb_get_ntohl(tvb, offset); offset += 4;
+    bytes = bits / 8;
+    if(bits % 8)
+      bytes++;
+    if(tree) {
       proto_item *i = NULL;
       const guint8 *p = tvb_get_ptr(tvb, offset, bytes);
       if(strcmp(tag, "*ptr")==0) {
         prot = (char*)tvb_get_string (tvb, offset, 4);
         maj = tvb_get_ntohs(tvb, offset+4);
         min = tvb_get_ntohs(tvb, offset+6);
-        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb, 
-              offset-8, bytes+8, p, "%s %s rev %d.%d", tag, prot, maj, min);        
+        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
+              offset-8, bytes+8, p, "%s %s rev %d.%d", tag, prot, maj, min);
       } else {
-        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb, 
+        i = proto_tree_add_bytes_format(tpl_tree, hf_tpl_tlv, tvb,
               offset-8, bytes+8, p, "%s (%u bits)", tag, bits);
       }
     }
     offset += bytes;
   }
-  if(prot) {
-    if(tree) {
-      dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent);  
-    } else {
-      dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, NULL);  
-    }
+  if(prot) {  /* prot is non-NULL only if we have our tree. */
+    dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent);
   }
 }
 

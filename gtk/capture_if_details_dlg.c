@@ -114,7 +114,7 @@ struct sockaddr_storage {
  *
  * ndiswrapper (various NDIS related definitions)
  *  http://cvs.sourceforge.net/viewcvs.py/ndiswrapper/ndiswrapper/driver/
- *  
+ *
  * ReactOS (various NDIS related definitions)
  *  http://www.reactos.org/generated/doxygen/d2/d6d/ndis_8h-source.html
  *
@@ -366,7 +366,7 @@ typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
     ULONG    UdpChecksum:1;
     ULONG    IpChecksum:1;
   } V4Transmit;
- 
+
   struct
   {
     ULONG    IpOptionsSupported:1;
@@ -375,7 +375,7 @@ typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
     ULONG    UdpChecksum:1;
     ULONG    IpChecksum:1;
   } V4Receive;
- 
+
   struct
   {
     ULONG    IpOptionsSupported:1;
@@ -383,7 +383,7 @@ typedef struct _NDIS_TASK_TCP_IP_CHECKSUM
     ULONG    TcpChecksum:1;
     ULONG    UdpChecksum:1;
   } V6Transmit;
- 
+
   struct
   {
     ULONG    IpOptionsSupported:1;
@@ -754,7 +754,7 @@ static const value_string oid_vals[] = {
     { 0xFF10000e, "Unknown 0xFF10000e (unused)" },
     { 0xFF10000f, "Unknown 0xFF10000f (unused)" },
     /* continued by a lot more 0xFF... values */
-    
+
     { 0, NULL }
 };
 
@@ -764,7 +764,7 @@ static const value_string oid_vals[] = {
 
 
 static void
-supported_list(LPADAPTER adapter) 
+supported_list(LPADAPTER adapter)
 {
     unsigned char       values[10000];
     int                 length;
@@ -786,12 +786,12 @@ supported_list(LPADAPTER adapter)
 
 
 static gboolean
-supported_query_oid(LPADAPTER adapter, guint32 oid) 
+supported_query_oid(LPADAPTER adapter, guint32 oid)
 {
     unsigned char       values[10000];
     int                 length;
 
-    
+
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_GEN_SUPPORTED_LIST, FALSE /* !set */, values, &length)) {
         guint32 *value = (guint32 *) values;
@@ -819,8 +819,8 @@ supported_query_oid(LPADAPTER adapter, guint32 oid)
     GtkWidget *val_lb;
 
 static GtkWidget *
-add_meter_to_table(GtkWidget *list, guint *row, gchar *title, 
-                 int value, gchar *value_title, 
+add_meter_to_table(GtkWidget *list, guint *row, gchar *title,
+                 int value, gchar *value_title,
                  int min, int max,
                  int yellow_level,
                  GList *scale)
@@ -1165,7 +1165,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
             /* MAC */
             memcpy(mac, &bssid_item->mac, sizeof(mac));
             g_snprintf(mac_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
-                mac[0], mac[1], mac[2], 
+                mac[0], mac[1], mac[2],
                 mac[3], mac[4], mac[5]);
 
             /* Vendor */
@@ -1234,14 +1234,14 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                     len-=2;
 
 #ifdef DEBUG_IE
-                    g_warning("ID: %s (%u) Len: %u", 
+                    g_warning("ID: %s (%u) Len: %u",
                         val_to_str(id, ie_id_vals, "0x%x"), id, el_len);
 #endif
 
                     if (id != 0 && id != 1 && id != 3 && id != 5 && id != 42 && id != 50 && id != 221) {
                         hex(iep, el_len);
                     }
-                    
+
                     /* WPA2 (RSN) */
                     if (id == 48) {
                         privacy_wpa2 = TRUE;
@@ -1255,10 +1255,10 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                         /* include information from epan/packet-ieee80211.c dissect_vendor_ie_wpawme() */
                         manuf_name = get_manuf_name_if_known(iep);
                         if(manuf_name != NULL) {
-                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) Type: %02X", 
+                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) Type: %02X",
                                 *(iep), *(iep+1), *(iep+2), manuf_name, *(iep+3));
                         } else {
-                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X Type: %02X", 
+                            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X Type: %02X",
                                 *(iep), *(iep+1), *(iep+2), *(iep+3));
                         }
 
@@ -1270,7 +1270,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                         hex(iep, el_len);
 #endif
                     }
-                    
+
                     iep += el_len;
                     len -= el_len;
                 }
@@ -1295,15 +1295,15 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
                 g_snprintf(privacy_buff, DETAILS_STR_MAX, "None");
             }
 
-            simple_list_append(list, 
+            simple_list_append(list,
                 0, ssid_buff,
                 1, mac_buff,
                 2, vendor_buff,
                 3, privacy_buff,
                 4, rssi_buff,
                 5, nettype_buff,
-                6, infra_buff, 
-                7, freq_buff, 
+                6, infra_buff,
+                7, freq_buff,
                 8, Rates->str,
                 -1);
 
@@ -1350,12 +1350,12 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         manuf_name = get_manuf_name_if_known(values);
         if(manuf_name != NULL) {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X (%s)",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5],
                 manuf_name);
         } else {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5]);
         }
         entries++;
@@ -1366,7 +1366,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* Network type in use */
     if (wpcap_packet_request_uint(adapter, OID_802_11_NETWORK_TYPE_IN_USE, &uint_value)) {
-        add_string_to_table(table, row, "Network type used", 
+        add_string_to_table(table, row, "Network type used",
             val_to_str(uint_value, win32_802_11_network_type_vals, "(0x%x)"));
         entries++;
     } else {
@@ -1375,7 +1375,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* Infrastructure mode */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_INFRASTRUCTURE_MODE, &uint_value)) {
-        add_string_to_table(table, row, "Infrastructure mode", 
+        add_string_to_table(table, row, "Infrastructure mode",
             val_to_str(uint_value, win32_802_11_infra_mode_vals, "(0x%x)"));
         entries++;
     } else {
@@ -1384,7 +1384,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* Authentication mode */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_AUTHENTICATION_MODE, &uint_value)) {
-        add_string_to_table(table, row, "Authentication mode", 
+        add_string_to_table(table, row, "Authentication mode",
             val_to_str(uint_value, win32_802_11_auth_mode_vals, "(0x%x)"));
         entries++;
     } else {
@@ -1393,7 +1393,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* Encryption (WEP) status */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_ENCRYPTION_STATUS, &uint_value)) {
-        add_string_to_table(table, row, "Encryption status", 
+        add_string_to_table(table, row, "Encryption status",
             val_to_str(uint_value, win32_802_11_encryption_status_vals, "(0x%x)"));
         entries++;
     } else {
@@ -1456,9 +1456,9 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         }
         g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm", rssi);
 
-        add_meter_to_table(table, row, "RSSI (Received Signal Strength Indication)", 
+        add_meter_to_table(table, row, "RSSI (Received Signal Strength Indication)",
             rssi+100 , string_buff, -100+100, 0+100, -80+100, scale_items);
-    
+
         current = scale_items;
         while (current != NULL) {
             g_free(current->data);
@@ -1507,9 +1507,9 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         } else {
             yellow = 1;
         }
-        add_meter_to_table(table, row, "Link Speed", 
+        add_meter_to_table(table, row, "Link Speed",
                 uint_value, string_buff, 0, max, yellow, rates_list);
-    
+
         current = rates_list;
         while (current != NULL) {
             g_free(current->data);
@@ -1600,12 +1600,12 @@ capture_if_details_802_3(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
         manuf_name = get_manuf_name_if_known(values);
         if(manuf_name != NULL) {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X (%s)",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5],
                 manuf_name);
         } else {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5]);
         }
         entries++;
@@ -1619,12 +1619,12 @@ capture_if_details_802_3(GtkWidget *table, GtkWidget *main_vb, guint *row, LPADA
         manuf_name = get_manuf_name_if_known(values);
         if(manuf_name != NULL) {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X (%s)",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5],
                 manuf_name);
         } else {
             g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X:%02X:%02X:%02X",
-                values[0], values[1], values[2], 
+                values[0], values[1], values[2],
                 values[3], values[4], values[5]);
         }
         entries++;
@@ -1743,7 +1743,7 @@ capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row
     offload->EncapsulationFormat.Flags.FixedHeaderSize = 1;
     offload->EncapsulationFormat.Flags.Reserved = 0;
     offload->EncapsulationFormat.EncapsulationHeaderSize = 14; /* sizeof(struct ether_header) */;
-    
+
     length = sizeof(values);
     if (wpcap_packet_request(adapter, OID_TCP_TASK_OFFLOAD, FALSE /* !set */, values, &length)) {
         NDIS_TASK_OFFLOAD *of;
@@ -1856,13 +1856,13 @@ capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row
                 add_string_to_table(table, row, "Task", string_buff);
 
             }
-            
+
             add_string_to_table(table, row, "", "");
 
             valuep += of->OffsetNextTask;
             length -= of->OffsetNextTask;
         } while(of->OffsetNextTask != 0);
-    } 
+    }
 
     if(TcpIpChecksumSupported == 0) {
         add_string_to_table(table, row, "TCP/IP Checksum", "");
@@ -1873,7 +1873,7 @@ capture_if_details_task_offload(GtkWidget *table, GtkWidget *main_vb, guint *row
         add_string_to_table(table, row, "IpSec", "");
         add_string_to_table(table, row, "Offload not supported", "-");
     }
-        
+
     if(TcpLargeSendSupported == 0) {
         add_string_to_table(table, row, "TCP Large Send", "");
         add_string_to_table(table, row, "Offload not supported", "-");
@@ -1951,7 +1951,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         uint_array_size /= sizeof(unsigned int);
         i=0;
         while(uint_array_size--) {
-            add_string_to_table(table, row, "Media supported", 
+            add_string_to_table(table, row, "Media supported",
                 val_to_str(uint_array[i], win32_802_3_medium_vals, "(0x%x)"));
             i++;
         }
@@ -1965,7 +1965,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         uint_array_size /= sizeof(unsigned int);
         i=0;
         while(uint_array_size--) {
-            add_string_to_table(table, row, "Medium in use", 
+            add_string_to_table(table, row, "Medium in use",
                   val_to_str(uint_array[i], win32_802_3_medium_vals, "(0x%x)"));
             i++;
         }
@@ -1975,7 +1975,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_PHYSICAL_MEDIUM, &physical_medium)) {
         entries++;
-        add_string_to_table(table, row, "Physical medium", 
+        add_string_to_table(table, row, "Physical medium",
             val_to_str(physical_medium, win32_802_3_physical_medium_vals, "(0x%x)"));
     } else {
         add_string_to_table(table, row, "Physical medium", "-");
@@ -1994,7 +1994,7 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
     if (wpcap_packet_request(adapter, OID_GEN_VENDOR_DRIVER_VERSION, FALSE /* !set */, (char *) &uint_value, &length)) {
         entries++;
         /* XXX - what's the correct output format? */
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u (Hex: %X.%X)", 
+        g_snprintf(string_buff, DETAILS_STR_MAX, "%u.%u (Hex: %X.%X)",
             (uint_value / 0x10000  ) % 0x10000,
              uint_value              % 0x10000,
             (uint_value / 0x10000  ) % 0x10000,
@@ -2009,10 +2009,10 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
         entries++;
         manuf_name = get_manuf_name_if_known(values);
         if(manuf_name != NULL) {
-            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) NIC: %02X", 
+            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X (%s) NIC: %02X",
                 values[0], values[1], values[2], manuf_name, values[3]);
         } else {
-            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X NIC: %02X", 
+            g_snprintf(string_buff, DETAILS_STR_MAX, "%02X:%02X:%02X NIC: %02X",
                 values[0], values[1], values[2], values[3]);
         }
     } else {
@@ -2022,8 +2022,8 @@ capture_if_details_general(GtkWidget *table, GtkWidget *main_vb, guint *row, LPA
 
     if (wpcap_packet_request_uint(adapter, OID_GEN_MAC_OPTIONS, &uint_value)) {
         entries++;
-        g_snprintf(string_buff, DETAILS_STR_MAX, 
-            "802.1P Priority: %s, 802.1Q VLAN: %s", 
+        g_snprintf(string_buff, DETAILS_STR_MAX,
+            "802.1P Priority: %s, 802.1Q VLAN: %s",
             (uint_value & NDIS_MAC_OPTION_8021P_PRIORITY) ? "Supported" : "Unsupported",
             (uint_value & NDIS_MAC_OPTION_8021Q_VLAN) ? "Supported" : "Unsupported" );
     } else {
@@ -2294,7 +2294,7 @@ capture_if_details_open_win(char *iface)
     /* open the network adapter */
     adapter = wpcap_packet_open(iface);
     if(adapter == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             PRIMARY_TEXT_START "Could not open adapter: %s!" PRIMARY_TEXT_END
             "\n\nThe adapter might be removed from the system in the meantime!", iface);
         return;
@@ -2420,7 +2420,7 @@ capture_if_details_open(char *iface)
     if(version == NULL) {
         /* couldn't even get the packet.dll version, must be a very old one or just not existing -> give up */
         /* (this seems to be the case for 2.3 beta and all previous releases) */
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, 
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
             PRIMARY_TEXT_START "Couldn't obtain WinPcap packet.dll version!" PRIMARY_TEXT_END
             "\n\nThe WinPcap packet.dll is not installed or the version you use seems to be very old!"
             "\n\nPlease update/install WinPcap.");
@@ -2429,10 +2429,14 @@ capture_if_details_open(char *iface)
 
     /* XXX - add more known DLL versions here */
     /* (all versions since the 2.3 release seems to be working (although the 2.3 beta did not) */
-    if( 
-        strcmp(version, "4.0.0.703"  ) == 0 ||       /* 4.0 beta 3 */
-        strcmp(version, "4.0.0.655"  ) == 0 ||       /* 4.0 beta 2 */
-        strcmp(version, "4.0.0.592"  ) == 0 ||       /* 4.0 beta 1 */
+    if(
+        /*
+         * 4.0 version strings:
+         * 4.0.0.703:  4.0 beta 3
+         * 4.0.0.655:  4.0 beta 2
+         * 4.0.0.592:  4.0 beta 1
+         */
+        strcmp(version, "3"          ) >  0 ||       /* 4.0 and above (including betas) */
         strcmp(version, "3, 2, 0, 29") == 0 ||       /* 3.2 beta 1 */
         strcmp(version, "3, 1, 0, 27") == 0 ||       /* 3.1 release */
         strcmp(version, "3, 1, 0, 24") == 0 ||       /* 3.1 beta 4 */
@@ -2441,13 +2445,13 @@ capture_if_details_open(char *iface)
         strcmp(version, "3, 1, 0, 20") == 0 ||       /* 3.1 beta */
         strcmp(version, "3.0 alpha3" ) == 0 ||       /* 3.0 release or 3.0 beta (yes, both versions report alpha3!) */
         strcmp(version, "2.3"        ) == 0          /* 2.3 release */
-        ) {   
+        ) {
 	    version_ok = TRUE;
     }
 
     if(!version_ok) {
         /* packet.dll version not known to us, warn user but try to continue */
-        dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL, 
+        dialog = simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK | ESD_BTN_CANCEL,
             PRIMARY_TEXT_START "Unknown WinPcap version might crash or fail!" PRIMARY_TEXT_END
             "\n\nThe WinPcap packet.dll version \"%s\" is unknown if it supports required functions!"
             "\n\nOnly WinPcap versions 3.0 and 3.1 are known to work with this feature."

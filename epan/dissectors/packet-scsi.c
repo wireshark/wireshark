@@ -4021,8 +4021,10 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Start reassembly */
 
-    if (tvb_length_remaining(tvb, offset) >= 0 &&
-	    (tvb_length_remaining(tvb,offset) + relative_offset) != expected_length) {
+    if (tvb_length_remaining(tvb, offset) < 0) {
+        goto end_of_payload;
+    }
+    if ((tvb_length_remaining(tvb,offset) + relative_offset) != expected_length) {
         more_frags = TRUE;
     }
     ipfd_head = fragment_add_check(tvb, offset, pinfo,

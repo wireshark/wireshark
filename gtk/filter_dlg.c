@@ -293,23 +293,25 @@ get_filter_dialog_list(filter_list_type_t list_type)
 }
 
 
-static void
-fill_list(GtkWidget  *main_w, filter_list_type_t list_type)
+#if GTK_MAJOR_VERSION < 2
+static GtkWidget *
+#else
+static GtkTreeIter *
+#endif
+fill_list(GtkWidget  *main_w, filter_list_type_t list_type, const gchar *filter_te_str)
 {
     GList      *fl_entry;
     filter_def *filt;
-    const gchar *filter_te_str = NULL;
 #if GTK_MAJOR_VERSION < 2
     GtkWidget  *nl_item,
                *nl_lb,
                *l_select = NULL;
     GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
 #else
-    gboolean           l_select = FALSE;
-    GtkTreeView        *filter_l;
-    GtkListStore       *store;
-    GtkTreeIter        iter;
-    GtkTreeIter        sel_iter;
+    GtkTreeView       *filter_l;
+    GtkListStore      *store;
+    GtkTreeIter       iter;
+    GtkTreeIter       *l_select = NULL;
 
     filter_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY));
     store = GTK_LIST_STORE(gtk_tree_view_get_model(filter_l));
@@ -341,17 +343,22 @@ fill_list(GtkWidget  *main_w, filter_list_type_t list_type)
 
         if (filter_te_str && filt->strval) {
             if (strcmp(filter_te_str, filt->strval) == 0) {
-#if GTK_MAJOR_VERSION < 2 
+#if GTK_MAJOR_VERSION < 2
                 l_select = nl_item;
 #else
-                sel_iter = iter;
-                l_select = TRUE;
+                /*
+                 * XXX - We're assuming that we can just copy a GtkTreeIter
+                 * and use it later without any crashes.  This may not be a
+                 * valid assumption.
+                 */
+                l_select = g_memdup(&iter, sizeof(iter));
 #endif
             }
         }
 
         fl_entry = fl_entry->next;
     }
+    return l_select;
 }
 
 #if 0
@@ -409,12 +416,11 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #if GTK_MAJOR_VERSION < 2
     GtkWidget   *l_select = NULL;
 #else
-    gboolean           l_select = FALSE;
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
-    GtkTreeIter        sel_iter;
+    GtkTreeIter       *l_select;
 #endif
 
     /* Get a pointer to a static variable holding the type of filter on
@@ -489,7 +495,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 #endif
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip (tooltips, new_bt, 
+    gtk_tooltips_set_tip (tooltips, new_bt,
         "Create a new filter at the end of the list (with the current properties)", NULL);
 
     del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
@@ -509,7 +515,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     filter_sc = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(filter_sc), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(filter_sc),
                                    GTK_SHADOW_IN);
 #endif
 
@@ -554,9 +560,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
                     construct_args->activate_on_ok ? "" : NULL);
 
     /* fill in data */
-    fill_list(main_w, list_type);
+    l_select = fill_list(main_w, list_type, filter_te_str);
 
-#if GTK_MAJOR_VERSION >= 2 
+#if GTK_MAJOR_VERSION >= 2
     g_object_unref(G_OBJECT(store));
 #endif
 
@@ -603,9 +609,9 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
     if (list_type == DFILTER_EDITED_LIST) {
-        gtk_tooltips_set_tip(tooltips, filter_te, 
+        gtk_tooltips_set_tip(tooltips, filter_te,
             "Enter a display filter. "
-            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).", 
+            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).",
             NULL);
 
         /* Create the "Add Expression..." button, to pop up a dialog
@@ -675,21 +681,17 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     /* DO SELECTION THINGS *AFTER* SHOWING THE DIALOG! */
     /* otherwise the updatings can get confused */
-#if GTK_MAJOR_VERSION < 2 
     if (l_select) {
+#if GTK_MAJOR_VERSION < 2
         gtk_list_select_child(GTK_LIST(filter_l), l_select);
-    } else if (filter_te_str && filter_te_str[0]) {
-        gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
-        gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
-    }
 #else
-    if (l_select) {
-        gtk_tree_selection_select_iter(sel, &sel_iter);        
+        gtk_tree_selection_select_iter(sel, l_select);
+        g_free(l_select);
+#endif
     } else if (filter_te_str && filter_te_str[0]) {
         gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
     }
-#endif
 
     SIGNAL_CONNECT(main_w, "delete_event", filter_dlg_delete_event_cb, filter_list_type_p);
     SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
@@ -936,7 +938,7 @@ static void filter_dlg_update_list_cb(gpointer data, gpointer user_data)
 
     /* refill the list */
     clear_list(main_w);
-    fill_list(main_w, list_type);
+    fill_list(main_w, list_type, NULL);
 }
 #endif
 

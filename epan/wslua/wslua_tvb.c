@@ -429,19 +429,27 @@ WSLUA_METHOD Tvb_offset(lua_State* L) {
 }
 
 
+#if USED_FOR_DOC_PURPOSES
+WSLUA_METHOD Tvb_range(lua_State* L) {
+	/* creates a tvbr from this Tvb. This is used also as the Tvb:__call() metamethod. */
+#define WSLUA_OPTARG_Tvb_range_OFFSET 2 /* The offset (in octets) from the begining of the Tvb. Defaults to 0. */
+#define WSLUA_OPTARG_Tvb_range_LENGTH 2 /* The length (in octets) of the range. Defaults to until the end of the Tvb. */
+	return 0
+}	
+WSLUA_METAMETHOD Tvb__call(lua_State* L) {
+	/* equivalent to tvb:range(...) */
+	return 0
+}
+#endif
+
 static const luaL_reg Tvb_methods[] = {
+    {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
     {0,0}
 };
 
 static int Tvb_range(lua_State* L);
-#if USED_FOR_DOC_PURPOSES
-WSLUA_METAMETHOD Tvb__call(lua_State* L) {
-	/* equivalent to tvb:range(...) */
-	return 0
-}
-#endif
 
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
