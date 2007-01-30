@@ -43,6 +43,8 @@ static int hf_h248_pkg_BCP_BNCChar = -1;
 
 static int ett_h248_pkg_BCP = -1;
 
+static gboolean implicit = TRUE;
+
 static const value_string h248_pkg_BCP_parameters[] = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
 	{0,     NULL}
@@ -50,7 +52,7 @@ static const value_string h248_pkg_BCP_parameters[] = {
 
 /* Properties */
 h248_pkg_param_t h248_pkg_BCP_props[] = {
-	{ 0x0001, &hf_h248_pkg_BCP_BNCChar, h248_param_ber_integer, NULL },
+	{ 0x0001, &hf_h248_pkg_BCP_BNCChar, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -92,7 +94,7 @@ static const value_string h248_pkg_bcg_sig_bdt_par_btd_vals[] = {
 };
 
 static h248_pkg_param_t  h248_pkg_h248_pkg_bcg_sig_bdt_params[] = {
-	{ 0x0001, &hf_h248_pkg_bcg_sig_bdt_par_btd, h248_param_ber_integer, NULL },
+	{ 0x0001, &hf_h248_pkg_bcg_sig_bdt_par_btd, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -157,8 +159,8 @@ static h248_package_t h248_pkg_bct = {
 	NULL,
 	&ett_h248_pkg_bct,
 	NULL,						/* Properties */
-	NULL,		/* signals */
-	h248_pkg_bct_events,						/* events */
+	NULL,						/* signals */
+	h248_pkg_bct_events,		/* events */
 	NULL						/* statistics */
 };
 

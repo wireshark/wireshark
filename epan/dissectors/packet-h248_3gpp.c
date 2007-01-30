@@ -43,6 +43,8 @@ static int hf_h248_package_3GUP_initdir = -1;
 
 static gint ett_h248_package_3GUP;
 
+static gboolean implicit = FALSE;
+
 static const value_string h248_3GUP_Mode_vals[] = {
 	{   0x00000001, "Transparent mode" },
 	{   0x00000002, "Support mode for predefined SDU sizes" },
@@ -98,11 +100,11 @@ static const value_string h248_3GUP_parameters[] = {
 };
 
 h248_pkg_param_t h248_package_3GUP_properties[] = {
-	{ 0x0001, &hf_h248_package_3GUP_Mode, h248_param_ber_boolean, NULL },
-	{ 0x0002, &hf_h248_package_3GUP_UPversions, h248_param_ber_integer, NULL },
-	{ 0x0003, &hf_h248_package_3GUP_delerrsdu, h248_param_ber_integer, NULL },
-	{ 0x0004, &hf_h248_package_3GUP_interface, h248_param_ber_integer, NULL },
-	{ 0x0005, &hf_h248_package_3GUP_initdir, h248_param_ber_integer, NULL },
+	{ 0x0001, &hf_h248_package_3GUP_Mode, h248_param_ber_integer, &implicit },
+	{ 0x0002, &hf_h248_package_3GUP_UPversions, h248_param_ber_integer, &implicit },
+	{ 0x0003, &hf_h248_package_3GUP_delerrsdu, h248_param_ber_integer, &implicit },
+	{ 0x0004, &hf_h248_package_3GUP_interface, h248_param_ber_integer, &implicit },
+	{ 0x0005, &hf_h248_package_3GUP_initdir, h248_param_ber_integer, &implicit },
 };
 
 static h248_package_t h248_package_3GUP = {
