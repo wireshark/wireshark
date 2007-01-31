@@ -3161,6 +3161,8 @@ Where: module - Returned by the prefs_register_protocol routine
 		       preference value
 	 var	  - pointer to the storage location that is updated when the
 		    field is changed in the preference dialog box
+	 base	  - Base that the unsigned integer is expected to be in,
+		    see strtoul(3).
 	 enumvals - an array of enum_val_t structures.  This must be
 		    NULL-terminated; the members of that structure are:
 
