@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-h248.c                                                            */
+/* ./packet-h248.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
 
 /* Input file: packet-h248-template.c */
@@ -135,8 +135,8 @@ static int hf_h248_topologyReq_item = -1;         /* TopologyRequest */
 static int hf_h248_iepscallind = -1;              /* BOOLEAN */
 static int hf_h248_contextProp = -1;              /* SEQUENCE_OF_PropertyParm */
 static int hf_h248_contextProp_item = -1;         /* PropertyParm */
-static int hf_h248_contextList = -1;              /* SEQUENCE_OF_ContextID */
-static int hf_h248_contextList_item = -1;         /* ContextID */
+static int hf_h248_contextList = -1;              /* SEQUENCE_OF_ContextIDinList */
+static int hf_h248_contextList_item = -1;         /* ContextIDinList */
 static int hf_h248_topology = -1;                 /* NULL */
 static int hf_h248_cAAREmergency = -1;            /* NULL */
 static int hf_h248_cAARPriority = -1;             /* NULL */
@@ -433,7 +433,7 @@ static gint ett_h248_SEQUENCE_OF_CommandReply = -1;
 static gint ett_h248_ContextRequest = -1;
 static gint ett_h248_T_topologyReq = -1;
 static gint ett_h248_SEQUENCE_OF_PropertyParm = -1;
-static gint ett_h248_SEQUENCE_OF_ContextID = -1;
+static gint ett_h248_SEQUENCE_OF_ContextIDinList = -1;
 static gint ett_h248_ContextAttrAuditRequest = -1;
 static gint ett_h248_SEQUENCE_OF_IndAudPropertyParm = -1;
 static gint ett_h248_SelectLogic = -1;
@@ -1163,27 +1163,6 @@ void h248_register_package(h248_package_t* pkg) {
 	g_ptr_array_add(packages,pkg);
 }
 
-#if 0
-static void
-dissect_h248_pkg_data(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,guint16 name_major, guint16 name_minor){
-
-guint offset=0;
-
-	switch ( name_major ){
-		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
-        {
-            guint bearer_type = 0;
-			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_pkg_bcp_BNCChar_PDU, &bearer_type);
-            if ( bearer_type && curr_info.term )
-                curr_info.term->type = bearer_type;
-			break;
-        }
-	}
-
-}
-
-#endif
-
 static guint32 packageandid;
 
 static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
@@ -1409,7 +1388,7 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 		prop = &no_param;
 	}
 
-	if (prop && prop->hfid && prop->data) {
+	if (prop && prop->hfid ) {
 		if (!prop->dissector) prop = &no_param;
 		prop->dissector(tree, next_tvb, pinfo, *(prop->hfid), &curr_info, prop->data);
 	}
@@ -2625,9 +2604,6 @@ dissect_h248_ContextID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   return offset;
 }
-static int dissect_contextList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_ContextID(FALSE, tvb, offset, pinfo, tree, hf_h248_contextList_item);
-}
 
 
 
@@ -3053,19 +3029,32 @@ static int dissect_mpl_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_ContextID_sequence_of[1] = {
+
+static int
+dissect_h248_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+static int dissect_contextList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_ContextIDinList(FALSE, tvb, offset, pinfo, tree, hf_h248_contextList_item);
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ContextIDinList_sequence_of[1] = {
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_contextList_item },
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ContextID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_h248_SEQUENCE_OF_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
-                                      SEQUENCE_OF_ContextID_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ContextID);
+                                      SEQUENCE_OF_ContextIDinList_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ContextIDinList);
 
   return offset;
 }
 static int dissect_contextList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_SEQUENCE_OF_ContextID(TRUE, tvb, offset, pinfo, tree, hf_h248_contextList);
+  return dissect_h248_SEQUENCE_OF_ContextIDinList(TRUE, tvb, offset, pinfo, tree, hf_h248_contextList);
 }
 
 
@@ -6353,7 +6342,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1776 "packet-h248-template.c"
+#line 1755 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6726,11 +6715,11 @@ void proto_register_h248(void) {
     { &hf_h248_contextList,
       { "contextList", "h248.contextList",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h248.SEQUENCE_OF_ContextID", HFILL }},
+        "h248.SEQUENCE_OF_ContextIDinList", HFILL }},
     { &hf_h248_contextList_item,
       { "Item", "h248.contextList_item",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h248.ContextID", HFILL }},
+        "h248.ContextIDinList", HFILL }},
     { &hf_h248_topology,
       { "topology", "h248.topology",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7709,7 +7698,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1915 "packet-h248-template.c"
+#line 1894 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7764,7 +7753,7 @@ void proto_register_h248(void) {
     &ett_h248_ContextRequest,
     &ett_h248_T_topologyReq,
     &ett_h248_SEQUENCE_OF_PropertyParm,
-    &ett_h248_SEQUENCE_OF_ContextID,
+    &ett_h248_SEQUENCE_OF_ContextIDinList,
     &ett_h248_ContextAttrAuditRequest,
     &ett_h248_SEQUENCE_OF_IndAudPropertyParm,
     &ett_h248_SelectLogic,
@@ -7878,7 +7867,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1940 "packet-h248-template.c"
+#line 1919 "packet-h248-template.c"
   };
 
   module_t *h248_module;

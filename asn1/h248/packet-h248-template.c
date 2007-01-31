@@ -702,27 +702,6 @@ void h248_register_package(h248_package_t* pkg) {
 	g_ptr_array_add(packages,pkg);
 }
 
-#if 0
-static void
-dissect_h248_pkg_data(gboolean implicit_tag, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,guint16 name_major, guint16 name_minor){
-
-guint offset=0;
-
-	switch ( name_major ){
-		case 0x001e: /* Bearer Characteristics Q.1950 Annex A */
-        {
-            guint bearer_type = 0;
-			offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_h248_pkg_bcp_BNCChar_PDU, &bearer_type);
-            if ( bearer_type && curr_info.term )
-                curr_info.term->type = bearer_type;
-			break;
-        }
-	}
-
-}
-
-#endif
-
 static guint32 packageandid;
 
 static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
@@ -948,7 +927,7 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 		prop = &no_param;
 	}
 
-	if (prop && prop->hfid && prop->data) {
+	if (prop && prop->hfid ) {
 		if (!prop->dissector) prop = &no_param;
 		prop->dissector(tree, next_tvb, pinfo, *(prop->hfid), &curr_info, prop->data);
 	}

@@ -83,10 +83,25 @@ static gint ett_h248_pkg_bct = -1;
 static gint ett_h248_pkg_bct_tind = -1;
 
 static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
-	tvbuff_t* sdp_tvb;
-	dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
-	if(sdp_tvb)
-		call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
+	tvbuff_t* sdp_tvb = NULL;
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	
+	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	
+	/* XXX: is this enough to guess it? */
+	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
+		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
+		
+		if (sdp_tvb) {
+			/* XXX: is it realy sdp? */
+			call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
+		}
+	} else {
+		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+	}
+	
 }
 
 static h248_pkg_param_t h248_pkg_bct_tind[] = {
@@ -169,7 +184,6 @@ static h248_package_t h248_pkg_bcg = {
 	NULL,						/* events */
 	NULL						/* statistics */
 };
-
 
 
 /* Register dissector */

@@ -1,7 +1,7 @@
 MEDIA-GATEWAY-CONTROL {itu-t(0) recommendation(0) h(8) h248(248) modules(0)
 media-gateway-control(0) version3(3)}
 --
--- $Id:$
+-- $Id$
 --DEFINITIONS AUTOMATIC TAGS ::=
 --BEGIN
 -- Has been modified to pass through the ASN2ETH compiler
@@ -67,7 +67,7 @@ BEGIN
 		-- of alphanumeric digits, hyphens and dots. No two dots shall occur
 		-- consecutively.
 
-	portNumber			[1] INTEGER(0..65535) OPTIONAL
+		portNumber			[1] INTEGER(0..65535) OPTIONAL
 	}
 
 	IP4Address ::= SEQUENCE
@@ -175,6 +175,9 @@ BEGIN
 		commandReply			[3] SEQUENCE OF CommandReply
 	}
 
+	-- WireShark Specific
+	ContextIDinList ::= INTEGER(0..4294967295)
+
 	ContextRequest ::= SEQUENCE
 	{
 		priority				[0] INTEGER(0..15) OPTIONAL,
@@ -183,9 +186,14 @@ BEGIN
 		...,
 		iepscallind				[3] BOOLEAN OPTIONAL,
 		contextProp				[4] SEQUENCE OF PropertyParm OPTIONAL,
-		contextList				[5] SEQUENCE OF ContextID OPTIONAL
+		
+		-- WireShark Specific
+		-- contextList				[5] SEQUENCE OF ContextID OPTIONAL
+		contextList				[5] SEQUENCE OF ContextIDinList OPTIONAL
+		-- Currently the way that WS tracing code's persistent data is
+		-- organized disallows to relate a request to multiple contexts
 	}
-
+	
 -- When returning a contextList, the contextId in the ActionReply construct will
 -- return the contextId from the associated ActionRequest.
 
@@ -993,7 +1001,7 @@ BEGIN
 		serviceChangeIncompleteFlag [10] NULL OPTIONAL
 	}
 
--- Ws¡reshark extension to decode serviceChangeReason
+-- Wireshark extension to decode serviceChangeReason
 	SCreasonValue ::= SEQUENCE OF SCreasonValueOctetStr
 	SCreasonValueOctetStr ::= OCTET STRING
 	ServiceChangeReasonStr ::= IA5String
