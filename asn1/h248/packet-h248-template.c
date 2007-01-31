@@ -335,6 +335,7 @@ static const value_string event_name_vals[] = {
   {   0x00450000, "Inactivity Timer H.248.14" },
   {   0x00450001, "it/ito" },
   {   0x00450002, "it/ito" },
+  {   0x00460001, "threegmlc/mod_link_supp (Bearer Modification Support Event)" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };

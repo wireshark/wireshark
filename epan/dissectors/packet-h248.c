@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h248.c                                                            */
+/* .\packet-h248.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
 
 /* Input file: packet-h248-template.c */
@@ -796,6 +796,7 @@ static const value_string event_name_vals[] = {
   {   0x00450000, "Inactivity Timer H.248.14" },
   {   0x00450001, "it/ito" },
   {   0x00450002, "it/ito" },
+  {   0x00460001, "threegmlc/mod_link_supp (Bearer Modification Support Event)" },
   {   0x800a0000, "Nokia Bearer Characteristics Package" },
 	{0,     NULL}
 };
@@ -6342,7 +6343,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1755 "packet-h248-template.c"
+#line 1756 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -7698,7 +7699,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1894 "packet-h248-template.c"
+#line 1895 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7867,7 +7868,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1919 "packet-h248-template.c"
+#line 1920 "packet-h248-template.c"
   };
 
   module_t *h248_module;
