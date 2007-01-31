@@ -534,6 +534,7 @@ prefs_register_uint_preference(module_t *module, const char *name,
 	preference = register_preference(module, name, title, description,
 	    PREF_UINT);
 	preference->varp.uint = var;
+	g_assert(base > 0 && base != 1 && base < 37);
 	preference->info.base = base;
 }
 
