@@ -35,33 +35,53 @@ Wireshark Info
 
       <itemizedlist>
 
-        <listitem><para>
-	  The TCP dissector could hang or crash while reassembling HTTP packets.
-	  <!-- Fixed in r19859 -->
-	  <!-- Bug IDs: 1200 -->
-	  Versions affected: 0.99.2 to 0.99.4
-        </para></listitem>
+        <listitem>
+          <para>
+	    The TCP dissector could hang or crash while reassembling HTTP packets.
+	    <!-- Fixed in r19859 -->
+	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1200">1200</ulink>
+          </para>
+	  <para>Versions affected: 0.99.2 to 0.99.4</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0459">CVE-2007-0459</ulink>
+          </para>
+        </listitem>
 
-        <listitem><para>
-	  The HTTP dissector could crash.
+        <listitem>
+          <para>
+            The HTTP dissector could crash.
+          </para>
 	  <!-- Fixed in 19899 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.99.3 to 0.99.4
-        </para></listitem>
+	  <para>Versions affected: 0.99.3 to 0.99.4</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0458">CVE-2007-0458</ulink>
+          </para>
+        </listitem>
 
-        <listitem><para>
-	  On some systems, the IEEE 802.11 dissector could crash.
+        <listitem>
+          <para>
+	    On some systems, the IEEE 802.11 dissector could crash.
+          </para>
 	  <!-- Fixed in 20126 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.10.14 to 0.99.4
-        </para></listitem>
+	  <para>Versions affected: 0.10.14 to 0.99.4</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0457">CVE-2007-0457</ulink>
+          </para>
+        </listitem>
 
-        <listitem><para>
-	  On some systems, the LLT dissector could crash.
+        <listitem>
+          <para>
+            On some systems, the LLT dissector could crash.
+          </para>
 	  <!-- Fixed in 20007 -->
 	  <!-- Bug IDs: None -->
-	  Versions affected: 0.99.3 to 0.99.4
-        </para></listitem>
+	  <para>Versions affected: 0.99.3 to 0.99.4</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0456">CVE-2007-0456</ulink>
+          </para>
+        </listitem>
 
       </itemizedlist>
 
