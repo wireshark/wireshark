@@ -34,7 +34,6 @@ DISTCLEANFILES = \
 	grammar.h
 
 MAINTAINERCLEANFILES = \
-	dfilter-macro.c \
 	Makefile.in	\
 	grammar.c	\
 	grammar.h	\
