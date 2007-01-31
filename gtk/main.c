@@ -160,6 +160,7 @@
 #include "../image/wsiconcap16.xpm"
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
+#include "../image/wssplash.xpm"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
@@ -3414,25 +3415,29 @@ is_widget_visible(GtkWidget *widget, gpointer data)
     }
 }
 
-
+/*#define SHOW_WELCOME_PAGE*/
 #ifdef SHOW_WELCOME_PAGE
 /* XXX - There seems to be some disagreement about if and how this feature should be implemented.
    As I currently don't have the time to continue this, it's temporarily disabled. - ULFL */
 GtkWidget *
-welcome_item(gchar *stock_item, gchar * label, gchar * message, GtkSignalFunc callback, void *callback_data)
+welcome_item(const gchar *stock_item, const gchar * label, const gchar * message, const gchar * tooltip, 
+			 GtkSignalFunc callback, void *callback_data)
 {
     GtkWidget *w, *item_hb;
 #if GTK_MAJOR_VERSION >= 2
     gchar *formatted_message;
-#endif
+	GtkTooltips *tooltips;
 
+	tooltips = gtk_tooltips_new();
+#endif
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
     w = BUTTON_NEW_FROM_STOCK(stock_item);
-    WIDGET_SET_SIZE(w, 60, 60);
+    WIDGET_SET_SIZE(w, 80, 40);
 #if GTK_MAJOR_VERSION >= 2
     gtk_button_set_label(GTK_BUTTON(w), label);
+	gtk_tooltips_set_tip(tooltips, w, tooltip, NULL);
 #endif
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 0);
     SIGNAL_CONNECT(w, "clicked", callback, callback_data);
@@ -3451,31 +3456,46 @@ welcome_item(gchar *stock_item, gchar * label, gchar * message, GtkSignalFunc ca
 }
 
 
-/* XXX - the layout has to be improved */
 GtkWidget *
-welcome_new(void)
+welcome_header_new(void)
 {
-    GtkWidget *welcome_scrollw, *welcome_hb, *welcome_vb, *item_hb;
-    GtkWidget *w, *icon;
-    gchar * message;
+	GtkWidget *item_vb;
+	GtkWidget *item_hb;
+	GtkWidget *eb;
+	GdkColor bg;
+    GtkWidget *icon;
+    gchar *message;
+	GtkWidget *w;
 
 
-    welcome_scrollw = scrolled_window_new(NULL, NULL);
+	/* background color of the header bar */
+	bg.pixel = 0;
+	bg.red = 154 * 255;
+	bg.green = 210 * 255;
+	bg.blue = 229 * 255;
 
-    welcome_hb = gtk_hbox_new(FALSE, 1);
-	/*gtk_container_border_width(GTK_CONTAINER(welcome_hb), 20);*/
+    item_vb = gtk_vbox_new(FALSE, 0);
 
-    welcome_vb = gtk_vbox_new(FALSE, 1);
+	/* colorize vbox */
+	get_color(&bg);
+	eb = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(eb), item_vb);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &bg);
+#endif
 
-    item_hb = gtk_hbox_new(FALSE, 1);
+    item_hb = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
-    icon = xpm_to_widget_from_parent(top_level, wsicon64_xpm);
-    gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 5);
+	icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
+    /*icon = xpm_to_widget_from_parent(top_level, wsicon64_xpm);*/
+    gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
+#if 1
 #if GTK_MAJOR_VERSION < 2
-    message = "Welcome to Wireshark!";
+    message = "Wireshark";
 #else
-    message = "<span weight=\"bold\" size=\"25000\">" "Welcome to Wireshark!" "</span>";
+    message = "<span weight=\"bold\" size=\"25000\">" "Wireshark" "</span>";
 #endif
     w = gtk_label_new(message);
 #if GTK_MAJOR_VERSION >= 2
@@ -3483,60 +3503,234 @@ welcome_new(void)
 #endif
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
+#endif
 
-    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+    gtk_widget_show_all(eb);
 
-    w = gtk_label_new("What would you like to do?");
-    gtk_box_pack_start(GTK_BOX(welcome_vb), w, FALSE, FALSE, 10);
-    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+	return eb;
+}
+
+GtkWidget *
+welcome_topic_header_new(const char *header)
+{
+	GtkWidget *w;
+	GdkColor bg;
+    GtkWidget *eb;
+#if GTK_MAJOR_VERSION >= 2
+    gchar *formatted_message;
+#endif
+
+
+    w = gtk_label_new(header);
+#if GTK_MAJOR_VERSION >= 2
+    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", header);
+    gtk_label_set_markup(GTK_LABEL(w), formatted_message);
+    g_free(formatted_message);
+#endif
+
+	/* topic header background color */
+	bg.pixel = 0;
+	bg.red = 24 * 255;
+	bg.green = 151 * 255;
+	bg.blue = 192 * 255;
+
+	/* colorize vbox */
+	get_color(&bg);
+	eb = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(eb), w);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &bg);
+#endif
+
+	return eb;
+}
+
+
+GtkWidget *
+welcome_topic_new(const char *header, GtkWidget **to_fill)
+{
+	GtkWidget *topic_vb;
+	GtkWidget *topic_eb;
+	GtkWidget *topic_header;
+	GdkColor bg;
+
+
+	topic_vb = gtk_vbox_new(FALSE, 5);
+
+	/* topic content background color */
+	bg.pixel = 0;
+	bg.red = 221 * 255;
+	bg.green = 226 * 255;
+	bg.blue = 228 * 255;
+
+	/* colorize vbox (we need an event box for this!) */
+	get_color(&bg);
+	topic_eb = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(topic_eb), topic_vb);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &bg);
+#endif
+
+	topic_header = welcome_topic_header_new(header);
+    gtk_box_pack_start(GTK_BOX(topic_vb), topic_header, FALSE, FALSE, 0);
+
+	*to_fill = topic_vb;
+
+	return topic_eb;
+}
+
+
+/* XXX - the layout has to be improved */
+GtkWidget *
+welcome_new(void)
+{
+    GtkWidget *welcome_scrollw;
+	GtkWidget *welcome_vb;
+	GtkWidget *welcome_hb;
+	GtkWidget *column_vb;
+	GtkWidget *item_hb;
+    GtkWidget *w;
+	GtkWidget *header;
+	GtkWidget *topic_vb;
+	GtkWidget *topic_to_fill;
+
+
+    welcome_scrollw = scrolled_window_new(NULL, NULL);
+
+    welcome_vb = gtk_vbox_new(FALSE, 0);
+
+	/* header */
+	header = welcome_header_new();
+    gtk_box_pack_start(GTK_BOX(welcome_vb), header, FALSE, FALSE, 0);
+
+	/* content */
+    welcome_hb = gtk_hbox_new(FALSE, 10);
+	gtk_container_border_width(GTK_CONTAINER(welcome_hb), 10);
+    gtk_box_pack_start(GTK_BOX(welcome_vb), welcome_hb, TRUE, TRUE, 0);
+
+	/* column capture */
+	column_vb = gtk_vbox_new(FALSE, 10);
+    gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
+
+	topic_vb = welcome_topic_new("Capture", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
+
+	w = gtk_label_new("Interfaces:");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+
+	w = gtk_label_new("START OPTIONS DETAILS Generic dialup adapter");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+
+	w = gtk_label_new("START OPTIONS DETAILS Marvell Gigabit Ethernet Controller");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+
+	w = gtk_label_new("START OPTIONS DETAILS Intel(R) PRO/Wireless 3945ABG Network Connection");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
 #ifdef HAVE_LIBPCAP
     item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
         "Capture",
         "Capture live data from your network",
+		"tip",
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
-    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #endif
+
+
+	topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
+
+#ifdef HAVE_LIBPCAP
+    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
+        "Setup",
+		"How To: Setup a Capture",
+		"tip",
+        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
+        "Examples",
+		"Capture Filter Examples",
+		"Capture Filter Examples (from the Wiki)",
+        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+#endif
+
+	/* fill bottom space */
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
+
+
+	/* column files */
+	column_vb = welcome_topic_new("Files", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
+
+	w = gtk_label_new("Recent Files:");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+
+	w = gtk_label_new("C:\\Testfiles\\hello.pcap");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+
+	w = gtk_label_new("C:\\Testfiles\\hello2.pcap");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
     item_hb = welcome_item(GTK_STOCK_OPEN,
         "Open",
-        "Open a previously captured file",
+        "Open a capture file",
+		"tip",
         GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
-    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+    item_hb = welcome_item(GTK_STOCK_OPEN,
+        "Examples",
+        "Download Example Files",
+		"Download Example Capture Files (from the Wiki)",
+        GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
+
+
+	/* column general help */
+	column_vb = welcome_topic_new("General Help", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
 #if (GLIB_MAJOR_VERSION >= 2)
-    item_hb = welcome_item(GTK_STOCK_HOME,
-        "Home",
-        "Visit the Wireshark homepage",
-        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
-    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
-
     item_hb = welcome_item(WIRESHARK_STOCK_WEB_SUPPORT,
         "User's Guide",
-        "Open the Wireshark User's Guide",
+        "Help Content",
+		"tip",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
-    gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+    item_hb = welcome_item(GTK_STOCK_HOME,
+        "Home",
+        "Home Page",
+		"tip",
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #endif
 
+    w = gtk_label_new("");
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
+
+
     /* the end */
-    w = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(welcome_vb), w, TRUE, TRUE, 0);
-
-    w = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(welcome_hb), w, TRUE, TRUE, 0);
-
-    gtk_box_pack_start(GTK_BOX(welcome_hb), welcome_vb, TRUE, TRUE, 0);
-
-    w = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(welcome_hb), w, TRUE, TRUE, 0);
-
-    gtk_widget_show_all(welcome_hb);
+    gtk_widget_show_all(welcome_vb);
 
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(welcome_scrollw),
-                                          welcome_hb);
+                                          welcome_vb);
     gtk_widget_show_all(welcome_scrollw);
 
-    return welcome_scrollw;
+	return welcome_scrollw;
 }
 #else
 static GtkWidget *
