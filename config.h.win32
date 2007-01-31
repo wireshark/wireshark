@@ -254,14 +254,10 @@
 /* We shouldn't need this under Windows but we'll define it anyway. */
 #define HTML_VIEWER "mozilla"
 
-/* check if the MSVC_VARIANT setting in config.nmake and the current MSVC compiler version matches together */
-/* user might forget to set this or the PATH to the C compiler could be wrong */
-#if _MSC_VER == 1400 && (MSVC_VARIANT != MSVC2005EE || MSVC_VARIANT != MSVC2005 || MSVC_VARIANT != DOTNET20 || MSVC_VARIANT != DOTNET30)
-#error Your MSVC_VARIANT setting in config.nmake and the C compiler version 14.00 (V8.0) don't match!
-#elseif _MSC_VER == 1310 && (MSVC_VARIANT != MSVC2003 || MSVC_VARIANT != DOTNET11)
-#error Your MSVC_VARIANT setting in config.nmake and the C compiler version 13.10 (V7.1) don't match!
-#elseif _MSC_VER == 1300 && (MSVC_VARIANT != MSVC2002 || MSVC_VARIANT != DOTNET10)
-#error Your MSVC_VARIANT setting in config.nmake and the C compiler version 13.00 (V7.0) don't match!
-#elseif _MSC_VER == 1200 && (MSVC_VARIANT != MSVC6)
-#error Your MSVC_VARIANT setting in config.nmake and the C compiler version 12.00 (V6.0) don't match!
+/* Check for the required _MSC_VER */
+#if MSC_VER_REQUIRED != _MSC_VER
+#define WS_TO_STRING2(x) #x
+#define WS_TO_STRING(x) WS_TO_STRING2(x)
+#pragma message( "_MSC_VER is:" WS_TO_STRING(_MSC_VER) " but required is:" WS_TO_STRING(MSC_VER_REQUIRED) )
+#error Your MSVC_VARIANT setting in config.nmake doesn't match the MS compiler version!
 #endif
