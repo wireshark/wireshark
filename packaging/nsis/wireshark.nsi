@@ -1089,7 +1089,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
 !ifdef HHC_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "The user's guide as the online help system."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install the user's guide, so an internet connection is not required to read the help pages."
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
