@@ -3044,19 +3044,19 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_P_ASSERTED_IDENTITY],
 		       { "P-Asserted-Identity",		"sip.P-Asserted-Identity",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Asserted-Identity Header", HFILL }
+			"RFC 3325: P-Asserted-Identity Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_ASSOCIATED_URI],
 		       { "P-Associated-URI", 		"sip.P-Associated-URI",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Associated-URI Header", HFILL }
+			"RFC 3455: P-Associated-URI Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_CALLED_PARTY_ID],
 		       { "P-Called-Party-ID", 		"sip.P-Called-Party-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Called-Party-ID Header", HFILL }
+			"RFC 3455: P-Called-Party-ID Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_CHARGING_FUNCTION_ADDRESSES],
@@ -3104,13 +3104,13 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_P_MEDIA_AUTHORIZATION],
 		       { "P-Media-Authorization", 	"sip.P-Media-Authorization",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Media-Authorization Header", HFILL }
+			   "RFC 3313: P-Media-Authorization Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_PREFERRED_IDENTITY],
 		       { "P-Preferred-Identity",  	"sip.P-Preferred-Identity",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Preferred-Identity Header", HFILL }
+			"RFC 3325: P-Preferred-Identity Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_P_USER_DATABASE],
@@ -3122,13 +3122,13 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_P_VISITED_NETWORK_ID],
 		       { "P-Visited-Network-ID", 	"sip.P-Visited-Network-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"P-Visited-Network-ID Header", HFILL }
+			   "RFC 3455: P-Visited-Network-ID Header", HFILL }
 		},
 
 		{ &hf_header_array[POS_PATH],
 		       { "Path", 			"sip.Path",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Path Header", HFILL }
+			   "RFC 3327: Path Header", HFILL }
 		},
 
         { &hf_header_array[POS_PRIORITY],
@@ -3251,22 +3251,22 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_SERVICE_ROUTE],
 		       { "Service-Route", 		"sip.Service-Route",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Service-Route Header", HFILL }
+			"RFC 3608: Service-Route Header", HFILL }
 		},
 		{ &hf_header_array[POS_SESSION_EXPIRES],
 		       { "Session-Expires", 		"sip.Session-Expires",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Session-Expires Header", HFILL }
+			   "RFC 4028: Session-Expires Header", HFILL }
 		},
 		{ &hf_header_array[POS_SIP_ETAG],
 		       { "ETag", 		"sip.ETag",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"SIP-ETag Header", HFILL }
+			   "RFC 3903: SIP-ETag Header", HFILL }
 		},
 		{ &hf_header_array[POS_SIP_IF_MATCH],
 		       { "If_Match", 		"sip.If_Match",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"SIP-If-Match Header", HFILL }
+			"RFC 3903: SIP-If-Match Header", HFILL }
 		},
 		{ &hf_header_array[POS_SUBJECT],
 		       { "Subject", 		"sip.Subject",
@@ -3328,7 +3328,7 @@ void proto_register_sip(void)
 		{ &hf_header_array[POS_REFER_TO],
 			{ "Refer-To", 			"sip.Refer-To",
 		       FT_STRING, BASE_NONE,NULL,0x0,
-			"Refer-To Header", HFILL }
+			"RFC 3515: Refer-To Header", HFILL }
 		},
 		{ &hf_header_array[POS_HISTORY_INFO],
 			{ "History-Info", 			"sip.History-Info",
