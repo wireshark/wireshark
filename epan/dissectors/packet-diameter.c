@@ -1916,11 +1916,35 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 							proto_tree_add_item(avpi_tree, hf_diameter_avp_data_addrfamily,
 							                    tvb, offset, 2, FALSE);
 							if (tvb_get_ntohs(tvb, offset) == 0x0001) {
+								/* IPv4 */
 								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v4addr,
 								                    tvb, offset+2, 4, FALSE);
+								if (avpDataLength != 6) {
+									ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+									                                 tvb, offset, avpDataLength,
+									                                 tvb_get_ptr(tvb, offset, avpDataLength),
+									                                 "Error! Bad IPv4 AVP Length (%u, expected %u)",
+									                                 avpLength, hdrLength+6);
+									expert_add_info_format(pinfo, ti,
+									                       PI_MALFORMED, PI_WARN,
+									                       "Bad IPv4 AVP Length (%u, expected %u)",
+									                       avpLength, hdrLength+6);
+								}
 							} else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
+								/* IPv6 */
 								proto_tree_add_item(avpi_tree, hf_diameter_avp_data_v6addr,
 								                    tvb, offset+2, 16, FALSE);
+								if (avpDataLength != 18) {
+									ti = proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
+									                                 tvb, offset, avpDataLength,
+									                                 tvb_get_ptr(tvb, offset, avpDataLength),
+									                                 "Error! Bad IPv6 AVP Length (%u, expected %u)",
+									                                 avpLength, hdrLength+18);
+									expert_add_info_format(pinfo, ti,
+									                       PI_MALFORMED, PI_WARN,
+									                       "Bad IPv6 AVP length (%u, expected %u)",
+									                       avpLength, hdrLength+18);
+								}
 							} else {
 								proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
 								                            tvb, offset, avpDataLength,
