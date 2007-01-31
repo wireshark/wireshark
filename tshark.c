@@ -750,13 +750,10 @@ main(int argc, char *argv[])
 
   /* nothing more than the standard GLib handler, but without a warning */
   log_flags =
-		    G_LOG_LEVEL_ERROR|
-		    G_LOG_LEVEL_CRITICAL|
 		    G_LOG_LEVEL_WARNING|
 		    G_LOG_LEVEL_MESSAGE|
 		    G_LOG_LEVEL_INFO|
-		    G_LOG_LEVEL_DEBUG|
-		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+		    G_LOG_LEVEL_DEBUG;
 
   g_log_set_handler(NULL,
 		    log_flags,
