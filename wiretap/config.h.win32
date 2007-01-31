@@ -50,3 +50,11 @@
 /* Needed for zlib, according to http://www.winimage.com/zLibDll/ */
 /*#define ZLIB_DLL		1
 #define _WINDOWS		1*/
+
+/* Check for the required _MSC_VER */
+#if MSC_VER_REQUIRED != _MSC_VER
+#define WS_TO_STRING2(x) #x
+#define WS_TO_STRING(x) WS_TO_STRING2(x)
+#pragma message( "_MSC_VER is:" WS_TO_STRING(_MSC_VER) " but required is:" WS_TO_STRING(MSC_VER_REQUIRED) )
+#error Your MSVC_VARIANT setting in config.nmake doesn't match the MS compiler version!
+#endif
