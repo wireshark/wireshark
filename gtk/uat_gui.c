@@ -184,9 +184,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
     g_ptr_array_free(dd->entries,TRUE);
     window_destroy(GTK_WIDGET(dd->win));
 	
-#if GTK_MAJOR_VERSION >= 2
-	gtk_window_present(GTK_WINDOW(dd->uat->rep->window));
-#endif
+	window_present(GTK_WIDGET(dd->uat->rep->window));
 	 
     return TRUE;
 on_failure:
@@ -198,9 +196,7 @@ on_failure:
 static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	struct _uat_dlg_data* dd = user_data;
 
-#if GTK_MAJOR_VERSION >= 2
-	gtk_window_present(GTK_WINDOW(dd->uat->rep->window));
-#endif
+	window_present(GTK_WIDGET(dd->uat->rep->window));
 
 	if (dd->is_new) g_free(dd->rec);
     g_ptr_array_free(dd->entries,TRUE);
@@ -292,18 +288,14 @@ static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	uat_remove_record_idx(ud->uat, ud->idx);
 	gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
     window_destroy(GTK_WIDGET(ud->win));
-#if GTK_MAJOR_VERSION >= 2
-	gtk_window_present(GTK_WINDOW(ud->uat->rep->window));
-#endif
+	window_present(GTK_WIDGET(ud->uat->rep->window));
 	g_free(ud);
 }
 
 static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
     window_destroy(GTK_WIDGET(ud->win));
-#if GTK_MAJOR_VERSION >= 2
-	gtk_window_present(GTK_WINDOW(ud->uat->rep->window));
-#endif
+	window_present(GTK_WIDGET(ud->uat->rep->window));
 	g_free(ud);
 }
 
