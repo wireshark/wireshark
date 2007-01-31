@@ -65,6 +65,14 @@
 #include <time.h>
 #include "emem.h"
 
+/*
+ * If a user _does_ pass in a too-small buffer, this is probably
+ * going to be too long to fit.  However, even a partial string
+ * starting with "[Buf" should provide enough of a clue to be
+ * useful.
+ */
+#define BUF_TOO_SMALL_ERR "[Buffer too small]"
+
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
  * digits at at a time, with a specified punctuation character between
  * the bytes.
@@ -185,9 +193,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, int buf_len)
 	register gchar *b=buf;
 
 	if (buf_len < MAX_IP_STR_LEN) {
-		/* XXX - Should we return an error string instead of cowardly
-		 * bailing out with an empty string? */
-		*b = 0;
+		g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
 		return;
 	}
 
@@ -841,6 +847,9 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
   struct atalk_ddp_addr ddp_addr;
 
+  if (!buf)
+    return;
+
   switch(addr->type){
   case AT_NONE:
     g_snprintf(buf, buf_len, "%s", "");
@@ -852,12 +861,8 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     ip_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_IPv6:
-    /* XXX - Should we return an error string instead of cowardly
-     * bailing out with an empty string? */
-    if (buf_len < INET6_ADDRSTRLEN)
-      *buf = '\0';
-    else
-      inet_ntop(AF_INET6, addr->data, buf, INET6_ADDRSTRLEN);
+    if ( inet_ntop(AF_INET6, addr->data, buf, buf_len) == NULL ) /* Returns NULL if no space and does not touch buf */
+    	g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
     break;
   case AT_IPX:
     g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
