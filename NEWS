@@ -1,8 +1,4 @@
-$Id$
-
-== February 1, 2007
-
-Wireshark 0.99.5 has been released.
+Wireshark 0.99.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -20,37 +16,50 @@ What's New
    advisory for details and a workaround.
 
      o The TCP dissector could hang or crash while reassembling HTTP
-       packets. Versions affected: 0.99.2 to 0.99.4
+       packets. (Bug [2]1200)
 
-     o The HTTP dissector could crash. Versions affected: 0.99.3 to
-       0.99.4
+       Versions affected: 0.99.2 to 0.99.4
+
+       [3]CVE-2007-0459
+
+     o The HTTP dissector could crash.
+
+       Versions affected: 0.99.3 to 0.99.4
+
+       [4]CVE-2007-0458
 
      o On some systems, the IEEE 802.11 dissector could crash.
+
        Versions affected: 0.10.14 to 0.99.4
 
-     o On some systems, the LLT dissector could crash. Versions
-       affected: 0.99.3 to 0.99.4
+       [5]CVE-2007-0457
+
+     o On some systems, the LLT dissector could crash.
+
+       Versions affected: 0.99.3 to 0.99.4
+
+       [6]CVE-2007-0456
 
    The following bugs have been fixed:
 
      o On Windows systems the packet list scroll bar could sometimes
-       disappear or become unusable. ([2]Bug 220)
+       disappear or become unusable. ([7]Bug 220)
 
      o The end of HTTP chunked encoding wasn't being displayed.
-       ([3]Bug 646)
+       ([8]Bug 646)
 
-     o The Follow TCP Stream window could omit characters. ([4]Bug
+     o The Follow TCP Stream window could omit characters. ([9]Bug
        1043)
 
-     o Opening a flow graph could crash Wireshark. ([5]Bug 1117)
+     o Opening a flow graph could crash Wireshark. ([10]Bug 1117)
 
      o Follow TCP Stream would sometimes get the direction wrong.
-       ([6]Bug 1138)
+       ([11]Bug 1138)
 
      o The foreground text in the coloring rules editor was always
-       black.. ([7]Bug 1164)
+       black.. ([12]Bug 1164)
 
-     o The CSV export format was incorrect. ([8]Bug 1173)
+     o The CSV export format was incorrect. ([13]Bug 1173)
 
      o On some Windows systems Wireshark could take a long time to
        start up.
@@ -65,8 +74,8 @@ What's New
    The following features are new (or have been significantly
    updated) since the last release:
 
-     o We are now offering Wireshark as a U3 package for Windows. U3
-       packages are suitable for using on USB drives and CD-ROMs.
+     o We are now offering Wireshark as a [14]U3 package for Windows.
+       U3 packages are suitable for using on USB drives and CD-ROMs.
        It's still experimental, but you're welcome to try it out and
        report any problems or successes.
 
@@ -81,17 +90,19 @@ What's New
 
      o Main window keyboard navigation has been improved.
 
-     o Windows file dialogs now show the navigation bar. File dialogs
+     o Windows file dialogs now show the "places" bar (Desktop, My
+       Documents, My Computer, My Network Places, etc). File dialogs
        now default to "My Documents" in accordance with Microsoft's
        HIG.
 
-     o [9]AirPcap support (which provides raw mode capture under
+     o [15]AirPcap support (which provides raw mode capture under
        Windows) has been enhanced to allow capturing on multiple
        AirPcap adapters simultaneously.
 
      o You can no longer install Wireshark on Windows 95, 98, or ME.
        (OK, so it's not a feature per se, but it's an important
-       change)
+       change). The last version known to work on these systems is
+       [16]Ethereal 0.99.0.
 
      o ASN.1 BER-encoded files can now be dissected according to a
        user-specified syntax.
@@ -123,14 +134,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [10]download page on the main web site.
+   the [17]download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [11]download page on the Wireshark
+   packages can be found on the [18]download page on the Wireshark
    web site.
 
 File Locations
@@ -143,36 +154,43 @@ File Locations
 Known Problems
 
    The Filter button is nonfunctional in the file dialogs under
-   Windows. ([12]Bug 942)
+   Windows. ([19]Bug 942)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [13]the web site.
+   mailing lists can be found on [20]the web site.
 
    Commercial support, training, and development services are
-   available from [14]CACE Technologies.
+   available from [21]CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [15]Wireshark web site.
+   A complete FAQ is available on the [22]Wireshark web site.
 
 References
 
    Visible links
    1. http://www.wireshark.org/security/wnpa-sec-2007-01.html
-   2. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220
-   3. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=646
-   4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1043
-   5. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1117
-   6. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1138
-   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1164
-   8. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1173
-   9. http://www.cacetech.com/products/airpcap.htm
-  10. http://www.wireshark.org/download.html
-  11. http://www.wireshark.org/download.html#otherplat
-  12. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942
-  13. http://www.wireshark.org/lists/
-  14. http://www.cacetech.com/
-  15. http://www.wireshark.org/faq.html
+   2. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1200
+   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0459
+   4. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0458
+   5. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0457
+   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0456
+   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220
+   8. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=646
+   9. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1043
+  10. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1117
+  11. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1138
+  12. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1164
+  13. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1173
+  14. http://www.u3.com/
+  15. http://www.cacetech.com/products/airpcap.htm
+  16. file:///dev/
+  17. http://www.wireshark.org/download.html
+  18. http://www.wireshark.org/download.html#otherplat
+  19. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942
+  20. http://www.wireshark.org/lists/
+  21. http://www.cacetech.com/
+  22. http://www.wireshark.org/faq.html

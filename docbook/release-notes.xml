@@ -161,10 +161,11 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-        We are now offering Wireshark as a U3 package for Windows.  U3
-        packages are suitable for using on USB drives and CD-ROMs.  It's
-        still experimental, but you're welcome to try it out and report
-        any problems or successes.
+        We are now offering Wireshark as a
+        <ulink url="http://www.u3.com/">U3</ulink> package for Windows.
+        U3 packages are suitable for using on USB drives and CD-ROMs.
+        It's still experimental, but you're welcome to try it out and
+        report any problems or successes.
         </para></listitem>
 
         <listitem><para>
@@ -188,8 +189,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-        Windows file dialogs now show the navigation bar.  File dialogs now
-        default to "My Documents" in accordance with Microsoft's HIG.
+        Windows file dialogs now show the "places" bar (Desktop, My
+        Documents, My Computer, My Network Places, etc).  File dialogs
+        now default to "My Documents" in accordance with Microsoft's HIG.
         </para></listitem>
 
         <listitem><para>
@@ -202,7 +204,8 @@ Wireshark Info
         <listitem><para>
         You can no longer install Wireshark on Windows 95, 98, or ME.  (OK,
         so it's not a <emphasis>feature</emphasis> per se, but it's an
-        important change)
+        important change).  The last version known to work on these systems
+        is <ulink href="http://www.ethereal.com/">Ethereal 0.99.0</ulink>.
         </para></listitem>
 
         <listitem><para>
