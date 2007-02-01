@@ -1,4 +1,466 @@
 ------------------------------------------------------------------------
+r20671 | gerald | 2007-02-01 11:15:01 -0800 (Thu, 01 Feb 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/asn1/h248/h248v3.asn
+   M /trunk-0.99.5/asn1/h248/packet-h248-template.c
+   M /trunk-0.99.5/epan/dissectors/packet-h248.c
+   M /trunk-0.99.5/epan/dissectors/packet-h248.h
+
+Actually copy over the H.248 code this time.
+
+------------------------------------------------------------------------
+r20670 | gerald | 2007-02-01 10:40:28 -0800 (Thu, 01 Feb 2007) | 42 lines
+Changed paths:
+   M /trunk-0.99.5/NEWS
+   M /trunk-0.99.5/docbook/release-notes.xml
+   M /trunk-0.99.5/epan/dissectors/packet-tftp.c
+   M /trunk-0.99.5/epan/to_str.c
+   M /trunk-0.99.5/packaging/nsis/wireshark.nsi
+
+Copy over NEWS and release-notes.xml from the trunk.
+
+Copy over the H.248 dissector from the trunk.
+
+Copy over revs  20562, 20648, 20658:
+
+------------------------------------------------------------------------
+r20562 | jmayer | 2007-01-26 00:09:20 -0800 (Fri, 26 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-tftp.c
+
+If there is just a tftp response without a prior request,
+dissection would fail with dissector assert.
+
+------------------------------------------------------------------------
+r20648 | ulfl | 2007-01-30 22:45:46 -0800 (Tue, 30 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/packaging/nsis/wireshark.nsi
+
+slightly better explain the user's guide "component"
+------------------------------------------------------------------------
+r20658 | gerald | 2007-01-31 15:26:29 -0800 (Wed, 31 Jan 2007) | 15 lines
+Changed paths:
+   M /trunk/epan/to_str.c
+
+From Andrej Mikus: 
+
+  IMO, the function should return an error string instead of cowardly
+  bailing out with an empty string.
+
+  inet_ntop does the latter by default, so it does not need any additional
+  check, just passing buf_len instead of INET6_ADDRSTRLEN.
+  
+  At the other side I like the check you made into ip_to_str_buf.
+
+  My proposal would be to combine the patches and use MAX_IP_STR_LEN,
+  and approach below for both IPv4 and IPv6 in address_to_str_buf.
+
+Have the error string return a more descriptive clue.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r20653 | gerald | 2007-01-31 13:03:21 -0800 (Wed, 31 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/docbook/release-notes.xml
+
+Fix a closing parenthesis.
+
+------------------------------------------------------------------------
+r20635 | gerald | 2007-01-30 16:47:14 -0800 (Tue, 30 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk-0.99.5/docbook/release-notes.xml
+   M /trunk-0.99.5/version.conf
+
+Move to pre3-%#.  Reformat the vulnerability section of the release notes 
+using the style from 0.99.4.
+
+------------------------------------------------------------------------
+r20630 | gerald | 2007-01-30 11:30:25 -0800 (Tue, 30 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/gtk/sctp_assoc_analyse.c
+   M /trunk-0.99.5/gtk/sctp_stat.c
+   M /trunk-0.99.5/gtk/sctp_stat.h
+   M /trunk-0.99.5/gtk/sctp_stat_dlg.c
+
+Copy over revisions 20570, 20608, and 20610.
+
+------------------------------------------------------------------------
+r20629 | gerald | 2007-01-30 11:20:07 -0800 (Tue, 30 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/version.conf
+
+Designate pre2.
+
+------------------------------------------------------------------------
+r20628 | gerald | 2007-01-30 11:19:21 -0800 (Tue, 30 Jan 2007) | 6 lines
+Changed paths:
+   M /trunk-0.99.5/NEWS
+   M /trunk-0.99.5/epan/wslua/wslua_tvb.c
+   M /trunk-0.99.5/packaging/nsis/wireshark.nsi
+
+Change the NSIS install logic for WinPcap 4.0.  Hopefully this doesn't
+break anything.
+
+Copy over wslua_tvb.c from the trunk to fix compile errors.  Update the
+NEWS file.
+
+------------------------------------------------------------------------
+r20626 | gerald | 2007-01-30 09:51:30 -0800 (Tue, 30 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk-0.99.5/packaging/nsis/Makefile.am
+   M /trunk-0.99.5/packaging/nsis/Makefile.nmake
+   D /trunk-0.99.5/packaging/nsis/WinPcap_3_1.exe
+   A /trunk-0.99.5/packaging/nsis/WinPcap_4_0.exe
+   M /trunk-0.99.5/packaging/nsis/wireshark.nsi
+   M /trunk-0.99.5/packaging/u3/win32/makefile.nmake
+   M /trunk-0.99.5/packaging/u3/win32/u3util.c
+
+Copy over r20622 (which switches to WinPcap 4.0).  Copy over u3util.c
+directly, which includes r20582.
+
+------------------------------------------------------------------------
+r20625 | gerald | 2007-01-30 09:44:11 -0800 (Tue, 30 Jan 2007) | 84 lines
+Changed paths:
+   M /trunk-0.99.5/README
+   M /trunk-0.99.5/config.h.win32
+   M /trunk-0.99.5/docbook/release-notes.xml
+   M /trunk-0.99.5/epan/addr_resolv.c
+   M /trunk-0.99.5/epan/crypt/airpdcap.c
+   M /trunk-0.99.5/epan/crypt/airpdcap_system.h
+   M /trunk-0.99.5/epan/crypt/airpdcap_user.h
+   M /trunk-0.99.5/epan/dissectors/packet-dcp-etsi.c
+   M /trunk-0.99.5/epan/dissectors/packet-eapol.c
+   M /trunk-0.99.5/epan/dissectors/packet-ieee80211.c
+   M /trunk-0.99.5/epan/dissectors/packet-isup.c
+   M /trunk-0.99.5/epan/dissectors/packet-jxta.c
+   M /trunk-0.99.5/epan/dissectors/packet-radius.c
+   M /trunk-0.99.5/epan/dissectors/packet-ssl.c
+   M /trunk-0.99.5/epan/ftypes/Makefile.nmake
+   M /trunk-0.99.5/epan/ipv4.c
+   M /trunk-0.99.5/epan/strutil.c
+   M /trunk-0.99.5/epan/to_str.c
+   M /trunk-0.99.5/epan/to_str.h
+   M /trunk-0.99.5/epan/wslua/template-init.lua
+   M /trunk-0.99.5/util.c
+   M /trunk-0.99.5/version_info.c
+   M /trunk-0.99.5/version_info.h
+
+Copy over more revisions from the trunk.  Downgrade the ISUP stats
+overflow from "vulnerability" to "bug," since that's how the CVE folks
+have classified this sort of thing in the past.
+
+------------------------------------------------------------------------
+r20548 | guy | 2007-01-24 15:30:23 -0800 (Wed, 24 Jan 2007) | 6 lines
+Changed paths:
+   M /trunk/util.c
+
+When parsing DISPLAY, mirror what __X11TransConnectDisplay() does - and
+handle the case where the "host name" begins with "/", as some platforms
+might allow the pathname of a UNIX domain socket to be given in DISPLAY.
+
+Fix indentation of a comment.
+
+------------------------------------------------------------------------
+r20549 | gerald | 2007-01-24 17:24:14 -0800 (Wed, 24 Jan 2007) | 4 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+   M /trunk/epan/dissectors/packet-ieee80211.c
+   M /trunk/epan/strutil.c
+
+Fix a key preference crash bug.  Improve WPA passphrase and SSID length
+handling.  Free a byte array.  Squelch a compiler warning.  Fix a URI
+string parsing bug.
+
+------------------------------------------------------------------------
+r20559 | wmeier | 2007-01-25 17:34:29 -0800 (Thu, 25 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk/config.h.win32
+   M /trunk/epan/dissectors/packet-dcp-etsi.c
+   M /trunk/epan/dissectors/packet-ssl.c
+   M /trunk/epan/ftypes/Makefile.nmake
+   M /trunk/epan/wslua/template-init.lua
+   M /trunk/version_info.c
+   M /trunk/version_info.h
+
+A few more ethereal --> wireshark
+
+------------------------------------------------------------------------
+r20572 | gerald | 2007-01-26 13:54:59 -0800 (Fri, 26 Jan 2007) | 10 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+   M /trunk/epan/crypt/airpdcap_system.h
+   M /trunk/epan/crypt/airpdcap_user.h
+   M /trunk/epan/dissectors/packet-eapol.c
+   M /trunk/epan/dissectors/packet-ieee80211.c
+
+Add support for "wildcard" WPA keys in the form "wpa:passphrase" (note
+the lack of SSID).  Wildcarding combines the passphrase with the last
+seen SSID and attempts decryption.  The last-seen stack is only one
+element tall, which means it may get clobbered on busy and diverse
+networks.  We can expand it if needed.
+
+Make internal functions static in airpdcap.c.  Rearrange the
+AIRPDCAP_KEY_ITEM struct so that the passphrase and SSID don't get
+clobbered when we set our PSK.
+
+------------------------------------------------------------------------
+r20573 | gerald | 2007-01-26 15:28:22 -0800 (Fri, 26 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk/epan/crypt/airpdcap.c
+
+Fix saving WPA key preferences from the decryption key management dialog,
+which was broken by r20388.
+
+------------------------------------------------------------------------
+r20602 | jake | 2007-01-29 04:38:48 -0800 (Mon, 29 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk/README
+
+Delist Windows 98 as possible platform
+
+------------------------------------------------------------------------
+r20607 | gerald | 2007-01-29 12:25:26 -0800 (Mon, 29 Jan 2007) | 5 lines
+
+Fix potential buffer overruns in address_to_str_buf() found by Andrej 
+Mikus.  Add a buf_len parameter to ip_to_str_buf(), and make sure it's 
+enforced.  Copy the release notes over from the 0.99.5 trunk and add a
+note about the ISUP dissector (which is affected by the overrun).
+
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r20624 | gerald | 2007-01-30 09:14:37 -0800 (Tue, 30 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/airpcap_loader.c
+   M /trunk-0.99.5/epan/dissectors/packet-dcp-etsi.c
+   M /trunk-0.99.5/epan/dissectors/packet-ieee80211.c
+   M /trunk-0.99.5/epan/dissectors/packet-scsi.c
+   M /trunk-0.99.5/epan/emem.c
+   M /trunk-0.99.5/epan/wslua/wslua_pinfo.c
+   M /trunk-0.99.5/epan/wslua/wslua_tvb.c
+   M /trunk-0.99.5/gtk/capture_if_details_dlg.c
+   M /trunk-0.99.5/gtk/filter_dlg.c
+
+Copy over more revisions from the trunk.
+
+------------------------------------------------------------------------
+r20620 | gerald | 2007-01-29 18:11:47 -0800 (Mon, 29 Jan 2007) | 55 lines
+Changed paths:
+   M /trunk-0.99.5/epan/proto.c
+   M /trunk-0.99.5/epan/stats_tree.c
+   M /trunk-0.99.5/example_snmp_users_file
+   M /trunk-0.99.5/gtk/Makefile.am
+   M /trunk-0.99.5/gtk/menu.c
+   M /trunk-0.99.5/packaging/nsis/wireshark.nsi
+
+Copy over more revisions from the trunk.
+
+------------------------------------------------------------------------
+r20518 | sfisher | 2007-01-21 14:45:58 -0800 (Sun, 21 Jan 2007) | 8 lines
+Changed paths:
+   M /trunk/epan/stats_tree.c
+
+
+From Sebastien Tandel:
+
+patch against a crash of wireshark with gtk1.2 when using packet
+length statistics window.  The crash was due to a difference of
+implementation of g_strsplit between gtk1.2 and gtk2.
+
+
+------------------------------------------------------------------------
+r20523 | ulfl | 2007-01-21 20:03:17 -0800 (Sun, 21 Jan 2007) | 5 lines
+Changed paths:
+   M /trunk/gtk/menu.c
+
+as Bill Meier noted:
+"The Help ! Contents and the Help ! User's Guide  both display the User's 
+Guide."
+
+Remove the duplicate Help!/User's Guide item
+------------------------------------------------------------------------
+r20530 | ulfl | 2007-01-23 00:20:59 -0800 (Tue, 23 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/packaging/nsis/wireshark.nsi
+
+remove example_snmp_users_file at uninstall
+------------------------------------------------------------------------
+r20532 | guy | 2007-01-23 10:31:26 -0800 (Tue, 23 Jan 2007) | 4 lines
+Changed paths:
+   M /trunk/epan/proto.c
+
+DISSECTOR_ASSERT_NOT_REACHED() now, by default, throws a Wireshark
+exception rather than aborting the program; using it means that
+dissector bugs show up as such rather than as malformed packets.
+
+------------------------------------------------------------------------
+r20533 | lego | 2007-01-23 11:46:55 -0800 (Tue, 23 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk/gtk/Makefile.am
+
+Have build succeed even if portaudio is located somewhere else than any other libraries in use.
+
+------------------------------------------------------------------------
+r20534 | lego | 2007-01-23 11:56:10 -0800 (Tue, 23 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk/example_snmp_users_file
+
+Add a shord description on how the snmp_users_file can be used
+
+
+------------------------------------------------------------------------
+r20617 | gerald | 2007-01-29 17:02:06 -0800 (Mon, 29 Jan 2007) | 55 lines
+Changed paths:
+   M /trunk-0.99.5/Makefile.nmake
+   M /trunk-0.99.5/NEWS
+   M /trunk-0.99.5/config.nmake
+   M /trunk-0.99.5/docbook/Makefile
+   M /trunk-0.99.5/packaging/nsis/Makefile.nmake
+   M /trunk-0.99.5/packaging/nsis/wireshark.nsi
+   M /trunk-0.99.5/tools/win32-setup.sh
+
+Copy over revisions 20491 - 20497 from the trunk:
+
+------------------------------------------------------------------------
+r20491 | ulfl | 2007-01-18 15:57:03 -0800 (Thu, 18 Jan 2007) | 4 lines
+Changed paths:
+   M /trunk/docbook/Makefile
+
+the docbook generation also suffers from the cygwin bash CR/LF problem :-(
+I've added a call to dos2unix to convert check_svn_version.sh that way
+
+Is it safe to assume that dos2unix is available on a common UNIX developer machine?!?
+patching file packaging/nsis/wireshark.nsi
+------------------------------------------------------------------------
+r20492 | ulfl | 2007-01-18 16:10:22 -0800 (Thu, 18 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/packaging/nsis/Makefile.nmake
+   M /trunk/packaging/nsis/wireshark.nsi
+
+instead of getting the user-guide.chm file always from the docbook dir, copy the more recent one from docbook or win32-libs\user-guide dir into local nsis dir, and use that one to build the installer - seems to be the cleanest way
+------------------------------------------------------------------------
+r20493 | ulfl | 2007-01-18 16:12:01 -0800 (Thu, 18 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/docbook/Makefile
+
+add a target to build a zipped version of user-guide.chm
+------------------------------------------------------------------------
+r20494 | ulfl | 2007-01-18 16:14:43 -0800 (Thu, 18 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/docbook/Makefile
+
+add user-guide.zip to the clean target
+------------------------------------------------------------------------
+r20495 | ulfl | 2007-01-18 17:10:59 -0800 (Thu, 18 Jan 2007) | 1 line
+Changed paths:
+   M /trunk/Makefile.nmake
+   M /trunk/tools/win32-setup.sh
+
+add the user-guide as a component to the setup target
+------------------------------------------------------------------------
+r20496 | ulfl | 2007-01-18 17:21:17 -0800 (Thu, 18 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk/config.nmake
+
+user-guide final step:
+enable HHC_DIR as default, hopefully the buildbot will "get it right" now :-)
+------------------------------------------------------------------------
+r20497 | ulfl | 2007-01-18 18:41:25 -0800 (Thu, 18 Jan 2007) | 4 lines
+Changed paths:
+   M /trunk/Makefile.nmake
+
+As discussed on the devlist:
+A clean_setup is done first now to ensure that the target dirs don't contain old files -  probably remaining from a previous setup run.
+
+explicit removing of the gtk2 dir is no longer required therefore
+
+------------------------------------------------------------------------
+r20525 | gerald | 2007-01-22 14:55:08 -0800 (Mon, 22 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/epan/wslua/template-init.lua
+   M /trunk-0.99.5/epan/wslua/wslua_gui.c
+   M /trunk-0.99.5/gtk/about_dlg.c
+   M /trunk-0.99.5/gtk/dlg_utils.c
+   M /trunk-0.99.5/gtk/dlg_utils.h
+   M /trunk-0.99.5/gtk/simple_dialog.c
+
+Copy over revisions 20507, 20508, 20514, and 20515.
+
+------------------------------------------------------------------------
+r20504 | gerald | 2007-01-19 10:14:37 -0800 (Fri, 19 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/docbook/release-notes.xml
+
+Fix some layout bugs.
+
+------------------------------------------------------------------------
+r20503 | gerald | 2007-01-19 09:56:24 -0800 (Fri, 19 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/version.conf
+
+Change the version away from -pre1.
+
+------------------------------------------------------------------------
+r20499 | gerald | 2007-01-18 22:28:56 -0800 (Thu, 18 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/make-version.pl
+
+Set our package version if we're using the SVN client.
+
+------------------------------------------------------------------------
+r20488 | gerald | 2007-01-18 12:25:59 -0800 (Thu, 18 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/version.conf
+
+Mark -pre1.
+
+------------------------------------------------------------------------
+r20487 | gerald | 2007-01-18 12:25:30 -0800 (Thu, 18 Jan 2007) | 27 lines
+Changed paths:
+   M /trunk-0.99.5/Makefile.am
+   M /trunk-0.99.5/docbook/release-notes.xml
+   M /trunk-0.99.5/epan/dissectors/packet-udld.c
+   M /trunk-0.99.5/version_info.c
+
+Copy over 20468, 20478, and 20479 from the trunk:
+
+------------------------------------------------------------------------
+r20468 | lego | 2007-01-17 19:13:10 -0800 (Wed, 17 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk/version_info.c
+
+the version string stated "without Lua" regardless or not Lua support was indeed built.
+------------------------------------------------------------------------
+r20478 | lego | 2007-01-18 06:04:49 -0800 (Thu, 18 Jan 2007) | 3 lines
+Changed paths:
+   M /trunk/Makefile.am
+   M /trunk/version_info.c
+
+Fix version_info.c compilation
+------------------------------------------------------------------------
+r20479 | martinm | 2007-01-18 06:41:59 -0800 (Thu, 18 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-udld.c
+
+Filled in missing hf entries.
+------------------------------------------------------------------------
+
+Add a release note entry about the UDLD dissector.
+
+
+
+------------------------------------------------------------------------
+r20466 | gerald | 2007-01-17 16:27:42 -0800 (Wed, 17 Jan 2007) | 2 lines
+Changed paths:
+   M /trunk-0.99.5/ChangeLog
+   M /trunk-0.99.5/docbook/release-notes.xml
+   A /trunk-0.99.5/version.conf
+
+Updates for 0.99.5-pre1
+
+------------------------------------------------------------------------
 r20465 | gerald | 2007-01-17 14:54:09 -0800 (Wed, 17 Jan 2007) | 2 lines
 Changed paths:
    A /trunk-0.99.5 (from /trunk:20464)
