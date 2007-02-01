@@ -205,7 +205,7 @@ Wireshark Info
         You can no longer install Wireshark on Windows 95, 98, or ME.  (OK,
         so it's not a <emphasis>feature</emphasis> per se, but it's an
         important change).  The last version known to work on these systems
-        is <ulink href="http://www.ethereal.com/">Ethereal 0.99.0</ulink>.
+        is <ulink url="http://www.ethereal.com/">Ethereal 0.99.0</ulink>.
         </para></listitem>
 
         <listitem><para>
