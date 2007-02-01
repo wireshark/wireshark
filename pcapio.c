@@ -1,6 +1,3 @@
-/* TODO: why isn't this defined??? */
-/* #ifdef HAVE_LIBPCAP */
-
 /* pcapio.c
  * Our own private code for writing libpcap files when capturing.
  *
@@ -46,6 +43,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef HAVE_LIBPCAP
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -188,4 +187,4 @@ libpcap_dump_close(FILE *pd, int *err)
 	return TRUE;
 }
 
-/*#endif */ /* HAVE_LIBPCAP */
+#endif /* HAVE_LIBPCAP */
