@@ -1,4 +1,5 @@
-#ifdef HAVE_LIBPCAP
+/* TODO: why isn't this defined??? */
+/* #ifdef HAVE_LIBPCAP */
 
 /* pcapio.c
  * Our own private code for writing libpcap files when capturing.
@@ -187,4 +188,4 @@ libpcap_dump_close(FILE *pd, int *err)
 	return TRUE;
 }
 
-#endif /* HAVE_LIBPCAP */
+/*#endif */ /* HAVE_LIBPCAP */
