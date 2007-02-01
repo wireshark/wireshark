@@ -1,12 +1,16 @@
 /* packet-syslog.c
  * Routines for syslog message dissection
  *
- * Copyright 2000, Gerald Combs <gerald@wireshark.org>
+ * Copyright 2000, Gerald Combs <gerald[AT]wireshark.org>
+ *
+ * Support for passing SS7 MSUs (from the Cisco ITP Packet Logging
+ * facility) to the MTP3 dissector by Abhik Sarkar <sarkar.abhik[AT]gmail.com>
+ * with some rework by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +39,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/strutil.h>
 
 #define UDP_PORT_SYSLOG 514
 
@@ -44,83 +49,115 @@
 /* The maximum number if priority digits to read in. */
 #define MAX_DIGITS 3
 
+#define LEVEL_EMERG	0
+#define LEVEL_ALERT	1
+#define LEVEL_CRIT	2	
+#define LEVEL_ERR	3
+#define LEVEL_WARNING	4
+#define LEVEL_NOTICE	5
+#define LEVEL_INFO	6
+#define LEVEL_DEBUG	7
 static const value_string short_lev[] = {
-  { 0,      "EMERG" },
-  { 1,      "ALERT" },
-  { 2,      "CRIT" },
-  { 3,      "ERR" },
-  { 4,      "WARNING" },
-  { 5,      "NOTICE" },
-  { 6,      "INFO" },
-  { 7,      "DEBUG" },
+  { LEVEL_EMERG,	"EMERG" },
+  { LEVEL_ALERT,	"ALERT" },
+  { LEVEL_CRIT,		"CRIT" },
+  { LEVEL_ERR,		"ERR" },
+  { LEVEL_WARNING,	"WARNING" },
+  { LEVEL_NOTICE,	"NOTICE" },
+  { LEVEL_INFO,		"INFO" },
+  { LEVEL_DEBUG,	"DEBUG" },
   { 0, NULL }
 };
 
+#define FAC_KERN	0
+#define FAC_USER	1
+#define FAC_MAIL	2
+#define FAC_DAEMON	3
+#define FAC_AUTH	4
+#define FAC_SYSLOG	5
+#define FAC_LPR		6
+#define FAC_NEWS	7
+#define FAC_UUCP	8
+#define FAC_CRON	9
+#define FAC_AUTHPRIV	10
+#define FAC_FTP		11
+#define FAC_NTP		12
+#define FAC_LOGAUDIT	13
+#define FAC_LOGALERT	14
+#define FAC_CRON_SOL	15
+#define FAC_LOCAL0	16
+#define FAC_LOCAL1	17
+#define FAC_LOCAL2	18
+#define FAC_LOCAL3	19
+#define FAC_LOCAL4	20
+#define FAC_LOCAL5	21
+#define FAC_LOCAL6	22
+#define FAC_LOCAL7	23
 static const value_string short_fac[] = {
-  { 0,     "KERN" },
-  { 1,     "USER" },
-  { 2,     "MAIL" },
-  { 3,     "DAEMON" },
-  { 4,     "AUTH" },
-  { 5,     "SYSLOG" },
-  { 6,     "LPR" },
-  { 7,     "NEWS" },
-  { 8,     "UUCP" },
-  { 9,     "CRON" },		/* The BSDs, Linux, and others */
-  { 10,    "AUTHPRIV" },
-  { 11,    "FTP" },
-  { 12,    "NTP" },
-  { 13,    "LOGAUDIT" },
-  { 14,    "LOGALERT" },
-  { 15,    "CRON" },		/* Solaris */
-  { 16,    "LOCAL0" },
-  { 17,    "LOCAL1" },
-  { 18,    "LOCAL2" },
-  { 19,    "LOCAL3" },
-  { 20,    "LOCAL4" },
-  { 21,    "LOCAL5" },
-  { 22,    "LOCAL6" },
-  { 23,    "LOCAL7" },
+  { FAC_KERN,		"KERN" },
+  { FAC_USER,		"USER" },
+  { FAC_MAIL,		"MAIL" },
+  { FAC_DAEMON,		"DAEMON" },
+  { FAC_AUTH,		"AUTH" },
+  { FAC_SYSLOG,		"SYSLOG" },
+  { FAC_LPR,		"LPR" },
+  { FAC_NEWS,		"NEWS" },
+  { FAC_UUCP,		"UUCP" },
+  { FAC_CRON,		"CRON" },	/* The BSDs, Linux, and others */
+  { FAC_AUTHPRIV,	"AUTHPRIV" },
+  { FAC_FTP,		"FTP" },
+  { FAC_NTP,		"NTP" },
+  { FAC_LOGAUDIT,	"LOGAUDIT" },
+  { FAC_LOGALERT,	"LOGALERT" },
+  { FAC_CRON_SOL,	"CRON" },	/* Solaris */
+  { FAC_LOCAL0,		"LOCAL0" },
+  { FAC_LOCAL1,		"LOCAL1" },
+  { FAC_LOCAL2,		"LOCAL2" },
+  { FAC_LOCAL3,		"LOCAL3" },
+  { FAC_LOCAL4,		"LOCAL4" },
+  { FAC_LOCAL5,		"LOCAL5" },
+  { FAC_LOCAL6,		"LOCAL6" },
+  { FAC_LOCAL7,		"LOCAL7" },
   { 0, NULL }
 };
 
 static const value_string long_lev[] = {
-  { 0,      "EMERG - system is unusable" },
-  { 1,      "ALERT - action must be taken immediately" },
-  { 2,      "CRIT - critical conditions" },
-  { 3,      "ERR - error conditions" },
-  { 4,      "WARNING - warning conditions" },
-  { 5,      "NOTICE - normal but significant condition" },
-  { 6,      "INFO - informational" },
-  { 7,      "DEBUG - debug-level messages" },
+  { LEVEL_EMERG,	"EMERG - system is unusable" },
+  { LEVEL_ALERT,	"ALERT - action must be taken immediately" },
+  { LEVEL_CRIT,		"CRIT - critical conditions" },
+  { LEVEL_ERR,		"ERR - error conditions" },
+  { LEVEL_WARNING,	"WARNING - warning conditions" },
+  { LEVEL_NOTICE,	"NOTICE - normal but significant condition" },
+  { LEVEL_INFO,		"INFO - informational" },
+  { LEVEL_DEBUG,	"DEBUG - debug-level messages" },
   { 0, NULL }
 };
 
 static const value_string long_fac[] = {
-  { 0,     "KERN - kernel messages" },
-  { 1,     "USER - random user-level messages" },
-  { 2,     "MAIL - mail system" },
-  { 3,     "DAEMON - system daemons" },
-  { 4,     "AUTH - security/authorization messages" },
-  { 5,     "SYSLOG - messages generated internally by syslogd" },
-  { 6,     "LPR - line printer subsystem" },
-  { 7,     "NEWS - network news subsystem" },
-  { 8,     "UUCP - UUCP subsystem" },
-  { 9,     "CRON - clock daemon (BSD, Linux)" },
-  { 10,    "AUTHPRIV - security/authorization messages (private)" },
-  { 11,    "FTP - ftp daemon" },
-  { 12,    "NTP - ntp subsystem" },
-  { 13,    "LOGAUDIT - log audit" },
-  { 14,    "LOGALERT - log alert" },
-  { 15,    "CRON - clock daemon (Solaris)" },
-  { 16,    "LOCAL0 - reserved for local use" },
-  { 17,    "LOCAL1 - reserved for local use" },
-  { 18,    "LOCAL2 - reserved for local use" },
-  { 19,    "LOCAL3 - reserved for local use" },
-  { 20,    "LOCAL4 - reserved for local use" },
-  { 21,    "LOCAL5 - reserved for local use" },
-  { 22,    "LOCAL6 - reserved for local use" },
-  { 23,    "LOCAL7 - reserved for local use" },
+  { FAC_KERN,		"KERN - kernel messages" },
+  { FAC_USER,		"USER - random user-level messages" },
+  { FAC_MAIL,		"MAIL - mail system" },
+  { FAC_DAEMON,		"DAEMON - system daemons" },
+  { FAC_AUTH,		"AUTH - security/authorization messages" },
+  { FAC_SYSLOG,		"SYSLOG - messages generated internally by syslogd" },
+  { FAC_LPR,		"LPR - line printer subsystem" },
+  { FAC_NEWS,		"NEWS - network news subsystem" },
+  { FAC_UUCP,		"UUCP - UUCP subsystem" },
+  { FAC_CRON,		"CRON - clock daemon (BSD, Linux)" },
+  { FAC_AUTHPRIV,	"AUTHPRIV - security/authorization messages (private)" },
+  { FAC_FTP,		"FTP - ftp daemon" },
+  { FAC_NTP,		"NTP - ntp subsystem" },
+  { FAC_LOGAUDIT,	"LOGAUDIT - log audit" },
+  { FAC_LOGALERT,	"LOGALERT - log alert" },
+  { FAC_CRON_SOL,	"CRON - clock daemon (Solaris)" },
+  { FAC_LOCAL0,		"LOCAL0 - reserved for local use" },
+  { FAC_LOCAL1,		"LOCAL1 - reserved for local use" },
+  { FAC_LOCAL2,		"LOCAL2 - reserved for local use" },
+  { FAC_LOCAL3,		"LOCAL3 - reserved for local use" },
+  { FAC_LOCAL4,		"LOCAL4 - reserved for local use" },
+  { FAC_LOCAL5,		"LOCAL5 - reserved for local use" },
+  { FAC_LOCAL6,		"LOCAL6 - reserved for local use" },
+  { FAC_LOCAL7,		"LOCAL7 - reserved for local use" },
   { 0, NULL }
 };
 
@@ -128,18 +165,61 @@ static gint proto_syslog = -1;
 static gint hf_syslog_level = -1;
 static gint hf_syslog_facility = -1;
 static gint hf_syslog_msg = -1;
+static gint hf_syslog_msu_present = -1;
 
 static gint ett_syslog = -1;
 
-/* The message format is defined in RFC 3164 */
+static dissector_handle_t mtp_handle;
 
-static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/*  The Cisco ITP's packet logging facility allows selected (SS7) MSUs to be 
+ *  to be encapsulated in syslog UDP datagrams and sent to a monitoring tool.
+ *  However, no actual tool to monitor/decode the MSUs is provided. The aim
+ *  of this routine is to extract the hex dump of the MSU from the syslog
+ *  packet so that it can be passed on to the mtp3 dissector for decoding.
+ */
+static tvbuff_t *
+mtp3_msu_present(gint fac, gint level, const char *msg_str)
+{
+  gint nbytes;
+  gchar **split_string, *msu_hex_dump;
+  tvbuff_t *mtp3_tvb = NULL;
+  guint8 *byte_array;
+
+  /*  In the sample capture I have, all MSUs are LOCAL0.DEBUG.
+   *  Try to optimize this routine for most syslog users by short-cutting
+   *  out here.
+   */
+  if (!(fac == FAC_LOCAL0 && level == LEVEL_DEBUG))
+    return NULL;
+
+  if (strstr(msg_str, "msu=") == NULL)
+    return NULL;
+
+  split_string = g_strsplit(msg_str, "msu=", 2);
+  msu_hex_dump = split_string[1];
+
+  if (msu_hex_dump && strlen(msu_hex_dump)) {
+    byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
+
+    mtp3_tvb = tvb_new_real_data(byte_array, nbytes, nbytes);
+    tvb_set_free_cb(mtp3_tvb, g_free);
+  }
+
+  g_strfreev(split_string);
+
+  return(mtp3_tvb);
+}
+
+/* The message format is defined in RFC 3164 */
+static void
+dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len;
   proto_item *ti;
   proto_tree *syslog_tree;
   const char *msg_str;
+  tvbuff_t *mtp3_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
@@ -163,7 +243,10 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   msg_len = tvb_ensure_length_remaining(tvb, msg_off);
   msg_str = tvb_format_text(tvb, msg_off, msg_len);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+
+  mtp3_tvb = mtp3_msu_present(fac, lev, msg_str);
+
+  if (mtp3_tvb == NULL && check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s",
         val_to_str(fac, short_fac, "UNKNOWN"),
@@ -192,7 +275,20 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
       msg_len, FALSE);
+
+    if (mtp3_tvb) {
+      proto_item *mtp3_item;
+      mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
+					 tvb, msg_off, msg_len, TRUE);
+      PROTO_ITEM_SET_GENERATED(mtp3_item);
+    }
   }
+
+  /* Call MTP dissector if encapsulated MSU was found */
+  if (mtp3_tvb) {
+    call_dissector(mtp_handle, mtp3_tvb, pinfo, tree);
+  }
+
   return;
 }
 
@@ -217,6 +313,12 @@ void proto_register_syslog(void)
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Message Text", HFILL }
     },
+    { &hf_syslog_msu_present,
+      { "SS7 MSU present",    "syslog.msu_present",
+      FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+      "True if an SS7 MSU was detected in the syslog message",
+      HFILL }
+    }
   };
 
   /* Setup protocol subtree array */
@@ -239,4 +341,7 @@ proto_reg_handoff_syslog(void)
 
   syslog_handle = create_dissector_handle(dissect_syslog, proto_syslog);
   dissector_add("udp.port", UDP_PORT_SYSLOG, syslog_handle);
+
+  /* Find the mtp3 dissector */
+  mtp_handle = find_dissector("mtp3");
 }
