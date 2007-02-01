@@ -3028,7 +3028,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset+1,
+        proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset,
                              1, 0);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
 
@@ -3038,7 +3038,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
         /* We store the service action since we want to interpret the data */
-        cdata->itlq->flags = tvb_get_guint8 (tvb, offset+1);
+        cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
     }
     else {
         if (cdata) {
