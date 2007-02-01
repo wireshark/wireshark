@@ -44,6 +44,7 @@ static int hf_netlogon_group_attrs_enabled = -1;
 static int hf_netlogon_opnum = -1;
 static int hf_netlogon_rc = -1;
 static int hf_netlogon_dos_rc = -1;
+static int hf_netlogon_werr_rc = -1;
 static int hf_netlogon_len = -1;
 static int hf_netlogon_sensitive_data_flag = -1;
 static int hf_netlogon_sensitive_data_len = -1;
@@ -4267,12 +4268,17 @@ static int
 netlogon_dissect_netrlogoncontrol2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
+	guint32 status;
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_CONTROL_QUERY_INFORMATION, NDR_POINTER_REF,
 		"CONTROL_QUERY_INFORMATION:", -1);
 
-	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_netlogon_dos_rc, NULL);
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_netlogon_werr_rc, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown WERR error 0x%08x"));
+
 
 	return offset;
 }
@@ -6768,6 +6774,10 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_dos_rc,
 	    { "DOS error code", "netlogon.dos.rc", FT_UINT32,
 	      BASE_HEX, VALS(DOS_errors), 0x0, "DOS Error Code", HFILL}},
+
+	{ &hf_netlogon_werr_rc,
+	    { "WERR error code", "netlogon.werr.rc", FT_UINT32,
+	      BASE_HEX, VALS(WERR_errors), 0x0, "WERR Error Code", HFILL}},
 
 	{ &hf_netlogon_param_ctrl, {
 		"Param Ctrl", "netlogon.param_ctrl", FT_UINT32, BASE_HEX,
