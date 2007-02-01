@@ -427,7 +427,9 @@ is_byte_sep(guint8 c)
 gboolean
 hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separators) {
 	guint8		val;
-	const guchar	*p, *q, *punct;
+	const guchar	*p, *q, *r, *s, *punct;
+	char		four_digits_first_half[3];
+	char		four_digits_second_half[3];
 	char		two_digits[3];
 	char		one_digit[2];
 
@@ -438,15 +440,55 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 	p = (const guchar *)hex_str;
 	while (*p) {
 		q = p+1;
-		if (*q && isxdigit(*p) && isxdigit(*q)) {
+		r = p+2;
+		s = p+3;
+
+		if (*q && isxdigit(*p) && isxdigit(*q) &&
+		    isxdigit(*r) && isxdigit(*s)) {
+			four_digits_first_half[0] = *p;
+			four_digits_first_half[1] = *q;
+			four_digits_first_half[2] = '\0';
+			four_digits_second_half[0] = *r;
+			four_digits_second_half[1] = *s;
+			four_digits_second_half[2] = '\0';
+
+			/*
+			 * Four or more hex digits in a row.
+			 */
+			val = (guint8) strtoul(four_digits_first_half, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			val = (guint8) strtoul(four_digits_second_half, NULL, 16);
+			g_byte_array_append(bytes, &val, 1);
+			
+			punct = s + 1;
+			if (*punct) {
+				/*
+				 * Make sure the character after
+				 * the forth hex digit is a byte
+				 * separator, i.e. that we don't have
+				 * more than four hex digits, or a
+				 * bogus character.
+				 */
+				if (is_byte_sep(*punct)) {
+					p = punct + 1;
+					continue;
+				}
+				else if (force_separators) {
+					return FALSE;
+					break;
+				}
+			}
+			p = punct;
+			continue;
+		}
+
+		else if (*q && isxdigit(*p) && isxdigit(*q)) {
 			two_digits[0] = *p;
 			two_digits[1] = *q;
 			two_digits[2] = '\0';
 
 			/*
-			 * Two or more hex digits in a row.
-			 * "strtoul()" will succeed, as it'll see at
-			 * least one hex digit.
+			 * Two hex digits in a row.
 			 */
 			val = (guint8) strtoul(two_digits, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
@@ -476,9 +518,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 			one_digit[1] = '\0';
 
 			/*
-			 * Only one hex digit.
-			 * "strtoul()" will succeed, as it'll see that
-			 * hex digit.
+			 * Only one hex digit (not at the end of the string)
 			 */
 			val = (guint8) strtoul(one_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
@@ -490,9 +530,7 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 			one_digit[1] = '\0';
 
 			/*
-			 * Only one hex digit.
-			 * "strtoul()" will succeed, as it'll see that
-			 * hex digit.
+			 * Only one hex digit (at the end of the string)
 			 */
 			val = (guint8) strtoul(one_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
