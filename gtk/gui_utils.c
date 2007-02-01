@@ -595,13 +595,13 @@ void main_window_update(void)
   while (gtk_events_pending()) gtk_main_iteration();
 }
 
-#ifdef HAVE_LIBPCAP
-
 /* exit the main window */
 void main_window_exit(void)
 {
   gtk_exit(0);
 }
+
+#ifdef HAVE_LIBPCAP
 
 /* quit a nested main window */
 void main_window_nested_quit(void)
