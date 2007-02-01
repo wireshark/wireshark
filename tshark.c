@@ -1137,6 +1137,7 @@ main(int argc, char *argv[])
     }
   }
 
+#ifdef HAVE_LIBPCAP
   if (!capture_opts.saving_to_file) {
     /* We're not saving the capture to a file; if "-q" wasn't specified,
        we should print packet information */
@@ -1154,6 +1155,12 @@ main(int argc, char *argv[])
       exit(1);
     }
   }
+#else
+  /* We're not saving the capture to a file; if "-q" wasn't specified,
+     we should print packet information */
+  if (!quiet)
+    print_packet_info = TRUE;
+#endif
 
 #ifndef HAVE_LIBPCAP
   if (capture_option_specified)
@@ -1455,7 +1462,11 @@ main(int argc, char *argv[])
     }
 
     /* Process the packets in the file */
+#ifdef HAVE_LIBPCAP
     err = load_cap_file(&cfile, capture_opts.save_file, out_file_type);
+#else
+    err = load_cap_file(&cfile, NULL, out_file_type);
+#endif
     if (err != 0) {
       epan_cleanup();
       exit(2);
