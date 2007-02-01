@@ -314,6 +314,8 @@ DISSECTOR_SRC =	\
 	packet-fcswils.c	\
 	packet-fddi.c	\
 	packet-fix.c	\
+	packet-fmp.c	\
+	packet-fmp_notify.c	\
 	packet-fr.c	\
 	packet-fractalgeneratorprotocol.c	\
 	packet-frame.c	\
@@ -829,6 +831,8 @@ DISSECTOR_INCLUDES =	\
 	packet-fcsb3.h	\
 	packet-fcswils.h	\
 	packet-fddi.h	\
+	packet-fmp.h	\
+	packet-fmp_notify.h	\
 	packet-fr.h	\
 	packet-frame.h	\
 	packet-ftam.h	\
