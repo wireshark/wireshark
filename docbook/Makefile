@@ -227,7 +227,10 @@ release-notes.html: $(RELEASE_NOTES_SOURCE)
 release-notes.txt: $(RELEASE_NOTES_SOURCE)
 	@ echo --- RELEASE NOTES - TXT ---
 	$(XSLTPROC) --stringparam generate.toc "article nop" --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl $< | $(HTML2TXT) > $@
-	
+
+news: release-notes.txt
+	cp release-notes.txt ../NEWS 
+
 # create pdf file (through XSL-FO), portrait pages on US letter paper (the default)
 # you will get lot's of errors, but that's ok
 release-notes-us.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
