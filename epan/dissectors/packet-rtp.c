@@ -423,13 +423,23 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (p_conv_data && p_conv_data->rtp_dyn_payload) {
 			gchar *payload_type_str = NULL;
 			payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
-			if (payload_type_str)
+			if (payload_type_str){
 				found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
 													payload_type_str, newtvb, pinfo, tree);
+				/* If payload type string set from conversation and
+				 * no matching dissector found it's probably because no subdissector
+				 * exists. Don't call the dissectors based on payload number
+				 * as that'd probably be the wrong dissector in this case.
+				 * Just add it as data.
+				 */
+				if(found_match==FALSE)
+					proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+				return;
+			}
+
 		}
 	}
 	/* if we don't found, it is static OR could be set static from the preferences */
-	if (found_match == FALSE)
 		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
 			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 
