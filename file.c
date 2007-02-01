@@ -462,12 +462,14 @@ cf_read(capture_file *cf)
           if (progbar != NULL) {
           	/* update the packet lists content on the first run or frequently on very large files */
               /* (on smaller files the display update takes longer than reading the file) */
+#ifdef HAVE_LIBPCAP
               if(progbar_quantum > 500000 || progbar_nextstep == 0) {
             packet_list_thaw();
             if (auto_scroll_live && cf->plist_end != NULL)
               packet_list_moveto_end();
             packet_list_freeze();
               }
+#endif
 
             g_snprintf(status_str, sizeof(status_str),
                        "%" PRId64 "KB of %" PRId64 "KB",
