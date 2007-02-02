@@ -38,8 +38,8 @@ Name "${PROGRAM_NAME} ${VERSION}"
 OutFile "${DEST}-setup-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
-Icon "..\..\image\wireshark.ico"
-UninstallIcon "..\..\image\wireshark.ico"
+;Icon "..\..\image\wiresharkinst.ico"
+;UninstallIcon "..\..\image\wiresharkinst.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
 !define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be uninstalled. Click 'Next' to continue."
@@ -62,8 +62,8 @@ XPStyle on
 !include "MUI.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "..\..\image\wireshark.ico"
-!define MUI_UNICON "..\..\image\wireshark.ico"
+!define MUI_ICON "..\..\image\wiresharkinst.ico"
+!define MUI_UNICON "..\..\image\wiresharkinst.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
