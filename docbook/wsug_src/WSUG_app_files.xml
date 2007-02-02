@@ -131,7 +131,7 @@
 	</tip>
     <para>
 	The content format of the configuration files is the same on all platforms.
-	However, to match the different policies for unix and windows platforms, 
+	However, to match the different policies for Unix and windows platforms, 
 	different folders for these files are used.
     </para>
     <table id="AppFilesTabFolders" frame="none">
@@ -399,7 +399,7 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 		  to translate IPv4 and IPv6 addresses into names.
 	    </para>
 	    <para>
-		  This file has the same format as the usual /etc/hosts file in unix systems.
+		  This file has the same format as the usual /etc/hosts file in Unix systems.
 	    </para>
 	    <para>
 	      An example is:

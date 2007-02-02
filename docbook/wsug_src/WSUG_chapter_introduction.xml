@@ -333,7 +333,7 @@
       way to success.
     </para>
     <para>
-      Not long after that Gilbert Ramirez saw its potential and contributed 
+      Not long after that, Gilbert Ramirez saw its potential and contributed 
       a low-level dissector to it.
     </para>
     <para>
@@ -397,7 +397,7 @@
 	<listitem>
 	  <para>
 	    The developers of Wireshark might improve your changes even more,
-		as there's always room for improvements. Or they may implement some 
+		as there's always room for improvement. Or they may implement some 
 		advanced things on top of your code, which can be useful for yourself
 		too.
 	  </para>
@@ -425,7 +425,7 @@
     <title>Reporting problems and getting help</title>
 	<para>
       If you have problems, or need help with Wireshark, there are several 
-      places that may be of interest to you (well, beside this guide of 
+      places that may be of interest to you (well, besides this guide of 
 	  course).
 	</para>
 

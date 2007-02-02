@@ -670,7 +670,7 @@
     <para><command>Ethernet manufacturer codes (manuf file)</command>
 	If both ARP and ethers didn't returned a result, Wireshark tries to convert
 	the first 3 bytes of an ethernet address to an abbreviated manufacturer name,
-	which has been assigned by the IEC
+	which has been assigned by the IEEE
 	(e.g. 00:09:5b:01:02:03 -> Netgear_01:02:03).
     </para>
 	</section>
@@ -780,7 +780,7 @@
 	The receiver will calculate the checksum of the received data with the same
 	algorithm as the transmitter.
 	If the received and calculated checksums don't match a transmission error
-	has occured.
+	has occurred.
 	</para>
 	<para>
 	Some checksum algorithms are able to recover (simple) errors by

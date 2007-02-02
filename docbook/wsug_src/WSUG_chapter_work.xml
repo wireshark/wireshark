@@ -836,7 +836,7 @@ ip.len le 0x436
 		    <entry>Ethernet address (6 bytes)</entry>
 		    <entry><para>Separators can be a colon
 			(:), dot (.) or dash (-) and can have one or
-			two bytes between seperators:<programlisting>
+			two bytes between separators:<programlisting>
 eth.addr == ff:ff:ff:ff:ff:ff
 eth.addr == ff-ff-ff-ff-ff-ff
 eth.addr == ffff.ffff.ffff</programlisting></para></entry>
@@ -847,21 +847,15 @@ eth.addr == ffff.ffff.ffff</programlisting></para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv6 address</entry>
-		    <entry>  </entry>
+		    <entry>ipv6.addr == ::1</entry>
 		  </row>
 		  <row>
-		    <entry>IPX network number</entry>
-		    <entry>  </entry>
+		    <entry>IPX address</entry>
+		    <entry>ipx.addr == 00000000.ffffffffffff</entry>
 		  </row>
 		  <row>
 		    <entry>String (text)</entry>
-		    <entry> </entry>
-		  </row>
-		  <row>
-		    <entry>
-		      Double-precision floating point number
-		    </entry>
-		    <entry>  </entry>
+		    <entry>http.request.uri == "http://www.wireshark.org/"</entry>
 		  </row>
 		</tbody>
 	      </tgroup>

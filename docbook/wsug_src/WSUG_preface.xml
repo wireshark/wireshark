@@ -26,7 +26,7 @@
   <para>
   This book will explain all the basics and also some of the advanced features 
   that Wireshark provides. As Wireshark has become a very complex program since 
-  the early days, not every feature of Wireshark might be explained in this 
+  the early days, not every feature of Wireshark may be explained in this 
   book. 
   </para>
   <para>
@@ -37,11 +37,10 @@
   </para>
   <para>
   By reading this book, you will learn how to install Wireshark, how to use the 
-  basic elements of the graphical user interface (like the menu) and what's 
-  behind some of the advanced features that are maybe not that obvious at first 
-  sight. It will 
-  hopefully guide you around some common problems that frequently appears for 
-  new (and sometimes even advanced) users of Wireshark.
+  basic elements of the graphical user interface (such as the menu) and what's 
+  behind some of the advanced features that are not always obvious at first 
+  sight. It will hopefully guide you around some common problems that
+  frequently appear for new (and sometimes even advanced) users of Wireshark.
   </para>
   </section>
 

@@ -505,7 +505,7 @@
 	and in the file formats of some other protocol analyzers, so other tools 
 	can read the capture data.
     </para>
-	<warning><title>File formats have different time stamp accuracys!</title>
+	<warning><title>File formats have different time stamp accuracies!</title>
 	<para>
 	Saving from the currently used to a different file format may reduce the 
 	time stamp accuracy, see the <xref linkend="ChAdvTimestamps"/> for details.

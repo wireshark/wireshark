@@ -8,7 +8,7 @@
     <para>
       Wireshark is a very useful tool for network troubleshooting, since it 
       contains a number of features that allow you to quickly focus on 
-      problems in your networkfor several reasons:
+      problems in your network for several reasons:
       <itemizedlist>
 	<listitem>
 	  <para>
@@ -54,7 +54,7 @@
 	  </para>
 	  <para>
 	    Because Wireshark can read many capture file formats, you can 
-	    capture using any conventient tool. One useful approach is 
+	    capture using any convenient tool. One useful approach is 
 	    to use <command>tcpdump</command> to capture on remote 
 	    systems and then copy the capture file to your system for 
 	    later analysis. For more details on capturing with 
@@ -83,7 +83,7 @@
   <section id="Ch04ROUSWI">
     <title>Capturing in the presence of switches and routers</title>
     <para>
-	In the old days of Ethernet, all network traffic was spreaded over one 
+	In the old days of Ethernet, all network traffic was spread over one 
 	"yellow" cable through the whole network. Capturing data was easy,
 	as all packets from the network could be captured using the 
 	"promiscuous mode" at any place in the network. The only devices blocking 
@@ -92,14 +92,14 @@
     </para>
     <para>
 	Then Ethernet wiring using hubs become the state of the art. As the hubs 
-	still spreaded the packets all over the network, things regarding 
+	still spaded the packets all over the network, things regarding 
 	capturing didn't changed.
     </para>
     <para>
 	At the next stage, Ethernet switches became widely available. This 
 	complicated things a lot. When capturing traffic on a computer connected 
 	to a switch, usually the switch will only forward packets to the computer, 
-	which are directed to it, or to all computers (broadcast's). It's much the 
+	which are directed to it, or to all computers (broadcasts). It's much the 
 	same like deactivating the promiscuous mode of the capturing network card.
     </para>
     <para>
