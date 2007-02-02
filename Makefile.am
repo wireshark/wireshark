@@ -626,7 +626,7 @@ EXTRA_DIST = \
 	image/wsicondoc.svg	\
 	image/wsicondoc256.png	\
 	image/wsiconinst.svg	\
-	image/wsiconinst.png	\
+	image/wsiconinst256.png	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
