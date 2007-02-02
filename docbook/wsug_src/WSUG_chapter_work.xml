@@ -834,7 +834,12 @@ ip.len le 0x436
 		  </row>
 		  <row>
 		    <entry>Ethernet address (6 bytes)</entry>
-		    <entry>eth.addr == ff:ff:ff:ff:ff:ff</entry>
+		    <entry><para>Separators can be a colon
+			(:), dot (.) or dash (-) and can have one or
+			two bytes between seperators:<programlisting>
+eth.addr == ff:ff:ff:ff:ff:ff
+eth.addr == ff-ff-ff-ff-ff-ff
+eth.addr == ffff.ffff.ffff</programlisting></para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv4 address</entry>
