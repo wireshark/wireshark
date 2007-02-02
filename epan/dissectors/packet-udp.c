@@ -177,16 +177,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   guint32    phdr[2];
   guint16    computed_cksum;
   int        offset = 0;
-  static e_udphdr udphstruct[4], *udph;
-  static int udph_count=0;
+  e_udphdr *udph;
   proto_tree *checksum_tree;
   proto_item *item;
 
-  udph_count++;
-  if(udph_count>=4){
-     udph_count=0;
-  }
-  udph=&udphstruct[udph_count];
+  udph=ep_alloc(sizeof(e_udphdr));
   SET_ADDRESS(&udph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
   SET_ADDRESS(&udph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
