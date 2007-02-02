@@ -2386,7 +2386,7 @@ get_dnp3_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 }
 
 static int
-dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dnp3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint length = tvb_length_remaining(tvb, 0);
 
@@ -2400,6 +2400,20 @@ dissect_dnp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    get_dnp3_message_len, dissect_dnp3_message);
 
   return tvb_length(tvb);
+}
+
+static int
+dissect_dnp3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  gint length = tvb_length_remaining(tvb, 0);
+  /* Check for a dnp packet.  It should begin with 0x0564 */
+  if(length < DNP_HDR_LEN || tvb_get_ntohs(tvb, 0) != 0x0564) {
+    /* Not a DNP 3.0 packet, just happened to use the same port */
+    return 0;
+  }
+
+  dissect_dnp3_message(tvb, pinfo, tree);
+  return length;
 }
 
 static void
@@ -2852,9 +2866,11 @@ proto_register_dnp3(void)
 void
 proto_reg_handoff_dnp3(void)
 {
-  dissector_handle_t dnp3_handle;
+  dissector_handle_t dnp3_tcp_handle;
+  dissector_handle_t dnp3_udp_handle;
 
-  dnp3_handle = create_dissector_handle(dissect_dnp3, proto_dnp3);
-  dissector_add("tcp.port", TCP_PORT_DNP, dnp3_handle);
-  dissector_add("udp.port", UDP_PORT_DNP, dnp3_handle);
+  dnp3_tcp_handle = create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
+  dnp3_udp_handle = create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
+  dissector_add("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
+  dissector_add("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
 }
