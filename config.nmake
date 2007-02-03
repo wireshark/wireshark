@@ -375,8 +375,11 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 #DOXYGEN="$(PROGRAM_FILES)/doxygen/bin/doxygen.exe"
 
 #
-# Recommended: Build compressed html help format .chm and use it as online help format.
-# You will have to download and install the html help compiler from:
+# Recommended: Use the compressed html help format .chm as the Wireshark integrated help.
+#
+# The required htmlhelp.h and htmlhelp.lib should be included in MSVC_VARIANT > MSVC6.
+#
+# For MSVC_VARIANT == MSVC6 you will have to download and install the html help workshop from:
 #
 # http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
 # /hwMicrosoftHTMLHelpDownloads.asp 
@@ -387,7 +390,6 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # comment this line out, so that HHC_DIR isn't defined.
 #
 HHC_DIR="$(PROGRAM_FILES)/HTML Help Workshop/"
-
 
 
 ##### Flags, PATHs and Miscellaneous #####
@@ -485,6 +487,51 @@ VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
 !ERROR MSVC_VARIANT unknown
 !ENDIF
 
+
+
+##### Advanced: Docbook/XML documentation (e.g. User's Guide) generation #####
+# If you want to generate the Docbook/XML docs (User's, Developer's Guide, ...), 
+# you'll need some additional tools / libraries compared to the rest of the build 
+# process. 
+#
+# FOR DETAILED INSTRUCTIONS SEE THE FILE: docbook\readme.txt.
+#
+# If you don't call the Makefile.nmake in the docbook dir to generate the guides, 
+# the following settings will have no effect.
+
+# formatting objects processor executable
+# Commented this out if you don't have fop installed or you
+# don't want PDF documentation.
+#
+# (as of fop-0.20 the cygwin script does not use $FOP_OPTS)
+!IFNDEF FOP
+FOP=fop-0.20.5\fop.bat
+!ENDIF
+
+# Additional options to fop.
+# This needs to contain at least the argument '-Xmx256m'
+FOP_OPTS=-Xmx256m
+
+# html help compiler
+# Commented this out if you don't have hhc.exe or you don't want .chm documentation.
+#
+# Beware: hhc.exe is NOT part of the MSVC packages as mentioned in HHC_DIR above,
+# so you'll need to install the HTML Help Workshop for this.
+HHC_EXE=$(HHC_DIR)\hhc.exe
+
+# html to text converter for text version of release notes, e.g. elinks.
+# This could also be "lynx", or "true" if neither elinks nor lynx is installed
+# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
+#HTML2TXT=elinks -dump -dump-width 72
+#HTML2TXT=links -dump -width 72
+HTML2TXT=lynx -dump -width=72 -nolist -stdin
+#HTML2TXT="true"
+
+# the XSL processor (part of cygwin's libxslt package)
+XSLTPROC="xsltproc"
+
+# the XML validator (part of cygwin's libxml2 package)
+XMLLINT="xmllint"
 
 
 

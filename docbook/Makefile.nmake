@@ -8,40 +8,6 @@
 # $Id$
 #
 
-# formatting objects processor
-# Additional options to fop.
-# This needs to contain at least the argument '-Xmx256m'
-FOP_OPTS=-Xmx256m
-
-# fop executable
-# Leave these commented out if you don't have fop installed or you
-# don't want PDF documentation.
-#
-# (as of fop-0.20 the cygwin script does not use $FOP_OPTS)
-!IFNDEF FOP
-FOP=fop-0.20.5\fop.bat
-!ENDIF
-
-# html help compiler
-# Leave these commented out if you don't have HHC installed or you
-# don't want CHM documentation.
-HHC="C:\Program Files\HTML Help Workshop\hhc.exe"
-
-# html to text converter for text version of release notes, e.g. elinks.
-# This could also be "lynx", or "true" if neither elinks nor lynx is installed
-# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
-#HTML2TXT=elinks -dump -dump-width 72
-#HTML2TXT=links -dump -width 72
-HTML2TXT=lynx -dump -width=72 -nolist -stdin
-#HTML2TXT="true"
-
-# the XSL processor
-XSLTPROC="xsltproc"
-
-# the XML validator (from the xsltproc package)
-XMLLINT="xmllint"
-
-
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
 include ..\config.nmake
@@ -121,13 +87,13 @@ user-guide-a4.fo: $(WSUG_SOURCE) custom_layer_pdf.xsl
 
 # create MS html help file (through html chunked pages)
 user-guide.chm: $(WSUG_SOURCE)
-!ifdef HHC
+!ifdef HHC_EXE
 	@ echo --- WSUG - MICROSOFT HTML HELP ---
 	if not exist wsug_chm\wsug_graphics\toolbar md wsug_chm\wsug_graphics\toolbar
 	-cp wsug_graphics/*.* wsug_chm/wsug_graphics/
 	-cp wsug_graphics/toolbar/* wsug_chm/wsug_graphics/toolbar/
 	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl user-guide.xml 
-	-$(HHC) htmlhelp.hhp
+	-$(HHC_EXE) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
@@ -187,12 +153,12 @@ developer-guide-a4.fo: $(WSDG_SOURCE) custom_layer_pdf.xsl
 
 # create MS html help file (through html chunked pages)
 developer-guide.chm: $(WSDG_SOURCE)
-!ifdef HHC
+!ifdef HHC_EXE
 	@ echo --- WSDG - MICROSOFT HTML HELP ---
 	if not exist wsdg_chm\wsdg_graphics md wsdg_chm\wsdg_graphics
 	cp wsdg_graphics/* wsdg_chm/wsdg_graphics
 	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl developer-guide.xml
-	-$(HHC) htmlhelp.hhp
+	-$(HHC_EXE) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
@@ -238,10 +204,10 @@ release-notes-a4.fo: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 
 # create MS html help file (through html chunked pages)
 release-notes.chm: $(RELEASE_NOTES_SOURCE)
-!ifdef HHC
+!ifdef HHC_EXE
 	@ echo --- RELEASE NOTES - MICROSOFT HTML HELP ---
 	$(XSLTPROC) --stringparam base.dir release_notes_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl release-notes.xml
-	-$(HHC) htmlhelp.hhp
+	-$(HHC_EXE) htmlhelp.hhp
 	-mv htmlhelp.chm $@
 	-rm -r htmlhelp.hhp
 	-rm -r toc.hhc
