@@ -389,7 +389,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-HHC_DIR="$(PROGRAM_FILES)/HTML Help Workshop/"
+HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 
 
 ##### Flags, PATHs and Miscellaneous #####
@@ -515,7 +515,7 @@ FOP_OPTS=-Xmx256m
 #
 # Beware: hhc.exe is NOT part of the MSVC packages in HHC_DIR mentioned above,
 # so you'll need to install the HTML Help Workshop for this.
-HHC_EXE=$(HHC_DIR)\hhc.exe
+HHC_EXE="$(HHC_DIR)\hhc.exe"
 
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
