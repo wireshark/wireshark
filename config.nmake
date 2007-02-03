@@ -389,7 +389,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-HHC_DIR="$(PROGRAM_FILES)/HTML Help Workshop"
+HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 
 
 ##### Flags, PATHs and Miscellaneous #####
@@ -415,7 +415,7 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 # /DEFAULTLIB:xxx use xxx as the standard C library
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
 # 
-LOCAL_LDFLAGS=/DEBUG
+LOCAL_LDFLAGS=/DEBUG 
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
@@ -794,8 +794,8 @@ PORTAUDIO_CONFIG=
 
 !IFDEF HHC_DIR
 !IF "$(MSVC_VARIANT)" == "MSVC6"
-HHC_CFLAGS=/I$(HHC_DIR)\include -DHHC_DIR
-HHC_LIBS=$(HHC_DIR)\lib\htmlhelp.lib
+HHC_CFLAGS=/I"$(HHC_DIR)\include" -DHHC_DIR
+HHC_LIBS="$(HHC_DIR)\lib\htmlhelp.lib"
 !ELSE
 HHC_CFLAGS=-DHHC_DIR
 HHC_LIBS=htmlhelp.lib
