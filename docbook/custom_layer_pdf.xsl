@@ -33,7 +33,8 @@
 
 <!-- hyphenate URL's after the slash -->
 <!-- (http://docbook.sourceforge.net/release/xsl/current/doc/fo/ulink.hyphenate.html) -->
-<xsl:param name="ulink.hyphenate" select="'&#x200b;'"></xsl:param>
+<xsl:param name="ulink.hyphenate.chars" select="'/:'"></xsl:param>
+<xsl:param name="ulink.hyphenate" select="'&#x200B;'"></xsl:param>
 
 <!-- don't allow section titles to be hyphenated -->
 <xsl:attribute-set name="section.title.properties">
@@ -49,6 +50,11 @@
 <xsl:attribute-set name="xref.properties">
   <xsl:attribute name="color">blue</xsl:attribute>
   <xsl:attribute name="text-decoration">underline</xsl:attribute>
+</xsl:attribute-set>
+
+<!-- reduce the size of programlisting to make them fit the page -->
+<xsl:attribute-set name="monospace.verbatim.properties">
+  <xsl:attribute name="font-size">80%</xsl:attribute>
 </xsl:attribute-set>
 
 </xsl:stylesheet>
