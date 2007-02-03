@@ -14,27 +14,18 @@
 FOP_OPTS=-Xmx256m
 
 # fop executable
-# Leave these commented out if you don't have fop instlled or you
+# Leave these commented out if you don't have fop installed or you
 # don't want PDF documentation.
 #
-# for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
-# not use $FOP_OPTS)
+# (as of fop-0.20 the cygwin script does not use $FOP_OPTS)
 !IFNDEF FOP
 FOP=fop-0.20.5\fop.bat
 !ENDIF
-#
-# for unix like environments (if you have problems with fop, try to use an absolute path here)
-#FOP=fop-0.20.5/fop.sh
-#
-# One SUSE 9.1 and newer uncomment the following line (make sure you have
-# at least fop-0.20.5-71.2)
-#FOP=fop
 
-# html help compiler (Win32 only)
+# html help compiler
 # Leave these commented out if you don't have HHC installed or you
 # don't want CHM documentation.
 HHC="C:\Program Files\HTML Help Workshop\hhc.exe"
-#HHC="true"
 
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
@@ -44,23 +35,21 @@ HHC="C:\Program Files\HTML Help Workshop\hhc.exe"
 HTML2TXT=lynx -dump -width=72 -nolist -stdin
 #HTML2TXT="true"
 
-############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
-
-include ..\config.nmake
-include Makefile.common
-
 # the XSL processor
 XSLTPROC="xsltproc"
 
 # the XML validator (from the xsltproc package)
 XMLLINT="xmllint"
 
+
+############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
+
+include ..\config.nmake
+include Makefile.common
+
 # Automatically generate .pdf files from .fo files
-# Suse needs FOP_OPTS, Debian needs JAVA_OPTS
 .fo.pdf:
 	$(FOP) $< $@
-
-# FOP_OPTS="$(FOP_OPTS) $(JAVA_OPTS)" $(FOP) $< $@
 
 
 all: svn_version_check wsug.validated wsdg.validated release_notes.validated wsug wsdg release_notes
