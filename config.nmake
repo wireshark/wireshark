@@ -489,33 +489,31 @@ VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
 
 
 
-##### Advanced: Docbook/XML documentation (e.g. User's Guide) generation #####
-# If you want to generate the Docbook/XML docs (User's, Developer's Guide, ...), 
-# you'll need some additional tools / libraries compared to the rest of the build 
-# process. 
+##### Advanced: Docbook/XML documentation generation #####
+# If you want to generate the Docbook/XML based docs (User's and Developer's 
+# Guide, ...), you'll need some additional tools / libraries compared to the 
+# rest of the build process. 
 #
-# FOR DETAILED INSTRUCTIONS SEE THE FILE: docbook\readme.txt.
+# FOR DETAILED INSTRUCTIONS TO GENERATE THE DOCS, SEE: docbook\readme.txt.
 #
-# If you don't call the Makefile.nmake in the docbook dir to generate the guides, 
-# the following settings will have no effect.
+# If you don't call the Makefile.nmake in the docbook dir to generate the 
+# docs, the following settings in this section will have no effect.
 
 # formatting objects processor executable
-# Commented this out if you don't have fop installed or you
-# don't want PDF documentation.
-#
-# (as of fop-0.20 the cygwin script does not use $FOP_OPTS)
+# Comment this out if you don't have fop installed or you don't want the docs 
+# in PDF format.
 !IFNDEF FOP
 FOP=fop-0.20.5\fop.bat
 !ENDIF
 
 # Additional options to fop.
-# This needs to contain at least the argument '-Xmx256m'
 FOP_OPTS=-Xmx256m
 
 # html help compiler
-# Commented this out if you don't have hhc.exe or you don't want .chm documentation.
+# Comment this out if you don't have hhc.exe or you don't want the docs in 
+# .chm format.
 #
-# Beware: hhc.exe is NOT part of the MSVC packages as mentioned in HHC_DIR above,
+# Beware: hhc.exe is NOT part of the MSVC packages in HHC_DIR mentioned above,
 # so you'll need to install the HTML Help Workshop for this.
 HHC_EXE=$(HHC_DIR)\hhc.exe
 
