@@ -389,7 +389,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
 #
-HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
+HHC_DIR="$(PROGRAM_FILES)/HTML Help Workshop"
 
 
 ##### Flags, PATHs and Miscellaneous #####
