@@ -114,13 +114,13 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 # (MAJOR + MINOR Version number but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
 #
-# GTK 2.6 is the mainline since Ethereal 0.10.14
+# GTK 2.6 is the old mainline since Ethereal 0.10.14
 #GTK2_INST_VERSION=2.6
 #PANGO_INST_VERSION=1.8
 # Support for GTK 2.8 
 #GTK2_INST_VERSION=2.8
 #PANGO_INST_VERSION=1.14
-# Support for GTK 2.10 is currently experimental ...
+# GTK 2.10 is the mainline since Wireshark 0.99.5
 GTK2_INST_VERSION=2.10
 PANGO_INST_VERSION=1.14
 
@@ -139,17 +139,8 @@ GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 #
 # Optional: WinPcap developer's pack to capture network traffic.
 #
-# The WinPcap developer's pack version Wireshark is build with.
-#
-# If you don't have the WPdpack, comment this line out, so that 
-# WINPCAP_VERSION isn't defined.
-#
-#WINPCAP_VERSION=3.0
-WINPCAP_VERSION=3.1
-# XXX - what to set for 4.0 beta 1?
-#
-# If you have the WinPcap developer's pack, set this to the directory 
-# in which the WinPcap developer's pack resides.
+# If you have the WinPcap developer's pack (at least version 3.0), 
+# set this to the directory in which the WinPcap developer's pack resides.
 #
 # If you don't have the WPdpack, comment this line out, so that 
 # PCAP_DIR isn't defined.
@@ -648,25 +639,14 @@ AIRPDCAP_CONFIG=
 !IFDEF PCAP_DIR
 # Nmake uses carets to escape special characters
 WINPCAP_CONFIG=^#define HAVE_LIBPCAP 1
-!IF "$(WINPCAP_VERSION)" == "3.0" || "$(WINPCAP_VERSION)" == "3.1"
 PCAP_FINDALLDEVS_CONFIG=^#define HAVE_PCAP_FINDALLDEVS 1
 PCAP_DATALINK_NAME_TO_VAL_CONFIG=^#define HAVE_PCAP_DATALINK_NAME_TO_VAL 1
 PCAP_DATALINK_VAL_TO_NAME_CONFIG=^#define HAVE_PCAP_DATALINK_VAL_TO_NAME 1
 # PCAP_BREAKLOOP won't have any benefit on Win32, but breaks compatibility with 3.0
-#!IF "$(WINPCAP_VERSION)" == "3.1"
-#PCAP_BREAKLOOP_CONFIG=^#define HAVE_PCAP_BREAKLOOP 1
-#!ELSE
 PCAP_BREAKLOOP_CONFIG=
-#!ENDIF
 WPCAP_CONSTIFIED_CONFIG=^#define WPCAP_CONSTIFIED 1
 !ELSE
-PCAP_FINDALLDEVS_CONFIG=
-PCAP_DATALINK_NAME_TO_VAL_CONFIG=
-PCAP_DATALINK_VAL_TO_NAME_CONFIG=
-PCAP_BREAKLOOP_CONFIG=
-WPCAP_CONSTIFIED=
-!ENDIF
-!ELSE
+# no WpdPack installed
 WINPCAP_CONFIG=
 PCAP_FINDALLDEVS_CONFIG=
 PCAP_DATALINK_NAME_TO_VAL_CONFIG=
