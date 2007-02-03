@@ -115,11 +115,7 @@ static int hf_scsi_inquiry_flags         = -1;
 static int hf_scsi_inquiry_evpd_page     = -1;
 static int hf_scsi_inquiry_cmdt_page     = -1;
 static int hf_scsi_alloclen              = -1;
-static int hf_scsi_logsel_flags          = -1;
-static int hf_scsi_logsel_pc             = -1;
 static int hf_scsi_paramlen              = -1;
-static int hf_scsi_logsns_pc             = -1;
-static int hf_scsi_logsns_pagecode       = -1;
 static int hf_scsi_paramlen16            = -1;
 static int hf_scsi_modesel_flags         = -1;
 static int hf_scsi_modesns_pc            = -1;
@@ -208,12 +204,13 @@ static int hf_scsi_fragment_multiple_tails = -1;
 static int hf_scsi_fragment_too_long_fragment = -1;
 static int hf_scsi_fragment_error = -1;
 static int hf_scsi_reassembled_in = -1;
-static int hf_scsi_logsense_ppc_flags	= -1;
-static int hf_scsi_logsense_pc_flags	= -1;
-static int hf_scsi_logsense_ppc	= -1;
-static int hf_scsi_logsense_sp	= -1;
-static int hf_scsi_logsense_pc	= -1;
-static int hf_scsi_logsense_page_code	= -1;
+static int hf_scsi_log_ppc_flags	= -1;
+static int hf_scsi_log_pc_flags		= -1;
+static int hf_scsi_log_ppc		= -1;
+static int hf_scsi_log_pcr		= -1;
+static int hf_scsi_log_sp		= -1;
+static int hf_scsi_log_pagecode		= -1;
+static int hf_scsi_log_pc		= -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -223,8 +220,8 @@ static gint ett_scsi_inq_rmbflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
-static gint ett_scsi_logsense_ppc = -1;
-static gint ett_scsi_logsense_pc = -1;
+static gint ett_scsi_log_ppc = -1;
+static gint ett_scsi_log_pc = -1;
 static gint ett_scsi_fragments = -1;
 static gint ett_scsi_fragment  = -1;
 
@@ -336,15 +333,7 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {0, NULL},
 };
 
-static const value_string scsi_logsel_pc_val[] = {
-    {0, "Current Threshold Values"},
-    {1, "Current Cumulative Values"},
-    {2, "Default Threshold Values"},
-    {3, "Default Cumulative Values"},
-    {0, NULL},
-};
-
-static const value_string scsi_logsns_pc_val[] = {
+static const value_string scsi_log_pc_val[] = {
     {0, "Threshold Values"},
     {1, "Cumulative Values"},
     {2, "Default Threshold Values"},
@@ -352,7 +341,7 @@ static const value_string scsi_logsns_pc_val[] = {
     {0, NULL},
 };
 
-static const value_string scsi_logsns_page_val[] = {
+static const value_string scsi_log_page_val[] = {
     {0x00, "Supported Log Pages"},
     {0x01, "Buffer Overrun/Underrun Page"},
     {0x02, "Error Counter (write) Page"},
@@ -1708,19 +1697,24 @@ dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *ppcflags_fields[] = {
+	&hf_scsi_log_pcr,
+	&hf_scsi_log_sp,
+	NULL
+    };
+    static const int *pcflags_fields[] = {
+	&hf_scsi_log_pc,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags, ett_scsi_log_ppc, ppcflags_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_logsel_flags, tvb, offset, 1,
-                                    flags, "PCR = %u, SP = %u", (flags & 0x2) >> 1,
-                                    flags & 0x1);
-        proto_tree_add_uint_format (tree, hf_scsi_logsel_pc, tvb, offset+1, 1,
-                                    tvb_get_guint8 (tvb, offset+1),
-                                    "PC: 0x%x", (flags & 0xC0) >> 6);
+	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
+
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
 
         flags = tvb_get_guint8 (tvb, offset+8);
@@ -1733,11 +1727,15 @@ dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-static const true_false_string scsi_logsense_ppc_tfs = {
+static const true_false_string scsi_log_pcr_tfs = {
+    "Reset all parameters to default values",
+    "Do not reset log parameters"
+};
+static const true_false_string scsi_log_ppc_tfs = {
     "Return only parameters that have changed since last LOG SELECT/SENSE",
     "Return parameters even if they are unchanged"
 };
-static const true_false_string scsi_logsense_sp_tfs = {
+static const true_false_string scsi_log_sp_tfs = {
     "Device shall save all log parameters",
     "Device should not save any of the logged parameters"
 };
@@ -1749,13 +1747,13 @@ dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     guint8 flags;
     static const int *ppcflags_fields[] = {
-	&hf_scsi_logsense_ppc,
-	&hf_scsi_logsense_sp,
+	&hf_scsi_log_ppc,
+	&hf_scsi_log_sp,
 	NULL
     };
     static const int *pcflags_fields[] = {
-	&hf_scsi_logsns_pc,
-	&hf_scsi_logsns_pagecode,
+	&hf_scsi_log_pc,
+	&hf_scsi_log_pagecode,
 	NULL
     };
 
@@ -1763,9 +1761,9 @@ dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_logsense_ppc_flags, ett_scsi_logsense_ppc, ppcflags_fields, FALSE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags, ett_scsi_log_ppc, ppcflags_fields, FALSE);
 
-	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_logsense_pc_flags, ett_scsi_logsense_pc, pcflags_fields, FALSE);
+	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
 
         proto_tree_add_text (tree, tvb, offset+4, 2, "Parameter Pointer: 0x%04x",
                              tvb_get_ntohs (tvb, offset+4));
@@ -4200,21 +4198,15 @@ proto_register_scsi (void)
         { &hf_scsi_alloclen,
           {"Allocation Length", "scsi.cdb.alloclen", FT_UINT8, BASE_DEC, NULL,
            0x0, "", HFILL}},
-        { &hf_scsi_logsel_flags,
-          {"Flags", "scsi.logsel.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
-        { &hf_scsi_logsel_pc,
-          {"Page Control", "scsi.logsel.pc", FT_UINT8, BASE_DEC,
-           VALS (scsi_logsel_pc_val), 0xC0, "", HFILL}},
         { &hf_scsi_paramlen,
           {"Parameter Length", "scsi.cdb.paramlen", FT_UINT8, BASE_DEC, NULL,
            0x0, "", HFILL}},
-        { &hf_scsi_logsns_pc,
-          {"Page Control", "scsi.logsns.pc", FT_UINT8, BASE_DEC,
-           VALS (scsi_logsns_pc_val), 0xC0, "", HFILL}},
-        { &hf_scsi_logsns_pagecode,
-          {"Page Code", "scsi.logsns.pagecode", FT_UINT8, BASE_HEX,
-           VALS (scsi_logsns_page_val), 0x3F, "", HFILL}},
+        { &hf_scsi_log_pc,
+          {"Page Control", "scsi.log.pc", FT_UINT8, BASE_DEC,
+           VALS (scsi_log_pc_val), 0xC0, "", HFILL}},
+        { &hf_scsi_log_pagecode,
+          {"Page Code", "scsi.log.pagecode", FT_UINT8, BASE_HEX,
+           VALS (scsi_log_page_val), 0x3F, "", HFILL}},
         { &hf_scsi_paramlen16,
           {"Parameter Length", "scsi.cdb.paramlen16", FT_UINT16, BASE_DEC, NULL,
            0x0, "", HFILL}},
@@ -4504,17 +4496,20 @@ proto_register_scsi (void)
 	{ &hf_scsi_reassembled_in,
 	  { "Reassembled SCSI DATA in frame", "scsi.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "This SCSI DATA packet is reassembled in this frame", HFILL }},
-        { &hf_scsi_logsense_ppc_flags,
-          {"PPC Flags", "scsi.logsense.ppc.flags", FT_UINT8, BASE_HEX, NULL, 0,
+        { &hf_scsi_log_ppc_flags,
+          {"PPC Flags", "scsi.log.ppc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
-        { &hf_scsi_logsense_ppc,
-          {"PPC", "scsi.logsense.ppc", FT_BOOLEAN, 8,
-          TFS (&scsi_logsense_ppc_tfs), 0x02, "", HFILL}},
-        { &hf_scsi_logsense_sp,
-          {"SP", "scsi.logsense.sp", FT_BOOLEAN, 8,
-          TFS (&scsi_logsense_sp_tfs), 0x01, "", HFILL}},
-        { &hf_scsi_logsense_pc_flags,
-          {"PC Flags", "scsi.logsense.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
+        { &hf_scsi_log_ppc,
+          {"PPC", "scsi.log.ppc", FT_BOOLEAN, 8,
+          TFS (&scsi_log_ppc_tfs), 0x02, "", HFILL}},
+        { &hf_scsi_log_pcr,
+          {"PCR", "scsi.log.pcr", FT_BOOLEAN, 8,
+          TFS (&scsi_log_pcr_tfs), 0x02, "", HFILL}},
+        { &hf_scsi_log_sp,
+          {"SP", "scsi.log.sp", FT_BOOLEAN, 8,
+          TFS (&scsi_log_sp_tfs), 0x01, "", HFILL}},
+        { &hf_scsi_log_pc_flags,
+          {"PC Flags", "scsi.log.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
     };
 
@@ -4528,8 +4523,8 @@ proto_register_scsi (void)
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
 	&ett_scsi_inq_reladrflags,
-	&ett_scsi_logsense_ppc,
-	&ett_scsi_logsense_pc,
+	&ett_scsi_log_ppc,
+	&ett_scsi_log_pc,
 	&ett_scsi_fragments,
 	&ett_scsi_fragment,
     };
