@@ -118,7 +118,6 @@ static int hf_scsi_alloclen              = -1;
 static int hf_scsi_logsel_flags          = -1;
 static int hf_scsi_logsel_pc             = -1;
 static int hf_scsi_paramlen              = -1;
-static int hf_scsi_logsns_flags          = -1;
 static int hf_scsi_logsns_pc             = -1;
 static int hf_scsi_logsns_pagecode       = -1;
 static int hf_scsi_paramlen16            = -1;
@@ -209,6 +208,12 @@ static int hf_scsi_fragment_multiple_tails = -1;
 static int hf_scsi_fragment_too_long_fragment = -1;
 static int hf_scsi_fragment_error = -1;
 static int hf_scsi_reassembled_in = -1;
+static int hf_scsi_logsense_ppc_flags	= -1;
+static int hf_scsi_logsense_pc_flags	= -1;
+static int hf_scsi_logsense_ppc	= -1;
+static int hf_scsi_logsense_sp	= -1;
+static int hf_scsi_logsense_pc	= -1;
+static int hf_scsi_logsense_page_code	= -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -218,6 +223,8 @@ static gint ett_scsi_inq_rmbflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
+static gint ett_scsi_logsense_ppc = -1;
+static gint ett_scsi_logsense_pc = -1;
 static gint ett_scsi_fragments = -1;
 static gint ett_scsi_fragment  = -1;
 
@@ -346,19 +353,24 @@ static const value_string scsi_logsns_pc_val[] = {
 };
 
 static const value_string scsi_logsns_page_val[] = {
-    {0xF, "Application Client Page"},
-    {0x1, "Buffer Overrun/Underrun Page"},
-    {0x3, "Error Counter (read) Page"},
-    {0x4, "Error Counter (read reverse) Page"},
-    {0x5, "Error Counter (verify) Page"},
-    {0x2, "Error Counter (write) Page"},
-    {0xB, "Last n Deferred Errors or Async Events Page"},
-    {0x7, "Last n Error Events Page"},
-    {0x6, "Non-medium Error Page"},
+    {0x00, "Supported Log Pages"},
+    {0x01, "Buffer Overrun/Underrun Page"},
+    {0x02, "Error Counter (write) Page"},
+    {0x03, "Error Counter (read) Page"},
+    {0x04, "Error Counter (read reverse) Page"},
+    {0x05, "Error Counter (verify) Page"},
+    {0x06, "Non-medium Error Page"},
+    {0x07, "Last n Error Events Page"},
+    {0x08, "Format Status Log Page"},
+    {0x0B, "Last n Deferred Errors or Async Events Page"},
+    {0x0C, "Sequential-Access Device Log Page"},
+    {0x0D, "Temperature Page"},
+    {0x0E, "Start-Stop Cycle Counter Page"},
+    {0x0F, "Application Client Page"},
     {0x10, "Self-test Results Page"},
-    {0xE, "Start-Stop Cycle Counter Page"},
-    {0x0, "Supported Log Pages"},
-    {0xD, "Temperature Page"},
+    {0x11, "DTD Status Log Page"},
+    {0x2e, "Tape-Alert Log Page (SSC)"},
+    {0x2f, "Informational Exceptions Log Page"},
     {0, NULL},
 };
 
@@ -1721,27 +1733,40 @@ dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+static const true_false_string scsi_logsense_ppc_tfs = {
+    "Return only parameters that have changed since last LOG SELECT/SENSE",
+    "Return parameters even if they are unchanged"
+};
+static const true_false_string scsi_logsense_sp_tfs = {
+    "Device shall save all log parameters",
+    "Device should not save any of the logged parameters"
+};
+
 void
 dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *ppcflags_fields[] = {
+	&hf_scsi_logsense_ppc,
+	&hf_scsi_logsense_sp,
+	NULL
+    };
+    static const int *pcflags_fields[] = {
+	&hf_scsi_logsns_pc,
+	&hf_scsi_logsns_pagecode,
+	NULL
+    };
 
     if (!tree)
         return;
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_logsense_ppc_flags, ett_scsi_logsense_ppc, ppcflags_fields, FALSE);
 
-        proto_tree_add_uint_format (tree, hf_scsi_logsns_flags, tvb, offset, 1,
-                                    flags, "PPC = %u, SP = %u", flags & 0x2,
-                                    flags & 0x1);
-        proto_tree_add_uint_format (tree, hf_scsi_logsns_pc, tvb, offset+1, 1,
-                                    tvb_get_guint8 (tvb, offset+1),
-                                    "PC: 0x%x", flags & 0xC0);
-        proto_tree_add_item (tree, hf_scsi_logsns_pagecode, tvb, offset+1,
-                             1, 0);
+	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_logsense_pc_flags, ett_scsi_logsense_pc, pcflags_fields, FALSE);
+
         proto_tree_add_text (tree, tvb, offset+4, 2, "Parameter Pointer: 0x%04x",
                              tvb_get_ntohs (tvb, offset+4));
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
@@ -1751,8 +1776,10 @@ dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
-    }
-    else {
+    } else if (!isreq) {
+	if (!cdata) {
+		return;
+	}
     }
 }
 
@@ -4182,9 +4209,6 @@ proto_register_scsi (void)
         { &hf_scsi_paramlen,
           {"Parameter Length", "scsi.cdb.paramlen", FT_UINT8, BASE_DEC, NULL,
            0x0, "", HFILL}},
-        { &hf_scsi_logsns_flags,
-          {"Flags", "scsi.logsns.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "",
-           HFILL}},
         { &hf_scsi_logsns_pc,
           {"Page Control", "scsi.logsns.pc", FT_UINT8, BASE_DEC,
            VALS (scsi_logsns_pc_val), 0xC0, "", HFILL}},
@@ -4479,7 +4503,19 @@ proto_register_scsi (void)
 
 	{ &hf_scsi_reassembled_in,
 	  { "Reassembled SCSI DATA in frame", "scsi.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-	    "This SCSI DATA packet is reassembled in this frame", HFILL }}
+	    "This SCSI DATA packet is reassembled in this frame", HFILL }},
+        { &hf_scsi_logsense_ppc_flags,
+          {"PPC Flags", "scsi.logsense.ppc.flags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_logsense_ppc,
+          {"PPC", "scsi.logsense.ppc", FT_BOOLEAN, 8,
+          TFS (&scsi_logsense_ppc_tfs), 0x02, "", HFILL}},
+        { &hf_scsi_logsense_sp,
+          {"SP", "scsi.logsense.sp", FT_BOOLEAN, 8,
+          TFS (&scsi_logsense_sp_tfs), 0x01, "", HFILL}},
+        { &hf_scsi_logsense_pc_flags,
+          {"PC Flags", "scsi.logsense.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -4492,6 +4528,8 @@ proto_register_scsi (void)
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
 	&ett_scsi_inq_reladrflags,
+	&ett_scsi_logsense_ppc,
+	&ett_scsi_logsense_pc,
 	&ett_scsi_fragments,
 	&ett_scsi_fragment,
     };
