@@ -351,11 +351,11 @@ YACC=bison
 MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 
 #
-# Optional: To build the developers documentation with doxygen and dot.
-# Currently experimental only.
+# Optional: To build the developers API documentation with doxygen and dot.
+# Currently experimental, outdated and incomplete.
 #
 # You will have to download and install:
-# Doxygen from: www.doxygen.org
+# Doxygen from: http://www.doxygen.org
 # Graphviz from: http://www.research.att.com/sw/tools/graphviz/
 #
 # If you have doxygen, set this to the doxygen executable.
@@ -535,11 +535,6 @@ XMLLINT="xmllint"
 # was necessary.
 #
 ##############################################################################
-
-!IFDEF ENABLE_LIBWIRESHARK
-# Uncomment next line to link plugins with the import library of libwireshark.dll 
-LINK_PLUGINS_WITH_LIBWIRESHARK=USE
-!ENDIF
 
 #
 # The RC_VERSION should be comma-separated, not dot-separated, 
@@ -766,8 +761,7 @@ PORTAUDIO_API_CONFIG=^#define PORTAUDIO_API_1 1
 !ELSE
 PORTAUDIO_CFLAGS=/I$(PORTAUDIO_DIR)\include /I$(PORTAUDIO_DIR)\src\common
 !ENDIF
-
-!else
+!ELSE
 PORTAUDIO_CFLAGS=
 PORTAUDIO_CONFIG=
 !ENDIF
@@ -787,6 +781,8 @@ HHC_LIBS=
 
 !IFDEF ENABLE_LIBWIRESHARK
 LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
+# Link plugins with the import library of libwireshark.dll 
+LINK_PLUGINS_WITH_LIBWIRESHARK=USE
 !ELSE
 LIBWIRESHARK_CONFIG=
 !ENDIF
