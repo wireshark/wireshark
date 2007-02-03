@@ -95,6 +95,10 @@ Win32 only: HTML help compiler (for .chm generation only)
 hhc compiler (hhc.exe) from Microsoft:
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
 
+lynx
+----
+Text based web browser used to convert release_notes.html into plain text 
+format.
 
 
 Packages for Win32
@@ -107,6 +111,7 @@ xsltproc:           libxslt                 M
 xmllint:            libxml2                 M
 xsl stylesheets:    docbook-xsl             M           docbook.xsl, chunk.xsl and htmlhelp.xsl
 docbookx.dtd:       docbook_xml42           M
+lynx:               lynx                    M
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into fop-0.20.5 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
