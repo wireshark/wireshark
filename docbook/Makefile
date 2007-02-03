@@ -12,29 +12,17 @@
 FOP_OPTS?=-Xmx256m
 
 # fop executable
-# Leave these commented out if you don't have fop instlled or you
+# Leave these commented out if you don't have fop installed or you
 # don't want PDF documentation.
-#
-# for win32 (cygwin) environments (as of fop-0.20 the cygwin script does
-# not use $FOP_OPTS)
-FOP?=fop-0.20.5/fop.bat
-#
-# for unix like environments (if you have problems with fop, try to use an absolute path here)
-#FOP=fop-0.20.5/fop.sh
+# (if you have problems with fop, try to use an absolute path here)
+FOP=fop-0.20.5/fop.sh
 #
 # One SUSE 9.1 and newer uncomment the following line (make sure you have
 # at least fop-0.20.5-71.2)
 #FOP=fop
 
-# html help compiler (Win32 only)
-# Leave these commented out if you don't have HHC installed or you
-# don't want CHM documentation.
-HHC?="/cygdrive/c/Program Files/HTML Help Workshop/hhc.exe"
-#HHC="true"
-
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
-# (cygwin: lynx works, elinks not available, links and true doesn't produce output)
 #HTML2TXT=elinks -dump -dump-width 72
 #HTML2TXT=links -dump -width 72
 HTML2TXT?=lynx -dump -width=72 -nolist -stdin
@@ -80,7 +68,7 @@ svn_version_check: FORCE
 svn_version.xml: svn_version_check
 
 
-wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf user-guide.chm user-guide.zip
+wsug: wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf
 
 # validate the content
 wsug.validated: $(WSUG_SOURCE)
@@ -128,28 +116,8 @@ ifdef FOP
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
-# create MS html help file (through html chunked pages)
-user-guide.chm: $(WSUG_SOURCE)
-ifdef HHC
-	@ echo --- WSUG - MICROSOFT HTML HELP ---
-	mkdir -p wsug_chm/wsug_graphics/toolbar
-	-cp wsug_graphics/*.* wsug_chm/wsug_graphics/
-	-cp wsug_graphics/toolbar/* wsug_chm/wsug_graphics/toolbar/
-	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1  --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
-	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm $@
-	-rm -r htmlhelp.hhp
-	-rm -r toc.hhc
-endif
 
-user-guide.zip: user-guide.chm
-ifdef HHC
-	rm -f user-guide.zip
-	zip user-guide.zip user-guide.chm
-endif
-
-
-wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
+wsdg: wsdg_html_chunked developer-guide.html developer-guide-a4.pdf developer-guide-us.pdf
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)
@@ -196,21 +164,8 @@ ifdef FOP
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
-# create MS html help file (through html chunked pages)
-developer-guide.chm: $(WSDG_SOURCE)
-ifdef HHC
-	@ echo --- WSDG - MICROSOFT HTML HELP ---
-	mkdir -p wsdg_chm/wsdg_graphics
-	cp wsdg_graphics/* wsdg_chm/wsdg_graphics
-	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
-	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm $@
-	-rm -r htmlhelp.hhp
-	-rm -r toc.hhc
-endif
 
-
-release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf release-notes.chm
+release_notes: release-notes.html release-notes.txt release-notes-a4.pdf release-notes-us.pdf
 
 # validate the content
 release_notes.validated: $(RELEASE_NOTES_SOURCE)
@@ -247,24 +202,13 @@ ifdef FOP
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
 endif
 
-# create MS html help file (through html chunked pages)
-release-notes.chm: $(RELEASE_NOTES_SOURCE)
-ifdef HHC
-	@ echo --- RELEASE NOTES - MICROSOFT HTML HELP ---
-	$(XSLTPROC) --stringparam base.dir release_notes_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
-	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm $@
-	-rm -r htmlhelp.hhp
-	-rm -r toc.hhc
-endif
-
 
 $(WSLUA_FILES): wsluarm.xml
 
 wsluarm.xml: make-wsluarm.pl template-wsluarm.xml $(WSLUA_MODULES)
 	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
 
-wsluarm: wsluarm.html wsluarm.txt wsluarm-a4.pdf wsluarm-us.pdf wsluarm.chm
+wsluarm: wsluarm.html wsluarm.txt wsluarm-a4.pdf wsluarm-us.pdf
 
 # validate the content
 wsluarm.validated: $(WSLUARM_SOURCE)
@@ -296,17 +240,6 @@ wsluarm-a4.fo: $(WSLUARM_SOURCE) custom_layer_pdf.xsl
 ifdef FOP
 	@ echo --- WSLUARM - PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl $< > $@
-endif
-
-# create MS html help file (through html chunked pages)
-wsluarm.chm: $(WSLUARM_SOURCE)
-ifdef HHC
-	@ echo --- WSLUARM - MICROSOFT HTML HELP ---
-	$(XSLTPROC) --stringparam base.dir wsluarm_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl $<
-	-$(HHC) htmlhelp.hhp
-	-mv htmlhelp.chm $@
-	-rm -r htmlhelp.hhp
-	-rm -r toc.hhc
 endif
 
 

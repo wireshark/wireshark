@@ -6,6 +6,8 @@
 # $Id$
 #
 
+# PLEASE NOTE: THIS FILE IS EXPERIMENTAL, USE Makefile INSTEAD!
+
 # if you need to change this, don't forget to change it in catalog.xml too
 
 # On suse 9.2, uncomment the following line:
@@ -15,10 +17,9 @@ DOCBOOKXSL="/usr/share/xml/docbook/stylesheet/nwalsh/1.65.1"
 
 ############### YOU SHOULDN'T HAVE TO EDIT ANYTHING BELOW THIS LINE! ################
 
-# as wsug_chm will stop with an error, make sure it's the last in this dependency list
 all: wsug wsdg
 
-wsug: wsug_validate wsug_pdf_a4 wsug_html wsug_html_chunked wsug_chm 
+wsug: wsug_validate wsug_pdf_a4 wsug_html wsug_html_chunked 
 
 clean:
 	rm -f *.html
@@ -79,24 +80,8 @@ if HAVE_FOP
 	$(FOP) user-guide.fo user-guide.pdf
 endif
 
-# create MS html help file (through html chunked pages)
-wsug_chm:
-if HAVE_HHC
-	@ echo --- MICROSOFT HTML HELP ---
-	mkdir -p wsug_chm
-	mkdir -p wsug_chm/wsug_graphics
-	mkdir -p wsug_chm/wsug_graphics/toolbar
-	cp ./wsug_graphics/*.* wsug_chm/wsug_graphics
-	cp ./wsug_graphics/toolbar/*.* wsug_chm/wsug_graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsug_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsug_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl user-guide.xml
-	-$(HHC) htmlhelp.hhp
-	mv htmlhelp.chm user-guide.chm
-	rm -r htmlhelp.hhp
-	rm -r toc.hhc
-endif
 
-
-wsdg: wsdg_validate wsdg_html_chunked wsdg_pdf_a4 wsdg_html wsdg_chm 
+wsdg: wsdg_validate wsdg_html_chunked wsdg_pdf_a4 wsdg_html 
 
 # validate the content
 wsdg_validate:
@@ -139,21 +124,5 @@ if HAVE_FOP
 	@ echo --- PDF A4 PAPER ---
 	$(XSLTPROC) --stringparam paper.type A4 --nonet custom_layer_pdf.xsl developer-guide.xml > developer-guide.fo
 	$(FOP) developer-guide.fo developer-guide.pdf
-endif
-
-# create MS html help file (through html chunked pages)
-wsdg_chm:
-if HAVE_HHC
-	@ echo --- MICROSOFT HTML HELP ---
-	mkdir -p wsdg_chm
-	mkdir -p wsdg_chm/wsdg_graphics
-	mkdir -p wsdg_chm/wsdg_graphics/toolbar
-	cp ./wsdg_graphics/*.* wsdg_chm/wsdg_graphics
-	cp ./wsdg_graphics/toolbar/*.* wsdg_chm/wsdg_graphics/toolbar
-	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --nonet $(DOCBOOKXSL)/htmlhelp/htmlhelp.xsl developer-guide.xml
-	-$(HHC) htmlhelp.hhp
-	mv htmlhelp.chm developer-guide.chm
-	rm -r htmlhelp.hhp
-	rm -r toc.hhc
 endif
 
