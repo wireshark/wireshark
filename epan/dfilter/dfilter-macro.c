@@ -165,13 +165,14 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error) {
 			
 #define FGS(n) if (n) g_string_free(n,TRUE); n = NULL
 	
-#define FREE_ALL() do { \
-	FGS(name); \
-	FGS(arg); \
-	if (args) { \
-		while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); if (p) g_free(p); } \
-		g_ptr_array_free(args,TRUE); \
-		args = NULL; } } while(0)
+#define FREE_ALL() \
+	do { \
+		FGS(name); \
+		FGS(arg); \
+		if (args) { \
+			while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); if (p) g_free(p); } \
+			g_ptr_array_free(args,TRUE); \
+			args = NULL; } } while(0)
 		
 		*error = NULL;
 		out = g_string_sized_new(64);
@@ -443,7 +444,8 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 	return d;
 }
 
-gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, char** error) {
+
+gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, char** error) {
 	guint i;
 	
 	for (i=0; i < name_len; i++) {
@@ -453,54 +455,19 @@ gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, cha
 		}
 	}
 	
-	return TRUE;
+	return i > 0 ? TRUE : FALSE;
 }
 
-static void macro_name_set(void* r, const char* in_name, unsigned len) {
-	dfilter_macro_t* m = r;
-	char* name = g_malloc(len+1);
-	memcpy(name,in_name,len);
-	name[len] = '\0';
-	g_free(m->name);
-	m->name = name;
-}
-
-static void macro_name_tostr(void* r, char** out_name, unsigned* out_len) {
-	dfilter_macro_t* m = r;
-	*out_len = strlen(m->name);
-	*out_name = m->name;
-}
-
-gboolean macro_text_chk(void* r _U_, const char* in_name, unsigned name_len, char** error) {
-	guint i;
-	
-	for (i=0; i < name_len; i++) {
-		if (! isprint(in_name[i]) ) {
-			*error = "invalid char in text";
-			return FALSE;
-		}
-	}
-	
-	return TRUE;
-}
-
-static void macro_text_set(void* r, const char* in_name, unsigned len) {
-	dfilter_macro_t* m = r;
-	char* text = g_malloc(len+1);
-	memcpy(text,in_name,len);
-	text[len] = '\0';
-	g_free(m->text);
-	m->text = text;
-}
-
-static void macro_text_tostr(void* r, char** out_name, unsigned* out_len) {
-	dfilter_macro_t* m = r;
-	*out_len = strlen(m->text);
-	*out_name = m->text;
-}
+UAT_CSTRING_CB_DEF(macro,name,dfilter_macro_t)
+UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 
 void dfilter_macro_init(void) {
-	char* error = NULL;
+	static uat_field_t uat_fields[] =  {
+		UAT_FLD_CSTRING_OTHER(macro,name,macro_name_chk),
+		UAT_FLD_CSTRING_ISPRINT(macro,text),
+		UAT_END_FIELDS
+	};
+	
 	dfilter_macro_uat = uat_new("Display Filter Macros",
 								sizeof(dfilter_macro_t),
 								DFILTER_MACRO_FILENAME,
@@ -509,15 +476,7 @@ void dfilter_macro_init(void) {
 								macro_copy,
 								macro_update,
 								macro_free,
-								&error,
-								"name", PT_TXTMOD_STRING, macro_name_chk, macro_name_set, macro_name_tostr,
-								"text", PT_TXTMOD_STRING, macro_text_chk, macro_text_set, macro_text_tostr,
-								NULL );
-	
-	if(error) {
-		report_failure("error while loading '" DFILTER_MACRO_FILENAME "':\n%s",error);
-	}
-	
+								uat_fields);
 }
 
 void dfilter_macro_get_uat(void** p) {

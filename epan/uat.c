@@ -39,7 +39,9 @@
 
 #include <glib.h>
 #include <epan/emem.h>
+#include <epan/report_err.h>
 #include <epan/filesystem.h>
+#include <epan/packet.h>
 
 #include "uat-int.h"
 
@@ -49,83 +51,7 @@ void uat_init(void) {
 	all_uats = g_ptr_array_new();
 }
 
-uat_t* uat_start(const char* name,
-				 size_t size,
-				 char* filename,
-				 void** data_ptr,
-				 guint* num_items_ptr,
-				 uat_copy_cb_t copy_cb,
-				 uat_update_cb_t update_cb,
-				 uat_free_cb_t free_cb) {
-	
-	uat_t* uat = g_malloc(sizeof(uat_t));
-
-	if (!all_uats)
-		all_uats = g_ptr_array_new();
-	
-	g_ptr_array_add(all_uats,uat);
-	
-	g_assert(name && size && filename && data_ptr && num_items_ptr);
-	
-	uat->name = g_strdup(name);
-	uat->record_size = size;
-	uat->filename = g_strdup(filename);
-	uat->user_ptr = data_ptr;
-	uat->nrows_p = num_items_ptr;
-	uat->copy_cb = copy_cb;
-	uat->update_cb = update_cb;
-	uat->free_cb = free_cb;
-	
-	uat->fields = NULL;
-	uat->ncols = 0;
-	uat->user_data = g_array_new(FALSE,FALSE,uat->record_size);
-	uat->finalized = FALSE;
-	uat->rep = NULL;
-	uat->free_rep = NULL;
-	
-	return uat;
-}
-
-void uat_add_field(uat_t* uat,
-				   const char* name,
-				   uat_text_mode_t mode,
-				   uat_fld_chk_cb_t chk_cb,
-				   uat_fld_set_cb_t set_cb,
-				   uat_fld_tostr_cb_t tostr_cb) {
-	
-	uat_fld_t* f = g_malloc(sizeof(uat_fld_t));
-
-	g_assert( name && set_cb && tostr_cb && (! uat->finalized ) 
-			  && (mode == PT_TXTMOD_STRING || mode == PT_TXTMOD_HEXBYTES) );
-	
-	f->name = g_strdup(name);
-	f->mode = mode;
-	f->chk_cb = chk_cb;
-	f->set_cb = set_cb;
-	f->tostr_cb = tostr_cb;
-
-	f->rep = NULL;
-	f->free_rep = NULL;	
-	f->colnum = uat->ncols;
-	f->next = NULL;
-
-	uat->ncols++;
-	
-	if (uat->fields) {
-		uat_fld_t* c;
-		for (c = uat->fields; c->next; c = c->next) ;
-		c->next = f;
-	} else {
-		uat->fields = f;	
-	}
-}
-
-void uat_finalize(uat_t* uat) {
-	UAT_UPDATE(uat);
-	uat->finalized = TRUE;
-}
-
-uat_t* uat_new(const char* uat_name,
+uat_t* uat_new(const char* name,
 			   size_t size,
 			   char* filename,
 			   void** data_ptr,
@@ -133,44 +59,52 @@ uat_t* uat_new(const char* uat_name,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
-			   char** error,
-			   ...) {
-	uat_t* uat = uat_start(uat_name, size, filename, data_ptr, numitems_ptr, copy_cb, update_cb, free_cb);
-	va_list ap;
-	char* name;
-	uat_text_mode_t mode;
-	uat_fld_chk_cb_t chk_cb;
-	uat_fld_set_cb_t set_cb;
-	uat_fld_tostr_cb_t tostr_cb;
-	va_start(ap,error);
+			   uat_field_t* flds_array) {
+	uat_t* uat = g_malloc(sizeof(uat_t));
+	guint i;
 	
-	name = va_arg(ap,char*);
+	if (!all_uats)
+		all_uats = g_ptr_array_new();
 	
-	do {
-		mode = va_arg(ap,uat_text_mode_t);
-		chk_cb = va_arg(ap,uat_fld_chk_cb_t);
-		set_cb = va_arg(ap,uat_fld_set_cb_t);
-		tostr_cb = va_arg(ap,uat_fld_tostr_cb_t);
-
-		uat_add_field(uat, name, mode, chk_cb, set_cb, tostr_cb);
+	g_ptr_array_add(all_uats,uat);
+	
+	g_assert(name && size && filename && data_ptr && numitems_ptr);
+	
+	uat->name = g_strdup(name);
+	uat->record_size = size;
+	uat->filename = g_strdup(filename);
+	uat->user_ptr = data_ptr;
+	uat->nrows_p = numitems_ptr;
+	uat->copy_cb = copy_cb;
+	uat->update_cb = update_cb;
+	uat->free_cb = free_cb;
+	uat->fields = flds_array;
+	uat->user_data = g_array_new(FALSE,FALSE,uat->record_size);
+	uat->rep = NULL;
+	uat->free_rep = NULL;
+	
+	for (i=0;flds_array[i].name;i++) {
+		fld_data_t* f = g_malloc(sizeof(fld_data_t));
+	
+		f->colnum = i+1;
+		f->rep = NULL;
+		f->free_rep = NULL;
 		
-		name = va_arg(ap,char*);
-	} while (name);
+		flds_array[i].priv = f;
+	}
 	
-	va_end(ap);
+	uat->ncols = i;
 	
-	uat_finalize(uat);
 	
-	uat_load(uat,error);
+	*data_ptr = NULL;
+	*numitems_ptr = 0;
 	
 	return uat;
 }
 
 void* uat_add_record(uat_t* uat, const void* data) {
 	void* rec;
-	
-	g_assert( uat->finalized );
-	
+
 	g_array_append_vals (uat->user_data, data, 1);
 	
 	rec = uat->user_data->data + (uat->record_size * (uat->user_data->len-1));
@@ -179,7 +113,6 @@ void* uat_add_record(uat_t* uat, const void* data) {
 		uat->copy_cb(rec, data, uat->record_size);
 	}
 	
-	
 	UAT_UPDATE(uat);
 	
 	return rec;
@@ -187,19 +120,22 @@ void* uat_add_record(uat_t* uat, const void* data) {
 
 void uat_remove_record_idx(uat_t* uat, guint idx) {
 	
-	g_assert( uat->finalized && idx < uat->user_data->len);
+	g_assert( idx < uat->user_data->len );
 
+	if (uat->free_cb) {
+		uat->free_cb(UAT_INDEX_PTR(uat,idx));
+	}
+	
 	g_array_remove_index(uat->user_data, idx);
 	
 	UAT_UPDATE(uat);
 
 }
 
-
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 	gchar* pers_fname =  get_persconffile_path(uat->filename,for_writing);
-	
-	if (! (file_exists(pers_fname) || for_writing) ) {
+
+	if (! for_writing ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
 		
 		if (file_exists(data_fname)) {
@@ -207,14 +143,18 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 		}
 	}
 	
+	if ((! file_exists(pers_fname) ) && (! for_writing ) ) {
+		return NULL;
+	}
+	
 	return pers_fname;
 }
 
-static void putfld(FILE* fp, void* rec, uat_fld_t* f) {
+static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 	guint fld_len;
 	char* fld_ptr;
 	
-	f->tostr_cb(rec,&fld_ptr,&fld_len);
+	f->cb.tostr(rec,&fld_ptr,&fld_len,f->cbdata.tostr,f->fld_data);
 	
 	switch(f->mode){
 		case  PT_TXTMOD_STRING: {
@@ -254,9 +194,12 @@ static void putfld(FILE* fp, void* rec, uat_fld_t* f) {
 gboolean uat_save(uat_t* uat, char** error) {
 	guint i;
 	gchar* fname = uat_get_actual_filename(uat,TRUE);
-	FILE* fp = fopen(fname,"w");
+	FILE* fp;
 	
+	if (! fname ) return FALSE;
 
+	fp = fopen(fname,"w");
+	
 	if (!fp) {
 		*error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,strerror(errno));
 		return FALSE;
@@ -266,18 +209,17 @@ gboolean uat_save(uat_t* uat, char** error) {
 
 	for ( i = 0 ; i < uat->user_data->len ; i++ ) {
 		void* rec = uat->user_data->data + (uat->record_size * i);
-		uat_fld_t* f;
-		
+		uat_field_t* f;
+		guint j;
+
 		f = uat->fields;
 		
-		putfld(fp, rec, f);
 			
-		while (( f = f->next )) {
-			fputs(",",fp);
-			putfld(fp, rec, f);				
+		for( j=0 ; j < uat->ncols ; j++ ) {
+			putfld(fp, rec, &(f[j]));
+			fputs((j == uat->ncols - 1) ? "\n" : "," ,fp);
 		}
 
-		fputs("\n",fp);
 	}
 
 	fclose(fp);
@@ -286,6 +228,7 @@ gboolean uat_save(uat_t* uat, char** error) {
 }
 
 void uat_destroy(uat_t* uat) {
+	/* XXX still missing a destructor */
 	g_ptr_array_remove(all_uats,uat);
 	
 }
@@ -303,11 +246,81 @@ void* uat_se_dup(uat_t* uat, guint* len_p) {
 }
 
 void uat_cleanup(void) {
-
 	while( all_uats->len ) {
 		uat_destroy((uat_t*)all_uats->pdata);
 	}
 
 	g_ptr_array_free(all_uats,TRUE);
 }
+
+void uat_load_all(void) {
+	guint i;
+	gchar* err;
+	
+	for (i=0; i < all_uats->len; i++) {
+		uat_t* u = g_ptr_array_index(all_uats,i);
+		err = NULL;
+		
+		uat_load(u, &err);
+		
+		if (err) {
+			report_failure("Error loading table '%s': %s",u->name,err);
+		}
+	}
+}
+
+gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, void* u2 _U_, void* u3 _U_, char** err) {
+	if (strptr == NULL) {
+		*err = "NULL pointer";
+		return FALSE;
+	}
+	
+	*err = NULL;
+	return TRUE;
+}
+
+gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+	char* name = ep_strndup(strptr,len);
+	g_strdown(name);
+	g_strchug(name);
+	if (find_dissector(name)) {
+		*err = NULL;
+		return TRUE;
+	} else {
+		*err = "dissector not found";
+		return FALSE;
+	}
+}
+
+gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+	char* str = ep_strndup(strptr,len);
+	long i = strtol(str,&str,10);
+	
+	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
+		*err = strerror(errno);
+		return FALSE;
+	}
+	
+	*err = NULL;
+	return TRUE;
+}
+
+gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+	char* str = ep_strndup(strptr,len);
+	long i = strtol(str,&str,16);
+	
+	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
+		*err = strerror(errno);
+		return FALSE;
+	}
+	
+	*err = NULL;
+	return TRUE;
+}
+
+CHK_STR_IS_DEF(isprint)
+CHK_STR_IS_DEF(isalpha)
+CHK_STR_IS_DEF(isalnum)
+CHK_STR_IS_DEF(isdigit)
+CHK_STR_IS_DEF(isxdigit)
 

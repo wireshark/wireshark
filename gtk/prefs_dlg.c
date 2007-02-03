@@ -51,6 +51,7 @@
 #include "compat_macros.h"
 #include "help_dlg.h"
 #include "keys.h"
+#include "uat_gui.h"
 
 #include <epan/prefs-int.h>
 
@@ -77,6 +78,8 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
 #else
 static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #endif
+static GtkWidget* create_preference_uat(GtkWidget*, int, const gchar*, const gchar *, void*);
+
 
 #define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
 #define E_PREFSW_TREE_KEY       "prefsw_tree"
@@ -237,6 +240,14 @@ pref_show(pref_t *pref, gpointer user_data)
     break;
   }
 
+  case PREF_UAT:
+  {
+    pref->control = create_preference_uat(main_tb, pref->ordinal,
+                                          label_string, pref->description,
+										  pref->varp.uat);
+    break;
+  }
+	  
   case PREF_OBSOLETE:
     g_assert_not_reached();
     break;
@@ -940,6 +951,35 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
 	return label;
 }
 
+static GtkWidget *
+create_preference_uat(GtkWidget *main_tb,
+					  int table_position,
+					  const gchar *label_text,
+					  const gchar *tooltip_text,
+					  void* uat)
+{
+	GtkTooltips *tooltips;
+	GtkWidget *button = NULL;
+	
+	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	
+	set_option_label(main_tb, table_position, label_text, tooltip_text,
+					 tooltips);
+	
+	button = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
+	
+	SIGNAL_CONNECT(button, "clicked", uat_window_cb, uat);
+
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), button, 1, 2,
+							  table_position, table_position+1);
+	if (tooltip_text != NULL && tooltips != NULL)
+		gtk_tooltips_set_tip(tooltips, button, tooltip_text, NULL);
+	gtk_widget_show(button);
+	
+	return button;
+}
+
+
 static guint
 pref_check(pref_t *pref, gpointer user_data)
 {
@@ -987,7 +1027,8 @@ pref_check(pref_t *pref, gpointer user_data)
     }
     break;
 
-	case PREF_STATIC_TEXT:
+  case PREF_STATIC_TEXT:
+  case PREF_UAT:
     /* Value can't be bad. */
     break;
 
@@ -1090,6 +1131,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
   }
 
   case PREF_STATIC_TEXT:
+  case PREF_UAT:
     break;
 
   case PREF_OBSOLETE:
@@ -1208,6 +1250,7 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     break;
 
   case PREF_STATIC_TEXT:
+  case PREF_UAT:
     break;
 
   case PREF_OBSOLETE:
@@ -1541,6 +1584,7 @@ pref_revert(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STATIC_TEXT:
+  case PREF_UAT:
     break;
 
   case PREF_OBSOLETE:

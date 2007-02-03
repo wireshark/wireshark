@@ -314,6 +314,16 @@ extern void prefs_register_static_text_preference(module_t *module, const char *
     const char *title, const char *description);
 
 /*
+ * Register a uat 'preference'. It adds a button that opens the uat's window in the
+ * preferences tab of the module.
+ */
+extern void prefs_register_uat_preference(module_t *module,
+										  const char *name,
+										  const char* title,
+										  const char *description,
+										  void* uat);
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 extern void prefs_register_obsolete_preference(module_t *module,

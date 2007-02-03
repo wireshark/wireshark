@@ -48,6 +48,7 @@
 #include <wiretap/file_util.h>
 
 #include <epan/prefs-int.h>
+#include <epan/uat-int.h>
 
 /* Internal functions */
 static module_t *prefs_register_module_or_subtree(module_t *parent,
@@ -639,6 +640,24 @@ void prefs_register_static_text_preference(module_t *module, const char *name,
 }
 
 /*
+ * Register a uat 'preference'. It adds a button that opens the uat's window in the
+ * preferences tab of the module.
+ */
+extern void prefs_register_uat_preference(module_t *module,
+										  const char *name,
+										  const char *title,
+										  const char *description,
+										  void* uat) {
+	
+	pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
+	
+	preference->varp.uat = uat;
+
+}
+
+
+
+/*
  * Register a preference that used to be supported but no longer is.
  */
 void
@@ -941,6 +960,8 @@ init_prefs(void) {
   if (prefs_initialized)
     return;
 
+  uat_load_all();
+  
   prefs.pr_format  = PR_FMT_TEXT;
   prefs.pr_dest    = PR_DEST_CMD;
   prefs.pr_file    = g_strdup("wireshark.out");
@@ -1103,7 +1124,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   FILE        *pf;
 
   init_prefs();
-
+  
   /*
    * If we don't already have the pathname of the global preferences
    * file, construct it.  Then, in either case, try to open the file.
@@ -2133,6 +2154,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     }
 
 	case PREF_STATIC_TEXT:
+	case PREF_UAT:
     {
       break;
     }
@@ -2248,6 +2270,7 @@ write_pref(gpointer data, gpointer user_data)
 	}
 
 	case PREF_STATIC_TEXT:
+	case PREF_UAT:
 	{
 		/* Nothing to do */
 		break;

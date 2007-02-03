@@ -29,8 +29,8 @@
 
 #ifndef _UAT_GUI_H_
 #define _UAT_GUI_H_
-#include <epan/uat.h>
 
-GtkWidget* uat_window(uat_t*);
+GtkWidget* uat_window(void*);
+void uat_window_cb(GtkWidget* unused, void* uat);
 
 #endif

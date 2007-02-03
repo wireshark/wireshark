@@ -91,15 +91,16 @@ struct _uat_dlg_data {
 static void append_row(uat_t* uat, guint idx) {
 	GPtrArray* a = g_ptr_array_new();
 	void* rec = UAT_INDEX_PTR(uat,idx);
-	uat_fld_t* f;
+	uat_field_t* f = uat->fields;
 	guint rownum;
-
+	guint colnum;
+	
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
 
-	for ( f = uat->fields; f ; f = f->next ) {
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		guint len;
 		char* ptr;
-		f->tostr_cb(rec,&ptr,&len);
+		f[colnum].cb.tostr(rec,&ptr,&len,f[colnum].cbdata.tostr,f[colnum].fld_data);
 		g_ptr_array_add(a,ptr);
 	}
 	
@@ -113,15 +114,16 @@ static void append_row(uat_t* uat, guint idx) {
 
 static void reset_row(uat_t* uat, guint idx) {
 	void* rec = UAT_INDEX_PTR(uat,idx);
-	uat_fld_t* f;
+	uat_field_t* f = uat->fields;
+	guint colnum;
 	
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
-
-	for ( f = uat->fields; f ; f = f->next ) {
+	
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		guint len;
 		char* ptr;
-		f->tostr_cb(rec,&ptr,&len);
-		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, f->colnum, ptr);
+		f[colnum].cb.tostr(rec,&ptr,&len,f[colnum].cbdata.tostr,f[colnum].fld_data);
+		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, ptr);
 	}
 	
 	gtk_clist_thaw(GTK_CLIST(uat->rep->clist));
@@ -131,23 +133,23 @@ static void reset_row(uat_t* uat, guint idx) {
 
 static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	struct _uat_dlg_data* dd = user_data;
-	uat_fld_t* fld;
+	guint ncols = dd->uat->ncols;
+	uat_field_t* f = dd->uat->fields;
 	char* err = NULL;
-	guint i;
-	
-	for (fld = dd->uat->fields, i = 0; fld ; fld = fld->next, i++) {
-		GtkWidget* entry = g_ptr_array_index(dd->entries,i);
-		const gchar* text = gtk_entry_get_text(GTK_ENTRY(entry));
+	guint colnum;
+
+	for ( colnum = 0; colnum < ncols; colnum++ ) {
+		const gchar* text = gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(dd->entries,colnum)));
 		unsigned len = strlen(text);
 		
-		if (fld->chk_cb) {
-			if (! fld->chk_cb(dd->rec,text,len,&err)) {
-				err = ep_strdup_printf("error in field '%s': %s",fld->name,err);
+		if (f[colnum].cb.chk) {
+			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.tostr, f[colnum].fld_data, &err)) {
+				err = ep_strdup_printf("error in field '%s': %s",f[colnum].name,err);
 				goto on_failure;
 			}
 		}
 		
-		fld->set_cb(dd->rec,text,len);
+		f[colnum].cb.set(dd->rec,text,len, f[colnum].cbdata.tostr, f[colnum].fld_data);
 	}
 
 	if (dd->uat->update_cb) {
@@ -157,16 +159,19 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 			err = ep_strdup_printf("error updating record: %s",err);
 			goto on_failure;
 		}
-		
-		if (dd->is_new) {
-			uat_add_record(dd->uat, dd->rec);
-			
-			if (dd->uat->free_cb) {
-				dd->uat->free_cb(dd->rec);
-			}
-		}
 	}
-
+	
+	if (dd->is_new) {
+		void* rec_tmp = dd->rec;
+		dd->rec = uat_add_record(dd->uat, dd->rec);
+	
+		if (dd->uat->free_cb) {
+			dd->uat->free_cb(rec_tmp);
+		}
+		
+		g_free(rec_tmp);
+	}
+	
 	uat_save(dd->uat,&err);
 	
 	if (err) {
@@ -180,7 +185,6 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		reset_row(dd->uat,dd->row);
 	}
 		
-	if (dd->is_new) g_free(dd->rec);
     g_ptr_array_free(dd->entries,TRUE);
     window_destroy(GTK_WIDGET(dd->win));
 	
@@ -201,7 +205,7 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	if (dd->is_new) g_free(dd->rec);
     g_ptr_array_free(dd->entries,TRUE);
     window_destroy(GTK_WIDGET(dd->win));
-	
+	g_free(dd);
 
     return TRUE;
 }
@@ -209,8 +213,8 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 static void uat_dialog(uat_t* uat, gint row) {
     GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
     struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
-	uat_fld_t* fld;
-	int i = 0;
+	uat_field_t* f = uat->fields;
+	guint colnum;
 	
     dd->entries = g_ptr_array_new();
     dd->win = dlg_window_new(uat->name);
@@ -237,28 +241,27 @@ static void uat_dialog(uat_t* uat, gint row) {
     gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
     
-    for (fld = uat->fields; fld ; fld = fld->next) {
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
         GtkWidget *entry, *label;
         
-        label = gtk_label_new(fld->name);
+        label = gtk_label_new(f[colnum].name);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, i+1, i + 2);
+        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
         gtk_widget_show(label);
 		
         entry = gtk_entry_new();
         g_ptr_array_add(dd->entries,entry);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, i+1, i + 2);
+        gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
         gtk_widget_show(entry);
 
 		if (! dd->is_new) {
 			gchar* text;
 			unsigned len;
 			
-			fld->tostr_cb(dd->rec,&text,&len);
+			f[colnum].cb.tostr(dd->rec,&text,&len, f[colnum].cbdata.tostr, f[colnum].fld_data);
 			
 			gtk_entry_set_text(GTK_ENTRY(entry),text);
 		}
-		i++;
     }
 	
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
@@ -285,8 +288,17 @@ struct _uat_del {
 
 static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
+	char* err = NULL;
+	
 	uat_remove_record_idx(ud->uat, ud->idx);
 	gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
+	
+	uat_save(ud->uat,&err);
+	
+	if (err) {
+		report_failure("an error happened while saving %s: %s",ud->uat->name,err);
+	}
+	 
     window_destroy(GTK_WIDGET(ud->win));
 	window_present(GTK_WIDGET(ud->uat->rep->window));
 	g_free(ud);
@@ -301,8 +313,8 @@ static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
 
 static void uat_del_dlg(uat_t* uat, int idx) {
     GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
-	uat_fld_t* fld;
-	int i = 0;
+	uat_field_t* f = uat->fields;
+	guint colnum;
 	void* rec = UAT_INDEX_PTR(uat,idx);
 	struct _uat_del* ud = g_malloc(sizeof(struct _uat_del));
 
@@ -326,26 +338,24 @@ static void uat_del_dlg(uat_t* uat, int idx) {
     gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
     
-    for (fld = uat->fields; fld ; fld = fld->next) {
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
         GtkWidget *label;
 		gchar* text;
 		unsigned len;
 		
-		fld->tostr_cb(rec,&text,&len);
+		f[colnum].cb.tostr(rec,&text,&len, f[colnum].cbdata.tostr, f[colnum].fld_data);
 		
 		
-        label = gtk_label_new(fld->name);
+        label = gtk_label_new(f[colnum].name);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, i+1, i + 2);
+        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
         gtk_widget_show(label);
 		
         label = gtk_label_new(text);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, i+1, i + 2);
+        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 1, 2, colnum+1, colnum + 2);
         gtk_widget_show(label);
-		
-		i++;
-    }
+	}
 	
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_DELETE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
@@ -404,10 +414,12 @@ static void free_rep(GtkWindow *win _U_, uat_t* uat) {
 }
 
 
-GtkWidget* uat_window(uat_t* uat) {
+GtkWidget* uat_window(void* u) {
+	uat_t* uat = u;
+	uat_field_t* f = uat->fields;
 	uat_rep_t* rep;
-	uat_fld_t* f;
 	guint i;
+	guint colnum;
 	
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -440,9 +452,9 @@ GtkWidget* uat_window(uat_t* uat) {
 	
 	rep->clist = gtk_clist_new(uat->ncols);
 		
-	for ( f = uat->fields; f ; f = f->next ) {
-		gtk_clist_set_column_title(GTK_CLIST(rep->clist), f->colnum, f->name);
-		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), f->colnum, TRUE);
+	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
+		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].name);
+		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), colnum, TRUE);
 	}
 	
 	gtk_clist_column_titles_show(GTK_CLIST(rep->clist));
@@ -514,3 +526,6 @@ GtkWidget* uat_window(uat_t* uat) {
 	return rep->window;
 }
 
+void uat_window_cb(GtkWidget* u _U_, void* uat) {
+	uat_window(uat);
+}

@@ -34,7 +34,7 @@
 #include "macros_dlg.h"
 
 void macros_dialog_cb(GtkWidget *w _U_, gpointer data _U_) {
-		uat_t* dfmuat;
+		void* dfmuat;
 		dfilter_macro_get_uat(&dfmuat);
 		uat_window(dfmuat);
 }

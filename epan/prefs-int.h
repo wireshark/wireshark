@@ -56,6 +56,7 @@ typedef enum {
 	PREF_STRING,
 	PREF_RANGE,
 	PREF_STATIC_TEXT,
+	PREF_UAT,
 	PREF_OBSOLETE
 } pref_type_t;
 
@@ -71,6 +72,7 @@ struct preference {
 		gint *enump;
 		const char **string;
 		range_t **range;
+		void* uat;
 	} varp;			/* pointer to variable storing the value */
 	union {
 		guint uint;

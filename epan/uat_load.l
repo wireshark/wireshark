@@ -48,9 +48,9 @@
 
 #include <epan/emem.h>
 #include "uat-int.h"
-
+	
 	static uat_t* uat;
-	static uat_fld_t* uat_fld;
+	static guint colnum;
 	static gchar* ptr;
 	static guint len;
 	static gchar* error;
@@ -63,13 +63,14 @@
 
 #define SET_FIELD() \
 	{ gchar* err; \
-	if (uat_fld->chk_cb) { \
-		if ( ! uat_fld->chk_cb(record, ptr, len, &err) ) { \
+	if (uat->fields[colnum].cb.chk) { \
+		if ( ! uat->fields[colnum].cb.chk(record, ptr, len, uat->fields[colnum].cbdata.chk,uat->fields[colnum].fld_data, &err) ) { \
 			ERROR(("%s",err)); \
 		}\
 	}\
-	uat_fld->set_cb(record, ptr, len);\
+	uat->fields[colnum].cb.set(record, ptr, len,uat->fields[colnum].cbdata.chk,uat->fields[colnum].fld_data);\
 	g_free(ptr);\
+		colnum++; \
 	} while(0)
 
 #ifdef DEBUG_UAT_LOAD
@@ -96,7 +97,7 @@ comment #[^\n]*\n
 <START_OF_LINE>{newline} ;
 <START_OF_LINE>{comment} ;
 <NEXT_FIELD>{newline} {
-	ERROR(("expecting %s field in previuos line",uat_fld->name));
+	ERROR(("expecting %s field in previuos line",uat->fields[colnum].name));
 	BEGIN START_OF_LINE;
 }
 
@@ -104,7 +105,7 @@ comment #[^\n]*\n
 	ptr = undquote(yytext,yyleng,&len);
 	
 	
-	if (uat_fld->next) {
+	if (colnum < uat->ncols - 1) {
 		DUMP("quoted_str->s");
 		BEGIN SEPARATOR;
 	} else {
@@ -117,10 +118,10 @@ comment #[^\n]*\n
 	ptr = unbinstring(yytext,yyleng,&len);
 
 	if (!ptr) {
-		ERROR(("uneven hexstring for field %s",uat_fld->name));
+		ERROR(("uneven hexstring for field %s",uat->fields[colnum].name));
 	}
 	
-	if ( uat_fld->next ) {
+	if ( colnum < uat->ncols - 1 ) {
 		DUMP("binstring->s");
 		BEGIN SEPARATOR;
 	} else {
@@ -135,7 +136,7 @@ comment #[^\n]*\n
 
 	SET_FIELD();
 
-	if ( ! (uat_fld = uat_fld->next) ) {
+	if ( colnum >= uat->ncols ) {
 		ERROR(("more fields than required"));
 	}
 	
@@ -143,12 +144,12 @@ comment #[^\n]*\n
 }
 
 <SEPARATOR>{newline} {
-	ERROR(("expecting field %s in previuos line",uat_fld->name));
+	ERROR(("expecting field %s in previuos line",uat->fields[colnum].name));
 	BEGIN START_OF_LINE;
 }
 
 <SEPARATOR>. {
-	ERROR(("unexpected char while looking for field %s",uat_fld->name));
+	ERROR(("unexpected char while looking for field %s",uat->fields[colnum].name));
 	BEGIN ERRORED;
 }
 
@@ -166,7 +167,7 @@ comment #[^\n]*\n
 	SET_FIELD();
 	
 	rec = uat_add_record(uat, record);
-	
+
 	if (uat->update_cb)
 		uat->update_cb(rec,&err);
 	
@@ -174,7 +175,7 @@ comment #[^\n]*\n
 		ERROR(("%s",err));
 	}
 	
-	uat_fld = uat->fields;
+	colnum = 0;;
 	ptr = NULL;
 	len = 0;
 	memset(record,0,uat->record_size);
@@ -333,19 +334,21 @@ done:
 
 gboolean uat_load(uat_t* uat_in, char** err) {
 	gchar* fname = uat_get_actual_filename(uat_in, FALSE);
-	
-	g_assert(uat_in->finalized);
-	
+
 	uat = uat_in;
-	
-	;
+
+	if (!fname) {
+		UAT_UPDATE(uat);
+		return TRUE;
+	}
+
 	if (!(yyin = fopen(fname,"r"))) {
 		*err = strerror(errno);
 		return FALSE;
 	}
 	
 	error = NULL;
-	uat_fld = uat->fields;
+	colnum = 0;
 	record = g_malloc0(uat->record_size);
 	
 	BEGIN START_OF_LINE;
