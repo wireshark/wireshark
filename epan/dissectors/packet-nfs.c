@@ -7150,8 +7150,6 @@ dissect_nfs_stateid4(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
-	offset+=4;
-
 	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, FALSE);
 	offset+=12;
 
