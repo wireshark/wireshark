@@ -443,7 +443,8 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 		r = p+2;
 		s = p+3;
 
-		if (*q && isxdigit(*p) && isxdigit(*q) &&
+		if (*q && *r && *s 
+		    && isxdigit(*p) && isxdigit(*q) &&
 		    isxdigit(*r) && isxdigit(*s)) {
 			four_digits_first_half[0] = *p;
 			four_digits_first_half[1] = *q;
