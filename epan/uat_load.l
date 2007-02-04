@@ -82,9 +82,14 @@
 #define DUMP_FIELD(s)
 #define DUMP(s)
 #endif
+		/*
+		 * XXX
+		 * quoted_string below fails badly on "...\\"
+		 * workarround in uat_save(), using /x5c and /x22
+		 */
 %}
 
-quoted_string \042([^\042]|\134\042)*\042
+quoted_string \042([^\042]|\134\134|\134\042)*\042
 binstring ([0-9a-zA-Z][0-9a-zA-Z])+
 separator [ \t]*,
 newline [ \t]*[\r]?\n
