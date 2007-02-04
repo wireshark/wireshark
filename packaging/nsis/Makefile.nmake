@@ -168,7 +168,7 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 	/DLUA_DIR=$(LUA_DIR) \
 !ENDIF
 !IFDEF HHC_DIR
-	/DHHC_DIR=$(HHC_DIR) \
+	/DHHC_DIR="$(HHC_DIR)" \
 !ENDIF
 	wireshark.nsi
 
