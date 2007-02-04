@@ -65,6 +65,9 @@ struct _uat_rep_t {
 	GtkWidget* bt_new;
 	GtkWidget* bt_edit;
 	GtkWidget* bt_delete;
+	GtkWidget* bt_up;
+	GtkWidget* bt_down;
+	GtkWidget* bt_save;
 	
 	gint selected;
 	
@@ -172,12 +175,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		g_free(rec_tmp);
 	}
 	
-	uat_save(dd->uat,&err);
-	
-	if (err) {
-		err = ep_strdup_printf("error saving '%s': %s",dd->uat->filename,err);
-		goto on_failure;
-	}
+	dd->uat->changed = TRUE;
 	
 	if (dd->is_new) {
 		append_row(dd->uat, (*dd->uat->nrows_p) - 1 );
@@ -288,16 +286,11 @@ struct _uat_del {
 
 static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
-	char* err = NULL;
 	
 	uat_remove_record_idx(ud->uat, ud->idx);
 	gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
 	
-	uat_save(ud->uat,&err);
-	
-	if (err) {
-		report_failure("an error happened while saving %s: %s",ud->uat->name,err);
-	}
+	ud->uat->changed = TRUE;
 	 
     window_destroy(GTK_WIDGET(ud->win));
 	window_present(GTK_WIDGET(ud->uat->rep->window));
@@ -388,6 +381,70 @@ static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
 	uat_del_dlg(uat,uat->rep->selected);
 }
 
+
+static void set_buttons(uat_t* uat, guint row) {
+	if (row > 0) {
+		gtk_widget_set_sensitive (uat->rep->bt_up, TRUE);
+	} else {
+		gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
+	}
+	
+	if (row < *uat->nrows_p - 1) {
+		gtk_widget_set_sensitive (uat->rep->bt_down, TRUE);
+	} else {
+		gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
+	}
+	
+	if (uat->changed) {
+		gtk_widget_set_sensitive (uat->rep->bt_save, TRUE);
+	}	
+}
+
+static void uat_up_cb(GtkButton *button _U_, gpointer u) {
+	uat_t* uat = u;
+	guint row = uat->rep->selected;
+	
+	g_assert(row > 0);
+	
+	uat_swap(uat,row,row-1);
+	gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row-1);
+
+	uat->changed = TRUE;
+	
+	row -= 1;
+	uat->rep->selected = row;
+	set_buttons(uat,row);
+}
+
+static void uat_down_cb(GtkButton *button _U_, gpointer u) {
+	uat_t* uat = u;
+	guint row = uat->rep->selected;
+	
+	g_assert(row < *uat->nrows_p - 1);
+	
+	uat_swap(uat,row,row+1);
+	gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row+1);
+	
+	uat->changed = TRUE;
+	
+	row += 1;
+	uat->rep->selected = row;
+	set_buttons(uat,row);
+}
+
+static void uat_save_cb(GtkButton *button _U_, gpointer u) {
+	uat_t* uat = u;
+	gchar* err = NULL;
+
+	uat_save(uat,&err);
+	
+	if (err) {
+		report_failure("Error while saving %s: %s",uat->name,err);
+	}
+	
+	gtk_widget_set_sensitive (uat->rep->bt_save, FALSE);
+}
+
 static void remember_selected_row(GtkCList *clist _U_, gint row, gint column _U_, GdkEvent *event _U_, gpointer u) {
     uat_t* uat = u;
 	
@@ -395,6 +452,8 @@ static void remember_selected_row(GtkCList *clist _U_, gint row, gint column _U_
     
     gtk_widget_set_sensitive (uat->rep->bt_edit, TRUE);
     gtk_widget_set_sensitive(uat->rep->bt_delete, TRUE);    
+	
+	set_buttons(uat,row);
 }
 
 static void unremember_selected_row(GtkCList *clist _U_, gint row _U_, gint column _U_, GdkEvent *event _U_, gpointer u)
@@ -404,6 +463,8 @@ static void unremember_selected_row(GtkCList *clist _U_, gint row _U_, gint colu
 	uat->rep->selected = -1;
 	gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
 	gtk_widget_set_sensitive(uat->rep->bt_delete, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
+	gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
 }
 
 
@@ -429,7 +490,7 @@ GtkWidget* uat_window(void* u) {
 	}
 	
 	rep->window = window_new(GTK_WINDOW_TOPLEVEL, "Display Filter Macros");
-	gtk_window_set_default_size(GTK_WINDOW(rep->window), 650, 600);
+	gtk_window_set_default_size(GTK_WINDOW(rep->window), 480, 320);
 	
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -479,27 +540,34 @@ GtkWidget* uat_window(void* u) {
 	gtk_box_pack_start(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
 	
 	
+	rep->bt_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_up, FALSE, FALSE, 5);
+	gtk_widget_set_sensitive (rep->bt_up, FALSE);
+
+	
+	rep->bt_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
+	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_down, FALSE, FALSE, 5);
+	gtk_widget_set_sensitive (rep->bt_down, FALSE);
+
+	
 	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-#if GTK_MAJOR_VERSION < 2
-	WIDGET_SET_SIZE(rep->bt_new, BUTTON_SIZE_X, BUTTON_SIZE_Y);
-#endif
 	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_new, FALSE, FALSE, 5);
 	
+	
 	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-#if GTK_MAJOR_VERSION < 2
-	WIDGET_SET_SIZE(rep->bt_edit, BUTTON_SIZE_X, BUTTON_SIZE_Y);
-#endif
 	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_edit, FALSE, FALSE, 5);
 	gtk_widget_set_sensitive (rep->bt_edit, FALSE);
 	
+	
 	rep->bt_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
 	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_delete, FALSE, FALSE, 5);
-#if GTK_MAJOR_VERSION < 2
-	WIDGET_SET_SIZE(rep->bt_delete, BUTTON_SIZE_X, BUTTON_SIZE_Y);
-#endif
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 	
+	rep->bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
+	gtk_box_pack_start (GTK_BOX(rep->bbox), rep->bt_save, FALSE, FALSE, 5);
+	gtk_widget_set_sensitive (rep->bt_save, FALSE);
 	
+
 #if GTK_MAJOR_VERSION < 2
 	SIGNAL_CONNECT(rep->clist, "select_row", remember_selected_row, uat);
 	SIGNAL_CONNECT(rep->clist, "unselect_row", unremember_selected_row, uat);
@@ -510,6 +578,9 @@ GtkWidget* uat_window(void* u) {
 	SIGNAL_CONNECT(rep->bt_new, "clicked", uat_new_cb, uat);
 	SIGNAL_CONNECT(rep->bt_edit, "clicked", uat_edit_cb, uat);
 	SIGNAL_CONNECT(rep->bt_delete, "clicked", uat_delete_cb, uat);
+	SIGNAL_CONNECT(rep->bt_up, "clicked", uat_up_cb, uat);
+	SIGNAL_CONNECT(rep->bt_down, "clicked", uat_down_cb, uat);
+	SIGNAL_CONNECT(rep->bt_save, "clicked", uat_save_cb, uat);
 	
 	
 	rep->bt_close = OBJECT_GET_DATA(rep->bbox, GTK_STOCK_CLOSE);

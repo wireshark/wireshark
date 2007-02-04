@@ -80,6 +80,7 @@ uat_t* uat_new(const char* name,
 	uat->free_cb = free_cb;
 	uat->fields = flds_array;
 	uat->user_data = g_array_new(FALSE,FALSE,uat->record_size);
+	uat->changed = FALSE;
 	uat->rep = NULL;
 	uat->free_rep = NULL;
 	
@@ -116,6 +117,20 @@ void* uat_add_record(uat_t* uat, const void* data) {
 	UAT_UPDATE(uat);
 	
 	return rec;
+}
+
+void uat_swap(uat_t* uat, guint a, guint b) {
+	guint s = uat->record_size;
+	void* tmp = ep_alloc(s);
+	
+	g_assert( a < uat->user_data->len && b < uat->user_data->len );
+
+	if (a == b) return;
+
+	memcpy(tmp, UAT_INDEX_PTR(uat,a), s);
+	memcpy(UAT_INDEX_PTR(uat,a), UAT_INDEX_PTR(uat,b), s);
+	memcpy(UAT_INDEX_PTR(uat,b), tmp, s);
+
 }
 
 void uat_remove_record_idx(uat_t* uat, guint idx) {
@@ -223,6 +238,8 @@ gboolean uat_save(uat_t* uat, char** error) {
 	}
 
 	fclose(fp);
+	
+	uat->changed = FALSE;
 	
 	return TRUE;
 }

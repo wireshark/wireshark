@@ -58,6 +58,7 @@ struct _uat_t {
 	uat_field_t* fields;
 	guint ncols;
 	GArray* user_data;
+	gboolean changed;
 	
 	uat_rep_t* rep;
 	uat_rep_free_cb_t free_rep;
@@ -70,6 +71,8 @@ void uat_init(void);
 void uat_reset(void);
 
 void* uat_add_record(uat_t*, const void* orig_rec_ptr);
+
+void uat_swap(uat_t*, guint idx_a, guint idx_b);
 
 void uat_remove_record_idx(uat_t*, guint rec_idx);
 

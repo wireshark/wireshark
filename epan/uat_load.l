@@ -360,6 +360,8 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 	
 	yylex();
 	
+	uat->changed = FALSE;
+
 	if (error) {
 		UAT_UPDATE(uat);
 		*err = ep_strdup(error);
