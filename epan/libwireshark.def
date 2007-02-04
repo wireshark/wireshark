@@ -785,6 +785,7 @@ tvb_uncompress
 uat_add_record
 uat_remove_record_idx
 uat_save
+uat_swap
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
