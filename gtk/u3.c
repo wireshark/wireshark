@@ -72,6 +72,40 @@ gboolean u3_active()
 
 }
 
+void u3_runtime_info(GString *str)
+{
+
+  char *u3devicepath = NULL;
+  char *u3deviceproduct = NULL;
+
+  if((u3deviceproduct = 
+#ifdef _WIN32
+      getenv_utf8
+#else
+      getenv
+#endif 
+      ("U3_DEVICE_PRODUCT")) != NULL) {
+    g_string_append(str, " from the ");
+    g_string_append(str, u3deviceproduct);
+  } else {
+    g_string_append(str, " from a ");
+  }
+
+  g_string_append(str, " U3 device");
+
+  if((u3devicepath = 
+#ifdef _WIN32
+      getenv_utf8
+#else
+      getenv
+#endif 
+      ("U3_DEVICE_PATH")) != NULL) {
+    g_string_append(str, " in drive ");
+    g_string_append(str, u3devicepath);
+  }
+
+}
+
 void u3_register_pid()
 {
   int	pid;

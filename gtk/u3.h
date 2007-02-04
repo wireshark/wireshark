@@ -24,6 +24,8 @@
 
 gboolean u3_active();
 
+void u3_runtime_info(GString *str);
+
 void u3_register_pid(void);
 void u3_deregister_pid(void);
 

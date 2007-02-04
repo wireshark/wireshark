@@ -2062,6 +2062,12 @@ get_gui_runtime_info(GString *str
   g_string_append(str, ", ");
   get_runtime_airpcap_version(str);
 #endif
+
+  if(u3_active()) {
+    g_string_append(str, ", ");
+    u3_runtime_info(str);
+  }
+
 }
 
 /* And now our feature presentation... [ fade to music ] */
