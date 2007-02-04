@@ -2572,13 +2572,13 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     (void) call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 
       /* see if we have a better name */
       name = get_ber_oid_syntax(decode_as_syntax);
 
-      col_clear(pinfo->cinfo, COL_PROTOCOL);
-      col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "%s", name ? name : decode_as_syntax);
+      col_clear(pinfo->cinfo, COL_INFO);
+      col_append_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
     }
   }
 }
