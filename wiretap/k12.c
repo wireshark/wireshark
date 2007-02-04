@@ -155,6 +155,10 @@ typedef struct _k12_src_desc_t {
 #define K12_PACKET_OFFSET_VC  0x0a
 #define K12_PACKET_OFFSET_CID 0x0c
 
+#define K12_SRCDESC_COLOR_FOREGROUND 0x12 /* 1 byte */
+#define K12_SRCDESC_COLOR_BACKGROUND 0x13 /* 1 byte */
+
+#define K12_SRCDESC_PORT_TYPE  0x1a	/* 1 byte */
 #define K12_SRCDESC_EXTRALEN   0x1e
 #define K12_SRCDESC_NAMELEN    0x20
 #define K12_SRCDESC_STACKLEN   0x22
@@ -162,6 +166,8 @@ typedef struct _k12_src_desc_t {
 #define K12_SRCDESC_EXTRATYPE  0x24
 #define K12_SRCDESC_ATM_VPI    0x38
 #define K12_SRCDESC_ATM_VCI    0x3a
+#define K12_SRCDESC_ATM_AAL    0x3c	/* 1 byte */
+
 #define K12_SRCDESC_DS0_MASK   0x3c
 
 
@@ -364,10 +370,13 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
         
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
-                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
-                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
-                break;
+		if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
+	                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
+        	        wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
+                	wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
+	                break;
+	        }
+		/* Fall through */
             default:
                 memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
                 break;
@@ -393,6 +402,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
+	long len;
     guint32 input;
     
 #ifdef DEBUG_K12
@@ -406,7 +416,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 		return FALSE;
 	}
 	
-	if (get_record(buffer, wth->random_fh, seek_off) < 1) {
+	if ((len = get_record(buffer, wth->random_fh, seek_off)) < 1) {
 #ifdef DEBUG_K12
         k12_dbg(5,"k12_seek_read: READ ERROR");
 #endif
@@ -434,10 +444,13 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
             
             switch(src_desc->input_type) {
                 case K12_PORT_ATMPVC:
-                    pseudo_header->k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                    pseudo_header->k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                    pseudo_header->k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
-                    break;
+		    if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
+			pseudo_header->k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+			pseudo_header->k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+			pseudo_header->k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+			break;
+		    }
+		    /* Fall through */
                 default:
                     memcpy(&(pseudo_header->k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
                     break;
@@ -451,10 +464,13 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 		
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+		if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
+			wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+			wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+			wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+		}
                 break;
+		/* Fall through */
             default:
                 memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
                 break;
@@ -637,24 +653,33 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
                 
 				return 0;
 			}
-			
-			switch(( rec->input_type = pntohl( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
-				case K12_PORT_DS0S:
-					rec->input_info.ds0mask = 0x00000000;
-					
-					for (i = 0; i < 32; i++) {
-						rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0; 
-					}
+
+			if (extra_len)
+				switch(( rec->input_type = pntohl( read_buffer + K12_SRCDESC_EXTRATYPE ) )) {
+					case K12_PORT_DS0S:
+						rec->input_info.ds0mask = 0x00000000;
 						
+						for (i = 0; i < 32; i++) {
+							rec->input_info.ds0mask |= ( *(read_buffer + K12_SRCDESC_DS0_MASK + i) == 0xff ) ? 0x1<<(31-i) : 0x0; 
+						}
+						
+							break;
+					case K12_PORT_ATMPVC:
+						rec->input_info.atm.vp = pntohs( read_buffer + K12_SRCDESC_ATM_VPI );
+						rec->input_info.atm.vc = pntohs( read_buffer + K12_SRCDESC_ATM_VCI );
 						break;
-				case K12_PORT_ATMPVC:
-					rec->input_info.atm.vp = pntohs( read_buffer + K12_SRCDESC_ATM_VPI );
-					rec->input_info.atm.vc = pntohs( read_buffer + K12_SRCDESC_ATM_VCI );
-					break;
-				default:
-					break;
+					default:
+						break;
+				}
+			else {	/* Record viewer generated files
+				   don't have this information */
+				if (read_buffer[K12_SRCDESC_PORT_TYPE] >= 0x14
+				    && read_buffer[K12_SRCDESC_PORT_TYPE] <= 0x17)
+					/* For ATM2_E1DS1, ATM2_E3DS3, 
+					   ATM2_STM1EL and ATM2_STM1OP */
+					rec->input_type = K12_PORT_ATMPVC;
 			}
-			
+
 			rec->input_name = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
 			rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 			
@@ -734,7 +759,8 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 			guint32 unk32_1;
 			guint32 input;
 			
-			guint32 unk32_2;
+			guint16 unk32_2;
+			guint16 color;
 			guint32 unk32_3;
 			guint32 unk32_4;
 			guint16 unk16_1;
@@ -768,9 +794,16 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 	obj.record.unk32_1 = g_htonl(0x00000001);
 	obj.record.input = g_htonl(src_desc->input);
 	
-	obj.record.unk32_2 = g_htonl(0x0000060f);
+	obj.record.unk32_2 = g_htons(0x0000);
+	obj.record.color = g_htons(0x060f);
 	obj.record.unk32_3 = g_htonl(0x00000003);
-	obj.record.unk32_4 = g_htonl(0x01000100);
+	switch (src_desc->input_type) {
+		case K12_PORT_ATMPVC:
+			obj.record.unk32_4 = g_htonl(0x01001400);
+			break;
+		default:
+			obj.record.unk32_4 = g_htonl(0x01000100);
+	}
     
 	obj.record.unk16_1 = g_htons(0x0000);
 	obj.record.name_len = strlen(src_desc->input_name) + 1;
