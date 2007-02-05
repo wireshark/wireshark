@@ -211,6 +211,19 @@ static int hf_scsi_log_pcr		= -1;
 static int hf_scsi_log_sp		= -1;
 static int hf_scsi_log_pagecode		= -1;
 static int hf_scsi_log_pc		= -1;
+static int hf_scsi_log_page_length	= -1;
+static int hf_scsi_log_parameter_code	= -1;
+static int hf_scsi_log_param_len	= -1;
+static int hf_scsi_log_param_flags	= -1;
+static int hf_scsi_log_param_data	= -1;
+static int hf_scsi_log_pf_du		= -1;
+static int hf_scsi_log_pf_ds		= -1;
+static int hf_scsi_log_pf_tsd		= -1;
+static int hf_scsi_log_pf_etc		= -1;
+static int hf_scsi_log_pf_tmc		= -1;
+static int hf_scsi_log_pf_lbin		= -1;
+static int hf_scsi_log_pf_lp		= -1;
+static int hf_scsi_log_ta_rw		= -1;
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -220,8 +233,10 @@ static gint ett_scsi_inq_rmbflags = -1;
 static gint ett_scsi_inq_sccsflags = -1;
 static gint ett_scsi_inq_bqueflags = -1;
 static gint ett_scsi_inq_reladrflags = -1;
+static gint ett_scsi_log = -1;
 static gint ett_scsi_log_ppc = -1;
 static gint ett_scsi_log_pc = -1;
+static gint ett_scsi_log_param = -1;
 static gint ett_scsi_fragments = -1;
 static gint ett_scsi_fragment  = -1;
 
@@ -300,6 +315,13 @@ static const value_string scsi_spc2_vals[] = {
 };
 
 
+static const value_string log_flags_tmc_vals[] = {
+    {0, "Every update of the culmulative value"},
+    {1, "Culmulative value equal to treshold value"},
+    {2, "Culmulative value not equal to treshold value"},
+    {3, "Culmulative value greater than treshold value"},
+    {0, NULL},
+};
 
 static const value_string scsi_select_report_val[] = {
     {0,	"Select All LUNs" },
@@ -341,6 +363,32 @@ static const value_string scsi_log_pc_val[] = {
     {0, NULL},
 };
 
+/* TapeAlert page : read warning flag */
+static void
+log_parameter_2e_0001(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_rw, tvb, 0, 1, 0);
+}
+
+typedef void (*log_parameter_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+typedef struct _log_page_parameters_t {
+    guint32	number;
+    char	*name;
+    log_parameter_dissector dissector;
+} log_page_parameters_t;
+static const log_page_parameters_t tape_alert_log_parameters[] = {
+    {0x0001,	"Read Warning", log_parameter_2e_0001},
+    {0, NULL, NULL}
+};
+
+typedef struct _log_pages_t {
+    guint32	page;
+    const log_page_parameters_t *parameters;
+} log_pages_t;
+
+
+#define LOG_PAGE_TAPE_ALERT		0x2e
 static const value_string scsi_log_page_val[] = {
     {0x00, "Supported Log Pages"},
     {0x01, "Buffer Overrun/Underrun Page"},
@@ -358,10 +406,18 @@ static const value_string scsi_log_page_val[] = {
     {0x0F, "Application Client Page"},
     {0x10, "Self-test Results Page"},
     {0x11, "DTD Status Log Page"},
-    {0x2e, "Tape-Alert Log Page (SSC)"},
+    {LOG_PAGE_TAPE_ALERT, "Tape-Alert Log Page (SSC)"},
     {0x2f, "Informational Exceptions Log Page"},
     {0, NULL},
 };
+
+static const log_pages_t log_pages[] = {
+    {LOG_PAGE_TAPE_ALERT,	tape_alert_log_parameters},
+    {0,NULL}
+};
+
+
+
 
 static const value_string scsi_modesns_pc_val[] = {
     {0, "Current Values"},
@@ -1691,6 +1747,115 @@ dissect_spc3_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 }
 
+static int
+dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                   guint offset)
+{
+    static const int *pcflags_fields[] = {
+	&hf_scsi_log_pagecode,
+	NULL
+    };
+    static const int *paramflags_fields[] = {
+        &hf_scsi_log_pf_du,
+        &hf_scsi_log_pf_ds,
+        &hf_scsi_log_pf_tsd,
+        &hf_scsi_log_pf_etc,
+        &hf_scsi_log_pf_tmc,
+        &hf_scsi_log_pf_lbin,
+        &hf_scsi_log_pf_lp,
+	NULL
+    };
+    guint16 pagelen, pagecode;
+    guint8 paramlen;
+    proto_tree *log_tree=NULL;
+    proto_item *ti=NULL;
+    guint old_offset=offset;
+    const log_pages_t *log_page;
+
+    pagecode=tvb_get_guint8(tvb, offset)&0x3f;
+
+    if(tree){
+        ti=proto_tree_add_text(tree, tvb, offset, -1, "Log Page: %s", val_to_str(pagecode, scsi_log_page_val, "Unknown (0x%04x)"));
+        log_tree=proto_item_add_subtree(ti, ett_scsi_log);
+    }
+
+    /* page code */
+    proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
+    offset+=1;
+
+    /* reserved byte */
+    offset+=1;
+
+    /* page length */
+    pagelen=tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(log_tree, hf_scsi_log_page_length, tvb, offset, 2, 0);
+    offset+=2;
+
+
+    /* find the appropriate log page */
+    for(log_page=log_pages;log_page;log_page++){
+        if(log_page->parameters==NULL){
+            log_page=NULL;
+            break;
+        }
+        if(log_page->page==pagecode){
+            break;
+        }
+    }
+
+    /* loop over all parameters */
+    while( offset<(old_offset+4+pagelen) ){
+        const log_page_parameters_t *log_parameter=NULL;
+        guint16 log_param;
+
+        /* parameter code */
+        log_param=tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(log_tree, hf_scsi_log_parameter_code, tvb, offset, 2, 0);
+        offset+=2;
+
+        /* flags */
+        proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_param_flags, ett_scsi_log_param, paramflags_fields, FALSE);
+        offset+=1;
+
+        /* parameter length */
+        paramlen=tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(log_tree, hf_scsi_log_param_len, tvb, offset, 1, 0);
+        offset+=1;
+
+        /* find the log parameter */
+        if(log_page){
+            for(log_parameter=log_page->parameters;log_parameter;log_parameter++){
+                if(log_parameter->dissector==NULL){
+                    log_parameter=NULL;
+                    break;
+                }
+                if(log_parameter->number==log_param){
+                    break;
+                }
+            }
+        }
+
+        /* parameter data */
+        if(paramlen){
+            if(log_parameter && log_parameter->dissector){
+                tvbuff_t *param_tvb;
+
+                param_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset),paramlen), paramlen);
+                log_parameter->dissector(param_tvb, pinfo, log_tree);
+            } else {
+                /* We did not have a dissector for this page/parameter so
+                 * just display it as data.
+                 */
+                proto_tree_add_item(log_tree, hf_scsi_log_param_data, tvb, offset, paramlen, 0);
+            }
+            offset+=paramlen;
+        }
+    }
+
+    proto_item_set_len(ti, offset-old_offset);
+    return offset;
+}
+
 void
 dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
@@ -1741,7 +1906,7 @@ static const true_false_string scsi_log_sp_tfs = {
 };
 
 void
-dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -1778,6 +1943,7 @@ dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	if (!cdata) {
 		return;
 	}
+	dissect_scsi_log_page(tvb, pinfo, tree, offset);
     }
 }
 
@@ -4511,6 +4677,45 @@ proto_register_scsi (void)
         { &hf_scsi_log_pc_flags,
           {"PC Flags", "scsi.log.pc.flags", FT_UINT8, BASE_HEX, NULL, 0,
            "", HFILL}},
+        { &hf_scsi_log_page_length,
+          {"Page Length", "scsi.log.page_length", FT_UINT16, BASE_DEC, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_log_parameter_code,
+          {"Parameter Code", "scsi.log.parameter_code", FT_UINT16, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_log_param_flags,
+          {"Param Flags", "scsi.log.param.flags", FT_UINT8, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_log_param_len,
+          {"Parameter Len", "scsi.log.param_len", FT_UINT8, BASE_DEC, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_log_param_data,
+          {"Parameter Data", "scsi.log.param_data", FT_BYTES, BASE_HEX, NULL, 0,
+           "", HFILL}},
+        { &hf_scsi_log_pf_du,
+          {"DU", "scsi.log.pf.du", FT_BOOLEAN, 8, NULL, 0x80,
+           "", HFILL}},
+        { &hf_scsi_log_pf_ds,
+          {"DS", "scsi.log.pf.ds", FT_BOOLEAN, 8, NULL, 0x40,
+           "", HFILL}},
+        { &hf_scsi_log_pf_tsd,
+          {"TSD", "scsi.log.pf.tsd", FT_BOOLEAN, 8, NULL, 0x20,
+           "", HFILL}},
+        { &hf_scsi_log_pf_etc,
+          {"ETC", "scsi.log.pf.etc", FT_BOOLEAN, 8, NULL, 0x10,
+           "", HFILL}},
+        { &hf_scsi_log_pf_tmc,
+          {"TMC", "scsi.log.pf.tmc", FT_UINT8, BASE_HEX, VALS(log_flags_tmc_vals), 0x0c,
+           "", HFILL}},
+        { &hf_scsi_log_pf_lbin,
+          {"LBIN", "scsi.log.pf.lbin", FT_BOOLEAN, 8, NULL, 0x02,
+           "", HFILL}},
+        { &hf_scsi_log_pf_lp,
+          {"LP", "scsi.log.pf.lp", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_rw,
+          {"Read Warning", "scsi.log.ta.rw", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
     };
 
     /* Setup protocol subtree array */
@@ -4523,8 +4728,10 @@ proto_register_scsi (void)
 	&ett_scsi_inq_sccsflags,
 	&ett_scsi_inq_bqueflags,
 	&ett_scsi_inq_reladrflags,
+	&ett_scsi_log,
 	&ett_scsi_log_ppc,
 	&ett_scsi_log_pc,
+	&ett_scsi_log_param,
 	&ett_scsi_fragments,
 	&ett_scsi_fragment,
     };
@@ -4558,4 +4765,5 @@ void
 proto_reg_handoff_scsi(void)
 {
     scsi_tap = register_tap("scsi");
+
 }
