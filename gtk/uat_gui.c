@@ -42,6 +42,7 @@
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
+#include "help_dlg.h"
 #include "compat_macros.h"
 
 #include <epan/uat-int.h>
@@ -586,6 +587,11 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	return TRUE;
 }
 
+#if (GLIB_MAJOR_VERSION >= 2)
+static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
+	help_topic_html(ep_strdup_printf("%s.html",((uat_t*)u)->help));
+}
+#endif
 
 GtkWidget* uat_window(void* u) {
 	uat_t* uat = u;
@@ -688,7 +694,16 @@ GtkWidget* uat_window(void* u) {
 	gtk_box_pack_end(GTK_BOX(c_hbox), rep->bt_delete, TRUE, TRUE, 0);
     gtk_widget_show(rep->bt_delete);
 
-	
+#if (GLIB_MAJOR_VERSION >= 2)
+	if(uat->help) {
+		GtkWidget* help_btn;
+		help_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
+		gtk_box_pack_start(GTK_BOX(r_hbox), help_btn, TRUE, TRUE, 0);
+		gtk_widget_show(help_btn);
+		SIGNAL_CONNECT(help_btn, "clicked", uat_help_cb, uat);
+	}
+#endif
+
 	rep->bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
 	gtk_box_pack_end(GTK_BOX(r_hbox), rep->bt_save, TRUE, TRUE, 0);
     gtk_widget_show(rep->bt_save);

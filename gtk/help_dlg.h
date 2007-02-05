@@ -112,4 +112,12 @@ gboolean topic_available(topic_action_e action);
 /** Redraw all the help dialog text widgets, to use a new font. */
 void help_redraw(void);
 
+
+/*
+ * Open the help dialog and show a specific HTML help page.
+ */
+#if (GLIB_MAJOR_VERSION >= 2)
+void help_topic_html(const gchar *topic);
+#endif
+
 #endif

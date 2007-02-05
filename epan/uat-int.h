@@ -49,6 +49,7 @@ struct _uat_t {
 	char* name;	
 	size_t record_size;
 	char* filename;
+	char* help;
 	void** user_ptr;
 	guint* nrows_p;
 	uat_copy_cb_t copy_cb;
@@ -59,7 +60,6 @@ struct _uat_t {
 	guint ncols;
 	GArray* user_data;
 	gboolean changed;
-	
 	uat_rep_t* rep;
 	uat_rep_free_cb_t free_rep;
 };

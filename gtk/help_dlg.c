@@ -231,7 +231,7 @@ gboolean topic_available(topic_action_e action) {
 /*
  * Open the help dialog and show a specific HTML help page.
  */
-static void help_topic_html(const gchar *topic) {
+void help_topic_html(const gchar *topic) {
     GString *url;
 
 

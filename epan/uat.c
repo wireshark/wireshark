@@ -56,6 +56,7 @@ uat_t* uat_new(const char* name,
 			   char* filename,
 			   void** data_ptr,
 			   guint* numitems_ptr,
+			   char* help,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
@@ -83,6 +84,7 @@ uat_t* uat_new(const char* name,
 	uat->changed = FALSE;
 	uat->rep = NULL;
 	uat->free_rep = NULL;
+	uat->help = help;
 	
 	for (i=0;flds_array[i].name;i++) {
 		fld_data_t* f = g_malloc(sizeof(fld_data_t));
