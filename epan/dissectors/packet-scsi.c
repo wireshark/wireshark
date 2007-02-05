@@ -224,6 +224,56 @@ static int hf_scsi_log_pf_tmc		= -1;
 static int hf_scsi_log_pf_lbin		= -1;
 static int hf_scsi_log_pf_lp		= -1;
 static int hf_scsi_log_ta_rw		= -1;
+static int hf_scsi_log_ta_ww		= -1;
+static int hf_scsi_log_ta_he		= -1;
+static int hf_scsi_log_ta_media		= -1;
+static int hf_scsi_log_ta_rf		= -1;
+static int hf_scsi_log_ta_wf		= -1;
+static int hf_scsi_log_ta_ml		= -1;
+static int hf_scsi_log_ta_ndg		= -1;
+static int hf_scsi_log_ta_wp		= -1;
+static int hf_scsi_log_ta_nr		= -1;
+static int hf_scsi_log_ta_cm		= -1;
+static int hf_scsi_log_ta_uf		= -1;
+static int hf_scsi_log_ta_rmcf		= -1;
+static int hf_scsi_log_ta_umcf		= -1;
+static int hf_scsi_log_ta_mcicf		= -1;
+static int hf_scsi_log_ta_fe		= -1;
+static int hf_scsi_log_ta_rof		= -1;
+static int hf_scsi_log_ta_tdcol		= -1;
+static int hf_scsi_log_ta_nml		= -1;
+static int hf_scsi_log_ta_cn		= -1;
+static int hf_scsi_log_ta_cp		= -1;
+static int hf_scsi_log_ta_ecm		= -1;
+static int hf_scsi_log_ta_ict		= -1;
+static int hf_scsi_log_ta_rr		= -1;
+static int hf_scsi_log_ta_dpie		= -1;
+static int hf_scsi_log_ta_cff		= -1;
+static int hf_scsi_log_ta_psf		= -1;
+static int hf_scsi_log_ta_pc		= -1;
+static int hf_scsi_log_ta_dm		= -1;
+static int hf_scsi_log_ta_hwa		= -1;
+static int hf_scsi_log_ta_hwb		= -1;
+static int hf_scsi_log_ta_if		= -1;
+static int hf_scsi_log_ta_em		= -1;
+static int hf_scsi_log_ta_dwf		= -1;
+static int hf_scsi_log_ta_drhu		= -1;
+static int hf_scsi_log_ta_drtm		= -1;
+static int hf_scsi_log_ta_drvo		= -1;
+static int hf_scsi_log_ta_pefa		= -1;
+static int hf_scsi_log_ta_dire		= -1;
+static int hf_scsi_log_ta_lost		= -1;
+static int hf_scsi_log_ta_tduau		= -1;
+static int hf_scsi_log_ta_tsawf		= -1;
+static int hf_scsi_log_ta_tsarf		= -1;
+static int hf_scsi_log_ta_nsod		= -1;
+static int hf_scsi_log_ta_lofa		= -1;
+static int hf_scsi_log_ta_uuf		= -1;
+static int hf_scsi_log_ta_aif		= -1;
+static int hf_scsi_log_ta_fwf		= -1;
+static int hf_scsi_log_ta_wmicf		= -1;
+static int hf_scsi_log_ta_wmoa		= -1;
+
 
 static gint ett_scsi         = -1;
 static gint ett_scsi_page    = -1;
@@ -370,6 +420,350 @@ log_parameter_2e_0001(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(tree, hf_scsi_log_ta_rw, tvb, 0, 1, 0);
 }
 
+/* TapeAlert page : write warning flag */
+static void
+log_parameter_2e_0002(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_ww, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : hard error flag */
+static void
+log_parameter_2e_0003(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_he, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : media flag */
+static void
+log_parameter_2e_0004(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_media, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : read failure flag */
+static void
+log_parameter_2e_0005(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_rf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : write failure flag */
+static void
+log_parameter_2e_0006(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_wf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : media life flag */
+static void
+log_parameter_2e_0007(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_ml, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : not data grade flag */
+static void
+log_parameter_2e_0008(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_ndg, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : write protect flag */
+static void
+log_parameter_2e_0009(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_wp, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : no removal flag */
+static void
+log_parameter_2e_000a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_nr, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : cleaning media flag */
+static void
+log_parameter_2e_000b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_cm, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : unsupported format flag */
+static void
+log_parameter_2e_000c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_uf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : removable mechanical cartridge failure flag */
+static void
+log_parameter_2e_000d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_rmcf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : unrecoverable mechanical cartridge failure flag */
+static void
+log_parameter_2e_000e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_umcf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : memory chip in cartridge failure flag */
+static void
+log_parameter_2e_000f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_mcicf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : forced eject flag */
+static void
+log_parameter_2e_0010(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_fe, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : read only format flag */
+static void
+log_parameter_2e_0011(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_rof, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : tape directory corrupted on load flag */
+static void
+log_parameter_2e_0012(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_tdcol, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : nearing media life flag */
+static void
+log_parameter_2e_0013(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_nml, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : clean now flag */
+static void
+log_parameter_2e_0014(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_cn, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : clean periodic flag */
+static void
+log_parameter_2e_0015(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_cp, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : expired cleaning media flag */
+static void
+log_parameter_2e_0016(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_ecm, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : invalid cleaning tape flag */
+static void
+log_parameter_2e_0017(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_ict, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : retention requested flag */
+static void
+log_parameter_2e_0018(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_rr, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : dual port interface error flag */
+static void
+log_parameter_2e_0019(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_dpie, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : cooling fan failure flag */
+static void
+log_parameter_2e_001a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_cff, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : power supply failure flag */
+static void
+log_parameter_2e_001b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_psf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : power consumption flag */
+static void
+log_parameter_2e_001c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_pc, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : drive maintenance flag */
+static void
+log_parameter_2e_001d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_dm, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : hardware a flag */
+static void
+log_parameter_2e_001e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_hwa, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : hardware b flag */
+static void
+log_parameter_2e_001f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_hwb, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : interface flag */
+static void
+log_parameter_2e_0020(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_if, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : eject media flag */
+static void
+log_parameter_2e_0021(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_em, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : download failed flag */
+static void
+log_parameter_2e_0022(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_dwf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : drive humidity flag */
+static void
+log_parameter_2e_0023(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_drhu, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : drive temperature flag */
+static void
+log_parameter_2e_0024(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_drtm, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : drive voltage flag */
+static void
+log_parameter_2e_0025(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_drvo, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : periodic failure flag */
+static void
+log_parameter_2e_0026(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_pefa, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : diagnostics requiured flag */
+static void
+log_parameter_2e_0027(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_dire, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : lost statistics flag */
+static void
+log_parameter_2e_0032(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_lost, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : tape directory invalid at unload flag */
+static void
+log_parameter_2e_0033(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_tduau, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : tape system area write failure flag */
+static void
+log_parameter_2e_0034(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_tsawf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : tape system area read failure flag */
+static void
+log_parameter_2e_0035(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_tsarf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : no start of data flag */
+static void
+log_parameter_2e_0036(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_nsod, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : loading failure flag */
+static void
+log_parameter_2e_0037(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_lofa, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : unrecoverable unload failure flag */
+static void
+log_parameter_2e_0038(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_uuf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : automatic interface failure flag */
+static void
+log_parameter_2e_0039(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_aif, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : firmware failure flag */
+static void
+log_parameter_2e_003a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_fwf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : worm medium integrity check failed flag */
+static void
+log_parameter_2e_003b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_wmicf, tvb, 0, 1, 0);
+}
+
+/* TapeAlert page : worm medium overwrite attempted flag */
+static void
+log_parameter_2e_003c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_scsi_log_ta_wmoa, tvb, 0, 1, 0);
+}
+
+
 typedef void (*log_parameter_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 typedef struct _log_page_parameters_t {
@@ -379,6 +773,55 @@ typedef struct _log_page_parameters_t {
 } log_page_parameters_t;
 static const log_page_parameters_t tape_alert_log_parameters[] = {
     {0x0001,	"Read Warning", log_parameter_2e_0001},
+    {0x0002,    "write warning", log_parameter_2e_0002},
+    {0x0003,    "hard error", log_parameter_2e_0003},
+    {0x0004,    "media", log_parameter_2e_0004},
+    {0x0005,    "read failure", log_parameter_2e_0005},
+    {0x0006,    "write failure", log_parameter_2e_0006},
+    {0x0007,    "media life", log_parameter_2e_0007},
+    {0x0008,    "not data grade", log_parameter_2e_0008},
+    {0x0009,    "write protect", log_parameter_2e_0009},
+    {0x000a,    "no removal", log_parameter_2e_000a},
+    {0x000b,    "cleaning media", log_parameter_2e_000b},
+    {0x000c,    "unsupported format", log_parameter_2e_000c},
+    {0x000d,    "removable mechanical cartridge failure", log_parameter_2e_000d},
+    {0x000e,    "unrecoverable mechanical cartridge failure", log_parameter_2e_000e},
+    {0x000f,    "memory chip in cartridge failure", log_parameter_2e_000f},
+    {0x0010,    "forced eject", log_parameter_2e_0010},
+    {0x0011,    "read only format", log_parameter_2e_0011},
+    {0x0012,    "tape directory corrupted on load", log_parameter_2e_0012},
+    {0x0013,    "nearing media life", log_parameter_2e_0013},
+    {0x0014,    "clean now", log_parameter_2e_0014},
+    {0x0015,    "clean periodic", log_parameter_2e_0015},
+    {0x0016,    "expired cleaning media", log_parameter_2e_0016},
+    {0x0017,    "invalid cleaning tape", log_parameter_2e_0017},
+    {0x0018,    "retention requested", log_parameter_2e_0018},
+    {0x0019,    "dual port interface error", log_parameter_2e_0019},
+    {0x001a,    "cooling fan failure", log_parameter_2e_001a},
+    {0x001b,    "power supply failure", log_parameter_2e_001b},
+    {0x001c,    "power consumption", log_parameter_2e_001c},
+    {0x001d,    "drive maintenance", log_parameter_2e_001d},
+    {0x001e,    "hardware a", log_parameter_2e_001e},
+    {0x001f,    "hardware b", log_parameter_2e_001f},
+    {0x0020,    "interface", log_parameter_2e_0020},
+    {0x0021,    "eject media", log_parameter_2e_0021},
+    {0x0022,    "download failed", log_parameter_2e_0022},
+    {0x0023,    "drive humidity", log_parameter_2e_0023},
+    {0x0024,    "drive temperature", log_parameter_2e_0024},
+    {0x0025,    "drive voltage", log_parameter_2e_0025},
+    {0x0026,    "periodic failure", log_parameter_2e_0026},
+    {0x0027,    "diagnostics requiured", log_parameter_2e_0027},
+    {0x0032,    "lost statistics", log_parameter_2e_0032},
+    {0x0033,    "tape directory invalid at unload", log_parameter_2e_0033},
+    {0x0034,    "tape system area write failure", log_parameter_2e_0034},
+    {0x0035,    "tape system area read failure", log_parameter_2e_0035},
+    {0x0036,    "no start of data", log_parameter_2e_0036},
+    {0x0037,    "loading failure", log_parameter_2e_0037},
+    {0x0038,    "unrecoverable unload failure", log_parameter_2e_0038},
+    {0x0039,    "automatic interface failure", log_parameter_2e_0039},
+    {0x003a,    "firmware failure", log_parameter_2e_003a},
+    {0x003b,    "worm medium integrity check failed", log_parameter_2e_003b},
+    {0x003c,    "worm medium overwrite attempted", log_parameter_2e_003c},
     {0, NULL, NULL}
 };
 
@@ -4715,6 +5158,153 @@ proto_register_scsi (void)
            "", HFILL}},
         { &hf_scsi_log_ta_rw,
           {"Read Warning", "scsi.log.ta.rw", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_ww,
+          {"write warning", "scsi.log.ta.ww", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_he,
+          {"hard error", "scsi.log.ta.he", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_media,
+          {"media", "scsi.log.ta.media", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_rf,
+          {"read failure", "scsi.log.ta.rf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_wf,
+          {"write failure", "scsi.log.ta.wf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_ml,
+          {"media life", "scsi.log.ta.ml", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_ndg,
+          {"not data grade", "scsi.log.ta.ndg", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_wp,
+          {"write protect", "scsi.log.ta.wp", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_nr,
+          {"no removal", "scsi.log.ta.nr", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_cm,
+          {"cleaning media", "scsi.log.ta.cm", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_uf,
+          {"unsupported format", "scsi.log.ta.uf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_rmcf,
+          {"removable mechanical cartridge failure", "scsi.log.ta.rmcf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_umcf,
+          {"unrecoverable mechanical cartridge failure", "scsi.log.ta.umcf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_mcicf,
+          {"memory chip in cartridge failure", "scsi.log.ta.mcicf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_fe,
+          {"forced eject", "scsi.log.ta.fe", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_rof,
+          {"read only format", "scsi.log.ta.rof", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_tdcol,
+          {"tape directory corrupted on load", "scsi.log.ta.tdcol", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_nml,
+          {"nearing media life", "scsi.log.ta.nml", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_cn,
+          {"clean now", "scsi.log.ta.cn", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_cp,
+          {"clean periodic", "scsi.log.ta.cp", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_ecm,
+          {"expired cleaning media", "scsi.log.ta.ecm", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_ict,
+          {"invalid cleaning tape", "scsi.log.ta.ict", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_rr,
+          {"retention requested", "scsi.log.ta.rr", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_dpie,
+          {"dual port interface error", "scsi.log.ta.dpie", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_cff,
+          {"cooling fan failure", "scsi.log.ta.cff", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_psf,
+          {"power supply failure", "scsi.log.ta.psf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_pc,
+          {"power consumption", "scsi.log.ta.pc", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_dm,
+          {"drive maintenance", "scsi.log.ta.dm", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_hwa,
+          {"hardware a", "scsi.log.ta.hwa", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_hwb,
+          {"hardware b", "scsi.log.ta.hwb", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_if,
+          {"interface", "scsi.log.ta.if", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_em,
+          {"eject media", "scsi.log.ta.em", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_dwf,
+          {"download failed", "scsi.log.ta.dwf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_drhu,
+          {"drive humidity", "scsi.log.ta.drhu", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_drtm,
+          {"drive temperature", "scsi.log.ta.drtm", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_drvo,
+          {"drive voltage", "scsi.log.ta.drvo", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_pefa,
+          {"periodic failure", "scsi.log.ta.pefa", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_dire,
+          {"diagnostics requiured", "scsi.log.ta.dire", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_lost,
+          {"lost statistics", "scsi.log.ta.lost", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_tduau,
+          {"tape directory invalid at unload", "scsi.log.ta.tduau", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_tsawf,
+          {"tape system area write failure", "scsi.log.ta.tsawf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_tsarf,
+          {"tape system area read failure", "scsi.log.ta.tsarf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_nsod,
+          {"no start of data", "scsi.log.ta.nsod", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_lofa,
+          {"loading failure", "scsi.log.ta.lofa", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_uuf,
+          {"unrecoverable unload failure", "scsi.log.ta.uuf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_aif,
+          {"automatic interface failure", "scsi.log.ta.aif", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_fwf,
+          {"firmware failure", "scsi.log.ta.fwf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_wmicf,
+          {"worm medium integrity check failed", "scsi.log.ta.wmicf", FT_BOOLEAN, 8, NULL, 0x01,
+           "", HFILL}},
+        { &hf_scsi_log_ta_wmoa,
+          {"worm medium overwrite attempted", "scsi.log.ta.wmoa", FT_BOOLEAN, 8, NULL, 0x01,
            "", HFILL}},
     };
 
