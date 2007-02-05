@@ -234,11 +234,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
-    if ((udph->uh_ulen > pinfo->iplen - pinfo->iphdrlen) && ! pinfo->fragmented) {
+    if ((udph->uh_ulen > tvb->length) && ! pinfo->fragmented) {
       /* Bogus length - it goes past the end of the IP payload */
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
-          udph->uh_ulen, "Length: %u (bogus, should be %u)", udph->uh_ulen,
-          pinfo->iplen - pinfo->iphdrlen);
+          udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb->length);
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u > IP payload length", udph->uh_ulen);
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
@@ -372,20 +371,24 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
         offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x [validation disabled]", udph->uh_sum);
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+      item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
                              offset + 6, 2, FALSE);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+      PROTO_ITEM_SET_GENERATED(item);
+      item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
                              offset + 6, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED(item);
     }
   } else {    	
     item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
       offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
 
-      checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
+    checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+    item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
                              offset + 6, 2, FALSE);
-      proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
+    PROTO_ITEM_SET_GENERATED(item);
+    item = proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
                              offset + 6, 2, FALSE);
+    PROTO_ITEM_SET_GENERATED(item);
   }
 
   /* Skip over header */
