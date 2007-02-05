@@ -44,7 +44,8 @@ traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
 ##	ping -n 20 www.wireshark.org > /dev/null 2>&1 &
-	ping -n 20 www.wireshark.org > ./testout_ping.txt 2>&1 &
+
+	{ date; ping -n 20 www.wireshark.org; date; } > ./testout_ping.txt 2>&1 &
 }
 
 ping_cleanup() {
@@ -60,13 +61,16 @@ capture_step_10packets() {
 	fi
 
 	traffic_gen_ping
+
+	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-c 10  \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-f icmp \
-		> ./testout.txt 2>&1
+		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
+	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		capture_test_output_print ./testout.txt
@@ -107,13 +111,16 @@ capture_step_10packets_stdout() {
         fi
 
 	traffic_gen_ping
+
+	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-w - \
 		-f icmp \
-		> ./testout.pcap 2>./testout.txt
+		> ./testout.pcap 2>>./testout.txt
 	RETURNVALUE=$?
+	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
@@ -183,14 +190,17 @@ capture_step_2multi_10packets() {
         fi
 
 	traffic_gen_ping
+
+	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-f icmp \
-		> ./testout.txt 2>&1
+		>> ./testout.txt 2>&1
 
 	RETURNVALUE=$?
+	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
@@ -227,15 +237,18 @@ capture_step_read_filter() {
         fi
 
 	traffic_gen_ping
+
 	# valid, but very unlikely filter
+	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-R 'dcerpc.cn_call_id==123456' \
 		-c 10 \
 		-f icmp \
-		> ./testout.txt 2>&1
+		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
+	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
@@ -276,13 +289,15 @@ capture_step_snapshot() {
 
 	# capture with a snapshot length of 68 bytes for $TRAFFIC_CAPTURE_DURATION seconds
 	# this should result in no packets
+	date > ./testout.txt
 	$DUT -i $TRAFFIC_CAPTURE_IFACE $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-s 68 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-f icmp \
-		> ./testout.txt 2>&1
+		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
+	date >> ./testout.txt
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
