@@ -78,6 +78,6 @@
 #define VENDOR_T_SYSTEMS_NOVA	16787
 
 
-extern const value_string sminmpec_values[];
+WS_VAR_IMPORT const value_string sminmpec_values[];
 
 #endif /* __SMINMPEC_H__ */
