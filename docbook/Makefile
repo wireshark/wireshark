@@ -19,7 +19,7 @@ FOP=fop-0.20.5/fop.sh
 #
 # One SUSE 9.1 and newer uncomment the following line (make sure you have
 # at least fop-0.20.5-71.2)
-#FOP=fop
+FOP=fop
 
 # html to text converter for text version of release notes, e.g. elinks.
 # This could also be "lynx", or "true" if neither elinks nor lynx is installed
@@ -62,8 +62,7 @@ clean:
 FORCE:
 
 svn_version_check: FORCE
-	cat check_svn_version.sh | tr -d '\015' > check_svn_version.sh
-	@ ./check_svn_version.sh
+	cat check_svn_version.sh | tr -d '\015' | /bin/bash
 
 svn_version.xml: svn_version_check
 
