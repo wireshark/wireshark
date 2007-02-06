@@ -410,7 +410,7 @@ ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
 
 rdps: rdps.c
-	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o rdps $(srcdir)/rdps.c
+	$(CC) $(CFLAGS) -o rdps $(srcdir)/rdps.c
 
 #
 # XXX - "svnversion.h" is distributed in the release tarball; should
