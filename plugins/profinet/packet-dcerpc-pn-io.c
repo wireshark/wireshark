@@ -174,9 +174,10 @@ static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_error_code = -1;
 static int hf_pn_io_error_decode = -1;
 static int hf_pn_io_error_code1 = -1;
-static int hf_pn_io_error_code2 = -1;
 static int hf_pn_io_error_code1_pniorw = -1;
 static int hf_pn_io_error_code1_pnio = -1;
+static int hf_pn_io_error_code2 = -1;
+static int hf_pn_io_error_code2_rta_err_cls_protocol = -1;
 
 static int hf_pn_io_alarm_type = -1;
 static int hf_pn_io_alarm_specifier = -1;
@@ -310,6 +311,23 @@ static int hf_pn_io_time_io_output_valid = -1;
 static int hf_pn_io_maintenance_status = -1;
 static int hf_pn_io_maintenance_status_required = -1;
 static int hf_pn_io_maintenance_status_demanded = -1;
+
+static int hf_pn_io_vendor_id_high = -1;
+static int hf_pn_io_vendor_id_low = -1;
+static int hf_pn_io_order_id, tvb = -1;
+static int hf_pn_io_im_serial_number = -1;
+static int hf_pn_io_im_hardware_revision = -1;
+static int hf_pn_io_im_revision_prefix = -1;
+static int hf_pn_io_im_sw_revision_functional_enhancement = -1;
+static int hf_pn_io_im_revision_bugfix = -1;
+static int hf_pn_io_im_sw_revision_internal_change = -1;
+static int hf_pn_io_im_revision_counter = -1;
+static int hf_pn_io_im_profile_id = -1;
+static int hf_pn_io_im_profile_specific_type = -1;
+static int hf_pn_io_im_version_major = -1;
+static int hf_pn_io_im_version_minor = -1;
+static int hf_pn_io_im_supported = -1;
+
 
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -579,6 +597,46 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0x4d /* 77*/, "DCPMCR" },
     { 0x4e /* 78*/, "FSPM" },
 	{ 0xfd /*253*/, "RTA_ERR_CLS_PROTOCOL" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_rta_err_cls_protocol[] = {
+    {  0, "reserved" },
+    {  1, "error within the coordination of sequence numbers (RTA_ERR_CODE_SEQ) error" },
+    {  2, "instance closed (RTA_ERR_ABORT)" },
+    {  3, "AR out of memory (RTA_ERR_ABORT)" },
+    {  4, "AR add provider or consumer failed (RTA_ERR_ABORT)" },
+    {  5, "AR consumer missing (RTA_ERR_ABORT)" },
+    {  6, "AR cmi timeout (RTA_ERR_ABORT)" },
+    {  7, "AR alarm-open failed (RTA_ERR_ABORT)" },
+    {  8, "AR alarm-send.cnf(-) (RTA_ERR_ABORT)" },
+    {  9, "AR alarm-ack- send.cnf(-) (RTA_ERR_ABORT)" },
+    { 10, "AR alarm data too long (RTA_ERR_ABORT)" },
+    { 11, "AR alarm.ind(err) (RTA_ERR_ABORT)" },
+    { 12, "AR rpc-client call.cnf(-) (RTA_ERR_ABORT)" },
+    { 13, "AR abort.req (RTA_ERR_ABORT)" },
+    { 14, "AR re-run aborts existing (RTA_ERR_ABORT)" },
+    { 15, "AR release.ind received (RTA_ERR_ABORT)" },
+    { 16, "AR device deactivated (RTA_ERR_ABORT)" },
+    { 17, "AR removed (RTA_ERR_ABORT)" },
+    { 18, "AR protocol violation (RTA_ERR_ABORT)" },
+    { 19, "AR name resolution error (RTA_ERR_ABORT)" },
+    { 20, "AR RPC-Bind error (RTA_ERR_ABORT)" },
+    { 21, "AR RPC-Connect error (RTA_ERR_ABORT)" },
+    { 22, "AR RPC-Read error (RTA_ERR_ABORT)" },
+    { 23, "AR RPC-Write error (RTA_ERR_ABORT)" },
+    { 24, "AR RPC-Control error (RTA_ERR_ABORT)" },
+    { 25, "AR forbidden pull or plug after check.rsp and before in- data.ind (RTA_ERR_ABORT)" },
+    { 26, "AR AP removed (RTA_ERR_ABORT)" },
+    { 27, "AR link down (RTA_ERR_ABORT)" },
+    { 28, "AR could not register multicast-mac address (RTA_ERR_ABORT)" },
+    { 29, "not synchronized (cannot start companion-ar) (RTA_ERR_ABORT)" },
+    { 30, "wrong topology (cannot start companion-ar) (RTA_ERR_ABORT)" },
+    { 31, "dcp, station-name changed (RTA_ERR_ABORT)" },
+    { 32, "dcp, reset to factory-settings (RTA_ERR_ABORT)" },
+    { 33, "cannot start companion-AR because a 0x8ipp submodule in the first AR... (RTA_ERR_ABORT)" },
+    { 34, "no irdata record yet (RTA_ERR_ABORT)" },
+    { 35, "PDEV (RTA_ERROR_ABORT)" },
     { 0, NULL }
 };
 
@@ -1147,6 +1205,16 @@ static const value_string pn_io_fiber_optic_cable[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_im_revision_prefix_vals[] = {
+    { 'V', "V - officially released version" },
+    { 'R', "R - Revision" },
+    { 'P', "P - prototoype" },
+    { 'U', "U - Under Test (Field Test)" },
+    { 'T', "T - Test Device" },
+    /*all others reserved */
+    { 0, NULL }
+};
+
 
 
 static int dissect_block(tvbuff_t *tvb, int offset,
@@ -1194,6 +1262,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
     int bytemask = (drep[0] & 0x10) ? 3 : 0;
     const value_string *error_code1_vals;
+    const value_string *error_code2_vals = pn_io_error_code2;   /* defaults */
 
 
 
@@ -1231,9 +1300,26 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
         error_code1_vals = pn_io_error_code1;
     }
 
-    /* XXX - this has to be decode specific too */
-	dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
-                        hf_pn_io_error_code2, &u8ErrorCode2);
+    switch(u8ErrorDecode) {
+    case(0x81): /* PNIO */
+        switch(u8ErrorCode1) {
+        case(0xfd):
+	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
+                            hf_pn_io_error_code2_rta_err_cls_protocol, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_rta_err_cls_protocol;
+            break;
+        default:
+            /* don't know this u8ErrorCode1 for PNIO, use defaults */
+	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
+                            hf_pn_io_error_code2, &u8ErrorCode2);
+            break;
+        }
+        break;
+    default:
+            /* don't know this u8ErrorDecode, use defaults */
+	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
+                            hf_pn_io_error_code2, &u8ErrorCode2);
+    }
 
     offset +=4;
 
@@ -1242,17 +1328,17 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
         if (check_col(pinfo->cinfo, COL_INFO))
 	        col_append_str(pinfo->cinfo, COL_INFO, ", OK");
     } else {
-        proto_item_append_text(sub_item, ": Error Code: \"%s\", Decode: \"%s\", Code1: \"%s\" Code2: 0x%x", 
+        proto_item_append_text(sub_item, ": Error: \"%s\", \"%s\", \"%s\", \"%s\"", 
             val_to_str(u8ErrorCode, pn_io_error_code, "(0x%x)"),
             val_to_str(u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
             val_to_str(u8ErrorCode1, error_code1_vals, "(0x%x)"),
-            u8ErrorCode2);
+            val_to_str(u8ErrorCode2, error_code2_vals, "(0x%x)"));
         if (check_col(pinfo->cinfo, COL_INFO))
-	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error Code: %s, Decode: %s, Code1: 0x%x Code2: 0x%x",
+	        col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: \"%s\", \"%s\", \"%s\", \"%s\"",
             val_to_str(u8ErrorCode, pn_io_error_code, "(0x%x)"),
             val_to_str(u8ErrorDecode, pn_io_error_decode, "(0x%x)"),
-            u8ErrorCode1,
-            u8ErrorCode2);
+            val_to_str(u8ErrorCode1, error_code1_vals, "(0x%x)"),
+            val_to_str(u8ErrorCode2, error_code2_vals, "(0x%x)"));
     }
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
@@ -1459,6 +1545,84 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
         offset = dissect_AlarmUserStructure(tvb, offset, pinfo, tree, item, drep, &body_length);
     }
 
+    return offset;
+}
+
+
+static int
+dissect_IandM0_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint8 u8VendorIDHigh;
+    guint8 u8VendorIDLow;
+    char *pOrderID;
+    char *pIMSerialNumber;
+    guint16 u16IMHardwareRevision;
+    guint8 u8SWRevisionPrefix;
+    guint8 u8IMSWRevisionFunctionalEnhancement;
+    guint8 u8IMSWRevisionBugFix;
+    guint8 u8IMSWRevisionInternalChange;
+    guint16 u16IMRevisionCounter;
+    guint16 u16IMProfileID;
+    guint16 u16IMProfileSpecificType;
+    guint8 u8IMVersionMajor;
+    guint8 u8IMVersionMinor;
+    guint16 u16IMSupported;
+
+
+    /* x8 VendorIDHigh */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_vendor_id_high, &u8VendorIDHigh);
+    /* x8 VendorIDLow */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_vendor_id_low, &u8VendorIDLow);
+    /* c8[20] OrderID */
+    pOrderID = ep_alloc(20+1);
+    tvb_memcpy(tvb, (guint8 *) pOrderID, offset, 20);
+    pOrderID[20] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_order_id, tvb, offset, 20, pOrderID);
+    offset += 20;
+
+    /* c8[16] IM_Serial_Number */
+    pIMSerialNumber = ep_alloc(16+1);
+    tvb_memcpy(tvb, (guint8 *) pIMSerialNumber, offset, 16);
+    pIMSerialNumber[16] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_im_serial_number, tvb, offset, 16, pIMSerialNumber);
+    offset += 16;
+
+    /* x16 IM_Hardware_Revision */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_im_hardware_revision, &u16IMHardwareRevision);
+    /* c8 SWRevisionPrefix */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_revision_prefix, &u8SWRevisionPrefix);
+    /* x8 IM_SWRevision_Functional_Enhancement */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_sw_revision_functional_enhancement, &u8IMSWRevisionFunctionalEnhancement);
+    /* x8 IM_SWRevision_Bug_Fix */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_revision_bugfix, &u8IMSWRevisionBugFix);
+    /* x8 IM_SWRevision_Internal_Change */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_sw_revision_internal_change, &u8IMSWRevisionInternalChange);
+    /* x16 IM_Revision_Counter */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_im_revision_counter, &u16IMRevisionCounter);
+    /* x16 IM_Profile_ID */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_im_profile_id, &u16IMProfileID);
+    /* x16 IM_Profile_Specific_Type */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_im_profile_specific_type, &u16IMProfileSpecificType);
+    /* x8 IM_Version_Major (values) */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_version_major, &u8IMVersionMajor);
+    /* x8 IM_Version_Minor (values) */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_im_version_minor, &u8IMVersionMinor);
+    /* x16 IM_Supported (bitfield) */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_im_supported, &u16IMSupported);
     return offset;
 }
 
@@ -3245,6 +3409,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0013):
         dissect_RealIdentificationData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionLow);
         break;
+    case(0x0020):
+        dissect_IandM0_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x0101):
         dissect_ARBlockReq(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -3533,6 +3700,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x802d):   /* PDSyncData */
     case(0x802e):   /* PDSyncData */
     case(0x802f):   /* PDPortDataAdjust */
+    case(0xaff0):   /* I&M0 */
     case(0xe00c):
     case(0xe010):
     case(0xe012):
@@ -4151,17 +4319,19 @@ proto_register_pn_io (void)
       { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_error_code,
-      { "ErrorCode", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, "", HFILL }},
+      { "ErrorCode  ", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, "", HFILL }},
     { &hf_pn_io_error_decode,
       { "ErrorDecode", "pn_io.error_decode", FT_UINT8, BASE_HEX, VALS(pn_io_error_decode), 0x0, "", HFILL }},
     { &hf_pn_io_error_code1,
-      { "ErrorCode1", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1), 0x0, "", HFILL }},
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1), 0x0, "", HFILL }},
     { &hf_pn_io_error_code2,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2), 0x0, "", HFILL }},
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2), 0x0, "", HFILL }},
     { &hf_pn_io_error_code1_pniorw,
-      { "ErrorCode1 (PNIORW)", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pniorw), 0x0, "", HFILL }},
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pniorw), 0x0, "", HFILL }},
     { &hf_pn_io_error_code1_pnio,
-      { "ErrorCode1 (PNIO)", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pnio), 0x0, "", HFILL }},
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pnio), 0x0, "", HFILL }},
+    { &hf_pn_io_error_code2_rta_err_cls_protocol,
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_rta_err_cls_protocol), 0x0, "", HFILL }},
 	{ &hf_pn_io_block,
     { "", "pn_io.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_data,
@@ -4414,6 +4584,40 @@ proto_register_pn_io (void)
       { "Required", "pn_io.maintenance_status_required", FT_UINT32, BASE_HEX, NULL, 0x0001, "", HFILL }},
     { &hf_pn_io_maintenance_status_demanded,
       { "Demanded", "pn_io.maintenance_status_demanded", FT_UINT32, BASE_HEX, NULL, 0x0002, "", HFILL }},
+
+
+    { &hf_pn_io_vendor_id_high,
+      { "VendorIDHigh", "pn_io.vendor_id_high", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_vendor_id_low,
+      { "VendorIDLow", "pn_io.vendor_id_low", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_order_id,
+	{ "OrderID", "pn_io.order_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_serial_number,
+	{ "IMSerialNumber", "pn_io.im_serial_number", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_hardware_revision,
+      { "IMHardwareRevision", "pn_io.im_hardware_revision", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+      /* XXX - better use a simple char here -> vals */
+    { &hf_pn_io_im_revision_prefix,
+      { "IMRevisionPrefix", "pn_io.im_revision_prefix", FT_UINT8, BASE_HEX, VALS(pn_io_im_revision_prefix_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_im_sw_revision_functional_enhancement,
+      { "IMSWRevisionFunctionalEnhancement", "pn_io.im_sw_revision_functional_enhancement", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_revision_bugfix,
+      { "IM_SWRevisionBugFix", "pn_io.im_revision_bugfix", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_sw_revision_internal_change,
+      { "IMSWRevisionInternalChange", "pn_io.im_sw_revision_internal_change", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_revision_counter,
+      { "IMRevisionCounter", "pn_io.im_revision_counter", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_profile_id,
+      { "IMProfileID", "pn_io.im_profile_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_profile_specific_type,
+      { "IMProfileSpecificType", "pn_io.im_profile_specific_type", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_version_major,
+      { "IMVersionMajor", "pn_io.im_version_major", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_version_minor,
+      { "IMVersionMinor", "pn_io.im_version_minor", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_supported,
+      { "IM_Supported", "pn_io.im_supported", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     };
 
 	static gint *ett[] = {
