@@ -400,6 +400,7 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define TAG_ERP_INFO             0x2A
 #define TAG_TS_DELAY		 0x2B
 #define TAG_TCLAS_PROCESS	 0x2C
+#define TAG_HT_INFO		  0x2D	/* IEEE Stc 802.11n/D1.0 */
 #define TAG_QOS_CAPABILITY	 0x2E
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE               0x30
@@ -413,6 +414,7 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define WPA_OUI	 (const guint8 *) "\x00\x50\xF2"
 #define RSN_OUI (const guint8 *) "\x00\x0F\xAC"
 #define WME_OUI (const guint8 *) "\x00\x50\xF2"
+#define PRE_11N_OUI (const guint8 *) "\x00\x90\x4c" /* 802.11n pre 1 oui */
 
 #define PMKID_LEN 16
 
@@ -680,6 +682,74 @@ static int hf_ccmp_extiv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_icv = -1;
 
+static int ht_cap = -1;
+static int ht_adv_coding = -1;
+static int ht_chan_width = -1;
+static int ht_mimo_pwsave = -1;
+static int ht_green = -1;
+static int ht_short20 = -1;
+static int ht_short40 = -1;
+static int ht_tx_stbc = -1;
+static int ht_rx_stbc = -1;
+static int ht_block_ack = -1;
+static int ht_max_amsdu = -1;
+static int ht_dsss_cck_40 = -1;
+static int ht_psmp = -1;
+static int ht_stbc = -1;
+static int ht_l_sig = -1;
+
+static int macparm = -1;
+static int macparm_mpdu = -1;
+static int macparm_mpdu_density = -1;
+
+static int htex_cap = -1;
+static int htex_pco = -1;
+static int htex_transtime = -1;
+static int htex_mcs = -1;
+
+static int txbf = -1;
+static int txbf_cap = -1;
+static int txbf_rcv_ssc = -1;
+static int txbf_tx_ssc = -1;
+static int txbf_rcv_zlf = -1;
+static int txbf_tx_zlf = -1;
+static int txbf_impl_txbf = -1;
+static int txbf_calib = -1;
+static int txbf_expl_csi = -1;
+static int txbf_expl_uncomp_sm = -1;
+static int txbf_expl_bf_csi = -1;
+static int txbf_expl_uncomp_sm_feed = -1;
+static int txbf_expl_comp_sm_feed = -1;
+static int txbf_csi_num_bf_ant = -1;
+static int txbf_uncomp_sm_bf_ant = -1;
+static int txbf_comp_sm_bf_ant = -1;
+
+/* 802.11n 7.3.2.48 */
+static int hta_control_channel = -1;
+static int hta_cap = -1;
+static int hta_ext_chan_offset = -1;
+static int hta_rec_tx_width = -1;
+static int hta_rifs_mode = -1;
+static int hta_controlled_access = -1;
+static int hta_service_interval = -1;
+static int hta_operating_mode = -1;
+static int hta_non_gf_devices = -1;
+static int hta_basic_stbc_mcs = -1;
+static int hta_dual_stbc_protection = -1;
+static int hta_secondary_beacon = -1;
+static int hta_lsig_txop_protection = -1;
+static int hta_pco_active = -1;
+static int hta_pco_phase = -1;
+
+
+static int antsel = -1;
+static int antsel_b0 = -1;
+static int antsel_b1 = -1;
+static int antsel_b2 = -1;
+static int antsel_b3 = -1;
+static int antsel_b4 = -1;
+static int antsel_b5 = -1;
+static int antsel_b6 = -1;
 
 static int rsn_cap = -1;
 static int rsn_cap_preauth = -1;
@@ -769,6 +839,15 @@ static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
 
 static gint ett_rsn_cap_tree = -1;
+
+static gint ett_ht_cap_tree = -1;
+static gint ett_macparm_tree = -1;
+static gint ett_htex_cap_tree = -1;
+static gint ett_txbf_tree = -1;
+static gint ett_antsel_tree = -1;
+static gint ett_hta_cap_tree = -1;
+static gint ett_hta_cap1_tree = -1;
+static gint ett_hta_cap2_tree = -1;
 
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
@@ -1625,6 +1704,307 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
 			  tag_len - tag_off, "Not interpreted");
 }
 
+
+static void
+dissect_ht_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
+	       guint32 tag_len)
+{
+  proto_item *cap_item;
+  proto_tree *cap_tree;
+  guint16 capability;
+  guint32 txbfcap;
+  guint32 tag_val_off = 0;
+
+  if (tag_val_off + 2 > tag_len) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+			  "Not interpreted");
+    return;
+  }
+
+  if (tag_len < 26) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+              "HT Capabilities IE content length must be at least 26");
+    return;
+  }
+
+  /* 2 byte HT capabilities */
+  capability = tvb_get_letohs (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, ht_cap, tvb,
+                    offset, 2, capability,
+                    "HT Capabilities: 0x%04X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_ht_cap_tree);
+  proto_tree_add_boolean(cap_tree, ht_adv_coding, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_chan_width, tvb, offset, 2,
+             capability);
+  proto_tree_add_uint(cap_tree, ht_mimo_pwsave, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_green, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_short20, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_short40, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_tx_stbc, tvb, offset, 2,
+             capability);
+  proto_tree_add_uint(cap_tree, ht_rx_stbc, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_block_ack, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_max_amsdu, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_dsss_cck_40, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_psmp, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_stbc, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, ht_l_sig, tvb, offset, 2,
+             capability);
+
+  offset += 2;
+  tag_val_off += 2;
+
+  /* 1 byte HT MAC Parameters */
+  capability = tvb_get_guint8 (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, macparm, tvb,
+                    offset, 1, capability,
+                    "MAC Parameters: 0x%02X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_macparm_tree);
+  proto_tree_add_uint(cap_tree, macparm_mpdu, tvb, offset, 1,
+             capability);
+  proto_tree_add_uint(cap_tree, macparm_mpdu_density, tvb, offset, 1,
+             capability);
+
+  offset += 1;
+  tag_val_off += 1;
+
+  /* 16 byte Supported MCS set */
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+            16, "Modulation Coding Streams (One bit per modulation)");
+  offset += 16;
+  tag_val_off += 16;
+
+  /* 2 byte extended HT capabilities */
+  capability = tvb_get_letohs (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, htex_cap, tvb,
+                    offset, 2, capability,
+                    "HT Extended Capabilities: 0x%04X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_htex_cap_tree);
+  proto_tree_add_boolean(cap_tree, htex_pco, tvb, offset, 2,
+             capability);
+  proto_tree_add_uint(cap_tree, htex_transtime, tvb, offset, 2,
+             capability);
+  proto_tree_add_uint(cap_tree, htex_mcs, tvb, offset, 2,
+             capability);
+
+  offset += 2;
+  tag_val_off += 2;
+
+  /* 4 byte TxBF capabilities */
+  txbfcap = tvb_get_letohl (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, txbf, tvb,
+                    offset, 4, txbf,
+                    "Transmit Beam Forming Capabilities: 0x%08X", txbfcap);
+  cap_tree = proto_item_add_subtree(cap_item, ett_txbf_tree);
+  proto_tree_add_boolean(cap_tree, txbf_cap, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_rcv_ssc, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_tx_ssc, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_rcv_zlf, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_tx_zlf, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_impl_txbf, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_calib, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_expl_csi, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_boolean(cap_tree, txbf_expl_uncomp_sm, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_expl_bf_csi, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_expl_uncomp_sm_feed, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_expl_comp_sm_feed, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_csi_num_bf_ant, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_uncomp_sm_bf_ant, tvb, offset, 4,
+             txbfcap);
+  proto_tree_add_uint(cap_tree, txbf_comp_sm_bf_ant, tvb, offset, 4,
+             txbfcap);
+
+  offset += 4;
+  tag_val_off += 4;
+
+  /* 1 byte AS capabilities */
+  capability = tvb_get_guint8 (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, antsel, tvb,
+                    offset, 1, capability,
+                    "Antenna Selection: 0x%02X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_antsel_tree);
+  proto_tree_add_boolean(cap_tree, antsel_b0, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b1, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b2, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b3, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b4, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b5, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, antsel_b6, tvb, offset, 1,
+             capability);
+
+  offset += 1;
+  tag_val_off += 1;
+
+
+  goto done;
+
+
+ done:
+  if (tag_val_off < tag_len)
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+			  tag_len - tag_val_off, "Not interpreted");
+}
+
+static void
+dissect_hta_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
+	       guint32 tag_len)
+{
+  proto_item *cap_item;
+  proto_tree *cap_tree;
+  guint16 capability;
+  guint32 tag_val_off = 0;
+  gchar out_buff[SHORT_STR];
+
+  if (tag_val_off + 2 > tag_len) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+			  "Not interpreted");
+    return;
+  }
+
+  if (tag_len < 22) {
+    proto_tree_add_string(tree, tag_interpretation, tvb, offset, tag_len,
+              "HT Additional Capabilities IE content length must be 22");
+    return;
+  }
+
+  g_snprintf(out_buff, SHORT_STR, "Control Channel %d",
+             tvb_get_guint8(tvb, offset));
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset, 1, out_buff);
+  offset += 1;
+  tag_val_off += 1;
+
+  /* 1 byte HT additional capabilities */
+  capability = tvb_get_guint8 (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, hta_cap, tvb,
+                    offset, 1, capability,
+                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap_tree);
+  proto_tree_add_uint(cap_tree, hta_ext_chan_offset, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_rec_tx_width, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_rifs_mode, tvb, offset, 1,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_controlled_access, tvb, offset, 1,
+             capability);
+  proto_tree_add_uint(cap_tree, hta_service_interval, tvb, offset, 1,
+             capability);
+  offset += 1;
+  tag_val_off += 1;
+
+  /* 2 byte HT additional capabilities */
+  capability = tvb_get_letohs (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, hta_cap, tvb,
+                    offset, 2, capability,
+                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap1_tree);
+  proto_tree_add_uint(cap_tree, hta_operating_mode, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_non_gf_devices, tvb, offset, 2,
+             capability);
+
+  offset += 2;
+  tag_val_off += 2;
+
+  /* 2 byte HT additional capabilities */
+  capability = tvb_get_letohs (tvb, offset);
+  cap_item = proto_tree_add_uint_format(tree, hta_cap, tvb,
+                    offset, 2, capability,
+                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap2_tree);
+  proto_tree_add_uint(cap_tree, hta_basic_stbc_mcs, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_dual_stbc_protection, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_secondary_beacon, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_lsig_txop_protection, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_pco_active, tvb, offset, 2,
+             capability);
+  proto_tree_add_boolean(cap_tree, hta_pco_phase, tvb, offset, 2,
+             capability);
+  offset += 2;
+  tag_val_off += 2;
+
+  /* 16 byte Supported MCS set */
+  proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+            16, "Modulation Coding Streams (One bit per modulation)");
+  offset += 16;
+  tag_val_off += 16;
+
+  done:
+   if (tag_val_off < tag_len)
+     proto_tree_add_string(tree, tag_interpretation, tvb, offset,
+               tag_len - tag_val_off, "Not interpreted");
+}
+
+
+static void
+dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
+{
+      gint tag_len = tvb_length_remaining(tag_tvb, 0);
+      gchar out_buff[SHORT_STR];
+
+      g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) OUI");
+      proto_tree_add_string(tree, tag_interpretation, tag_tvb, 0, 3, out_buff);
+      /* 802.11n OUI  Information Element */
+      if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x33", 4)) {
+        g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) HT information");
+        proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+
+        dissect_ht_ie(tree, tag_tvb, 4, tag_len - 4);
+        proto_item_append_text(ietree, ": HT Capabilities (802.11n)");
+      }
+      else
+      if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x34", 4)) {
+        g_snprintf(out_buff, SHORT_STR, "HT additional information (802.11n)");
+        proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+
+        dissect_hta_ie(tree, tag_tvb, 4, tag_len - 4);
+        proto_item_append_text(ietree, ": HT Additional Capabilities (802.11n)");
+      }
+      else
+      {
+          g_snprintf(out_buff, SHORT_STR, "Unknown type");
+          proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
+          proto_item_append_text(ietree, ": 802.11n (pre) Unknown type");
+          proto_tree_add_string(tree, tag_interpretation, tag_tvb, 4,
+                    tag_len - 4, "Not interpreted");
+      }
+}
+
+
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
@@ -1657,6 +2037,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_SCHEDULE,		    "Schedule"},
 	{ TAG_TS_DELAY,		    "TS Delay"},
 	{ TAG_TCLAS_PROCESS,	    "TCLAS Processing"},
+    { TAG_HT_INFO,       "HT Capabilities (802.11n)"},
 	{ TAG_QOS_CAPABILITY,	    "QoS Capability"},
 	{ TAG_POWER_CONSTRAINT,	    "Power Constraint"},
 	{ TAG_POWER_CAPABILITY,	    "Power Capability"},
@@ -2196,6 +2577,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 #define WPAWME_OUI	0x0050F2
 #define RSNOUI_VAL	0x000FAC
+#define PRE11N_OUI  0x00904c
 
 		switch (oui) {
 		case WPAWME_OUI:
@@ -2207,6 +2589,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		case OUI_CISCOWL:	/* Cisco Wireless (Aironet) */
 			dissect_vendor_ie_aironet(ti, tree, tvb, offset + 5, tag_len - 3);
 			break;
+        case PRE11N_OUI:
+            dissect_vendor_ie_ht(ti, tree, tag_tvb);
+            break;
 		default:
 			tag_data_ptr = tvb_get_ptr(tag_tvb, 0, 3);
 			proto_tree_add_bytes_format (tree, tag_oui, tvb, offset + 2, 3,
@@ -2224,6 +2609,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       tag_tvb = tvb_new_subset(tvb, offset + 2, tag_len, tag_len);
       dissect_rsn_ie(tree, tag_tvb);
       break;
+
+  case TAG_HT_INFO:
+    dissect_ht_ie(tree, tvb, offset + 2, tag_len);
+    break;
 
     default:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
@@ -4464,6 +4853,194 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
+  static const true_false_string ht_adv_coding_flag = {
+      "Transmitter supports Advanced Coding",
+      "Transmitter does not support Advanced Coding"
+  };
+
+  static const true_false_string ht_chan_width_flag = {
+      "Transmitter supports 20MHz and 40MHz operation",
+      "Transmitter only supports 20MHz operation"
+  };
+
+  static const value_string ht_mimo_pwsave_flag[] = {
+    {0x00, "Static MIMO power save mode"},
+    {0x02, "Dynamic MIMO power save mode"},
+    {0x01, "Reserved"},
+    {0x03, "MIMO enabled"},
+    {0x00, NULL}
+  };
+
+  static const true_false_string ht_green_flag = {
+      "Transmitter is able to receive PPDUs with GF preamble",
+      "Transmitter is not able to receive PPDUs with GF preamble"
+  };
+
+  static const true_false_string ht_tf_flag = {
+      "Supported",
+      "Not Supported "
+  };
+
+  static const value_string ht_rx_stbc_flag[] = {
+    {0x00, "No Rx STBC support"},
+    {0x01, "Rx support of one spatial stream"},
+    {0x02, "Rx support of one and two spatial streams"},
+    {0x03, "Rx support of one, two, and three spatial streams"},
+    {0x00, NULL}
+  };
+
+  static const true_false_string ht_block_ack_flag = {
+      "Transmitter supports N-Delayed BlockAck",
+      "Transmitter does not support N-Delayed BlockAck"
+  };
+
+  static const true_false_string ht_max_amsdu_flag = {
+      "7935 bytes",
+      "3839 bytes"
+  };
+
+  static const true_false_string ht_dss_cck_40_flag = {
+      "Will/Can use DSSS/CCK rates",
+      "Won't/Can't use of DSSS/CCK rates"
+  };
+
+  static const true_false_string ht_psmp_flag = {
+      "Will/Can support PSMP ",
+      "Won't/Can't support PSMP "
+  };
+
+  static const true_false_string ht_stbc_flag = {
+      "Will/Can Support STBC Control Frames ",
+      "Won't/Can't support STBC Control Frames "
+  };
+
+  static const value_string macparm_mpdu_density_flags[] = {
+    {0x00, "no restriction"},
+    {0x01, "1/8 usec"},
+    {0x02, "1/4 usec"},
+    {0x03, "1/2 usec"},
+    {0x04, "1 usec"},
+    {0x05, "2 usec"},
+    {0x06, "4 usec"},
+    {0x07, "8 usec"},
+    {0x00, NULL}
+  };
+
+  static const value_string htex_transtime_flag[] = {
+    {0x00, "Reserved"},
+    {0x01, "400 usec"},
+    {0x02, "1.5 msec"},
+    {0x03, "5 msec"},
+    {0x00, NULL}
+  };
+
+  static const value_string htex_mcs_flag[] = {
+    {0x00, "STA does not provide MCS feedback"},
+    {0x01, "Reserved"},
+    {0x02, "STA provides only unsolicited MCS feedback"},
+    {0x03, "STA provides MRQ and unsolicited MCS feedback"},
+    {0x00, NULL}
+  };
+
+  static const value_string txbf_calib_flag[] = {
+    {0x00, "incapable"},
+    {0x01, "Limited involvement, cannot initiate"},
+    {0x02, "Limited involvement, can initiate"},
+    {0x03, "Fully capable"},
+    {0x00, NULL}
+  };
+
+  static const value_string txbf_feedback_flag[] = {
+    {0x00, "incapable"},
+    {0x01, "unsolicited feedback capable"},
+    {0x02, "immediate feedback capable"},
+    {0x03, "aggregated feedback capable"},
+    {0x00, NULL}
+  };
+
+  static const value_string txbf_antenna_flag[] = {
+    {0x00, "1 TX antenna sounding"},
+    {0x01, "2 TX antenna soundin"},
+    {0x02, "3 TX antenna soundin"},
+    {0x03, "4 TX antenna soundin"},
+    {0x00, NULL}
+  };
+
+  static const value_string hta_ext_chan_offset_flag[] = {
+    {0x00, "No Extension Channel"},
+    {0x01, "Extension Channel above control channel"},
+    {0x02, "Undefined"},
+    {0x03, "Extension Channel below control channel"},
+    {0x00, NULL}
+  };
+
+  static const true_false_string hta_rec_tx_width_flag = {
+      "Any channel width enabled",
+      "Use 20MHz channel (control)"
+  };
+
+  static const true_false_string hta_rifs_mode_flag = {
+      "Use of RIFS permitted",
+      "Use of RIFS prohibited"
+  };
+
+  static const true_false_string hta_controlled_access_flag = {
+      "Not only PSMP",
+      "PSMP only"
+  };
+
+  static const value_string hta_service_interval_flag[] = {
+    {0x00, "5ms"},
+    {0x01, "10ms"},
+    {0x02, "15ms"},
+    {0x03, "20ms"},
+    {0x04, "25ms"},
+    {0x05, "30ms"},
+    {0x06, "35ms"},
+    {0x07, "40ms"},
+    {0x00, NULL}
+  };
+
+  static const value_string hta_operating_mode_flag[] = {
+    {0x00, "Pure HT, no protection"},
+    {0x01, "There may be non-HT devices (control & ext channel)"},
+    {0x02, "No non-HT is associated, but at least 1 20MHz is. protect on"},
+    {0x03, "Mixed: no non-HT is associated, protect on"},
+    {0x00, NULL}
+  };
+
+  static const true_false_string hta_non_gf_devices_flag = {
+      "All HT devices associated are GF capable",
+      "One or More HT devices are not GF capable"
+  };
+
+  static const true_false_string hta_dual_stbc_protection_flag = {
+      "Dual CTS protections is used",
+      "Regular use of RTS/CTS"
+  };
+
+  static const true_false_string hta_secondary_beacon_flag = {
+      "Secondary Beacon",
+      "Primary Beacon"
+  };
+
+  static const true_false_string hta_lsig_txop_protection_flag = {
+      "Full Support",
+      "Not full support"
+  };
+
+  static const true_false_string hta_pco_active_flag = {
+      "PCO is activated in the BSS",
+      "PCO is not activated in the BSS"
+  };
+
+  static const true_false_string hta_pco_phase_flag = {
+      "Switch to 20MHz phase/keep 20MHz",
+      "Switch to 40MHz phase/keep 40MHz"
+  };
+
+
+
   static hf_register_info ff[] = {
     {&ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
@@ -4686,6 +5263,304 @@ proto_register_ieee80211 (void)
       "wlan_mgt.rsn.capabilities.gtksa_replay_counter",
       FT_UINT16, BASE_HEX, VALS (&rsn_cap_replay_counter), 0x0030,
       "RSN GTKSA Replay Counter capabilities", HFILL }},
+
+    {&ht_cap,
+     {"HT Capabilities", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "HT Capability information", HFILL }},
+
+    {&ht_adv_coding,
+     {"HT Advanced coding capability", "wlan_mgt.ht.capabilities.advcoding",
+      FT_BOOLEAN, 16, TFS (&ht_adv_coding_flag), 0x0001,
+      "HT Advanced coding capability", HFILL }},
+
+    {&ht_chan_width,
+     {"HT Support channel width", "wlan_mgt.ht.capabilities.width",
+      FT_BOOLEAN, 16, TFS (&ht_chan_width_flag), 0x0002,
+      "HT Support channel width", HFILL }},
+
+    {&ht_mimo_pwsave,
+     {"HT MIMO Power Save", "wlan_mgt.ht.capabilities.mimo",
+      FT_UINT16, BASE_HEX, VALS (&ht_mimo_pwsave_flag), 0x000c,
+      "HT MIMO Power Save", HFILL }},
+
+    {&ht_green,
+     {"HT Green Field", "wlan_mgt.ht.capabilities.green",
+      FT_BOOLEAN, 16, TFS (&ht_green_flag), 0x0010,
+      "HT Green Field", HFILL }},
+
+    {&ht_short20,
+     {"HT Short GI for 20MHz", "wlan_mgt.ht.capabilities.short20",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0020,
+      "HT Short GI for 20MHz", HFILL }},
+
+    {&ht_short40,
+     {"HT Short GI for 40MHz", "wlan_mgt.ht.capabilities.short40",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0040,
+      "HT Short GI for 40MHz", HFILL }},
+
+    {&ht_tx_stbc,
+     {"HT Tx STBC", "wlan_mgt.ht.capabilities.txstbc",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0080,
+      "HT Tx STBC", HFILL }},
+
+    {&ht_rx_stbc,
+     {"HT Rx STBC", "wlan_mgt.ht.capabilities.rxstbc",
+      FT_UINT16, BASE_HEX, VALS (&ht_rx_stbc_flag), 0x0300,
+      "HT Tx STBC", HFILL }},
+
+    {&ht_block_ack,
+     {"HT Delayed Block ACK", "wlan_mgt.ht.capabilities.blockack",
+      FT_BOOLEAN, 16, TFS (&ht_block_ack_flag), 0x0400,
+      "HT Delayed Block ACK", HFILL }},
+
+    {&ht_max_amsdu,
+     {"HT Max A-MSDU length", "wlan_mgt.ht.capabilities.amsdu",
+      FT_BOOLEAN, 16, TFS (&ht_max_amsdu_flag), 0x0800,
+      "HT Max A-MSDU length", HFILL }},
+
+    {&ht_dsss_cck_40,
+     {"HT DSSS/CCK mode in 40MHz", "wlan_mgt.ht.capabilities.",
+      FT_BOOLEAN, 16, TFS (&ht_dss_cck_40_flag), 0x1000,
+      "HT DSS/CCK mode in 40MHz", HFILL }},
+
+    {&ht_psmp,
+     {"HT PSMP Support", "wlan_mgt.ht.capabilities.psmp",
+      FT_BOOLEAN, 16, TFS (&ht_psmp_flag), 0x2000,
+      "HT PSMP Support", HFILL }},
+
+    {&ht_stbc,
+     {"HT STBC Control Frame", "wlan_mgt.ht.capabilities.stbc",
+      FT_BOOLEAN, 16, TFS (&ht_stbc_flag), 0x4000,
+      "HT STBC Control Frame", HFILL }},
+
+    {&ht_l_sig,
+     {"HT L-SIG TXOP Protection", "wlan_mgt.ht.capabilities.lsig",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x8000,
+      "HT L-SIG TXOP Protection", HFILL }},
+
+    {&macparm,
+     {"MAC Parameters", "wlan_mgt.ht.macparm", FT_UINT16, BASE_HEX,
+      NULL, 0, "MAC Parameters", HFILL }},
+
+    {&macparm_mpdu,
+     {"Max MPDUs", "wlan_mgt.ht.macparm.mpdu",
+      FT_UINT16, BASE_HEX, 0 , 0x0003,
+      "Max MPDUs", HFILL }},
+
+    {&macparm_mpdu_density,
+     {"MPDU Density", "wlan_mgt.ht.macparm.mpdudensity",
+      FT_UINT16, BASE_HEX, VALS (&macparm_mpdu_density_flags) , 0x001c,
+      "MPDU Density", HFILL }},
+
+    {&htex_cap,
+     {"HT Extended Capabilities", "wlan_mgt.htex.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "HT Extended Capability information", HFILL }},
+
+    {&htex_pco,
+     {"Transmitter supports PCO", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0001,
+      "Transmitter supports PCO", HFILL }},
+
+    {&htex_transtime,
+     {"Transition Time between 20MHz and 40MHz", "wlan_mgt.htex.capabilities.transtime",
+      FT_UINT16, BASE_HEX, VALS (&htex_transtime_flag), 0x0006,
+      "", HFILL }},
+
+    {&htex_mcs,
+     {"MCS Feedback capability", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&htex_mcs_flag), 0x0200,
+      "", HFILL }},
+
+    {&txbf,
+     {"TxBF Transmit Beam Forming Capability", "wlan_mgt.txbf", FT_UINT16, BASE_HEX,
+      NULL, 0, "", HFILL }},
+
+    {&txbf_cap,
+     {"TxBF", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000001,
+      "", HFILL }},
+
+    {&txbf_rcv_ssc,
+     {"Receive staggered sounding", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000002,
+      "", HFILL }},
+
+    {&txbf_tx_ssc,
+     {"Transmit staggered sounding", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000004,
+      "", HFILL }},
+
+    {&txbf_rcv_zlf,
+     {"Receive ZLF", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000008,
+      "", HFILL }},
+
+    {&txbf_tx_zlf,
+     {"Transmit ZLF", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000010,
+      "", HFILL }},
+
+    {&txbf_impl_txbf,
+     {"Implicit TxBF capable", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000020,
+      "", HFILL }},
+
+    {&txbf_calib,
+     {"Calibration", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_calib_flag), 0x000000c0,
+      "", HFILL }},
+
+    {&txbf_expl_csi,
+     {"STA can apply TxBF using CSI explicit feedback", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000100,
+      "", HFILL }},
+
+    {&txbf_expl_uncomp_sm,
+     {"STA can apply TxBF using uncompressed steering matrix feedback", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x00000200,
+      "", HFILL }},
+
+    {&txbf_expl_bf_csi,
+     {"Receiver can return explicit CSI feedback", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_feedback_flag), 0x00000c00,
+      "", HFILL }},
+
+    {&txbf_expl_uncomp_sm_feed,
+     {"Receiver can return uncompressed Steering Matrix feedback", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_feedback_flag), 0x00003000,
+      "", HFILL }},
+
+    {&txbf_expl_comp_sm_feed,
+     {"STA can compress and use compressed Steering Matrix feedback ", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_feedback_flag), 0x0000c000,
+      "", HFILL }},
+
+    {&txbf_csi_num_bf_ant,
+     {"Max antennae STA can support when CSI feedback required", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_antenna_flag), 0x00030000,
+      "", HFILL }},
+
+    {&txbf_uncomp_sm_bf_ant,
+     {"Max antennae STA can support when uncompressed SM feedback required", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_antenna_flag), 0x000c0000,
+      "", HFILL }},
+
+    {&txbf_comp_sm_bf_ant,
+     {"Max antennae STA can support when compressed SM feedback required", "wlan_mgt.htex.capabilities.mcs",
+      FT_UINT16, BASE_HEX, VALS (&txbf_antenna_flag), 0x00300000,
+      "", HFILL }},
+
+    {&hta_cap,
+     {"HT Additional Capabilities", "wlan_mgt.hta.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "HT Additional Capability information", HFILL }},
+
+    {&hta_ext_chan_offset,
+     {"Extension Channel Offset", "wlan_mgt.hta.capabilities.extchan",
+      FT_UINT16, BASE_HEX, VALS (&hta_ext_chan_offset_flag), 0x0003,
+      "", HFILL }},
+
+    {&hta_rec_tx_width,
+     {"Reccomended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
+      FT_BOOLEAN, 16, TFS (&hta_rec_tx_width_flag), 0x0004,
+      "", HFILL }},
+
+    {&hta_rifs_mode,
+     {"RIFS Mode", "wlan_mgt.hta.capabilities.rifsmode",
+      FT_BOOLEAN, 16, TFS (&hta_rifs_mode_flag), 0x0008,
+      "", HFILL }},
+
+    {&hta_controlled_access,
+     {"Controlled Access Only", "wlan_mgt.hta.capabilities.controlledaccess",
+      FT_BOOLEAN, 16, TFS (&hta_controlled_access_flag), 0x0010,
+      "", HFILL }},
+
+    {&hta_service_interval,
+     {"Service Interval Granularity", "wlan_mgt.hta.capabilities.serviceinterval",
+      FT_UINT16, BASE_HEX, VALS (&hta_service_interval_flag), 0x00E0,
+      "", HFILL }},
+
+    {&hta_operating_mode,
+     {"Operating Mode", "wlan_mgt.hta.capabilities.operatingmode",
+      FT_UINT16, BASE_HEX, VALS (&hta_operating_mode_flag), 0x0003,
+      "", HFILL }},
+
+    {&hta_non_gf_devices,
+     {"Non GF devices Present", "wlan_mgt.hta.capabilities.nongfdevices",
+      FT_BOOLEAN, 16, TFS (&hta_non_gf_devices_flag), 0x0004,
+      "", HFILL }},
+
+    {&hta_basic_stbc_mcs,
+     {"Basic STB MCS", "wlan_mgt.hta.capabilities.",
+      FT_UINT16, BASE_HEX, NULL , 0x007f,
+      "", HFILL }},
+
+    {&hta_dual_stbc_protection,
+     {"Dual CTS Protection", "wlan_mgt.hta.capabilities.",
+      FT_BOOLEAN, 16, TFS (&hta_dual_stbc_protection_flag), 0x0080,
+      "", HFILL }},
+
+    {&hta_secondary_beacon,
+     {"Secondary Beacon", "wlan_mgt.hta.capabilities.",
+      FT_BOOLEAN, 16, TFS (&hta_secondary_beacon_flag), 0x0100,
+      "", HFILL }},
+
+    {&hta_lsig_txop_protection,
+     {"L-SIG TXOP Protection Support", "wlan_mgt.hta.capabilities.",
+      FT_BOOLEAN, 16, TFS (&hta_lsig_txop_protection_flag), 0x0200,
+      "", HFILL }},
+
+    {&hta_pco_active,
+     {"PCO Active", "wlan_mgt.hta.capabilities.",
+      FT_BOOLEAN, 16, TFS (&hta_pco_active_flag), 0x0400,
+      "", HFILL }},
+
+    {&hta_pco_phase,
+     {"PCO Phase", "wlan_mgt.hta.capabilities.",
+      FT_BOOLEAN, 16, TFS (&hta_pco_phase_flag), 0x0800,
+      "", HFILL }},
+
+
+
+
+    {&antsel,
+     {"Antenna Selection Capability", "wlan_mgt.txbf", FT_UINT16, BASE_HEX,
+      NULL, 0, "", HFILL }},
+
+    {&antsel_b0,
+     {"Antenna Selection Capable", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x001,
+      "", HFILL }},
+
+    {&antsel_b1,
+     {"TX selection based on explicit CSI feedback", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x002,
+      "", HFILL }},
+
+    {&antsel_b2,
+     {"TX selection based on antenna indices feedback", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x004,
+      "", HFILL }},
+
+    {&antsel_b3,
+     {"Compute CSI and feedback to support peer", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x008,
+      "", HFILL }},
+
+    {&antsel_b4,
+     {"Conduct antenna indices computation to support peer", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x010,
+      "", HFILL }},
+
+    {&antsel_b5,
+     {"RX antenna selection", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x020,
+      "", HFILL }},
+
+    {&antsel_b6,
+     {"Tx Sounding PPDUs on request", "wlan_mgt.htex.capabilities.pco",
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x040,
+      "", HFILL }},
+
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
@@ -4939,6 +5814,14 @@ proto_register_ieee80211 (void)
     &ett_wep_parameters,
     &ett_cap_tree,
     &ett_rsn_cap_tree,
+    &ett_ht_cap_tree,
+    &ett_macparm_tree,
+    &ett_htex_cap_tree,
+    &ett_txbf_tree,
+    &ett_hta_cap_tree,
+    &ett_hta_cap1_tree,
+    &ett_hta_cap2_tree,
+    &ett_antsel_tree,
     &ett_80211_mgt_ie,
     &ett_tsinfo_tree,
     &ett_sched_tree,
