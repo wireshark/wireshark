@@ -1115,9 +1115,9 @@ dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 	
 
-static int
+int
 dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
-						proto_tree *tree, guint8 *drep, int hfindex _U_)
+						proto_tree *tree, guint8 *drep, int hfindex _U_, sa_callback_t sacb)
 {
 	guint32 u32Dims;
 	guint16 u16Dims;
@@ -1202,6 +1202,10 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
     tvb_ensure_bytes_exist(tvb, offset, u32ArraySize * u32ElementSize);
 	u32VariableOffset = offset + u32ArraySize * u32ElementSize;
 
+        if(sacb) {
+            sacb(tvb, offset, pinfo, tree, drep, u32VarType, u32ArraySize);
+        }
+
 	u32Tmp = u32ArraySize;
 	while(u32ArraySize--) {
 		switch(u32VarType) {
@@ -1245,12 +1249,12 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				u32VariableOffset = dissect_dcom_tobedone_data(tvb, u32VariableOffset, pinfo, sub_tree, drep, 
 								10000);
 		}
-	}
+	    }
 
-	/* update subtree header */
-	proto_item_append_text(sub_item, ": Elements: %u/%u VarType: %s",
-		u32Elements, u32BoundElements,
-		val_to_str(u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
+	    /* update subtree header */
+	    proto_item_append_text(sub_item, ": Elements: %u/%u VarType: %s",
+		    u32Elements, u32BoundElements,
+		    val_to_str(u32VarType, dcom_variant_type_vals, "Unknown (0x%08x)") );
 
 	proto_item_set_len(sub_item, u32VariableOffset - u32SubStart);
 
@@ -1390,7 +1394,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 		case(WIRESHARK_VT_ARRAY):
 			offset = dissect_dcom_SAFEARRAY(tvb, offset, pinfo, sub_tree, drep,
-								0);
+								0, NULL);
 			break;
 		case(WIRESHARK_VT_ERROR):
 			offset = dissect_dcom_HRESULT(tvb, offset, pinfo, sub_tree, drep,

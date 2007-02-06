@@ -79,10 +79,12 @@ static int hf_cba_old_grouperror = -1;
 
 static int hf_cba_component_id = -1;
 static int hf_cba_component_version = -1;
+static int hf_cba_pbaddress = -1;
+static int hf_cba_pbaddress_system_id = -1;
+static int hf_cba_pbaddress_address = -1;
 
 static int hf_cba_save_ldev_name = -1;
 static int hf_cba_save_result = -1;
-
 
 static e_uuid_t uuid_coclass_CBAPhysicalDevice = { 0xcba00000, 0x6c97, 0x11d1, { 0x82, 0x71, 0x00, 0xa0, 0x24, 0x42, 0xdf, 0x7d } };
 
@@ -174,6 +176,9 @@ static e_uuid_t uuid_ICBASystemProperties = { 0xcba00062, 0x6c97, 0x11d1, { 0x82
 static guint16  ver_ICBASystemProperties = 0;
 
 
+static gint ett_PBAddress = -1;
+
+
 static const value_string cba_state_vals[] = {
 	{ 0x00, "NonExistent" },
 	{ 0x01, "Initializing" },
@@ -189,9 +194,14 @@ static const value_string cba_grouperror_vals[] = {
 	{ 0x01, "Okay" },
 	{ 0x02, "Problem" },
 	{ 0x03, "Unknown" },
+	{ 0x04, "MaintenanceRequired" },
+	{ 0x05, "MaintenanceDemanded" },
+	{ 0x06, "MaintenanceRequiredAndDemanded" },
+	{ 0x07, "ProblemAndMaintenanceRequired" },
+	{ 0x08, "ProblemAndMaintenanceDemanded" },
+	{ 0x09, "ProblemAndMaintenanceRequiredAndDemanded" },
     { 0, NULL }
 };
-
 
 static const value_string dcom_boolean_vals[] = {
 	{ 0x00, "FALSE" },
@@ -920,6 +930,56 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
 }
 
 
+void dissect_PBAddressInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, guint8 *drep,
+                       guint32 u32VarType, guint32 u32ArraySize)
+{
+    guint8  u8ID;
+    guint8  u8Addr;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+
+    while(u32ArraySize != 0) {
+	sub_item = proto_tree_add_item(tree, hf_cba_pbaddress, tvb, offset, 2, FALSE);
+	sub_tree = proto_item_add_subtree(sub_item, ett_PBAddress);
+        
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 
+						hf_cba_pbaddress_system_id, &u8ID);
+	offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 
+						hf_cba_pbaddress_address, &u8Addr);
+        u32ArraySize-=2;
+
+        proto_item_append_text(sub_item, ": ID=0x%x Addr=%u", u8ID, u8Addr);
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+	        col_append_fstr(pinfo->cinfo, COL_INFO, ", ID=0x%x Addr=%u", 
+		        u8ID, u8Addr);
+        }
+    }
+}
+
+
+static int
+dissect_PBAddressInfo_resp(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint32 u32HResult;
+
+    offset = dissect_dcom_that(tvb, offset, pinfo, tree, drep);
+
+    offset = dissect_dcom_SAFEARRAY(tvb, offset, pinfo, tree, drep, 0 /*hfindex _U_ */, dissect_PBAddressInfo);
+
+    offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep, &u32HResult);
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", 
+		    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
+    }
+
+    return offset;
+}
+
+
 static int
 dissect_Advise_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -1234,6 +1294,7 @@ static dcerpc_sub_dissector ICBALogicalDevice_dissectors[] = {
 	/* stage 2 */
     {15, "PROFInetRevision", dissect_dcom_simple_rqst, dissect_PROFInetRevision_resp },
     {16, "ComponentInfo", dissect_dcom_simple_rqst, dissect_ComponentInfo_resp },
+    {17, "PBAddressInfo", dissect_dcom_simple_rqst, dissect_PBAddressInfo_resp },
     { 0, NULL, NULL, NULL },
 };
 
@@ -1364,8 +1425,6 @@ static void cba_reinit( void) {
 void
 proto_register_dcom_cba (void)
 {
-	static gint *ett[1];
-
 	static hf_register_info hf_cba_browse_array[] = {
 		{ &hf_cba_browse_count,
 		{ "Count",   "cba.browse.count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -1420,6 +1479,12 @@ proto_register_dcom_cba (void)
 		{ "ComponentID", "cba.component_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_component_version,
 		{ "Version", "cba.component_version", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_cba_pbaddress,
+		{ "PROFIBUS Address", "cba.pbaddress", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+		{ &hf_cba_pbaddress_system_id,
+		{ "SystemID", "cba.pbaddress.system_id", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+		{ &hf_cba_pbaddress_address,
+		{ "Address", "cba.pbaddress.address", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 	};
 
 	static hf_register_info hf_cba_array[] = {
@@ -1447,77 +1512,66 @@ proto_register_dcom_cba (void)
 		{ "OldGroupError", "cba.grouperror_old", FT_UINT16, BASE_HEX, VALS(cba_grouperror_vals), 0x0, "", HFILL }},
 	};
 
-	ett[0] = &ett_ICBAPhysicalDevice;
+        static gint *ett_cba[] = {
+	    &ett_ICBAPhysicalDevice,
+	    &ett_ICBABrowse,
+	    &ett_ICBAPhysicalDevicePC,
+            &ett_ICBAPhysicalDevicePCEvent,
+            &ett_ICBAPersist,
+            &ett_ICBALogicalDevice,
+            &ett_ICBAState,
+            &ett_ICBAStateEvent,
+            &ett_ICBATime,
+            &ett_ICBAGroupError,
+            &ett_ICBAGroupErrorEvent,
+            &ett_ICBARTAuto,
+            &ett_ICBASystemProperties,
+            &ett_PBAddress
+        };
+
+	proto_register_subtree_array (ett_cba, array_length (ett_cba));
+
 	proto_ICBAPhysicalDevice = proto_register_protocol ("ICBAPhysicalDevice", "ICBAPDev", "cba_pdev");
-    proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_pdev_array, array_length(hf_cba_pdev_array));
-	proto_register_subtree_array (ett, array_length (ett));
+	proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_pdev_array, array_length(hf_cba_pdev_array));
 
 	proto_ICBAPhysicalDevice2 = proto_register_protocol ("ICBAPhysicalDevice2", "ICBAPDev2", "cba_pdev2");
 
-	ett[0] = &ett_ICBABrowse;
 	proto_ICBABrowse = proto_register_protocol ("ICBABrowse", "ICBABrowse", "cba_browse");
-    proto_register_field_array(proto_ICBABrowse, hf_cba_array, array_length(hf_cba_array));
-    proto_register_field_array(proto_ICBABrowse, hf_cba_browse_array, array_length(hf_cba_browse_array));
-	proto_register_subtree_array (ett, array_length (ett));
+	proto_register_field_array(proto_ICBABrowse, hf_cba_array, array_length(hf_cba_array));
+	proto_register_field_array(proto_ICBABrowse, hf_cba_browse_array, array_length(hf_cba_browse_array));
 
-	ett[0] = &ett_ICBABrowse;
 	proto_ICBABrowse2 = proto_register_protocol ("ICBABrowse2", "ICBABrowse2", "cba_browse2");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAPhysicalDevicePC;
 	proto_ICBAPhysicalDevicePC = proto_register_protocol ("ICBAPhysicalDevicePC", "ICBAPDevPC", "cba_pdev_pc");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAPhysicalDevicePCEvent;
 	proto_ICBAPhysicalDevicePCEvent = proto_register_protocol ("ICBAPhysicalDevicePCEvent", "ICBAPDevPCEvent", "cba_pdev_pc_event");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAPersist;
 	proto_ICBAPersist = proto_register_protocol ("ICBAPersist", "ICBAPersist", "cba_persist");
-	proto_register_subtree_array (ett, array_length (ett));
 
 	proto_ICBAPersist2 = proto_register_protocol ("ICBAPersist2", "ICBAPersist2", "cba_persist2");
 
-	ett[0] = &ett_ICBALogicalDevice;
 	proto_ICBALogicalDevice = proto_register_protocol ("ICBALogicalDevice", "ICBALDev", "cba_ldev");
-    proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_ldev_array, array_length(hf_cba_ldev_array));
-	proto_register_subtree_array (ett, array_length (ett));
+	proto_register_field_array(proto_ICBAPhysicalDevice, hf_cba_ldev_array, array_length(hf_cba_ldev_array));
 
-	ett[0] = &ett_ICBALogicalDevice;
 	proto_ICBALogicalDevice2 = proto_register_protocol ("ICBALogicalDevice2", "ICBALDev2", "cba_ldev2");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAState;
 	proto_ICBAState = proto_register_protocol ("ICBAState", "ICBAState", "cba_state");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAStateEvent;
 	proto_ICBAStateEvent = proto_register_protocol ("ICBAStateEvent", "ICBAStateEvent", "cba_state_event");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBATime;
 	proto_ICBATime = proto_register_protocol ("ICBATime", "ICBATime", "cba_time");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAGroupError;
 	proto_ICBAGroupError = proto_register_protocol ("ICBAGroupError", "ICBAGErr", "cba_grouperror");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBAGroupErrorEvent;
 	proto_ICBAGroupErrorEvent = proto_register_protocol ("ICBAGroupErrorEvent", "ICBAGErrEvent", "cba_grouperror_event");
-	proto_register_subtree_array (ett, array_length (ett));
 
-	ett[0] = &ett_ICBARTAuto;
 	proto_ICBARTAuto = proto_register_protocol ("ICBARTAuto", "ICBARTAuto", "cba_rtauto");
-	proto_register_subtree_array (ett, array_length (ett));
 
 	proto_ICBARTAuto2 = proto_register_protocol ("ICBARTAuto2", "ICBARTAuto2", "cba_rtauto2");
 
-	ett[0] = &ett_ICBASystemProperties;
 	proto_ICBASystemProperties = proto_register_protocol ("ICBASystemProperties", "ICBASysProp", "cba_sysprop");
-	proto_register_subtree_array (ett, array_length (ett));
 
-    register_init_routine(cba_reinit);
+	register_init_routine(cba_reinit);
 }
 
 

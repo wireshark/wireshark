@@ -130,6 +130,14 @@ dissect_dcom_COMVERSION(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep,
 	guint16	* pu16version_major, guint16 * pu16version_minor);
 
+typedef void (*sa_callback_t) (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, guint8 *drep,
+                       guint32 u32VarType, guint32 u32ArraySize);
+
+extern int
+dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
+						proto_tree *tree, guint8 *drep, int hfindex _U_, sa_callback_t sacb);
+
 extern int
 dissect_dcom_LPWSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep, int hfindex,
