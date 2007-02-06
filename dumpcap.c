@@ -98,7 +98,7 @@ print_usage(gboolean print_ver) {
         "Dumpcap " VERSION "%s\n"
         "Capture network packets and dump them into a libpcap file.\n"
         "See http://www.wireshark.org for more information.\n",
-        svnversion);
+        wireshark_svnversion);
   } else {
     output = stderr;
   }
@@ -149,7 +149,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
         "%s\n"
         "%s\n"
         "See http://www.wireshark.org for more information.\n",
-        svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
+        wireshark_svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
 }
 
 /*

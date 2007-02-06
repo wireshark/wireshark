@@ -221,7 +221,7 @@ print_usage(gboolean print_ver)
         "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
-	svnversion, get_copyright_info());
+	wireshark_svnversion, get_copyright_info());
   } else {
     output = stderr;
   }
@@ -1071,7 +1071,7 @@ main(int argc, char *argv[])
                "%s"
                "\n"
                "%s",
-               svnversion, get_copyright_info(), comp_info_str->str,
+               wireshark_svnversion, get_copyright_info(), comp_info_str->str,
                runtime_info_str->str);
         exit(0);
         break;

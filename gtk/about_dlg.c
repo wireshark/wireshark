@@ -163,7 +163,7 @@ about_wireshark_page_new(void)
        "Wireshark is Open Source Software released under the GNU General Public License.\n"
        "\n"
        "Check the man page and http://www.wireshark.org for more information.",
-       svnversion, get_copyright_info(), comp_info_str->str,
+       wireshark_svnversion, get_copyright_info(), comp_info_str->str,
        runtime_info_str->str);
 
   msg_label = gtk_label_new(message);

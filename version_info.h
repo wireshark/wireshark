@@ -33,7 +33,7 @@ extern "C" {
 /*
  * The svn version string or ""
  */
-extern const gchar *svnversion;
+extern const gchar *wireshark_svnversion;
 
 /*
  * Get various library compile-time versions and append them to

@@ -86,7 +86,9 @@ typedef guchar	UCHAR;
 #endif
 
 #ifndef	size_t
+#ifndef	_SIZE_T
 typedef	gsize	size_t;
+#endif
 #endif
 
 #ifdef WIN32
