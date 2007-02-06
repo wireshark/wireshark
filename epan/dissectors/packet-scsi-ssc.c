@@ -69,11 +69,19 @@ static int hf_scsi_ssc_hold			= -1;
 static int hf_scsi_ssc_eot			= -1;
 static int hf_scsi_ssc_reten			= -1;
 static int hf_scsi_ssc_load			= -1;
+static int hf_scsi_ssc_locate_flags		= -1;
+static int hf_scsi_ssc_bt			= -1;
+static int hf_scsi_ssc_cp			= -1;
+static int hf_scsi_ssc_dest_type		= -1;
+static int hf_scsi_ssc_bam_flags		= -1;
+static int hf_scsi_ssc_bam			= -1;
 
 static gint ett_scsi_erase			= -1;
 static gint ett_scsi_formatmedium		= -1;
 static gint ett_scsi_loadunload_immed		= -1;
 static gint ett_scsi_loadunload			= -1;
+static gint ett_scsi_locate			= -1;
+static gint ett_scsi_bam			= -1;
 
 
 static void
@@ -261,24 +269,22 @@ dissect_ssc2_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *locate_fields[] = {
+	&hf_scsi_ssc_bt,
+	&hf_scsi_ssc_cp,
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+
+    if (!tree)
+        return;
 
     if (isreq && iscdb) {
-        if (!tree)
-            return;
-
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "BT: %u, CP: %u, IMMED: %u",
-                             (flags & 0x04) >> 2,
-                             (flags & 0x02) >> 1,
-                             flags & 0x01);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_locate_flags, ett_scsi_locate, locate_fields, FALSE);
 
         proto_tree_add_item (tree, hf_scsi_ssc_locate10_loid, tvb, offset+2, 4, 0);
 
-        flags = tvb_get_guint8 (tvb, offset+7);
-        proto_tree_add_text (tree, tvb, offset+7, 1,
-                             "Partition: %u",
-                            flags);
+        proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset+7, 1, 0);
 
         flags = tvb_get_guint8 (tvb, offset+8);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
@@ -295,22 +301,26 @@ dissect_ssc2_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *locate_fields[] = {
+	&hf_scsi_ssc_dest_type,
+	&hf_scsi_ssc_cp,
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+    static const int *bam_fields[] = {
+	&hf_scsi_ssc_bam,
+	NULL
+    };
+
+    if (!tree)
+        return;
 
     if (isreq && iscdb) {
-        if (!tree)
-            return;
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_locate_flags, ett_scsi_locate, locate_fields, FALSE);
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "DEST_TYPE: %u, CP: %u, IMMED: %u",
-                             (flags & 0x18) >> 3,
-                             (flags & 0x02) >> 1,
-                             flags & 0x01);
+	proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_ssc_bam_flags, ett_scsi_bam, bam_fields, FALSE);
 
-        flags = tvb_get_guint8 (tvb, offset+2);
-        proto_tree_add_text (tree, tvb, offset+2, 1,
-                             "Partition: %u",
-                            flags);
+        proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset+2, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_ssc_locate16_loid, tvb, offset+3, 8, 0);
 
@@ -445,6 +455,12 @@ static const value_string format_vals[] = {
     {0, NULL}
 };
 
+static const value_string dest_type_vals[] = {
+    {0, "Logical Object Identifier"},
+    {1, "Logical File Identifier"},
+    {0, NULL}
+};
+
 static void
 dissect_ssc_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
@@ -528,9 +544,7 @@ dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                              (flags & BPU) >> 2, (flags & 0x02) >> 1);
             offset += 1;
 
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "Partition Number: %u",
-                                 tvb_get_guint8 (tvb, offset));
+            proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset, 1, 0);
             offset += 1;
 
             offset += 2; /* reserved */
@@ -612,9 +626,7 @@ dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                              (flags & 0x02) >> 1);
             offset += 1;
 
-            proto_tree_add_text (tree, tvb, offset, 1,
-                                 "Partition Number: %u",
-                                 tvb_get_guint8 (tvb, offset));
+            proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset, 1, 0);
             offset += 1;
 
             proto_tree_add_text (tree, tvb, offset, 2,
@@ -1053,6 +1065,24 @@ proto_register_scsi_ssc(void)
         { &hf_scsi_ssc_load,
           {"LOAD", "scsi.ssc.load", FT_BOOLEAN, 8, 
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_ssc_locate_flags,
+          {"Flags", "scsi.ssc.locate_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_bt,
+          {"BT", "scsi.ssc.bt", FT_BOOLEAN, 8, 
+           NULL, 0x04, "", HFILL}},
+        { &hf_scsi_ssc_cp,
+          {"CP", "scsi.ssc.cp", FT_BOOLEAN, 8, 
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_ssc_dest_type,
+          {"Dest Type", "scsi.ssc.dest_type", FT_UINT8, BASE_HEX, 
+           VALS(dest_type_vals), 0x18, "", HFILL}},
+        { &hf_scsi_ssc_bam_flags,
+          {"Flags", "scsi.ssc.bam_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_bam,
+          {"BAM", "scsi.ssc.bam", FT_BOOLEAN, 8, 
+           NULL, 0x01, "", HFILL}},
 	};
 
 
@@ -1061,7 +1091,9 @@ proto_register_scsi_ssc(void)
 		&ett_scsi_erase,
 		&ett_scsi_formatmedium,
 		&ett_scsi_loadunload_immed,
-		&ett_scsi_loadunload
+		&ett_scsi_loadunload,
+		&ett_scsi_locate,
+		&ett_scsi_bam
 	};
 
 
