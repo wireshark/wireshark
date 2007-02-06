@@ -4694,7 +4694,7 @@ void proto_register_ansi_map(void) {
       { "Supplementary Digital Color Codes (SDCC2)", "ansi_map.controlchanneldata.ssdc2",
         FT_UINT8, BASE_DEC, NULL, 0x03,
         "Supplementary Digital Color Codes (SDCC2)", HFILL }},
-	{ &ett_controlchanneldata,
+	{ &hf_ansi_map_ConfidentialityModes_se,
 		{ "Signaling Message Encryption (SE) Confidentiality Status", "ansi_map.confidentialitymodes.se",
         FT_BOOLEAN, 8, TFS(&ansi_map_ConfidentialityModes_bool_val),0x02,
         "Signaling Message Encryption (SE) Confidentiality Status", HFILL }},
