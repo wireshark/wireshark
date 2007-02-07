@@ -201,6 +201,9 @@ typedef struct _uat_field_t {
 #define UAT_END_FIELDS {0,PT_TXTMOD_NONE,{0,0,0},{0,0,0},0,FLDFILL}
 
 
+#define UAT_CAT_GENERAL "General"
+#define UAT_CAT_CRYPTO "Decryption"
+#define UAT_CAT_FFMT "File Formats"
 
 /*
  * uat_new()
@@ -230,6 +233,7 @@ uat_t* uat_new(const char* name,
 			   char* filename,
 			   void** data_ptr,
 			   guint* num_items,
+			   char* category,
 			   char* help,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,

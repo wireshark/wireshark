@@ -74,7 +74,6 @@ EXTRA_DIST = \
 	Makefile.nmake	\
 	make-sminmpec.pl \
 	radius_dict.l   \
-	load_snmp_users_file.l \
 	tvbtest.c	\
 	uat_load.l	\
 	exntest.c	\
@@ -91,7 +90,6 @@ DISTCLEANFILES = \
 	dtd_grammar.h		\
 	dtd_parse.c		\
 	dtd_preparse.c		\
-	load_snmp_users_file.c		\
 	radius_dict.c
 	
 
@@ -114,9 +112,6 @@ exntest: exntest.o except.o
 
 radius_dict.c: radius_dict.l
 	$(LEX) $^
-
-load_snmp_users_file.c: load_snmp_users_file.l
-	$(LEX) -oload_snmp_users_file.c $(srcdir)/load_snmp_users_file.l
 
 uat_load.c: uat_load.l
 	$(LEX) -ouat_load.c $(srcdir)/uat_load.l

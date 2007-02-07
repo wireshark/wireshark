@@ -53,7 +53,7 @@ typedef struct _snmp_usm_auth_model_t {
 
 typedef struct _snmp_user_t {
 	snmp_usm_key_t userName;
-
+	
 	snmp_usm_auth_model_t* authModel;
 	snmp_usm_key_t authPassword;
 	snmp_usm_key_t authKey;
@@ -71,6 +71,8 @@ typedef struct {
 struct _snmp_ue_assoc_t {
 	snmp_user_t user;
 	snmp_engine_id_t engine;
+	guint	auth_model;
+	guint	priv_proto;
 	struct _snmp_ue_assoc_t* next;
 };
 
@@ -100,24 +102,6 @@ struct _snmp_usm_params_t {
 extern guint dissect_snmp_pdu(tvbuff_t *, int, packet_info *, proto_tree *tree,
     int, gint, gboolean);
 extern int dissect_snmp_engineid(proto_tree *, tvbuff_t *, int, int);
-
-/* SNMPv3 USM authentication functions */
-gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
-gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
-
-/* SNMPv3 USM privacy functions */
-tvbuff_t* snmp_usm_priv_des(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-tvbuff_t* snmp_usm_priv_aes(snmp_usm_params_t*, tvbuff_t*, gchar const**);
-
-
-void snmp_usm_password_to_key_md5(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
-void snmp_usm_password_to_key_sha1(const guint8 *password, guint passwordlen, const guint8 *engineID, guint engineLength, guint8 *key);
-								  
-
-/* defined in load_snmp_users_file.l */
-/* returns NULL when OK or else the error string */
-extern gchar* load_snmp_users_file(const char* filename, snmp_ue_assoc_t** assocs);
-
 
 /*#include "packet-snmp-exp.h"*/
 

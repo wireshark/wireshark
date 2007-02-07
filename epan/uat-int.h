@@ -50,6 +50,7 @@ struct _uat_t {
 	size_t record_size;
 	char* filename;
 	char* help;
+	char* category;
 	void** user_ptr;
 	guint* nrows_p;
 	uat_copy_cb_t copy_cb;

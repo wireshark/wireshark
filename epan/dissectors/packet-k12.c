@@ -319,6 +319,7 @@ proto_register_k12(void)
 					"k12_protos",
 					(void**) &k12_handles,
 					&nk12_handles,
+					UAT_CAT_FFMT,
 					"ChK12ProtocolsSection",
 					k12_copy_cb,
 					k12_update_cb,
