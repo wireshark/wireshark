@@ -302,16 +302,48 @@ gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, voi
 }
 
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
-	char* name = ep_strndup(strptr,len);
-	g_strdown(name);
-	g_strchug(name);
-	if (find_dissector(name)) {
-		*err = NULL;
-		return TRUE;
+	if (len) {
+		char* name = ep_strndup(strptr,len);
+		g_strdown(name);
+		g_strchug(name);
+		
+		if (find_dissector(name)) {
+			*err = NULL;
+			return TRUE;
+		} else {
+			*err = "dissector not found";
+			return FALSE;
+		}
 	} else {
-		*err = "dissector not found";
+		*err = NULL;
+		return TRUE;		
+	}
+}
+
+gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+	char* str = ep_strndup(strptr,len);
+	long i = strtol(str,&str,10);
+	
+	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
+		*err = strerror(errno);
 		return FALSE;
 	}
+	
+	*err = NULL;
+	return TRUE;
+}
+
+gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+	char* str = ep_strndup(strptr,len);
+	long i = strtol(str,&str,16);
+	
+	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
+		*err = strerror(errno);
+		return FALSE;
+	}
+	
+	*err = NULL;
+	return TRUE;
 }
 
 gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3 _U_, char** err) {

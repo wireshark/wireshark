@@ -351,9 +351,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
-	((rec_t*)rec)->(field_name) = strtol(buf,end,10); } \
+	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,10); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
-	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->(field_name)); \
+	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
 #define UAT_FLD_DEC(basename,field_name) \
@@ -366,9 +366,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
-	((rec_t*)rec)->(field_name) = strtol(buf,end,16); } \
+	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,16); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
-	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->(field_name)); \
+	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
 #define UAT_FLD_HEX(basename,field_name) \
@@ -386,13 +386,13 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
 	guint i; \
 	char* str = ep_strndup(buf,len); \
-	char* cstr; ((rec_t*)rec)->field_name = default_val; \
+	const char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
 	guint i; \
-	*out_ptr = default_str; *out_len = strlen(default_str);\
+	*out_ptr = ep_strdup(default_str); *out_len = strlen(default_str);\
 	for(i=0;((value_string*)vs)[i].strptr;i++) { \
 		if ( ((value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
 			*out_ptr = ep_strdup(((value_string*)vs)[i].strptr); \
@@ -408,24 +408,17 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  */
 
 #define UAT_PROTO_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	if (len) { \
-		char* name = ep_strndup(strptr,len); g_strdown(name); g_strchug(name); \
+		char* name = ep_strndup(buf,len); g_strdown(name); g_strchug(name); \
 		((rec_t*)rec)->field_name = find_dissector(name); \
 	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
-	*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(str); \
-	*out_len = strlen(*out_ptr); }
-
-#define UAT_PROTO_DEF(basename,field_name,rec_t) \
-static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
-	if (len) { \
-		char* name = ep_strndup(strptr,len); g_strdown(name); g_strchug(name); \
-			((rec_t*)rec)->field_name = find_dissector(name); \
-	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
-	*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(str); \
-		*out_len = strlen(*out_ptr); }
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+	if ( ((rec_t*)rec)->field_name ) { \
+		*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(*out_ptr); \
+		*out_len = strlen(*out_ptr); \
+	} else { \
+		*out_ptr = ""; *out_len = 0; } } 
 
 
 #define UAT_FLD_PROTO(basename,field_name) \
