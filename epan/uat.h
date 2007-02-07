@@ -168,6 +168,7 @@ typedef enum _uat_text_mode_t {
 		 "invalid" as NULL,3
 		 "a1b" as NULL, 1
 	 */
+	PT_TXTMOD_ENUM
 } uat_text_mode_t;
 
 /*
@@ -253,6 +254,7 @@ gboolean uat_fld_chk_str(void*, const char*, unsigned, void*,void*, char** err);
 gboolean uat_fld_chk_proto(void*, const char*, unsigned, void*,void*, char** err);
 gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, void*, void*, char** err);
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, void*, void*, char** err);
+gboolean uat_fld_chk_enum(void*, const char*, unsigned, void*, void*, char**);
 
 #define CHK_STR_IS_DECL(what) \
 gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, char**)
@@ -302,6 +304,23 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_FLD_CSTRING_OTHER(basename,field_name,chk) \
 	{#field_name, PT_TXTMOD_STRING,{ chk ,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
 
+/*
+ * LSTRING MACROS
+ */
+#define UAT_LSTRING_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+	if ((((rec_t*)rec)->ptr_element)) g_free((((rec_t*)rec)->ptr_element)); \
+	(((rec_t*)rec)->ptr_element) = g_strndup(buf,len); \
+	(((rec_t*)rec)->len_element) = len; } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+	if (((rec_t*)rec)->ptr_element ) { \
+		*out_ptr = (((rec_t*)rec)->ptr_element); *out_len = (((rec_t*)rec)->len_element); \
+	} else { \
+		*out_ptr = ""; *out_len = 0; } }
+
+#define UAT_FLD_LSTRING(basename,field_name) \
+{#field_name, PT_TXTMOD_STRING,{NULL,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
+
 
 /*
  * BUFFER macros,
@@ -309,17 +328,17 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  *    and its len in (((rec_t*)rec)->(len_name))
  *  XXX: UNTESTED
  */
-#define UAT_BUFFER_CB_DEF(field_name,len_name,rec_t,ptr_element,len_element) \
-static void basename ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
-		if ((((rec_t*)rec)->(field_name))) g_free((((rec_t*)rec)->(field_name))); \
-			(((rec_t*)rec)->(field_name)) = g_memdup(buf,len); \
-			(((rec_t*)rec)->(len_name)) = len; \ } \
-static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
-	*out_ptr = ep_memdup(((rec_t*)rec)->(field_name),((rec_t*)rec)->(len_name)); \
-	*len_ptr = (((rec_t*)rec)->(len_name)); }
+#define UAT_BUFFER_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+		if ((((rec_t*)rec)->ptr_element) ) g_free((((rec_t*)rec)->ptr_element)); \
+			(((rec_t*)rec)->ptr_element) = len ? g_memdup(buf,len) : NULL; \
+			(((rec_t*)rec)->len_element) = len; } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
+	*out_len = ((rec_t*)rec)->len_element; }
 
 #define UAT_FLD_BUFFER(basename,field_name) \
-	{#field_name, PT_TXTMOD_HEXBYTES,{NULL,basename ## field_name ## _set_cb,basename ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
+	{#field_name, PT_TXTMOD_HEXBYTES,{NULL,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
 
 
 /*
@@ -327,14 +346,14 @@ static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsig
  *   a decimal number contained in 
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
-static void basename ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	((rec_t*)rec)->(field_name) = strtol(buf,end,10); } \
-static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->(field_name)); \
 	*out_len = strlen(*out_ptr); }
 
 #define UAT_FLD_DEC(basename,field_name) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## field_name ## _set_cb,basename ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
+	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
 
 
 /*
@@ -342,14 +361,14 @@ static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsig
  *   an hexadecimal number contained in 
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
-static void basename ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	((rec_t*)rec)->(field_name) = strtol(buf,end,16); } \
-static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->(field_name)); \
 	*out_len = strlen(*out_ptr); }
 
 #define UAT_FLD_HEX(basename,field_name) \
-{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## field_name ## _set_cb,basename ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
+{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
 
 
 /*
@@ -359,25 +378,25 @@ static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsig
  *  rec_t:
  *        value
  */
-#define UAT_SET_ENUM_DEF(basename,field_name,rec_t,enum_t,default) \
-void static void basename ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* enum, void* u2 _U_) {\
+#define UAT_VS_DEF(basename,field_name,rec_t,default_val,default_str) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
+	guint i; ((rec_t*)rec)->field_name = default_val; \
 	char* str = ep_strndup(buf,len); \
-	for(;((enum_t*)enum)->strptr;((enum_t*)enum)++) { \
-		if (g_strequal(((enum_t*)enum)->strptr,str)) { \
-			((rec_t*)rec)->(field_name) = ((enum_t*)enum)->value; return; } } \
-	(rec_t*)rec)->(field_name) = default; \
-}
+	char* cstr;\
+	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
+		if (g_str_equal(cstr,str)) { \
+			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
+	guint i; \
+	*out_ptr = default_str; *out_len = strlen(default_str);\
+	for(i=0;((value_string*)vs)[i].strptr;i++) { \
+		if ( ((value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
+			*out_ptr = ep_strdup(((value_string*)vs)[i].strptr); \
+			*out_len = strlen(*out_ptr); return; } } }
 
-#define UAT_TOSTR_ENUM_DEF(basename,field_name,rec_t,enum_t) {\
-static void basename ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* enum, void* u2 _U_) {\
-	for(;((enum_t*)enum)->strptr;((enum_t*)enum)++) { \
-		if ( ((enum_t*)enum)->value == ((rec_t*)rec)->(field_name) ) { \
-			*out_str = ((enum_t*)enum)->strptr; \
-			*out_len = strlen(*out_ptr); } } }
 
-
-#define UAT_FLD_ENUM(basename,field_name,enum_t,enum) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_enum,basename ## field_name ## _set_cb,basename ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},NULL,FLDFILL}
+#define UAT_FLD_VS(basename,field_name,enum) \
+	{#field_name, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),FLDFILL}
 
 
 

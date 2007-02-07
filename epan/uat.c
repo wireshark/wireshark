@@ -174,6 +174,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 	f->cb.tostr(rec,&fld_ptr,&fld_len,f->cbdata.tostr,f->fld_data);
 	
 	switch(f->mode){
+		case  PT_TXTMOD_ENUM:
 		case  PT_TXTMOD_STRING: {
 			guint i;
 			
@@ -196,7 +197,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 			guint i;
 			
 			for(i=0;i<fld_len;i++) {
-				fprintf(fp,"%.2x",fld_ptr[i]);
+				fprintf(fp,"%.2x",((guint8*)fld_ptr)[i]);
 			}
 			
 			return;
@@ -311,30 +312,20 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void*
 	}
 }
 
-gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3 _U_, char** err) {
 	char* str = ep_strndup(strptr,len);
-	long i = strtol(str,&str,10);
+	guint i;
+	value_string* vs = v;
 	
-	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
-		*err = strerror(errno);
-		return FALSE;
+	for(i=0;vs[i].strptr;i++) {
+		if (g_str_equal(vs[i].strptr,str)) {
+			*err = NULL;
+			return TRUE;
+		}
 	}
-	
-	*err = NULL;
-	return TRUE;
-}
 
-gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
-	char* str = ep_strndup(strptr,len);
-	long i = strtol(str,&str,16);
-	
-	if ( ( i == 0) && (errno == ERANGE || errno == EINVAL) ) {
-		*err = strerror(errno);
-		return FALSE;
-	}
-	
-	*err = NULL;
-	return TRUE;
+	*err = ep_strdup_printf("invalid value: %s",str);
+	return FALSE;
 }
 
 CHK_STR_IS_DEF(isprint)

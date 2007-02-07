@@ -1,12 +1,11 @@
 %option noyywrap
-%option nounput
 %option prefix="uat_load_"
 %option never-interactive
-%option yylineno
+%option nounput
 
 %{
 	/*
-	 * uat_load.c
+	 * uat_load.l
 	 *
 	 * $Id$
 	 *
@@ -55,27 +54,28 @@
 	static guint len;
 	static gchar* error;
 	static void* record;
-	
+	static guint linenum;
+
 	static char* unbinstring(const char* si, guint in_len, guint* len_p);
 	static char* undquote(const char* si, guint in_len, guint* len_p);
 	
-#define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,yylineno,ep_strdup_printf fmtd); yyterminate(); } while(0)
+#define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); yyterminate(); } while(0)
 
 #define SET_FIELD() \
 	{ gchar* err; \
 	if (uat->fields[colnum].cb.chk) { \
-		if ( ! uat->fields[colnum].cb.chk(record, ptr, len, uat->fields[colnum].cbdata.chk,uat->fields[colnum].fld_data, &err) ) { \
+		if ( ! uat->fields[colnum].cb.chk(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &err) ) { \
 			ERROR(("%s",err)); \
 		}\
 	}\
-	uat->fields[colnum].cb.set(record, ptr, len,uat->fields[colnum].cbdata.chk,uat->fields[colnum].fld_data);\
+	uat->fields[colnum].cb.set(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data);\
 	g_free(ptr);\
 		colnum++; \
 	} while(0)
 
 #ifdef DEBUG_UAT_LOAD
 #define DUMP_FIELD(str) \
-		{ guint i; printf("%s: '",str); for(i=0;i<len;i++) putc(ptr[i],stdout); printf("'[%d]\n",len); }
+		{ guint i; printf("%s: %s='",str,uat->fields[colnum].name); for(i=0;i<len;i++) if (uat->fields[colnum].mode == PT_TXTMOD_HEXBYTES) { printf("%.2x ",((guint8*)ptr)[i]); } else putc(ptr[i],stdout); printf("'[%d]\n",len); }
 
 #define DUMP(str) printf("%s\n",str)
 #else
@@ -90,7 +90,7 @@
 %}
 
 quoted_string \042([^\042]|\134\134|\134\042)*\042
-binstring ([0-9a-zA-Z][0-9a-zA-Z])+
+binstring ([0-9a-zA-Z][0-9a-zA-Z])*
 separator [ \t]*,
 newline [ \t]*[\r]?\n
 ws [ \t]+
@@ -99,11 +99,31 @@ comment #[^\n]*\n
 %x START_OF_LINE NEXT_FIELD SEPARATOR END_OF_RECORD ERRORED
 %%
 <START_OF_LINE,NEXT_FIELD>{ws} ;
-<START_OF_LINE>{newline} ;
+<START_OF_LINE>{newline} linenum++;
 <START_OF_LINE>{comment} ;
-<NEXT_FIELD>{newline} {
-	ERROR(("expecting %s field in previuos line",uat->fields[colnum].name));
-	BEGIN START_OF_LINE;
+
+<START_OF_LINE,NEXT_FIELD>{separator} {
+	ptr = g_strdup("");
+	len = 0;
+	
+	DUMP_FIELD("empty->next");
+	
+	SET_FIELD();
+	
+	if ( colnum >= uat->ncols ) {
+		ERROR(("more fields than required"));
+	}
+	
+	BEGIN NEXT_FIELD;
+}
+
+<START_OF_LINE,NEXT_FIELD>{newline}   {
+	ptr = "";
+	len = 0;
+	
+	BEGIN END_OF_RECORD;
+
+	yyless(yyleng);
 }
 
 <START_OF_LINE,NEXT_FIELD>{quoted_string} {
@@ -149,12 +169,13 @@ comment #[^\n]*\n
 }
 
 <SEPARATOR>{newline} {
+	linenum++;
 	ERROR(("expecting field %s in previuos line",uat->fields[colnum].name));
 	BEGIN START_OF_LINE;
 }
 
 <SEPARATOR>. {
-	ERROR(("unexpected char while looking for field %s",uat->fields[colnum].name));
+	ERROR(("unexpected char '%s' while looking for field %s",yytext,uat->fields[colnum].name));
 	BEGIN ERRORED;
 }
 
@@ -167,6 +188,8 @@ comment #[^\n]*\n
 	void* rec;
 	gchar* err = NULL;
 	
+	linenum++;
+
 	DUMP_FIELD("newline->start");
 
 	SET_FIELD();
@@ -193,10 +216,10 @@ comment #[^\n]*\n
 	BEGIN ERRORED;
 }
 
-<ERRORED>{newline} BEGIN START_OF_LINE;
+<ERRORED>{newline} { linenum++; BEGIN START_OF_LINE; }
 <ERRORED>. ;
 
-{newline} { ERROR(("incomplete record")); }
+{newline} { linenum++; ERROR(("incomplete record")); BEGIN START_OF_LINE; }
 . { ERROR(("unexpected input")); }
 
 %%
@@ -224,7 +247,7 @@ static int xton(char d) {
 }
 
 static char* unbinstring(const char* si, guint in_len, guint* len_p) {
-	char* buf;
+	guint8* buf;
 	guint len = in_len/2;
 	int i = 0;
 	
@@ -232,7 +255,7 @@ static char* unbinstring(const char* si, guint in_len, guint* len_p) {
 		return NULL;
 	}
 	
-	buf= g_malloc(len); /* wastes one byte for every '\\' in text */
+	buf= g_malloc(len);
 	*len_p = len;
 
 	while(in_len) {
@@ -244,7 +267,7 @@ static char* unbinstring(const char* si, guint in_len, guint* len_p) {
 		in_len -= 2;
 	}
 	
-	return buf;
+	return (void*)buf;
 }
 
 static char* undquote(const char* si, guint in_len, guint* len_p) {
@@ -346,6 +369,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 		UAT_UPDATE(uat);
 		return TRUE;
 	}
+	
 
 	if (!(yyin = fopen(fname,"r"))) {
 		*err = strerror(errno);
@@ -355,11 +379,14 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 	error = NULL;
 	colnum = 0;
 	record = g_malloc0(uat->record_size);
+	linenum = 1;
 	
 	BEGIN START_OF_LINE;
+	DUMP(fname);
 	
 	yylex();
-	
+	yyrestart(NULL);
+
 	uat->changed = FALSE;
 
 	if (error) {

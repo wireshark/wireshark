@@ -26,6 +26,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/*
+ * TO DO:
+ * + improvements
+ *   - field value check (red/green editbox)
+ *   - tooltips (add field descriptions)
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -46,6 +54,7 @@
 #include "compat_macros.h"
 
 #include <epan/uat-int.h>
+#include <epan/value_string.h>
 #include "uat_gui.h"
 
 #if GTK_MAJOR_VERSION >= 2
@@ -93,6 +102,7 @@ struct _uat_dlg_data {
 	void* rec;
 	gboolean is_new;
 	gint row;
+	GPtrArray* tobe_freed;
 };
 
 
@@ -136,6 +146,39 @@ static void set_buttons(uat_t* uat, gint row) {
 	}
 }
 
+static char* fld_tostr(void* rec, uat_field_t* f) {
+	guint len;
+	char* ptr;
+	char* out;
+	
+	f->cb.tostr(rec,&ptr,&len,f->cbdata.tostr,f->fld_data);
+		
+	switch(f->mode) {
+		case PT_TXTMOD_STRING:
+		case PT_TXTMOD_ENUM:
+			out = ep_strndup(ptr,len);
+			break;
+		case PT_TXTMOD_HEXBYTES: {
+			GString* s = g_string_sized_new( len*2 + 1 );
+			guint i;
+			
+			for (i=0; i<len;i++) g_string_sprintfa(s,"%.2X",((guint8*)ptr)[i]);
+			
+			out = ep_strdup_printf(s->str);
+			
+			g_string_free(s,TRUE);
+			break;
+		} 
+		default:
+			g_assert_not_reached();
+			break;
+	}
+	
+	return out;
+}
+
+
+
 static void append_row(uat_t* uat, guint idx) {
 	GPtrArray* a = g_ptr_array_new();
 	void* rec = UAT_INDEX_PTR(uat,idx);
@@ -145,12 +188,8 @@ static void append_row(uat_t* uat, guint idx) {
 	
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
 
-	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		guint len;
-		char* ptr;
-		f[colnum].cb.tostr(rec,&ptr,&len,f[colnum].cbdata.tostr,f[colnum].fld_data);
-		g_ptr_array_add(a,ptr);
-	}
+	for ( colnum = 0; colnum < uat->ncols; colnum++ )
+		g_ptr_array_add(a,fld_tostr(rec,&(f[colnum])));
 	
 	rownum = gtk_clist_append(GTK_CLIST(uat->rep->clist), (gchar**)a->pdata);
 	gtk_clist_set_row_data(GTK_CLIST(uat->rep->clist), rownum, rec);
@@ -168,14 +207,70 @@ static void reset_row(uat_t* uat, guint idx) {
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
 	
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-		guint len;
-		char* ptr;
-		f[colnum].cb.tostr(rec,&ptr,&len,f[colnum].cbdata.tostr,f[colnum].fld_data);
-		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, ptr);
+		gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, fld_tostr(rec,&(f[colnum])));
 	}
 	
 	gtk_clist_thaw(GTK_CLIST(uat->rep->clist));
 
+}
+
+static guint8* unhexbytes(const char* si, guint len, guint* len_p, char** err) {
+	guint8* buf;
+	guint8* p;
+	const guint8* s = (void*)si;
+	unsigned i;
+	
+	if (len % 2) {
+		*err = "Uneven number of chars hex string";
+		return NULL;
+	}
+	
+	buf = ep_alloc(len/2+1);
+	p = buf;
+	
+	for (i = 0; i<len ; i += 2) {
+		guint8 lo = s[i+1];
+		guint8 hi = s[i];
+		
+		if (hi >= '0' && hi <= '9') {
+			hi -= '0';
+		} else if (hi >= 'a' && hi <= 'f') {
+			hi -=  'a';
+			hi += 0xa;
+		} else if (hi >= 'A' && hi <= 'F') {
+			hi -=  'A';
+			hi += 0xa;
+		} else {
+			goto on_error;
+		}
+		
+		if (lo >= '0' && lo <= '9') {
+			lo -= '0';
+		} else if (lo >= 'a' && lo <= 'f') {
+			lo -=  'a';
+			lo += 0xa;
+		} else if (lo >= 'A' && lo <= 'F') {
+			lo -=  'A';
+			lo += 0xa;
+		} else {
+			goto on_error;
+		}
+		
+		*(p++) = (hi*0x10) + lo;
+	}
+	
+	len /= 2;
+	
+	if (len_p) *len_p = len;
+
+	buf[len] = '\0';
+	
+	*err = NULL;
+	return buf;
+	
+on_error:
+	*err = "Error parsing hex string";
+	return NULL;
 }
 
 
@@ -187,17 +282,48 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	guint colnum;
 
 	for ( colnum = 0; colnum < ncols; colnum++ ) {
-		const gchar* text = gtk_entry_get_text(GTK_ENTRY(g_ptr_array_index(dd->entries,colnum)));
-		unsigned len = strlen(text);
+		void* e = g_ptr_array_index(dd->entries,colnum);
+		const char* text;
+		unsigned len = 0;
+		
+		switch(f[colnum].mode) {
+			case PT_TXTMOD_STRING:
+				text = gtk_entry_get_text(GTK_ENTRY(e));
+				len = strlen(text);
+				break;
+			case PT_TXTMOD_HEXBYTES: {
+				text = gtk_entry_get_text(GTK_ENTRY(e));
+				
+				text = (void*) unhexbytes(text, strlen(text), &len, &err);
+				
+				if (err) {
+					err = ep_strdup_printf("error in field '%s': %s",f[colnum].name,err);
+					goto on_failure;
+				}
+				
+				break;
+			} 
+			case PT_TXTMOD_ENUM: {
+				text = *(char**)e;
+				text = text ? text : "";
+				len = strlen(text);
+				g_ptr_array_add(dd->tobe_freed,e);
+			}
+				break;
+			default:
+				g_assert_not_reached();
+				return FALSE;
+		}
+		
 		
 		if (f[colnum].cb.chk) {
-			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.tostr, f[colnum].fld_data, &err)) {
+			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, &err)) {
 				err = ep_strdup_printf("error in field '%s': %s",f[colnum].name,err);
 				goto on_failure;
 			}
 		}
 		
-		f[colnum].cb.set(dd->rec,text,len, f[colnum].cbdata.tostr, f[colnum].fld_data);
+		f[colnum].cb.set(dd->rec,text,len, f[colnum].cbdata.set, f[colnum].fld_data);
 	}
 
 	if (dd->uat->update_cb) {
@@ -252,10 +378,27 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
     window_destroy(GTK_WIDGET(dd->win));
 	g_free(dd);
 
+	while (dd->tobe_freed->len) g_free( g_ptr_array_remove_index_fast(dd->tobe_freed, dd->tobe_freed->len - 1 ) );
+	
     return TRUE;
 }
 
-static void uat_dialog(uat_t* uat, gint row) {
+struct _fld_menu_item_data_t {
+	const char* text;
+	char const** valptr;
+};
+
+static void fld_menu_item_cb(GtkMenuItem *menuitem _U_, gpointer user_data) {
+	struct _fld_menu_item_data_t* md = user_data;
+	
+	*(md->valptr) = md->text;
+}
+
+static void fld_menu_item_destroy_cb(GtkMenuItem *menuitem _U_, gpointer user_data) {
+	g_free(user_data);
+}
+
+static void uat_edit_dialog(uat_t* uat, gint row) {
     GtkWidget *win, *main_tb, *main_vb, *bbox, *bt_cancel, *bt_ok;
     struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t* f = uat->fields;
@@ -267,50 +410,102 @@ static void uat_dialog(uat_t* uat, gint row) {
 	dd->rec = row < 0 ? g_malloc0(uat->record_size) : UAT_INDEX_PTR(uat,row);
 	dd->is_new = row < 0 ? TRUE : FALSE;
 	dd->row = row;
+    dd->tobe_freed = g_ptr_array_new();
 	
     win = dd->win;
 	
+	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+	
 #if GTK_MAJOR_VERSION >= 2
-    gtk_window_resize(GTK_WINDOW(win),400,15*(uat->ncols+6));
+    gtk_window_resize(GTK_WINDOW(win),400, 30*(uat->ncols+2));
 #else
-    gtk_window_set_default_size(GTK_WINDOW(win), 400, 15*(uat->ncols+6));
-    gtk_widget_set_usize(win, 400, 15*(uat->ncols+6));
+    gtk_window_set_default_size(GTK_WINDOW(win), 400, 30*(uat->ncols+2));
+    gtk_widget_set_usize(win, 400, 30*(uat->ncols+2));
 #endif
     
-    main_vb = gtk_vbox_new(TRUE,5);
+    main_vb = gtk_vbox_new(FALSE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
 	
     main_tb = gtk_table_new(uat->ncols+1, 2, FALSE);
     gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 5);
+    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
     
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
         GtkWidget *entry, *label;
-        
+        char* text = fld_tostr(dd->rec,&(f[colnum]));
+							   
         label = gtk_label_new(f[colnum].name);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
         gtk_widget_show(label);
 		
-        entry = gtk_entry_new();
-        g_ptr_array_add(dd->entries,entry);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
-        gtk_widget_show(entry);
+		
+		switch(f[colnum].mode) {
+			case PT_TXTMOD_STRING:
+			case PT_TXTMOD_HEXBYTES: {
+				entry = gtk_entry_new();
+				g_ptr_array_add(dd->entries,entry);
+				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
+				gtk_widget_show(entry);
+				if (! dd->is_new) {
+					gtk_entry_set_text(GTK_ENTRY(entry),text);
+				}
+				break;
+			}
+			case PT_TXTMOD_ENUM: {
+				GtkWidget *menu, *option_menu;
+				int menu_index, index;
+				const value_string* enum_vals = f[colnum].fld_data;
+				void* valptr = g_malloc0(sizeof(void*));
 
-		if (! dd->is_new) {
-			gchar* text;
-			unsigned len;
-			
-			f[colnum].cb.tostr(dd->rec,&text,&len, f[colnum].cbdata.tostr, f[colnum].fld_data);
-			
-			gtk_entry_set_text(GTK_ENTRY(entry),text);
+				menu = gtk_menu_new();
+				menu_index = -1;
+				for (index = 0; enum_vals[index].strptr != NULL; index++) {
+					struct _fld_menu_item_data_t* md = g_malloc(sizeof(struct _fld_menu_item_data_t)); /* XXX: leaked */
+					const char* str = enum_vals[index].strptr;
+					GtkWidget* menu_item = gtk_menu_item_new_with_label(str);
+					
+					md->text = str;
+					md->valptr = valptr;
+					
+					gtk_menu_append(GTK_MENU(menu), menu_item);
+					
+					if ( g_str_equal(str, text) ) {
+						menu_index = index;
+						*((char const**)valptr) = str;
+					}
+					
+					gtk_widget_show(menu_item);
+					SIGNAL_CONNECT(menu_item, "activate", fld_menu_item_cb, md);
+					SIGNAL_CONNECT(menu_item, "destroy", fld_menu_item_destroy_cb, md);
+				}
+				
+				g_ptr_array_add(dd->entries,valptr);
+				g_ptr_array_add(dd->tobe_freed,valptr);
+
+				/* Create the option menu from the menu */
+				option_menu = gtk_option_menu_new();
+				gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+				gtk_widget_show(option_menu);
+
+				/* Set its current value to the variable's current value */
+				if (menu_index != -1)
+					gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), menu_index);
+								
+				gtk_table_attach_defaults(GTK_TABLE(main_tb), option_menu, 1, 2, colnum+1, colnum + 2);
+
+				break;
+			}
+			default:
+				g_assert_not_reached();
+				return;
 		}
     }
 	
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
-	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     
     bt_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     SIGNAL_CONNECT(bt_ok, "clicked", uat_dlg_cb, dd);
@@ -363,14 +558,16 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	ud->idx = idx;
     ud->win = win = dlg_window_new(ep_strdup_printf("Confirm Delete"));
 	
+	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
+
 #if GTK_MAJOR_VERSION >= 2
-    gtk_window_resize(GTK_WINDOW(win),400,15*(uat->ncols+6));
+    gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
 #else
-    gtk_window_set_default_size(GTK_WINDOW(win), 400, 15*(uat->ncols+6));
-    gtk_widget_set_usize(win, 400, 15*(uat->ncols+6));
+    gtk_window_set_default_size(GTK_WINDOW(win), 400, 25*(uat->ncols+2));
+    gtk_widget_set_usize(win, 400, 25*(uat->ncols+2));
 #endif
     
-    main_vb = gtk_vbox_new(TRUE,5);
+    main_vb = gtk_vbox_new(FALSE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
 	
@@ -381,12 +578,8 @@ static void uat_del_dlg(uat_t* uat, int idx) {
     
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
         GtkWidget *label;
-		gchar* text;
-		unsigned len;
-		
-		f[colnum].cb.tostr(rec,&text,&len, f[colnum].cbdata.tostr, f[colnum].fld_data);
-		
-		
+        char* text = fld_tostr(rec,&(f[colnum]));
+				
         label = gtk_label_new(f[colnum].name);
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
         gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
@@ -416,12 +609,12 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 static void uat_new_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
-	uat_dialog(uat, -1);
+	uat_edit_dialog(uat, -1);
 }
 
 static void uat_edit_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
-	uat_dialog(uat, uat->rep->selected);
+	uat_edit_dialog(uat, uat->rep->selected);
 }
 
 static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
@@ -608,7 +801,7 @@ GtkWidget* uat_window(void* u) {
 		uat->rep = rep = g_malloc0(sizeof(uat_rep_t));
 	}
 	
-	rep->window = window_new(GTK_WINDOW_TOPLEVEL, "Display Filter Macros");
+	rep->window = window_new(GTK_WINDOW_TOPLEVEL, uat->name);
 	gtk_window_set_default_size(GTK_WINDOW(rep->window), 480, 320);
 	
 #if GTK_MAJOR_VERSION >= 2
