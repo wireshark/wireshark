@@ -485,13 +485,13 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     print_args.print_formfeed      = FALSE;
 
     if (GetSaveFileName(ofn)) {
-    g_free( (void *) ofn);
 	print_args.file = utf_16to8(file_name);
 	switch (ofn->nFilterIndex) {
 	    case export_type_text:	/* Text */
 		print_args.stream = print_stream_text_new(TRUE, print_args.file);
 		if (print_args.stream == NULL) {
 		    open_failure_alert_box(print_args.file, errno, TRUE);
+		    g_free( (void *) ofn);
 		    return;
 		}
 		status = cf_print_packets(&cfile, &print_args);
@@ -500,6 +500,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 		print_args.stream = print_stream_ps_new(TRUE, print_args.file);
 		if (print_args.stream == NULL) {
 		    open_failure_alert_box(print_args.file, errno, TRUE);
+		    g_free( (void *) ofn);
 		    return;
 		}
 		status = cf_print_packets(&cfile, &print_args);
@@ -514,6 +515,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 		status = cf_write_pdml_packets(&cfile, &print_args);
 		break;
 	    default:
+	    g_free( (void *) ofn);
 		return;
 	}
 
@@ -530,9 +532,9 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 	/* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-	} else {
-	g_free( (void *) ofn);
 	}
+
+	g_free( (void *) ofn);
 }
 
 void
