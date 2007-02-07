@@ -243,6 +243,7 @@ epan_dissect_run
 epan_get_version
 epan_init
 epan_base64_decode
+epan_strcasestr
 ether_to_str
 ex_opt_add
 ex_opt_count

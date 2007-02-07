@@ -966,3 +966,17 @@ g_strlcat(gchar *dst, gchar *src, gsize size)
 	return strl+strs;
 }
 #endif
+
+char *
+epan_strcasestr(const char *haystack, const char *needle)
+{
+	gsize hlen = strlen(haystack);
+	gsize nlen = strlen(needle);
+
+	while (hlen-- >= nlen) {
+		if (!g_strncasecmp(haystack, needle, nlen))
+			return (char*) haystack;
+		haystack++;
+	}
+	return NULL;
+}

@@ -38,6 +38,7 @@
 #include <epan/emem.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include "packet-sscop.h"
 
 typedef struct _k12_hdls_t {
@@ -135,7 +136,7 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	
 	if (! handles ) {
 		for (i=0 ; i < nk12_handles; i++) {
-			if ( strcasestr(pinfo->pseudo_header->k12.stack_file, k12_handles[i].match) ) {
+			if ( epan_strcasestr(pinfo->pseudo_header->k12.stack_file, k12_handles[i].match) ) {
 				handles = k12_handles[i].handles;
 				break;
 			}

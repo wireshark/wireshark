@@ -205,6 +205,16 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
  */
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
+/** Finds the first occurence of string 'needle' in string 'haystack'.
+ *  The matching is done in a case insensitive manner.
+ *
+ * @param haystack The string possibly containing the substring
+ * @param needle The substring to be searched
+ * @return A pointer into 'haystack' where 'needle' is first found.
+ *   Otherwise it returns NULL.
+ */
+char * epan_strcasestr(const char *haystack, const char *needle);
+
 /* g_strlcat() does not exist in GLib 1.2[.x] */
 #if GLIB_MAJOR_VERSION < 2
 gsize g_strlcat(gchar *dst, gchar *src, gsize size);
