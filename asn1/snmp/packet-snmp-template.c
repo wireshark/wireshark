@@ -1972,18 +1972,18 @@ static void snmp_users_free_cb(void* p) {
 static void snmp_users_update_cb(void* p _U_, char** err) {
 	snmp_ue_assoc_t* ue = p;
 	*err = NULL;
-	GString* e = g_string_new("");
+	GString* es = g_string_new("");
 	
-	if (! ue->user.userName.len) g_string_append(e,"no userName, ");
-	if (ue->user.authPassword.len < 8) g_string_sprintfa(e,"short authPassword (%d), ", ue->user.authPassword.len);
-	if (ue->user.privPassword.len < 8) g_string_sprintfa(e,"short privPassword (%d), ", ue->user.privPassword.len);
+	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
+	if (ue->user.authPassword.len < 8) g_string_sprintfa(es,"short authPassword (%d), ", ue->user.authPassword.len);
+	if (ue->user.privPassword.len < 8) g_string_sprintfa(es,"short privPassword (%d), ", ue->user.privPassword.len);
 
-	if (e->len) {
-		g_string_truncate(e,e->len-2);
-		*err = ep_strdup(e->str);
+	if (es->len) {
+		g_string_truncate(es,es->len-2);
+		*err = ep_strdup(es->str);
 	}
 	
-	g_string_free(e,TRUE);
+	g_string_free(es,TRUE);
 	
 	return; 
 }
