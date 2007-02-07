@@ -413,13 +413,13 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
     dd->tobe_freed = g_ptr_array_new();
 	
     win = dd->win;
-	
-	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
-	
+		
 #if GTK_MAJOR_VERSION >= 2
+	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
     gtk_window_resize(GTK_WINDOW(win),400, 30*(uat->ncols+2));
 #else
-    gtk_window_set_default_size(GTK_WINDOW(win), 400, 30*(uat->ncols+2));
+  	gtk_window_set_policy(GTK_WINDOW(win), FALSE, FALSE, TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(win), 400, 30*(uat->ncols+2));
     gtk_widget_set_usize(win, 400, 30*(uat->ncols+2));
 #endif
     
@@ -558,12 +558,13 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	ud->idx = idx;
     ud->win = win = dlg_window_new(ep_strdup_printf("Confirm Delete"));
 	
-	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
-
+	
 #if GTK_MAJOR_VERSION >= 2
+	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
     gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
 #else
-    gtk_window_set_default_size(GTK_WINDOW(win), 400, 25*(uat->ncols+2));
+	gtk_window_set_policy(GTK_WINDOW(win), FALSE, FALSE, TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(win), 400, 25*(uat->ncols+2));
     gtk_widget_set_usize(win, 400, 25*(uat->ncols+2));
 #endif
     
