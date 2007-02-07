@@ -3247,7 +3247,10 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
   for(i=0; i<rp->nrhs; i++) used[i] = 0;
   lhsused = 0;
 
-  if (!rp->code) rp->code = "\n";
+  if (!rp->code) {
+	  rp->code = "\n";
+	  rp->line = rp->ruleline;
+  }
   
   append_str(0,0,0,0);
   for(cp=rp->code; *cp; cp++){
