@@ -384,9 +384,9 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
  */
 #define UAT_VS_DEF(basename,field_name,rec_t,default_val,default_str) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
-	guint i; ((rec_t*)rec)->field_name = default_val; \
+	guint i; \
 	char* str = ep_strndup(buf,len); \
-	char* cstr;\
+	char* cstr; ((rec_t*)rec)->field_name = default_val; \
 	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
@@ -403,8 +403,33 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 	{#field_name, PT_TXTMOD_ENUM,{uat_fld_chk_enum,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{&(enum),&(enum),&(enum)},&(enum),FLDFILL}
 
 
+/*
+ * PROTO macros
+ */
+
+#define UAT_PROTO_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
+	if (len) { \
+		char* name = ep_strndup(strptr,len); g_strdown(name); g_strchug(name); \
+		((rec_t*)rec)->field_name = find_dissector(name); \
+	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
+	*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(str); \
+	*out_len = strlen(*out_ptr); }
+
+#define UAT_PROTO_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* vs, void* u2 _U_) {\
+	if (len) { \
+		char* name = ep_strndup(strptr,len); g_strdown(name); g_strchug(name); \
+			((rec_t*)rec)->field_name = find_dissector(name); \
+	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
+	*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(str); \
+		*out_len = strlen(*out_ptr); }
 
 
+#define UAT_FLD_PROTO(basename,field_name) \
+	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{NULL,NULL,NULL},NULL,FLDFILL}
 
 
 
