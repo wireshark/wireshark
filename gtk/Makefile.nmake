@@ -132,7 +132,7 @@ doxygen-run:
 	$(DOXYGEN) doxygen.cfg
 !ENDIF
 
-# MS html help conpiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
+# MS html help compiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
 # the prepended -1 will raise the accepted error levels of nmake, so it will continue
 doxygen.chm:
 !IFDEF HHC
