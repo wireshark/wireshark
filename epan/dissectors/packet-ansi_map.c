@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ansi_map.c                                                        */
+/* ./packet-ansi_map.c                                                        */
 /* ../../tools/asn2wrs.py -b -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
@@ -1145,7 +1145,6 @@ static void
 update_saved_invokedata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb){
   struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
   struct tcap_private_t *p_private_tcap;
-  guint32 framenum = (guint32)pinfo->fd->num;
   address* src = &(pinfo->src);
   address* dst = &(pinfo->dst);
   guint8 *src_str;
@@ -1410,8 +1409,8 @@ static void
 dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	char		*digit_str;
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mintype);
@@ -1428,8 +1427,8 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8 b1,b2,b3,b4;
 	int offset = 0;
 	char		*digit_str;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_digitstype);
@@ -1555,8 +1554,8 @@ static const value_string ansi_map_sub_addr_type_vals[]  = {
 static void 
 dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -1570,7 +1569,7 @@ dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * 6.5.2.2 ActionCode
  * Table 114 ActionCode value
  *
-/* 6.5.2.2 ActionCode(TIA/EIA-41.5-D, page 5-129) */
+ * 6.5.2.2 ActionCode(TIA/EIA-41.5-D, page 5-129) */
 
 static const value_string ansi_map_ActionCode_vals[]  = {
     {   0, "Not used"},
@@ -1649,8 +1648,8 @@ static void
 dissect_ansi_map_alertcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -1804,8 +1803,8 @@ static void
 dissect_ansi_map_announcementcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -1860,8 +1859,8 @@ static void
 dissect_ansi_map_authorizationperiod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -1882,8 +1881,8 @@ static void
 dissect_ansi_map_billingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -1914,8 +1913,8 @@ static void
 dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	int length; 
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	length = tvb_length_remaining(tvb,offset); 
 	item = get_ber_last_created_item();
@@ -2071,8 +2070,8 @@ static void
 dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	int length; 
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	length = tvb_length_remaining(tvb,offset); 
 
@@ -2125,8 +2124,8 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	int offset = 0;
 	int length; 
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	length = tvb_length_remaining(tvb,offset);
 
@@ -2197,8 +2196,8 @@ static const true_false_string ansi_map_CDMAStationClassMark_dmi_bool_val  = {
 static void
 dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_cdmastationclassmark);
@@ -2228,8 +2227,8 @@ static const value_string ansi_map_ChannelData_dtx_vals[]  = {
 static void
 dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_channeldata);
@@ -2258,8 +2257,8 @@ static const true_false_string ansi_map_ConfidentialityModes_bool_val  = {
 static void
 dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_confidentialitymodes);
@@ -2285,8 +2284,8 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_t
 static void
 dissect_ansi_map_controlchanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_controlchanneldata);
@@ -2343,8 +2342,8 @@ static void
 dissect_ansi_map_deniedauthorizationperiod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -2377,8 +2376,8 @@ static void
 dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_extendedmscid);
@@ -2395,8 +2394,8 @@ static void
 dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_extendedsystemmytypecode);
@@ -2433,8 +2432,8 @@ static void
 dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_handoffstate);
@@ -2448,8 +2447,8 @@ static void
 dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 	guint8 octet, octet2;
 
 	item = get_ber_last_created_item();
@@ -2477,8 +2476,8 @@ static void
 dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -2514,8 +2513,8 @@ static void
 dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -2535,8 +2534,8 @@ dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinf
 static void
 dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -2551,8 +2550,8 @@ dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 static void
 dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -2571,8 +2570,8 @@ dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ansi_map_nampscallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -2609,8 +2608,8 @@ static const value_string ansi_map_NAMPSChannelData_ccinidicator_vals[]  = {
 static void
 dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -2679,8 +2678,8 @@ static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
 static void
 dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_mscid);
@@ -2855,8 +2854,8 @@ static void
 dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_originationtriggers);
@@ -2960,8 +2959,8 @@ static void
 dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_pacaindicator);
@@ -2984,8 +2983,8 @@ static void
 dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 	guint8 b1,b2,b3,b4;
 
 	item = get_ber_last_created_item();
@@ -3013,8 +3012,8 @@ static void
 dissect_ansi_map_pilotbillingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -3152,11 +3151,13 @@ static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val
   "Force Indirect",
   "No effect"
 };
+
+static void
 dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_sms_originationrestrictions);
@@ -3250,8 +3251,8 @@ static void
 dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_systemcapabilities);
@@ -3343,8 +3344,8 @@ static void
 dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_transactioncapability);
@@ -3439,8 +3440,8 @@ static void
 dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_transactioncapability);
@@ -3582,15 +3583,15 @@ static void
 dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 	guint16 so;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_cdmaserviceoption);
 
 	so = tvb_get_ntohs(tvb,offset);
-    proto_tree_add_uint_format(subtree, hf_ansi_map_cdmaserviceoption,
+	proto_tree_add_uint_format(subtree, hf_ansi_map_cdmaserviceoption,
 					       tvb, offset, 2, so,
 					       "CDMAServiceOption: %u %s", so,
 					       rval_to_str(so,cdmaserviceoption_vals ,"Unknown"));
@@ -3789,8 +3790,8 @@ Messages (see TSB74) type specific field for this connection reference. */
 dissect_ansi_map_secondintermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_billingid);
@@ -3891,9 +3892,8 @@ static const true_false_string ansi_map_Availability_bool_val  = {
 static void
 dissect_ansi_map_callingpartyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
-	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_callingpartyname);
@@ -3944,8 +3944,8 @@ static void
 dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_triggercapability);
@@ -4027,8 +4027,8 @@ static void
 dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_winoperationscapability);
@@ -4052,8 +4052,8 @@ static void
 dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 	int offset = 0;
-    proto_item *item;
-    proto_tree *subtree;
+	proto_item *item;
+	proto_tree *subtree;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_controlnetworkid);
@@ -4119,7 +4119,7 @@ static const value_string ansi_ACGEncountered_cntrl_type_vals[]  = {
 	{	0, NULL }
 };
 
-/* 6.5.2.fw ControlType N.S0023-0 v 1.0 *
+/* 6.5.2.fw ControlType N.S0023-0 v 1.0 */
 
 
 
