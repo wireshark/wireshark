@@ -1087,17 +1087,17 @@ Copyright (C) 2005 Free Software Foundation, Inc.]]>
       <ulink url="http://python.org/download/" />to download the
       latest stable release. You can download a setup there, which
       will install the python system typically into 
-      <filename>C:\Python24</filename>or similiar.</para>
+      <filename>C:\Python25</filename>or similiar.</para>
       <para>After correct installation, typing inside the command
       line (cmd.exe) - this must be entered in the Python
       directory, the installer won't set the PATH:</para>
       <para>
-        <prompt>C:\Python24&gt;</prompt>
+        <prompt>C:\Python25&gt;</prompt>
         <userinput>python -V</userinput>
       </para>
       <para>should result in something like: 
       <programlisting>
-        <![CDATA[Python 2.4.4]]>
+        <![CDATA[Python 2.5]]>
 </programlisting>However, the version string may vary.</para>
     </section>
   </section>

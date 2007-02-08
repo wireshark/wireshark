@@ -119,7 +119,7 @@
       <title>Install Python</title>
       <para>Get the python installer from: 
       <ulink url="http://python.org/download/" />and install python
-      into the default location (currently: C:/Python24).</para>
+      into the default location (currently: C:/Python25).</para>
       <para>Why this is recommended: Cygwin's python package
       doesn't work on some machines, so the Win32 native package is
       recommended.</para>

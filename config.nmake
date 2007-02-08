@@ -327,9 +327,12 @@ POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
 
 # command for native windows python (recommended)
+# both V2.4 and V2.5 should work
 PYTHON="C:/python24/python.exe"
+#PYTHON="C:/python25/python.exe"
 # add native python to the path (not needed if cygwin's python is used)
 PATH=c:\python24;$(PATH)
+#PATH=c:\python25;$(PATH)
 
 # command for python (cygwin's python package, not recommended)
 #PYTHON=env python
