@@ -40,6 +40,7 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 #include "packet-sscop.h"
+#include "packet-umts_fp.h"
 
 typedef struct _k12_hdls_t {
 	char* match;
@@ -66,8 +67,10 @@ static gint ett_stack_item = -1;
 static dissector_handle_t k12_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t sscop_handle;
+static dissector_handle_t fp_handle;
 
 extern int proto_sscop;
+extern int proto_fp;
 
 static emem_tree_t* port_handles = NULL;
 static uat_t* k12_uat = NULL;
@@ -80,6 +83,85 @@ static const value_string  k12_port_types[] = {
 	{	K12_PORT_ATMPVC, "ATM PVC" },
 	{ 0,NULL}
 };
+
+static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
+			/* 0x11=control frame 0x30=data frame */
+	guint info_type = pntohs(extra_info);
+			/* 1=FDD, 2=TDD 3.84, 3=TDD 1.28 */
+	guchar radio_mode = extra_info[14];
+	guchar channel_type = 0;
+	guint i;
+
+	if (!p_fp_info || length < 22)
+		return;
+
+	p_fp_info->release = 0; /* dummy */
+	p_fp_info->dct2000_variant = 0; /* dummy */
+
+				/* 1=UL, 2=DL */
+	if (extra_info[15] == 1)
+		p_fp_info->is_uplink = 1;
+	else
+		p_fp_info->is_uplink = 0;
+
+	if (info_type == 0x11) /* control frame */
+		channel_type = extra_info[21];
+	else if (info_type == 0x30) /* data frame */
+		channel_type = extra_info[22];
+	switch (channel_type) {
+		case 1:
+			p_fp_info->channel = CHANNEL_BCH;
+			break;
+		case 2:
+			p_fp_info->channel = CHANNEL_PCH;
+			p_fp_info->paging_indications = 0; /* dummy */
+			break;
+		case 3:
+			p_fp_info->channel = CHANNEL_CPCH;
+			break;
+		case 4:
+			if (radio_mode == 1)
+				p_fp_info->channel = CHANNEL_RACH_FDD;
+			else if (radio_mode == 2)
+				p_fp_info->channel = CHANNEL_RACH_TDD;
+			else
+				p_fp_info->channel = CHANNEL_RACH_TDD_128;
+			break;
+		case 5:
+			if (radio_mode == 1)
+				p_fp_info->channel = CHANNEL_FACH_FDD;
+			else
+				p_fp_info->channel = CHANNEL_FACH_TDD;
+			break;
+		case 6:
+			if (radio_mode == 2)
+				p_fp_info->channel = CHANNEL_USCH_TDD_384;
+			else
+				p_fp_info->channel = CHANNEL_USCH_TDD_128;
+			break;
+		case 7:
+			if (radio_mode == 1)
+				p_fp_info->channel = CHANNEL_DSCH_FDD;
+			else
+				p_fp_info->channel = CHANNEL_DSCH_TDD;
+			break;
+		case 8:
+			p_fp_info->channel = CHANNEL_DCH;
+			break;
+	}
+			
+	p_fp_info->dch_crc_present = 1; /* dummy */
+
+	if (info_type == 0x30) { /* data frame */
+		p_fp_info->num_chans = extra_info[23];
+		for (i = 0; i < (guint)p_fp_info->num_chans && (36+i*104) <= length; ++i) {
+			p_fp_info->chan_tf_size[i] = pntohl(extra_info+28+i*104);
+			if (p_fp_info->chan_tf_size[i])
+				p_fp_info->chan_num_tbs[i] = pntohl(extra_info+32+i*104)
+							     / p_fp_info->chan_tf_size[i];
+		}
+	}
+}
 
 static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	static dissector_handle_t data_handles[] = {NULL,NULL};
@@ -165,24 +247,36 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 	
-	sub_handle = handles[0];
-
 	/* Setup subdissector information */
 		
 	for (i = 0; handles[i] && handles[i+1]; ++i) {
 		if (handles[i] == sscop_handle) {
 			sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
+			if (!p_sscop_info) {
+				p_sscop_info = ep_alloc0(sizeof(sscop_payload_info));
+				if (p_sscop_info)
+					p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
+			}
 			if (p_sscop_info)
 				p_sscop_info->subdissector = handles[i+1];
-			else {
-				p_sscop_info = ep_alloc0(sizeof(sscop_payload_info));
-				if (p_sscop_info) {
-					p_sscop_info->subdissector = handles[i+1];
-					p_add_proto_data(pinfo->fd, proto_sscop, p_sscop_info);
-				}
-			}
 		}
 		/* Add more protocols here */
+	}
+
+	sub_handle = handles[0];
+
+	/* Setup information required by certain protocols */
+	if (sub_handle == fp_handle) {
+		fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+		if (!p_fp_info) {
+			p_fp_info = ep_alloc0(sizeof(fp_info));
+			if (p_fp_info)
+				p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
+		}
+
+		fill_fp_info(p_fp_info,
+			     pinfo->pseudo_header->k12.extra_info,
+			     pinfo->pseudo_header->k12.extra_length);
 	}
 
 	call_dissector(sub_handle, tvb, pinfo, tree);
@@ -272,6 +366,7 @@ static void initialize_handles_once(void) {
 		k12_handle = find_dissector("k12");
 		data_handle = find_dissector("data");
 		sscop_handle = find_dissector("sscop");
+		fp_handle = find_dissector("fp");
 		initialized = TRUE;
 	}
 }

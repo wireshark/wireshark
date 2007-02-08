@@ -520,6 +520,8 @@ struct k12_phdr {
 	const gchar* stack_file;
 	guint32 input_type;
 	k12_input_info_t input_info;
+	gchar* extra_info;
+	guint32 extra_length;
 	void* stuff;
 };
 

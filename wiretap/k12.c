@@ -120,6 +120,8 @@ struct _k12_t {
 	
 	GHashTable* src_by_id; /* k12_srcdsc_recs by input */
 	GHashTable* src_by_name; /* k12_srcdsc_recs by stack_name */
+
+	Buffer extra_info; /* Buffer to hold per packet extra information */
 };
 
 typedef struct _k12_src_desc_t {
@@ -302,6 +304,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 	long len;
 	guint32 type;
 	guint64 ts;
+	guint32 extra_len;
 	
 	offset = wth->data_offset;
     
@@ -346,11 +349,19 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 #endif
     
 	wth->phdr.len = wth->phdr.caplen = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
+	extra_len = len - K12_PACKET_FRAME - wth->phdr.caplen;
 	
 	/* the frame */
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), buffer + K12_PACKET_FRAME, wth->phdr.caplen);
 	
+	/* extra information need by some protocols */
+	buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
+	memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
+	       buffer + K12_PACKET_FRAME + wth->phdr.caplen, extra_len);
+	wth->pseudo_header.k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+	wth->pseudo_header.k12.extra_length = extra_len;
+
 	wth->pseudo_header.k12.input = pntohl(buffer + K12_RECORD_INPUT);
     
 #ifdef DEBUG_K12
@@ -403,7 +414,8 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 	k12_src_desc_t* src_desc;
 	guint8 buffer[0x2000];
 	long len;
-    guint32 input;
+	guint32 extra_len;
+	guint32 input;
     
 #ifdef DEBUG_K12
     k12_dbg(5,"k12_seek_read: ENTER");
@@ -424,6 +436,17 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 	}
 	
 	memcpy(pd, buffer + K12_PACKET_FRAME, length);
+
+	extra_len = len - K12_PACKET_FRAME - length;
+	buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
+	memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
+	       buffer + K12_PACKET_FRAME + length, extra_len);
+	wth->pseudo_header.k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+	wth->pseudo_header.k12.extra_length = extra_len;
+	if (pseudo_header) {
+		pseudo_header->k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+		pseudo_header->k12.extra_length = extra_len;
+	}
 	
     input = pntohl(buffer + K12_RECORD_INPUT);
 #ifdef DEBUG_K12
@@ -517,6 +540,8 @@ static k12_t* new_k12_file_data() {
 	fd->num_of_records = 0;
 	fd->src_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 	fd->src_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+
+	buffer_init(&(fd->extra_info), 100);
 	
 	return fd;
 }
@@ -539,6 +564,7 @@ static void destroy_k12_file_data(k12_t* fd) {
 	g_hash_table_destroy(fd->src_by_id);
 	g_hash_table_foreach_remove(fd->src_by_name,destroy_srcdsc,NULL);	
 	g_hash_table_destroy(fd->src_by_name);
+	buffer_free(&(fd->extra_info));
 	g_free(fd);
 }
 
@@ -705,7 +731,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->subtype_close = k12_close;
 	wth->capture.k12 = file_data;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;	
-	
+
 	return 1;
 }
 

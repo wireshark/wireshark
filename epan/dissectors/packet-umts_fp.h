@@ -63,3 +63,4 @@ struct _fp_info
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
 };
 
+typedef struct _fp_info fp_info;
