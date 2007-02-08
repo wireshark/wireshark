@@ -3728,9 +3728,10 @@ static void snmp_users_free_cb(void* p) {
 
 static void snmp_users_update_cb(void* p _U_, char** err) {
 	snmp_ue_assoc_t* ue = p;
-	*err = NULL;
 	GString* es = g_string_new("");
-	
+
+	*err = NULL;
+
 	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
 	if (ue->user.authPassword.len < 8) g_string_sprintfa(es,"short authPassword (%d), ", ue->user.authPassword.len);
 	if (ue->user.privPassword.len < 8) g_string_sprintfa(es,"short privPassword (%d), ", ue->user.privPassword.len);
@@ -4147,7 +4148,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2057 "packet-snmp-template.c"
+#line 2058 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -4188,7 +4189,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2069 "packet-snmp-template.c"
+#line 2070 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t fields[] = {

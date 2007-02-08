@@ -263,6 +263,9 @@ gboolean uat_fld_chk_enum(void*, const char*, unsigned, void*, void*, char**);
 #define CHK_STR_IS_DECL(what) \
 gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, char**)
 
+typedef void (*uat_cb_t)(void* uat,void* user_data);
+void uat_foreach_table(uat_cb_t cb,void* user_data);
+
 /* Some strings entirely made of ... already declared */
 CHK_STR_IS_DECL(isprint);
 CHK_STR_IS_DECL(isalpha);

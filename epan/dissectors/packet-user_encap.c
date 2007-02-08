@@ -145,6 +145,8 @@ void proto_reg_handoff_user_encap(void)
 
 void proto_register_user_encap(void)
 {
+	module_t *module;
+
 	static uat_field_t user_flds[] = {
 		UAT_FLD_VS(user_encap,encap,user_dlts),
 		UAT_FLD_PROTO(user_encap,payload_proto),
@@ -155,10 +157,10 @@ void proto_register_user_encap(void)
 		UAT_END_FIELDS
 	};
 	
+	
 	proto_user_encap = proto_register_protocol("DLT User","DLT_USER","user_dlt");
-	module_t *module = prefs_register_protocol(proto_user_encap, NULL);
 	
-	
+	module = prefs_register_protocol(proto_user_encap, NULL);
 	
 	encaps_uat = uat_new("User DLTs Table",
 						 sizeof(user_encap_t),

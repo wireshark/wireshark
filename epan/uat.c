@@ -275,6 +275,16 @@ void uat_cleanup(void) {
 	g_ptr_array_free(all_uats,TRUE);
 }
 
+
+void uat_foreach_table(uat_cb_t cb,void* user_data) {
+	guint i;
+	
+	for (i=0; i < all_uats->len; i++)
+		cb(g_ptr_array_index(all_uats,i), user_data);
+	
+}	
+
+
 void uat_load_all(void) {
 	guint i;
 	gchar* err;
@@ -290,6 +300,7 @@ void uat_load_all(void) {
 		}
 	}
 }
+
 
 gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, void* u2 _U_, void* u3 _U_, char** err) {
 	if (strptr == NULL) {
