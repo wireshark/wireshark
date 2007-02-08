@@ -234,10 +234,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
-    if ((udph->uh_ulen > tvb->length) && ! pinfo->fragmented) {
+    if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented) {
       /* Bogus length - it goes past the end of the IP payload */
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
-          udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb->length);
+          udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Bad length value %u > IP payload length", udph->uh_ulen);
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u > IP PAYLOAD LENGTH]", udph->uh_ulen);
