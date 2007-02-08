@@ -3497,11 +3497,10 @@ welcome_header_new(void)
     /*icon = xpm_to_widget_from_parent(top_level, wsicon64_xpm);*/
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
-#if 1
 #if GTK_MAJOR_VERSION < 2
-    message = "Wireshark";
+    message = "The World's Most Popular Network Protocol Analyzer";
 #else
-    message = "<span weight=\"bold\" size=\"25000\">" "Wireshark" "</span>";
+    message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
 #endif
     w = gtk_label_new(message);
 #if GTK_MAJOR_VERSION >= 2
@@ -3509,7 +3508,6 @@ welcome_header_new(void)
 #endif
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
-#endif
 
     gtk_widget_show_all(eb);
 
@@ -3556,18 +3554,25 @@ GtkWidget *
 welcome_topic_new(const char *header, GtkWidget **to_fill)
 {
 	GtkWidget *topic_vb;
+	GtkWidget *layout_vb;
 	GtkWidget *topic_eb;
 	GtkWidget *topic_header;
 	GdkColor bg;
 
-
-	topic_vb = gtk_vbox_new(FALSE, 5);
+	topic_vb = gtk_vbox_new(FALSE, 0);
 
 	/* topic content background color */
 	bg.pixel = 0;
 	bg.red = 221 * 255;
 	bg.green = 226 * 255;
 	bg.blue = 228 * 255;
+
+	topic_header = welcome_topic_header_new(header);
+    gtk_box_pack_start(GTK_BOX(topic_vb), topic_header, FALSE, FALSE, 0);
+
+	layout_vb = gtk_vbox_new(FALSE, 5);
+	gtk_container_border_width(GTK_CONTAINER(layout_vb), 10);
+    gtk_box_pack_start(GTK_BOX(topic_vb), layout_vb, FALSE, FALSE, 0);
 
 	/* colorize vbox (we need an event box for this!) */
 	get_color(&bg);
@@ -3576,15 +3581,174 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
 #if GTK_MAJOR_VERSION >= 2
 	gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &bg);
 #endif
-
-	topic_header = welcome_topic_header_new(header);
-    gtk_box_pack_start(GTK_BOX(topic_vb), topic_header, FALSE, FALSE, 0);
-
-	*to_fill = topic_vb;
+	*to_fill = layout_vb;
 
 	return topic_eb;
 }
 
+
+#if GTK_MAJOR_VERSION >= 2
+static gboolean
+welcome_link_enter_cb(GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
+{
+    gchar *message;
+    GtkWidget *w = user_data;
+	
+	message = g_strdup_printf("<span foreground='blue' underline='single'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
+#if GTK_MAJOR_VERSION >= 2
+    gtk_label_set_markup(GTK_LABEL(w), message);
+#endif
+	g_free(message);
+
+	return FALSE;
+}
+
+static gboolean
+welcome_link_leave_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer user_data)
+{	
+    gchar *message;
+    GtkWidget *w = user_data;
+	
+	message = g_strdup_printf("<span foreground='blue'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
+#if GTK_MAJOR_VERSION >= 2
+    gtk_label_set_markup(GTK_LABEL(w), message);
+#endif
+	g_free(message);
+
+	return FALSE;
+}
+#endif
+
+
+static gboolean
+welcome_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_) {
+	
+	g_warning("TBD: link pressed");
+
+	return FALSE;
+}
+
+GtkWidget *
+welcome_link_new(const gchar *text, GtkWidget **label /*, void *callback, void *private_data */)
+{
+    gchar *message;
+    GtkWidget *w;
+    GtkWidget *eb;
+
+#if GTK_MAJOR_VERSION < 2
+    message = g_strdup(text);
+#else
+	message = g_strdup_printf("<span foreground='blue'>%s</span>", text);
+#endif
+	w = gtk_label_new(message);
+	*label = w;
+#if GTK_MAJOR_VERSION >= 2
+    gtk_label_set_markup(GTK_LABEL(w), message);
+#endif
+	g_free(message);
+
+	/* event box */
+	eb = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(eb), w);
+
+#if GTK_MAJOR_VERSION >= 2
+    SIGNAL_CONNECT(eb, "enter-notify-event", welcome_link_enter_cb, w);
+    SIGNAL_CONNECT(eb, "leave-notify-event", welcome_link_leave_cb, w);
+#endif
+    SIGNAL_CONNECT(eb, "button-press-event", welcome_link_press_cb, w);
+
+	/* XXX - memleak */
+	OBJECT_SET_DATA(w, "TEXT", g_strdup(text));
+
+	return eb;
+}
+
+GtkWidget *
+welcome_filename_link_new(const char *filename, GtkWidget **label)
+{
+	GString		*str;
+	GtkWidget	*w;
+	const unsigned int max = 60;
+
+
+	str = g_string_new(filename);
+
+	if(str->len > max) {
+		g_string_erase(str, 0, str->len-max /*cut*/);
+		g_string_prepend(str, "... ");
+	}
+
+	w = welcome_link_new(str->str, label);
+
+	g_string_free(str, TRUE);
+
+	return w;
+}
+
+
+GtkWidget *
+welcome_if_new(const char *if_name, GdkColor *topic_bg, gboolean active)
+{
+	GtkWidget *interface_hb;
+	GtkWidget *w;
+    GtkWidget *label;
+	GtkTooltips *tooltips;
+	GString   *message;
+
+
+	tooltips = gtk_tooltips_new();
+
+	interface_hb = gtk_hbox_new(FALSE, 5);
+
+	w = welcome_link_new("START", &label);
+	gtk_tooltips_set_tip(tooltips, w, "Immediately start a capture on this interface", NULL);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
+
+	w = welcome_link_new("OPTIONS", &label);
+	gtk_tooltips_set_tip(tooltips, w, "Show the capture options of this interface", NULL);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
+
+	w = welcome_link_new("DETAILS", &label);
+	gtk_tooltips_set_tip(tooltips, w, "Show detailed information about this interface", NULL);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
+
+	message = g_string_new(if_name);
+
+	/* truncate string if it's too long */
+	if(message->len > 38) {
+		g_string_truncate(message, 35);
+		g_string_append  (message, " ...");
+	}
+#if GTK_MAJOR_VERSION >= 2
+	/* if this is the "active" interface, display it bold */
+	if(active) {
+		g_string_prepend(message, "<span weight=\"bold\">");
+		g_string_append (message, "</span>");
+	}
+#endif
+	w = gtk_label_new(message->str);
+#if GTK_MAJOR_VERSION >= 2
+    gtk_label_set_markup(GTK_LABEL(w), message->str);
+#endif
+	g_string_free(message, TRUE);
+
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
+
+	return interface_hb;
+}
 
 /* XXX - the layout has to be improved */
 GtkWidget *
@@ -3596,10 +3760,19 @@ welcome_new(void)
 	GtkWidget *column_vb;
 	GtkWidget *item_hb;
     GtkWidget *w;
+    GtkWidget *label;
 	GtkWidget *header;
 	GtkWidget *topic_vb;
 	GtkWidget *topic_to_fill;
+	GtkWidget *interface_hb;
+	GdkColor  topic_bg;
 
+
+	/* topic content background color */
+	topic_bg.pixel = 0;
+	topic_bg.red = 221 * 255;
+	topic_bg.green = 226 * 255;
+	topic_bg.blue = 228 * 255;
 
     welcome_scrollw = scrolled_window_new(NULL, NULL);
 
@@ -3618,35 +3791,36 @@ welcome_new(void)
 	column_vb = gtk_vbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
+	/* capture topic */
 	topic_vb = welcome_topic_new("Capture", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-	w = gtk_label_new("Interfaces:");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
-
-	w = gtk_label_new("START OPTIONS DETAILS Generic dialup adapter");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-	w = gtk_label_new("START OPTIONS DETAILS Marvell Gigabit Ethernet Controller");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-	w = gtk_label_new("START OPTIONS DETAILS Intel(R) PRO/Wireless 3945ABG Network Connection");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
 #ifdef HAVE_LIBPCAP
-    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
-        "Capture",
-        "Capture live data from your network",
-		"tip",
-        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_INTERFACES,
+        "Interfaces...",
+        "Interface Life List",
+		"Show a life list of the available capture interfaces",
+        GTK_SIGNAL_FUNC(capture_if_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #endif
 
+	w = gtk_label_new("Available Interfaces:");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
+	interface_hb = welcome_if_new("Generic dialup adapter", &topic_bg, FALSE);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), interface_hb, FALSE, FALSE, 0);
+
+	/* Marvell interface (currently "active") */
+	interface_hb = welcome_if_new("Marvell Gigabit Ethernet Controller", &topic_bg, TRUE);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), interface_hb, FALSE, FALSE, 0);
+
+	/* Wireless interface */
+	interface_hb = welcome_if_new("Intel(R) PRO/Wireless 3945ABG Network Connection", &topic_bg, FALSE);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), interface_hb, FALSE, FALSE, 0);
+
+
+	/* capture help topic */
 	topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
@@ -3654,15 +3828,15 @@ welcome_new(void)
     item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
         "Setup",
 		"How To: Setup a Capture",
-		"tip",
-        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+		"How To: Setup a Capture (online from the Wiki)",
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_START,
         "Examples",
 		"Capture Filter Examples",
-		"Capture Filter Examples (from the Wiki)",
-        GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
+		"Capture Filter Examples (online from the Wiki)",
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #endif
 
@@ -3672,60 +3846,83 @@ welcome_new(void)
 
 
 	/* column files */
-	column_vb = welcome_topic_new("Files", &topic_to_fill);
-    gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
-
-	w = gtk_label_new("Recent Files:");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
-
-	w = gtk_label_new("C:\\Testfiles\\hello.pcap");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-	w = gtk_label_new("C:\\Testfiles\\hello2.pcap");
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+	topic_vb = welcome_topic_new("Files", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(welcome_hb), topic_vb, TRUE, TRUE, 0);
 
     item_hb = welcome_item(GTK_STOCK_OPEN,
-        "Open",
-        "Open a capture file",
-		"tip",
+        "Open...",
+        "Open a Capture File",
+		"Open a previously captured file",
         GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_item(GTK_STOCK_OPEN,
         "Examples",
-        "Download Example Files",
+        "Download Examples",
 		"Download Example Capture Files (from the Wiki)",
-        GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
+        GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
+
+	w = gtk_label_new("Recent Files:");
+	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+
+	w = welcome_link_new("C:\\Testfiles\\hello.pcap", &label);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+
+	w = welcome_filename_link_new("C:\\Testfiles\\hello2.pcap", &label);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+
+	w = welcome_filename_link_new(
+		"C:\\Testfiles\\to avoid screen garbage\\Unfortunately this is a very long filename which had to be truncated.pcap", 
+		&label);
+#if GTK_MAJOR_VERSION >= 2
+	gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
+#endif
+	gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
     w = gtk_label_new("");
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
 
 
-	/* column general help */
-	column_vb = welcome_topic_new("General Help", &topic_to_fill);
+	/* column online */
+	column_vb = gtk_vbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
+
+	/* topic online */
+	topic_vb = welcome_topic_new("Online", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
 #if (GLIB_MAJOR_VERSION >= 2)
     item_hb = welcome_item(WIRESHARK_STOCK_WEB_SUPPORT,
-        "User's Guide",
-        "Help Content",
-		"tip",
+        "Help",
+        "Show the User's Guide",
+		"Show the User's Guide (local version, if available)",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_USERGUIDE));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_item(GTK_STOCK_HOME,
         "Home",
-        "Home Page",
-		"tip",
+        "Projects Home Page",
+		"Visit www.wireshark.org, the project's home page",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #endif
 
-    w = gtk_label_new("");
+	/* topic updates */
+	topic_vb = welcome_topic_new("Updates", &topic_to_fill);
+    gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
+
+    w = gtk_label_new("No updates available!");
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
 
 
