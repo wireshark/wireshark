@@ -163,6 +163,7 @@ dissect_dcerpc_uuid_t
 dissect_h245_H223Capability
 dissect_ndr_uint32
 dissect_ndr_uuid_t
+dissect_nt_64bit_time
 dissect_per_bit_string
 dissect_per_BMPString
 dissect_per_boolean
