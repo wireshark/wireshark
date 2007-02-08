@@ -43,6 +43,7 @@
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/crc16.h>
 #include <string.h>
 #include <math.h>
@@ -1015,8 +1016,8 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 }
 
 /* Ref chapter 6.3.7.2.12 SIC */
-static gint dissect_dmp_sic (tvbuff_t *tvb, proto_tree *message_tree,
-                             gint offset)
+static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
+			     proto_tree *message_tree, gint offset)
 {
 	proto_tree *sic_tree = NULL, *bitmap_tree = NULL, *key_tree = NULL;
 	proto_item *sf = NULL, *bf = NULL, *kf = NULL;
@@ -1038,6 +1039,9 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, proto_tree *message_tree,
 						   offset, 2, sic, 
 						   "SIC: %s [A-Z0-9 only]%s", sic,
 						   failure ? " (invalid)": "");
+		if (failure) {
+			expert_add_info_format (pinfo, sf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
+		}
 		offset += 2;
 
 	} else if (key <= 0xBD) {
@@ -1050,6 +1054,9 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, proto_tree *message_tree,
 						   offset, 3, sic, 
 						   "SIC: %s [any character]%s", sic, 
 						   failure ? " (invalid)": "");
+		if (failure) {
+			expert_add_info_format (pinfo, sf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
+		}
 		offset += 3;
 
 	} else if (key <= 0xBF) {
@@ -1088,10 +1095,13 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, proto_tree *message_tree,
 				bytes = 2;
 			}
 			failure = dmp_dec_xbyte_sic (value, sic, 3, any);
-			proto_tree_add_string_format (sic_tree, hf_message_sic, tvb, 
-						      offset, bytes, sic,
-						      "SIC %d: %s%s", i + 1, sic,
-						      failure ? " (invalid)": "");
+			bf = proto_tree_add_string_format (sic_tree, hf_message_sic, tvb, 
+							   offset, bytes, sic,
+							   "SIC %d: %s%s", i + 1, sic,
+							   failure ? " (invalid)": "");
+			if (failure) {
+				expert_add_info_format (pinfo, bf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
+			}
 			offset += bytes;
 		}
 		proto_item_append_text (sf, ": %d (3 %s character)", no,
@@ -1210,6 +1220,9 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, proto_tree *message_tree,
 					proto_tree_add_item (bitmap_tree, hf_message_sic_bits, tvb, 
 							     offset, 1, FALSE);
 				}
+			}
+			if (failure) {
+				expert_add_info_format (pinfo, bf, PI_UNDECODED, PI_NOTE, "Illegal SIC");
 			}
 			offset += bytes;
 		}
@@ -1796,7 +1809,10 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_item_append_text (en, ", Reason: %s",
 				val_to_str (reason, ack_reason, "Reserved"));
   
-	proto_tree_add_item (ack_tree, hf_ack_reason, tvb, offset, 1, FALSE);
+	rt = proto_tree_add_item (ack_tree, hf_ack_reason, tvb, offset, 1, FALSE);
+	if (reason != 0) {
+		expert_add_info_format (pinfo, rt, PI_RESPONSE_CODE, PI_NOTE, "ACK reason: %s", val_to_str (reason, ack_reason, "Reserved"));
+	}
 	offset += 1;
   
 	proto_tree_add_item (ack_tree, hf_ack_diagnostic, tvb, offset, 1, FALSE);
@@ -1875,6 +1891,8 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* Unsupported DMP Version */
 		proto_item_append_text (vf, " (unsupported)");
 		proto_item_append_text (tf, " (unsupported)");
+		expert_add_info_format (pinfo, vf, PI_UNDECODED, PI_ERROR, 
+					"Unsupported DMP Version: %d", dmp.version);
 		return offset;
 	}
   
@@ -2219,8 +2237,10 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo _U_,
 				proto_tree_add_item (field_tree, hf_message_body_uncompressed,
 						     next_tvb, 0, -1, FALSE);
 			} else {
-				proto_tree_add_text (message_tree, tvb, offset, -1,
-						     "Error: Unable to uncompress content");
+				tf = proto_tree_add_text (message_tree, tvb, offset, -1,
+							  "Error: Unable to uncompress content");
+				expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_WARN, 
+							"Unable to uncompress content");
 			}
 		} else if (eit != EIT_BILATERAL) {
 			proto_tree_add_item (field_tree, hf_message_body_plain, tvb,
@@ -2816,7 +2836,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	if (dmp.msg_type == STANAG) {
 		/* SIC */
-		offset = dissect_dmp_sic (tvb, message_tree, offset);
+		offset = dissect_dmp_sic (tvb, pinfo, message_tree, offset);
 	} else if (dmp.msg_type == REPORT || dmp.msg_type == NOTIF) {
 		/* Subject Message Identifier */
 		dmp.subj_id = tvb_get_ntohs (tvb, offset);
@@ -2901,6 +2921,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo _U_ ,
 		} else {
 			proto_item_append_text (en, " (incorrect, should be 0x%04x)",
 						checksum1);
+			expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
 		}
 	}
    
