@@ -2,7 +2,7 @@
  *
  * Routines for Compressed Data Type packet dissection.
  *
- * Copyright 2005, Stig Bj>rlykke <stig@bjorlykke.org>, Thales Norway AS
+ * Copyright 2005, Stig Bjørlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * $Id$
  *
@@ -33,6 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/oid_resolv.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-x411.h"

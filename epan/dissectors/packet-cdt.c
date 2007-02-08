@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-cdt.c                                                             */
+/* ./packet-cdt.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p cdt -c cdt.cnf -s packet-cdt-template cdt.asn */
 
 /* Input file: packet-cdt-template.c */
@@ -10,7 +10,7 @@
  *
  * Routines for Compressed Data Type packet dissection.
  *
- * Copyright 2005, Stig Bj>rlykke <stig@bjorlykke.org>, Thales Norway AS
+ * Copyright 2005, Stig Bjørlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * $Id$
  *
@@ -41,6 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/oid_resolv.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-x411.h"
@@ -70,7 +71,7 @@ static int hf_cdt_contentType_OID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-#line 52 "packet-cdt-template.c"
+#line 53 "packet-cdt-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -82,7 +83,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 55 "packet-cdt-template.c"
+#line 56 "packet-cdt-template.c"
 
 
 /*--- Included file: packet-cdt-fn.c ---*/
@@ -247,14 +248,17 @@ static int
 dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 #line 68 "cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
+  proto_item *tf = NULL;
   int         save_offset = offset;
 
     offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &compr_tvb);
 
   if (compr_tvb == NULL) {
-    proto_tree_add_text (top_tree, tvb, save_offset, -1,
-                         "[Error: Unable to get compressed content]");
+    tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
+                              "[Error: Unable to get compressed content]");
+    expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_ERROR,
+                            "Unable to get compressed content");
     if (check_col (pinfo->cinfo, COL_INFO))
       col_append_fstr (pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to get compressed content]");
@@ -264,8 +268,10 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   next_tvb = tvb_uncompress (compr_tvb, 0, tvb_length (compr_tvb));
 
   if (next_tvb == NULL) {
-    proto_tree_add_text (top_tree, tvb, save_offset, -1,
-                         "[Error: Unable to uncompress content]");
+    tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
+                              "[Error: Unable to uncompress content]");
+    expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_ERROR,
+                            "Unable to uncompress content");
     if (check_col (pinfo->cinfo, COL_INFO))
       col_append_fstr (pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to uncompress content]");
@@ -326,7 +332,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 57 "packet-cdt-template.c"
+#line 58 "packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -399,7 +405,7 @@ void proto_register_cdt (void) {
         "cdt.CompressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 89 "packet-cdt-template.c"
+#line 90 "packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -413,7 +419,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 94 "packet-cdt-template.c"
+#line 95 "packet-cdt-template.c"
   };
 
   /* Register protocol */
@@ -435,5 +441,5 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 109 "packet-cdt-template.c"
+#line 110 "packet-cdt-template.c"
 }
