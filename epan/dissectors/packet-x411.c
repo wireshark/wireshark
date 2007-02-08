@@ -9699,6 +9699,7 @@ void proto_reg_handoff_x411(void) {
     register_rtse_oid_dissector_handle("2.6.0.2.12", handle, 0, "id-as-mta-rtse", TRUE); 
     register_rtse_oid_dissector_handle("2.6.0.2.7", handle, 0, "id-as-mtse", FALSE);
 
+    register_ber_syntax_dissector("X.411 Message", proto_x411, dissect_x411_mts_apdu);
     register_rtse_oid_dissector_handle("applicationProtocol.1", handle, 0, "mts-transfer-protocol-1984", FALSE);
     register_rtse_oid_dissector_handle("applicationProtocol.12", handle, 0, "mta-transfer-protocol", FALSE);
   }
