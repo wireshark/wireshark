@@ -17,8 +17,9 @@ Parse::Pidl::Wireshark::NDR - Parser generator for Wireshark
 package Parse::Pidl::Wireshark::NDR;
 
 use strict;
+use Parse::Pidl qw(error);
 use Parse::Pidl::Typelist qw(getType);
-use Parse::Pidl::Util qw(has_property ParseExpr property_matches make_str);
+use Parse::Pidl::Util qw(has_property property_matches make_str);
 use Parse::Pidl::NDR qw(ContainsString GetNextLevel);
 use Parse::Pidl::Dump qw(DumpTypedef DumpFunction);
 use Parse::Pidl::Wireshark::Conformance qw(ReadConformance);
@@ -26,12 +27,6 @@ use File::Basename;
 
 use vars qw($VERSION);
 $VERSION = '0.01';
-
-sub error($$)
-{
-	my ($e,$t) = @_;
-	print "$e->{FILE}:$e->{LINE}: $t\n";
-}
 
 my @ett;
 
@@ -441,10 +436,10 @@ sub Function($$$)
 		} elsif ($type->{DATA}->{TYPE} eq "SCALAR") {
 			pidl_code "g$fn->{RETURN_TYPE} status;\n";
 		} else {
-	    	print "$fn->{FILE}:$fn->{LINE}: error: return type `$fn->{RETURN_TYPE}' not yet supported\n";
+	    	error($fn, "return type `$fn->{RETURN_TYPE}' not yet supported");
 		}
 	} else {
-		print "$fn->{FILE}:$fn->{LINE}: error: unknown return type `$fn->{RETURN_TYPE}'\n";
+		error($fn, "unknown return type `$fn->{RETURN_TYPE}'");
 	}
 
 	foreach (@{$fn->{ELEMENTS}}) {
@@ -828,7 +823,7 @@ sub Initialize($)
 		header_fields=> {} 
 	};
 
-	ReadConformance($cnf_file, $conformance) or print "Warning: No conformance file `$cnf_file'\n";
+	ReadConformance($cnf_file, $conformance) or print STDERR "warning: No conformance file `$cnf_file'\n";
 	
 	foreach my $bytes (qw(1 2 4 8)) {
 		my $bits = $bytes * 8;
@@ -1054,43 +1049,43 @@ sub CheckUsed($)
 	my $conformance = shift;
 	foreach (values %{$conformance->{header_fields}}) {
 		if (not defined($hf_used{$_->{INDEX}})) {
-			print "$_->{POS}: warning: hf field `$_->{INDEX}' not used\n";
+			warning($_->{POS}, "hf field `$_->{INDEX}' not used");
 		}
 	}
 
 	foreach (values %{$conformance->{hf_renames}}) {
 		if (not $_->{USED}) {
-			print "$_->{POS}: warning: hf field `$_->{OLDNAME}' not used\n";
+			warning($_->{POS}, "hf field `$_->{OLDNAME}' not used");
 		}
 	}
 
 	foreach (values %{$conformance->{dissectorparams}}) {
 		if (not $_->{USED}) {
-			print "$_->{POS}: warning: dissector param never used\n";
+			warning($_->{POS}, "dissector param never used");
 		}
 	}
 
 	foreach (values %{$conformance->{imports}}) {
 		if (not $_->{USED}) {
-			print "$_->{POS}: warning: import never used\n";
+			warning($_->{POS}, "import never used");
 		}
 	}
 
 	foreach (values %{$conformance->{types}}) {
 		if (not $_->{USED} and defined($_->{POS})) {
-			print "$_->{POS}: warning: type never used\n";
+			warning($_->{POS}, "type never used");
 		}
 	}
 
 	foreach (values %{$conformance->{fielddescription}}) {
 		if (not $_->{USED}) {
-			print "$_->{POS}: warning: description never used\n";
+			warning($_->{POS}, "description never used");
 		}
 	}
 
 	foreach (values %{$conformance->{tfs}}) {
 		if (not $_->{USED}) {
-			print "$_->{POS}: warning: True/False description never used\n";
+			warning($_->{POS}, "True/False description never used");
 		}
 	}
 }

@@ -100,6 +100,7 @@ $VERSION = '0.01';
 
 use strict;
 
+use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property);
 
 sub handle_type($$$$$$$$$$)
@@ -107,20 +108,20 @@ sub handle_type($$$$$$$$$$)
 	my ($pos,$data,$name,$dissectorname,$ft_type,$base_type,$mask,$valsstring,$alignment) = @_;
 
 	unless(defined($alignment)) {
-		print "$pos: error incomplete TYPE command\n";
+		error($pos, "incomplete TYPE command");
 		return;
 	}
 
 	unless ($dissectorname =~ /.*dissect_.*/) {
-		print "$pos: warning: dissector name does not contain `dissect'\n";
+		warning($pos, "dissector name does not contain `dissect'");
 	}
 
 	unless(valid_ft_type($ft_type)) {
-		print "$pos: warning: invalid FT_TYPE `$ft_type'\n";
+		warning($pos, "invalid FT_TYPE `$ft_type'");
 	}
 
 	unless (valid_base_type($base_type)) {
-		print "$pos: warning: invalid BASE_TYPE `$base_type'\n";
+		warning($pos, "invalid BASE_TYPE `$base_type'");
 	}
 
 	$data->{types}->{$name} = {
@@ -141,7 +142,7 @@ sub handle_tfs($$$$$)
 	my ($pos,$data,$hf,$trues,$falses) = @_;
 
 	unless(defined($falses)) {
-		print "$pos: error: incomplete TFS command\n";
+		error($pos, "incomplete TFS command");
 		return;
 	}
 
@@ -156,7 +157,7 @@ sub handle_hf_rename($$$$)
 	my ($pos,$data,$old,$new) = @_;
 
 	unless(defined($new)) {
-		print "$pos: error: incomplete HF_RENAME command\n";
+		error($pos, "incomplete HF_RENAME command");
 		return;
 	}
 
@@ -173,7 +174,7 @@ sub handle_param_value($$$$)
 	my ($pos,$data,$dissector_name,$value) = @_;
 
 	unless(defined($value)) {
-		print "$pos: error: incomplete PARAM_VALUE command\n";
+		error($pos, "incomplete PARAM_VALUE command");
 		return;
 	}
 
@@ -204,16 +205,16 @@ sub handle_hf_field($$$$$$$$$$)
 	my ($pos,$data,$index,$name,$filter,$ft_type,$base_type,$valsstring,$mask,$blurb) = @_;
 
 	unless(defined($blurb)) {
-		print "$pos: error: incomplete HF_FIELD command\n";
+		error($pos, "incomplete HF_FIELD command");
 		return;
 	}
 
 	unless(valid_ft_type($ft_type)) {
-		print "$pos: warning: invalid FT_TYPE `$ft_type'\n";
+		warning($pos, "invalid FT_TYPE `$ft_type'");
 	}
 
 	unless(valid_base_type($base_type)) {
-		print "$pos: warning: invalid BASE_TYPE `$base_type'\n";
+		warning($pos, "invalid BASE_TYPE `$base_type'");
 	}
 
 	$data->{header_fields}->{$index} = {
@@ -284,7 +285,7 @@ sub handle_import
 	my $dissectorname = shift @_;
 
 	unless(defined($dissectorname)) {
-		print "$pos: error: no dissectorname specified\n";
+		error($pos, "no dissectorname specified");
 		return;
 	}
 
@@ -346,12 +347,14 @@ sub ReadConformance($$)
 
 		shift @fields;
 
+		my $pos = { FILE => $f, LINE => $ln };
+
 		if (not defined($field_handlers{$cmd})) {
-			print "$f:$ln: warning: Unknown command `$cmd'\n";
+			warning($pos, "Unknown command `$cmd'");
 			next;
 		}
 		
-		$field_handlers{$cmd}("$f:$ln", $data, @fields);
+		$field_handlers{$cmd}($pos, $data, @fields);
 	}
 
 	close(IN);

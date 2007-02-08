@@ -4,9 +4,10 @@
 # Published under the GNU General Public License
 use strict;
 
-use Test::More tests => 59;
+use Test::More tests => 59 * 2;
 use FindBin qw($RealBin);
-use lib "$RealBin/../lib";
+use lib "$RealBin";
+use Util qw(test_errors);
 use Parse::Pidl::IDL;
 use Parse::Pidl::NDR;
 
@@ -14,35 +15,40 @@ sub testok($$)
 {
 	my ($name, $data) = @_;
 	
-	my $pidl = Parse::Pidl::IDL::parse_string($data, "<$name>");
-	
-	ok (defined($pidl), $name);
-	return $pidl
+	test_errors("", sub {
+		my $pidl = Parse::Pidl::IDL::parse_string($data, "<$name>");
+		ok (defined($pidl), $name);
+	});
 }
 
-sub testfail($$)
+sub testfail($$$)
 {
-	my ($name, $data) = @_;
+	my ($name, $data, $error) = @_;
 	
-	my $pidl = Parse::Pidl::IDL::parse_string($data, "<$name>");
+	test_errors($error, sub {
+		my $pidl = Parse::Pidl::IDL::parse_string($data, "<$name>");
 	
-	ok ((not defined $pidl), $name);
+		ok ((not defined $pidl), $name);
+	});
 }
 
-testfail "unknowntag", "bla test {};";
+testfail "unknowntag", "bla test {};", 
+         "<unknowntag>:0: Syntax error near 'bla'\n";
 testok "test1", "interface test { void Test(); }; ";
 testok "voidtest", "interface test { int Testx(void); }; ";
-testfail "voidtest", "interface test { Test(); }; ";
+testfail "voidtest", "interface test { Test(); }; ", 
+         "<voidtest>:0: Syntax error near '('\n";
 testok "argtest", "interface test { int Test(int a, long b, uint32 c); }; ";
 testok "array1", "interface test { int Test(int a[]); };";
 testok "array2", "interface test { int Test(int a[2]); };";
 testok "array3", "interface test { int Test(int a[b]); };";
-testfail "array4", "interface test { int Test(int[] a); };";
+testfail "array4", "interface test { int Test(int[] a); };", 
+         "<array4>:0: Syntax error near '['\n";
 testok "ptr1", "interface test { int Test(int *a); };";
 testok "ptr2", "interface test { int Test(int **a); };";
 testok "ptr3", "interface test { int Test(int ***a); };";
-testfail "empty1", "interface test { };";
-testfail "empty2", "";
+testfail "empty1", "interface test { };", "<empty1>:0: Syntax error near '}'\n";
+testfail "empty2", "", "";
 testok "attr1", "[uuid(\"myuuid\"),attr] interface test { int Test(int ***a); };";
 testok "attr2", "interface test { [public] int Test(); };";
 testok "attr3", "[attr1] [attr2] interface test { [public] int Test(); };";
@@ -51,22 +57,28 @@ testok "multif", "interface test { int test1(); }; interface test2 { int test2()
 testok "tdstruct1", "interface test { typedef struct { } foo; };";
 testok "tdstruct2", "interface test { typedef struct { int a; } foo; };";
 testok "tdstruct3", "interface test { typedef struct { int a; int b; } foo; };";
-testfail "tdstruct4", "interface test { typedef struct { int a, int b; } foo; };";
+testfail "tdstruct4", "interface test { typedef struct { int a, int b; } foo; };", 
+         "<tdstruct4>:0: Syntax error near ','\n";
 testok "struct1", "interface test { struct x { }; };";
 testok "struct2", "interface test { struct x { int a; }; };";
 testok "struct3", "interface test { struct x { int a; int b; }; };";
-testfail "struct4", "interface test { struct x { int a, int b; }; };";
-testfail "struct5", "interface test { struct { int a; } x; };";
+testfail "struct4", "interface test { struct x { int a, int b; }; };", 
+         "<struct4>:0: Syntax error near ','\n";
+testfail "struct5", "interface test { struct { int a; } x; };", 
+         "<struct5>:0: Syntax error near 'x'\n";
 testok "tdunion1", "interface test { typedef union { } a; };";
 testok "tdunion2", "interface test { typedef union { int a; } a; };";
 testok "union1", "interface test { union a { }; };";
 testok "union2", "interface test { union x { int a; }; };";
-testfail "union3", "interface test { union { int a; } x; };";
+testfail "union3", "interface test { union { int a; } x; };", 
+       "<union3>:0: Syntax error near 'x'\n";
 testok "typedef1", "interface test { typedef int a; };";
-testfail "typedef2", "interface test { typedef x; };";
+testfail "typedef2", "interface test { typedef x; };", 
+         "<typedef2>:0: Syntax error near ';'\n";
 testok "tdenum1", "interface test { typedef enum { A=1, B=2, C} a; };";
 testok "enum1", "interface test { enum a { A=1, B=2, C}; };";
-testfail "enum2", "interface test { enum { A=1, B=2, C} a; };";
+testfail "enum2", "interface test { enum { A=1, B=2, C} a; };", 
+	 "<enum2>:0: Syntax error near 'a'\n";
 testok "nested1", "interface test { struct x { struct { int a; } z; }; };";
 testok "nested2", "interface test { struct x { struct y { int a; } z; }; };";
 testok "bitmap1", "interface test { bitmap x { a=1 }; };";
@@ -82,9 +94,12 @@ testok "emptyenumdecl", "interface test { enum x; };";
 testok "emptytdstructdecl", "interface test { typedef struct x y; };";
 testok "import", "import \"foo.idl\";";
 testok "include", "include \"foo.h\";";
-testfail "import-noquotes", "import foo.idl;";
-testfail "include-noquotes", "include foo.idl;";
+testfail "import-noquotes", "import foo.idl;", 
+		"<import-noquotes>:0: Syntax error near 'foo'\n";
+testfail "include-noquotes", "include foo.idl;", 
+         "<include-noquotes>:0: Syntax error near 'foo'\n";
 testok "importlib", "importlib \"foo.idl\";";
-testfail "import-nosemicolon", "import \"foo.idl\"";
+testfail "import-nosemicolon", "import \"foo.idl\"", 
+         "<import-nosemicolon>:0: Syntax error near 'foo.idl'\n";
 testok "import-multiple", "import \"foo.idl\", \"bar.idl\";";
 testok "include-multiple", "include \"foo.idl\", \"bar.idl\";";

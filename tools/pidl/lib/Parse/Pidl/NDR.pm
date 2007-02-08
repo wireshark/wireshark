@@ -35,8 +35,10 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
+@EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement);
 
 use strict;
+use Parse::Pidl qw(warning fatal);
 use Parse::Pidl::Typelist qw(hasType getType expandAlias);
 use Parse::Pidl::Util qw(has_property property_matches);
 
@@ -70,20 +72,6 @@ my $scalar_alignment = {
 	'ipv4address' => 4
 };
 
-sub nonfatal($$)
-{
-	my ($e,$s) = @_;
-	warn ("$e->{FILE}:$e->{LINE}: warning: $s\n");
-}
-
-#####################################################################
-# signal a fatal validation error
-sub fatal($$)
-{
-	my ($pos,$s) = @_;
-	die("$pos->{FILE}:$pos->{LINE}:$s\n");
-}
-
 sub GetElementLevelTable($)
 {
 	my $e = shift;
@@ -113,7 +101,7 @@ sub GetElementLevelTable($)
 		if (has_property($e, "string")) { $needptrs++; }
 		if ($#bracket_array >= 0) { $needptrs = 0; }
 
-		nonfatal($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
+		warning($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
 	}
 
 	# Parse the [][][][] style array stuff
@@ -181,7 +169,7 @@ sub GetElementLevelTable($)
 			LEVEL => $level
 		});
 
-		nonfatal($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer") 
+		warning($e, "top-level \[out\] pointer `$e->{NAME}' is not a \[ref\] pointer") 
 			if ($i == 1 and pointer_type($e) ne "ref" and 
 				$e->{PARENT}->{TYPE} eq "FUNCTION" and 
 				not has_property($e, "in"));
@@ -256,15 +244,15 @@ sub GetElementLevelTable($)
 	}
 
 	if (scalar(@size_is) > 0) {
-		nonfatal($e, "size_is() on non-array element");
+		warning($e, "size_is() on non-array element");
 	}
 
 	if (scalar(@length_is) > 0) {
-		nonfatal($e, "length_is() on non-array element");
+		warning($e, "length_is() on non-array element");
 	}
 
 	if (has_property($e, "string")) {
-		nonfatal($e, "string() attribute on non-array element");
+		warning($e, "string() attribute on non-array element");
 	}
 
 	push (@$order, {
@@ -608,7 +596,7 @@ sub ParseInterface($)
 	if (not has_property($idl, "pointer_default_top")) {
 		$idl->{PROPERTIES}->{pointer_default_top} = "ref";
 	} else {
-		nonfatal($idl, "pointer_default_top() is a pidl extension and should not be used");
+		warning($idl, "pointer_default_top() is a pidl extension and should not be used");
 	}
 
 	foreach my $d (@{$idl->{DATA}}) {
@@ -850,10 +838,10 @@ sub ValidProperties($$)
 	return unless defined $e->{PROPERTIES};
 
 	foreach my $key (keys %{$e->{PROPERTIES}}) {
-		fatal($e, el_name($e) . ": unknown property '$key'\n")
+		warning($e, el_name($e) . ": unknown property '$key'")
 			unless defined($property_list{$key});
 
-   		fatal($e, el_name($e) . ": property '$key' not allowed on '$t'\n")
+   		fatal($e, el_name($e) . ": property '$key' not allowed on '$t'")
 			unless grep($t, @{$property_list{$key}});
 	}
 }
@@ -909,11 +897,10 @@ sub ValidElement($)
 			}
 
 			if ($t1 ne $t2) {
-				nonfatal($e, el_name($e) . ": switch_is() is of type $e2->{TYPE} ($t2), while discriminator type for union $type->{NAME} is $discriminator_type ($t1)");
+				warning($e, el_name($e) . ": switch_is() is of type $e2->{TYPE} ($t2), while discriminator type for union $type->{NAME} is $discriminator_type ($t1)");
 			}
 		}
 	}
-
 
 	if (has_property($e, "subcontext") and has_property($e, "represent_as")) {
 		fatal($e, el_name($e) . " : subcontext() and represent_as() can not be used on the same element");
@@ -929,6 +916,10 @@ sub ValidElement($)
 
 	if (has_property($e, "represent_as") and has_property($e, "value")) {
 		fatal($e, el_name($e) . " : represent_as() and value() can not be used on the same element");
+	}
+
+	if (has_property($e, "subcontext")) {
+		warning($e, "subcontext() is deprecated. Use represent_as() or transmit_as() instead");
 	}
 
 	if (defined (has_property($e, "subcontext_size")) and not defined(has_property($e, "subcontext"))) {
@@ -979,12 +970,12 @@ sub ValidUnion($)
 
 		if (defined($e->{PROPERTIES}->{default}) and 
 			defined($e->{PROPERTIES}->{case})) {
-			fatal $e, "Union member $e->{NAME} can not have both default and case properties!\n";
+			fatal($e, "Union member $e->{NAME} can not have both default and case properties!");
 		}
 		
 		unless (defined ($e->{PROPERTIES}->{default}) or 
 				defined ($e->{PROPERTIES}->{case})) {
-			fatal $e, "Union member $e->{NAME} must have default or case property\n";
+			fatal($e, "Union member $e->{NAME} must have default or case property");
 		}
 
 		if (has_property($e, "ref")) {
@@ -1029,7 +1020,7 @@ sub ValidFunction($)
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		$e->{PARENT} = $fn;
 		if (has_property($e, "ref") && !$e->{POINTERS}) {
-			fatal $e, "[ref] variables must be pointers ($fn->{NAME}/$e->{NAME})\n";
+			fatal($e, "[ref] variables must be pointers ($fn->{NAME}/$e->{NAME})");
 		}
 		ValidElement($e);
 	}
@@ -1043,7 +1034,7 @@ sub ValidInterface($)
 	my($data) = $interface->{DATA};
 
 	if (has_property($interface, "helper")) {
-		nonfatal $interface, "helper() is pidl-specific and deprecated. Use `include' instead";
+		warning($interface, "helper() is pidl-specific and deprecated. Use `include' instead");
 	}
 
 	ValidProperties($interface,"INTERFACE");
@@ -1051,19 +1042,19 @@ sub ValidInterface($)
 	if (has_property($interface, "pointer_default")) {
 		if (not grep (/$interface->{PROPERTIES}->{pointer_default}/, 
 					("ref", "unique", "ptr"))) {
-			fatal $interface, "Unknown default pointer type `$interface->{PROPERTIES}->{pointer_default}'";
+			fatal($interface, "Unknown default pointer type `$interface->{PROPERTIES}->{pointer_default}'");
 		}
 	}
 
 	if (has_property($interface, "object")) {
      		if (has_property($interface, "version") && 
 			$interface->{PROPERTIES}->{version} != 0) {
-			fatal $interface, "Object interfaces must have version 0.0 ($interface->{NAME})\n";
+			fatal($interface, "Object interfaces must have version 0.0 ($interface->{NAME})");
 		}
 
 		if (!defined($interface->{BASE}) && 
 			not ($interface->{NAME} eq "IUnknown")) {
-			fatal $interface, "Object interfaces must all derive from IUnknown ($interface->{NAME})\n";
+			fatal($interface, "Object interfaces must all derive from IUnknown ($interface->{NAME})");
 		}
 	}
 		
@@ -1086,7 +1077,7 @@ sub Validate($)
 		($x->{TYPE} eq "INTERFACE") && 
 		    ValidInterface($x);
 		($x->{TYPE} eq "IMPORTLIB") &&
-			nonfatal($x, "importlib() not supported");
+			warning($x, "importlib() not supported");
 	}
 }
 

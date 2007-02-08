@@ -12,482 +12,7 @@ use vars qw ( @ISA );
 use strict;
 
 @ISA= qw ( Parse::Yapp::Driver );
-#Included Parse/Yapp/Driver.pm file----------------------------------------
-{
-#
-# Module Parse::Yapp::Driver
-#
-# This module is part of the Parse::Yapp package available on your
-# nearest CPAN
-#
-# Any use of this module in a standalone parser make the included
-# text under the same copyright as the Parse::Yapp module itself.
-#
-# This notice should remain unchanged.
-#
-# (c) Copyright 1998-2001 Francois Desarmenien, all rights reserved.
-# (see the pod text in Parse::Yapp module for use and distribution rights)
-#
-
-package Parse::Yapp::Driver;
-
-require 5.004;
-
-use strict;
-
-use vars qw ( $VERSION $COMPATIBLE $FILENAME );
-
-$VERSION = '1.05';
-$COMPATIBLE = '0.07';
-$FILENAME=__FILE__;
-
-use Carp;
-
-#Known parameters, all starting with YY (leading YY will be discarded)
-my(%params)=(YYLEX => 'CODE', 'YYERROR' => 'CODE', YYVERSION => '',
-			 YYRULES => 'ARRAY', YYSTATES => 'ARRAY', YYDEBUG => '');
-#Mandatory parameters
-my(@params)=('LEX','RULES','STATES');
-
-sub new {
-    my($class)=shift;
-	my($errst,$nberr,$token,$value,$check,$dotpos);
-    my($self)={ ERROR => \&_Error,
-				ERRST => \$errst,
-                NBERR => \$nberr,
-				TOKEN => \$token,
-				VALUE => \$value,
-				DOTPOS => \$dotpos,
-				STACK => [],
-				DEBUG => 0,
-				CHECK => \$check };
-
-	_CheckParams( [], \%params, \@_, $self );
-
-		exists($$self{VERSION})
-	and	$$self{VERSION} < $COMPATIBLE
-	and	croak "Yapp driver version $VERSION ".
-			  "incompatible with version $$self{VERSION}:\n".
-			  "Please recompile parser module.";
-
-        ref($class)
-    and $class=ref($class);
-
-    bless($self,$class);
-}
-
-sub YYParse {
-    my($self)=shift;
-    my($retval);
-
-	_CheckParams( \@params, \%params, \@_, $self );
-
-	if($$self{DEBUG}) {
-		_DBLoad();
-		$retval = eval '$self->_DBParse()';#Do not create stab entry on compile
-        $@ and die $@;
-	}
-	else {
-		$retval = $self->_Parse();
-	}
-    $retval
-}
-
-sub YYData {
-	my($self)=shift;
-
-		exists($$self{USER})
-	or	$$self{USER}={};
-
-	$$self{USER};
-	
-}
-
-sub YYErrok {
-	my($self)=shift;
-
-	${$$self{ERRST}}=0;
-    undef;
-}
-
-sub YYNberr {
-	my($self)=shift;
-
-	${$$self{NBERR}};
-}
-
-sub YYRecovering {
-	my($self)=shift;
-
-	${$$self{ERRST}} != 0;
-}
-
-sub YYAbort {
-	my($self)=shift;
-
-	${$$self{CHECK}}='ABORT';
-    undef;
-}
-
-sub YYAccept {
-	my($self)=shift;
-
-	${$$self{CHECK}}='ACCEPT';
-    undef;
-}
-
-sub YYError {
-	my($self)=shift;
-
-	${$$self{CHECK}}='ERROR';
-    undef;
-}
-
-sub YYSemval {
-	my($self)=shift;
-	my($index)= $_[0] - ${$$self{DOTPOS}} - 1;
-
-		$index < 0
-	and	-$index <= @{$$self{STACK}}
-	and	return $$self{STACK}[$index][1];
-
-	undef;	#Invalid index
-}
-
-sub YYCurtok {
-	my($self)=shift;
-
-        @_
-    and ${$$self{TOKEN}}=$_[0];
-    ${$$self{TOKEN}};
-}
-
-sub YYCurval {
-	my($self)=shift;
-
-        @_
-    and ${$$self{VALUE}}=$_[0];
-    ${$$self{VALUE}};
-}
-
-sub YYExpect {
-    my($self)=shift;
-
-    keys %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}
-}
-
-sub YYLexer {
-    my($self)=shift;
-
-	$$self{LEX};
-}
-
-
-#################
-# Private stuff #
-#################
-
-
-sub _CheckParams {
-	my($mandatory,$checklist,$inarray,$outhash)=@_;
-	my($prm,$value);
-	my($prmlst)={};
-
-	while(($prm,$value)=splice(@$inarray,0,2)) {
-        $prm=uc($prm);
-			exists($$checklist{$prm})
-		or	croak("Unknow parameter '$prm'");
-			ref($value) eq $$checklist{$prm}
-		or	croak("Invalid value for parameter '$prm'");
-        $prm=unpack('@2A*',$prm);
-		$$outhash{$prm}=$value;
-	}
-	for (@$mandatory) {
-			exists($$outhash{$_})
-		or	croak("Missing mandatory parameter '".lc($_)."'");
-	}
-}
-
-sub _Error {
-	print "Parse error.\n";
-}
-
-sub _DBLoad {
-	{
-		no strict 'refs';
-
-			exists(${__PACKAGE__.'::'}{_DBParse})#Already loaded ?
-		and	return;
-	}
-	my($fname)=__FILE__;
-	my(@drv);
-	open(DRV,"<$fname") or die "Report this as a BUG: Cannot open $fname";
-	while(<DRV>) {
-                	/^\s*sub\s+_Parse\s*{\s*$/ .. /^\s*}\s*#\s*_Parse\s*$/
-        	and     do {
-                	s/^#DBG>//;
-                	push(@drv,$_);
-        	}
-	}
-	close(DRV);
-
-	$drv[0]=~s/_P/_DBP/;
-	eval join('',@drv);
-}
-
-#Note that for loading debugging version of the driver,
-#this file will be parsed from 'sub _Parse' up to '}#_Parse' inclusive.
-#So, DO NOT remove comment at end of sub !!!
-sub _Parse {
-    my($self)=shift;
-
-	my($rules,$states,$lex,$error)
-     = @$self{ 'RULES', 'STATES', 'LEX', 'ERROR' };
-	my($errstatus,$nberror,$token,$value,$stack,$check,$dotpos)
-     = @$self{ 'ERRST', 'NBERR', 'TOKEN', 'VALUE', 'STACK', 'CHECK', 'DOTPOS' };
-
-#DBG>	my($debug)=$$self{DEBUG};
-#DBG>	my($dbgerror)=0;
-
-#DBG>	my($ShowCurToken) = sub {
-#DBG>		my($tok)='>';
-#DBG>		for (split('',$$token)) {
-#DBG>			$tok.=		(ord($_) < 32 or ord($_) > 126)
-#DBG>					?	sprintf('<%02X>',ord($_))
-#DBG>					:	$_;
-#DBG>		}
-#DBG>		$tok.='<';
-#DBG>	};
-
-	$$errstatus=0;
-	$$nberror=0;
-	($$token,$$value)=(undef,undef);
-	@$stack=( [ 0, undef ] );
-	$$check='';
-
-    while(1) {
-        my($actions,$act,$stateno);
-
-        $stateno=$$stack[-1][0];
-        $actions=$$states[$stateno];
-
-#DBG>	print STDERR ('-' x 40),"\n";
-#DBG>		$debug & 0x2
-#DBG>	and	print STDERR "In state $stateno:\n";
-#DBG>		$debug & 0x08
-#DBG>	and	print STDERR "Stack:[".
-#DBG>					 join(',',map { $$_[0] } @$stack).
-#DBG>					 "]\n";
-
-
-        if  (exists($$actions{ACTIONS})) {
-
-				defined($$token)
-            or	do {
-				($$token,$$value)=&$lex($self);
-#DBG>				$debug & 0x01
-#DBG>			and	print STDERR "Need token. Got ".&$ShowCurToken."\n";
-			};
-
-            $act=   exists($$actions{ACTIONS}{$$token})
-                    ?   $$actions{ACTIONS}{$$token}
-                    :   exists($$actions{DEFAULT})
-                        ?   $$actions{DEFAULT}
-                        :   undef;
-        }
-        else {
-            $act=$$actions{DEFAULT};
-#DBG>			$debug & 0x01
-#DBG>		and	print STDERR "Don't need token.\n";
-        }
-
-            defined($act)
-        and do {
-
-                $act > 0
-            and do {        #shift
-
-#DBG>				$debug & 0x04
-#DBG>			and	print STDERR "Shift and go to state $act.\n";
-
-					$$errstatus
-				and	do {
-					--$$errstatus;
-
-#DBG>					$debug & 0x10
-#DBG>				and	$dbgerror
-#DBG>				and	$$errstatus == 0
-#DBG>				and	do {
-#DBG>					print STDERR "**End of Error recovery.\n";
-#DBG>					$dbgerror=0;
-#DBG>				};
-				};
-
-
-                push(@$stack,[ $act, $$value ]);
-
-					$$token ne ''	#Don't eat the eof
-				and	$$token=$$value=undef;
-                next;
-            };
-
-            #reduce
-            my($lhs,$len,$code,@sempar,$semval);
-            ($lhs,$len,$code)=@{$$rules[-$act]};
-
-#DBG>			$debug & 0x04
-#DBG>		and	$act
-#DBG>		and	print STDERR "Reduce using rule ".-$act." ($lhs,$len): ";
-
-                $act
-            or  $self->YYAccept();
-
-            $$dotpos=$len;
-
-                unpack('A1',$lhs) eq '@'    #In line rule
-            and do {
-                    $lhs =~ /^\@[0-9]+\-([0-9]+)$/
-                or  die "In line rule name '$lhs' ill formed: ".
-                        "report it as a BUG.\n";
-                $$dotpos = $1;
-            };
-
-            @sempar =       $$dotpos
-                        ?   map { $$_[1] } @$stack[ -$$dotpos .. -1 ]
-                        :   ();
-
-            $semval = $code ? &$code( $self, @sempar )
-                            : @sempar ? $sempar[0] : undef;
-
-            splice(@$stack,-$len,$len);
-
-                $$check eq 'ACCEPT'
-            and do {
-
-#DBG>			$debug & 0x04
-#DBG>		and	print STDERR "Accept.\n";
-
-				return($semval);
-			};
-
-                $$check eq 'ABORT'
-            and	do {
-
-#DBG>			$debug & 0x04
-#DBG>		and	print STDERR "Abort.\n";
-
-				return(undef);
-
-			};
-
-#DBG>			$debug & 0x04
-#DBG>		and	print STDERR "Back to state $$stack[-1][0], then ";
-
-                $$check eq 'ERROR'
-            or  do {
-#DBG>				$debug & 0x04
-#DBG>			and	print STDERR 
-#DBG>				    "go to state $$states[$$stack[-1][0]]{GOTOS}{$lhs}.\n";
-
-#DBG>				$debug & 0x10
-#DBG>			and	$dbgerror
-#DBG>			and	$$errstatus == 0
-#DBG>			and	do {
-#DBG>				print STDERR "**End of Error recovery.\n";
-#DBG>				$dbgerror=0;
-#DBG>			};
-
-			    push(@$stack,
-                     [ $$states[$$stack[-1][0]]{GOTOS}{$lhs}, $semval ]);
-                $$check='';
-                next;
-            };
-
-#DBG>			$debug & 0x04
-#DBG>		and	print STDERR "Forced Error recovery.\n";
-
-            $$check='';
-
-        };
-
-        #Error
-            $$errstatus
-        or   do {
-
-            $$errstatus = 1;
-            &$error($self);
-                $$errstatus # if 0, then YYErrok has been called
-            or  next;       # so continue parsing
-
-#DBG>			$debug & 0x10
-#DBG>		and	do {
-#DBG>			print STDERR "**Entering Error recovery.\n";
-#DBG>			++$dbgerror;
-#DBG>		};
-
-            ++$$nberror;
-
-        };
-
-			$$errstatus == 3	#The next token is not valid: discard it
-		and	do {
-				$$token eq ''	# End of input: no hope
-			and	do {
-#DBG>				$debug & 0x10
-#DBG>			and	print STDERR "**At eof: aborting.\n";
-				return(undef);
-			};
-
-#DBG>			$debug & 0x10
-#DBG>		and	print STDERR "**Dicard invalid token ".&$ShowCurToken.".\n";
-
-			$$token=$$value=undef;
-		};
-
-        $$errstatus=3;
-
-		while(	  @$stack
-			  and (		not exists($$states[$$stack[-1][0]]{ACTIONS})
-			        or  not exists($$states[$$stack[-1][0]]{ACTIONS}{error})
-					or	$$states[$$stack[-1][0]]{ACTIONS}{error} <= 0)) {
-
-#DBG>			$debug & 0x10
-#DBG>		and	print STDERR "**Pop state $$stack[-1][0].\n";
-
-			pop(@$stack);
-		}
-
-			@$stack
-		or	do {
-
-#DBG>			$debug & 0x10
-#DBG>		and	print STDERR "**No state left on stack: aborting.\n";
-
-			return(undef);
-		};
-
-		#shift the error token
-
-#DBG>			$debug & 0x10
-#DBG>		and	print STDERR "**Shift \$error token and go to state ".
-#DBG>						 $$states[$$stack[-1][0]]{ACTIONS}{error}.
-#DBG>						 ".\n";
-
-		push(@$stack, [ $$states[$$stack[-1][0]]{ACTIONS}{error}, undef ]);
-
-    }
-
-    #never reached
-	croak("Error in driver logic. Please, report it as a BUG");
-
-}#_Parse
-#DO NOT remove comment
-
-1;
-
-}
-#End of include--------------------------------------------------
-
+use Parse::Yapp::Driver;
 
 
 
@@ -512,7 +37,7 @@ sub new {
 			"import" => 6,
 			"include" => 11
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'importlib' => 9,
 			'interface' => 8,
@@ -581,7 +106,7 @@ sub new {
 		}
 	},
 	{#State 13
-		DEFAULT => -125
+		DEFAULT => -124
 	},
 	{#State 14
 		DEFAULT => -10
@@ -636,7 +161,7 @@ sub new {
 		}
 	},
 	{#State 22
-		DEFAULT => -121
+		DEFAULT => -120
 	},
 	{#State 23
 		ACTIONS => {
@@ -662,10 +187,10 @@ sub new {
 		ACTIONS => {
 			"(" => 36
 		},
-		DEFAULT => -96
+		DEFAULT => -95
 	},
 	{#State 27
-		DEFAULT => -94
+		DEFAULT => -93
 	},
 	{#State 28
 		DEFAULT => -7
@@ -705,7 +230,7 @@ sub new {
 		}
 	},
 	{#State 35
-		DEFAULT => -93
+		DEFAULT => -92
 	},
 	{#State 36
 		ACTIONS => {
@@ -713,7 +238,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'text' => 46,
@@ -741,7 +266,7 @@ sub new {
 			"const" => 58,
 			"struct" => 61
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'typedecl' => 62,
 			'function' => 51,
@@ -759,7 +284,7 @@ sub new {
 		}
 	},
 	{#State 40
-		DEFAULT => -95
+		DEFAULT => -94
 	},
 	{#State 41
 		ACTIONS => {
@@ -779,7 +304,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -98
+		DEFAULT => -97
 	},
 	{#State 42
 		ACTIONS => {
@@ -788,22 +313,22 @@ sub new {
 		}
 	},
 	{#State 43
-		DEFAULT => -104
-	},
-	{#State 44
-		DEFAULT => -124
-	},
-	{#State 45
 		DEFAULT => -103
 	},
+	{#State 44
+		DEFAULT => -123
+	},
+	{#State 45
+		DEFAULT => -102
+	},
 	{#State 46
-		DEFAULT => -105
+		DEFAULT => -104
 	},
 	{#State 47
 		ACTIONS => {
 			";" => 86
 		},
-		DEFAULT => -126,
+		DEFAULT => -125,
 		GOTOS => {
 			'optional_semicolon' => 87
 		}
@@ -817,7 +342,7 @@ sub new {
 		}
 	},
 	{#State 49
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'property_list' => 89
 		}
@@ -826,7 +351,7 @@ sub new {
 		ACTIONS => {
 			'IDENTIFIER' => 90
 		},
-		DEFAULT => -123,
+		DEFAULT => -122,
 		GOTOS => {
 			'optional_identifier' => 91
 		}
@@ -845,7 +370,7 @@ sub new {
 			"const" => 58,
 			"struct" => 61
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'typedecl' => 62,
 			'function' => 51,
@@ -894,7 +419,7 @@ sub new {
 		DEFAULT => -18
 	},
 	{#State 56
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'property_list' => 103
 		}
@@ -920,7 +445,7 @@ sub new {
 		ACTIONS => {
 			'IDENTIFIER' => 90
 		},
-		DEFAULT => -123,
+		DEFAULT => -122,
 		GOTOS => {
 			'optional_identifier' => 105
 		}
@@ -932,7 +457,7 @@ sub new {
 		ACTIONS => {
 			'IDENTIFIER' => 90
 		},
-		DEFAULT => -123,
+		DEFAULT => -122,
 		GOTOS => {
 			'optional_identifier' => 106
 		}
@@ -941,7 +466,7 @@ sub new {
 		ACTIONS => {
 			'IDENTIFIER' => 90
 		},
-		DEFAULT => -123,
+		DEFAULT => -122,
 		GOTOS => {
 			'optional_identifier' => 107
 		}
@@ -964,7 +489,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 108,
@@ -978,7 +503,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 109,
@@ -992,7 +517,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 110,
@@ -1006,7 +531,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 111,
@@ -1020,7 +545,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 112,
@@ -1034,7 +559,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 113,
@@ -1048,7 +573,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 114,
@@ -1062,7 +587,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 115,
@@ -1077,7 +602,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 117,
@@ -1091,7 +616,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 118,
@@ -1105,7 +630,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 119,
@@ -1119,7 +644,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 115,
@@ -1134,7 +659,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 121,
@@ -1148,7 +673,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 122,
@@ -1162,7 +687,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 123,
@@ -1176,7 +701,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 124,
@@ -1185,10 +710,10 @@ sub new {
 		}
 	},
 	{#State 85
-		DEFAULT => -97
+		DEFAULT => -96
 	},
 	{#State 86
-		DEFAULT => -127
+		DEFAULT => -126
 	},
 	{#State 87
 		DEFAULT => -12
@@ -1223,13 +748,13 @@ sub new {
 		}
 	},
 	{#State 90
-		DEFAULT => -122
+		DEFAULT => -121
 	},
 	{#State 91
 		ACTIONS => {
 			"{" => 128
 		},
-		DEFAULT => -77,
+		DEFAULT => -76,
 		GOTOS => {
 			'union_body' => 129,
 			'opt_union_body' => 127
@@ -1239,7 +764,7 @@ sub new {
 		ACTIONS => {
 			";" => 86
 		},
-		DEFAULT => -126,
+		DEFAULT => -125,
 		GOTOS => {
 			'optional_semicolon' => 130
 		}
@@ -1251,13 +776,13 @@ sub new {
 		DEFAULT => -40
 	},
 	{#State 95
-		DEFAULT => -48
+		DEFAULT => -47
 	},
 	{#State 96
-		DEFAULT => -46
+		DEFAULT => -45
 	},
 	{#State 97
-		DEFAULT => -45
+		DEFAULT => -44
 	},
 	{#State 98
 		ACTIONS => {
@@ -1268,7 +793,7 @@ sub new {
 		}
 	},
 	{#State 99
-		DEFAULT => -47
+		DEFAULT => -46
 	},
 	{#State 100
 		DEFAULT => -41
@@ -1299,7 +824,7 @@ sub new {
 		}
 	},
 	{#State 104
-		DEFAULT => -81,
+		DEFAULT => -80,
 		GOTOS => {
 			'pointers' => 140
 		}
@@ -1308,7 +833,7 @@ sub new {
 		ACTIONS => {
 			"{" => 142
 		},
-		DEFAULT => -67,
+		DEFAULT => -66,
 		GOTOS => {
 			'struct_body' => 141,
 			'opt_struct_body' => 143
@@ -1318,7 +843,7 @@ sub new {
 		ACTIONS => {
 			"{" => 144
 		},
-		DEFAULT => -50,
+		DEFAULT => -49,
 		GOTOS => {
 			'opt_enum_body' => 146,
 			'enum_body' => 145
@@ -1328,7 +853,7 @@ sub new {
 		ACTIONS => {
 			"{" => 148
 		},
-		DEFAULT => -58,
+		DEFAULT => -57,
 		GOTOS => {
 			'bitmap_body' => 149,
 			'opt_bitmap_body' => 147
@@ -1352,7 +877,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -115
+		DEFAULT => -114
 	},
 	{#State 109
 		ACTIONS => {
@@ -1363,7 +888,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -106
+		DEFAULT => -105
 	},
 	{#State 110
 		ACTIONS => {
@@ -1383,7 +908,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -110
+		DEFAULT => -109
 	},
 	{#State 111
 		ACTIONS => {
@@ -1403,7 +928,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -118
+		DEFAULT => -117
 	},
 	{#State 112
 		ACTIONS => {
@@ -1414,7 +939,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -117
+		DEFAULT => -116
 	},
 	{#State 113
 		ACTIONS => {
@@ -1425,7 +950,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -108
+		DEFAULT => -107
 	},
 	{#State 114
 		ACTIONS => {
@@ -1445,7 +970,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -114
+		DEFAULT => -113
 	},
 	{#State 115
 		ACTIONS => {
@@ -1465,7 +990,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -100
+		DEFAULT => -99
 	},
 	{#State 116
 		ACTIONS => {
@@ -1482,7 +1007,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -112
+		DEFAULT => -111
 	},
 	{#State 118
 		ACTIONS => {
@@ -1493,7 +1018,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -113
+		DEFAULT => -112
 	},
 	{#State 119
 		ACTIONS => {
@@ -1513,7 +1038,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -116
+		DEFAULT => -115
 	},
 	{#State 120
 		ACTIONS => {
@@ -1530,7 +1055,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -111
+		DEFAULT => -110
 	},
 	{#State 122
 		ACTIONS => {
@@ -1541,7 +1066,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -107
+		DEFAULT => -106
 	},
 	{#State 123
 		ACTIONS => {
@@ -1552,7 +1077,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -109
+		DEFAULT => -108
 	},
 	{#State 124
 		ACTIONS => {
@@ -1572,7 +1097,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -99
+		DEFAULT => -98
 	},
 	{#State 125
 		DEFAULT => -14
@@ -1586,22 +1111,22 @@ sub new {
 		}
 	},
 	{#State 127
-		DEFAULT => -79
+		DEFAULT => -78
 	},
 	{#State 128
-		DEFAULT => -74,
+		DEFAULT => -73,
 		GOTOS => {
 			'union_elements' => 154
 		}
 	},
 	{#State 129
-		DEFAULT => -78
+		DEFAULT => -77
 	},
 	{#State 130
 		DEFAULT => -15
 	},
 	{#State 131
-		DEFAULT => -44
+		DEFAULT => -43
 	},
 	{#State 132
 		ACTIONS => {
@@ -1644,16 +1169,16 @@ sub new {
 		}
 	},
 	{#State 141
-		DEFAULT => -68
+		DEFAULT => -67
 	},
 	{#State 142
-		DEFAULT => -83,
+		DEFAULT => -82,
 		GOTOS => {
 			'element_list1' => 159
 		}
 	},
 	{#State 143
-		DEFAULT => -69
+		DEFAULT => -68
 	},
 	{#State 144
 		ACTIONS => {
@@ -1666,19 +1191,19 @@ sub new {
 		}
 	},
 	{#State 145
-		DEFAULT => -51
+		DEFAULT => -50
 	},
 	{#State 146
-		DEFAULT => -52
+		DEFAULT => -51
 	},
 	{#State 147
-		DEFAULT => -60
+		DEFAULT => -59
 	},
 	{#State 148
 		ACTIONS => {
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -63,
+		DEFAULT => -62,
 		GOTOS => {
 			'identifier' => 165,
 			'bitmap_element' => 164,
@@ -1687,7 +1212,7 @@ sub new {
 		}
 	},
 	{#State 149
-		DEFAULT => -59
+		DEFAULT => -58
 	},
 	{#State 150
 		ACTIONS => {
@@ -1695,7 +1220,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 167,
@@ -1709,7 +1234,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 168,
@@ -1723,7 +1248,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 169,
@@ -1735,7 +1260,7 @@ sub new {
 		ACTIONS => {
 			"[" => 170
 		},
-		DEFAULT => -89,
+		DEFAULT => -88,
 		GOTOS => {
 			'array_len' => 171
 		}
@@ -1744,7 +1269,7 @@ sub new {
 		ACTIONS => {
 			"}" => 172
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'optional_base_element' => 174,
 			'property_list' => 173
@@ -1752,11 +1277,11 @@ sub new {
 	},
 	{#State 155
 		ACTIONS => {
-			"," => -85,
+			"," => -84,
 			"void" => 178,
-			")" => -85
+			")" => -84
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'base_element' => 175,
 			'element_list2' => 177,
@@ -1778,13 +1303,13 @@ sub new {
 		}
 	},
 	{#State 158
-		DEFAULT => -82
+		DEFAULT => -81
 	},
 	{#State 159
 		ACTIONS => {
 			"}" => 182
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'base_element' => 183,
 			'property_list' => 176
@@ -1794,10 +1319,10 @@ sub new {
 		ACTIONS => {
 			"=" => 184
 		},
-		DEFAULT => -55
+		DEFAULT => -54
 	},
 	{#State 161
-		DEFAULT => -53
+		DEFAULT => -52
 	},
 	{#State 162
 		ACTIONS => {
@@ -1809,10 +1334,10 @@ sub new {
 		ACTIONS => {
 			"," => 187
 		},
-		DEFAULT => -64
+		DEFAULT => -63
 	},
 	{#State 164
-		DEFAULT => -61
+		DEFAULT => -60
 	},
 	{#State 165
 		ACTIONS => {
@@ -1842,7 +1367,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -120
+		DEFAULT => -119
 	},
 	{#State 168
 		ACTIONS => {
@@ -1862,7 +1387,7 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -101
+		DEFAULT => -100
 	},
 	{#State 169
 		ACTIONS => {
@@ -1873,7 +1398,7 @@ sub new {
 			"{" => 76,
 			"=" => 79
 		},
-		DEFAULT => -119
+		DEFAULT => -118
 	},
 	{#State 170
 		ACTIONS => {
@@ -1882,7 +1407,7 @@ sub new {
 			"]" => 190,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 191,
@@ -1896,13 +1421,13 @@ sub new {
 		}
 	},
 	{#State 172
-		DEFAULT => -76
+		DEFAULT => -75
 	},
 	{#State 173
 		ACTIONS => {
 			"[" => 17
 		},
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'base_or_empty' => 193,
 			'base_element' => 194,
@@ -1911,10 +1436,10 @@ sub new {
 		}
 	},
 	{#State 174
-		DEFAULT => -75
+		DEFAULT => -74
 	},
 	{#State 175
-		DEFAULT => -87
+		DEFAULT => -86
 	},
 	{#State 176
 		ACTIONS => {
@@ -1928,7 +1453,6 @@ sub new {
 			"[" => 17,
 			"struct" => 61
 		},
-		DEFAULT => -43,
 		GOTOS => {
 			'existingtype' => 99,
 			'bitmap' => 65,
@@ -1948,7 +1472,7 @@ sub new {
 		}
 	},
 	{#State 178
-		DEFAULT => -86
+		DEFAULT => -85
 	},
 	{#State 179
 		DEFAULT => -28
@@ -1964,7 +1488,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 201,
@@ -1973,7 +1497,7 @@ sub new {
 		}
 	},
 	{#State 182
-		DEFAULT => -66
+		DEFAULT => -65
 	},
 	{#State 183
 		ACTIONS => {
@@ -1986,7 +1510,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 203,
@@ -1995,7 +1519,7 @@ sub new {
 		}
 	},
 	{#State 185
-		DEFAULT => -49
+		DEFAULT => -48
 	},
 	{#State 186
 		ACTIONS => {
@@ -2021,7 +1545,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 206,
@@ -2030,13 +1554,13 @@ sub new {
 		}
 	},
 	{#State 189
-		DEFAULT => -57
+		DEFAULT => -56
 	},
 	{#State 190
 		ACTIONS => {
 			"[" => 170
 		},
-		DEFAULT => -89,
+		DEFAULT => -88,
 		GOTOS => {
 			'array_len' => 207
 		}
@@ -2065,7 +1589,7 @@ sub new {
 		DEFAULT => -35
 	},
 	{#State 193
-		DEFAULT => -73
+		DEFAULT => -72
 	},
 	{#State 194
 		ACTIONS => {
@@ -2073,7 +1597,7 @@ sub new {
 		}
 	},
 	{#State 195
-		DEFAULT => -72
+		DEFAULT => -71
 	},
 	{#State 196
 		ACTIONS => {
@@ -2088,7 +1612,6 @@ sub new {
 			"[" => 17,
 			"struct" => 61
 		},
-		DEFAULT => -43,
 		GOTOS => {
 			'existingtype' => 99,
 			'bitmap' => 65,
@@ -2102,13 +1625,13 @@ sub new {
 		}
 	},
 	{#State 197
-		DEFAULT => -81,
+		DEFAULT => -80,
 		GOTOS => {
 			'pointers' => 211
 		}
 	},
 	{#State 198
-		DEFAULT => -92,
+		DEFAULT => -91,
 		GOTOS => {
 			'base_element' => 212,
 			'property_list' => 176
@@ -2125,7 +1648,7 @@ sub new {
 			'TEXT' => 13,
 			'IDENTIFIER' => 22
 		},
-		DEFAULT => -102,
+		DEFAULT => -101,
 		GOTOS => {
 			'identifier' => 45,
 			'anytext' => 214,
@@ -2154,7 +1677,7 @@ sub new {
 		}
 	},
 	{#State 202
-		DEFAULT => -84
+		DEFAULT => -83
 	},
 	{#State 203
 		ACTIONS => {
@@ -2174,13 +1697,13 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -56
+		DEFAULT => -55
 	},
 	{#State 204
-		DEFAULT => -54
+		DEFAULT => -53
 	},
 	{#State 205
-		DEFAULT => -62
+		DEFAULT => -61
 	},
 	{#State 206
 		ACTIONS => {
@@ -2200,25 +1723,25 @@ sub new {
 			"." => 82,
 			">" => 83
 		},
-		DEFAULT => -65
+		DEFAULT => -64
 	},
 	{#State 207
-		DEFAULT => -90
+		DEFAULT => -89
 	},
 	{#State 208
 		ACTIONS => {
 			"[" => 170
 		},
-		DEFAULT => -89,
+		DEFAULT => -88,
 		GOTOS => {
 			'array_len' => 216
 		}
 	},
 	{#State 209
-		DEFAULT => -71
+		DEFAULT => -70
 	},
 	{#State 210
-		DEFAULT => -70
+		DEFAULT => -69
 	},
 	{#State 211
 		ACTIONS => {
@@ -2230,7 +1753,7 @@ sub new {
 		}
 	},
 	{#State 212
-		DEFAULT => -88
+		DEFAULT => -87
 	},
 	{#State 213
 		DEFAULT => -27
@@ -2259,13 +1782,13 @@ sub new {
 		DEFAULT => -25
 	},
 	{#State 216
-		DEFAULT => -91
+		DEFAULT => -90
 	},
 	{#State 217
 		ACTIONS => {
 			"[" => 170
 		},
-		DEFAULT => -89,
+		DEFAULT => -88,
 		GOTOS => {
 			'array_len' => 219
 		}
@@ -2274,7 +1797,7 @@ sub new {
 		DEFAULT => -26
 	},
 	{#State 219
-		DEFAULT => -80
+		DEFAULT => -79
 	}
 ],
                                   yyrules  =>
@@ -2322,7 +1845,7 @@ sub
 {{
 			"TYPE" => "IMPORT", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 	],
@@ -2333,7 +1856,7 @@ sub
 {{ 
 			"TYPE" => "INCLUDE", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 	],
@@ -2344,7 +1867,7 @@ sub
 {{ 
 			"TYPE" => "IMPORTLIB", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 	],
@@ -2369,7 +1892,7 @@ sub
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
 	       "DATA" => $_[5],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
 	],
@@ -2392,7 +1915,7 @@ sub
 	       "NAME" => $_[3],
 	       "BASE" => $_[4],
 	       "DATA" => $_[6],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
 	],
@@ -2442,7 +1965,7 @@ sub
 			 "POINTERS" => $_[3],
 		     "NAME"  => $_[4],
 		     "VALUE" => $_[6],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 	],
@@ -2457,7 +1980,7 @@ sub
 		     "NAME"  => $_[4],
 		     "ARRAY_LEN" => $_[5],
 		     "VALUE" => $_[7],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 	],
@@ -2471,7 +1994,7 @@ sub
 		"RETURN_TYPE" => $_[2],
 		"PROPERTIES" => $_[1],
 		"ELEMENTS" => $_[5],
-		"FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
 	  }}
 	],
@@ -2484,7 +2007,7 @@ sub
                      "PROPERTIES" => $_[2],
 		     "NAME" => $_[4],
 		     "DATA" => $_[3],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 	],
@@ -2531,7 +2054,7 @@ sub
 		     "NAME" => $_[4],
 		     "DATA" => $_[3],
 		     "ARRAY_LEN" => $_[5],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 	],
@@ -2560,42 +2083,39 @@ sub
 		 'sign', 1, undef
 	],
 	[#Rule 43
-		 'existingtype', 0, undef
-	],
-	[#Rule 44
 		 'existingtype', 2,
 sub
 #line 182 "pidl/idl.yp"
-{ "$_[1] $_[2]" }
+{ ($_[1]?$_[1]:"signed") ." $_[2]" }
+	],
+	[#Rule 44
+		 'existingtype', 1, undef
 	],
 	[#Rule 45
-		 'existingtype', 1, undef
+		 'type', 1, undef
 	],
 	[#Rule 46
 		 'type', 1, undef
 	],
 	[#Rule 47
-		 'type', 1, undef
-	],
-	[#Rule 48
 		 'type', 1,
 sub
 #line 186 "pidl/idl.yp"
 { "void" }
 	],
-	[#Rule 49
+	[#Rule 48
 		 'enum_body', 3,
 sub
 #line 188 "pidl/idl.yp"
 { $_[2] }
 	],
-	[#Rule 50
+	[#Rule 49
 		 'opt_enum_body', 0, undef
 	],
-	[#Rule 51
+	[#Rule 50
 		 'opt_enum_body', 1, undef
 	],
-	[#Rule 52
+	[#Rule 51
 		 'enum', 3,
 sub
 #line 191 "pidl/idl.yp"
@@ -2605,40 +2125,40 @@ sub
 		     "ELEMENTS" => $_[3]
         }}
 	],
-	[#Rule 53
+	[#Rule 52
 		 'enum_elements', 1,
 sub
 #line 199 "pidl/idl.yp"
 { [ $_[1] ] }
 	],
-	[#Rule 54
+	[#Rule 53
 		 'enum_elements', 3,
 sub
 #line 200 "pidl/idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
-	[#Rule 55
+	[#Rule 54
 		 'enum_element', 1, undef
 	],
-	[#Rule 56
+	[#Rule 55
 		 'enum_element', 3,
 sub
 #line 204 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 57
+	[#Rule 56
 		 'bitmap_body', 3,
 sub
 #line 207 "pidl/idl.yp"
 { $_[2] }
 	],
-	[#Rule 58
+	[#Rule 57
 		 'opt_bitmap_body', 0, undef
 	],
-	[#Rule 59
+	[#Rule 58
 		 'opt_bitmap_body', 1, undef
 	],
-	[#Rule 60
+	[#Rule 59
 		 'bitmap', 3,
 sub
 #line 210 "pidl/idl.yp"
@@ -2648,43 +2168,43 @@ sub
 		     "ELEMENTS" => $_[3]
         }}
 	],
-	[#Rule 61
+	[#Rule 60
 		 'bitmap_elements', 1,
 sub
 #line 218 "pidl/idl.yp"
 { [ $_[1] ] }
 	],
-	[#Rule 62
+	[#Rule 61
 		 'bitmap_elements', 3,
 sub
 #line 219 "pidl/idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
-	[#Rule 63
+	[#Rule 62
 		 'opt_bitmap_elements', 0, undef
 	],
-	[#Rule 64
+	[#Rule 63
 		 'opt_bitmap_elements', 1, undef
 	],
-	[#Rule 65
+	[#Rule 64
 		 'bitmap_element', 3,
 sub
 #line 224 "pidl/idl.yp"
 { "$_[1] ( $_[3] )" }
 	],
-	[#Rule 66
+	[#Rule 65
 		 'struct_body', 3,
 sub
 #line 227 "pidl/idl.yp"
 { $_[2] }
 	],
-	[#Rule 67
+	[#Rule 66
 		 'opt_struct_body', 0, undef
 	],
-	[#Rule 68
+	[#Rule 67
 		 'opt_struct_body', 1, undef
 	],
-	[#Rule 69
+	[#Rule 68
 		 'struct', 3,
 sub
 #line 231 "pidl/idl.yp"
@@ -2694,7 +2214,7 @@ sub
 		     "ELEMENTS" => $_[3]
         }}
 	],
-	[#Rule 70
+	[#Rule 69
 		 'empty_element', 2,
 sub
 #line 239 "pidl/idl.yp"
@@ -2704,44 +2224,44 @@ sub
 		 "PROPERTIES" => $_[1],
 		 "POINTERS" => 0,
 		 "ARRAY_LEN" => [],
-		 "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		 "FILE" => $_[0]->YYData->{FILE},
 		 "LINE" => $_[0]->YYData->{LINE},
 	 }}
 	],
-	[#Rule 71
+	[#Rule 70
 		 'base_or_empty', 2, undef
 	],
-	[#Rule 72
+	[#Rule 71
 		 'base_or_empty', 1, undef
 	],
-	[#Rule 73
+	[#Rule 72
 		 'optional_base_element', 2,
 sub
 #line 253 "pidl/idl.yp"
 { $_[2]->{PROPERTIES} = FlattenHash([$_[1],$_[2]->{PROPERTIES}]); $_[2] }
 	],
-	[#Rule 74
+	[#Rule 73
 		 'union_elements', 0, undef
 	],
-	[#Rule 75
+	[#Rule 74
 		 'union_elements', 2,
 sub
 #line 258 "pidl/idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
-	[#Rule 76
+	[#Rule 75
 		 'union_body', 3,
 sub
 #line 261 "pidl/idl.yp"
 { $_[2] }
 	],
-	[#Rule 77
+	[#Rule 76
 		 'opt_union_body', 0, undef
 	],
-	[#Rule 78
+	[#Rule 77
 		 'opt_union_body', 1, undef
 	],
-	[#Rule 79
+	[#Rule 78
 		 'union', 3,
 sub
 #line 265 "pidl/idl.yp"
@@ -2751,7 +2271,7 @@ sub
 		     "ELEMENTS" => $_[3]
         }}
 	],
-	[#Rule 80
+	[#Rule 79
 		 'base_element', 5,
 sub
 #line 273 "pidl/idl.yp"
@@ -2761,120 +2281,123 @@ sub
 			   "PROPERTIES" => $_[1],
 			   "POINTERS" => $_[3],
 			   "ARRAY_LEN" => $_[5],
-		       "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		       "FILE" => $_[0]->YYData->{FILE},
 		       "LINE" => $_[0]->YYData->{LINE},
               }}
 	],
-	[#Rule 81
+	[#Rule 80
 		 'pointers', 0,
 sub
 #line 287 "pidl/idl.yp"
 { 0 }
 	],
-	[#Rule 82
+	[#Rule 81
 		 'pointers', 2,
 sub
 #line 288 "pidl/idl.yp"
 { $_[1]+1 }
 	],
-	[#Rule 83
+	[#Rule 82
 		 'element_list1', 0, undef
 	],
-	[#Rule 84
+	[#Rule 83
 		 'element_list1', 3,
 sub
 #line 293 "pidl/idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
-	[#Rule 85
+	[#Rule 84
 		 'element_list2', 0, undef
 	],
-	[#Rule 86
+	[#Rule 85
 		 'element_list2', 1, undef
 	],
-	[#Rule 87
+	[#Rule 86
 		 'element_list2', 1,
 sub
 #line 299 "pidl/idl.yp"
 { [ $_[1] ] }
 	],
-	[#Rule 88
+	[#Rule 87
 		 'element_list2', 3,
 sub
 #line 300 "pidl/idl.yp"
 { push(@{$_[1]}, $_[3]); $_[1] }
 	],
-	[#Rule 89
+	[#Rule 88
 		 'array_len', 0, undef
 	],
-	[#Rule 90
+	[#Rule 89
 		 'array_len', 3,
 sub
 #line 305 "pidl/idl.yp"
 { push(@{$_[3]}, "*"); $_[3] }
 	],
-	[#Rule 91
+	[#Rule 90
 		 'array_len', 4,
 sub
 #line 306 "pidl/idl.yp"
 { push(@{$_[4]}, "$_[2]"); $_[4] }
 	],
-	[#Rule 92
+	[#Rule 91
 		 'property_list', 0, undef
 	],
-	[#Rule 93
+	[#Rule 92
 		 'property_list', 4,
 sub
 #line 312 "pidl/idl.yp"
 { FlattenHash([$_[1],$_[3]]); }
 	],
-	[#Rule 94
+	[#Rule 93
 		 'properties', 1,
 sub
 #line 315 "pidl/idl.yp"
 { $_[1] }
 	],
-	[#Rule 95
+	[#Rule 94
 		 'properties', 3,
 sub
 #line 316 "pidl/idl.yp"
 { FlattenHash([$_[1], $_[3]]); }
 	],
-	[#Rule 96
+	[#Rule 95
 		 'property', 1,
 sub
 #line 319 "pidl/idl.yp"
 {{ "$_[1]" => "1"     }}
 	],
-	[#Rule 97
+	[#Rule 96
 		 'property', 4,
 sub
 #line 320 "pidl/idl.yp"
 {{ "$_[1]" => "$_[3]" }}
 	],
-	[#Rule 98
+	[#Rule 97
 		 'listtext', 1, undef
 	],
-	[#Rule 99
+	[#Rule 98
 		 'listtext', 3,
 sub
 #line 325 "pidl/idl.yp"
 { "$_[1] $_[3]" }
 	],
-	[#Rule 100
+	[#Rule 99
 		 'commalisttext', 1, undef
 	],
-	[#Rule 101
+	[#Rule 100
 		 'commalisttext', 3,
 sub
 #line 330 "pidl/idl.yp"
 { "$_[1],$_[3]" }
 	],
-	[#Rule 102
+	[#Rule 101
 		 'anytext', 0,
 sub
 #line 334 "pidl/idl.yp"
 { "" }
+	],
+	[#Rule 102
+		 'anytext', 1, undef
 	],
 	[#Rule 103
 		 'anytext', 1, undef
@@ -2883,120 +2406,117 @@ sub
 		 'anytext', 1, undef
 	],
 	[#Rule 105
-		 'anytext', 1, undef
-	],
-	[#Rule 106
 		 'anytext', 3,
 sub
 #line 336 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 107
+	[#Rule 106
 		 'anytext', 3,
 sub
 #line 337 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 108
+	[#Rule 107
 		 'anytext', 3,
 sub
 #line 338 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 109
+	[#Rule 108
 		 'anytext', 3,
 sub
 #line 339 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 110
+	[#Rule 109
 		 'anytext', 3,
 sub
 #line 340 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 111
+	[#Rule 110
 		 'anytext', 3,
 sub
 #line 341 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 112
+	[#Rule 111
 		 'anytext', 3,
 sub
 #line 342 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 113
+	[#Rule 112
 		 'anytext', 3,
 sub
 #line 343 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 114
+	[#Rule 113
 		 'anytext', 3,
 sub
 #line 344 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 115
+	[#Rule 114
 		 'anytext', 3,
 sub
 #line 345 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 116
+	[#Rule 115
 		 'anytext', 3,
 sub
 #line 346 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 117
+	[#Rule 116
 		 'anytext', 3,
 sub
 #line 347 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 118
+	[#Rule 117
 		 'anytext', 3,
 sub
 #line 348 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
-	[#Rule 119
+	[#Rule 118
 		 'anytext', 5,
 sub
 #line 349 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
-	[#Rule 120
+	[#Rule 119
 		 'anytext', 5,
 sub
 #line 350 "pidl/idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
-	[#Rule 121
+	[#Rule 120
 		 'identifier', 1, undef
 	],
-	[#Rule 122
+	[#Rule 121
 		 'optional_identifier', 1, undef
 	],
-	[#Rule 123
+	[#Rule 122
 		 'optional_identifier', 0, undef
 	],
-	[#Rule 124
+	[#Rule 123
 		 'constant', 1, undef
 	],
-	[#Rule 125
+	[#Rule 124
 		 'text', 1,
 sub
 #line 364 "pidl/idl.yp"
 { "\"$_[1]\"" }
 	],
-	[#Rule 126
+	[#Rule 125
 		 'optional_semicolon', 0, undef
 	],
-	[#Rule 127
+	[#Rule 126
 		 'optional_semicolon', 1, undef
 	]
 ],
@@ -3006,6 +2526,8 @@ sub
 
 #line 375 "pidl/idl.yp"
 
+
+use Parse::Pidl qw(error);
 
 #####################################################################
 # flatten an array of hashes into a single hash
@@ -3053,15 +2575,13 @@ sub CleanData($)
 
 sub _Error {
     if (exists $_[0]->YYData->{ERRMSG}) {
-		print $_[0]->YYData->{ERRMSG};
+		error($_[0]->YYData, $_[0]->YYData->{ERRMSG});
 		delete $_[0]->YYData->{ERRMSG};
 		return;
 	};
-	my $line = $_[0]->YYData->{LINE};
 	my $last_token = $_[0]->YYData->{LAST_TOKEN};
-	my $file = $_[0]->YYData->{INPUT_FILENAME};
 	
-	print "$file:$line: Syntax error near '$last_token'\n";
+	error($_[0]->YYData, "Syntax error near '$last_token'");
 }
 
 sub _Lexer($)
@@ -3077,12 +2597,12 @@ again:
 		if (/^\#/) {
 			if (s/^\# (\d+) \"(.*?)\"( \d+|)//) {
 				$parser->YYData->{LINE} = $1-1;
-				$parser->YYData->{INPUT_FILENAME} = $2;
+				$parser->YYData->{FILE} = $2;
 				goto again;
 			}
 			if (s/^\#line (\d+) \"(.*?)\"( \d+|)//) {
 				$parser->YYData->{LINE} = $1-1;
-				$parser->YYData->{INPUT_FILENAME} = $2;
+				$parser->YYData->{FILE} = $2;
 				goto again;
 			}
 			if (s/^(\#.*)$//m) {
@@ -3124,7 +2644,7 @@ sub parse_string
 
 	my $self = new Parse::Pidl::IDL;
 
-    $self->YYData->{INPUT_FILENAME} = $filename;
+    $self->YYData->{FILE} = $filename;
     $self->YYData->{INPUT} = $data;
     $self->YYData->{LINE} = 0;
     $self->YYData->{LAST_TOKEN} = "NONE";

@@ -4,6 +4,7 @@
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::TDR;
+use Parse::Pidl qw(fatal);
 use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
 use Parse::Pidl::Samba4 qw(is_intree choose_header);
 
@@ -20,7 +21,6 @@ sub indent() { $tabs.="\t"; }
 sub deindent() { $tabs = substr($tabs, 1); }
 sub pidl($) { $ret .= $tabs.(shift)."\n"; }
 sub pidl_hdr($) { $ret_hdr .= (shift)."\n"; }
-sub fatal($$) { my ($e,$s) = @_; die("$e->{FILE}:$e->{LINE}: $s\n"); }
 sub typearg($) { 
 	my $t = shift; 
 	return(", const char *name") if ($t eq "print");
@@ -72,7 +72,7 @@ sub ParserElement($$$)
 	if (has_property($e, "charset")) {
 		fatal($e,"charset() on non-array element") unless (defined($e->{ARRAY_LEN}) and scalar(@{$e->{ARRAY_LEN}}) > 0);
 		
-		my $len = ParseExpr(@{$e->{ARRAY_LEN}}[0], $env);
+		my $len = ParseExpr(@{$e->{ARRAY_LEN}}[0], $env, $e);
 		if ($len eq "*") { $len = "-1"; }
 		$name = ", mem_ctx" if ($t eq "pull");
 		pidl "TDR_CHECK(tdr_$t\_charset(tdr$name, &v->$e->{NAME}, $len, sizeof($e->{TYPE}_t), CH_$e->{PROPERTIES}->{charset}));";
@@ -80,11 +80,11 @@ sub ParserElement($$$)
 	}
 
 	if (has_property($e, "switch_is")) {
-		$switch = ", " . ParseExpr($e->{PROPERTIES}->{switch_is}, $env);
+		$switch = ", " . ParseExpr($e->{PROPERTIES}->{switch_is}, $env, $e);
 	}
 
 	if (defined($e->{ARRAY_LEN}) and scalar(@{$e->{ARRAY_LEN}}) > 0) {
-		my $len = ParseExpr($e->{ARRAY_LEN}[0], $env);
+		my $len = ParseExpr($e->{ARRAY_LEN}[0], $env, $e);
 
 		if ($t eq "pull" and not is_constant($len)) {
 			pidl "TDR_ALLOC(mem_ctx, v->$e->{NAME}, $len);";
@@ -101,7 +101,7 @@ sub ParserElement($$$)
 	}
 
 	if (has_property($e, "value") && $t eq "push") {
-		pidl "v->$e->{NAME} = ".ParseExpr($e->{PROPERTIES}->{value}, $env).";";
+		pidl "v->$e->{NAME} = ".ParseExpr($e->{PROPERTIES}->{value}, $env, $e).";";
 	}
 
 	pidl "TDR_CHECK(tdr_$t\_$e->{TYPE}(tdr$name$switch, &v->$e->{NAME}$array));";

@@ -118,8 +118,8 @@ sub HeaderEnum($$)
     my($enum,$name) = @_;
     my $first = 1;
 
-    if (not Parse::Pidl::Util::useUintEnums()) {
-    	pidl "enum $name {\n";
+	pidl "#ifndef USE_UINT_ENUMS\n";
+	pidl "enum $name {\n";
 	$tab_depth++;
 	foreach my $e (@{$enum->{ELEMENTS}}) {
  	    unless ($first) { pidl ",\n"; }
@@ -129,9 +129,9 @@ sub HeaderEnum($$)
 	}
 	pidl "\n";
 	$tab_depth--;
-	pidl "}";
-    } else {
-        my $count = 0;
+	pidl "};\n";
+	pidl "#else\n";
+	my $count = 0;
 	pidl "enum $name { __donnot_use_enum_$name=0x7FFFFFFF};\n";
 	my $with_val = 0;
 	my $without_val = 0;
@@ -154,8 +154,8 @@ sub HeaderEnum($$)
 	    }
 	    pidl "#define $name ( $value )\n";
 	}
+	pidl "#endif\n";
 	pidl "\n";
-    }
 }
 
 #####################################################################
@@ -220,7 +220,8 @@ sub HeaderTypedef($)
 {
     my($typedef) = shift;
     HeaderType($typedef, $typedef->{DATA}, $typedef->{NAME});
-    pidl ";\n\n" unless ($typedef->{DATA}->{TYPE} eq "BITMAP");
+    pidl ";\n\n" unless ($typedef->{DATA}->{TYPE} eq "BITMAP" or 
+	                     $typedef->{DATA}->{TYPE} eq "ENUM");
 }
 
 #####################################################################

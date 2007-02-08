@@ -26,21 +26,21 @@ idl:
 import: 'import' commalist ';' {{
 			"TYPE" => "IMPORT", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 ;
 include: 'include' commalist ';' {{ 
 			"TYPE" => "INCLUDE", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 ;
 importlib: 'importlib' commalist ';' {{ 
 			"TYPE" => "IMPORTLIB", 
 			"PATHS" => $_[2],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE}
 		}}
 ;
@@ -56,7 +56,7 @@ coclass: property_list 'coclass' identifier '{' interface_names '}' optional_sem
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
 	       "DATA" => $_[5],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
 ;
@@ -73,7 +73,7 @@ interface: property_list 'interface' identifier base_interface '{' definitions '
 	       "NAME" => $_[3],
 	       "BASE" => $_[4],
 	       "DATA" => $_[6],
-		   "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
 ;
@@ -99,7 +99,7 @@ const: 'const' identifier pointers identifier '=' anytext ';'
 			 "POINTERS" => $_[3],
 		     "NAME"  => $_[4],
 		     "VALUE" => $_[6],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 	| 'const' identifier pointers identifier array_len '=' anytext ';' 
@@ -110,7 +110,7 @@ const: 'const' identifier pointers identifier '=' anytext ';'
 		     "NAME"  => $_[4],
 		     "ARRAY_LEN" => $_[5],
 		     "VALUE" => $_[7],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 ;
@@ -123,7 +123,7 @@ function: property_list type identifier '(' element_list2 ')' ';'
 		"RETURN_TYPE" => $_[2],
 		"PROPERTIES" => $_[1],
 		"ELEMENTS" => $_[5],
-		"FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
 	  }}
 ;
@@ -134,7 +134,7 @@ declare: 'declare' property_list decl_type identifier';'
                      "PROPERTIES" => $_[2],
 		     "NAME" => $_[4],
 		     "DATA" => $_[3],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 ;
@@ -167,7 +167,7 @@ typedef: 'typedef' property_list type identifier array_len ';'
 		     "NAME" => $_[4],
 		     "DATA" => $_[3],
 		     "ARRAY_LEN" => $_[5],
-		     "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
 ;
@@ -179,7 +179,7 @@ typedecl: usertype ';' { $_[1] };
 sign: 'signed' | 'unsigned';
 
 existingtype: 
-	| sign identifier { "$_[1] $_[2]" }
+	sign identifier { ($_[1]?$_[1]:"signed") ." $_[2]" }
 	| identifier 
 ;
 
@@ -242,7 +242,7 @@ empty_element: property_list ';'
 		 "PROPERTIES" => $_[1],
 		 "POINTERS" => 0,
 		 "ARRAY_LEN" => [],
-		 "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		 "FILE" => $_[0]->YYData->{FILE},
 		 "LINE" => $_[0]->YYData->{LINE},
 	 }}
 ;
@@ -276,7 +276,7 @@ base_element: property_list type pointers identifier array_len
 			   "PROPERTIES" => $_[1],
 			   "POINTERS" => $_[3],
 			   "ARRAY_LEN" => $_[5],
-		       "FILE" => $_[0]->YYData->{INPUT_FILENAME},
+		       "FILE" => $_[0]->YYData->{FILE},
 		       "LINE" => $_[0]->YYData->{LINE},
               }}
 ;
@@ -374,6 +374,8 @@ optional_semicolon:
 # start code
 %%
 
+use Parse::Pidl qw(error);
+
 #####################################################################
 # flatten an array of hashes into a single hash
 sub FlattenHash($) 
@@ -420,15 +422,13 @@ sub CleanData($)
 
 sub _Error {
     if (exists $_[0]->YYData->{ERRMSG}) {
-		print $_[0]->YYData->{ERRMSG};
+		error($_[0]->YYData, $_[0]->YYData->{ERRMSG});
 		delete $_[0]->YYData->{ERRMSG};
 		return;
 	};
-	my $line = $_[0]->YYData->{LINE};
 	my $last_token = $_[0]->YYData->{LAST_TOKEN};
-	my $file = $_[0]->YYData->{INPUT_FILENAME};
 	
-	print "$file:$line: Syntax error near '$last_token'\n";
+	error($_[0]->YYData, "Syntax error near '$last_token'");
 }
 
 sub _Lexer($)
@@ -444,12 +444,12 @@ again:
 		if (/^\#/) {
 			if (s/^\# (\d+) \"(.*?)\"( \d+|)//) {
 				$parser->YYData->{LINE} = $1-1;
-				$parser->YYData->{INPUT_FILENAME} = $2;
+				$parser->YYData->{FILE} = $2;
 				goto again;
 			}
 			if (s/^\#line (\d+) \"(.*?)\"( \d+|)//) {
 				$parser->YYData->{LINE} = $1-1;
-				$parser->YYData->{INPUT_FILENAME} = $2;
+				$parser->YYData->{FILE} = $2;
 				goto again;
 			}
 			if (s/^(\#.*)$//m) {
@@ -491,7 +491,7 @@ sub parse_string
 
 	my $self = new Parse::Pidl::IDL;
 
-    $self->YYData->{INPUT_FILENAME} = $filename;
+    $self->YYData->{FILE} = $filename;
     $self->YYData->{INPUT} = $data;
     $self->YYData->{LINE} = 0;
     $self->YYData->{LAST_TOKEN} = "NONE";

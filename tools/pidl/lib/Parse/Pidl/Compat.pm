@@ -5,6 +5,7 @@
 
 package Parse::Pidl::Compat;
 
+use Parse::Pidl qw(warning);
 use Parse::Pidl::Util qw(has_property);
 use strict;
 
@@ -73,13 +74,6 @@ my %supported_properties = (
 	"charset"		=> ["ELEMENT"],
 	"length_is"		=> ["ELEMENT"],
 );
-
-sub warning($$)
-{
-	my ($l,$m) = @_;
-
-	print STDERR "$l->{FILE}:$l->{LINE}:warning:$m\n";
-}
 
 sub CheckTypedef($)
 {

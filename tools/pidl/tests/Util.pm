@@ -6,9 +6,35 @@ package Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(test_samba4_ndr);
+@EXPORT = qw(test_samba4_ndr test_warnings test_errors);
 
 use strict;
+
+use FindBin qw($RealBin);
+use lib "$RealBin/../lib";
+
+use Parse::Pidl;
+my $warnings = "";
+undef &Parse::Pidl::warning;
+*Parse::Pidl::warning = sub { 
+	my ($e, $l) = @_;
+	if (defined($e)) {
+		$warnings .= "$e->{FILE}:$e->{LINE}: $l\n";
+	} else {
+		$warnings .= "$l\n";
+	}
+};
+
+my $errors = "";
+undef &Parse::Pidl::error;
+*Parse::Pidl::error = sub { 
+	my ($e, $l) = @_;
+	if (defined($e)) {
+		$errors .= "$e->{FILE}:$e->{LINE}: $l\n";
+	} else {
+		$errors .= "$l\n";
+	}
+};
 
 use Test::More;
 use Parse::Pidl::IDL;
@@ -43,12 +69,30 @@ SKIP: {
 	if (defined($test_data_prefix)) {
 		$outfile = "$test_data_prefix/test-$name";	
 	} else {
-		$outfile = "test-$name";
+		$outfile = "./test-$name";
 	}
 
-	my $cflags = `pkg-config --libs --cflags ndr`;
+	my $cflags = $ENV{CFLAGS};
+	unless (defined($cflags)) {
+		$cflags = "";
+	}
 
-	open CC, "|cc -x c - -o $outfile $cflags";
+	my $ldflags = $ENV{LDFLAGS};
+	unless (defined($ldflags)) {
+		$ldflags = "";
+	}
+
+	my $cc = $ENV{CC};
+	unless (defined($cc)) {
+		$cc = "cc";
+	}
+
+	my $flags = `pkg-config --libs --cflags ndr samba-config`;
+
+	my $cmd = "$cc $cflags -x c - -o $outfile $flags $ldflags";
+	$cmd =~ s/\n//g;
+	print "$cmd\n";
+	open CC, "|$cmd";
 	print CC "#define uint_t unsigned int\n";
 	print CC "#define _GNU_SOURCE\n";
 	print CC "#include <stdint.h>\n";
@@ -74,7 +118,7 @@ SKIP: {
 
 	ok(-f $outfile, "($name) compile");
 
-	my $ret = system("./$outfile", ()) >> 8;
+	my $ret = system($outfile, ()) >> 8;
 	print "# return code: $ret\n" if ($ret != 0);
 
 	ok($ret == 0, "($name) run");
@@ -82,6 +126,26 @@ SKIP: {
 	ok(unlink($outfile), "($name) remove");
 
 	}
+}
+
+sub test_warnings($$)
+{
+	my ($exp, $code) = @_;
+
+	$warnings = "";
+
+	$code->();
+
+	is($warnings, $exp);
+}
+
+sub test_errors($$)
+{
+	my ($exp, $code) = @_;
+	$errors = "";
+	$code->();
+
+	is($errors, $exp);
 }
 
 1;

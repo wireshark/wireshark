@@ -7,10 +7,11 @@
 package Parse::Pidl::Samba3::ClientNDR;
 
 use strict;
+use Parse::Pidl qw(fatal warning);
 use Parse::Pidl::Typelist qw(hasType getType mapType scalar_is_reference);
-use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
+use Parse::Pidl::Util qw(has_property is_constant);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
-use Parse::Pidl::Samba4 qw(DeclLong_cli IsUniqueOut);
+use Parse::Pidl::Samba4 qw(DeclLong);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -22,8 +23,6 @@ sub indent() { $tabs.="\t"; }
 sub deindent() { $tabs = substr($tabs, 1); }
 sub pidl($) { $res .= $tabs.(shift)."\n"; }
 sub pidl_hdr($) { $res_hdr .= (shift)."\n"; }
-sub fatal($$) { my ($e,$s) = @_; die("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
-sub warning($$) { my ($e,$s) = @_; warn("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
 sub fn_declare($) { my ($n) = @_; pidl $n; pidl_hdr "$n;"; }
 
 sub ParseFunction($$)
@@ -36,7 +35,7 @@ sub ParseFunction($$)
 	my $ufn = "DCERPC_".uc($fn->{NAME});
 
 	foreach (@{$fn->{ELEMENTS}}) {
-		$defargs .= ", " . DeclLong_cli($_);
+		$defargs .= ", " . DeclLong($_);
 	}
 	fn_declare "NTSTATUS rpccli_$fn->{NAME}(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx$defargs)";
 	pidl "{";
@@ -48,12 +47,7 @@ sub ParseFunction($$)
 
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/in/, @{$_->{DIRECTION}})) {
-		    if ( IsUniqueOut($_) ) {
-			pidl "r.in.$_->{NAME} = *$_->{NAME};";
-		    }
-		    else {
 			pidl "r.in.$_->{NAME} = $_->{NAME};";
-		    }
 		} 
 	}
 
@@ -84,8 +78,12 @@ sub ParseFunction($$)
 
 		fatal($e, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
 
-		if ( IsUniqueOut($e) ) {
-			pidl "*$e->{NAME} = r.out.$e->{NAME};";
+		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") && ($e->{LEVELS}[0]->{POINTER_TYPE} eq "unique") ) {
+			pidl "if ( $e->{NAME} ) {";
+			indent;
+			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
+			deindent;
+			pidl "}";
 		} else {
 			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
 		}

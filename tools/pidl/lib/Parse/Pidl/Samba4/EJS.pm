@@ -153,7 +153,8 @@ sub EjsPullScalar($$$$$)
         my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
         $var = get_pointer_to($var);
         # have to handle strings specially :(
-        if ($e->{TYPE} eq "string" && $pl && $pl->{TYPE} eq "POINTER") {
+	if (Parse::Pidl::Typelist::scalar_is_reference($e->{TYPE})
+	    and (defined($pl) and $pl->{TYPE} eq "POINTER")) {
                 $var = get_pointer_to($var);
         }
 	pidl "NDR_CHECK(ejs_pull_$e->{TYPE}(ejs, v, $name, $var));";
@@ -186,7 +187,11 @@ sub EjsPullPointer($$$$$)
 sub EjsPullString($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
+	my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
 	$var = get_pointer_to($var);
+	if (defined($pl) and $pl->{TYPE} eq "POINTER") {
+		$var = get_pointer_to($var);
+	}
 	pidl "NDR_CHECK(ejs_pull_string(ejs, v, $name, $var));";
 }
 
@@ -197,8 +202,8 @@ sub EjsPullArray($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
 	my $nl = Parse::Pidl::NDR::GetNextLevel($e, $l);
-	my $length = Parse::Pidl::Util::ParseExpr($l->{LENGTH_IS}, $env);
-	my $size = Parse::Pidl::Util::ParseExpr($l->{SIZE_IS}, $env);
+	my $length = Parse::Pidl::Util::ParseExpr($l->{LENGTH_IS}, $env, $e);
+	my $size = Parse::Pidl::Util::ParseExpr($l->{SIZE_IS}, $env, $e);
 	my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
 	if ($pl && $pl->{TYPE} eq "POINTER") {
 		$var = get_pointer_to($var);
@@ -237,7 +242,7 @@ sub EjsPullArray($$$$$)
 sub EjsPullSwitch($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
-	my $switch_var = Parse::Pidl::Util::ParseExpr($l->{SWITCH_IS}, $env);
+	my $switch_var = Parse::Pidl::Util::ParseExpr($l->{SWITCH_IS}, $env, $e);
 	pidl "ejs_set_switch(ejs, $switch_var);";
 	EjsPullElement($e, Parse::Pidl::NDR::GetNextLevel($e, $l), $var, $name, $env);
 }
@@ -247,14 +252,14 @@ sub EjsPullSwitch($$$$$)
 sub EjsPullElement($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
-	if (has_property($e, "charset")) {
+	if (($l->{TYPE} eq "POINTER")) {
+		EjsPullPointer($e, $l, $var, $name, $env);
+	} elsif (has_property($e, "charset")) {
 		EjsPullString($e, $l, $var, $name, $env);
 	} elsif ($l->{TYPE} eq "ARRAY") {
 		EjsPullArray($e, $l, $var, $name, $env);
 	} elsif ($l->{TYPE} eq "DATA") {
 		EjsPullScalar($e, $l, $var, $name, $env);
-	} elsif (($l->{TYPE} eq "POINTER")) {
-		EjsPullPointer($e, $l, $var, $name, $env);
 	} elsif (($l->{TYPE} eq "SWITCH")) {
 		EjsPullSwitch($e, $l, $var, $name, $env);
 	} else {
@@ -269,7 +274,7 @@ sub EjsPullElementTop($$)
 	my $e = shift;
 	my $env = shift;
 	my $l = $e->{LEVELS}[0];
-	my $var = Parse::Pidl::Util::ParseExpr($e->{NAME}, $env);
+	my $var = Parse::Pidl::Util::ParseExpr($e->{NAME}, $env, $e);
 	my $name = "\"$e->{NAME}\"";
 	EjsPullElement($e, $l, $var, $name, $env);
 }
@@ -445,7 +450,9 @@ sub EjsPushScalar($$$$$)
 	my ($e, $l, $var, $name, $env) = @_;
         # have to handle strings specially :(
         my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
-        if ($e->{TYPE} ne "string" || ($pl && $pl->{TYPE} eq "POINTER")) {
+
+	if ((not Parse::Pidl::Typelist::scalar_is_reference($e->{TYPE}))
+	    or (defined($pl) and $pl->{TYPE} eq "POINTER")) {
                 $var = get_pointer_to($var);
         }
 	pidl "NDR_CHECK(ejs_push_$e->{TYPE}(ejs, v, $name, $var));";
@@ -456,6 +463,10 @@ sub EjsPushScalar($$$$$)
 sub EjsPushString($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
+	my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
+	if (defined($pl) and $pl->{TYPE} eq "POINTER") {
+		$var = get_pointer_to($var);
+	}
 	pidl "NDR_CHECK(ejs_push_string(ejs, v, $name, $var));";
 }
 
@@ -485,7 +496,7 @@ sub EjsPushPointer($$$$$)
 sub EjsPushSwitch($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
-	my $switch_var = Parse::Pidl::Util::ParseExpr($l->{SWITCH_IS}, $env);
+	my $switch_var = Parse::Pidl::Util::ParseExpr($l->{SWITCH_IS}, $env, $e);
 	pidl "ejs_set_switch(ejs, $switch_var);";
 	EjsPushElement($e, Parse::Pidl::NDR::GetNextLevel($e, $l), $var, $name, $env);
 }
@@ -497,7 +508,7 @@ sub EjsPushArray($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
 	my $nl = Parse::Pidl::NDR::GetNextLevel($e, $l);
-	my $length = Parse::Pidl::Util::ParseExpr($l->{LENGTH_IS}, $env);
+	my $length = Parse::Pidl::Util::ParseExpr($l->{LENGTH_IS}, $env, $e);
 	my $pl = Parse::Pidl::NDR::GetPrevLevel($e, $l);
 	if ($pl && $pl->{TYPE} eq "POINTER") {
 		$var = get_pointer_to($var);
@@ -528,14 +539,14 @@ sub EjsPushArray($$$$$)
 sub EjsPushElement($$$$$)
 {
 	my ($e, $l, $var, $name, $env) = @_;
-	if (has_property($e, "charset")) {
+	if (($l->{TYPE} eq "POINTER")) {
+		EjsPushPointer($e, $l, $var, $name, $env);
+	} elsif (has_property($e, "charset")) {
 		EjsPushString($e, $l, $var, $name, $env);
 	} elsif ($l->{TYPE} eq "ARRAY") {
 		EjsPushArray($e, $l, $var, $name, $env);
 	} elsif ($l->{TYPE} eq "DATA") {
 		EjsPushScalar($e, $l, $var, $name, $env);
-	} elsif (($l->{TYPE} eq "POINTER")) {
-		EjsPushPointer($e, $l, $var, $name, $env);
 	} elsif (($l->{TYPE} eq "SWITCH")) {
 		EjsPushSwitch($e, $l, $var, $name, $env);
 	} else {
@@ -550,7 +561,7 @@ sub EjsPushElementTop($$)
 	my $e = shift;
 	my $env = shift;
 	my $l = $e->{LEVELS}[0];
-	my $var = Parse::Pidl::Util::ParseExpr($e->{NAME}, $env);
+	my $var = Parse::Pidl::Util::ParseExpr($e->{NAME}, $env, $e);
 	my $name = "\"$e->{NAME}\"";
 	EjsPushElement($e, $l, $var, $name, $env);
 }

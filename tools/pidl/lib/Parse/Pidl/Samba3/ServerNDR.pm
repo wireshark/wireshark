@@ -7,9 +7,10 @@
 package Parse::Pidl::Samba3::ServerNDR;
 
 use strict;
-use Parse::Pidl::Typelist qw(hasType getType mapType scalar_is_reference);
-use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
-use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
+use Parse::Pidl qw(warning fatal);
+use Parse::Pidl::Typelist qw(mapType scalar_is_reference);
+use Parse::Pidl::Util qw(ParseExpr has_property is_constant);
+use Parse::Pidl::NDR qw(GetNextLevel);
 use Parse::Pidl::Samba4 qw(DeclLong);
 
 use vars qw($VERSION);
@@ -22,25 +23,61 @@ sub indent() { $tabs.="\t"; }
 sub deindent() { $tabs = substr($tabs, 1); }
 sub pidl($) { $res .= $tabs.(shift)."\n"; }
 sub pidl_hdr($) { $res_hdr .= (shift)."\n"; }
-sub fatal($$) { my ($e,$s) = @_; die("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
-sub warning($$) { my ($e,$s) = @_; warn("$e->{ORIGINAL}->{FILE}:$e->{ORIGINAL}->{LINE}: $s\n"); }
 sub fn_declare($) { my ($n) = @_; pidl $n; pidl_hdr "$n;"; }
+
+sub DeclLevel($$) 
+{
+	sub DeclLevel($$);
+	my ($e, $l) = @_;
+
+	my $ret = "";
+
+	if (has_property($e, "charset")) {
+		$ret.="const char";
+	} else {
+		$ret.=mapType($e->{TYPE});
+	}
+
+	my $numstar = $e->{ORIGINAL}->{POINTERS};
+	if ($numstar >= 1) {
+		$numstar-- if scalar_is_reference($e->{TYPE});
+	}
+	foreach (@{$e->{ORIGINAL}->{ARRAY_LEN}})
+	{
+		next if is_constant($_) and 
+			not has_property($e, "charset");
+		$numstar++;
+	}
+	$numstar -= $l;
+	die ("Too few pointers") if $numstar < 0;
+	if ($numstar > 0) 
+	{
+		$ret.=" ";
+		$ret.="*" foreach (1..$numstar);
+	}
+
+	return $ret;
+}
 
 sub AllocOutVar($$$$)
 {
 	my ($e, $mem_ctx, $name, $env) = @_;
 
 	my $l = $e->{LEVELS}[0];
+	my $nl = $l;
 
 	if ($l->{TYPE} eq "POINTER") {
-		$l = GetNextLevel($e, $l);
+		$nl = GetNextLevel($e, $l);
 	}
 
 	if ($l->{TYPE} eq "ARRAY") {
-		my $size = ParseExpr($l->{SIZE_IS}, $env);
-		pidl "$name = talloc_zero_size($mem_ctx, sizeof(*$name) * $size);";
+		my $size = ParseExpr($l->{SIZE_IS}, $env, $e);
+		pidl "$name = talloc_zero_array($mem_ctx, " . DeclLevel($e, 1) . ", $size);";
+	} elsif ($l->{TYPE} eq "POINTER" and $nl->{TYPE} eq "ARRAY") {
+		my $size = ParseExpr($nl->{SIZE_IS}, $env, $e);
+		pidl "$name = talloc_zero_array($mem_ctx, " . DeclLevel($e, 1) . ", $size);";
 	} else {
-		pidl "$name = talloc_zero_size($mem_ctx, sizeof(*$name));";
+		pidl "$name = talloc_zero($mem_ctx, " . DeclLevel($e, 1) . ");";
 	}
 
 	pidl "if ($name == NULL) {";
@@ -96,19 +133,16 @@ sub ParseFunction($$)
 
 	pidl "ZERO_STRUCT(r.out);" if ($hasout);
 
-	my $proto = "_$fn->{NAME}(pipes_struct *p";
-	my $ret = "_$fn->{NAME}(p";
+	my $proto = "_$fn->{NAME}(pipes_struct *p, struct $fn->{NAME} *r";
+	my $ret = "_$fn->{NAME}(p, &r";
 	foreach (@{$fn->{ELEMENTS}}) {
 		my @dir = @{$_->{DIRECTION}};
 		if (grep(/in/, @dir) and grep(/out/, @dir)) {
 			pidl "r.out.$_->{NAME} = r.in.$_->{NAME};";
-		} elsif (grep(/out/, @dir)) {
+		} elsif (grep(/out/, @dir) and not 
+				 has_property($_, "represent_as")) {
 			AllocOutVar($_, "mem_ctx", "r.out.$_->{NAME}", \%env);
 		}
-		if (grep(/in/, @dir)) { $ret .= ", r.in.$_->{NAME}"; }
-		else { $ret .= ", r.out.$_->{NAME}"; }
-
-		$proto .= ", " . DeclLong($_);
 	}
 	$ret .= ")";
 	$proto .= ");";

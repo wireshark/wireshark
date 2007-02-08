@@ -6,9 +6,11 @@ use strict;
 
 use Test::More tests => 1 * 8;
 use FindBin qw($RealBin);
-use lib "$RealBin/../lib";
 use lib "$RealBin";
 use Util qw(test_samba4_ndr);
+
+SKIP: {
+	skip "full pointers not supported yet", 8;
 
 test_samba4_ndr("fullptr-push-dup", 
 '	
@@ -39,3 +41,4 @@ test_samba4_ndr("fullptr-push-dup",
 		return 3;
 	}
 ');
+}

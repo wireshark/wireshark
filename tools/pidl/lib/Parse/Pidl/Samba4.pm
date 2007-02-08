@@ -7,7 +7,7 @@ package Parse::Pidl::Samba4;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(is_intree choose_header DeclLong DeclLong_cli IsUniqueOut);
+@EXPORT = qw(is_intree choose_header DeclLong);
 
 use Parse::Pidl::Util qw(has_property is_constant);
 use Parse::Pidl::Typelist qw(mapType scalar_is_reference);
@@ -32,19 +32,9 @@ sub choose_header($$)
 	return "#include <$out>";
 }
 
-sub IsUniqueOut($)
+sub DeclLong($)
 {
-    my ($e) = shift;
-
-    return grep(/out/, @{$e->{DIRECTION}}) &&
-	((($e->{LEVELS}[0]->{TYPE} eq "POINTER") &&
-	  ($e->{LEVELS}[0]->{POINTER_TYPE} eq "unique")) ||
-	 ($e->{LEVELS}[0]->{TYPE} eq "ARRAY"));
-}
-
-sub DeclLong_int($$)
-{
-	my($element,$cli) = @_;
+	my($element) = shift;
 	my $ret = "";
 
 	if (has_property($element, "represent_as")) {
@@ -67,9 +57,6 @@ sub DeclLong_int($$)
 				not has_property($element, "charset");
 			$numstar++;
 		}
-		if ($cli && IsUniqueOut($element)) {
-			$numstar++;
-		}
 		$ret.="*" foreach (1..$numstar);
 	}
 	$ret.=$element->{NAME};
@@ -79,16 +66,6 @@ sub DeclLong_int($$)
 	}
 
 	return $ret;
-}
-
-sub DeclLong($)
-{
-    return DeclLong_int($_, 0);
-}
-
-sub DeclLong_cli($)
-{
-    return DeclLong_int($_, 1);
 }
 
 1;

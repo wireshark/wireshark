@@ -35,9 +35,9 @@ sub gen_dispatch_switch($)
 		pidl "\t\t\tNDR_PRINT_FUNCTION_DEBUG($fn->{NAME}, NDR_IN, r2);\n";
 		pidl "\t\t}\n";
 		if ($fn->{RETURN_TYPE} && $fn->{RETURN_TYPE} ne "void") {
-			pidl "\t\tr2->out.result = $fn->{NAME}(dce_call, mem_ctx, r2);\n";
+			pidl "\t\tr2->out.result = dcesrv_$fn->{NAME}(dce_call, mem_ctx, r2);\n";
 		} else {
-			pidl "\t\t$fn->{NAME}(dce_call, mem_ctx, r2);\n";
+			pidl "\t\tdcesrv_$fn->{NAME}(dce_call, mem_ctx, r2);\n";
 		}
 		pidl "\t\tif (dce_call->state_flags & DCESRV_CALL_STATE_FLAG_ASYNC) {\n";
 		pidl "\t\t\tDEBUG(5,(\"function $fn->{NAME} will reply async\\n\"));\n";
@@ -186,7 +186,7 @@ static NTSTATUS $name\__op_ndr_push(struct dcesrv_call_state *dce_call, TALLOC_C
 	return NT_STATUS_OK;
 }
 
-static const struct dcesrv_interface $name\_interface = {
+const struct dcesrv_interface dcesrv\_$name\_interface = {
 	.name		= \"$name\",
 	.syntax_id  = {".print_uuid($uuid).",$if_version},
 	.bind		= $name\__op_bind,
@@ -217,7 +217,7 @@ static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const str
 		NTSTATUS ret;
 		const char *name = dcerpc_table_$name.endpoints->names[i];
 
-		ret = dcesrv_interface_register(dce_ctx, name, &$name\_interface, NULL);
+		ret = dcesrv_interface_register(dce_ctx, name, &dcesrv_$name\_interface, NULL);
 		if (!NT_STATUS_IS_OK(ret)) {
 			DEBUG(1,(\"$name\_op_init_server: failed to register endpoint \'%s\'\\n\",name));
 			return ret;
@@ -229,9 +229,9 @@ static NTSTATUS $name\__op_init_server(struct dcesrv_context *dce_ctx, const str
 
 static BOOL $name\__op_interface_by_uuid(struct dcesrv_interface *iface, const struct GUID *uuid, uint32_t if_version)
 {
-	if ($name\_interface.syntax_id.if_version == if_version &&
-		GUID_equal(\&$name\_interface.syntax_id.uuid, uuid)) {
-		memcpy(iface,&$name\_interface, sizeof(*iface));
+	if (dcesrv_$name\_interface.syntax_id.if_version == if_version &&
+		GUID_equal(\&dcesrv\_$name\_interface.syntax_id.uuid, uuid)) {
+		memcpy(iface,&dcesrv\_$name\_interface, sizeof(*iface));
 		return True;
 	}
 
@@ -240,8 +240,8 @@ static BOOL $name\__op_interface_by_uuid(struct dcesrv_interface *iface, const s
 
 static BOOL $name\__op_interface_by_name(struct dcesrv_interface *iface, const char *name)
 {
-	if (strcmp($name\_interface.name, name)==0) {
-		memcpy(iface,&$name\_interface, sizeof(*iface));
+	if (strcmp(dcesrv_$name\_interface.name, name)==0) {
+		memcpy(iface, &dcesrv_$name\_interface, sizeof(*iface));
 		return True;
 	}
 

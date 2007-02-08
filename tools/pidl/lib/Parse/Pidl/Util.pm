@@ -6,11 +6,14 @@ package Parse::Pidl::Util;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT = qw(has_property property_matches ParseExpr is_constant make_str print_uuid);
+@EXPORT = qw(has_property property_matches ParseExpr ParseExprExt is_constant make_str print_uuid MyDumper);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
+
+use Parse::Pidl::Expr;
+use Parse::Pidl qw(error);
 
 #####################################################################
 # a dumper wrapper to prevent dependence on the Data::Dumper module
@@ -26,12 +29,9 @@ sub MyDumper($)
 # see if a pidl property list contains a given property
 sub has_property($$)
 {
-	my($e) = shift;
-	my($p) = shift;
+	my($e, $p) = @_;
 
-	if (!defined $e->{PROPERTIES}) {
-		return undef;
-	}
+	return undef if (not defined($e->{PROPERTIES}));
 
 	return $e->{PROPERTIES}->{$p};
 }
@@ -40,9 +40,7 @@ sub has_property($$)
 # see if a pidl property matches a value
 sub property_matches($$$)
 {
-	my($e) = shift;
-	my($p) = shift;
-	my($v) = shift;
+	my($e,$p,$v) = @_;
 
 	if (!defined has_property($e, $p)) {
 		return undef;
@@ -59,9 +57,8 @@ sub property_matches($$$)
 sub is_constant($)
 {
 	my $s = shift;
-	if (defined $s && $s =~ /^\d/) {
-		return 1;
-	}
+	return 1 if (defined $s && $s =~ /^\d+$/);
+	return 1 if (defined $s && $s =~ /^0x[0-9A-Fa-f]+$/);
 	return 0;
 }
 
@@ -72,7 +69,7 @@ sub make_str($)
 	if (substr($str, 0, 1) eq "\"") {
 		return $str;
 	}
-	return "\"" . $str . "\"";
+	return "\"$str\"";
 }
 
 sub print_uuid($)
@@ -80,6 +77,7 @@ sub print_uuid($)
 	my ($uuid) = @_;
 	$uuid =~ s/"//g;
 	my ($time_low,$time_mid,$time_hi,$clock_seq,$node) = split /-/, $uuid;
+	return undef if not defined($node);
 
 	my @clock_seq = $clock_seq =~ /(..)/g;
 	my @node = $node =~ /(..)/g;
@@ -89,35 +87,38 @@ sub print_uuid($)
 		"{".join(',', map {"0x$_"} @node)."}}";
 }
 
-# a hack to build on platforms that don't like negative enum values
-my $useUintEnums = 0;
-sub setUseUintEnums($)
+sub ParseExpr($$$)
 {
-	$useUintEnums = shift;
-}
-sub useUintEnums()
-{
-	return $useUintEnums;
-}
-
-sub ParseExpr($$)
-{
-	my($expr,$varlist) = @_;
+	my($expr, $varlist, $e) = @_;
 
 	die("Undefined value in ParseExpr") if not defined($expr);
 
-	my @tokens = split /((?:[A-Za-z_])(?:(?:(?:[A-Za-z0-9_.])|(?:->))+))/, $expr;
-	my $ret = "";
+	my $x = new Parse::Pidl::Expr();
+	
+	return $x->Run($expr, sub { my $x = shift; error($e, $x); },
+		# Lookup fn 
+		sub { my $x = shift; 
+			  return($varlist->{$x}) if (defined($varlist->{$x})); 
+			  return $x;
+		  },
+		undef, undef);
+}
 
-	foreach my $t (@tokens) {
-		if (defined($varlist->{$t})) {
-			$ret .= $varlist->{$t};
-		} else {
-			$ret .= $t;
-		}
-	}
+sub ParseExprExt($$$$$)
+{
+	my($expr, $varlist, $e, $deref, $use) = @_;
 
-	return $ret;
+	die("Undefined value in ParseExpr") if not defined($expr);
+
+	my $x = new Parse::Pidl::Expr();
+	
+	return $x->Run($expr, sub { my $x = shift; error($e, $x); },
+		# Lookup fn 
+		sub { my $x = shift; 
+			  return($varlist->{$x}) if (defined($varlist->{$x})); 
+			  return $x;
+		  },
+		$deref, $use);
 }
 
 1;

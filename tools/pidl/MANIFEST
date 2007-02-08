@@ -7,6 +7,14 @@ tests/ndr_simple.pl
 tests/ndr_align.pl
 tests/ndr_alloc.pl
 tests/ndr_array.pl
+tests/ndr.pl
+tests/samba-ndr.pl
+tests/util.pl
+tests/test_util.pl
+tests/ndr_represent.pl
+tests/ndr_compat.pl
+tests/ndr_fullptr.pl
+tests/ndr_tagtype.pl
 lib/Parse/Pidl/Samba3/Client.pm
 lib/Parse/Pidl/Samba3/ClientNDR.pm
 lib/Parse/Pidl/Samba3/Header.pm
