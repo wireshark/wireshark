@@ -37,6 +37,7 @@
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
 
 #include "packet-cdt.h"
 
@@ -339,6 +340,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item_append_text (en, " (correct)");
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum1);
+    expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
   }
   offset += 2;
 
@@ -487,6 +489,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
       if (no_missing) {
         proto_item_append_text (ti, ", Missing seq numbers: %u", no_missing);
+        expert_add_info_format (pinfo, en, PI_RESPONSE_CODE, PI_NOTE,
+                                "Missing seq numbers: %d", no_missing);
         if (check_col (pinfo->cinfo, COL_INFO))
           col_append_fstr (pinfo->cinfo, COL_INFO, ", Missing seq numbers: %u",
                            no_missing);
