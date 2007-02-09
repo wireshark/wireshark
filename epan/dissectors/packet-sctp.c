@@ -1606,20 +1606,20 @@ frag_equal(gconstpointer k1, gconstpointer k2)
 
   return ( (key1->sport == key2->sport) &&
            (key1->dport == key1->dport) &&
-		   (key1->verification_tag == key1->verification_tag) &&
+           (key1->verification_tag == key1->verification_tag) &&
            (key1->stream_id == key1->stream_id) &&
            (key1->stream_seq_num == key1->stream_seq_num)
-		  ? TRUE : FALSE);
+           ? TRUE : FALSE);
 }
 
 
 static guint
 frag_hash(gconstpointer k)
 {
-	const frag_key* key = (const frag_key*) k;
+  const frag_key* key = (const frag_key*) k;
 
-	return key->sport ^ key->dport ^ key->verification_tag ^
-           key->stream_id ^ key->stream_seq_num;
+  return key->sport ^ key->dport ^ key->verification_tag ^
+         key->stream_id ^ key->stream_seq_num;
 }
 
 
@@ -1633,14 +1633,14 @@ frag_free_msgs(sctp_frag_msg *msg)
   /* free all begins */
   while (msg->begins) {
     beginend = msg->begins;
-	msg->begins = msg->begins->next;	
+    msg->begins = msg->begins->next;
     g_free(beginend);
   }
 
   /* free all ends */
   while (msg->ends) {
     beginend = msg->ends;
-	msg->ends = msg->ends->next;	
+    msg->ends = msg->ends->next;
     g_free(beginend);
   }
 
@@ -1662,7 +1662,6 @@ frag_table_init(void)
   /* destroy an existing hast table and create a new one */
   if (frag_table) {
     g_hash_table_foreach_remove(frag_table, frag_free_msgs, NULL);
-
     g_hash_table_destroy(frag_table);
     frag_table=NULL;
   }
@@ -1697,7 +1696,8 @@ find_fragment(guint32 tsn, guint16 stream_id, guint16 stream_seq_num)
   if (msg) {
     next_fragment = msg->fragments;
     while (next_fragment) {
-      if (next_fragment->tsn == tsn) return next_fragment;
+      if (next_fragment->tsn == tsn) 
+        return next_fragment;
       next_fragment = next_fragment->next;
     }
   }
@@ -1725,7 +1725,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     msg->fragments = NULL;
     msg->messages = NULL;
     msg->next = NULL;
-	
+
     key = se_alloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
@@ -1738,25 +1738,25 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* lookup segment. if not found, create it */
   fragment = find_fragment(tsn, stream_id, stream_seq_num);
-  
+
   if (fragment) {
     /* this fragment is already known.
-	 * compare frame number to check if it's a duplicate
-	 */
-	if (fragment->frame_num == pinfo->fd->num) {
-	  return fragment;
-	} else {
-	  /* there already is a fragment having the same ports, v_tag,
+     * compare frame number to check if it's a duplicate
+     */
+    if (fragment->frame_num == pinfo->fd->num) {
+      return fragment;
+    } else {
+      /* there already is a fragment having the same ports, v_tag,
        * stream id, stream_seq_num and tsn but it appeared in a different
        * frame, so it must be a duplicate fragment. maybe a retransmission?
        * Mark it as duplicate and return NULL
-	   */
+       */
       if (check_col(pinfo->cinfo, COL_INFO))
-	    col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)"); 
-		
+        col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)"); 
+
       proto_tree_add_uint(tree, hf_sctp_duplicate, tvb, 0, 0, fragment->frame_num);
       return NULL;
-	}
+    }
   }
   
   /* create new fragment */
@@ -1769,81 +1769,84 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     fragment->data = g_malloc (fragment->len);
     tvb_memcpy(tvb, fragment->data, 0, fragment->len);
   }
-	
+
   /* add new fragment to linked list. sort ascending by tsn */
-  if (!msg->fragments) msg->fragments = fragment;
+  if (!msg->fragments)
+    msg->fragments = fragment;
   else {
     if (msg->fragments->tsn > fragment->tsn) {
       fragment->next = msg->fragments;
-		msg->fragments = fragment;
-	  } else {
+      msg->fragments = fragment;
+    } else {
         last_fragment = msg->fragments;  
         while (last_fragment->next &&
                last_fragment->next->tsn < fragment->tsn)
           last_fragment = last_fragment->next;
-		  
+
         fragment->next = last_fragment->next;
         last_fragment->next = fragment;
-	  }
     }
+  }
   
 
-    /* save begin or end if neccessary */
-    if (b_bit && !e_bit) {
-	   beginend = g_malloc (sizeof (sctp_frag_be));
-      beginend->fragment = fragment;
-      beginend->next = NULL;
+  /* save begin or end if neccessary */
+  if (b_bit && !e_bit) {
+    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend->fragment = fragment;
+    beginend->next = NULL;
 
     /* add begin to linked list. sort descending by tsn */
-	if (!msg->begins) msg->begins = beginend;
+    if (!msg->begins)
+      msg->begins = beginend;
     else {
-	  if (msg->begins->fragment->tsn < beginend->fragment->tsn) {
-	    beginend->next = msg->begins;
-		msg->begins = beginend;
-	  } else {
+      if (msg->begins->fragment->tsn < beginend->fragment->tsn) {
+        beginend->next = msg->begins;
+        msg->begins = beginend;
+      } else {
         last_beginend = msg->begins;  
         while (last_beginend->next &&
                last_beginend->next->fragment->tsn > beginend->fragment->tsn)
           last_beginend = last_beginend->next;
-		  
-        beginend->next = last_beginend->next;
-	    last_beginend->next = beginend;
-	  }
-	}
 
-	}
-  
-    if (!b_bit && e_bit) {
-	  beginend = g_malloc (sizeof (sctp_frag_be));
-      beginend->fragment = fragment;
-      beginend->next = NULL;
+        beginend->next = last_beginend->next;
+       last_beginend->next = beginend;
+      }
+    }
+
+  }
+
+  if (!b_bit && e_bit) {
+    beginend = g_malloc (sizeof (sctp_frag_be));
+    beginend->fragment = fragment;
+    beginend->next = NULL;
 
     /* add end to linked list. sort ascending by tsn */
-    if (!msg->ends) msg->ends = beginend;
+    if (!msg->ends)
+      msg->ends = beginend;
     else {
-	  if (msg->begins->fragment->tsn > beginend->fragment->tsn) {
-	    beginend->next = msg->ends;
-		msg->ends = beginend;
-	  } else {
+      if (msg->begins->fragment->tsn > beginend->fragment->tsn) {
+        beginend->next = msg->ends;
+        msg->ends = beginend;
+      } else {
         last_beginend = msg->ends;  
         while (last_beginend->next &&
                last_beginend->next->fragment->tsn < beginend->fragment->tsn)
           last_beginend = last_beginend->next;
-		  
+
         beginend->next = last_beginend->next;
-	    last_beginend->next = beginend;
-	  }
-	}
+        last_beginend->next = beginend;
+      }
+    }
 
-	}
+  }
 
-    return fragment;
+  return fragment;
 }
 
 static tvbuff_t*
 fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
                     packet_info *pinfo, proto_tree *tree, guint16 stream_id,
-					guint16 stream_seq_num) 
+                    guint16 stream_seq_num) 
 {
   sctp_frag_msg *msg;
   sctp_complete_msg *message, *last_message;
@@ -1858,30 +1861,30 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
   
   if (!msg) {
     /* no message, we can't do anything */
-	return NULL;
+    return NULL;
   }
 
   /* check if fragment is part of an already reassembled message */
   for (message = msg->messages;
        message &&
-	   !(message->begin <= fragment->tsn && message->end >= fragment->tsn) &&
+       !(message->begin <= fragment->tsn && message->end >= fragment->tsn) &&
        !(message->begin > message->end &&
-         (message->begin <= fragment->tsn || message->end >= fragment->tsn));
-	   message = message->next);
-		 
+       (message->begin <= fragment->tsn || message->end >= fragment->tsn));
+         message = message->next);
+
   if (message) {
     /* we found the reassembled message this fragment belongs to */
     if (fragment == message->reassembled_in) {
-	
+
       /* this is the last fragment, create data source */
       new_tvb = tvb_new_real_data(message->data, message->len, message->len);
-	  tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+      tvb_set_child_real_data_tvbuff(tvb, new_tvb);
       add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
-	  
-	  /* display reassembly info */
+
+      /* display reassembly info */
       item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, FALSE);
       ptree = proto_item_add_subtree(item, ett_sctp_fragments);
-	  proto_item_append_text(item, " (%u bytes, %u fragments): ",
+      proto_item_append_text(item, " (%u bytes, %u fragments): ",
                              message->len, message->end - message->begin + 1);
 
       if (message->begin > message->end) {
@@ -1890,7 +1893,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
              frag_i = frag_i->next) {
 
           proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
-			                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                     frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
         }
@@ -1900,7 +1903,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
              frag_i = frag_i->next) {
 
           proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
-			                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                     frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
         }
@@ -1917,11 +1920,11 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       }
       
       return new_tvb;
-	}
-	
+    }
+
     /* this is not the last fragment,
-	 * so let the user know the frame where the reassembly is
-	 */
+     * so let the user know the frame where the reassembly is
+     */
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
@@ -1936,20 +1939,22 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
   for (begin = msg->begins;
        begin && begin->fragment->tsn > fragment->tsn;
        begin = begin->next);
-	   
+
   /* in case begin still is null, set it to first (highest) begin
    * maybe the message tsn restart at 0 in between
    */
-  if (!begin) begin = msg->begins;
-	  
+  if (!begin)
+    begin = msg->begins;
+
   for (end = msg->ends;
        end && end->fragment->tsn < fragment->tsn;
        end = end->next);
-	  
+
   /* in case end still is null, set it to first (lowest) end
    * maybe the message tsn restart at 0 in between
    */
-  if (!end) end = msg->ends;
+  if (!end)
+    end = msg->ends;
 
   if (!begin || !end || !msg->fragments ||
       (begin->fragment->tsn > end->fragment->tsn && msg->fragments->tsn)) {
@@ -1957,10 +1962,10 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
      * or there might be a tsn restart but the first fragment hasn't a tsn of 0
      * just mark as fragment
      */
-		
+
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
-		
+
     return NULL;
   }
 
@@ -1968,7 +1973,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
    * look for the first fragment and then try to get to the end
    */
   first_frag = begin->fragment;
-		
+
   /* while looking if all fragments are there
    * we can calculate the overall length that
    * we need in case of success
@@ -1991,11 +1996,11 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     if ((last_frag->tsn + 1)) {
       /* there are just fragments missing */
       if (check_col(pinfo->cinfo, COL_INFO))
-        col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) "); 
+        col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
 
       return NULL;
     }
-	
+
     /* we got all fragments until the last possible tsn
      * and the first is 0 if we got here
      */
@@ -2004,7 +2009,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     for (last_frag = msg->fragments, frag_i = last_frag->next;
          frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
          last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
-	
+
   } else {
     for (last_frag = first_frag, frag_i = first_frag->next;
          frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
@@ -2023,14 +2028,14 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
    * but at first don't forget to add the length of the last fragment
    */
   len += frag_i->len;
-		  
+
   message = se_alloc (sizeof (sctp_complete_msg));
   message->begin = begin->fragment->tsn;
   message->end = end->fragment->tsn;
   message->reassembled_in = fragment;
   message->len = len;
   message->data = se_alloc(len);
-		  
+
   /* now copy all fragments */
   if (begin->fragment->tsn > end->fragment->tsn) {
     /* a tsn restart has occured */
@@ -2038,7 +2043,8 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
          frag_i;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      if (frag_i->len && frag_i->data)
+        memcpy(message->data + offset, frag_i->data, frag_i->len);	   
       offset += frag_i->len;
 
       /* release fragment data */
@@ -2050,7 +2056,8 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
          frag_i && frag_i->tsn <= end->fragment->tsn;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      if (frag_i->len && frag_i->data)
+        memcpy(message->data + offset, frag_i->data, frag_i->len);	   
       offset += frag_i->len;
 
       /* release fragment data */
@@ -2063,27 +2070,27 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
          frag_i && frag_i->tsn <= end->fragment->tsn;
          frag_i = frag_i->next) {
 
-      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      if (frag_i->len && frag_i->data)
+        memcpy(message->data + offset, frag_i->data, frag_i->len);	   
       offset += frag_i->len;
 
       /* release fragment data */
       g_free(frag_i->data);
       frag_i->data = NULL;
     }
-  }		  
+  }
 
   /* save message */
   if (!msg->messages) {
     msg->messages = message;
-  } else {
-		  
+  } else { 
     for (last_message = msg->messages;
          last_message->next;
          last_message = last_message->next);
-				 
+
          last_message->next = message;
   }
-		  
+
   /* remove begin and end from list */
   if (msg->begins == begin) {
     msg->begins = begin->next;
@@ -2091,20 +2098,22 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     for (beginend = msg->begins;
          beginend && beginend->next != begin;
          beginend = beginend->next);
-    if (beginend->next == begin) beginend->next = begin->next;
+    if (beginend->next == begin)
+      beginend->next = begin->next;
   }
   g_free(begin);
-	  	  
+
   if (msg->ends == end) {
     msg->ends = end->next;
   } else {
     for (beginend = msg->ends;
          beginend && beginend->next != end;
          beginend = beginend->next);
-    if (beginend->next == end) beginend->next = end->next;
+    if (beginend->next == end)
+      beginend->next = end->next;
   }
    g_free(end);
-		  
+
   /* create data source */
   new_tvb = tvb_new_real_data(message->data, len, len);
   tvb_set_child_real_data_tvbuff(tvb, new_tvb);
@@ -2122,7 +2131,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
          frag_i = frag_i->next) {
 
       proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
-		                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                 frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
                                  frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
       offset += frag_i->len;
     }
@@ -2132,7 +2141,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
          frag_i = frag_i->next) {
 
       proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
-	                             frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                 frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
                                  frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
       offset += frag_i->len;
     }
