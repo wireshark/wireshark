@@ -1,12 +1,11 @@
 /* packet-ircomm.c
  * Routines for IrCOMM dissection
- * By Jan Kiszka <jan.kiszka@web.de>
- * Copyright 2003 Jan Kiszka
+ * Copyright 2003 Jan Kiszka <jan.kiszka@web.de>
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@unicom.net>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -21,21 +20,18 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
 
-#include "moduleinfo.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
-#include <gmodule.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 
@@ -416,7 +412,7 @@ void proto_register_ircomm(void)
         { &hf_control_len,
             { "Clen", "ircomm.control.len",
                 FT_UINT8, BASE_DEC, NULL, 0,
-                "", HFILL }},
+                "", HFILL }}
     };
 
     /* Setup protocol subtree arrays */
