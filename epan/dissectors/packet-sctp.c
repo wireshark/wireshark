@@ -1661,11 +1661,13 @@ frag_table_init(void)
 {
   /* destroy an existing hast table and create a new one */
   if (frag_table) {
+    g_hash_table_foreach_remove(frag_table, frag_free_msgs, NULL);
+
     g_hash_table_destroy(frag_table);
+    frag_table=NULL;
   }
 
-  frag_table = g_hash_table_new_full(frag_hash, frag_equal, (GDestroyNotify) g_free,
-                                (GDestroyNotify) frag_free_msgs);
+  frag_table = g_hash_table_new(frag_hash, frag_equal);
 }
 
 
@@ -1724,7 +1726,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     msg->messages = NULL;
     msg->next = NULL;
 	
-    key = g_malloc(sizeof (frag_key));
+    key = se_alloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
