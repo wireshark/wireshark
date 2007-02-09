@@ -30,7 +30,7 @@
 #ifndef _UAT_GUI_H_
 #define _UAT_GUI_H_
 
-GtkWidget* uat_window(void*);
 void uat_window_cb(GtkWidget* unused, void* uat);
+void uat_init_menus(void);
 
 #endif

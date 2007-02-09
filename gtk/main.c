@@ -96,6 +96,7 @@
 #include "version_info.h"
 #include "merge.h"
 #include "u3.h"
+#include "uat_gui.h"
 
 
 #ifdef HAVE_LIBPCAP
@@ -2372,6 +2373,10 @@ main(int argc, char *argv[])
      case any dissectors register preferences. */
   epan_init(register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
+
+
+  uat_init_menus();
+
 
   splash_update(splash_win, "Init tap listeners ...");
 

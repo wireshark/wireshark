@@ -51,7 +51,12 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "help_dlg.h"
+#include "menu.h"
 #include "compat_macros.h"
+#include <epan/proto.h>
+#include <epan/packet.h>
+#include "../stat_menu.h"
+#include "gui_stat_menu.h"
 
 #include <epan/uat-int.h>
 #include <epan/value_string.h>
@@ -787,7 +792,7 @@ static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
 }
 #endif
 
-GtkWidget* uat_window(void* u) {
+static GtkWidget* uat_window(void* u) {
 	uat_t* uat = u;
 	uat_field_t* f = uat->fields;
 	uat_rep_t* rep;
@@ -957,3 +962,24 @@ GtkWidget* uat_window(void* u) {
 void uat_window_cb(GtkWidget* u _U_, void* uat) {
 	uat_window(uat);
 }
+
+
+/*
+ Add an UAT to the menu
+ */
+static void add_uat_to_menu(void* u, void* user_data _U_) {
+	uat_t* uat = u;
+	register_stat_menu_item(uat->category ? ep_strdup_printf("%s/%s",uat->category,uat->name) : uat->name, 
+							REGISTER_USER_TABLES,
+							uat_window_cb,
+							NULL,
+							NULL,
+							uat);
+}
+
+
+void uat_init_menus(void) {
+	uat_foreach_table(add_uat_to_menu,NULL);
+
+}
+

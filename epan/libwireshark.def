@@ -786,6 +786,7 @@ tvb_strnlen
 tvb_strsize
 tvb_uncompress
 uat_add_record
+uat_foreach_table
 uat_remove_record_idx
 uat_save
 uat_swap

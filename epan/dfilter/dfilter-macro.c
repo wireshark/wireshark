@@ -468,12 +468,12 @@ void dfilter_macro_init(void) {
 		UAT_END_FIELDS
 	};
 	
-	dfilter_macro_uat = uat_new("Display Filter Macros",
+	dfilter_macro_uat = uat_new(" Display Filter Macros",
 								sizeof(dfilter_macro_t),
 								DFILTER_MACRO_FILENAME,
 								(void**) &macros,
 								&num_macros,
-								UAT_CAT_GENERAL,
+								NULL,
 								"ChDisplayFilterMacrosSection",
 								macro_copy,
 								macro_update,
