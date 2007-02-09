@@ -37,7 +37,6 @@ struct _sctp_info {
   gboolean crc32c_correct;
   gboolean checksum_zero;
   gboolean vtag_reflected;
-  /* FIXME: do we need the ports and addresses to be here? */
   guint16 sport;
   guint16 dport;
   address ip_src;
@@ -46,5 +45,36 @@ struct _sctp_info {
   guint32 number_of_tvbs;
   tvbuff_t *tvb[MAXIMUM_NUMBER_OF_TVBS];
 };
+
+typedef struct _sctp_fragment {
+  guint32 frame_num;
+  guint32 tsn;
+  guint32 len;
+  unsigned char *data;
+  struct _sctp_fragment *next;	
+} sctp_fragment;
+
+typedef struct _sctp_frag_be {
+  sctp_fragment* fragment;
+  struct _sctp_frag_be *next;	
+} sctp_frag_be;
+
+typedef struct _sctp_complete_msg {
+  guint32 begin;
+  guint32 end;
+  sctp_fragment* reassembled_in;
+  guint32 len;
+  unsigned char *data;
+  struct _sctp_complete_msg *next;
+} sctp_complete_msg;
+
+typedef struct _sctp_frag_msg {
+  sctp_frag_be* begins;
+  sctp_frag_be* ends;
+  sctp_fragment* fragments;
+  sctp_complete_msg* messages;
+  struct _sctp_frag_msg* next;
+} sctp_frag_msg;
+
 
 #endif

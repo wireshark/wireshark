@@ -15,12 +15,15 @@
  *
  * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Still to do (so stay tuned)
- * - support for reassembly
  * - error checking mode
  *   * padding errors
  *   * length errors
  *   * bundling errors
  *   * value errors
+ *
+ *
+ * Reassembly added 2006 by Robin Seggelmann
+ *
  *
  * $Id$
  *
@@ -55,6 +58,9 @@
 #include <epan/addr_resolv.h>
 #include "packet-sctp.h"
 #include <epan/sctpppids.h>
+#include <epan/emem.h>
+
+#define LT(x, y) ((gint32)((x) - (y)) < 0)
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -179,6 +185,11 @@ static int hf_pktdrop_chunk_truncated_length = -1;
 static int hf_pktdrop_chunk_reserved = -1;
 static int hf_pktdrop_chunk_data_field = -1;
 
+static int hf_sctp_reassembled_in = -1;
+static int hf_sctp_duplicate = -1;
+static int hf_sctp_fragments = -1;
+static int hf_sctp_fragment = -1;
+
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
@@ -199,6 +210,9 @@ static gint ett_sctp_pktdrop_chunk_flags = -1;
 static gint ett_sctp_parameter_type= -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
+
+static gint ett_sctp_fragments = -1;
+static gint ett_sctp_fragment  = -1;
 
 static dissector_handle_t data_handle;
 
@@ -316,6 +330,8 @@ static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
 static gint sctp_checksum                  = SCTP_CHECKSUM_CRC32C;
+
+static gboolean use_reassembly             = FALSE;
 
 static struct _sctp_info sctp_info;
 
@@ -1568,6 +1584,595 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 #define SCTP_DATA_CHUNK_B_BIT 0x02
 #define SCTP_DATA_CHUNK_U_BIT 0x04
 
+
+/* table to hold fragmented SCTP messages */
+static GHashTable *frag_table = NULL;
+
+
+typedef struct _frag_key {
+  guint16 sport;
+  guint16 dport;
+  guint32 verification_tag;
+  guint16 stream_id;
+  guint16 stream_seq_num;
+} frag_key;
+
+
+static gint
+frag_equal(gconstpointer k1, gconstpointer k2)
+{
+  const frag_key* key1 = (const frag_key*) k1;
+  const frag_key* key2 = (const frag_key*) k2;
+
+  return ( (key1->sport == key2->sport) &&
+           (key1->dport == key1->dport) &&
+		   (key1->verification_tag == key1->verification_tag) &&
+           (key1->stream_id == key1->stream_id) &&
+           (key1->stream_seq_num == key1->stream_seq_num)
+		  ? TRUE : FALSE);
+}
+
+
+static guint
+frag_hash(gconstpointer k)
+{
+	const frag_key* key = (const frag_key*) k;
+
+	return key->sport ^ key->dport ^ key->verification_tag ^
+           key->stream_id ^ key->stream_seq_num;
+}
+
+
+
+static void
+frag_free_msgs(sctp_frag_msg *msg)
+{
+  sctp_frag_be *beginend;
+  sctp_fragment *fragment;
+  
+  /* free all begins */
+  while (msg->begins) {
+    beginend = msg->begins;
+	msg->begins = msg->begins->next;	
+    g_free(beginend);
+  }
+
+  /* free all ends */
+  while (msg->ends) {
+    beginend = msg->ends;
+	msg->ends = msg->ends->next;	
+    g_free(beginend);
+  }
+
+  /* free all fragments */
+  while (msg->fragments) {
+    fragment = msg->fragments;
+    msg->fragments = msg->fragments->next;
+    g_free(fragment->data);
+    g_free(fragment);
+  }
+  
+  g_free(msg);
+}
+
+
+static void
+frag_table_init(void)
+{
+  /* destroy an existing hast table and create a new one */
+  if (frag_table) {
+    g_hash_table_destroy(frag_table);
+  }
+
+  frag_table = g_hash_table_new_full(frag_hash, frag_equal, (GDestroyNotify) g_free,
+                                (GDestroyNotify) frag_free_msgs);
+}
+
+
+static sctp_frag_msg*
+find_message(guint16 stream_id, guint16 stream_seq_num)
+{
+  frag_key key;
+
+  key.sport = sctp_info.sport;
+  key.dport = sctp_info.dport;
+  key.verification_tag = sctp_info.verification_tag;
+  key.stream_id = stream_id;
+  key.stream_seq_num = stream_seq_num;
+
+  return g_hash_table_lookup(frag_table, &key);
+}
+
+
+static sctp_fragment*
+find_fragment(guint32 tsn, guint16 stream_id, guint16 stream_seq_num)
+{
+  sctp_frag_msg *msg;
+  sctp_fragment *next_fragment;
+  
+  msg = find_message(stream_id, stream_seq_num);
+  
+  if (msg) {
+    next_fragment = msg->fragments;
+    while (next_fragment) {
+      if (next_fragment->tsn == tsn) return next_fragment;
+      next_fragment = next_fragment->next;
+    }
+  }
+  
+  return NULL;
+}
+
+
+static sctp_fragment*
+add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
+             guint16 stream_id, guint16 stream_seq_num, guint8 b_bit, guint8 e_bit)
+{
+  sctp_frag_msg *msg;
+  sctp_fragment *fragment, *last_fragment;
+  sctp_frag_be *beginend, *last_beginend;
+  frag_key *key;
+
+  /* lookup message. if not found, create it */
+  msg = find_message(stream_id, stream_seq_num);
+  
+  if (!msg) {
+    msg = g_malloc (sizeof (sctp_frag_msg));
+    msg->begins = NULL;
+    msg->ends = NULL;
+    msg->fragments = NULL;
+    msg->messages = NULL;
+    msg->next = NULL;
+	
+    key = g_malloc(sizeof (frag_key));
+    key->sport = sctp_info.sport;
+    key->dport = sctp_info.dport;
+    key->verification_tag = sctp_info.verification_tag;
+    key->stream_id = stream_id;
+    key->stream_seq_num = stream_seq_num;
+
+    g_hash_table_insert(frag_table, key, msg);  
+  }
+
+  /* lookup segment. if not found, create it */
+  fragment = find_fragment(tsn, stream_id, stream_seq_num);
+  
+  if (fragment) {
+    /* this fragment is already known.
+	 * compare frame number to check if it's a duplicate
+	 */
+	if (fragment->frame_num == pinfo->fd->num) {
+	  return fragment;
+	} else {
+	  /* there already is a fragment having the same ports, v_tag,
+       * stream id, stream_seq_num and tsn but it appeared in a different
+       * frame, so it must be a duplicate fragment. maybe a retransmission?
+       * Mark it as duplicate and return NULL
+	   */
+      if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_str(pinfo->cinfo, COL_INFO, " (Duplicate Message Fragment)"); 
+		
+      proto_tree_add_uint(tree, hf_sctp_duplicate, tvb, 0, 0, fragment->frame_num);
+      return NULL;
+	}
+  }
+  
+  /* create new fragment */
+  fragment = g_malloc (sizeof (sctp_fragment));
+  fragment->frame_num = pinfo->fd->num;
+  fragment->tsn = tsn;
+  fragment->len = tvb_length(tvb);
+  fragment->next = NULL;
+  if (fragment->len) {
+    fragment->data = g_malloc (fragment->len);
+    tvb_memcpy(tvb, fragment->data, 0, fragment->len);
+  }
+	
+  /* add new fragment to linked list. sort ascending by tsn */
+  if (!msg->fragments) msg->fragments = fragment;
+  else {
+    if (msg->fragments->tsn > fragment->tsn) {
+      fragment->next = msg->fragments;
+		msg->fragments = fragment;
+	  } else {
+        last_fragment = msg->fragments;  
+        while (last_fragment->next &&
+               last_fragment->next->tsn < fragment->tsn)
+          last_fragment = last_fragment->next;
+		  
+        fragment->next = last_fragment->next;
+        last_fragment->next = fragment;
+	  }
+    }
+  
+
+    /* save begin or end if neccessary */
+    if (b_bit && !e_bit) {
+	   beginend = g_malloc (sizeof (sctp_frag_be));
+      beginend->fragment = fragment;
+      beginend->next = NULL;
+
+    /* add begin to linked list. sort descending by tsn */
+	if (!msg->begins) msg->begins = beginend;
+    else {
+	  if (msg->begins->fragment->tsn < beginend->fragment->tsn) {
+	    beginend->next = msg->begins;
+		msg->begins = beginend;
+	  } else {
+        last_beginend = msg->begins;  
+        while (last_beginend->next &&
+               last_beginend->next->fragment->tsn > beginend->fragment->tsn)
+          last_beginend = last_beginend->next;
+		  
+        beginend->next = last_beginend->next;
+	    last_beginend->next = beginend;
+	  }
+	}
+
+	}
+  
+    if (!b_bit && e_bit) {
+	  beginend = g_malloc (sizeof (sctp_frag_be));
+      beginend->fragment = fragment;
+      beginend->next = NULL;
+
+    /* add end to linked list. sort ascending by tsn */
+    if (!msg->ends) msg->ends = beginend;
+    else {
+	  if (msg->begins->fragment->tsn > beginend->fragment->tsn) {
+	    beginend->next = msg->ends;
+		msg->ends = beginend;
+	  } else {
+        last_beginend = msg->ends;  
+        while (last_beginend->next &&
+               last_beginend->next->fragment->tsn < beginend->fragment->tsn)
+          last_beginend = last_beginend->next;
+		  
+        beginend->next = last_beginend->next;
+	    last_beginend->next = beginend;
+	  }
+	}
+
+	}
+
+    return fragment;
+}
+
+static tvbuff_t*
+fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
+                    packet_info *pinfo, proto_tree *tree, guint16 stream_id,
+					guint16 stream_seq_num) 
+{
+  sctp_frag_msg *msg;
+  sctp_complete_msg *message, *last_message;
+  sctp_fragment *frag_i, *last_frag, *first_frag;
+  sctp_frag_be *begin, *end, *beginend;
+  guint32 len, offset = 0;
+  tvbuff_t* new_tvb = NULL;
+  proto_item *item;
+  proto_tree *ptree;
+
+  msg = find_message(stream_id, stream_seq_num);
+  
+  if (!msg) {
+    /* no message, we can't do anything */
+	return NULL;
+  }
+
+  /* check if fragment is part of an already reassembled message */
+  for (message = msg->messages;
+       message &&
+	   !(message->begin <= fragment->tsn && message->end >= fragment->tsn) &&
+       !(message->begin > message->end &&
+         (message->begin <= fragment->tsn || message->end >= fragment->tsn));
+	   message = message->next);
+		 
+  if (message) {
+    /* we found the reassembled message this fragment belongs to */
+    if (fragment == message->reassembled_in) {
+	
+      /* this is the last fragment, create data source */
+      new_tvb = tvb_new_real_data(message->data, message->len, message->len);
+	  tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+      add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
+	  
+	  /* display reassembly info */
+      item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, FALSE);
+      ptree = proto_item_add_subtree(item, ett_sctp_fragments);
+	  proto_item_append_text(item, " (%u bytes, %u fragments): ",
+                             message->len, message->end - message->begin + 1);
+
+      if (message->begin > message->end) {
+        for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num);
+             frag_i;
+             frag_i = frag_i->next) {
+
+          proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+			                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                     frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+          offset += frag_i->len;
+        }
+
+        for (frag_i = msg->fragments;
+             frag_i && frag_i->tsn <= message->end;
+             frag_i = frag_i->next) {
+
+          proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+			                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                     frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+          offset += frag_i->len;
+        }
+      } else {
+        for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num);
+             frag_i && frag_i->tsn <= message->end;
+             frag_i = frag_i->next) {
+
+          proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+                                     frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                     frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+          offset += frag_i->len;
+        }
+      }
+      
+      return new_tvb;
+	}
+	
+    /* this is not the last fragment,
+	 * so let the user know the frame where the reassembly is
+	 */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+
+    proto_tree_add_uint(tree, hf_sctp_reassembled_in, tvb, 0, 0, message->reassembled_in->frame_num);
+    return NULL;
+  }
+
+  /* this fragment has not been reassembled, yet
+   * check now if we can reassemble it
+   * at first look for the first and last tsn of the msg
+   */
+  for (begin = msg->begins;
+       begin && begin->fragment->tsn > fragment->tsn;
+       begin = begin->next);
+	   
+  /* in case begin still is null, set it to first (highest) begin
+   * maybe the message tsn restart at 0 in between
+   */
+  if (!begin) begin = msg->begins;
+	  
+  for (end = msg->ends;
+       end && end->fragment->tsn < fragment->tsn;
+       end = end->next);
+	  
+  /* in case end still is null, set it to first (lowest) end
+   * maybe the message tsn restart at 0 in between
+   */
+  if (!end) end = msg->ends;
+
+  if (!begin || !end || !msg->fragments ||
+      (begin->fragment->tsn > end->fragment->tsn && msg->fragments->tsn)) {
+    /* begin and end have not been collected, yet
+     * or there might be a tsn restart but the first fragment hasn't a tsn of 0
+     * just mark as fragment
+     */
+		
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) ");
+		
+    return NULL;
+  }
+
+  /* we found possible begin and end
+   * look for the first fragment and then try to get to the end
+   */
+  first_frag = begin->fragment;
+		
+  /* while looking if all fragments are there
+   * we can calculate the overall length that
+   * we need in case of success
+   */
+  len = first_frag->len;
+  
+  /* check if begin is past end
+   * this can happen if there has been a tsn restart
+   * or we just got the wrong begin and end
+   * so give it a try
+  */
+  if (begin->fragment->tsn > end->fragment->tsn) {
+    for (last_frag = first_frag, frag_i = first_frag->next;
+         frag_i && frag_i->tsn == (last_frag->tsn + 1);
+         last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
+
+    /* check if we reached the last possible tsn
+     * if yes, restart and continue
+     */
+    if ((last_frag->tsn + 1)) {
+      /* there are just fragments missing */
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) "); 
+
+      return NULL;
+    }
+	
+    /* we got all fragments until the last possible tsn
+     * and the first is 0 if we got here
+     */
+
+    len += msg->fragments->len;
+    for (last_frag = msg->fragments, frag_i = last_frag->next;
+         frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
+         last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
+	
+  } else {
+    for (last_frag = first_frag, frag_i = first_frag->next;
+         frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
+         last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
+  }
+
+  if (!frag_i || frag_i != end->fragment || frag_i->tsn != (last_frag->tsn + 1)) {
+    /* we need more fragments. just mark as fragment */
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_str(pinfo->cinfo, COL_INFO, " (Message Fragment) "); 
+
+    return NULL;
+  }
+
+  /* ok, this message is complete, we can reassemble it
+   * but at first don't forget to add the length of the last fragment
+   */
+  len += frag_i->len;
+		  
+  message = se_alloc (sizeof (sctp_complete_msg));
+  message->begin = begin->fragment->tsn;
+  message->end = end->fragment->tsn;
+  message->reassembled_in = fragment;
+  message->len = len;
+  message->data = se_alloc(len);
+		  
+  /* now copy all fragments */
+  if (begin->fragment->tsn > end->fragment->tsn) {
+    /* a tsn restart has occured */
+    for (frag_i = first_frag;
+         frag_i;
+         frag_i = frag_i->next) {
+
+      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      offset += frag_i->len;
+
+      /* release fragment data */
+      g_free(frag_i->data);
+      frag_i->data = NULL;
+    }
+
+    for (frag_i = msg->fragments;
+         frag_i && frag_i->tsn <= end->fragment->tsn;
+         frag_i = frag_i->next) {
+
+      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      offset += frag_i->len;
+
+      /* release fragment data */
+      g_free(frag_i->data);
+      frag_i->data = NULL;
+    }
+
+  } else {
+    for (frag_i = first_frag;
+         frag_i && frag_i->tsn <= end->fragment->tsn;
+         frag_i = frag_i->next) {
+
+      if (frag_i->len && frag_i->data) memcpy(message->data + offset, frag_i->data, frag_i->len);	   
+      offset += frag_i->len;
+
+      /* release fragment data */
+      g_free(frag_i->data);
+      frag_i->data = NULL;
+    }
+  }		  
+
+  /* save message */
+  if (!msg->messages) {
+    msg->messages = message;
+  } else {
+		  
+    for (last_message = msg->messages;
+         last_message->next;
+         last_message = last_message->next);
+				 
+         last_message->next = message;
+  }
+		  
+  /* remove begin and end from list */
+  if (msg->begins == begin) {
+    msg->begins = begin->next;
+  } else {
+    for (beginend = msg->begins;
+         beginend && beginend->next != begin;
+         beginend = beginend->next);
+    if (beginend->next == begin) beginend->next = begin->next;
+  }
+  g_free(begin);
+	  	  
+  if (msg->ends == end) {
+    msg->ends = end->next;
+  } else {
+    for (beginend = msg->ends;
+         beginend && beginend->next != end;
+         beginend = beginend->next);
+    if (beginend->next == end) beginend->next = end->next;
+  }
+   g_free(end);
+		  
+  /* create data source */
+  new_tvb = tvb_new_real_data(message->data, len, len);
+  tvb_set_child_real_data_tvbuff(tvb, new_tvb);
+  add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
+
+  /* display reassembly info */
+  item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, FALSE);
+  ptree = proto_item_add_subtree(item, ett_sctp_fragments);
+  proto_item_append_text(item, " (%u bytes, %u fragments): ",
+                         message->len, message->end - message->begin + 1);
+
+  if (message->begin > message->end) {
+    for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num);
+         frag_i;
+         frag_i = frag_i->next) {
+
+      proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+		                         frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                 frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+      offset += frag_i->len;
+    }
+
+    for (frag_i = msg->fragments;
+         frag_i && frag_i->tsn <= message->end;
+         frag_i = frag_i->next) {
+
+      proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+	                             frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                 frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+      offset += frag_i->len;
+    }
+  } else {
+    for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num);
+         frag_i && frag_i->tsn <= message->end;
+         frag_i = frag_i->next) {
+
+      proto_tree_add_uint_format(ptree, hf_sctp_fragment, new_tvb, offset, frag_i->len,
+                                 frag_i->frame_num, "Frame: %u, payload: %u-%u (%u bytes)",
+                                 frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
+      offset += frag_i->len;
+    }
+  }
+
+  /* it's not fragmented anymore */
+  pinfo->fragmented = FALSE;
+
+  return new_tvb;
+}
+
+
+static gboolean
+dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
+                           proto_tree *chunk_tree, guint32 tsn, guint32 ppi, guint16 stream_id,
+                           guint16 stream_seq_num, guint8 b_bit, guint8 e_bit)
+{
+  sctp_fragment* fragment;
+  tvbuff_t* new_tvb = NULL;
+  
+  /* add fragement to list of known fragments. returns NULL if segment is a duplicate */
+  fragment = add_fragment(payload_tvb, pinfo, chunk_tree, tsn, stream_id, stream_seq_num, b_bit, e_bit);
+
+  if (fragment) new_tvb = fragment_reassembly(payload_tvb, fragment, pinfo, chunk_tree, stream_id, stream_seq_num); 
+
+  /* pass reassembled data to next dissector, if possible */
+  if (new_tvb) return dissect_payload(new_tvb, pinfo, tree, ppi);
+
+  /* no reasemmbly done, do nothing */
+  return TRUE;
+}
+
 static const true_false_string sctp_data_chunk_e_bit_value = {
   "Last segment",
   "Not the last segment"
@@ -1591,6 +2196,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
   tvbuff_t *payload_tvb;
   proto_tree *flags_tree;
   guint8 e_bit, b_bit, u_bit;
+  guint16 stream_id, stream_seq_num = 0;
+  guint32 tsn;
 
   if (chunk_length <= DATA_CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
@@ -1608,6 +2215,13 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
       pinfo->ppid[number_of_ppid] = payload_proto_id;
   }
 
+  e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
+  b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
+  u_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_U_BIT;
+  stream_id = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET);
+  stream_seq_num = tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET);
+  tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
+
   if (chunk_tree) {
     proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
@@ -1618,10 +2232,6 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_id,         chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET,           DATA_CHUNK_STREAM_ID_LENGTH,           NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_seq_number, chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET,   DATA_CHUNK_STREAM_SEQ_NUMBER_LENGTH,   NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_data_chunk_payload_proto_id,  chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_LENGTH, NETWORK_BYTE_ORDER);
-
-    e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
-    b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
-    u_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_U_BIT;
 
     proto_item_append_text(chunk_item, "(%s, ", (u_bit) ? "unordered" : "ordered");
     if (b_bit) {
@@ -1644,8 +2254,25 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
                            chunk_length - DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH, "", "s"));
   }
 
-  payload_tvb       = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length - DATA_CHUNK_HEADER_LENGTH, chunk_length - DATA_CHUNK_HEADER_LENGTH);
-  return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+  payload_tvb = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length - DATA_CHUNK_HEADER_LENGTH, chunk_length - DATA_CHUNK_HEADER_LENGTH);
+
+  /* Is this a fragment? */
+  if (b_bit && e_bit) {
+    /* No - just call the subdissector. */
+    return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+  } else {
+    /* Yes. */
+    pinfo->fragmented = TRUE;
+	
+    /* if reassembly off just mark as fragment for next dissector and proceed */
+	if (!use_reassembly) return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+	
+    /* if unordered set stream_seq_num to 0 for easier handling */
+    if (u_bit) stream_seq_num = 0;
+	
+    /* start reassembly */
+    return dissect_fragmented_payload(payload_tvb, pinfo, tree, chunk_tree, tsn, payload_proto_id, stream_id, stream_seq_num, b_bit, e_bit);
+  }
 }
 
 #define INIT_CHUNK_INITIATE_TAG_LENGTH               4
@@ -2479,7 +3106,6 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   memset(&sctp_info, 0, sizeof(struct _sctp_info));
   sctp_info.verification_tag = tvb_get_ntohl(tvb, VERIFICATION_TAG_OFFSET);
   
-  /* FIXME: Do we need to put this into _sctp_info? */
   sctp_info.sport = pinfo->srcport;
   sctp_info.dport = pinfo->destport;
   SET_ADDRESS(&sctp_info.ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -2594,6 +3220,11 @@ proto_register_sctp(void)
     { &hf_pktdrop_chunk_truncated_length,           { "Truncated length",                            "sctp.pktdrop_truncated_length",                        FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_pktdrop_chunk_reserved,                   { "Reserved",                                    "sctp.pktdrop_reserved",                                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_pktdrop_chunk_data_field,                 { "Data field",                                  "sctp.pktdrop_datafield",                               FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
+ 
+    { &hf_sctp_fragment,                            { "SCTP Fragment", "sctp.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,NULL, HFILL }},
+    { &hf_sctp_fragments,                           { "Reassembled SCTP Fragments", "sctp.fragments", FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }},
+    { &hf_sctp_reassembled_in,                      { "Reassembled Message in frame", "sctp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
+    { &hf_sctp_duplicate,                           { "Fragment already seen in frame", "sctp.duplicate", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
  };
 
   /* Setup protocol subtree array */
@@ -2611,6 +3242,8 @@ proto_register_sctp(void)
     &ett_sctp_parameter_type,
     &ett_sctp_sack_chunk_gap_block,
     &ett_sctp_unrecognized_parameter_parameter,
+    &ett_sctp_fragments,
+    &ett_sctp_fragment
   };
 
   static enum_val_t sctp_checksum_options[] = {
@@ -2645,6 +3278,10 @@ proto_register_sctp(void)
                          "Try heuristic sub-dissectors first",
                          "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port or PPI",
                          &try_heuristic_first);
+  prefs_register_bool_preference(sctp_module, "reassembly",
+                         "Reassemble fragmented SCTP user messages",
+                         "Whether fragmented SCTP user messages should be reassembled",
+                         &use_reassembly);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
@@ -2654,6 +3291,8 @@ proto_register_sctp(void)
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
   register_heur_dissector_list("sctp", &sctp_heur_subdissector_list);
+
+  register_init_routine(frag_table_init);
 }
 
 void
