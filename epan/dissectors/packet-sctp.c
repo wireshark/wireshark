@@ -1655,13 +1655,23 @@ frag_free_msgs(sctp_frag_msg *msg)
   g_free(msg);
 }
 
+static gboolean
+free_table_entry(gpointer key, gpointer value, gpointer user_data _U_)
+{
+  sctp_frag_msg *msg = value;
+  frag_key *fkey = key;
+  
+  frag_free_msgs(msg);
+  g_free(fkey);
+  return TRUE;
+}
 
 static void
 frag_table_init(void)
 {
   /* destroy an existing hast table and create a new one */
   if (frag_table) {
-    g_hash_table_foreach_remove(frag_table, frag_free_msgs, NULL);
+    g_hash_table_foreach_remove(frag_table, free_table_entry, NULL);
     g_hash_table_destroy(frag_table);
     frag_table=NULL;
   }
@@ -1726,7 +1736,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     msg->messages = NULL;
     msg->next = NULL;
 
-    key = se_alloc(sizeof (frag_key));
+    key = g_malloc(sizeof (frag_key));
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
