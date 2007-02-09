@@ -307,7 +307,7 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	    (a->port2 == b->port2) &&
 	    (a->verification_tag1 == b->verification_tag1) && a->verification_tag1==0 && a->initiate_tag != 0 &&
 	    (a->initiate_tag != b->initiate_tag ))
-		return(ASSOC_NOT_FOUND);   //two INITs that belong to different assocs
+		return(ASSOC_NOT_FOUND);
 
 	/* assoc known*/
 	if ((a->port1 == b->port1) &&
@@ -353,236 +353,6 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 
 	return(ASSOC_NOT_FOUND);
 }
-
-/*
-static gint sctp_assoc_address_cmp(gconstpointer aa, gconstpointer bb)
-{
-	GList *srclist, *dstlist;
-	const struct _sctp_tmp_info* a = aa;
-	const struct _sctp_assoc_info* b = bb;
-	address *srcstore=NULL;
-	address *dststore=NULL;
-	address *src=NULL;
-	address *dst=NULL;
-	gboolean src_v4=FALSE;
-	gboolean src_v6=FALSE;
-	gboolean dst_v4=FALSE;
-	gboolean dst_v6=FALSE;
-	guint8* addr;
-
-	src = g_malloc(sizeof(address));
-	if (a->src.type == AT_IPv4)
-	{
-		src->type = AT_IPv4;
-		src->len  = 4;
-		src_v4    = TRUE;
-	}
-	else if (a->src.type==AT_IPv6)
-	{
-		src->type = AT_IPv6;
-		src->len  = 16;
-		src_v6    = TRUE;
-	}
-	addr = g_malloc(src->len);
-	memcpy(addr, a->src.data, src->len);
-	src->data = addr;
-
-	dst = g_malloc(sizeof(address));
-	if (a->dst.type == AT_IPv4)
-	{
-		dst->type = AT_IPv4;
-		dst->len  = 4;
-		dst_v4    = TRUE;
-	}
-	else if (a->dst.type==AT_IPv6)
-	{
-		dst->type = AT_IPv6;
-		dst->len  = 16;
-		dst_v6    = TRUE;
-	}
-	addr = g_malloc(dst->len);
-	memcpy(addr, a->dst.data, dst->len);
-	dst->data = addr;
-
-	srclist = g_list_first(b->addr1);
-	while (srclist)
-	{
-		srcstore = (address *) (srclist->data);
-		if (srcstore->type==AT_IPv4 && src_v4==TRUE)
-		{
-			if (*src->data==*srcstore->data && a->port1 == b->port1)
-			{
-				dstlist = g_list_first(b->addr2);
-				while (dstlist)
-				{
-						dststore = (address *) (dstlist->data);
-						if ((dststore->type==AT_IPv4 && dst_v4==TRUE) ||(dststore->type==AT_IPv6 && dst_v6==TRUE) )
-						{
-							if (*dst->data==*dststore->data && a->port2 == b->port2)
-							{
-								if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
-									return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
-								else
-									return ADDRESS_FORWARD_STREAM;
-							}
-							else
-								dstlist=g_list_next(dstlist);
-						}
-						else
-							dstlist=g_list_next(dstlist);
-				}
-				srclist=g_list_next(srclist);
-			}
-			else
-				srclist=g_list_next(srclist);
-		}
-		else if (srcstore->type==AT_IPv6 && src_v6==TRUE)
-		{
-			if (*src->data == *srcstore->data  && a->port1 == b->port1)
-			{
-				dstlist = g_list_first(b->addr2);
-				while (dstlist)
-				{
-					dststore = (address *) (dstlist->data);
-					if ((dststore->type==AT_IPv4 && dst_v4==TRUE) || (dststore->type==AT_IPv6 && dst_v6==TRUE))
-					{
-						if (*dst->data==*dststore->data && a->port2 == b->port2)
-						{
-							if ((a->verification_tag1 !=0)&& (b->verification_tag1 == 0)&& (b->verification_tag2 !=0))
-								return ADDRESS_FORWARD_ADD_FORWARD_VTAG;
-							else
-								return ADDRESS_FORWARD_STREAM;
-						}
-						else
-							dstlist=g_list_next(dstlist);
-					}
-					else
-						dstlist=g_list_next(dstlist);
-				}
-				srclist=g_list_next(srclist);
-			}
-			else
-				srclist=g_list_next(srclist);
-		}
-		else
-			srclist=g_list_next(srclist);
-	}
-
-	g_free(src);
-	g_free(dst);
-
-	src = g_malloc(sizeof(address));
-	if (a->dst.type == AT_IPv4)
-	{
-		src->type = AT_IPv4;
-		src->len  = 4;
-		src_v4    = TRUE;
-	}
-	else if (a->dst.type==AT_IPv6)
-	{
-		src->type = AT_IPv6;
-		src->len  = 16;
-		src_v6    = TRUE;
-	}
-	addr = g_malloc(src->len);
-	memcpy(addr, a->dst.data, src->len);
-	src->data = addr;
-	
-	dst = g_malloc(sizeof(address));
-	if (a->src.type == AT_IPv4)
-	{
-		dst->type = AT_IPv4;
-		dst->len  = 4;
-		dst_v4    = TRUE;
-	}
-	else if (a->src.type==AT_IPv6)
-	{
-		dst->type = AT_IPv6;
-		dst->len  = 16;
-		dst_v6    = TRUE;
-	}
-	addr = g_malloc(dst->len);
-	memcpy(addr, a->src.data, dst->len);
-	dst->data = addr;
-	
-	srclist = g_list_first(b->addr1);
-	while (srclist)
-	{
-		srcstore = (address *) (srclist->data);
-		if (srcstore->type==AT_IPv4 && src_v4==TRUE)
-		{
-			if (*src->data==*srcstore->data && a->port2 == b->port1)
-			{
-				dstlist = g_list_first(b->addr2);
-				while (dstlist)
-				{
-						dststore = (address *) (dstlist->data);
-						if ((dststore->type==AT_IPv4 && src_v4==TRUE) || (dststore->type==AT_IPv6 && src_v6==TRUE))
-						{
-							if (*dst->data==*dststore->data && a->port1 == b->port2)
-							{
-								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
-									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
-								else if ((a->verification_tag1 !=0)	&& (b->verification_tag1 != 0)&& (b->verification_tag2 == 0))
-									return ADDRESS_BACKWARD_ADD_BACKWARD_VTAG;
-								else
-									return ADDRESS_BACKWARD_STREAM;
-							}
-							else
-								dstlist=g_list_next(dstlist);
-						}
-						else
-							dstlist=g_list_next(dstlist);
-				}
-				srclist=g_list_next(srclist);
-			}
-			else
-				srclist=g_list_next(srclist);
-		}
-		else if (srcstore->type==AT_IPv6 && src_v6==TRUE)
-		{
-			if (*src->data == *srcstore->data && a->port2 == b->port1)
-			{
-				dstlist = g_list_first(b->addr2);
-				while (dstlist)
-				{
-					dststore = (address *) (dstlist->data);
-					if ((dststore->type==AT_IPv4 && src_v4==TRUE) || (dststore->type==AT_IPv6 && src_v6==TRUE))
-					{
-						if (*dst->data==*dststore->data && a->port1 == b->port2)
-						{
-								if ((a->verification_tag1 ==b->verification_tag2)&& (b->verification_tag1 == 0))
-									return ADDRESS_BACKWARD_ADD_FORWARD_VTAG;
-								else if ((a->verification_tag1 !=0)	&& (b->verification_tag1 != 0)&& (b->verification_tag2 == 0))
-									return ADDRESS_BACKWARD_ADD_BACKWARD_VTAG;
-								else
-									return ADDRESS_BACKWARD_STREAM;
-						}
-						else
-							dstlist=g_list_next(dstlist);
-					}
-					else
-						dstlist=g_list_next(dstlist);
-				}
-				srclist=g_list_next(srclist);
-			}
-			else
-				srclist=g_list_next(srclist);
-		}
-		else
-			srclist=g_list_next(srclist);
-	}
-
-
-	g_free(src);
-	g_free(dst);
-	return ASSOC_NOT_FOUND;
-}
-*/
-
-
-
-
 
 static sctp_assoc_info_t * find_assoc(sctp_tmp_info_t * needle)
 {
@@ -754,8 +524,8 @@ static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, 
 	if (direction == 1)
 		info->addr1 = g_list_append(info->addr1, vadd);
 	else if (direction==2)
-		info->addr2 = g_list_append(info->addr2, vadd);
-	
+		info->addr2 = g_list_append(info->addr2, vadd);	
+
 	return info;
 }
 
@@ -871,6 +641,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			info->n_tvbs            = tmp_info.n_tvbs;
 			info->init              = FALSE;
 			info->initack           = FALSE;
+			info->check_address	= FALSE;
 			info->direction         = 0;
 			info = calc_checksum(sctp_info, info);
 			info->n_packets         = 1;

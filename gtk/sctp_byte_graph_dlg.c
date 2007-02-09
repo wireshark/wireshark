@@ -904,8 +904,8 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
 		                   FALSE,
-		                   (gint)floor(MIN(u_data->io->x_old,u_data->io->x_new)),
-		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
+		                   floor(MIN(u_data->io->x_old,u_data->io->x_new)),
+		                   floor(MIN(u_data->io->y_old,u_data->io->y_new)),
 		                   (gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
 		                   (gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
@@ -973,10 +973,10 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 
 	if (abs((long)(event->x-u_data->io->x_old))>10 || abs((long)(event->y-u_data->io->y_old))>10)
 	{
-		u_data->io->rect_x_min = (gint)floor(MIN(u_data->io->x_old,event->x));
-		u_data->io->rect_x_max = (gint)ceil(MAX(u_data->io->x_old,event->x));
-		u_data->io->rect_y_min = (gint)floor(MIN(u_data->io->y_old,event->y));
-		u_data->io->rect_y_max = (gint)ceil(MAX(u_data->io->y_old,event->y));
+		u_data->io->rect_x_min = floor(MIN(u_data->io->x_old,event->x));
+		u_data->io->rect_x_max = ceil(MAX(u_data->io->x_old,event->x));
+		u_data->io->rect_y_min = floor(MIN(u_data->io->y_old,event->y));
+		u_data->io->rect_y_max = ceil(MAX(u_data->io->y_old,event->y));
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
  		                   FALSE,
  		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
@@ -996,8 +996,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		                u_data->io->draw_area->allocation.width,
 		                u_data->io->draw_area->allocation.height);
 
-		x1_tmp=(unsigned int)floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
-		x2_tmp=(unsigned int)floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
+		x1_tmp=floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
+		x2_tmp=floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		helpx=MIN(x1_tmp, x2_tmp);
 		if (helpx==x2_tmp)
 		{
@@ -1062,7 +1062,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
 			y_value = floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
 			text_color = u_data->io->draw_area->style->black_gc;
-			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
+			g_snprintf(label_string, 30, "(%.6f, %u)", x_value, y_value);
 			label_set = TRUE;
 
 			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);

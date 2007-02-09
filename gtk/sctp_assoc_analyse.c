@@ -853,7 +853,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	gchar filter_text[256];
 	sctp_assoc_info_t* assoc = NULL;
 	int i;
-	guint32 *fn; //frame_number
+	guint32 *fn;
 
 	strcpy(filter_text,"sctp");
 	if (!dfilter_compile(filter_text, &sfcode)) {

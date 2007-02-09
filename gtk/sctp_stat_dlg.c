@@ -50,12 +50,13 @@ static GtkWidget *sctp_stat_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
 static gchar *filter_string = NULL;
-static sctp_assoc_info_t* selected_stream = NULL;  /* current selection */
+static sctp_assoc_info_t* selected_stream=NULL;  /* current selection */
 static sctp_allassocs_info_t *sctp_assocs=NULL;
 static guint16 n_children=0;
 static GtkWidget *bt_afilter = NULL, *bt_unselect=NULL, *bt_analyse=NULL, *bt_filter=NULL;
+static gboolean prevent_update = FALSE, filter_applied = FALSE;
 
-#define NUM_COLS    7
+#define NUM_COLS    9
 #define FRAME_LIMIT 8
 
 typedef struct column_arrows {
@@ -84,6 +85,8 @@ dlg_destroy(void)
 	g_list_free(sctp_assocs->children);
 	sctp_assocs->children = NULL;
 	sctp_stat_dlg = NULL;
+	prevent_update = FALSE;
+	filter_applied = FALSE;
 }
 
 void
@@ -127,6 +130,8 @@ static void add_to_clist(sctp_assoc_info_t* assinfo)
 	g_snprintf(field[4], 20, "%u", assinfo->n_checksum_errors);
 	g_snprintf(field[5], 20, "%u", assinfo->n_data_chunks);
 	g_snprintf(field[6], 20, "%u", assinfo->n_data_bytes);
+	g_snprintf(field[7], 20, "0x%x", assinfo->verification_tag1);
+	g_snprintf(field[8], 20, "0x%x", assinfo->verification_tag2);
 
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, assinfo);
@@ -142,11 +147,14 @@ sctp_stat_on_unselect(GtkButton *button _U_, gpointer user_data _U_)
 
 	selected_stream = NULL;
 	gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), "");
+	main_filter_packets(&cfile, "", FALSE);
 	gtk_clist_unselect_all(GTK_CLIST(clist));
 	gtk_widget_set_sensitive(bt_unselect,FALSE);
 	gtk_widget_set_sensitive(bt_filter,FALSE);
 	gtk_widget_set_sensitive(bt_analyse,FALSE);
 	gtk_widget_set_sensitive(bt_afilter,FALSE);
+	prevent_update = FALSE;
+	filter_applied = FALSE;
 }
 
 void sctp_stat_dlg_update(void)
@@ -154,10 +162,9 @@ void sctp_stat_dlg_update(void)
 	GList *list;
 
 	list=(sctp_stat_get_info()->assoc_info_list);
-	if (sctp_stat_dlg != NULL)
+	if (sctp_stat_dlg != NULL && !prevent_update)
 	{
 		gtk_clist_clear(GTK_CLIST(clist));
-
 		list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
 		while (list)
@@ -165,11 +172,10 @@ void sctp_stat_dlg_update(void)
 			add_to_clist((sctp_assoc_info_t*)(list->data));
 			list = g_list_next(list);
 		}
-
-		sctp_stat_on_unselect(NULL, NULL);
 	}
 	last_list = list;
 }
+
 
 static void
 sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
@@ -177,25 +183,27 @@ sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
 {
 	gchar *text[1];
 	guint16 port1, port2;
-	guint32 checksum, data_chunks, data_bytes, packets;
+	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
 	GList *list;
 	sctp_assoc_info_t* assoc;
+	gboolean stream_found=FALSE;
 
-	selected_stream = gtk_clist_get_row_data(GTK_CLIST(clist), row);
-
+	gtk_clist_get_row_data(GTK_CLIST(clist), row);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 0, text);
 	port1=atoi(text[0]);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 1, text);
 	port2=atoi(text[0]);
-
-	gtk_clist_get_text(GTK_CLIST(clist), row, 4, text);
-	packets=atoi(text[0]);
-	gtk_clist_get_text(GTK_CLIST(clist), row, 5, text);
-	checksum=atoi(text[0]);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 7, text);
-	data_chunks=atoi(text[0]);
-
+	sscanf(text[0],"0x%x",&vtag1);
 	gtk_clist_get_text(GTK_CLIST(clist), row, 8, text);
+	sscanf(text[0],"0x%x",&vtag2);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 2, text);
+	packets=atoi(text[0]);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 4, text);
+	checksum=atoi(text[0]);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 5, text);
+	data_chunks=atoi(text[0]);
+	gtk_clist_get_text(GTK_CLIST(clist), row, 6, text);
 	data_bytes=atoi(text[0]);
 
 	list = g_list_first(sctp_assocs->assoc_info_list);
@@ -203,15 +211,20 @@ sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
 	while (list)
 	{
 		assoc = (sctp_assoc_info_t*)(list->data);
-		if (assoc->port1==port1 && assoc->port2==port2 &&
-		assoc->n_packets==packets && assoc->n_checksum_errors==checksum
-		&& assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes)
+		if (assoc->port1==port1 && assoc->port2==port2 
+		&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
+		&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
 		{
 			selected_stream=assoc;
+			stream_found=TRUE;
 			break;
 		}
 		list=g_list_next(list);
 	}
+
+	if (!stream_found)
+		selected_stream = NULL;
+
 	gtk_widget_set_sensitive(bt_unselect,TRUE);
 	gtk_widget_set_sensitive(bt_analyse,TRUE);
 	gtk_widget_set_sensitive(bt_filter,TRUE);
@@ -220,9 +233,39 @@ sctp_stat_on_select_row(GtkCList *clist, gint row, gint column _U_,
 static void
 sctp_stat_on_apply_filter (GtkButton *button _U_, gpointer user_data _U_)
 {
+	GList *list;
+	sctp_assoc_info_t* assoc;
+	guint16 port1, port2;
+	guint32 checksum, data_chunks, data_bytes, packets, vtag1, vtag2;
+
 	if (filter_string != NULL)
 	{
+		port1 = selected_stream->port1;
+		port2 = selected_stream->port2;	
+		checksum = selected_stream->n_checksum_errors;
+		data_chunks = selected_stream->n_data_chunks;
+		data_bytes = selected_stream->n_data_bytes;
+		packets = selected_stream->n_packets;
+		vtag1 = selected_stream->verification_tag1;
+		vtag2 = selected_stream->verification_tag2;
 		main_filter_packets(&cfile, filter_string, FALSE);
+		list = g_list_first(sctp_assocs->assoc_info_list);
+
+		while (list)
+		{
+			assoc = (sctp_assoc_info_t*)(list->data);
+			if (assoc->port1==port1 && assoc->port2==port2 
+			&& assoc->n_packets==packets && assoc->n_data_chunks==data_chunks && assoc->n_data_bytes==data_bytes 
+			&& assoc->verification_tag1==vtag1 && assoc->verification_tag2==vtag2)
+			{
+				selected_stream=assoc;
+				break;
+			}
+			list=g_list_next(list);
+		}
+		gtk_widget_set_sensitive(bt_afilter,FALSE);
+		prevent_update=TRUE;
+		filter_applied = TRUE;
 	}
 }
 
@@ -246,28 +289,31 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 	{
 		if (selected_stream->check_address==FALSE)
 		{
-			f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
-		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))) ||"
-		                                   "(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
-		                                   "(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
-		                                   "(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || sctp.shutdown_complete_t_bit==1)))))",
+			f_string = g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && "
+				"((sctp.verification_tag==0x%x && sctp.verification_tag!=0x0) || "
+				"(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) || "
+		        	"(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 || "
+				"sctp.shutdown_complete_t_bit==1)))) ||"
+				"(sctp.srcport==%u && sctp.dstport==%u && ((sctp.verification_tag==0x%x "
+				"&& sctp.verification_tag!=0x0) || "
+				"(sctp.verification_tag==0x0 && sctp.initiate_tag==0x%x) ||"
+				"(sctp.verification_tag==0x%x && (sctp.abort_t_bit==1 ||"
+				" sctp.shutdown_complete_t_bit==1)))))",
 			selected_stream->port1,
 			selected_stream->port2,
 			selected_stream->verification_tag1,
-			/*selected_stream->verification_tag2,*/
 			selected_stream->initiate_tag,
 			selected_stream->verification_tag2,
 			selected_stream->port2,
 			selected_stream->port1,
 			selected_stream->verification_tag2,
-			/*selected_stream->verification_tag1,*/
 			selected_stream->initiate_tag,
 			selected_stream->verification_tag1);
 			filter_string = f_string;
 		}
 		else
 		{
+
 			srclist = g_list_first(selected_stream->addr1);
 			infosrc=(struct sockaddr_in *) (srclist->data);
 			gstring = g_string_new(g_strdup_printf("((sctp.srcport==%u && sctp.dstport==%u && (ip.src==%s",
@@ -281,7 +327,6 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 				g_string_append(gstring, str);
 				srclist= g_list_next(srclist);
 			}
-
 			dstlist = g_list_first(selected_stream->addr2);
 			infodst=(struct sockaddr_in *) (dstlist->data);
 			str = g_strdup_printf(") && (ip.dst==%s",ip_to_str((const guint8 *)&(infodst->sin_addr.s_addr)));
@@ -294,7 +339,6 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 				g_string_append(gstring, str);
 				dstlist= g_list_next(dstlist);
 			}
-
 			srclist = g_list_first(selected_stream->addr1);
 			infosrc=(struct sockaddr_in *) (srclist->data);
 			str = g_strdup_printf(")) || (sctp.dstport==%u && sctp.srcport==%u && (ip.dst==%s",
@@ -351,6 +395,9 @@ sctp_stat_on_filter (GtkButton *button _U_, gpointer user_data _U_)
 		g_assert_not_reached();
 	}
 	gtk_widget_set_sensitive(bt_afilter,TRUE);
+	gtk_widget_set_sensitive(bt_filter,FALSE);
+	prevent_update = TRUE;
+	filter_applied = FALSE;
 }
 
 
@@ -359,6 +406,8 @@ sctp_stat_on_close (GtkButton *button _U_, gpointer user_data _U_)
 {
 	gtk_grab_remove(sctp_stat_dlg);
 	gtk_widget_destroy(sctp_stat_dlg);
+	prevent_update = FALSE;
+	filter_applied = FALSE;
 }
 
 static void
@@ -366,10 +415,12 @@ sctp_stat_on_analyse (GtkButton *button _U_, gpointer user_data _U_)
 {
 	if (selected_stream==NULL)
 		return;
-
-	if (selected_stream)
+	else
 		assoc_analyse(selected_stream);
 	gtk_widget_set_sensitive(bt_analyse,FALSE);
+	if (!filter_applied)
+		gtk_widget_set_sensitive(bt_filter,TRUE);
+	prevent_update = TRUE;
 }
 
 static gint
@@ -381,7 +432,7 @@ clist_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 
 	GtkCListRow *row1 = (GtkCListRow *) ptr1;
 	GtkCListRow *row2 = (GtkCListRow *) ptr2;
-
+	prevent_update = FALSE;
 	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
 	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
 
@@ -408,6 +459,8 @@ clist_click_column_cb(GtkCList *list, gint column, gpointer data)
 {
 	column_arrows *col_arrows = (column_arrows *) data;
 	int i;
+
+	prevent_update = FALSE;
 	gtk_clist_freeze(list);
 
 	for (i = 0; i < NUM_COLS; i++) {
@@ -442,7 +495,7 @@ gtk_sctpstat_dlg(void)
 	GtkWidget *hbuttonbox2;
 	GtkWidget *bt_close;
 
-	const gchar *titles[NUM_COLS] =  {"Port 1","Port 2", "No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes"};
+	const gchar *titles[NUM_COLS] =  {"Port 1","Port 2","No of Packets", "Checksum", "No of Errors", "Data Chunks", "Data Bytes", "VTag 1","VTag 2"};
 	column_arrows *col_arrows;
 	GdkBitmap *ascend_bm, *descend_bm;
 	GdkPixmap *ascend_pm, *descend_pm;
@@ -467,7 +520,7 @@ gtk_sctpstat_dlg(void)
 	clist = gtk_clist_new (NUM_COLS);
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	WIDGET_SET_SIZE(clist, 700, 200);
+	WIDGET_SET_SIZE(clist, 650, 200);
 
 	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 50);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);
@@ -476,6 +529,8 @@ gtk_sctpstat_dlg(void)
 	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 100);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 100);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 100);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 8, 100);
 
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
@@ -484,6 +539,8 @@ gtk_sctpstat_dlg(void)
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_CENTER);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_CENTER);
 	gtk_clist_column_titles_show (GTK_CLIST (clist));
 
 	gtk_clist_set_compare_func(GTK_CLIST(clist), clist_sort_column);
@@ -592,7 +649,8 @@ static void sctp_stat_dlg_show(void)
 
 static void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 {
-
+	prevent_update = FALSE;
+	filter_applied = FALSE;
 	sctp_assocs = g_malloc(sizeof(sctp_allassocs_info_t));
 	sctp_assocs = (sctp_allassocs_info_t*)sctp_stat_get_info();
 	/* Register the tap listener */
