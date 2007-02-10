@@ -90,6 +90,7 @@ static int hf_scsi_ssc_bytcmp			= -1;
 static int hf_scsi_ssc_verify16_immed		= -1;
 static int hf_scsi_ssc_medium_type		= -1;
 static int hf_scsi_ssc_media			= -1;
+static int hf_scsi_ssc_capacity_prop_value	= -1;
 
 static gint ett_scsi_erase			= -1;
 static gint ett_scsi_formatmedium		= -1;
@@ -599,6 +600,33 @@ dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
+static void
+dissect_ssc_setcapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *sc_fields[] = {
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, sc_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_capacity_prop_value, tvb, offset+2, 2, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
 
 static void
 dissect_ssc_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -1079,7 +1107,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x08*/{dissect_ssc_read6},
 /*SSC 0x09*/{NULL},
 /*SSC 0x0a*/{dissect_ssc_write6},
-/*SSC 0x0b*/{NULL},
+/*SSC 0x0b*/{dissect_ssc_setcapacity},
 /*SSC 0x0c*/{NULL},
 /*SSC 0x0d*/{NULL},
 /*SSC 0x0e*/{NULL},
@@ -1453,6 +1481,9 @@ proto_register_scsi_ssc(void)
         { &hf_scsi_ssc_media,
           {"Media", "scsi.ssc.media", FT_BOOLEAN, 8, 
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_ssc_capacity_prop_value,
+          {"Capacity Proportion Value", "scsi.ssc.cpv", FT_UINT16, BASE_DEC, 
+           NULL, 0, "", HFILL}},
 	};
 
 
