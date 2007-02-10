@@ -87,6 +87,7 @@ static gint ett_scsi_locate			= -1;
 static gint ett_scsi_bam			= -1;
 static gint ett_scsi_read6			= -1;
 
+
 static void
 dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
@@ -111,6 +112,41 @@ dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+1, 3, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
+dissect_ssc2_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *read6_fields[] = {
+	&hf_scsi_ssc_sili,
+	&hf_scsi_ssc_fixed,
+	NULL
+    };
+
+    if (isreq) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                             tvb_get_ntoh24 (tvb, offset+1));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, read6_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_partition, tvb, offset+2, 1, 0);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_locate16_loid, tvb, offset+3, 8, 0);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+11, 3, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+14);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+14, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
@@ -871,7 +907,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x85*/{NULL},
 /*SSC 0x86*/{NULL},
 /*SSC 0x87*/{NULL},
-/*SSC 0x88*/{NULL},
+/*SSC 0x88*/{dissect_ssc2_read16},
 /*SSC 0x89*/{NULL},
 /*SSC 0x8a*/{NULL},
 /*SSC 0x8b*/{NULL},
