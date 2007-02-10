@@ -75,6 +75,9 @@ static int hf_scsi_ssc_cp			= -1;
 static int hf_scsi_ssc_dest_type		= -1;
 static int hf_scsi_ssc_bam_flags		= -1;
 static int hf_scsi_ssc_bam			= -1;
+static int hf_scsi_ssc_read6_flags		= -1;
+static int hf_scsi_ssc_sili			= -1;
+static int hf_scsi_ssc_fixed			= -1;
 
 static gint ett_scsi_erase			= -1;
 static gint ett_scsi_formatmedium		= -1;
@@ -82,7 +85,7 @@ static gint ett_scsi_loadunload_immed		= -1;
 static gint ett_scsi_loadunload			= -1;
 static gint ett_scsi_locate			= -1;
 static gint ett_scsi_bam			= -1;
-
+static gint ett_scsi_read6			= -1;
 
 static void
 dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -90,6 +93,11 @@ dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *read6_fields[] = {
+	&hf_scsi_ssc_sili,
+	&hf_scsi_ssc_fixed,
+	NULL
+    };
 
     if (isreq) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -98,10 +106,8 @@ dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "SILI: %u, FIXED: %u",
-                             (flags & 0x02) >> 1, flags & 0x01);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, read6_fields, FALSE);
+
         proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+1, 3, 0);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
@@ -1083,6 +1089,15 @@ proto_register_scsi_ssc(void)
         { &hf_scsi_ssc_bam,
           {"BAM", "scsi.ssc.bam", FT_BOOLEAN, 8, 
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_ssc_read6_flags,
+          {"Flags", "scsi.ssc.read6_flags", FT_UINT8, BASE_HEX, 
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_ssc_sili,
+          {"SILI", "scsi.ssc.sili", FT_BOOLEAN, 8, 
+           NULL, 0x02, "", HFILL}},
+        { &hf_scsi_ssc_fixed,
+          {"FIXED", "scsi.ssc.fixed", FT_BOOLEAN, 8, 
+           NULL, 0x01, "", HFILL}},
 	};
 
 
@@ -1093,7 +1108,8 @@ proto_register_scsi_ssc(void)
 		&ett_scsi_loadunload_immed,
 		&ett_scsi_loadunload,
 		&ett_scsi_locate,
-		&ett_scsi_bam
+		&ett_scsi_bam,
+		&ett_scsi_read6
 	};
 
 
