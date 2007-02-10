@@ -125,6 +125,36 @@ dissect_ssc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_ssc_recoverbuffereddata (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *recover_fields[] = {
+	&hf_scsi_ssc_sili,
+	&hf_scsi_ssc_fixed,
+	NULL
+    };
+
+    if (isreq) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                             tvb_get_ntoh24 (tvb, offset+1));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, recover_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+1, 3, 0);
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
 dissect_ssc_readreverse6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -1013,7 +1043,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x11*/{dissect_ssc_space6},
 /*SPC 0x12*/{dissect_spc3_inquiry},
 /*SSC 0x13*/{dissect_ssc_verify6},
-/*SSC 0x14*/{NULL},
+/*SSC 0x14*/{dissect_ssc_recoverbuffereddata},
 /*SPC 0x15*/{dissect_spc3_modeselect6},
 /*SSC 0x16*/{dissect_spc2_reserve6},
 /*SSC 0x17*/{dissect_spc2_release6},
