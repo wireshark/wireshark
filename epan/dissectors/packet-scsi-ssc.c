@@ -576,17 +576,21 @@ dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *rewind_fields[] = {
+	&hf_scsi_ssc_immed,
+	NULL
+    };
+
+    if (!tree)
+        return;
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
             col_append_fstr (pinfo->cinfo, COL_INFO, "(Immed: %u)",
                              tvb_get_guint8 (tvb, offset) & 0x01);
 
-        if (!tree)
-            return;
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, rewind_fields, FALSE);
 
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "Immed: %u", tvb_get_guint8 (tvb, offset) & 0x01);
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
