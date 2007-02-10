@@ -51,6 +51,7 @@ static int hf_scsi_ssc_rdwr6_xferlen	= -1;
 static int hf_scsi_ssc_ver16_verlen	= -1;
 static int hf_scsi_ssc_locate10_loid	= -1;
 static int hf_scsi_ssc_locate16_loid	= -1;
+static int hf_scsi_ssc_space6_code	= -1;
 static int hf_scsi_ssc_space6_count	= -1;
 static int hf_scsi_ssc_space16_count	= -1;
 static int hf_scsi_ssc_erase_flags		= -1;
@@ -298,6 +299,38 @@ dissect_ssc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_ssc_verify6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *verify6_fields[] = {
+	&hf_scsi_ssc_verify16_immed,
+	&hf_scsi_ssc_bytcmp,
+	&hf_scsi_ssc_fixed,
+	NULL
+    };
+
+    if (isreq) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(Len: %u)",
+                             tvb_get_ntoh24 (tvb, offset+1));
+    }
+
+    if (tree && isreq && iscdb) {
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, verify6_fields, FALSE);
+
+        proto_tree_add_item (tree, hf_scsi_ssc_ver16_verlen, tvb, offset+1, 3, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+static void
 dissect_ssc_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -339,6 +372,10 @@ dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *write6_fields[] = {
+	&hf_scsi_ssc_immed,
+	NULL
+    };
 
     if (isreq && iscdb) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -347,11 +384,11 @@ dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "FIXED: %u", flags & 0x01);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, write6_fields, FALSE);
+
         proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+1, 3,
                              FALSE);
+
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -366,6 +403,10 @@ dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *wf6_fields[] = {
+	&hf_scsi_ssc_immed,
+	NULL
+    };
 
     if (isreq) {
         if (check_col (pinfo->cinfo, COL_INFO))
@@ -374,12 +415,11 @@ dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
 
     if (tree && isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "WSMK: %u, IMMED: %u",
-                             (flags & 0x02) >> 1, flags & 0x01);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_ssc_read6_flags, ett_scsi_read6, wf6_fields, FALSE);
+
         proto_tree_add_item (tree, hf_scsi_ssc_rdwr6_xferlen, tvb, offset+1, 3,
                              FALSE);
+
         flags = tvb_get_guint8 (tvb, offset+4);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
                                     flags,
@@ -621,14 +661,11 @@ dissect_ssc_space6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     guint8 flags;
 
-    if (isreq && iscdb) {
-        if (!tree)
-            return;
+    if (!tree)
+        return;
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "CODE: %u",
-                             flags & 0x0f);
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_ssc_space6_code, tvb, offset, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_ssc_space6_count, tvb, offset+1, 3, 0);
 
@@ -647,14 +684,11 @@ dissect_ssc_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
     guint8 flags;
 
-    if (isreq && iscdb) {
-        if (!tree)
-            return;
+    if (!tree)
+        return;
 
-        flags = tvb_get_guint8 (tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 1,
-                             "CODE: %u",
-                             flags & 0x0f);
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_ssc_space6_code, tvb, offset, 1, 0);
 
         proto_tree_add_item (tree, hf_scsi_ssc_space16_count, tvb, offset+3, 8, 0);
 
@@ -669,6 +703,14 @@ dissect_ssc_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
     }
 }
+
+static const value_string space6_code_vals[] = {
+    {0,	"Logical Blocks"},
+    {1,	"Filemarks"},
+    {2,	"Sequential Filemarks"},
+    {3,	"End-Of-Data"},
+    {0, NULL}
+};
 
 static const value_string format_vals[] = {
     {0x0, "Use default format"},
@@ -970,7 +1012,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x10*/{dissect_ssc_writefilemarks6},
 /*SSC 0x11*/{dissect_ssc_space6},
 /*SPC 0x12*/{dissect_spc3_inquiry},
-/*SSC 0x13*/{NULL},
+/*SSC 0x13*/{dissect_ssc_verify6},
 /*SSC 0x14*/{NULL},
 /*SPC 0x15*/{dissect_spc3_modeselect6},
 /*SSC 0x16*/{dissect_spc2_reserve6},
@@ -1232,6 +1274,10 @@ proto_register_scsi_ssc(void)
            "", HFILL}},
         { &hf_scsi_ssc_space6_count,
           {"Count", "scsi.ssc.space6.count", FT_INT24, BASE_DEC, NULL, 0x0,
+           "", HFILL}},
+        { &hf_scsi_ssc_space6_code,
+          {"Code", "scsi.ssc.space6.code", FT_INT8, BASE_HEX, 
+          VALS(space6_code_vals), 0x0f,
            "", HFILL}},
         { &hf_scsi_ssc_space16_count,
           {"Count", "scsi.ssc.space16.count", FT_UINT64, BASE_DEC, NULL, 0x0,
