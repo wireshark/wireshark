@@ -236,6 +236,8 @@ static int hf_pn_io_submodule_data_length = -1;
 static int hf_pn_io_length_iocs = -1;
 static int hf_pn_io_length_iops = -1;
 
+static int hf_pn_io_iocs = -1;
+static int hf_pn_io_iops = -1;
 static int hf_pn_io_ioxs = -1;
 static int hf_pn_io_ioxs_extension = -1;
 static int hf_pn_io_ioxs_res14 = -1;
@@ -324,7 +326,7 @@ static int hf_pn_io_maintenance_status_demanded = -1;
 
 static int hf_pn_io_vendor_id_high = -1;
 static int hf_pn_io_vendor_id_low = -1;
-static int hf_pn_io_order_id, tvb = -1;
+static int hf_pn_io_order_id = -1;
 static int hf_pn_io_im_serial_number = -1;
 static int hf_pn_io_im_hardware_revision = -1;
 static int hf_pn_io_im_revision_prefix = -1;
@@ -360,6 +362,36 @@ static int hf_pn_io_ip_address = -1;
 static int hf_pn_io_subnetmask = -1;
 static int hf_pn_io_standard_gateway = -1;
 
+static int hf_pn_io_mrp_domain_uuid = -1;
+static int hf_pn_io_mrp_role = -1;
+static int hf_pn_io_mrp_length_domain_name = -1;
+static int hf_pn_io_mrp_domain_name = -1;
+
+static int hf_pn_io_mrp_prio = -1;
+static int hf_pn_io_mrp_topchgt = -1;
+static int hf_pn_io_mrp_topnrmax = -1;
+static int hf_pn_io_mrp_tstshortt = -1;
+static int hf_pn_io_mrp_tstdefaultt = -1;
+static int hf_pn_io_mrp_tstnrmax = -1;
+static int hf_pn_io_mrp_check = -1;
+
+static int hf_pn_io_mrp_rtmode = -1;
+static int hf_pn_io_mrp_rtmode_rtclass12 = -1;
+static int hf_pn_io_mrp_rtmode_rtclass3 = -1;
+static int hf_pn_io_mrp_rtmode_reserved1 = -1;
+static int hf_pn_io_mrp_rtmode_reserved2 = -1;
+
+static int hf_pn_io_mrp_lnkdownt = -1;
+static int hf_pn_io_mrp_lnkupt = -1;
+static int hf_pn_io_mrp_lnknrmax = -1;
+static int hf_pn_io_mrp_version = -1;
+
+static int hf_pn_io_substitute_active_flag = -1;
+static int hf_pn_io_length_data = -1;
+
+static int hf_pn_io_mrp_ring_state = -1;
+static int hf_pn_io_mrp_rt_state = -1;
+
 
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -388,6 +420,7 @@ static gint ett_pn_io_subslot = -1;
 static gint ett_pn_io_maintenance_status = -1;
 static gint ett_pn_io_data_status = -1;
 static gint ett_pn_io_iocr = -1;
+static gint ett_pn_io_mrp_rtmode = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -406,13 +439,13 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0000, "Reserved" },
 	{ 0x0001, "Alarm Notification High"},
 	{ 0x0002, "Alarm Notification Low"},
-	{ 0x0008, "WriteRecordReq"},
-	{ 0x8008, "WriteRecordRes"},
-	{ 0x0009, "ReadRecordReq"},
-	{ 0x8009, "ReadRecordRes"},
+	{ 0x0008, "IODWriteReqHeader"},
+	{ 0x8008, "IODWriteResHeader"},
+	{ 0x0009, "IODReadReqHeader"},
+	{ 0x8009, "IODReadResHeader"},
 	{ 0x0010, "DiagnosisData"},
-	{ 0x0011, "MulticastConsumerInfoBlock"},
-	{ 0x0012, "ExpectedIdentificationDataBlock"},
+	{ 0x0011, "Reserved"},
+	{ 0x0012, "ExpectedIdentificationData"},
 	{ 0x0013, "RealIdentificationData"},
 	{ 0x0014, "SubstituteValue"},
 	{ 0x0015, "RecordInputDataObjectElement"},
@@ -561,31 +594,13 @@ static const value_string pn_io_error_decode[] = {
     { 0, NULL }
 };
 
-/*
-XXX: the next 2 are dependant on error_code and error_decode
-
-e.g.: CL-RPC error:
-error_code .. see above
-error_decode .. 0x81
-error_code1 .. 0x69
-error_code2 ..
-1 RPC_ERR_REJECTED
-2 RPC_ERR_FAULTED
-3 RPC_ERR_TIMEOUT
-4 RPC_ERR_IN_ARGS
-5 RPC_ERR_OUT_ARGS
-6 RPC_ERR_DECODE
-7 RPC_ERR_PNIO_OUT_ARGS
-8 Application Timeout
-*/
-
-/* XXX: add some more error codes here */
+/* dummy for unknown decode */
 static const value_string pn_io_error_code1[] = {
 	{ 0x00, "OK" },
     { 0, NULL }
 };
 
-/* XXX: add some more error codes here */
+/* dummy for unknown decode/code1 combination */
 static const value_string pn_io_error_code2[] = {
 	{ 0x00, "OK" },
     { 0, NULL }
@@ -1306,6 +1321,50 @@ static const value_string pn_io_im_revision_prefix_vals[] = {
 };
 
 
+static const value_string pn_io_mrp_role_vals[] = {
+    { 0x0000, "Media Redundancy disabled" },
+    { 0x0001, "Media Redundancy Client" },
+    { 0x0002, "Media Redundancy Manager" },
+    /*all others reserved */
+    { 0, NULL }
+};
+
+
+static const value_string pn_io_mrp_prio_vals[] = {
+    { 0x0000, "Highest priority redundancy manager" },
+    /* 0x1000 - 0x7000 High priorities */
+    { 0x8000, "Default priority for redundancy manager" },
+    /* 0x9000 - 0xE000 Low priorities */
+    { 0xF000, "Lowest priority redundancy manager" },
+    /*all others reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_mrp_rtmode_rtclass12_vals[] = {
+    { 0x0000, "RT_CLASS_1 and RT_CLASS_2 redundancy mode deactivated" },
+    { 0x0001, "RT_CLASS_1 and RT_CLASS_2 redundancy mode activated" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_mrp_rtmode_rtclass3_vals[] = {
+    { 0x0000, "RT_CLASS_3 redundancy mode deactivated" },
+    { 0x0001, "RT_CLASS_3 redundancy mode activated" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_mrp_ring_state_vals[] = {
+    { 0x0000, "Ring open" },
+    { 0x0001, "Ring closed" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_mrp_rt_state_vals[] = {
+    { 0x0000, "RT media redundancy lost" },
+    { 0x0001, "RT media redundancy available" },
+    { 0, NULL }
+};
+
+
 
 static int dissect_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen);
@@ -1313,6 +1372,8 @@ static int dissect_block(tvbuff_t *tvb, int offset,
 static int dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
+static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex);
 
 
 
@@ -1541,7 +1602,7 @@ dissect_Alarm_header(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ChannelProperties(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -1671,7 +1732,7 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM0_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint8 u8VendorIDHigh;
     guint8 u8VendorIDLow;
@@ -1749,7 +1810,7 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16NumberOfAPIs;
     guint32 u32Api;
@@ -1902,6 +1963,99 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the substitute value block */
+static int
+dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+{
+    guint16 u16SubstitutionMode;
+
+    /* SubstitutionMode */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_subslot_nr, &u16SubstitutionMode);
+    
+    
+    /* SubstituteDataItem */
+    /* IOCS */
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
+    u16BodyLength -= 3;
+    /* SubstituteDataObjectElement */
+    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", 
+        "SubstituteDataObjectElement: %d bytes", u16BodyLength);
+
+    return offset;
+}
+
+
+/* dissect the RecordInputDataObjectElement block */
+static int
+dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+{
+    guint8 u8LengthIOCS;
+    guint8 u8LengthIOPS;
+    guint16 u16LengthData;
+
+
+    /* LengthIOCS */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_iocs, &u8LengthIOCS);
+    /* IOCS */
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
+    /* LengthIOPS */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_iops, &u8LengthIOPS);
+    /* IOPS */
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iops);
+    /* LengthData */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_data, &u16LengthData);
+    /* Data */
+    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16LengthData, "undecoded", 
+        "Data: %d bytes", u16LengthData);
+
+    return offset;
+}
+
+
+/* dissect the RecordOutputDataObjectElement block */
+static int
+dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+{
+    guint16 u16SubstituteActiveFlag;
+    guint8 u8LengthIOCS;
+    guint8 u8LengthIOPS;
+    guint16 u16LengthData;
+    guint16 u16Index;
+    guint32 u32RecDataLen;
+
+
+    /* SubstituteActiveFlag */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_substitute_active_flag, &u16SubstituteActiveFlag);
+
+    /* LengthIOCS */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_iocs, &u8LengthIOCS);
+    /* LengthIOPS */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_iops, &u8LengthIOPS);
+    /* LengthData */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                hf_pn_io_length_data, &u16LengthData);
+    /* DataItem */
+    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16LengthData, "undecoded", 
+        "DataItem: %d bytes", u16LengthData);
+    offset += u16LengthData;
+
+    /* SubstituteValue */
+    dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+
+    return offset;
+}
+
+
 /* dissect the alarm acknowledge block */
 static int
 dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
@@ -1996,7 +2150,7 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
 
 /* dissect the write request block */
 static int
-dissect_WriteRecordReq_block(tvbuff_t *tvb, int offset,
+dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
     e_uuid_t aruuid;
@@ -2028,7 +2182,7 @@ dissect_WriteRecordReq_block(tvbuff_t *tvb, int offset,
 
 /* dissect the read request block */
 static int
-dissect_ReadRecordReq_block(tvbuff_t *tvb, int offset,
+dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
     e_uuid_t aruuid;
@@ -2062,7 +2216,7 @@ dissect_ReadRecordReq_block(tvbuff_t *tvb, int offset,
 
 /* dissect the write response block */
 static int
-dissect_WriteRecordRes_block(tvbuff_t *tvb, int offset,
+dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
     e_uuid_t aruuid;
@@ -2097,7 +2251,7 @@ dissect_WriteRecordRes_block(tvbuff_t *tvb, int offset,
 
 /* dissect the read response block */
 static int
-dissect_ReadRecordRes_block(tvbuff_t *tvb, int offset,
+dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen)
 {
     e_uuid_t aruuid;
@@ -2206,7 +2360,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 /* dissect the PDevData block */
 static int
 dissect_PDevData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
 
     proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
@@ -2251,6 +2405,28 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+
+static int
+dissect_padding4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    /* Padding */
+    switch(offset % 4) {
+    case(3):
+        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 1, "padding", "Padding: 1 byte");
+        offset += 1;
+        break;
+    case(2):
+        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+        offset += 2;
+        break;
+    case(1):
+        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 3, "padding", "Padding: 3 bytes");
+        offset += 3;
+        break;
+    }
+
+    return offset;
+}
 
 
 /* dissect the PDPortDataReal blocks */
@@ -2301,17 +2477,8 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_number_of_peers, &u8NumberOfPeers);
     /* Padding */
-    switch(offset % 4) {
-    case(3):
-        offset += 1;
-        break;
-    case(2):
-        offset += 2;
-        break;
-    case(1):
-        offset += 3;
-        break;
-    }
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+
     u8I = u8NumberOfPeers;
     while(u8I--) {
         /* LengthPeerPortID */
@@ -2335,17 +2502,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         offset += u8LengthPeerChassisID;
 
         /* Padding */
-        switch(offset % 4) {
-        case(3):
-            offset += 1;
-            break;
-        case(2):
-            offset += 2;
-            break;
-        case(1):
-            offset += 3;
-            break;
-        }
+        offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
 
         /* LineDelay */
 	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2355,34 +2512,14 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         offset = dissect_MAC(tvb, offset, pinfo, tree, 
                             hf_pn_io_peer_macadd, mac);
         /* Padding */
-        switch(offset % 4) {
-        case(3):
-            offset += 1;
-            break;
-        case(2):
-            offset += 2;
-            break;
-        case(1):
-            offset += 3;
-            break;
-        }
+        offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
     }
 
     /* MAUType */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_mau_type, &u16MAUType);
     /* Padding */
-    switch(offset % 4) {
-    case(3):
-        offset += 1;
-        break;
-    case(2):
-        offset += 2;
-        break;
-    case(1):
-        offset += 3;
-        break;
-    }
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
 
     /* DomainBoundary */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2394,17 +2531,8 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_port_state, &u16PortState);
     /* Padding */
-    switch(offset % 4) {
-    case(3):
-        offset += 1;
-        break;
-    case(2):
-        offset += 2;
-        break;
-    case(1):
-        offset += 3;
-        break;
-    }
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+
     /* MediaType */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_media_type, &u32MediaType);
@@ -2413,6 +2541,278 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         u16SlotNr, u16SubslotNr, pOwnPortID, u8NumberOfPeers,
         val_to_str(u16PortState, pn_io_port_state, "0x%x"),
         val_to_str(u32MediaType, pn_io_media_type, "0x%x"));
+
+    return offset;
+}
+
+
+static int
+dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    e_uuid_t uuid;
+    guint16 u16Role;
+#if 0
+    guint8 u8LengthDomainName;
+    char *pDomainName;
+#endif
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MRP_DomainUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_mrp_domain_uuid, &uuid);
+    /* MRP_Role */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_role, &u16Role);
+    /* Padding */
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+
+#if 0
+    /* XXX - these fields will be added later */
+
+    /* MRP_LengthDomainName */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
+    /* MRP_DomainName */
+    pDomainName = ep_alloc(u8LengthDomainName+1);
+    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
+    pDomainName[u8LengthDomainName] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+    offset += u8LengthDomainName;
+#endif
+
+    /* Padding */
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    
+    offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+
+static int
+dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    e_uuid_t uuid;
+    guint16 u16Role;
+    guint16 u16Version;
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MRP_DomainUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_mrp_domain_uuid, &uuid);
+    /* MRP_Role */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_role, &u16Role);
+
+    /* MRP_Version */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_version, &u16Version);
+
+    offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+
+static int
+dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    e_uuid_t uuid;
+    guint16 u16Check;
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MRP_DomainUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_mrp_domain_uuid, &uuid);
+
+    /* MRP_Check */
+    /* XXX - this field is 32bit in the spec but 16 bit in the implementation */
+    /* this will be fixed in the next implementation release */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_check, &u16Check);
+
+    return offset;
+}
+
+
+static int 
+dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    e_uuid_t uuid;
+
+
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MRP_DomainUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_mrp_domain_uuid, &uuid);
+    return offset;
+}
+
+
+static int 
+dissect_MrpManagerParams_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16Prio;
+    guint16 u16TOPchgT;
+    guint16 u16TOPNRmax;
+    guint16 u16TSTshortT;
+    guint16 u16TSTdefaultT;
+    guint16 u16TSTNRmax;
+
+
+    /* MRP_Prio */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_prio, &u16Prio);
+    /* MRP_TOPchgT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_topchgt, &u16TOPchgT);
+    /* MRP_TOPNRmax */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_topnrmax, &u16TOPNRmax);
+    /* MRP_TSTshortT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_tstshortt, &u16TSTshortT);
+    /* MRP_TSTdefaultT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_tstdefaultt, &u16TSTdefaultT);
+    /* MSP_TSTNRmax */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_tstnrmax, &u16TSTNRmax);
+    /* Padding */
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpRTMode(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint32 u32RTMode;
+
+
+    /* MRP_RTMode */
+    sub_item = proto_tree_add_item(tree, hf_pn_io_mrp_rtmode, tvb, offset, 4, FALSE);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_mrp_rtmode);
+
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_mrp_rtmode_reserved2, &u32RTMode);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_mrp_rtmode_reserved1, &u32RTMode);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_mrp_rtmode_rtclass3, &u32RTMode);
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                    hf_pn_io_mrp_rtmode_rtclass12, &u32RTMode);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpRTModeManagerData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16TSTNRmax;
+    guint16 u16TSTdefaultT;
+
+
+    /* MSP_TSTNRmax */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_tstnrmax, &u16TSTNRmax);
+    /* MRP_TSTdefaultT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_tstdefaultt, &u16TSTdefaultT);
+    /* Padding */
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+
+    /* MRP_RTMode */
+    offset = dissect_MrpRTMode(tvb, offset, pinfo, tree, item, drep);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpRingStateData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16RingState;
+
+
+    /* MRP_RingState */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_ring_state, &u16RingState);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpRTStateData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16RTState;
+
+
+    /* MRP_RTState */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_rt_state, &u16RTState);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpClientParams_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    guint16 u16MRP_LNKdownT;
+    guint16 u16MRP_LNKupT;
+    guint16 u16MRP_LNKNRmax;
+
+
+    /* MRP_LNKdownT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_lnkdownt, &u16MRP_LNKdownT);
+    /* MRP_LNKupT */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_lnkupt, &u16MRP_LNKupT);
+    /* MRP_LNKNRmax u16 */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_mrp_lnknrmax, &u16MRP_LNKNRmax);
+
+    return offset;
+}
+
+
+static int
+dissect_MrpRTModeClientData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* MRP_RTMode */
+    offset = dissect_MrpRTMode(tvb, offset, pinfo, tree, item, drep);
 
     return offset;
 }
@@ -2631,7 +3031,7 @@ dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
 /* dissect the PDPortFODataAdjust block */
 static int
 dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint32 u32FiberOptic;
     guint32 u32FiberOpticCable;
@@ -2660,7 +3060,7 @@ dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
 /* dissect the PDPortFODataCheck block */
 static int
 dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint32 u32FiberOpticPowerBudget;
 
@@ -2693,7 +3093,7 @@ dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
 /* dissect the PDNCDataCheck block */
 static int
 dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint32 u32NCDropBudget;
 
@@ -2726,7 +3126,7 @@ dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
 /* dissect the PDInterfaceDataReal block */
 static int
 dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint8 u8LengthOwnChassisID;
     char *pOwnChassisID;
@@ -2745,45 +3145,25 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
     offset += u8LengthOwnChassisID;
 
     /* Padding */
-    switch(offset % 4) {
-    case(3):
-        offset += 1;
-        break;
-    case(2):
-        offset += 2;
-        break;
-    case(1):
-        offset += 3;
-        break;
-    }
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
 
     /* MACAddressValue */
     offset = dissect_MAC(tvb, offset, pinfo, tree, hf_pn_io_macadd, mac);
 
     /* Padding */
-    switch(offset % 4) {
-    case(3):
-        offset += 1;
-        break;
-    case(2):
-        offset += 2;
-        break;
-    case(1):
-        offset += 3;
-        break;
-    }
+    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
 
     /* IPAddress */
     offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_ip_address, &ip);
-    //proto_item_append_text(block_item, ", IP: %s", ip_to_str((guint8*)&ip));
+    /*proto_item_append_text(block_item, ", IP: %s", ip_to_str((guint8*)&ip));*/
 
     /* Subnetmask */
     offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_subnetmask, &ip);
-    //proto_item_append_text(block_item, ", Subnet: %s", ip_to_str((guint8*)&ip));
+    /*proto_item_append_text(block_item, ", Subnet: %s", ip_to_str((guint8*)&ip));*/
 
     /* StandardGateway */
     offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_standard_gateway, &ip);
-    //proto_item_append_text(block_item, ", Router: %s", ip_to_str((guint8*)&ip));
+    /*proto_item_append_text(block_item, ", Router: %s", ip_to_str((guint8*)&ip));*/
 
 
     return offset;
@@ -2964,9 +3344,9 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
 }
 
 
-/* dissect the DiagnosisBlock */
+/* dissect the DiagnosisData block */
 static int
-dissect_DiagnosisBlock(tvbuff_t *tvb, int offset,
+dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint16 body_length, 
         guint8 u8BlockVersionLow)
 {
@@ -3930,7 +4310,7 @@ dissect_ModuleDiffBlock(tvbuff_t *tvb, int offset,
 /* dissect the IsochronousModeData block */
 static int
 dissect_IsochronousModeData(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
@@ -4012,7 +4392,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
 /* dissect the RecordDataReadQuery block */
 static int
 dissect_RecordDataReadQuery_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint16 u16BodyLength)
 {
 
 
@@ -4081,18 +4461,28 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_AlarmNotification_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0008):
-        dissect_WriteRecordReq_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODWriteReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
         break;
     case(0x0009):
-        dissect_ReadRecordReq_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODReadReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
         break;
     case(0x0010):
-        dissect_DiagnosisBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength, u8BlockVersionLow);
+        dissect_DiagnosisData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength, u8BlockVersionLow);
         break;
     case(0x0012):   /* ExpectedIdentificationData */
     case(0x0013):   /* RealIdentificationData */
         dissect_IdentificationData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionLow);
         break;
+    case(0x0014):
+        dissect_SubstituteValue_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
+    case(0x0015):
+        dissect_RecordInputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
+    case(0x0016):
+        dissect_RecordOutputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
+    /*   0x0017 reserved */
     case(0x0018):
         dissect_ARData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -4140,7 +4530,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0201):
-        dissect_PDevData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        dissect_PDevData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0202):
         dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
@@ -4181,11 +4571,42 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0210):
         dissect_AdjustMulticastBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
+    case(0x0211):
+        dissect_PDInterfaceMrpDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0212):
+        dissect_PDInterfaceMrpDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0213):
+        dissect_PDInterfaceMrpDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0214):
+    case(0x0215):
+        dissect_PDPortMrpData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0216):
+        dissect_MrpManagerParams_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0217):
+        dissect_MrpClientParams_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0218):
+        dissect_MrpRTModeManagerData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0219):
+        dissect_MrpRingStateData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x021A):
+        dissect_MrpRTStateData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x021B):
         dissect_AdjustPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x021C):
         dissect_CheckPortState_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x021D):
+        dissect_MrpRTModeClientData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0222):
         dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4213,10 +4634,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_Alarm_ack_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x8008):
-        dissect_WriteRecordRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODWriteResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
         break;
     case(0x8009):
-        dissect_ReadRecordRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
+        dissect_IODReadResHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16Index, u32RecDataLen);
         break;
     case(0x8101):
         dissect_ARBlockRes(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4411,26 +4832,21 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     }
 
     /* see: pn_io_index */
-    /* single block only (XXX - some of these must go into multiple list below) */
+    /* single block only */
     switch(u16Index) {
-    case(0x8000):   /* ExpectedIdentificationData for one subslot */
-    case(0x8001):   /* RealIdentificationData for one subslot */
-    case(0x802a):   /* PDPortDataReal */
-    case(0x802b):   /* PDPortDataCheck */
-    case(0x802d):   /* PDSyncData */
-    case(0x802e):   /* PDSyncData */
-    case(0x802f):   /* PDPortDataAdjust */
+    case(0x801e):   /* SubstituteValues for one subslot */
+    case(0x8028):   /* RecordInputDataObjectElement for one subslot */
+    case(0x8029):   /* RecordOutputDataObjectElement for one subslot */
+    case(0x8050):   /* PDInterfaceMrpDataReal for one subslot */
+    case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
+    case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
+    case(0x8054):   /* PDPortMrpDataReal for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
     case(0xaff0):   /* I&M0 */
-    case(0xc000):   /* ExpectedIdentificationData for one slot */
-    case(0xc001):   /* RealIdentificationData for one slot */
-    case(0xe000):   /* ExpectedIdentificationData for one AR */
-    case(0xe001):   /* RealIdentificationData for one AR */
     case(0xe002):   /* ModuleDiffBlock for one AR */
     case(0xe00c):   /* Diagnosis, Maintenance, Qualified and Status for one AR */
     case(0xe010):   /* Maintenance required in channel coding for one AR */
     case(0xe012):   /* Maintenance required in all codings for one AR */
-    case(0xf000):   /* RealIdentificationData */
     case(0xf00a):   /* Diagnosis in channel decoding for one API */
     case(0xf00b):   /* Diagnosis in all codings for one API */
     case(0xf010):   /* Maintenance required in channel coding for one API */
@@ -4444,6 +4860,19 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     /* multiple blocks possible */
+    case(0x8000):   /* ExpectedIdentificationData for one subslot */
+    case(0x8001):   /* RealIdentificationData for one subslot */
+    case(0x802a):   /* PDPortDataReal */
+    case(0x802b):   /* PDPortDataCheck */
+    case(0x802d):   /* PDSyncData */
+    case(0x802e):   /* PDSyncData */
+    case(0x802f):   /* PDPortDataAdjust */
+    case(0x8030):   /* IsochronousModeData */
+    case(0xc000):   /* ExpectedIdentificationData for one slot */
+    case(0xc001):   /* RealIdentificationData for one slot */
+    case(0xe000):   /* ExpectedIdentificationData for one AR */
+    case(0xe001):   /* RealIdentificationData for one AR */
+    case(0xf000):   /* RealIdentificationData */
     case(0xf00c):   /* Diagnosis, Maintenance, Qualified and Status for one API */
     case(0xf80c):   /* Diagnosis, Maintenance, Qualified and Status for one device */
     case(0xf841):   /* PDRealData */
@@ -4509,6 +4938,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
     /* see: pn_io_index */
     switch(u16Index) {
+    case(0x801e):   /* SubstituteValues for one subslot */
     case(0x802b):   /* PDPortDataCheck */
     case(0x802c):   /* PDirData */
     case(0x802d):   /* PDSyncData */
@@ -4558,7 +4988,7 @@ dissect_IODWriteReq(tvbuff_t *tvb, int offset,
         /* RecordDataWrite */
         offset = dissect_RecordDataWrite(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
 
-        /* add padding (required with IODWriteMultipleReq) */
+        /* Padding */
         switch(offset % 4) {
         case(3):
             offset += 1;
@@ -4629,7 +5059,7 @@ dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 /* dissect the IOxS (IOCS, IOPS) field */
 static int
 dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
+	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int hfindex)
 {
     guint8 u8IOxS;
     proto_item *ioxs_item = NULL;
@@ -4639,18 +5069,17 @@ dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
     u8IOxS = tvb_get_guint8(tvb, offset);
 
     /* add ioxs subtree */
-	ioxs_item = proto_tree_add_uint_format(tree, hf_pn_io_ioxs, 
-		tvb, offset, 1, u8IOxS,
-		"IOxS: 0x%02x (%s%s)", 
-		u8IOxS, 
+	ioxs_item = proto_tree_add_uint(tree, hfindex, tvb, offset, 1, u8IOxS);
+	proto_item_append_text(ioxs_item,
+		" (%s%s)", 
 		(u8IOxS & 0x01) ? "another IOxS follows " : "",
 		(u8IOxS & 0x80) ? "good" : "bad");
 	ioxs_tree = proto_item_add_subtree(ioxs_item, ett_pn_io_ioxs);
 
-	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_extension, tvb, offset, 1, u8IOxS);
-	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_res14, tvb, offset, 1, u8IOxS);
-	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_instance, tvb, offset, 1, u8IOxS);
 	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_datastate, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_instance, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_res14, tvb, offset, 1, u8IOxS);
+	proto_tree_add_uint(ioxs_tree, hf_pn_io_ioxs_extension, tvb, offset, 1, u8IOxS);
 
     return offset + 1;
 }
@@ -4673,7 +5102,7 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 				    "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_length(tvb));
         data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
-        offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep);
+        offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);
 
         /* XXX - dissect the remaining data */
         /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
@@ -5194,6 +5623,10 @@ proto_register_pn_io (void)
     { &hf_pn_io_length_iops,
       { "LengthIOPS", "pn_io.length_iops", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
+    { &hf_pn_io_iocs,
+      { "IOCS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_iops,
+      { "IOPS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ioxs,
       { "IOxS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_ioxs_extension,
@@ -5423,6 +5856,60 @@ proto_register_pn_io (void)
     { &hf_pn_io_standard_gateway,
 	    { "StandardGateway", "pn_io.standard_gateway", FT_IPv4, BASE_NONE, NULL, 0x0, "", HFILL }},
 
+    { &hf_pn_io_mrp_domain_uuid,
+      { "MRP_DomainUUID", "pn_io.mrp_domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_role, 
+      { "MRP_Role", "pn_io.mrp_role", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_role_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_length_domain_name,
+	    { "MRP_LengthDomainName", "pn_io.mrp_length_domain_name", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_domain_name,
+	    { "MRP_DomainName", "pn_io.mrp_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_mrp_prio,
+	    { "MRP_Prio", "pn_io.mrp_prio", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_prio_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_topchgt,
+	    { "MRP_TOPchgT", "pn_io.mrp_topchgt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 10ms", HFILL }},
+    { &hf_pn_io_mrp_topnrmax,
+	    { "MRP_TOPNRmax", "pn_io.mrp_topnrmax", FT_UINT16, BASE_DEC, NULL, 0x0, "number of iterations", HFILL }},
+    { &hf_pn_io_mrp_tstshortt,
+	    { "MRP_TSTshortT", "pn_io.mrp_tstshortt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 1 ms", HFILL }},
+    { &hf_pn_io_mrp_tstdefaultt,
+	    { "MRP_TSTdefaultT", "pn_io.mrp_tstdefaultt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 1ms", HFILL }},
+    { &hf_pn_io_mrp_tstnrmax,
+	    { "MRP_TSTNRmax", "pn_io.mrp_tstnrmax", FT_UINT16, BASE_DEC, NULL, 0x0, "number of outstanding test indications causes ring failure", HFILL }},
+    { &hf_pn_io_mrp_check,
+	    { "MRP_Check", "pn_io.mrp_check", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_mrp_rtmode,
+	    { "MRP_RTMode", "pn_io.mrp_rtmode", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_rtmode_rtclass12,
+	    { "RTClass1_2", "pn_io.mrp_rtmode.class1_2", FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass12_vals), 0x00000001, "", HFILL }},
+    { &hf_pn_io_mrp_rtmode_rtclass3,
+	    { "RTClass1_3", "pn_io.mrp_rtmode.class3", FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass3_vals), 0x00000002, "", HFILL }},
+    { &hf_pn_io_mrp_rtmode_reserved1,
+	    { "Reserved_1", "pn_io.mrp_rtmode.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x00fffffc, "", HFILL }},
+    { &hf_pn_io_mrp_rtmode_reserved2,
+	    { "Reserved_2", "pn_io.mrp_rtmode.reserved_2", FT_UINT32, BASE_HEX, NULL, 0xff000000, "", HFILL }},
+
+    { &hf_pn_io_mrp_lnkdownt,
+	    { "MRP_LNKdownT", "pn_io.mrp_lnkdownt", FT_UINT16, BASE_HEX, NULL, 0x0, "Link down Interval in ms", HFILL }},
+    { &hf_pn_io_mrp_lnkupt,
+	    { "MRP_LNKupT", "pn_io.mrp_lnkupt", FT_UINT16, BASE_HEX, NULL, 0x0, "Link up Interval in ms", HFILL }},
+    { &hf_pn_io_mrp_lnknrmax,
+	    { "MRP_LNKNRmax", "pn_io.mrp_lnknrmax", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_version,
+	    { "MRP_Version", "pn_io.mrp_version", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_substitute_active_flag,
+	    { "SubstituteActiveFlag", "pn_io.substitute_active_flag", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_length_data,
+	    { "LengthData", "pn_io.length_data", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_mrp_ring_state,
+	    { "MRP_RingState", "pn_io.mrp_ring_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_ring_state_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_mrp_rt_state,
+	    { "MRP_RTState", "pn_io.mrp_rt_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_rt_state_vals), 0x0, "", HFILL }},
+
     };
 
 	static gint *ett[] = {
@@ -5452,7 +5939,8 @@ proto_register_pn_io (void)
         &ett_pn_io_subslot,
         &ett_pn_io_maintenance_status,
         &ett_pn_io_data_status,
-        &ett_pn_io_iocr
+        &ett_pn_io_iocr,
+        &ett_pn_io_mrp_rtmode
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
