@@ -231,7 +231,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #ifndef _WIN32
   struct stat pipe_stat;
 #else
-#if 0
+#if 1
   char *pncopy, *pos;
   wchar_t *err_str;
 #endif
@@ -244,7 +244,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   unsigned int bytes_read;
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: %s", pipename);
-  
+
   /*
    * XXX (T)Wireshark blocks until we return
    */
@@ -295,7 +295,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       return -1;
     }
 #else /* _WIN32 */
-#if 0 /* Enable/disable Windows named pipes */
+#if 1 /* Enable/disable Windows named pipes */
 #define PIPE_STR "\\pipe\\"
     /* Under Windows, named pipes _must_ have the form
      * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
@@ -811,7 +811,7 @@ static void capture_loop_close_input(loop_data *ld) {
   }
 
   ld->go = FALSE;
-  
+
 #ifdef _WIN32
   /* Shut down windows sockets */
   WSACleanup();
@@ -1118,7 +1118,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 	    "Ring buffer requested, but capture is being written to standard output or to a named pipe.");
         g_free(capfile_name);
         return FALSE;
-      } 
+      }
       if (strcmp(capfile_name, "-") == 0) {
         /* write to stdout */
         *save_file_fd = 1;
@@ -1129,7 +1129,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
       }
     } /* if (...output_to_pipe ... */
 
-    else { 
+    else {
       if (capture_opts->multi_files_on) {
         /* ringbuffer is enabled */
         *save_file_fd = ringbuf_init(capfile_name,
