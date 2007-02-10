@@ -29,30 +29,30 @@
 #ifndef __PACKET_SCSI_SSC_H_
 #define __PACKET_SCSI_SSC_H_
 
-/* SSC2 Commands */
-#define SCSI_SSC2_REWIND                        0x01
+/* SSC Commands */
+#define SCSI_SSC_REWIND                         0x01
 #define SCSI_SSC_FORMAT_MEDIUM                  0x04
-#define SCSI_SSC2_READ_BLOCK_LIMITS             0x05
-#define SCSI_SSC2_READ6                         0x08
-#define SCSI_SSC2_WRITE6                        0x0A
-#define SCSI_SSC2_SET_CAPACITY                  0x0B
-#define SCSI_SSC2_READ_REVERSE_6                0x0F
-#define SCSI_SSC2_WRITE_FILEMARKS_6             0x10
-#define SCSI_SSC2_SPACE_6                       0x11
-#define SCSI_SSC2_VERIFY_6                      0x13
-#define SCSI_SSC2_RECOVER_BUFFERED_DATA         0x14
-#define SCSI_SSC2_ERASE_6                       0x19
-#define SCSI_SSC2_LOAD_UNLOAD                   0x1B
-#define SCSI_SSC2_LOCATE_10                     0x2B
-#define SCSI_SSC2_READ_POSITION                 0x34
-#define SCSI_SSC2_REPORT_DENSITY_SUPPORT        0x44
-#define SCSI_SSC2_WRITE_FILEMARKS_16            0x80
-#define SCSI_SSC2_READ_REVERSE_16               0x81
-#define SCSI_SSC2_READ_16                       0x88
-#define SCSI_SSC2_WRITE_16                      0x8A
-#define SCSI_SSC2_VERIFY_16                     0x8F
-#define SCSI_SSC2_SPACE_16                      0x91
-#define SCSI_SSC2_LOCATE_16                     0x92
+#define SCSI_SSC_READ_BLOCK_LIMITS              0x05
+#define SCSI_SSC_READ6                          0x08
+#define SCSI_SSC_WRITE6                         0x0A
+#define SCSI_SSC_SET_CAPACITY                   0x0B
+#define SCSI_SSC_READ_REVERSE_6                 0x0F
+#define SCSI_SSC_WRITE_FILEMARKS_6              0x10
+#define SCSI_SSC_SPACE_6                        0x11
+#define SCSI_SSC_VERIFY_6                       0x13
+#define SCSI_SSC_RECOVER_BUFFERED_DATA          0x14
+#define SCSI_SSC_ERASE_6                        0x19
+#define SCSI_SSC_LOAD_UNLOAD                    0x1B
+#define SCSI_SSC_LOCATE_10                      0x2B
+#define SCSI_SSC_READ_POSITION                  0x34
+#define SCSI_SSC_REPORT_DENSITY_SUPPORT         0x44
+#define SCSI_SSC_WRITE_FILEMARKS_16             0x80
+#define SCSI_SSC_READ_REVERSE_16                0x81
+#define SCSI_SSC_READ_16                        0x88
+#define SCSI_SSC_WRITE_16                       0x8A
+#define SCSI_SSC_VERIFY_16                      0x8F
+#define SCSI_SSC_SPACE_16                       0x91
+#define SCSI_SSC_LOCATE_16                      0x92
 #define SCSI_SSC_ERASE_16                       0x93
 
 extern int hf_scsi_ssc_opcode;

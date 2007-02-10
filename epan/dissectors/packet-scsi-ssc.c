@@ -1,3 +1,4 @@
+/* based on SSC3 spec */
 /* packet-scsi-ssc.c
  * Dissector for the SCSI SSC commandset
  * Extracted from packet-scsi.c
@@ -93,7 +94,7 @@ static gint ett_scsi_read6			= -1;
 
 
 static void
-dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -123,7 +124,7 @@ dissect_ssc2_read6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -158,7 +159,7 @@ dissect_ssc2_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -194,7 +195,7 @@ dissect_ssc2_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -230,7 +231,7 @@ dissect_ssc2_writefilemarks16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static void
-dissect_ssc2_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -266,7 +267,7 @@ dissect_ssc2_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -302,7 +303,7 @@ dissect_ssc2_readreverse16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
-dissect_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -329,7 +330,7 @@ dissect_ssc2_write6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_writefilemarks6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -399,7 +400,7 @@ dissect_ssc_loadunload (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -428,7 +429,7 @@ dissect_ssc2_readblocklimits (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static void
-dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -454,7 +455,7 @@ dissect_ssc2_rewind (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -486,7 +487,7 @@ dissect_ssc2_locate10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -524,7 +525,7 @@ dissect_ssc2_locate16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_erase6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_erase6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -583,7 +584,7 @@ dissect_ssc_erase16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 
 static void
-dissect_ssc2_space6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_space6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -609,7 +610,7 @@ dissect_ssc2_space6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_ssc2_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_space16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -688,7 +689,7 @@ dissect_ssc_formatmedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 #define BPU  0x04
 
 static void
-dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_ssc_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata)
 {
@@ -868,14 +869,14 @@ dissect_ssc2_readposition (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 /* SSC Commands */
 const value_string scsi_ssc_vals[] = {
-    {SCSI_SSC2_ERASE_6                     , "Erase(6)"},
+    {SCSI_SSC_ERASE_6                     , "Erase(6)"},
     {SCSI_SSC_ERASE_16                     , "Erase(16)"},
     {SCSI_SPC2_EXTCOPY                     , "Extended Copy"},
     {SCSI_SSC_FORMAT_MEDIUM                , "Format Medium"},
     {SCSI_SPC2_INQUIRY                     , "Inquiry"},
-    {SCSI_SSC2_LOAD_UNLOAD                 , "Load Unload"},
-    {SCSI_SSC2_LOCATE_10                   , "Locate(10)"},
-    {SCSI_SSC2_LOCATE_16                   , "Locate(16)"},
+    {SCSI_SSC_LOAD_UNLOAD                 , "Load Unload"},
+    {SCSI_SSC_LOCATE_10                   , "Locate(10)"},
+    {SCSI_SSC_LOCATE_16                   , "Locate(16)"},
     {SCSI_SPC2_LOGSELECT                   , "Log Select"},
     {SCSI_SPC2_LOGSENSE                    , "Log Sense"},
     {SCSI_SPC2_MODESELECT6                 , "Mode Select(6)"},
@@ -889,54 +890,54 @@ const value_string scsi_ssc_vals[] = {
     {SCSI_SPC2_PERSRESVIN                  , "Persistent Reserve In"},
     {SCSI_SPC2_PERSRESVOUT                 , "Persistent Reserve Out"},
     {SCSI_SPC2_PREVMEDREMOVAL              , "Prevent/Allow Medium Removal"},
-    {SCSI_SSC2_READ6                       , "Read(6)"},
-    {SCSI_SSC2_READ_16                     , "Read(16)"},
-    {SCSI_SSC2_READ_BLOCK_LIMITS           , "Read Block Limits"},
+    {SCSI_SSC_READ6                       , "Read(6)"},
+    {SCSI_SSC_READ_16                     , "Read(16)"},
+    {SCSI_SSC_READ_BLOCK_LIMITS           , "Read Block Limits"},
     {SCSI_SMC2_READ_ELEMENT_STATUS         , "Read Element Status"},
     {SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED, "Read Element Status Attached"},
-    {SCSI_SSC2_READ_POSITION               , "Read Position"},
-    {SCSI_SSC2_READ_REVERSE_6              , "Read Reverse(6)"},
-    {SCSI_SSC2_READ_REVERSE_16             , "Read Reverse(16)"},
-    {SCSI_SSC2_RECOVER_BUFFERED_DATA       , "Recover Buffered Data"},
-    {SCSI_SSC2_REPORT_DENSITY_SUPPORT      , "Report Density Support"},
+    {SCSI_SSC_READ_POSITION               , "Read Position"},
+    {SCSI_SSC_READ_REVERSE_6              , "Read Reverse(6)"},
+    {SCSI_SSC_READ_REVERSE_16             , "Read Reverse(16)"},
+    {SCSI_SSC_RECOVER_BUFFERED_DATA       , "Recover Buffered Data"},
+    {SCSI_SSC_REPORT_DENSITY_SUPPORT      , "Report Density Support"},
     {SCSI_SPC2_REPORTLUNS                  , "Report LUNs"},
     {SCSI_SPC2_REQSENSE                    , "Request Sense"},
-    {SCSI_SSC2_REWIND                      , "Rewind"},
+    {SCSI_SSC_REWIND                      , "Rewind"},
     {SCSI_SPC2_SENDDIAG                    , "Send Diagnostic"},
-    {SCSI_SSC2_SET_CAPACITY                , "Set Capacity"},
-    {SCSI_SSC2_SPACE_6                     , "Space(6)"},
-    {SCSI_SSC2_SPACE_16                    , "Space(16)"},
+    {SCSI_SSC_SET_CAPACITY                , "Set Capacity"},
+    {SCSI_SSC_SPACE_6                     , "Space(6)"},
+    {SCSI_SSC_SPACE_16                    , "Space(16)"},
     {SCSI_SPC2_TESTUNITRDY                 , "Test Unit Ready"},
-    {SCSI_SSC2_VERIFY_6                    , "Verify(6)"},
-    {SCSI_SSC2_VERIFY_16                   , "Verify(16)"},
-    {SCSI_SSC2_WRITE6                      , "Write(6)"},
-    {SCSI_SSC2_WRITE_16                    , "Write(16)"},
+    {SCSI_SSC_VERIFY_6                    , "Verify(6)"},
+    {SCSI_SSC_VERIFY_16                   , "Verify(16)"},
+    {SCSI_SSC_WRITE6                      , "Write(6)"},
+    {SCSI_SSC_WRITE_16                    , "Write(16)"},
     {SCSI_SPC2_WRITEBUFFER                 , "Write Buffer"},
-    {SCSI_SSC2_WRITE_FILEMARKS_16          , "Write Filemarks(16)"},
-    {SCSI_SSC2_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
+    {SCSI_SSC_WRITE_FILEMARKS_16          , "Write Filemarks(16)"},
+    {SCSI_SSC_WRITE_FILEMARKS_6           , "Write Filemarks(6)"},
     {0, NULL},
 };
 
 
 scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SPC 0x00*/{dissect_spc3_testunitready},
-/*SSC 0x01*/{dissect_ssc2_rewind},
+/*SSC 0x01*/{dissect_ssc_rewind},
 /*SSC 0x02*/{NULL},
 /*SPC 0x03*/{dissect_spc3_requestsense},
 /*SSC 0x04*/{dissect_ssc_formatmedium},
-/*SSC 0x05*/{dissect_ssc2_readblocklimits},
+/*SSC 0x05*/{dissect_ssc_readblocklimits},
 /*SSC 0x06*/{NULL},
 /*SSC 0x07*/{NULL},
-/*SSC 0x08*/{dissect_ssc2_read6},
+/*SSC 0x08*/{dissect_ssc_read6},
 /*SSC 0x09*/{NULL},
-/*SSC 0x0a*/{dissect_ssc2_write6},
+/*SSC 0x0a*/{dissect_ssc_write6},
 /*SSC 0x0b*/{NULL},
 /*SSC 0x0c*/{NULL},
 /*SSC 0x0d*/{NULL},
 /*SSC 0x0e*/{NULL},
 /*SSC 0x0f*/{NULL},
-/*SSC 0x10*/{dissect_ssc2_writefilemarks6},
-/*SSC 0x11*/{dissect_ssc2_space6},
+/*SSC 0x10*/{dissect_ssc_writefilemarks6},
+/*SSC 0x11*/{dissect_ssc_space6},
 /*SPC 0x12*/{dissect_spc3_inquiry},
 /*SSC 0x13*/{NULL},
 /*SSC 0x14*/{NULL},
@@ -944,7 +945,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x16*/{dissect_spc2_reserve6},
 /*SSC 0x17*/{dissect_spc2_release6},
 /*SSC 0x18*/{NULL},
-/*SSC 0x19*/{dissect_ssc2_erase6},
+/*SSC 0x19*/{dissect_ssc_erase6},
 /*SPC 0x1a*/{dissect_spc3_modesense6},
 /*SSC 0x1b*/{dissect_ssc_loadunload},
 /*SSC 0x1c*/{NULL},
@@ -962,7 +963,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x28*/{NULL},
 /*SSC 0x29*/{NULL},
 /*SSC 0x2a*/{NULL},
-/*SSC 0x2b*/{dissect_ssc2_locate10},
+/*SSC 0x2b*/{dissect_ssc_locate10},
 /*SSC 0x2c*/{NULL},
 /*SSC 0x2d*/{NULL},
 /*SSC 0x2e*/{NULL},
@@ -971,7 +972,7 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x31*/{NULL},
 /*SSC 0x32*/{NULL},
 /*SSC 0x33*/{NULL},
-/*SSC 0x34*/{dissect_ssc2_readposition},
+/*SSC 0x34*/{dissect_ssc_readposition},
 /*SSC 0x35*/{NULL},
 /*SSC 0x36*/{NULL},
 /*SSC 0x37*/{NULL},
@@ -1047,25 +1048,25 @@ scsi_cdb_table_t scsi_ssc_table[256] = {
 /*SSC 0x7d*/{NULL},
 /*SSC 0x7e*/{NULL},
 /*SSC 0x7f*/{NULL},
-/*SSC 0x80*/{dissect_ssc2_writefilemarks16},
-/*SSC 0x81*/{dissect_ssc2_readreverse16},
+/*SSC 0x80*/{dissect_ssc_writefilemarks16},
+/*SSC 0x81*/{dissect_ssc_readreverse16},
 /*SSC 0x82*/{NULL},
 /*SPC 0x83*/{dissect_spc3_extcopy},
 /*SSC 0x84*/{NULL},
 /*SSC 0x85*/{NULL},
 /*SSC 0x86*/{NULL},
 /*SSC 0x87*/{NULL},
-/*SSC 0x88*/{dissect_ssc2_read16},
+/*SSC 0x88*/{dissect_ssc_read16},
 /*SSC 0x89*/{NULL},
-/*SSC 0x8a*/{dissect_ssc2_write16},
+/*SSC 0x8a*/{dissect_ssc_write16},
 /*SSC 0x8b*/{NULL},
 /*SSC 0x8c*/{NULL},
 /*SSC 0x8d*/{NULL},
 /*SSC 0x8e*/{NULL},
-/*SSC 0x8f*/{dissect_ssc2_verify16},
+/*SSC 0x8f*/{dissect_ssc_verify16},
 /*SSC 0x90*/{NULL},
-/*SSC 0x91*/{dissect_ssc2_space16},
-/*SSC 0x92*/{dissect_ssc2_locate16},
+/*SSC 0x91*/{dissect_ssc_space16},
+/*SSC 0x92*/{dissect_ssc_locate16},
 /*SSC 0x93*/{dissect_ssc_erase16},
 /*SSC 0x94*/{NULL},
 /*SSC 0x95*/{NULL},
