@@ -312,10 +312,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		    show_exception(tvb, pinfo, parent_tree, DissectorError,
                 "STATUS_INTEGER_DIVIDE_BY_ZERO: dissector tried an integer division by zero");
             break;
+        case(STATUS_STACK_OVERFLOW):
+		    show_exception(tvb, pinfo, parent_tree, DissectorError,
+                "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
+            /* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+            break;
         /* XXX - add other hardware exception codes as required */
         default:
 		    show_exception(tvb, pinfo, parent_tree, DissectorError, 
-                g_strdup_printf("dissector caused an unknown exception: %u", GetExceptionCode()));
+                g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
         }
     }
 #endif
