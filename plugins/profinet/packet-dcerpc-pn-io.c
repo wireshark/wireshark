@@ -5946,8 +5946,6 @@ proto_register_pn_io (void)
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
 	proto_register_field_array (proto_pn_io, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
-
-        g_warning("act: %u ts:%u", hf_pn_io_actual_local_time_stamp, hf_pn_io_transfer_status);
 }
 
 void
