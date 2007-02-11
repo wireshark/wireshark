@@ -44,9 +44,49 @@
 #include "packet-scsi-smc.h"
 
 
-static int proto_scsi_smc		= -1;
-int hf_scsi_smc_opcode			= -1;
+static int proto_scsi_smc			= -1;
+int hf_scsi_smc_opcode				= -1;
+static int hf_scsi_smc_mta			= -1;
+static int hf_scsi_smc_sa			= -1;
+static int hf_scsi_smc_fda			= -1;
+static int hf_scsi_smc_sda			= -1;
+static int hf_scsi_ssc_medium_flags		= -1;
+static int hf_scsi_smc_inv1			= -1;
+static int hf_scsi_smc_inv2			= -1;
 
+static gint ett_scsi_exchange_medium		= -1;
+
+void
+dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *exchg_fields[] = {
+        &hf_scsi_smc_inv1,
+        &hf_scsi_smc_inv2,
+	NULL
+    };
+
+    if (!tree) 
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_fda, tvb, offset+5, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_sda, tvb, offset+7, 2, 0);
+
+
+	proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_ssc_medium_flags, ett_scsi_exchange_medium, exchg_fields, FALSE);
+
+        flags = tvb_get_guint8 (tvb, offset+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
 
 
 void
@@ -658,7 +698,7 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 /*SMC 0xa3*/{NULL},
 /*SMC 0xa4*/{NULL},
 /*SMC 0xa5*/{dissect_smc_movemedium},
-/*SMC 0xa6*/{NULL},
+/*SMC 0xa6*/{dissect_smc_exchangemedium},
 /*SMC 0xa7*/{dissect_smc_movemedium},
 /*SMC 0xa8*/{NULL},
 /*SMC 0xa9*/{NULL},
@@ -758,23 +798,42 @@ proto_register_scsi_smc(void)
         { &hf_scsi_smc_opcode,
           {"SMC Opcode", "scsi.smc.opcode", FT_UINT8, BASE_HEX,
            VALS (scsi_smc_vals), 0x0, "", HFILL}},
+        { &hf_scsi_smc_mta,
+          {"Medium Transport Address", "scsi.smc.mta", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_smc_sa,
+          {"Source Address", "scsi.smc.sa", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_smc_fda,
+          {"First Destination Address", "scsi.smc.fda", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_smc_sda,
+          {"Second Destination Address", "scsi.smc.sda", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+	{ &hf_scsi_ssc_medium_flags,
+          {"Flags", "scsi.smc.medium_flags", FT_UINT8, BASE_HEX,
+           NULL, 0x0, "", HFILL}},
+	{ &hf_scsi_smc_inv1,
+          {"INV1", "scsi.smc.inv1", FT_BOOLEAN, 8,
+           NULL, 0x02, "", HFILL}},
+	{ &hf_scsi_smc_inv2,
+          {"INV2", "scsi.smc.inv2", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
-/*
 	static gint *ett[] = {
+		&ett_scsi_exchange_medium
 	};
-*/
 
 	/* Register the protocol name and description */
 	proto_scsi_smc = proto_register_protocol("SCSI_SMC", "SCSI_SMC", "scsi_smc");
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_scsi_smc, hf, array_length(hf));
-/*
+
 	proto_register_subtree_array(ett, array_length(ett));
-*/
 }
 
 void
