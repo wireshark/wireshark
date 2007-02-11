@@ -1966,7 +1966,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
 /* dissect the substitute value block */
 static int
 dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint16 u16BodyLength)
 {
     guint16 u16SubstitutionMode;
 
@@ -1990,7 +1990,7 @@ dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
 /* dissect the RecordInputDataObjectElement block */
 static int
 dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint8 u8LengthIOCS;
     guint8 u8LengthIOPS;
@@ -2021,7 +2021,7 @@ dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
 /* dissect the RecordOutputDataObjectElement block */
 static int
 dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16BodyLength)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16SubstituteActiveFlag;
     guint8 u8LengthIOCS;
@@ -2407,7 +2407,7 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_padding4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+dissect_padding4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
 {
     /* Padding */
     switch(offset % 4) {
@@ -2548,7 +2548,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     e_uuid_t uuid;
     guint16 u16Role;
@@ -2595,7 +2595,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     e_uuid_t uuid;
     guint16 u16Role;
@@ -2624,7 +2624,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     e_uuid_t uuid;
     guint16 u16Check;
@@ -2649,7 +2649,7 @@ dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
 
 static int 
 dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     e_uuid_t uuid;
 
@@ -2666,7 +2666,7 @@ dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
 
 static int 
 dissect_MrpManagerParams_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16Prio;
     guint16 u16TOPchgT;
@@ -2703,7 +2703,7 @@ dissect_MrpManagerParams_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_MrpRTMode(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -2753,7 +2753,7 @@ dissect_MrpRTModeManagerData_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_MrpRingStateData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16RingState;
 
@@ -2768,7 +2768,7 @@ dissect_MrpRingStateData_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_MrpRTStateData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16RTState;
 
@@ -2783,7 +2783,7 @@ dissect_MrpRTStateData_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_MrpClientParams_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
     guint16 u16MRP_LNKdownT;
     guint16 u16MRP_LNKupT;
@@ -4477,10 +4477,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_SubstituteValue_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0015):
-        dissect_RecordInputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        dissect_RecordInputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     case(0x0016):
-        dissect_RecordOutputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        dissect_RecordOutputDataObjectElement_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     /*   0x0017 reserved */
     case(0x0018):
