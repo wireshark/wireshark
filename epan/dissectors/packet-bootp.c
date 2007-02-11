@@ -32,6 +32,8 @@
  *     http://www.packetcable.com/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
  * CableHome(TM) 1.1 Specification
  *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
+ * DSL Forum TR-111
+ *     http://www.dslforum.org/techwork/tr/TR-111.pdf
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -78,6 +80,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include <epan/emem.h>
+#include <epan/sminmpec.h>
 
 static int bootp_dhcp_tap = -1;
 static int proto_bootp = -1;
@@ -218,6 +221,8 @@ static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend);
+static int dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
 static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
     int optoff, int optend);
@@ -425,8 +430,8 @@ static struct opt_info bootp_opt[] = {
 /* 121 */ { "Classless Static Route",		       	opaque, NULL },
 /* 122 */ { "CableLabs Client Configuration",		opaque, NULL },
 /* 123 */ { "Unassigned",				opaque, NULL },
-/* 124 */ { "Unassigned",				opaque, NULL },
-/* 125 */ { "Unassigned",				opaque, NULL },
+/* 124 */ { "V-I Vendor Class",				opaque, NULL },
+/* 125 */ { "V-I Vendor-specific Information",		opaque, NULL },
 /* 126 */ { "Extension",				opaque, NULL },
 /* 127 */ { "Extension",				opaque, NULL },
 /* 128 */ { "Private",					opaque, NULL },
@@ -1207,6 +1212,65 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		break;
 
+	case 125: { 	/* V-I Vendor-specific Information */
+	        int enterprise = 0;
+		int s_end = 0;
+		int s_option_len = 0;
+		proto_tree *e_tree = 0;
+
+		optend = optoff + optlen;
+
+	        optleft = optlen;
+
+		while (optleft > 0) {
+
+		  if (optleft < 5) {
+		    proto_tree_add_text(v_tree, tvb, optoff,
+					optleft, "Vendor-specific Information: malformed option");
+		    break;
+		  }
+
+		  enterprise = tvb_get_ntohl(tvb, optoff);
+
+		  vti = proto_tree_add_text(v_tree, tvb, optoff, 4,
+					    "Enterprise-number: %s-%u",
+					    val_to_str( enterprise, sminmpec_values, "Unknown"),
+					    enterprise);
+
+		  s_option_len = tvb_get_guint8(tvb, optoff + 4);
+
+		  optoff += 5;
+		  optleft -= 5;
+
+		  /* Handle DSL Forum TR-111 Option 125 */
+		  if ( enterprise == 3561 ) {
+		    
+		    s_end = optoff + s_option_len; 
+		    if ( s_end > optend ) {
+		      proto_tree_add_text(v_tree, tvb, optoff, 1,
+					  "no room left in option for enterprise %u data", enterprise);
+		      break;
+		    }
+		    
+		    
+		    e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		    while (optoff < s_end) {
+
+		      optoff = dissect_vendor_tr111_suboption(e_tree,
+								 tvb, optoff, s_end);
+		    }
+		  } else {
+
+		    /* skip over the data and look for next enterprise number */
+		    optoff += s_option_len;
+		  }
+
+		  optleft -= s_option_len;
+
+		}
+		break;
+	}
+
 	default:	/* not special */
 		/* The PacketCable CCC option number can vary.  If this is a CCC option,
 		   handle it and skip the "opaque" case below.
@@ -1905,6 +1969,82 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 		default:
 			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,"Unknown suboption %d", subopt);
+			break;
+		}
+	}
+	optoff += (subopt_len + 2);
+	return optoff;
+}
+
+
+
+static int
+dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
+{
+	int suboptoff = optoff;
+	guint8 subopt;
+	guint8 subopt_len;
+	int suboptleft;
+
+	/* Reference: TR-111 DHCP Option 125 Sub-Option Data Fields
+           Page 10. 
+         */
+
+	static struct opt_info o125_tr111_opt[]= {
+		/* 0 */ {"nop", special, NULL},	/* dummy */
+		/* 1 */ {"DeviceManufacturerOUI", string, NULL},
+		/* 2 */ {"DeviceSerialNumber", string, NULL},
+		/* 3 */ {"DeviceProductClass", string, NULL},
+		/* 4 */ {"GatewayManufacturerOUI", string, NULL},
+		/* 5 */ {"GatewaySerialNumber", string, NULL},
+		/* 6 */ {"GatewayProductClass", string, NULL},
+	};
+
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+	 		subopt);
+	 	return (optend);
+	}
+
+
+	if ((subopt < 1) || (subopt >= array_length(o125_tr111_opt))) {
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
+			plurality(subopt_len, "", "s"));
+	} else {
+		switch (o125_tr111_opt[subopt].ftype) {
+
+		case special:
+			/* I may need to decode that properly one day */
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s (%d byte%s)",
+		 		subopt, o125_tr111_opt[subopt].text,
+				subopt_len, plurality(subopt_len, "", "s"));
+			break;
+
+		case string:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s = \"%s\"", subopt,
+				o125_tr111_opt[subopt].text,
+				tvb_format_stringzpad(tvb, suboptoff, subopt_len));
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
 			break;
 		}
 	}
