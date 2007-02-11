@@ -1,3 +1,4 @@
+/* based on the SMC 3 standard */
 /* packet-scsi-smc.c
  * Dissector for the SCSI SMC commandset
  * Extracted from packet-scsi.c
@@ -49,7 +50,7 @@ int hf_scsi_smc_opcode			= -1;
 
 
 void
-dissect_smc2_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -101,7 +102,7 @@ static const value_string element_type_code_vals[] = {
 #define SVALID 0x80
 
 static void
-dissect_scsi_smc2_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_smc_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
                               proto_tree *tree, guint offset,
                               const char *name)
 {
@@ -125,7 +126,7 @@ dissect_scsi_smc2_volume_tag (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
-dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
                          proto_tree *tree, guint offset,
                          guint elem_bytecnt, guint8 elem_type,
                          guint8 voltag_flags)
@@ -248,7 +249,7 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & PVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        dissect_scsi_smc2_volume_tag (tvb, pinfo, tree, offset,
+        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset,
                                       "Primary Volume Tag Information");
         offset += 36;
         elem_bytecnt -= 36;
@@ -257,7 +258,7 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (voltag_flags & AVOLTAG) {
         if (elem_bytecnt < 36)
             return;
-        dissect_scsi_smc2_volume_tag (tvb, pinfo, tree, offset,
+        dissect_scsi_smc_volume_tag (tvb, pinfo, tree, offset,
                                       "Alternate Volume Tag Information");
         offset += 36;
         elem_bytecnt -= 36;
@@ -317,7 +318,7 @@ dissect_scsi_smc2_element (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
-dissect_scsi_smc2_elements (tvbuff_t *tvb, packet_info *pinfo,
+dissect_scsi_smc_elements (tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree *tree, guint offset,
                             guint desc_bytecnt, guint8 elem_type,
                             guint8 voltag_flags, guint16 elem_desc_len)
@@ -328,7 +329,7 @@ dissect_scsi_smc2_elements (tvbuff_t *tvb, packet_info *pinfo,
         elem_bytecnt = elem_desc_len;
         if (elem_bytecnt > desc_bytecnt)
             elem_bytecnt = desc_bytecnt;
-        dissect_scsi_smc2_element (tvb, pinfo, tree, offset, elem_bytecnt,
+        dissect_scsi_smc_element (tvb, pinfo, tree, offset, elem_bytecnt,
                                    elem_type, voltag_flags);
         offset += elem_bytecnt;
         desc_bytecnt -= elem_bytecnt;
@@ -337,7 +338,7 @@ dissect_scsi_smc2_elements (tvbuff_t *tvb, packet_info *pinfo,
 
 
 void
-dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
+dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree, guint offset, gboolean isreq,
                          gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -437,7 +438,7 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
             if (desc_bytecnt > bytecnt)
                 desc_bytecnt = bytecnt;
-            dissect_scsi_smc2_elements (tvb, pinfo, tree, offset,
+            dissect_scsi_smc_elements (tvb, pinfo, tree, offset,
                                         desc_bytecnt, elem_type,
                                         voltag_flags, elem_desc_len);
             offset += desc_bytecnt;
@@ -450,9 +451,9 @@ dissect_smc2_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
 
 /* SMC Commands */
 const value_string scsi_smc_vals[] = {
-    {SCSI_SMC2_EXCHANGE_MEDIUM                , "Exchange Medium"},
-    {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS      , "Initialize Element Status"},
-    {SCSI_SMC2_INITIALIZE_ELEMENT_STATUS_RANGE, "Initialize Element Status With Range"},
+    {SCSI_SMC_EXCHANGE_MEDIUM                 , "Exchange Medium"},
+    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS       , "Initialize Element Status"},
+    {SCSI_SMC_INITIALIZE_ELEMENT_STATUS_RANGE , "Initialize Element Status With Range"},
     {SCSI_SPC2_INQUIRY                        , "Inquiry"},
     {SCSI_SPC2_LOGSELECT                      , "Log Select"},
     {SCSI_SPC2_LOGSENSE                       , "Log Sense"},
@@ -460,28 +461,28 @@ const value_string scsi_smc_vals[] = {
     {SCSI_SPC2_MODESELECT10                   , "Mode Select(10)"},
     {SCSI_SPC2_MODESENSE6                     , "Mode Sense(6)"},
     {SCSI_SPC2_MODESENSE10                    , "Mode Sense(10)"},
-    {SCSI_SMC2_MOVE_MEDIUM                    , "Move Medium"},
-    {SCSI_SMC2_MOVE_MEDIUM_ATTACHED           , "Move Medium Attached"},
-    {SCSI_SMC2_OPENCLOSE_ELEMENT              , "Open/Close Import/Export Element"},
+    {SCSI_SMC_MOVE_MEDIUM                     , "Move Medium"},
+    {SCSI_SMC_MOVE_MEDIUM_ATTACHED            , "Move Medium Attached"},
+    {SCSI_SMC_OPENCLOSE_ELEMENT               , "Open/Close Import/Export Element"},
     {SCSI_SPC2_PERSRESVIN                     , "Persistent Reserve In"},
     {SCSI_SPC2_PERSRESVOUT                    , "Persistent Reserve Out"},
-    {SCSI_SMC2_POSITION_TO_ELEMENT            , "Position To Element"},
+    {SCSI_SMC_POSITION_TO_ELEMENT             , "Position To Element"},
     {SCSI_SPC2_PREVMEDREMOVAL                 , "Prevent/Allow Medium Removal"},
-    {SCSI_SMC2_READ_ATTRIBUTE                 , "Read Attribute"},
-    {SCSI_SMC2_READ_ELEMENT_STATUS            , "Read Element Status"},
-    {SCSI_SMC2_READ_ELEMENT_STATUS_ATTACHED   , "Read Element Status Attached"},
+    {SCSI_SMC_READ_ATTRIBUTE                  , "Read Attribute"},
+    {SCSI_SMC_READ_ELEMENT_STATUS             , "Read Element Status"},
+    {SCSI_SMC_READ_ELEMENT_STATUS_ATTACHED    , "Read Element Status Attached"},
     {SCSI_SPC2_RELEASE6                       , "Release(6)"},
     {SCSI_SPC2_RELEASE10                      , "Release(10)"},
     {SCSI_SPC2_REPORTLUNS                     , "Report LUNs"},
-    {SCSI_SMC2_REPORT_VOLUME_TYPES_SUPPORTED  , "Report Volume Types Supported"},
+    {SCSI_SMC_REPORT_VOLUME_TYPES_SUPPORTED   , "Report Volume Types Supported"},
     {SCSI_SPC2_REQSENSE                       , "Request Sense"},
-    {SCSI_SMC2_REQUEST_VOLUME_ELEMENT_ADDRESS , "Request Volume Element Address"},
+    {SCSI_SMC_REQUEST_VOLUME_ELEMENT_ADDRESS  , "Request Volume Element Address"},
     {SCSI_SPC2_RESERVE6                       , "Reserve(6)"},
     {SCSI_SPC2_RESERVE10                      , "Reserve(10)"},
-    {SCSI_SMC2_SEND_VOLUME_TAG                , "Send Volume Tag"},
+    {SCSI_SMC_SEND_VOLUME_TAG                 , "Send Volume Tag"},
     {SCSI_SPC2_SENDDIAG                       , "Send Diagnostic"},
     {SCSI_SPC2_TESTUNITRDY                    , "Test Unit Ready"},
-    {SCSI_SMC2_WRITE_ATTRIBUTE                , "Write Attribute"},
+    {SCSI_SMC_WRITE_ATTRIBUTE                 , "Write Attribute"},
     {SCSI_SPC2_WRITEBUFFER                    , "Write Buffer"},
     {0, NULL},
 };
@@ -652,9 +653,9 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 /*SMC 0xa2*/{NULL},
 /*SMC 0xa3*/{NULL},
 /*SMC 0xa4*/{NULL},
-/*SMC 0xa5*/{dissect_smc2_movemedium},
+/*SMC 0xa5*/{dissect_smc_movemedium},
 /*SMC 0xa6*/{NULL},
-/*SMC 0xa7*/{dissect_smc2_movemedium},
+/*SMC 0xa7*/{dissect_smc_movemedium},
 /*SMC 0xa8*/{NULL},
 /*SMC 0xa9*/{NULL},
 /*SMC 0xaa*/{NULL},
@@ -667,11 +668,11 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 /*SMC 0xb1*/{NULL},
 /*SMC 0xb2*/{NULL},
 /*SMC 0xb3*/{NULL},
-/*SMC 0xb4*/{dissect_smc2_readelementstatus},
+/*SMC 0xb4*/{dissect_smc_readelementstatus},
 /*SMC 0xb5*/{NULL},
 /*SMC 0xb6*/{NULL},
 /*SMC 0xb7*/{NULL},
-/*SMC 0xb8*/{dissect_smc2_readelementstatus},
+/*SMC 0xb8*/{dissect_smc_readelementstatus},
 /*SMC 0xb9*/{NULL},
 /*SMC 0xba*/{NULL},
 /*SMC 0xbb*/{NULL},

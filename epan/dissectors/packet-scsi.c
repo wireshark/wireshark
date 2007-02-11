@@ -324,10 +324,10 @@ typedef guint32 scsi_cmnd_type;
 typedef guint32 scsi_device_type;
 
 /* Valid SCSI Command Types */
-#define SCSI_CMND_SPC2                   1
+#define SCSI_CMND_SPC                    1
 #define SCSI_CMND_SBC                    2
-#define SCSI_CMND_SSC2                   3
-#define SCSI_CMND_SMC2                   4
+#define SCSI_CMND_SSC                    3
+#define SCSI_CMND_SMC                    4
 #define SCSI_CMND_MMC                    5
 
 /* SPC and SPC-2 Commands */
@@ -934,14 +934,14 @@ static const value_string scsi_ssc2_modepage_val[] = {
     {0, NULL},
 };
 
-#define SCSI_SMC2_MODEPAGE_EAA      0x1D  /* element address assignment */
-#define SCSI_SMC2_MODEPAGE_TRANGEOM 0x1E  /* transport geometry parameters */
-#define SCSI_SMC2_MODEPAGE_DEVCAP   0x1F  /* device capabilities */
+#define SCSI_SMC_MODEPAGE_EAA      0x1D  /* element address assignment */
+#define SCSI_SMC_MODEPAGE_TRANGEOM 0x1E  /* transport geometry parameters */
+#define SCSI_SMC_MODEPAGE_DEVCAP   0x1F  /* device capabilities */
 
-static const value_string scsi_smc2_modepage_val[] = {
-    {SCSI_SMC2_MODEPAGE_EAA,      "Element Address Assignment"},
-    {SCSI_SMC2_MODEPAGE_TRANGEOM, "Transport Geometry Parameters"},
-    {SCSI_SMC2_MODEPAGE_DEVCAP,   "Device Capabilities"},
+static const value_string scsi_smc_modepage_val[] = {
+    {SCSI_SMC_MODEPAGE_EAA,      "Element Address Assignment"},
+    {SCSI_SMC_MODEPAGE_TRANGEOM, "Transport Geometry Parameters"},
+    {SCSI_SMC_MODEPAGE_DEVCAP,   "Device Capabilities"},
     {0x3F,                        "Return All Mode Pages"},
     {0, NULL},
 };
@@ -2985,14 +2985,14 @@ dissect_scsi_mmc5_modepage (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_smc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags;
     guint8 param_list_len;
 
     switch (pcode) {
-    case SCSI_SMC2_MODEPAGE_EAA:
+    case SCSI_SMC_MODEPAGE_EAA:
         param_list_len = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_text (tree, tvb, offset+2, 1, "Parameter List Length: %u",
                              param_list_len);
@@ -3036,9 +3036,9 @@ dissect_scsi_smc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset+17, 2, "Number of Data Transfer Elements: %u",
                              tvb_get_ntohs (tvb, offset+17));
         break;
-    case SCSI_SMC2_MODEPAGE_TRANGEOM:
+    case SCSI_SMC_MODEPAGE_TRANGEOM:
         return FALSE;
-    case SCSI_SMC2_MODEPAGE_DEVCAP:
+    case SCSI_SMC_MODEPAGE_DEVCAP:
         flags = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_text (tree, tvb, offset+2, 1,
                              "STORDT: %u, STORI/E: %u, STORST: %u, STORMT: %u",
@@ -3128,9 +3128,9 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case SCSI_DEV_SMC:
-            modepage_val = scsi_smc2_modepage_val;
+            modepage_val = scsi_smc_modepage_val;
             hf_pagecode = hf_scsi_smcpagecode;
-            dissect_modepage = dissect_scsi_smc2_modepage;
+            dissect_modepage = dissect_scsi_smc_modepage;
             break;
 
         case SCSI_DEV_CDROM:
@@ -4842,7 +4842,7 @@ proto_register_scsi (void)
            VALS (scsi_mmc5_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_smcpagecode,
           {"SMC-2 Page Code", "scsi.mode.smc.pagecode", FT_UINT8, BASE_HEX,
-           VALS (scsi_smc2_modepage_val), 0x3F, "", HFILL}},
+           VALS (scsi_smc_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_modesns_flags,
           {"Flags", "scsi.mode.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
