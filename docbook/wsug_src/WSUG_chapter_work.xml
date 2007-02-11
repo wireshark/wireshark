@@ -185,27 +185,16 @@
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy/ Hex and Text</command></entry>
+		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the packet bytes to the clipboard in hexdump-like format; similar to the Packet Bytes Pane 
-		"Copy/ All Information" command.
+		  Copy the packet bytes to the clipboard in hexdump-like format.
 		</para>
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy/ Text Only</command></entry>
-		<entry>-</entry>
-		<entry>
-		<para>
-		  Copy the packet bytes to the clipboard as ASCII text; similar to the Packet Bytes Pane 
-		"Copy/ Text Only" command.
-		</para>
-		</entry>
-		  </row>
-		  <row>
-		<entry><command>Copy/ Hex Columns</command></entry>
+		<entry><command>Copy/ Bytes (Offset Hex)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
@@ -214,7 +203,16 @@
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy/ Hex Stream</command></entry>
+		<entry><command>Copy/ Bytes (Printable Text Only)</command></entry>
+		<entry>-</entry>
+		<entry>
+		<para>
+		  Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters.
+		</para>
+		</entry>
+		  </row>
+		  <row>
+		<entry><command>Copy/ Bytes (Hex Stream)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
@@ -223,16 +221,7 @@
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy/ Base64 Stream</command></entry>
-		<entry>-</entry>
-		<entry>
-		<para>
-		  Copy the packet bytes to the clipboard as a Base64 text encoding.
-		</para>
-		</entry>
-		  </row>
-		  <row>
-		<entry><command>Copy/ Binary Stream</command></entry>
+		<entry><command>Copy/ Bytes (Binary Stream)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
@@ -241,6 +230,21 @@
 		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
 		</entry>
 		  </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+		</entry>
+	      </row>
 	      <row>
 		<entry>-----</entry>
 		<entry></entry>
@@ -340,7 +344,7 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>Copy</command></entry>
+		<entry><command>Copy/ Description</command></entry>
 		<entry>-</entry>
 		<entry>
 	    <para>
@@ -350,63 +354,76 @@
 		</entry>
 	      </row>
 		  <row>
-		<entry><command>Copy Selected Bytes As/ Hex and Text</command></entry>
+		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the selected packet bytes to the clipboard in hexdump-like format; similar to the Packet Bytes Pane 
-		"Copy/ All Information" command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
-		in the Packet Bytes Pane).
+		  Copy the packet bytes to the clipboard in hexdump-like format; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
 		</para>
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy Selected Bytes As/ Text Only</command></entry>
+		<entry><command>Copy/ Bytes (Offset Hex)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the selected packet bytes to the clipboard as ASCII text; similar to the Packet Bytes Pane 
-		"Copy/ Text Only" command, but copies only the bytes relevant to the selected part of the tree.
+		  Copy the packet bytes to the clipboard in hexdump-like format, but without the text portion; similar to the 		Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
 		</para>
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy Selected Bytes As/ Hex Columns</command></entry>
+		<entry><command>Copy/ Bytes (Printable Text Only)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the selected packet bytes to the clipboard in hexdump-like format, but without the text portion.
+		  Copy the packet bytes to the clipboard as ASCII text, excluding non-printable characters; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
 		</para>
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy Selected Bytes As/ Hex Stream</command></entry>
+		<entry><command>Copy/ Bytes (Hex Stream)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the selected packet bytes to the clipboard as an unpunctuated list of hex digits.
+		  Copy the packet bytes to the clipboard as an unpunctuated list of hex digits; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane).
 		</para>
 		</entry>
 		  </row>
 		  <row>
-		<entry><command>Copy Selected Bytes As/ Base64 Stream</command></entry>
+		<entry><command>Copy/ Bytes (Binary Stream)</command></entry>
 		<entry>-</entry>
 		<entry>
 		<para>
-		  Copy the selected packet bytes to the clipboard as a Base64 text encoding.
-		</para>
-		</entry>
-		  </row>
-		  <row>
-		<entry><command>Copy Selected Bytes As/ Binary Stream</command></entry>
-		<entry>-</entry>
-		<entry>
-		<para>
-		  Copy the selected packet bytes to the clipboard as raw binary. The data is stored in the
+		  Copy the packet bytes to the clipboard as raw binary; similar to the Packet List Pane 
+		  command, but copies only the bytes relevant to the selected part of the tree (the bytes selected
+		  in the Packet Bytes Pane). The data is stored in the
 		  clipboard as MIME-type "application/octet-stream".</para>
 		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
 		</entry>
 		  </row>
+	      <row>
+		<entry>-----</entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Export Selected Packet Bytes...</command></entry>
+		<entry>File</entry>
+		<entry>
+	    <para>
+	      This menu item is the same as the File menu item of the same 
+	      name. It allows you to export raw packet bytes to a binary file.
+	    </para>
+		</entry>
+	      </row>
 	      <row>
 		<entry>-----</entry>
 		<entry></entry>
@@ -530,69 +547,6 @@
 	</table>
   </section>
   
-  <section id="ChWorkPacketBytesPanePopUpMenuSection">
-    <title>Pop-up menu of the "Packet Bytes" pane</title>
-    <para>
-      <figure id="ChWorkPacketBytesPanePopUpMenu">
-	<title>Pop-up menu of the "Packet Bytes" pane</title>
-	<graphic entityref="WiresharkBytesPanePopupMenu" format="PNG"/>
-      </figure>
-	  </para>
-	  <para>
-	  The following table gives an overview of which functions are available 
-	  in this pane, where to find the corresponding function in the main menu, 
-	  and a short description of each item.
-	  </para>
-	<table id="PacketBytesPopupMenuTable">
-	  <title>The menu items of the "Packet Bytes" pop-up menu</title>
-	  <tgroup cols="3">
-		<colspec colnum="1" colwidth="80pt"/>
-		<colspec colnum="2" colwidth="80pt"/>
-	    <thead>
-	      <row>
-		<entry>Item</entry>
-		<entry>Identical to main menu's item:</entry>
-		<entry>Description</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry><command>Copy/ All Information</command></entry>
-		<entry>-</entry>
-		<entry>
-	    <para>
-	      Copy the packet data to the clipboard in hexdump format - as displayed in 
-		  the pane. All the packet data is copied - to copy only the selected data use the
-		  Packet Details Pane "Copy Selected Bytes" command.
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Copy/ Text Only</command></entry>
-		<entry>-</entry>
-		<entry>
-	    <para>
-	      Copy the packet data to the clipboard as ASCII text. Non-printable characters are
-		  replaced with '.'.All the packet data is copied - to copy only the selected data use the
-		  Packet Details Pane "Copy Selected Bytes" command.
-	    </para>
-		</entry>
-	      </row>
-	      <row>
-		<entry><command>Export Selected Packet Bytes...</command></entry>
-		<entry>File</entry>
-		<entry>
-	    <para>
-	      This menu item is the same as the File menu item of the same 
-	      name. It allows you to export raw packet bytes to a binary file.
-	    </para>
-		</entry>
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table>
-  </section>
-	
   </section>
   
   <section id="ChWorkDisplayFilterSection">
@@ -1529,4 +1483,5 @@ eth.src[1-2] == 00:83
 
 </chapter>
 <!-- End of WSUG Chapter Work -->
+
 

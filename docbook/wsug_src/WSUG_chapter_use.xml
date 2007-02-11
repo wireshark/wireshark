@@ -2168,10 +2168,6 @@
 	are displayed.
     </para>
     <para>
-	There is a context menu (right mouse click) available, see details in
-	<xref linkend="ChWorkPacketBytesPanePopUpMenu"/>.
-    </para>
-    <para>
 	Depending on the packet data, sometimes more than one page is available,
 	e.g. when Wireshark has reassembled some packets into a single chunk of
 	data, see <xref linkend="ChAdvReassemblySection"/>. In this case there are
