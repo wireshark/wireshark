@@ -48,6 +48,7 @@ static int proto_scsi_smc			= -1;
 int hf_scsi_smc_opcode				= -1;
 static int hf_scsi_smc_mta			= -1;
 static int hf_scsi_smc_sa			= -1;
+static int hf_scsi_smc_da			= -1;
 static int hf_scsi_smc_fda			= -1;
 static int hf_scsi_smc_sda			= -1;
 static int hf_scsi_smc_medium_flags		= -1;
@@ -58,9 +59,11 @@ static int hf_scsi_smc_fast			= -1;
 static int hf_scsi_smc_range			= -1;
 static int hf_scsi_smc_sea			= -1;
 static int hf_scsi_smc_num_elements		= -1;
+static int hf_scsi_smc_invert			= -1;
 
 static gint ett_scsi_exchange_medium		= -1;
 static gint ett_scsi_range			= -1;
+static gint ett_scsi_move			= -1;
 
 void
 dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
@@ -149,20 +152,21 @@ dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
+    static const int *move_fields[] = {
+        &hf_scsi_smc_invert,
+	NULL
+    };
 
-    if (tree && isreq && iscdb) {
-        proto_tree_add_text (tree, tvb, offset+1, 2,
-                             "Medium Transport Address: %u",
-                             tvb_get_ntohs (tvb, offset+1));
-        proto_tree_add_text (tree, tvb, offset+3, 2,
-                             "Source Address: %u",
-                             tvb_get_ntohs (tvb, offset+3));
-        proto_tree_add_text (tree, tvb, offset+5, 2,
-                             "Destination Address: %u",
-                             tvb_get_ntohs (tvb, offset+5));
-        flags = tvb_get_guint8 (tvb, offset+9);
-        proto_tree_add_text (tree, tvb, offset+9, 1,
-                             "INV: %u", flags & 0x01);
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+5, 2, 0);
+
+	proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_range_flags, ett_scsi_move, move_fields, FALSE);
+
         flags = tvb_get_guint8 (tvb, offset+10);
         proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
                                     flags,
@@ -858,6 +862,9 @@ proto_register_scsi_smc(void)
         { &hf_scsi_smc_sa,
           {"Source Address", "scsi.smc.sa", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
+        { &hf_scsi_smc_da,
+          {"Destination Address", "scsi.smc.da", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
         { &hf_scsi_smc_fda,
           {"First Destination Address", "scsi.smc.fda", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
@@ -888,13 +895,17 @@ proto_register_scsi_smc(void)
         { &hf_scsi_smc_num_elements,
           {"Number of Elements", "scsi.smc.num_elements", FT_UINT16, BASE_DEC,
            NULL, 0x0, "", HFILL}},
+	{ &hf_scsi_smc_invert,
+          {"INVERT", "scsi.smc.invert", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
 	};
 
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_scsi_exchange_medium,
-		&ett_scsi_range
+		&ett_scsi_range,
+		&ett_scsi_move
 	};
 
 	/* Register the protocol name and description */
