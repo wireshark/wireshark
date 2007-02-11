@@ -57,6 +57,7 @@
 #include <epan/packet.h>
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
+#include "main.h"
 
 #include <epan/uat-int.h>
 #include <epan/value_string.h>
@@ -78,13 +79,14 @@ struct _uat_rep_t {
     GtkWidget* scrolledwindow;
     GtkWidget* clist;
 	GtkWidget* bbox;
-	GtkWidget* bt_close;
 	GtkWidget* bt_new;
 	GtkWidget* bt_edit;
 	GtkWidget* bt_delete;
 	GtkWidget* bt_up;
 	GtkWidget* bt_down;
-	GtkWidget* bt_save;
+	GtkWidget* bt_apply;
+	GtkWidget* bt_cancel;
+	GtkWidget* bt_ok;
 	GtkWidget* unsaved_window;
 	
 	gint selected;
@@ -113,8 +115,6 @@ struct _uat_dlg_data {
 
 static gboolean unsaved_dialog(GtkWindow *w, GdkEvent* e, gpointer u);
 static gboolean uat_window_delete_event_cb(GtkWindow *w, GdkEvent* e, gpointer u);
-static gboolean uat_close_unchanged_cb(GtkWidget *w, void* u);
-static gboolean uat_close_changed_cb(GtkWidget *w, void* u);
 
 static void set_buttons(uat_t* uat, gint row) {
 	
@@ -131,20 +131,10 @@ static void set_buttons(uat_t* uat, gint row) {
 	}
 	
 	if (uat->changed) {
-		gtk_widget_set_sensitive (uat->rep->bt_save, TRUE);
-		
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->bt_close, uat_close_unchanged_cb, uat);
-		SIGNAL_CONNECT(uat->rep->bt_close, "clicked", uat_close_changed_cb, uat);
-		
 		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(uat->rep->window, "delete_event", unsaved_dialog, uat);
 		SIGNAL_CONNECT(uat->rep->window, "destroy", unsaved_dialog, uat);
 	} else {
-		gtk_widget_set_sensitive (uat->rep->bt_save, FALSE);
-		
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->bt_close, uat_close_changed_cb, uat);
-		SIGNAL_CONNECT(uat->rep->bt_close, "clicked", uat_close_unchanged_cb, uat);
-		
 		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "delete_event", uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "destroy", uat_window_delete_event_cb, uat);
@@ -630,25 +620,20 @@ static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
 
 static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	uat_t* uat = u;
-	uat_rep_t* rep = uat->rep;
-		
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-	gtk_widget_destroy(uat->rep->window);
 	
-	uat->rep = NULL;
-	if (rep) g_free(rep);
+	if (uat->rep) {
+		void* rep = uat->rep;
+		
+		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
+		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+
+		gtk_widget_destroy(uat->rep->window);
+
+		uat->rep = NULL;
+		if (rep) g_free(rep);
+	}
 	return TRUE;
 }
-
-static gboolean uat_close_unchanged_cb(GtkWidget *w _U_, void* u) {
-	return uat_window_delete_event_cb(NULL,NULL,u);
-}
-
-static gboolean uat_close_changed_cb(GtkWidget *w _U_, void* u) {
-	unsaved_dialog(NULL,NULL,u);
-	return TRUE;
-}
-
 
 static void uat_up_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
@@ -682,18 +667,59 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 	set_buttons(uat,row);
 }
 
-static void uat_save_cb(GtkButton *button _U_, gpointer u) {
+static void uat_cancel_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
 	gchar* err = NULL;
-
-	uat_save(uat,&err);
 	
-	if (err) {
-		report_failure("Error while saving %s: %s",uat->name,err);
+	if (uat->changed) {
+		uat_clear(uat);
+		uat_load(uat,&err);
+		
+		if (err) {
+			report_failure("Error while loading %s: %s",uat->name,err);
+		}
+
+		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 	}
 	
-	set_buttons(uat,-1);
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	gtk_widget_destroy(uat->rep->window);
+	g_free(uat->rep);
+	uat->rep = NULL;
 }
+
+static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
+	uat_t* uat = u;
+
+	uat_window_delete_event_cb(NULL,NULL,uat->rep->window);
+	
+	if (uat->changed && cfile.state == FILE_READ_DONE)
+		cf_reload(&cfile);
+}
+
+static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
+	uat_t* uat = u;
+	gchar* err = NULL;
+	
+	if (uat->changed) {
+		uat_save(uat,&err);
+		
+		if (err) {
+			report_failure("Error while saving %s: %s",uat->name,err);
+		}
+		
+		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
+	}
+	
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	gtk_widget_destroy(uat->rep->window);
+	g_free(uat->rep);
+	uat->rep = NULL;
+}
+
+
 
 static void remember_selected_row(GtkCList *clist _U_, gint row, gint column _U_, GdkEvent *event _U_, gpointer u) {
     uat_t* uat = u;
@@ -717,30 +743,41 @@ static void unremember_selected_row(GtkCList *clist _U_, gint row _U_, gint colu
 	gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
 }
 
-static void uat_yesclose_cb(GtkWindow *w _U_, void* u) {
+static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
 	uat_t* uat = u;
-	uat->rep->dont_save = TRUE;
+	gchar* err = NULL;
 	
 	window_delete_event_cb(uat->rep->unsaved_window,NULL,NULL);
+
+	uat_save(uat,&err);
+	
+	if (err) {
+		report_failure("Error while saving %s: %s",uat->name,err);
+	}
 	
 	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
 	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
 	window_destroy(uat->rep->window);
 	
-	uat->rep->unsaved_window = NULL;
 	g_free(uat->rep);
 	uat->rep = NULL;
 }
 
 
-static void uat_saveandclose_cb(GtkWindow *w, void* u) {
-	uat_save_cb(NULL,(uat_t*)u);
-	uat_yesclose_cb(w,u);
+static void uat_nosave_cb(GtkWindow *w _U_, void* u) {
+	uat_t* uat = u;
+	window_delete_event_cb(uat->rep->unsaved_window,NULL,NULL);
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
+	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	window_destroy(uat->rep->window);
+	
+	g_free(uat->rep);
+	uat->rep = NULL;
 }
 
 static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	GtkWidget *win, *vbox, *label, *bbox;
-	GtkWidget *save_bt, *close_bt;
+	GtkWidget *yes_bt, *no_bt;
 	gchar* message;
 	uat_t* uat  = u;
 	
@@ -761,21 +798,19 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	gtk_container_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 	
-	message  = ep_strdup_printf("Changes to '%s' are not going to be saved to disk!\n"
-								"Current changes will be active until wireshark is closed.\n"
-								"You may open '%s' again to save changes before closing wireshark.\n"
-								"Are you sure you want to close '%s' without saving?", uat->name, uat->name, uat->name);
+	message  = ep_strdup_printf("Changes to '%s' are not being saved!\n"
+								"Do you want to save '%s'?", uat->name, uat->name);
 	
 	label = gtk_label_new(message);
 	gtk_widget_show(label);
 
-	bbox = dlg_button_row_new(GTK_STOCK_SAVE,GTK_STOCK_CLOSE, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_YES,GTK_STOCK_NO, NULL);
 	
-	save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	yes_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_YES);
+	no_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_NO);
 	
-	SIGNAL_CONNECT(save_bt, "clicked", uat_saveandclose_cb, uat);
-	SIGNAL_CONNECT(close_bt, "clicked", uat_yesclose_cb, uat);
+	SIGNAL_CONNECT(no_bt, "clicked", uat_nosave_cb, uat);
+	SIGNAL_CONNECT(yes_bt, "clicked", uat_yessave_cb, uat);
 	
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
@@ -798,7 +833,7 @@ static GtkWidget* uat_window(void* u) {
 	uat_rep_t* rep;
 	guint i;
 	guint colnum;
-	GtkWidget *l_hbox, *c_hbox, *r_hbox;
+	GtkWidget *hbox, *vbox, *move_hbox, *edit_hbox;
 	
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -808,7 +843,16 @@ static GtkWidget* uat_window(void* u) {
 	}
 	
 	rep->window = window_new(GTK_WINDOW_TOPLEVEL, uat->name);
-	gtk_window_set_default_size(GTK_WINDOW(rep->window), 480, 320);
+	
+#if GTK_MAJOR_VERSION >= 2
+	gtk_window_set_resizable(GTK_WINDOW(rep->window),FALSE);
+    gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);
+#else
+	gtk_window_set_policy(GTK_WINDOW(rep->window), FALSE, FALSE, TRUE);
+	gtk_window_set_default_size(GTK_WINDOW(rep->window), 720, 512);
+    gtk_widget_set_usize(rep->window, 720, 512);
+#endif
+
 	
 #if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -822,8 +866,17 @@ static GtkWidget* uat_window(void* u) {
 	gtk_container_border_width(GTK_CONTAINER(rep->vbox), 6);
 	gtk_container_add(GTK_CONTAINER(rep->window), rep->vbox);
 
+	hbox = gtk_hbox_new(FALSE,12);
+	gtk_container_border_width(GTK_CONTAINER(hbox), 6);
+	gtk_container_add(GTK_CONTAINER(rep->vbox), hbox);
+	
+	vbox = gtk_vbox_new(FALSE, 12);
+	gtk_container_border_width(GTK_CONTAINER(vbox), 6);
+	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
+	
+	
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);
-	gtk_container_add(GTK_CONTAINER(rep->vbox), rep->scrolledwindow);
+	gtk_box_pack_start(GTK_BOX(hbox), rep->scrolledwindow, TRUE, TRUE, 0);
 
 #if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rep->scrolledwindow), GTK_SHADOW_IN);
@@ -854,75 +907,73 @@ static GtkWidget* uat_window(void* u) {
 	
 	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), rep->clist);
 
-	rep->bbox = gtk_hbox_new(FALSE, 0);
-    gtk_widget_show(rep->bbox);
+	rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 	
-	
-    l_hbox = gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(rep->bbox), l_hbox, TRUE, TRUE, 0);
-    gtk_widget_show(l_hbox);
-
-	c_hbox = gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(rep->bbox), c_hbox, TRUE, TRUE, 40);
-    gtk_widget_show(c_hbox);
-
-	r_hbox = gtk_hbutton_box_new();
-    gtk_box_pack_start(GTK_BOX(rep->bbox), r_hbox, TRUE, TRUE, 0);
-    gtk_widget_show(r_hbox);
-	
-	
-	
-	rep->bt_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
-	gtk_box_pack_end(GTK_BOX(l_hbox), rep->bt_down, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_down);
-	
-	rep->bt_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
-	gtk_box_pack_end(GTK_BOX(l_hbox), rep->bt_up, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_up);
-	
-	
-	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-	gtk_box_pack_start(GTK_BOX(c_hbox), rep->bt_new, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_new);
-	
-	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-	gtk_box_pack_start(GTK_BOX(c_hbox), rep->bt_edit, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_edit);
-
-	rep->bt_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
-	gtk_box_pack_end(GTK_BOX(c_hbox), rep->bt_delete, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_delete);
-
 #if (GLIB_MAJOR_VERSION >= 2)
 	if(uat->help) {
 		GtkWidget* help_btn;
-		help_btn = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
-		gtk_box_pack_start(GTK_BOX(r_hbox), help_btn, TRUE, TRUE, 0);
-		gtk_widget_show(help_btn);
+		rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+		help_btn = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_btn, "clicked", uat_help_cb, uat);
-	}
+	} else {
 #endif
-
-	rep->bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE);
-	gtk_box_pack_end(GTK_BOX(r_hbox), rep->bt_save, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_save);
+		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
+#if (GLIB_MAJOR_VERSION >= 2)
+	}	
+#endif
 	
-	rep->bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
-	gtk_box_pack_end(GTK_BOX(r_hbox), rep->bt_close, TRUE, TRUE, 0);
-    gtk_widget_show(rep->bt_close);
+	gtk_widget_show(rep->bbox);
 
+    move_hbox = gtk_vbutton_box_new();
+    gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);
+    gtk_widget_show(move_hbox);
+
+	edit_hbox = gtk_vbutton_box_new();
+    gtk_box_pack_end(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
+    gtk_widget_show(edit_hbox);	
 	
-	gtk_widget_show(l_hbox);
-    gtk_widget_show(c_hbox);
-    gtk_widget_show(r_hbox);
+	
+	rep->bt_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
+    gtk_widget_show(rep->bt_down);
+	
+	rep->bt_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+    gtk_widget_show(rep->bt_up);
+	
+	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_up, TRUE, FALSE, 5);
+	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_down, TRUE, FALSE, 5);
+	
+	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+    gtk_widget_show(rep->bt_new);
+	
+	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
+    gtk_widget_show(rep->bt_edit);
 
-	gtk_box_pack_start(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
+	rep->bt_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+    gtk_widget_show(rep->bt_delete);
+
+	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_edit, TRUE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
+
+	rep->bt_apply = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_APPLY);
+    gtk_widget_show(rep->bt_apply);
+	
+	rep->bt_cancel = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_CANCEL);
+    gtk_widget_show(rep->bt_cancel);
+
+	rep->bt_ok = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_OK);
+    gtk_widget_show(rep->bt_ok);
+	
+	
+	gtk_widget_show(move_hbox);
+    gtk_widget_show(edit_hbox);
+
+	gtk_box_pack_end(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
 
 	gtk_widget_set_sensitive (rep->bt_up, FALSE);
 	gtk_widget_set_sensitive (rep->bt_down, FALSE);
 	gtk_widget_set_sensitive (rep->bt_edit, FALSE);
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
-	gtk_widget_set_sensitive (rep->bt_save, uat->changed);
 	
 
 #if GTK_MAJOR_VERSION < 2
@@ -935,18 +986,18 @@ static GtkWidget* uat_window(void* u) {
 	SIGNAL_CONNECT(rep->bt_new, "clicked", uat_new_cb, uat);
 	SIGNAL_CONNECT(rep->bt_edit, "clicked", uat_edit_cb, uat);
 	SIGNAL_CONNECT(rep->bt_delete, "clicked", uat_delete_cb, uat);
+	
 	SIGNAL_CONNECT(rep->bt_up, "clicked", uat_up_cb, uat);
 	SIGNAL_CONNECT(rep->bt_down, "clicked", uat_down_cb, uat);
-	SIGNAL_CONNECT(rep->bt_save, "clicked", uat_save_cb, uat);
+	
+	SIGNAL_CONNECT(rep->bt_apply, "clicked", uat_apply_cb, uat);
+	SIGNAL_CONNECT(rep->bt_cancel, "clicked", uat_cancel_cb, uat);
+	SIGNAL_CONNECT(rep->bt_ok, "clicked", uat_ok_cb, uat);
 
 	if (uat->changed) {
-		gtk_widget_set_sensitive (uat->rep->bt_save, TRUE);
-		SIGNAL_CONNECT(rep->bt_close, "clicked", uat_close_changed_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", unsaved_dialog, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "destroy", unsaved_dialog, uat);		
 	} else {
-		gtk_widget_set_sensitive (uat->rep->bt_save, FALSE);
-		SIGNAL_CONNECT(rep->bt_close, "clicked", uat_close_unchanged_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "destroy", uat_window_delete_event_cb, uat);				
 	}
@@ -969,17 +1020,19 @@ void uat_window_cb(GtkWidget* u _U_, void* uat) {
  */
 static void add_uat_to_menu(void* u, void* user_data _U_) {
 	uat_t* uat = u;
-	register_stat_menu_item(uat->category ? ep_strdup_printf("%s/%s",uat->category,uat->name) : uat->name, 
-							REGISTER_USER_TABLES,
-							uat_window_cb,
-							NULL,
-							NULL,
-							uat);
+	register_stat_menu_item( uat->category ?
+								 ep_strdup_printf("%s/%s",uat->category,uat->name) :
+								 ep_strdup_printf(" %s",uat->name),
+							 REGISTER_USER_TABLES,
+							 uat_window_cb,
+							 NULL,
+							 NULL,
+							 uat);
 }
 
 
 void uat_init_menus(void) {
 	uat_foreach_table(add_uat_to_menu,NULL);
-
 }
+
 

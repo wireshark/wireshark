@@ -255,6 +255,21 @@ void uat_destroy(uat_t* uat) {
 	
 }
 
+void uat_clear(uat_t* uat) {
+	guint i;
+
+	for ( i = 0 ; i < uat->user_data->len ; i++ ) {
+		if (uat->free_cb) {
+			uat->free_cb(UAT_INDEX_PTR(uat,i));
+		}
+	}
+	
+	g_array_set_size(uat->user_data,0);
+	
+	*((uat)->user_ptr) = NULL;
+	*((uat)->nrows_p) = 0;
+}
+
 void* uat_dup(uat_t* uat, guint* len_p) {
 	guint size = (uat->record_size * uat->user_data->len);
 	*len_p = size;

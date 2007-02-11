@@ -79,6 +79,8 @@ void uat_remove_record_idx(uat_t*, guint rec_idx);
 
 void uat_destroy(uat_t*);
 
+void uat_clear(uat_t*);
+
 gboolean uat_save(uat_t* , char** );
 
 gboolean uat_load(uat_t* , char** );
