@@ -331,36 +331,38 @@ typedef guint32 scsi_device_type;
 #define SCSI_CMND_MMC                    5
 
 /* SPC and SPC-2 Commands */
-static const value_string scsi_spc2_vals[] = {
+static const value_string scsi_spc_vals[] = {
+    {SCSI_SPC_ACCESS_CONTROL_IN  , "Access Control In"},
+    {SCSI_SPC_ACCESS_CONTROL_OUT , "Access Control Out"},
     {SCSI_SPC_CHANGE_DEFINITION  , "Change Definition"},
     {SCSI_SPC_COMPARE            , "Compare"},
     {SCSI_SPC_COPY               , "Copy"},
     {SCSI_SPC_COPY_AND_VERIFY    , "Copy And Verify"},
-    {SCSI_SPC2_EXTCOPY           , "Extended Copy"},
-    {SCSI_SPC2_INQUIRY           , "Inquiry"},
-    {SCSI_SPC2_LOGSELECT         , "Log Select"},
-    {SCSI_SPC2_LOGSENSE          , "Log Sense"},
-    {SCSI_SPC2_MODESELECT6       , "Mode Select(6)"},
-    {SCSI_SPC2_MODESELECT10      , "Mode Select(10)"},
-    {SCSI_SPC2_MODESENSE6        , "Mode Sense(6)"},
-    {SCSI_SPC2_MODESENSE10       , "Mode Sense(10)"},
-    {SCSI_SPC2_PERSRESVIN        , "Persistent Reserve In"},
-    {SCSI_SPC2_PERSRESVOUT       , "Persistent Reserve Out"},
-    {SCSI_SPC2_PREVMEDREMOVAL    , "Prevent/Allow Medium Removal"},
-    {SCSI_SPC2_RCVCOPYRESULTS    , "Receive Copy Results"},
-    {SCSI_SPC2_RCVDIAGRESULTS    , "Receive Diagnostics Results"},
-    {SCSI_SPC2_READBUFFER        , "Read Buffer"},
-    {SCSI_SPC2_RELEASE6          , "Release(6)"},
-    {SCSI_SPC2_RELEASE10         , "Release(10)"},
-    {SCSI_SPC2_REPORTDEVICEID    , "Report Device ID"},
-    {SCSI_SPC2_REPORTLUNS        , "Report LUNs"},
-    {SCSI_SPC2_REQSENSE          , "Request Sense"},
-    {SCSI_SPC2_RESERVE6          , "Reserve(6)"},
-    {SCSI_SPC2_RESERVE10         , "Reserve(10)"},
-    {SCSI_SPC2_SENDDIAG          , "Send Diagnostic"},
-    {SCSI_SPC2_TESTUNITRDY       , "Test Unit Ready"},
-    {SCSI_SPC2_WRITEBUFFER       , "Write Buffer"},
-    {SCSI_SPC2_VARLENCDB         , "Variable Length CDB"},
+    {SCSI_SPC_EXTCOPY            , "Extended Copy"},
+    {SCSI_SPC_INQUIRY            , "Inquiry"},
+    {SCSI_SPC_LOGSELECT          , "Log Select"},
+    {SCSI_SPC_LOGSENSE           , "Log Sense"},
+    {SCSI_SPC_MODESELECT6        , "Mode Select(6)"},
+    {SCSI_SPC_MODESELECT10       , "Mode Select(10)"},
+    {SCSI_SPC_MODESENSE6         , "Mode Sense(6)"},
+    {SCSI_SPC_MODESENSE10        , "Mode Sense(10)"},
+    {SCSI_SPC_PERSRESVIN         , "Persistent Reserve In"},
+    {SCSI_SPC_PERSRESVOUT        , "Persistent Reserve Out"},
+    {SCSI_SPC_PREVMEDREMOVAL     , "Prevent/Allow Medium Removal"},
+    {SCSI_SPC_RCVCOPYRESULTS     , "Receive Copy Results"},
+    {SCSI_SPC_RCVDIAGRESULTS     , "Receive Diagnostics Results"},
+    {SCSI_SPC_READBUFFER         , "Read Buffer"},
+    {SCSI_SPC_RELEASE6           , "Release(6)"},
+    {SCSI_SPC_RELEASE10          , "Release(10)"},
+    {SCSI_SPC_REPORTDEVICEID     , "Report Device ID"},
+    {SCSI_SPC_REPORTLUNS         , "Report LUNs"},
+    {SCSI_SPC_REQSENSE           , "Request Sense"},
+    {SCSI_SPC_RESERVE6           , "Reserve(6)"},
+    {SCSI_SPC_RESERVE10          , "Reserve(10)"},
+    {SCSI_SPC_SENDDIAG           , "Send Diagnostic"},
+    {SCSI_SPC_TESTUNITRDY        , "Test Unit Ready"},
+    {SCSI_SPC_WRITEBUFFER        , "Write Buffer"},
+    {SCSI_SPC_VARLENCDB          , "Variable Length CDB"},
     {0, NULL},
 };
 
@@ -870,25 +872,25 @@ static const value_string scsi_modesns_pc_val[] = {
     {0, NULL},
 };
 
-#define SCSI_SPC2_MODEPAGE_CTL      0x0A
-#define SCSI_SPC2_MODEPAGE_DISCON   0x02
+#define SCSI_SPC_MODEPAGE_CTL      0x0A
+#define SCSI_SPC_MODEPAGE_DISCON   0x02
 #define SCSI_SCSI2_MODEPAGE_PERDEV  0x09  /* Obsolete in SPC-2; generic in SCSI-2 */
-#define SCSI_SPC2_MODEPAGE_INFOEXCP 0x1C
-#define SCSI_SPC2_MODEPAGE_PWR      0x1A
-#define SCSI_SPC2_MODEPAGE_LUN      0x18
-#define SCSI_SPC2_MODEPAGE_PORT     0x19
-#define SCSI_SPC2_MODEPAGE_VEND     0x00
+#define SCSI_SPC_MODEPAGE_INFOEXCP 0x1C
+#define SCSI_SPC_MODEPAGE_PWR      0x1A
+#define SCSI_SPC_MODEPAGE_LUN      0x18
+#define SCSI_SPC_MODEPAGE_PORT     0x19
+#define SCSI_SPC_MODEPAGE_VEND     0x00
 
-static const value_string scsi_spc2_modepage_val[] = {
-    {SCSI_SPC2_MODEPAGE_CTL,      "Control"},
-    {SCSI_SPC2_MODEPAGE_DISCON,   "Disconnect-Reconnect"},
-    {SCSI_SCSI2_MODEPAGE_PERDEV,  "Peripheral Device"},
-    {SCSI_SPC2_MODEPAGE_INFOEXCP, "Informational Exceptions Control"},
-    {SCSI_SPC2_MODEPAGE_PWR,      "Power Condition"},
-    {SCSI_SPC2_MODEPAGE_LUN,      "Protocol Specific LUN"},
-    {SCSI_SPC2_MODEPAGE_PORT,     "Protocol-Specific Port"},
-    {SCSI_SPC2_MODEPAGE_VEND,     "Vendor Specific Page"},
-    {0x3F,                        "Return All Mode Pages"},
+static const value_string scsi_spc_modepage_val[] = {
+    {SCSI_SPC_MODEPAGE_CTL,      "Control"},
+    {SCSI_SPC_MODEPAGE_DISCON,   "Disconnect-Reconnect"},
+    {SCSI_SCSI2_MODEPAGE_PERDEV, "Peripheral Device"},
+    {SCSI_SPC_MODEPAGE_INFOEXCP, "Informational Exceptions Control"},
+    {SCSI_SPC_MODEPAGE_PWR,      "Power Condition"},
+    {SCSI_SPC_MODEPAGE_LUN,      "Protocol Specific LUN"},
+    {SCSI_SPC_MODEPAGE_PORT,     "Protocol-Specific Port"},
+    {SCSI_SPC_MODEPAGE_VEND,     "Vendor Specific Page"},
+    {0x3F,                       "Return All Mode Pages"},
     {0, NULL},
 };
 
@@ -958,12 +960,12 @@ static const value_string scsi_mmc5_modepage_val[] = {
     {0, NULL},
 };
 
-#define SCSI_SPC2_RESVIN_SVCA_RDKEYS 0
-#define SCSI_SPC2_RESVIN_SVCA_RDRESV 1
+#define SCSI_SPC_RESVIN_SVCA_RDKEYS 0
+#define SCSI_SPC_RESVIN_SVCA_RDRESV 1
 
 static const value_string scsi_persresvin_svcaction_val[] = {
-    {SCSI_SPC2_RESVIN_SVCA_RDKEYS, "Read Keys"},
-    {SCSI_SPC2_RESVIN_SVCA_RDRESV, "Read Reservation"},
+    {SCSI_SPC_RESVIN_SVCA_RDKEYS, "Read Keys"},
+    {SCSI_SPC_RESVIN_SVCA_RDRESV, "Read Reservation"},
     {0, NULL},
 };
 
@@ -1879,7 +1881,7 @@ static const value_string inq_tpgs_vals[] = {
 
 /* This dissects byte 5 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
 static int
-dissect_spc3_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	guint8 flags;
 	proto_item *item=NULL;
@@ -1937,7 +1939,7 @@ dissect_spc3_inq_sccsflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 /* This dissects byte 6 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
 static int
-dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	guint8 flags;
 	proto_item *item=NULL;
@@ -1990,7 +1992,7 @@ dissect_spc3_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 /* This dissects byte 7 of the SPC-3 standard INQ data (SPC-3 6.4.2) */
 static int
-dissect_spc3_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	guint8 flags;
 	proto_item *item=NULL;
@@ -2037,7 +2039,7 @@ dissect_spc3_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 void
-dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       guint offset, gboolean isreq, gboolean iscdb,
                       guint32 payload_len, scsi_task_data_t *cdata)
 {
@@ -2142,13 +2144,13 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset+=1;
 
 	/* sccs flags */
-	offset=dissect_spc3_inq_sccsflags(tvb, offset, tree);
+	offset=dissect_spc_inq_sccsflags(tvb, offset, tree);
 
 	/* bque flags */
-	offset=dissect_spc3_inq_bqueflags(tvb, offset, tree);
+	offset=dissect_spc_inq_bqueflags(tvb, offset, tree);
 
 	/* reladdr flags */
-	offset=dissect_spc3_inq_reladrflags(tvb, offset, tree);
+	offset=dissect_spc_inq_reladrflags(tvb, offset, tree);
 
 	/* vendor id */
 	proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb, offset, 8, 0);
@@ -2182,7 +2184,7 @@ dissect_spc3_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc3_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_spc_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 		      proto_tree *tree _U_, guint offset _U_,
 		      gboolean isreq _U_, gboolean iscdb _U_,
                       guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -2300,7 +2302,7 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc3_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -2349,7 +2351,7 @@ static const true_false_string scsi_log_sp_tfs = {
 };
 
 void
-dissect_spc3_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -2464,13 +2466,13 @@ dissect_scsi_blockdescs (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static gboolean
-dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_scsi_spc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
 		            proto_tree *tree, guint offset, guint8 pcode)
 {
     guint8 flags, proto;
 
     switch (pcode) {
-    case SCSI_SPC2_MODEPAGE_CTL:
+    case SCSI_SPC_MODEPAGE_CTL:
         flags = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_item (tree, hf_scsi_modesns_tst, tvb, offset+2, 1, 0);
         proto_tree_add_text (tree, tvb, offset+2, 1,
@@ -2500,7 +2502,7 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "Extended Self-Test Completion Time: %u",
                              tvb_get_ntohs (tvb, offset+10));
         break;
-    case SCSI_SPC2_MODEPAGE_DISCON:
+    case SCSI_SPC_MODEPAGE_DISCON:
         proto_tree_add_text (tree, tvb, offset+2, 1, "Buffer Full Ratio: %u",
                              tvb_get_guint8 (tvb, offset+2));
         proto_tree_add_text (tree, tvb, offset+3, 1, "Buffer Empty Ratio: %u",
@@ -2523,7 +2525,7 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "First Burst Size: %u bytes",
                              tvb_get_ntohs (tvb, offset+14)*512);
         break;
-    case SCSI_SPC2_MODEPAGE_INFOEXCP:
+    case SCSI_SPC_MODEPAGE_INFOEXCP:
         flags = tvb_get_guint8 (tvb, offset+2);
         proto_tree_add_text (tree, tvb, offset+2, 1,
                              "Perf: %u, EBF: %u, EWasc: %u, DExcpt: %u, Test: %u, LogErr: %u",
@@ -2542,7 +2544,7 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree_add_text (tree, tvb, offset+8, 4, "Report Count: %u",
                              tvb_get_ntohl (tvb, offset+8));
         break;
-    case SCSI_SPC2_MODEPAGE_PWR:
+    case SCSI_SPC_MODEPAGE_PWR:
         flags = tvb_get_guint8 (tvb, offset+3);
         proto_tree_add_text (tree, tvb, offset+3, 1, "Idle: %u, Standby: %u",
                              (flags & 0x2) >> 1, (flags & 0x1));
@@ -2553,9 +2555,9 @@ dissect_scsi_spc2_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              "Standby Condition Timer: %u ms",
                              tvb_get_ntohs (tvb, offset+6) * 100);
         break;
-    case SCSI_SPC2_MODEPAGE_LUN:
+    case SCSI_SPC_MODEPAGE_LUN:
         return FALSE;
-    case SCSI_SPC2_MODEPAGE_PORT:
+    case SCSI_SPC_MODEPAGE_PORT:
         proto = tvb_get_guint8 (tvb, offset+2) & 0x0F;
         proto_tree_add_item (tree, hf_scsi_protocol, tvb, offset+2, 1, 0);
         if (proto == SCSI_PROTO_FCP) {
@@ -3108,7 +3110,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
     plen = tvb_get_guint8 (tvb, offset+1);
 
     if (match_strval (pcode & SCSI_MS_PCODE_BITS,
-                      scsi_spc2_modepage_val) == NULL) {
+                      scsi_spc_modepage_val) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
          * device types; try to interpret it based on what we deduced,
@@ -3145,15 +3147,15 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
              * (it failed in "match_strval()"), so it'll return
              * "Unknown (XXX)", which is what we want.
              */
-            modepage_val = scsi_spc2_modepage_val;
+            modepage_val = scsi_spc_modepage_val;
             hf_pagecode = hf_scsi_spcpagecode;
-            dissect_modepage = dissect_scsi_spc2_modepage;
+            dissect_modepage = dissect_scsi_spc_modepage;
             break;
 	}
     } else {
-        modepage_val = scsi_spc2_modepage_val;
+        modepage_val = scsi_spc_modepage_val;
         hf_pagecode = hf_scsi_spcpagecode;
-        dissect_modepage = dissect_scsi_spc2_modepage;
+        dissect_modepage = dissect_scsi_spc_modepage;
     }
     ti = proto_tree_add_text (scsi_tree, tvb, offset, plen+2, "%s Mode Page",
                               val_to_str (pcode & SCSI_MS_PCODE_BITS,
@@ -3179,7 +3181,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
@@ -3277,7 +3279,7 @@ dissect_spc3_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc3_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len, scsi_task_data_t *cdata)
 {
@@ -3399,7 +3401,7 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     pcode = tvb_get_guint8 (tvb, offset);
     if ((valstr = match_strval (pcode & SCSI_MS_PCODE_BITS,
-                                scsi_spc2_modepage_val)) == NULL) {
+                                scsi_spc_modepage_val)) == NULL) {
         /*
          * This isn't a generic mode page that applies to all SCSI
          * device types; try to interpret it based on what we deduced,
@@ -3433,7 +3435,7 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
 {
@@ -3526,7 +3528,7 @@ dissect_spc3_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
@@ -3626,7 +3628,7 @@ dissect_spc3_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3650,7 +3652,7 @@ dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 void
-dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
 {
@@ -3688,7 +3690,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                              len);
         len = (payload_len > len) ? len : payload_len;
 
-        if ((flags & 0x1F) == SCSI_SPC2_RESVIN_SVCA_RDKEYS) {
+        if ((flags & 0x1F) == SCSI_SPC_RESVIN_SVCA_RDKEYS) {
 	    /* XXX - what if len is < 8?  That may be illegal, but
 	       that doesn't make it impossible.... */
             numrec = len / 8;
@@ -3700,7 +3702,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                 offset += 8;
             }
         }
-        else if ((flags & 0x1F) == SCSI_SPC2_RESVIN_SVCA_RDRESV) {
+        else if ((flags & 0x1F) == SCSI_SPC_RESVIN_SVCA_RDRESV) {
             proto_tree_add_item (tree, hf_scsi_persresv_key, tvb, offset+8,
                                  8, 0);
             proto_tree_add_item (tree, hf_scsi_persresv_scopeaddr, tvb,
@@ -3714,7 +3716,7 @@ dissect_spc3_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 void
-dissect_spc3_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3741,7 +3743,7 @@ dissect_spc3_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 void
-dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3760,7 +3762,7 @@ dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc2_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3791,7 +3793,7 @@ dissect_spc2_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_spc3_reportdeviceidentifier (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_spc_reportdeviceidentifier (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 proto_tree *tree _U_,
                   guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
                   guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -3800,7 +3802,7 @@ proto_tree *tree _U_,
 }
 
 void
-dissect_spc3_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                          guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3877,7 +3879,7 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 }
 
 void
-dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3900,7 +3902,7 @@ dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 void
-dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                        guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3919,7 +3921,7 @@ dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc2_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3950,7 +3952,7 @@ dissect_spc2_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3974,7 +3976,7 @@ dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 
 void
-dissect_spc3_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -3998,7 +4000,7 @@ dissect_spc3_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 void
-dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                           guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -4144,10 +4146,10 @@ dissect_scsi_snsinfo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static scsi_cdb_table_t spc[256] = {
-/*SPC 0x00*/{dissect_spc3_testunitready},
+/*SPC 0x00*/{dissect_spc_testunitready},
 /*SPC 0x01*/{NULL},
 /*SPC 0x02*/{NULL},
-/*SPC 0x03*/{dissect_spc3_requestsense},
+/*SPC 0x03*/{dissect_spc_requestsense},
 /*SPC 0x04*/{NULL},
 /*SPC 0x05*/{NULL},
 /*SPC 0x06*/{NULL},
@@ -4162,19 +4164,19 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x0f*/{NULL},
 /*SPC 0x10*/{NULL},
 /*SPC 0x11*/{NULL},
-/*SPC 0x12*/{dissect_spc3_inquiry},
+/*SPC 0x12*/{dissect_spc_inquiry},
 /*SPC 0x13*/{NULL},
 /*SPC 0x14*/{NULL},
-/*SPC 0x15*/{dissect_spc3_modeselect6},
-/*SPC 0x16*/{dissect_spc2_reserve6},
-/*SPC 0x17*/{dissect_spc2_release6},
+/*SPC 0x15*/{dissect_spc_modeselect6},
+/*SPC 0x16*/{dissect_spc_reserve6},
+/*SPC 0x17*/{dissect_spc_release6},
 /*SPC 0x18*/{NULL},
 /*SPC 0x19*/{NULL},
-/*SPC 0x1a*/{dissect_spc3_modesense6},
+/*SPC 0x1a*/{dissect_spc_modesense6},
 /*SPC 0x1b*/{NULL},
 /*SPC 0x1c*/{NULL},
-/*SPC 0x1d*/{dissect_spc3_senddiagnostic},
-/*SPC 0x1e*/{dissect_spc3_preventallowmediaremoval},
+/*SPC 0x1d*/{dissect_spc_senddiagnostic},
+/*SPC 0x1e*/{dissect_spc_preventallowmediaremoval},
 /*SPC 0x1f*/{NULL},
 /*SPC 0x20*/{NULL},
 /*SPC 0x21*/{NULL},
@@ -4203,7 +4205,7 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x38*/{NULL},
 /*SPC 0x39*/{NULL},
 /*SPC 0x3a*/{NULL},
-/*SPC 0x3b*/{dissect_spc3_writebuffer},
+/*SPC 0x3b*/{dissect_spc_writebuffer},
 /*SPC 0x3c*/{NULL},
 /*SPC 0x3d*/{NULL},
 /*SPC 0x3e*/{NULL},
@@ -4220,8 +4222,8 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x49*/{NULL},
 /*SPC 0x4a*/{NULL},
 /*SPC 0x4b*/{NULL},
-/*SPC 0x4c*/{dissect_spc3_logselect},
-/*SPC 0x4d*/{dissect_spc3_logsense},
+/*SPC 0x4c*/{dissect_spc_logselect},
+/*SPC 0x4d*/{dissect_spc_logsense},
 /*SPC 0x4e*/{NULL},
 /*SPC 0x4f*/{NULL},
 /*SPC 0x50*/{NULL},
@@ -4229,17 +4231,17 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x52*/{NULL},
 /*SPC 0x53*/{NULL},
 /*SPC 0x54*/{NULL},
-/*SPC 0x55*/{dissect_spc3_modeselect10},
-/*SPC 0x56*/{dissect_spc2_reserve10},
-/*SPC 0x57*/{dissect_spc2_release10},
+/*SPC 0x55*/{dissect_spc_modeselect10},
+/*SPC 0x56*/{dissect_spc_reserve10},
+/*SPC 0x57*/{dissect_spc_release10},
 /*SPC 0x58*/{NULL},
 /*SPC 0x59*/{NULL},
-/*SPC 0x5a*/{dissect_spc3_modesense10},
+/*SPC 0x5a*/{dissect_spc_modesense10},
 /*SPC 0x5b*/{NULL},
 /*SPC 0x5c*/{NULL},
 /*SPC 0x5d*/{NULL},
-/*SPC 0x5e*/{dissect_spc3_persistentreservein},
-/*SPC 0x5f*/{dissect_spc3_persistentreserveout},
+/*SPC 0x5e*/{dissect_spc_persistentreservein},
+/*SPC 0x5f*/{dissect_spc_persistentreserveout},
 /*SPC 0x60*/{NULL},
 /*SPC 0x61*/{NULL},
 /*SPC 0x62*/{NULL},
@@ -4275,7 +4277,7 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x80*/{NULL},
 /*SPC 0x81*/{NULL},
 /*SPC 0x82*/{NULL},
-/*SPC 0x83*/{dissect_spc3_extcopy},
+/*SPC 0x83*/{dissect_spc_extcopy},
 /*SPC 0x84*/{NULL},
 /*SPC 0x85*/{NULL},
 /*SPC 0x86*/{NULL},
@@ -4304,10 +4306,10 @@ static scsi_cdb_table_t spc[256] = {
 /*SPC 0x9d*/{NULL},
 /*SPC 0x9e*/{NULL},
 /*SPC 0x9f*/{NULL},
-/*SPC 0xa0*/{dissect_spc3_reportluns},
+/*SPC 0xa0*/{dissect_spc_reportluns},
 /*SPC 0xa1*/{NULL},
 /*SPC 0xa2*/{NULL},
-/*SPC 0xa3*/{dissect_spc3_reportdeviceidentifier},
+/*SPC 0xa3*/{dissect_spc_reportdeviceidentifier},
 /*SPC 0xa4*/{NULL},
 /*SPC 0xa5*/{NULL},
 /*SPC 0xa6*/{NULL},
@@ -4443,7 +4445,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    if ((valstr = match_strval (opcode, scsi_spc2_vals)) == NULL) {
+    if ((valstr = match_strval (opcode, scsi_spc_vals)) == NULL) {
         valstr = match_strval(opcode, csdata->cdb_vals);
     }
 
@@ -4694,8 +4696,8 @@ dissect_the_payload:
 	 * We assume opcode 0x12 is always INQUIRY regardless of the
 	 * commandset used.
 	 */
-        if (opcode == SCSI_SPC2_INQUIRY) {
-            dissect_spc3_inquiry (next_tvb, pinfo, scsi_tree, offset, isreq,
+        if (opcode == SCSI_SPC_INQUIRY) {
+            dissect_spc_inquiry (next_tvb, pinfo, scsi_tree, offset, isreq,
                                   FALSE, payload_len, cdata);
         }
     } else {
@@ -4767,7 +4769,7 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
         break;
     default:
         csdata->hf_opcode=hf_scsi_spcopcode;
-        csdata->cdb_vals=scsi_spc2_vals;
+        csdata->cdb_vals=scsi_spc_vals;
         csdata->cdb_table=spc;
         break;
     }
@@ -4791,7 +4793,7 @@ proto_register_scsi (void)
 	   VALS(scsi_status_val), 0, "SCSI command status value", HFILL }},
         { &hf_scsi_spcopcode,
           {"SPC-2 Opcode", "scsi.spc.opcode", FT_UINT8, BASE_HEX,
-           VALS (scsi_spc2_vals), 0x0, "", HFILL}},
+           VALS (scsi_spc_vals), 0x0, "", HFILL}},
         { &hf_scsi_control,
           {"Control", "scsi.cdb.control", FT_UINT8, BASE_HEX, NULL, 0x0, "",
            HFILL}},
@@ -4830,7 +4832,7 @@ proto_register_scsi (void)
            VALS (scsi_modesns_pc_val), 0xC0, "", HFILL}},
         { &hf_scsi_spcpagecode,
           {"SPC-2 Page Code", "scsi.mode.spc.pagecode", FT_UINT8, BASE_HEX,
-           VALS (scsi_spc2_modepage_val), 0x3F, "", HFILL}},
+           VALS (scsi_spc_modepage_val), 0x3F, "", HFILL}},
         { &hf_scsi_sbcpagecode,
           {"SBC-2 Page Code", "scsi.mode.sbc.pagecode", FT_UINT8, BASE_HEX,
            VALS (scsi_sbc_modepage_val), 0x3F, "", HFILL}},
@@ -5021,46 +5023,46 @@ proto_register_scsi (void)
           {"SKSV", "scsi.sns.sksv", FT_BOOLEAN, BASE_HEX, NULL, 0x80, "",
            HFILL}},
         { &hf_scsi_persresv_key,
-          {"Reservation Key", "scsi.spc2.resv.key", FT_BYTES, BASE_HEX, NULL,
+          {"Reservation Key", "scsi.spc.resv.key", FT_BYTES, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_scsi_persresv_scopeaddr,
-          {"Scope Address", "scsi.spc2.resv.scopeaddr", FT_BYTES, BASE_HEX, NULL,
+          {"Scope Address", "scsi.spc.resv.scopeaddr", FT_BYTES, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_scsi_add_cdblen,
-          {"Additional CDB Length", "scsi.spc2.addcdblen", FT_UINT8, BASE_DEC,
+          {"Additional CDB Length", "scsi.spc.addcdblen", FT_UINT8, BASE_DEC,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_svcaction,
-          {"Service Action", "scsi.spc2.svcaction", FT_UINT16, BASE_HEX, NULL,
+          {"Service Action", "scsi.spc.svcaction", FT_UINT16, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_scsi_wb_mode,
-          {"Mode", "scsi.spc2.wb.mode", FT_UINT8, BASE_HEX,
+          {"Mode", "scsi.spc.wb.mode", FT_UINT8, BASE_HEX,
            VALS (scsi_wb_mode_val), 0xF, "", HFILL}},
         { &hf_scsi_wb_bufferid,
-          {"Buffer ID", "scsi.spc2.sb.bufid", FT_UINT8, BASE_DEC, NULL, 0x0,
+          {"Buffer ID", "scsi.spc.sb.bufid", FT_UINT8, BASE_DEC, NULL, 0x0,
            "", HFILL}},
         { &hf_scsi_wb_bufoffset,
-          {"Buffer Offset", "scsi.spc2.wb.bufoff", FT_UINT24, BASE_HEX, NULL,
+          {"Buffer Offset", "scsi.spc.wb.bufoff", FT_UINT24, BASE_HEX, NULL,
            0x0, "", HFILL}},
         { &hf_scsi_paramlen24,
           {"Paremeter List Length", "scsi.cdb.paramlen24", FT_UINT24, BASE_HEX,
            NULL, 0x0, "", HFILL}},
         { &hf_scsi_senddiag_st_code,
-          {"Self-Test Code", "scsi.spc2.senddiag.code", FT_UINT8, BASE_HEX,
+          {"Self-Test Code", "scsi.spc.senddiag.code", FT_UINT8, BASE_HEX,
            VALS (scsi_senddiag_st_code_val), 0xE0, "", HFILL}},
         { &hf_scsi_select_report,
-          {"Select Report", "scsi.spc2.select_report", FT_UINT8, BASE_HEX,
+          {"Select Report", "scsi.spc.select_report", FT_UINT8, BASE_HEX,
            VALS (scsi_select_report_val), 0x00, "", HFILL}},
         { &hf_scsi_senddiag_pf,
-          {"PF", "scsi.spc2.senddiag.pf", FT_BOOLEAN, BASE_HEX,
+          {"PF", "scsi.spc.senddiag.pf", FT_BOOLEAN, BASE_HEX,
            TFS (&scsi_senddiag_pf_val), 0x10, "", HFILL}},
         { &hf_scsi_senddiag_st,
-          {"Self Test", "scsi.spc2.senddiag.st", FT_BOOLEAN, BASE_HEX, NULL,
+          {"Self Test", "scsi.spc.senddiag.st", FT_BOOLEAN, BASE_HEX, NULL,
            0x4, "", HFILL}},
         { &hf_scsi_senddiag_devoff,
-          {"Device Offline", "scsi.spc2.senddiag.devoff", FT_BOOLEAN, BASE_HEX,
+          {"Device Offline", "scsi.spc.senddiag.devoff", FT_BOOLEAN, BASE_HEX,
            NULL, 0x2, "", HFILL}},
         { &hf_scsi_senddiag_unitoff,
-          {"Unit Offline", "scsi.spc2.senddiag.unitoff", FT_BOOLEAN, BASE_HEX,
+          {"Unit Offline", "scsi.spc.senddiag.unitoff", FT_BOOLEAN, BASE_HEX,
            NULL, 0x1, "", HFILL}},
 	{ &hf_scsi_request_frame,
 	  { "Request in", "scsi.request_frame", FT_FRAMENUM, BASE_NONE, NULL, 0,

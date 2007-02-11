@@ -106,58 +106,60 @@ typedef struct _scsi_cdb_table_t {
 } scsi_cdb_table_t;
 
 
-/* SPC and SPC-2 Commands */
+/* SPC Commands */
+#define SCSI_SPC_ACCESS_CONTROL_IN	 0x85
+#define SCSI_SPC_ACCESS_CONTROL_OUT	 0x87
 #define SCSI_SPC_CHANGE_DEFINITION       0x40
 #define SCSI_SPC_COMPARE                 0x39
 #define SCSI_SPC_COPY                    0x18
 #define SCSI_SPC_COPY_AND_VERIFY         0x3A
-#define SCSI_SPC2_INQUIRY                0x12
-#define SCSI_SPC2_EXTCOPY                0x83
-#define SCSI_SPC2_LOGSELECT              0x4C
-#define SCSI_SPC2_LOGSENSE               0x4D
-#define SCSI_SPC2_MODESELECT6            0x15
-#define SCSI_SPC2_MODESELECT10           0x55
-#define SCSI_SPC2_MODESENSE6             0x1A
-#define SCSI_SPC2_MODESENSE10            0x5A
-#define SCSI_SPC2_PERSRESVIN             0x5E
-#define SCSI_SPC2_PERSRESVOUT            0x5F
-#define SCSI_SPC2_PREVMEDREMOVAL         0x1E
-#define SCSI_SPC2_READBUFFER             0x3C
-#define SCSI_SPC2_RCVCOPYRESULTS         0x84
-#define SCSI_SPC2_RCVDIAGRESULTS         0x1C
-#define SCSI_SPC2_RELEASE6               0x17
-#define SCSI_SPC2_RELEASE10              0x57
-#define SCSI_SPC2_REPORTDEVICEID         0xA3
-#define SCSI_SPC2_REPORTLUNS             0xA0
-#define SCSI_SPC2_REQSENSE               0x03
-#define SCSI_SPC2_RESERVE6               0x16
-#define SCSI_SPC2_RESERVE10              0x56
-#define SCSI_SPC2_SENDDIAG               0x1D
-#define SCSI_SPC2_SETDEVICEID            0xA4
-#define SCSI_SPC2_TESTUNITRDY            0x00
-#define SCSI_SPC2_WRITEBUFFER            0x3B
-#define SCSI_SPC2_VARLENCDB              0x7F
+#define SCSI_SPC_INQUIRY                 0x12
+#define SCSI_SPC_EXTCOPY                 0x83
+#define SCSI_SPC_LOGSELECT               0x4C
+#define SCSI_SPC_LOGSENSE                0x4D
+#define SCSI_SPC_MODESELECT6             0x15
+#define SCSI_SPC_MODESELECT10            0x55
+#define SCSI_SPC_MODESENSE6              0x1A
+#define SCSI_SPC_MODESENSE10             0x5A
+#define SCSI_SPC_PERSRESVIN              0x5E
+#define SCSI_SPC_PERSRESVOUT             0x5F
+#define SCSI_SPC_PREVMEDREMOVAL          0x1E
+#define SCSI_SPC_READBUFFER              0x3C
+#define SCSI_SPC_RCVCOPYRESULTS          0x84
+#define SCSI_SPC_RCVDIAGRESULTS          0x1C
+#define SCSI_SPC_RELEASE6                0x17
+#define SCSI_SPC_RELEASE10               0x57
+#define SCSI_SPC_REPORTDEVICEID          0xA3
+#define SCSI_SPC_REPORTLUNS              0xA0
+#define SCSI_SPC_REQSENSE                0x03
+#define SCSI_SPC_RESERVE6                0x16
+#define SCSI_SPC_RESERVE10               0x56
+#define SCSI_SPC_SENDDIAG                0x1D
+#define SCSI_SPC_SETDEVICEID             0xA4
+#define SCSI_SPC_TESTUNITRDY             0x00
+#define SCSI_SPC_WRITEBUFFER             0x3B
+#define SCSI_SPC_VARLENCDB               0x7F
 
-void dissect_spc3_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
-void dissect_spc3_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc2_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc2_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc2_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc2_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
-void dissect_spc3_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_inquiry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint32 payload_len, scsi_task_data_t *cdata);
+void dissect_spc_logselect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_logsense(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_modeselect6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modesense6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modeselect10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc_modesense10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc_persistentreservein(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len, scsi_task_data_t *cdata);
+void dissect_spc_persistentreserveout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb _U_, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
+void dissect_spc_extcopy (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset, gboolean isreq, gboolean iscdb, guint payload_len _U_, scsi_task_data_t *cdata _U_);
 
 
 
@@ -234,7 +236,7 @@ extern const value_string scsi_devid_idtype_val[];
  * and if a ReportedBoundsError is generated we will instead throw
  * ScsiBoundsError
  *
- * Please see dissect_spc3_inquiry() for an example how to use these
+ * Please see dissect_spc_inquiry() for an example how to use these
  * macros.
  */
 #define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
