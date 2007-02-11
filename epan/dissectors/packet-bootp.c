@@ -1985,7 +1985,6 @@ dissect_vendor_tr111_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
-	int suboptleft;
 
 	/* Reference: TR-111 DHCP Option 125 Sub-Option Data Fields
            Page 10. 
