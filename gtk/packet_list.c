@@ -904,23 +904,34 @@ void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summ
 {
     gint row;
     gint col;
-    gchar separator;
     gchar* celltext = NULL;
+    GString* text;
 
-    GString* text = g_string_new("");
-    separator = (CS_CSV == copy_type) ? ',' : '\t';
+	if(CS_CSV == copy_type) {
+		text = g_string_new("\"");
+	} else {
+		text = g_string_new("");
+	}
+
     if (cfile.current_frame) {
         /* XXX hum, should better have a "cfile->current_row" here ... */
         row = eth_clist_find_row_from_data(ETH_CLIST(packet_list),
 			        cfile.current_frame);
         for(col = 0; col < cfile.cinfo.num_cols; ++col) {
             if(col != 0) {
-                g_string_append_c(text,separator);
+				if(CS_CSV == copy_type) {
+					g_string_append_printf(text,"\",\"");
+				} else {
+					g_string_append_c(text, '\t');
+				}
             }
             if(0 != eth_clist_get_text(ETH_CLIST(packet_list),row,col,&celltext)) {
                 g_string_append(text,celltext);
             }
         }
+		if(CS_CSV == copy_type) {
+			g_string_append_c(text,'"');
+		}
         copy_to_clipboard(text);
     }
     g_string_free(text,TRUE);
