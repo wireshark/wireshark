@@ -310,8 +310,8 @@ static int hf_pn_io_maintenance_required_power_budget = -1;
 static int hf_pn_io_maintenance_demanded_power_budget = -1;
 static int hf_pn_io_error_power_budget = -1;
 
-static int hf_pn_io_fiber_optic = -1;
-static int hf_pn_io_fiber_optic_cable = -1;
+static int hf_pn_io_fiber_optic_type = -1;
+static int hf_pn_io_fiber_optic_cable_type = -1;
 
 static int hf_pn_io_controller_appl_cycle_factor = -1;
 static int hf_pn_io_time_data_cycle = -1;
@@ -326,6 +326,7 @@ static int hf_pn_io_maintenance_status_demanded = -1;
 
 static int hf_pn_io_vendor_id_high = -1;
 static int hf_pn_io_vendor_id_low = -1;
+static int hf_pn_io_vendor_block_type = -1;
 static int hf_pn_io_order_id = -1;
 static int hf_pn_io_im_serial_number = -1;
 static int hf_pn_io_im_hardware_revision = -1;
@@ -391,6 +392,11 @@ static int hf_pn_io_length_data = -1;
 
 static int hf_pn_io_mrp_ring_state = -1;
 static int hf_pn_io_mrp_rt_state = -1;
+
+static int hf_pn_io_im_tag_function = -1;
+static int hf_pn_io_im_tag_location = -1;
+static int hf_pn_io_im_date = -1;
+static int hf_pn_io_im_descriptor = -1;
 
 
 static gint ett_pn_io = -1;
@@ -1287,7 +1293,7 @@ static const value_string pn_io_media_type[] = {
 };
 
 
-static const value_string pn_io_fiber_optic[] = {
+static const value_string pn_io_fiber_optic_type[] = {
 	{ 0x0000, "No fiber type adjusted" },
 	{ 0x0001, "9 um single mode fiber" },
 	{ 0x0002, "50 um multi mode fiber" },
@@ -1301,7 +1307,7 @@ static const value_string pn_io_fiber_optic[] = {
 };
 
 
-static const value_string pn_io_fiber_optic_cable[] = {
+static const value_string pn_io_fiber_optic_cable_type[] = {
 	{ 0x0000, "No cable specified" },
 	{ 0x0001, "inside/outside cable, fixed installation" },
 	{ 0x0002, "inside/outside cable, flexible installation" },
@@ -1804,6 +1810,84 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
     /* x16 IM_Supported (bitfield) */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_im_supported, &u16IMSupported);
+
+    return offset;
+}
+
+
+static int
+dissect_IandM1_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    char *pTagFunction;
+    char *pTagLocation;
+
+    /* IM_Tag_Function [32] */
+    pTagFunction = ep_alloc(32+1);
+    tvb_memcpy(tvb, (guint8 *) pTagFunction, offset, 32);
+    pTagFunction[32] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, pTagFunction);
+    offset += 32;
+
+    /* IM_Tag_Location [22] */
+    pTagLocation = ep_alloc(22+1);
+    tvb_memcpy(tvb, (guint8 *) pTagLocation, offset, 22);
+    pTagLocation[22] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, pTagLocation);
+    offset += 22;
+
+    proto_item_append_text(item, ": TagFunction:\"%s\", TagLocation:\"%s\"", pTagFunction, pTagLocation);
+
+    return offset;
+}
+
+
+static int
+dissect_IandM2_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    char *pDate;
+
+    /* IM_Date [16] */
+    pDate = ep_alloc(16+1);
+    tvb_memcpy(tvb, (guint8 *) pDate, offset, 16);
+    pDate[16] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_im_date, tvb, offset, 16, pDate);
+    offset += 16;
+
+    proto_item_append_text(item, ": Date:\"%s\"", pDate);
+
+    return offset;
+}
+
+
+static int
+dissect_IandM3_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+    char *pDescriptor;
+
+    /* IM_Descriptor [54] */
+    pDescriptor = ep_alloc(54+1);
+    tvb_memcpy(tvb, (guint8 *) pDescriptor, offset, 54);
+    pDescriptor[54] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, pDescriptor);
+    offset += 54;
+
+    proto_item_append_text(item, ": Descriptor:\"%s\"", pDescriptor);
+
+    return offset;
+}
+
+
+static int
+dissect_IandM4_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+
+    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, 54, "data", 
+        "IM_Signature: %u bytes", 54);
+
     return offset;
 }
 
@@ -2044,13 +2128,17 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     /* LengthData */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                 hf_pn_io_length_data, &u16LengthData);
-    /* DataItem */
+    /* DataItem (IOCS, Data, IOPS) */
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
+
     proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16LengthData, "undecoded", 
-        "DataItem: %d bytes", u16LengthData);
+        "Data: %d bytes", u16LengthData);
     offset += u16LengthData;
 
+    offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iops);
+
     /* SubstituteValue */
-    dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
 
     return offset;
 }
@@ -3028,26 +3116,86 @@ dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
 }
 
 
-/* dissect the PDPortFODataAdjust block */
+/* dissect the PDPortFODataReal block */
 static int
-dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
+dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint16 u16BodyLength)
 {
-    guint32 u32FiberOptic;
-    guint32 u32FiberOpticCable;
+    guint32 u32FiberOpticType;
+    guint32 u32FiberOpticCableType;
+    guint16 u16Index;
+    guint32 u32RecDataLen;
 
 
     /* Padding */
     proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
     offset += 2;
 
-    /* FiberOptic */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_fiber_optic, &u32FiberOptic);
+    /* FiberOpticType */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_fiber_optic_type, &u32FiberOpticType);
 
-    /* FiberOpticCable */
+    /* FiberOpticCableType */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_fiber_optic_cable_type, &u32FiberOpticCableType);
+
+    /* optional: FiberOpticManufacturerSpecific */
+    if(u16BodyLength != 10) {
+        dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
+    }
+
+    return offset;
+}
+
+
+/* dissect the FiberOpticManufacturerSpecific block */
+static int
+dissect_FiberOpticManufacturerSpecific_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint16 u16BodyLength)
+{
+    guint8 u8VendorIDHigh;
+    guint8 u8VendorIDLow;
+    guint16 u16VendorBlockType;
+
+
+    /* x8 VendorIDHigh */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_vendor_id_high, &u8VendorIDHigh);
+    /* x8 VendorIDLow */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_vendor_id_low, &u8VendorIDLow);
+
+    /* VendorBlockType */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
+                    hf_pn_io_vendor_block_type, &u16VendorBlockType);
+    /* Data */
+    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16BodyLength-4, "data", 
+        "Data: %u bytes", u16BodyLength-4);
+
+    return offset;
+}
+
+
+/* dissect the PDPortFODataAdjust block */
+static int
+dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
+{
+    guint32 u32FiberOpticType;
+    guint32 u32FiberOpticCableType;
+
+
+    /* Padding */
+    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
+    offset += 2;
+
+    /* FiberOpticType */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
-                        hf_pn_io_fiber_optic_cable, &u32FiberOpticCable);
+                        hf_pn_io_fiber_optic_type, &u32FiberOpticType);
+
+    /* FiberOpticCableType */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
+                        hf_pn_io_fiber_optic_cable_type, &u32FiberOpticCableType);
 
 /*
     proto_item_append_text(item, ": %s", 
@@ -4495,6 +4643,18 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0020):
         dissect_IandM0_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
+    case(0x0021):
+        dissect_IandM1_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0022):
+        dissect_IandM2_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0023):
+        dissect_IandM3_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0024):
+        dissect_IandM4_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x0030):
         dissect_IandM0FilterData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -4607,6 +4767,12 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x021D):
         dissect_MrpRTModeClientData_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
+    case(0x0220):
+        dissect_PDPortFODataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        break;
+    case(0x0221):
+        dissect_FiberOpticManufacturerSpecific_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0222):
         dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4834,6 +5000,10 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     /* see: pn_io_index */
     /* single block only */
     switch(u16Index) {
+    case(0x8010):   /* Maintenance required in channel coding for one subslot */
+    case(0x8011):   /* Maintenance demanded in channel coding for one subslot */
+    case(0x8012):   /* Maintenance required in all codings for one subslot */
+    case(0x8013):   /* Maintenance demanded in all codings for one subslot */
     case(0x801e):   /* SubstituteValues for one subslot */
     case(0x8028):   /* RecordInputDataObjectElement for one subslot */
     case(0x8029):   /* RecordOutputDataObjectElement for one subslot */
@@ -4841,17 +5011,47 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
     case(0x8054):   /* PDPortMrpDataReal for one subslot */
+    case(0x8060):   /* PDPortFODataReal for one subslot */
+    case(0x8061):   /* PDPortFODataCheck for one subslot */
+    case(0x8062):   /* PDPortFODataAdjust for one subslot */
+    case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
+
     case(0xaff0):   /* I&M0 */
+    case(0xaff1):   /* I&M1 */
+    case(0xaff2):   /* I&M2 */
+    case(0xaff3):   /* I&M3 */
+    case(0xaff4):   /* I&M4 */
+    case(0xaff5):   /* I&M5 */
+    case(0xaff6):   /* I&M6 */
+    case(0xaff7):   /* I&M7 */
+    case(0xaff8):   /* I&M8 */
+    case(0xaff9):   /* I&M9 */
+    case(0xaffa):   /* I&M10 */
+    case(0xaffb):   /* I&M11 */
+    case(0xaffc):   /* I&M12 */
+    case(0xaffd):   /* I&M13 */
+    case(0xaffe):   /* I&M14 */
+    case(0xafff):   /* I&M15 */
+
+    case(0xc010):   /* Maintenance required in channel coding for one slot */
+    case(0xc011):   /* Maintenance demanded in channel coding for one slot */
+    case(0xc012):   /* Maintenance required in all codings for one slot */
+    case(0xc013):   /* Maintenance demanded in all codings for one slot */
+
     case(0xe002):   /* ModuleDiffBlock for one AR */
     case(0xe00c):   /* Diagnosis, Maintenance, Qualified and Status for one AR */
     case(0xe010):   /* Maintenance required in channel coding for one AR */
+    case(0xe011):   /* Maintenance demanded in channel coding for one AR */
     case(0xe012):   /* Maintenance required in all codings for one AR */
-    case(0xf00a):   /* Diagnosis in channel decoding for one API */
-    case(0xf00b):   /* Diagnosis in all codings for one API */
+    case(0xe013):   /* Maintenance demanded in all codings for one AR */
+
     case(0xf010):   /* Maintenance required in channel coding for one API */
+    case(0xf011):   /* Maintenance demanded in channel coding for one API */
     case(0xf012):   /* Maintenance required in all codings for one API */
+    case(0xf013):   /* Maintenance demanded in all codings for one API */
     case(0xf020):   /* ARData for one API */
+
     case(0xf820):   /* ARData */
     case(0xf821):   /* APIData */
     case(0xf830):   /* LogData */
@@ -4859,21 +5059,69 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf840):   /* I&M0FilterData */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
-    /* multiple blocks possible */
+
+    /*** multiple blocks possible ***/
     case(0x8000):   /* ExpectedIdentificationData for one subslot */
     case(0x8001):   /* RealIdentificationData for one subslot */
+    case(0x800a):   /* Diagnosis in channel decoding for one subslot */
+    case(0x800b):   /* Diagnosis in all codings for one subslot */
+    case(0x800c):   /* Diagnosis, Maintenance, Qualified and Status for one subslot */
+
     case(0x802a):   /* PDPortDataReal */
     case(0x802b):   /* PDPortDataCheck */
-    case(0x802d):   /* PDSyncData */
-    case(0x802e):   /* PDSyncData */
+    case(0x802d):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTA */
+    case(0x802e):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTC */
     case(0x802f):   /* PDPortDataAdjust */
-    case(0x8030):   /* IsochronousModeData */
+    case(0x8030):   /* IsochronousModeData for one subslot */
+    case(0x8031):   /* Expected PDSyncData for one subslot with SyncID value 1 */
+    case(0x8032):   
+    case(0x8033):   
+    case(0x8034):   
+    case(0x8035):   
+    case(0x8036):   
+    case(0x8037):   
+    case(0x8038):   
+    case(0x8039):   
+    case(0x803a):   
+    case(0x803b):   
+    case(0x803c):   
+    case(0x803d):   
+    case(0x803e):   
+    case(0x803f):   
+    case(0x8040):   /* Expected PDSyncData for one subslot with SyncID value 2 ... 30 */
+    case(0x8041):   
+    case(0x8042):   
+    case(0x8043):   
+    case(0x8044):   
+    case(0x8045):   
+    case(0x8046):   
+    case(0x8047):   
+    case(0x8048):   
+    case(0x8049):   
+    case(0x804a):   
+    case(0x804b):   
+    case(0x804c):   
+    case(0x804d):   
+    case(0x804e):   
+    case(0x804f):   /* Expected PDSyncData for one subslot with SyncID value 31 */
+
     case(0xc000):   /* ExpectedIdentificationData for one slot */
     case(0xc001):   /* RealIdentificationData for one slot */
+    case(0xc00a):   /* Diagnosis in channel coding for one slot */
+    case(0xc00b):   /* Diagnosis in all codings for one slot */
+    case(0xc00c):   /* Diagnosis, Maintenance, Qualified and Status for one slot */
+
     case(0xe000):   /* ExpectedIdentificationData for one AR */
     case(0xe001):   /* RealIdentificationData for one AR */
-    case(0xf000):   /* RealIdentificationData */
+    case(0xe00a):   /* Diagnosis in channel decoding for one AR */
+    case(0xe00b):   /* Diagnosis in all codings for one AR */
+    case(0xe030):   /* IsochronousModeData for one AR */
+
+    case(0xf000):   /* RealIdentificationData for one API */
+    case(0xf00a):   /* Diagnosis in channel decoding for one API */
+    case(0xf00b):   /* Diagnosis in all codings for one API */
     case(0xf00c):   /* Diagnosis, Maintenance, Qualified and Status for one API */
+
     case(0xf80c):   /* Diagnosis, Maintenance, Qualified and Status for one device */
     case(0xf841):   /* PDRealData */
     case(0xf842):   /* PDExpectedData */
@@ -4939,18 +5187,18 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     /* see: pn_io_index */
     switch(u16Index) {
     case(0x801e):   /* SubstituteValues for one subslot */
-    case(0x802b):   /* PDPortDataCheck */
-    case(0x802c):   /* PDirData */
-    case(0x802d):   /* PDSyncData */
-    case(0x802e):   /* PDSyncData */
-    case(0x802f):   /* PDPortDataAdjust */
-    case(0x8030):   /* IsochronousModeData */
+    case(0x802b):   /* PDPortDataCheck for one subslot */
+    case(0x802c):   /* PDirData for one subslot */
+    case(0x802d):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTA */
+    case(0x802e):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTC */
+    case(0x802f):   /* PDPortDataAdjust for one subslot */
+    case(0x8030):   /* IsochronousModeData for one subslot */
     case(0x8051):   /* PDInterfaceMrpDataCheck for one subslot */
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
-    case(0x8061):   /* PDPortFODataCheck */
-    case(0x8062):   /* PDPortFODataAdjust */
-    case(0x8070):   /* PDNCDataCheck */
+    case(0x8061):   /* PDPortFODataCheck for one subslot */
+    case(0x8062):   /* PDPortFODataAdjust for one subslot */
+    case(0x8070):   /* PDNCDataCheck for one subslot */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     default:
@@ -5760,10 +6008,10 @@ proto_register_pn_io (void)
     { &hf_pn_io_error_power_budget,
       { "ErrorPowerBudget", "pn_io.error_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 
-    { &hf_pn_io_fiber_optic,
-      { "FiberOptic", "pn_io.fiber_optic", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic), 0x0, "", HFILL }},
-    { &hf_pn_io_fiber_optic_cable,
-      { "FiberOpticCable", "pn_io.fiber_optic_cable", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable), 0x0, "", HFILL }},
+    { &hf_pn_io_fiber_optic_type,
+      { "FiberOpticType", "pn_io.fiber_optic_type", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_type), 0x0, "", HFILL }},
+    { &hf_pn_io_fiber_optic_cable_type,
+      { "FiberOpticCableType", "pn_io.fiber_optic_cable_type", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable_type), 0x0, "", HFILL }},
 
     { &hf_pn_io_controller_appl_cycle_factor,
       { "ControllerApplicationCycleFactor", "pn_io.controller_appl_cycle_factor", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -5789,6 +6037,9 @@ proto_register_pn_io (void)
       { "VendorIDHigh", "pn_io.vendor_id_high", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_vendor_id_low,
       { "VendorIDLow", "pn_io.vendor_id_low", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_vendor_block_type,
+      { "VendorBlockType", "pn_io.vendor_block_type", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
     { &hf_pn_io_order_id,
 	{ "OrderID", "pn_io.order_id", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_im_serial_number,
@@ -5909,6 +6160,15 @@ proto_register_pn_io (void)
 	    { "MRP_RingState", "pn_io.mrp_ring_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_ring_state_vals), 0x0, "", HFILL }},
     { &hf_pn_io_mrp_rt_state,
 	    { "MRP_RTState", "pn_io.mrp_rt_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_rt_state_vals), 0x0, "", HFILL }},
+
+    { &hf_pn_io_im_tag_function,
+	    { "IM_Tag_Function", "pn_io.im_tag_function", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_tag_location,
+	    { "IM_Tag_Location", "pn_io.im_tag_location", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_date,
+	    { "IM_Date", "pn_io.im_date", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_im_descriptor,
+	    { "IM_Descriptor", "pn_io.im_descriptor", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     };
 
