@@ -920,7 +920,7 @@ void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summ
         for(col = 0; col < cfile.cinfo.num_cols; ++col) {
             if(col != 0) {
 				if(CS_CSV == copy_type) {
-					g_string_append_printf(text,"\",\"");
+					g_string_append(text,"\",\"");
 				} else {
 					g_string_append_c(text, '\t');
 				}
