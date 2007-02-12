@@ -1873,41 +1873,42 @@ static _gtp_mess_items gprs_mess_items[] = {
 },
 {
 	GTP_MSG_IDENT_REQ, {
-		{ GTP_EXT_RAI,		GTP_MANDATORY },
-		{ GTP_EXT_PTMSI,	GTP_MANDATORY },
+		{ GTP_EXT_RAI,			GTP_MANDATORY },
+		{ GTP_EXT_PTMSI,		GTP_MANDATORY },
 		{ GTP_EXT_PTMSI_SIG,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_IDENT_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_AUTH_TRI,	GTP_OPTIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_AUTH_TRI,		GTP_OPTIONAL },
+		{ GTP_EXT_AUTH_QUI,		GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SGSN_CNTXT_REQ, {
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_RAI,		GTP_MANDATORY },
-		{ GTP_EXT_TLLI,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_RAI,			GTP_MANDATORY },
+		{ GTP_EXT_TLLI,			GTP_MANDATORY },
 		{ GTP_EXT_PTMSI_SIG,	GTP_OPTIONAL },
-		{ GTP_EXT_MS_VALID,	GTP_OPTIONAL },
+		{ GTP_EXT_MS_VALID,		GTP_OPTIONAL },
 		{ GTP_EXT_FLOW_SIG, 	GTP_MANDATORY },
 		{ 0,			0 }
 	}
 },
 {
 	GTP_MSG_SGSN_CNTXT_RESP, {
-		{ GTP_EXT_CAUSE,	GTP_MANDATORY },
-		{ GTP_EXT_IMSI,		GTP_CONDITIONAL },
-		{ GTP_EXT_FLOW_SIG,	GTP_CONDITIONAL },
-		{ GTP_EXT_MM_CNTXT,	GTP_CONDITIONAL },
+		{ GTP_EXT_CAUSE,		GTP_MANDATORY },
+		{ GTP_EXT_IMSI,			GTP_CONDITIONAL },
+		{ GTP_EXT_FLOW_SIG,		GTP_CONDITIONAL },
+		{ GTP_EXT_MM_CNTXT,		GTP_CONDITIONAL },
 		{ GTP_EXT_PDP_CNTXT,	GTP_CONDITIONAL },
-		{ GTP_EXT_PRIV_EXT,	GTP_OPTIONAL },
+		{ GTP_EXT_PRIV_EXT,		GTP_OPTIONAL },
 		{ 0,			0 }
 	}
 },
@@ -4158,43 +4159,40 @@ decode_gtp_qos_umts(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 static int
 decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	proto_tree	*ext_tree_quint;
+	proto_tree	*ext_tree;
 	proto_item	*te_quint;
-	guint16		q_offset, q_len;
+	guint16		length;
 	guint8      xres_len, auth_len;
 
-	q_offset = 0;
 
+	length = tvb_get_ntohs(tvb, offset + 1);
 
-	offset = offset + q_offset;
+	te_quint = proto_tree_add_text(tree, tvb, offset, length+1, "Quintuplet");
+	ext_tree = proto_item_add_subtree(te_quint, ett_gtp_quint);
+	offset++;
 
-	q_len = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	offset = offset +2;
 
-	te_quint = proto_tree_add_text(tree, tvb, offset+1, q_len, "Quintuplet");
-	ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
+	proto_tree_add_text(ext_tree, tvb, offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
+	offset = offset + 16;
+	xres_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(ext_tree, tvb, offset, 1, "XRES length: %u", xres_len);
+	offset++;
+	proto_tree_add_text(ext_tree, tvb, offset , xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset, xres_len));
+	offset = offset + xres_len;
+	proto_tree_add_text(ext_tree, tvb ,offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset, 16));
+	offset =  offset + 16;
+	proto_tree_add_text(ext_tree, tvb, offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset, 16));
+	offset = offset +16;
+	auth_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(ext_tree, tvb, offset, 1, "Authentication length: %u", auth_len);
+	offset++;
+	proto_tree_add_text(ext_tree, tvb, offset , auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset, auth_len));
 
-	proto_tree_add_text(ext_tree_quint, tvb, offset, 2, "Length: %x", q_len);
-	q_offset = q_offset + 2;
+	offset = offset+auth_len;
 
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset, 16));
-	q_offset = q_offset + 16;
-	xres_len = tvb_get_guint8(tvb, offset+q_offset);
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "XRES length: %u", xres_len);
-	q_offset++;
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, xres_len, "XRES: %s", tvb_bytes_to_str(tvb, offset + q_offset, xres_len));
-	q_offset = q_offset + xres_len;
-	proto_tree_add_text(ext_tree_quint, tvb ,offset + q_offset, 16, "Quintuplet Ciphering Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
-	q_offset = q_offset + 16;
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "Quintuplet Integrity Key: %s", tvb_bytes_to_str(tvb, offset + q_offset, 16));
-	q_offset = q_offset +16;
-	auth_len = tvb_get_guint8(tvb, offset + q_offset);
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "Authentication length: %u", auth_len);
-	q_offset++;
-	proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, auth_len, "AUTH: %s", tvb_bytes_to_str(tvb, offset + q_offset, auth_len));
-
-	q_offset = q_offset+auth_len;
-
-	return (1 + q_offset);
+	return (1 + offset);
 
 }
 
