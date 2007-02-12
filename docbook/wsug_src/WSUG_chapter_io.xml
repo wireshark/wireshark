@@ -864,7 +864,8 @@
 	<title>The "Export as PSML File" dialog box</title>
 	  <para>
 	    Export packet data into PSML. This is an XML based format including 
-		only the packet summary.
+		only the packet summary. The PSML file specification is available at: 
+		<ulink url="http://www.nbee.org/Docs/NetPDL/PSML.htm"/>.
     <figure>
       <title>The "Export as PSML File" dialog box</title>
       <graphic entityref="WiresharkExportPSMLDialog" format="PNG"/>
@@ -888,8 +889,7 @@
 	  <para>
 	    Export packet data into PDML. This is an XML based format including 
 		the packet details. The PDML file specification is available at: 
-		<ulink url="http://www.nbee.org/Docs/NetPDL/PDML.htm">
-		PDML specification</ulink>.
+		<ulink url="http://www.nbee.org/Docs/NetPDL/PDML.htm"/>.
 		<note><title></title>
 		<para>
 		The PDML specification is not officially released and Wireshark's 
