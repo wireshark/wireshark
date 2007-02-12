@@ -60,6 +60,8 @@ static int hf_scsi_smc_range			= -1;
 static int hf_scsi_smc_sea			= -1;
 static int hf_scsi_smc_num_elements		= -1;
 static int hf_scsi_smc_invert			= -1;
+static int hf_scsi_smc_ea			= -1;
+static int hf_scsi_smc_action_code		= -1;
 
 static gint ett_scsi_exchange_medium		= -1;
 static gint ett_scsi_range			= -1;
@@ -147,6 +149,28 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
 }
 
 void
+dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+
+    if (!tree) 
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_smc_ea,  tvb, offset+1, 2, 0);
+
+        proto_tree_add_item (tree, hf_scsi_smc_action_code,  tvb, offset+3, 1, 0);
+
+        flags = tvb_get_guint8 (tvb, offset+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+void
 dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -186,6 +210,12 @@ static const value_string element_type_code_vals[] = {
     {ST_ELEM,  "Storage element"},
     {I_E_ELEM, "Import/export element"},
     {DT_ELEM,  "Data transfer element"},
+    {0, NULL}
+};
+
+static const value_string action_code_vals[] = {
+    {0, "OPEN Import/Export Element"},
+    {1, "CLOSE Import/Export Element"},
     {0, NULL}
 };
 
@@ -617,7 +647,7 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 /*SMC 0x18*/{NULL},
 /*SMC 0x19*/{NULL},
 /*SPC 0x1a*/{dissect_spc_modesense6},
-/*SMC 0x1b*/{NULL},
+/*SMC 0x1b*/{dissect_smc_openclose_importexport_element},
 /*SMC 0x1c*/{NULL},
 /*SPC 0x1d*/{dissect_spc_senddiagnostic},
 /*SMC 0x1e*/{dissect_spc_preventallowmediaremoval},
@@ -898,6 +928,12 @@ proto_register_scsi_smc(void)
 	{ &hf_scsi_smc_invert,
           {"INVERT", "scsi.smc.invert", FT_BOOLEAN, 8,
            NULL, 0x01, "", HFILL}},
+        { &hf_scsi_smc_ea,
+          {"Element Address", "scsi.smc.ea", FT_UINT16, BASE_DEC,
+           NULL, 0x0, "", HFILL}},
+        { &hf_scsi_smc_action_code,
+          {"Action Code", "scsi.smc.action_code", FT_UINT8, BASE_HEX,
+           VALS(action_code_vals), 0x1f, "", HFILL}},
 	};
 
 
