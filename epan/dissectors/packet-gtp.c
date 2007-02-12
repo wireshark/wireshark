@@ -4192,7 +4192,7 @@ decode_gtp_auth_qui(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	offset = offset+auth_len;
 
-	return (1 + offset);
+	return (3 + length);
 
 }
 
