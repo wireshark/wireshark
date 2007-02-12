@@ -100,6 +100,34 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 void
+dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
+                    guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    guint8 flags;
+    static const int *pte_fields[] = {
+        &hf_scsi_smc_invert,
+	NULL
+    };
+
+    if (!tree) 
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+3, 2, 0);
+
+	proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_smc_medium_flags, ett_scsi_exchange_medium, pte_fields, FALSE);
+
+        flags = tvb_get_guint8 (tvb, offset+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+    }
+}
+
+void
 dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                     guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -663,7 +691,7 @@ scsi_cdb_table_t scsi_smc_table[256] = {
 /*SMC 0x28*/{NULL},
 /*SMC 0x29*/{NULL},
 /*SMC 0x2a*/{NULL},
-/*SMC 0x2b*/{NULL},
+/*SMC 0x2b*/{dissect_smc_position_to_element},
 /*SMC 0x2c*/{NULL},
 /*SMC 0x2d*/{NULL},
 /*SMC 0x2e*/{NULL},
