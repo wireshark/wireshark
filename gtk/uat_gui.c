@@ -398,6 +398,9 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
     struct _uat_dlg_data* dd = g_malloc(sizeof(struct _uat_dlg_data));
 	uat_field_t* f = uat->fields;
 	guint colnum;
+	GtkTooltips *tooltips;
+
+	tooltips = gtk_tooltips_new();
 	
     dd->entries = g_ptr_array_new();
     dd->win = dlg_window_new(uat->name);
@@ -428,12 +431,19 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 10);
     
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
-        GtkWidget *entry, *label;
+        GtkWidget *entry, *label, *event_box;
         char* text = fld_tostr(dd->rec,&(f[colnum]));
-							   
+
+		event_box = gtk_event_box_new();
+
         label = gtk_label_new(f[colnum].name);
+		if (f[colnum].desc != NULL)
+			gtk_tooltips_set_tip(tooltips, event_box, f[colnum].desc, NULL);
+
         gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-        gtk_table_attach_defaults(GTK_TABLE(main_tb), label, 0, 1, colnum+1, colnum + 2);
+        gtk_table_attach_defaults(GTK_TABLE(main_tb), event_box, 0, 1, colnum+1, colnum + 2);
+		gtk_container_add(GTK_CONTAINER(event_box), label);
+		gtk_widget_show(event_box);
         gtk_widget_show(label);
 		
 		

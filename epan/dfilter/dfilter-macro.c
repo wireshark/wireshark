@@ -463,12 +463,12 @@ UAT_CSTRING_CB_DEF(macro,text,dfilter_macro_t)
 
 void dfilter_macro_init(void) {
 	static uat_field_t uat_fields[] =  {
-		UAT_FLD_CSTRING_OTHER(macro,name,macro_name_chk),
-		UAT_FLD_CSTRING_ISPRINT(macro,text),
+		UAT_FLD_CSTRING_OTHER(macro,name,macro_name_chk,"The name of the macro."),
+		UAT_FLD_CSTRING_ISPRINT(macro,text,"The text this macro resolves to."),
 		UAT_END_FIELDS
 	};
 	
-	dfilter_macro_uat = uat_new(" Display Filter Macros",
+	dfilter_macro_uat = uat_new("Display Filter Macros",
 								sizeof(dfilter_macro_t),
 								DFILTER_MACRO_FILENAME,
 								(void**) &macros,
