@@ -814,7 +814,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		ie_len = (ie_len & 0x7f) << 8;
 		ie_len = ie_len | (tvb_get_guint8(tvb,offset));
 		proto_item_set_len(urr_ie_item, ie_len + 3);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset-1, 2, FALSE);
+		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_IE_len , tvb, offset-1, 2, ie_len );
 		ie_offset = offset +1;
 	}else{
 		proto_item_set_len(urr_ie_item, ie_len + 2);
