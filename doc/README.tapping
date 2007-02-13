@@ -1,13 +1,13 @@
 $Id$
 
-The TAP system in wireshark is a powerful and flexible mechanism to get event 
+The TAP system in Wireshark is a powerful and flexible mechanism to get event 
 driven notification on packets matching certain protocols and/or filters.
-In order to use the tapping system, very little knowledge of wireshark
+In order to use the tapping system, very little knowledge of Wireshark
 internals are required.
 
 As examples on how to use the tap system see the implementation of 
 tap-rpcstat.c     	(tshark version)
-gtk/gtk-rpcstat.c	(gtk-wireshark version)
+gtk/rpc_stat.c		(gtk-wireshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -30,8 +30,8 @@ TAP
 First you must decide which protocol you are interested in writing a tap
 application for and check if that protocol has already got a tap installed
 in it.
-If it already has a tap device installed then you dont have to do anything.
-If not, then you have to add a tap but dont worry, this is extremely easy to 
+If it already has a tap device installed then you don't have to do anything.
+If not, then you have to add a tap but don't worry, this is extremely easy to 
 do and is done in four easy steps;
 (see packet-rpc.c and search for tap for an example)
 
@@ -46,7 +46,7 @@ do and is done in four easy steps;
 have returned, just add 'tap_queue_packet(<protocol>_tap, pinfo, <pointer>);'
 
 <pointer> is used if the tap has any special additional data to provide to
-the tap listeners. What this points to is dependant on the protocol that
+the tap listeners. What this points to is dependent on the protocol that
 is tapped, or if there are no useful extra data to provide just specify NULL.
 For packet-rpc.c what we specify there is the persistent structure 'rpc_call'
 which contains lots of useful information the rpc layer that a listener might
@@ -57,15 +57,15 @@ need.
 TAP LISTENER
 ============
 (see tap-rpcstat.c as an example)
-Interfacing your application is not that much harder either.
+sInterfacing your application is not that much harder either.
 Only 3 callbacks and two functions.
 
 
 The two functions to start or stop tapping are
 
 register_tap_listener(char *tapname, void *tapdata, char *fstring,
-	void (*reset)(void *tapdata),
-	int  (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *<pointer>),
+	void (*reset)(void *tapdata), int  (*packet)(void *tapdata,
+	packet_info *pinfo, epan_dissect_t *edt, const void *<pointer>),
 	void (*draw)(void *tapdata));
 
 remove_tap_listener(void *tapdata);
@@ -100,13 +100,13 @@ matched the filter to your listener.
 The syntax for the filter string is identical to normal display filters.
 
 NOTE: Specifying filter strings will have a significant performance impact
-on your application and wireshark. If possible it is MUCH better to take
+on your application and Wireshark. If possible it is MUCH better to take
 unfiltered data and just filter it yourself in the packet-callback than
 to specify a filter string.
 ONLY use a filter string if no other option exist.
 
 void (*reset)(void *tapdata)
-This callback is called whenever wireshark wants to inform your
+This callback is called whenever Wireshark wants to inform your
 listener that it is about to start [re]reading a capture file or a new capture
 from an interface and that your application should reset any state it has
 in the *tapdata instance.
@@ -116,19 +116,19 @@ This callback is used whenever a new packet has arrived at the tap and that
 it has passed the filter (if there were a filter).
 The *data structure type is specific to each tap.
 This function returns an int and it should return 
- 1, if the data in the packet aused state to be updated
-    (asnd thus a redraw of the window would later be required)
- 0, if we dont need to redraw the window.
+ 1, if the data in the packet caused state to be updated
+    (and thus a redraw of the window would later be required)
+ 0, if we don't need to redraw the window.
 NOTE: that (*packet) should be as fast and efficient as possible. Use this
-function ONLY to store data for later and do the cpu-intensive processing
+function ONLY to store data for later and do the CPU-intensive processing
 or GUI updates down in (*draw) instead.
 
  
 void (*draw)(void *tapdata)
-This callback is used when wireshark wants your application to redraw its
+This callback is used when Wireshark wants your application to redraw its
 output. It will usually not be called unless your application has received
 new data through the (*packet) callback.
-On some ports of wireshark (gtk2) (*draw) will be called asynchronously 
+On some ports of Wireshark (gtk2) (*draw) will be called asynchronously 
 from a separate thread up to once every 2-3 seconds.
 On other ports it might only be called once when the capture is finished
 or the file has been [re]read completely.
@@ -140,14 +140,14 @@ So, create three callbacks:
 2, packet  to update these state variables.
 3, draw    to take these state variables and draw them on the screen.
 
-then just make wireshark call register_tap_listener() when you want to tap
+then just make Wireshark call register_tap_listener() when you want to tap
 and call remove_tap_listener() when you are finished.
 
 
 WHEN DO TAP LISTENERS GET CALLED?
 ===================================
-Tap listeners are only called when wireshark reads a new capture for
-the first time or whenever wireshark needs to rescan/redissect
+Tap listeners are only called when Wireshark reads a new capture for
+the first time or whenever Wireshark needs to rescan/redissect
 the capture.
 Redissection occurs when you apply a new display filter or if you
 change and Save/Apply a preference setting that might affect how
@@ -158,7 +158,7 @@ to receive tap data during the dissection of the frame will be called in
 sequence.
 The order of which the tap listeners will be called is not defined.
 Not until all tap listeners for the frame has been called and returned
-will wireshark continue to dissect the next packet.
+will Wireshark continue to dissect the next packet.
 This is why it is important to make the *_packet() callbacks execute as
 quickly as possible, else we create an extra delay until the next packet
 is dissected.
@@ -171,7 +171,7 @@ IF the tap is going to return private data using the last parameter to
 tap_queue_packet() and IF the protocol can appear multiple times inside the 
 same packet, you will have to make sure that each instance of 
 tap_queue_packet() is using its own instance of private struct variable
-so they dont overwrite eachother.
+so they don't overwrite each other.
 
 See packet-ip.c which has a simple solution to the problem. It just
 uses a static struct of 4 instances of the ip header struct and
@@ -180,7 +180,7 @@ cycles through them each time the dissector is called.
 cases.
 Of course, if someone would generate a capture with IP encapsulated
 over IP over IP over IP over IP, so that there would be more than 4 IP headers
-in the same packet, yes then this would fail.   The likelyhood of this 
+in the same packet, yes then this would fail.   The likelihood of this 
 happening in real life is probably very low. If it turns out to be a problem
 we can just increase the cycle length when that happens.
 
@@ -193,7 +193,7 @@ You can hand register_tap_listener() NULL for both (*draw) and (*reset)
 (well also for (*packet) but that would be a very boring extension).
 
 Perhaps you want an extension that will execute a certain command
-everytime it sees a certain packet?
+every time it sees a certain packet?
 Well, try this :
 	int packet(void *tapdata,...) {
 		...
@@ -204,7 +204,7 @@ Well, try this :
 	register_tap_listener("tcp", struct, "tcp.port==57", NULL, packet, NULL);
 
 	Let struct contain an email address?
-	Then you have something simple that will make wireshark send an email
+	Then you have something simple that will make Wireshark send an email
 	out automagically for each and every time it dissects 
 	a packet containing TCP traffic to port 57.
 	Please put in some rate limitation if you do this.
