@@ -46,6 +46,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/ws_strsplit.h>
 
 #include "packet-jxta.h"
 

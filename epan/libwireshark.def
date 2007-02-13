@@ -802,4 +802,5 @@ vals_status                     DATA
 val_to_str
 value_is_in_range
 write_prefs
+ws_strsplit
 xml_escape

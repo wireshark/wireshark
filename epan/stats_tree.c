@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/stats_tree_priv.h>
+#include <epan/ws_strsplit.h>
 #include <string.h>
 
 #include "stats_tree.h"
@@ -541,48 +542,42 @@ extern guint8* stats_tree_get_abbr(const guint8* optarg) {
  *
  */
 static range_pair_t* get_range(guint8* rngstr) {
-	gchar** split;
-	range_pair_t* rng;
-	
-	split = g_strsplit((gchar*)rngstr,"-",2);
+        gchar** split;
+        range_pair_t* rng;
 
-	/* empty string */
-	if (split[0] == NULL) {
-	  g_strfreev(split);
-	  return NULL;
-	}
+        split = g_strsplit((gchar*)rngstr,"-",2);
 
-#if GLIB_MAJOR_VERSION >= 2
-	/* means we have a non empty string 
-	 * which does not contain a delimiter */
-	if (split[1] == NULL) {
-	  g_strfreev(split);
-	  return NULL;
-	}
-#endif
+        /* empty string */
+        if (split[0] == NULL) {
+          g_strfreev(split);
+          return NULL;
+        }
 
-	rng = g_malloc(sizeof(range_pair_t));
+        /* means we have a non empty string 
+         * which does not contain a delimiter */
+        if (split[1] == NULL) {
+          g_strfreev(split);
+          return NULL;
+        }
 
-	/* string == "X-?" */
-	if (*(split[0]) != '\0') {
-	    rng->floor = strtol(split[0],NULL,10);
-	} else
-	  /* string == "-?" */
-	  rng->floor = G_MININT;
+        rng = g_malloc(sizeof(range_pair_t));
 
-	/* string != "?-" */
-#if GLIB_MAJOR_VERSION >= 2
-	if (*(split[1]) != '\0') {
-#else
-	if (split[1] != NULL) {
-#endif
-	  rng->ceil  = strtol(split[1],NULL,10);
-	} else
-	  /* string == "?-" */
-	  rng->ceil = G_MAXINT;
-	
-	g_strfreev(split);
-	
+        /* string == "X-?" */
+        if (*(split[0]) != '\0') {
+            rng->floor = strtol(split[0],NULL,10);
+        } else
+          /* string == "-?" */
+          rng->floor = G_MININT;
+
+        /* string != "?-" */
+        if (*(split[1]) != '\0') {
+          rng->ceil  = strtol(split[1],NULL,10);
+        } else
+          /* string == "?-" */
+          rng->ceil = G_MAXINT;
+
+        g_strfreev(split);
+
 	return rng;
 }
 
@@ -595,7 +590,7 @@ extern int stats_tree_create_range_node(stats_tree* st,
 	guint8* curr_range;
 	stat_node* rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
 	stat_node* range_node = NULL;
-	
+
 	va_start( list, parent_id );
 	while (( curr_range = va_arg(list, guint8*) )) {
 		range_node = new_stat_node(st, curr_range, rng_root->id, FALSE, FALSE);

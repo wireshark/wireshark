@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include "ex-opt.h"
+#include <epan/ws_strsplit.h>
 
 static GHashTable* ex_opts = NULL;
 

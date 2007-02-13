@@ -35,6 +35,7 @@
 #include <epan/tvbuff.h>
 #include <epan/crc32.h>
 #include <epan/strutil.h>
+#include <epan/ws_strsplit.h>
 
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"

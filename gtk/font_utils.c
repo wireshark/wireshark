@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 #include <epan/packet.h>
+#include <epan/ws_strsplit.h>
 
 #ifdef _WIN32
 #include <windows.h>

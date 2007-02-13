@@ -39,6 +39,7 @@
 
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+#include <epan/ws_strsplit.h>
 
 #include "util.h"
 
