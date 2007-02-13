@@ -2584,6 +2584,10 @@ Robin Seggelmann	<seggelmann [AT] fh-muenster.de> {
 	Support for SCTP reassembly.
 }
 
+Chris Bontje		<cbontje [AT] gmail.com {
+	Support for DNP3 Application Layer dissection
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
