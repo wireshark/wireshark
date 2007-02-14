@@ -114,7 +114,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
 
 /* Look for the protocol data within an ipprim packet.
    Only set *data_offset if data field found. */
-static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset,
+static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 direction,
                                         guint32 *source_addr_offset, guint32 *dest_addr_offset,
                                         guint32 *source_port_offset, guint32 *dest_port_offset,
                                         port_type *type_of_port)
@@ -160,24 +160,55 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset,
 
             if (tag == 0x31 && length >=4 && length <= 6)
             {
-                /* Dest IP address */
-                *dest_addr_offset = offset;
+                /* Remote IP address */
+                if (direction == 0)
+                {
+                    /* Sent *to* remote, so dest */
+                    *dest_addr_offset = offset;
+                }
+                else
+                {
+                    *source_addr_offset = offset;
+                }
 
-                /* Dest port follows (if present) */
+                /* Remote port follows (if present) */
                 if (length > 4)
                 {
-                    *dest_port_offset = offset + 4;
+                    if (direction == 0)
+                    {
+                        *dest_port_offset = offset + 4;
+                    }
+                    else
+                    {
+                        *source_port_offset = offset + 4;
+                    }
                 }
             }
             if (tag == 0x32 && length == 4)
             {
-                /* Source IP address */
-                *source_addr_offset = offset;
+                /* Local IP address */
+                if (direction == 0)
+                {
+                    /* Sent *from* local, so source */
+                    *source_addr_offset = offset;
+                }
+                else
+                {
+                    *dest_addr_offset = offset;
+                }
             }
             if (tag == 0x33 && length == 2)
             {
-                /* Get source port */
-                *source_port_offset = offset;
+                /* Get local port */
+                if (direction == 0)
+                {
+                    /* Sent from local, so source */
+                    *source_port_offset = offset;
+                }
+                else
+                {
+                    *dest_port_offset = offset;
+                }
             }
 
             /* Skip the following value */
@@ -474,17 +505,18 @@ void parse_outhdr_string(guchar *outhdr_string)
    dissector to use */
 void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name, int variant)
 {
-    int i=0;
-    int chan;
-    int tf_start, num_chans_start;
+    int  i=0;
+    int  chan;
+    int  tf_start, num_chans_start;
+    gint node_type;
 
     /* Allocate & zero struct */
-    struct _fp_info *p_fp_info = se_alloc(sizeof(struct _fp_info));
+    struct fp_info *p_fp_info = se_alloc(sizeof(struct fp_info));
     if (!p_fp_info)
     {
         return;
     }
-    memset(p_fp_info, 0, sizeof(struct _fp_info));
+    memset(p_fp_info, 0, sizeof(struct fp_info));
 
     /* Check that the number of outhdr values looks sensible */
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
@@ -519,22 +551,49 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         return;
     }
 
-    /* Variant number */
-    p_fp_info->dct2000_variant = variant;
+    /* Release date is derived from variant number */
+    /* Only R6 sub-versions currently influence format with a release */
+    switch (p_fp_info->release)
+    {
+        case 6:
+            switch (variant % 256)
+            {
+                case 1:
+                    p_fp_info->release_year = 2005;
+                    p_fp_info->release_month = 6;
+                    break;
+                case 2:
+                    p_fp_info->release_year = 2005;
+                    p_fp_info->release_month = 9;
+                    break;
+                case 3:
+                default:
+                    p_fp_info->release_year = 2006;
+                    p_fp_info->release_month = 3;
+                    break;
+            }
+            break;
+
+        default:
+            p_fp_info->release_year = 0;
+            p_fp_info->release_month = 0;
+    }
+
 
     /* Channel type */
     p_fp_info->channel = outhdr_values[i++];
 
     /* Node type */
-    p_fp_info->node_type = outhdr_values[i++];
+    node_type = outhdr_values[i++];
 
-    p_fp_info->is_uplink = (( received  && (p_fp_info->node_type == 2)) ||
-                            (!received  && (p_fp_info->node_type == 1)));
+    p_fp_info->is_uplink = (( received  && (node_type == 2)) ||
+                            (!received  && (node_type == 1)));
 
     /* IUR only uses the above... */
     if (strcmp(protocol_name, "fpiur_r5") == 0)
     {
         /* Store info in packet */
+        p_fp_info->interface = IuR_Interface;
         p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
         return;
     }
@@ -583,6 +642,9 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
             p_fp_info->edch_macd_pdu_size[n] = outhdr_values[i++];
         }
     }
+
+    /* Interface must be IuB */
+    p_fp_info->interface = IuB_Interface;
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
@@ -801,7 +863,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
-                    find_ipprim_data_offset(tvb, &offset,
+                    find_ipprim_data_offset(tvb, &offset, direction,
                                             &source_addr_offset, &dest_addr_offset,
                                             &source_port_offset, &dest_port_offset,
                                             &type_of_port))

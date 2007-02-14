@@ -96,8 +96,11 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 	if (!p_fp_info || length < 22)
 		return;
 
-	p_fp_info->release = 0; /* dummy */
-	p_fp_info->dct2000_variant = 0; /* dummy */
+	p_fp_info->interface = IuB_Interface;
+
+	p_fp_info->release = 0;       /* dummy */
+	p_fp_info->release_year = 0;  /* dummy */
+	p_fp_info->release_month = 0; /* dummy */
 
 				/* 1=UL, 2=DL */
 	if (extra_info[15] == 1)

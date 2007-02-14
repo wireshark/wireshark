@@ -42,14 +42,21 @@
 #define CHANNEL_EDCH         17
 #define CHANNEL_RACH_TDD_128 18
 
-/* Info attached to each FP packet */
-struct _fp_info
+enum fp_interface_type
 {
-    guint8 release;
-    guint  dct2000_variant;
+    IuB_Interface,
+    IuR_Interface
+};
+
+/* Info attached to each FP packet */
+typedef struct fp_info
+{
+    enum fp_interface_type interface;
+    guint8  release;                     /* e.g. 99, 4, 5, 6 */
+    guint16 release_year;                /* e.g. 2001 */
+    guint8  release_month;               /* e.g. 12 for December */
     gboolean is_uplink;
-    gint channel;
-    gint node_type;
+    gint channel;                       /* see definitions above */
     gboolean dch_crc_present;
     gint paging_indications;
     gint num_chans;
@@ -61,6 +68,5 @@ struct _fp_info
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
-};
+} fp_info;
 
-typedef struct _fp_info fp_info;
