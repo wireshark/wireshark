@@ -371,10 +371,11 @@ static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	if (dd->is_new) g_free(dd->rec);
     g_ptr_array_free(dd->entries,TRUE);
     window_destroy(GTK_WIDGET(dd->win));
-	g_free(dd);
 
 	while (dd->tobe_freed->len) g_free( g_ptr_array_remove_index_fast(dd->tobe_freed, dd->tobe_freed->len - 1 ) );
 	
+	g_free(dd);
+
     return TRUE;
 }
 
