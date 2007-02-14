@@ -7242,6 +7242,10 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	return offset;
 }
 
+#define SHARE_ACCESS_DELETE	0x00000004
+#define SHARE_ACCESS_WRITE	0x00000002
+#define SHARE_ACCESS_READ	0x00000001
+
 int
 dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
@@ -7259,10 +7263,21 @@ dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 	proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
 		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_DELETE){
+		proto_item_append_text(item, " SHARE_DELETE");
+	}
+
 	proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
 		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_WRITE){
+		proto_item_append_text(item, " SHARE_WRITE");
+	}
+
 	proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
 		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_READ){
+		proto_item_append_text(item, " SHARE_READ");
+	}
 
 	offset += 4;
 
@@ -17417,15 +17432,15 @@ proto_register_smb(void)
 
 	{ &hf_smb_nt_share_access_read,
 		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_share_access_read), 0x00000001, "Can the object be shared for reading?", HFILL }},
+		TFS(&tfs_nt_share_access_read), SHARE_ACCESS_READ, "Can the object be shared for reading?", HFILL }},
 
 	{ &hf_smb_nt_share_access_write,
 		{ "Write", "smb.share.access.write", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_share_access_write), 0x00000002, "Can the object be shared for write?", HFILL }},
+		TFS(&tfs_nt_share_access_write), SHARE_ACCESS_WRITE, "Can the object be shared for write?", HFILL }},
 
 	{ &hf_smb_nt_share_access_delete,
 		{ "Delete", "smb.share.access.delete", FT_BOOLEAN, 32,
-		TFS(&tfs_nt_share_access_delete), 0x00000004, "", HFILL }},
+		TFS(&tfs_nt_share_access_delete), SHARE_ACCESS_DELETE, "", HFILL }},
 
 	{ &hf_smb_file_eattr_read_only,
 		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 32,
