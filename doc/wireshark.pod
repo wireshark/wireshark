@@ -349,7 +349,7 @@ read from a preference/recent file. The argument to the flag is a string of
 the form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference/recent value (which is the same name that would appear in the 
 preference/recent file), and I<value> is the value to which it should be set. 
-Since B<Wireshark> 0.10.12, the recent settings replaces the formerly used 
+Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used 
 -B, -P and -T flags to manipulate the GUI dimensions.
 
 =item -p
