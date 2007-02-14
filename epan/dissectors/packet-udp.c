@@ -481,6 +481,7 @@ proto_register_udp(void)
 
 	proto_udp = proto_register_protocol("User Datagram Protocol",
 	    "UDP", "udp");
+	register_dissector("udp", dissect_udp, proto_udp);
 	proto_udplite = proto_register_protocol("Lightweight User Datagram Protocol",
 	    "UDPlite", "udplite");
 	proto_register_field_array(proto_udp, hf, array_length(hf));

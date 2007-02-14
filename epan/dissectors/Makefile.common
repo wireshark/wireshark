@@ -387,6 +387,7 @@ DISSECTOR_SRC =	\
 	packet-ipfc.c	\
 	packet-ipmi.c	\
 	packet-ipp.c	\
+	packet-ipsec-tcp.c	\
 	packet-ipsec-udp.c	\
 	packet-ipsec.c	\
 	packet-ipv6.c	\
