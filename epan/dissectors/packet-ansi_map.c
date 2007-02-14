@@ -3581,20 +3581,14 @@ static const range_string cdmaserviceoption_vals[] = {
 
 static void
 dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
-	guint16 so;
 
 	item = get_ber_last_created_item();
 	subtree = proto_item_add_subtree(item, ett_cdmaserviceoption);
 
-	so = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_uint_format(subtree, hf_ansi_map_cdmaserviceoption,
-					       tvb, offset, 2, so,
-					       "CDMAServiceOption: %u %s", so,
-					       rval_to_str(so,cdmaserviceoption_vals ,"Unknown"));
+	proto_tree_add_item(subtree, hf_ansi_map_cdmaserviceoption, tvb, offset, 2, FALSE);
 
 
 }
@@ -14434,7 +14428,7 @@ static void dissect_OriginationRequestRes_PDU(tvbuff_t *tvb, packet_info *pinfo,
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3534 "packet-ansi_map-template.c"
+#line 3528 "packet-ansi_map-template.c"
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
@@ -15256,7 +15250,7 @@ void proto_register_ansi_map(void) {
         "TerminationList (TL)", HFILL }},
 	{ &hf_ansi_map_cdmaserviceoption,
       { "CDMAServiceOption", "ansi_map.cdmaserviceoption",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(&cdmaserviceoption_vals), 0x0,
         "CDMAServiceOption", HFILL }},
 	{ &hf_ansi_trans_cap_waddr,
       { "WIN Addressing (WADDR)", "ansi_map.trans_cap_waddr",
@@ -17854,7 +17848,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.DropServiceRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 4937 "packet-ansi_map-template.c"
+#line 4931 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -18099,7 +18093,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 4969 "packet-ansi_map-template.c"
+#line 4963 "packet-ansi_map-template.c"
   };
 
 
