@@ -69,6 +69,10 @@ struct _value_string;
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
 #define TFS(x)	(const struct true_false_string*)(x)
 
+/** Make a const value_string[] look like a _value_string pointer, used to set
+ * header_field_info.strings */
+#define RVALS(x) (const struct _value_string*)(x)
+
 struct _protocol;
 
 /** Structure for information about a protocol */
@@ -133,6 +137,14 @@ typedef struct _protocol protocol_t;
     ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
+/* BASE_STRUCTURE_RESET constant is used in proto.c to reset the bits
+ * identifying special structures used in translation of value for display. 
+ * Its value means that we may have at most 16 base_display_e values */
+#define BASE_STRUCTURE_RESET 0x0F
+/* Following constants have to be ORed with a base_display_e when dissector
+ * want to use specials MACROs (for the moment, only RVALS) for a
+ * header_field_info */
+#define BASE_RANGE_STRING 0x10
 /** radix for decimal values, used in header_field_info.display */
 typedef enum {
 	BASE_NONE,	/**< none */

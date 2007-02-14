@@ -4026,9 +4026,15 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 	value = fvalue_get_uinteger(&fi->value);
 
 	/* Fill in the textual info */
-	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+	if (hfinfo->display & BASE_RANGE_STRING) {
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, 
+			format,  hfinfo->name,
+			rval_to_str(value, hfinfo->strings, "Unknown"), value);
+	} else {
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	}
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
@@ -4094,9 +4100,15 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 	value = fvalue_get_sinteger(&fi->value);
 
 	/* Fill in the textual info */
-	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+	if (hfinfo->display & BASE_RANGE_STRING) {
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, 
+			format,  hfinfo->name,
+			rval_to_str(value, hfinfo->strings, "Unknown"), value);
+	} else {
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+	}
 	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 }
@@ -4190,7 +4202,9 @@ hfinfo_uint_vals_format(header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-	switch(hfinfo->display) {
+	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
+	 * the future?) */
+	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
 		case BASE_DEC:
 		case BASE_DEC_HEX:
 			format = "%s: %s (%u)";
@@ -4314,7 +4328,9 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 {
 	const char *format = NULL;
 
-	switch(hfinfo->display) {
+	/* bit operation to reset the potential BASE_RANGE_STRING (or others in
+	 * the future?)*/
+	switch(hfinfo->display & BASE_STRUCTURE_RESET) {
 		case BASE_DEC:
 		case BASE_DEC_HEX:
 			format = "%s: %s (%d)";
