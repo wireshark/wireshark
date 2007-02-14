@@ -1,12 +1,12 @@
 -- H323-MESSAGES.asn
 --
 -- Taken from ITU ASN.1 database
--- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2006/H323-MESSAGES.asn
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h225-0/2006-amd1/H323-MESSAGES.asn
 --
 -- $Id$
 --
 
--- Module H323-MESSAGES (H.225.0:05/2006)
+-- Module H323-MESSAGES (H.225.0:05/2006, Amendment 1:01/2007)
 H323-MESSAGES DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
@@ -439,11 +439,14 @@ SetupAcknowledge-UUIE ::= SEQUENCE {
 }
 
 Notify-UUIE ::= SEQUENCE {
-  protocolIdentifier  ProtocolIdentifier,
-  callIdentifier      CallIdentifier,
-  tokens              SEQUENCE OF ClearToken OPTIONAL,
-  cryptoTokens        SEQUENCE OF CryptoH323Token OPTIONAL,
-  ...
+  protocolIdentifier        ProtocolIdentifier,
+  callIdentifier            CallIdentifier,
+  tokens                    SEQUENCE OF ClearToken OPTIONAL,
+  cryptoTokens              SEQUENCE OF CryptoH323Token OPTIONAL,
+  ...,
+  connectedAddress          SEQUENCE OF AliasAddress OPTIONAL,
+  presentationIndicator     PresentationIndicator OPTIONAL,
+  screeningIndicator        ScreeningIndicator OPTIONAL
 }
 
 -- Beginning of common message elements section

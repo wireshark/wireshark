@@ -4501,6 +4501,9 @@ static const per_sequence_t Notify_UUIE_sequence[] = {
   { &hf_h225_callIdentifier , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_CallIdentifier },
   { &hf_h225_tokens         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_SEQUENCE_OF_ClearToken },
   { &hf_h225_cryptoTokens   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_SEQUENCE_OF_CryptoH323Token },
+  { &hf_h225_connectedAddress, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_SEQUENCE_OF_AliasAddress },
+  { &hf_h225_presentationIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_PresentationIndicator },
+  { &hf_h225_screeningIndicator, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_h225_ScreeningIndicator },
   { NULL, 0, 0, NULL }
 };
 
