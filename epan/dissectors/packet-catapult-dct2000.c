@@ -593,7 +593,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     if (strcmp(protocol_name, "fpiur_r5") == 0)
     {
         /* Store info in packet */
-        p_fp_info->interface = IuR_Interface;
+        p_fp_info->iface_type = IuR_Interface;
         p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
         return;
     }
@@ -644,7 +644,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     }
 
     /* Interface must be IuB */
-    p_fp_info->interface = IuB_Interface;
+    p_fp_info->iface_type = IuB_Interface;
 
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);

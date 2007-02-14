@@ -96,7 +96,7 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 	if (!p_fp_info || length < 22)
 		return;
 
-	p_fp_info->interface = IuB_Interface;
+	p_fp_info->iface_type = IuB_Interface;
 
 	p_fp_info->release = 0;       /* dummy */
 	p_fp_info->release_year = 0;  /* dummy */
@@ -153,7 +153,7 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 			p_fp_info->channel = CHANNEL_DCH;
 			break;
 	}
-			
+
 	p_fp_info->dch_crc_present = 1; /* dummy */
 
 	if (info_type == 0x30) { /* data frame */
@@ -201,16 +201,16 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
                                                   (guint)pinfo->pseudo_header->k12.input_info.atm.vp,
                                                   (guint)pinfo->pseudo_header->k12.input_info.atm.vc,
                                                   (guint)pinfo->pseudo_header->k12.input_info.atm.cid);
-            
+
 			/*
 			 * XXX: this is prone to collisions!
 			 * we need an uniform way to manage circuits between dissectors
 			 */
             pinfo->circuit_id = g_str_hash(circuit_str);
-            
+
 			proto_tree_add_uint(k12_tree, hf_k12_atm_vp, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vp);
 			proto_tree_add_uint(k12_tree, hf_k12_atm_vc, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.vc);
-            if (pinfo->pseudo_header->k12.input_info.atm.cid) 
+            if (pinfo->pseudo_header->k12.input_info.atm.cid)
                 proto_tree_add_uint(k12_tree, hf_k12_atm_cid, tvb, 0,0,pinfo->pseudo_header->k12.input_info.atm.cid);
 			break;
         }
@@ -219,7 +219,7 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	}
 
 	handles = se_tree_lookup32(port_handles, pinfo->pseudo_header->k12.input);
-	
+
 	if (! handles ) {
 		for (i=0 ; i < nk12_handles; i++) {
 			if ( epan_strcasestr(pinfo->pseudo_header->k12.stack_file, k12_handles[i].match) ) {
@@ -227,32 +227,32 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 				break;
 			}
 		}
-		
+
 		if (!handles) {
 			data_handles[0] = data_handle;
 			handles = data_handles;
 		}
-		
+
 		se_tree_insert32(port_handles, pinfo->pseudo_header->k12.input, handles);
-		
+
 	}
-	
+
 	if (handles == data_handles) {
 		proto_tree* stack_tree = proto_item_add_subtree(stack_item,ett_stack_item);
 		proto_item* item;
-		
+
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 								   "Warning: stk file not matched in the 'K12 Protocols' table");
 		PROTO_ITEM_SET_GENERATED(item);
 		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "unmatched stk file");
-		
+
 		item = proto_tree_add_text(stack_tree,tvb,0,0,
 								   "Info: You can edit the 'K12 Protocols' table from Preferences->Protocols->k12xx");
 		PROTO_ITEM_SET_GENERATED(item);
 	}
-	
+
 	/* Setup subdissector information */
-		
+
 	for (i = 0; handles[i] && handles[i+1]; ++i) {
 		if (handles[i] == sscop_handle) {
 			sscop_payload_info *p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
@@ -290,15 +290,15 @@ static void k12_update_cb(void* r, char** err) {
 	k12_handles_t* h = r;
 	gchar** protos;
 	guint num_protos, i;
-	
+
 	protos = ep_strsplit(h->protos,":",0);
-	
+
 	for (num_protos = 0; protos[num_protos]; num_protos++) g_strstrip(protos[num_protos]);
-	
+
 	if (h->handles) g_free(h->handles);
-	
+
 	h->handles = g_malloc(sizeof(dissector_handle_t)*num_protos);
-	
+
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
 			h->handles[i] = data_handle;
@@ -306,7 +306,7 @@ static void k12_update_cb(void* r, char** err) {
 			return;
 		}
 	}
-	
+
 	*err = NULL;
 }
 
@@ -315,13 +315,13 @@ static void* k12_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 	const k12_handles_t* o = orig;
 	gchar** protos = ep_strsplit(d->protos,":",0);
 	guint num_protos;
-	
+
 	for (num_protos = 0; protos[num_protos]; num_protos++) g_strstrip(protos[num_protos]);
-	
+
 	d->match = g_strdup(o->match);
 	d->protos = g_strdup(o->protos);
 	d->handles = g_memdup(o->handles,sizeof(dissector_handle_t)*(num_protos+1));
-	
+
 	return dest;
 }
 
@@ -337,26 +337,26 @@ static gboolean protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1
 	gchar** protos;
 	gchar* line = ep_strndup(p,len);
 	guint num_protos, i;
-	
+
 	g_strstrip(line);
 	g_strdown(line);
 
 	protos = ep_strsplit(line,":",0);
 
 	for (num_protos = 0; protos[num_protos]; num_protos++) g_strstrip(protos[num_protos]);
-	
+
 	if (!num_protos) {
 		*err = ep_strdup_printf("No protocols given");
-		return FALSE;			
+		return FALSE;
 	}
-	
+
 	for (i = 0; i < num_protos; i++) {
 		if (!find_dissector(protos[i])) {
 			*err = ep_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			return FALSE;
 		}
 	}
-	
+
 	return TRUE;
 }
 
@@ -409,9 +409,9 @@ proto_register_k12(void)
 							"Use (sscop:sscf-nni) for sscf-nni (MTP3b) with sscop"),
 	  UAT_END_FIELDS
   };
-  
+
   module_t *k12_module;
-  
+
   proto_k12 = proto_register_protocol("K12xx", "K12xx", "k12");
   proto_register_field_array(proto_k12, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -428,7 +428,7 @@ proto_register_k12(void)
 					k12_update_cb,
 					k12_free_cb,
 					uat_k12_flds );
-  
+
   k12_module = prefs_register_protocol(proto_k12, NULL);
 
   prefs_register_obsolete_preference(k12_module, "config");
@@ -437,7 +437,7 @@ proto_register_k12(void)
 								"K12 Protocols",
 								"A table of matches vs stack filenames and relative protocols",
 								k12_uat);
-  
+
   port_handles = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "k12_port_handles");
 
 }

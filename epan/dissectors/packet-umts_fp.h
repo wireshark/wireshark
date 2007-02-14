@@ -51,7 +51,7 @@ enum fp_interface_type
 /* Info attached to each FP packet */
 typedef struct fp_info
 {
-    enum fp_interface_type interface;
+    enum fp_interface_type iface_type;
     guint8  release;                     /* e.g. 99, 4, 5, 6 */
     guint16 release_year;                /* e.g. 2001 */
     guint8  release_month;               /* e.g. 12 for December */

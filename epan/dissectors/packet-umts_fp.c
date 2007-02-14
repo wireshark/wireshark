@@ -1162,7 +1162,7 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             /* PDSCH Set Id */
             proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
             offset++;
-    
+
             /* Transmit power level */
             proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
                                  (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
@@ -1634,7 +1634,7 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_str(pinfo->cinfo, COL_INFO,
-                       is_control_frame ? " [Control] " : 
+                       is_control_frame ? " [Control] " :
                                           ((p_fp_info->is_uplink) ? " [ULData] " :
                                                                     " [DLData] " ));
     }
@@ -1946,7 +1946,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             {
                 /* Tree should cover entire subframe */
                 proto_item_set_len(subframe_ti, bit_offset/8);
-    
+
                 /* Append summary info to subframe label */
                 proto_item_append_text(subframe_ti, " (%u bits in %u MAC-d PDUs)",
                                        bits_in_subframe, mac_d_pdus_in_subframe);
@@ -2146,7 +2146,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Don't currently handle IuR-specific formats, but its useful to even see
        the channel type and direction */
-    if (p_fp_info->interface == IuR_Interface)
+    if (p_fp_info->iface_type == IuR_Interface)
     {
         return;
     }
