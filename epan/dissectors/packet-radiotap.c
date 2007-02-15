@@ -80,6 +80,8 @@ enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_ANTENNA = 11,
     IEEE80211_RADIOTAP_DB_ANTSIGNAL = 12,
     IEEE80211_RADIOTAP_DB_ANTNOISE = 13,
+    /* XXX - IEEE80211_RADIOTAP_FCS is used by MadWifi and AirPcap, but
+     * was never officially assigned. */
     IEEE80211_RADIOTAP_FCS = 14,
     IEEE80211_RADIOTAP_EXT = 31
 };
