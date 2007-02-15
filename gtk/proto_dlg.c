@@ -443,12 +443,14 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   gboolean redissect;
 
+  /* update the selection now, so we'll save the right things */
+  redissect = set_proto_selection(GTK_WIDGET(parent_w));
+
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
       proto_write(parent_w);
   }
 
-  redissect = set_proto_selection(GTK_WIDGET(parent_w));
   window_destroy(GTK_WIDGET(parent_w));
   if (redissect)
     cf_redissect_packets(&cfile);
@@ -457,12 +459,17 @@ proto_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 static void
 proto_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 {
+  gboolean redissect;
+
+  /* update the selection now, so we'll save the right things */
+  redissect = set_proto_selection(GTK_WIDGET(parent_w));
+
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
       proto_write(parent_w);
   }
 
-  if (set_proto_selection(GTK_WIDGET(parent_w)))
+  if (redissect)
     cf_redissect_packets(&cfile);
 }
 
