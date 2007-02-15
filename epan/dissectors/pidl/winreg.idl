@@ -2,7 +2,7 @@
   winreg interface definition
 */
 
-import "lsa.idl", "initshutdown.idl", "security.idl";
+/* import "lsa.idl", "initshutdown.idl", "security.idl";*/
 
 [ 
   uuid("338cd001-2244-31f1-aaaa-900038001003"),
@@ -16,6 +16,14 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 	declare bitmap security_secinfo;
 
 	typedef [bitmap32bit] bitmap {
+		KEY_QUERY_VALUE 		= 0x00001,
+		KEY_SET_VALUE 			= 0x00002,
+		KEY_CREATE_SUB_KEY 		= 0x00004,
+		KEY_ENUMERATE_SUB_KEYS 	= 0x00008,
+		KEY_NOTIFY 				= 0x00010,
+		KEY_CREATE_LINK 		= 0x00020,
+		KEY_WOW64_64KEY 		= 0x00100,
+		KEY_WOW64_32KEY 		= 0x00200
 	} winreg_AccessMask;
 
 	typedef [v1_enum] enum {
@@ -57,7 +65,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 
 	/******************/
 	/* Function: 0x02 */
-	WERROR winreg_OpenHKLM(
+	[public] WERROR winreg_OpenHKLM(
 		[in]      uint16 *system_name,
 		[in]      winreg_AccessMask access_mask,
 		[out,ref] policy_handle *handle
@@ -81,7 +89,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 
 	/******************/
 	/* Function: 0x05 */
-	WERROR winreg_CloseKey(
+	[public] WERROR winreg_CloseKey(
 		[in,out,ref] policy_handle *handle
 	);
 
@@ -106,7 +114,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 		REG_OPENED_EXISTING_KEY = 2
 	} winreg_CreateAction;
 
-	WERROR winreg_CreateKey(
+	[public] WERROR winreg_CreateKey(
 		[in,ref] policy_handle *handle,
 		[in] winreg_String name,
 		[in] winreg_String keyclass,
@@ -151,7 +159,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 	/******************/
 	/* Function: 0x0a */
 
-	WERROR winreg_EnumValue(
+	[public] WERROR winreg_EnumValue(
 		[in,ref]        policy_handle *handle,
 		[in]            uint32 enum_index,
 		[in,out,ref]    winreg_StringBuf *name,
@@ -209,8 +217,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 	/* Function: 0x10 */
 	WERROR winreg_QueryInfoKey(
 		[in,ref] policy_handle *handle,
-		[in] winreg_String class_in,
-		[out] winreg_String *class_out,
+		[in,out,ref] winreg_String *class_in,
 		[out,ref] uint32 *num_subkeys,
 		[out,ref] uint32 *max_subkeylen,
 		[out,ref] uint32 *max_subkeysize,
@@ -223,7 +230,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 
 	/******************/
 	/* Function: 0x11 */
-	WERROR winreg_QueryValue(
+	[public] WERROR winreg_QueryValue(
 		[in,ref] policy_handle *handle,
 		[in] winreg_String value_name,
 		[in,out] winreg_Type *type,
@@ -318,7 +325,7 @@ import "lsa.idl", "initshutdown.idl", "security.idl";
 	
 	/******************/
 	/* Function: 0x1d */
-	WERROR winreg_QueryMultipleValues(
+	[public] WERROR winreg_QueryMultipleValues(
 		[in,ref] policy_handle *key_handle, 
 		[in,out,ref,size_is(num_values),length_is(num_values)] QueryMultipleValue *values,
 		[in] uint32 num_values,

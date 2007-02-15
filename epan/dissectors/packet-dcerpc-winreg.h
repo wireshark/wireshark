@@ -14,10 +14,6 @@
 #ifndef __PACKET_DCERPC_WINREG_H
 #define __PACKET_DCERPC_WINREG_H
 
-#include "packet-dcerpc-lsa.h"
-
-#include "packet-dcerpc-initshutdown.h"
-
 int winreg_dissect_bitmap_AccessMask(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 #define REG_NONE (0)
 #define REG_SZ (1)
