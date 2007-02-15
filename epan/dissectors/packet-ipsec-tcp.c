@@ -40,15 +40,40 @@
 #include <epan/prefs.h>
 
 static int hf_tcpencap_unknown = -1;
+static int hf_tcpencap_zero = -1;
+static int hf_tcpencap_seq = -1;
+static int hf_tcpencap_ike_direction = -1;
+static int hf_tcpencap_esp_zero = -1;
+static int hf_tcpencap_magic = -1;
+static int hf_tcpencap_proto = -1;
+static int hf_tcpencap_magic2 = -1;
 
 static int proto_tcpencap = -1;
 static gint ett_tcpencap = -1;
+static gint ett_tcpencap_unknown = -1;
+
+static const value_string tcpencap_ikedir_vals[] = {
+	{ 0x0000,	"Server to client" },
+	{ 0x4000,	"Client to server" },
+
+	{ 0,	NULL }
+};
+
+static const value_string tcpencap_proto_vals[] = {
+	{ 0x11,	"ISAKMP" },
+	{ 0x32,	"ESP" },
+
+	{ 0,	NULL }
+};
 
 #define TCP_CISCO_IPSEC 10000
 static guint global_tcpencap_tcp_port = TCP_CISCO_IPSEC;
 
 static dissector_handle_t esp_handle;
 static dissector_handle_t udp_handle;
+
+#define TCP_ENCAP_P_ESP 1
+#define TCP_ENCAP_P_UDP 2
 
 /*
  * TCP Encapsulation of IPsec Packets	
@@ -58,34 +83,59 @@ static void
 dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *tcpencap_tree = NULL;
-	proto_item *ti = NULL;
+	proto_tree *tcpencap_unknown_tree = NULL;
+
+	proto_item *tree_item = NULL;
+	proto_item *unknown_item = NULL;
 	tvbuff_t *next_tvb;
 	guint32 reported_length = tvb_reported_length(tvb);
+	guint32 offset;
+	guint8  protocol;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCPENCAP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_tcpencap, tvb, 0, -1, FALSE);
-		tcpencap_tree = proto_item_add_subtree(ti, ett_tcpencap);
-	}
-
-	/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
-	proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
-		reported_length - 16, 16, FALSE);
-
 	/* If the first 4 bytes are 0x01f401f4 (udp src and dst port = 500)
 	   we most likely have UDP (isakmp) traffic */
 	
+	if (tvb_get_ntohl(tvb, 0) == 0x01f401f4) { /* UDP means ISAKMP */
+		protocol = TCP_ENCAP_P_UDP;
+	} else { /* Hopefully ESP */
+		protocol = TCP_ENCAP_P_ESP;
+	}
+
+	if (tree) {
+		tree_item = proto_tree_add_item(tree, proto_tcpencap, tvb, 0, -1, FALSE);
+		tcpencap_tree = proto_item_add_subtree(tree_item, ett_tcpencap);
+
+		/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
+		offset = reported_length - 16;
+		unknown_item = proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
+			offset, 16, FALSE);
+		/* Try to guess the contents of the trailer */
+		tcpencap_unknown_tree = proto_item_add_subtree(unknown_item, ett_tcpencap_unknown);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, FALSE);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_seq, tvb, offset + 4, 2, FALSE);
+		if (protocol == TCP_ENCAP_P_UDP) {
+			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_ike_direction, tvb, offset + 6, 2, FALSE);
+		} else {
+			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_esp_zero, tvb, offset + 6, 2, FALSE);
+		}
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic, tvb, offset + 8, 5, FALSE);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_proto, tvb, offset + 13, 1, FALSE);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic2, tvb, offset + 14, 2, FALSE);
+	}
+
 	/* Create the tvbuffer for the next dissector */
 	next_tvb = tvb_new_subset(tvb, 0, reported_length - 16 , -1);
-	if (tvb_get_ntohl(tvb, 0) == 0x01f401f4) {
+	if (protocol == TCP_ENCAP_P_UDP) {
 		call_dissector(udp_handle, next_tvb, pinfo, tree);
 	} else { /* Hopefully ESP */
 		call_dissector(esp_handle, next_tvb, pinfo, tree);
 	}
+
 }
 
 void
@@ -106,12 +156,42 @@ proto_register_tcpencap(void)
 	static hf_register_info hf[] = {
 
 		{ &hf_tcpencap_unknown,
-		{ "Unknown Trailer",      "tcpencap.unknown", FT_BYTES, BASE_NONE, NULL,
+		{ "Unknown trailer",      "tcpencap.unknown", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_zero,
+		{ "All zero",      "tcpencap.zero", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_seq,
+		{ "Sequence number",      "tcpencap.seq", FT_UINT16, BASE_HEX, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_esp_zero,
+		{ "ESP zero",      "tcpencap.espzero", FT_UINT16, BASE_HEX, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_ike_direction,
+		{ "ISAKMP traffic direction",      "tcpencap.ikedirection", FT_UINT16, BASE_HEX, VALS(tcpencap_ikedir_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_magic,
+		{ "Magic number",      "tcpencap.magic", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_proto,
+		{ "Protocol",      "tcpencap.proto", FT_UINT8, BASE_HEX, VALS(tcpencap_proto_vals),
+			0x0, "", HFILL }},
+
+		{ &hf_tcpencap_magic2,
+		{ "Magic 2",      "tcpencap.magic2", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
 		&ett_tcpencap,
+		&ett_tcpencap_unknown,
 	};
 
 	module_t *tcpencap_module;
