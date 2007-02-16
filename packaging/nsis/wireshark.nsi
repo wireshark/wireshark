@@ -38,8 +38,8 @@ Name "${PROGRAM_NAME} ${VERSION}"
 OutFile "${DEST}-setup-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
-;Icon "..\..\image\wiresharkinst.ico"
-;UninstallIcon "..\..\image\wiresharkinst.ico"
+Icon "..\..\image\wireshark.ico"
+UninstallIcon "..\..\image\wireshark.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
 !define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be uninstalled. Click 'Next' to continue."
@@ -62,8 +62,8 @@ XPStyle on
 !include "MUI.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "..\..\image\wiresharkinst.ico"
-!define MUI_UNICON "..\..\image\wiresharkinst.ico"
+!define MUI_ICON "..\..\image\wireshark.ico"
+!define MUI_UNICON "..\..\image\wireshark.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -1223,7 +1223,7 @@ lbl_ignore_wimp:
 
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 3.1"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0"
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1237,16 +1237,13 @@ lbl_winpcap_installed:
 	StrCpy $1 "$WINPCAP_VERSION" 10
 	StrCmp $1 "WinPcap 2." lbl_winpcap_do_install
 	; WinPcap 3.0 (including betas): the version string starts with "WinPcap 3.0"
-	StrCpy $1 "$WINPCAP_VERSION" 11
-	StrCmp $1 "WinPcap 3.0" lbl_winpcap_do_install
-	; WinPcap 3.1 previous beta's; exact string match
-	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta" lbl_winpcap_do_install
-	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta2" lbl_winpcap_do_install
-	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta3" lbl_winpcap_do_install
-	StrCmp "$WINPCAP_VERSION" "WinPcap 3.1 beta4" lbl_winpcap_do_install
-	; WinPcap 4.0 (including betas): the version string starts with "WinPcap 4.0"
-	StrCpy $1 "$WINPCAP_VERSION" 11
-	StrCmp $1 "WinPcap 4.0" lbl_winpcap_dont_upgrade
+	; WinPcap 3.x (all versions): the version string starts with "WinPcap 3."
+	StrCpy $1 "$WINPCAP_VERSION" 10
+	StrCmp $1 "WinPcap 3." lbl_winpcap_do_install
+	; WinPcap 4.0 alphas and betas: the version string starts with "WinPcap 4.0 {alpha|beta}"
+	StrCpy $1 "$WINPCAP_VERSION" 16
+	StrCmp $1 "WinPcap 4.0 alph" lbl_winpcap_do_install
+	StrCmp $1 "WinPcap 4.0 beta" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
 	; seems to be the current version, so don't install
@@ -1254,11 +1251,11 @@ lbl_winpcap_installed:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If selected, the currently installed $WINPCAP_VERSION will be uninstalled first."
 	Goto lbl_winpcap_done
 
-lbl_winpcap_dont_upgrade:
+;lbl_winpcap_dont_upgrade:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 3.1, please uninstall $WINPCAP_VERSION manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0, please uninstall $WINPCAP_VERSION manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 
