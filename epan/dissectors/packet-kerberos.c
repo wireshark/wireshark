@@ -504,10 +504,15 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		key.key.length=ek->keylength;
 		key.key.contents=ek->keyvalue;
 		ret = krb5_c_decrypt(context, &(key.key), usage, 0, &input, &data);
-		if (ret == 0) {
+		if((ret == 0) && (length>0)){
+			char *user_data;
+
 printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
-			return data.data;
+			/* return a private g_malloced blob to the caller */
+			user_data=g_malloc(data.length);
+			memcpy(user_data, data.data, data.length);
+			return user_data;
 		}
 	}
 
@@ -634,11 +639,16 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 				&data,
 				NULL);
 		g_free(cryptocopy);
-		if (ret == 0) {
+		if((ret == 0) && (length>0)){
+			char *user_data;
+
 printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(context, crypto);
-			return data.data;
+			/* return a private g_malloced blob to the caller */
+			user_data=g_malloc(data.length);
+			memcpy(user_data, data.data, data.length);
+			return user_data;
 		}
 		krb5_crypto_destroy(context, crypto);
 	}
@@ -2008,6 +2018,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvb
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3241,6 +3252,7 @@ dissect_krb5_decrypt_PRIV (packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3394,6 +3406,7 @@ dissect_krb5_decrypt_EncKrbCredPart (packet_info *pinfo, proto_tree *tree, tvbuf
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3662,6 +3675,7 @@ dissect_krb5_decrypt_authenticator_data (packet_info *pinfo, proto_tree *tree, t
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3739,6 +3753,7 @@ dissect_krb5_decrypt_Ticket_data (packet_info *pinfo, proto_tree *tree, tvbuff_t
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3873,6 +3888,7 @@ dissect_krb5_decrypt_AP_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
@@ -3986,6 +4002,7 @@ dissect_krb5_decrypt_KDC_REP_data (packet_info *pinfo, proto_tree *tree, tvbuff_
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
                                           length);
+		tvb_set_free_cb(next_tvb, g_free);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 		/* Add the decrypted data to the data source list. */
