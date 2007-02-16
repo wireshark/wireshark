@@ -158,6 +158,9 @@ static guint global_rtp_version0_type = 0;
 
 static dissector_handle_t data_handle;
 
+/* Forward declaration we need below */
+void proto_reg_handoff_rtp(void);
+
 static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
@@ -171,7 +174,7 @@ static gboolean global_rtp_show_setup_info = TRUE;
 /* Try heuristic RTP decode */
 static gboolean global_rtp_heur = FALSE;
 
-/* RFC2198 Redundat Audio Data */
+/* RFC2198 Redundant Audio Data */
 static guint rtp_rfc2198_pt = 99;
 static guint rtp_saved_rfc2198_pt = 0;
 
@@ -439,9 +442,10 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		}
 	}
+
 	/* if we don't found, it is static OR could be set static from the preferences */
-		if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-			proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+	if (!dissector_try_port(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
 
 }
 
@@ -458,6 +462,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rfc2198_hdr *hdr_last, *hdr_new;
 	rfc2198_hdr *hdr_chain = NULL;
 
+	/* Add try to RFC2198 data */
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC2198: Redundant Audio Data");
 	rfc2198_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198);
 
@@ -465,12 +470,15 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	cnt = 0;
 	while (hdr_follow) {
 		cnt++;
+
+		/* Allocate and fill in header */
 		hdr_new = ep_alloc(sizeof(rfc2198_hdr));
 		hdr_new->next = NULL;
 		octet1 = tvb_get_guint8(tvb, offset);
 		hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
 		hdr_follow = (octet1 & 0x80);
 
+		/* Add a subtree for this header and add items */
 		ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
 		rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
 		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, FALSE );
@@ -478,6 +486,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_item_append_text(ti, ": PT=%s", val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
 		offset += 1;
 
+		/* Timestamp offset and block length don't apply to last header */
 		if (hdr_follow) {
 			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_tm_off, tvb, offset, 2, FALSE );
 			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_bl_len, tvb, offset + 1, 2, FALSE );
@@ -497,6 +506,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		hdr_last = hdr_new;
 	}
 
+	/* Dissect each data block according to the header info */
 	hdr_last = hdr_chain;
 	while (hdr_last) {
 		hdr_last->offset = offset;
@@ -1318,7 +1328,7 @@ proto_register_rtp(void)
 												    "Dynamic RTP payload type", FT_STRING, BASE_NONE);
 
 
-	rtp_module = prefs_register_protocol(proto_rtp, NULL);
+	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
 	prefs_register_bool_preference(rtp_module, "show_setup_info",
 	                               "Show stream setup information",
@@ -1337,11 +1347,11 @@ proto_register_rtp(void)
 	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet, a STUN packet, or a T.38 packet",
 	                               &global_rtp_version0_type,
 	                               rtp_version0_types, FALSE);
-    prefs_register_uint_preference (rtp_module,
-                                    "rfc2198_payload_type", "Payload Type for RFC2198",
-                                    "Payload Type for RFC2198 Redundant Audio Data",
-                                    10,
-                                    &rtp_rfc2198_pt);
+    prefs_register_uint_preference(rtp_module,
+                                   "rfc2198_payload_type", "Payload Type for RFC2198",
+                                   "Payload Type for RFC2198 Redundant Audio Data",
+                                   10,
+                                   &rtp_rfc2198_pt);
 }
 
 void
