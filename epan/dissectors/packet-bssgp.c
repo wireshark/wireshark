@@ -4382,7 +4382,10 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   switch (ie->format) {
   case BSSGP_IE_FORMAT_TLV:
     if (!check_correct_iei(ie, bi)) {
+#ifdef BSSGP_DEBUG
+/* TODO This code does not work well with omitted Optional elements */
 		  proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TLV] format: %d", ie->format);
+#endif
       return;
     }
     bi->offset++; /* Account for type */
@@ -4391,7 +4394,10 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
   case BSSGP_IE_FORMAT_TV:
     if (!check_correct_iei(ie, bi)) {
+#ifdef BSSGP_DEBUG
+/* TODO This code does not work well with omitted Optional elements */
 		proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TV] format: %d", ie->format);
+#endif
 		return;
     }
     bi->offset++; /* Account for type */
@@ -6026,12 +6032,12 @@ proto_register_bssgp(void)
 	"", HFILL }
     },
     { &hf_bssgp_iei_nacc_cause,
-      { "NACC Cause", "bssgp.ie_type",
+      { "NACC Cause", "bssgp.iei.nacc_cause",
 	FT_UINT8, BASE_HEX, VALS(tab_bssgp_ie_types), 0x0,          
 	"NACC Cause", HFILL }
     },
     { &hf_bssgp_ie_type,
-      { "IE Type", "bssgp.iei.nacc_cause",
+      { "IE Type", "bssgp.ie_type",
 	FT_UINT8, BASE_HEX, VALS(tab_nacc_cause), 0x0,          
 	"Information element type", HFILL }
     },
