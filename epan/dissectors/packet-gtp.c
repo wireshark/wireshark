@@ -840,7 +840,7 @@ static const value_string cause_type[] = {
 
 /* GPRS:	9.02 v7.7.0
  * UMTS:	29.002 v4.2.1, chapter 17.5, page 268
- * Imported gsm_map_LocalErrorcode_vals from gsm_map
+ * Imported gsm_map_GSMMAPLocalErrorcode_vals from gsm_map from gsm_map
  */
 
 static const value_string gsn_addr_type[] = {
@@ -5838,7 +5838,7 @@ proto_register_gtp(void)
 		{ &hf_gtp_gsn_ipv6, { "GSN address IPv6", "gtp.gsn_ipv6", FT_IPv6, BASE_DEC, NULL, 0, "GSN address IPv6", HFILL }},
 		{ &hf_gtp_imsi, { "IMSI", "gtp.imsi", FT_STRING, BASE_DEC, NULL, 0, "International Mobile Subscriber Identity number", HFILL }},
 		{ &hf_gtp_length, { "Length", "gtp.length", FT_UINT16, BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL }},
-		{ &hf_gtp_map_cause, { "MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(gsm_map_LocalErrorcode_vals), 0, "MAP cause", HFILL }},
+		{ &hf_gtp_map_cause, { "MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(gsm_map_GSMMAPLocalErrorcode_vals), 0, "MAP cause", HFILL }},
 		{ &hf_gtp_message_type, { "Message Type", "gtp.message", FT_UINT8, BASE_HEX, VALS(message_type), 0x0, "GTP Message Type", HFILL }},
 		{ &hf_gtp_ms_reason, { "MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, "MS Not Reachable Reason", HFILL }},
 		{ &hf_gtp_ms_valid, { "MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE,NULL, 0, "MS validated", HFILL }},

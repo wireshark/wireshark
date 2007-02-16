@@ -28,6 +28,7 @@ ExtensionContainer
 GeographicalInformation
 GetPasswordArg
 GPRSChargingID
+GSMMAPLocalErrorcode
 GSN-Address
 IMEI
 IMSI
@@ -67,7 +68,6 @@ USSD-String
 Ussd-Arg
 Ussd-Res
 UU-Data
-LocalErrorcode
 
 #.PDU
 
@@ -134,18 +134,18 @@ Component
 #.FN_BODY ReturnErrorParameter
 	offset = dissect_returnErrorData(pinfo, tree, tvb, offset);
 
-#.FN_PARS  OperationLocalvalue
+#.FN_PARS  GSMMAPOperationLocalvalue
 
   VAL_PTR = &opcode
 
-#.FN_BODY  OperationLocalvalue
+#.FN_BODY  GSMMAPOperationLocalvalue
 
 %(DEFAULT_BODY)s 
   if (check_col(pinfo->cinfo, COL_INFO)){
     col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)"));
   }
 
-#.FN_PARS  LocalErrorcode
+#.FN_PARS  GSMMAPLocalErrorcode
 
   VAL_PTR = &errorCode
 
@@ -480,7 +480,7 @@ Component
    * use ep_alloc ?
    * TODO: Shouldent this function use USSD-DataCodingScheme to chose decoding method???
    */
-  static char bigbuf[1024];
+  static unsigned char bigbuf[1024];
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)

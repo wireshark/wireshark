@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-gsm_map.h                                                         */
+/* .\packet-gsm_map.h                                                         */
 /* ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.h */
@@ -55,21 +55,19 @@ extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
 /*--- Included file: packet-gsm_map-exp.h ---*/
 #line 1 "packet-gsm_map-exp.h"
-extern const value_string gsm_map_LocalErrorcode_vals[];
+extern const value_string gsm_map_GSMMAPLocalErrorcode_vals[];
 extern const value_string gsm_map_NotificationToMSUser_vals[];
 extern const value_string gsm_map_SubscriberState_vals[];
 extern const value_string gsm_map_SS_Info_vals[];
 extern const value_string gsm_map_InterrogateSS_Res_vals[];
 extern const value_string gsm_map_GetPasswordArg_vals[];
 extern const value_string gsm_map_Ext_BasicServiceCode_vals[];
-int dissect_gsm_map_LocalErrorcode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_GSMMAPLocalErrorcode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_SupportedCamelPhases(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_Ext2_QoS_Subscribed(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_LSAIdentity(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_gsm_map_SS_Status(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_CUG_Info(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_CUG_Index(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_CUG_Interlock(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -105,9 +103,11 @@ int dissect_gsm_map_MS_Classmark2(gboolean implicit_tag, tvbuff_t *tvb, int offs
 int dissect_gsm_map_OfferedCamel4Functionalities(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_SS_ForBS_Code(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_CCBS_Feature(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_SS_Status(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_AgeOfLocationInformation(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_Ext_BasicServiceCode(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_AddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_ISDN_SubaddressString(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_GSN_Address(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 int dissect_gsm_map_LocationType(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
