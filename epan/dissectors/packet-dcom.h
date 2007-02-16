@@ -26,8 +26,8 @@
 #define __PACKET_DCERPC_DCOM_H
 
 
-extern const value_string dcom_hresult_vals[];
-extern const value_string dcom_variant_type_vals[];
+WS_VAR_IMPORT const value_string dcom_hresult_vals[];
+WS_VAR_IMPORT const value_string dcom_variant_type_vals[];
 extern const value_string dcom_protseq_vals[];
 
 extern int hf_dcom_iid;

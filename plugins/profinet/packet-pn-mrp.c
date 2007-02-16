@@ -39,7 +39,9 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
 #include <epan/etypes.h>
-#include <epan/expert.h>
+
+#include "packet-pn.h"
+
 
 static int proto_pn_mrp = -1;
 
@@ -58,8 +60,6 @@ static int hf_pn_mrp_blocked = -1;
 static int hf_pn_mrp_manufacturer_oui = -1;
 static int hf_pn_mrp_domain_uuid = -1;
 static int hf_pn_mrp_oui = -1;
-
-static int hf_pn_mrp_data = -1;
 
 
 static gint ett_pn_mrp = -1;
@@ -112,30 +112,6 @@ static const value_string pn_mrp_prio_vals[] = {
 
 
 
-/* XXX - use include file instead for these helpers */
-extern int dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                  proto_tree *tree, int hfindex, guint8 *pdata);
-
-extern int dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint16 *pdata);
-
-extern int dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint32 *pdata);
-
-extern int dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, gint16 *pdata);
-
-extern int dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata);
-
-extern int dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint8 *pdata);
-
-extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, e_uuid_t *uuid);
-
-
-
 static int
 dissect_PNMRP_Common(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
@@ -178,9 +154,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked);
 
     /* Padding */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "LinkUp");
@@ -210,9 +184,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_blocked, &blocked);
 
     /* Padding */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "LinkDown");
@@ -254,9 +226,7 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_time_stamp, &time_stamp);
 
     /* Padding */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "Test");
@@ -286,9 +256,7 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval);
 
     /* Padding */
-    /*if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }*/
+    /*offset = dissect_pn_align4(tvb, offset, pinfo, tree);*/
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "TopologyChange");
@@ -303,41 +271,40 @@ static int
 dissect_PNMRP_Option(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
 {
-    proto_item *unknown_item;
-	guint32 oui;
+    guint32 oui;
 
 
-	/* OUI (organizational unique id) */
+    /* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
     length -= 3;
 	
-	switch (oui)
+    switch (oui)
 	{
 	case OUI_SIEMENS:
         proto_item_append_text(item, "Option(SIEMENS)");
-        unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
-		    "Undecoded %u bytes of Siemens Option field", length);
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-		    "Undecoded %u bytes of Siemens Option field", length);
+        /* Padding */
+        if (offset % 4) {
+            length -= 4 - (offset % 4);
+            offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        }
+        if(length != 0) {
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
+        }
         if (check_col(pinfo->cinfo, COL_INFO))
           col_append_fstr(pinfo->cinfo, COL_INFO, "Option(Siemens)");
 		break;
 	default:
         proto_item_append_text(item, "Option(Unknown-OUI)");
-        unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb, offset, length, "data", 
-            "Unknown OUI Data: %d bytes", length);
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			"Unknown OUI Data %u bytes", length);
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
+
         if (check_col(pinfo->cinfo, COL_INFO))
           col_append_fstr(pinfo->cinfo, COL_INFO, "Option");
-	}
+    }
 
     offset += length;
 
     /* Padding */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     return offset;
 }
@@ -350,8 +317,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     guint16 version;
     guint8 type;
     guint8 length;
-    gint i = 0;
-    proto_item *unknown_item;
+    gint i;
     tvbuff_t *tvb_new;
 
 
@@ -363,7 +329,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
     tvb_new = tvb_new_subset(tvb, offset, -1, -1);
     offset = 0;
 
-    while(tvb_length_remaining(tvb, offset) > 0) {
+    for(i=0; tvb_length_remaining(tvb, offset) > 0; i++) {
         /* MRP_TLVHeader.Type */
         offset = dissect_pn_uint8(tvb_new, offset, pinfo, tree, hf_pn_mrp_type, &type);
 
@@ -376,8 +342,6 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 
             proto_item_append_text(item, ", ");
         }
-
-        i++;
 
         switch(type) {
         case(0x00):
@@ -406,21 +370,14 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             offset = dissect_PNMRP_Option(tvb_new, offset, pinfo, tree, item, length);
             break;
         default:
-            unknown_item = proto_tree_add_string_format(tree, hf_pn_mrp_data, tvb_new, offset, length, "data", 
-                "PN-MRP Unknown TLVType 0x%x, Data: %d bytes", type, length);
-            expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			    "Unknown TLVType 0x%x, %u bytes",
-			    type, length);
-	        if (check_col(pinfo->cinfo, COL_INFO))
-		        col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-	        proto_item_append_text(item, "Unknown TLVType 0x%x", type);
-
-            offset += length;
+            if (check_col(pinfo->cinfo, COL_INFO))
+		    col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
+	    proto_item_append_text(item, "Unknown TLVType 0x%x", type);
         }
     }
 
-    /* will never be reached */
     return offset;
 }
 
@@ -456,9 +413,6 @@ void
 proto_register_pn_mrp (void)
 {
 	static hf_register_info hf[] = {
-    { &hf_pn_mrp_data,
-        { "Undecoded Data", "pn_mrp.data", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
-
 	{ &hf_pn_mrp_type,
 		{ "Type", "pn_mrp.type", FT_UINT8, BASE_HEX, VALS(pn_mrp_block_type_vals), 0x0, "", HFILL }},
 	{ &hf_pn_mrp_length,

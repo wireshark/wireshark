@@ -35,9 +35,9 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
-#include "packet-dcerpc.h"
-#include "packet-dcom.h"
-#include "packet-dcom-dispatch.h"
+#include <epan/dissectors/packet-dcerpc.h>
+#include <epan/dissectors/packet-dcom.h>
+#include <epan/dissectors/packet-dcom-dispatch.h>
 #include "packet-dcom-cba-acco.h"
 
 

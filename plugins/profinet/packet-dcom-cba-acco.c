@@ -37,8 +37,8 @@
 #include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/addr_resolv.h>
-#include "packet-dcerpc.h"
-#include "packet-dcom.h"
+#include <epan/dissectors/packet-dcerpc.h>
+#include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
 
 static int hf_cba_acco_opnum = -1;
@@ -4737,7 +4737,8 @@ proto_register_dcom_cba_acco (void)
 		{ &hf_cba_acco_cdb_cookie,
 		{ "CDBCookie", "cba.acco.cdb_cookie", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_conn_error_state,
-		{ "ConnErrorState", "cba.acco.conn_error_state", FT_UINT32, BASE_HEX, VALS(dcom_hresult_vals), 0x0, "", HFILL }},
+                /* XXX - find out, why VALS doesn't work here! */
+		{ "ConnErrorState", "cba.acco.conn_error_state", FT_UINT32, BASE_HEX, NULL /*VALS(dcom_hresult_vals)*/, 0x0, "", HFILL }},
 		{ &hf_cba_acco_diag_req,
 		{ "Request", "cba.acco.diag_req", FT_UINT32, BASE_HEX, VALS(cba_acco_diag_req_vals), 0x0, "", HFILL }},
 		{ &hf_cba_acco_diag_in_length,
@@ -4770,10 +4771,11 @@ proto_register_dcom_cba_acco (void)
 		{ "CRLength", "cba.acco.serversrt_cr_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_serversrt_cr_flags,
 		{ "Flags", "cba.acco.serversrt_cr_flags", FT_UINT32, BASE_HEX, 0, 0x0, "", HFILL }},
+                /* XXX - find out, why TFS doesn't work here! */
 		{ &hf_cba_acco_serversrt_cr_flags_timestamped,
-		{ "Timestamped", "cba.acco.serversrt_cr_flags_timestamped", FT_BOOLEAN, 32, TFS (&flags_set_truth), 0x1, "", HFILL }},
+		{ "Timestamped", "cba.acco.serversrt_cr_flags_timestamped", FT_BOOLEAN, 32, NULL /*TFS (&flags_set_truth)*/, 0x1, "", HFILL }},
 		{ &hf_cba_acco_serversrt_cr_flags_reconfigure,
-		{ "Reconfigure", "cba.acco.serversrt_cr_flags_reconfigure", FT_BOOLEAN, 32, TFS (&flags_set_truth), 0x2, "", HFILL }},
+		{ "Reconfigure", "cba.acco.serversrt_cr_flags_reconfigure", FT_BOOLEAN, 32, NULL /*TFS (&flags_set_truth)*/, 0x2, "", HFILL }},
 		{ &hf_cba_type_desc_len,
 		{ "TypeDescLen", "cba.acco.type_desc_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_serversrt_record_length,

@@ -248,8 +248,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc.c	\
 	packet-dcm.c		\
 	packet-dcom.c \
-	packet-dcom-cba.c \
-	packet-dcom-cba-acco.c \
 	packet-dcom-dispatch.c \
 	packet-dcom-oxid.c \
 	packet-dcom-remact.c \
@@ -523,7 +521,6 @@ DISSECTOR_SRC =	\
 	packet-pgm.c	\
 	packet-pim.c	\
 	packet-pingpongprotocol.c	\
-	packet-pn-rt.c  \
 	packet-pkcs1.c	\
 	packet-pkcs12.c	\
 	packet-pkix1explicit.c	\
@@ -798,7 +795,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dcerpc-wzcsvc.h	\
 	packet-dcerpc.h	\
 	packet-dcom.h	\
-	packet-dcom-cba-acco.h	\
 	packet-dcom-dispatch.h	\
 	packet-ddtp.h	\
 	packet-diameter-defs.h	\

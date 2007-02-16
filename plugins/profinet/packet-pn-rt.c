@@ -44,9 +44,14 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include "prefs.h"
+#include <epan/prefs.h>
 #include <epan/strutil.h>
-#include <etypes.h>
+#include <epan/etypes.h>
+#include <epan/dissectors/packet-dcerpc.h>
+
+#include "packet-pn.h"
+
+
 
 void proto_reg_handoff_pn_rt(void);
 
@@ -54,8 +59,7 @@ void proto_reg_handoff_pn_rt(void);
 static int proto_pn_rt     = -1;
 
 /* Define many header fields for pn-rt */
-static int hf_pn_rt_id = -1;
-static int hf_pn_rt_data = -1;
+static int hf_pn_rt_frame_id = -1;
 static int hf_pn_rt_cycle_counter = -1;
 static int hf_pn_rt_transfer_status = -1;
 static int hf_pn_rt_data_status = -1;
@@ -66,7 +70,6 @@ static int hf_pn_rt_data_status_res3 = -1;
 static int hf_pn_rt_data_status_valid = -1;
 static int hf_pn_rt_data_status_res1 = -1;
 static int hf_pn_rt_data_status_primary = -1;
-static int hf_pn_rt_malformed = -1;
 
 /* 
  * Define the trees for pn-rt
@@ -85,8 +88,6 @@ static gboolean pn_rt_summary_in_tree = TRUE;
 /* heuristic to find the right pn-rt payload dissector */
 static heur_dissector_list_t heur_subdissector_list;
 
-/* the official "we don't know that data" dissector */
-static dissector_handle_t data_handle;
 
 
 /*
@@ -132,10 +133,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO, "PROFINET Real-Time");
 
   if (tvb_len < 6) {
-		/* packet is too short, mark it as malformed */
-		proto_tree_add_bytes(tree, hf_pn_rt_malformed, tvb, 0, 10000, 
-			tvb_get_ptr(tvb, 0, 10000));
-  		return;
+    dissect_pn_malformed(tvb, 0, pinfo, tree, tvb_len);
+    return;
   }
 
 
@@ -301,7 +300,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pn_rt_tree = proto_item_add_subtree(ti, ett_pn_rt);
 
 		/* add frame ID */
-        proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_id, tvb,
+        proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_frame_id, tvb,
           0, 2, u16FrameID, "FrameID: 0x%04x (%s)", u16FrameID, pszProtComment);
 
         if (bCyclic) {
@@ -357,7 +356,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown");*/
 
         /* Oh, well, we don't know this; dissect it as data. */
-        call_dissector(data_handle, next_tvb, pinfo, tree);
+        dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_length(next_tvb));
     }
 }
 
@@ -367,10 +366,8 @@ void
 proto_register_pn_rt(void)
 {
   static hf_register_info hf[] = {
-    { &hf_pn_rt_id,
+    { &hf_pn_rt_frame_id,
       { "FrameID", "pn_rt.frame_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_pn_rt_data,
-      { "Data", "pn_rt.data", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_rt_cycle_counter, { 
 		"CycleCounter", "pn_rt.cycle_counter", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_rt_data_status, { 
@@ -391,8 +388,6 @@ proto_register_pn_rt(void)
 		"State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, "", HFILL }},
     { &hf_pn_rt_transfer_status,
       { "TransferStatus", "pn_rt.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
-	{ &hf_pn_rt_malformed,
-	{ "Malformed", "pn_rt.malformed", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }}
   };
   static gint *ett[] = {
     &ett_pn_rt,
@@ -417,6 +412,8 @@ proto_register_pn_rt(void)
 
   /* register heuristics anchor for payload dissectors */
   register_heur_dissector_list("pn_rt", &heur_subdissector_list);
+
+  init_pn (proto_pn_rt);
 }
 
 
@@ -438,8 +435,5 @@ proto_reg_handoff_pn_rt(void)
   }
 
   dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
-
-	/* the official "we don't know that data" dissector */
-  data_handle = find_dissector("data");
 }
 

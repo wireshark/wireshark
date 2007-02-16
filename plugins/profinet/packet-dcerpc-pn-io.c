@@ -62,6 +62,8 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/expert.h>
 
+#include "packet-pn.h"
+
 
 
 static int proto_pn_io = -1;
@@ -76,8 +78,6 @@ static int hf_pn_io_args_len = -1;
 static int hf_pn_io_array_max_count = -1;
 static int hf_pn_io_array_offset = -1;
 static int hf_pn_io_array_act_count = -1;
-
-static int hf_pn_io_data = -1;
 
 static int hf_pn_io_ar_type = -1;
 static int hf_pn_io_cminitiator_macadd = -1;
@@ -157,7 +157,6 @@ static int hf_pn_io_subslot_nr = -1;
 static int hf_pn_io_index = -1;
 static int hf_pn_io_seq_number = -1;
 static int hf_pn_io_record_data_length = -1;
-static int hf_pn_io_padding = -1;
 static int hf_pn_io_add_val1 = -1;
 static int hf_pn_io_add_val2 = -1;
 
@@ -1383,43 +1382,6 @@ static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
 
 
 
-/* dissect a 6 byte MAC address */
-static int 
-dissect_MAC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint8 *pdata)
-{
-    guint8 data[6];
-
-    tvb_memcpy(tvb, data, offset, 6);
-    if(tree)
-        proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
-
-    if (pdata)
-        memcpy(pdata, data, 6);
-
-    return offset + 6;
-}
-
-
-/* dissect an IPv4 address */
-static int 
-dissect_ipv4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata)
-{
-    guint32 data;
-
-    data = tvb_get_ipv4(tvb, offset);
-    if(tree)
-        proto_tree_add_ipv4(tree, hfindex, tvb, offset, 4, data);
-
-    if (pdata)
-        *pdata = data;
-
-    return offset + 4;
-}
-
-
-
 
 
 /* dissect the four status (error) fields */
@@ -1643,7 +1605,6 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     guint16 u16ChannelErrorType;
     guint16 u16ExtChannelErrorType;
     guint32 u32ExtChannelAddValue;
-    proto_item *sub_item;
     guint16 u16Index;
     guint32 u32RecDataLen;
 
@@ -1679,14 +1640,12 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     case(0x8001):   /* DiagnosisData */
     case(0x8003):   /* QualifiedChannelDiagnosisData */
     default:
-        sub_item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, *body_length, "data", 
-            "Data of UserStructureIdentifier(0x%x): %u bytes", u16UserStructureIdentifier, *body_length);
         if(u16UserStructureIdentifier >= 0x8000) {
-            expert_add_info_format(pinfo, sub_item, PI_UNDECODED, PI_WARN,
-			    "Unknown UserStructureIdentifier 0x%x", u16UserStructureIdentifier);
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, *body_length);
+        } else {
+            offset = dissect_pn_user_data(tvb, offset, pinfo, tree, *body_length, "UserStructureIdentifier");
         }
 
-        offset += *body_length;
         *body_length = 0;
     }
 
@@ -1885,8 +1844,7 @@ dissect_IandM4_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
 {
 
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, 54, "data", 
-        "IM_Signature: %u bytes", 54);
+    dissect_pn_user_data(tvb, offset, pinfo, tree, 54, "IM Signature");
 
     return offset;
 }
@@ -2064,8 +2022,7 @@ dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
     offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
     u16BodyLength -= 3;
     /* SubstituteDataObjectElement */
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", 
-        "SubstituteDataObjectElement: %d bytes", u16BodyLength);
+    dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "SubstituteDataObjectElement");
 
     return offset;
 }
@@ -2095,8 +2052,7 @@ dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                 hf_pn_io_length_data, &u16LengthData);
     /* Data */
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16LengthData, "undecoded", 
-        "Data: %d bytes", u16LengthData);
+    offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16LengthData, "Data");
 
     return offset;
 }
@@ -2131,9 +2087,7 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     /* DataItem (IOCS, Data, IOPS) */
     offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
 
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16LengthData, "undecoded", 
-        "Data: %d bytes", u16LengthData);
-    offset += u16LengthData;
+    offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16LengthData, "Data");
 
     offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iops);
 
@@ -2172,8 +2126,7 @@ dissect_Maintenance_block(tvbuff_t *tvb, int offset,
     guint32 u32MaintenanceStatus;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_maintenance_status, tvb, offset, 4, FALSE);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_maintenance_status);
@@ -2219,8 +2172,7 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
                         hf_pn_io_slot_nr, &u16SlotNr);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_subslot_nr, &u16SubslotNr);
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_index, u16Index);
 
@@ -2255,8 +2207,7 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_target_ar_uuid, &aruuid);
     }
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 24, "padding", "Padding: 24 bytes");
-    offset += 24;
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 24);
 
     proto_item_append_text(item, ", Len:%u", *u32RecDataLen);
 
@@ -2285,11 +2236,9 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
     if(memcmp(&aruuid, &null_uuid, sizeof (e_uuid_t)) == 0) {
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_target_ar_uuid, &aruuid);
-        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 8, "padding", "Padding: 8 bytes");
-        offset += 8;
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 8);
     } else {
-        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 24, "padding", "Padding: 24 bytes");
-        offset += 24;
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 24);
     }
 
     proto_item_append_text(item, ", Len:%u", *u32RecDataLen);
@@ -2323,8 +2272,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_add_val2, &u16AddVal2);
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 16, "padding", "Padding: 16 bytes");
-    offset += 16;
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 16);
 
     proto_item_append_text(item, ", Len:%u, AddVal1:%u, AddVal2:%u", 
         *u32RecDataLen, u16AddVal1, u16AddVal2);
@@ -2358,8 +2306,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_add_val2, &u16AddVal2);
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 20, "padding", "Padding: 20 bytes");
-    offset += 20;
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 20);
 
     proto_item_append_text(item, ", Len:%u, AddVal1:%u, AddVal2:%u", 
         *u32RecDataLen, u16AddVal1, u16AddVal2);
@@ -2451,8 +2398,7 @@ dissect_PDevData_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
@@ -2470,8 +2416,7 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
     tvbuff_t *tvb_new;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* SlotNumber */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -2489,29 +2434,6 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
     offset += u16BodyLength;
 
     /* XXX - do we have to free the tvb_new somehow? */
-
-    return offset;
-}
-
-
-static int
-dissect_padding4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
-{
-    /* Padding */
-    switch(offset % 4) {
-    case(3):
-        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 1, "padding", "Padding: 1 byte");
-        offset += 1;
-        break;
-    case(2):
-        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-        offset += 2;
-        break;
-    case(1):
-        proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 3, "padding", "Padding: 3 bytes");
-        offset += 3;
-        break;
-    }
 
     return offset;
 }
@@ -2541,8 +2463,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     guint32 u32MediaType;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* SlotNumber */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -2565,7 +2486,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_number_of_peers, &u8NumberOfPeers);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     u8I = u8NumberOfPeers;
     while(u8I--) {
@@ -2590,24 +2511,24 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         offset += u8LengthPeerChassisID;
 
         /* Padding */
-        offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
         /* LineDelay */
 	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                             hf_pn_io_line_delay, &u32LineDelay);
 
         /* PeerMACAddress */
-        offset = dissect_MAC(tvb, offset, pinfo, tree, 
+        offset = dissect_pn_mac(tvb, offset, pinfo, tree, 
                             hf_pn_io_peer_macadd, mac);
         /* Padding */
-        offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
     }
 
     /* MAUType */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_mau_type, &u16MAUType);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* DomainBoundary */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2619,7 +2540,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_port_state, &u16PortState);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MediaType */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2646,8 +2567,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 #endif
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
@@ -2656,7 +2576,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                     hf_pn_io_mrp_role, &u16Role);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
 #if 0
     /* XXX - these fields will be added later */
@@ -2673,7 +2593,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 #endif
 
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
     
     offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
 
@@ -2690,8 +2610,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     guint16 u16Version;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
@@ -2718,8 +2637,7 @@ dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
     guint16 u16Check;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
@@ -2742,8 +2660,7 @@ dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
     e_uuid_t uuid;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_DomainUUID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
@@ -2783,7 +2700,7 @@ dissect_MrpManagerParams_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                     hf_pn_io_mrp_tstnrmax, &u16TSTNRmax);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     return offset;
 }
@@ -2830,7 +2747,7 @@ dissect_MrpRTModeManagerData_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                     hf_pn_io_mrp_tstdefaultt, &u16TSTdefaultT);
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_RTMode */
     offset = dissect_MrpRTMode(tvb, offset, pinfo, tree, item, drep);
@@ -2896,8 +2813,7 @@ static int
 dissect_MrpRTModeClientData_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
 {
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MRP_RTMode */
     offset = dissect_MrpRTMode(tvb, offset, pinfo, tree, item, drep);
@@ -2915,8 +2831,7 @@ dissect_AdjustDomainBoundary_block(tvbuff_t *tvb, int offset,
     guint16 u16AdjustProperties;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* Boundary */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2941,8 +2856,7 @@ dissect_AdjustMulticastBoundary_block(tvbuff_t *tvb, int offset,
     guint16 u16AdjustProperties;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* Boundary */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -2967,8 +2881,7 @@ dissect_AdjustMAUType_block(tvbuff_t *tvb, int offset,
     guint16 u16AdjustProperties;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MAUType */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -3012,8 +2925,7 @@ dissect_CheckLineDelay_block(tvbuff_t *tvb, int offset,
     guint32 u32LineDelay;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* LineDelay */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -3080,8 +2992,7 @@ dissect_AdjustPortState_block(tvbuff_t *tvb, int offset,
     guint16 u16AdjustProperties;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* PortState */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -3128,8 +3039,7 @@ dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
 
 
     /* Padding */
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* FiberOpticType */
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -3169,8 +3079,7 @@ dissect_FiberOpticManufacturerSpecific_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                     hf_pn_io_vendor_block_type, &u16VendorBlockType);
     /* Data */
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16BodyLength-4, "data", 
-        "Data: %u bytes", u16BodyLength-4);
+    offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength-4, "Data");
 
     return offset;
 }
@@ -3186,8 +3095,7 @@ dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
 
 
     /* Padding */
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* FiberOpticType */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -3214,8 +3122,7 @@ dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
 
 
     /* Padding */
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MaintenanceRequiredPowerBudget */
     /* XXX - decode the u32FiberOpticPowerBudget better */
@@ -3247,8 +3154,7 @@ dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
 
 
     /* Padding */
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MaintenanceRequiredDropBudget */
     /* XXX - decode the u32NCDropBudget better */
@@ -3293,24 +3199,24 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
     offset += u8LengthOwnChassisID;
 
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* MACAddressValue */
-    offset = dissect_MAC(tvb, offset, pinfo, tree, hf_pn_io_macadd, mac);
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_io_macadd, mac);
 
     /* Padding */
-    offset = dissect_padding4(tvb,offset, pinfo, tree, drep);
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* IPAddress */
-    offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_ip_address, &ip);
+    offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_io_ip_address, &ip);
     /*proto_item_append_text(block_item, ", IP: %s", ip_to_str((guint8*)&ip));*/
 
     /* Subnetmask */
-    offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_subnetmask, &ip);
+    offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_io_subnetmask, &ip);
     /*proto_item_append_text(block_item, ", Subnet: %s", ip_to_str((guint8*)&ip));*/
 
     /* StandardGateway */
-    offset = dissect_ipv4(tvb, offset, pinfo, tree, hf_pn_io_standard_gateway, &ip);
+    offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_io_standard_gateway, &ip);
     /*proto_item_append_text(block_item, ", Router: %s", ip_to_str((guint8*)&ip));*/
 
 
@@ -3336,8 +3242,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
     guint16 u16PTCPTimeoutFactor;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* SlotNumber */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -3395,8 +3300,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
     guint32 u32RecDataLen;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* SlotNumber */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -3425,8 +3329,7 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
     e_uuid_t uuid;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* IRDataID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
@@ -3452,8 +3355,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     guint8 u8NumberOfTxPortGroups;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* FrameSendOffset */
 	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
@@ -3825,7 +3727,7 @@ dissect_ARBlockReq(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_uuid, &uuid);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_sessionkey, &u16SessionKey);
-    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, 
                         hf_pn_io_cminitiator_macadd, mac);
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_cminitiator_objectuuid, &uuid);
@@ -3875,7 +3777,7 @@ dissect_ARBlockRes(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_uuid, &uuid);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_sessionkey, &u16SessionKey);
-    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, 
                         hf_pn_io_cmresponder_macadd, mac);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
@@ -3955,7 +3857,7 @@ dissect_IOCRBlockReq(tvbuff_t *tvb, int offset,
                         hf_pn_io_data_hold_factor, &u16DataHoldFactor);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_iocr_tag_header, &u16IOCRTagHeader);
-    offset = dissect_MAC(tvb, offset, pinfo, tree, 
+    offset = dissect_pn_mac(tvb, offset, pinfo, tree, 
                         hf_pn_io_iocr_multicast_mac_add, mac);
 
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -4470,8 +4372,7 @@ dissect_IsochronousModeData(tvbuff_t *tvb, int offset,
     guint32 u32TimeIOOutputValid;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* SlotNumber */
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
@@ -4515,8 +4416,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
     tvbuff_t *tvb_new;
 
 
-    proto_tree_add_string_format(tree, hf_pn_io_padding, tvb, offset, 2, "padding", "Padding: 2 bytes");
-    offset += 2;
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, 
                     hf_pn_io_api, &u32Api);
@@ -4543,11 +4443,7 @@ dissect_RecordDataReadQuery_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint16 u16BodyLength)
 {
 
-
-    proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", 
-        "Undecoded Data: %d bytes", u16BodyLength);
-
-    return offset;
+    return dissect_pn_undecoded(tvb, offset, pinfo, tree, u16BodyLength);
 }
 
 
@@ -4825,11 +4721,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
     default:
-    	header_item = proto_tree_add_string_format(sub_tree, hf_pn_io_data, tvb, offset, u16BodyLength, "undecoded", "Undecoded Block Data: %d bytes", u16BodyLength);
-        expert_add_info_format(pinfo, header_item, PI_UNDECODED, PI_WARN,
-			"Undecoded block type %s (0x%x), %u bytes",
-   			val_to_str(u16BlockType, pn_io_block_type, ""),
-			u16BlockType, u16BodyLength);
+        dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
     }
     offset += u16BodyLength;
 
@@ -4979,21 +4871,16 @@ static int
 dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
-    proto_item *item;
 
     /* user specified format? */
     if(u16Index < 0x8000) {
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataRead: %d bytes", u32RecDataLen);
-        offset += u32RecDataLen;
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
         return offset;
     }
 
     /* "reserved for profiles" */
     if(u16Index == 0xb02e) {
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataRead: %d bytes - undecoded as index is reserved for profiles", u32RecDataLen);
-        offset += u32RecDataLen;
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "Reserved for Profiles");
         return offset;
     }
 
@@ -5128,13 +5015,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
         offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
         break;
     default:
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataRead: %d bytes", u32RecDataLen);
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
-			"Undecoded index %s (0x%x), %u bytes",
-			val_to_str(u16Index, pn_io_index, ""),
-            u16Index, u32RecDataLen);
-        offset += u32RecDataLen;
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, u32RecDataLen);
     }
 
     return offset;
@@ -5167,21 +5048,14 @@ static int
 dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
-    proto_item *item;
 
     /* user specified format? */
     if(u16Index < 0x8000) {
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataWrite: %d bytes", u32RecDataLen);
-        offset += u32RecDataLen;
-        return offset;
+        return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
     }
     /* "reserved for profiles" */
     if(u16Index == 0xb02e) {
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataWrite: %d bytes - undecoded as index is reserved for profiles", u32RecDataLen);
-        offset += u32RecDataLen;
-        return offset;
+        return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "Reserved for profiles");
     }
 
     /* see: pn_io_index */
@@ -5202,13 +5076,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     default:
-        item = proto_tree_add_string_format(tree, hf_pn_io_data, tvb, offset, u32RecDataLen, "data", 
-            "RecordDataWrite: %d bytes", u32RecDataLen);
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
-			"Undecoded index %s (0x%x), %u bytes",
-			val_to_str(u16Index, pn_io_index, ""),
-            u16Index, u32RecDataLen);
-        offset += u32RecDataLen;
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, u32RecDataLen);
     }
 
     return offset;
@@ -5355,8 +5223,8 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
         /* XXX - dissect the remaining data */
         /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
         /* as we don't have the required context information to dissect the specific DataItems, this will be tricky :-( */
-	    data_item = proto_tree_add_protocol_format(data_tree, proto_pn_io, tvb, offset, tvb_length_remaining(tvb, offset),
-				    "Data: %u bytes (including GAP and RTCPadding)", tvb_length_remaining(tvb, offset));
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset), "User Data (including GAP and RTCPadding)");
+
     }
 
     return offset;
@@ -5459,8 +5327,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
         offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
         break;
     default:
-        proto_tree_add_string_format(tree, hf_pn_io_data, tvb, 0, tvb_length(tvb), "data", 
-            "PN-IO Alarm: unknown PDU type 0x%x", u8PDUType);    
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length(tvb));
     }
 
     proto_item_set_len(rta_item, offset - start_offset);
@@ -5720,8 +5587,6 @@ proto_register_pn_io (void)
       { "SeqNumber", "pn_io.seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_record_data_length,
       { "RecordDataLength", "pn_io.record_data_length", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_pn_io_padding,
-      { "Padding", "pn_io.padding", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_add_val1,
       { "AdditionalValue1", "pn_io.add_val1", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_add_val2,
@@ -5769,8 +5634,6 @@ proto_register_pn_io (void)
       { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_rta_err_cls_protocol), 0x0, "", HFILL }},
 	{ &hf_pn_io_block,
     { "", "pn_io.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
-    { &hf_pn_io_data,
-      { "Undecoded Data", "pn_io.data", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_alarm_type,
       { "AlarmType", "pn_io.alarm_type", FT_UINT16, BASE_HEX, VALS(pn_io_alarm_type), 0x0, "", HFILL }},
@@ -6068,6 +5931,7 @@ proto_register_pn_io (void)
       { "IMVersionMinor", "pn_io.im_version_minor", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_im_supported,
       { "IM_Supported", "pn_io.im_supported", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
     { &hf_pn_io_number_of_ars,
       { "NumberOfARs", "pn_io.number_of_ars", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_cycle_counter, 

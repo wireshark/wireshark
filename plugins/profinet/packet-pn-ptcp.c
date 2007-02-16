@@ -38,12 +38,14 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
-#include <epan/expert.h>
+
+#include "packet-pn.h"
+
+
 
 static int proto_pn_ptcp = -1;
 
 static int hf_pn_ptcp = -1;
-static int hf_pn_ptcp_data = -1;
 static int hf_pn_ptcp_header = -1;
 static int hf_pn_ptcp_block = -1;
 static int hf_pn_ptcp_block_tlvheader = -1;
@@ -53,8 +55,6 @@ static int hf_pn_ptcp_res2 = -1;
 static int hf_pn_ptcp_delay10ns = -1;
 static int hf_pn_ptcp_seq_id = -1;
 static int hf_pn_ptcp_delay1ns = -1;
-static int hf_pn_ptcp_padding8 = -1;
-static int hf_pn_ptcp_padding16 = -1;
 static int hf_pn_ptcp_delay1ps = -1;
 
 static int hf_pn_ptcp_tl_length = -1;
@@ -83,7 +83,6 @@ static int hf_pn_ptcp_clockvariance = -1;
 static int hf_pn_ptcp_clockrole = -1;
 
 static int hf_pn_ptcp_oui = -1;
-static int hf_pn_ptcp_unknown_subtype = -1;
 static int hf_pn_ptcp_profinet_subtype = -1;
 static int hf_pn_ptcp_irdata_uuid = -1;
 
@@ -143,133 +142,6 @@ static const value_string pn_ptcp_profinet_subtype_vals[] = {
 };
 
 
-/* XXX - use include file instead for these helpers */
-extern int dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                  proto_tree *tree, int hfindex, guint8 *pdata);
-
-extern int dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint16 *pdata);
-
-extern int dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint32 *pdata);
-
-
-
-/* dissect an 8 bit unsigned integer */
-int
-dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                  proto_tree *tree, int hfindex, guint8 *pdata)
-{
-    guint8 data;
-
-    data = tvb_get_guint8 (tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 1, data);
-    }
-    if (pdata)
-        *pdata = data;
-    return offset + 1;
-}
-
-/* dissect a 16 bit unsigned integer */
-int
-dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, guint16 *pdata)
-{
-    guint16 data;
-
-    data = tvb_get_ntohs (tvb, offset);
-
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
-    }
-    if (pdata)
-        *pdata = data;
-    return offset + 2;
-}
-
-/* dissect a 32 bit unsigned integer */
-int
-dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, guint32 *pdata)
-{
-    guint32 data;
-
-    data = tvb_get_ntohl (tvb, offset);
-
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 4, data);
-    }
-    if (pdata)
-        *pdata = data;
-    return offset+4;
-}
-
-/* dissect a 16 bit signed integer */
-int
-dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, gint16 *pdata)
-{
-    gint16 data;
-
-    data = tvb_get_ntohs (tvb, offset);
-
-    if (tree) {
-        proto_tree_add_int(tree, hfindex, tvb, offset, 2, data);
-    }
-    if (pdata)
-        *pdata = data;
-    return offset + 2;
-}
-
-/* dissect a 24bit OUI (IEC organizational unique id) */
-int 
-dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata)
-{
-    guint32 data;
-
-    data = tvb_get_ntoh24(tvb, offset);
-
-    if (tree) {
-        proto_tree_add_uint(tree, hfindex, tvb, offset, 3, data);
-    }
-    if (pdata)
-        *pdata = data;
-    return offset+3;
-}
-
-/* dissect a 6 byte MAC address */
-int 
-dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint8 *pdata)
-{
-    guint8 data[6];
-
-    tvb_memcpy(tvb, data, offset, 6);
-    if(tree)
-        proto_tree_add_ether(tree, hfindex, tvb, offset, 6, data);
-
-    if (pdata)
-        memcpy(pdata, data, 6);
-
-    return offset + 6;
-}
-
-/* dissect a 12 byte UUID address */
-int 
-dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, e_uuid_t *uuid)
-{
-    guint8 drep[2] = { 0,0 };
-
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                    hfindex, uuid);
-
-    return offset;
-}
-
-
 
 
 static int
@@ -323,13 +195,12 @@ static int
 dissect_PNPTCP_Time(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
-    guint16 padding16;
     guint32 Seconds;
     guint32 NanoSeconds;
 
 
-    /* Padding16 */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_padding16, &padding16);
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* Seconds */
     offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_seconds, &Seconds);
@@ -411,13 +282,12 @@ static int
 dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset, 
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
-    guint16 padding16;
     guint32 t2portrxdelay;
     guint32 t3porttxdelay;
 
 
-    /* Padding16 */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_padding16, &padding16);
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* T2PortRxDelay */
     offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t2portrxdelay, &t2portrxdelay);
@@ -470,9 +340,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
     guint8 subType;
-    guint16 padding16;
     e_uuid_t uuid;
-    proto_item *unknown_item;
 
     /* OUI already dissected! */
 
@@ -482,8 +350,8 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 
     switch(subType) {
     case 1: /* RTData */
-        /* Padding16 */
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_padding16, &padding16);
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
         /* IRDataUUID */
         offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_irdata_uuid, &uuid);
@@ -496,11 +364,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 
         break;
     default:
-        unknown_item = proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
-            "PROFINET Data: %d bytes", length);
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			"Unknown subType %u, %u bytes",
-			subType, length);
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
         break;
     }
 
@@ -513,16 +377,14 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
 	guint32 oui;
-	guint8 subType;
-    proto_item *unknown_item;
 
 
     /* verify remaining TLV length */
 	if (length < 4)
 	{
         if (tree) {
-            proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
-                "Length: %u (too short, must be >= 4)", length);
+            /* too short */
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
         }
 		return (offset);
 	}
@@ -540,12 +402,7 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 		break;
 	default:
         /* SubType */
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_unknown_subtype, &subType);
-        length --;
-        unknown_item = proto_tree_add_string_format(tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
-            "Unknown OUI Data: %d bytes", length);
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			"Unknown OUI Data %u bytes", length);
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 	}
 	
 	return (offset);
@@ -564,7 +421,6 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 	proto_item *tlvheader_item;
 	proto_tree *tlvheader_tree;
 	guint32 u32SubStart;
-    proto_item *unknown_item;
 
 
     *end = FALSE;
@@ -612,10 +468,7 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
         dissect_PNPTCP_Option(tvb, offset, pinfo, sub_tree, sub_item, length);
         break;
     default:
-        unknown_item = proto_tree_add_string_format(sub_tree, hf_pn_ptcp_data, tvb, offset, length, "data", 
-            "PN-PTCP Unknown BlockType 0x%x, Data: %d bytes", type, length);
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			"Unknown BlockType 0x%x, %u bytes", type, length);
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
     }
     offset += length;
 
@@ -651,8 +504,6 @@ dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
     guint32 delay10ns;
     guint16 seq_id;
     guint8 delay1ns;
-    guint8 padding8;
-    guint16 padding16;
     guint16 delay1ps;
     guint64 delayns;
     guint32 delayms;
@@ -676,14 +527,14 @@ dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
     /* Delay1ns */
     offset = dissect_pn_uint8(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ns, &delay1ns);
 
-    /* Padding8 */
-    offset = dissect_pn_uint8(tvb, offset, pinfo, header_tree, hf_pn_ptcp_padding8, &padding8);
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     /* Delay1ps */
     offset = dissect_pn_uint16(tvb, offset, pinfo, header_tree, hf_pn_ptcp_delay1ps, &delay1ps);
 
-    /* Padding16 */
-    offset = dissect_pn_uint16(tvb, offset, pinfo, header_tree, hf_pn_ptcp_padding16, &padding16);
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "Seq=%3u", seq_id);
@@ -979,15 +830,12 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
         break;
         /* 0xFF44 - 0xFF5F reserved */
     default:
-        unknown_item = proto_tree_add_string_format(ptcp_tree, hf_pn_ptcp_data, tvb, offset, tvb_length_remaining(tvb, offset), "data", 
-            "PN-PTCP Reserved FrameID 0x%04x, Data: %d bytes", u16FrameID, tvb_length_remaining(tvb, offset));
-        expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			"Reserved FrameID 0x%04x, %u bytes", u16FrameID, tvb_length_remaining(tvb, offset));
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Reserved FrameID 0x%04x", u16FrameID);
 
-		proto_item_append_text(item, "Reserved FrameID 0x%04x", u16FrameID);
+	proto_item_append_text(item, "Reserved FrameID 0x%04x", u16FrameID);
 
         offset += tvb_length_remaining(tvb, offset);
     }
@@ -1004,8 +852,6 @@ proto_register_pn_ptcp (void)
 	static hf_register_info hf[] = {
 	{ &hf_pn_ptcp,
 		{ "PROFINET PTCP", "pn_ptcp", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
-    { &hf_pn_ptcp_data,
-        { "Undecoded Data", "pn_ptcp.data", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_header,
         { "Header", "pn_ptcp.header", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_block,
@@ -1023,10 +869,6 @@ proto_register_pn_ptcp (void)
 		{ "SequenceID", "pn_ptcp.sequence_id", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_delay1ns,
 		{ "Delay1ns", "pn_ptcp.delay1ns", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
-	{ &hf_pn_ptcp_padding8,
-		{ "Padding", "pn_ptcp.padding8", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
-	{ &hf_pn_ptcp_padding16,
-		{ "Padding", "pn_ptcp.padding16", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_delay1ps,
 		{ "Delay1ps", "pn_ptcp.delay1ps", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
@@ -1080,8 +922,6 @@ proto_register_pn_ptcp (void)
 	{ &hf_pn_ptcp_profinet_subtype,
 		{ "Subtype",	"pn_ptcp.subtype", FT_UINT8, BASE_HEX,
 	   	VALS(pn_ptcp_profinet_subtype_vals), 0x0, "PROFINET Subtype", HFILL }},
-	{ &hf_pn_ptcp_unknown_subtype,
-		{ "Subtype",	"pn_ptcp.subtype", FT_UINT8, BASE_HEX, 0x0, 0x0, "Unkown Subtype", HFILL }},
         
 	{ &hf_pn_ptcp_irdata_uuid,
         { "IRDataUUID", "pn_ptcp.irdata_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},

@@ -102,6 +102,10 @@ dcerpc_get_transport_salt
 dcerpc_hooks_init_protos        DATA
 dcerpc_init_uuid
 dcerpc_uuids                    DATA
+dcom_hresult_vals				DATA
+dcom_interface_find
+dcom_interface_new
+dcom_variant_type_vals			DATA
 decode_bitfield_value
 decode_boolean_bitfield
 decode_enumerated_bitfield
@@ -154,13 +158,40 @@ dissect_ber_restricted_string
 dissect_ber_sequence
 dissect_ber_sequence_of
 dissect_ber_set_of
-dissect_CBA_Connection_Data
 dissect_dcerpc_uint8
 dissect_dcerpc_uint16
 dissect_dcerpc_uint32
 dissect_dcerpc_uint64
 dissect_dcerpc_uuid_t
+dissect_dcom_BSTR
+dissect_dcom_dcerpc_array_size
+dissect_dcom_dcerpc_pointer
+dissect_dcom_HRESULT
+dissect_dcom_indexed_DWORD
+dissect_dcom_indexed_HRESULT
+dissect_dcom_indexed_LPWSTR
+dissect_dcom_LPWSTR
+dissect_dcom_MInterfacePointer
+dissect_dcom_PMInterfacePointer
+dissect_dcom_SAFEARRAY
+dissect_dcom_simple_resp
+dissect_dcom_simple_rqst
+dissect_dcom_that
+dissect_dcom_this
+dissect_dcom_VARIANT
+dissect_dcom_VARTYPE
 dissect_h245_H223Capability
+dissect_IDispatch_Invoke_resp
+dissect_IDispatch_Invoke_rqst
+dissect_IDispatch_GetIDsOfNames_resp
+dissect_IDispatch_GetIDsOfNames_rqst
+dissect_IDispatch_GetTypeInfo_resp
+dissect_IDispatch_GetTypeInfo_rqst
+dissect_IDispatch_GetTypeInfoCount_resp
+dissect_ndr_double
+dissect_ndr_duint32
+dissect_ndr_uint8
+dissect_ndr_uint16
 dissect_ndr_uint32
 dissect_ndr_uuid_t
 dissect_nt_64bit_time

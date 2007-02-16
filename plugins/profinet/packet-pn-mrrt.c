@@ -38,7 +38,8 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/oui.h>
-#include <epan/expert.h>
+
+#include "packet-pn.h"
 
 static int proto_pn_mrrt = -1;
 
@@ -48,8 +49,6 @@ static int hf_pn_mrrt_type = -1;
 static int hf_pn_mrrt_length = -1;
 static int hf_pn_mrrt_version = -1;
 static int hf_pn_mrrt_sa = -1;
-
-static int hf_pn_mrrt_data = -1;
 
 
 static gint ett_pn_mrrt = -1;
@@ -65,28 +64,6 @@ static const value_string pn_mrrt_block_type_vals[] = {
 	{ 0, NULL },
 };
 
-
-/* XXX - use include file instead for these helpers */
-extern int dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                  proto_tree *tree, int hfindex, guint8 *pdata);
-
-extern int dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint16 *pdata);
-
-extern int dissect_pn_uint32(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                       proto_tree *tree, int hfindex, guint32 *pdata);
-
-extern int dissect_pn_int16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                       proto_tree *tree, int hfindex, gint16 *pdata);
-
-extern int dissect_pn_oid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint32 *pdata);
-
-extern int dissect_pn_mac(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, guint8 *pdata);
-
-extern int dissect_pn_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, int hfindex, e_uuid_t *uuid);
 
 
 
@@ -124,9 +101,7 @@ dissect_PNMRRT_Test(tvbuff_t *tvb, int offset,
     offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_mrrt_sa, mac);
 
     /* Padding */
-    if (offset % 4) {
-        offset += 4 - (offset % 4);
-    }
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, "Test");
@@ -144,7 +119,6 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
     guint8 type;
     guint8 length;
     gint    i =0;
-    proto_item *unknown_item;
 
 
     /* MRRT_Version */
@@ -182,21 +156,14 @@ dissect_PNMRRT_PDU(tvbuff_t *tvb, int offset,
             offset = dissect_PNMRRT_Test(tvb, offset, pinfo, tree, item, length);
             break;
         default:
-            unknown_item = proto_tree_add_string_format(tree, hf_pn_mrrt_data, tvb, offset, length, "data", 
-                "PN-MRRT Unknown TLVType 0x%x, Data: %d bytes", type, length);
-            expert_add_info_format(pinfo, unknown_item, PI_UNDECODED, PI_WARN,
-			    "Unknown TLVType 0x%x, %u bytes",
-			    type, length);
-	        if (check_col(pinfo->cinfo, COL_INFO))
-		        col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
+            offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 
-	        proto_item_append_text(item, "Unknown TLVType 0x%x", type);
-
-            offset += length;
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		    col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TLVType 0x%x", type);
+	    proto_item_append_text(item, "Unknown TLVType 0x%x", type);
         }
     }
 
-    /* will never be reached */
     return offset;
 }
 
@@ -244,8 +211,6 @@ void
 proto_register_pn_mrrt (void)
 {
 	static hf_register_info hf[] = {
-    { &hf_pn_mrrt_data,
-        { "Undecoded Data", "pn_mrrt.data", FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_pn_mrrt_type,
 		{ "Type", "pn_mrrt.type", FT_UINT8, BASE_HEX, VALS(pn_mrrt_block_type_vals), 0x0, "", HFILL }},
