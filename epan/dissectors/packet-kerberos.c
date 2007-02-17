@@ -273,6 +273,7 @@ static gint hf_krb_gssapi_c_flag_integ = -1;
 static gint hf_krb_gssapi_c_flag_dce_style = -1;
 static gint hf_krb_smb_nt_status = -1;
 static gint hf_krb_smb_unknown = -1;
+static gint hf_krb_midl_blob_len = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -324,6 +325,7 @@ static gint ett_krb_CRED = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 static gint ett_krb_e_checksum = -1;
+static gint ett_krb_PAC_MIDL_BLOB = -1;
 
 guint32 krb5_errorcode;
 
@@ -2403,6 +2405,41 @@ dissect_krb5_subkey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 
+/* This might be some sort of header that MIDL generates when creating
+ * marshalling/unmarshalling code for blobs that are not to be transported
+ * ontop of DCERPC and where the DREP fields specifying things such as
+ * endianess and similar are not available.
+ */
+static int
+dissect_krb5_PAC_NDRHEADERBLOB(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	if(parent_tree){
+		item=proto_tree_add_text(parent_tree, tvb, offset, 16, "unknown MIDL blob");
+		tree=proto_item_add_subtree(item, ett_krb_PAC_MIDL_BLOB);
+	}
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	/* length of blob that follows */
+	proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+			TRUE);
+	offset += 4;
+
+
+	return offset;
+}
 
 static int
 dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset)
@@ -2421,9 +2458,7 @@ dissect_krb5_PAC_LOGON_INFO(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
-	offset+=16;
-
+	offset=dissect_krb5_PAC_NDRHEADERBLOB(pinfo, tree, tvb, offset);
 
 	/* the PAC_LOGON_INFO blob */
 	/* fake whatever state the dcerpc runtime support needs */
@@ -2457,8 +2492,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(packet_info *pinfo, proto_tree *parent_t
 	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	proto_tree_add_text(tree, tvb, offset, 16, "unknown blob");
-	offset+=16;
+	offset=dissect_krb5_PAC_NDRHEADERBLOB(pinfo, tree, tvb, offset);
 
 
 	/* the PAC_CONSTRAINED_DELEGATION blob */
@@ -4920,6 +4954,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_smb_unknown,
 		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
 		NULL, 0, "unknown", HFILL }},
+	{ &hf_krb_midl_blob_len,
+		{ "Blob Length", "kerberos.midl_blob_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of NDR encoded data that follows", HFILL }},
 
     };
 
@@ -4974,6 +5011,7 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
 	&ett_krb_PAC_CONSTRAINED_DELEGATION,
 	&ett_krb_e_checksum,
+	&ett_krb_PAC_MIDL_BLOB
     };
     module_t *krb_module;
 
