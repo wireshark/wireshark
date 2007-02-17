@@ -328,8 +328,8 @@ typedef struct server_disconnectme_call_s {
 GList *cba_pdevs;
 
 
-void
-cba_connection_dump(cba_connection_t *conn, char *role)
+static void
+cba_connection_dump(cba_connection_t *conn, const char *role)
 {
     if(conn->qostype != 0x30) {
         g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Data#%5u-#%5u", 
@@ -353,6 +353,7 @@ cba_connection_dump(cba_connection_t *conn, char *role)
 }
 
 
+#if 0
 static void
 cba_object_dump(void)
 {
@@ -406,10 +407,11 @@ cba_object_dump(void)
         }
     }
 }
+#endif
 
 
 cba_pdev_t *
-cba_pdev_find(packet_info *pinfo, const char *ip, e_uuid_t *ipid)
+cba_pdev_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid)
 {
     cba_pdev_t *pdev;
     dcom_interface_t *interf;
@@ -433,7 +435,7 @@ cba_pdev_find(packet_info *pinfo, const char *ip, e_uuid_t *ipid)
 
 
 cba_pdev_t *
-cba_pdev_add(packet_info *pinfo, const char *ip)
+cba_pdev_add(packet_info *pinfo, const guint8 *ip)
 {
     GList *cba_iter;
     cba_pdev_t *pdev;
@@ -560,7 +562,7 @@ cba_ldev_find(packet_info *pinfo, const gchar *ip, e_uuid_t *ipid) {
 }
 
 
-cba_ldev_t *
+static cba_ldev_t *
 cba_acco_add(packet_info *pinfo, const char *acco)
 {
     char *ip_str;
@@ -595,7 +597,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
 }
 
 
-gboolean
+static gboolean
 cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disconnect, guint packet_disconnectme)
 {
 
@@ -617,7 +619,7 @@ cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disco
 }
 
 
-void
+static void
 cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_frame_t *frame)
 {
 	proto_item *item;
@@ -671,7 +673,7 @@ cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_fram
 }
 
 
-cba_frame_t *
+static cba_frame_t *
 cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, 
               guint16 qostype, guint16 qosvalue, const guint8 *consmac, guint16 conscrid, guint16 length)
 {
@@ -718,7 +720,7 @@ cba_frame_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ld
 }
 
 
-void
+static void
 cba_frame_disconnect(packet_info *pinfo, cba_frame_t *frame)
 {
 
@@ -733,7 +735,7 @@ cba_frame_disconnect(packet_info *pinfo, cba_frame_t *frame)
 }
 
 
-void
+static void
 cba_frame_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev)
 {
     GList *frames;
@@ -761,7 +763,7 @@ cba_frame_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_
 }
 
 
-cba_frame_t *
+static cba_frame_t *
 cba_frame_find_by_cons(packet_info *pinfo, const guint8 *consmac, guint16 conscrid)
 {
     GList *pdevs;
@@ -797,7 +799,7 @@ cba_frame_find_by_cons(packet_info *pinfo, const guint8 *consmac, guint16 conscr
 }
 
 
-cba_frame_t *
+static cba_frame_t *
 cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 provcrid)
 {
     GList *frames;
@@ -824,7 +826,7 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
 }
 
 
-void
+static void
 cba_frame_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_frame_t *frame)
 {
     if(frame->packet_first == 0) {
@@ -838,7 +840,7 @@ cba_frame_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree 
 }
 
 
-void
+static void
 cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_connection_t *conn)
 {
 	proto_item *item;
@@ -893,7 +895,7 @@ cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba
 }
 
 
-cba_connection_t *
+static cba_connection_t *
 cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev, cba_frame_t *cons_frame, 
                    guint16 qostype, guint16 qosvalue, const char *provitem, guint32 consid, guint16 length,
                    guint16 *typedesc, guint16 typedesclen)
@@ -960,7 +962,7 @@ cba_connection_connect(packet_info *pinfo, cba_ldev_t *cons_ldev, cba_ldev_t *pr
 }
 
 
-void
+static void
 cba_connection_disconnect(packet_info *pinfo, cba_connection_t *conn)
 {
     /* XXX - detect multiple disconnects? */
@@ -975,7 +977,7 @@ cba_connection_disconnect(packet_info *pinfo, cba_connection_t *conn)
 }
 
 
-void
+static void
 cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_ldev_t *cons_ldev, cba_ldev_t *prov_ldev)
 {
     GList *conns;
@@ -1003,7 +1005,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-cba_connection_t *
+static cba_connection_t *
 cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_ldev_t *prov_ldev, guint32 provid)
 {
     GList *cba_iter;
@@ -1021,7 +1023,7 @@ cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree 
 }
 
 
-void
+static void
 cba_connection_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_connection_t *conn)
 {
     if(conn->packet_first == 0) {
@@ -2266,7 +2268,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 	guint32	u32ProvCRID = 0;
 	guint32 u32HResult;
 	guint32 u32ArraySize;
-	guint32 u32Idx;
+	guint32 u32Idx = 1;
 	guint32	u32Pointer;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
@@ -2306,7 +2308,6 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 		offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, tree, drep, 
 							&u32ArraySize);
 
-		u32Idx = 1;
 		while (u32ArraySize--) {
 		        /* array of CONNECTOUTCRs */
 		        sub_item = proto_tree_add_item(tree, hf_cba_connectoutcr, tvb, offset, 0, FALSE);
