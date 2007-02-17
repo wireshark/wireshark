@@ -87,6 +87,7 @@ static gint hf_ber_id_tag = -1;
 static gint hf_ber_id_tag_ext = -1;
 static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
+static gint hf_ber_bitstring_empty = -1;
 static gint hf_ber_unknown_OID = -1;
 static gint hf_ber_unknown_BOOLEAN = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
@@ -2466,9 +2467,14 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 		/* TO DO */
 	} else {
 		/* primitive */
-		/* padding */
 		pad = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
+		if(pad == 0 && len == 1) {
+			/* empty */
+			proto_tree_add_item(parent_tree, hf_ber_bitstring_empty, tvb, offset, 1, FALSE);
+		} else {
+			/* padding */
+			proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
+		}
 		offset++;
 		len--;
 		if( hf_id >= 0) {
@@ -2624,6 +2630,9 @@ proto_register_ber(void)
 	{ &hf_ber_bitstring_padding, {
 	    "Padding", "ber.bitstring.padding", FT_UINT8, BASE_DEC,
 	    NULL, 0x0, "Number of unsused bits in the last octet of the bitstring", HFILL }},
+	{ &hf_ber_bitstring_empty, {
+	    "Empty", "ber.bitstring.empty", FT_UINT8, BASE_DEC,
+	    NULL, 0x0, "This is an empty bitstring", HFILL }},
 	{ &hf_ber_id_pc, {
 	    "P/C", "ber.id.pc", FT_BOOLEAN, 8,
 	    TFS(&ber_pc_codes), 0x20, "Primitive or Constructed BER encoding", HFILL }},
