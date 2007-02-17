@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-camel.h                                                           */
+/* .\packet-camel.h                                                           */
 /* ../../tools/asn2wrs.py -b -e -p camel -c camel.cnf -s packet-camel-template camel.asn */
 
 /* Input file: packet-camel-template.h */
@@ -42,8 +42,9 @@
 #ifndef PACKET_camel_H
 #define PACKET_camel_H
 
-char camel_number_to_char(int );
-  
+void proto_reg_handoff_camel(void);
+void proto_register_camel(void);
+
 /* Defines for the camel taps */
 #define	camel_MAX_NUM_OPR_CODES	256
 

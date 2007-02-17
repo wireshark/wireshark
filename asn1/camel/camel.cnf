@@ -10,8 +10,6 @@ MAP-CH-DataTypes gsm_map
 
 #.INCLUDE ../gsmmap/gsm_map-exp.cnf
 
-#.EXPORTS
-
 
 #.PDU
 
@@ -21,6 +19,41 @@ MAP-CH-DataTypes gsm_map
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+#----------------------------------------------------------------------------------------
+#.PDU 
+Component 
+#----------------------------------------------------------------------------------------
+#.FN_BODY InvokeParameter
+	offset = dissect_invokeData(pinfo, tree, tvb, offset);
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY ReturnResultParameter
+	offset = dissect_returnResultData(pinfo, tree, tvb, offset);
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY ReturnErrorParameter
+	offset = dissect_returnErrorData(pinfo, tree, tvb, offset);
+
+#----------------------------------------------------------------------------------------
+#.FN_PARS  CAMELOperationLocalvalue
+
+  VAL_PTR = &opcode
+
+#.FN_BODY  CAMELOperationLocalvalue
+
+%(DEFAULT_BODY)s 
+  if (check_col(pinfo->cinfo, COL_INFO)){
+    col_append_fstr(pinfo->cinfo, COL_INFO, 
+       val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%%u)"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(pinfo->cinfo, COL_INFO);
+  }
+  gp_camelsrt_info->opcode=opcode;
+
+#----------------------------------------------------------------------------------------
+#.FN_PARS  CAMELLocalErrorcode
+
+  VAL_PTR = &errorCode
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY CallingPartyNumber
@@ -52,6 +85,7 @@ MAP-CH-DataTypes gsm_map
  offset += len;
  
 #.END
+
 #----------------------------------------------------------------------------------------
 #.FN_PARS ISDN-AddressString
 	VAL_PTR = &parameter_tvb
@@ -110,6 +144,7 @@ tvbuff_t	*parameter_tvb;
 
        return offset;
 #.END
+
 #----------------------------------------------------------------------------------------
 #.FN_PARS Q850Cause
 	VAL_PTR = &camel_tvb
@@ -240,7 +275,9 @@ tvbuff_t	*parameter_tvb;
 		      time);
 
   return 7; /* 7  octets eaten*/
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS  BearerCap
 
   VAL_PTR = &parameter_tvb
@@ -255,7 +292,9 @@ tvbuff_t	*parameter_tvb;
 	return offset;
 
  dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), tree);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS  RedirectionInformation
 
   VAL_PTR = &parameter_tvb
@@ -270,7 +309,9 @@ tvbuff_t	*parameter_tvb;
 	return offset;
 
  dissect_isup_redirection_information_parameter(parameter_tvb, tree, NULL);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS  OriginalCalledPartyID
 
   VAL_PTR = &parameter_tvb
@@ -284,7 +325,9 @@ tvbuff_t	*parameter_tvb;
  if (!parameter_tvb)
 	return offset;
  dissect_isup_original_called_number_parameter(parameter_tvb, tree, NULL);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS  RedirectingPartyID 
 
   VAL_PTR = &parameter_tvb
@@ -298,7 +341,9 @@ tvbuff_t	*parameter_tvb;
  if (!parameter_tvb)
 	return offset;
  dissect_isup_redirecting_number_parameter(parameter_tvb, tree, NULL);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS MSNetworkCapability
   VAL_PTR = &parameter_tvb
 
@@ -315,7 +360,9 @@ tvbuff_t	*parameter_tvb;
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_MSNetworkCapability);
  de_gmm_ms_net_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS MSRadioAccessCapability
   VAL_PTR = &parameter_tvb
 
@@ -332,7 +379,9 @@ tvbuff_t	*parameter_tvb;
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_MSRadioAccessCapability);
  de_gmm_ms_radio_acc_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS AccessPointName
   VAL_PTR = &parameter_tvb
 
@@ -349,8 +398,9 @@ tvbuff_t	*parameter_tvb;
  item = get_ber_last_created_item();
  subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
  de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
+#.END
 
-
+#----------------------------------------------------------------------------------------
 #.FN_PARS PDPTypeOrganization
   VAL_PTR = &parameter_tvb
 
@@ -363,7 +413,9 @@ tvbuff_t	*parameter_tvb;
  if (!parameter_tvb)
 	return offset;
  PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);	
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS PDPTypeNumber
   VAL_PTR = &parameter_tvb
 
@@ -390,7 +442,9 @@ tvbuff_t	*parameter_tvb;
  default:
 	break;
  }
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_PARS PDPAddress
   VAL_PTR = &parameter_tvb
 
@@ -424,7 +478,9 @@ tvbuff_t	*parameter_tvb;
 	break;
 
  }
+#.END
 
+#----------------------------------------------------------------------------------------
 #.FN_BODY CellGlobalIdOrServiceAreaIdOrLAI 
 	proto_item *item;
 	proto_tree *subtree;
@@ -441,7 +497,10 @@ tvbuff_t	*parameter_tvb;
  }else{
 	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_locationAreaId);
  }			
+#.END
 
+#----------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------
 
 #.TYPE_ATTR
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)

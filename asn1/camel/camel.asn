@@ -30,15 +30,13 @@ IMPORTS
 	Ext-BasicServiceCode,
 	IMEI,
 	IMSI,
---	ISDN-AddressString,
 	LAIFixedLength
 
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
-
---	CUG-Index,
---	CUG-Interlock,
-	CUG-Info,
+    
+        CUG-Index,
+        CUG-Interlock,
 	Ext-QoS-Subscribed,
 	Ext2-QoS-Subscribed,
 	GeographicalInformation,
@@ -48,7 +46,6 @@ gsm-Network(1) modules(3) map-CommonDataTypes(18) version9(9)}
 	MS-Classmark2,
 	QoS-Subscribed,
 	RAIdentity,
---	SubscriberState,
 	GPRSChargingID
 FROM MAP-MS-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-MS-DataTypes(11) version9(9)}
@@ -61,6 +58,192 @@ gsm-Network(1) modules(3) map-CH-DataTypes(13) version9(9)}
 -- ================================
 -- MACRO OPERATION
 -- ================================
+
+-- ROS def's
+-- Module Remote-Operations-Apdus (H.450.1:02/1998)
+--Remote-Operations-Apdus {itu-t recommendation h 450 1 version1(0)
+--  remote-operations-apdus(11)} DEFINITIONS AUTOMATIC TAGS ::=
+--BEGIN
+
+Component ::= CHOICE {
+  invoke		[1] IMPLICIT Invoke,
+  returnResultLast	[2] IMPLICIT ReturnResult,
+  returnError		[3] IMPLICIT ReturnError,
+  reject		[4] IMPLICIT Reject
+}
+
+Invoke ::= SEQUENCE {
+  invokeID		InvokeIdType,
+  linkedID		[0] IMPLICIT InvokeIdType OPTIONAL,
+  opCode		OPERATION,
+  invokeparameter 	InvokeParameter OPTIONAL
+}
+InvokeParameter ::= ANY
+
+
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER or the keyword ARGUMENT
+-- in the type definition of a particular operation.
+
+ReturnResult ::= SEQUENCE {
+  invokeID	InvokeIdType,
+  resultretres	SEQUENCE {
+    opCode		OPERATION,
+    returnparameter	ReturnResultParameter OPTIONAL
+  } OPTIONAL
+}
+
+ReturnResultParameter ::= ANY
+
+-- ANY is filled by the single ASN.1 data type following the keyword RESULT in the type definition
+-- of a particular operation.
+
+ReturnError ::= SEQUENCE {
+  invokeID	InvokeIdType,
+  errorCode	ERROR,
+  parameter	ReturnErrorParameter  OPTIONAL }
+
+ReturnErrorParameter ::= ANY
+
+-- ANY is filled by the single ASN.1 data type following the keyword PARAMETER in the type definition
+-- of a particular error.
+
+Reject ::= SEQUENCE {
+  invokeIDRej CHOICE {
+    derivable		InvokeIdType,
+    not-derivable	NULL },
+  problem CHOICE {
+    generalProblem	[0] IMPLICIT GeneralProblem,
+    invokeProblem	[1] IMPLICIT InvokeProblem,
+    returnResultProblem	[2] IMPLICIT ReturnResultProblem,
+    returnErrorProblem	[3] IMPLICIT ReturnErrorProblem } }
+
+InvokeIdType ::= INTEGER (-128..127)
+
+
+OPERATION ::= CHOICE {
+  localValue OperationLocalvalue,
+  globalValue OBJECT IDENTIFIER } 
+
+
+CAMELOperationLocalvalue ::= INTEGER{
+  initialDP (0),
+  assistRequestInstructions (16),
+  establishTemporaryConnection (17),
+  disconnectForwardConnection (18),
+  connectToResource (19),
+  connect (20),
+  releaseCall (22),
+  requestReportBCSMEvent (23),
+  eventReportBCSM (24),
+  collectInformation (27),
+  continue (31),
+  initiateCallAttempt (32),
+  resetTimer (33),
+  furnishChargingInformation (34),
+  applyCharging (35),
+  applyChargingReport (36), 
+  callGap (41),
+  callInformationReport (44),
+  callInformationRequest (45),
+  sendChargingInformation (46),
+  playAnnouncement (47),
+  promptAndCollectUserInformation (48),
+  specializedResourceReport (49),
+  cancel (53),
+  activityTest (55),
+  continueWithArgument (56),
+  initialDPSMS (60),
+  furnishChargingInformationSMS (61),
+  connectSMS (62),
+  requestReportSMSEvent (63),
+  eventReportSMS (64),
+  continueSMS (65),
+  releaseSMS (66),
+  resetTimerSMS (67),
+  activityTestGPRS (70),
+  applyChargingGPRS (71),
+  applyChargingReportGPRS (72),
+  cancelGPRS (73),
+  connectGPRS (74),
+  continueGPRS (75),
+  entityReleasedGPRS (76),
+  furnishChargingInformationGPRS (77),
+  initialDPGPRS (78),
+  releaseGPRS (79),
+  eventReportGPRS (80),
+  requestReportGPRSEvent (81),
+  resetTimerGPRS (82),
+  sendChargingInformationGPRS (83),
+  dFCWithArgument (86),
+  continueWithArgument (88),
+  disconnectLeg (90),
+  moveLeg (93),
+  splitLeg (95),
+  entityReleased (96),
+  playTone (97)
+}
+
+OperationLocalvalue ::= CAMELOperationLocalvalue
+
+
+ERROR ::= CHOICE {
+  localErrorValue LocalErrorcode,
+  globalErrorValue OBJECT IDENTIFIER 
+} 
+
+CAMELLocalErrorcode ::= INTEGER{
+  canceled (0),
+  cancelFailed (1),
+  eTCFailed (3),
+  improperCallerResponse (4),
+  missingCustomerRecord (6),
+  missingParameter (7),
+  parameterOutOfRange (8),
+  requestedInfoError (10),
+  systemFailure (11),
+  taskRefused (12),
+  unavailableResource (13),
+  unexpectedComponentSequence (14),
+  unexpectedDataValue (15),
+  unexpectedParameter (16),
+  unknownLegID (17),
+  unknownPDPID (50),
+  unknownCSID (51)
+}
+
+LocalErrorcode ::= CAMELLocalErrorcode
+
+-- PROBLEMS
+
+GeneralProblem ::= INTEGER { unrecognizedComponent (0),
+			     mistypedComponent (1),
+			     badlyStructuredComponent (2) }
+
+InvokeProblem ::= INTEGER { duplicateInvokeID (0),
+			    unrecognizedOperation (1),
+			    mistypedParameter (2),
+			    resourceLimitation (3),
+			    initiatingRelease (4),
+			    unrecognizedLinkedID (5),
+			    linkedResponseUnexpected (6),
+			    unexpectedLinkedOperation (7) }
+
+ReturnResultProblem ::= INTEGER { unrecognizedInvokeID (0),
+				  returnResultUnexpected (1),
+				  mistypedParameter (2) }
+
+ReturnErrorProblem ::= INTEGER { unrecognizedInvokeID (0),
+				 returnErrorUnexpected (1),
+				 unrecognizedError (2),
+				 unexpectedError (3),
+				 mistypedParameter (4) }
+
+
+--END
+
+--
+--
+--
 
 
 
@@ -100,9 +283,10 @@ AdditionalCallingPartyNumber ::= Digits
 
 -- AlertingPattern notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
-AlertingPattern ::=
-
-OCTET STRING (SIZE (3))
+AlertingPattern ::= OCTET STRING (SIZE(3))
+-- Indicates a specific pattern that is used to alert a subscriber
+-- (e.g. distinctive ringing, tones, etc.).
+-- The encoding of the last octet of this parameter is as defined in 3GPP TS 29.002 [11].
 
 
 -- This one Commented out by Javier Acuña (javier.acuna@sixbell.cl)
@@ -326,7 +510,7 @@ CallSegmentFailure ::= SEQUENCE {
 CallSegmentID  ::= INTEGER (1..cAPSpecificBoundsSetnumOfCSs)
 
 CallSegmentToCancel  ::= SEQUENCE {
-	invokeID							[0]	InvokeID						OPTIONAL,
+	callInvokeID							[0]	InvokeID						OPTIONAL,
 	callSegmentID						[1]	CallSegmentID 					OPTIONAL,
 	...
 	}
@@ -348,19 +532,34 @@ CAMEL-AChBillingChargingCharacteristics ::=  CHOICE
 
 -- CAMEL-CallResult notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
+--CAMEL-CallResult ::=  CHOICE
+--{
+--	timeDurationChargingResult			[0] SEQUENCE {
+--		partyToCharge						[0] ReceivingSideID,
+--		timeInformation						[1] TimeInformation,
+--		legActive							[2] BOOLEAN DEFAULT TRUE,
+--		callLegReleasedAtTcpExpiry			[3] NULL								OPTIONAL,
+--		extensions							[4] ExtensionsArray							OPTIONAL,
+--		aChChargingAddress					[5] AChChargingAddress,
+--		...
+--		}
+--	}
+
 CAMEL-CallResult ::=  CHOICE
 {
-	timeDurationChargingResult			[0] SEQUENCE {
-		partyToCharge						[0] ReceivingSideID,
-		timeInformation						[1] TimeInformation,
-		legActive							[2] BOOLEAN DEFAULT TRUE,
-		callLegReleasedAtTcpExpiry			[3] NULL								OPTIONAL,
-		extensions							[4] Extensions							OPTIONAL,
-		aChChargingAddress					[5] AChChargingAddress,
-		...
-		}
-	}
+  timeDurationChargingResult [0] TimeDurationChargingResult,
+  void [99] NULL
+}
 
+TimeDurationChargingResult ::= SEQUENCE {
+  partyToCharge			[0] ReceivingSideID,
+  timeInformation		[1] TimeInformation,
+  legActive			[2] BOOLEAN OPTIONAL,
+  callLegReleasedAtTcpExpiry	[3] NULL		OPTIONAL,
+  extensions			[4] ExtensionsArray	OPTIONAL,
+  aChChargingAddress		[5] AChChargingAddress  OPTIONAL,
+  ...
+}
 
 
 -- CAMEL-FCIBillingChargingCharacteristics notes: not recursive, exported,
@@ -891,9 +1090,9 @@ EventTypeSMS ::= ENUMERATED
 	t-smsDelivery						(13)
 }
 -- Values sms-CollectedInfo and sms-DeliveryRequested may be used for TDPs only.
-
-Extensions ::=  SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfExtensions) OF ExtensionField
-
+-- Replace by ExtensionsArray
+--Extensions ::=  SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfExtensions) OF ExtensionField
+--
 
 -- FCIBillingChargingCharacteristics notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -1094,10 +1293,10 @@ GPRSEventType ::= ENUMERATED
 -- GPRSMSClass notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
 GPRSMSClass ::= SEQUENCE
-{
+ {
     mSNetworkCapability     [0] MSNetworkCapability,
     mSRadioAccessCapability [1] MSRadioAccessCapability OPTIONAL
-}
+ }
 
 -- InbandInfo notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1137,7 +1336,8 @@ InitiatorOfServiceChange ::= ENUMERATED
 
 -- InvokeID notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-InvokeID ::= TCInvokeIdSet
+--InvokeID ::= TCInvokeIdSet
+InvokeID ::= InvokeIdType
 
 -- IPRoutingAddress notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -1782,19 +1982,17 @@ SpecializedResourceReportArg ::= CHOICE {
 
 -- CUG-Interlock notes: not recursive, exported,
 -- locally refd 3 times, import refd 0 times
-CUG-Interlock ::=
-
-OCTET STRING (SIZE (4))
+-- imported from gsmmap
+-- CUG-Interlock ::= OCTET STRING (SIZE (4))
 
 -- CUG-Index notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-CUG-Index ::= INTEGER (0..32767)
+-- imported from gsmmap
+-- CUG-Index ::= INTEGER (0..32767)
 
 -- CallReferenceNumber notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-CallReferenceNumber ::=
-
-OCTET STRING (SIZE (1..8))
+CallReferenceNumber ::= OCTET STRING (SIZE (1..8))
 
 -- SuppressionOfAnnouncement notes: not recursive, exported,
 -- locally refd 2 times, import refd 0 times
@@ -1876,7 +2074,7 @@ BothwayThroughConnectionInd ::= ENUMERATED
 
 -- TCInvokeIdSet notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
-TCInvokeIdSet ::= INTEGER (-128..127)
+-- TCInvokeIdSet ::= INTEGER (-128..127)
 
 -- ExtensionSetExtensionType notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1977,16 +2175,18 @@ OCTET STRING (SIZE (cAPSpecificBoundSetminSCIBillingChargingLength..cAPSpecificB
 -- locally refd 1 times, import refd 0 times
 CallresultoctetPDU ::= OCTET STRING (SIZE (cAPSpecificBoundSetminCallResultLength..cAPSpecificBoundSetmaxCallResultLength))
 
-ApplyChargingReportArg ::= SEQUENCE {
-		callresultOctet CallresultoctetPDU
-		}
+--ApplyChargingReportArg ::= SEQUENCE {
+--		callresultOctet CallresultoctetPDU
+--		}
 --	(
 --	CONTAINING CamelCallResult
 --	ENCODED BY enc-BER
 --	)
 	 
 -- CallResult type
-
+ApplyChargingReportArg ::= SEQUENCE {
+		callresultOctet CAMEL-CallResult
+		}
 
 -- CancelArg notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
@@ -1994,7 +2194,7 @@ CancelArg ::=
 
 CHOICE
 {
-	invokeID							[0] InvokeID,
+	callInvokeID							[0] InvokeID,
 	allRequests							[1] NULL,
 	callSegmentToCancel					[2]	CallSegmentToCancel
 
@@ -2160,7 +2360,7 @@ InitialDPArgExtension  ::= SEQUENCE {
 
 InitiateCallAttemptArg ::= SEQUENCE {
 	destinationRoutingAddress			[0]	DestinationRoutingAddress,
-	extensions							[4]	Extensions								OPTIONAL,
+	extensions							[4]	ExtensionsArray								OPTIONAL,
 	legToBeCreated						[5]	LegID									OPTIONAL,
 	newCallSegment						[6]	CallSegmentID							OPTIONAL,
 	callingPartyNumber					[30] CallingPartyNumber						OPTIONAL,
@@ -2173,20 +2373,20 @@ InitiateCallAttemptArg ::= SEQUENCE {
 InitiateCallAttemptRes ::= SEQUENCE {
 	supportedCamelPhases				[0] SupportedCamelPhases					OPTIONAL,
 	offeredCamel4Functionalities		[1] OfferedCamel4Functionalities			OPTIONAL,
-	extensions							[2]	Extensions								OPTIONAL,
+	extensions							[2]	ExtensionsArray								OPTIONAL,
 	...
 	}
 
 MoveLegArg ::= SEQUENCE{
 	legIDToMove							[0]	LegID,
-	extensions							[2]	Extensions								OPTIONAL,
+	extensions							[2]	ExtensionsArray								OPTIONAL,
 	...
 	}
 
 PlayToneArg ::= SEQUENCE {
 	legOrCallSegment					[0] LegOrCallSegment,
 	bursts								[1] Burst,
-	extensions							[2] Extensions								OPTIONAL,
+	extensions							[2] ExtensionsArray								OPTIONAL,
 	...
 	}
 
@@ -2222,6 +2422,7 @@ SupportedCamelPhases ::= BIT STRING {
   phase2  (1 ),
   phase3  (2 ),
   phase4  (3 )}
+
 
 OfferedCamel4Functionalities ::= BIT STRING {
 	initiateCallAttempt (0),
@@ -2291,9 +2492,7 @@ ApplyChargingArg ::= SEQUENCE
 	...
 }
 
-ExtensionsArray ::= 
-		    SEQUENCE SIZE (1..10) OF ExtensionField
-
+ExtensionsArray ::= SEQUENCE SIZE (1..cAPSpecificBoundSetnumOfExtensions) OF ExtensionField
 
 
 -- AssistRequestInstructionsArg notes: not recursive, exported,
@@ -2405,7 +2604,7 @@ ContinueWithArgumentArgExtension ::= SEQUENCE {
 DisconnectLegArg ::= SEQUENCE {
 	legToBeReleased						[0]	LegID,
 	releaseCause						[1]	Cause 							OPTIONAL,
-	extensions							[2]	Extensions 						OPTIONAL,
+	extensions							[2]	ExtensionsArray 						OPTIONAL,
 	...
 	}
 EntityReleasedArg ::= CHOICE {
@@ -2415,7 +2614,7 @@ EntityReleasedArg ::= CHOICE {
 
 DisconnectForwardConnectionWithArgumentArg ::= SEQUENCE {
 	callSegmentID						[1] CallSegmentID					OPTIONAL,
-	extensions							[2] Extensions 						OPTIONAL,
+	extensions							[2] ExtensionsArray 						OPTIONAL,
 	...
 	}
 
@@ -2464,7 +2663,7 @@ ResetTimerArg ::=
 {
     timerID								[0] TimerID DEFAULT tssf,
     timervalue							[1] TimerValue,
-	extensions							[2] Extensions								OPTIONAL,
+	extensions							[2] ExtensionsArray								OPTIONAL,
 	callSegmentID						[3]	CallSegmentID							OPTIONAL,
 	...
 }
@@ -2486,7 +2685,7 @@ SendChargingInformationArg ::=
 SplitLegArg  ::= SEQUENCE {
 	legToBeSplit						[0]	LegID,
 	newCallSegment						[1]	CallSegmentID							OPTIONAL,
-	extensions							[2]	Extensions								OPTIONAL,
+	extensions							[2]	ExtensionsArray								OPTIONAL,
 	...
 	}
 
@@ -3009,7 +3208,7 @@ DEFINITIONS IMPLICIT TAGS ::= BEGIN
 --	PARAMETER 	
 CancelFailedPARAM ::= SEQUENCE 
 {
-  problem					[0] ENUMERATED 
+  cancelproblem					[0] ENUMERATED 
     {
       unknownOperation		(0),
       tooLate			(1),
@@ -3030,6 +3229,9 @@ RequestedInfoErrorPARAM ::= ENUMERATED
 }
 -- The requested information cannot be found.
 
+SystemFailurePARAM ::=	UnavailableNetworkResource
+-- The operation could not be completed due to a system failure at the serving physical entity.
+
 --taskRefused ERROR 			::= {
 --	PARAMETER	
 TaskRefusedPARAM ::= ENUMERATED 
@@ -3038,6 +3240,9 @@ TaskRefusedPARAM ::= ENUMERATED
   unobtainable 			(1),
   congestion			(2)
 }
+-- An entity normally capable of the task requested cannot or chooses not to perform the task at
+-- this time. This includes error situations like congestion and unobtainable address as used in
+-- e.g. the connect operation.)
 
 END
 

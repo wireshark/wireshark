@@ -43,6 +43,7 @@
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
 #include <epan/tap.h>
+#include "epan/expert.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -66,17 +67,12 @@
 int proto_camel = -1;
 int date_format = 1; /*assume european date format */
 int camel_tap = -1;
+/* Global variables */
+static guint32 opcode=0;
+static guint32 errorCode=0;
+
 
 static int hf_digit = -1; 
-static int hf_camel_invokeCmd = -1;             /* Opcode */
-static int hf_camel_invokeid = -1;              /* INTEGER */
-static int hf_camel_linkedID = -1;              /* INTEGER */
-static int hf_camel_absent = -1;                /* NULL */
-static int hf_camel_invokeId = -1;              /* InvokeId */
-static int hf_camel_invoke = -1;                /* InvokePDU */
-static int hf_camel_returnResult = -1;          /* InvokePDU */
-static int hf_camel_returnResult_result = -1;
-static int hf_camel_imsi_digits = -1;
 static int hf_camel_addr_extension = -1;
 static int hf_camel_addr_natureOfAddressIndicator = -1;
 static int hf_camel_addr_numberingPlanInd = -1;
@@ -106,6 +102,12 @@ int hf_camelsrt_DeltaTime80=-1;
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
+/* Forward declarations */
+static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+
+
 #include "packet-camel-hf.c"
 
 gboolean gcamel_HandleSRT=FALSE;
@@ -114,13 +116,7 @@ extern gboolean gcamel_DisplaySRT;
 
 /* Initialize the subtree pointers */
 static gint ett_camel = -1;
-static gint ett_camel_InvokeId = -1;
-static gint ett_camel_InvokePDU = -1;
-static gint ett_camel_ReturnResultPDU = -1;
-static gint ett_camel_ReturnResult_result = -1;
-static gint ett_camel_camelPDU = -1;
 static gint ett_camelisup_parameter = -1;
-static gint ett_camel_addr = -1;
 static gint ett_camel_isdn_address_string = -1;
 static gint ett_camel_MSRadioAccessCapability = -1;
 static gint ett_camel_MSNetworkCapability = -1;
@@ -143,8 +139,7 @@ static int application_context_version;
 static guint8 PDPTypeOrganization;
 static guint8 PDPTypeNumber;
 
-
-static int  dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static char camel_number_to_char(int );
 static guint8 dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, guint len,
 				  proto_tree *tree, int hf_cause_value, guint8 *cause_value);
 
@@ -298,7 +293,28 @@ const value_string camel_opr_code_strings[] = {
   {0, NULL}
 };
 
-char camel_number_to_char(int number)
+static const value_string camel_err_code_string_vals[] = {
+  { 0,  "Canceled"},
+  { 1,  "CancelFailed"},
+  { 3,  "ETCFailed"},
+  { 4,  "ImproperCallerResponse"},
+  { 6,  "MissingCustomerRecord"},
+  { 7,  "MissingParameter"},
+  { 8,  "ParameterOutOfRange"},
+  { 10, "RequestedInfoError"},
+  { 11, "SystemFailure"},
+  { 12, "TaskRefused"},
+  { 13, "UnavailableResource"},
+  { 14, "UnexpectedComponentSequence"},
+  { 15, "UnexpectedDataValue"},
+  { 16, "UnexpectedParameter"},
+  { 17, "UnknownLegID"},
+  { 50, "UnknownPDPID"},
+  { 51, "UnknownCSID"},
+  { 0, NULL}
+};
+
+static char camel_number_to_char(int number)
 {
    if (number < 10)
    return (char) (number + 48 ); /* this is ASCII specific */
@@ -341,23 +357,14 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
   return(curr_offset - offset);
 }
 
-static guint32 opcode=0;
-
-static int
-dissect_camel_Opcode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_index, &opcode);
-  gp_camelsrt_info->opcode=opcode;
-
-  if (check_col(pinfo->cinfo, COL_INFO)){
-    /* Add Camel Opcode to INFO column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, camel_opr_code_strings, "Unknown Camel (%u)"));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ");
-	col_set_fence(pinfo->cinfo, COL_INFO);
-  }
-  return offset;
-}
 
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  proto_item *cause;
+  gint8 bug_class;
+  gboolean bug_pc, bug_ind_field;
+  gint32 bug_tag;
+  guint32 bug_len1;
+
   switch(opcode){
   case 0: /*InitialDP*/
     offset=dissect_camel_InitialDPArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -399,13 +406,19 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 34: /*FurnishChargingInformation*/
-    offset=dissect_camel_FurnishChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    /* offset=dissect_camel_FurnishChargingInformationArg(TRUE, tvb, offset, pinfo, tree, -1); */
+    offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+    offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+    offset=dissect_camel_CAMEL_FCIBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 35: /*ApplyCharging*/
     offset=dissect_camel_ApplyChargingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 36: /*ApplyChargingReport*/
-    offset=dissect_camel_ApplyChargingReportArg(TRUE, tvb, offset, pinfo, tree, -1);
+    /* offset=dissect_camel_ApplyChargingReportArg(TRUE, tvb, offset, pinfo, tree, -1); */
+    offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+    offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+    offset=dissect_camel_CAMEL_CallResult(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 41: /*CallGap*/
     offset=dissect_camel_CallGapArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -438,7 +451,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 61: /*FurnishChargingInformationSMS*/
-    offset=dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    /* offset=dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, pinfo, tree, -1); */
+    offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+    offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+    offset=dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 62: /*ConnectSMS*/
     offset=dissect_camel_ConnectSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -477,7 +493,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 77: /*FurnishChargingInformationGPRS*/
-    offset=dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    /* offset=dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1); */
+    offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+    offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
+    offset=dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
     break;
   case 78: /*InitialDPGPRS*/
     offset=dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -520,7 +539,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
     /* todo call the asn.1 dissector */
   }
   return offset;
@@ -528,6 +549,8 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  proto_item *cause;
+
   switch(opcode){
   case 32: /*initiateCallAttempt*/
     offset=dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -542,117 +565,36 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     /* ActivityTestGPRS: no arguments - do nothing */
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnResultData %d",opcode);
   }
   return offset;
 }
 
-static int 
-dissect_invokeCmd(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_Opcode(FALSE, tvb, offset, pinfo, tree, hf_camel_invokeCmd);
-}
+static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  proto_item *cause;
 
-static int dissect_invokeid(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_camel_invokeid, NULL);
-}
-
-
-static const value_string InvokeId_vals[] = {
-  {   0, "invokeid" },
-  {   1, "absent" },
-  { 0, NULL }
-};
-
-static int dissect_absent(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_NULL(FALSE, tvb, offset, pinfo, tree, hf_camel_absent);
-}
-
-static const ber_choice_t InvokeId_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeid },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_absent },
-  { 0, 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              InvokeId_choice, hf_index, ett_camel_InvokeId, NULL);
-
+  switch(errorCode) {
+  case 1: /*CancelFailed*/
+    offset=dissect_camel_CancelFailedPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 10: /*RequestedInfoError*/
+    offset=dissect_camel_RequestedInfoErrorPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 11: /*SystemFailure*/
+   offset=dissect_camel_SystemFailurePARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    break;
+  case 12: /*TaskRefused*/
+   offset=dissect_camel_TaskRefusedPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    break;
+  default:
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnErrorData %d",errorCode);
+  }
   return offset;
 }
-static int dissect_invokeId(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_InvokeId(FALSE, tvb, offset, pinfo, tree, hf_camel_invokeId);
-}
-static int dissect_linkedID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-	return dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_camel_linkedID, NULL);
-}
-
-static const ber_sequence_t InvokePDU_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
-  { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeData },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_InvokePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                InvokePDU_sequence, hf_index, ett_camel_InvokePDU);
-
-  return offset;
-}
-static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_camel_invoke);
-}
-
-static const ber_sequence_t ReturnResult_result_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeCmd },
-  { BER_CLASS_UNI, -1/*depends on Cmd*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_returnResultData },
-  { 0, 0, 0, NULL }
-};
-static int
-dissect_returnResult_result(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  offset = dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset,
-                                ReturnResult_result_sequence, hf_camel_returnResult_result, ett_camel_ReturnResult_result);
-
-  return offset;
-}
-
-static const ber_sequence_t ReturnResultPDU_sequence[] = {
-  { BER_CLASS_UNI, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeId },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_returnResult_result },
-  { 0, 0, 0, NULL }
-};
-
-static int
-dissect_camel_returnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                ReturnResultPDU_sequence, hf_index, ett_camel_ReturnResultPDU);
-
-  return offset;
-}
-static int dissect_returnResult_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_camel_returnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_camel_returnResult);
-}
-
-static const value_string camelPDU_vals[] = {
-  {   1, "Invoke " },
-  {   2, "ReturnResult " },
-  {   3, "ReturnError " },
-  {   4, "Reject " },
-  { 0, NULL }
-};
-
-static const ber_choice_t camelPDU_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResult_impl },
-#ifdef REMOVED
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
-#endif
-  { 0, 0, 0, 0, NULL }
-};
 
 static guint8 camel_pdu_type = 0;
 static guint8 camel_pdu_size = 0;
@@ -709,11 +651,11 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
   if (check_col(pinfo->cinfo, COL_INFO)){
     /* Populate the info column with PDU type*/
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camelPDU_vals, "Unknown Camel (%u)"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ");
   }
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                              camelPDU_choice, hf_index, ett_camel_camelPDU, NULL);
+  offset = dissect_camel_Component(FALSE, tvb, 0, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -801,40 +743,7 @@ void proto_register_camel(void) {
     { "Cause indicator",  "camel.cause_indicator",
       FT_UINT8, BASE_DEC, VALS(q850_cause_code_vals), 0x7f,
       "", HFILL }},
-    { &hf_camel_invokeCmd,
-      { "invokeCmd", "camel.invokeCmd",
-        FT_UINT32, BASE_DEC, VALS(camel_opr_code_strings), 0,
-        "InvokePDU/invokeCmd", HFILL }},
-    { &hf_camel_invokeid,
-      { "invokeid", "camel.invokeid",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "InvokeId/invokeid", HFILL }},
-    { &hf_camel_linkedID,
-      { "linkedid", "camel.linkedid",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "LinkedId/linkedid", HFILL }},
-    
-    { &hf_camel_absent,
-      { "absent", "camel.absent",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "InvokeId/absent", HFILL }},
-    { &hf_camel_invokeId,
-      { "invokeId", "camel.invokeId",
-        FT_UINT32, BASE_DEC, VALS(InvokeId_vals), 0,
-        "InvokePDU/invokeId", HFILL }},
-    { &hf_camel_invoke,
-      { "invoke", "camel.invoke",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camelPDU/invoke", HFILL }},
-    { &hf_camel_returnResult,
-      { "returnResult", "camel.returnResult",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "camelPDU/returnResult", HFILL }},
-    { &hf_camel_imsi_digits,
-      { "Imsi digits", "camel.imsi_digits",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Imsi digits", HFILL }},
-    { &hf_camel_addr_extension,
+  { &hf_camel_addr_extension,
      { "Extension", "camel.addr_extension",
         FT_BOOLEAN, 8, TFS(&camel_extension_value), 0x80,
         "Extension", HFILL }},
@@ -966,18 +875,12 @@ void proto_register_camel(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_camel,
-    &ett_camel_InvokeId,
-    &ett_camel_InvokePDU,
-    &ett_camel_ReturnResultPDU,
-    &ett_camel_ReturnResult_result,
-    &ett_camel_camelPDU,
     &ett_camelisup_parameter,
-    &ett_camel_addr,
-	&ett_camel_isdn_address_string,
-	&ett_camel_MSRadioAccessCapability,
-	&ett_camel_MSNetworkCapability,
-	&ett_camel_AccessPointName,
-	&ett_camel_pdptypenumber,
+    &ett_camel_isdn_address_string,
+    &ett_camel_MSRadioAccessCapability,
+    &ett_camel_MSNetworkCapability,
+    &ett_camel_AccessPointName,
+    &ett_camel_pdptypenumber,
     &ett_camel_stat,
 
 #include "packet-camel-ettarr.c"
