@@ -90,10 +90,13 @@ static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_unknown_OID = -1;
 static gint hf_ber_unknown_BOOLEAN = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
+static gint hf_ber_unknown_BER_OCTETSTRING = -1;
 static gint hf_ber_unknown_GraphicString = -1;
 static gint hf_ber_unknown_NumericString = -1;
 static gint hf_ber_unknown_PrintableString = -1;
 static gint hf_ber_unknown_TeletexString = -1;
+static gint hf_ber_unknown_VisibleString = -1;
+static gint hf_ber_unknown_GeneralString = -1;
 static gint hf_ber_unknown_IA5String = -1;
 static gint hf_ber_unknown_UTCTime = -1;
 static gint hf_ber_unknown_UTF8String = -1;
@@ -107,6 +110,7 @@ static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
+static gboolean decode_octetstring_as_ber = FALSE;
 
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
@@ -131,21 +135,21 @@ static const true_false_string ber_pc_codes = {
 };
 
 static const value_string ber_uni_tag_codes[] = {
-	{ BER_UNI_TAG_EOC				, "'end-of-content'" },
-	{ BER_UNI_TAG_BOOLEAN			, "BOOLEAN" },
-	{ BER_UNI_TAG_INTEGER			, "INTEGER" },
+	{ BER_UNI_TAG_EOC		, "'end-of-content'" },
+	{ BER_UNI_TAG_BOOLEAN		, "BOOLEAN" },
+	{ BER_UNI_TAG_INTEGER		, "INTEGER" },
 	{ BER_UNI_TAG_BITSTRING		, "BIT STRING" },
-	{ BER_UNI_TAG_OCTETSTRING		, "OCTET STRING" },
-	{ BER_UNI_TAG_NULL			, "NULL" },
-	{ BER_UNI_TAG_OID			 	, "OBJECT IDENTIFIER" },
-	{ BER_UNI_TAG_ObjectDescriptor, "ObjectDescriptor" },
-	{ BER_UNI_TAG_REAL			, "REAL" },
-	{ BER_UNI_TAG_ENUMERATED		, "ENUMERATED" },
+	{ BER_UNI_TAG_OCTETSTRING	, "OCTET STRING" },
+	{ BER_UNI_TAG_NULL		, "NULL" },
+	{ BER_UNI_TAG_OID	 	, "OBJECT IDENTIFIER" },
+	{ BER_UNI_TAG_ObjectDescriptor	, "ObjectDescriptor" },
+	{ BER_UNI_TAG_REAL		, "REAL" },
+	{ BER_UNI_TAG_ENUMERATED	, "ENUMERATED" },
 	{ BER_UNI_TAG_EMBEDDED_PDV	, "EMBEDDED PDV" },
-	{ BER_UNI_TAG_UTF8String		, "UTF8String" },
+	{ BER_UNI_TAG_UTF8String	, "UTF8String" },
 	{ BER_UNI_TAG_RELATIVE_OID	, "RELATIVE-OID" },
 	{ BER_UNI_TAG_SEQUENCE		, "SEQUENCE" },
-	{ BER_UNI_TAG_SET				, "SET" },
+	{ BER_UNI_TAG_SET		, "SET" },
 	{ BER_UNI_TAG_NumericString	, "NumericString" },
 	{ BER_UNI_TAG_PrintableString	, "PrintableString" },
 	{ BER_UNI_TAG_TeletexString	, "TeletexString, T61String" },
@@ -379,7 +383,28 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_GraphicString, NULL);
 			break;
 		case BER_UNI_TAG_OCTETSTRING:
-			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
+			if (decode_octetstring_as_ber) {
+				int ber_offset;
+				guint32 ber_len;
+				ber_offset = get_ber_identifier(tvb, offset, NULL, &pc, NULL);
+				ber_offset = get_ber_length(NULL, tvb, ber_offset, &ber_len, NULL);
+				if (pc && (ber_len + (ber_offset - offset) == len)) {
+					/* Decoded a constructed ASN.1 tag with a length indicating this
+					 * could be BER encoded data.  Try dissecting as unknown BER.
+					 */
+					if (show_internal_ber_fields) {
+						offset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
+						offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
+					}
+					item = proto_tree_add_item(tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
+					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
+					offset = dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+				} else {
+					offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
+				}
+			} else {
+				offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OCTETSTRING, NULL);
+			}
 			break;
 		case BER_UNI_TAG_OID:
 			offset=dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_OID, NULL);
@@ -392,6 +417,12 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			break;
 		case BER_UNI_TAG_TeletexString:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_TeletexString, NULL);
+			break;
+		case BER_UNI_TAG_VisibleString:
+			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_VisibleString, NULL);
+			break;
+		case BER_UNI_TAG_GeneralString:
+			offset = dissect_ber_GeneralString(pinfo, tree, tvb, start_offset, hf_ber_unknown_GeneralString, NULL, 0);
 			break;
 		case BER_UNI_TAG_IA5String:
 			offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, start_offset, hf_ber_unknown_IA5String, NULL);
@@ -1954,7 +1985,7 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 		tvb_ensure_bytes_exist(tvb, offset-2, 2);
 		cause = proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: GeneralString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
 		proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-		expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "BBER Error: GeneralString expected");
+		expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralString expected");
 		return end_offset;
 	}
 
@@ -2614,13 +2645,15 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_OCTETSTRING, {
 	    "OCTETSTRING", "ber.unknown.OCTETSTRING", FT_BYTES, BASE_HEX,
 	    NULL, 0, "This is an unknown OCTETSTRING", HFILL }},
+	{ &hf_ber_unknown_BER_OCTETSTRING, {
+	    "OCTETSTRING [BER encoded]", "ber.unknown.OCTETSTRING", FT_NONE, BASE_HEX,
+	    NULL, 0, "This is an BER encoded OCTETSTRING", HFILL }},
 	{ &hf_ber_unknown_OID, {
 	    "OID", "ber.unknown.OID", FT_OID, BASE_NONE,
 	    NULL, 0, "This is an unknown Object Identifier", HFILL }},
-	    	{ &hf_ber_unknown_GraphicString, {
+	{ &hf_ber_unknown_GraphicString, {
 	    "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_HEX,
 	    NULL, 0, "This is an unknown GRAPHICSTRING", HFILL }},
-
 	{ &hf_ber_unknown_NumericString, {
 	    "NumericString", "ber.unknown.NumericString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown NumericString", HFILL }},
@@ -2630,6 +2663,12 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_TeletexString, {
 	    "TeletexString", "ber.unknown.TeletexString", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown TeletexString", HFILL }},
+	{ &hf_ber_unknown_VisibleString, {
+	    "VisibleString", "ber.unknown.VisibleString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown VisibleString", HFILL }},
+	{ &hf_ber_unknown_GeneralString, {
+	    "GeneralString", "ber.unknown.GeneralString", FT_STRING, BASE_NONE,
+	    NULL, 0, "This is an unknown GeneralString", HFILL }},
 	{ &hf_ber_unknown_IA5String, {
 	    "IA5String", "ber.unknown.IA5String", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown IA5String", HFILL }},
@@ -2675,6 +2714,10 @@ proto_register_ber(void)
 	"Show internal BER encapsulation tokens",
 	"Whether the dissector should also display internal"
 	" ASN.1 BER details such as Identifier and Length fields", &show_internal_ber_fields);
+    prefs_register_bool_preference(ber_module, "decode_octetstring",
+	"Decode OCTET STRING as BER encoded data",
+	"Whether the dissector should try decoding OCTET STRINGs as"
+	" constructed ASN.1 BER encoded data", &decode_octetstring_as_ber);
 
     ber_oid_dissector_table = register_dissector_table("ber.oid", "BER OID Dissectors", FT_STRING, BASE_NONE);
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER Syntax Dissectors", FT_STRING, BASE_NONE);
