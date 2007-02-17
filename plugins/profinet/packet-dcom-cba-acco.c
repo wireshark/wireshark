@@ -338,7 +338,7 @@ cba_connection_dump(cba_connection_t *conn, char *role)
             conn->consid, conn->provid, conn->provitem,
             conn->typedesclen != 0 ? val_to_str(conn->typedesc[0], dcom_variant_type_vals, "Unknown (0x%08x)") : "-",
             val_to_str(conn->qostype, cba_qos_type_short_vals, "0x%x"), conn->qosvalue,
-		    conn->connret==-1 ? "[pending]" : val_to_str(conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
+		    conn->connret==0xffffffff ? "[pending]" : val_to_str(conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
             conn->packet_first, conn->packet_last);
     } else {
         g_warning("   %s#%5u: CID:0x%8x PID:0x%8x PItem:\"%s\" Type:%s QoS:%s/%u Ret:%s Off:%u", 
@@ -347,13 +347,13 @@ cba_connection_dump(cba_connection_t *conn, char *role)
             conn->consid, conn->provid, conn->provitem,
             conn->typedesclen != 0 ? val_to_str(conn->typedesc[0], dcom_variant_type_vals, "Unknown (0x%08x)") : "-",
             val_to_str(conn->qostype, cba_qos_type_short_vals, "0x%x"), conn->qosvalue,
-		    conn->connret==-1 ? "[pending]" : val_to_str(conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
+		    conn->connret==0xffffffff ? "[pending]" : val_to_str(conn->connret, dcom_hresult_vals, "Unknown (0x%08x)"),
             conn->frame_offset);
     }
 }
 
 
-void
+static void
 cba_object_dump(void)
 {
     GList *pdevs;
@@ -381,7 +381,7 @@ cba_object_dump(void)
                 frame = frames->data;
                 g_warning("  ConsFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u", 
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
-		            frame->conncrret==-1 ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
+		            frame->conncrret==0xffffffff ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);
                 for(conns = frame->conns; conns != NULL; conns = g_list_next(conns)) {
                     cba_connection_dump(conns->data, "ConsConn");
@@ -391,7 +391,7 @@ cba_object_dump(void)
                 frame = frames->data;
                 g_warning("  ProvFrame#%5u: CCRID:0x%x PCRID:0x%x Len:%u Ret:%s Data#%5u-#%5u", 
                     frame->packet_connect, frame->conscrid, frame->provcrid, frame->length,
-		            frame->conncrret==-1 ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
+		            frame->conncrret==0xffffffff ? "[pending]" : val_to_str(frame->conncrret, dcom_hresult_vals, "Unknown (0x%08x)"),
                     frame->packet_first, frame->packet_last);
                 for(conns = frame->conns; conns != NULL; conns = g_list_next(conns)) {
                     cba_connection_dump(conns->data, "ProvConn");
@@ -460,7 +460,7 @@ cba_pdev_add(packet_info *pinfo, const char *ip)
 
 
 void
-cba_pdev_link(packet_info *pinfo, cba_pdev_t *pdev, dcom_interface_t *pdev_interf)
+cba_pdev_link(packet_info *pinfo _U_, cba_pdev_t *pdev, dcom_interface_t *pdev_interf)
 {
 
     /* "crosslink" pdev interface and it's object */
@@ -473,7 +473,7 @@ cba_pdev_link(packet_info *pinfo, cba_pdev_t *pdev, dcom_interface_t *pdev_inter
 
 
 void
-cba_ldev_link(packet_info *pinfo, cba_ldev_t *ldev, dcom_interface_t *ldev_interf)
+cba_ldev_link(packet_info *pinfo _U_, cba_ldev_t *ldev, dcom_interface_t *ldev_interf)
 {
 
     /* "crosslink" interface and it's object */
@@ -486,7 +486,7 @@ cba_ldev_link(packet_info *pinfo, cba_ldev_t *ldev, dcom_interface_t *ldev_inter
 
 
 void
-cba_ldev_link_acco(packet_info *pinfo, cba_ldev_t *ldev, dcom_interface_t *acco_interf)
+cba_ldev_link_acco(packet_info *pinfo _U_, cba_ldev_t *ldev, dcom_interface_t *acco_interf)
 {
 
     /* "crosslink" interface and it's object */
@@ -534,7 +534,7 @@ cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name)
 
 cba_ldev_t *
 cba_ldev_find(packet_info *pinfo, const gchar *ip, e_uuid_t *ipid) {
-    dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
+    /*dcerpc_info *info = (dcerpc_info *)pinfo->private_data;*/
     dcom_interface_t *interf;
     cba_ldev_t *ldev;
 
@@ -618,7 +618,7 @@ cba_packet_in_range(packet_info *pinfo, guint packet_connect, guint packet_disco
 
 
 void
-cba_frame_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_frame_t *frame)
+cba_frame_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_frame_t *frame)
 {
 	proto_item *item;
 	proto_item *sub_item;
@@ -825,7 +825,7 @@ cba_frame_find_by_provcrid(packet_info *pinfo, cba_ldev_t *prov_ldev, guint32 pr
 
 
 void
-cba_frame_incoming_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_frame_t *frame)
+cba_frame_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_frame_t *frame)
 {
     if(frame->packet_first == 0) {
         frame->packet_first = pinfo->fd->num;
@@ -839,7 +839,7 @@ cba_frame_incoming_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba
 
 
 void
-cba_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_connection_t *conn)
+cba_connection_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, cba_connection_t *conn)
 {
 	proto_item *item;
 	proto_item *sub_item;
@@ -1004,7 +1004,7 @@ cba_connection_disconnectme(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 cba_connection_t *
-cba_connection_find_by_provid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_ldev_t *prov_ldev, guint32 provid)
+cba_connection_find_by_provid(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_ldev_t *prov_ldev, guint32 provid)
 {
     GList *cba_iter;
     cba_connection_t *conn;
@@ -1022,7 +1022,7 @@ cba_connection_find_by_provid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 
 void
-cba_connection_incoming_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, cba_connection_t *conn)
+cba_connection_incoming_data(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, cba_connection_t *conn)
 {
     if(conn->packet_first == 0) {
         conn->packet_first = pinfo->fd->num;

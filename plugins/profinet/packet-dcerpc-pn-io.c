@@ -1776,7 +1776,7 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM1_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_)
 {
     char *pTagFunction;
     char *pTagLocation;
@@ -1803,7 +1803,7 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM2_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_)
 {
     char *pDate;
 
@@ -1822,7 +1822,7 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM3_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_)
 {
     char *pDescriptor;
 
@@ -1841,7 +1841,7 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_IandM4_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint8 *drep _U_)
 {
 
     dissect_pn_user_data(tvb, offset, pinfo, tree, 54, "IM Signature");

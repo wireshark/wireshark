@@ -756,7 +756,7 @@ dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
     proto_tree *ptcp_tree = NULL;
     int offset = 0;
 	guint32 u32SubStart;
-    proto_item *unknown_item = NULL;
+    /*proto_item *unknown_item = NULL;*/
 
 
     /* the tvb will NOT contain the frame_id here, so get it from our private data! */

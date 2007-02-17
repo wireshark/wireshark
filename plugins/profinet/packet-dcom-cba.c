@@ -627,7 +627,7 @@ dissect_ICBAPhysicalDevice_get_LogicalDevice_resp(tvbuff_t *tvb, int offset,
         /* as I currently don't understand the objref process for a root interface! */
         pdev_interf = dcom_interface_new(pinfo, pinfo->net_dst.data, &uuid_ICBAPhysicalDevice, 0, 0, &info->call_data->object_uuid);    
         if(pdev_interf != NULL) {
-            pdev = cba_pdev_add(pinfo, pinfo->net_dst.data);
+            pdev = cba_pdev_add(pinfo, (const char *) (pinfo->net_dst.data) );
             cba_pdev_link(pinfo, pdev, pdev_interf);
 
             ldev = cba_ldev_add(pinfo, pdev, ldev_name);
@@ -823,7 +823,7 @@ dissect_ICBALogicalDevice_get_ACCO_resp(tvbuff_t *tvb, int offset,
             "LDev_get_ACCO: can't resolve ACCO interface pointer");
     }
 
-    ldev = cba_ldev_find(pinfo, pinfo->net_src.data, &info->call_data->object_uuid);
+    ldev = cba_ldev_find(pinfo, (const gchar *) (pinfo->net_src.data), &info->call_data->object_uuid);
     
     /* "crosslink" interface and it's object */
     if(ldev != NULL && acco_interf != NULL) {
@@ -930,9 +930,10 @@ dissect_ComponentInfo_resp(tvbuff_t *tvb, int offset,
 }
 
 
-void dissect_PBAddressInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+static void 
+dissect_PBAddressInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        proto_tree *tree, guint8 *drep,
-                       guint32 u32VarType, guint32 u32ArraySize)
+                       guint32 u32VarType _U_, guint32 u32ArraySize)
 {
     guint8  u8ID;
     guint8  u8Addr;
