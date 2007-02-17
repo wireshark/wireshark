@@ -175,17 +175,17 @@ ldap_conv_info_t *ldap_info;
 
 	ldap_info = pinfo->private_data;
 	if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
-		/*
+	/*
          * This is a GSS-API token ancapsulated within GSS-SPNEGO.
-		 */
-		 if (parameter_tvb)
-			call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+	 */
+	if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	  call_dissector(spnego_handle, parameter_tvb, pinfo, tree);
 	} else if (ldap_info->auth_mech != NULL && strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
         /*
          * This is a raw GSS-API token.
          */
-		 if (parameter_tvb)
-			call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+	if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	  call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
 	}
 	pinfo->private_data = ldap_info;
 
@@ -237,13 +237,15 @@ ldap_conv_info_t *ldap_info;
         /*
          * This is a GSS-API token.
          */
-        call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+	if(parameter_tvb && (tvb_length(parameter_tvb) > 0))
+	  call_dissector(spnego_handle, parameter_tvb, pinfo, tree);
       } else if (ldap_info->auth_mech != NULL &&
           strcmp(ldap_info->auth_mech, "GSSAPI") == 0) {
         /*
          * This is a GSS-API token.
          */
-        call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
+        if(parameter_tvb && (tvb_length(parameter_tvb) > 0))
+          call_dissector(gssapi_handle, parameter_tvb, pinfo, tree);
 		}
 	break;
 	}

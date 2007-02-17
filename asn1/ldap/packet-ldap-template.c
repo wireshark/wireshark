@@ -174,7 +174,7 @@ static gboolean is_binary_attr_type = FALSE;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 static dissector_handle_t ntlmssp_handle = NULL;
-
+static dissector_handle_t spnego_handle;
 
 /* different types of rpc calls ontop of ms cldap */
 #define	MSCLDAP_RPC_NETLOGON 	1
@@ -781,12 +781,14 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
         proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4,
                             sasl_len);
 
-        sasl_item = proto_tree_add_text(ldap_tree, sasl_tvb, 0,  sasl_msg_len, "SASL buffer");
+        sasl_item = proto_tree_add_text(ldap_tree, sasl_tvb, 0,  sasl_msg_len, "SASL Buffer");
         sasl_tree = proto_item_add_subtree(sasl_item, ett_ldap_sasl_blob);
       }
 
       if (ldap_info->auth_mech != NULL &&
-          strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) {
+          ((strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) ||
+	   /* auth_mech may have been set from the bind */
+	   (strcmp(ldap_info->auth_mech, "GSSAPI") == 0))) {
 	  tvbuff_t *gssapi_tvb, *plain_tvb = NULL, *decr_tvb= NULL;
 	  int ver_len;
 	  int length;
@@ -847,6 +849,11 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
              * The LDAP message was encrypted in the packet, and has
              * been decrypted; dissect the decrypted LDAP message.
              */
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+	      col_add_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
+
+            }
+
             if (sasl_tree) {
 	      enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
                                 "GSS-API Encrypted payload (%d byte%s)",
@@ -863,6 +870,10 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	     * The LDAP message wasn't encrypted in the packet;
 	     * dissect the plain LDAP message.
              */
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+	      col_add_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
+            }
+
 	    if (sasl_tree) {
               plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
                                 "GSS-API payload (%d byte%s)",
@@ -878,7 +889,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
              * not decrypted; just show it as encrypted data.
              */
             if (check_col(pinfo->cinfo, COL_INFO)) {
-        	    col_add_fstr(pinfo->cinfo, COL_INFO, "LDAP GSS-API Encrypted payload (%d byte%s)",
+        	    col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
                                  sasl_len - ver_len,
                                  plurality(sasl_len - ver_len, "", "s"));
             }
@@ -1658,6 +1669,7 @@ proto_reg_handoff_ldap(void)
 
 	gssapi_handle = find_dissector("gssapi");
 	gssapi_wrap_handle = find_dissector("gssapi_verf");
+	spnego_handle = find_dissector("spnego");
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 
