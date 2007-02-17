@@ -2143,6 +2143,8 @@ dissect_krb5_PA_ENCTYPE_INFO2(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 static int
 dissect_krb5_PW_SALT(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+	guint32 nt_status;
+
 	/* Microsoft stores a special 12 byte blob here
 	 * guint32 NT_status
 	 * guint32 unknown
@@ -2153,6 +2155,13 @@ dissect_krb5_PW_SALT(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 	 */
 	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,
 			TRUE);
+	nt_status=tvb_get_letohl(tvb, offset);
+	if(nt_status && check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+			" NT Status: %s",
+			val_to_str(nt_status, NT_errors,
+			"Unknown error code %#x"));
+	}
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
