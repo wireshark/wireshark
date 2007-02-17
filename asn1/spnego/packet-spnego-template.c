@@ -688,7 +688,11 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	 * It certainly confounds code expecting all Kerberos 5
 	 * GSS_Wrap() tokens to look the same....
 	 */
-	if (sgn_alg == KRB_SGN_ALG_HMAC) {
+	if ((sgn_alg == KRB_SGN_ALG_HMAC) ||
+	    /* there also seems to be a confounder for DES MAC MD5 - certainly seen when using with 
+	       SASL with LDAP between a Java client and Active Directory. If this breaks other things 
+	       we may need to make this an option. gal 17/2/06 */
+	    (sgn_alg == KRB_SGN_ALG_DES_MAC_MD5)) {
 	  proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
 			      TRUE);
 	  offset += 8;
