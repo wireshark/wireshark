@@ -136,8 +136,8 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 		packet_size = g_ntohs(header.rlen) - sizeof(header);
 
 		/* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
-		if (header.type == 0 || header.type > TYPE_AAL5 ||
-		    (header.flags & 0xc0) != 0) {
+		/* Only header type up to Multi Channel HDLC are taken into account in this software version */
+		if (header.type == 0 || header.type > TYPE_MC_HDLC ) {
 			return 0;
 		}
 
@@ -386,6 +386,15 @@ static int erf_read_header(
 		memset(&pseudo_header->p2p, 0, sizeof(pseudo_header->p2p));
 		pseudo_header->p2p.sent = ((erf_header->flags & 0x01) ? TRUE : FALSE);
 		break;
+	case TYPE_MC_HDLC:
+	        if (phdr != NULL) {
+		  phdr->caplen = MC_HDLC_SLEN(erf_header, erf);
+		  phdr->len = MC_HDLC_WLEN(erf_header, erf);
+		}
+		/* Skip the MC header, so the first data to dissect will be the MTP2 header */ 
+		skip = 4;
+		memset(&pseudo_header->mtp2, 0, sizeof(pseudo_header->mtp2));
+		break;
 	default:
 		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 		*err_info = g_strdup_printf("erf: unknown record encapsulation %u",
@@ -424,6 +433,9 @@ static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap)
 		break;
 	case TYPE_HDLC_POS:
 		wtap_encap = (erf->is_ppp ? WTAP_ENCAP_PPP : WTAP_ENCAP_CHDLC);
+		break;
+	case TYPE_MC_HDLC:
+	        wtap_encap = WTAP_ENCAP_MTP2;
 		break;
 	default:
 		break;

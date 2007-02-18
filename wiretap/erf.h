@@ -44,6 +44,11 @@
 #define TYPE_ETH	2
 #define TYPE_ATM	3
 #define TYPE_AAL5	4
+#define TYPE_MC_HDLC	5
+#define TYPE_MC_RAW	6
+#define TYPE_MC_ATM	7
+#define TYPE_MC_AAL2	9
+#define TYPE_MC_AAL5	12
 
  /*
   * The timestamp is 64bit unsigned fixed point little-endian value with
@@ -90,6 +95,12 @@ typedef struct erf_record {
  */
 #define HDLC_WLEN(h, e)		(g_htons((h)->wlen))
 #define HDLC_SLEN(h, e)		min(HDLC_WLEN(h, e), g_htons((h)->rlen) - sizeof(*(h)))
+
+/*
+ * Size of MC_HDLC payload
+ */
+#define MC_HDLC_WLEN(h, e)		(g_htons((h)->wlen))
+#define MC_HDLC_SLEN(h, e)		min(HDLC_WLEN(h, e), g_htons((h)->rlen) - sizeof(*(h)) )
 
 int erf_open(wtap *wth, int *err, gchar **err_info);
 
