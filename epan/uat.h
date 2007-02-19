@@ -426,7 +426,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 
 #define UAT_FLD_PROTO(basename,field_name,desc) \
-	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,FLDFILL}
+	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 
 
