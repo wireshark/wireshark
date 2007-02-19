@@ -12,7 +12,7 @@ response packet  and without the opcode we would not know how to decode the
 data.
 
 It is also useful when you need to track information on a per conversation 
-basis such as when some parameters are negotiatiod during a login phase of the 
+basis such as when some parameters are negotiated during a login phase of the 
 protocol and when these parameters affect how future commands on that
 session are to be decoded. The iSCSI dissector does something similar to that
 to track which sessions that HeaderDigest is activated for and which ones
@@ -29,7 +29,7 @@ The example is taken from the PANA dissector :
 
 
 First we need to include the definitions for conversations and memory
-magament
+management
 
 	#include <epan/conversation.h>
 	#include <epan/emem.h>
