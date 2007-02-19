@@ -56,8 +56,6 @@
 
 #define NOTEBOOK_KEY    "notebook_key"
 
-static void help_destroy_cb(GtkWidget *w, gpointer data);
-
 /*
  * Keep a static pointer to the current "Help" window, if any, so that
  * if somebody tries to do "Help->Help" while there's already a
@@ -79,6 +77,84 @@ typedef struct {
 static GSList *help_text_pages = NULL;
 
 
+
+gboolean topic_available(topic_action_e action) {
+
+#if (GLIB_MAJOR_VERSION >= 2)
+    if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
+        /* XXX - add the page HELP_CAPTURE_INTERFACES_DETAILS_DIALOG and remove this if */
+        /* page currently not existing in user's guide */
+        return FALSE;
+    }
+    /* online: we have almost all possible pages available */
+    return TRUE;
+#else
+    /* offline: we have only some pages available */
+    switch(action) {
+    case(HELP_CONTENT):
+        return TRUE;
+        break;
+    case(HELP_GETTING_STARTED):
+        return TRUE;
+        break;
+    case(HELP_CAPTURE_OPTIONS_DIALOG):
+        return TRUE;
+        break;
+    case(HELP_CAPTURE_FILTERS_DIALOG):
+        return TRUE;
+        break;
+    case(HELP_DISPLAY_FILTERS_DIALOG):
+        return TRUE;
+        break;
+    default:
+        return FALSE;
+    }
+#endif
+}
+
+
+#if (GLIB_MAJOR_VERSION >= 2)
+/*
+ * Open the help dialog and show a specific HTML help page.
+ */
+void help_topic_html(const gchar *topic) {
+    GString *url;
+
+
+    /* try to open local .chm file */
+#ifdef HHC_DIR
+    HWND hw;
+
+    url = g_string_new("");
+
+    g_string_append_printf(url, "%s\\user-guide.chm::/wsug_chm/%s>Wireshark Help",
+        get_datafile_dir(), topic);
+
+    hw = HtmlHelpW(NULL,
+        utf_8to16(url->str),
+        HH_DISPLAY_TOPIC, 0);
+
+    g_string_free(url, TRUE /* free_segment */);
+
+    /* if the .chm file could be opened, stop here */
+    if(hw != NULL) {
+        return;
+    }
+#endif /* HHC_DIR */
+
+    url = g_string_new("");
+
+    /* try to open the HTML page from wireshark.org instead */
+    g_string_append_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", topic);
+
+    browser_open_url(url->str);
+
+    g_string_free(url, TRUE /* free_segment */);
+}
+#endif
+
+
+#if (GLIB_MAJOR_VERSION < 2)
 /*
  * Helper function to show a simple help text page.
  */
@@ -101,6 +177,30 @@ static GtkWidget * help_page(const char *topic, const char *filename)
   help_text_pages = g_slist_append(help_text_pages, page);
 
   return text_page;
+}
+
+
+/*
+ * Help dialog is closed now.
+ */
+static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  GSList *help_page_ent;
+  help_page_t *page;
+
+  /* Free up the list of help pages. */
+  for (help_page_ent = help_text_pages; help_page_ent != NULL;
+       help_page_ent = g_slist_next(help_page_ent)) {
+    page = (help_page_t *)help_page_ent->data;
+    g_free(page->topic);
+    g_free(page->pathname);
+    g_free(page);
+  }
+  g_slist_free(help_text_pages);
+  help_text_pages = NULL;
+
+  /* Note that we no longer have a Help window. */
+  help_w = NULL;
 }
 
 
@@ -192,82 +292,6 @@ void help_dialog(void)
 } /* help_dialog */
 
 
-gboolean topic_available(topic_action_e action) {
-
-#if (GLIB_MAJOR_VERSION >= 2)
-    if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
-        /* XXX - add the page HELP_CAPTURE_INTERFACES_DETAILS_DIALOG and remove this if */
-        /* page currently not existing in user's guide */
-        return FALSE;
-    }
-    /* online: we have almost all possible pages available */
-    return TRUE;
-#else
-    /* offline: we have only some pages available */
-    switch(action) {
-    case(HELP_CONTENT):
-        return TRUE;
-        break;
-    case(HELP_GETTING_STARTED):
-        return TRUE;
-        break;
-    case(HELP_CAPTURE_OPTIONS_DIALOG):
-        return TRUE;
-        break;
-    case(HELP_CAPTURE_FILTERS_DIALOG):
-        return TRUE;
-        break;
-    case(HELP_DISPLAY_FILTERS_DIALOG):
-        return TRUE;
-        break;
-    default:
-        return FALSE;
-    }
-#endif
-}
-
-
-#if (GLIB_MAJOR_VERSION >= 2)
-/*
- * Open the help dialog and show a specific HTML help page.
- */
-void help_topic_html(const gchar *topic) {
-    GString *url;
-
-
-    /* try to open local .chm file */
-#ifdef HHC_DIR
-    HWND hw;
-
-    url = g_string_new("");
-
-    g_string_append_printf(url, "%s\\user-guide.chm::/wsug_chm/%s>Wireshark Help",
-        get_datafile_dir(), topic);
-
-    hw = HtmlHelpW(NULL,
-        utf_8to16(url->str),
-        HH_DISPLAY_TOPIC, 0);
-
-    g_string_free(url, TRUE /* free_segment */);
-
-    /* if the .chm file could be opened, stop here */
-    if(hw != NULL) {
-        return;
-    }
-#endif /* HHC_DIR */
-
-    url = g_string_new("");
-
-    /* try to open the HTML page from wireshark.org instead */
-    g_string_append_printf(url, "http://www.wireshark.org/docs/wsug_html_chunked/%s", topic);
-
-    browser_open_url(url->str);
-
-    g_string_free(url, TRUE /* free_segment */);
-}
-#endif
-
-
 /*
  * Open the help dialog and show a specific GTK help page.
  */
@@ -300,30 +324,7 @@ static void help_topic_gtk(const gchar *topic) {
 
     /* topic page not found, default (first page) will be shown */
 }
-
-
-/*
- * Help dialog is closed now.
- */
-static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-  GSList *help_page_ent;
-  help_page_t *page;
-
-  /* Free up the list of help pages. */
-  for (help_page_ent = help_text_pages; help_page_ent != NULL;
-       help_page_ent = g_slist_next(help_page_ent)) {
-    page = (help_page_t *)help_page_ent->data;
-    g_free(page->topic);
-    g_free(page->pathname);
-    g_free(page);
-  }
-  g_slist_free(help_text_pages);
-  help_text_pages = NULL;
-
-  /* Note that we no longer have a Help window. */
-  help_w = NULL;
-}
+#endif	/* GLIB_MAJOR_VERSION < 2 */
 
 
 /**
