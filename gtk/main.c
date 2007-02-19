@@ -161,7 +161,9 @@
 #include "../image/wsiconcap16.xpm"
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
+#ifdef SHOW_WELCOME_PAGE
 #include "../image/wssplash.xpm"
+#endif
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
