@@ -611,6 +611,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	headers.content_type = NULL;	/* content type not known yet */
+	stat_info->content_type = NULL; /* Reset for each packet */
 	headers.content_type_parameters = NULL;	/* content type parameters too */
 	headers.have_content_length = FALSE;	/* content length not known yet */
 	headers.content_encoding = NULL; /* content encoding not known yet */
@@ -1077,6 +1078,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * First, check whether some subdissector asked that they
 		 * be called if something was on some particular port.
 		 */
+
+		/* Save values for Content List -> HTTP GUI feature */
+		stat_info->content_type = se_strdup(headers.content_type);
+		stat_info->payload_len = next_tvb->length;
+		stat_info->payload_data = se_memdup(next_tvb->real_data,
+						    next_tvb->length);
+
 		handle = dissector_get_port_handle(port_subdissector_table,
 		    pinfo->match_port);
 		if (handle == NULL && headers.content_type != NULL) {

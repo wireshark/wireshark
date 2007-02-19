@@ -34,6 +34,9 @@ typedef struct _http_info_value_t
 	guint	 response_code;
 	gchar   *http_host;
 	gchar   *request_uri;
+	gchar   *content_type;
+	guint32  payload_len;
+	guint8  *payload_data;
 } http_info_value_t;
 
 #endif
