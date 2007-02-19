@@ -5844,7 +5844,6 @@ proto_register_afp(void)
   register_init_routine(afp_reinit);
 
   register_dissector("afp", dissect_afp, proto_afp);
-  data_handle = find_dissector("data");
 
   afp_tap = register_tap("afp");
 }

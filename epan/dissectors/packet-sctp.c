@@ -3311,6 +3311,8 @@ proto_register_sctp(void)
   /* subdissector code */
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
+
+  register_dissector("sctp", dissect_sctp, proto_sctp); 
   register_heur_dissector_list("sctp", &sctp_heur_subdissector_list);
 
   register_init_routine(frag_table_init);
@@ -3322,7 +3324,7 @@ proto_reg_handoff_sctp(void)
   dissector_handle_t sctp_handle;
 
   data_handle = find_dissector("data");
-  sctp_handle = create_dissector_handle(dissect_sctp, proto_sctp);
+  sctp_handle = find_dissector("sctp");
   dissector_add("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add("udp.port", UDP_TUNNELING_PORT, sctp_handle);
 }
