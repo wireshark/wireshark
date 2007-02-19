@@ -1259,7 +1259,7 @@ winreg_dissect_element_CreateKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_CreateKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
@@ -1323,7 +1323,7 @@ winreg_dissect_element_CreateKey_new_handle(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_CreateKey_new_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, NULL, NULL, 0&0x01, 0&0x02);
 
 	return offset;
 }
@@ -2138,7 +2138,7 @@ winreg_dissect_element_OpenKey_handle(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 winreg_dissect_element_OpenKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
 
 	return offset;
 }
