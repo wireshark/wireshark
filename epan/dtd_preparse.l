@@ -56,8 +56,6 @@ static const gchar* dtd_dirname;
 static const gchar* filename;
 static guint linenum;
 
-static GString* textstr;
-
 static gchar* replace_entity(gchar* s);
 static const gchar* location(void);
 
