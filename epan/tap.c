@@ -268,7 +268,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
  * use "filters" and should specify the "filter" as NULL when registering
  * the tap listener.
  */
-void * 
+const void * 
 fetch_tapped_data(int tap_id, int idx)
 {
 	tap_packet_t *tp;
