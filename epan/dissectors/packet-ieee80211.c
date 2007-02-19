@@ -107,9 +107,9 @@ static gboolean enable_decryption = FALSE;
 static guint8 **wep_keys = NULL;
 static int *wep_keylens = NULL;
 static void init_wepkeys(void);
-static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 #ifndef	HAVE_AIRPDCAP
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
+static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 #else
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2	*/
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
@@ -1690,7 +1690,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
   /* PMKID List (16 * n octets) */
   for (i = 0; i < count; i++) {
     if (tag_off + PMKID_LEN > tag_len)
-      goto done;
+      break;
     g_snprintf(out_buff, SHORT_STR, "PMKID %u: %s", i,
         tvb_bytes_to_str(tag_tvb, tag_off, PMKID_LEN));
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off,
@@ -1698,7 +1698,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tag_tvb)
     tag_off += PMKID_LEN;
   }
 
- done:
+done:
   if (tag_off < tag_len)
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off,
 			  tag_len - tag_off, "Not interpreted");
@@ -1865,11 +1865,6 @@ dissect_ht_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 1;
   tag_val_off += 1;
 
-
-  goto done;
-
-
- done:
   if (tag_val_off < tag_len)
     proto_tree_add_string(tree, tag_interpretation, tvb, offset,
 			  tag_len - tag_val_off, "Not interpreted");
@@ -1963,7 +1958,6 @@ dissect_hta_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 16;
   tag_val_off += 16;
 
-  done:
    if (tag_val_off < tag_len)
      proto_tree_add_string(tree, tag_interpretation, tvb, offset,
                tag_len - tag_val_off, "Not interpreted");
@@ -6043,11 +6037,10 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
       tvb_set_free_cb(decr_tvb, g_free);
       tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
 
-      goto done;
+      break;
     }
   }
 
- done:
   if ((!decr_tvb) && (tmp))    g_free(tmp);
 
 #if 0
@@ -6147,6 +6140,7 @@ void set_airpdcap_keys()
 }
 #endif
 
+#ifndef HAVE_AIRPDCAP
 /* de-weps the block.  if successful, buf* will point to the data start. */
 static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
   guint32 i, j, k, crc, keylen;
@@ -6229,6 +6223,7 @@ static int wep_decrypt(guint8 *buf, guint32 len, int keyidx) {
 
   return 0;
 }
+#endif
 
 static void init_wepkeys(void) {
   const char *tmp;
