@@ -265,7 +265,7 @@ void dcom_interface_dump(void) {
 }
 
 
-dcom_interface_t *dcom_interface_find(packet_info *pinfo, const guint8 *ip, e_uuid_t *ipid) 
+dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _U_, e_uuid_t *ipid) 
 {
     dcom_interface_t *interf;
     GList *interfaces;

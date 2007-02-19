@@ -201,7 +201,7 @@ dissect_amr_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
  *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 static void
-dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	proto_item *item;
 	guint8 octet;
 	int offset =0;

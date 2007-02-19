@@ -561,7 +561,7 @@ dissect_osd_attribute_data_out(packet_info *pinfo, tvbuff_t *tvb, int offset _U_
 
 
 static void
-dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, scsi_task_data_t *cdata)
+dissect_osd_attribute_data_in(packet_info *pinfo, tvbuff_t *tvb, int offset _U_, proto_tree *tree, scsi_task_data_t *cdata)
 {
 	guint8 gsatype=0;
 	scsi_osd_extra_data_t *extra_data=NULL;

@@ -2520,7 +2520,7 @@ static const value_string GetChannelAuthCap_max_priv_lev_vals[] = {
 /* 22-15, Get Channel Authentication Capabilities Command */
 static void
 dissect_cmd_Get_Channel_Auth_Capabilities(proto_tree *tree, proto_tree *ipmi_tree, packet_info *pinfo _U_, tvbuff_t *tvb,
-								gint *poffset, guint8 len, guint8 response, guint8 auth_offset)
+								gint *poffset, guint8 len _U_, guint8 response, guint8 auth_offset _U_)
 {
 	proto_tree	*field_tree = NULL;
 	proto_item	*tf = NULL;

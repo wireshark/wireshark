@@ -2368,7 +2368,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static guint
-get_dnp3_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+get_dnp3_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint16 message_len;  /* need 16 bits as total can exceed 255 */
   guint16 data_crc;     /* No. of user data CRC bytes */

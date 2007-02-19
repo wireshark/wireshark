@@ -3995,7 +3995,7 @@ decode_iei_rrlp_flags(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 }
 
 static void /* [7] 11.3.61 RIM Application Identity */
-decode_iei_rim_application_identity(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
+decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie_start_offset _U_) {
   proto_item *ti;
   guint8 appid;
 
@@ -4243,7 +4243,7 @@ static const value_string ran_inf_pdu_type_ext_vals[] = {
 /* 11.3.65 RIM PDU Indications 3GPP TS 48.018 version 6.7.0 Release 6 */
 static void 
 decode_iei_rim_pdu_indications(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  const guint8 MASK_EXT = 0x0E;
+  /**  const guint8 MASK_EXT = 0x0E; **/
   const guint8 MASK_ACK = 0x01;
   proto_item *ti, *pi;
   proto_tree *tf;

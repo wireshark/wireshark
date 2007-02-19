@@ -363,7 +363,7 @@ gint parseField_Int(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode
  * padding, which occurs whenever padding is inserted to properly align the
  * field.
  */
-gint parseField_Pad(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
+gint parseField_Pad(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode _U_, guint numBytes)
 {
     proto_tree_add_text(tree, tvb, offset, numBytes,
         "Explicit Padding (%d bytes)", numBytes);

@@ -181,7 +181,7 @@ static const value_string mp2t_afc_vals[] = {
 };
 
 static gint
-dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree ) 
+dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree ) 
 {
 	guint32 header;
 	guint afc;

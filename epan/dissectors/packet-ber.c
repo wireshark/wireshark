@@ -231,7 +231,7 @@ register_ber_oid_name(const char *oid, const char *name)
 	add_oid_str_name(oid, name);
 }
 
-static void ber_decode_as_dt(gchar *table_name, ftenum_t selector_type, gpointer key, gpointer value, gpointer user_data)
+static void ber_decode_as_dt(gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)
 {
   da_data *decode_as_data;
   
@@ -566,7 +566,6 @@ int
 call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
-	const char *fsyntax = NULL;
 
 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	if(syntax == NULL ||

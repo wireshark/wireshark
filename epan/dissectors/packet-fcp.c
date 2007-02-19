@@ -491,7 +491,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 }
 
 static void
-dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation, fc_hdr *fchdr, itl_nexus_t *itl)
+dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, conversation_t *conversation _U_, fc_hdr *fchdr, itl_nexus_t *itl)
 {
     dissect_scsi_payload(tvb, pinfo, parent_tree, FALSE, fchdr->itlq, itl, fchdr->relative_offset);
 }
@@ -512,7 +512,7 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 static void
-dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, itl_nexus_t *itl)
+dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation _U_, fc_hdr *fchdr, itl_nexus_t *itl)
 {
     guint32 offset = 0;
     gint32 snslen = 0,
