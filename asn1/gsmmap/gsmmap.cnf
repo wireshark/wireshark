@@ -679,6 +679,42 @@ Component
     subtree = proto_item_add_subtree(item, ett_gsm_map_RadioResourceInformation); 
 	be_chan_type(tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
+#.FN_BODY RANAP-ServiceHandover VAL_PTR = &parameter_tvb
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_Service_Handover(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_map_ranap_service_Handover);
+
+#.FN_BODY IntegrityProtectionInformation VAL_PTR = &parameter_tvb
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_IntegrityProtectionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapIntegrityProtectionInformation);
+
+#.FN_BODY EncryptionInformation VAL_PTR = &parameter_tvb
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapEncryptionInformation);
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

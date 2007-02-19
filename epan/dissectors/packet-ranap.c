@@ -931,7 +931,7 @@ dissect_ranap_ProcedureCode(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, pro
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 255U, &ProcedureCode, FALSE);
 
-#line 36 "ranap.cnf"
+#line 39 "ranap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, ranap_ProcedureCode_vals,
@@ -979,7 +979,7 @@ static int dissect_secondCriticality(tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 
 static int
 dissect_ranap_Value(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 49 "ranap.cnf"
+#line 52 "ranap.cnf"
 	
 	offset = dissect_ranap_messages(tvb, offset, actx, tree);
 
@@ -1271,7 +1271,7 @@ static int dissect_id(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *t
 
 static int
 dissect_ranap_RANAP_PROTOCOL_IES_Value(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 53 "ranap.cnf"
+#line 56 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, actx, tree);
 
@@ -1348,7 +1348,7 @@ static int dissect_ext_id(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tre
 
 static int
 dissect_ranap_Extension(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 72 "ranap.cnf"
+#line 75 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, actx, tree);
 
@@ -1906,7 +1906,7 @@ static int dissect_private_id(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto
 
 static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 76 "ranap.cnf"
+#line 79 "ranap.cnf"
 /* FIX ME */
 
 
@@ -3055,7 +3055,7 @@ static int dissect_aPN(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 79 "ranap.cnf"
+#line 82 "ranap.cnf"
 
 	tvbuff_t *parameter_tvb=NULL;
 
@@ -4572,7 +4572,7 @@ static int dissect_id_DRX_CycleLengthCoefficient(tvbuff_t *tvb, int offset, asn1
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 57 "ranap.cnf"
+#line 60 "ranap.cnf"
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
@@ -4731,7 +4731,7 @@ static const per_sequence_t EncryptionInformation_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ranap_EncryptionInformation(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ranap_EncryptionInformation, EncryptionInformation_sequence);
@@ -5455,7 +5455,7 @@ static const per_sequence_t IntegrityProtectionInformation_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_ranap_IntegrityProtectionInformation(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ranap_IntegrityProtectionInformation, IntegrityProtectionInformation_sequence);
@@ -8070,7 +8070,7 @@ static int dissect_userPlaneInformation(tvbuff_t *tvb, int offset, asn1_ctx_t *a
 }
 
 
-static const value_string ranap_Service_Handover_vals[] = {
+const value_string ranap_Service_Handover_vals[] = {
   {   0, "handover-to-GSM-should-be-performed" },
   {   1, "handover-to-GSM-should-not-be-performed" },
   {   2, "handover-to-GSM-shall-not-be-performed" },
@@ -8078,7 +8078,7 @@ static const value_string ranap_Service_Handover_vals[] = {
 };
 
 
-static int
+int
 dissect_ranap_Service_Handover(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, TRUE, 0, NULL);
@@ -8196,7 +8196,7 @@ static int dissect_id_RAB_SetupOrModifiedList(tvbuff_t *tvb, int offset, asn1_ct
 
 static int
 dissect_ranap_FirstValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 69 "ranap.cnf"
+#line 72 "ranap.cnf"
 	offset = dissect_ranap_FirstValue_ies(tvb, offset, actx, tree);
 
 
@@ -8211,7 +8211,7 @@ static int dissect_firstValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto
 
 static int
 dissect_ranap_SecondValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
-#line 66 "ranap.cnf"
+#line 69 "ranap.cnf"
 	offset = dissect_ranap_SecondValue_ies(tvb, offset, actx, tree);
 
 

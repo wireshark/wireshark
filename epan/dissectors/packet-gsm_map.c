@@ -53,6 +53,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-per.h"
 #include "packet-q931.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
@@ -61,6 +62,7 @@
 #include "packet-e212.h"
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
+#include "packet-ranap.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -140,6 +142,9 @@ static int hf_geo_loc_inner_radius = -1;
 static int hf_geo_loc_uncertainty_radius = -1;
 static int hf_geo_loc_offset_angle = -1;
 static int hf_geo_loc_included_angle = -1;
+static int hf_gsm_map_ranap_service_Handover = -1;
+static int hf_gsm_mapIntegrityProtectionInformation = -1;
+static int hf_gsm_mapEncryptionInformation = -1;
 
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
@@ -1085,7 +1090,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 137 "packet-gsm_map-template.c"
+#line 142 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1534,7 +1539,7 @@ static gint ett_gsm_map_SecureTransportErrorParam = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 157 "packet-gsm_map-template.c"
+#line 162 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -4453,8 +4458,21 @@ static int dissect_an_APDU_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 static int
 dissect_gsm_map_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 695 "gsmmap.cnf"
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+ 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_IntegrityProtectionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapIntegrityProtectionInformation);
+
+
 
   return offset;
 }
@@ -4466,8 +4484,21 @@ static int dissect_integrityProtectionInfo_impl(packet_info *pinfo, proto_tree *
 
 static int
 dissect_gsm_map_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 707 "gsmmap.cnf"
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+ 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapEncryptionInformation);
+
+
 
   return offset;
 }
@@ -4640,8 +4671,21 @@ static int dissect_bssmap_ServiceHandover_impl(packet_info *pinfo, proto_tree *t
 
 static int
 dissect_gsm_map_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+#line 683 "gsmmap.cnf"
+    tvbuff_t        *parameter_tvb;
+	asn1_ctx_t		asn1_ctx;
+
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+ 
+
+	if (!parameter_tvb) 
+                return offset;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_ranap_Service_Handover(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_map_ranap_service_Handover);
+
+
 
   return offset;
 }
@@ -15615,7 +15659,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 566 "packet-gsm_map-template.c"
+#line 571 "packet-gsm_map-template.c"
 
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
@@ -17329,6 +17373,19 @@ void proto_register_gsm_map(void) {
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Included angle", HFILL }
 	},
+
+    { &hf_gsm_map_ranap_service_Handover,
+      { "service-Handover", "gsm_map.ranap.service_Handover",
+        FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
+        "gsm_map.ranap.Service_Handover", HFILL }},
+    { &hf_gsm_mapIntegrityProtectionInformation,
+      { "IntegrityProtectionInformation", "gsm_map.ranap.IntegrityProtectionInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map.ranap.IntegrityProtectionInformation", HFILL }},
+    { &hf_gsm_mapEncryptionInformation,
+      { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map.ranap.EncryptionInformation", HFILL }},
 
 
 /*--- Included file: packet-gsm_map-hfarr.c ---*/
@@ -21087,7 +21144,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2281 "packet-gsm_map-template.c"
+#line 2299 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -21538,7 +21595,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2303 "packet-gsm_map-template.c"
+#line 2321 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

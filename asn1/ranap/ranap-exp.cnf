@@ -8,6 +8,9 @@ RANAP-PDU-Descriptions  ranap
 #.END
 
 #.TYPE_ATTR
+EncryptionInformation    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+IntegrityProtectionInformation TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+Service-Handover         TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ranap_Service_Handover_vals)  BITMASK = 0
 TargetID                 TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(ranap_TargetID_vals)  BITMASK = 0
 #.END
 

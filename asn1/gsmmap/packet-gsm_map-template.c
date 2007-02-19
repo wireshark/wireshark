@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include "packet-ber.h"
+#include "packet-per.h"
 #include "packet-q931.h"
 #include "packet-gsm_map.h"
 #include "packet-gsm_a.h"
@@ -53,6 +54,7 @@
 #include "packet-e212.h"
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
+#include "packet-ranap.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -132,6 +134,9 @@ static int hf_geo_loc_inner_radius = -1;
 static int hf_geo_loc_uncertainty_radius = -1;
 static int hf_geo_loc_offset_angle = -1;
 static int hf_geo_loc_included_angle = -1;
+static int hf_gsm_map_ranap_service_Handover = -1;
+static int hf_gsm_mapIntegrityProtectionInformation = -1;
+static int hf_gsm_mapEncryptionInformation = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -2276,6 +2281,19 @@ void proto_register_gsm_map(void) {
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Included angle", HFILL }
 	},
+
+    { &hf_gsm_map_ranap_service_Handover,
+      { "service-Handover", "gsm_map.ranap.service_Handover",
+        FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
+        "gsm_map.ranap.Service_Handover", HFILL }},
+    { &hf_gsm_mapIntegrityProtectionInformation,
+      { "IntegrityProtectionInformation", "gsm_map.ranap.IntegrityProtectionInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map.ranap.IntegrityProtectionInformation", HFILL }},
+    { &hf_gsm_mapEncryptionInformation,
+      { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map.ranap.EncryptionInformation", HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };

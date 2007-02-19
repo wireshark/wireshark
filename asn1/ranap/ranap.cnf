@@ -5,6 +5,9 @@
 
 #.EXPORTS
 TargetID
+Service-Handover
+IntegrityProtectionInformation
+EncryptionInformation
 
 #.PDU_NEW
 RANAP-PDU
