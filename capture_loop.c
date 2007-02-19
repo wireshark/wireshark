@@ -301,7 +301,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
      * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
      */
     pncopy = g_strdup(pipename);
-    if (strstr(pncopy, "\\\\") == pncopy) {
+    if ( (pos=strstr(pncopy, "\\\\")) == pncopy) {
       pos = strchr(pncopy + 3, '\\');
       if (pos && g_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
         pos = NULL;
@@ -363,6 +363,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 
     g_snprintf(errmsg, errmsgl,
 "The capture session could not be initiated.  Unable to open interface.");
+    ld->cap_pipe_err = PIPNEXIST;
     return -1;
 #endif /* Enable/disable Windows named pipes */
 #endif /* _WIN32 */
@@ -702,6 +703,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     /* Try to open it as a pipe */
     ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
+    secondary_errmsg[0] = '\0';
     if (ld->cap_pipe_fd == -1) {
 
       if (ld->cap_pipe_err == PIPNEXIST) {
