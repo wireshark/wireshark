@@ -571,7 +571,7 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     iuup_circuit_t* iuup_circuit = NULL;
     
     if (pinfo->circuit_id) {
-        g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
+        iuup_circuit = g_hash_table_lookup(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
     
         if (iuup_circuit) {
             g_hash_table_remove(circuits,GUINT_TO_POINTER(pinfo->circuit_id));
@@ -930,11 +930,11 @@ void proto_reg_handoff_iuup(void) {
 { &hf_iuup_rfci_subflow[i][0], { "RFCI " #i " Flow 0", "iuup.rfci."#i".flow.0", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
 { &hf_iuup_rfci_subflow[i][1], { "RFCI " #i " Flow 1", "iuup.rfci."#i".flow.1", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
 { &hf_iuup_rfci_subflow[i][2], { "RFCI " #i " Flow 2", "iuup.rfci."#i".flow.2", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3 Len", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4 Len", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5 Len", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6 Len", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
-{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7 Len", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][3], { "RFCI " #i " Flow 3", "iuup.rfci."#i".flow.3", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][4], { "RFCI " #i " Flow 4", "iuup.rfci."#i".flow.4", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][5], { "RFCI " #i " Flow 5", "iuup.rfci."#i".flow.5", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][6], { "RFCI " #i " Flow 6", "iuup.rfci."#i".flow.6", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
+{ &hf_iuup_rfci_subflow[i][7], { "RFCI " #i " Flow 7", "iuup.rfci."#i".flow.7", FT_BYTES, BASE_HEX, NULL,0x0,"",HFILL}}, \
 { &hf_iuup_init_ipti[i], { "RFCI " #i " IPTI", "iuup.rfci."#i".ipti", FT_UINT8, BASE_HEX, NULL,i%2 ? 0x0F : 0xF0,"",HFILL}}
 
 
