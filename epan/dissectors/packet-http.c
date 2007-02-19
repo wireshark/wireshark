@@ -271,6 +271,7 @@ static int st_node_reqs_by_srv_addr = -1;
 static int st_node_reqs_by_http_host = -1;
 static int st_node_resps_by_srv_addr = -1;
 
+/* HTTP/Load Distribution stats init function */
 static void http_reqs_stats_tree_init(stats_tree* st) {
 	st_node_reqs = stats_tree_create_node(st, st_str_reqs, 0, TRUE);
 	st_node_reqs_by_srv_addr = stats_tree_create_node(st, st_str_reqs_by_srv_addr, st_node_reqs, TRUE);
@@ -278,6 +279,7 @@ static void http_reqs_stats_tree_init(stats_tree* st) {
 	st_node_resps_by_srv_addr = stats_tree_create_node(st, st_str_resps_by_srv_addr, 0, TRUE);
 }
 
+/* HTTP/Load Distribution stats packet function */
 static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt _U_, const void* p) {
 	const http_info_value_t* v = p;
 	int reqs_by_this_host;
@@ -326,10 +328,12 @@ static int http_reqs_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_
 static int st_node_requests_by_host = -1;
 static const guint8* st_str_requests_by_host = "HTTP Requests by HTTP Host";
 
+/* HTTP/Requests stats init function */
 static void http_req_stats_tree_init(stats_tree* st) {
 	st_node_requests_by_host = stats_tree_create_node(st, st_str_requests_by_host, 0, TRUE);
 }
 
+/* HTTP/Requests stats packet function */
 static int http_req_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
 	const http_info_value_t* v = p;
 	int reqs_by_this_host;
@@ -374,6 +378,7 @@ static int st_node_resp_500 = -1;
 static int st_node_other = -1;
 
 
+/* HTTP/Packet Counter stats init function */
 static void http_stats_tree_init(stats_tree* st) {
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
 	st_node_requests = stats_tree_create_pivot(st, st_str_requests, st_node_packets);
@@ -387,6 +392,7 @@ static void http_stats_tree_init(stats_tree* st) {
 	st_node_other = stats_tree_create_node(st, st_str_other, st_node_packets,FALSE);
 }
 
+/* HTTP/Packet Counter stats packet function */
 static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p) {
 	const http_info_value_t* v = p;
 	guint i = v->response_code;
