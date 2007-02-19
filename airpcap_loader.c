@@ -1957,8 +1957,8 @@ keys_are_equals(decryption_key_t *k1,decryption_key_t *k2)
 	return FALSE;
 
     /* XXX - Remove this check when we will have the WPA/WPA2 decryption in the Driver! */
-    //if( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) )
-    //	return TRUE;
+    /** //if( (k1->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PWD) || (k1->type == AIRPDCAP_KEY_TYPE_WPA_PMK) || (k2->type == AIRPDCAP_KEY_TYPE_WPA_PMK) ) **/
+    /** //	return TRUE;  **/
 
     if( g_string_equal(k1->key,k2->key) &&
 	(k1->bits == k2->bits) && /* If the previous is TRUE, this must be TRUE as well */

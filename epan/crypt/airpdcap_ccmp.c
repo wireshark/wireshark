@@ -211,7 +211,7 @@ static void ccmp_init_blocks(
 	b0[14] = b0[15] = 0;
 	rijndael_encrypt(ctx, b0, b);
 
-	//XOR( m + len - 8, b, 8 );
+	/** //XOR( m + len - 8, b, 8 ); **/
 #undef  IS_QOS_DATA
 #undef  IS_4ADDRESS
 }

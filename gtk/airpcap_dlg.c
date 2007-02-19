@@ -834,7 +834,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     update_decryption_mode_cm(toolbar_cm);
 
     /* Redissect all the packets, and re-evaluate the display filter. */
-//cf_redissect_packets(&cfile);
+/** //cf_redissect_packets(&cfile); **/
 }
 /*
  * Callback for the Wireless Advanced Settings 'Apply' button.
@@ -3096,7 +3096,7 @@ on_key_management_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
     update_decryption_mode_cm(toolbar_cm);
 
     /* Redissect all the packets, and re-evaluate the display filter. */
-//cf_redissect_packets(&cfile);
+/** cf_redissect_packets(&cfile); **/
 
     /* Save the preferences to preferences file!!! */
     write_prefs_to_file();
