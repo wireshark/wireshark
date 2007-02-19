@@ -57,7 +57,6 @@
 int proto_pkcs12 = -1;
 
 static const char *object_identifier_id = NULL; 
-static const gchar *pref_password = NULL;
 
 
 static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -121,7 +120,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 59 "packet-pkcs12-template.c"
+#line 58 "packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -149,7 +148,7 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 62 "packet-pkcs12-template.c"
+#line 61 "packet-pkcs12-template.c"
 
 
 /*--- Included file: packet-pkcs12-fn.c ---*/
@@ -833,7 +832,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 64 "packet-pkcs12-template.c"
+#line 63 "packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb, proto_tree *tree) 
 {
@@ -1120,7 +1119,7 @@ void proto_register_pkcs12(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 134 "packet-pkcs12-template.c"
+#line 133 "packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1150,7 +1149,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 139 "packet-pkcs12-template.c"
+#line 138 "packet-pkcs12-template.c"
   };
 
   /* Register protocol */
@@ -1197,7 +1196,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 157 "packet-pkcs12-template.c"
+#line 156 "packet-pkcs12-template.c"
 
 }
 

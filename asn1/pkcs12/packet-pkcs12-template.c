@@ -49,7 +49,6 @@
 int proto_pkcs12 = -1;
 
 static const char *object_identifier_id = NULL; 
-static const gchar *pref_password = NULL;
 
 
 static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
