@@ -166,6 +166,7 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 		} 
 		default:
 			g_assert_not_reached();
+			out = NULL;
 			break;
 	}
 	
