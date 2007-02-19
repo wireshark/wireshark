@@ -703,7 +703,6 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     /* Try to open it as a pipe */
     ld->cap_pipe_fd = cap_pipe_open_live(capture_opts->iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
-    secondary_errmsg[0] = '\0';
     if (ld->cap_pipe_fd == -1) {
 
       if (ld->cap_pipe_err == PIPNEXIST) {
@@ -1226,6 +1225,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   char        secondary_errmsg[MSG_MAX_LENGTH+1];
   int         save_file_fd = -1;
 
+  *errmsg           = '\0';
+  *secondary_errmsg = '\0';
+
   /* init the loop data */
   ld.go                 = TRUE;
   ld.packet_count       = 0;
@@ -1282,7 +1284,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   case INITFILTER_BAD_FILTER:
     cfilter_error = TRUE;
     g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(ld.pcap_h));
-    *secondary_errmsg = '\0';
     goto error;
 
   case INITFILTER_OTHER_ERROR:
@@ -1296,13 +1297,11 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
      (temporary/specified name/ringbuffer) */
   if (capture_opts->saving_to_file) {
     if (!capture_loop_open_output(capture_opts, &save_file_fd, errmsg, sizeof(errmsg))) {
-      *secondary_errmsg = '\0';
       goto error;
     }
 
     /* set up to write to the already-opened capture output file/files */
     if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
-      *secondary_errmsg = '\0';
       goto error;
     }
 

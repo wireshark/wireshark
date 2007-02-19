@@ -526,7 +526,6 @@ report_packet_count(int packet_count)
     char tmp[SP_DECISIZE+1+1];
     static int count = 0;
 
-
     if(capture_child) {
         g_snprintf(tmp, sizeof(tmp), "%d", packet_count);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets: %s", tmp);
@@ -542,36 +541,43 @@ report_packet_count(int packet_count)
 void
 report_new_capture_file(const char *filename)
 {
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
-
     if(capture_child) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "File: %s", filename);
         pipe_write_block(1, SP_FILE, filename);
+    } else {
+        fprintf(stderr, "File: %s\n", filename);
+        /* stderr could be line buffered */
+        fflush(stderr);
     }
 }
 
 void
-report_cfilter_error(const char *cfilter _U_, const char *errmsg)
+report_cfilter_error(const char *cfilter, const char *errmsg)
 {
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
-
     if (capture_child) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Capture filter error: %s", errmsg);
         pipe_write_block(1, SP_BAD_FILTER, errmsg);
+    } else {
+        fprintf(stderr, 
+          "Invalid capture filter: \"%s\"!\n"
+          "\n"
+          "That string isn't a valid capture filter (%s).\n"
+          "See the User's Guide for a description of the capture filter syntax.\n",
+          cfilter, errmsg);
     }
 }
 
 void
 report_capture_error(const char *error_msg, const char *secondary_error_msg)
 {
-
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
-        "Primary Error: %s", error_msg);
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
-        "Secondary Error: %s", secondary_error_msg);
-
     if(capture_child) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
+            "Primary Error: %s", error_msg);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, 
+            "Secondary Error: %s", secondary_error_msg);
     	sync_pipe_errmsg_to_parent(error_msg, secondary_error_msg);
+    } else {
+        fprintf(stderr, "%s\n%s\n", error_msg, secondary_error_msg);
     }
 }
 
@@ -580,12 +586,15 @@ report_packet_drops(int drops)
 {
     char tmp[SP_DECISIZE+1+1];
 
-
     g_snprintf(tmp, sizeof(tmp), "%d", drops);
-    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);
 
     if(capture_child) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Packets dropped: %s", tmp);
         pipe_write_block(1, SP_DROPS, tmp);
+    } else {
+        fprintf(stderr, "Packets dropped: %s\n", tmp);
+        /* stderr could be line buffered */
+        fflush(stderr);
     }
 }
 
