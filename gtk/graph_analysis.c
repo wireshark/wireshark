@@ -286,7 +286,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	guint32 start_position, end_position, item_width, header_length;
         guint32 current_item;
 	graph_analysis_item_t *gai;
-	guint16 first_conv_num;
+	guint16 first_conv_num = 0;
 	gboolean several_convs = FALSE;
 	gboolean first_packet = TRUE;
 

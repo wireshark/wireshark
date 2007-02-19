@@ -3510,8 +3510,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 	struct element *elements0, *e0;		/* list of elmts with prio 0 */
 	struct element *elements1, *e1;		/* list of elmts with prio 1 */
 	double x0, y0;
-	double p_t; /* ackno, window and time of previous segment */
-	double p_ackno, p_win;
+	double p_t = 0; /* ackno, window and time of previous segment */
+	double p_ackno = 0, p_win = 0;
 	gboolean ack_seen=FALSE;
 	int toggle=0;
 	guint32 seq_base;
