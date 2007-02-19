@@ -180,7 +180,7 @@ static dissector_handle_t mtp_handle;
 static tvbuff_t *
 mtp3_msu_present(gint fac, gint level, const char *msg_str)
 {
-  gint nbytes;
+  size_t nbytes;
   gchar **split_string, *msu_hex_dump;
   tvbuff_t *mtp3_tvb = NULL;
   guint8 *byte_array;
