@@ -47,60 +47,48 @@ static guint tcaphash_cont_calchash(gconstpointer k);
 static gint tcaphash_end_equal(gconstpointer k1, gconstpointer k2);
 static guint tcaphash_end_calchash(gconstpointer k);
 
-static void update_tcaphash_begincall(struct tcaphash_begincall_t * p_tcaphash_begincall,
+static void update_tcaphash_begincall(struct tcaphash_begincall_t *p_tcaphash_begincall,
 				      packet_info *pinfo );
 
-static struct tcaphash_begincall_t * append_tcaphash_begincall(struct tcaphash_begincall_t * prev_begincall,
-							       struct tcaphash_context_t * p_tcaphash_context,
-							       packet_info *pinfo);
+static struct tcaphash_begincall_t *append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
+							      struct tcaphash_context_t *p_tcaphash_context,
+							      packet_info *pinfo);
 
 
-static struct tcaphash_begincall_t * find_tcaphash_begin(struct tcaphash_begin_info_key_t * p_tcaphash_begin_key,
-							 packet_info *pinfo,
-							 gboolean isBegin);
+static struct tcaphash_begincall_t *find_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
+							packet_info *pinfo,
+							gboolean isBegin);
 
 
-static struct tcaphash_contcall_t * find_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
-						       packet_info *pinfo);
-
-static struct tcaphash_endcall_t * find_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
-						     packet_info *pinfo,
-						     gboolean isEnd);
-/* new key */
-static struct tcaphash_context_t * new_tcaphash_context(struct tcaphash_context_key_t * p_tcaphash_context_key,
-							packet_info *pinfo);
-
-static struct tcaphash_begincall_t * new_tcaphash_begin(struct tcaphash_begin_info_key_t * p_tcaphash_begin_key,
-							struct tcaphash_context_t * p_tcaphash_context,
-							packet_info *pinfo);
-
-static struct tcaphash_contcall_t * new_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
-						      struct tcaphash_context_t * p_tcaphash_context,
+static struct tcaphash_contcall_t *find_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
 						      packet_info *pinfo);
 
-static struct tcaphash_endcall_t * new_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
-						    struct tcaphash_context_t * p_tcaphash_context,
-						    packet_info *pinfo);
+static struct tcaphash_endcall_t *find_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
+						    packet_info *pinfo,
+						    gboolean isEnd);
+/* new key */
+static struct tcaphash_context_t *new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
+						       packet_info *pinfo);
 
-static struct tcaphash_context_t *
-tcaphash_begin_matching(tvbuff_t *tvb,
-			packet_info * pinfo _U_,
-			proto_tree *tree,
-			struct tcapsrt_info_t * p_tcapsrt_info);
+static struct tcaphash_begincall_t *new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
+						       struct tcaphash_context_t *p_tcaphash_context);
 
-static struct tcaphash_context_t *
-tcaphash_cont_matching(tvbuff_t *tvb,
-		       packet_info * pinfo _U_,
-		       proto_tree *tree,
-		       struct tcapsrt_info_t * p_tcapsrt_info);
+static struct tcaphash_contcall_t *new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
+						     struct tcaphash_context_t *p_tcaphash_context);
 
-static struct tcaphash_context_t *
-tcaphash_end_matching(tvbuff_t *tvb,
-		      packet_info * pinfo _U_,
-		      proto_tree *tree,
-		      struct tcapsrt_info_t * p_tcapsrt_info);
+static struct tcaphash_endcall_t *new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
+						   struct tcaphash_context_t *p_tcaphash_context);
 
-struct tcapsrt_info_t * tcapsrt_razinfo(void);
+static struct tcaphash_context_t *tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+							  struct tcapsrt_info_t *p_tcapsrt_info);
+
+static struct tcaphash_context_t *tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+							 struct tcapsrt_info_t *p_tcapsrt_info);
+
+static struct tcaphash_context_t *tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+							struct tcapsrt_info_t *p_tcapsrt_info);
+
+struct tcapsrt_info_t *tcapsrt_razinfo(void);
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -125,10 +113,10 @@ extern int hf_tcapsrt_EndSession;
 extern int hf_tcapsrt_SessionTime;
 
 /* Global hash tables*/
-static GHashTable * tcaphash_context = NULL;
-static GHashTable * tcaphash_begin = NULL;
-static GHashTable * tcaphash_cont = NULL;
-static GHashTable * tcaphash_end = NULL;
+static GHashTable *tcaphash_context = NULL;
+static GHashTable *tcaphash_begin = NULL;
+static GHashTable *tcaphash_cont = NULL;
+static GHashTable *tcaphash_end = NULL;
 
 guint32 tcapsrt_global_SessionId=1;
 
@@ -144,7 +132,9 @@ guint32 tcapsrt_global_SessionId=1;
 #include <stdarg.h>
 static unsigned debug_level = 99;
 
-static void dbg(unsigned  level, char* fmt, ...) {
+static void
+dbg(unsigned  level, char* fmt, ...)
+{
   va_list ap;
   
   if (level > debug_level) return;
@@ -154,26 +144,29 @@ static void dbg(unsigned  level, char* fmt, ...) {
 }
 #endif
 
-static gint tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
+static gint
+tcaphash_context_equal(gconstpointer k1, gconstpointer k2)
 {
-  const struct tcaphash_context_key_t * key1 = (const struct tcaphash_context_key_t *) k1;
-  const struct tcaphash_context_key_t * key2 = (const struct tcaphash_context_key_t *) k2;
+  const struct tcaphash_context_key_t *key1 = (const struct tcaphash_context_key_t *) k1;
+  const struct tcaphash_context_key_t *key2 = (const struct tcaphash_context_key_t *) k2;
   
   return (key1->session_id == key2->session_id);
 }
 
 /* calculate a hash key */
-static guint tcaphash_context_calchash(gconstpointer k)
+static guint
+tcaphash_context_calchash(gconstpointer k)
 {
-  const struct tcaphash_context_key_t * key = (const struct tcaphash_context_key_t *) k;
+  const struct tcaphash_context_key_t *key = (const struct tcaphash_context_key_t *) k;
   return key->session_id;
 }
 
 
-static gint tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
+static gint
+tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
 {
-  const struct tcaphash_begin_info_key_t * key1 = (const struct tcaphash_begin_info_key_t *) k1;
-  const struct tcaphash_begin_info_key_t * key2 = (const struct tcaphash_begin_info_key_t *) k2;
+  const struct tcaphash_begin_info_key_t *key1 = (const struct tcaphash_begin_info_key_t *) k1;
+  const struct tcaphash_begin_info_key_t *key2 = (const struct tcaphash_begin_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
     
@@ -191,19 +184,21 @@ static gint tcaphash_begin_equal(gconstpointer k1, gconstpointer k2)
 }
 
 /* calculate a hash key */
-static guint tcaphash_begin_calchash(gconstpointer k)
+static guint
+tcaphash_begin_calchash(gconstpointer k)
 {
-  const struct tcaphash_begin_info_key_t * key = (const struct tcaphash_begin_info_key_t *) k;
+  const struct tcaphash_begin_info_key_t *key = (const struct tcaphash_begin_info_key_t *) k;
   guint hashkey;
   /* hashkey = key->opc_hash<<16 + key->dpc_hash<<8 + key->src_tid; */
   hashkey = key->tid;
   return hashkey;
 }
 
-static gint tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
+static gint
+tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
 {
-  const struct tcaphash_cont_info_key_t * key1 = (const struct tcaphash_cont_info_key_t *) k1;
-  const struct tcaphash_cont_info_key_t * key2 = (const struct tcaphash_cont_info_key_t *) k2;
+  const struct tcaphash_cont_info_key_t *key1 = (const struct tcaphash_cont_info_key_t *) k1;
+  const struct tcaphash_cont_info_key_t *key2 = (const struct tcaphash_cont_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
 
@@ -224,19 +219,21 @@ static gint tcaphash_cont_equal(gconstpointer k1, gconstpointer k2)
 }
 
 /* calculate a hash key */
-static guint tcaphash_cont_calchash(gconstpointer k)
+static guint
+tcaphash_cont_calchash(gconstpointer k)
 {
-  const struct tcaphash_cont_info_key_t * key = (const struct tcaphash_cont_info_key_t *) k;
+  const struct tcaphash_cont_info_key_t *key = (const struct tcaphash_cont_info_key_t *) k;
   guint hashkey;
   hashkey = key->src_tid + key->dst_tid;
   return hashkey;
 }
 
 
-static gint tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
+static gint
+tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
 {
-  const struct tcaphash_end_info_key_t * key1 = (const struct tcaphash_end_info_key_t *) k1;
-  const struct tcaphash_end_info_key_t * key2 = (const struct tcaphash_end_info_key_t *) k2;
+  const struct tcaphash_end_info_key_t *key1 = (const struct tcaphash_end_info_key_t *) k1;
+  const struct tcaphash_end_info_key_t *key2 = (const struct tcaphash_end_info_key_t *) k2;
 
   if (key1->hashKey == key2->hashKey) {
     if ( ( (key1->opc_hash == key2->opc_hash) &&
@@ -252,9 +249,10 @@ static gint tcaphash_end_equal(gconstpointer k1, gconstpointer k2)
 }
 
 /* calculate a hash key */
-static guint tcaphash_end_calchash(gconstpointer k)
+static guint
+tcaphash_end_calchash(gconstpointer k)
 {
-  const struct tcaphash_end_info_key_t * key = (const struct tcaphash_end_info_key_t *) k;
+  const struct tcaphash_end_info_key_t *key = (const struct tcaphash_end_info_key_t *) k;
   guint hashkey;
   hashkey = key->tid;
   return hashkey;
@@ -263,8 +261,9 @@ static guint tcaphash_end_calchash(gconstpointer k)
 /* 
  * Update a record with the data of the Request 
  */
-static void update_tcaphash_begincall(struct tcaphash_begincall_t * p_tcaphash_begincall,
-				      packet_info *pinfo )
+static void
+update_tcaphash_begincall(struct tcaphash_begincall_t *p_tcaphash_begincall,
+			  packet_info *pinfo)
 {
   p_tcaphash_begincall->context->first_frame = pinfo->fd->num;
   p_tcaphash_begincall->context->last_frame = 0;
@@ -276,12 +275,12 @@ static void update_tcaphash_begincall(struct tcaphash_begincall_t * p_tcaphash_b
  * Append a new dialogue, using the same Key, to the chained list
  * The time is stored too 
  */
-static struct tcaphash_begincall_t * append_tcaphash_begincall(struct tcaphash_begincall_t * prev_begincall,
-							       struct tcaphash_context_t * p_tcaphash_context,
-							       packet_info *pinfo)
-  
+static struct tcaphash_begincall_t *
+append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
+			  struct tcaphash_context_t *p_tcaphash_context,
+			  packet_info *pinfo)
 {
-  struct tcaphash_begincall_t * p_new_tcaphash_begincall = NULL;
+  struct tcaphash_begincall_t *p_new_tcaphash_begincall = NULL;
   
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
@@ -309,12 +308,11 @@ static struct tcaphash_begincall_t * append_tcaphash_begincall(struct tcaphash_b
   return p_new_tcaphash_begincall;
 }
 
-static struct tcaphash_contcall_t * append_tcaphash_contcall(struct tcaphash_contcall_t * prev_contcall,
-							     struct tcaphash_context_t * p_tcaphash_context,
-							     packet_info *pinfo)
-  
+static struct tcaphash_contcall_t *
+append_tcaphash_contcall(struct tcaphash_contcall_t *prev_contcall,
+			 struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_contcall_t * p_new_tcaphash_contcall = NULL;
+  struct tcaphash_contcall_t *p_new_tcaphash_contcall = NULL;
   
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
@@ -336,12 +334,11 @@ static struct tcaphash_contcall_t * append_tcaphash_contcall(struct tcaphash_con
 }
 
 
-static struct tcaphash_endcall_t * append_tcaphash_endcall(struct tcaphash_endcall_t * prev_endcall,
-							   struct tcaphash_context_t * p_tcaphash_context,
-							   packet_info *pinfo)
-  
+static struct tcaphash_endcall_t *
+append_tcaphash_endcall(struct tcaphash_endcall_t *prev_endcall,
+			struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_endcall_t * p_new_tcaphash_endcall = NULL;
+  struct tcaphash_endcall_t *p_new_tcaphash_endcall = NULL;
   
   /* Append the transaction to the list, when the same key is found
      This should append when the tcap-transaction Id is reused  */
@@ -366,11 +363,11 @@ static struct tcaphash_endcall_t * append_tcaphash_endcall(struct tcaphash_endca
 /* 
  * Find the dialog by Key and Time 
  */
-static struct tcaphash_begincall_t * find_tcaphash_begin(struct tcaphash_begin_info_key_t * p_tcaphash_begin_key,
-							 packet_info *pinfo,
-							 gboolean isBegin)
+static struct tcaphash_begincall_t *
+find_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
+		    packet_info *pinfo, gboolean isBegin)
 {
-  struct tcaphash_begincall_t * p_tcaphash_begincall = NULL;
+  struct tcaphash_begincall_t *p_tcaphash_begincall = NULL;
   p_tcaphash_begincall = (struct tcaphash_begincall_t *)g_hash_table_lookup(tcaphash_begin, p_tcaphash_begin_key);
   
   if(p_tcaphash_begincall) {
@@ -411,10 +408,11 @@ static struct tcaphash_begincall_t * find_tcaphash_begin(struct tcaphash_begin_i
 
 
 
-static struct tcaphash_contcall_t * find_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
-						       packet_info *pinfo)
+static struct tcaphash_contcall_t *
+find_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
+		   packet_info *pinfo)
 {
-  struct tcaphash_contcall_t * p_tcaphash_contcall = NULL;
+  struct tcaphash_contcall_t *p_tcaphash_contcall = NULL;
   p_tcaphash_contcall = (struct tcaphash_contcall_t *)g_hash_table_lookup(tcaphash_cont, p_tcaphash_cont_key);
   
   if(p_tcaphash_contcall) {
@@ -450,11 +448,11 @@ static struct tcaphash_contcall_t * find_tcaphash_cont(struct tcaphash_cont_info
   return NULL;
 }
 
-static struct tcaphash_endcall_t * find_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
-						     packet_info *pinfo,
-						     gboolean isEnd)
+static struct tcaphash_endcall_t *
+find_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
+		  packet_info *pinfo, gboolean isEnd)
 {
-  struct tcaphash_endcall_t * p_tcaphash_endcall = NULL;
+  struct tcaphash_endcall_t *p_tcaphash_endcall = NULL;
   p_tcaphash_endcall = (struct tcaphash_endcall_t *)g_hash_table_lookup(tcaphash_end, p_tcaphash_end_key);
     
   if(p_tcaphash_endcall) {
@@ -501,11 +499,12 @@ static struct tcaphash_endcall_t * find_tcaphash_end(struct tcaphash_end_info_ke
 /*
  * New record to create, to identify a new transaction 
  */
-static struct tcaphash_context_t * new_tcaphash_context(struct tcaphash_context_key_t * p_tcaphash_context_key,
-							packet_info *pinfo)
+static struct tcaphash_context_t *
+new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
+		     packet_info *pinfo)
 {
-  struct tcaphash_context_key_t * p_new_tcaphash_context_key;
-  struct tcaphash_context_t * p_new_tcaphash_context = NULL;
+  struct tcaphash_context_key_t *p_new_tcaphash_context_key;
+  struct tcaphash_context_t *p_new_tcaphash_context = NULL;
   
   /* Register the transaction in the hash table 
      with the tcap transaction Id as Main Key
@@ -529,12 +528,12 @@ static struct tcaphash_context_t * new_tcaphash_context(struct tcaphash_context_
 /*
  * New record to create, to identify a new transaction 
  */
-static struct tcaphash_begincall_t * new_tcaphash_begin(struct tcaphash_begin_info_key_t * p_tcaphash_begin_key,
-							struct tcaphash_context_t * p_tcaphash_context,
-							packet_info *pinfo)
+static struct tcaphash_begincall_t *
+new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
+		   struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_begin_info_key_t * p_new_tcaphash_begin_key;
-  struct tcaphash_begincall_t * p_new_tcaphash_begincall = NULL;
+  struct tcaphash_begin_info_key_t *p_new_tcaphash_begin_key;
+  struct tcaphash_begincall_t *p_new_tcaphash_begincall = NULL;
   
   /* Register the transaction in the hash table 
      with the tcap transaction Id as Main Key
@@ -567,12 +566,12 @@ static struct tcaphash_begincall_t * new_tcaphash_begin(struct tcaphash_begin_in
 /*
  * New record to create, to identify a new transaction 
  */
-static struct tcaphash_contcall_t * new_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
-						      struct tcaphash_context_t * p_tcaphash_context,
-						      packet_info *pinfo)
+static struct tcaphash_contcall_t *
+new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
+		  struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_cont_info_key_t * p_new_tcaphash_cont_key;
-  struct tcaphash_contcall_t * p_new_tcaphash_contcall = NULL;
+  struct tcaphash_cont_info_key_t *p_new_tcaphash_cont_key;
+  struct tcaphash_contcall_t *p_new_tcaphash_contcall = NULL;
   
   /* Register the transaction in the hash table 
      with the tcap transaction Id as Main Key
@@ -605,12 +604,12 @@ static struct tcaphash_contcall_t * new_tcaphash_cont(struct tcaphash_cont_info_
 /*
  * New record to create, to identify a new transaction 
  */
-static struct tcaphash_endcall_t * new_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
-						    struct tcaphash_context_t * p_tcaphash_context,
-						    packet_info *pinfo)
+static struct tcaphash_endcall_t *
+new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
+		 struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_end_info_key_t * p_new_tcaphash_end_key;
-  struct tcaphash_endcall_t * p_new_tcaphash_endcall = NULL;
+  struct tcaphash_end_info_key_t *p_new_tcaphash_end_key;
+  struct tcaphash_endcall_t *p_new_tcaphash_endcall = NULL;
   
   /* Register the transaction in the hash table 
      with the tcap transaction Id as Main Key
@@ -641,12 +640,11 @@ static struct tcaphash_endcall_t * new_tcaphash_end(struct tcaphash_end_info_key
 
 
 static struct tcaphash_contcall_t * 
-create_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
-		     struct tcaphash_context_t * p_tcaphash_context,
-		     packet_info *pinfo)
+create_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
+		     struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_contcall_t * p_tcaphash_contcall1 = NULL;
-  struct tcaphash_contcall_t * p_tcaphash_contcall = NULL;
+  struct tcaphash_contcall_t *p_tcaphash_contcall1 = NULL;
+  struct tcaphash_contcall_t *p_tcaphash_contcall = NULL;
 
   p_tcaphash_contcall1 = (struct tcaphash_contcall_t *)
     g_hash_table_lookup(tcaphash_cont, p_tcaphash_cont_key);
@@ -657,28 +655,25 @@ create_tcaphash_cont(struct tcaphash_cont_info_key_t * p_tcaphash_cont_key,
     do {
       if (!p_tcaphash_contcall1->next_contcall) {
 	p_tcaphash_contcall=append_tcaphash_contcall(p_tcaphash_contcall1,
-						     p_tcaphash_context,
-						     pinfo);
+						     p_tcaphash_context);
 	break;
       }
       p_tcaphash_contcall1 = p_tcaphash_contcall1->next_contcall;
     } while (p_tcaphash_contcall1 != NULL );
   } else {
     p_tcaphash_contcall = new_tcaphash_cont(p_tcaphash_cont_key,
-					    p_tcaphash_context,
-					    pinfo);
+					    p_tcaphash_context);
   }
   return p_tcaphash_contcall;
 }
 
 
 static struct tcaphash_endcall_t * 
-create_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
-		    struct tcaphash_context_t * p_tcaphash_context,
-		    packet_info *pinfo)
+create_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
+		    struct tcaphash_context_t *p_tcaphash_context)
 {
-  struct tcaphash_endcall_t * p_tcaphash_endcall1 = NULL;
-  struct tcaphash_endcall_t * p_tcaphash_endcall = NULL;
+  struct tcaphash_endcall_t *p_tcaphash_endcall1 = NULL;
+  struct tcaphash_endcall_t *p_tcaphash_endcall = NULL;
   
   p_tcaphash_endcall1 = (struct tcaphash_endcall_t *)
     g_hash_table_lookup(tcaphash_end, p_tcaphash_end_key);
@@ -689,16 +684,14 @@ create_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
     do {
       if (!p_tcaphash_endcall1->next_endcall) {
 	p_tcaphash_endcall=append_tcaphash_endcall(p_tcaphash_endcall1,
-						   p_tcaphash_context,
-						   pinfo);
+						   p_tcaphash_context);
 	break;
       }
       p_tcaphash_endcall1 = p_tcaphash_endcall1->next_endcall;
     } while (p_tcaphash_endcall1 != NULL );
   } else {
     p_tcaphash_endcall = new_tcaphash_end(p_tcaphash_end_key,
-					  p_tcaphash_context,
-					  pinfo);
+					  p_tcaphash_context);
   }
   return p_tcaphash_endcall;
 }
@@ -708,7 +701,8 @@ create_tcaphash_end(struct tcaphash_end_info_key_t * p_tcaphash_end_key,
  * Routine called when the TAP is initialized.
  * so hash table are (re)created
  */
-void tcapsrt_init_routine(void)
+void
+tcapsrt_init_routine(void)
 {
 
   /* free hash-tables and mem_chunks for SRT */
@@ -760,12 +754,11 @@ void tcapsrt_init_routine(void)
  * Service Responsee Time analyze
  * Called just after dissector call 
  */
-struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
-						  packet_info * pinfo _U_,
-						  proto_tree *tree,
-						  struct tcapsrt_info_t * p_tcapsrt_info)
+struct tcaphash_context_t *
+tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		      struct tcapsrt_info_t *p_tcapsrt_info)
 {
-  struct tcaphash_context_t * tcap_context=NULL;
+  struct tcaphash_context_t *tcap_context=NULL;
 
   switch (p_tcapsrt_info->ope) {
     
@@ -820,14 +813,12 @@ struct tcaphash_context_t * tcapsrt_call_matching(tvbuff_t *tvb,
  * - or the previous transaction has been  be closed
  */
 static struct tcaphash_context_t *
-tcaphash_begin_matching(tvbuff_t *tvb,
-			packet_info * pinfo _U_,
-			proto_tree *tree,
-			struct tcapsrt_info_t * p_tcapsrt_info)
+tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+			struct tcapsrt_info_t *p_tcapsrt_info)
 {
-  struct tcaphash_context_t * p_tcaphash_context=NULL;
+  struct tcaphash_context_t *p_tcaphash_context=NULL;
   struct tcaphash_context_key_t tcaphash_context_key; 
-  struct tcaphash_begincall_t * p_tcaphash_begincall, * p_new_tcaphash_begincall;
+  struct tcaphash_begincall_t *p_tcaphash_begincall, *p_new_tcaphash_begincall;
   struct tcaphash_begin_info_key_t tcaphash_begin_key;
   proto_item *ti;
   
@@ -941,7 +932,7 @@ tcaphash_begin_matching(tvbuff_t *tvb,
 
     tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
     p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo); 
-    p_tcaphash_begincall = new_tcaphash_begin(&tcaphash_begin_key, p_tcaphash_context, pinfo); 
+    p_tcaphash_begincall = new_tcaphash_begin(&tcaphash_begin_key, p_tcaphash_context);
     
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Update key %lx ",tcaphash_begin_key.hashKey);
@@ -977,15 +968,12 @@ tcaphash_begin_matching(tvbuff_t *tvb,
  *
  */
 static struct tcaphash_context_t *
-tcaphash_cont_matching(tvbuff_t *tvb,
-		       packet_info * pinfo _U_,
-		       proto_tree *tree,
-		       struct tcapsrt_info_t * p_tcapsrt_info)
+tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		       struct tcapsrt_info_t *p_tcapsrt_info)
 {
-  struct tcaphash_context_t * p_tcaphash_context=NULL;
-  struct tcaphash_contcall_t * p_tcaphash_contcall;
+  struct tcaphash_context_t *p_tcaphash_context=NULL;
+  struct tcaphash_contcall_t *p_tcaphash_contcall;
   struct tcaphash_cont_info_key_t tcaphash_cont_key;
-  proto_item *ti;
 
 #ifdef DEBUG_TCAPSRT
   dbg(10,"\n Hcont #%d ", pinfo->fd->num);
@@ -1014,10 +1002,10 @@ tcaphash_cont_matching(tvbuff_t *tvb,
     dbg(12,"CnotFound ");
 #endif
     struct tcaphash_begin_info_key_t tcaphash_begin_key;
-    struct tcaphash_begincall_t * p_tcaphash_begincall;
+    struct tcaphash_begincall_t *p_tcaphash_begincall;
 
     struct tcaphash_end_info_key_t tcaphash_end_key;
-    struct tcaphash_endcall_t * p_tcaphash_endcall;
+    struct tcaphash_endcall_t *p_tcaphash_endcall;
 
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
     tcaphash_begin_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
@@ -1042,8 +1030,7 @@ tcaphash_cont_matching(tvbuff_t *tvb,
       dbg(10,"New Ckey %lx ",tcaphash_cont_key.hashKey);
 #endif
       p_tcaphash_contcall = create_tcaphash_cont(&tcaphash_cont_key,
-						 p_tcaphash_begincall->context,
-						 pinfo);
+						 p_tcaphash_begincall->context);
       
 #ifdef DEBUG_TCAPSRT
       dbg(11,"Update Ckey %lx ",tcaphash_begin_key.hashKey);
@@ -1058,8 +1045,7 @@ tcaphash_cont_matching(tvbuff_t *tvb,
       dbg(10,"New Ekey %lx ",tcaphash_end_key.hashKey);
 #endif
       p_tcaphash_endcall = create_tcaphash_end(&tcaphash_end_key,
-					       p_tcaphash_begincall->context,
-					       pinfo);
+					       p_tcaphash_begincall->context);
       
 #ifdef DEBUG_TCAPSRT
       dbg(11,"Update Ekey %lx ",tcaphash_end_key.hashKey);
@@ -1087,18 +1073,16 @@ tcaphash_cont_matching(tvbuff_t *tvb,
  *
  */
 static struct tcaphash_context_t *
-tcaphash_end_matching(tvbuff_t *tvb,
-		      packet_info * pinfo _U_,
-		      proto_tree *tree,
-		      struct tcapsrt_info_t * p_tcapsrt_info)
+tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		      struct tcapsrt_info_t *p_tcapsrt_info)
 {  
-  struct tcaphash_context_t * p_tcaphash_context=NULL;
+  struct tcaphash_context_t *p_tcaphash_context=NULL;
 
   struct tcaphash_end_info_key_t tcaphash_end_key;
-  struct tcaphash_endcall_t * p_tcaphash_endcall=NULL;
+  struct tcaphash_endcall_t *p_tcaphash_endcall=NULL;
 
   struct tcaphash_begin_info_key_t tcaphash_begin_key;
-  struct tcaphash_begincall_t * p_tcaphash_begincall=NULL; 
+  struct tcaphash_begincall_t *p_tcaphash_begincall=NULL; 
   proto_item *ti; 
   nstime_t delta;
 
@@ -1180,9 +1164,10 @@ tcaphash_end_matching(tvbuff_t *tvb,
  * Initialize the Message Info used by the main dissector
  * Data are linked to a TCAP transaction 
  */
-struct tcapsrt_info_t * tcapsrt_razinfo(void)
+struct tcapsrt_info_t *
+tcapsrt_razinfo(void)
 {
-  struct tcapsrt_info_t * p_tcapsrt_info ;
+  struct tcapsrt_info_t *p_tcapsrt_info ;
 
   /* Global buffer for packet extraction */
   tcapsrt_global_current++;
@@ -1196,8 +1181,9 @@ struct tcapsrt_info_t * tcapsrt_razinfo(void)
   return p_tcapsrt_info;
 }
 
-void tcapsrt_close(struct tcaphash_context_t * p_tcaphash_context,
-		   packet_info * pinfo _U_)
+void
+tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
+	      packet_info *pinfo)
 {
 #ifdef DEBUG_TCAPSRT
   dbg(60,"Force close ");
