@@ -3035,7 +3035,7 @@ cmdarg_err_cont(const char *fmt, ...)
 
 /** Report a new capture file having been opened. */
 void
-report_new_capture_file(const char *filename)
+report_new_capture_file(const char *filename _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();
@@ -3043,7 +3043,7 @@ report_new_capture_file(const char *filename)
 
 /** Report a number of new packets captured. */
 void
-report_packet_count(int packet_count)
+report_packet_count(int packet_count _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();
@@ -3051,7 +3051,7 @@ report_packet_count(int packet_count)
 
 /** Report the packet drops once the capture finishes. */
 void
-report_packet_drops(int drops)
+report_packet_drops(int drops _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();

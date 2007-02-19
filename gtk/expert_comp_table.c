@@ -484,7 +484,7 @@ static GtkItemFactoryEntry error_list_menu_items[] =
 
 #if (GTK_MAJOR_VERSION >= 2)
 static void
-expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data)
+expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 {
         GtkTreeIter iter;
         GtkTreeModel *model;

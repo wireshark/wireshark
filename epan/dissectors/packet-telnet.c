@@ -891,7 +891,7 @@ static void dissect_encryption_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
+dissect_encryption_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
 	guint8 ecmd, key_first_octet;
 

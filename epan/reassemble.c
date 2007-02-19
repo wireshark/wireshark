@@ -388,7 +388,7 @@ fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 
 /* id *must* be the frame number for this to work! */
 fragment_data *
-fragment_get_reassembled(packet_info *pinfo, guint32 id, GHashTable *reassembled_table)
+fragment_get_reassembled(packet_info *pinfo _U_, guint32 id, GHashTable *reassembled_table)
 {
 	fragment_data *fd_head;
 	reassembled_key key;
