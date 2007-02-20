@@ -91,7 +91,6 @@ SKIP: {
 
 	my $cmd = "$cc $cflags -x c - -o $outfile $flags $ldflags";
 	$cmd =~ s/\n//g;
-	print "$cmd\n";
 	open CC, "|$cmd";
 	print CC "#define uint_t unsigned int\n";
 	print CC "#define _GNU_SOURCE\n";

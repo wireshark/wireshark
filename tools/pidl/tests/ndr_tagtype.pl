@@ -8,15 +8,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util qw(test_samba4_ndr);
 
-SKIP: {
-	skip "Tagged types without typedef are not supported yet", 8;
-
-test_samba4_ndr('struct-notypedef', 
-'
-	struct bla { 
-		uint8 x;
-	};
-',
+test_samba4_ndr('struct-notypedef', '[public] struct bla { uint8 x; }; ',
 '
 	struct ndr_push *ndr = ndr_push_init_ctx(NULL);
 	struct bla r;
@@ -33,5 +25,3 @@ test_samba4_ndr('struct-notypedef',
 	if (!data_blob_equal(&result_blob, &expected_blob)) 
 		return 2;
 ');
-
-}

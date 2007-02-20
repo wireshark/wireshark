@@ -257,8 +257,6 @@ sub GetElementLevelTable($)
 
 	push (@$order, {
 		TYPE => "DATA",
-		CONVERT_TO => has_property($e, ""),
-		CONVERT_FROM => has_property($e, ""),
 		DATA_TYPE => $e->{TYPE},
 		IS_DEFERRED => $is_deferred,
 		CONTAINS_DEFERRED => can_contain_deferred($e),
@@ -360,18 +358,22 @@ sub align_type($)
 	die("Unknown data type type $dt->{TYPE}");
 }
 
-sub ParseElement($)
+sub ParseElement($$)
 {
-	my $e = shift;
+	my ($e, $pointer_default) = @_;
 
 	$e->{TYPE} = expandAlias($e->{TYPE});
+
+	if (ref($e->{TYPE}) eq "HASH") {
+		$e->{TYPE} = ParseType($e->{TYPE}, $pointer_default);
+	}
 
 	return {
 		NAME => $e->{NAME},
 		TYPE => $e->{TYPE},
 		PROPERTIES => $e->{PROPERTIES},
 		LEVELS => GetElementLevelTable($e),
-		REPRESENTATION_TYPE => $e->{PROPERTIES}->{represent_as},
+		REPRESENTATION_TYPE => ($e->{PROPERTIES}->{represent_as} or $e->{TYPE}),
 		ALIGN => align_type($e->{TYPE}),
 		ORIGINAL => $e
 	};
@@ -379,16 +381,16 @@ sub ParseElement($)
 
 sub ParseStruct($$)
 {
-	my ($ndr,$struct) = @_;
+	my ($struct, $pointer_default) = @_;
 	my @elements = ();
 	my $surrounding = undef;
 
 	foreach my $x (@{$struct->{ELEMENTS}}) 
 	{
-		my $e = ParseElement($x);
+		my $e = ParseElement($x, $pointer_default);
 		if ($x != $struct->{ELEMENTS}[-1] and 
 			$e->{LEVELS}[0]->{IS_SURROUNDING}) {
-			print "$x->{FILE}:$x->{LINE}: error: conformant member not at end of struct\n";
+			fatal($x, "conformant member not at end of struct");
 		}
 		push @elements, $e;
 	}
@@ -403,19 +405,26 @@ sub ParseStruct($$)
 	    &&  property_matches($e, "flag", ".*LIBNDR_FLAG_STR_CONFORMANT.*")) {
 		$surrounding = $struct->{ELEMENTS}[-1];
 	}
+
+	my $align = undef;
+	if ($struct->{NAME}) {
+		$align = align_type($struct->{NAME});
+	}
 		
 	return {
 		TYPE => "STRUCT",
+		NAME => $struct->{NAME},
 		SURROUNDING_ELEMENT => $surrounding,
 		ELEMENTS => \@elements,
 		PROPERTIES => $struct->{PROPERTIES},
-		ORIGINAL => $struct
+		ORIGINAL => $struct,
+		ALIGN => $align
 	};
 }
 
 sub ParseUnion($$)
 {
-	my ($ndr,$e) = @_;
+	my ($e, $pointer_default) = @_;
 	my @elements = ();
 	my $switch_type = has_property($e, "switch_type");
 	unless (defined($switch_type)) { $switch_type = "uint32"; }
@@ -429,7 +438,7 @@ sub ParseUnion($$)
 		if ($x->{TYPE} eq "EMPTY") {
 			$t = { TYPE => "EMPTY" };
 		} else {
-			$t = ParseElement($x);
+			$t = ParseElement($x, $pointer_default);
 		}
 		if (has_property($x, "default")) {
 			$t->{CASE} = "default";
@@ -444,6 +453,7 @@ sub ParseUnion($$)
 
 	return {
 		TYPE => "UNION",
+		NAME => $e->{NAME},
 		SWITCH_TYPE => $switch_type,
 		ELEMENTS => \@elements,
 		PROPERTIES => $e->{PROPERTIES},
@@ -454,10 +464,11 @@ sub ParseUnion($$)
 
 sub ParseEnum($$)
 {
-	my ($ndr,$e) = @_;
+	my ($e, $pointer_default) = @_;
 
 	return {
 		TYPE => "ENUM",
+		NAME => $e->{NAME},
 		BASE_TYPE => Parse::Pidl::Typelist::enum_type_fn($e),
 		ELEMENTS => $e->{ELEMENTS},
 		PROPERTIES => $e->{PROPERTIES},
@@ -467,10 +478,11 @@ sub ParseEnum($$)
 
 sub ParseBitmap($$)
 {
-	my ($ndr,$e) = @_;
+	my ($e, $pointer_default) = @_;
 
 	return {
 		TYPE => "BITMAP",
+		NAME => $e->{NAME},
 		BASE_TYPE => Parse::Pidl::Typelist::bitmap_type_fn($e),
 		ELEMENTS => $e->{ELEMENTS},
 		PROPERTIES => $e->{PROPERTIES},
@@ -480,10 +492,10 @@ sub ParseBitmap($$)
 
 sub ParseType($$)
 {
-	my ($ndr, $d) = @_;
+	my ($d, $pointer_default) = @_;
 
 	if ($d->{TYPE} eq "STRUCT" or $d->{TYPE} eq "UNION") {
-		CheckPointerTypes($d, $ndr->{PROPERTIES}->{pointer_default});
+		CheckPointerTypes($d, $pointer_default);
 	}
 
 	my $data = {
@@ -492,20 +504,20 @@ sub ParseType($$)
 		ENUM => \&ParseEnum,
 		BITMAP => \&ParseBitmap,
 		TYPEDEF => \&ParseTypedef,
-	}->{$d->{TYPE}}->($ndr, $d);
+	}->{$d->{TYPE}}->($d, $pointer_default);
 
 	return $data;
 }
 
 sub ParseTypedef($$)
 {
-	my ($ndr,$d) = @_;
+	my ($d, $pointer_default) = @_;
 
-	if (defined($d->{PROPERTIES}) && !defined($d->{DATA}->{PROPERTIES})) {
-		$d->{DATA}->{PROPERTIES} = $d->{PROPERTIES};
+	if (defined($d->{DATA}->{PROPERTIES}) && !defined($d->{PROPERTIES})) {
+		$d->{PROPERTIES} = $d->{DATA}->{PROPERTIES};
 	}
 
-	my $data = ParseType($ndr, $d->{DATA});
+	my $data = ParseType($d->{DATA}, $pointer_default);
 	$data->{ALIGN} = align_type($d->{NAME});
 
 	return {
@@ -539,7 +551,7 @@ sub ParseFunction($$$)
 	}
 
 	foreach my $x (@{$d->{ELEMENTS}}) {
-		my $e = ParseElement($x);
+		my $e = ParseElement($x, $ndr->{PROPERTIES}->{pointer_default});
 		push (@{$e->{DIRECTION}}, "in") if (has_property($x, "in"));
 		push (@{$e->{DIRECTION}}, "out") if (has_property($x, "out"));
 
@@ -607,7 +619,7 @@ sub ParseInterface($)
 		} elsif ($d->{TYPE} eq "CONST") {
 			push (@consts, ParseConst($idl, $d));
 		} else {
-			push (@types, ParseType($idl, $d));
+			push (@types, ParseType($d, $idl->{PROPERTIES}->{pointer_default}));
 		}
 	}
 
@@ -865,7 +877,7 @@ sub mapToScalar($)
 }
 
 #####################################################################
-# parse a struct
+# validate an element
 sub ValidElement($)
 {
 	my $e = shift;
@@ -881,8 +893,8 @@ sub ValidElement($)
 			fatal($e, el_name($e) . ": switch_is() used on non-union type $e->{TYPE} which is a $type->{DATA}->{TYPE}");
 		}
 
-		if (!has_property($type, "nodiscriminant") and defined($e2)) {
-			my $discriminator_type = has_property($type, "switch_type");
+		if (not has_property($type->{DATA}, "nodiscriminant") and defined($e2)) {
+			my $discriminator_type = has_property($type->{DATA}, "switch_type");
 			$discriminator_type = "uint32" unless defined ($discriminator_type);
 
 			my $t1 = mapToScalar($discriminator_type);
@@ -940,12 +952,30 @@ sub ValidElement($)
 }
 
 #####################################################################
-# parse a struct
+# validate an enum
+sub ValidEnum($)
+{
+	my ($enum) = @_;
+
+	ValidProperties($enum, "ENUM");
+}
+
+#####################################################################
+# validate a bitmap
+sub ValidBitmap($)
+{
+	my ($bitmap) = @_;
+
+	ValidProperties($bitmap, "BITMAP");
+}
+
+#####################################################################
+# validate a struct
 sub ValidStruct($)
 {
 	my($struct) = shift;
 
-	ValidProperties($struct,"STRUCT");
+	ValidProperties($struct, "STRUCT");
 
 	foreach my $e (@{$struct->{ELEMENTS}}) {
 		$e->{PARENT} = $struct;
@@ -994,23 +1024,15 @@ sub ValidTypedef($)
 	my($typedef) = shift;
 	my $data = $typedef->{DATA};
 
-	ValidProperties($typedef,"TYPEDEF");
+	ValidProperties($typedef, "TYPEDEF");
 
 	$data->{PARENT} = $typedef;
 
-	if (ref($data) eq "HASH") {
-		if ($data->{TYPE} eq "STRUCT") {
-			ValidStruct($data);
-		}
-
-		if ($data->{TYPE} eq "UNION") {
-			ValidUnion($data);
-		}
-	}
+	ValidType($data) if (ref($data) eq "HASH");
 }
 
 #####################################################################
-# parse a function
+# validate a function
 sub ValidFunction($)
 {
 	my($fn) = shift;
@@ -1024,6 +1046,21 @@ sub ValidFunction($)
 		}
 		ValidElement($e);
 	}
+}
+
+#####################################################################
+# validate a type
+sub ValidType($)
+{
+	my ($t) = @_;
+
+	{ 
+		TYPEDEF => \&ValidTypedef,
+		STRUCT => \&ValidStruct,
+		UNION => \&ValidUnion,
+		ENUM => \&ValidEnum,
+		BITMAP => \&ValidBitmap
+	}->{$t->{TYPE}}->($t);
 }
 
 #####################################################################
@@ -1059,10 +1096,12 @@ sub ValidInterface($)
 	}
 		
 	foreach my $d (@{$data}) {
-		($d->{TYPE} eq "TYPEDEF") &&
-		    ValidTypedef($d);
-		($d->{TYPE} eq "FUNCTION") && 
-		    ValidFunction($d);
+		($d->{TYPE} eq "FUNCTION") && ValidFunction($d);
+		($d->{TYPE} eq "TYPEDEF" or 
+		 $d->{TYPE} eq "STRUCT" or
+	 	 $d->{TYPE} eq "UNION" or 
+	 	 $d->{TYPE} eq "ENUM" or
+	     $d->{TYPE} eq "BITMAP") && ValidType($d);
 	}
 
 }

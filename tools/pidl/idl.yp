@@ -160,10 +160,10 @@ decl_union: 'union'
         }}
 ;
 
-typedef: 'typedef' property_list type identifier array_len ';' 
+typedef: property_list 'typedef' type identifier array_len ';' 
         {{
 	             "TYPE" => "TYPEDEF", 
-                     "PROPERTIES" => $_[2],
+                     "PROPERTIES" => $_[1],
 		     "NAME" => $_[4],
 		     "DATA" => $_[3],
 		     "ARRAY_LEN" => $_[5],
@@ -187,11 +187,12 @@ type: usertype | existingtype | void { "void" } ;
 
 enum_body: '{' enum_elements '}' { $_[2] };
 opt_enum_body: | enum_body;
-enum: 'enum' optional_identifier opt_enum_body
+enum: property_list 'enum' optional_identifier opt_enum_body
         {{
              "TYPE" => "ENUM", 
-			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[3]
+			 "PROPERTIES" => $_[1],
+			 "NAME" => $_[3],
+		     "ELEMENTS" => $_[4]
         }}
 ;
 
@@ -206,11 +207,12 @@ enum_element: identifier
 
 bitmap_body: '{' opt_bitmap_elements '}' { $_[2] };
 opt_bitmap_body: | bitmap_body;
-bitmap: 'bitmap' optional_identifier opt_bitmap_body
+bitmap: property_list 'bitmap' optional_identifier opt_bitmap_body
         {{
              "TYPE" => "BITMAP", 
-			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[3]
+		     "PROPERTIES" => $_[1],
+			 "NAME" => $_[3],
+		     "ELEMENTS" => $_[4]
         }}
 ;
 
@@ -227,11 +229,12 @@ bitmap_element: identifier '=' anytext { "$_[1] ( $_[3] )" }
 struct_body: '{' element_list1 '}' { $_[2] };
 opt_struct_body: | struct_body;
 
-struct: 'struct' optional_identifier opt_struct_body
+struct: property_list 'struct' optional_identifier opt_struct_body
         {{
              "TYPE" => "STRUCT", 
-			 "NAME" => $_[2],
-		     "ELEMENTS" => $_[3]
+			 "PROPERTIES" => $_[1],
+			 "NAME" => $_[3],
+		     "ELEMENTS" => $_[4]
         }}
 ;
 
@@ -261,11 +264,12 @@ union_elements:
 union_body: '{' union_elements '}' { $_[2] };
 opt_union_body: | union_body;
 
-union: 'union' optional_identifier opt_union_body
+union: property_list 'union' optional_identifier opt_union_body
         {{
              "TYPE" => "UNION", 
-		     "NAME" => $_[2],
-		     "ELEMENTS" => $_[3]
+			 "PROPERTIES" => $_[1],
+		     "NAME" => $_[3],
+		     "ELEMENTS" => $_[4]
         }}
 ;
 

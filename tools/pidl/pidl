@@ -17,7 +17,7 @@ pidl - An IDL compiler written in Perl
 
 pidl --help
 
-pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--ndr-parser[=OUTPUT]] [--client] [--server] [--dcom-proxy] [--com-header] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [<idlfile>.idl]...
+pidl [--outputdir[=OUTNAME]] [--includedir DIR...] [--parse-idl-tree] [--dump-idl-tree] [--dump-ndr-tree] [--header[=OUTPUT]] [--ejs[=OUTPUT]] [--swig[=OUTPUT]] [--ndr-parser[=OUTPUT]] [--client] [--server] [--warn-compat] [--quiet] [--verbose] [--template] [--ws-parser[=OUTPUT]] [--diff] [--dump-idl] [--tdr-parser[=OUTPUT]] [--samba3-ndr-client[=OUTPUT]] [--samba3-ndr-server[=OUTPUT]] [<idlfile>.idl]...
 
 =head1 DESCRIPTION
 
@@ -401,7 +401,6 @@ use Getopt::Long;
 use File::Basename;
 use Parse::Pidl;
 use Parse::Pidl::Util;
-use Parse::Pidl::ODL;
 
 #####################################################################
 # save a data structure into a file
@@ -468,8 +467,6 @@ my($opt_ndr_parser);
 my($opt_tdr_parser);
 my($opt_ws_parser);
 my($opt_swig);
-my($opt_dcom_proxy);
-my($opt_com_header);
 my($opt_ejs);
 my($opt_quiet) = 0;
 my($opt_outputdir) = '.';
@@ -510,8 +507,6 @@ Samba 4 output:
  --swig[=OUTFILE]        create swig wrapper file [BASENAME.i]
  --server[=OUTFILE]      create server boilerplate [ndr_BASENAME_s.c]
  --template              print a template for a pipe
- --dcom-proxy[=OUTFILE]  create DCOM proxy [ndr_BASENAME_p.c]
- --com-header[=OUTFILE]  create header for COM [com_BASENAME.h]
 
 Samba 3 output:
  --samba3-ndr-client[=OUTF] create client calls for Samba3 
@@ -545,8 +540,6 @@ my $result = GetOptions (
 	    'ejs' => \$opt_ejs,
 	    'diff' => \$opt_diff,
 	    'swig:s' => \$opt_swig,
-	    'dcom-proxy:s' => \$opt_dcom_proxy,
-	    'com-header:s' => \$opt_com_header,
 	    'quiet' => \$opt_quiet,
 		'verbose' => \$opt_verbose,
 	    'warn-compat' => \$opt_warn_compat,
@@ -602,30 +595,10 @@ sub process_file($)
 		unlink($tempfile);
 	}
 
-	my $comh_filename = ($opt_com_header or "$outputdir/com_$basename.h");
-	if (defined($opt_com_header)) {
-		require Parse::Pidl::Samba4::COM::Header;
-		my $res = Parse::Pidl::Samba4::COM::Header::Parse($pidl,"$outputdir/ndr_$basename.h");
-		if ($res) {
-			FileSave($comh_filename, $res);
-		}
-	}
-
-	if (defined($opt_dcom_proxy)) {
-		require Parse::Pidl::Samba4::COM::Proxy;
-		my $res = Parse::Pidl::Samba4::COM::Proxy::Parse($pidl,$comh_filename);
-		if ($res) {
-			my ($client) = ($opt_dcom_proxy or "$outputdir/$basename\_p.c");
-			FileSave($client, $res);
-		}
-	}
-
 	if ($opt_warn_compat) {
 		require Parse::Pidl::Compat;
 		Parse::Pidl::Compat::Check($pidl);
 	}
-
-	$pidl = Parse::Pidl::ODL::ODL2IDL($pidl);
 
 	if (defined($opt_ws_parser) or 
 	    defined($opt_client) or defined($opt_server) or 
@@ -679,30 +652,8 @@ sub process_file($)
 
 	if (defined($opt_server)) {
 		require Parse::Pidl::Samba4::NDR::Server;
-		my $dcom = "";
-
-		foreach (@{$pidl}) {
-			next if ($_->{TYPE} ne "INTERFACE");
-
-			if (Parse::Pidl::Util::has_property($_, "object")) {
-				require Parse::Pidl::Samba4::COM::Stub;
-				$dcom .= Parse::Pidl::Samba4::COM::Stub::ParseInterface($_);
-			}
-		}
 
 		FileSave(($opt_server or "$outputdir/ndr_$basename\_s.c"), Parse::Pidl::Samba4::NDR::Server::Parse($ndr,$h_filename));
-
-		if ($dcom ne "") {
-			$dcom = "
-#include \"includes.h\"
-#include \"$h_filename\"
-#include \"rpc_server/dcerpc_server.h\"
-#include \"rpc_server/common/common.h\"
-
-$dcom
-";
-	FileSave("$outputdir/$basename\_d.c", $dcom);
-		}
 	}
 
 	if (defined($opt_ndr_parser)) {

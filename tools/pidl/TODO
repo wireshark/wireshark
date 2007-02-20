@@ -7,10 +7,11 @@
  - strip out pidl-specific properties
 
 - support nested elements
- - generate names for anonymous tagged types
+ - allow non-typedef structs
+ - generate names for anonymous tagged types. Simple MD5Sum of contents?
  - support typedefs properly
-
-- improve represent_as(): allow it to be used for arrays and other complex types
+ - improve represent_as(): allow it to be used for arrays and other complex 
+   types
 
 - --explain-ndr option that dumps out parse tree ?
 
@@ -21,3 +22,10 @@
 - mem_ctx in the interface rather than as struct ndr member.
 
 - real typelibs
+
+- fix [in,out] handling and allocation for samba3:
+ - add inout
+ - make NULL to mean "allocate me"
+ - remove NDR_AUTO_REF_ALLOC flag
+
+- automatic test generator based on IDL pointer types

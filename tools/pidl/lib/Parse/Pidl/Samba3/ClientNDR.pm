@@ -6,18 +6,22 @@
 
 package Parse::Pidl::Samba3::ClientNDR;
 
+use Exporter;
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(GenerateFunctionInEnv ParseFunction $res $res_hdr);
+
 use strict;
 use Parse::Pidl qw(fatal warning);
-use Parse::Pidl::Typelist qw(hasType getType mapType scalar_is_reference);
-use Parse::Pidl::Util qw(has_property is_constant);
+use Parse::Pidl::Typelist qw(hasType getType mapTypeName scalar_is_reference);
+use Parse::Pidl::Util qw(has_property is_constant ParseExpr);
 use Parse::Pidl::NDR qw(GetPrevLevel GetNextLevel ContainsDeferred);
 use Parse::Pidl::Samba4 qw(DeclLong);
 
 use vars qw($VERSION);
 $VERSION = '0.01';
 
-my $res;
-my $res_hdr;
+our $res;
+our $res_hdr;
 my $tabs = "";
 sub indent() { $tabs.="\t"; }
 sub deindent() { $tabs = substr($tabs, 1); }
@@ -25,13 +29,26 @@ sub pidl($) { $res .= $tabs.(shift)."\n"; }
 sub pidl_hdr($) { $res_hdr .= (shift)."\n"; }
 sub fn_declare($) { my ($n) = @_; pidl $n; pidl_hdr "$n;"; }
 
+sub GenerateFunctionInEnv($)
+{
+	my $fn = shift;
+	my %env;
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		if (grep (/in/, @{$e->{DIRECTION}})) {
+			$env{$e->{NAME}} = "r.in.$e->{NAME}";
+		}
+	}
+
+	return \%env;
+}
+
 sub ParseFunction($$)
 {
-	my ($if,$fn) = @_;
+	my ($uif, $fn) = @_;
 
 	my $inargs = "";
 	my $defargs = "";
-	my $uif = uc($if->{NAME});
 	my $ufn = "DCERPC_".uc($fn->{NAME});
 
 	foreach (@{$fn->{ELEMENTS}}) {
@@ -58,7 +75,7 @@ sub ParseFunction($$)
 	pidl "status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, $ufn, &r, (ndr_pull_flags_fn_t)ndr_pull_$fn->{NAME}, (ndr_push_flags_fn_t)ndr_push_$fn->{NAME});";
 	pidl "";
 
-	pidl "if ( !NT_STATUS_IS_OK(status) ) {";
+	pidl "if (!NT_STATUS_IS_OK(status)) {";
 	indent;
 	pidl "return status;";
 	deindent;
@@ -78,16 +95,29 @@ sub ParseFunction($$)
 
 		fatal($e, "[out] argument is not a pointer or array") if ($e->{LEVELS}[0]->{TYPE} ne "POINTER" and $e->{LEVELS}[0]->{TYPE} ne "ARRAY");
 
-		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") && ($e->{LEVELS}[0]->{POINTER_TYPE} eq "unique") ) {
+		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
+			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
 			pidl "if ( $e->{NAME} ) {";
 			indent;
-			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
-			deindent;
-			pidl "}";
+		}
+
+		if ($e->{LEVELS}[0]->{TYPE} eq "ARRAY") {
+			# This is a call to GenerateFunctionInEnv intentionally. 
+			# Since the data is being copied into a user-provided data 
+			# structure, the user should be able to know the size beforehand 
+			# to allocate a structure of the right size.
+			my $env = GenerateFunctionInEnv($fn);
+			my $size_is = ParseExpr($e->{LEVELS}[0]->{SIZE_IS}, $env, $e);
+			pidl "memcpy($e->{NAME}, r.out.$e->{NAME}, $size_is);";
 		} else {
 			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
 		}
-			
+
+		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
+			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
+			deindent;
+			pidl "}";
+		}
 	}
 
 	pidl"";
@@ -99,7 +129,7 @@ sub ParseFunction($$)
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
 		pidl "return werror_to_ntstatus(r.out.result);";
 	} else {
-		pidl "/* Sorry, don't know how to convert $fn->{RETURN_TYPE} to NTSTATUS */";
+		warning($fn->{ORIGINAL}, "Unable to convert $fn->{RETURN_TYPE} to NTSTATUS");
 		pidl "return NT_STATUS_OK;";
 	}
 
@@ -116,7 +146,7 @@ sub ParseInterface($)
 
 	pidl_hdr "#ifndef __CLI_$uif\__";
 	pidl_hdr "#define __CLI_$uif\__";
-	ParseFunction($if, $_) foreach (@{$if->{FUNCTIONS}});
+	ParseFunction(uc($if->{NAME}), $_) foreach (@{$if->{FUNCTIONS}});
 	pidl_hdr "#endif /* __CLI_$uif\__ */";
 }
 

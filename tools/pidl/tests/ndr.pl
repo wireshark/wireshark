@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -27,15 +27,13 @@ is_deeply(GetElementLevelTable($e), [
 		'IS_DEFERRED' => 0,
 		'LEVEL_INDEX' => 0,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
 
-my $ne = ParseElement($e);
+my $ne = ParseElement($e, undef);
 is($ne->{ORIGINAL}, $e);
 is($ne->{NAME}, "v");
 is($ne->{ALIGN}, 1);
@@ -45,11 +43,9 @@ is_deeply($ne->{LEVELS},  [
 		'IS_DEFERRED' => 0,
 		'LEVEL_INDEX' => 0,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
 
@@ -77,11 +73,9 @@ is_deeply(GetElementLevelTable($e), [
 		'IS_DEFERRED' => 1,
 		'LEVEL_INDEX' => 1,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
 
@@ -117,11 +111,9 @@ is_deeply(GetElementLevelTable($e), [
 		'IS_DEFERRED' => 1,
 		'LEVEL_INDEX' => 2,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
 
@@ -149,11 +141,9 @@ is_deeply(GetElementLevelTable($e), [
 		'IS_DEFERRED' => 1,
 		'LEVEL_INDEX' => 1,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
 
@@ -182,10 +172,34 @@ is_deeply(GetElementLevelTable($e), [
 		'IS_DEFERRED' => 0,
 		'LEVEL_INDEX' => 1,
 		'DATA_TYPE' => 'uint8',
-		'CONVERT_FROM' => undef,
 		'CONTAINS_DEFERRED' => 0,
 		'TYPE' => 'DATA',
 		'IS_SURROUNDING' => 0,
-		'CONVERT_TO' => undef
 	}
 ]);
+
+# representation_type
+$e = {
+	'FILE' => 'foo.idl',
+	'NAME' => 'v',
+	'PROPERTIES' => { represent_as => "bar" },
+	'POINTERS' => 0,
+	'TYPE' => 'uint8',
+	'PARENT' => { TYPE => 'STRUCT' },
+	'LINE' => 42 };
+
+$ne = ParseElement($e, undef);
+is($ne->{REPRESENTATION_TYPE}, "bar");
+
+# representation_type
+$e = {
+	'FILE' => 'foo.idl',
+	'NAME' => 'v',
+	'PROPERTIES' => { },
+	'POINTERS' => 0,
+	'TYPE' => 'uint8',
+	'PARENT' => { TYPE => 'STRUCT' },
+	'LINE' => 42 };
+
+$ne = ParseElement($e, undef);
+is($ne->{REPRESENTATION_TYPE}, "uint8");

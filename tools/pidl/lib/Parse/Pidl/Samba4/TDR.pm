@@ -1,6 +1,6 @@
 ###################################################
 # Trivial Parser Generator
-# Copyright jelmer@samba.org 2005
+# Copyright jelmer@samba.org 2005-2007
 # released under the GNU GPL
 
 package Parse::Pidl::Samba4::TDR;
@@ -8,13 +8,17 @@ use Parse::Pidl qw(fatal);
 use Parse::Pidl::Util qw(has_property ParseExpr is_constant);
 use Parse::Pidl::Samba4 qw(is_intree choose_header);
 
+use Exporter;
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(ParserType $ret $ret_hdr);
+
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use strict;
 
-my $ret;
-my $ret_hdr;
+our $ret;
+our $ret_hdr;
 my $tabs = "";
 
 sub indent() { $tabs.="\t"; }
@@ -117,14 +121,14 @@ sub ParserElement($$$)
 
 sub ParserStruct($$$$)
 {
-	my ($e,$n,$t,$p) = @_;
+	my ($e,$t,$p) = @_;
 
-	fn_declare($p,,"NTSTATUS tdr_$t\_$n (struct tdr_$t *tdr".typearg($t).", struct $n *v)");
+	fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", struct $e->{NAME} *v)");
 	pidl "{"; indent;
 	pidl "int i;" if (ContainsArray($e));
 
 	if ($t eq "print") {
-		pidl "tdr->print(tdr, \"\%-25s: struct $n\", name);";
+		pidl "tdr->print(tdr, \"\%-25s: struct $e->{NAME}\", name);";
 		pidl "tdr->level++;";
 	}
 
@@ -141,16 +145,16 @@ sub ParserStruct($$$$)
 	deindent; pidl "}";
 }
 
-sub ParserUnion($$$$)
+sub ParserUnion($$$)
 {
-	my ($e,$n,$t,$p) = @_;
+	my ($e,$t,$p) = @_;
 
-	fn_declare($p,"NTSTATUS tdr_$t\_$n(struct tdr_$t *tdr".typearg($t).", int level, union $n *v)");
+	fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME}(struct tdr_$t *tdr".typearg($t).", int level, union $e->{NAME} *v)");
 	pidl "{"; indent;
 	pidl "int i;" if (ContainsArray($e));
 
 	if ($t eq "print") {
-		pidl "tdr->print(tdr, \"\%-25s: union $n\", name);";
+		pidl "tdr->print(tdr, \"\%-25s: union $e->{NAME}\", name);";
 		pidl "tdr->level++;";
 	}
 	
@@ -174,19 +178,19 @@ sub ParserUnion($$$$)
 	deindent; pidl "}";
 }
 
-sub ParserBitmap($$$$)
+sub ParserBitmap($$$)
 {
-	my ($e,$n,$t,$p) = @_;
+	my ($e,$t,$p) = @_;
 	return if ($p);
-	pidl "#define tdr_$t\_$n tdr_$t\_" . Parse::Pidl::Typelist::bitmap_type_fn($e);
+	pidl "#define tdr_$t\_$e->{NAME} tdr_$t\_" . Parse::Pidl::Typelist::bitmap_type_fn($e);
 }
 
-sub ParserEnum($$$$)
+sub ParserEnum($$$)
 {
-	my ($e,$n,$t,$p) = @_;
+	my ($e,$t,$p) = @_;
 	my $bt = ($e->{PROPERTIES}->{base_type} or "uint8");
 	
-	fn_declare($p, "NTSTATUS tdr_$t\_$n (struct tdr_$t *tdr".typearg($t).", enum $n *v)");
+	fn_declare($p, "NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", enum $e->{NAME} *v)");
 	pidl "{";
 	if ($t eq "pull") {
 		pidl "\t$bt\_t r;";
@@ -201,17 +205,27 @@ sub ParserEnum($$$$)
 	pidl "}";
 }
 
-sub ParserTypedef($$)
+sub ParserTypedef($$$)
+{
+	my ($e,$t,$p) = @_;
+
+	ParserType($e->{DATA},$t);
+}
+
+sub ParserType($$)
 {
 	my ($e,$t) = @_;
 
 	return if (has_property($e, "no$t"));
 
-	$e->{DATA}->{PROPERTIES} = $e->{PROPERTIES};
-
-	{ STRUCT => \&ParserStruct, UNION => \&ParserUnion, 
-		ENUM => \&ParserEnum, BITMAP => \&ParserBitmap
-	}->{$e->{DATA}->{TYPE}}->($e->{DATA}, $e->{NAME}, $t, has_property($e, "public"));
+	my $handlers = { 
+		STRUCT => \&ParserStruct, UNION => \&ParserUnion, 
+		ENUM => \&ParserEnum, BITMAP => \&ParserBitmap,
+		TYPEDEF => \&ParserTypedef
+	};
+	
+	$handlers->{$e->{TYPE}}->($e, $t, has_property($e, "public")) 
+		if (defined($handlers->{$e->{TYPE}}));
 
 	pidl "";
 }
@@ -224,10 +238,9 @@ sub ParserInterface($)
 	pidl_hdr "#define __TDR_$x->{NAME}_HEADER__";
 
 	foreach (@{$x->{DATA}}) {
-		next if ($_->{TYPE} ne "TYPEDEF");
-		ParserTypedef($_, "pull");
-		ParserTypedef($_, "push");
-		ParserTypedef($_, "print");
+		ParserType($_, "pull");
+		ParserType($_, "push");
+		ParserType($_, "print");
 	}
 
 	pidl_hdr "#endif /* __TDR_$x->{NAME}_HEADER__ */";

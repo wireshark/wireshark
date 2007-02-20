@@ -8,7 +8,7 @@ package Parse::Pidl::Samba4::SWIG;
 
 use vars qw($VERSION);
 use Parse::Pidl::Samba4 qw(DeclLong);
-use Parse::Pidl::Typelist qw(mapType);
+use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Util qw(has_property);
 $VERSION = '0.01';
 
@@ -77,7 +77,7 @@ sub ParseInterface($$)
 		$name =~ s/^$if->{NAME}_//g;
 		$name =~ s/^$basename\_//g;
 		$args .= "TALLOC_CTX *mem_ctx = NULL";
-		pidl mapType($fn->{RETURN_TYPE}) . " $name($args)";
+		pidl mapTypeName($fn->{RETURN_TYPE}) . " $name($args)";
 		pidl "{";
 		indent;
 		pidl "struct $fn->{NAME} r;";

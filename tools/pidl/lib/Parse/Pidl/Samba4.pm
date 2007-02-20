@@ -10,7 +10,7 @@ require Exporter;
 @EXPORT = qw(is_intree choose_header DeclLong);
 
 use Parse::Pidl::Util qw(has_property is_constant);
-use Parse::Pidl::Typelist qw(mapType scalar_is_reference);
+use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use strict;
 
 use vars qw($VERSION);
@@ -38,12 +38,12 @@ sub DeclLong($)
 	my $ret = "";
 
 	if (has_property($element, "represent_as")) {
-		$ret.=mapType($element->{PROPERTIES}->{represent_as})." ";
+		$ret.=mapTypeName($element->{PROPERTIES}->{represent_as})." ";
 	} else {
 		if (has_property($element, "charset")) {
 			$ret.="const char";
 		} else {
-			$ret.=mapType($element->{TYPE});
+			$ret.=mapTypeName($element->{TYPE});
 		}
 
 		$ret.=" ";

@@ -8,7 +8,7 @@ package Parse::Pidl::Samba3::ServerNDR;
 
 use strict;
 use Parse::Pidl qw(warning fatal);
-use Parse::Pidl::Typelist qw(mapType scalar_is_reference);
+use Parse::Pidl::Typelist qw(mapTypeName scalar_is_reference);
 use Parse::Pidl::Util qw(ParseExpr has_property is_constant);
 use Parse::Pidl::NDR qw(GetNextLevel);
 use Parse::Pidl::Samba4 qw(DeclLong);
@@ -35,7 +35,7 @@ sub DeclLevel($$)
 	if (has_property($e, "charset")) {
 		$ret.="const char";
 	} else {
-		$ret.=mapType($e->{TYPE});
+		$ret.=mapTypeName($e->{TYPE});
 	}
 
 	my $numstar = $e->{ORIGINAL}->{POINTERS};

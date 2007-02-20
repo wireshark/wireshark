@@ -24,7 +24,7 @@ use Exporter;
 use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(DumpTypedef DumpStruct DumpEnum DumpBitmap DumpUnion DumpFunction);
+@EXPORT_OK = qw(DumpType DumpTypedef DumpStruct DumpEnum DumpBitmap DumpUnion DumpFunction);
 
 use strict;
 use Parse::Pidl::Util qw(has_property);
@@ -87,7 +87,12 @@ sub DumpStruct($)
     my($struct) = shift;
     my($res);
 
-    $res .= "struct {\n";
+    $res .= "struct ";
+	if ($struct->{NAME}) {
+		$res.="$struct->{NAME} ";
+	}
+	
+	$res.="{\n";
     if (defined $struct->{ELEMENTS}) {
 		foreach (@{$struct->{ELEMENTS}}) {
 		    $res .= "\t" . DumpElement($_) . ";\n";
@@ -185,18 +190,15 @@ sub DumpUnion($)
 sub DumpType($)
 {
     my($data) = shift;
-    my($res);
 
     if (ref($data) eq "HASH") {
-	($data->{TYPE} eq "STRUCT") && ($res .= DumpStruct($data));
-	($data->{TYPE} eq "UNION") && ($res .= DumpUnion($data));
-	($data->{TYPE} eq "ENUM") && ($res .= DumpEnum($data));
-	($data->{TYPE} eq "BITMAP") && ($res .= DumpBitmap($data));
+		return DumpStruct($data) if ($data->{TYPE} eq "STRUCT");
+		return DumpUnion($data) if ($data->{TYPE} eq "UNION");
+		return DumpEnum($data) if ($data->{TYPE} eq "ENUM");
+		return DumpBitmap($data) if ($data->{TYPE} eq "BITMAP");
     } else {
-	$res .= "$data";
+		return $data;
     }
-
-    return $res;
 }
 
 #####################################################################

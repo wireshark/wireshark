@@ -24,5 +24,3 @@ my $e = {
 
 test_warnings("foo.idl:42: subcontext() is deprecated. Use represent_as() or transmit_as() instead\n", 
 	sub { ValidElement($e); });
-
-

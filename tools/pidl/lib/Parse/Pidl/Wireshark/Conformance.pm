@@ -96,7 +96,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(ReadConformance);
+@EXPORT_OK = qw(ReadConformance ReadConformanceFH);
 
 use strict;
 
@@ -157,7 +157,7 @@ sub handle_hf_rename($$$$)
 	my ($pos,$data,$old,$new) = @_;
 
 	unless(defined($new)) {
-		error($pos, "incomplete HF_RENAME command");
+		warning($pos, "incomplete HF_RENAME command");
 		return;
 	}
 
@@ -253,6 +253,11 @@ sub handle_manual($$$)
 {
 	my ($pos,$data,$fn) = @_;
 
+	unless(defined($fn)) {
+		warning($pos, "incomplete MANUAL command");
+		return;
+	}
+
     $data->{manual}->{$fn} = 1;
 }
 
@@ -270,6 +275,11 @@ sub handle_protocol($$$$$$)
 sub handle_fielddescription($$$$)
 {
 	my ($pos,$data,$field,$desc) = @_;
+
+	unless(defined($desc)) {
+		warning($pos, "incomplete FIELD_DESCRIPTION command");
+		return;
+	}
 
 	$data->{fielddescription}->{$field} = {
 		DESCRIPTION => $desc,
@@ -314,16 +324,26 @@ my %field_handlers = (
 sub ReadConformance($$)
 {
 	my ($f,$data) = @_;
-
-	$data->{override} = "";
-
-	my $incodeblock = 0;
+	my $ret;
 
 	open(IN,"<$f") or return undef;
 
+	$ret = ReadConformanceFH(*IN, $data, $f);
+
+	close(IN);
+
+	return $ret;
+}
+
+sub ReadConformanceFH($$$)
+{
+	my ($fh,$data,$f) = @_;
+
+	my $incodeblock = 0;
+
 	my $ln = 0;
 
-	foreach (<IN>) {
+	foreach (<$fh>) {
 		$ln++;
 		next if (/^#.*$/);
 		next if (/^$/);
@@ -337,7 +357,11 @@ sub ReadConformance($$)
 			$incodeblock = 0;
 			next;
 		} elsif ($incodeblock) {
-			$data->{override}.="$_\n";
+			if (exists $data->{override}) {
+				$data->{override}.="$_\n";
+			} else {
+				$data->{override} = "$_\n";
+			}
 			next;
 		}
 
@@ -349,6 +373,8 @@ sub ReadConformance($$)
 
 		my $pos = { FILE => $f, LINE => $ln };
 
+		next unless(defined($cmd));
+
 		if (not defined($field_handlers{$cmd})) {
 			warning($pos, "Unknown command `$cmd'");
 			next;
@@ -357,7 +383,13 @@ sub ReadConformance($$)
 		$field_handlers{$cmd}($pos, $data, @fields);
 	}
 
-	close(IN);
+	if ($incodeblock) {
+		warning({ FILE => $f, LINE => $ln }, 
+			"Expecting CODE END");
+		return undef;
+	}
+
+	return 1;
 }
 
 1;

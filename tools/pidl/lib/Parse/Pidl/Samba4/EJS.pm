@@ -380,7 +380,7 @@ sub EjsBitmapPull($$)
 	my $name = shift;
 	my $d = shift;
 	my $type_fn = $d->{BASE_TYPE};
-	my($type_decl) = Parse::Pidl::Typelist::mapType($d->{BASE_TYPE});
+	my($type_decl) = Parse::Pidl::Typelist::mapTypeName($d->{BASE_TYPE});
 	fn_declare($d, "NTSTATUS ejs_pull_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, $type_decl *r)");
 	pidl "{";
 	indent;
@@ -648,7 +648,7 @@ sub EjsBitmapPush($$)
 	my $name = shift;
 	my $d = shift;
 	my $type_fn = $d->{BASE_TYPE};
-	my($type_decl) = Parse::Pidl::Typelist::mapType($d->{BASE_TYPE});
+	my($type_decl) = Parse::Pidl::Typelist::mapTypeName($d->{BASE_TYPE});
 	# put the bitmap elements in the constants array
 	foreach my $e (@{$d->{ELEMENTS}}) {
 		if ($e =~ /^(\w*)\s*(.*)\s*$/) {

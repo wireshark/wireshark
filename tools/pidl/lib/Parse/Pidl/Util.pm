@@ -15,9 +15,31 @@ use strict;
 use Parse::Pidl::Expr;
 use Parse::Pidl qw(error);
 
-#####################################################################
-# a dumper wrapper to prevent dependence on the Data::Dumper module
-# unless we actually need it
+=head1 NAME
+
+Parse::Pidl::Util - Generic utility functions for pidl
+
+=head1 SYNOPSIS
+
+use Parse::Pidl::Util;
+
+=head1 DESCRIPTION
+
+Simple module that contains a couple of trivial helper functions 
+used throughout the various pidl modules.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=cut
+
+=item B<MyDumper>
+a dumper wrapper to prevent dependence on the Data::Dumper module
+unless we actually need it
+
+=cut
+
 sub MyDumper($)
 {
 	require Data::Dumper;
@@ -25,8 +47,10 @@ sub MyDumper($)
 	return Data::Dumper::Dumper($s);
 }
 
-#####################################################################
-# see if a pidl property list contains a given property
+=item B<has_property>
+see if a pidl property list contains a given property
+
+=cut
 sub has_property($$)
 {
 	my($e, $p) = @_;
@@ -36,8 +60,10 @@ sub has_property($$)
 	return $e->{PROPERTIES}->{$p};
 }
 
-#####################################################################
-# see if a pidl property matches a value
+=item B<property_matches>
+see if a pidl property matches a value
+
+=cut
 sub property_matches($$$)
 {
 	my($e,$p,$v) = @_;
@@ -53,16 +79,22 @@ sub property_matches($$$)
 	return undef;
 }
 
-# return 1 if the string is a C constant
+=item B<is_constant>
+return 1 if the string is a C constant
+
+=cut
 sub is_constant($)
 {
 	my $s = shift;
-	return 1 if (defined $s && $s =~ /^\d+$/);
-	return 1 if (defined $s && $s =~ /^0x[0-9A-Fa-f]+$/);
+	return 1 if ($s =~ /^\d+$/);
+	return 1 if ($s =~ /^0x[0-9A-Fa-f]+$/);
 	return 0;
 }
 
-# return a "" quoted string, unless already quoted
+=item B<make_str>
+return a "" quoted string, unless already quoted
+
+=cut
 sub make_str($)
 {
 	my $str = shift;
@@ -72,6 +104,10 @@ sub make_str($)
 	return "\"$str\"";
 }
 
+=item B<print_uuid>
+Print C representation of a UUID.
+
+=cut
 sub print_uuid($)
 {
 	my ($uuid) = @_;
@@ -87,11 +123,13 @@ sub print_uuid($)
 		"{".join(',', map {"0x$_"} @node)."}}";
 }
 
+=item B<ParseExpr>
+Interpret an IDL expression, substituting particular variables.
+
+=cut
 sub ParseExpr($$$)
 {
 	my($expr, $varlist, $e) = @_;
-
-	die("Undefined value in ParseExpr") if not defined($expr);
 
 	my $x = new Parse::Pidl::Expr();
 	
@@ -104,11 +142,14 @@ sub ParseExpr($$$)
 		undef, undef);
 }
 
+=item B<ParseExprExt>
+Interpret an IDL expression, substituting particular variables. Can call 
+callbacks when pointers are being dereferenced or variables are being used.
+
+=cut
 sub ParseExprExt($$$$$)
 {
 	my($expr, $varlist, $e, $deref, $use) = @_;
-
-	die("Undefined value in ParseExpr") if not defined($expr);
 
 	my $x = new Parse::Pidl::Expr();
 	
@@ -120,5 +161,9 @@ sub ParseExprExt($$$$$)
 		  },
 		$deref, $use);
 }
+
+=back
+
+=cut
 
 1;

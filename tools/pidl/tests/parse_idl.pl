@@ -4,7 +4,7 @@
 # Published under the GNU General Public License
 use strict;
 
-use Test::More tests => 59 * 2;
+use Test::More tests => 62 * 2;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util qw(test_errors);
@@ -83,8 +83,12 @@ testok "nested1", "interface test { struct x { struct { int a; } z; }; };";
 testok "nested2", "interface test { struct x { struct y { int a; } z; }; };";
 testok "bitmap1", "interface test { bitmap x { a=1 }; };";
 testok "unsigned", "interface test { struct x { unsigned short y; }; };";
+testok "struct-property", "interface test { [public] struct x { short y; }; };";
 testok "signed", "interface test { struct x { signed short y; }; };";
 testok "declarg", "interface test { void test(struct { int x; } a); };";
+testok "structarg", "interface test { void test(struct a b); };";
+testfail "structargmissing", "interface test { void test(struct a); };",
+	"<structargmissing>:0: Syntax error near ')'\n";
 testok "structqual", "interface test { struct x { struct y z; }; };";
 testok "unionqual", "interface test { struct x { union y z; }; };";
 testok "enumqual", "interface test { struct x { enum y z; }; };";

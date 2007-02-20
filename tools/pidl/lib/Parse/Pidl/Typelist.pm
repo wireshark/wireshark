@@ -7,14 +7,17 @@ package Parse::Pidl::Typelist;
 
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(hasType getType mapType scalar_is_reference expandAlias);
+@EXPORT_OK = qw(hasType getType mapTypeName scalar_is_reference expandAlias
+			    mapScalarType addType typeIs is_scalar enum_type_fn
+				bitmap_type_fn mapType
+);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
 use Parse::Pidl::Util qw(has_property);
 use strict;
 
-my %typedefs = ();
+my %types = ();
 
 my @reference_scalars = (
 	"string", "string_array", "nbt_string", 
@@ -89,14 +92,14 @@ sub mapScalarType($)
 sub addType($)
 {
 	my $t = shift;
-	$typedefs{$t->{NAME}} = $t;
+	$types{$t->{NAME}} = $t;
 }
 
 sub getType($)
 {
 	my $t = shift;
 	return undef if not hasType($t);
-	return $typedefs{$t};
+	return $types{$t};
 }
 
 sub typeIs($$)
@@ -110,7 +113,7 @@ sub typeIs($$)
 sub hasType($)
 {
 	my $t = shift;
-	return 1 if defined($typedefs{$t});
+	return 1 if defined($types{$t});
 	return 0;
 }
 
@@ -178,7 +181,22 @@ sub bitmap_type_fn($)
 	return "uint32";
 }
 
-sub mapType($)
+sub mapType($$)
+{
+	sub mapType($$);
+	my ($t, $n) = @_;
+
+	return mapType($t->{DATA}, $n) if ($t->{TYPE} eq "TYPEDEF");
+	return mapType($t->{DATA}, $n) if ($t->{TYPE} eq "DECLARE");
+	return mapScalarType($n) if ($t->{TYPE} eq "SCALAR");
+	return "enum $n" if ($t->{TYPE} eq "ENUM");
+	return "struct $n" if ($t->{TYPE} eq "STRUCT");
+	return "union $n" if ($t->{TYPE} eq "UNION");
+	return mapScalarType(bitmap_type_fn($t)) if ($t->{TYPE} eq "BITMAP");
+	die("Unknown type $t->{TYPE}");
+}
+
+sub mapTypeName($)
 {
 	my $t = shift;
 	return "void" unless defined($t);
@@ -189,17 +207,8 @@ sub mapType($)
 		# Best guess
 		return "struct $t";
 	}
-	return mapScalarType($t) if ($dt->{DATA}->{TYPE} eq "SCALAR");
-	return "enum $dt->{NAME}" if ($dt->{DATA}->{TYPE} eq "ENUM");
-	return "struct $dt->{NAME}" if ($dt->{DATA}->{TYPE} eq "STRUCT");
-	return "struct $dt->{NAME}" if ($dt->{DATA}->{TYPE} eq "INTERFACE");
-	return "union $dt->{NAME}" if ($dt->{DATA}->{TYPE} eq "UNION");
 
-	if ($dt->{DATA}->{TYPE} eq "BITMAP") {
-		return mapScalarType(bitmap_type_fn($dt->{DATA}));
-	}
-
-	die("Unknown type $dt->{DATA}->{TYPE}");
+	return mapType($dt, $dt->{NAME});
 }
 
 sub LoadIdl($)
@@ -209,17 +218,14 @@ sub LoadIdl($)
 	foreach my $x (@{$idl}) {
 		next if $x->{TYPE} ne "INTERFACE";
 
-		# DCOM interfaces can be types as well
-		addType({
-			NAME => $x->{NAME},
-			TYPE => "TYPEDEF",
-			DATA => $x
-			}) if (has_property($x, "object"));
-
 		foreach my $y (@{$x->{DATA}}) {
 			addType($y) if (
 				$y->{TYPE} eq "TYPEDEF" 
-			     or $y->{TYPE} eq "DECLARE");
+			     or $y->{TYPE} eq "DECLARE" 
+		 		 or $y->{TYPE} eq "UNION"
+		 		 or $y->{TYPE} eq "STRUCT"
+		         or $y->{TYPE} eq "ENUM"
+		         or $y->{TYPE} eq "BITMAP");
 		}
 	}
 }
