@@ -462,7 +462,8 @@ winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info
 	return initshutdown_dissect_struct_String(tvb, offset, pinfo, parent_tree, drep, hf_index, param);
 }
 
-/* IDL: typedef bitmap { */
+
+/* IDL: bitmap { */
 /* IDL: 	KEY_QUERY_VALUE =  0x00001 , */
 /* IDL: 	KEY_SET_VALUE =  0x00002 , */
 /* IDL: 	KEY_CREATE_SUB_KEY =  0x00004 , */
@@ -471,9 +472,10 @@ winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info
 /* IDL: 	KEY_CREATE_LINK =  0x00020 , */
 /* IDL: 	KEY_WOW64_64KEY =  0x00100 , */
 /* IDL: 	KEY_WOW64_32KEY =  0x00200 , */
-/* IDL: } winreg_AccessMask; */
+/* IDL: } */
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	REG_NONE=0, */
 /* IDL: 	REG_SZ=1, */
 /* IDL: 	REG_EXPAND_SZ=2, */
@@ -486,7 +488,7 @@ winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info
 /* IDL: 	REG_FULL_RESOURCE_DESCRIPTOR=9, */
 /* IDL: 	REG_RESOURCE_REQUIREMENTS_LIST=10, */
 /* IDL: 	REG_QWORD=11, */
-/* IDL: } winreg_Type; */
+/* IDL: } */
 
 int
 winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)
@@ -495,11 +497,12 @@ winreg_dissect_enum_Type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_len; */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 name_size; */
 /* IDL: 	[charset(UTF16)] [unique(1)] uint16 *name; */
-/* IDL: } winreg_String; */
+/* IDL: } */
 
 static int
 winreg_dissect_element_String_name_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -564,11 +567,12 @@ winreg_dissect_struct_String(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	[size_is(size)] [length_is(len)] [unique(1)] uint8 *data; */
 /* IDL: 	uint32 size; */
 /* IDL: 	uint32 len; */
-/* IDL: } KeySecurityData; */
+/* IDL: } */
 
 static int
 winreg_dissect_element_KeySecurityData_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -622,11 +626,12 @@ winreg_dissect_struct_KeySecurityData(tvbuff_t *tvb, int offset, packet_info *pi
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	uint32 length; */
 /* IDL: 	KeySecurityData sd; */
 /* IDL: 	uint8 inherit; */
-/* IDL: } winreg_SecBuf; */
+/* IDL: } */
 
 static int
 winreg_dissect_element_SecBuf_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -680,11 +685,12 @@ winreg_dissect_struct_SecBuf(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	return offset;
 }
 
-/* IDL: typedef enum { */
+
+/* IDL: enum { */
 /* IDL: 	REG_ACTION_NONE=0, */
 /* IDL: 	REG_CREATED_NEW_KEY=1, */
 /* IDL: 	REG_OPENED_EXISTING_KEY=2, */
-/* IDL: } winreg_CreateAction; */
+/* IDL: } */
 
 int
 winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)
@@ -693,11 +699,12 @@ winreg_dissect_enum_CreateAction(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	[value(strlen_m_term(name)*2)] uint16 length; */
 /* IDL: 	uint16 size; */
 /* IDL: 	[charset(UTF16)] [size_is(size/2)] [length_is(length/2)] [unique(1)] uint16 *name; */
-/* IDL: } winreg_StringBuf; */
+/* IDL: } */
 
 static int
 winreg_dissect_element_StringBuf_length(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -767,12 +774,13 @@ winreg_dissect_struct_StringBuf(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	[unique(1)] winreg_String *name; */
 /* IDL: 	winreg_Type type; */
 /* IDL: 	uint32 offset; */
 /* IDL: 	uint32 length; */
-/* IDL: } QueryMultipleValue; */
+/* IDL: } */
 
 static int
 winreg_dissect_element_QueryMultipleValue_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
