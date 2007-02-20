@@ -4376,7 +4376,9 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   gboolean use_default_ie_name = (ie->name == NULL);
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
+/* TODO This code does not work well with omitted Optional elements 
 	proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[tvb_length_remaining] length remaining: %d", tvb_length_remaining(bi->tvb, bi->offset));
+	*/
     return;
   }
   switch (ie->format) {
