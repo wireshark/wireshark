@@ -3507,6 +3507,38 @@ int nspi_dissect_struct_SRestriction(tvbuff_t *tvb, int offset, packet_info *pin
 int nspi_dissect_struct_SSortOrder(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_SSortOrderSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_NAME_STRING(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
+#define PT_UNSPECIFIED (0x0000)
+#define PT_NULL (0x0001)
+#define PT_I2 (0x0002)
+#define PT_LONG (0x0003)
+#define PT_R4 (0x0004)
+#define PT_DOUBLE (0x0005)
+#define PT_CURRENCY (0x0006)
+#define PT_APPTIME (0x0007)
+#define PT_ERROR (0x000a)
+#define PT_BOOLEAN (0x000b)
+#define PT_OBJECT (0x000d)
+#define PT_I8 (0x0014)
+#define PT_STRING8 (0x001e)
+#define PT_UNICODE (0x001f)
+#define PT_SYSTIME (0x0040)
+#define PT_CLSID (0x0048)
+#define PT_BINARY (0x0102)
+#define PT_MV_I2 (0x1002)
+#define PT_MV_LONG (0x1003)
+#define PT_MV_R4 (0x1004)
+#define PT_MV_DOUBLE (0x1005)
+#define PT_MV_CURRENCY (0x1006)
+#define PT_MV_APPTIME (0x1007)
+#define PT_MV_I8 (0x1014)
+#define PT_MV_STRING8 (0x101e)
+#define PT_MV_TSTRING (0x101e)
+#define PT_MV_UNICODE (0x101f)
+#define PT_MV_SYSTIME (0x1040)
+#define PT_MV_CLSID (0x1048)
+#define PT_MV_BINARY (0x1102)
+extern const value_string nspi_property_types_vals[];
+int nspi_dissect_enum_property_types(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);
 int nspi_dissect_struct_SBinary(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_FILETIME(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);
 int nspi_dissect_struct_SShortArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);

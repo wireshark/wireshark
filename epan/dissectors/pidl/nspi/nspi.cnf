@@ -8,7 +8,11 @@ HF_RENAME hf_nspi_NspiDNToEph_handle hf_nspi_handle
 HF_RENAME hf_nspi_NspiGetProps_handle hf_nspi_handle
 HF_RENAME hf_nspi_NspiGetHierarchyInfo_handle hf_nspi_handle
 
-
+HF_FIELD hf_nspi_property_type "Value" "nspi.SPropValue.value" FT_UINT32 BASE_HEX VALS(nspi_property_types_vals) 0 "" ""
+HF_FIELD hf_nspi_SRestriction_PTTYPE "Restriction Type" "nspi.property_type" FT_UINT32 BASE_HEX VALS(nspi_nspi_RestrictionType_vals) 0 "" ""
+HF_RENAME hf_nspi_SPropValue_value hf_nspi_property_type
+HF_RENAME hf_nspi_SRestriction_res hf_nspi_SRestriction_PTTYPE
+HF_RENAME hf_nspi_SRestriction_rt  hf_nspi_SRestriction_PTTYPE
 
 #
 # policyhandle tracking

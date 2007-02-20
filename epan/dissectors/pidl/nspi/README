@@ -38,7 +38,7 @@ The ws-parser directory includes the file used to generate the nspi
 dissector. In order to create the dissector, you need to follow this
 procedure below:
 
-1. Install Samba PIDL
+1. Install Samba PIDL (>= rev 19559 if installed from samba4 sources)
 3. Copy idl_types.h in the current directory
 4. run "pidl --ws-parser -- nspi.idl"
 

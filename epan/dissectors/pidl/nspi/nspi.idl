@@ -230,39 +230,42 @@
 	void NspiCompareDNTs();
 	void NspiModProps();
 
-#define	PT_UNSPECIFIED	0x0000
-#define	PT_NULL		0x0001
-#define	PT_I2		0x0002
-#define	PT_LONG		0x0003
-#define	PT_R4		0x0004
-#define	PT_DOUBLE	0x0005
-#define	PT_CURRENCY	0x0006
-#define	PT_APPTIME	0x0007
-#define	PT_ERROR	0x000a /* means the given attr contains no value */
-#define	PT_BOOLEAN	0x000b
-#define	PT_OBJECT	0x000d
-#define	PT_I8		0x0014
-#define	PT_STRING8	0x001e
-#define	PT_UNICODE	0x001f
-#define	PT_SYSTIME	0x0040
-#define	PT_CLSID       	0x0048
-#define	PT_BINARY	0x0102
+	typedef [v1_enum] enum {
+		PT_UNSPECIFIED	= 0x0000,
+		PT_NULL		= 0x0001,
+		PT_I2		= 0x0002,
+		PT_LONG		= 0x0003,
+		PT_R4		= 0x0004,
+		PT_DOUBLE	= 0x0005,
+		PT_CURRENCY	= 0x0006,
+		PT_APPTIME	= 0x0007,
+		PT_ERROR	= 0x000a,	/* means the given attr contains no value */
+		PT_BOOLEAN	= 0x000b,
+		PT_OBJECT	= 0x000d,
+		PT_I8		= 0x0014,
+		PT_STRING8	= 0x001e,
+		PT_UNICODE	= 0x001f,
+		PT_SYSTIME	= 0x0040,
+		PT_CLSID	= 0x0048,
+		PT_BINARY	= 0x0102,
 
-/* Multi-valued properties */
+		/* Multi-valued properties */
 
-#define	PT_MV_I2       	0x1002
-#define	PT_MV_LONG     	0x1003
-#define	PT_MV_R4       	0x1004
-#define	PT_MV_DOUBLE   	0x1005
-#define	PT_MV_CURRENCY 	0x1006
-#define	PT_MV_APPTIME  	0x1007
-#define	PT_MV_I8       	0x1014
-#define	PT_MV_STRING8	0x101e
-#define	PT_MV_TSTRING	0x101e
-#define	PT_MV_UNICODE	0x101f
-#define	PT_MV_SYSTIME	0x1040
-#define	PT_MV_CLSID	0x1048
-#define	PT_MV_BINARY	0x1102
+		PT_MV_I2	= 0x1002,
+		PT_MV_LONG	= 0x1003,
+		PT_MV_R4	= 0x1004,
+		PT_MV_DOUBLE	= 0x1005,
+		PT_MV_CURRENCY	= 0x1006,
+		PT_MV_APPTIME	= 0x1007,
+		PT_MV_I8	= 0x1014,
+		PT_MV_STRING8	= 0x101e,
+		PT_MV_TSTRING	= 0x101e,
+		PT_MV_UNICODE	= 0x101f,
+		PT_MV_SYSTIME	= 0x1040,
+		PT_MV_CLSID	= 0x1048,
+		PT_MV_BINARY	= 0x1102
+	} property_types;
+
 
 	/*****************/
 	/* Function 0x0c */
@@ -316,7 +319,7 @@
 		[size_is(cValues)] FILETIME *lpft;
 	} SDateTimeArray;
 
-	typedef [switch_type(uint32)] union {
+	typedef [switch_type(property_types)] union {
 		[case(PT_I2)]			uint16			i;
 		[case(PT_LONG)]			uint32			l;
 		[case(PT_BOOLEAN)]		uint16			b;
