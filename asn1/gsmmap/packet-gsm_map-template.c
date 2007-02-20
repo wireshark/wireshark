@@ -40,6 +40,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
+#include "epan/expert.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -62,20 +63,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_gsm_map = -1;
-/*
-static int hf_gsm_map_invokeCmd = -1;             / Opcode /
-static int hf_gsm_map_invokeid = -1;              / INTEGER /
-static int hf_gsm_map_absent = -1;                / NULL /
-static int hf_gsm_map_invokeId = -1;              / InvokeId /
-static int hf_gsm_map_invoke = -1;                / InvokePDU /
-static int hf_gsm_map_returnResult = -1;          / InvokePDU /
-static int hf_gsm_map_returnResult_result = -1;
-static int hf_gsm_map_returnError_result = -1;
-static int hf_gsm_map_returnError = -1;
-static int hf_gsm_map_local_errorCode = -1;
-static int hf_gsm_map_global_errorCode_oid = -1;
-static int hf_gsm_map_global_errorCode = -1;
-*/
+
 static int hf_gsm_map_SendAuthenticationInfoArg = -1;
 static int hf_gsm_map_SendAuthenticationInfoRes = -1;
 static int hf_gsm_mapSendEndSignal = -1;
@@ -166,7 +154,6 @@ static dissector_handle_t	ranap_handle;
 static dissector_handle_t	map_handle;
 
 /* Preferenc settings default */
-gboolean old_gsm_map_version = FALSE;
 #define MAX_SSN 254
 static range_t *global_ssn_range;
 static range_t *ssn_range;
@@ -768,32 +755,94 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
   "not Active"
 };
 
+/* Prototype for a decoding function */
+typedef int (* dissect_function_t)( gboolean _U_,
+				    tvbuff_t *,
+				    int ,
+				    packet_info * _U_,
+				    proto_tree *,
+				    int _U_);
 
-static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
- 
+/*
+ * Dissect Multiple Choice Message
+ * This function is used to decode a message, when several encoding may be used.
+ * For exemple, in the last MAP version, the Cancel Location is defined like this:
+ * CancelLocationArg ::= [3] IMPLICIT SEQUENCE
+ * But in the previous MAP version, it was a CHOICE between a SEQUENCE and an IMSI
+ * As ASN1 encoders (or software) still uses the old encoding, this function allows
+ * the decoding of both versions.
+ * Moreover, some optimizations (or bad practice ?) in ASN1 encoder, removes the 
+ * SEQUENCE tag, when only one parameter is present in the SEQUENCE.
+ * This explain why the function expects 3 parameters:
+ * - a [3] SEQUENCE corresponding the recent ASN1 MAP encoding
+ * - a SEQUENCE for old style
+ * - and a single parameter, for old version or optimizations
+ *
+ * The analyze of the first ASN1 tag, indicate what kind of decoding should be used, 
+ * if the decoding function is provided (so not a NULL function)
+ */
+static int dissect_mc_message(tvbuff_t *tvb,
+			      int offset,
+			      packet_info *pinfo _U_,
+			      proto_tree *tree,
+			      gboolean implicit_param _U_, dissect_function_t parameter, int hf_index_param _U_,
+			      gboolean implicit_seq   _U_, dissect_function_t sequence,  int hf_index_seq   _U_,
+			      gboolean implicit_seq3 _U_, dissect_function_t sequence3, int hf_index_seq3 _U_ )
+{
+  guint8 octet;
   gint8 bug_class;
   gboolean bug_pc, bug_ind_field;
   gint32 bug_tag;
-  guint32 bug_len1;
-  
-  guint8 octet;
+  guint32 bug_len;
+  proto_item *cause;
+
+  octet = tvb_get_guint8(tvb,0);
+  if ( (octet & 0xf) == 3) {
+    /* XXX  asn2wrs can not yet handle tagged assignment yes so this
+     * XXX is some conformance file magic to work around that bug
+     */
+    offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
+    offset = get_ber_length(tree, tvb, offset, &bug_len, &bug_ind_field);
+    if (sequence3 != NULL) {
+      offset= (sequence3) (implicit_seq3, tvb, offset, pinfo, tree, hf_index_seq3);
+    } else {
+      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented [3] sequence, cannot decode");
+      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
+      expert_add_info_format(pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented [3] sequence");
+    }
+  } else if (octet == 0x30) {
+    if (sequence != NULL) {
+      offset= (sequence) (implicit_seq, tvb, offset, pinfo, tree, hf_index_seq);
+    } else {
+      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented sequence");
+      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
+      expert_add_info_format(pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented sequence");
+    }
+  } else {
+    if (parameter != NULL) {
+      offset= (parameter) (implicit_param, tvb, offset, pinfo, tree, hf_index_param);
+    } else {
+      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented parameter");
+      proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
+      expert_add_info_format(pinfo, cause, PI_UNDECODED, PI_ERROR, "Unknown or not implemented parameter");
+    }
+  }
+  return offset;
+}
+
+static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+ 
+  proto_item *cause;
 
   switch(opcode){
   case  2: /*updateLocation*/	
-	  offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_gsm_map_UpdateLocationArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case  3: /*cancelLocation*/
- 	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /*   */ 
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset=dissect_gsm_map_CancelLocationArg(TRUE, tvb, offset, pinfo, tree, -1);
-	}else{
-    offset=dissect_gsm_map_CancelLocationArgV2(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_Identity, hf_gsm_map_identity,
+			      FALSE, dissect_gsm_map_CancelLocationArgV2, -1,/*undefined*/
+			      TRUE , dissect_gsm_map_CancelLocationArg, -1);
     break;
   case  4: /*provideRoamingNumber*/
     offset=dissect_gsm_map_ProvideRoamingNumberArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -862,17 +911,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     /* undefined 27 */
     /* reserved performHandover (28) */
   case 29: /*sendEndSignal*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset=dissect_gsm_map_SendEndSignalArgV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
-	}else{
-		offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
-	}
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_Bss_APDU, -1,
+			      TRUE , dissect_gsm_map_SendEndSignalArgV3, -1);
     break;
     /* reserved performSubsequentHandover (30) */
   case 31: /*provideSIWFSNumber*/
@@ -882,30 +924,16 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_SIWFSSignallingModifyArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 33: /*processAccessSignalling*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset = dissect_gsm_map_ProcessAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
-	}else{
-    offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_Bss_APDU, -1,
+			      TRUE , dissect_gsm_map_ProcessAccessSignallingArgV3, -1);
     break;
   case 34: /*forwardAccessSignalling*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset=dissect_gsm_map_ForwardAccessSignallingArgV3(TRUE, tvb, offset, pinfo, tree, -1);
-	}else{
-		 offset=dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_Bss_APDU, -1,
+			      TRUE , dissect_gsm_map_ForwardAccessSignallingArgV3, -1);
     break;
     /* reserved noteInternalHandover (35) */
     /* undefined 36 */
@@ -928,11 +956,10 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ForwardGroupCallSignallingArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 43: /*checkIMEI*/
-	  if ((application_context_version < 3 )&&(old_gsm_map_version == TRUE)){
-		  offset = dissect_gsm_map_IMEI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
-	  }else{
-		  offset=dissect_gsm_map_CheckIMEIArgV3(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CheckIMEIArg);
-	  }
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMEI, hf_gsm_map_imei,
+			      FALSE, dissect_gsm_map_CheckIMEIArgV3, -1,
+			      TRUE , NULL, -1); /* no [3] SEQUENCE */
     break;
   case 44: /*mt-forwardSM*/
     offset=dissect_gsm_map_Mt_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -958,21 +985,23 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     /* undefined 53 */
     /* reserved beginSubscriberActivity (54) */
   case 55: /*sendIdentification*/
-    offset=dissect_gsm_map_SendIdentificationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_TMSI, hf_gsm_map_tmsi,
+			      FALSE, dissect_gsm_map_SendIdentificationArg, -1,
+			      TRUE,  NULL, -1);
     break;
-  case 56: /*sendAuthenticationInfo*/
-	  if (application_context_version < 3 ){
-		  offset=dissect_gsm_map_SendAuthenticationInfoArg(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
-	  }else{
-		  offset=dissect_gsm_map_SendAuthenticationInfoArgV2(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoArg);
-	  }
-	break;
+  case 56: /*sendAuthenticationInfo*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
+			      FALSE, dissect_gsm_map_SendAuthenticationInfoArgV2, -1,
+			      TRUE,  NULL, -1);
+    break;
   case 57: /*restoreData*/
-	offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
-	break;
+    offset=dissect_gsm_map_RestoreDataArg(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 58: /*sendIMSI*/
-	offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
-	break;
+    offset = dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
+    break;
   case 59: /*processUnstructuredSS-Request*/
     offset=dissect_gsm_map_Ussd_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -998,28 +1027,22 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_ReadyForSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
-	/* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	 * XXX is some conformance file magic to work around that bug
-	 */
-	offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_gsm_map_PurgeMSArg(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
+			      FALSE, dissect_gsm_map_PurgeMSArgV2, -1, /*undefined*/
+			      TRUE , dissect_gsm_map_PurgeMSArg, -1);
     break;
   case 68: /*prepareHandover*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */ 
-		/* XXX  asn2wrs can not yet handle tagged assignment yes so this
-		 * XXX is some conformance file magic to work around that bug
-		 */
-		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-		offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset=dissect_gsm_map_PrepareHO_ArgV3(TRUE, tvb, offset, pinfo, tree, -1);
-	}else{
-		offset=dissect_gsm_map_PrepareHO_Arg(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_PrepareHO_Arg, -1,
+			      TRUE, dissect_gsm_map_PrepareHO_ArgV3, -1);
     break;
   case 69: /*prepareSubsequentHandover*/
-    offset=dissect_gsm_map_PrepareSubsequentHOArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, NULL, -1,
+			      TRUE, dissect_gsm_map_PrepareSubsequentHOArg, -1);
     break;
   case 70: /*provideSubscriberInfo*/
     offset=dissect_gsm_map_ProvideSubscriberInfoArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1074,7 +1097,9 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
     offset=dissect_gsm_map_NoteMM_EventArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   default:
-    proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
   }
   return offset;
 }
@@ -1082,21 +1107,14 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
 
- gint8 bug_class;
- gboolean bug_pc, bug_ind_field;
- gint32 bug_tag;
- guint32 bug_len1;
+  proto_item *cause;
 	
-  guint8 octet;
   switch(opcode){
-  case  2: /*updateLocation*/
-	octet = tvb_get_guint8(tvb,offset);
-	/* As it seems like SEQUENCE OF sometimes is omitted, find out if it's there */
-	if ( octet == 0x30 ){ /* Class 0 Univerasl, P/C 1 Constructed,Tag 16 Sequence OF */
-		offset=dissect_gsm_map_UpdateLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
-	}else{ /* Try decoding with IMPLICIT flag set */ 
-		offset=dissect_gsm_map_UpdateLocationRes(TRUE, tvb, offset, pinfo, tree, -1);
-	  }
+  case  2: /*updateLocation*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
+			      FALSE, dissect_gsm_map_UpdateLocationRes, -1,
+			      TRUE , NULL, -1);
     break;
   case  3: /*cancelLocation*/
     offset=dissect_gsm_map_CancelLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1137,8 +1155,8 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_InterrogateSS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 15: /*authenticationFailureReport*/
-	offset=dissect_gsm_map_AuthenticationFailureReportRes(FALSE, tvb, offset, pinfo, tree, -1);
-	break;
+    offset=dissect_gsm_map_AuthenticationFailureReportRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 17: /*registerPassword*/
     /* change hf_gsm_map_ss_Code to something with password */
     offset=dissect_gsm_map_NewPassword(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
@@ -1152,11 +1170,11 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 21: /*mt-ForwardSM-VGCS*/
     offset=dissect_gsm_map_Mt_ForwardSM_VGCS_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 22: /*sendRoutingInfo*/
-	  /* This is done to get around a problem with IMPLICIT tag:s */
-	offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_gsm_map_SendRoutingInfoRes(TRUE, tvb, offset, pinfo, tree, -1);
+  case 22: /*sendRoutingInfo*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
+			      FALSE, NULL, -1,
+			      TRUE , dissect_gsm_map_SendRoutingInfoRes, -1);
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_UpdateGprsLocationRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1176,10 +1194,10 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 	   */
     offset=dissect_gsm_map_SendEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 31: /*provideSIWFSNumbe*/
+  case 31: /*provideSIWFSNumber*/
     offset=dissect_gsm_map_ProvideSIWFSNumberRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 32: /*provideSIWFSNumbe*/
+  case 32: /*provideSIWFSSignallingModify*/
     offset=dissect_gsm_map_SIWFSSignallingModifyRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 39: /*prepareGroupCall*/
@@ -1188,12 +1206,11 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 40: /*sendGroupCallEndSignal*/
     dissect_gsm_map_SendGroupCallEndSignalRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 43: /*checkIMEI*/
-	if (application_context_version < 3 ){
-		offset = dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
-	}else{
-		offset=dissect_gsm_map_CheckIMEIRes(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+  case 43: /*checkIMEI*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_EquipmentStatus, hf_gsm_map_equipmentStatus,
+			      FALSE, dissect_gsm_map_CheckIMEIRes, -1,
+			      TRUE,  NULL, -1);
     break;
   case 44: /*mt-forwardSM*/
     offset=dissect_gsm_map_Mt_forwardSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1216,34 +1233,18 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 51: /*deactivateTraceMode*/
     offset=dissect_gsm_map_DeactivateTraceModeRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 55: /*sendIdentification
-			* In newer versions IMSI and authenticationSetList is OPTIONAL and two new parameters added
-			* however if the tag (3) is stripped of it should work with the 'new' def.(?) 
-			*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */ 
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-	  offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-	  offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-	}
-	offset=dissect_gsm_map_SendIdentificationRes(TRUE, tvb, offset, pinfo, tree, -1);
+  case 55: /*sendIdentification */
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
+			      FALSE, dissect_gsm_map_SendIdentificationResV2, -1,/*undefined*/
+			      TRUE,  dissect_gsm_map_SendIdentificationRes, -1);
     break;
-  case 56: /*sendAuthenticationInfo*/
-    octet = tvb_get_guint8(tvb,0) & 0xf;
-    if ( octet == 3){ /* This is a V3 message ??? */
-      /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-       * XXX is some conformance file magic to work around that bug
-       */
-		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-		offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
- 
-		offset=dissect_gsm_map_SendAuthenticationInfoResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes);
-	}else{
-		offset=dissect_gsm_map_SendAuthenticationInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
-	}
-	break;
+  case 56: /*sendAuthenticationInfo*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_SendAuthenticationInfoRes, -1,
+			      TRUE , dissect_gsm_map_SendAuthenticationInfoResV3, -1);
+    break;
   case 57: /*restoreData*/
     offset=dissect_gsm_map_RestoreDataRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
@@ -1261,35 +1262,31 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
     break;
   case 62: /*AnyTimeSubscriptionInterrogation*/
-	offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(FALSE, tvb, offset, pinfo, tree, -1);
-	break;
+    offset=dissect_gsm_map_AnyTimeSubscriptionInterrogationRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 64: /*alertServiceCentre*/
     /* TRUE */
     break;
   case 65: /*AnyTimeModification*/
-	offset=dissect_gsm_map_AnyTimeModificationRes(FALSE, tvb, offset, pinfo, tree, -1);
-	break;
+    offset=dissect_gsm_map_AnyTimeModificationRes(FALSE, tvb, offset, pinfo, tree, -1);
+    break;
   case 66: /*readyForSM*/
     offset=dissect_gsm_map_ReadyForSM_Res(FALSE, tvb, offset, pinfo, tree, -1);
     break;
   case 67: /*purgeMS*/
     offset=dissect_gsm_map_PurgeMSRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 68: /*prepareHandover*/
-	octet = tvb_get_guint8(tvb,0) & 0xf;
-	if ( octet == 3){ /* This is a V3 message ??? */
-	  /* XXX  asn2wrs can not yet handle tagged assignment yes so this
-	   * XXX is some conformance file magic to work around that bug
-	   */
-		offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
-		offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-		offset=dissect_gsm_map_PrepareHO_ResV3(TRUE, tvb, offset, pinfo, tree, hf_gsm_mapSendEndSignal);
-	}else{
-		offset=dissect_gsm_map_PrepareHO_Res(FALSE, tvb, offset, pinfo, tree, -1);
-	}
+  case 68: /*prepareHandover*/ 
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_map_PrepareHO_Res, -1,
+			      TRUE , dissect_gsm_map_PrepareHO_ResV3, -1);
     break;
   case 69: /*prepareSubsequentHandover*/
-    offset=dissect_gsm_map_PrepareSubsequentHOResV3(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_mc_message(tvb, offset, pinfo, tree,    
+			      FALSE, NULL, -1,
+			      FALSE, NULL, -1,
+			      TRUE , dissect_gsm_map_PrepareSubsequentHOResV3, -1);
     break;
   case 70: /*provideSubscriberInfo*/
     offset=dissect_gsm_map_ProvideSubscriberInfoRes(FALSE, tvb, offset, pinfo, tree, -1);
@@ -1343,7 +1340,9 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
     offset=dissect_gsm_map_NoteMM_EventRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
  default:
-    proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+   cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+   proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+   expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
   }
   return offset;
 }
@@ -1351,6 +1350,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  proto_item *cause;
 	
   switch(errorCode){
   case 1: /* UnknownSubscriberParam */
@@ -1501,8 +1501,10 @@ static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_
 	  offset=dissect_gsm_map_InformationNotAvailableParam(FALSE, tvb, offset, pinfo, tree, -1);
 	  break;
   default:
-	  proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
-	  break;
+    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
+    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",errorCode);
+    break;
   }
   return offset;
 }
@@ -1984,61 +1986,7 @@ void proto_register_gsm_map(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-	  /*
-    { &hf_gsm_map_invokeCmd,
-      { "invokeCmd", "gsm_map.invokeCmd",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_opr_code_strings), 0,
-        "InvokePDU/invokeCmd", HFILL }},
-    { &hf_gsm_map_invokeid,
-      { "invokeid", "gsm_map.invokeid",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "InvokeId/invokeid", HFILL }},
-    { &hf_gsm_map_absent,
-      { "absent", "gsm_map.absent",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "InvokeId/absent", HFILL }},
-    { &hf_gsm_map_invokeId,
-      { "invokeId", "gsm_map.invokeId",
-        FT_UINT32, BASE_DEC, VALS(InvokeId_vals), 0,
-        "InvokePDU/invokeId", HFILL }},
-    { &hf_gsm_map_invoke,
-      { "invoke", "gsm_map.invoke",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GSMMAPPDU/invoke", HFILL }},
-    { &hf_gsm_map_returnResult,
-      { "returnResult", "gsm_map.returnResult",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GSMMAPPDU/returnResult", HFILL }},
-	{&hf_gsm_map_returnResult_result,
-      { "returnResult_result", "gsm_map.returnresultresult",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "returnResult_result", HFILL }},
-	{&hf_gsm_map_returnError_result,
-      { "returnError_result", "gsm_map.returnerrorresult",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "returnError_result", HFILL }},
-	{&hf_gsm_map_returnError,
-      { "returnError", "gsm_map.returnError",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "GSMMAPPDU/returnError", HFILL }},
-	{&hf_gsm_map_local_errorCode,
-      { "Local Error Code", "gsm_map.localerrorCode",
-        FT_UINT32, BASE_DEC, VALS(gsm_map_err_code_string_vals), 0,
-        "localerrorCode", HFILL }},
-	{&hf_gsm_map_global_errorCode_oid,
-      { "Global Error Code OID", "gsm_map.hlobalerrorCodeoid",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "globalerrorCodeoid", HFILL }},
-	{&hf_gsm_map_global_errorCode,
-      { "Global Error Code", "gsm_map.globalerrorCode",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "globalerrorCode", HFILL }},
-    { &hf_gsm_map_getPassword,
-      { "Password", "gsm_map.password",
-        FT_UINT8, BASE_DEC, VALS(gsm_map_GetPasswordArg_vals), 0,
-        "Password", HFILL }},
 
-		*/
 	{ &hf_gsm_map_SendAuthenticationInfoArg,
       { "SendAuthenticationInfoArg", "gsm_map.SendAuthenticationInfoArg",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2350,12 +2298,6 @@ void proto_register_gsm_map(void) {
   prefs_register_range_preference(gsm_map_module, "tcap.ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for GSM MAP",
 				  &global_ssn_range, MAX_SSN);
-  prefs_register_bool_preference(gsm_map_module, "old_gsm_map_version",
-				  "To decode older gsm map versions",
-				  "Forces the decoding to decode according to older "
-				  "incompatable gsm map version",
-				  &old_gsm_map_version);
-
 }
 
 
