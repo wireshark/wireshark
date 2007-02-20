@@ -82,7 +82,7 @@ static dissector_table_t wtap_encap_dissector_table;
 
 static GSList *frame_end_routines = NULL;
 
-/* 
+/*
  * Routine used to register frame end routine.  The routine should only
  * be registred when the dissector is used in the frame, not in the
  * proto_register_XXX function.
@@ -158,7 +158,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used ?
 			    MTP2_ANNEX_A_USED : MTP2_ANNEX_A_NOT_USED;
 			break;
-		
+
 		}
 	}
 
@@ -182,7 +182,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		fh_tree = NULL;
 	}
 
-       
+
 	if (fh_tree) {
 	  ts = pinfo->fd->abs_ts;
 
@@ -305,7 +305,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     } __except(TRUE /* handle all exceptions */) {
         switch(GetExceptionCode()) {
         case(STATUS_ACCESS_VIOLATION):
-		    show_exception(tvb, pinfo, parent_tree, DissectorError, 
+		    show_exception(tvb, pinfo, parent_tree, DissectorError,
                 "STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address");
             break;
         case(STATUS_INTEGER_DIVIDE_BY_ZERO):
@@ -319,7 +319,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             break;
         /* XXX - add other hardware exception codes as required */
         default:
-		    show_exception(tvb, pinfo, parent_tree, DissectorError, 
+		    show_exception(tvb, pinfo, parent_tree, DissectorError,
                 g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
         }
     }
@@ -342,7 +342,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     call_all_postdissectors(tvb,pinfo,parent_tree);
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
-    
+
 
 	if (frame_end_routines) {
 		g_slist_foreach(frame_end_routines, &call_frame_end_routine, NULL);
@@ -379,8 +379,8 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*item =*/ proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Packet size limited during capture: %s truncated]", pinfo->current_proto);
 		/* Don't record BoundsError exceptions as expert events - they merely
-		 * reflect a capture done with a snapshot length too short to capture 
-		 * all of the packet 
+		 * reflect a capture done with a snapshot length too short to capture
+		 * all of the packet
 		 * (any case where it's caused by something else is a bug). */
 		/* expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Packet size limited");*/
 		break;
@@ -462,9 +462,9 @@ proto_register_frame(void)
 			"The timestamp from the capture is out of the valid range", HFILL }},
 
 		{ &hf_frame_time_delta,
-		{ "Time delta from previous frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+		{ "Time delta from previous displayed frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
-			"Time delta since previous displayed frame", HFILL }},
+			"Time delta from previous displayed frame", HFILL }},
 
 		{ &hf_frame_time_relative,
 		{ "Time since reference or first frame",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
