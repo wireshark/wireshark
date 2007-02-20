@@ -36,6 +36,7 @@
 #include <epan/crc32.h>
 #include <epan/strutil.h>
 #include <epan/ws_strsplit.h>
+#include <epan/emem.h>
 
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
@@ -710,6 +711,7 @@ AirPDcapWepMng(
         INT key_index;
         AIRPDCAP_KEY_ITEM *tmp_key;
         UINT8 useCache=FALSE;
+        UCHAR *try_data = ep_alloc(*decrypt_len);
 
         if (sa->key!=NULL)
                 useCache=TRUE;
@@ -734,17 +736,20 @@ AirPDcapWepMng(
                         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapWepMng", "Try WEP key...", AIRPDCAP_DEBUG_LEVEL_3);
 
                         memset(wep_key, 0, sizeof(wep_key));
+                        memcpy(try_data, decrypt_data, *decrypt_len);
 
                         /* Costruct the WEP seed: copy the IV in first 3 bytes and then the WEP key (refer to 802-11i-2004, 8.2.1.4.3, pag. 36)	*/
-                        memcpy(wep_key, decrypt_data+AIRPDCAP_HEADER_LEN(decrypt_data[1]), AIRPDCAP_WEP_IVLEN);
+                        memcpy(wep_key, try_data+AIRPDCAP_HEADER_LEN(try_data[1]), AIRPDCAP_WEP_IVLEN);
                         keylen=tmp_key->KeyData.Wep.WepKeyLen;
                         memcpy(wep_key+AIRPDCAP_WEP_IVLEN, tmp_key->KeyData.Wep.WepKey, keylen);
 
                         ret_value=AirPDcapWepDecrypt(wep_key,
                                 keylen+AIRPDCAP_WEP_IVLEN,
-                                decrypt_data + (AIRPDCAP_HEADER_LEN(decrypt_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN),
-                                *decrypt_len-(AIRPDCAP_HEADER_LEN(decrypt_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN+AIRPDCAP_CRC_LEN));
+                                try_data + (AIRPDCAP_HEADER_LEN(try_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN),
+                                *decrypt_len-(AIRPDCAP_HEADER_LEN(try_data[1])+AIRPDCAP_WEP_IVLEN+AIRPDCAP_WEP_KIDLEN+AIRPDCAP_CRC_LEN));
 
+                        if (ret_value == AIRPDCAP_RET_SUCCESS)
+                                memcpy(decrypt_data, try_data, *decrypt_len);
                 }
 
                 if (!ret_value && tmp_key->KeyType==AIRPDCAP_KEY_TYPE_WEP) {

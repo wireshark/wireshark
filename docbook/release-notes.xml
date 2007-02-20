@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.5">
+  <!ENTITY WiresharkCurrentVersion "0.99.6">
 
 ]>
 
@@ -31,57 +31,9 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-01.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
-
-        <listitem>
-          <para>
-	    The TCP dissector could hang or crash while reassembling HTTP packets.
-	    <!-- Fixed in r19859 -->
-	    (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1200">1200</ulink>)
-          </para>
-	  <para>Versions affected: 0.99.2 to 0.99.4</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0459">CVE-2007-0459</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The HTTP dissector could crash.
-          </para>
-	  <!-- Fixed in 19899 -->
-	  <!-- Bug IDs: None -->
-	  <para>Versions affected: 0.99.3 to 0.99.4</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0458">CVE-2007-0458</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-	    On some systems, the IEEE 802.11 dissector could crash.
-          </para>
-	  <!-- Fixed in 20126 -->
-	  <!-- Bug IDs: None -->
-	  <para>Versions affected: 0.10.14 to 0.99.4</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0457">CVE-2007-0457</ulink>
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            On some systems, the LLT dissector could crash.
-          </para>
-	  <!-- Fixed in 20007 -->
-	  <!-- Bug IDs: None -->
-	  <para>Versions affected: 0.99.3 to 0.99.4</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0456">CVE-2007-0456</ulink>
-          </para>
-        </listitem>
 
       </itemizedlist>
 
@@ -94,59 +46,8 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          On Windows systems the packet list scroll bar could sometimes
+          WEP decryption would only work for the first key specified.
           disappear or become unusable.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=220">Bug
-          220</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The end of HTTP chunked encoding wasn't being displayed.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=646">Bug
-          646</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The Follow TCP Stream window could omit characters.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1043">Bug
-          1043</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Opening a flow graph could crash Wireshark.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1117">Bug
-          1117</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Follow TCP Stream would sometimes get the direction wrong.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1138">Bug
-          1138</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The foreground text in the coloring rules editor was always black..
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1164">Bug
-          1164</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The CSV export format was incorrect.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1173">Bug
-          1173</ulink>)
-        </para></listitem>
-
-	<listitem><para>
-	  On some Windows systems Wireshark could take a long time to start up.
-	</para></listitem>
-
-	<listitem><para>
-	  Malformed UDLD packets could cause an exception.
-	</para></listitem>
-
-        <listitem><para>
-          The ISUP statistics report could overflow a buffer and crash when
-          displaying IPv6 addresses.
         </para></listitem>
 
       </itemizedlist>
@@ -160,59 +61,6 @@ Wireshark Info
       since the last release:
       <itemizedlist>
 
-        <listitem><para>
-        We are now offering Wireshark as a
-        <ulink url="http://www.u3.com/">U3</ulink> package for Windows.
-        U3 packages are suitable for using on USB drives and CD-ROMs.
-        It's still experimental, but you're welcome to try it out and
-        report any problems or successes.
-        </para></listitem>
-
-        <listitem><para>
-        Decryption support for WPA/WPA2 and SNMPv3 has been added.  The TDS /
-        MS SQL dissector now de-obfuscates passwords.
-        </para></listitem>
-
-        <listitem><para>
-        64-bit file handling has been improved.
-        </para></listitem>
-
-        <listitem><para>
-        The <guimenuitem>Find</guimenuitem> function now selects the
-        corresponding packet detail item.
-        <guimenuitem>Find</guimenuitem> functionality has been added to the TCP
-        and SSL stream dialogs.
-        </para></listitem>
-
-        <listitem><para>
-        Main window keyboard navigation has been improved.
-        </para></listitem>
-
-        <listitem><para>
-        Windows file dialogs now show the "places" bar (Desktop, My
-        Documents, My Computer, My Network Places, etc).  File dialogs
-        now default to "My Documents" in accordance with Microsoft's HIG.
-        </para></listitem>
-
-        <listitem><para>
-        <ulink url="http://www.cacetech.com/products/airpcap.htm">AirPcap</ulink>
-        support (which provides raw mode capture under Windows) has been
-        enhanced to allow capturing on multiple AirPcap adapters
-        simultaneously.
-        </para></listitem>
-
-        <listitem><para>
-        You can no longer install Wireshark on Windows 95, 98, or ME.  (OK,
-        so it's not a <emphasis>feature</emphasis> per se, but it's an
-        important change).  The last version known to work on these systems
-        is <ulink url="http://www.ethereal.com/">Ethereal 0.99.0</ulink>.
-        </para></listitem>
-
-        <listitem><para>
-        ASN.1 BER-encoded files can now be dissected according to a
-        user-specified syntax.
-        </para></listitem>
-
       </itemizedlist>
     </para>
     </section>
@@ -220,130 +68,16 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
-DMP,
-Homeplug (INT51X1),
-NBD,
-OMAPI,
-PKCS#12,
-RGMP,
-Roofnet,
-STUN v2
-
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
-
-2dparityfec,
-ACN,
-AIM,
-AMR,
-ANSI 637,
-ANSI A,
-ANSI MAP,
-ARP,
-ASN.1 BER,
-ASN.1 PER,
-BACapp,
-BPDU,
-CAMEL,
-DCERPC (DCERPC, EFS, EVENTLOG, NSPI, PN-IO, WINREG),
-DCOM CBA,
-DCP,
-DHCP,
-DHCPv6,
-DMP,
-DNS,
-E.164,
-EAP,
-EPL,
-ETSI DCP,
-FCP,
-GIOP,
-GSM A,
-H.245,
-H.248,
-HPSW,
-HTTP,
-ICMP,
-ICMPv6,
-IEEE 802.11,
-IMAP,
-INAP,
-IPMI,
-IPsec,
-IRC,
-ISAKMP,
-iSCSI,
-ISIS LSP,
-IuUP,
-K12,
-Kerberos,
-LDAP,
-LLDP,
-MEGACO,
-MGCP,
-MIME Multipart,
-MMS,
-MMSE,
-MSRP,
-MySQL,
-NetFlow,
-NFS,
-NTLMSSP,
-NTP,
-OSPF,
-PN-PTCP,
-PPPoE,
-Q.931,
-Radiotap,
-RADIUS,
-RPC,
-RSVP,
-RTCP,
-S4406,
-SCCP,
-SCSI,
-SDP,
-SES,
-sFlow,
-SIGCOMP,
-SIP,
-SIR,
-Skinny,
-SMB (SMB, NETLOGON),
-SMTP,
-SNMP,
-SPNEGO,
-SSL,
-T.38,
-TCP,
-TDS,
-text/media,
-TIPC,
-UDLD,
-UDP Lite,
-UDP,
-UMA,
-UMTS FP,
-USB,
-VNC,
-WBXML,
-WLCCP,
-WSP,
-X.411,
-X.420,
-XML,
-XOT,
-YMSG
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
-
-Catapult DCT2000, Netttl, Windows Sniffer / NetXray
 
     </para>
     </section>
