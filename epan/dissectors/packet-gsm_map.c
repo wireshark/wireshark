@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -15848,12 +15848,12 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
 };
 
 /* Prototype for a decoding function */
-typedef int (* dissect_function_t)( gboolean _U_,
+typedef int (* dissect_function_t)( gboolean,
 				    tvbuff_t *,
 				    int ,
-				    packet_info * _U_,
+				    packet_info *,
 				    proto_tree *,
-				    int _U_);
+				    int);
 
 /*
  * Dissect Multiple Choice Message

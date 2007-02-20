@@ -756,12 +756,12 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
 };
 
 /* Prototype for a decoding function */
-typedef int (* dissect_function_t)( gboolean _U_,
+typedef int (* dissect_function_t)( gboolean,
 				    tvbuff_t *,
 				    int ,
-				    packet_info * _U_,
+				    packet_info *,
 				    proto_tree *,
-				    int _U_);
+				    int);
 
 /*
  * Dissect Multiple Choice Message
