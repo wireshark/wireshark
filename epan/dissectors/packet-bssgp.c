@@ -4376,7 +4376,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   gboolean use_default_ie_name = (ie->name == NULL);
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
-	proto_tree_add_none_format(bi->bssgp_tree, -1, bi->tvb, 0, -1, "[tvb_length_remaining] length remaining: %d", tvb_length_remaining(bi->tvb, bi->offset));
+	proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[tvb_length_remaining] length remaining: %d", tvb_length_remaining(bi->tvb, bi->offset));
     return;
   }
   switch (ie->format) {
@@ -4384,7 +4384,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     if (!check_correct_iei(ie, bi)) {
 #ifdef BSSGP_DEBUG
 /* TODO This code does not work well with omitted Optional elements */
-		  proto_tree_add_none_format(bi->bssgp_tree, -1, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TLV] format: %d", ie->format);
+		  proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TLV] format: %d", ie->format);
 #endif
       return;
     }
@@ -4396,7 +4396,7 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     if (!check_correct_iei(ie, bi)) {
 #ifdef BSSGP_DEBUG
 /* TODO This code does not work well with omitted Optional elements */
-		proto_tree_add_none_format(bi->bssgp_tree, -1, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TV] format: %d", ie->format);
+		proto_tree_add_none_format(bi->bssgp_tree, NULL, bi->tvb, 0, -1, "[BSSGP_IE_FORMAT_TV] format: %d", ie->format);
 #endif
 		return;
     }
