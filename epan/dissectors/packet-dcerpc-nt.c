@@ -925,6 +925,34 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
+/* This function is called from PIDL generated dissectors to dissect a 
+ * NT style policy handle (contect handle).
+ *
+ * param can be used to specify where policy handles are opened and closed
+ * by setting PARAM_VALUE to
+ *  PIDL_POLHND_OPEN where the policy handle is opened/created
+ *  PIDL_POLHND_CLOSE where it is closed.
+ * This enables policy handle tracking so that when a policy handle is 
+ * dissected it will be so as an expansion showing which frame it was
+ * opened/closed in.
+ *
+ * See conformance file for winreg (epan/dissectors/pidl/winreg.cnf) 
+ * for examples.
+ */
+int
+PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, guint8 *drep, int hfindex,
+		      guint32 param)
+{
+	offset=dissect_nt_hnd(tvb, offset, pinfo,
+		      tree, drep, hfindex,
+		      NULL, NULL,
+		      param&PIDL_POLHND_OPEN, param&PIDL_POLHND_CLOSE,
+		      HND_TYPE_CTX_HANDLE);
+
+	return offset;
+}
+
 /* this function must be called with   hfindex being HF_GUID */
 int
 dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,

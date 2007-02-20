@@ -190,6 +190,13 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      e_ctx_hnd *pdata, proto_item **pitem,
 		      gboolean is_open, gboolean is_close);
 
+#define PIDL_POLHND_OPEN		0x00000001
+#define PIDL_POLHND_CLOSE		0x00000002
+int
+PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		      proto_tree *tree, guint8 *drep, int hfindex,
+		      guint32 param);
+
 int
 dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, guint8 *drep, int hfindex,
