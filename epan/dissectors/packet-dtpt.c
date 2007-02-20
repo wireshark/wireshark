@@ -122,8 +122,12 @@ static int hf_dtpt_sockaddr_length = -1;
 static int hf_dtpt_sockaddr_family = -1;
 static int hf_dtpt_sockaddr_port = -1;
 static int hf_dtpt_sockaddr_address = -1;
-static int hf_dtpt_blob_length = -1;
-
+static int hf_dtpt_blob_rawsize = -1;
+static int hf_dtpt_blob_size = -1;
+static int hf_dtpt_blob_data_pointer = -1;
+static int hf_dtpt_blob_data_length = -1;
+static int hf_dtpt_blob_data = -1;
+static int hf_dtpt_connect_addr = -1;
 
 static gint ett_dtpt = -1;
 static gint ett_dtpt_flags = -1;
@@ -136,6 +140,7 @@ static gint ett_dtpt_cs_addrs = -1;
 static gint ett_dtpt_cs_addr1 = -1;
 static gint ett_dtpt_cs_addr2 = -1;
 static gint ett_dtpt_sockaddr = -1;
+static gint ett_dtpt_blobraw = -1;
 static gint ett_dtpt_blob = -1;
 
 
@@ -172,6 +177,8 @@ static const value_string names_message_type[] = {
 static const value_string names_error[] = {
 	{	0, "OK" },
 	{	10014, "WSAEFAULT" },
+	{	10060, "WSAETIMEDOUT" },
+	{	10108, "WSASERVICE_NOT_FOUND" },
 	{	11001, "WSAHOST_NOT_FOUND" },
 	{	0, NULL	}
 };
@@ -210,6 +217,9 @@ static const value_string names_protocol[] = {
 #define LUP_FLUSHCACHE          0x1000
 #define LUP_FLUSHPREVIOUS       0x2000
 #define LUP_RES_SERVICE         0x8000
+
+#define SOCKADDR_WITH_LEN	1
+#define SOCKADDR_CONNECT	2
 
 static int
 dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -307,51 +317,98 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 }
 
 static int
-dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
+dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex, int sockaddr_type)
 {
-	guint32	sockaddr_length;
+	guint32	sockaddr_length = 0;
+	proto_item	*sockaddr_item = NULL;
+	proto_tree	*sockaddr_tree = NULL;
+	guint32		sockaddr_len1 = 0;
+	guint32		sockaddr_len2 = 0;
 
-	sockaddr_length = tvb_get_letohl(tvb, offset + 0);
+	switch (sockaddr_type) {
+		case SOCKADDR_WITH_LEN:
+			sockaddr_len1=4;
+			sockaddr_len2=16;
+		break;
+		case SOCKADDR_CONNECT:
+			sockaddr_len1=0;
+			sockaddr_len2=30;
+		break;
+	}
+
+	if (sockaddr_type == SOCKADDR_WITH_LEN)
+		sockaddr_length = tvb_get_letohl(tvb, offset + 0);
 
 	if (tree) {
-		proto_item	*sockaddr_item = NULL;
-		proto_tree	*sockaddr_tree = NULL;
-
 		sockaddr_item = proto_tree_add_text(tree,
-			tvb, offset, 20, "%s", proto_registrar_get_name(hfindex));
+			tvb, offset, sockaddr_len1+sockaddr_len2, "%s", proto_registrar_get_name(hfindex));
 
 		if (sockaddr_item)
 			sockaddr_tree = proto_item_add_subtree(sockaddr_item, ett_dtpt_sockaddr);
 		if (sockaddr_tree) {
-			guint16 family;
-
-			proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_length,
-					tvb, offset+0, 4, sockaddr_length);
-			family = tvb_get_letohs(tvb, offset+4);
-			proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
-				tvb, offset+4, 2, family);
-			switch (family) {
-				case AF_INET: {
-					guint16 port;
-					guint32	address;
-					port = tvb_get_ntohs(tvb,offset+6);
-					proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
-					tvb, offset+6,2,port);
-					address = tvb_get_ipv4(tvb,offset+8);
-					proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
-					tvb, offset+8,4,address);
-					proto_tree_add_text(sockaddr_tree, tvb, offset+12, 8, "Padding");
-					proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&address), port);
-				}
-				break;
-				default:
-					/* TODO print some warning */
-				break;
-			}
-
+			if (sockaddr_type == SOCKADDR_WITH_LEN)
+				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_length,
+						tvb, offset+0, 4, sockaddr_length);
 		}
 	}
-	offset += 4 + sockaddr_length;
+
+	offset += sockaddr_len1;
+
+	if (sockaddr_tree) {
+		switch (sockaddr_type) {
+			case SOCKADDR_WITH_LEN: {
+				guint16 family;
+
+				family = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
+						tvb, offset, 2, family);
+				switch (family) {
+					case AF_INET: {
+						guint16 port;
+						guint32	address;
+
+						port = tvb_get_ntohs(tvb,offset+2);
+						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
+						tvb, offset+2,2,port);
+						address = tvb_get_ipv4(tvb,offset+4);
+						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
+						tvb, offset+4,4,address);
+						proto_tree_add_text(sockaddr_tree, tvb, offset+8, 8, "Padding");
+							proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&address), port);
+					}
+					break;
+				}
+			}
+			break;
+			case SOCKADDR_CONNECT: {
+				guint32	family;
+
+				family = tvb_get_letohl(tvb, offset+0);
+				proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_family,
+						tvb, offset+0, 4, family);
+				switch (family) {
+					case AF_INET: {
+						guint16 port;
+						guint32	address;
+
+						proto_tree_add_text(sockaddr_tree, tvb, offset+4, 4, "Padding");
+						port = tvb_get_ntohs(tvb,offset+8);
+						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
+							tvb, offset+8,2,port);
+						address = tvb_get_ipv4(tvb,offset+10);
+						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
+							tvb, offset+10,4,address);
+						proto_tree_add_text(sockaddr_tree, tvb, offset+14, 16, "Padding");
+						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&address), port);
+					}
+					break;
+				}
+			}
+			break;
+		}
+
+	}
+	offset += sockaddr_len2;
 	return offset;
 }
 
@@ -399,7 +456,9 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32		addrs_length1 = 0;
 	proto_item	*dtpt_addrs_item = NULL;
 	proto_tree	*dtpt_addrs_tree = NULL;
-	guint32		blob_length;
+	guint32		blob_rawsize = 0;
+	guint32		blob_size = 0;
+	guint32		blob_data_length = 0;
 
 	queryset_rawsize = tvb_get_letohl(tvb, offset + 0);
 	if (queryset_rawsize != 60) return 0;
@@ -572,8 +631,8 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			offset2_start = offset2;
 	
-			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_local);
-			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_remote);
+			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_local, SOCKADDR_WITH_LEN);
+			offset2 = dissect_dtpt_sockaddr(tvb, offset2, dtpt_addr2_tree, hf_dtpt_cs_addr_remote, SOCKADDR_WITH_LEN);
 
 			if (dtpt_addr2_item)
 				proto_item_set_len(dtpt_addr2_item,	
@@ -588,27 +647,60 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (dtpt_item)
 		proto_item_set_len(dtpt_item, offset);
 
-	blob_length = tvb_get_letohl(tvb, offset);
+	blob_rawsize = tvb_get_letohl(tvb, offset);
+	if (blob_rawsize>=4) {
+		blob_size = tvb_get_letohl(tvb,offset+4+0);
+	}
 	if (dtpt_tree) {
-		proto_item	*dtpt_blob_item = NULL;
-		proto_tree	*dtpt_blob_tree = NULL;
+		proto_item	*dtpt_blobraw_item = NULL;
+		proto_tree	*dtpt_blobraw_tree = NULL;
 
-		dtpt_blob_item = proto_tree_add_text(dtpt_tree,
-			tvb, offset, 4+blob_length, "Blob");
-		if (dtpt_blob_item)
-			dtpt_blob_tree = proto_item_add_subtree(dtpt_blob_item,
-				ett_dtpt_blob);
-		if (dtpt_blob_tree) {
-			proto_tree_add_uint(dtpt_blob_tree, hf_dtpt_blob_length,
-					tvb, offset+0, 4, blob_length);
-				/* TODO */
+		proto_tree_add_uint(dtpt_tree, hf_dtpt_blob_rawsize,
+				tvb, offset+0, 4, blob_rawsize);
+		if (blob_rawsize>0) {
+			dtpt_blobraw_item = proto_tree_add_text(dtpt_tree,
+				tvb, offset+4, blob_rawsize, "Blob raw");
+			if (dtpt_blobraw_item)
+				dtpt_blobraw_tree = proto_item_add_subtree(dtpt_blobraw_item,
+					ett_dtpt_blobraw);
+			if (dtpt_blobraw_tree) {
+				proto_tree_add_uint(dtpt_blobraw_tree, hf_dtpt_blob_size,
+					tvb, offset+4+0, 4, blob_size);
+				proto_tree_add_uint(dtpt_blobraw_tree, hf_dtpt_blob_data_pointer,
+					tvb, offset+4+4, 4, tvb_get_letohl(tvb,offset+4+4));
+			}
 		}
 	}
 		
-	offset+=4+blob_length;
+	offset += 4+blob_rawsize;
 
 	if (dtpt_item)
 		proto_item_set_len(dtpt_item, offset);
+
+	if (blob_size>0) {
+		proto_item	*dtpt_blob_item = NULL;
+		proto_tree	*dtpt_blob_tree = NULL;
+
+		blob_data_length = tvb_get_letohl(tvb,offset);
+
+		if (dtpt_tree) {
+			dtpt_blob_item = proto_tree_add_text(dtpt_tree,
+				tvb, offset, 4+blob_data_length, "Blob");
+			if (dtpt_blob_item)
+				dtpt_blob_tree = proto_item_add_subtree(dtpt_blob_item,
+					ett_dtpt_blob);
+			if (dtpt_blob_tree) {
+				proto_tree_add_uint(dtpt_blob_tree, hf_dtpt_blob_data_length,
+					tvb, offset+0, 4, blob_data_length);
+				proto_tree_add_bytes(dtpt_blob_tree, hf_dtpt_blob_data,
+					tvb, offset+4, blob_data_length,
+					tvb_get_ptr(tvb, offset+4, blob_data_length));
+			}
+		}
+		offset += 4+blob_data_length;
+		if (dtpt_item)
+			proto_item_set_len(dtpt_item, offset);
+	}
 
 	return offset;
 }
@@ -728,6 +820,24 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case LookupEndRequest: {
 				proto_tree_add_uint64(dtpt_tree, hf_dtpt_handle,
 					tvb, 4, 8, tvb_get_letoh64(tvb, 4));
+			}
+			break;
+			case ConnectRequest: {
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, tvb_get_letohl(tvb, 32));
+			}
+			break;
+			case ConnectResponseOK: {
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, tvb_get_letohl(tvb, 32));
+			}
+			break;
+			case ConnectResponseERR: {
+				dissect_dtpt_sockaddr(tvb, 2, dtpt_tree, hf_dtpt_connect_addr, SOCKADDR_CONNECT);
+				proto_tree_add_uint(dtpt_tree, hf_dtpt_error,
+					tvb, 32, 4, tvb_get_letohl(tvb, 32));
 			}
 			break;
 		}
@@ -855,7 +965,7 @@ proto_register_dtpt(void)
     { &hf_dtpt_queryset_rawsize,
       { "QuerySet Size", "dtpt.queryset_size",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Size of the binary QuerySet", HFILL }},
+	"Size of the binary WSAQUERYSET", HFILL }},
     { &hf_dtpt_queryset_size,
       { "dwSize", "dtpt.queryset.dwSize",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1028,10 +1138,30 @@ proto_register_dtpt(void)
       { "Address", "dtpt.sockaddr.address",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
 	"Socket Address Address", HFILL }},
-    { &hf_dtpt_blob_length,
-      { "Length", "dtpt.blob.length",
+    { &hf_dtpt_blob_rawsize,
+      { "Blob Size", "dtpt.blob_size",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Blob Length", HFILL }},
+	"Size of the binary BLOB", HFILL }},
+    { &hf_dtpt_blob_size,
+      { "cbSize", "dtpt.blob.cbSize",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"cbSize field in BLOB", HFILL }},
+    { &hf_dtpt_blob_data_pointer,
+      { "pBlobData", "dtpt.blob.pBlobData",
+	FT_UINT32, BASE_HEX, NULL, 0x0,
+	"pBlobData field in BLOB", HFILL }},
+    { &hf_dtpt_blob_data_length,
+      { "Length", "dtpt.blob.data_length",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Length of the Blob Data Block", HFILL }},
+    { &hf_dtpt_blob_data,
+      { "Data", "dtpt.blob.data",
+	FT_BYTES, BASE_HEX, NULL, 0x0,
+	"Blob Data Block", HFILL }},
+    { &hf_dtpt_connect_addr,
+      { "Address", "dtpt.blob.data",
+	FT_UINT32, BASE_DEC, NULL, 0x0,
+	"Connect to Address", HFILL }},
   };
 	static gint *ett[] = {
 		&ett_dtpt,
@@ -1045,6 +1175,7 @@ proto_register_dtpt(void)
 		&ett_dtpt_cs_addr1,
 		&ett_dtpt_cs_addr2,
 		&ett_dtpt_sockaddr,
+		&ett_dtpt_blobraw,
 		&ett_dtpt_blob,
 	};
 	module_t *dtpt_module;
