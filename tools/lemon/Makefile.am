@@ -34,7 +34,7 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 lemon$(EXEEXT): lemon.c
-	$(CC_FOR_BUILD) -D_U_="" $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $<
+	$(CC_FOR_BUILD) -D_U_="" $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $?
 
 EXTRA_DIST = \
 	cppmagic.h		\
