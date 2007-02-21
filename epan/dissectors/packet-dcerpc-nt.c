@@ -944,11 +944,30 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, guint8 *drep, int hfindex,
 		      guint32 param)
 {
+	e_ctx_hnd policy_hnd;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+
 	offset=dissect_nt_hnd(tvb, offset, pinfo,
 		      tree, drep, hfindex,
-		      NULL, NULL,
+		      &policy_hnd, NULL,
 		      param&PIDL_POLHND_OPEN, param&PIDL_POLHND_CLOSE,
 		      HND_TYPE_CTX_HANDLE);
+
+	/* If this was an open/create and we dont yet have a policy name 
+	 * then create one.
+	 * XXX We do not yet have the infrastructure to know the name of the 
+	 * actual object  so just show it as <...> for the time being.
+	 */
+	if((param&PIDL_POLHND_OPEN) 
+	&& !pinfo->fd->flags.visited
+	&& !di->conformant_run){
+		char *pol_name=NULL;
+
+		pol_name=ep_strdup_printf("%s(<...>)", pinfo->dcerpc_procedure_name);	
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+	}
 
 	return offset;
 }

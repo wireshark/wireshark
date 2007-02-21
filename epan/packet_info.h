@@ -176,6 +176,9 @@ typedef struct _packet_info {
   guint16 profinet_type; 	/* the type of PROFINET packet (0: not a PROFINET packet) */
   void *usb_conv_info;
   void *tcp_tree;		/* proto_tree for the tcp layer */
+
+  char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
+
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */

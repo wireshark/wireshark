@@ -313,6 +313,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.profinet_type = 0;
         edt->pi.usb_conv_info = NULL;
         edt->pi.tcp_tree = NULL;
+	edt->pi.dcerpc_procedure_name="";
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
