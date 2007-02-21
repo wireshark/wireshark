@@ -746,8 +746,8 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	hf_param = *(pkg->hfid_params);
 
 	if (hf_param > 0)
-		/* TODO: Will this ever happen now??*/
-		proto_tree_add_uint(package_tree, hf_param, tvb, offset-2, 2, name_minor);
+		/* TODO: Will this ever happen now ??*/
+		proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-2, 2, name_minor);
 
   } else {
 	  pkg = &no_package;
@@ -1932,8 +1932,8 @@ void proto_register_h248(void) {
 
   h248_module = prefs_register_protocol(proto_h248, h248_init);
   prefs_register_bool_preference(h248_module, "ctx_info",
-                                 "Keep Persistent Context Information",
-                                 "Whether persistent context information is to be kept",
+                                 "Track Context",
+                                 "Mantain relationships between transactions and contexts and display an extra tree showing context data",
                                  &keep_persistent_data);
   prefs_register_uint_preference(h248_module, "udp_port",
                                  "UDP port",
