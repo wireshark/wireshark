@@ -33,10 +33,6 @@ Wireshark Info
       The following vulnerabilities have been fixed.  See the
       <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
 
-      <itemizedlist>
-
-      </itemizedlist>
-
     </para>
 
     <para>
@@ -59,9 +55,7 @@ Wireshark Info
     <para>
       The following features are new (or have been significantly updated)
       since the last release:
-      <itemizedlist>
 
-      </itemizedlist>
     </para>
     </section>
 
