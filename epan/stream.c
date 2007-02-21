@@ -380,7 +380,7 @@ stream_t *stream_new_circ ( const struct circuit *circuit, int p2p_dir )
     /* we don't want to replace the previous data if we get called twice on the
        same circuit, so do a lookup first */
     stream = stream_hash_lookup_circ(circuit, p2p_dir);
-    g_assert( stream == NULL );
+    DISSECTOR_ASSERT( stream == NULL );
 
     stream = stream_hash_insert_circ(circuit, p2p_dir);
     
@@ -394,7 +394,7 @@ stream_t *stream_new_conv ( const struct conversation *conv, int p2p_dir )
     /* we don't want to replace the previous data if we get called twice on the
        same conversation, so do a lookup first */
     stream = stream_hash_lookup_conv(conv, p2p_dir);
-    g_assert( stream == NULL );
+    DISSECTOR_ASSERT( stream == NULL );
 
     stream = stream_hash_insert_conv(conv, p2p_dir);
     return stream;
@@ -445,10 +445,10 @@ stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guin
     stream_pdu_t *pdu;
     stream_pdu_fragment_t *frag_data;
 
-    g_assert(stream);
+    DISSECTOR_ASSERT(stream);
 
     /* check that this fragment is at the end of the stream */
-    g_assert( framenum > stream->lastfrag_framenum ||
+    DISSECTOR_ASSERT( framenum > stream->lastfrag_framenum ||
 	      (framenum == stream->lastfrag_framenum && offset > stream->lastfrag_offset));
 
 
@@ -492,7 +492,7 @@ tvbuff_t *stream_process_reassembled(
     gboolean *update_col_infop, proto_tree *tree)
 {
     stream_pdu_t *pdu;
-    g_assert(frag);
+    DISSECTOR_ASSERT(frag);
     pdu = frag->pdu;
 
     /* we handle non-terminal fragments ourselves, because
@@ -512,18 +512,18 @@ tvbuff_t *stream_process_reassembled(
     
 guint32 stream_get_frag_length( const stream_pdu_fragment_t *frag)
 {
-    g_assert( frag );
+    DISSECTOR_ASSERT( frag );
     return frag->len;
 }
 
 fragment_data *stream_get_frag_data( const stream_pdu_fragment_t *frag)
 {
-    g_assert( frag );
+    DISSECTOR_ASSERT( frag );
     return frag->pdu->fd_head;
 }
 
 guint32 stream_get_pdu_no( const stream_pdu_fragment_t *frag)
 {
-    g_assert( frag );
+    DISSECTOR_ASSERT( frag );
     return frag->pdu->pdu_number;
 }
