@@ -58,8 +58,15 @@ struct _rtp_info {
 struct _rtp_conversation_info
 {
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
-	guint32 frame_number;
+	guint32 frame_number;	/* the frame where this conversation is started */
 	GHashTable *rtp_dyn_payload;   /* a hash table with the dynamic RTP payload */
+
+	guint32 extended_seqno; /* the sequence number, extended to a 32-bit
+	                         * int to guarantee it increasing monotonically
+                                 */
+
+	struct _rtp_private_conv_info *rtp_conv_info; /* conversation info private
+	                                               * to the rtp dissector */
 };
 
 /* Add an RTP conversation with the given details */
