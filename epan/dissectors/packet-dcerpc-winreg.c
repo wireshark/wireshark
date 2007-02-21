@@ -899,10 +899,11 @@ winreg_dissect_element_OpenHKCR_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKCR_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCR_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKCR";
 	offset = winreg_dissect_element_OpenHKCR_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -915,8 +916,9 @@ winreg_dissect_OpenHKCR_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKCR_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCR_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKCR";
 	offset = winreg_dissect_element_OpenHKCR_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKCR_access_mask(tvb, offset, pinfo, tree, drep);
@@ -971,10 +973,11 @@ winreg_dissect_element_OpenHKCU_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKCU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKCU";
 	offset = winreg_dissect_element_OpenHKCU_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -987,8 +990,9 @@ winreg_dissect_OpenHKCU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKCU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKCU";
 	offset = winreg_dissect_element_OpenHKCU_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKCU_access_mask(tvb, offset, pinfo, tree, drep);
@@ -1043,10 +1047,11 @@ winreg_dissect_element_OpenHKLM_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKLM_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKLM_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKLM";
 	offset = winreg_dissect_element_OpenHKLM_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1059,8 +1064,9 @@ winreg_dissect_OpenHKLM_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKLM_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKLM_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKLM";
 	offset = winreg_dissect_element_OpenHKLM_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKLM_access_mask(tvb, offset, pinfo, tree, drep);
@@ -1115,10 +1121,11 @@ winreg_dissect_element_OpenHKPD_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKPD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKPD";
 	offset = winreg_dissect_element_OpenHKPD_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1131,8 +1138,9 @@ winreg_dissect_OpenHKPD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKPD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKPD";
 	offset = winreg_dissect_element_OpenHKPD_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKPD_access_mask(tvb, offset, pinfo, tree, drep);
@@ -1187,10 +1195,11 @@ winreg_dissect_element_OpenHKU_handle_(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKU";
 	offset = winreg_dissect_element_OpenHKU_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1203,8 +1212,9 @@ winreg_dissect_OpenHKU_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-winreg_dissect_OpenHKU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKU_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKU";
 	offset = winreg_dissect_element_OpenHKU_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKU_access_mask(tvb, offset, pinfo, tree, drep);
@@ -1233,10 +1243,11 @@ winreg_dissect_element_CloseKey_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_CloseKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_CloseKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="CloseKey";
 	offset = winreg_dissect_element_CloseKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1249,8 +1260,9 @@ winreg_dissect_CloseKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_CloseKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_CloseKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="CloseKey";
 	offset = winreg_dissect_element_CloseKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1267,7 +1279,7 @@ winreg_dissect_element_CreateKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_CreateKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, PIDL_POLHND_OPEN);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, 0);
 
 	return offset;
 }
@@ -1331,7 +1343,7 @@ winreg_dissect_element_CreateKey_new_handle(tvbuff_t *tvb, int offset, packet_in
 static int
 winreg_dissect_element_CreateKey_new_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, 0);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_CreateKey_new_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -1364,10 +1376,11 @@ winreg_dissect_element_CreateKey_action_taken_(tvbuff_t *tvb, int offset, packet
 /* IDL: ); */
 
 static int
-winreg_dissect_CreateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_CreateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="CreateKey";
 	offset = winreg_dissect_element_CreateKey_new_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1383,8 +1396,9 @@ winreg_dissect_CreateKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-winreg_dissect_CreateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_CreateKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="CreateKey";
 	offset = winreg_dissect_element_CreateKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_CreateKey_name(tvb, offset, pinfo, tree, drep);
@@ -1413,7 +1427,7 @@ winreg_dissect_element_DeleteKey_handle(tvbuff_t *tvb, int offset, packet_info *
 static int
 winreg_dissect_element_DeleteKey_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, PIDL_POLHND_CLOSE);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_handle, 0);
 
 	return offset;
 }
@@ -1432,10 +1446,11 @@ winreg_dissect_element_DeleteKey_key(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: ); */
 
 static int
-winreg_dissect_DeleteKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_DeleteKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DeleteKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1445,8 +1460,9 @@ winreg_dissect_DeleteKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-winreg_dissect_DeleteKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_DeleteKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DeleteKey";
 	offset = winreg_dissect_element_DeleteKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_DeleteKey_key(tvb, offset, pinfo, tree, drep);
@@ -1484,10 +1500,11 @@ winreg_dissect_element_DeleteValue_value(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: ); */
 
 static int
-winreg_dissect_DeleteValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_DeleteValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DeleteValue";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1497,8 +1514,9 @@ winreg_dissect_DeleteValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_in
 }
 
 static int
-winreg_dissect_DeleteValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_DeleteValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DeleteValue";
 	offset = winreg_dissect_element_DeleteValue_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_DeleteValue_value(tvb, offset, pinfo, tree, drep);
@@ -1587,10 +1605,11 @@ winreg_dissect_element_EnumKey_last_changed_time_(tvbuff_t *tvb, int offset, pac
 /* IDL: ); */
 
 static int
-winreg_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="EnumKey";
 	offset = winreg_dissect_element_EnumKey_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1609,8 +1628,9 @@ winreg_dissect_EnumKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-winreg_dissect_EnumKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_EnumKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EnumKey";
 	offset = winreg_dissect_element_EnumKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_EnumKey_enum_index(tvb, offset, pinfo, tree, drep);
@@ -1747,10 +1767,11 @@ winreg_dissect_element_EnumValue_length_(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: ); */
 
 static int
-winreg_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="EnumValue";
 	offset = winreg_dissect_element_EnumValue_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1775,8 +1796,9 @@ winreg_dissect_EnumValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-winreg_dissect_EnumValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_EnumValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EnumValue";
 	offset = winreg_dissect_element_EnumValue_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_EnumValue_enum_index(tvb, offset, pinfo, tree, drep);
@@ -1815,10 +1837,11 @@ winreg_dissect_element_FlushKey_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_FlushKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_FlushKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="FlushKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1828,8 +1851,9 @@ winreg_dissect_FlushKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_FlushKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_FlushKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="FlushKey";
 	offset = winreg_dissect_element_FlushKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1882,10 +1906,11 @@ winreg_dissect_element_GetKeySecurity_sd_(tvbuff_t *tvb, int offset, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_GetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_GetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="GetKeySecurity";
 	offset = winreg_dissect_element_GetKeySecurity_sd(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1898,8 +1923,9 @@ winreg_dissect_GetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-winreg_dissect_GetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_GetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetKeySecurity";
 	offset = winreg_dissect_element_GetKeySecurity_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_GetKeySecurity_sec_info(tvb, offset, pinfo, tree, drep);
@@ -1964,10 +1990,11 @@ winreg_dissect_element_LoadKey_filename_(tvbuff_t *tvb, int offset, packet_info 
 /* IDL: ); */
 
 static int
-winreg_dissect_LoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_LoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="LoadKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1977,8 +2004,9 @@ winreg_dissect_LoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-winreg_dissect_LoadKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_LoadKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="LoadKey";
 	offset = winreg_dissect_element_LoadKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_LoadKey_keyname(tvb, offset, pinfo, tree, drep);
@@ -2063,10 +2091,11 @@ winreg_dissect_element_NotifyChangeKeyValue_unknown2(tvbuff_t *tvb, int offset, 
 /* IDL: ); */
 
 static int
-winreg_dissect_NotifyChangeKeyValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_NotifyChangeKeyValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="NotifyChangeKeyValue";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2076,8 +2105,9 @@ winreg_dissect_NotifyChangeKeyValue_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-winreg_dissect_NotifyChangeKeyValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_NotifyChangeKeyValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="NotifyChangeKeyValue";
 	offset = winreg_dissect_element_NotifyChangeKeyValue_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_NotifyChangeKeyValue_watch_subtree(tvb, offset, pinfo, tree, drep);
@@ -2160,10 +2190,11 @@ winreg_dissect_element_OpenKey_handle_(tvbuff_t *tvb, int offset, packet_info *p
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenKey";
 	offset = winreg_dissect_element_OpenKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2176,8 +2207,9 @@ winreg_dissect_OpenKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-winreg_dissect_OpenKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenKey";
 	offset = winreg_dissect_element_OpenKey_parent_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenKey_keyname(tvb, offset, pinfo, tree, drep);
@@ -2363,10 +2395,11 @@ winreg_dissect_element_QueryInfoKey_last_changed_time_(tvbuff_t *tvb, int offset
 /* IDL: ); */
 
 static int
-winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="QueryInfoKey";
 	offset = winreg_dissect_element_QueryInfoKey_class_in(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2403,8 +2436,9 @@ winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 }
 
 static int
-winreg_dissect_QueryInfoKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryInfoKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryInfoKey";
 	offset = winreg_dissect_element_QueryInfoKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_QueryInfoKey_class_in(tvb, offset, pinfo, tree, drep);
@@ -2518,10 +2552,11 @@ winreg_dissect_element_QueryValue_length_(tvbuff_t *tvb, int offset, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="QueryValue";
 	offset = winreg_dissect_element_QueryValue_type(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2543,8 +2578,9 @@ winreg_dissect_QueryValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-winreg_dissect_QueryValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryValue";
 	offset = winreg_dissect_element_QueryValue_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_QueryValue_value_name(tvb, offset, pinfo, tree, drep);
@@ -2565,10 +2601,11 @@ winreg_dissect_QueryValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_ReplaceKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_ReplaceKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ReplaceKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2578,8 +2615,9 @@ winreg_dissect_ReplaceKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-winreg_dissect_ReplaceKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_ReplaceKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ReplaceKey";
 	return offset;
 }
 
@@ -2588,10 +2626,11 @@ winreg_dissect_ReplaceKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_RestoreKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_RestoreKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="RestoreKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2601,8 +2640,9 @@ winreg_dissect_RestoreKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-winreg_dissect_RestoreKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_RestoreKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="RestoreKey";
 	return offset;
 }
 
@@ -2611,10 +2651,11 @@ winreg_dissect_RestoreKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_SaveKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SaveKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="SaveKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2624,8 +2665,9 @@ winreg_dissect_SaveKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 }
 
 static int
-winreg_dissect_SaveKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SaveKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SaveKey";
 	return offset;
 }
 
@@ -2676,10 +2718,11 @@ winreg_dissect_element_SetKeySecurity_sd_(tvbuff_t *tvb, int offset, packet_info
 /* IDL: ); */
 
 static int
-winreg_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="SetKeySecurity";
 	offset = winreg_dissect_element_SetKeySecurity_sd(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -2692,8 +2735,9 @@ winreg_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-winreg_dissect_SetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SetKeySecurity_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SetKeySecurity";
 	offset = winreg_dissect_element_SetKeySecurity_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_SetKeySecurity_access_mask(tvb, offset, pinfo, tree, drep);
@@ -2776,10 +2820,11 @@ winreg_dissect_element_SetValue_size(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: ); */
 
 static int
-winreg_dissect_SetValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SetValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="SetValue";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2789,8 +2834,9 @@ winreg_dissect_SetValue_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_SetValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SetValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SetValue";
 	offset = winreg_dissect_element_SetValue_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_SetValue_name(tvb, offset, pinfo, tree, drep);
@@ -2809,10 +2855,11 @@ winreg_dissect_SetValue_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_UnLoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_UnLoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="UnLoadKey";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2822,8 +2869,9 @@ winreg_dissect_UnLoadKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-winreg_dissect_UnLoadKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_UnLoadKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="UnLoadKey";
 	return offset;
 }
 
@@ -2892,10 +2940,11 @@ winreg_dissect_element_InitiateSystemShutdown_reboot(tvbuff_t *tvb, int offset, 
 /* IDL: ); */
 
 static int
-winreg_dissect_InitiateSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_InitiateSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="InitiateSystemShutdown";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2905,8 +2954,9 @@ winreg_dissect_InitiateSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-winreg_dissect_InitiateSystemShutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_InitiateSystemShutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="InitiateSystemShutdown";
 	offset = winreg_dissect_element_InitiateSystemShutdown_hostname(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_InitiateSystemShutdown_message(tvb, offset, pinfo, tree, drep);
@@ -2941,10 +2991,11 @@ winreg_dissect_element_AbortSystemShutdown_server_(tvbuff_t *tvb, int offset, pa
 /* IDL: ); */
 
 static int
-winreg_dissect_AbortSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_AbortSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="AbortSystemShutdown";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2954,8 +3005,9 @@ winreg_dissect_AbortSystemShutdown_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-winreg_dissect_AbortSystemShutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_AbortSystemShutdown_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="AbortSystemShutdown";
 	offset = winreg_dissect_element_AbortSystemShutdown_server(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -2999,10 +3051,11 @@ winreg_dissect_element_GetVersion_version_(tvbuff_t *tvb, int offset, packet_inf
 /* IDL: ); */
 
 static int
-winreg_dissect_GetVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_GetVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="GetVersion";
 	offset = winreg_dissect_element_GetVersion_version(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3015,8 +3068,9 @@ winreg_dissect_GetVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 }
 
 static int
-winreg_dissect_GetVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_GetVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetVersion";
 	offset = winreg_dissect_element_GetVersion_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -3069,10 +3123,11 @@ winreg_dissect_element_OpenHKCC_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKCC";
 	offset = winreg_dissect_element_OpenHKCC_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3085,8 +3140,9 @@ winreg_dissect_OpenHKCC_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKCC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKCC_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKCC";
 	offset = winreg_dissect_element_OpenHKCC_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKCC_access_mask(tvb, offset, pinfo, tree, drep);
@@ -3141,10 +3197,11 @@ winreg_dissect_element_OpenHKDD_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKDD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKDD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKDD";
 	offset = winreg_dissect_element_OpenHKDD_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3157,8 +3214,9 @@ winreg_dissect_OpenHKDD_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKDD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKDD_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKDD";
 	offset = winreg_dissect_element_OpenHKDD_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKDD_access_mask(tvb, offset, pinfo, tree, drep);
@@ -3263,10 +3321,11 @@ winreg_dissect_element_QueryMultipleValues_buffer_size_(tvbuff_t *tvb, int offse
 /* IDL: ); */
 
 static int
-winreg_dissect_QueryMultipleValues_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryMultipleValues_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="QueryMultipleValues";
 	offset = winreg_dissect_element_QueryMultipleValues_values(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3285,8 +3344,9 @@ winreg_dissect_QueryMultipleValues_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-winreg_dissect_QueryMultipleValues_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryMultipleValues_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryMultipleValues";
 	offset = winreg_dissect_element_QueryMultipleValues_key_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_QueryMultipleValues_values(tvb, offset, pinfo, tree, drep);
@@ -3374,10 +3434,11 @@ winreg_dissect_element_InitiateSystemShutdownEx_reason(tvbuff_t *tvb, int offset
 /* IDL: ); */
 
 static int
-winreg_dissect_InitiateSystemShutdownEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_InitiateSystemShutdownEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="InitiateSystemShutdownEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -3387,8 +3448,9 @@ winreg_dissect_InitiateSystemShutdownEx_response(tvbuff_t *tvb _U_, int offset _
 }
 
 static int
-winreg_dissect_InitiateSystemShutdownEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_InitiateSystemShutdownEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="InitiateSystemShutdownEx";
 	offset = winreg_dissect_element_InitiateSystemShutdownEx_hostname(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_InitiateSystemShutdownEx_message(tvb, offset, pinfo, tree, drep);
@@ -3409,10 +3471,11 @@ winreg_dissect_InitiateSystemShutdownEx_request(tvbuff_t *tvb _U_, int offset _U
 /* IDL: ); */
 
 static int
-winreg_dissect_SaveKeyEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SaveKeyEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="SaveKeyEx";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -3422,8 +3485,9 @@ winreg_dissect_SaveKeyEx_response(tvbuff_t *tvb _U_, int offset _U_, packet_info
 }
 
 static int
-winreg_dissect_SaveKeyEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_SaveKeyEx_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SaveKeyEx";
 	return offset;
 }
 
@@ -3474,10 +3538,11 @@ winreg_dissect_element_OpenHKPT_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKPT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKPT";
 	offset = winreg_dissect_element_OpenHKPT_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3490,8 +3555,9 @@ winreg_dissect_OpenHKPT_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKPT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKPT";
 	offset = winreg_dissect_element_OpenHKPT_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKPT_access_mask(tvb, offset, pinfo, tree, drep);
@@ -3546,10 +3612,11 @@ winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_OpenHKPN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenHKPN";
 	offset = winreg_dissect_element_OpenHKPN_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -3562,8 +3629,9 @@ winreg_dissect_OpenHKPN_response(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 static int
-winreg_dissect_OpenHKPN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_OpenHKPN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenHKPN";
 	offset = winreg_dissect_element_OpenHKPN_system_name(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = winreg_dissect_element_OpenHKPN_access_mask(tvb, offset, pinfo, tree, drep);
@@ -3576,10 +3644,11 @@ winreg_dissect_OpenHKPN_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 /* IDL: ); */
 
 static int
-winreg_dissect_QueryMultipleValues2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryMultipleValues2_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="QueryMultipleValues2";
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -3589,8 +3658,9 @@ winreg_dissect_QueryMultipleValues2_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-winreg_dissect_QueryMultipleValues2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_QueryMultipleValues2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryMultipleValues2";
 	return offset;
 }
 
