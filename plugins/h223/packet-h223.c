@@ -51,6 +51,7 @@
 
 /* Wireshark ID of the H.223 protocol */
 static int proto_h223 = -1;
+static int proto_h223_bitswapped = -1;
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
  * our header fields; they are filled out when we call
@@ -247,11 +248,6 @@ typedef struct {
 
 
 struct _h223_call_info {
-    /* H.223 specifies that the least-significant bit is transmitted first;
-       however this is at odds with IAX which transmits the MSB first, so
-       in general, all of our bytes are reversed. */
-    gboolean bitswapped;
-    
     /* H.223 level: 0 for standard H223, 1, 2 or 3 for the enhanced protocols
        specified in the annexes
     */
@@ -457,18 +453,12 @@ static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
 
 	if( circ ) {
 	    circuit_add_proto_data(circ, proto_h223, data);
-
-	    /* circuit-switched H.223 conversations are bitswapped */
-	    data -> bitswapped = TRUE;
 	} else {
 	    conversation_add_proto_data(conv, proto_h223, data);
 	    /* add the source details so we can distinguish directions
 	     * in future */
 	    COPY_ADDRESS(&(data -> srcaddress), &(pinfo->src));
 	    data -> srcport = pinfo->srcport;
-
-	    /* packet-switched H.223 conversations are NOT bitswapped */
-	    data -> bitswapped = FALSE;
 	}
 
 	/* initialise the call info */
@@ -1152,7 +1142,7 @@ static guint32 dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, pa
 
 /************************************************************************************
  *
- * main dissector entry point
+ * main dissector entry points
  */
     
 static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
@@ -1176,41 +1166,8 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     if (check_col (pinfo->cinfo, COL_INFO))
 	col_clear (pinfo->cinfo, COL_INFO);
 
-    
     /* find or create the call_info for this call */
     call_info = find_or_create_call_info(pinfo);
-
-    /* we may need to reverse the bit ordering before we go any further. */
-    if( call_info -> bitswapped ) {
-	tvbuff_t *reversed_tvb;
-	guint8 *data;
-	guint len;
-	guint i;
-
-	len = tvb_length(tvb);
-	data = g_malloc(len);
-	for( i=0; i<len; i++)
-	    data[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
-	    
-
-	reversed_tvb = tvb_new_real_data(data,len,tvb_reported_length(tvb));
-	    
-	/*
-	 * Add the reversed tvbuff to the list of tvbuffs to which
-	 * the tvbuff we were handed refers, so it'll get
-	 * cleaned up when that tvbuff is cleaned up.
-	 */
-	tvb_set_child_real_data_tvbuff(tvb, reversed_tvb);
-
-
-	/* Add a freer */
-	tvb_set_free_cb(reversed_tvb, g_free);
-
-	/* Add the reversed data to the data source list. */
-	add_new_data_source(pinfo, reversed_tvb, "Bit-swapped H.223 frame" );
-
-	tvb = reversed_tvb;
-    }
 
     while( offset < tvb_reported_length( tvb )) {
 	gboolean pdu_found_this_fragment = FALSE;
@@ -1228,6 +1185,45 @@ static void dissect_h223 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     if (check_col (pinfo->cinfo, COL_PROTOCOL))
 	col_set_str (pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_H223);
 }
+
+/* H.223 specifies that the least-significant bit is transmitted first;
+ * however this is at odds with IAX which transmits bytes with the
+ * first-received bit as the MSB.
+ *
+ * This dissector swaps the ordering of the bits in each byte before using the
+ * normal entry point.
+ */
+static void dissect_h223_bitswapped (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+    tvbuff_t *reversed_tvb;
+    guint8 *data;
+    guint len;
+    guint i;
+
+    len = tvb_length(tvb);
+    data = g_malloc(len);
+    for( i=0; i<len; i++)
+        data[i]=BIT_SWAP(tvb_get_guint8(tvb,i));
+
+    reversed_tvb = tvb_new_real_data(data,len,tvb_reported_length(tvb));
+	    
+    /*
+     * Add the reversed tvbuff to the list of tvbuffs to which
+     * the tvbuff we were handed refers, so it'll get
+     * cleaned up when that tvbuff is cleaned up.
+     */
+    tvb_set_child_real_data_tvbuff(tvb, reversed_tvb);
+
+    /* Add a freer */
+    tvb_set_free_cb(reversed_tvb, g_free);
+
+    /* Add the reversed data to the data source list. */
+    add_new_data_source(pinfo, reversed_tvb, "Bit-swapped H.223 frame" );
+    
+    dissect_h223(reversed_tvb,pinfo,tree);
+}
+
+/******************************************************************************/
 
 static void h223_init_protocol (void)
 {
@@ -1416,10 +1412,13 @@ void proto_register_h223 (void)
     if (proto_h223 == -1) { /* execute protocol initialization only once */
     proto_h223 =
 	proto_register_protocol ("ITU-T Recommendation H.223", "H.223", "h223");
+    proto_h223_bitswapped =
+	proto_register_protocol ("Bitswapped ITU-T Recommendation H.223", "H.223 (Bitswapped)", "h223_bitswapped");
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     register_dissector("h223", dissect_h223, proto_h223);
+    register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
 	
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
@@ -1432,12 +1431,14 @@ void proto_register_h223 (void)
 
 void proto_reg_handoff_h223(void)
 {
+    dissector_handle_t h223_bitswapped = find_dissector("h223_bitswapped");
     dissector_handle_t h223 = find_dissector("h223");
     data_handle = find_dissector("data");
     h245dg_handle = find_dissector("h245dg");
     srp_handle = find_dissector("srp");
 
     dissector_add_handle("tcp.port", h223);
-    dissector_add("iax2.dataformat", AST_DATAFORMAT_H223_H245, h223);
+    dissector_add_handle("tcp.port", h223_bitswapped);
+    dissector_add("iax2.dataformat", AST_DATAFORMAT_H223_H245, h223_bitswapped);
 }
 /* vim:set ts=8 et: */
