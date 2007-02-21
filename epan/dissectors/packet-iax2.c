@@ -1789,12 +1789,17 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
          within that section, the higher-level dissector was unable to find any
          pdus; if it's after that, it found one or more complete PDUs.
       */
-      old_len = (gint32)(tvb_reported_length(next_tvb) - tvb_reported_length(tvb));
+      old_len = (gint32)(tvb_reported_length(next_tvb) - frag_len);
       if( pinfo->desegment_len &&
 	  pinfo->desegment_offset < old_len ) {
 	/* oops, it wasn't actually complete */
 	fragment_set_partial_reassembly(pinfo, fid, iax_call->fragment_table);
-	dirdata->current_frag_minlen = fd_head->datalen + pinfo->desegment_len;
+        if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+          /* only one more byte should be enough for a retry */
+          dirdata->current_frag_minlen = fd_head->datalen + 1;
+        } else {
+          dirdata->current_frag_minlen = fd_head->datalen + pinfo->desegment_len;
+        }
       } else {
 	/* we successfully dissected some data; create the proto tree items for
 	 * the fragments, and flag any remaining data for desegmentation */
@@ -1847,7 +1852,14 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       guint32 frag_len = tvb_reported_length_remaining(tvb,deseg_offset);
       dirdata->current_frag_id = fid;
       dirdata->current_frag_bytes = frag_len;
-      dirdata->current_frag_minlen = frag_len + pinfo->desegment_len;
+
+      if(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT) {
+        /* only one more byte should be enough for a retry */
+          dirdata->current_frag_minlen = frag_len + 1;
+        } else {
+          dirdata->current_frag_minlen = frag_len + pinfo->desegment_len;
+        }
+
       fd_head = fragment_add(tvb, deseg_offset, pinfo, fid,
 			     iax_call->fragment_table,
                              0, frag_len, TRUE );
