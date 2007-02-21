@@ -51,18 +51,54 @@
    into the defragmented packet */
 #define FD_BLOCKSEQUENCE        0x0100
 
+/* if REASSEMBLE_FLAGS_CHECK_DATA_PRESENT is set, and the first fragment is
+ * incomplete, this flag is set in the flags word on the fd_head returned.
+ *
+ * It's all a fudge to preserve historical behaviour.
+ */
+#define FD_DATA_NOT_PRESENT	0x0200
+
+/* This flag is set in the to denote that datalen has ben set to a valid value.
+ * It's implied by FD_DEFRAGMENTED (we must know the total length of the
+ * datagram if we have defragmented it...)
+ */
+#define FD_DATALEN_SET		0x0400
+
 typedef struct _fragment_data {
 	struct _fragment_data *next;
 	guint32 frame;
 	guint32	offset;
 	guint32	len;
-	guint32 datalen; /*Only valid in first item of list */
+	guint32 datalen; /* Only valid in first item of list and when
+                          * flags&FD_DATALEN_SET is set;
+                          * number of bytes or (if flags&FD_BLOCKSEQUENCE set)
+                          * segments in the datagram */
 	guint32 reassembled_in;	/* frame where this PDU was reassembled,
 				   only valid in the first item of the list
 				   and when FD_DEFRAGMENTED is set*/
 	guint32 flags;
 	unsigned char *data;
 } fragment_data;
+
+
+/*
+ * Flags for fragment_add_seq_*
+ */
+
+/* we don't have any sequence numbers - fragments are assumed to appear in
+ * order */
+#define REASSEMBLE_FLAGS_NO_FRAG_NUMBER		0x0001
+
+/* a special fudge for the 802.11 dissector */
+#define REASSEMBLE_FLAGS_802_11_HACK		0x0002
+
+/* causes fragment_add_seq_key to check that all the fragment data is present
+ * in the tvb, and if not, do something a bit odd. */
+#define REASSEMBLE_FLAGS_CHECK_DATA_PRESENT	0x0004
+
+/* a function for copying hash keys */
+typedef void *(*fragment_key_copier)(const void *key);
+
 
 /*
  * Initialize a fragment table.
@@ -105,10 +141,51 @@ extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
 
 /* same as fragment_add() but this one assumes frag_number is a block
    sequence number. note that frag_number is 0 for the first fragment. */
+
+/*
+ * These functions add a new fragment to the fragment hash table,
+ * assuming that frag_number is a block sequence number (starting from zero for
+ * the first fragment of each datagram).
+ *
+ * If this is the first fragment seen for this datagram, a new
+ * "fragment_data" structure is allocated to refer to the reassembled
+ * packet, and:
+ *
+ *	if "more_frags" is false, and either we have no sequence numbers, or
+ *	are using the 802.11 hack, it is assumed that this is the only fragment
+ *	in the datagram. The structure is not added to the hash
+ *	table, and not given any fragments to refer to, but is just returned.
+ *
+ *      In this latter case reassembly wasn't done (since there was only one
+ *      fragment in the packet); dissectors can check the 'next' pointer on the
+ *      returned list to see if this case was hit or not.
+ *
+ * Otherwise, this fragment is just added to the linked list of fragments
+ * for this packet; the fragment_data is also added to the fragment hash if
+ * necessary.
+ *
+ * If this packet completes assembly, these functions return the head of the
+ * fragment data; otherwise, they return null.
+ */
+
+/* "key" should be an arbitrary key used for indexing the fragment hash;
+ * "key_copier" is called to copy the key to a more appropriate store before
+ * inserting a new entry to the hash.
+ */
+extern fragment_data *
+fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                     void *key, fragment_key_copier key_copier,
+                     GHashTable *fragment_table, guint32 frag_number,
+                     guint32 frag_data_len, gboolean more_frags,
+                     guint32 flags);
+
+/* a wrapper for fragment_add_seq_key - uses a key of source, dest and frame number */
 extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
 
+/* another wrapper for fragment_add_seq_key - uses a key of source, dest, frame
+ * number and act_id */
 extern fragment_data *
 fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	void *act_id,
@@ -116,44 +193,12 @@ fragment_add_dcerpc_dg(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id
 	guint32 frag_data_len, gboolean more_frags);
 
 /*
- * These functions add a new fragment to the fragment hash table.
- * If this is the first fragment seen for this datagram, a new
- * "fragment_data" structure is allocated to refer to the reassembled,
- * packet, and:
- *
- *	in "fragment_add_seq_802_11()", if "more_frags" is false,
- *	the structure is not added to the hash table, and not given
- *	any fragments to refer to, but is just returned;
- *
- *	otherwise, this fragment is added to the linked list of fragments
- *	for this packet, and the "fragment_data" structure is put into
- *	the hash table.
- *
- * Otherwise, this fragment is just added to the linked list of fragments
- * for this packet.
+ * These routines extend fragment_add_seq_key to use a "reassembled_table".
  *
  * If, after processing this fragment, we have all the fragments, they
  * remove that from the fragment hash table if necessary and add it
  * to the table of reassembled fragments, and return a pointer to the
  * head of the fragment list.
- *
- * If this is the first fragment we've seen, and "more_frags" is false,
- * the fragment is added to the list.  "fragment_add_seq_check()" will
- * return NULL (waiting for the earlier sequence numbers) while
- * "fragment_add_seq_802_11()" (a special hack for the 802.11 dissector) and
- * "fragment_add_seq_next()" will return a pointer to the (one element) list.
- * In this latter case reassembly wasn't done (since there was only one
- * fragment in the packet); dissectors can check the 'next' pointer on the
- * returned list to see if this case was hit or not.
- *
- * Otherwise, they return NULL.
- *
- * "fragment_add_seq_check()" and "fragment_add_seq_802_11()" assume
- * frag_number is a block sequence number.
- * The bsn for the first block is 0.
- *
- * "fragment_add_seq_next()" is for protocols with no sequence number,
- * and assumes fragments always appear in sequence.
  */
 extern fragment_data *
 fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
