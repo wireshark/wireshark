@@ -6,6 +6,9 @@
  * Magnus Hansson <mah@hms.se>
  * Joakim Wiberg <jow@hms.se>
  *
+ * Added support for Connection Configuration Object
+ *   ryan wamsley * Copyright 2007
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -51,6 +54,16 @@
 #define SC_FWD_CLOSE             0x4E
 #define SC_UNCON_SEND            0x52
 #define SC_FWD_OPEN              0x54
+/* Connection Configuration Object services */
+#define SC_KICK_TIMER            0x4B
+#define SC_OPEN_CONN             0x4C
+#define SC_CLOSE_CONN            0x4D
+#define SC_STOP_CONN             0x4E  /* collision with SC_FWD_CLOSE */
+#define SC_CHANGE_START          0x4F
+#define SC_GET_STATUS            0x50
+#define SC_CHANGE_COMPLETE       0x51
+#define SC_AUDIT_CHANGE          0x52  /* collision with SC_UNCON_SEND */
+
 
 /* CIP Genral status codes */
 #define CI_GRC_SUCCESS              0x00

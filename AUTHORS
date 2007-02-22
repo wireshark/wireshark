@@ -2585,8 +2585,12 @@ Robin Seggelmann	<seggelmann [AT] fh-muenster.de> {
 	Support for SCTP reassembly.
 }
 
-Chris Bontje		<cbontje [AT] gmail.com {
+Chris Bontje		<cbontje [AT] gmail.com> {
 	Support for DNP3 Application Layer dissection
+}
+
+Ryan Wamsley		<wamslers [AT] sbcglobal.net> {
+	Connection Configuration Object support in EtherNet/IP   	 
 }
 
 and by:
