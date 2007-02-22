@@ -227,9 +227,8 @@ static gboolean global_rtp_show_setup_info = TRUE;
 /* Try heuristic RTP decode */
 static gboolean global_rtp_heur = FALSE;
 
- /* desegmnent RTP streams */
- static gboolean desegment_rtp = TRUE;
- 
+/* desegment RTP streams */
+static gboolean desegment_rtp = TRUE;
 
 /* RFC2198 Redundant Audio Data */
 static guint rtp_rfc2198_pt = 99;
@@ -555,7 +554,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(finfo == NULL || !desegment_rtp) {
 		/* Hand the whole lot off to the subdissector */
 		newtvb=tvb_new_subset(tvb,offset,data_len,data_reported_len);
-		process_rtp_payload(tvb, pinfo, tree, rtp_tree, payload_type);
+		process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
 		return;
 	}
 
@@ -1746,6 +1745,8 @@ proto_register_rtp(void)
                                    "Payload Type for RFC2198 Redundant Audio Data",
                                    10,
                                    &rtp_rfc2198_pt);
+    
+	register_init_routine(rtp_fragment_init);
 }
 
 void
