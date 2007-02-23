@@ -227,6 +227,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
+static dissector_handle_t h248_handle;
+
 static proto_tree *top_tree;
 /*
  * dissect_megaco_text over TCP, there will be a TPKT header there
@@ -345,7 +347,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
 	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
-			return;
+		call_dissector(h248_handle,tvb,pinfo,tree);
+		return;
 	}
 
 
@@ -3277,6 +3280,7 @@ proto_reg_handoff_megaco(void)
 
 	sdp_handle = find_dissector("sdp");
 	h245_handle = find_dissector("h245dg");
+	h248_handle = find_dissector("h248");
 
 	if (!megaco_prefs_initialized) {
 		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
