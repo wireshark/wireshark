@@ -2439,7 +2439,7 @@ dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
     switch(type) {
     case 2:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 1 - Integrated Services");
+			    "C-type: 2 - Integrated Services");
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
 			    "Message format version: %u",
 			    tvb_get_guint8(tvb, offset2)>>4);
