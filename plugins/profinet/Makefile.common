@@ -31,7 +31,6 @@ DISSECTOR_SRC = \
 	packet-dcerpc-pn-io.c \
 	packet-dcom-cba.c \
 	packet-dcom-cba-acco.c \
-	packet-pn.c \
 	packet-pn-dcp.c \
 	packet-pn-mrp.c \
 	packet-pn-mrrt.c \
@@ -43,3 +42,8 @@ DISSECTOR_INCLUDES =	\
 	packet-dcom-cba-acco.h	\
 	packet-pn.h
 
+# Dissector helpers.  They're included in the source files in this
+# directory, but they're not dissectors themselves, i.e. they're not
+# used to generate "register.c").
+DISSECTOR_SUPPORT_SRC =	\
+	packet-pn.c
