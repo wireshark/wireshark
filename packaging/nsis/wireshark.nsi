@@ -1197,10 +1197,14 @@ Function myShowCallback
 	StrCmp $R0 '95' lbl_winversion_unsupported
 	StrCmp $R0 '98' lbl_winversion_unsupported
 	StrCmp $R0 'ME' lbl_winversion_unsupported
-	;StrCmp $R0 'NT 4.0' lbl_winversion_unsupported
+	StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
 	Goto lbl_winversion_supported
 lbl_winversion_unsupported:
 	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!" 
+	Quit
+
+lbl_winversion_unsupported_nt4:
+	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!" 
 	Quit
 
 lbl_winversion_supported:
