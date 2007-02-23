@@ -282,8 +282,12 @@ static int hf_cic_range_upper = -1;
 static int hf_cic_range_lower = -1;
 static int hf_protocol_data_opc = -1;
 static int hf_protocol_data_dpc = -1;
+static int hf_protocol_data_mtp3_opc = -1;
+static int hf_protocol_data_mtp3_dpc = -1;
+static int hf_protocol_data_mtp3_pc = -1;
 static int hf_protocol_data_si = -1;
 static int hf_protocol_data_ni = -1;
+static int hf_protocol_data_mtp3_ni = -1;
 static int hf_protocol_data_mp = -1;
 static int hf_protocol_data_sls = -1;
 static int hf_correlation_identifier = -1;
@@ -1123,8 +1127,16 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
+        proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+
+    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
+    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
+    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
+    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
+
     proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
+    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER));
     proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, NETWORK_BYTE_ORDER);
 
@@ -1973,8 +1985,12 @@ proto_register_m3ua(void)
     { &hf_li,                               { "Length indicator",             "m3ua.protocol_data_2_li",                    FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_opc,                { "OPC",                          "m3ua.protocol_data_opc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_dpc,                { "DPC",                          "m3ua.protocol_data_dpc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
+    { &hf_protocol_data_mtp3_opc,                { "OPC",                          "mtp3.opc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
+    { &hf_protocol_data_mtp3_dpc,                { "DPC",                          "mtp3.dpc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
+    { &hf_protocol_data_mtp3_pc,                { "PC",                          "mtp3.pc",                     FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_si,                 { "SI",                           "m3ua.protocol_data_si",                      FT_UINT8,  BASE_DEC,  VALS(user_identity_values),                                         0x0, "", HFILL } },
     { &hf_protocol_data_ni,                 { "NI",                           "m3ua.protocol_data_ni",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
+    { &hf_protocol_data_mtp3_ni,                 { "NI",                           "mtp3.ni",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_mp,                 { "MP",                           "m3ua.protocol_data_mp",                      FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_protocol_data_sls,                { "SLS",                          "m3ua.protocol_data_sls",                     FT_UINT8,  BASE_DEC,  NULL,                                         0x0, "", HFILL } },
     { &hf_correlation_identifier,           { "Correlation Identifier",       "m3ua.correlation_identifier",                FT_UINT32, BASE_DEC,  NULL,                                         0x0, "", HFILL } },
