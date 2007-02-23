@@ -136,6 +136,7 @@ static int hf_mp2t_af_e_dnau_14_0 = -1;
 static int hf_mp2t_af_e_m_3 = -1;
 
 static int hf_mp2t_payload = -1;
+static int hf_mp2t_malformed_payload = -1;
 
 static const value_string mp2t_sync_byte_vals[] = {
 	{ 0x47, "Correct" },
@@ -186,6 +187,7 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 	guint32 header;
 	guint afc;
 	gint start_offset = offset;
+	gint payload_len;
 
 	proto_item *ti = NULL;
 	proto_item *hi = NULL;
@@ -390,11 +392,13 @@ dissect_tsp( tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tre
 		}
 	}
 
-	if (afc == 0 || afc == 1) {
-		gint payload_len;
-
-		payload_len = MP2T_PACKET_SIZE - (offset - start_offset);
-		if (payload_len > 0) {
+	payload_len = MP2T_PACKET_SIZE - (offset - start_offset);
+	if (payload_len > 0) {
+		if (afc == 2) {	/* AF only */
+			/* Packet is malformed */
+			proto_tree_add_item( mp2t_tree, hf_mp2t_malformed_payload, tvb, offset, payload_len, FALSE);
+			offset += payload_len;
+		} else {
 			proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
 			offset += payload_len;
 		}
@@ -590,6 +594,10 @@ proto_register_mp2t(void)
 		} } ,
 		{ &hf_mp2t_payload, {
 			"Payload", "mp2t.payload",
+			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
+		} } ,
+		{ &hf_mp2t_malformed_payload, {
+			"Malformed Payload", "mp2t.malformed_payload",
 			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
 		} } ,
 	};
