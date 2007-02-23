@@ -38,7 +38,6 @@ static int proto_q1950 = -1;
 
 /* A.3 Bearer characteristics package */
 static int hf_h248_pkg_BCP = -1;
-static int hf_h248_pkg_BCP_param = -1;
 static int hf_h248_pkg_BCP_BNCChar = -1;
 
 static int ett_h248_pkg_BCP = -1;
@@ -48,6 +47,11 @@ static gboolean implicit = FALSE;
 static const value_string h248_pkg_BCP_parameters[] = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
 	{0,     NULL}
+};
+
+static const value_string h248_pkg_BCP_props_vals[] = {
+	{1,"BNCChar"},
+	{0,NULL}
 };
 
 /* Properties */
@@ -60,13 +64,21 @@ h248_pkg_param_t h248_pkg_BCP_props[] = {
 static h248_package_t h248_pkg_BCP = {
 	0x001e,
 	&hf_h248_pkg_BCP,
-	&hf_h248_pkg_BCP_param,
 	&ett_h248_pkg_BCP,
+	h248_pkg_BCP_props_vals,
+	NULL,
+	NULL,
+	NULL,
 	h248_pkg_BCP_props,			/* Properties */
 	NULL,						/* signals */
 	NULL,						/* events */
 	NULL						/* statistics */
 };
+
+/* A.4 Bearer Network connection cut-through package */
+
+/* A.5 Bearer Reuse Idle Package  */
+
 /* A.6 Generic bearer connection package 
 	Package Name: GB
 	Package ID: 0x0021
@@ -76,7 +88,6 @@ static h248_package_t h248_pkg_BCP = {
 static dissector_handle_t sdp_dissector = NULL;
 
 static int hf_h248_pkg_bct = -1;
-static int hf_h248_pkg_bct_param = -1;
 static int hf_h248_pkg_bct_tind = -1;
 
 static gint ett_h248_pkg_bct = -1;
@@ -95,7 +106,7 @@ static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* p
 		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
 		
 		if (sdp_tvb) {
-			/* XXX: is it realy sdp? */
+			/* XXX: are we sure it is always sdp? */
 			call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
 		}
 	} else {
@@ -120,8 +131,11 @@ static h248_pkg_evt_t h248_pkg_bct_events[] = {
 static h248_package_t h248_pkg_bct = {
 	0x0022,
 	&hf_h248_pkg_bct,
-	&hf_h248_pkg_bct_param,
 	&ett_h248_pkg_bct,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,						/* Properties */
 	NULL,						/* signals */
 	h248_pkg_bct_events,		/* events */
@@ -130,7 +144,6 @@ static h248_package_t h248_pkg_bct = {
 
 /* A.8 Basic call progress tones generator with directionality */
 static int hf_h248_pkg_bcg = -1;
-static int hf_h248_pkg_bcg_param = -1;
 static int hf_h248_pkg_bcg_sig_bdt_par_btd = -1;
 static int hf_h248_pkg_bcg_sig_bdt = -1;
 static int hf_h248_pkg_bcg_sig_brt = -1;
@@ -177,8 +190,11 @@ static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 static h248_package_t h248_pkg_bcg = {
 	0x0023,
 	&hf_h248_pkg_bcg,
-	&hf_h248_pkg_bcg_param,
 	&ett_h248_pkg_bcg,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	NULL,						/* Properties */
 	h248_pkg_bcg_signals,		/* signals */
 	NULL,						/* events */
@@ -193,10 +209,6 @@ void proto_register_q1950(void) {
 		{ &hf_h248_pkg_BCP,
 			{ "BCP (Bearer characteristics package)", "h248.pkg.BCP", 
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
-		},
-		{ &hf_h248_pkg_BCP_param,	
-			{ "Parameter", "h248.package_bcp.parameter", 
-			FT_UINT16, BASE_HEX, VALS(h248_pkg_BCP_parameters), 0, "Parameter", HFILL }
 		},
 		{ &hf_h248_pkg_BCP_BNCChar,
 			{ "BNCChar (BNC Characteristics)", "h248.pkg.bcp.bncchar", 

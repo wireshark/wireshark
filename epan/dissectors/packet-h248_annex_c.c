@@ -32,7 +32,6 @@
 
 /* H.248 Annex C */
 static int proto_h248_pkg_annexc = -1;
-static int hf_h248_pkg_annexc_parameters = -1;
 
 static int hf_h248_pkg_annexc_media = -1;
 static int hf_h248_pkg_annexc_ACodec = -1;
@@ -952,8 +951,11 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 static h248_package_t h248_annexc_package = {
 	0x0000,
 	&proto_h248_pkg_annexc,
-	&hf_h248_pkg_annexc_parameters,
 	&ett_annexc,
+	h248_annexc_package_properties_vals,
+	NULL,
+	NULL,
+	NULL,
 	h248_annexc_package_properties, /* properties */
 	NULL,							/* signals */
 	NULL,							/* events */
@@ -963,8 +965,6 @@ static h248_package_t h248_annexc_package = {
 
 void proto_register_h248_annex_c(void) {
 	static hf_register_info hf[] = {
-		{ &hf_h248_pkg_annexc_parameters,
-			{ "Parameter", "h248.pkg.annexc.parameter", FT_UINT16, BASE_HEX, VALS(h248_annexc_package_properties_vals), 0, "Annex-C Parameter ID", HFILL }},
 		{ &hf_h248_pkg_annexc_media,
 			{ "Media", "h248.pkg.annexc.media", FT_UINT32, BASE_HEX, VALS(h248_annexc_media_vals), 0, "Media Type", HFILL }},
 		{ &hf_h248_pkg_annexc_ACodec,

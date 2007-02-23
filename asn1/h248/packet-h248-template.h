@@ -200,32 +200,38 @@ typedef struct _h248_pkg_sig_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;	
+	const value_string* param_names;
 } h248_pkg_sig_t;
 
 typedef struct _h248_pkg_evt_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;	
+	const value_string* param_names;
 } h248_pkg_evt_t;
 
 typedef struct _h248_pkg_stat_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;	
+	const value_string* param_names;
 } h248_pkg_stat_t;
 
 typedef struct _h248_package_t {
 	guint32 id;
 	int* hfid;
-	int* hfid_params;
 	gint* ett;
-	h248_pkg_param_t* properties;
-	h248_pkg_sig_t* signals;
-	h248_pkg_evt_t* events;
-	h248_pkg_stat_t* statistics;
+	const value_string* param_names;
+	const value_string* signal_names;
+	const value_string* event_names;
+	const value_string* stats_names;
+	const h248_pkg_param_t* properties;
+	const h248_pkg_sig_t* signals;
+	const h248_pkg_evt_t* events;
+	const h248_pkg_stat_t* statistics;
 } h248_package_t;
 
 struct _h248_curr_info_t {
@@ -234,13 +240,13 @@ struct _h248_curr_info_t {
 	h248_msg_t* msg;
 	h248_term_t* term;
 	h248_cmd_t* cmd;
-	h248_package_t* pkg;
-	h248_pkg_evt_t* evt;
-	h248_pkg_sig_t* sig;
-	h248_pkg_stat_t* stat;
-	h248_pkg_param_t* par;
+	const h248_package_t* pkg;
+	const h248_pkg_evt_t* evt;
+	const h248_pkg_sig_t* sig;
+	const h248_pkg_stat_t* stat;
+	const h248_pkg_param_t* par;
 };
 
-void h248_register_package(h248_package_t*);
+void h248_register_package(const h248_package_t*);
 
 #endif  /* PACKET_H248_H */

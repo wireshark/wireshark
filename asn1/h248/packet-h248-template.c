@@ -39,7 +39,7 @@ static int proto_h248				= -1;
 static int hf_h248_mtpaddress_ni	= -1;
 static int hf_h248_mtpaddress_pc	= -1;
 static int hf_h248_pkg_name		= -1;
-static int hf_248_no_pkg_param = -1;
+static int hf_248_pkg_param = -1;
 static int hf_h248_event_name		= -1;
 static int hf_h248_signal_name		= -1;
 static int hf_h248_pkg_bcp_BNCChar_PDU = -1;
@@ -63,7 +63,7 @@ static int hf_h248_ctx_cmd = -1;
 static int hf_h248_no_pkg = -1;
 static int hf_h248_no_sig = -1;
 static int hf_h248_no_evt = -1;
-static int hf_h248_no_param = -1;
+static int hf_h248_param = -1;
 
 static int hf_h248_serviceChangeReasonStr = -1;
 
@@ -556,7 +556,7 @@ static const value_string cmd_type[] = {
     { 0, NULL }
 };
 
-h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
+static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
 static h248_wildcard_t wild_term;
 
@@ -588,10 +588,10 @@ extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packe
 }
 
 
-static h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &hf_248_no_pkg_param, &ett_h248_no_pkg, NULL, NULL, NULL, NULL };
-static h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL };
-static h248_pkg_param_t no_param = { 0, &hf_h248_no_param, h248_param_item,  NULL };
-static h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL };
+static h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &ett_h248_no_pkg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL, NULL };
+static h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
+static h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* trx_id_p) {
 	guint64 trx_id = 0;
@@ -695,12 +695,12 @@ static const value_string BNCChar_vals[] = {
 
 static GPtrArray* packages = NULL;
 
-void h248_register_package(h248_package_t* pkg) {
+void h248_register_package(const h248_package_t* pkg) {
 	if (! packages) packages = g_ptr_array_new();
 
 	g_assert(pkg != NULL);
 
-	g_ptr_array_add(packages,pkg);
+	g_ptr_array_add(packages,(void*)pkg);
 }
 
 static guint32 packageandid;
@@ -710,8 +710,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
   int old_offset;
-  int hf_param;
-  h248_package_t* pkg = NULL;
+  const h248_package_t* pkg = NULL;
   guint i;
 
   old_offset=offset;
@@ -742,13 +741,19 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	}
 
 	if (! pkg ) pkg = &no_package;
-
-	hf_param = *(pkg->hfid_params);
-
-	if (hf_param > 0)
-		/* TODO: Will this ever happen now ??*/
-		proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-2, 2, name_minor);
-
+		
+	{
+		proto_item* pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
+		const gchar* strval;
+	
+		if (pkg->param_names && ( strval = match_strval(name_minor, pkg->param_names) )) {
+			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+		} else {
+			strval = ep_strdup_printf("Unknown (%d)",name_minor);
+		}
+	
+		proto_item_set_text(pi,"Parameter: %s", strval);
+	}
   } else {
 	  pkg = &no_package;
   }
@@ -765,8 +770,8 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
   int old_offset;
-  h248_package_t* pkg = NULL;
-  h248_pkg_evt_t* evt = NULL;
+  const h248_package_t* pkg = NULL;
+  const h248_pkg_evt_t* evt = NULL;
   guint i;
 
   old_offset=offset;
@@ -830,8 +835,8 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
   int old_offset;
-  h248_package_t* pkg = NULL;
-  h248_pkg_sig_t* sig;
+  const h248_package_t* pkg = NULL;
+  const h248_pkg_sig_t* sig;
   guint i;
 
   old_offset=offset;
@@ -897,8 +902,8 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 	guint16 name_minor;
 	int old_offset, end_offset;
 	tvbuff_t *next_tvb;
-	h248_package_t* pkg;
-	h248_pkg_param_t* prop;
+	const h248_package_t* pkg;
+	const h248_pkg_param_t* prop;
 
 	old_offset=offset;
 	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -941,7 +946,7 @@ static int
 dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
-	h248_pkg_param_t* sigpar;
+	const h248_pkg_param_t* sigpar;
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset,  hf_index, &next_tvb);
 	switch(tvb_length(next_tvb)) {
@@ -1000,7 +1005,7 @@ static int
 dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
-	h248_pkg_param_t* evtpar;
+	const h248_pkg_param_t* evtpar;
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
@@ -1835,9 +1840,9 @@ void proto_register_h248(void) {
     { &hf_h248_pkg_name, {
       "Package", "h248.package_name", FT_UINT16, BASE_HEX,
       VALS(package_name_vals), 0, "Package", HFILL }},
-    { &hf_248_no_pkg_param, {
+    { &hf_248_pkg_param, {
       "Parameter ID", "h248.package_paramid", FT_UINT16, BASE_HEX,
-      NULL, 0, "Unknown Package Parameter ID", HFILL }},
+      NULL, 0, "Parameter ID", HFILL }},
     { &hf_h248_event_name, {
       "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX,
       VALS(event_name_vals), 0, "Package", HFILL }},
@@ -1882,8 +1887,8 @@ void proto_register_h248(void) {
   { "Unknown Event", "h248.pkg.unknown.evt",
 	  FT_BYTES, BASE_HEX, NULL, 0,
 	  "", HFILL }},
-  { &hf_h248_no_param,
-  { "Unknown Parameter", "h248.pkg.unknown.param",
+  { &hf_h248_param,
+  { "Parameter", "h248.pkg.unknown.param",
 	  FT_BYTES, BASE_HEX, NULL, 0,
 	  "", HFILL }},
   { &hf_h248_serviceChangeReasonStr,
@@ -1960,4 +1965,5 @@ void proto_reg_handoff_h248(void) {
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
   dissector_add("udp.port", udp_port, h248_handle);
 }
+
 

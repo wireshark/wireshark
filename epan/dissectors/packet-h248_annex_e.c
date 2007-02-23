@@ -38,7 +38,6 @@ static gboolean implicit = TRUE;
 
 /* H.248.1 E.1  Generic Package */
 static int hf_h248_pkg_generic = -1;
-static int hf_h248_pkg_generic_params = -1;
 static int hf_h248_pkg_generic_cause_evt = -1;
 static int hf_h248_pkg_generic_cause_gencause = -1;
 static int hf_h248_pkg_generic_cause_failurecause = -1;
@@ -46,6 +45,17 @@ static int hf_h248_pkg_generic_cause_failurecause = -1;
 static gint ett_h248_pkg_generic_cause_evt = -1;
 static gint ett_tdmc = -1;
 static gint ett_h248_pkg_generic = -1;
+
+static const value_string h248_pkg_generic_cause_vals[] = {
+	{1, "gencause"},
+	{2, "failurecause"},
+	{ 0, NULL }
+};
+
+static const value_string h248_pkg_generic_evt_vals[] = {
+	{1, "generic_cause"},
+	{ 0, NULL }
+};
 
 static const value_string h248_pkg_generic_cause_gencause_vals[] = {
 	{ 1, "NR (Normal Release)"},
@@ -64,16 +74,19 @@ static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 };
 
 static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
-	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params},
-	{ 0, NULL, NULL, NULL}
+	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params, h248_pkg_generic_cause_gencause_vals},
+	{ 0, NULL, NULL, NULL, NULL}
 };
 
 
 static h248_package_t h248_pkg_generic = {
 	0x0001,
 	&hf_h248_pkg_generic,
-	&hf_h248_pkg_generic_params,
 	&ett_h248_pkg_generic,
+	NULL,
+	NULL,
+	h248_pkg_generic_evt_vals,
+	NULL,
 	NULL,
 	NULL,
 	h248_pkg_generic_cause_evts,
@@ -151,7 +164,6 @@ static int hf_h248_pkg_tonedet_evt_ltd = -1;
 
 /* E.5 Basic DTMF Generator Package */
 static int hf_h248_pkg_dg = -1;
-static int hf_h248_pkg_dg_params = -1;
 static int hf_h248_pkg_dg_sig_d0 = -1;
 static int hf_h248_pkg_dg_sig_d1 = -1;
 static int hf_h248_pkg_dg_sig_d2 = -1;
@@ -163,23 +175,34 @@ static gint ett_h248_pkg_dg_sig_d1 = -1;
 static gint ett_h248_pkg_dg_sig_d2 = -1;
 static gint ett_h248_pkg_dg_sig_d3 = -1;
 
+static const value_string  h248_pkg_dg_signals_vals[] = {
+	{ 0x0010, "d0"},
+	{ 0x0011, "d1"},
+	{ 0x0012, "d2"},
+	{ 0x0013, "d3"},
+	{0,NULL}
+};
+
 /* Signals defenitions */
 static h248_pkg_sig_t h248_pkg_dg_signals[] = {
-	{ 0x0010, &hf_h248_pkg_dg_sig_d0, &ett_h248_pkg_dg_sig_d0, NULL },
-	{ 0x0011, &hf_h248_pkg_dg_sig_d1, &ett_h248_pkg_dg_sig_d1, NULL },
-	{ 0x0012, &hf_h248_pkg_dg_sig_d2, &ett_h248_pkg_dg_sig_d2, NULL },
-	{ 0x0013, &hf_h248_pkg_dg_sig_d3, &ett_h248_pkg_dg_sig_d3, NULL },
+	{ 0x0010, &hf_h248_pkg_dg_sig_d0, &ett_h248_pkg_dg_sig_d0, NULL, NULL },
+	{ 0x0011, &hf_h248_pkg_dg_sig_d1, &ett_h248_pkg_dg_sig_d1, NULL, NULL },
+	{ 0x0012, &hf_h248_pkg_dg_sig_d2, &ett_h248_pkg_dg_sig_d2, NULL, NULL },
+	{ 0x0013, &hf_h248_pkg_dg_sig_d3, &ett_h248_pkg_dg_sig_d3, NULL, NULL },
 	/* TODO add the rest of the signals */
 
-	{ 0, NULL, NULL, NULL}
+	{ 0, NULL, NULL, NULL, NULL}
 };
 
 /* Packet defenitions */
 static h248_package_t h248_pkg_dg = {
 	0x0005,
 	&hf_h248_pkg_dg,
-	&hf_h248_pkg_dg_params,
 	&ett_h248_pkg_dg,
+	NULL,
+	h248_pkg_dg_signals_vals,
+	NULL,
+	NULL,
 	NULL,					/* Properties	*/
 	h248_pkg_dg_signals,	/* signals		*/
 	NULL,					/* events		*/
@@ -188,7 +211,6 @@ static h248_package_t h248_pkg_dg = {
 
 /* H.248.1 E.9 Analog Line Supervision Package */
 static int hf_h248_pkg_al = -1;
-static int hf_h248_pkg_al_param = -1;
 static int hf_h248_pkg_al_evt_onhook = -1;
 static int hf_h248_pkg_al_evt_offhook = -1;
 static int hf_h248_pkg_al_evt_flashhook = -1;
@@ -202,6 +224,27 @@ static gint ett_h248_pkg_al = -1;
 static gint ett_h248_pkg_al_evt_onhook = -1;
 static gint ett_h248_pkg_al_evt_offhook = -1;
 static gint ett_h248_pkg_al_evt_flashhook = -1;
+
+
+static const value_string  h248_pkg_al_evt_onhook_params_vals[] = {
+	{ 0x0001, "strict"},
+	{ 0x0002, "init"},
+	{ 0, NULL}
+};
+
+static const value_string  h248_pkg_al_evt_flashhook_params_vals[] = {
+	{ 0x0001, "mindur"},
+	{ 0, NULL}
+};
+
+static const value_string  h248_pkg_al_evts_vals[] = {
+	{ 0x0004, "onhook"},
+	{ 0x0005, "offhook"},
+	{ 0x0006, "flashhook"},
+	{ 0, NULL}
+};
+
+
 
 /* Events defenitions */
 static const value_string h248_pkg_al_evt_onhook_strict_vals[] = {
@@ -239,10 +282,9 @@ static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
 };
 
 static h248_pkg_evt_t h248_pkg_al_evts[] = {
-	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params },
-	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params },
-
-	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params },
+	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params, h248_pkg_al_evt_onhook_params_vals},
+	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params, h248_pkg_al_evt_onhook_params_vals },
+	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params, h248_pkg_al_evt_flashhook_params_vals },
 
 	{ 0, NULL, NULL, NULL}
 };
@@ -262,8 +304,11 @@ static const value_string h248_pkg_al_parameters[] = {
 static h248_package_t h248_pkg_al = {
 	0x0009,
 	&hf_h248_pkg_al,
-	&hf_h248_pkg_al_param,
 	&ett_h248_pkg_al,
+	NULL,
+	NULL,
+	h248_pkg_al_evts_vals,
+	NULL,
 	NULL,						/* Properties */
 	NULL,						/* signals */
 	h248_pkg_al_evts,			/* events */
@@ -272,10 +317,14 @@ static h248_package_t h248_pkg_al = {
 
 /* H.248.1 E.12 RTP package */
 static int hf_h248_pkg_rtp = -1;
-static int hf_h248_pkg_rtp_param = -1;
 static int hf_h248_pkg_rtp_stat_ps = -1;
 
 static int ett_h248_pkg_rtp = -1;
+
+static const value_string h248_pkg_rtp_stat_vals[] = {
+	{ 0x0004, "ps"},
+	{ 0, NULL}
+};
 
 static const value_string h248_pkg_rtp_parameters[] = {
 	{   0x0001, "pltrans (Payload Transition)" },
@@ -288,7 +337,7 @@ static const value_string h248_pkg_rtp_parameters[] = {
 };
 
 static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
-	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL },
+	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL},
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -296,8 +345,11 @@ static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
 static h248_package_t h248_pkg_rtp = {
 	0x000c,
 	&hf_h248_pkg_rtp,
-	&hf_h248_pkg_rtp_param,
 	&ett_h248_pkg_rtp,
+	h248_pkg_rtp_parameters,
+	NULL,
+	NULL,
+	NULL,
 	NULL,						/* Properties */
 	NULL,						/* signals */
 	NULL,						/* events */
@@ -306,7 +358,6 @@ static h248_package_t h248_pkg_rtp = {
 
 /* H.248.1 E.13 TDM Circuit Package */
 static int hf_h248_pkg_tdmc = -1;
-static int hf_h248_pkg_tdmc_param = -1;
 static int hf_h248_pkg_tdmc_ec = -1;
 static int hf_h248_pkg_tdmc_gain = -1;
 
@@ -316,6 +367,12 @@ static const true_false_string h248_tdmc_ec_vals = {
 	"On",
 	"Off"
 };
+static const value_string h248_pkg_tdmc_props_vals[] = {
+	{ 0x0008, "ec"},
+	{ 0x000a, "gain"},
+	{ 0, NULL}
+};
+
 
 static h248_pkg_param_t h248_pkg_tdmc_props[] = {
 	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, &implicit },
@@ -326,8 +383,11 @@ static h248_pkg_param_t h248_pkg_tdmc_props[] = {
 static h248_package_t h248_pkg_tdmc = {
 	0x000d,
 	&hf_h248_pkg_tdmc,
-	&hf_h248_pkg_tdmc_param,
 	&ett_h248_pkg_tdmc,
+	h248_pkg_tdmc_props_vals,
+	NULL,
+	NULL,
+	NULL,
 	h248_pkg_tdmc_props,		/* Properties */
 	NULL,						/* signals */
 	NULL,						/* events */
@@ -345,10 +405,6 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
 		/* H.248.1 E.9 Analog Line Supervision Package */
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_h248_pkg_al_param,
-			{ "Parameter", "h248.pkg.al.parameter", 
-			FT_UINT16, BASE_HEX, VALS(h248_pkg_al_parameters), 0, "Parameter", HFILL }
-		},
 		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
@@ -359,10 +415,6 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_al_evt_flashhook_par_mindur, { "Minimum duration in ms", "h248.pkg.al.ev.flashhook.mindur", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 		/* H.248.1 E.12 RTP package */
 		{ &hf_h248_pkg_rtp, { "RTP package", "h248.pkg.rtp", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
-		{ &hf_h248_pkg_rtp_param,	
-			{ "Parameter", "h248.pkg.rtp.parameter", 
-			FT_UINT16, BASE_HEX, VALS(h248_pkg_rtp_parameters), 0, "Parameter", HFILL }
-		},
 		{ &hf_h248_pkg_rtp_stat_ps, { "Packets Sent", "h248.pkg.rtp.stat.ps", FT_UINT64, BASE_DEC, NULL, 0, "Packets Sent", HFILL }},
 		/* H.248.1 E.13 TDM Circuit Package */
 		{ &hf_h248_pkg_tdmc, { "TDM Circuit Package", "h248.pkg.tdmc", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
@@ -402,4 +454,5 @@ void proto_register_h248_annex_e(void) {
 
 void proto_reg_handoff_h248_annex_e(void) {
 }
+
 

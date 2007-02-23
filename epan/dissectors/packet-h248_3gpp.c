@@ -36,7 +36,6 @@
  * 3GPP TS 29.232 -- 15.1.1
  */
 static int hf_h248_package_3GUP = -1;
-static int hf_h248_package_3GUP_parameters = -1;
 
 static int hf_h248_package_3GUP_Mode = -1;
 static int hf_h248_package_3GUP_UPversions = -1;
@@ -47,6 +46,15 @@ static int hf_h248_package_3GUP_initdir = -1;
 static gint ett_h248_package_3GUP = -1;
 
 static gboolean implicit = FALSE;
+
+static const value_string h248_3GUP_properties_vals[] = {
+	{ 0x0001, "Mode" },
+	{ 0x0002, "Versions" },
+	{ 0x0003, "delerrsdu" },
+	{ 0x0004, "interface" },
+	{ 0x0005, "initdir" },
+	{0,     NULL}
+};
 
 static const value_string h248_3GUP_Mode_vals[] = {
 	{   0x00000001, "Transparent mode" },
@@ -102,7 +110,7 @@ static const value_string h248_3GUP_parameters[] = {
 	{0,     NULL}
 };
 
-h248_pkg_param_t h248_package_3GUP_properties[] = {
+static const h248_pkg_param_t h248_package_3GUP_properties[] = {
 	{ 0x0001, &hf_h248_package_3GUP_Mode, h248_param_ber_integer, &implicit },
 	{ 0x0002, &hf_h248_package_3GUP_UPversions, h248_param_ber_integer, &implicit },
 	{ 0x0003, &hf_h248_package_3GUP_delerrsdu, h248_param_ber_integer, &implicit },
@@ -111,11 +119,14 @@ h248_pkg_param_t h248_package_3GUP_properties[] = {
 	{ 0x0000, NULL, NULL, NULL }
 };
 
-static h248_package_t h248_package_3GUP = {
+static const h248_package_t h248_package_3GUP = {
 	0x002f,
 	&hf_h248_package_3GUP,
-	&hf_h248_package_3GUP_parameters,
 	&ett_h248_package_3GUP,
+	h248_3GUP_properties_vals,
+	NULL,
+	NULL,
+	NULL,
 	h248_package_3GUP_properties,
 	NULL,
 	NULL,
@@ -129,7 +140,6 @@ static h248_package_t h248_package_3GUP = {
  */
 
 static int hf_h248_package_3GCSD = -1;
-static int hf_h248_package_3GCSD_parameters = -1;
 
 static int hf_h248_package_3GCSD_plmnbc = -1;
 static int hf_h248_package_3GCSD_gsmchancod = -1;
@@ -145,6 +155,40 @@ static gint ett_h248_package_3GCSD = -1;
 static gint ett_h248_3GCSD_evt_protres = -1;
 static gint ett_h248_3GCSD_evt_ratechg = -1;
 static gint ett_pkg_3GCSD_sig_actprot = -1;
+
+static const value_string h248_3GCSD_properties_vals[] = {
+	{ 0x0001, "plmnbc"},
+	{ 0x0002, "gsmchancod"},
+	{0,     NULL}
+};
+
+static const value_string h248_3GCSD_signals_vals[] = {
+	{ 0x0001, "actprot" },
+	{0,     NULL}
+};
+
+static const value_string h248_3GCSD_signal_actprot_vals[] = {
+	{ 0x0001, "localpeer" },
+	{0,     NULL}
+};
+
+
+static const value_string h248_3GCSD_events_vals[] = {
+	{ 0x0001, "protres"},
+	{ 0x0002, "ratechg"},
+	{0,     NULL}
+};
+
+static const value_string h248_3GCSD_event_protres_vals[] = {
+	{ 0x0001, "result"},
+	{ 0x0002, "cause"},
+	{0,     NULL}
+};
+
+static const value_string h248_3GCSD_event_ratechg_vals[] = {
+	{ 0x0001, "rate"},
+	{0,     NULL}
+};
 
 static const value_string h248_3GCSD_evt_protres_result_vals[] = {
 	{1,"Success"},
@@ -164,48 +208,52 @@ static const value_string h248_3GCSD_actprot_sig_localpeer_vals[] = {
 	{0,NULL}
 };
 
-static h248_pkg_param_t h248_package_3GCSD_props[] = {
-	{ 0x0001, &hf_h248_package_3GCSD_plmnbc, h248_param_ber_octetstring, &implicit },
+static const h248_pkg_param_t h248_package_3GCSD_props[] = {
+	{ 0x0001, &hf_h248_package_3GCSD_plmnbc, h248_param_ber_octetstring, &implicit},
 	{ 0x0002, &hf_h248_package_3GCSD_gsmchancod, h248_param_ber_octetstring, &implicit },
 	{ 0x0000, NULL, NULL, NULL }
 };
 
-static h248_pkg_param_t h248_pkg_3GCSD_evt_protres_params[] = {
+static const h248_pkg_param_t h248_pkg_3GCSD_evt_protres_params[] = {
 	{ 0x0001, &hf_h248_pkg_3GCSD_evt_protres_result, h248_param_ber_integer, &implicit },
 	{ 0x0002, &hf_h248_pkg_3GCSD_evt_protres_cause, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_param_t h248_pkg_3GCSD_evt_ratechg_params[] = {
+static const h248_pkg_param_t h248_pkg_3GCSD_evt_ratechg_params[] = {
 	{ 0x0001, &hf_h248_pkg_3GCSD_evt_ratechg_rate, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_evt_t h248_package_3GCSD_evts[] = {
-	{ 0x0001, &hf_h248_pkg_3GCSD_evt_protres, &ett_h248_3GCSD_evt_protres, h248_pkg_3GCSD_evt_protres_params},
-	{ 0x0002, &hf_h248_pkg_3GCSD_evt_ratechg, &ett_h248_3GCSD_evt_ratechg, h248_pkg_3GCSD_evt_ratechg_params},
+static const h248_pkg_evt_t h248_package_3GCSD_evts[] = {
+	{ 0x0001, &hf_h248_pkg_3GCSD_evt_protres, &ett_h248_3GCSD_evt_protres, h248_pkg_3GCSD_evt_protres_params, h248_3GCSD_event_protres_vals},
+	{ 0x0002, &hf_h248_pkg_3GCSD_evt_ratechg, &ett_h248_3GCSD_evt_ratechg, h248_pkg_3GCSD_evt_ratechg_params, h248_3GCSD_event_ratechg_vals},
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_param_t h248_pkg_3GCSD_actprot_sig_params[] = {
+static const h248_pkg_param_t h248_pkg_3GCSD_actprot_sig_params[] = {
 	{ 0x0001, &hf_h248_pkg_3GCSD_actprot_sig_localpeer, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_sig_t h248_package_3GCSD_sigs[] = {
+static const h248_pkg_sig_t h248_package_3GCSD_sigs[] = {
 	{ 0x0010, &hf_h248_pkg_3GCSD_sig_actprot, &ett_pkg_3GCSD_sig_actprot, h248_pkg_3GCSD_actprot_sig_params },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_package_t h248_package_3GCSD = {
+static const h248_package_t h248_package_3GCSD = {
 	0x0030,
 	&hf_h248_package_3GCSD,
-	&hf_h248_package_3GCSD_parameters,
 	&ett_h248_package_3GCSD,
+	h248_3GCSD_properties_vals,
+	NULL,
+	NULL,
+	NULL,
 	h248_package_3GCSD_props,
 	h248_package_3GCSD_sigs,
 	h248_package_3GCSD_evts,
-	NULL};
+	NULL
+};
 
 
 /* 
@@ -213,7 +261,7 @@ static h248_package_t h248_package_3GCSD = {
  * 3GPP TS 29.232 -- 15.2.2
  */
 static int hf_h248_package_3GTFO = -1;
-static int hf_h248_package_3GTFO_parameters = -1;
+
 static int hf_h248_pkg_3GTFO_evt_codec_modify = -1;
 static int hf_h248_pkg_3GTFO_evt_distant_codec_list = -1;
 static int hf_h248_pkg_3GTFO_evt_status = -1;
@@ -228,47 +276,74 @@ static gint ett_h248_3GTFO_evt_status = -1;
 static gint ett_h248_3GTFO_evt_distant_codec_list = -1;
 static gint ett_h248_3GTFO_evt_codec_modify = -1;
 
+static const value_string h248_package_3GTFO_props_vals[] = {
+	{1,"enable"},
+	{2,"codeclist"},
+	{0,NULL}
+};
+
+static const value_string h248_pkg_3GTFO_evt_codec_modify_params_vals[] = {
+	{11,"optimalcodec"},
+	{0,NULL}
+};
+
+
+static const value_string h248_pkg_3GTFO_evt_distant_codec_list_params_vals[] = {
+	{13,"distlist"},
+	{0,NULL}
+};
+
+static const value_string h248_package_3GTFO_evts_vals[] = {
+	{10,"codec_modify"},
+	{12,"distant_codec_list"},
+	{14,"status"},
+	{0,NULL}
+};
+
 static const value_string tfoenable_vals[] = {
 	{1,"On"},
 	{2,"Off"},
 	{0,NULL}
 };
 
-static h248_pkg_param_t h248_package_3GTFO_props[] = {
+static const h248_pkg_param_t h248_package_3GTFO_props[] = {
 	{ 0x0001, &hf_h248_pkg_3GTFO_enable, h248_param_ber_integer, &implicit },
 	{ 0x0002, &hf_h248_pkg_3GTFO_codeclist, h248_param_item, &implicit }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
 
-static h248_pkg_param_t h248_pkg_3GTFO_evt_codec_modify_params[] = {
+static const h248_pkg_param_t h248_pkg_3GTFO_evt_codec_modify_params[] = {
 	{ 0x0011, &hf_h248_pkg_3GTFO_evt_codec_modify_optimalcodec, h248_param_ber_octetstring, &implicit }, /* Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
 
-static h248_pkg_param_t h248_pkg_3GTFO_evt_distant_codec_list_params[] = {
+static const h248_pkg_param_t h248_pkg_3GTFO_evt_distant_codec_list_params[] = {
 	{ 0x0013, &hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist, h248_param_item, &implicit }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_param_t h248_pkg_3GTFO_evt_status_params[] = {
+static const h248_pkg_param_t h248_pkg_3GTFO_evt_status_params[] = {
 	{ 0x0001, &hf_h248_pkg_3GTFO_evt_status_tfostatus, h248_param_ber_boolean, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_evt_t h248_package_3GTFO_evts[] = {
-	{ 0x0010, &hf_h248_pkg_3GTFO_evt_codec_modify, &ett_h248_3GTFO_evt_codec_modify, h248_pkg_3GTFO_evt_codec_modify_params},
-	{ 0x0012, &hf_h248_pkg_3GTFO_evt_distant_codec_list, &ett_h248_3GTFO_evt_distant_codec_list, h248_pkg_3GTFO_evt_distant_codec_list_params},
+static const h248_pkg_evt_t h248_package_3GTFO_evts[] = {
+	{ 0x0010, &hf_h248_pkg_3GTFO_evt_codec_modify, &ett_h248_3GTFO_evt_codec_modify, h248_pkg_3GTFO_evt_codec_modify_params, h248_pkg_3GTFO_evt_codec_modify_params_vals},
+	{ 0x0012, &hf_h248_pkg_3GTFO_evt_distant_codec_list, &ett_h248_3GTFO_evt_distant_codec_list, h248_pkg_3GTFO_evt_distant_codec_list_params, h248_pkg_3GTFO_evt_distant_codec_list_params_vals},
 	{ 0x0014, &hf_h248_pkg_3GTFO_evt_status, &ett_h248_3GTFO_evt_status, h248_pkg_3GTFO_evt_status_params},
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_package_t h248_package_3GTFO = {
+static const h248_package_t h248_package_3GTFO = {
 	0x0031,
 	&hf_h248_package_3GTFO,
-	&hf_h248_package_3GTFO_parameters,
 	&ett_h248_package_3GTFO,
+	h248_package_3GTFO_props_vals,
+	NULL,
+	h248_package_3GTFO_evts_vals,
+	NULL,
 	h248_package_3GTFO_props,
 	NULL,
 	h248_package_3GTFO_evts,
@@ -314,10 +389,6 @@ void proto_register_h248_3gpp(void) {
 		{ "Mode", "h248.package_3GUP.Mode",
 			FT_UINT32, BASE_DEC, VALS(h248_3GUP_Mode_vals), 0,
 			"Mode", HFILL }},
-		{ &hf_h248_package_3GUP_parameters,
-		{ "Parameter", "h248.package_3GUP.parameter",
-			FT_UINT16, BASE_HEX, VALS(h248_3GUP_parameters), 0,
-			"Parameter", HFILL }},
 		{ &hf_h248_package_3GUP_UPversions,
 		{ "UPversions", "h248.package_3GUP.upversions",
 			FT_UINT32, BASE_DEC, VALS(h248_3GUP_upversions_vals), 0,
@@ -340,10 +411,6 @@ void proto_register_h248_3gpp(void) {
 		{ "CSD Package", "h248.package_3GCSD",
 			FT_BYTES, BASE_HEX, NULL, 0,
 			"Circuit Switched Data Package", HFILL }},
-		{ &hf_h248_package_3GCSD_parameters,
-		{ "CSD Package params", "h248.package_3GCSD.params",
-			FT_BYTES, BASE_DEC, NULL, 0,
-			"", HFILL }},
 		{ &hf_h248_package_3GCSD_plmnbc,
 		{ "PLMN Bearer Capability", "h248.package_3GCSD.plmnbc",
 			FT_BYTES, BASE_DEC, NULL, 0,
@@ -386,10 +453,6 @@ void proto_register_h248_3gpp(void) {
 		{ "Tandem Free Operation ", "h248.package_3GTFO",
 			FT_BYTES, BASE_HEX, NULL, 0,
 			"This package defines events and properties for Tandem Free Operation (TFO) control", HFILL }},
-		{ &hf_h248_package_3GTFO_parameters,
-		{ "Tandem Free Operation", "h248.package_3GTFO",
-			FT_BYTES, BASE_DEC, NULL, 0,
-			"", HFILL }},
 		{ &hf_h248_pkg_3GTFO_enable,
 		{ "TFO Activity Control", "h248.package_3GTFO.tfoenable",
 			FT_UINT32, BASE_DEC, VALS(tfoenable_vals), 0,
@@ -452,6 +515,7 @@ void proto_register_h248_3gpp(void) {
 
 void proto_reg_handoff_h248_3gpp(void) {
 }
+
 
 
 
