@@ -976,12 +976,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		col_add_fstr( pinfo->cinfo, COL_INFO,
-		    "Payload type=%s, SSRC=%u, Seq=%u, Time=%u%s",
+		    "PT=%s, SSRC=%u, Seq=%u, Time=%u%s",
 			payload_type_str ? payload_type_str : val_to_str( payload_type, rtp_payload_type_vals,"Unknown (%u)" ),
 		    sync_src,
 		    seq_num,
 		    timestamp,
-		    marker_set ? ", Mark" : "");
+		    marker_set ? ", Mark " : " ");
 	}
 
 
