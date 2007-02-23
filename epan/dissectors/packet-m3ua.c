@@ -303,6 +303,7 @@ static int hf_li = -1;
 /* Initialize the subtree pointers */
 static gint ett_m3ua = -1;
 static gint ett_parameter = -1;
+static gint ett_mtp3_equiv = -1;
 
 static module_t *m3ua_module;
 static dissector_handle_t mtp3_handle, data_handle;
@@ -1127,12 +1128,6 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
     item = proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
     if (mtp3_pc_structured())
       proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, DATA_DPC_OFFSET)));
-        proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
-
-    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
-    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
-    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
-    PROTO_ITEM_SET_HIDDEN(proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER));
 
     proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
@@ -1142,6 +1137,16 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
 
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
     proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
+    
+    item = proto_tree_add_text(parameter_tree,parameter_tvb,0,0,"MTP3 equivalents");
+    parameter_tree = proto_item_add_subtree(item,ett_mtp3_equiv);
+    
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_pc, parameter_tvb, DATA_DPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mtp3_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
+
   }
   
   payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
@@ -2007,6 +2012,7 @@ proto_register_m3ua(void)
   static gint *ett[] = {
     &ett_m3ua,
     &ett_parameter,
+    &ett_mtp3_equiv,
   };
 
   static enum_val_t options[] = {
