@@ -275,6 +275,23 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 	{  3,	"Pre-emptive priority"},
 	{  0,	NULL },
 };
+/* RFC 4585 */
+static const value_string rtcp_rtpfb_fmt_vals[] =
+{
+	{  1,	"Generic negative acknowledgement"},
+	{  31,	"Reserved for future extensions"},
+	{  0,	NULL },
+};
+
+static const value_string rtcp_psfb_fmt_vals[] =
+{
+	{  1,	"Picture Loss Indication"},
+	{  2,	"Slice Loss Indication"},
+	{  3,	"Reference Picture Selection Indication"},
+	{  15,	"Application Layer Feedback"},
+	{  31,	"Reserved for future extensions"},
+	{  0,	NULL },
+};
 
 /* RTCP header fields                   */
 static int proto_rtcp                = -1;
@@ -384,6 +401,9 @@ static int hf_rtcp_xr_stats_devttl = -1;
 static int hf_rtcp_xr_lrr = -1;
 static int hf_rtcp_xr_dlrr = -1;
 static int hf_rtcp_length_check = -1;
+static int hf_rtcp_rtpfb_fmt = -1;
+static int hf_rtcp_psfb_fmt = -1;
+static int hf_rtcp_fci = -1;
 
 /* RTCP setup fields */
 static int hf_rtcp_setup        = -1;
@@ -2343,6 +2363,49 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             case RTCP_NACK:
                 offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
                 break;
+			case RTCP_RTPFB:
+				/* Transport layer FB message */
+				/* Feedback message type (FMT): 5 bits */
+				proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                /* SSRC of packet sender, 32 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                offset += 4;
+				/* SSRC of media source, 32 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                offset += 4;
+				/* Feedback Control Information (FCI) */
+				if (packet_length > 2)
+					proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+				break;
+
+			case RTCP_PSFB:
+				/* Payload-specific FB message */
+				/* Feedback message type (FMT): 5 bits */
+				proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet type, 8 bits */
+                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+                offset++;
+                /* Packet length in 32 bit words MINUS one, 16 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_length, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+                offset += 2;
+                /* SSRC of packet sender, 32 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                offset += 4;
+				/* SSRC of media source, 32 bits */
+                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+                offset += 4;
+				/* Feedback Control Information (FCI) */
+				if (packet_length > 2)
+					proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+				break;
             default:
                 /*
                  * To prevent endless loops in case of an unknown message type
@@ -3788,8 +3851,44 @@ proto_register_rtcp(void)
 				"RTCP frame length check", HFILL
 			}
 		},
-};
+		{
+			&hf_rtcp_rtpfb_fmt,
+			{
+				"RTCP Feedback message type (FMT)",
+				"rtcp.rtpfb.fmt",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_rtpfb_fmt_vals),
+				0x15,
+				"RTCP Feedback message type (FMT)", HFILL
+			}
+		},
+		{
+			&hf_rtcp_psfb_fmt,
+			{
+				"RTCP Feedback message type (FMT)",
+				"rtcp.psfb.fmt",
+				FT_UINT8,
+				BASE_DEC,
+				VALS(rtcp_psfb_fmt_vals),
+				0x15,
+				"RTCP Feedback message type (FMT)", HFILL
+			}
+		},
+		{
+			&hf_rtcp_fci,
+			{
+				"Feedback Control Information (FCI)",
+				"rtcp.fci",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Feedback Control Information (FCI)", HFILL
+			}
+		},
 
+};
 	static gint *ett[] =
 	{
 		&ett_rtcp,
