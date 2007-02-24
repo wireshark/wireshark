@@ -526,7 +526,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	Beside the usual installer options like where to install the program, 
 	there are several optional components.
     </para>
-    <tip><title>Tip!</title>
+    <tip><title>Tip: Just keep the defaults!</title>
 	<para>
 	If you are unsure which settings to select, just keep the default settings.
     </para>
@@ -552,6 +552,12 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	protocol analyzer.
 	</para></listitem>
 	</itemizedlist>
+	You may try the GTK1 selection if you experience any GUI problems with GTK2, 
+	e.g. Windows with only 256 (8bit) color displays won't work well with GTK2. 
+	However, the older GTK1 user interface doesn't provide some advanced 
+	analyze and statistics features.
+	</para>
+	<para>
 	The dissection extensions for Wireshark and TShark:
 	<itemizedlist>
 	<listitem><para>
