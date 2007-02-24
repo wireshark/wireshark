@@ -243,23 +243,31 @@
 	Remarks:
 
 	<itemizedlist>
+	<listitem><para>Older Windows versions are no longer supported because of 
+	three reasons: 
+	None of the developers actively use those systems any longer which 
+	makes support difficult.
+	The libraries Wireshark depends on (GTK, WinPCap, ...) also dropping support 
+	for these systems.
+	Microsoft also dropped support for these systems.
+	</para></listitem>
 	<listitem><para>Windows 95, 98 and ME will no longer work with Wireshark.
 	The last known version to work was Ethereal 0.99.0 (which includes 
-	WinPcap 3.1). 
-	The libraries Wireshark depends on are no longer supporting these systems. 
+	WinPcap 3.1), you still can get it from: <ulink 
+	url="http://ethereal.com/download.html" />. 
 	BTW: Microsoft no longer supports 98/ME since July 11, 2006!
 	</para></listitem>
 	<listitem><para>Windows NT 4.0 will no longer work with Wireshark.
 	The last known version to work was Wireshark 0.99.4 (which includes 
-	WinPcap 3.1). 
-	The libraries Wireshark depends on are no longer supporting this system. 
+	WinPcap 3.1), you still can get it from: <ulink 
+	url="http://prdownloads.sourceforge.net/wireshark/wireshark-setup-0.99.4.exe" />. 
 	BTW: Microsoft no longer supports NT 4.0 since December 31, 2005!
 	</para></listitem>
 	<listitem><para>Windows CE and the embedded (NT/XP) versions are not 
 	supported!
 	</para></listitem>
 	<listitem><para>64-bit processors run Wireshark in 32 bit emulation 
-	(called WoW64), at least WinPcap 4.0 beta 1 is required for that
+	(called WoW64), at least WinPcap 4.0 is required for that
 	</para></listitem>
 	<listitem><para>Multi monitor setups are supported but may behave a bit 
 	strangely
