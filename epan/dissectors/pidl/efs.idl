@@ -3,7 +3,7 @@
         by Jean-Baptiste Marchand
 */
 
-import "security.idl";
+/* import "security.idl";*/
 
 [ 
   uuid("c681d488-d850-11d0-8c52-00c04fd90f7e"),

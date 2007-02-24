@@ -14,8 +14,6 @@
 #ifndef __PACKET_DCERPC_EVENTLOG_H
 #define __PACKET_DCERPC_EVENTLOG_H
 
-#include "packet-dcerpc-lsa.h"
-
 int eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 int eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);

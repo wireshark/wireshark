@@ -1,6 +1,6 @@
 #include "idl_types.h"
 
-import "lsa.idl", "security.idl";
+/* import "lsa.idl", "security.idl";*/
 
 /*
   eventlog interface definition

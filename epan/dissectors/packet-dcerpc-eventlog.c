@@ -387,12 +387,13 @@ eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 
-/* IDL: typedef bitmap { */
+
+/* IDL: bitmap { */
 /* IDL: 	EVENTLOG_SEQUENTIAL_READ =  0x0001 , */
 /* IDL: 	EVENTLOG_SEEK_READ =  0x0002 , */
 /* IDL: 	EVENTLOG_FORWARDS_READ =  0x0004 , */
 /* IDL: 	EVENTLOG_BACKWARDS_READ =  0x0008 , */
-/* IDL: } eventlogReadFlags; */
+/* IDL: } */
 
 int
 eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
@@ -453,14 +454,15 @@ eventlog_dissect_bitmap_eventlogReadFlags(tvbuff_t *tvb, int offset, packet_info
 	return offset;
 }
 
-/* IDL: typedef bitmap { */
+
+/* IDL: bitmap { */
 /* IDL: 	EVENTLOG_SUCCESS =  0x0000 , */
 /* IDL: 	EVENTLOG_ERROR_TYPE =  0x0001 , */
 /* IDL: 	EVENTLOG_WARNING_TYPE =  0x0002 , */
 /* IDL: 	EVENTLOG_INFORMATION_TYPE =  0x0004 , */
 /* IDL: 	EVENTLOG_AUDIT_SUCCESS =  0x0008 , */
 /* IDL: 	EVENTLOG_AUDIT_FAILURE =  0x0010 , */
-/* IDL: } eventlogEventTypes; */
+/* IDL: } */
 
 int
 eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
@@ -537,10 +539,11 @@ eventlog_dissect_bitmap_eventlogEventTypes(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	uint16 unknown0; */
 /* IDL: 	uint16 unknown1; */
-/* IDL: } eventlog_OpenUnknown0; */
+/* IDL: } */
 
 static int
 eventlog_dissect_element_OpenUnknown0_unknown0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -584,7 +587,8 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb, int offset, packet_info *pin
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	uint32 size; */
 /* IDL: 	uint32 reserved; */
 /* IDL: 	uint32 record_number; */
@@ -605,7 +609,7 @@ eventlog_dissect_struct_OpenUnknown0(tvbuff_t *tvb, int offset, packet_info *pin
 /* IDL: 	[flag(LIBNDR_FLAG_STR_NULLTERM)] string computer_name; */
 /* IDL: 	[flag(LIBNDR_FLAG_STR_NULLTERM)] string strings[num_of_strings]; */
 /* IDL: 	[flag(LIBNDR_FLAG_STR_ASCII|LIBNDR_FLAG_STR_NULLTERM)] string raw_data; */
-/* IDL: } eventlog_Record; */
+/* IDL: } */
 
 static int
 eventlog_dissect_element_Record_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -779,10 +783,11 @@ eventlog_dissect_struct_Record(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 	return offset;
 }
 
-/* IDL: typedef struct { */
+
+/* IDL: struct { */
 /* IDL: 	uint32 unknown0; */
 /* IDL: 	uint32 unknown1; */
-/* IDL: } eventlog_ChangeUnknown0; */
+/* IDL: } */
 
 static int
 eventlog_dissect_element_ChangeUnknown0_unknown0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
@@ -837,7 +842,7 @@ eventlog_dissect_element_ClearEventLogW_handle(tvbuff_t *tvb, int offset, packet
 static int
 eventlog_dissect_element_ClearEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ClearEventLogW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ClearEventLogW_handle, 0);
 
 	return offset;
 }
@@ -864,10 +869,11 @@ eventlog_dissect_element_ClearEventLogW_backupfilename_(tvbuff_t *tvb, int offse
 /* IDL: ); */
 
 static int
-eventlog_dissect_ClearEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ClearEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ClearEventLogW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -877,8 +883,9 @@ eventlog_dissect_ClearEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-eventlog_dissect_ClearEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ClearEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ClearEventLogW";
 	offset = eventlog_dissect_element_ClearEventLogW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_ClearEventLogW_backupfilename(tvb, offset, pinfo, tree, drep);
@@ -897,7 +904,7 @@ eventlog_dissect_element_BackupEventLogW_handle(tvbuff_t *tvb, int offset, packe
 static int
 eventlog_dissect_element_BackupEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_BackupEventLogW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_BackupEventLogW_handle, 0);
 
 	return offset;
 }
@@ -924,10 +931,11 @@ eventlog_dissect_element_BackupEventLogW_backupfilename_(tvbuff_t *tvb, int offs
 /* IDL: ); */
 
 static int
-eventlog_dissect_BackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_BackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="BackupEventLogW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -937,8 +945,9 @@ eventlog_dissect_BackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-eventlog_dissect_BackupEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_BackupEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="BackupEventLogW";
 	offset = eventlog_dissect_element_BackupEventLogW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_BackupEventLogW_backupfilename(tvb, offset, pinfo, tree, drep);
@@ -957,7 +966,7 @@ eventlog_dissect_element_CloseEventLog_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_CloseEventLog_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_CloseEventLog_handle, NULL, NULL, 0x0002&0x01, 0x0002&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_CloseEventLog_handle, PIDL_POLHND_CLOSE);
 
 	return offset;
 }
@@ -967,10 +976,11 @@ eventlog_dissect_element_CloseEventLog_handle_(tvbuff_t *tvb, int offset, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_CloseEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_CloseEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="CloseEventLog";
 	offset = eventlog_dissect_element_CloseEventLog_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -983,8 +993,9 @@ eventlog_dissect_CloseEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_CloseEventLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_CloseEventLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="CloseEventLog";
 	offset = eventlog_dissect_element_CloseEventLog_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1001,7 +1012,7 @@ eventlog_dissect_element_DeregisterEventSource_handle(tvbuff_t *tvb, int offset,
 static int
 eventlog_dissect_element_DeregisterEventSource_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_DeregisterEventSource_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_DeregisterEventSource_handle, 0);
 
 	return offset;
 }
@@ -1011,10 +1022,11 @@ eventlog_dissect_element_DeregisterEventSource_handle_(tvbuff_t *tvb, int offset
 /* IDL: ); */
 
 static int
-eventlog_dissect_DeregisterEventSource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_DeregisterEventSource_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DeregisterEventSource";
 	offset = eventlog_dissect_element_DeregisterEventSource_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1027,8 +1039,9 @@ eventlog_dissect_DeregisterEventSource_response(tvbuff_t *tvb _U_, int offset _U
 }
 
 static int
-eventlog_dissect_DeregisterEventSource_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_DeregisterEventSource_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DeregisterEventSource";
 	offset = eventlog_dissect_element_DeregisterEventSource_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1045,7 +1058,7 @@ eventlog_dissect_element_GetNumRecords_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_GetNumRecords_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetNumRecords_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetNumRecords_handle, 0);
 
 	return offset;
 }
@@ -1064,10 +1077,11 @@ eventlog_dissect_element_GetNumRecords_number(tvbuff_t *tvb, int offset, packet_
 /* IDL: ); */
 
 static int
-eventlog_dissect_GetNumRecords_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetNumRecords_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="GetNumRecords";
 	offset = eventlog_dissect_element_GetNumRecords_number(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1080,8 +1094,9 @@ eventlog_dissect_GetNumRecords_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_GetNumRecords_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetNumRecords_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetNumRecords";
 	offset = eventlog_dissect_element_GetNumRecords_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1098,7 +1113,7 @@ eventlog_dissect_element_GetOldestRecord_handle(tvbuff_t *tvb, int offset, packe
 static int
 eventlog_dissect_element_GetOldestRecord_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetOldestRecord_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetOldestRecord_handle, 0);
 
 	return offset;
 }
@@ -1117,10 +1132,11 @@ eventlog_dissect_element_GetOldestRecord_oldest(tvbuff_t *tvb, int offset, packe
 /* IDL: ); */
 
 static int
-eventlog_dissect_GetOldestRecord_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetOldestRecord_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="GetOldestRecord";
 	offset = eventlog_dissect_element_GetOldestRecord_oldest(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1133,8 +1149,9 @@ eventlog_dissect_GetOldestRecord_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-eventlog_dissect_GetOldestRecord_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetOldestRecord_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetOldestRecord";
 	offset = eventlog_dissect_element_GetOldestRecord_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
@@ -1151,7 +1168,7 @@ eventlog_dissect_element_ChangeNotify_handle(tvbuff_t *tvb, int offset, packet_i
 static int
 eventlog_dissect_element_ChangeNotify_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ChangeNotify_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ChangeNotify_handle, 0);
 
 	return offset;
 }
@@ -1187,10 +1204,11 @@ eventlog_dissect_element_ChangeNotify_unknown3(tvbuff_t *tvb, int offset, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_ChangeNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ChangeNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ChangeNotify";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1200,8 +1218,9 @@ eventlog_dissect_ChangeNotify_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-eventlog_dissect_ChangeNotify_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ChangeNotify_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ChangeNotify";
 	offset = eventlog_dissect_element_ChangeNotify_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_ChangeNotify_unknown2(tvb, offset, pinfo, tree, drep);
@@ -1270,7 +1289,7 @@ eventlog_dissect_element_OpenEventLogW_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_OpenEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenEventLogW_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenEventLogW_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -1285,10 +1304,11 @@ eventlog_dissect_element_OpenEventLogW_handle_(tvbuff_t *tvb, int offset, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_OpenEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenEventLogW";
 	offset = eventlog_dissect_element_OpenEventLogW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1301,8 +1321,9 @@ eventlog_dissect_OpenEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_OpenEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenEventLogW";
 	offset = eventlog_dissect_element_OpenEventLogW_unknown0(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_OpenEventLogW_logname(tvb, offset, pinfo, tree, drep);
@@ -1375,7 +1396,7 @@ eventlog_dissect_element_RegisterEventSourceW_handle(tvbuff_t *tvb, int offset, 
 static int
 eventlog_dissect_element_RegisterEventSourceW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_RegisterEventSourceW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_RegisterEventSourceW_handle, 0);
 
 	return offset;
 }
@@ -1390,10 +1411,11 @@ eventlog_dissect_element_RegisterEventSourceW_handle_(tvbuff_t *tvb, int offset,
 /* IDL: ); */
 
 static int
-eventlog_dissect_RegisterEventSourceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterEventSourceW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="RegisterEventSourceW";
 	offset = eventlog_dissect_element_RegisterEventSourceW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1406,8 +1428,9 @@ eventlog_dissect_RegisterEventSourceW_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-eventlog_dissect_RegisterEventSourceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterEventSourceW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="RegisterEventSourceW";
 	offset = eventlog_dissect_element_RegisterEventSourceW_unknown0(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_RegisterEventSourceW_logname(tvb, offset, pinfo, tree, drep);
@@ -1472,7 +1495,7 @@ eventlog_dissect_element_OpenBackupEventLogW_handle(tvbuff_t *tvb, int offset, p
 static int
 eventlog_dissect_element_OpenBackupEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenBackupEventLogW_handle, NULL, NULL, 0x0001&0x01, 0x0001&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_OpenBackupEventLogW_handle, PIDL_POLHND_OPEN);
 
 	return offset;
 }
@@ -1486,10 +1509,11 @@ eventlog_dissect_element_OpenBackupEventLogW_handle_(tvbuff_t *tvb, int offset, 
 /* IDL: ); */
 
 static int
-eventlog_dissect_OpenBackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenBackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenBackupEventLogW";
 	offset = eventlog_dissect_element_OpenBackupEventLogW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1502,8 +1526,9 @@ eventlog_dissect_OpenBackupEventLogW_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-eventlog_dissect_OpenBackupEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenBackupEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenBackupEventLogW";
 	offset = eventlog_dissect_element_OpenBackupEventLogW_unknown0(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_OpenBackupEventLogW_logname(tvb, offset, pinfo, tree, drep);
@@ -1526,7 +1551,7 @@ eventlog_dissect_element_ReadEventLogW_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_ReadEventLogW_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_handle, 0);
 
 	return offset;
 }
@@ -1590,10 +1615,11 @@ eventlog_dissect_element_ReadEventLogW_real_size(tvbuff_t *tvb, int offset, pack
 /* IDL: ); */
 
 static int
-eventlog_dissect_ReadEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReadEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ReadEventLogW";
 	offset = eventlog_dissect_element_ReadEventLogW_data(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1612,8 +1638,9 @@ eventlog_dissect_ReadEventLogW_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_ReadEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReadEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ReadEventLogW";
 	offset = eventlog_dissect_element_ReadEventLogW_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_ReadEventLogW_flags(tvb, offset, pinfo, tree, drep);
@@ -1630,10 +1657,11 @@ eventlog_dissect_ReadEventLogW_request(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_ReportEventW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReportEventW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ReportEventW";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1643,8 +1671,9 @@ eventlog_dissect_ReportEventW_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-eventlog_dissect_ReportEventW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReportEventW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ReportEventW";
 	return offset;
 }
 
@@ -1653,10 +1682,11 @@ eventlog_dissect_ReportEventW_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: ); */
 
 static int
-eventlog_dissect_ClearEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ClearEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ClearEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1666,8 +1696,9 @@ eventlog_dissect_ClearEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, pack
 }
 
 static int
-eventlog_dissect_ClearEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ClearEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ClearEventLogA";
 	return offset;
 }
 
@@ -1676,10 +1707,11 @@ eventlog_dissect_ClearEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packe
 /* IDL: ); */
 
 static int
-eventlog_dissect_BackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_BackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="BackupEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1689,8 +1721,9 @@ eventlog_dissect_BackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, pac
 }
 
 static int
-eventlog_dissect_BackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_BackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="BackupEventLogA";
 	return offset;
 }
 
@@ -1699,10 +1732,11 @@ eventlog_dissect_BackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, pack
 /* IDL: ); */
 
 static int
-eventlog_dissect_OpenEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1712,8 +1746,9 @@ eventlog_dissect_OpenEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_OpenEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenEventLogA";
 	return offset;
 }
 
@@ -1722,10 +1757,11 @@ eventlog_dissect_OpenEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_RegisterEventSourceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterEventSourceA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="RegisterEventSourceA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1735,8 +1771,9 @@ eventlog_dissect_RegisterEventSourceA_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-eventlog_dissect_RegisterEventSourceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterEventSourceA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="RegisterEventSourceA";
 	return offset;
 }
 
@@ -1745,10 +1782,11 @@ eventlog_dissect_RegisterEventSourceA_request(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-eventlog_dissect_OpenBackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenBackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="OpenBackupEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1758,8 +1796,9 @@ eventlog_dissect_OpenBackupEventLogA_response(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-eventlog_dissect_OpenBackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_OpenBackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenBackupEventLogA";
 	return offset;
 }
 
@@ -1768,10 +1807,11 @@ eventlog_dissect_OpenBackupEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: ); */
 
 static int
-eventlog_dissect_ReadEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReadEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ReadEventLogA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1781,8 +1821,9 @@ eventlog_dissect_ReadEventLogA_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_ReadEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReadEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ReadEventLogA";
 	return offset;
 }
 
@@ -1791,10 +1832,11 @@ eventlog_dissect_ReadEventLogA_request(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_ReportEventA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReportEventA_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="ReportEventA";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1804,8 +1846,9 @@ eventlog_dissect_ReportEventA_response(tvbuff_t *tvb _U_, int offset _U_, packet
 }
 
 static int
-eventlog_dissect_ReportEventA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_ReportEventA_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="ReportEventA";
 	return offset;
 }
 
@@ -1814,10 +1857,11 @@ eventlog_dissect_ReportEventA_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 /* IDL: ); */
 
 static int
-eventlog_dissect_RegisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="RegisterClusterSvc";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1827,8 +1871,9 @@ eventlog_dissect_RegisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-eventlog_dissect_RegisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_RegisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="RegisterClusterSvc";
 	return offset;
 }
 
@@ -1837,10 +1882,11 @@ eventlog_dissect_RegisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, p
 /* IDL: ); */
 
 static int
-eventlog_dissect_DeregisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_DeregisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="DeregisterClusterSvc";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1850,8 +1896,9 @@ eventlog_dissect_DeregisterClusterSvc_response(tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-eventlog_dissect_DeregisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_DeregisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="DeregisterClusterSvc";
 	return offset;
 }
 
@@ -1860,10 +1907,11 @@ eventlog_dissect_DeregisterClusterSvc_request(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: ); */
 
 static int
-eventlog_dissect_WriteClusterEvents_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_WriteClusterEvents_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="WriteClusterEvents";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -1873,8 +1921,9 @@ eventlog_dissect_WriteClusterEvents_response(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 static int
-eventlog_dissect_WriteClusterEvents_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_WriteClusterEvents_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="WriteClusterEvents";
 	return offset;
 }
 
@@ -1889,7 +1938,7 @@ eventlog_dissect_element_GetLogIntormation_handle(tvbuff_t *tvb, int offset, pac
 static int
 eventlog_dissect_element_GetLogIntormation_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetLogIntormation_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetLogIntormation_handle, 0);
 
 	return offset;
 }
@@ -1943,10 +1992,11 @@ eventlog_dissect_element_GetLogIntormation_cbBytesNeeded(tvbuff_t *tvb, int offs
 /* IDL: ); */
 
 static int
-eventlog_dissect_GetLogIntormation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetLogIntormation_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="GetLogIntormation";
 	offset = eventlog_dissect_element_GetLogIntormation_lpBuffer(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
@@ -1962,8 +2012,9 @@ eventlog_dissect_GetLogIntormation_response(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-eventlog_dissect_GetLogIntormation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_GetLogIntormation_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetLogIntormation";
 	offset = eventlog_dissect_element_GetLogIntormation_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	offset = eventlog_dissect_element_GetLogIntormation_dwInfoLevel(tvb, offset, pinfo, tree, drep);
@@ -1984,7 +2035,7 @@ eventlog_dissect_element_FlushEventLog_handle(tvbuff_t *tvb, int offset, packet_
 static int
 eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_FlushEventLog_handle, NULL, NULL, 0&0x01, 0&0x02);
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_FlushEventLog_handle, 0);
 
 	return offset;
 }
@@ -1994,10 +2045,11 @@ eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb, int offset, packet
 /* IDL: ); */
 
 static int
-eventlog_dissect_FlushEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_FlushEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	guint32 status;
 
+	pinfo->dcerpc_procedure_name="FlushEventLog";
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_eventlog_status, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -2007,8 +2059,9 @@ eventlog_dissect_FlushEventLog_response(tvbuff_t *tvb _U_, int offset _U_, packe
 }
 
 static int
-eventlog_dissect_FlushEventLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+eventlog_dissect_FlushEventLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="FlushEventLog";
 	offset = eventlog_dissect_element_FlushEventLog_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
