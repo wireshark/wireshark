@@ -452,29 +452,173 @@ pkg_add -r wireshark
   <section id="ChBuildInstallWireshark">
     <title>Install Wireshark</title>
 	<para>
-		You may acquire a binary installer of Wireshark named something like: 
-		<filename>wireshark-setup-x.y.z.exe</filename>.
+	You may acquire a binary installer of Wireshark named something like: 
+	<filename>wireshark-setup-x.y.z.exe</filename>.
+	The Wireshark installer includes WinPcap, so you don't need to download 
+	and install two separate packages.
 	</para>
 	<para>
-	    Simply download the Wireshark installer from:
-	    <ulink url="&WiresharkBinariesPage;">&WiresharkBinariesPage;</ulink> 
-		and execute it.
-	</para>
-	<note><title>Note!</title>
-	<para>
-	<command>The WinPcap installer has become 
-	part of the main Wireshark installer, so you don't need to download and 
-	install two separate packages</command>
+    Simply download the Wireshark installer from:
+    <ulink url="&WiresharkBinariesPage;">&WiresharkBinariesPage;</ulink> 
+	and execute it.
+	Beside the usual installer options like where to install the program, 
+	there are several optional components.
     </para>
-	</note>
-  <section id="ChBuildInstallWiresharkCommandLine">
+    <tip><title>Tip: Just keep the defaults!</title>
+	<para>
+	If you are unsure which settings to select, just keep the defaults.
+    </para>
+	</tip>
+  <section id="ChBuildInstallComponents">
+    <title>"Choose Components" page</title>
+    <para>
+	<command>Wireshark</command>
+	(both Wireshark GTK1 and 2 user interfaces cannot be installed at the same 
+	time):
+	<itemizedlist>
+	<listitem><para>
+	<command>Wireshark GTK1</command> - Wireshark is a GUI network protocol 
+	analyzer.
+	</para></listitem>
+	<listitem><para>
+	<command>Wireshark GTK2</command> - Wireshark is a GUI network protocol 
+	analyzer (using the modern GTK2 GUI toolkit, recommended).
+	</para></listitem>
+	<listitem><para>
+	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
+	(native Win32 look and feel, recommended).
+	</para></listitem>
+	</itemizedlist>
+	</para>
+	<para>
+	<command>TShark</command> - TShark is a command-line based network 
+	protocol analyzer.
+	</para>
+	<para>
+	You may try the GTK1 selection if you experience any GUI problems with GTK2, 
+	e.g. Windows with only 256 (8bit) color displays won't work well with GTK2. 
+	However, the older GTK1 user interface doesn't provide some advanced 
+	analyze and statistics features.
+	</para>
+	<para>
+	<command>Plugins / Extensions</command> (for the Wireshark and TShark 
+	dissection engines):
+	<itemizedlist>
+	<listitem><para>
+	<command>Dissector Plugins</command> - Plugins with some extended dissections.
+	</para></listitem>
+	<listitem><para>
+	<command>Tree Statistics Plugins</command> - Plugins with some extended statistics.
+	</para></listitem>
+	<listitem><para>
+	<command>Mate - Meta Analysis and Tracing Engine (experimental)</command> 
+	- user configurable extension(s) of the display filter engine, see 
+	<ulink url="&WiresharkWikiPage;/Mate">&WiresharkWikiPage;/Mate</ulink>
+	for details.
+	</para></listitem>
+	<listitem><para>
+	<command>SNMP MIBs</command> - SNMP MIBs for a more detailed SNMP 
+	dissection.
+	</para></listitem>
+	</itemizedlist>
+	<command>Tools</command> (additional commnand line tools to work with 
+	capture files):
+	<itemizedlist>
+	<listitem><para>
+	<command>Editcap</command> - Editcap is a program that reads a capture 
+	file and writes some or all of the packets into another capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Text2Pcap</command> - Text2pcap is a program that reads in an 
+	ASCII hex dump and writes the data into a libpcap-style capture file.
+	</para></listitem>
+	<listitem><para>
+	<command>Mergecap</command> - Mergecap is a program that combines multiple 
+	saved capture files into a single output file.
+	</para></listitem>
+	<listitem><para>
+	<command>Capinfos</command> - Capinfos is a program that provides 
+	information on capture files.
+	</para></listitem>
+	</itemizedlist>
+    </para>
+	<para>
+	<command>User's Guide</command> -
+	Local installation of the User's Guide. The Help buttons on most dialogs 
+	will require an internet connection to show help pages if the User's Guide 
+	is not installed locally.
+	</para>
+  </section>
+  <section id="ChBuildInstallAdditionalTasks">
+    <title>"Additional Tasks" page</title>
+    <para>
+	<itemizedlist>
+	<listitem><para>
+	<command>Start Menu Shortcuts</command> - add some start menu shortcuts.
+	</para></listitem>
+	<listitem><para>
+	<command>Desktop Icon</command> - add a Wireshark icon to the desktop.
+	</para></listitem>
+	<listitem><para>
+	<command>Quick Launch Icon</command> - add a Wireshark icon to the 
+	Explorer quick launch toolbar.
+	</para></listitem>
+	<listitem><para>
+	<command>Associate file extensions to Wireshark</command> - Associate 
+	standard network trace files to Wireshark.
+	</para></listitem>
+	</itemizedlist>
+    </para>
+	</section>
+	<section id="ChBuildInstallWinPcap">
+    <title>"Install WinPcap?" page</title>
+    <para>
+	The Wireshark installer contains the latest released WinPcap installer.
+    </para>
+    <para>
+	If you don't have WinPcap installed, you won't be able to capture live 
+	network traffic, but you will still be able to open saved capture files.
+    </para>
+    <para>
+	<itemizedlist>
+	<listitem><para>
+	<command>Currently installed WinPcap version</command> - the Wireshark 
+	installer detects the currently installed WinPcap version. 
+	</para></listitem>
+	<listitem><para>
+	<command>Install WinPcap x.x</command> - if the currently installed 
+	version is older than the one coming with the Wireshark installer 
+	(or WinPcap is not installed at all), this will be selected by default.
+	</para></listitem>
+	<listitem><para>
+	<command>Start WinPcap service "NPF" at startup</command> - so users 
+	without administrative privileges can capture.
+	</para></listitem>
+	</itemizedlist>
+	
+    </para>
+	<para>
+	More WinPcap info:
+	<itemizedlist>
+	<listitem><para>
+	Wireshark related:
+	<ulink url="&WiresharkWikiPage;/WinPcap">&WiresharkWikiPage;/WinPcap</ulink>
+	</para></listitem>
+	<listitem><para>
+	General WinPcap info: 
+	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
+	</para></listitem>
+	</itemizedlist>
+	</para>
+	</section>
+	<section id="ChBuildInstallWiresharkCommandLine">
     <title>Command line options</title>
     <para>
 	You can simply start the Wireshark installer without any command line 
 	parameters, it will show you the usual interactive installer.
     </para>
     <para>
-	There are some command line parameters available:
+	For special cases, there are some command line parameters available:
     </para>
 	<itemizedlist>
 	<listitem>
@@ -519,111 +663,11 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
   /quicklaunchicon=no /D=C:\Program Files\Foo
 	</programlisting>
 	</para>
+	</section>  
   </section>
-  <section id="ChBuildInstallComponents">
-    <title>Components</title>
-    <para>
-	Beside the usual installer options like where to install the program, 
-	there are several optional components.
-    </para>
-    <tip><title>Tip: Just keep the defaults!</title>
-	<para>
-	If you are unsure which settings to select, just keep the default settings.
-    </para>
-	</tip>
-    <para>
-	The Components
-	(both Wireshark GTK1 and 2 cannot be installed at the same time):
-	<itemizedlist>
-	<listitem><para>
-	<command>Wireshark GTK1</command> - Wireshark is a GUI network protocol 
-	analyzer.
-	</para></listitem>
-	<listitem><para>
-	<command>Wireshark GTK2</command> - Wireshark is a GUI network protocol 
-	analyzer (using the modern GTK2 GUI toolkit, recommended).
-	</para></listitem>
-	<listitem><para>
-	<command>GTK-Wimp</command> - GTKWimp is the GTK2 windows impersonator 
-	(native Win32 look and feel, recommended).
-	</para></listitem>
-	<listitem><para>
-	<command>TShark</command> - TShark is a command-line based network 
-	protocol analyzer.
-	</para></listitem>
-	</itemizedlist>
-	You may try the GTK1 selection if you experience any GUI problems with GTK2, 
-	e.g. Windows with only 256 (8bit) color displays won't work well with GTK2. 
-	However, the older GTK1 user interface doesn't provide some advanced 
-	analyze and statistics features.
-	</para>
-	<para>
-	The dissection extensions for Wireshark and TShark:
-	<itemizedlist>
-	<listitem><para>
-	<command>Dissector Plugins</command> - Plugins with some extended dissections.
-	</para></listitem>
-	<listitem><para>
-	<command>Tree Statistics Plugins</command> - Plugins with some extended statistics.
-	</para></listitem>
-	<listitem><para>
-	<command>Mate - Meta Analysis and Tracing Engine (experimental)</command> 
-	- user configurable extension(s) of the display filter engine, see 
-	<ulink url="&WiresharkWikiPage;/Mate">&WiresharkWikiPage;/Mate</ulink>
-	for details.
-	</para></listitem>
-	<listitem><para>
-	<command>Lua Plugin (experimental)</command> 
-	- a language for prototyping and scripting, see 
-	<ulink url="&WiresharkWikiPage;/Lua">&WiresharkWikiPage;/Lua</ulink>
-	for details.
-	</para></listitem>
-	<listitem><para>
-	<command>SNMP MIBs</command> - SNMP MIBs for a more detailed SNMP 
-	dissection.
-	</para></listitem>
-	</itemizedlist>
-	The Tools:
-	<itemizedlist>
-	<listitem><para>
-	<command>Editcap</command> - Editcap is a program that reads a capture 
-	file and writes some or all of the packets into another capture file.
-	</para></listitem>
-	<listitem><para>
-	<command>Text2Pcap</command> - Text2pcap is a program that reads in an 
-	ASCII hex dump and writes the data into a libpcap-style capture file.
-	</para></listitem>
-	<listitem><para>
-	<command>Mergecap</command> - Mergecap is a program that combines multiple 
-	saved capture files into a single output file.
-	</para></listitem>
-	<listitem><para>
-	<command>Capinfos</command> - Capinfos is a program that provides 
-	information on capture files.
-	</para></listitem>
-	</itemizedlist>
-	The Additional Tasks:
-	<itemizedlist>
-	<listitem><para>
-	<command>Start Menu Shortcuts</command> - add some start menu shortcuts.
-	</para></listitem>
-	<listitem><para>
-	<command>Desktop Icon</command> - add an Wireshark icon to the desktop.
-	</para></listitem>
-	<listitem><para>
-	<command>Quick Launch Icon</command> - add an Wireshark icon to the 
-	Explorer quick launch toolbar.
-	</para></listitem>
-	<listitem><para>
-	<command>Associate file extensions to Wireshark</command> - Associate 
-	standard network trace files to Wireshark.
-	</para></listitem>
-	</itemizedlist>
-    </para>
-  </section>
-  </section>
-  <section id="ChBuildInstallWinPcap">
-    <title>Install WinPcap</title>
+  
+  <section id="ChBuildInstallWinPcapManually">
+    <title>Manual WinPcap Installation</title>
     <note><title>Note!</title>
 	<para>
 	<command>As mentioned above, the Wireshark installer 
@@ -631,30 +675,6 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	so usually you don't have to worry about WinPcap at all!</command> 
     </para>
 	</note>
-    <para>
-	If you do not have WinPcap installed you will be able to open saved 
-	capture files, but you will not be able to capture live network traffic.
-    </para>
-    <para>
-	While running, the Wireshark installer detects which WinPcap version is 
-	currently installed and will install WinPcap, if none or an older version is 
-	detected. 
-    </para>
-	<para>
-	More WinPcap info:
-	<itemizedlist>
-	<listitem><para>
-	Wireshark related:
-	<ulink url="&WiresharkWikiPage;/WinPcap">&WiresharkWikiPage;/WinPcap</ulink>
-	</para></listitem>
-	<listitem><para>
-	General WinPcap info: 
-	<ulink url="&WinPcapWebsite;">&WinPcapWebsite;</ulink>
-	</para></listitem>
-	</itemizedlist>
-	</para>
-  	<section id="ChBuildInstallWinPcapManually">
-    <title>Manual WinPcap Installation</title>
     <para>
 	The following is only necessary if you want to 
 	try a different version than the one included in the Wireshark installer, 
@@ -678,9 +698,8 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
     <para>
 	At the download page you will find a single installer exe called something 
 	like "auto-installer", which can be installed under various Windows 
-	systems, including 9x/Me/NT4.0/2000/XP.
+	systems, including NT4.0/2000/XP/Vista.
 	</para>
-	</section>
   </section>
   
   <section id="ChBuildInstallWinWiresharkUpdate">
@@ -692,7 +711,7 @@ wireshark-setup-&WiresharkCurrentVersion;.exe /NCRC /S /desktopicon=yes
 	linkend="ChIntroMailingLists"/> for details how to subscribe to this list.
     </para>
     <para>
-	New versions of Wireshark usually become available every 4-8 weeks.
+	New versions of Wireshark usually become available every 8-12 weeks.
 	Updating Wireshark is done the same way as installing it, you simply 
 	download and start the installer exe. A reboot is usually not required and
 	all your personal settings remain unchanged.
