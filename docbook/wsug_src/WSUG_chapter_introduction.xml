@@ -221,7 +221,7 @@
 	files, e.g. 100MB extra)
 	</para></listitem>
 	<listitem><para>800*600 (1280*1024 or higher recommended) resolution with 
-	at least 256 colors
+	at least 65536 (16bit) colors (256 colors won't be readable)
 	</para></listitem>
 	<listitem><para>A supported network card for capturing:
 	</para>
