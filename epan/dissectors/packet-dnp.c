@@ -1072,22 +1072,21 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
   int         hf0 = 0, hf1 = 0, hf2 = 0, hf3 = 0, hf4 = 0, hf5 = 0, hf6 = 0, hf7 = 0;
 
   /* Common code */
+  DISSECTOR_ASSERT(0 <= type && type <= 4);
   proto_item_append_text(point_item, " (Quality: ");
-  if ((0 <= type) && (type <= 4)) {
-    quality_item = proto_tree_add_text(point_tree, tvb, offset, 1, "Quality: ");
-    quality_tree = proto_item_add_subtree(quality_item, ett_dnp3_al_obj_quality);
+  quality_item = proto_tree_add_text(point_tree, tvb, offset, 1, "Quality: ");
+  quality_tree = proto_item_add_subtree(quality_item, ett_dnp3_al_obj_quality);
 
-    if (al_ptflags & AL_OBJ_BI_FLAG0) {
-      dnp3_append_2item_text(point_item, quality_item, "Online");
-    }
-    else {
-      dnp3_append_2item_text(point_item, quality_item, "Offline");
-    }
-    if (al_ptflags & AL_OBJ_BI_FLAG1) dnp3_append_2item_text(point_item, quality_item, ", Restart");
-    if (al_ptflags & AL_OBJ_BI_FLAG2) dnp3_append_2item_text(point_item, quality_item, ", Comm Fail");
-    if (al_ptflags & AL_OBJ_BI_FLAG3) dnp3_append_2item_text(point_item, quality_item, ", Remote Force");
-    if (al_ptflags & AL_OBJ_BI_FLAG4) dnp3_append_2item_text(point_item, quality_item, ", Local Force");
+  if (al_ptflags & AL_OBJ_BI_FLAG0) {
+    dnp3_append_2item_text(point_item, quality_item, "Online");
   }
+  else {
+    dnp3_append_2item_text(point_item, quality_item, "Offline");
+  }
+  if (al_ptflags & AL_OBJ_BI_FLAG1) dnp3_append_2item_text(point_item, quality_item, ", Restart");
+  if (al_ptflags & AL_OBJ_BI_FLAG2) dnp3_append_2item_text(point_item, quality_item, ", Comm Fail");
+  if (al_ptflags & AL_OBJ_BI_FLAG3) dnp3_append_2item_text(point_item, quality_item, ", Remote Force");
+  if (al_ptflags & AL_OBJ_BI_FLAG4) dnp3_append_2item_text(point_item, quality_item, ", Local Force");
 
   switch (type) {
     case 0: /* Binary Input Quality flags */
@@ -1469,7 +1468,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           dnp3_al_get_timestamp(&al_abstime, tvb, temp_pos);
 
           dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, 0);
-          proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_bit, abs_time_to_str(&al_abstime));
+          proto_item_append_text(point_item, ", Value: %d, Timestamp: %s", al_2bit, abs_time_to_str(&al_abstime));
           proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, temp_pos, 6, &al_abstime);
           proto_item_set_len(point_item, indexbytes + 7);
 
@@ -2869,8 +2868,8 @@ proto_reg_handoff_dnp3(void)
   dissector_handle_t dnp3_tcp_handle;
   dissector_handle_t dnp3_udp_handle;
 
-  dnp3_tcp_handle = create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
-  dnp3_udp_handle = create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
+  dnp3_tcp_handle = new_create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
+  dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
   dissector_add("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
   dissector_add("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
 }
