@@ -91,6 +91,7 @@ static int hf_pn_io_ar_properties_data_rate = -1;
 static int hf_pn_io_ar_properties_reserved_1 = -1;
 static int hf_pn_io_ar_properties_device_access = -1;
 static int hf_pn_io_ar_properties_companion_ar = -1;
+static int hf_pn_io_ar_properties_achnowledge_companion_ar = -1;
 static int hf_pn_io_ar_properties_reserved = -1;
 static int hf_pn_io_ar_properties_pull_module_alarm_allowed = -1;
 
@@ -174,6 +175,8 @@ static int hf_pn_io_control_command_applready = -1;
 static int hf_pn_io_control_command_release = -1;
 static int hf_pn_io_control_command_done = -1;
 static int hf_pn_io_control_block_properties = -1;
+static int hf_pn_io_control_block_properties_applready = -1;
+static int hf_pn_io_control_block_properties_applready0 = -1;
 
 static int hf_pn_io_error_code = -1;
 static int hf_pn_io_error_decode = -1;
@@ -182,7 +185,8 @@ static int hf_pn_io_error_code1_pniorw = -1;
 static int hf_pn_io_error_code1_pnio = -1;
 static int hf_pn_io_error_code2 = -1;
 static int hf_pn_io_error_code2_pniorw = -1;
-static int hf_pn_io_error_code2_pnio_rta_err_cls_protocol = -1;
+static int hf_pn_io_error_code2_pnio_22 = -1;
+static int hf_pn_io_error_code2_pnio_253 = -1;
 
 static int hf_pn_io_alarm_type = -1;
 static int hf_pn_io_alarm_specifier = -1;
@@ -426,6 +430,7 @@ static gint ett_pn_io_maintenance_status = -1;
 static gint ett_pn_io_data_status = -1;
 static gint ett_pn_io_iocr = -1;
 static gint ett_pn_io_mrp_rtmode = -1;
+static gint ett_pn_io_control_block_properties = -1;
 
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
@@ -708,7 +713,13 @@ static const value_string pn_io_error_code1_pnio[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_error_code2_pnio_rta_err_cls_protocol[] = {
+static const value_string pn_io_error_code2_pnio_22[] = {
+    {  0, "Error in Parameter BlockType" },
+    {  7, "Error in Parameter ControlBlockProperties" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_error_code2_pnio_253[] = {
     {  0, "reserved" },
     {  1, "error within the coordination of sequence numbers (RTA_ERR_CODE_SEQ) error" },
     {  2, "instance closed (RTA_ERR_ABORT)" },
@@ -838,6 +849,12 @@ static const value_string pn_io_arproperties_companion_ar[] = {
 	{ 0x00000001, "First AR of a companion pair and a companion AR shall follow" },
 	{ 0x00000002, "Companion AR" },
 	{ 0x00000003, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_arproperties_acknowldege_companion_ar[] = {
+	{ 0x00000000, "No companion AR or no acknowledge for the companion AR required" },
+	{ 0x00000001, "Companion AR with acknowledge" },
     { 0, NULL }
 };
 
@@ -1369,6 +1386,17 @@ static const value_string pn_io_mrp_rt_state_vals[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_control_properties_vals[] = {
+    { 0x0000, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_control_properties_aplication_ready_vals[] = {
+    { 0x0000, "Wait for explicit ControlCommand.ReadyForCompanion" },
+    { 0x0001, "Implicit ControlCommand.ReadyForCompanion" },
+    { 0, NULL }
+};
+
 
 
 static int dissect_block(tvbuff_t *tvb, int offset,
@@ -1437,10 +1465,15 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
         error_code1_vals = pn_io_error_code1_pnio;
 
         switch(u8ErrorCode1) {
-        case(0xfd):
+        case(22):
 	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
-                            hf_pn_io_error_code2_pnio_rta_err_cls_protocol, &u8ErrorCode2);
-            error_code2_vals = pn_io_error_code2_pnio_rta_err_cls_protocol;
+                            hf_pn_io_error_code2_pnio_22, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_22;
+            break;
+        case(253):
+	    dissect_dcerpc_uint8(tvb, offset+(3^bytemask), pinfo, sub_tree, drep, 
+                            hf_pn_io_error_code2_pnio_253, &u8ErrorCode2);
+            error_code2_vals = pn_io_error_code2_pnio_253;
             break;
         default:
             /* don't know this u8ErrorCode1 for PNIO, use defaults */
@@ -2172,7 +2205,8 @@ dissect_ReadWrite_header(tvbuff_t *tvb, int offset,
                         hf_pn_io_slot_nr, &u16SlotNr);
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_subslot_nr, &u16SubslotNr);
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        /* padding doesn't match offset required for align4 */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);   
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, 
                         hf_pn_io_index, u16Index);
 
@@ -2356,8 +2390,16 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_done, &u16Command);
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_control_block_properties, &u16Properties);
+    if(u16Command & 0x0002) {
+        /* ApplicationReady: special decode */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_control_block_properties_applready, tvb, offset, 2, FALSE);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_block_properties);
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                            hf_pn_io_control_block_properties_applready0, &u16Properties);
+    } else {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_control_block_properties, &u16Properties);
+    }
 
     proto_item_append_text(item, ": Session:%u, Command:", u16SessionKey);
 
@@ -3459,6 +3501,8 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
                         hf_pn_io_ar_properties_reserved, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
+                        hf_pn_io_ar_properties_achnowledge_companion_ar, &u32ARProperties);
+	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
                         hf_pn_io_ar_properties_companion_ar, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, 
                         hf_pn_io_ar_properties_device_access, &u32ARProperties);
@@ -4437,11 +4481,51 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
 }
 
 
+static const gchar *
+indexReservedForProfiles(guint16 u16Index)
+{
+    /* "reserved for profiles" */
+    if(u16Index >= 0xb000 && u16Index <= 0xbfff) {
+        return "Reserved for Profiles (subslot specific)";
+    }
+    if(u16Index >= 0xd000 && u16Index <= 0xdfff) {
+        return "Reserved for Profiles (slot specific)";
+    }
+    if(u16Index >= 0xec00 && u16Index <= 0xefff) {
+        return "Reserved for Profiles (AR specific)";
+    }
+    if(u16Index >= 0xf400 && u16Index <= 0xf7ff) {
+        return "Reserved for Profiles (API specific)";
+    }
+    if(u16Index >= 0xfc00 && u16Index <= 0xffff) {
+        return "Reserved for Profiles (device specific)";
+    }
+
+    return NULL;
+}
+
+
 /* dissect the RecordDataReadQuery block */
 static int
 dissect_RecordDataReadQuery_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint16 u16BodyLength)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, 
+        guint16 u16Index, guint16 u16BodyLength)
 {
+    const gchar *userProfile;
+
+
+    /* user specified format? */
+    if(u16Index < 0x8000) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "User Specified Data");
+        return offset;
+    }
+
+    /* "reserved for profiles"? */
+    userProfile = indexReservedForProfiles(u16Index);
+    if(userProfile != NULL) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, userProfile);
+        return offset;
+    }
 
     return dissect_pn_undecoded(tvb, offset, pinfo, tree, u16BodyLength);
 }
@@ -4686,7 +4770,7 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
         break;
     case(0x0500):
-        dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u16BodyLength);
+        dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, *u16Index, u16BodyLength);
         break;
     case(0x0f00):
         dissect_Maintenance_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
@@ -4871,6 +4955,8 @@ static int
 dissect_RecordDataRead(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
+    const gchar *userProfile;
+
 
     /* user specified format? */
     if(u16Index < 0x8000) {
@@ -4878,9 +4964,10 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-    /* "reserved for profiles" */
-    if(u16Index == 0xb02e) {
-        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "Reserved for Profiles");
+    /* "reserved for profiles"? */
+    userProfile = indexReservedForProfiles(u16Index);
+    if(userProfile != NULL) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, userProfile);
         return offset;
     }
 
@@ -5048,14 +5135,19 @@ static int
 dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16Index, guint32 u32RecDataLen)
 {
+    const gchar *userProfile;
+
 
     /* user specified format? */
     if(u16Index < 0x8000) {
         return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "User Specified Data");
     }
-    /* "reserved for profiles" */
-    if(u16Index == 0xb02e) {
-        return dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, "Reserved for profiles");
+
+    /* "reserved for profiles"? */
+    userProfile = indexReservedForProfiles(u16Index);
+    if(userProfile != NULL) {
+        offset = dissect_pn_user_data(tvb, offset, pinfo, tree, u32RecDataLen, userProfile);
+        return offset;
     }
 
     /* see: pn_io_index */
@@ -5073,6 +5165,8 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
+
+    case(0xe030):   /* IsochronousModeData for one AR */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     default:
@@ -5457,8 +5551,10 @@ proto_register_pn_io (void)
 		{ "DeviceAccess", "pn_io.ar_properties.device_access", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_device_access), 0x00000100, "", HFILL }},
 	{ &hf_pn_io_ar_properties_companion_ar,
 		{ "CompanionAR", "pn_io.ar_properties.companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_companion_ar), 0x00000600, "", HFILL }},
+	{ &hf_pn_io_ar_properties_achnowledge_companion_ar,
+		{ "AcknowledgeCompanionAR", "pn_io.ar_properties.acknowledge_companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800, "", HFILL }},
 	{ &hf_pn_io_ar_properties_reserved,
-		{ "Reserved", "pn_io.ar_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0x7FFFF800, "", HFILL }},
+		{ "Reserved", "pn_io.ar_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0x7FFFF000, "", HFILL }},
 	{ &hf_pn_io_ar_properties_pull_module_alarm_allowed,
 		{ "PullModuleAlarmAllowed", "pn_io.ar_properties.pull_module_alarm_allowed", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_pull_module_alarm_allowed), 0x80000000, "", HFILL }},
 
@@ -5613,26 +5709,34 @@ proto_register_pn_io (void)
       { "Release", "pn_io.control_command.release", FT_UINT16, BASE_DEC, NULL, 0x0004, "", HFILL }},
     { &hf_pn_io_control_command_done,
       { "Done", "pn_io.control_command.done", FT_UINT16, BASE_DEC, NULL, 0x0008, "", HFILL }},
+
     { &hf_pn_io_control_block_properties,
-      { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+      { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_control_block_properties_applready,
+      { "ControlBlockProperties", "pn_io.control_block_properties.appl_ready", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_control_block_properties_applready0,
+      { "AppicationReady", "pn_io.control_block_properties.appl_ready0", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_aplication_ready_vals), 0x0001, "", HFILL }},
 
     { &hf_pn_io_error_code,
       { "ErrorCode  ", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, "", HFILL }},
     { &hf_pn_io_error_decode,
       { "ErrorDecode", "pn_io.error_decode", FT_UINT8, BASE_HEX, VALS(pn_io_error_decode), 0x0, "", HFILL }},
     { &hf_pn_io_error_code1,
-      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1), 0x0, "", HFILL }},
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1), 0x0, "", HFILL }},
     { &hf_pn_io_error_code2,
-      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2), 0x0, "", HFILL }},
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2), 0x0, "", HFILL }},
     { &hf_pn_io_error_code1_pniorw,
-      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pniorw), 0x0, "", HFILL }},
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pniorw), 0x0, "", HFILL }},
     { &hf_pn_io_error_code2_pniorw,
-      { "ErrorCode2 for PNIORW is user specified! ", "pn_io.error_code2", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+      { "ErrorCode2 for PNIORW is user specified! ", "pn_io.error_code2", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_error_code1_pnio,
-      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_HEX, VALS(pn_io_error_code1_pnio), 0x0, "", HFILL }},
-    { &hf_pn_io_error_code2_pnio_rta_err_cls_protocol,
-      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_HEX, VALS(pn_io_error_code2_pnio_rta_err_cls_protocol), 0x0, "", HFILL }},
-	{ &hf_pn_io_block,
+      { "ErrorCode1 ", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pnio), 0x0, "", HFILL }},
+    { &hf_pn_io_error_code2_pnio_22,
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_22), 0x0, "", HFILL }},
+    { &hf_pn_io_error_code2_pnio_253,
+      { "ErrorCode2 ", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0, "", HFILL }},
+
+    { &hf_pn_io_block,
     { "", "pn_io.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_io_alarm_type,
@@ -6064,7 +6168,8 @@ proto_register_pn_io (void)
         &ett_pn_io_maintenance_status,
         &ett_pn_io_data_status,
         &ett_pn_io_iocr,
-        &ett_pn_io_mrp_rtmode
+        &ett_pn_io_mrp_rtmode,
+        &ett_pn_io_control_block_properties
 	};
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
