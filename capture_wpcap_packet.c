@@ -242,9 +242,10 @@ wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned in
         return 0;
     }
 
+	/* get a buffer suitable for PacketRequest() */
     OidData=GlobalAllocPtr(GMEM_MOVEABLE | GMEM_ZEROINIT,IoCtlBufferLength);
     if (OidData == NULL) {
-        g_warning("packet_link_status failed\n");
+        g_warning("GlobalAllocPtr failed for %u\n", IoCtlBufferLength);
         return 0;
     }
 
@@ -255,9 +256,15 @@ wpcap_packet_request(void *adapter, ULONG Oid, int set, char *value, unsigned in
     Status = p_PacketRequest(adapter, set, OidData);
 
     if(Status) {
-        g_assert(OidData->Length <= *length);
-        memcpy(value, OidData->Data, OidData->Length);
-        *length = OidData->Length;
+		if(OidData->Length <= *length) {
+			/* copy value from driver */
+			memcpy(value, OidData->Data, OidData->Length);
+			*length = OidData->Length;
+		} else {
+			/* the driver returned a value that is longer than expected (and longer than the given buffer) */
+			g_warning("returned oid too long, Oid: 0x%x OidLen:%u MaxLen:%u", Oid, OidData->Length, *length);
+			Status = FALSE;
+		}
     }
 
     GlobalFreePtr (OidData);
