@@ -60,6 +60,25 @@ dissect_ndr_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
+PIDL_dissect_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, guint8 *drep,
+                   int hfindex, guint32 param _U_)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    /* no alignment needed */
+    return dissect_dcerpc_uint8 (tvb, offset, pinfo,
+                                 tree, drep, hfindex, NULL);
+}
+
+
+int
 dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
                     int hfindex, guint16 *pdata)
@@ -81,6 +100,27 @@ dissect_ndr_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 int
+PIDL_dissect_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param _U_)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+
+    if (offset % 2) {
+        offset++;
+    }
+    return dissect_dcerpc_uint16 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, NULL);
+}
+
+int
 dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
                     int hfindex, guint32 *pdata)
@@ -99,6 +139,27 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
     return dissect_dcerpc_uint32 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
+}
+
+int
+PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param _U_)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+    return dissect_dcerpc_uint32 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, NULL);
 }
 
 /* Double uint32
@@ -147,6 +208,26 @@ dissect_ndr_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
     return dissect_dcerpc_uint64 (tvb, offset, pinfo,
                                   tree, drep, hfindex, pdata);
+}
+
+int
+PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep,
+                    int hfindex, guint32 param _U_)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    if (offset % 8) {
+        offset += 8 - (offset % 8);
+    }
+    return dissect_dcerpc_uint64 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, NULL);
 }
 
 int
