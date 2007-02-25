@@ -30,7 +30,6 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
@@ -384,7 +383,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 71 "packet-h248-template.c"
+#line 70 "packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -547,18 +546,9 @@ static gint ett_h248_TimeNotation = -1;
 static gint ett_h248_Value = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 90 "packet-h248-template.c"
+#line 89 "packet-h248-template.c"
 
 static dissector_handle_t h248_term_handle;
-
-#if 0
-static GHashTable* h248_pkg_signals = NULL;
-static GHashTable* h248_pkg_events = NULL;
-static GHashTable* h248_pkg_properties = NULL;
-static GHashTable* h248_wild_terms = NULL;
-
-static dissector_table_t h248_pkg_bin_dissector_table=NULL;
-#endif
 
 static emem_tree_t* msgs = NULL;
 static emem_tree_t* trxs = NULL;
@@ -577,9 +567,17 @@ static tvbuff_t* h248_tvb;
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
 
+static const value_string term_types[] = {
+  {   H248_TERM_TYPE_AAL1, "aal1" },
+  {   H248_TERM_TYPE_AAL2, "aal2" },
+  {   H248_TERM_TYPE_AAL1_STRUCT, "aal1struct" },
+  {   H248_TERM_TYPE_IP_RTP, "ipRtp" },
+  {   H248_TERM_TYPE_TDM, "tdm" },
+  { 0, NULL }
+};
+
 /* Forward declarations */
 static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-
 
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
@@ -1049,10 +1047,10 @@ extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packe
 }
 
 
-static h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &ett_h248_no_pkg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL, NULL };
-static h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
-static h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
+static const h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &ett_h248_no_pkg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL, NULL };
+static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
+static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* trx_id_p) {
 	guint64 trx_id = 0;
@@ -1141,19 +1139,6 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 	return offset;
 }
 
-
-
-static const value_string BNCChar_vals[] = {
-  {   H248_TERM_TYPE_AAL1, "aal1" },
-  {   H248_TERM_TYPE_AAL2, "aal2" },
-  {   H248_TERM_TYPE_AAL1_STRUCT, "aal1struct" },
-  {   H248_TERM_TYPE_IP_RTP, "ipRtp" },
-  {   H248_TERM_TYPE_TDM, "tdm" },
-  { 0, NULL }
-};
-
-
-
 static GPtrArray* packages = NULL;
 
 void h248_register_package(const h248_package_t* pkg) {
@@ -1225,8 +1210,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 }
 
 
-static int
-dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
@@ -1290,8 +1274,7 @@ dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_
 
 
 
-static int
-dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
@@ -1352,8 +1335,7 @@ dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packe
   return offset;
 }
 
-static int
-dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
 
 	gint8 class;
 	gboolean pc, ind;
@@ -1403,13 +1385,16 @@ dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 }
 
 
-static int
-dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
 	const h248_pkg_param_t* sigpar;
-
+	const gchar* strval;
+	proto_item* pi;
+	
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset,  hf_index, &next_tvb);
+	pi = get_ber_last_created_item();
+	
 	switch(tvb_length(next_tvb)) {
 		case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
 		case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
@@ -1429,11 +1414,18 @@ dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 		}
 	}
 
+	if (curr_info.sig->param_names && ( strval = match_strval(param_id, curr_info.sig->param_names) )) {
+		strval = ep_strdup_printf("%s (%d)",strval,param_id);
+	} else {
+		strval = ep_strdup_printf("Unknown (%d)",param_id);
+	}
+	
+	proto_item_set_text(pi,"Parameter: %s", strval);
+
 	return offset;
 }
 
-static int
-dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	int old_offset, end_offset;
 	gint8 class;
@@ -1462,13 +1454,15 @@ dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	return end_offset;
 }
 
-static int
-dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
 	const h248_pkg_param_t* evtpar;
+	const gchar* strval;
+	proto_item* pi;
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+	pi = get_ber_last_created_item();
 
 	if (next_tvb) {
 		switch(tvb_length(next_tvb)) {
@@ -1479,6 +1473,7 @@ dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 			default: break;
 		}
 	}
+
 
 	curr_info.par = &no_param;
 
@@ -1492,12 +1487,20 @@ dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 	} else {
 		curr_info.par = &no_param;
 	}
+	
+	if (curr_info.evt->param_names && ( strval = match_strval(param_id, curr_info.evt->param_names) )) {
+		strval = ep_strdup_printf("%s (%d)",strval,param_id);
+	} else {
+		strval = ep_strdup_printf("Unknown (%d)",param_id);
+	}
+	
+	proto_item_set_text(pi,"Parameter: %s", strval);
 
+	
 	return offset;
 }
 
-static int
-dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	int old_offset, end_offset;
 	gint8 class;
@@ -1526,8 +1529,7 @@ dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 	return end_offset;
 }
 
-static int
-dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *mtp_tree=NULL;
   guint32 val;
@@ -6348,7 +6350,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1761 "packet-h248-template.c"
+#line 1763 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6442,7 +6444,7 @@ void proto_register_h248(void) {
       VALS(signal_name_vals), 0, "Package", HFILL }},
 	{ &hf_h248_pkg_bcp_BNCChar_PDU,
       { "BNCChar", "h248.package_bcp.BNCChar",
-        FT_UINT32, BASE_DEC, VALS(BNCChar_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(term_types), 0,
         "BNCChar", HFILL }},
 
   { &hf_h248_error_code,
@@ -7704,11 +7706,11 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1900 "packet-h248-template.c"
+#line 1902 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_term_type, { "Type", "h248.ctx.term.type", FT_UINT32, BASE_HEX, VALS(BNCChar_vals), 0, "", HFILL }},
+  { &hf_h248_ctx_term_type, { "Type", "h248.ctx.term.type", FT_UINT32, BASE_HEX, VALS(term_types), 0, "", HFILL }},
   { &hf_h248_ctx_term_bir, { "BIR", "h248.ctx.term.bir", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term_nsap, { "NSAP", "h248.ctx.term.nsap", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_cmd, { "Command", "h248.ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
@@ -7873,7 +7875,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1925 "packet-h248-template.c"
+#line 1927 "packet-h248-template.c"
   };
 
   module_t *h248_module;
@@ -7917,5 +7919,6 @@ void proto_reg_handoff_h248(void) {
   dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
   dissector_add("udp.port", udp_port, h248_handle);
 }
+
 
 

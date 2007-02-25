@@ -35,14 +35,13 @@
 #define PFNAME "h248q1950"
 
 static int proto_q1950 = -1;
+static gboolean implicit = FALSE;
 
 /* A.3 Bearer characteristics package */
 static int hf_h248_pkg_BCP = -1;
 static int hf_h248_pkg_BCP_BNCChar = -1;
 
 static int ett_h248_pkg_BCP = -1;
-
-static gboolean implicit = FALSE;
 
 static const value_string h248_pkg_BCP_parameters[] = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
@@ -76,6 +75,88 @@ static h248_package_t h248_pkg_BCP = {
 };
 
 /* A.4 Bearer Network connection cut-through package */
+static int hf_h248_pkg_BNCCT = -1;
+
+static int hf_h248_pkg_BNCCT_prop = -1;
+
+static int ett_h248_pkg_BNCCT = -1;
+
+static const value_string h248_pkg_BNCCT_parameters[] = {
+	{   0x0001, "BNC Cut Through Capability" },
+	{ 0, NULL }
+};
+
+static const value_string h248_pkg_BNCCT_props_vals[] = {
+	{1,"BNCCT"},
+	{0,NULL}
+};
+
+static const value_string h248_pkg_BNCCT_prop_vals[]  = {
+	{1,"Early"},
+	{2,"Late"},
+	{0,NULL}
+};
+
+/* Properties */
+static const h248_pkg_param_t h248_pkg_BNCCT_props[] = {
+	{ 0x0001, &hf_h248_pkg_BNCCT_prop, h248_param_ber_integer, &implicit },
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_BNCCT = {
+	0x001f,
+	&hf_h248_pkg_BNCCT,
+	&ett_h248_pkg_BNCCT,
+	h248_pkg_BNCCT_props_vals,
+	NULL,
+	NULL,
+	NULL,
+	h248_pkg_BNCCT_props,			/* Properties */
+	NULL,						/* signals */
+	NULL,						/* events */
+	NULL						/* statistics */
+};
+
+/* A.5 Bearer Reuse Idle Package  */
+static int hf_h248_pkg_RI = -1;
+
+static int hf_h248_pkg_RII= -1;
+
+static int ett_h248_pkg_RI= -1;
+
+static const value_string h248_pkg_RI_parameters[] = {
+	{   0x0001, "Reuse Idle Indication" },
+	{ 0, NULL }
+};
+
+static const value_string h248_pkg_RII_vals[]  = {
+	{0,"Not_Reuse_Idle"},
+	{1,"ReUse_Idle"},
+	{0,NULL}
+};
+
+/* Properties */
+h248_pkg_param_t h248_pkg_RI_props[] = {
+	{ 0x0001, &hf_h248_pkg_RII, h248_param_ber_integer, &implicit },
+	{ 0, NULL, NULL, NULL}
+};
+
+/* Packet defenitions */
+static h248_package_t h248_pkg_RI = {
+	0x0020,
+	&hf_h248_pkg_RI,
+	&ett_h248_pkg_RI,
+	h248_pkg_RI_parameters,
+	NULL,
+	NULL,
+	NULL,
+	h248_pkg_RI_props,			/* Properties */
+	NULL,						/* signals */
+	NULL,						/* events */
+	NULL						/* statistics */
+};
+
 
 /* A.5 Bearer Reuse Idle Package  */
 
@@ -84,16 +165,112 @@ static h248_package_t h248_pkg_BCP = {
 	Package ID: 0x0021
  */
 
+static int hf_h248_pkg_GB= -1;
+static int hf_h248_pkg_GB_BNCChange= -1;
+static int hf_h248_pkg_GB_BNCChange_type= -1;
+static int hf_h248_pkg_GB_EstBNC= -1;
+static int hf_h248_pkg_GB_ModBNC= -1;
+static int hf_h248_pkg_GB_RelBNC = -1;
+static int hf_h248_pkg_GB_RelBNC_Generalcause = -1;
+static int hf_h248_pkg_GB_RelBNC_Failurecause = -1;
+static int hf_h248_pkg_GB_RelBNC_Reset = -1;
+
+static gint ett_h248_pkg_GB= -1;
+static gint ett_h248_pkg_GB_EstBNC= -1;
+static gint ett_h248_pkg_GB_ModBNC= -1;
+static gint ett_h248_pkg_GB_RelBNC= -1;
+static gint ett_h248_pkg_GB_BNCChange= -1;
+
+static const value_string h248_pkg_GB_events_vals[] = {
+	{ 0x0001, "BNCChange" },
+	{ 0, NULL }
+};
+
+
+static const value_string h248_pkg_GB_BNCChange_type_vals[] = {
+	{0x01, "Bearer Established"},
+	{0x02,"Bearer Modified"},
+	{0x03,"Bearer Cut through"},
+	{0x04,"Bearer Modification Failure"},
+	{0,NULL}
+};
+
+static const h248_pkg_param_t h248_pkg_GB_BNCChange_pars[] = {
+	{ 0x0001, &hf_h248_pkg_GB_BNCChange_type, h248_param_ber_integer, &implicit },
+	{ 0, NULL, NULL, NULL}
+};
+
+static const h248_pkg_evt_t h248_pkg_GB_events[] = {
+	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars,h248_pkg_GB_events_vals},
+	{ 0, NULL, NULL, NULL}
+};
+
+static const value_string h248_pkg_GB_signals_vals[] = {
+	{0x01, "Establish BNC"},
+	{0x02,"Modify BNC"},
+	{0,NULL}
+};
+
+static const value_string h248_pkg_GB_RelBNC_vals[] = {
+	{0x01, "Generalcause"},
+	{0x02,"Failurecause"},
+	{0x03,"Reset"},
+	{0,NULL}
+};
+
+static const value_string h248_pkg_GB_RelBNC_Generalcause_vals[] = {
+	{0x01, "Normal Release"},
+	{0x02,"Unavailable Resources"},
+	{0x03,"Failure, Temporary"},
+	{0x04,"Failure, Permanent"},
+	{0x05,"Interworking Error"},
+	{0x06,"Unsupported"},
+	{0,NULL}
+};
+
+static const h248_pkg_param_t h248_pkg_GB_RelBNC_pars[] = {
+	{ 0x0001, &hf_h248_pkg_GB_RelBNC_Generalcause, h248_param_ber_integer, &implicit },
+	{ 0x0002, &hf_h248_pkg_GB_RelBNC_Failurecause, h248_param_ber_octetstring, &implicit },
+	{ 0x0003, &hf_h248_pkg_GB_RelBNC_Reset, h248_param_ber_boolean, &implicit },
+	{ 0, NULL, NULL, NULL}
+};
+
+
+static const h248_pkg_sig_t h248_pkg_GB_signals[] = {
+	{ 0x0001,&hf_h248_pkg_GB_EstBNC,&ett_h248_pkg_GB_EstBNC, NULL, NULL},
+	{ 0x0002,&hf_h248_pkg_GB_ModBNC,&ett_h248_pkg_GB_ModBNC, NULL, NULL},
+	{ 0x0003,&hf_h248_pkg_GB_RelBNC,&ett_h248_pkg_GB_RelBNC, h248_pkg_GB_RelBNC_pars, h248_pkg_GB_RelBNC_vals},
+	{ 0, NULL, NULL, NULL, NULL}
+};
+
+static h248_package_t h248_pkg_GB = {
+	0x0021,
+	&hf_h248_pkg_GB,
+	&ett_h248_pkg_GB,
+	NULL,
+	h248_pkg_GB_events_vals,
+	h248_pkg_GB_signals_vals,
+	NULL,
+	NULL,						/* Properties */
+	h248_pkg_GB_signals,			/* signals */
+	h248_pkg_GB_events,			/* events */
+	NULL						/* statistics */
+};
+
+
 /* A.7 Bearer control tunnelling package */
 static dissector_handle_t sdp_dissector = NULL;
 
-static int hf_h248_pkg_bct = -1;
-static int hf_h248_pkg_bct_tind = -1;
+static int hf_h248_pkg_bt = -1;
+static int hf_h248_pkg_bt_tind = -1;
+static int hf_h248_pkg_bt_tunopt = -1;
+static int hf_h248_pkg_bt_bit = -1;
 
-static gint ett_h248_pkg_bct = -1;
-static gint ett_h248_pkg_bct_tind = -1;
+static gint ett_h248_pkg_bt = -1;
+static gint ett_h248_pkg_bt_tind = -1;
+static gint ett_h248_pkg_bt_bit= -1;
 
-static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
+static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
 	tvbuff_t* sdp_tvb = NULL;
 	gint8 class;
 	gboolean pc;
@@ -115,30 +292,68 @@ static void dissect_bct_tind_bit(proto_tree* tree, tvbuff_t* tvb, packet_info* p
 	
 }
 
-static h248_pkg_param_t h248_pkg_bct_tind[] = {
-	{ 0x0001, &hf_h248_pkg_bct_tind, dissect_bct_tind_bit, &implicit },
+
+/* Properties */
+static const value_string h248_pkg_bt_props_vals[] = {
+	{1,"Tunnelling Options"},
+	{0,NULL}
+};
+
+static const  value_string h248_pkg_bt_tunopt_vals[] = {
+	{1,"1 (In the same message as the command response to the command which generated the bearer control tunnel)"},
+	{2,"2 (Tunnel message at any time)"},
+	{3,"NO"},
+	{0,NULL}
+};
+
+static const h248_pkg_param_t h248_pkg_bt_props[] = {
+	{ 0x0001, &hf_h248_pkg_bt_tunopt, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
 /* Events */
-static h248_pkg_evt_t h248_pkg_bct_events[] = {
-	{ 0x0001, &hf_h248_pkg_bct_tind, &ett_h248_pkg_bct_tind, h248_pkg_bct_tind},
+static const value_string h248_pkg_bt_evt_vals[] = {
+	{1,"Tunnel indication"},
+	{0,NULL}
+};
+
+static const value_string h248_pkg_bt_tind_vals[] = {
+	{1,"Tunnel Indication"},
+	{0,NULL}
+};
+
+static const h248_pkg_param_t h248_pkg_bt_bit_params[] = {
+	{ 0x0001, &hf_h248_pkg_bt_bit, dissect_bt_tunneled_proto, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
+static const value_string h248_pkg_bt_sigs_vals[] = {
+	{1,"Bearer Information Tunnel"},
+	{0,NULL}
+};
+
+static const h248_pkg_evt_t h248_pkg_bt_events[] = {
+	{ 0x0001, &hf_h248_pkg_bt_tind, &ett_h248_pkg_bt_tind, h248_pkg_bt_bit_params, h248_pkg_bt_tind_vals},
+	{ 0, NULL, NULL, NULL, NULL}
+};
+
+static const h248_pkg_sig_t h248_pkg_bt_signals[] = {
+	{ 0x0001,&hf_h248_pkg_bt_bit,&ett_h248_pkg_bt_bit, h248_pkg_bt_bit_params, h248_pkg_bt_tind_vals},
+	{ 0, NULL, NULL, NULL, NULL}
+};
 
 /* Packet defenitions */
 static h248_package_t h248_pkg_bct = {
 	0x0022,
-	&hf_h248_pkg_bct,
-	&ett_h248_pkg_bct,
-	NULL,
-	NULL,
-	NULL,
+	&hf_h248_pkg_bt,
+	&ett_h248_pkg_bt,
+	h248_pkg_bt_props_vals,
+	h248_pkg_bt_sigs_vals,
+	h248_pkg_bt_evt_vals,
 	NULL,
 	NULL,						/* Properties */
-	NULL,						/* signals */
-	h248_pkg_bct_events,		/* events */
+	h248_pkg_bt_signals,			/* signals */
+	h248_pkg_bt_events,			/* events */
 	NULL						/* statistics */
 };
 
@@ -196,7 +411,7 @@ static h248_package_t h248_pkg_bcg = {
 	NULL,
 	NULL,
 	NULL,						/* Properties */
-	h248_pkg_bcg_signals,		/* signals */
+	h248_pkg_bcg_signals,			/* signals */
 	NULL,						/* events */
 	NULL						/* statistics */
 };
@@ -214,6 +429,82 @@ void proto_register_q1950(void) {
 			{ "BNCChar (BNC Characteristics)", "h248.pkg.bcp.bncchar", 
 			FT_UINT32, BASE_HEX, VALS(bearer_network_connection_characteristics_vals), 0, "BNC Characteristics", HFILL }
 		},
+		
+		/* A.4 Bearer Network connection cut-through package */
+		{ &hf_h248_pkg_BNCCT,
+			{ "BNCCT (Bearer network connection cut-through package)", "h248.pkg.BNCCT", 
+			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_BNCCT_prop,
+			{ "Bearer network connection cut-through capability", "h248.pkg.bcp.bncct", 
+			FT_UINT32, BASE_HEX, VALS(h248_pkg_BNCCT_prop_vals), 0, "This property allows the MGC to ask the MG when the cut through of a bearer will occur, early or late.", HFILL }
+		},
+		
+		{ &hf_h248_pkg_GB,
+			{ "GB (Generic bearer connection)", "h248.pkg.GB", 
+			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_GB_BNCChange,
+			{ "BNCChange", "h248.pkg.GB.BNCChang", 
+			FT_BYTES, BASE_HEX, NULL, 0, "This event occurs whenever a change to a Bearer Network connection occurs", HFILL }
+		},
+		{ &hf_h248_pkg_GB_BNCChange_type,
+			{ "Type", "h248.pkg.GB.BNCChang.Type", 
+			FT_UINT32, BASE_HEX, VALS(h248_pkg_GB_BNCChange_type_vals), 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_GB_EstBNC,
+			{ "Type", "h248.pkg.GB.BNCChang.EstBNC", 
+			FT_BYTES, BASE_HEX, NULL, 0, "This signal triggers the bearer control function to send bearer establishment signalling", HFILL }
+		},
+		{ &hf_h248_pkg_GB_ModBNC,
+			{ "Type", "h248.pkg.GB.BNCChang.Type", 
+			FT_BYTES, BASE_HEX, NULL, 0, "This signal triggers the bearer control function to send bearer modification", HFILL }
+		},
+		{ &hf_h248_pkg_GB_RelBNC,
+			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC", 
+			FT_BYTES, BASE_HEX, NULL, 0, "This signal triggers the bearer control function to send bearer release", HFILL }
+		},
+		{ &hf_h248_pkg_GB_RelBNC_Generalcause,
+			{ "Generalcause", "h248.pkg.GB.BNCChang.RelBNC.Generalcause", 
+			FT_UINT32, BASE_HEX, VALS(h248_pkg_GB_RelBNC_Generalcause_vals), 0, "This indicates the general reason for the Release", HFILL }
+		},
+		{ &hf_h248_pkg_GB_RelBNC_Failurecause,
+			{ "Failurecause", "h248.pkg.GB.BNCChang.RelBNC.Failurecause", 
+			FT_BYTES, BASE_HEX, NULL, 0, "The Release Cause is the value generated by the Released equipment", HFILL }
+		},
+		{ &hf_h248_pkg_GB_RelBNC_Reset,
+			{ "RelBNC", "h248.pkg.GB.BNCChang.RelBNC", 
+			FT_BOOLEAN, BASE_NONE, NULL, 0, "This signal triggers the bearer control function to send bearer release", HFILL }
+		},
+
+		/* A.5 Bearer Network connection cut-through package */
+		{ &hf_h248_pkg_RI,
+			{ "RI (Reuse idle package)", "h248.pkg.RI", 
+			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_RII,
+			{ "Reuse Idle Indication", "h248.pkg.bcp.rii", 
+			FT_UINT32, BASE_HEX, VALS(h248_pkg_RII_vals), 0, "This property indicates that the provided bearer network connection relates to an Idle Bearer.", HFILL }
+		},
+
+		{ &hf_h248_pkg_bt,
+			{ "BT (Bearer control Tunneling)", "h248.pkg.BT", 
+			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_bt_tunopt,
+			{ "Tunnelling Options", "h248.pkg.BT.TunOpt", 
+				FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_bt_tind,
+			{ "tind (Tunnel INDication)", "h248.pkg.BT.TIND", 
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		{ &hf_h248_pkg_bt_bit,
+			{ "Bearer Information Transport", "h248.pkg.BT.BIT", 
+				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
+		},
+		
+		
 		/* A.8 Basic call progress tones generator with directionality */
 		{ &hf_h248_pkg_bcg,
 			{ "bcg (Basic call progress tones generator with directionality)", "h248.pkg.bcg", 
@@ -259,22 +550,19 @@ void proto_register_q1950(void) {
 			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy", 
 			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
 		},
-		{ &ett_h248_pkg_bct,
-			{ "BCT (Bearer Control Tunneling)", "h248.pkg.bct", 
-			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
-		},
-		{ &hf_h248_pkg_bct_tind,
-			{ "tind (Tunnel INDication)", "h248.pkg.bct.tind", 
-				FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }
-		},
-		
+		//~ hf_h248_pkg_bcg_sig_bcr
+
 	};
 
 	static gint *ett[] = {
 		&ett_h248_pkg_BCP,
-		&ett_h248_pkg_bct,
-		&ett_h248_pkg_bct_tind
+		&ett_h248_pkg_bt,
+		&ett_h248_pkg_bt_tind,
+		&ett_h248_pkg_bt_bit,
+		&ett_h248_pkg_BNCCT,
+		&ett_h248_pkg_RI,
 	};
+	
 	proto_q1950 = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
 	proto_register_field_array(proto_q1950, hf, array_length(hf));
@@ -283,8 +571,12 @@ void proto_register_q1950(void) {
 	
 	/* Register the packages */
 	h248_register_package(&h248_pkg_BCP);
+	h248_register_package(&h248_pkg_BNCCT);
+	h248_register_package(&h248_pkg_RI);
+	h248_register_package(&h248_pkg_GB);
 	h248_register_package(&h248_pkg_bcg);
 	h248_register_package(&h248_pkg_bct);
+
 }
 
 void proto_reg_handoff_q1950(void) {
