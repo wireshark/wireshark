@@ -327,6 +327,9 @@ typedef struct server_disconnectme_call_s {
 
 GList *cba_pdevs;
 
+/* as we are a plugin, we cannot get this from libwireshark! */
+const true_false_string acco_flags_set_truth = { "Set", "Not set" };
+
 
 static void
 cba_connection_dump(cba_connection_t *conn, const char *role)
@@ -3978,6 +3981,7 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 	guint16 u16ConnVersion;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
+        proto_item *state_item;
 	guint32	u32SubStart;
 	guint32 u32Idx;
 	guint32 u32VariableOffset;
@@ -4011,8 +4015,15 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 								hf_cba_acco_conn_persist, &u16Persistence);
 			offset = dissect_dcom_WORD(tvb, offset, pinfo, sub_tree, drep, 
 								hf_cba_acco_conn_version, &u16ConnVersion);
-			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
-								hf_cba_acco_conn_error_state, &u32ConnErrorState);
+                        /* connection state */
+/*			offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep, 
+								hf_cba_acco_conn_error_state, &u32ConnErrorState);*/
+                        offset = dissect_dcom_HRESULT_item(tvb, offset,	pinfo, sub_tree, drep, 
+					 &u32ConnErrorState, hf_cba_acco_conn_error_state, &state_item);
+                        proto_item_set_text(state_item, "ConnErrorState: %s (0x%x)",
+                            val_to_str(u32ConnErrorState, dcom_hresult_vals, "Unknown (0x%08x)"),
+                            u32ConnErrorState);
+
 			offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, sub_tree, drep, 
 								&u32HResult, u32Idx);
 
@@ -4737,8 +4748,8 @@ proto_register_dcom_cba_acco (void)
 		{ "WriteItemIn", "cba.acco.writeitemin", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_cdb_cookie,
 		{ "CDBCookie", "cba.acco.cdb_cookie", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+                /* dcom_hresult_vals from packet-dcom.h doesn't work here, as length is unknown! */
 		{ &hf_cba_acco_conn_error_state,
-                /* XXX - find out, why VALS doesn't work here! */
 		{ "ConnErrorState", "cba.acco.conn_error_state", FT_UINT32, BASE_HEX, NULL /*VALS(dcom_hresult_vals)*/, 0x0, "", HFILL }},
 		{ &hf_cba_acco_diag_req,
 		{ "Request", "cba.acco.diag_req", FT_UINT32, BASE_HEX, VALS(cba_acco_diag_req_vals), 0x0, "", HFILL }},
@@ -4772,11 +4783,10 @@ proto_register_dcom_cba_acco (void)
 		{ "CRLength", "cba.acco.serversrt_cr_length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_serversrt_cr_flags,
 		{ "Flags", "cba.acco.serversrt_cr_flags", FT_UINT32, BASE_HEX, 0, 0x0, "", HFILL }},
-                /* XXX - find out, why TFS doesn't work here! */
 		{ &hf_cba_acco_serversrt_cr_flags_timestamped,
-		{ "Timestamped", "cba.acco.serversrt_cr_flags_timestamped", FT_BOOLEAN, 32, NULL /*TFS (&flags_set_truth)*/, 0x1, "", HFILL }},
+		{ "Timestamped", "cba.acco.serversrt_cr_flags_timestamped", FT_BOOLEAN, 32, TFS (&acco_flags_set_truth), 0x1, "", HFILL }},
 		{ &hf_cba_acco_serversrt_cr_flags_reconfigure,
-		{ "Reconfigure", "cba.acco.serversrt_cr_flags_reconfigure", FT_BOOLEAN, 32, NULL /*TFS (&flags_set_truth)*/, 0x2, "", HFILL }},
+		{ "Reconfigure", "cba.acco.serversrt_cr_flags_reconfigure", FT_BOOLEAN, 32, TFS (&acco_flags_set_truth), 0x2, "", HFILL }},
 		{ &hf_cba_type_desc_len,
 		{ "TypeDescLen", "cba.acco.type_desc_len", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_cba_acco_serversrt_record_length,

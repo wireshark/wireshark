@@ -121,6 +121,11 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 * pu32hresult);
 
 extern int
+dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+					 proto_tree *tree, guint8 *drep, 
+					 guint32 * pu32HResult, int field_index, proto_item **item);
+
+extern int
 dissect_dcom_indexed_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 					 proto_tree *tree, guint8 *drep, 
 					 guint32 * pu32hresult, int field_index);

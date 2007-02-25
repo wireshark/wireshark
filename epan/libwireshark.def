@@ -167,6 +167,7 @@ dissect_dcom_BSTR
 dissect_dcom_dcerpc_array_size
 dissect_dcom_dcerpc_pointer
 dissect_dcom_HRESULT
+dissect_dcom_HRESULT_item
 dissect_dcom_indexed_DWORD
 dissect_dcom_indexed_HRESULT
 dissect_dcom_indexed_LPWSTR

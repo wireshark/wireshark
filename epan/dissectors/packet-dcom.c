@@ -1034,6 +1034,30 @@ dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 }
 	
 
+/* dissect hresult field of a usual DCOM call (create "raw" item) */
+int
+dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
+					 proto_tree *tree, guint8 *drep, 
+					 guint32 * pu32HResult, int field_index, proto_item **item)
+{
+    guint32 u32HResult;
+
+	/* dissect the DWORD, but don't add to tree */
+	offset = dissect_dcom_DWORD(tvb, offset, pinfo, NULL /*tree*/, drep, 
+                    field_index, &u32HResult);
+
+    if (tree) {
+		/* special formatted output of indexed value */
+        item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
+    }
+
+    if (pu32HResult)
+        *pu32HResult = u32HResult;
+
+	return offset;
+}
+	
+
 /* dissect hresult field of a usual DCOM call (seperate method, because often used) */
 int
 dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
