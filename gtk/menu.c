@@ -82,7 +82,7 @@
 #include "sctp_stat.h"
 #include "firewall_dlg.h"
 #include "u3.h"
-
+#include "macros_dlg.h"
 
 GtkWidget *popup_menu_object;
 
@@ -524,7 +524,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/User Tables", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Display Filter _Macros...", NULL, macros_dialog_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 	
 	
@@ -998,7 +998,6 @@ register_stat_menu_item(
 		have_items_in_tools_menu = TRUE;
 		break;
 #endif
-    case(REGISTER_USER_TABLES): toolspath = "/View/User Tables/"; break;
     default:
         g_assert(!"no such menu group");
         toolspath = NULL;
@@ -1134,8 +1133,6 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             case(REGISTER_TOOLS_GROUP_NONE):
                 break;
 #endif
-            case(REGISTER_USER_TABLES):
-                break;
             default:
                 g_assert_not_reached();
             }
@@ -1217,12 +1214,7 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
-#endif
-    if (merge_tap_menus_layered(node, REGISTER_USER_TABLES)) {
-		entry->path = "/View/";
-		/*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
-    }
-	
+#endif	
 }
 
 

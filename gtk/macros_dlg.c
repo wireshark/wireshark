@@ -1,12 +1,6 @@
-/*
- *  uat_gui.h
+/* macros_dlg.c
  *
- *  $Id$
- *
- *  User Accessible Tables GUI
- *  Mantain an array of user accessible data strucures
- *  
- * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -27,9 +21,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef _UAT_GUI_H_
-#define _UAT_GUI_H_
-
-void uat_window_cb(GtkWidget* unused, void* uat);
-
+#ifdef HAVE_CONFIG_H
+# include "config.h"
 #endif
+
+#include <gtk/gtk.h>
+
+#include <epan/dfilter/dfilter-macro.h>
+#include <stdlib.h>
+#include <epan/uat.h>
+#include "uat_gui.h"
+#include "macros_dlg.h"
+
+void macros_dialog_cb(GtkWidget *w _U_, gpointer data _U_) {
+		void* dfmuat;
+		dfilter_macro_get_uat(&dfmuat);
+		uat_window_cb(NULL,dfmuat);
+}
+

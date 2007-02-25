@@ -1,12 +1,6 @@
-/*
- *  uat_gui.h
+/* macros_dlg.h
  *
- *  $Id$
- *
- *  User Accessible Tables GUI
- *  Mantain an array of user accessible data strucures
- *  
- * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -26,10 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-#ifndef _UAT_GUI_H_
-#define _UAT_GUI_H_
-
-void uat_window_cb(GtkWidget* unused, void* uat);
-
+#ifndef __MACROS_DLG_H_
+#define __MACROS_DLG_H_
+	void macros_dialog_cb(GtkWidget*, gpointer);
 #endif

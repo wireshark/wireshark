@@ -1027,24 +1027,4 @@ void uat_window_cb(GtkWidget* u _U_, void* uat) {
 }
 
 
-/*
- Add an UAT to the menu
- */
-static void add_uat_to_menu(void* u, void* user_data _U_) {
-	uat_t* uat = u;
-	register_stat_menu_item( uat->category ?
-								 ep_strdup_printf("%s/%s",uat->category,uat->name) :
-								 ep_strdup_printf(" %s",uat->name),
-							 REGISTER_USER_TABLES,
-							 uat_window_cb,
-							 NULL,
-							 NULL,
-							 uat);
-}
-
-
-void uat_init_menus(void) {
-	uat_foreach_table(add_uat_to_menu,NULL);
-}
-
 

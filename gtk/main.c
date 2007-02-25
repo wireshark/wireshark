@@ -2376,10 +2376,6 @@ main(int argc, char *argv[])
   epan_init(register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
-
-  uat_init_menus();
-
-
   splash_update(splash_win, "Init tap listeners ...");
 
   /* Register all tap listeners; we do this before we parse the arguments,
