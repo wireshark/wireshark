@@ -201,8 +201,7 @@ static const h248_pkg_param_t h248_pkg_GB_BNCChange_pars[] = {
 };
 
 static const h248_pkg_evt_t h248_pkg_GB_events[] = {
-	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars,h248_pkg_GB_events_vals},
-	{ 0, NULL, NULL, NULL}
+	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars, h248_pkg_GB_events_vals},
 };
 
 static const value_string h248_pkg_GB_signals_vals[] = {
@@ -388,17 +387,17 @@ static h248_pkg_param_t  h248_pkg_h248_pkg_bcg_sig_bdt_params[] = {
 
 static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 	/* All the tones have the same parameters */
-	{ 0x0040, &hf_h248_pkg_bcg_sig_bdt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0041, &hf_h248_pkg_bcg_sig_brt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0042, &hf_h248_pkg_bcg_sig_bbt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0043, &hf_h248_pkg_bcg_sig_bct, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0044, &hf_h248_pkg_bcg_sig_bsit, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0045, &hf_h248_pkg_bcg_sig_bwt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0046, &hf_h248_pkg_bcg_sig_bpt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0047, &hf_h248_pkg_bcg_sig_bcw, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0048, &hf_h248_pkg_bcg_sig_bcr, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0x0049, &hf_h248_pkg_bcg_sig_bpy, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params },
-	{ 0, NULL, NULL, NULL}
+	{ 0x0040, &hf_h248_pkg_bcg_sig_bdt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0041, &hf_h248_pkg_bcg_sig_brt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0042, &hf_h248_pkg_bcg_sig_bbt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0043, &hf_h248_pkg_bcg_sig_bct, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0044, &hf_h248_pkg_bcg_sig_bsit, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0045, &hf_h248_pkg_bcg_sig_bwt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL},
+	{ 0x0046, &hf_h248_pkg_bcg_sig_bpt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0047, &hf_h248_pkg_bcg_sig_bcw, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0048, &hf_h248_pkg_bcg_sig_bcr, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0x0049, &hf_h248_pkg_bcg_sig_bpy, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
+	{ 0, NULL, NULL, NULL,NULL}
 };
 
 /* Packet defenitions */
@@ -416,6 +415,11 @@ static h248_package_t h248_pkg_bcg = {
 	NULL						/* statistics */
 };
 
+
+void proto_reg_handoff_q1950(void) {
+	sdp_dissector = find_dissector("sdp");
+	
+}
 
 /* Register dissector */
 void proto_register_q1950(void) {
@@ -550,8 +554,6 @@ void proto_register_q1950(void) {
 			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy", 
 			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
 		},
-		//~ hf_h248_pkg_bcg_sig_bcr
-
 	};
 
 	static gint *ett[] = {
@@ -577,9 +579,4 @@ void proto_register_q1950(void) {
 	h248_register_package(&h248_pkg_bcg);
 	h248_register_package(&h248_pkg_bct);
 
-}
-
-void proto_reg_handoff_q1950(void) {
-	sdp_dissector = find_dissector("sdp");
-	
 }

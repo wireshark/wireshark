@@ -285,8 +285,8 @@ static h248_pkg_evt_t h248_pkg_al_evts[] = {
 	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params, h248_pkg_al_evt_onhook_params_vals},
 	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params, h248_pkg_al_evt_onhook_params_vals },
 	{ 0x0006, &hf_h248_pkg_al_evt_flashhook, &ett_h248_pkg_al_evt_flashhook, h248_pkg_al_evt_flashhook_params, h248_pkg_al_evt_flashhook_params_vals },
-
-	{ 0, NULL, NULL, NULL}
+	
+	{ 0, NULL, NULL, NULL, NULL}
 };
 
 /* Packet defenitions */
@@ -337,8 +337,7 @@ static const value_string h248_pkg_rtp_parameters[] = {
 };
 
 static h248_pkg_stat_t h248_pkg_rtp_stat[] = {
-	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL},
-	{ 0, NULL, NULL, NULL}
+	{ 0x0004, &hf_h248_pkg_rtp_stat_ps, &ett_h248_pkg_rtp, NULL,NULL},
 };
 
 /* Packet defenitions */
@@ -450,9 +449,6 @@ void proto_register_h248_annex_e(void) {
 	h248_register_package(&h248_pkg_al);
 	h248_register_package(&h248_pkg_rtp);
 	h248_register_package(&h248_pkg_tdmc);
-}
-
-void proto_reg_handoff_h248_annex_e(void) {
 }
 
 

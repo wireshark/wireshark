@@ -172,7 +172,6 @@ static const value_string h248_3GCSD_signal_actprot_vals[] = {
 	{0,     NULL}
 };
 
-
 static const value_string h248_3GCSD_events_vals[] = {
 	{ 0x0001, "protres"},
 	{ 0x0002, "ratechg"},
@@ -228,7 +227,7 @@ static const h248_pkg_param_t h248_pkg_3GCSD_evt_ratechg_params[] = {
 static const h248_pkg_evt_t h248_package_3GCSD_evts[] = {
 	{ 0x0001, &hf_h248_pkg_3GCSD_evt_protres, &ett_h248_3GCSD_evt_protres, h248_pkg_3GCSD_evt_protres_params, h248_3GCSD_event_protres_vals},
 	{ 0x0002, &hf_h248_pkg_3GCSD_evt_ratechg, &ett_h248_3GCSD_evt_ratechg, h248_pkg_3GCSD_evt_ratechg_params, h248_3GCSD_event_ratechg_vals},
-	{ 0, NULL, NULL, NULL}
+	{ 0, NULL, NULL, NULL,NULL}
 };
 
 static const h248_pkg_param_t h248_pkg_3GCSD_actprot_sig_params[] = {
@@ -237,8 +236,8 @@ static const h248_pkg_param_t h248_pkg_3GCSD_actprot_sig_params[] = {
 };
 
 static const h248_pkg_sig_t h248_package_3GCSD_sigs[] = {
-	{ 0x0010, &hf_h248_pkg_3GCSD_sig_actprot, &ett_pkg_3GCSD_sig_actprot, h248_pkg_3GCSD_actprot_sig_params },
-	{ 0, NULL, NULL, NULL}
+	{ 0x0010, &hf_h248_pkg_3GCSD_sig_actprot, &ett_pkg_3GCSD_sig_actprot, h248_pkg_3GCSD_actprot_sig_params, h248_3GCSD_signal_actprot_vals },
+	{ 0, NULL, NULL, NULL,NULL}
 };
 
 static const h248_package_t h248_package_3GCSD = {
@@ -293,6 +292,12 @@ static const value_string h248_pkg_3GTFO_evt_distant_codec_list_params_vals[] = 
 	{0,NULL}
 };
 
+static const value_string h248_pkg_3GTFO_evt_status_params_vals[] = {
+	{1,"tfostatus"},
+	{0,NULL}
+};
+
+
 static const value_string h248_package_3GTFO_evts_vals[] = {
 	{10,"codec_modify"},
 	{12,"distant_codec_list"},
@@ -332,8 +337,8 @@ static const h248_pkg_param_t h248_pkg_3GTFO_evt_status_params[] = {
 static const h248_pkg_evt_t h248_package_3GTFO_evts[] = {
 	{ 0x0010, &hf_h248_pkg_3GTFO_evt_codec_modify, &ett_h248_3GTFO_evt_codec_modify, h248_pkg_3GTFO_evt_codec_modify_params, h248_pkg_3GTFO_evt_codec_modify_params_vals},
 	{ 0x0012, &hf_h248_pkg_3GTFO_evt_distant_codec_list, &ett_h248_3GTFO_evt_distant_codec_list, h248_pkg_3GTFO_evt_distant_codec_list_params, h248_pkg_3GTFO_evt_distant_codec_list_params_vals},
-	{ 0x0014, &hf_h248_pkg_3GTFO_evt_status, &ett_h248_3GTFO_evt_status, h248_pkg_3GTFO_evt_status_params},
-	{ 0, NULL, NULL, NULL}
+	{ 0x0014, &hf_h248_pkg_3GTFO_evt_status, &ett_h248_3GTFO_evt_status, h248_pkg_3GTFO_evt_status_params, h248_pkg_3GTFO_evt_status_params_vals},
+	{ 0, NULL, NULL, NULL,NULL}
 };
 
 static const h248_package_t h248_package_3GTFO = {
@@ -512,12 +517,4 @@ void proto_register_h248_3gpp(void) {
 	h248_register_package(&h248_package_3GCSD);
 	h248_register_package(&h248_package_3GTFO);
 }
-
-void proto_reg_handoff_h248_3gpp(void) {
-}
-
-
-
-
-
 
