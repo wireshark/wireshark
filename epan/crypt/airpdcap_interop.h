@@ -85,12 +85,6 @@ typedef	gchar	CHAR;
 typedef guchar	UCHAR;
 #endif
 
-#ifndef	size_t
-#ifndef	_SIZE_T
-typedef	gsize	size_t;
-#endif
-#endif
-
 #ifdef WIN32
 #include <winsock2.h>  /* ntohs() */
 #endif
