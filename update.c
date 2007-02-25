@@ -271,9 +271,9 @@ update_check_winpcap(const char *local_file)
         get_runtime_pcap_version(pcap_version_tmp);
 
         /* cut out real version from "combined" version string */
-        pcap_vstart = strstr(pcap_version_tmp->str, "WinPcap version ");
+        pcap_vstart = strstr(pcap_version_tmp->str, "with WinPcap version ");
         if(pcap_vstart != NULL) {
-            pcap_vstart += sizeof("WinPcap version");
+            pcap_vstart += sizeof("with WinPcap version");
             pcap_vend = strstr(pcap_vstart, " ");
             if(pcap_vend != NULL) {
                 pcap_vend[0] = 0;
@@ -281,7 +281,7 @@ update_check_winpcap(const char *local_file)
             }
         }
 
-        update_info->version_recommended = g_strdup(pcap_version);
+        update_info->version_installed = g_strdup(pcap_version);
 
         if(pcap_version && update_info->version_recommended &&
             strcmp(pcap_version, update_info->version_recommended) != 0)
@@ -302,11 +302,12 @@ update_check_winpcap(const char *local_file)
 
 /* check for all updates */
 void
-update_check(void)
+update_check(gboolean interactive)
 {
     char *local_file;
     const char *url_file = "http://127.0.0.1/wsupdate";	/* XXX - build the URL depending on platform, versions, ... */
-    update_info_t *update_info;
+    update_info_t *update_info_wireshark;
+    update_info_t *update_info_winpcap;
 
 
     /* build update file name */
@@ -325,18 +326,26 @@ update_check(void)
     }
 
     /* check wireshark */
-    update_info = update_check_wireshark(local_file);
-    if(update_info->needs_update)
-        update_info_display(update_info);
-
-    update_info_delete(update_info);
+    update_info_wireshark = update_check_wireshark(local_file);
 
     /* check winpcap */
-    update_info = update_check_winpcap(local_file);
-    if(update_info->needs_update)
-        update_info_display(update_info);
+    update_info_winpcap = update_check_winpcap(local_file);
+    
+    /* display results */
+    if(update_info_wireshark->needs_update || update_info_winpcap->needs_update) {
+        if(update_info_wireshark->needs_update)
+            update_info_display(update_info_wireshark);
+        if(update_info_winpcap->needs_update)
+            update_info_display(update_info_winpcap);
+    } else {
+        if(interactive) {
+            simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No updates available");
+        }
+    }
 
-    update_info_delete(update_info);
+    /* cleanup */
+    update_info_delete(update_info_wireshark);
+    update_info_delete(update_info_winpcap);
 
     g_free(local_file);
 }
