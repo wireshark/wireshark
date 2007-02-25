@@ -115,72 +115,36 @@ static const UINT16 Sbox[256] = {
 
 /* TODO: check for little-endian, big-endian	*/
 
-/******************************************************************************/
-/*	Function definitions																			*/
 /*																										*/
 /* Note: any functions were copied from FreeBSD source code, RELENG 6,			*/
 /*		sys/net80211/ieee80211_crypto_tkip.c												*/
-static __inline UINT16 RotR1(
-	UINT16 val)
-{
-	return (UINT16)((val >> 1) | (val << 15));
-}
+/* Converted to macros to avoid using __inline, as not all compilers support it	*/
+#define RotR1(val)	((UINT16)(((val) >> 1) | ((val) << 15)))
 
-static __inline UINT8 Lo8(
-	UINT16 val)
-{
-	return (UINT8)(val & 0xff);
-}
+#define Lo8(val)	((UINT8)((val) & 0xff))
 
-static __inline UINT8 Hi8(
-	UINT16 val)
-{
-	return (UINT8)(val >> 8);
-}
+#define Hi8(val)	((UINT8)((val) >> 8))
 
-static __inline UINT16 Lo16(
-	UINT32 val)
-{
-	return (UINT16)(val & 0xffff);
-}
+#define Lo16(val)	((UINT16)((val) & 0xffff))
 
-static __inline UINT16 Hi16(
-	UINT32 val)
-{
-	return (UINT16)(val >> 16);
-}
+#define Hi16(val)	((UINT16)((val) >> 16))
 
-static __inline UINT16 Mk16(
-	UINT8 hi,
-	UINT8 lo)
-{
-	return (UINT16)(lo | (((UINT16) hi) << 8));
-}
+#define Mk16(hi, lo) \
+	((UINT16)((lo) | (((UINT16) (hi)) << 8)))
 
-static __inline UINT16 Mk16_le(const UINT16 *v)
-{
-	return (UINT16)*v;
-}
+/* XXX - does this assume a little-endian processor? */
+/* For that matter, does it assume a processor that handles unaligned loads? */
+#define Mk16_le(v)	((UINT16)*(v))
 
-static __inline UINT16 _S_(
-	UINT16 v)
-{
-	UINT16 t = Sbox[Hi8(v)];
-	return (UINT16)(Sbox[Lo8(v)] ^ ((t << 8) | (t >> 8)));
-}
+#define _S_(v) \
+	((UINT16)(Sbox[Lo8(v)] ^ ((Sbox[Hi8(v)] << 8) | (Sbox[Hi8(v)] >> 8))))
 
-static __inline UINT64 READ_6(
-	UINT8 b0,
-	UINT8 b1,
-	UINT8 b2,
-	UINT8 b3,
-	UINT8 b4,
-	UINT8 b5)
-{
-	UINT32 iv32 = (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
-	UINT16 iv16 = (UINT16)((b4 << 0) | (b5 << 8));
-	return (((UINT64)iv16) << 32) | iv32;
-}
+#define READ_6(b0, b1, b2, b3, b4, b5) \
+	((((UINT64)((UINT16)((b4 << 0) | (b5 << 8)))) << 32) | \
+	    ((UINT32)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
+
+/******************************************************************************/
+/*	Function definitions																			*/
 
 void AirPDcapTkipMixingPhase1(
 	UINT16 *TTAK,

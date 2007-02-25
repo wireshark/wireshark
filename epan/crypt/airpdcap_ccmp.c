@@ -73,11 +73,15 @@
 	_b0[14] = (UINT8)((_i >> 8) & 0xff);                    \
 	_b0[15] = (UINT8)(_i & 0xff);                           \
 	rijndael_encrypt(&key, _b0, _b);		        \
-	xor_block(_pos, _b, _len);				\
+	XOR_BLOCK(_pos, _b, _len);				\
 	/* Authentication */					\
-	xor_block(_a, _pos, _len);				\
+	XOR_BLOCK(_a, _pos, _len);				\
 	rijndael_encrypt(&key, _a, _a);				\
 }
+
+#define READ_6(b0, b1, b2, b3, b4, b5) \
+	((((UINT64)((UINT16)((b4 << 0) | (b5 << 8)))) << 32) | \
+	    ((UINT32)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
 
 #define AIRPDCAP_ADDR_COPY(dst,src)    memcpy(dst,src,AIRPDCAP_MAC_LEN)
 
@@ -97,19 +101,6 @@ static void ccmp_init_blocks(
 
 /****************************************************************************/
 /* Function definitions							*/
-
-static __inline UINT64 READ_6(
-        UINT8 b0,
-	UINT8 b1,
-	UINT8 b2,
-	UINT8 b3,
-	UINT8 b4,
-	UINT8 b5)
-{
-	UINT32 iv32 = (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
-	UINT16 iv16 = (UINT16)((b4 << 0) | (b5 << 8));
-	return (((UINT64)iv16) << 32) | iv32;
-}
 
 static void ccmp_init_blocks(
 	rijndael_ctx *ctx,
@@ -203,9 +194,9 @@ static void ccmp_init_blocks(
 
 	/* Start with the first block and AAD */
 	rijndael_encrypt(ctx, b0, a);
-	xor_block(a, aad, AES_BLOCK_LEN);
+	XOR_BLOCK(a, aad, AES_BLOCK_LEN);
 	rijndael_encrypt(ctx, a, a);
-	xor_block(a, &aad[AES_BLOCK_LEN], AES_BLOCK_LEN);
+	XOR_BLOCK(a, &aad[AES_BLOCK_LEN], AES_BLOCK_LEN);
 	rijndael_encrypt(ctx, a, a);
 	b0[0] &= 0x07;
 	b0[14] = b0[15] = 0;
@@ -246,7 +237,7 @@ INT AirPDcapCcmpDecrypt(
 	    return 0;
 	ccmp_init_blocks(&key, wh, *(UINT64 *)PN, data_len, b0, aad, a, b);
 	memcpy(mic, m+len-AIRPDCAP_CCMP_TRAILER, AIRPDCAP_CCMP_TRAILER);
-	xor_block(mic, b, AIRPDCAP_CCMP_TRAILER);
+	XOR_BLOCK(mic, b, AIRPDCAP_CCMP_TRAILER);
 
 	i = 1;
 	pos = (UINT8 *)m + z + AIRPDCAP_CCMP_HEADER;

@@ -79,17 +79,14 @@ void rijndael_set_key(
 /******************************************************************************/
 
 /******************************************************************************/
-/*	External function definition																*/
+/*	Block XOR macro definition																*/
 /*																										*/
-static __inline void xor_block(
-	UINT8 *b,
-	const UINT8 *a,
-	size_t len)
-{
-	INT i;
-	for (i = 0; i < (INT)len; i++)
-		b[i] ^= a[i];
-}
+#define XOR_BLOCK(b, a, len) \
+	{						\
+		INT i;					\
+		for (i = 0; i < (INT)(len); i++)	\
+			(b)[i] ^= (a)[i];		\
+	}
 /*																										*/
 /******************************************************************************/
 
