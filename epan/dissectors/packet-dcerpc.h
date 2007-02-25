@@ -421,4 +421,15 @@ dcerpc_get_transport_salt (packet_info *pinfo);
 void
 init_ndr_pointer_list(packet_info *pinfo);
 
+
+
+/* These defines are used in the PIDL conformance files when using
+ * the PARAM_VALUE directive.
+ */
+/* Policy handle tracking. Describes in which function a handle is 
+ * opened/closed.  See "winreg.cnf" for example.
+ */
+#define PIDL_POLHND_OPEN		0x80000000
+#define PIDL_POLHND_CLOSE		0x40000000
+
 #endif /* packet-dcerpc.h */
