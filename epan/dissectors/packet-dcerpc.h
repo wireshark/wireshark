@@ -431,5 +431,7 @@ init_ndr_pointer_list(packet_info *pinfo);
  */
 #define PIDL_POLHND_OPEN		0x80000000
 #define PIDL_POLHND_CLOSE		0x40000000
+/* To make this value appear on the summary line for the packet */
+#define PIDL_SET_COL_INFO		0x20000000
 
 #endif /* packet-dcerpc.h */

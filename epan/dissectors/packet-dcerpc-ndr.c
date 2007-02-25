@@ -32,6 +32,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include "packet-dcerpc.h"
 
 
@@ -65,6 +66,7 @@ PIDL_dissect_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                    int hfindex, guint32 param _U_)
 {
     dcerpc_info *di;
+    guint8 val;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -73,8 +75,43 @@ PIDL_dissect_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 
     /* no alignment needed */
-    return dissect_dcerpc_uint8 (tvb, offset, pinfo,
-                                 tree, drep, hfindex, NULL);
+    offset=dissect_dcerpc_uint8 (tvb, offset, pinfo,
+                                 tree, drep, hfindex, &val);
+
+    if(param&PIDL_SET_COL_INFO){
+        header_field_info *hf_info;
+        char *valstr;
+
+        hf_info=proto_registrar_get_nth(hfindex);
+
+        valstr=ep_alloc(64);
+        valstr[0]=0;
+
+        switch(hf_info->display){
+        case BASE_DEC:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "%d", val);
+            }
+            break;
+        case BASE_HEX:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(0x%02x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "0x%02x", val);
+            }
+            break;
+        default:
+            REPORT_DISSECTOR_BUG("Invalid hf->display value");
+        }
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
+        }
+    }
+
+    return offset;
 }
 
 
@@ -105,6 +142,7 @@ PIDL_dissect_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     int hfindex, guint32 param _U_)
 {
     dcerpc_info *di;
+    guint16 val;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -116,8 +154,43 @@ PIDL_dissect_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 2) {
         offset++;
     }
-    return dissect_dcerpc_uint16 (tvb, offset, pinfo,
-                                  tree, drep, hfindex, NULL);
+    offset=dissect_dcerpc_uint16 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, &val);
+
+    if(param&PIDL_SET_COL_INFO){
+        header_field_info *hf_info;
+        char *valstr;
+
+        hf_info=proto_registrar_get_nth(hfindex);
+
+        valstr=ep_alloc(64);
+        valstr[0]=0;
+
+        switch(hf_info->display){
+        case BASE_DEC:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "%d", val);
+            }
+            break;
+        case BASE_HEX:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(0x%04x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "0x%04x", val);
+            }
+            break;
+        default:
+            REPORT_DISSECTOR_BUG("Invalid hf->display value");
+        }
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
+        }
+    }
+
+    return offset;
 }
 
 int
@@ -144,9 +217,10 @@ dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int
 PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep,
-                    int hfindex, guint32 param _U_)
+                    int hfindex, guint32 param)
 {
     dcerpc_info *di;
+    guint32 val;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -158,8 +232,43 @@ PIDL_dissect_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 4) {
         offset += 4 - (offset % 4);
     }
-    return dissect_dcerpc_uint32 (tvb, offset, pinfo,
-                                  tree, drep, hfindex, NULL);
+    offset=dissect_dcerpc_uint32 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, &val);
+
+    if(param&PIDL_SET_COL_INFO){
+        header_field_info *hf_info;
+        char *valstr;
+
+        hf_info=proto_registrar_get_nth(hfindex);
+
+        valstr=ep_alloc(64);
+        valstr[0]=0;
+
+        switch(hf_info->display){
+        case BASE_DEC:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(%d)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "%d", val);
+            }
+            break;
+        case BASE_HEX:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(0x%08x)",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "0x%08x", val);
+            }
+            break;
+        default:
+            REPORT_DISSECTOR_BUG("Invalid hf->display value");
+        }
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
+        }
+    }
+
+    return offset;
 }
 
 /* Double uint32
@@ -216,6 +325,7 @@ PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     int hfindex, guint32 param _U_)
 {
     dcerpc_info *di;
+    guint64 val;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -226,8 +336,43 @@ PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (offset % 8) {
         offset += 8 - (offset % 8);
     }
-    return dissect_dcerpc_uint64 (tvb, offset, pinfo,
-                                  tree, drep, hfindex, NULL);
+    offset=dissect_dcerpc_uint64 (tvb, offset, pinfo,
+                                  tree, drep, hfindex, &val);
+
+    if(param&PIDL_SET_COL_INFO){
+        header_field_info *hf_info;
+        char *valstr;
+
+        hf_info=proto_registrar_get_nth(hfindex);
+
+        valstr=ep_alloc(64);
+        valstr[0]=0;
+
+        switch(hf_info->display){
+        case BASE_DEC:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "%" PRIu64, val);
+            }
+            break;
+        case BASE_HEX:
+            if(hf_info->strings){
+                g_snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+            } else {
+                g_snprintf(valstr, 64, "0x%" PRIx64, val);
+            }
+            break;
+        default:
+            REPORT_DISSECTOR_BUG("Invalid hf->display value");
+        }
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_append_fstr(pinfo->cinfo, COL_INFO," %s:%s", hf_info->name, valstr);
+        }
+    }
+
+    return offset;
 }
 
 int
