@@ -1,3 +1,5 @@
+- allow [public] on typedefs only
+
 - EJS output backend shouldn't use the NDR levels stuff but instead 
   as the "C levels" and NDR levels don't necessarily match.
 
@@ -7,8 +9,6 @@
  - strip out pidl-specific properties
 
 - support nested elements
- - allow non-typedef structs
- - generate names for anonymous tagged types. Simple MD5Sum of contents?
  - support typedefs properly
  - improve represent_as(): allow it to be used for arrays and other complex 
    types

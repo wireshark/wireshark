@@ -11,7 +11,8 @@ use Util;
 use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::NDR::Parser qw(check_null_pointer 
 	GenerateFunctionInEnv GenerateFunctionOutEnv GenerateStructEnv 
-	EnvSubstituteValue NeededFunction NeededElement NeededType $res); 
+	EnvSubstituteValue NeededFunction NeededElement NeededType $res
+	NeededInterface); 
 
 my $output;
 sub print_fn($) { my $x = shift; $output.=$x; }
@@ -209,46 +210,51 @@ is_deeply($needed, { pull_foo => 1, print_foo => 1, push_foo => 1,
 
 # public structs are always needed
 $needed = {};
-NeededType({ NAME => "bla", DATA => { TYPE => "STRUCT", ELEMENTS => [] } },
-			  $needed);
+NeededType({ NAME => "bla", TYPE => "TYPEDEF",
+		DATA => { TYPE => "STRUCT", ELEMENTS => [] } },
+			  $needed, "pull");
 is_deeply($needed, { });
 
 $needed = {};
-NeededType({ PROPERTIES => { public => 1 }, NAME => "bla", 
-	            DATA => { TYPE => "STRUCT", ELEMENTS => [] } },
+NeededInterface({ TYPES => [ { PROPERTIES => { public => 1 }, NAME => "bla", 
+				TYPE => "TYPEDEF",
+	            DATA => { TYPE => "STRUCT", ELEMENTS => [] } } ] },
 			  $needed);
-is_deeply($needed, { pull_bla => 1, print_bla => 1, push_bla => 1 });
+is_deeply($needed, { pull_bla => 1, push_bla => 1, print_bla => 1 });
 
 # make sure types for elements are set too
 $needed = {};
-NeededType({ PROPERTIES => { public => 1 }, NAME => "bla", 
+NeededInterface({ TYPES => [ { PROPERTIES => { public => 1 }, NAME => "bla", 
+				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
-						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } },
+						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } } ] },
 			  $needed);
-is_deeply($needed, { pull_bla => 1, print_bla => 1, push_bla => 1,
-	                 pull_bar => 1, print_bar => 1, push_bar => 1});
+is_deeply($needed, { pull_bla => 1, pull_bar => 1, push_bla => 1, push_bar => 1,
+					 print_bla => 1, print_bar => 1});
 
 $needed = {};
-NeededType({ PROPERTIES => { gensize => 1}, NAME => "bla", 
+NeededInterface({ TYPES => [ { PROPERTIES => { gensize => 1}, NAME => "bla", 
+				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
-						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } },
+						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } } ] },
 			  $needed);
 is_deeply($needed, { ndr_size_bla => 1 });
 	                 
 # make sure types for elements are set too
 $needed = { pull_bla => 1 };
 NeededType({ NAME => "bla", 
+				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
 						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } },
-			  $needed);
+			  $needed, "pull");
 is_deeply($needed, { pull_bla => 1, pull_bar => 1 });
 
 $needed = {};
-NeededType({ PROPERTIES => { public => 1}, 
+NeededInterface({ TYPES => [ { PROPERTIES => { public => 1}, 
 				NAME => "bla", 
+				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
-						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "rep" } ] } },
-			  $needed);
+						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "rep" } ] } } ] }, $needed);
 is_deeply($needed, { pull_bla => 1, push_bla => 1, print_bla => 1, print_rep => 1,
 	                 pull_bar => 1, push_bar => 1, 
 				     ndr_bar_to_rep => 1, ndr_rep_to_bar => 1});

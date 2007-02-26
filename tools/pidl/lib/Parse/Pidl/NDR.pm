@@ -588,6 +588,21 @@ sub CheckPointerTypes($$)
 	}
 }
 
+sub FindNestedTypes($$)
+{
+	sub FindNestedTypes($$);
+	my ($l, $t) = @_;
+
+	return if not defined($t->{ELEMENTS});
+
+	foreach (@{$t->{ELEMENTS}}) {
+		if (ref($_->{TYPE}) eq "HASH") {
+			push (@$l, $_->{TYPE}) if (defined($_->{TYPE}->{NAME}));
+			FindNestedTypes($l, $_->{TYPE});
+		}
+	}
+}
+
 sub ParseInterface($)
 {
 	my $idl = shift;
@@ -620,6 +635,7 @@ sub ParseInterface($)
 			push (@consts, ParseConst($idl, $d));
 		} else {
 			push (@types, ParseType($d, $idl->{PROPERTIES}->{pointer_default}));
+			FindNestedTypes(\@types, $d);
 		}
 	}
 

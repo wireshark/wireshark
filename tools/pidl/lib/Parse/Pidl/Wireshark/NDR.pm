@@ -18,7 +18,7 @@ package Parse::Pidl::Wireshark::NDR;
 
 use Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(field2name @ett %res PrintIdl);
+@EXPORT_OK = qw(field2name @ett %res PrintIdl StripPrefixes %hf_used RegisterInterfaceHandoff $conformance register_hf_field CheckUsed);
 
 use strict;
 use Parse::Pidl qw(error warning);
@@ -34,11 +34,11 @@ $VERSION = '0.01';
 
 our @ett;
 
-my %hf_used = ();
+our %hf_used = ();
 my %return_types = ();
 my %dissector_used = ();
 
-my $conformance = undef;
+our $conformance = undef;
 
 my %ptrtype_mappings = (
 	"unique" => "NDR_POINTER_UNIQUE",
@@ -46,11 +46,11 @@ my %ptrtype_mappings = (
 	"ptr" => "NDR_POINTER_PTR"
 );
 
-sub StripPrefixes($)
+sub StripPrefixes($$)
 {
-	my ($s) = @_;
+	my ($s, $prefixes) = @_;
 
-	foreach (@{$conformance->{strip_prefixes}}) {
+	foreach (@$prefixes) {
 		$s =~ s/^$_\_//g;
 	}
 
@@ -135,9 +135,9 @@ sub Enum($$$)
 {
 	my ($e,$name,$ifname) = @_;
 	my $valsstring = "$ifname\_$name\_vals";
-	my $dissectorname = "$ifname\_dissect\_enum\_".StripPrefixes($name);
+	my $dissectorname = "$ifname\_dissect\_enum\_".StripPrefixes($name, $conformance->{strip_prefixes});
 
-	return if (defined($conformance->{noemit}->{StripPrefixes($name)}));
+	return if (defined($conformance->{noemit}->{StripPrefixes($name, $conformance->{strip_prefixes})}));
 
    	foreach (@{$e->{ELEMENTS}}) {
 		if (/([^=]*)=(.*)/) {
@@ -176,7 +176,7 @@ sub Enum($$$)
 sub Bitmap($$$)
 {
 	my ($e,$name,$ifname) = @_;
-	my $dissectorname = "$ifname\_dissect\_bitmap\_".StripPrefixes($name);
+	my $dissectorname = "$ifname\_dissect\_bitmap\_".StripPrefixes($name, $conformance->{strip_prefixes});
 
 	register_ett("ett_$ifname\_$name");
 
@@ -272,7 +272,7 @@ sub ElementLevel($$$$$$)
 		} elsif ($l->{LEVEL} eq "EMBEDDED") {
 			$type = "embedded";
 		}
-		pidl_code "offset = dissect_ndr_$type\_pointer(tvb, offset, pinfo, tree, drep, $myname\_, $ptrtype_mappings{$l->{POINTER_TYPE}}, \"Pointer to ".field2name(StripPrefixes($e->{NAME})) . " ($e->{TYPE})\",$hf);";
+		pidl_code "offset = dissect_ndr_$type\_pointer(tvb, offset, pinfo, tree, drep, $myname\_, $ptrtype_mappings{$l->{POINTER_TYPE}}, \"Pointer to ".field2name(StripPrefixes($e->{NAME}, $conformance->{strip_prefixes})) . " ($e->{TYPE})\",$hf);";
 	} elsif ($l->{TYPE} eq "ARRAY") {
 		if ($l->{IS_INLINE}) {
 			error($e->{ORIGINAL}, "Inline arrays not supported");
@@ -353,7 +353,7 @@ sub Element($$$)
 {
 	my ($e,$pn,$ifname) = @_;
 
-	my $dissectorname = "$ifname\_dissect\_element\_".StripPrefixes($pn)."\_".StripPrefixes($e->{NAME});
+	my $dissectorname = "$ifname\_dissect\_element\_".StripPrefixes($pn, $conformance->{strip_prefixes})."\_".StripPrefixes($e->{NAME}, $conformance->{strip_prefixes});
 
 	my $call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, drep);";
 
@@ -381,7 +381,7 @@ sub Element($$$)
 	my $hf = register_hf_field("hf_$ifname\_$pn\_$e->{NAME}", field2name($e->{NAME}), "$ifname.$pn.$e->{NAME}", $type->{FT_TYPE}, $type->{BASE_TYPE}, $type->{VALSSTRING}, $type->{MASK}, "");
 	$hf_used{$hf} = 1;
 
-	my $eltname = StripPrefixes($pn) . ".$e->{NAME}";
+	my $eltname = StripPrefixes($pn, $conformance->{strip_prefixes}) . ".$e->{NAME}";
 	if (defined($conformance->{noemit}->{$eltname})) {
 		return $call_code;
 	}
@@ -427,7 +427,7 @@ sub Function($$$)
 	PrintIdl DumpFunction($fn->{ORIGINAL});
 	pidl_fn_start "$ifname\_dissect\_$fn_name\_response";
 	pidl_code "static int";
-	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
+	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
 	indent;
 	if ( not defined($fn->{RETURN_TYPE})) {
@@ -446,6 +446,7 @@ sub Function($$$)
 		error($fn, "unknown return type `$fn->{RETURN_TYPE}'");
 	}
 
+	pidl_code "pinfo->dcerpc_procedure_name=\"${fn_name}\";";
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/out/,@{$_->{DIRECTION}})) {
 			pidl_code "$dissectornames{$_->{NAME}}";
@@ -491,9 +492,10 @@ sub Function($$$)
 
 	pidl_fn_start "$ifname\_dissect\_$fn_name\_request";
 	pidl_code "static int";
-	pidl_code "$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
+	pidl_code "$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
 	indent;
+	pidl_code "pinfo->dcerpc_procedure_name=\"${fn_name}\";";
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/in/,@{$_->{DIRECTION}})) {
 			pidl_code "$dissectornames{$_->{NAME}}";
@@ -511,9 +513,9 @@ sub Function($$$)
 sub Struct($$$)
 {
 	my ($e,$name,$ifname) = @_;
-	my $dissectorname = "$ifname\_dissect\_struct\_".StripPrefixes($name);
+	my $dissectorname = "$ifname\_dissect\_struct\_".StripPrefixes($name, $conformance->{strip_prefixes});
 
-	return if (defined($conformance->{noemit}->{StripPrefixes($name)}));
+	return if (defined($conformance->{noemit}->{StripPrefixes($name, $conformance->{strip_prefixes})}));
 
 	register_ett("ett_$ifname\_$name");
 
@@ -561,9 +563,9 @@ sub Union($$$)
 {
 	my ($e,$name,$ifname) = @_;
 
-	my $dissectorname = "$ifname\_dissect_".StripPrefixes($name);
+	my $dissectorname = "$ifname\_dissect_".StripPrefixes($name, $conformance->{strip_prefixes});
 
-	return if (defined($conformance->{noemit}->{StripPrefixes($name)}));
+	return if (defined($conformance->{noemit}->{StripPrefixes($name, $conformance->{strip_prefixes})}));
 	
 	register_ett("ett_$ifname\_$name");
 
@@ -839,17 +841,17 @@ sub Initialize($)
 	
 	foreach my $bytes (qw(1 2 4 8)) {
 		my $bits = $bytes * 8;
-		register_type("uint$bits", "offset = dissect_ndr_uint$bits(tvb, offset, pinfo, tree, drep, \@HF\@,NULL);", "FT_UINT$bits", "BASE_DEC", 0, "NULL", $bytes);
-		register_type("int$bits", "offset = dissect_ndr_uint$bits(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);", "FT_INT$bits", "BASE_DEC", 0, "NULL", $bytes);
+		register_type("uint$bits", "offset = PIDL_dissect_uint$bits(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_UINT$bits", "BASE_DEC", 0, "NULL", $bytes);
+		register_type("int$bits", "offset = PIDL_dissect_uint$bits(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_INT$bits", "BASE_DEC", 0, "NULL", $bytes);
 	}
 		
 	register_type("udlong", "offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);", "FT_UINT64", "BASE_DEC", 0, "NULL", 4);
-	register_type("bool8", "offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
-	register_type("char", "offset = dissect_ndr_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
-	register_type("long", "offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_INT32", "BASE_DEC", 0, "NULL", 4);
+	register_type("bool8", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
+	register_type("char", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
+	register_type("long", "offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_INT32", "BASE_DEC", 0, "NULL", 4);
 	register_type("dlong", "offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_INT64", "BASE_DEC", 0, "NULL", 8);
 	register_type("GUID", "offset = dissect_ndr_uuid_t(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_GUID", "BASE_NONE", 0, "NULL", 4);
-	register_type("policy_handle", "offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep, \@HF\@, NULL, NULL, \@PARAM\@&0x01, \@PARAM\@&0x02);","FT_BYTES", "BASE_NONE", 0, "NULL", 4);
+	register_type("policy_handle", "offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_BYTES", "BASE_NONE", 0, "NULL", 4);
 	register_type("NTTIME", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, \@HF\@);","FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
 	register_type("NTTIME_hyper", "offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep, \@HF\@);","FT_ABSOLUTE_TIME", "BASE_NONE", 0, "NULL", 4);
 	register_type("time_t", "offset = dissect_ndr_time_t(tvb, offset, pinfo,tree, drep, \@HF\@, NULL);","FT_ABSOLUTE_TIME", "BASE_DEC", 0, "NULL", 4);
@@ -862,9 +864,9 @@ sub Initialize($)
 		offset = dissect_ndr_nt_SID_with_options(tvb, offset, pinfo, tree, drep, param);
 	","FT_STRING", "BASE_DEC", 0, "NULL", 4);
 	register_type("WERROR", 
-		"offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_UINT32", "BASE_DEC", 0, "VALS(WERR_errors)", 4);
+		"offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_UINT32", "BASE_DEC", 0, "VALS(WERR_errors)", 4);
 	register_type("NTSTATUS", 
-		"offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);","FT_UINT32", "BASE_DEC", 0, "VALS(NT_errors)", 4);
+		"offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_UINT32", "BASE_DEC", 0, "VALS(NT_errors)", 4);
 
 }
 

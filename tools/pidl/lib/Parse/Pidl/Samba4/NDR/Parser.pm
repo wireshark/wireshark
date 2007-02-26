@@ -12,7 +12,7 @@ require Exporter;
 @EXPORT = qw(is_charset_array);
 @EXPORT_OK = qw(check_null_pointer GenerateFunctionInEnv 
    GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv NeededFunction
-   NeededElement NeededType $res);
+   NeededElement NeededType $res NeededInterface);
 
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapTypeName);
@@ -2479,7 +2479,6 @@ sub ParseTypePull($$$$)
 	pidl "ndr_pull_restore_relative_base_offset(ndr, _save_relative_base_offset);" if defined(has_property($e, "relative_base"));
 }
 
-
 sub ParseTypePullFunction($$)
 {
 	my ($e, $varname) = @_;
@@ -2651,17 +2650,35 @@ sub NeededElement($$$)
 
 	return if ($e->{TYPE} eq "EMPTY");
 
+	return if (ref($e->{TYPE}) eq "HASH" and 
+		       not defined($e->{TYPE}->{NAME}));
+
+	my ($t, $rt);
+	if (ref($e->{TYPE}) eq "HASH") {
+		$t = $e->{TYPE}->{TYPE}."_".$e->{TYPE}->{NAME};
+	} else {
+		$t = $e->{TYPE};
+	}
+
+	if (ref($e->{REPRESENTATION_TYPE}) eq "HASH") {
+		$rt = $e->{REPRESENTATION_TYPE}->{TYPE}."_".$e->{REPRESENTATION_TYPE}->{NAME};
+	} else {
+		$rt = $e->{REPRESENTATION_TYPE};
+	}
+
+	die ("$e->{NAME} $t, $rt FOO") unless ($rt ne "");
+
 	my @fn = ();
 	if ($dir eq "print") {
-		push(@fn, "print_$e->{REPRESENTATION_TYPE}");
+		push(@fn, "print_$rt");
 	} elsif ($dir eq "pull") {
-		push (@fn, "pull_$e->{TYPE}");
-		push (@fn, "ndr_$e->{TYPE}_to_$e->{REPRESENTATION_TYPE}")
-			if ($e->{REPRESENTATION_TYPE} ne $e->{TYPE});
+		push (@fn, "pull_$t");
+		push (@fn, "ndr_$t\_to_$rt")
+			if ($rt ne $t);
 	} elsif ($dir eq "push") {
-		push (@fn, "push_$e->{TYPE}");
-		push (@fn, "ndr_$e->{REPRESENTATION_TYPE}_to_$e->{TYPE}")
-			if ($e->{REPRESENTATION_TYPE} ne $e->{TYPE});
+		push (@fn, "push_$t");
+		push (@fn, "ndr_$rt\_to_$t")
+			if ($rt ne $t);
 	} else {
 		die("invalid direction `$dir'");
 	}
@@ -2685,28 +2702,21 @@ sub NeededFunction($$)
 	}
 }
 
-sub NeededType($$)
+sub NeededType($$$)
 {
-	my ($t,$needed) = @_;
-	if (has_property($t, "public")) {
-		$needed->{"pull_$t->{NAME}"} = 1;
-		$needed->{"push_$t->{NAME}"} = 1;
-		$needed->{"print_$t->{NAME}"} = 1;
-	}
+	sub NeededType($$$);
+	my ($t,$needed,$req) = @_;
 
-	if ($t->{DATA}->{TYPE} eq "STRUCT" or $t->{DATA}->{TYPE} eq "UNION") {
-		if (has_property($t, "gensize")) {
-			$needed->{"ndr_size_$t->{NAME}"} = 1;
-		}
+	NeededType($t->{DATA}, $needed, $req) if ($t->{TYPE} eq "TYPEDEF");
 
-		for my $e (@{$t->{DATA}->{ELEMENTS}}) {
-			$e->{PARENT} = $t->{DATA};
+	if ($t->{TYPE} eq "STRUCT" or $t->{TYPE} eq "UNION") {
+		for my $e (@{$t->{ELEMENTS}}) {
+			$e->{PARENT} = $t;
 			if (has_property($e, "compression")) { 
 				$needed->{"compression"} = 1;
 			}
-			NeededElement($e, "pull", $needed) if ($needed->{"pull_$t->{NAME}"});
-			NeededElement($e, "push", $needed) if ($needed->{"push_$t->{NAME}"});
-			NeededElement($e, "print", $needed) if ($needed->{"print_$t->{NAME}"});
+			NeededElement($e, $req, $needed);
+			NeededType($e->{TYPE}, $needed, $req) if (ref($e->{TYPE}) eq "HASH");
 		}
 	}
 }
@@ -2717,7 +2727,19 @@ sub NeededInterface($$)
 {
 	my ($interface,$needed) = @_;
 	NeededFunction($_, $needed) foreach (@{$interface->{FUNCTIONS}});
-	NeededType($_, $needed) foreach (reverse @{$interface->{TYPES}});
+	foreach (reverse @{$interface->{TYPES}}) {
+		if (has_property($_, "public")) {
+			$needed->{"pull\_$_->{NAME}"} = $needed->{"push\_$_->{NAME}"} = 
+				$needed->{"print\_$_->{NAME}"} = 1;
+		}
+
+		NeededType($_, $needed, "pull") if ($needed->{"pull_$_->{NAME}"});
+		NeededType($_, $needed, "push") if ($needed->{"push_$_->{NAME}"});
+		NeededType($_, $needed, "print") if ($needed->{"print_$_->{NAME}"});
+		if (has_property($_, "gensize")) {
+			$needed->{"ndr_size_$_->{NAME}"} = 1;
+		}
+	}
 }
 
 1;
