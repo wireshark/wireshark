@@ -35,6 +35,7 @@ $(PLUGIN_NAME).rc : moduleinfo.nmake
 	-e s/@MODULE_VERSION@/$(MODULE_VERSION)/ \
 	-e s/@PACKAGE@/$(PACKAGE)/ \
 	-e s/@VERSION@/$(VERSION)/ \
+	-e s/@MSVC_VARIANT@/$(MSVC_VARIANT)/ \
 	< plugin.rc.in > $@
 
 $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLUGIN_WITH) $(RESOURCE)
