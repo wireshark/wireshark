@@ -388,100 +388,165 @@ static h223_vc_info* h223_vc_info_new( h223_call_info* call_info )
     return vc_info;
 }
 
-static void init_logical_channel( packet_info* pinfo, h223_call_info* call_info, int vc, int direction, h223_lc_params* params )
+static void init_logical_channel( guint32 start_frame, h223_call_info* call_info, int vc, int direction, h223_lc_params* params )
 {
     guint32 circuit_id = circuit_chain_lookup(call_info, vc);
     circuit_t *subcircuit;
     h223_vc_info *vc_info;
-    subcircuit = find_circuit( CT_H223, circuit_id, pinfo->fd->num );
+    subcircuit = find_circuit( CT_H223, circuit_id, start_frame );
 
     if( subcircuit == NULL ) {
-        subcircuit = circuit_new( CT_H223, circuit_id, pinfo->fd->num );
+        subcircuit = circuit_new( CT_H223, circuit_id, start_frame );
 #ifdef DEBUG_H223
-        g_debug("%d: Created new circuit %d for call %p VC %d", pinfo->fd->num, circuit_id, call_info, vc);
+        g_debug("%d: Created new circuit %d for call %p VC %d", start_frame, circuit_id, call_info, vc);
 #endif
         vc_info = h223_vc_info_new( call_info );
         circuit_add_proto_data( subcircuit, proto_h223, vc_info );
     } else {
         vc_info = circuit_get_proto_data( subcircuit, proto_h223 );
     }
-    add_h223_lc_params( vc_info, direction, params, pinfo->fd->num );
+    add_h223_lc_params( vc_info, direction, params, start_frame );
 }
 
-static void init_control_channels( packet_info* pinfo, h223_call_info* call_info )
+/* create a brand-new h223_call_info structure */
+static h223_call_info *create_call_info( guint32 start_frame )
 {
-    h223_lc_params *vc0_params = se_alloc(sizeof(h223_lc_params));
+    h223_call_info *data;
+    h223_lc_params *vc0_params;
+
+    data = se_alloc(sizeof(h223_call_info));
+
+    /* initialise the call info */
+    init_direction_data(&data -> direction_data[0]);
+    init_direction_data(&data -> direction_data[1]);
+        
+    /* FIXME shouldn't this be figured out dynamically? */
+    data -> h223_level = 2;
+
+    vc0_params = se_alloc(sizeof(h223_lc_params));
     vc0_params->al_type = al1Framed;
     vc0_params->al_params = NULL;
     vc0_params->segmentable = TRUE;
     vc0_params->subdissector = srp_handle;
-    init_logical_channel( pinfo, call_info, 0, P2P_DIR_SENT, vc0_params );
-    init_logical_channel( pinfo, call_info, 0, P2P_DIR_RECV, vc0_params );
+    init_logical_channel( start_frame, data, 0, P2P_DIR_SENT, vc0_params );
+    init_logical_channel( start_frame, data, 0, P2P_DIR_RECV, vc0_params );
+    return data;
+}
+
+/* find or create call_info struct for calls over circuits (eg, IAX) */
+static h223_call_info *find_or_create_call_info_circ(packet_info * pinfo)
+{
+    h223_call_info *data;
+    circuit_t *circ = NULL;
+
+    if(pinfo->ctype != CT_NONE)
+        circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
+    if(circ == NULL)
+        return NULL;
+
+    data = (h223_call_info *)circuit_get_proto_data(circ, proto_h223);
+    
+    if( data == NULL ) {
+        data = create_call_info(pinfo->fd->num);
+
+#ifdef DEBUG_H223
+        g_debug("%u: Created new call %p for circuit %p ctype %d, id %u",
+                pinfo->fd->num, data, circ, pinfo->ctype, pinfo->circuit_id);
+#endif
+        circuit_add_proto_data(circ, proto_h223, data);
+    }
+    
+    /* work out what direction we're really going in */
+    if( pinfo->p2p_dir < 0 || pinfo->p2p_dir > 1)
+        pinfo->p2p_dir = P2P_DIR_SENT;
+    
+    return data;
+}
+
+/* find or create call_info struct for calls over conversations (eg, RTP) */
+static h223_call_info *find_or_create_call_info_conv(packet_info * pinfo)
+{
+    h223_call_info *data;
+    conversation_t *conv;
+
+    /* assume we're running atop TCP or RTP; use the conversation support */
+    conv = find_conversation( pinfo->fd->num,
+                              &pinfo->src,&pinfo->dst,
+                              pinfo->ptype,
+                              pinfo->srcport,pinfo->destport, 0 );
+
+    /* both RTP and TCP track their conversations, so just assert here if
+     * we can't find one */
+    DISSECTOR_ASSERT(conv);
+
+    data = (h223_call_info *)conversation_get_proto_data(conv, proto_h223);
+
+    if(data == NULL && pinfo->ptype == PT_UDP ) {
+        conversation_t *conv2;
+        
+        /* RTP tracks the two sides of the conversation totally separately;
+         * this messes us up totally.
+         *
+         * Look for another converstation, going in the opposite direction.
+         */
+        conv2 = find_conversation( pinfo->fd->num,
+                                  &pinfo->dst,&pinfo->src,
+                                  pinfo->ptype,
+                                  pinfo->destport,pinfo->srcport, 0 );
+        if(conv2 != NULL)
+            data = (h223_call_info *)conversation_get_proto_data(conv2, proto_h223);
+
+        if(data != NULL) {
+#ifdef DEBUG_H223
+            g_debug("%u: Identified conv %p as reverse of conv %p with call %p and type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
+                    pinfo->fd->num, conv, conv2, data, pinfo->ptype,
+                    pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
+                    pinfo->destport,
+                    pinfo->src.data[0], pinfo->src.data[1], pinfo->src.data[2], pinfo->src.data[3],
+                    pinfo->srcport);
+#endif
+            conversation_add_proto_data(conv, proto_h223, data);
+        }
+    }
+
+    /* we still haven't found any call data - create a new one for this
+     * conversation */
+    if(data == NULL) {
+        data = create_call_info(pinfo->fd->num);
+
+#ifdef DEBUG_H223
+        g_debug("%u: Created new call %p for conv %p type=%u src=%u.%u.%u.%u:%u dst=%u.%u.%u.%u:%u",
+                pinfo->fd->num, data, conv, pinfo->ptype,
+                pinfo->src.data[0], pinfo->src.data[1], pinfo->src.data[2], pinfo->src.data[3],
+                pinfo->srcport,
+                pinfo->dst.data[0], pinfo->dst.data[1], pinfo->dst.data[2], pinfo->dst.data[3],
+                pinfo->destport);
+#endif
+            
+        conversation_add_proto_data(conv, proto_h223, data);
+        /* add the source details so we can distinguish directions
+         * in future */
+        COPY_ADDRESS(&(data -> srcaddress), &(pinfo->src));
+        data -> srcport = pinfo->srcport;
+    }
+
+    /* work out what direction we're really going in */
+    if( ADDRESSES_EQUAL( &(pinfo->src), &(data->srcaddress))
+        && pinfo->srcport == data->srcport )
+        pinfo->p2p_dir = P2P_DIR_SENT;
+    else 
+        pinfo->p2p_dir = P2P_DIR_RECV;
+
+    return data;
 }
 
 static h223_call_info *find_or_create_call_info ( packet_info * pinfo )
 {
-    circuit_t *circ;
-    conversation_t *conv = NULL;
     h223_call_info *data;
 
-    /* look for a circuit (eg, IAX call) first */
-    circ = find_circuit( pinfo->ctype, pinfo->circuit_id, pinfo->fd->num );
-    if( circ == NULL ) {
-	/* assume we're running atop TCP; use the converstion support */
-	conv = find_conversation( pinfo->fd->num,
-                                  &pinfo->src,&pinfo->dst,
-				  pinfo->ptype,
-				  pinfo->srcport,pinfo->destport, 0 );
-	if( conv == NULL ) {
-	    conv = conversation_new( pinfo->fd->num,
-                                     &pinfo->src,&pinfo->dst,
-				     pinfo->ptype,
-				     pinfo->srcport,pinfo->destport, 0 );
-	}
-	
-    }
-
-    if( circ )
-	data = (h223_call_info *)circuit_get_proto_data(circ, proto_h223);
-    else
-	data = (h223_call_info *)conversation_get_proto_data(conv, proto_h223);
-
-    if( data == NULL ) {
-	data = se_alloc(sizeof(h223_call_info));
-
-	if( circ ) {
-	    circuit_add_proto_data(circ, proto_h223, data);
-	} else {
-	    conversation_add_proto_data(conv, proto_h223, data);
-	    /* add the source details so we can distinguish directions
-	     * in future */
-	    COPY_ADDRESS(&(data -> srcaddress), &(pinfo->src));
-	    data -> srcport = pinfo->srcport;
-	}
-
-	/* initialise the call info */
-        init_direction_data(&data -> direction_data[0]);
-        init_direction_data(&data -> direction_data[1]);
-        
-	/* FIXME shouldn't this be figured out dynamically? */
-	data -> h223_level = 2;
-
-        init_control_channels( pinfo, data );
-    }
-
-    /* work out what direction we're really going in */
-    if( circ ) {
-        if( pinfo->p2p_dir < 0 || pinfo->p2p_dir > 1)
-            pinfo->p2p_dir = P2P_DIR_SENT;
-    } else {
-	if( ADDRESSES_EQUAL( &(pinfo->src), &(data->srcaddress))
-	    && pinfo->srcport == data->srcport )
-	    pinfo->p2p_dir = P2P_DIR_SENT;
-	else
-	    pinfo->p2p_dir = P2P_DIR_RECV;
-    }
-
+    data = find_or_create_call_info_circ(pinfo);
+    if(data == NULL)
+        data = find_or_create_call_info_conv(pinfo);
     return data;
 }
 
@@ -509,7 +574,7 @@ static void h223_add_lc( packet_info* pinfo, guint16 lc, h223_lc_params* params 
      * the new channel */
     if(circ) {
         vc_info = circuit_get_proto_data(circ, proto_h223);
-        init_logical_channel( pinfo, vc_info->call_info, lc, pinfo->p2p_dir, params );
+        init_logical_channel( pinfo->fd->num, vc_info->call_info, lc, pinfo->p2p_dir, params );
     }
 }
 
@@ -1512,6 +1577,7 @@ void proto_reg_handoff_h223(void)
 
     dissector_add_handle("tcp.port", h223);
     dissector_add_handle("tcp.port", h223_bitswapped);
+    dissector_add_string("rtp_dyn_payload_type","CLEARMODE", h223_bitswapped);
     dissector_add("iax2.dataformat", AST_DATAFORMAT_H223_H245, h223_bitswapped);
 }
 /* vim:set ts=8 et: */
