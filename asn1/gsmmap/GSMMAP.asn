@@ -2,6 +2,7 @@
 --SIEMENS ASN.1 Compiler       R5.70  (Production_5.70)    
 --            Date: 2003-09-04 Time: 14:14:00            
 -- Updated to version 3GPP TS 29.002 V7.5.0 (2006-09) Release 7
+-- $Id:$
 
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
@@ -92,8 +93,8 @@ GSMMAPOperationLocalvalue ::= INTEGER{
 	registerPassword (17),
 	getPassword (18),
 	processUnstructuredSS-Data (19),
-        releaseResources (20),
-        mt-ForwardSM-VGCS (21),
+    releaseResources (20),
+    mt-ForwardSM-VGCS (21),
 	sendRoutingInfo (22),
 	updateGprsLocation (23),
 	sendRoutingInfoForGprs (24),
@@ -151,8 +152,8 @@ GSMMAPOperationLocalvalue ::= INTEGER{
 	secureTransportClass2 (79),
 	secureTransportClass3 (80),
 	secureTransportClass4 (81),
-        provideSubscriberLocation (83),
-        sendGroupCallInfo (84),
+    provideSubscriberLocation (83),
+    sendGroupCallInfo (84),
 	sendRoutingInfoForLCS (85),
 	subscriberLocationReport (86),
 	ist-Alert (87),
