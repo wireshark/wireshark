@@ -96,7 +96,7 @@ use vars qw($VERSION);
 $VERSION = '0.01';
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(ReadConformance ReadConformanceFH);
+@EXPORT_OK = qw(ReadConformance ReadConformanceFH valid_ft_type valid_base_type);
 
 use strict;
 

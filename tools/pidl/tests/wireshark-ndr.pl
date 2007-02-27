@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -65,8 +65,8 @@ is_deeply($conformance, {
 
 %hf_used = ( hf_bla => 1 );
 test_warnings("", sub { 
-		CheckUsed({ header_fields => { INDEX => "hf_bla" }})});
+		CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
 
 %hf_used = ( );
-test_warnings("nofile:0: hf field `hf_bla' not used\n", sub { 
-		CheckUsed({ header_fields => { INDEX => "hf_bla" }})});
+test_warnings("hf field `hf_bla' not used\n", sub { 
+		CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
