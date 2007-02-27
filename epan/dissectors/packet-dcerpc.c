@@ -1450,6 +1450,27 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				FALSE, NULL);
 }
 
+/* This function is aimed for PIDL useage and dissects a UNIQUE pointer to
+ * unicode string.
+ */
+int 
+PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param)
+{
+        header_field_info *hf_info;
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+        hf_info=proto_registrar_get_nth(hfindex);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	return offset;
+}
+
 /* Dissect an NDR varying string of elements.
    The length of each element is given by the 'size_is' parameter;
    the elements are assumed to be characters or wide characters.

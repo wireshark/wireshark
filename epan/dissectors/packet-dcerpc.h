@@ -233,6 +233,8 @@ int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep);
 int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                             proto_tree *tree, guint8 *drep);
+int PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+
 int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			 proto_tree *tree, guint8 *drep, int size_is,
 			 int hfinfo, gboolean add_subtree,
@@ -431,7 +433,9 @@ init_ndr_pointer_list(packet_info *pinfo);
  */
 #define PIDL_POLHND_OPEN		0x80000000
 #define PIDL_POLHND_CLOSE		0x40000000
+/* To "save" a pointer to the string in dcv->private_data */
+#define PIDL_STR_SAVE			0x00020000
 /* To make this value appear on the summary line for the packet */
-#define PIDL_SET_COL_INFO		0x20000000
+#define PIDL_SET_COL_INFO		0x00010000
 
 #endif /* packet-dcerpc.h */
