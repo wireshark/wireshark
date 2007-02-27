@@ -1057,10 +1057,28 @@ $Id&#36;
 	<section id="ChSrcRpm">
 	<title>Red Hat: .rpm packages</title>
 	<para>
-	XXX - don't know how to do
+	The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
+	Red Hat and Fedora. The process creates a clean build environment in <filename>packaging/rpm/BUILD</filename> every
+	time the RPM is built. The settings controlling the build are in <filename>packaging/rpm/SPECS/wireshark.spec.in</filename>. After editing the settings in this file, <filename>./configure</filename> must be run again in the wireshark direcrory to generate the actual specification script.
 	</para>
-	</section>
-	
+	<warning><title>Warn!</title><para>
+	The SPEC file contains settings for the <filename>configure</filename> used to set the RPM build environment. These are
+	completely independent of any settings passed to the usual Wireshark <filename>./configure</filename>.</para></warning>
+	<para>
+	In the wireshark directory, type:
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>make rpm-package</userinput>
+	</para>
+	<para>
+	to build the RPM. Once it is done, there will be a message stating where the built RPM can be found. 
+	</para>
+	<tip><title>Tip!</title>
+	<para>
+	Because this does a clean build, as well as constructing the package, this can take quite a long time.
+	</para>
+	</tip>
+	</section>	
 	<section id="ChSrcNSIS">
 	<title>Win32: NSIS .exe installer</title>
 	<para>
