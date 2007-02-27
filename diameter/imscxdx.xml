@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
 
-	<application id="16777215" name="IMS_Cx_Dx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
+	<application id="16777216" name="3GPP Cx" uri="http://www.3GPP.org/ftp/Specs/html-info/29229.htm">
 
 		<!-- IMS Cx Dx Application -->
 		<command name="User-Authorization"       code="300" vendor-id="TGPP"/>
@@ -144,7 +144,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<!-- ************************ END IMS Cx Dx AVPS ******************* -->
-		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.3.0 Release 6, ETSI TS 129 229 V6.3.0 (2004-12)********************* -->
+		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.329 version 6.7.0 Release 6 ********************* -->
 		<avp name="Visited-Network-Identifier" code="600" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
@@ -304,6 +304,13 @@
                         <grouped>
                                 <gavp name="User-Name"/>
                         </grouped>
+		</avp>
+		<avp name="Originating-Request" code="633" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+			<type type-name="Enumerated"/>
+                        <enum name="ORIGINATING" code="0"/>
+		</avp>
+		<avp name="Wildcarded-PSI" code="634" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+			<type type-name="UTF8String"/>
 		</avp>
 
 		<!-- ************************ END IMS Cx Dx AVPS ******************* -->

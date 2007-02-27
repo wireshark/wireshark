@@ -5,10 +5,10 @@
 	<!-- 3GPP TS 29.329 version 6.6.0 Release 6, ETSI TS 129 329 V6.6.0 (2005-09)-->
 
 		<!-- 3GPP Sh Application -->
-		<command name="User-Data"							code="306" vendor-id="TGPP"/>
-		<command name="Profile-Update"						code="307" vendor-id="TGPP"/>
-		<command name="Subscribe-Notifications"				code="308" vendor-id="TGPP"/>
-		<command name="Push-Notification"					code="309" vendor-id="TGPP"/>
+		<command name="User-Data"				code="306" vendor-id="TGPP"/>
+		<command name="Profile-Update"			code="307" vendor-id="TGPP"/>
+		<command name="Subscribe-Notifications"		code="308" vendor-id="TGPP"/>
+		<command name="Push-Notification"			code="309" vendor-id="TGPP"/>
 
 		<!-- ************************** 3GPP Sh AVPS ********************* -->
 		<avp name="User-Identity" code="700" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
@@ -33,6 +33,8 @@
                         <enum name="LocationInformation" code="14"/>
                         <enum name="UserState" code="15"/>
                         <enum name="ChargingInformation" code="16"/>
+                        <enum name="MSISDN" code="17"/>
+                        <enum name="PSIActivation" code="18"/>
 		</avp>
 		<avp name="Service-Indication" code="704" mandatory="must" vendor-bit="mustnot" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="OctetString"/>
