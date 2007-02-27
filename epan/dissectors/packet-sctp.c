@@ -607,17 +607,22 @@ static void new_tsn(packet_info* pinfo, proto_tree* tsn_tree, tvbuff_t* tvb, sct
 
 	if (td->first_transmit.framenum != pinfo->fd->num) {
 		nstime_t rto;
-		proto_item* pi = proto_tree_add_uint(tsn_tree, hf_sctp_retrans, tvb, 0 , 0, td->first_transmit.framenum);
-		proto_tree* pt = proto_item_add_subtree(pi,ett_sctp_tsn);
+		proto_item *pi = proto_tree_add_uint(tsn_tree, hf_sctp_retrans, tvb, 0 , 0, td->first_transmit.framenum);
+		proto_tree *pt = proto_item_add_subtree(pi,ett_sctp_tsn);
+		PROTO_ITEM_SET_GENERATED(pi);
 		
 		nstime_delta( &rto, &pinfo->fd->abs_ts, &(td->first_transmit.ts) );
-		proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
+		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
+		PROTO_ITEM_SET_GENERATED(pi);
 	} else {
 		if (td->ack.framenum) {
-			proto_item* ack_item = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, td->ack.framenum);
-			proto_tree* ack_tree = proto_item_add_subtree(ack_item, ett_sctp_ack);
+			proto_item *ack_item = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, td->ack.framenum);
+			proto_tree *ack_tree = proto_item_add_subtree(ack_item, ett_sctp_ack);
+
+			PROTO_ITEM_SET_GENERATED(ack_item);
 			nstime_delta( &rtt, &(td->ack.ts), &(td->first_transmit.ts) );
-			proto_tree_add_time(ack_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+			ack_item = proto_tree_add_time(ack_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+			PROTO_ITEM_SET_GENERATED(ack_item);
 		}
 	}
 	
@@ -640,7 +645,8 @@ static void ack_tsn(packet_info* pinfo, proto_tree* acks_tree, tvbuff_t* tvb, sc
 			td->ack.ts.secs = pinfo->fd->abs_ts.secs;
 			td->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
 		} else if ( td->ack.framenum != pinfo->fd->num ) {
-			proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, td->ack.framenum);
+			proto_item *pi = proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, td->ack.framenum);
+			PROTO_ITEM_SET_GENERATED(pi);
 			return;
 		}
 		
@@ -648,9 +654,10 @@ static void ack_tsn(packet_info* pinfo, proto_tree* acks_tree, tvbuff_t* tvb, sc
 		
 		acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, td->first_transmit.framenum);
 		acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
+		PROTO_ITEM_SET_GENERATED(acked_item);
 		
-		proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
-		
+		acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+		PROTO_ITEM_SET_GENERATED(acked_item);
 	}
 }
 
@@ -668,9 +675,11 @@ static void ack_tsns_upto_ctsn(packet_info* pinfo, tvbuff_t* tvb, proto_tree* ac
 			proto_item* acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
 			proto_tree* acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
 			nstime_t rtt;
+			PROTO_ITEM_SET_GENERATED(acked_item);
 			
 			nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
-			proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+			acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+			PROTO_ITEM_SET_GENERATED(acked_item);
 		}
 		return;
 	}
@@ -681,7 +690,8 @@ static void ack_tsns_upto_ctsn(packet_info* pinfo, tvbuff_t* tvb, proto_tree* ac
 
 	if (( t = se_tree_lookup32(a->opposite_dir->ctsn_frames,framenum) )) {
 		//~ g_message("found dup tsn=%d sent=%d",t->tsn,t->first_transmit.framenum);
-		proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, t->ack.framenum);
+		proto_item *pi = proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, t->ack.framenum);
+		PROTO_ITEM_SET_GENERATED(pi);
 		return;
 	}
 	
@@ -714,8 +724,10 @@ static void ack_tsns_upto_ctsn(packet_info* pinfo, tvbuff_t* tvb, proto_tree* ac
 		
 		acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
 		acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
+		PROTO_ITEM_SET_GENERATED(acked_item);
 		
-		proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+		acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
+		PROTO_ITEM_SET_GENERATED(acked_item);
 	} while (1);
 	
 }
@@ -742,20 +754,19 @@ static sctp_assoc_t* new_assoc(sctp_assoc_t* prev, guint32 spt, guint32 dpt, gui
 	a->port_label = pl;
 	
 	a->up.tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-												se_strdup_printf("sctp assoc %d-%d up tsns",
-																 pl,svtag));
+						   se_strdup_printf("sctp assoc %d-%d up tsns", pl,svtag));
 
 	a->up.ctsn_frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-											   se_strdup_printf("sctp assoc %d-%d up ctsns",
-																pl,svtag));
+							  se_strdup_printf("sctp assoc %d-%d up ctsns",
+							  pl,svtag));
 	
 	a->down.tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-												se_strdup_printf("sctp assoc %d-%d down tsns",
-																 pl,svtag));
+						     se_strdup_printf("sctp assoc %d-%d down tsns",
+						     pl,svtag));
 	
 	a->down.ctsn_frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-													  se_strdup_printf("sctp assoc %d-%d down ctsns",
-																	   pl,svtag));
+							    se_strdup_printf("sctp assoc %d-%d down ctsns",
+							    pl,svtag));
 	
 	*vtagp = svtag;
 	
@@ -3673,7 +3684,7 @@ proto_register_sctp(void)
     { &hf_sctp_ack,
 	    { "Acknowledges the chunk in frame", "sctp.ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
     { &hf_sctp_dup_ack,
-	    { "Retransmitted Ack", "sctp.retransmitted_ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
+	    { "Retransmitted Ack, previous ack in frame", "sctp.retransmitted_ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
 
  };
 
@@ -3735,7 +3746,7 @@ proto_register_sctp(void)
                          "Reassemble fragmented SCTP user messages",
                          "Whether fragmented SCTP user messages should be reassembled",
                          &use_reassembly);
-  /*
+/*
   prefs_register_bool_preference(sctp_module, "tsn_analysis",
                          "Enable TSN analysis",
                          "Match TSNs and their SACKs",
