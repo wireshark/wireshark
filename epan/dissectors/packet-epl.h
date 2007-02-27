@@ -1,14 +1,14 @@
 /* packet-epl.h
- * Routines for "Ethernet Powerlink 2.0" dissection 
+ * Routines for "Ethernet Powerlink 2.0" dissection
  * (ETHERNET Powerlink V2.0 Communication Profile Specification Draft Standard Version 1.0.0)
  *
  * Copyright (c) 2006: Zurich University of Applied Sciences Winterthur (ZHW)
  *                     Institute of Embedded Systems (InES)
  *                     http://ines.zhwin.ch
  *
- *                     - Dominic BÇchaz <bdo@zhwin.ch>
+ *                     - Dominic B'chaz <bdo@zhwin.ch>
  *                     - Damir Bursic <bum@zhwin.ch>
- *                     - David BÅchi <bhd@zhwin.ch>
+ *                     - David B_chi <bhd@zhwin.ch>
  *
  *
  * $Id$
@@ -41,22 +41,22 @@ static gboolean dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_epl(void);
 void proto_reg_handoff_epl(void);
 
-gint dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, guint8 epl_src, gint offset);
-gint dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, guint8 epl_src, gint offset);
+gint dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
+gint dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 
-gint dissect_epl_asnd(proto_tree *tree, proto_tree *epl_tree, tvbuff_t *tvb, guint8 epl_src, gint offset);
-gint dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, guint8 epl_src, gint offset);
-gint dissect_epl_asnd_sres(proto_tree *tree, proto_tree *epl_tree, tvbuff_t *tvb, guint8 epl_src, gint offset);
-gint dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
+gint dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
+gint dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
+gint dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
+gint dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 
-gint dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, gint offset);
-gint dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, gint offset, gboolean segmented, gboolean response);
-gint dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, gint offset, gboolean response);
+gint dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+gint dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
+gint dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
 
 const gchar* decode_epl_address(guchar adr);
 const gchar* decode_epl_address_abbrev(guchar adr);
@@ -95,9 +95,12 @@ static const value_string addr_str_abbr_vals[] = {
     {EPL_BROADCAST_NODEID,                  " (bc)"     },
     {0,NULL}
 };
+/*
 static const gchar* addr_str_abbr_cn  = " (CN)";
 static const gchar* addr_str_abbr_res = " (res.)";
+*/
 
+#define UDP_PORT_EPL            3819
 
 /* Offsets of fields within an EPL packet. */
 #define EPL_MTYP_OFFSET             0   /* same offset for all message types*/
@@ -127,6 +130,10 @@ static const value_string mtyp_vals[] = {
     {EPL_ASND, "Asynchronous Send (ASnd)"   },
     {0,NULL}
 };
+
+#define EPL_SOC_MC_MASK              0x80
+#define EPL_SOC_PS_MASK              0x40
+#define EPL_PDO_RD_MASK              0x01
 
 /* RequestedServiceID s for EPL message type "SoA" */
 #define EPL_SOA_NOSERVICE               0
@@ -225,12 +232,18 @@ static const value_string asnd_cid_vals[] = {
 };
 
 /* Priority values for EPL message type "ASnd", "", "", field PR */
-#define EPL_PR_GENERICREQUEST   0x00
+#define EPL_PR_GENERICREQUEST   0x03
 #define EPL_PR_NMTREQUEST       0x07
 
 static const value_string epl_pr_vals[] = {
+    {0,                       "lowest"},
+    {1,                       "lower"},
+    {2,                       "below generic"},
     {EPL_PR_GENERICREQUEST,   "GenericRequest"},
-    {EPL_PR_NMTREQUEST,       "NMTRequest"    },
+    {4,                       "above generic"},
+    {5,                       "higher"},
+    {6,                       "below NMTRequest"},
+    {EPL_PR_NMTREQUEST,       "NMTRequest"},
     {0,NULL}
 };
 
@@ -299,6 +312,7 @@ static const value_string epl_nmt_ms_vals[] = {
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_INITIALIZATION         0x01
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_CONNECTION_VALID       0x02
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_ERROR_RESPONSE         0x03
+#define EPL_ASND_SDO_SEQ_CON_MASK                           0x03
 
 static const value_string epl_sdo_receive_con_vals[] = {
     {EPL_ASND_SDO_SEQ_RECEIVE_CON_NO_CONNECTION,      "No connection"                          },
@@ -311,7 +325,7 @@ static const value_string epl_sdo_receive_con_vals[] = {
 #define EPL_ASND_SDO_SEQ_SEND_CON_NO_CONNECTION             0x00
 #define EPL_ASND_SDO_SEQ_SEND_CON_INITIALIZATION            0x01
 #define EPL_ASND_SDO_SEQ_SEND_CON_CONNECTION_VALID          0x02
-#define EPL_ASND_SDO_SEQ_SEND_CON_ERROR_VALID_ACK_REQ       0x03  
+#define EPL_ASND_SDO_SEQ_SEND_CON_ERROR_VALID_ACK_REQ       0x03
 
 static const value_string epl_sdo_send_con_vals[] = {
     {EPL_ASND_SDO_SEQ_SEND_CON_NO_CONNECTION,         "No connection"                             },
@@ -323,12 +337,12 @@ static const value_string epl_sdo_send_con_vals[] = {
 
 /* SDO EPL Command Layer Protocol */
 #define EPL_ASND_SDO_CMD_ABORT_FILTER                    0x40
-#define EPL_ASND_SDO_CMD_SEGMENTATION_FILTER             0x10
+#define EPL_ASND_SDO_CMD_SEGMENTATION_FILTER             0x30
 #define EPL_ASND_SDO_CMD_RESPONSE_FILTER                 0x80
 
 
 /* SDO - Abort Transfer */
-static const value_string sdo_cmd_abort_code[] = { 
+static const value_string sdo_cmd_abort_code[] = {
     {0x05030000, "reserved" },
     {0x05040000, "SDO protocol timed out." },
     {0x05040001, "Client/server Command ID not valid or unknown." },
@@ -341,26 +355,26 @@ static const value_string sdo_cmd_abort_code[] = {
     {0x06010002, "Attempt to write a read-only object." },
     {0x06020000, "Object does not exist in the object dictionary." },
     {0x06040041, "Object can not be mapped to the PDO." },
-    {0x06040042, "The number and length of the objects to be mapped would exceed PDO length." },  
-    {0x06040043, "General parameter incompatibility." },  
+    {0x06040042, "The number and length of the objects to be mapped would exceed PDO length." },
+    {0x06040043, "General parameter incompatibility." },
     {0x06040047, "General internal incompatibility in the device." },
-    {0x06060000, "Access failed due to an hardware error." }, 
+    {0x06060000, "Access failed due to an hardware error." },
     {0x06070010, "Data type does not match, length of service parameter does not match." },
     {0x06070012, "Data type does not match, length of service parameter too high." },
     {0x06070013, "Data type does not match, length of service parameter too low." },
     {0x06090011, "Sub-index does not exist." },
     {0x06090030, "Value range of parameter exceeded (only for write access)." },
     {0x06090031, "Value of parameter writen to high." },
-    {0x06090032, "Value of parameter writen to low." },  
-    {0x06090036, "maximum value is less then minimum value." },  
-    {0x08000000, "General error" },  
+    {0x06090032, "Value of parameter writen to low." },
+    {0x06090036, "maximum value is less then minimum value." },
+    {0x08000000, "General error" },
     {0x08000020, "Data cannot be transferred or stored to the application." },
-    {0x08000021, "Data cannot be transferred or stored to the application because of local control." }, 
+    {0x08000021, "Data cannot be transferred or stored to the application because of local control." },
     {0x08000022, "Data cannot be transferred or stored to the application because of the present device state." },
-    {0x08000023, "Object dictionary dynamic generation fails or no object dictionary is present." },   
-    {0x08000024, "EDS, DCF or Concise DCF Data set empty." },   
+    {0x08000023, "Object dictionary dynamic generation fails or no object dictionary is present." },
+    {0x08000024, "EDS, DCF or Concise DCF Data set empty." },
     {0,NULL}
-}; 
+};
 
 
 #define EPL_ASND_SDO_CMD_RESPONSE_RESPONSE      0
@@ -379,16 +393,16 @@ static const value_string epl_sdo_asnd_cmd_abort[] = {
     {EPL_ASND_SDO_CMD_ABORT_TRANSFER_OK,      "Transfer OK"    },
     {EPL_ASND_SDO_CMD_ABORT_ABORT_TRANSFER,   "Abort Transfer" },
     {0,NULL}
-}; 
+};
 
 #define EPL_ASND_SDO_CMD_SEGMENTATION_EPEDITED_TRANSFER 0
-#define EPL_ASND_SDO_CMD_SEGMENTATION_INITIALE_TRANSFER 1
+#define EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER 1
 #define EPL_ASND_SDO_CMD_SEGMENTATION_SEGMENT           2
 #define EPL_ASND_SDO_CMD_SEGMENTATION_TRANSFER_COMPLETE 3
 
 static const value_string epl_sdo_asnd_cmd_segmentation[] = {
     {EPL_ASND_SDO_CMD_SEGMENTATION_EPEDITED_TRANSFER, "Expedited Transfer" },
-    {EPL_ASND_SDO_CMD_SEGMENTATION_INITIALE_TRANSFER, "Initiate Transfer"  },
+    {EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER, "Initiate Transfer"  },
     {EPL_ASND_SDO_CMD_SEGMENTATION_SEGMENT,           "Segment"            },
     {EPL_ASND_SDO_CMD_SEGMENTATION_TRANSFER_COMPLETE, "Transfer Complete"  },
     {0,NULL}
