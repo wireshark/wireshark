@@ -172,6 +172,8 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 #if GTK_MAJOR_VERSION >= 2
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
+#endif
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 9) || GTK_MAJOR_VERSION > 2
   g_object_set(gtk_widget_get_settings(msg_label),
     "gtk-label-select-on-focus", FALSE, NULL);
 #endif
