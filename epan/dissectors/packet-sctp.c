@@ -23,7 +23,7 @@
  *
  *
  * Reassembly added 2006 by Robin Seggelmann
- *
+ * TSN Tracking by Luis E. G. Ontanon (Feb 2007)
  *
  * $Id$
  *
@@ -59,6 +59,7 @@
 #include "packet-sctp.h"
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)
 
@@ -224,7 +225,7 @@ static gint ett_sctp_fragment  = -1;
 static gint ett_sctp_tsn = -1;
 static gint ett_sctp_ack = -1;
 static gint ett_sctp_acked = -1;
-
+static gint ett_sctp_tsn_retrans = -1;
 static dissector_handle_t data_handle;
 
 static gboolean enable_tsn_analysis = FALSE;
@@ -520,7 +521,7 @@ sctp_crc32c(const unsigned char* buf, unsigned int len)
  * Routines for dissecting parameters
  */
 
-typedef struct _sctp_assoc_t sctp_assoc_t;
+typedef struct _sctp_half_assoc_t sctp_half_assoc_t;
 
 static void
 dissect_parameter(tvbuff_t *, packet_info *, proto_tree *, proto_item *, gboolean);
@@ -535,359 +536,291 @@ static void
 dissect_error_causes(tvbuff_t *, packet_info *, proto_tree *);
 
 static gboolean
-dissect_data_chunk(tvbuff_t*, guint16, packet_info*, proto_tree*, proto_tree*, proto_item*, proto_item*, sctp_assoc_t*);
+dissect_data_chunk(tvbuff_t*, guint16, packet_info*, proto_tree*, proto_tree*, proto_item*, proto_item*, sctp_half_assoc_t*);
 
 static void
 dissect_sctp_packet(tvbuff_t *, packet_info *, proto_tree *, gboolean);
 
 
-/*
- * TSN Analysis
- */
+/* TSN ANALYSIS CODE */
+
+struct _sctp_half_assoc_t {
+	guint32 spt;
+	guint32 dpt;
+	guint32 vtag;
+
+	guint32 first_tsn; /* start */
+	guint32 cumm_ack; /* rel */
+	emem_tree_t* tsns; /* sctp_tsn_t* by rel_tsn */
+	emem_tree_t* tsn_acks; /* sctp_tsn_t* by ctsn_frame */
+	
+	struct _sctp_half_assoc_t* peer;
+};
+
+
 
 typedef struct _sctp_tsn_t {
 	guint32 tsn;
-	
 	struct {
 		guint32 framenum;
 		nstime_t ts;
 	} first_transmit;
-	
 	struct {
 		guint32 framenum;
 		nstime_t ts;
 	} ack;
-	
-	struct _sctp_tsn_t* next_same_ctsn;
+	struct _sctp_tsn_t* next;
 } sctp_tsn_t;
 
-typedef struct {
-	guint32 ctsn_ack;
-	emem_tree_t* tsns; /* by tsn */
-	emem_tree_t* ctsn_frames; /* by ctsn_frame */
-	guint32* vtag; /* NULL means still unknown */
-} sctp_assoc_dir_t;
 
-struct _sctp_assoc_t {
-	guint32 port_label; /* SCTP_PORTLABEL(src,dst) */
+static emem_tree_key_t* make_address_key(guint32 spt, guint32 dpt, address* addr) {
+	emem_tree_key_t* k = ep_alloc(sizeof(emem_tree_key_t)*8);
 	
-	sctp_assoc_dir_t up;
-	sctp_assoc_dir_t down;
+	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
+	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
+	k[2].length = 1;    k[2].key = &(addr->type);
+	k[3].length = 1;    k[3].key = &(addr->len);
+
+	k[4].length = ((addr->len/4)+(addr->len%4? 1 : 0)); 
+	k[4].key = ep_alloc0(((addr->len/4)+(addr->len%4? 1 : 0))*4); 
+	memcpy(k[4].key, addr->data, addr->len);
 	
-	sctp_assoc_dir_t* current_dir;
-	sctp_assoc_dir_t* opposite_dir;
+	k[5].length = 0;    k[5].key = NULL;
 	
-	struct _sctp_assoc_t* next_same_pl;
-};
+	return k;
+}
 
-#define SCTP_PORTLABEL(a,b) ( (a>b) ? (a << 16) |  b : (b << 16) | a )
+static emem_tree_key_t* make_dir_key(guint32 spt, guint32 dpt, guint32 vtag) {
+	emem_tree_key_t* k =  ep_alloc(sizeof(emem_tree_key_t)*4);
 
-static emem_tree_t* assocs_by_ptvtag;
-static emem_tree_t* assocs_by_portlabel;
+	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
+	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
+	k[2].length = 1;    k[2].key = ep_memdup(&vtag,sizeof(vtag));
+	k[3].length = 0;    k[3].key = NULL;
 
-static void new_tsn(packet_info* pinfo, proto_tree* tsn_tree, tvbuff_t* tvb, sctp_assoc_t* a, guint32 tsn) {
-	sctp_tsn_t* td;
-	nstime_t rtt;
+	return k;
+}
 
-	if (! enable_tsn_analysis) return;
+
+
+static emem_tree_t* dirs_by_ptvtag; /* sctp_half_assoc_t*  */
+static emem_tree_t* dirs_by_ptaddr; /* sctp_half_assoc_t**, it may contain a null pointer */
+
+static sctp_half_assoc_t* get_half_assoc(packet_info* pinfo, guint32 spt, guint32 dpt, guint32 vtag) {
+	sctp_half_assoc_t* ha;
+	sctp_half_assoc_t** hb;
+	emem_tree_key_t *k;
 	
-	if (! (td = se_tree_lookup32(a->current_dir->tsns,tsn))  ) {
-		td = se_alloc0(sizeof(sctp_tsn_t));
-		td->tsn = tsn;
-		td->first_transmit.framenum = pinfo->fd->num;
-		td->first_transmit.ts.secs = pinfo->fd->abs_ts.secs;
-		td->first_transmit.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+	if (!enable_tsn_analysis) return NULL;
+
+	/* look for the current half_assoc by spt, dpt and vtag */
+	
+	k = make_dir_key(spt, dpt, vtag);	
+	if (( ha = emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
+		/* found, if it has been already matched we're done*/
+		if (ha->peer) return ha;
+	} else {
+		/* not found, make a new one and add it to the table */
+		ha = se_alloc0(sizeof(sctp_half_assoc_t));
+		ha->spt = spt;
+		ha->dpt = dpt;
+		ha->vtag = vtag;
+		ha->tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
+		ha->tsn_acks = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,"");
+		ha->first_tsn= -1; 
+		ha->cumm_ack= 0;
 		
-		se_tree_insert32(a->current_dir->tsns,tsn,td);
-		
-		if (! a->current_dir->ctsn_ack) {
-			a->current_dir->ctsn_ack = tsn - 1;
-		}		
+		/* add this half to the table indexed by ports and vtag */
+		emem_tree_insert32_array(dirs_by_ptvtag, k, ha);
 	}
-
-	if (td->first_transmit.framenum != pinfo->fd->num) {
+	
+	/* at this point we have an unmatched half, look for its other half using the ports and IP address */
+	k = make_address_key(dpt, spt, &(pinfo->dst));
+	
+	if (( hb = emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
+		/*the table contains a pointer to a pointer to a half */
+		if (! *hb) {
+			/* if there is no half pointed by this add the current half to the table */
+			*hb = ha;
+		} else {
+			/* there's a half pointed by this, assume it's our peer and clear the table's pointer */
+			ha->peer = *hb;
+			(*hb)->peer = ha;
+			*hb = NULL;
+		}
+	} else {
+		/* we foun no entry in the table add one (using reversed ports and src addresss) so that it can be matched later */
+		*(hb = se_alloc(sizeof(void*))) = ha;
+		k = make_address_key(spt, dpt, &(pinfo->src));
+		emem_tree_insert32_array(dirs_by_ptaddr, k, hb);
+	}
+	
+	return ha;
+}
+static void tsn_tree(sctp_tsn_t* t, proto_item* tsn_item,	packet_info* pinfo, tvbuff_t* tvb, guint32 framenum) {
+	proto_tree* tsn_tree = proto_item_add_subtree(tsn_item,ett_sctp_tsn);
+	
+	if (t->first_transmit.framenum != framenum) {
+		proto_item* pi = proto_tree_add_uint(tsn_tree, hf_sctp_retrans, tvb, 0 , 0, t->first_transmit.framenum);
+		proto_tree* pt = proto_item_add_subtree(pi,ett_sctp_tsn_retrans);
 		nstime_t rto;
-		proto_item *pi = proto_tree_add_uint(tsn_tree, hf_sctp_retrans, tvb, 0 , 0, td->first_transmit.framenum);
-		proto_tree *pt = proto_item_add_subtree(pi,ett_sctp_tsn);
-		PROTO_ITEM_SET_GENERATED(pi);
 		
-		nstime_delta( &rto, &pinfo->fd->abs_ts, &(td->first_transmit.ts) );
+		PROTO_ITEM_SET_GENERATED(pi);
+		expert_add_info_format(pinfo, pi, PI_SEQUENCE,PI_WARN,"Duplicate TSN");
+		
+		nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
 		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
 		PROTO_ITEM_SET_GENERATED(pi);
-	} else {
-		if (td->ack.framenum) {
-			proto_item *ack_item = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, td->ack.framenum);
-			proto_tree *ack_tree = proto_item_add_subtree(ack_item, ett_sctp_ack);
-
-			PROTO_ITEM_SET_GENERATED(ack_item);
-			nstime_delta( &rtt, &(td->ack.ts), &(td->first_transmit.ts) );
-			ack_item = proto_tree_add_time(ack_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
-			PROTO_ITEM_SET_GENERATED(ack_item);
-		}
-	}
-	
-}
-
-static void ack_tsn(packet_info* pinfo, proto_tree* acks_tree, tvbuff_t* tvb, sctp_assoc_t* a, guint32 tsn) {
-	sctp_tsn_t* td;
-	
-	if (! enable_tsn_analysis) return;
-
-	td = se_tree_lookup32(a->opposite_dir->tsns,tsn);
-	
-	if (td) {
-		proto_item* acked_item;
-		proto_tree* acked_tree;
+	} else if (t->ack.framenum) {
+		proto_item* pi = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
+		proto_tree* pt = proto_item_add_subtree(pi, ett_sctp_ack);
 		nstime_t rtt;
-		
-		if (! td->ack.framenum) {
-			td->ack.framenum = pinfo->fd->num;
-			td->ack.ts.secs = pinfo->fd->abs_ts.secs;
-			td->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
-		} else if ( td->ack.framenum != pinfo->fd->num ) {
-			proto_item *pi = proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, td->ack.framenum);
-			PROTO_ITEM_SET_GENERATED(pi);
-			return;
-		}
-		
-		nstime_delta( &rtt, &(td->ack.ts), &(td->first_transmit.ts) );
-		
-		acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, td->first_transmit.framenum);
-		acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
-		PROTO_ITEM_SET_GENERATED(acked_item);
-		
-		acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
-		PROTO_ITEM_SET_GENERATED(acked_item);
+		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
+		proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
 	}
+
 }
 
-static void ack_tsns_upto_ctsn(packet_info* pinfo, tvbuff_t* tvb, proto_tree* acks_tree, sctp_assoc_t* a, guint32 cum_tsn_ack) {
-	sctp_tsn_t *t, *first;
-	guint32 save_cum_tsn_ack = cum_tsn_ack;
-	guint32 framenum = pinfo->fd->num;
+static void sctp_tsn(packet_info* pinfo,  tvbuff_t* tvb, proto_item* tsn_item, sctp_half_assoc_t* h, guint32 tsn) {
+	sctp_tsn_t* t;
+	guint32 framenum;
 	
-	if (! enable_tsn_analysis) return;
+	/* no half assoc? nothing to do!*/
+	if (!h)
+		return;
+	
 
-	//~ g_message("ack_tsns_upto_ctsn: framenum=%d  ctsn=%d",framenum,cum_tsn_ack);
-	if(( t = se_tree_lookup32(a->opposite_dir->ctsn_frames, framenum) )) {
-		//~ g_message("got tsn=%d",t->tsn);
-		for ( ;t;t = t->next_same_ctsn) {
-			proto_item* acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
-			proto_tree* acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
-			nstime_t rtt;
-			PROTO_ITEM_SET_GENERATED(acked_item);
+	framenum = pinfo->fd->num;
+	/* printf("%.6d TSN: %p->%p [%u]\n",framenum,h,h->peer,tsn); */
+	
+	/* we have not seen any tsn yet in this half assoc set the ground */
+	if (h->first_tsn == -1) h->first_tsn = tsn;
+	
+	/* make tsn a relative tsn */
+	tsn -= h->first_tsn;
+	
+	/*
+	* XXX FIXME:
+	* this gets broken after tsn rollover
+	*/
+	
+	/* printf("%.3d REL TSN: [%u] %u \n",framenum,h,h->peer,tsn,tsn); */
+
+	/* look for this tsn in this half's tsn table */
+	if (! (t = emem_tree_lookup32(h->tsns,tsn) )) {
+		/* no tsn found, create a new one */
+		t = se_alloc0(sizeof(sctp_tsn_t));
+		t->tsn = tsn;
+		
+		t->first_transmit.framenum = framenum;
+		t->first_transmit.ts.secs = pinfo->fd->abs_ts.secs;
+		t->first_transmit.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+				
+		emem_tree_insert32(h->tsns,tsn,t);
+	}
+	
+	tsn_tree(t, tsn_item, pinfo, tvb, framenum);
+}
+
+static void ack_tree(sctp_tsn_t* t, proto_tree* acks_tree, tvbuff_t* tvb, packet_info* pinfo) {
+	proto_item* pi;
+	proto_tree* pt;
+	nstime_t rtt;
+	guint framenum =  pinfo->fd->num;
+	
+	if ( t->ack.framenum != framenum ) {
+		pi = proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, t->ack.framenum);
+		PROTO_ITEM_SET_GENERATED(pi);
+		expert_add_info_format(pinfo, pi, PI_SEQUENCE,PI_WARN,"Duplicate ACK");
+	} else {
+		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
+		
+		pi = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
+		pt = proto_item_add_subtree(pi, ett_sctp_acked);
+		
+		PROTO_ITEM_SET_GENERATED(pi);
+		pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+}
+static void sctp_ack(packet_info* pinfo, tvbuff_t* tvb,  proto_tree* acks_tree, sctp_half_assoc_t* h, guint32 tsn) {
+	sctp_tsn_t* t;
+	guint32 framenum;
+	
+	if (!h || !h->peer)
+		return;
+	
+	framenum =  pinfo->fd->num;
+	
+	tsn -= h->peer->first_tsn;
+
+	t = se_tree_lookup32(h->peer->tsns,tsn);
+
+	/* printf("%.6d ACK: %p->%p [%u] \n",framenum,h,h->peer,tsn); */
+	
+
+	if (t) {		
+		if (! t->ack.framenum) {
+			sctp_tsn_t* t2;
 			
-			nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
-			acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
-			PROTO_ITEM_SET_GENERATED(acked_item);
+			t->ack.framenum = framenum;
+			t->ack.ts.secs = pinfo->fd->abs_ts.secs;
+			t->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
+			
+			if (( t2 = emem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
+				for(;t2->next;t2 = t2->next)
+					;
+				
+				t2->next = t;
+			} else {
+				emem_tree_insert32(h->peer->tsn_acks, framenum,t);
+			}
 		}
+		ack_tree(t, acks_tree, tvb, pinfo);
+		
+	} /* else {
+		proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
+	} */
+}
+static void sctp_ack_block(packet_info* pinfo, sctp_half_assoc_t* h, tvbuff_t* tvb, proto_item* acks_tree, guint32 tsn_start, guint32 tsn_end) {
+	sctp_tsn_t* t;
+	guint32 framenum;
+
+	if (!h || !h->peer || h->first_tsn < 0)
+		return;
+	
+	framenum =  pinfo->fd->num;
+
+	if (t = emem_tree_lookup32(h->peer->tsn_acks, framenum)) {
+		for(;t;t = t->next) {
+			ack_tree(t, acks_tree, tvb, pinfo);
+		}
+		
 		return;
 	}
 	
 	if (pinfo->fd->flags.visited) return;
 	
-	//~ g_message("not vistited");
-
-	if (( t = se_tree_lookup32(a->opposite_dir->ctsn_frames,framenum) )) {
-		//~ g_message("found dup tsn=%d sent=%d",t->tsn,t->first_transmit.framenum);
-		proto_item *pi = proto_tree_add_uint(acks_tree, hf_sctp_dup_ack, tvb, 0 , 0, t->ack.framenum);
-		PROTO_ITEM_SET_GENERATED(pi);
-		return;
-	}
+	/* FIXME rollover */
+	if (tsn_start == -1) {
+		tsn_start = h->peer->cumm_ack + h->peer->first_tsn;
+		/* printf("%.3d CACK: %p->%p  [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end); */
+	} /* else {
+		printf("%.3d BACK: %p vs %p [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end);
+	} */
 	
-	first = NULL;
-	
-	do {
-		proto_item* acked_item;
-		proto_tree* acked_tree;
-		nstime_t rtt;
-		
-		/* XXX: handle serial number rollover */
-		if (cum_tsn_ack <= a->opposite_dir->ctsn_ack) break;
-		t = se_tree_lookup32_le(a->opposite_dir->tsns,cum_tsn_ack--); 
-		
-		if (!t) break;
-		
-		if (! t->ack.framenum) {
-			t->ack.framenum = framenum;
-			t->ack.ts.secs = pinfo->fd->abs_ts.secs;
-			t->ack.ts.nsecs = pinfo->fd->abs_ts.nsecs;
-					
-			if (!first) {
-				first = t;
-				se_tree_insert32(a->opposite_dir->ctsn_frames,framenum,t);
-				a->opposite_dir->ctsn_ack = save_cum_tsn_ack;
-			}
+	if (tsn_start <= tsn_end) {
+		guint32 tsn;
+		for (tsn = tsn_start ; tsn <= tsn_end ; tsn++) {
+			sctp_ack(pinfo, tvb,  acks_tree, h, tsn);
 		}
-		
-		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
-		
-		acked_item = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
-		acked_tree = proto_item_add_subtree(acked_item, ett_sctp_acked);
-		PROTO_ITEM_SET_GENERATED(acked_item);
-		
-		acked_item = proto_tree_add_time(acked_tree, hf_sctp_rtt, tvb, 0, 0, &rtt);
-		PROTO_ITEM_SET_GENERATED(acked_item);
-	} while (1);
-	
+		h->peer->cumm_ack = tsn_end - h->peer->first_tsn + 1;
+	}
 }
 
-static void ack_tsn_gap_block(packet_info* pinfo, proto_tree* acks_tree, tvbuff_t* tvb, sctp_assoc_t* a, guint32 tsn_start, guint32 tsn_end) {
-	if (! enable_tsn_analysis) return;
-
-	do {
-		ack_tsn(pinfo, acks_tree, tvb, a, tsn_start++);
-	} while(tsn_start <= tsn_end);
-}
-
-static sctp_assoc_t* new_assoc(sctp_assoc_t* prev, guint32 spt, guint32 dpt, guint32 svtag) {
-	sctp_assoc_t* a = se_alloc0(sizeof(sctp_assoc_t));
-	guint32* vtagp = se_alloc0(sizeof(guint32));
-	guint32 pl = SCTP_PORTLABEL(spt,dpt);
-	enum {DOWN,UP} direction = (spt<dpt) ? DOWN : UP;
-	emem_tree_key_t key[] = {
-		{1, &pl},
-		{1, &svtag},
-		{0, NULL}
-	};
-	
-	a->port_label = pl;
-	
-	a->up.tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-						   se_strdup_printf("sctp assoc %d-%d up tsns", pl,svtag));
-
-	a->up.ctsn_frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-							  se_strdup_printf("sctp assoc %d-%d up ctsns",
-							  pl,svtag));
-	
-	a->down.tsns = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-						     se_strdup_printf("sctp assoc %d-%d down tsns",
-						     pl,svtag));
-	
-	a->down.ctsn_frames = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK,
-							    se_strdup_printf("sctp assoc %d-%d down ctsns",
-							    pl,svtag));
-	
-	*vtagp = svtag;
-	
-	if (direction == DOWN) {
-		a->down.vtag = vtagp;
-		a->current_dir = &(a->down);
-		a->opposite_dir  = &(a->up); 
-	} else {
-		a->up.vtag = vtagp;
-		a->current_dir = &(a->up);
-		a->opposite_dir  = &(a->down); 
-	}
-	
-	if (prev) {
-		for (;prev->next_same_pl;prev = prev->next_same_pl);
-		prev->next_same_pl = a;
-	} else {
-		se_tree_insert32(assocs_by_portlabel,pl,a);
-	}
-	
-	se_tree_insert32_array(assocs_by_ptvtag,key,a);
-	
-	return a;
-}
+/* END TSN ANALYSIS CODE */
 
 
-static sctp_assoc_t* get_assoc(guint32 spt, guint32 dpt, guint32 vtag) {
-	guint32 pl = SCTP_PORTLABEL(spt,dpt);
-	enum {DOWN,UP} direction = (spt<dpt) ? DOWN : UP;
-	emem_tree_key_t key[] = {
-		{1, &pl},
-		{1, &vtag},
-		{0, NULL}
-	};
-	
-	sctp_assoc_t* a_pl = se_tree_lookup32(assocs_by_portlabel,pl);
-	sctp_assoc_t* a_vt = se_tree_lookup32_array(assocs_by_ptvtag,key);
-	sctp_assoc_t *a, *last;
-	
-	/* no assoc with this ports this is a new assoc */
-	if (!a_pl) return new_assoc(NULL,spt,dpt,vtag);
-	
-	/* got vtag and portlabel */
-	if (a_vt) {
-		if (spt==dpt) {
-			if (a_vt->down.vtag) {
-				direction = (*(a_vt->down.vtag) == vtag) ? DOWN : UP;
-			} else if (a_vt->up.vtag) {
-				direction = (*(a_vt->up.vtag) == vtag) ? UP : DOWN;
-			} else {
-				DISSECTOR_ASSERT_NOT_REACHED();
-			}
-		}
-		
-		if (direction == DOWN) {
-			a_vt->current_dir = &(a_vt->down);
-			a_vt->opposite_dir = &(a_vt->up);
-		} else {
-			a_vt->current_dir = &(a_vt->up);
-			a_vt->opposite_dir = &(a_vt->down);
-		}
-		
-		return a_vt;
-	}
-	
-	for (a=a_pl; a; a = a->next_same_pl) {
-		last = a;
-		
-		/*
-		 * this has both but is not the one we found
-		 * skip it!
-		 */
-		if (a->up.vtag && a->down.vtag) continue;
-
-		if (spt==dpt) {
-			if (a_pl->down.vtag) {
-				direction = (*(a_pl->down.vtag) == vtag) ? DOWN : UP;
-			} else if (a_pl->up.vtag) {
-				direction = (*(a_pl->up.vtag) == vtag) ? UP : DOWN;
-			} else {
-				DISSECTOR_ASSERT_NOT_REACHED();
-			}
-		}
-		
-		if ( direction == DOWN ) {
-			/*
-			 * we miss the high vtag and we have a low vtag,
-			 * we assume this to be our other half
-			 */
-			a->down.vtag = se_alloc(sizeof(guint32));
-			*(a->down.vtag) = vtag;
-			se_tree_insert32_array(assocs_by_ptvtag,key,a);
-			a->current_dir = &(a->down);
-			a->opposite_dir = &(a->up);
-
-			return a;
-		} else {
-			/*
-			 * we miss the high vtag and we have a low vtag,
-			 * we assume this to be our other half
-			 */
-			a->up.vtag = se_alloc(sizeof(guint32));
-			*(a->up.vtag) = vtag;
-			se_tree_insert32_array(assocs_by_ptvtag,key,a);
-			a->current_dir = &(a->up);
-			a->opposite_dir = &(a->down);
-
-			return a;
-		}
-		
-		/* this is the same half and this vtag is not the right one, keep looking */
-	}
-	
-	/*
-	 * if we get here it means we did not find our other half
-	 * in the list of assocs with the same portlabel.
-	 * This is a new association with the same portlabel
-	 */
-	
-	return new_assoc(last,spt,dpt,vtag);
-}
 
 
 #define HEARTBEAT_INFO_PARAMETER_INFO_OFFSET PARAMETER_VALUE_OFFSET
@@ -1578,7 +1511,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 				   packet_info *pinfo,
 				   proto_tree *tree,
 				   proto_tree *sctp_tree,
-				   sctp_assoc_t* assoc,
+				   sctp_half_assoc_t* assoc,
 				   gboolean useinfo);
 
 static void
@@ -2588,7 +2521,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 				   proto_tree *chunk_tree,
 				   proto_item *chunk_item,
 				   proto_item *flags_item,
-				   sctp_assoc_t* assoc)
+				   sctp_half_assoc_t* ha)
 {
   guint number_of_ppid;
   guint32 payload_proto_id;
@@ -2654,12 +2587,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                            payload_proto_id,
                            chunk_length - DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH, "", "s"));
   }
-  
-  if (tsn_item) {
-	  tsn_tree = proto_item_add_subtree(tsn_item,ett_sctp_tsn);
-  }
-  
-  new_tsn(pinfo, tsn_tree, chunk_tvb, assoc, tsn);  
+    
+  sctp_tsn(pinfo,  chunk_tvb, tsn_item, ha, tsn);
   
   
   payload_tvb = tvb_new_subset(chunk_tvb, DATA_CHUNK_PAYLOAD_OFFSET, chunk_length - DATA_CHUNK_HEADER_LENGTH, chunk_length - DATA_CHUNK_HEADER_LENGTH);
@@ -2789,7 +2718,7 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
 
 
 static void
-dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_assoc_t* assoc)
+dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item, sctp_half_assoc_t* ha)
 {
   guint16 number_of_gap_blocks, number_of_dup_tsns;
   guint16 gap_block_number, dup_tsn_number, start, end;
@@ -2814,8 +2743,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 	cum_tsn_ack          = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 	
 	acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
-	ack_tsns_upto_ctsn(pinfo, chunk_tvb, acks_tree, assoc, cum_tsn_ack);
-	
+	sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, -1, cum_tsn_ack);
 	
 	for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
 	  start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
@@ -2825,8 +2753,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 	  proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset,                                     SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
 	  proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end,   chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
 
-	  ack_tsn_gap_block(pinfo, block_tree, chunk_tvb, assoc, cum_tsn_ack + start, cum_tsn_ack + end);
-	  
+	  sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, cum_tsn_ack + start, cum_tsn_ack + end);
 	  gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
 	}
 
@@ -3193,7 +3120,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
 				   packet_info *pinfo,
 				   proto_tree *tree,
 				   proto_tree *sctp_tree,
-				   sctp_assoc_t* assoc,
+				   sctp_half_assoc_t* ha,
 				   gboolean useinfo)
 {
   guint8 type, flags;
@@ -3256,7 +3183,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   /* now dissect the chunk value */
   switch(type) {
   case SCTP_DATA_CHUNK_ID:
-	  result = dissect_data_chunk(chunk_tvb, length, pinfo, tree, chunk_tree, chunk_item, flags_item, assoc);
+	  result = dissect_data_chunk(chunk_tvb, length, pinfo, tree, chunk_tree, chunk_item, flags_item, ha);
     break;
   case SCTP_INIT_CHUNK_ID:
     dissect_init_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -3265,7 +3192,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
     dissect_init_ack_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SACK_CHUNK_ID:
-    dissect_sack_chunk(pinfo, chunk_tvb, chunk_tree, chunk_item, flags_item, assoc);
+    dissect_sack_chunk(pinfo, chunk_tvb, chunk_tree, chunk_item, flags_item, ha);
     break;
   case SCTP_HEARTBEAT_CHUNK_ID:
     dissect_heartbeat_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
@@ -3340,7 +3267,7 @@ dissect_sctp_chunks(tvbuff_t *tvb,
 					proto_tree *tree,
 					proto_item *sctp_item,
 					proto_tree *sctp_tree,
-					sctp_assoc_t* assoc,
+					sctp_half_assoc_t* ha,
 					gboolean encapsulated)
 {
   tvbuff_t *chunk_tvb;
@@ -3371,7 +3298,7 @@ dissect_sctp_chunks(tvbuff_t *tvb,
     }
 
     /* call dissect_sctp_chunk for the actual work */
-    if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, assoc, !encapsulated) && (tree)) {
+    if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, ha, !encapsulated) && (tree)) {
       proto_item_set_len(sctp_item, offset - last_offset + DATA_CHUNK_HEADER_LENGTH);
       sctp_item_length_set = TRUE;
       offset += total_length;
@@ -3401,7 +3328,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_item *sctp_item;
   proto_tree *sctp_tree;
   guint32 vtag;
-  sctp_assoc_t* assoc = NULL;
+  sctp_half_assoc_t* ha = NULL;
   
   length    = tvb_length(tvb);
   checksum  = tvb_get_ntohl(tvb, CHECKSUM_OFFSET);
@@ -3440,20 +3367,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
   vtag = tvb_get_ntohl(tvb,VERIFICATION_TAG_OFFSET);
   
-  assoc = get_assoc(source_port, destination_port, vtag);
-  
-  if (!assoc) {
-	  /*proto_tree_add_text(tree,tvb,0,0,"No assoc: spt=%d dpt=%d vtag=%x",source_port, destination_port, vtag) ;*/
-	  return;
-  } else {
-	  char* dir = "down";
-	  
-	  if (assoc->current_dir == &(assoc->up)) {
-		  dir = "up";
-	  }
-	  
-	  /*proto_tree_add_text(tree,tvb,0,0,"assoc: pl=%d p=%p dir=%s",assoc->port_label,assoc,dir) ;*/
-  }
+  ha = get_half_assoc(pinfo, source_port, destination_port, vtag);
   
   if (tree) {
 
@@ -3520,7 +3434,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     sctp_item = NULL;
   };
   /* add all chunks of the sctp datagram to the protocol tree */
-  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, assoc, encapsulated);
+  dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, ha, encapsulated);
 }
 
 static void
@@ -3704,10 +3618,11 @@ proto_register_sctp(void)
     &ett_sctp_sack_chunk_gap_block,
     &ett_sctp_unrecognized_parameter_parameter,
     &ett_sctp_fragments,
-	&ett_sctp_fragment,
-	&ett_sctp_ack,
-	&ett_sctp_acked,
-	&ett_sctp_tsn
+    &ett_sctp_fragment,
+    &ett_sctp_ack,
+    &ett_sctp_acked,
+    &ett_sctp_tsn,
+    &ett_sctp_tsn_retrans
   };
 
   static enum_val_t sctp_checksum_options[] = {
@@ -3746,12 +3661,10 @@ proto_register_sctp(void)
                          "Reassemble fragmented SCTP user messages",
                          "Whether fragmented SCTP user messages should be reassembled",
                          &use_reassembly);
-/*
   prefs_register_bool_preference(sctp_module, "tsn_analysis",
                          "Enable TSN analysis",
                          "Match TSNs and their SACKs",
                          &enable_tsn_analysis);
-*/
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
@@ -3765,9 +3678,9 @@ proto_register_sctp(void)
   register_heur_dissector_list("sctp", &sctp_heur_subdissector_list);
 
   register_init_routine(frag_table_init);
-  
-  assocs_by_ptvtag = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sctp_assocs_by_ptvtag");
-  assocs_by_portlabel = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sctp_assocs_by_portlabel");
+
+  dirs_by_ptvtag = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sctp_dirs_by_ptvtag");
+  dirs_by_ptaddr = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sctp_dirs_by_ptaddr");
 }
 
 void
