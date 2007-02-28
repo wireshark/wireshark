@@ -30,7 +30,8 @@
 
 /*
  * This dissector tries to dissect the H.263 protocol according to
- * ITU-T Recommendations and RFC 2190
+ * ITU-T Recommendations and RFC 2190 and
+ * http://www.ietf.org/rfc/rfc4629.txt?number=4629
  */
 
 
@@ -50,8 +51,9 @@
 static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 
 /* H.263 header fields             */
-static int proto_h263          = -1;
-static int proto_h263_data     = -1;
+static int proto_h263			= -1;
+static int proto_h263P			= -1;
+static int proto_h263_data		= -1;
 
 /* Mode A header */
 static int hf_h263_ftype = -1;
@@ -93,6 +95,15 @@ static int hf_h263_data        = -1;
 static int hf_h263_payload     = -1;
 static int hf_h263_GN          = -1;
 
+
+/* H.263 RFC 4629 fields */
+static int hf_h263P_payload = -1;
+static int hf_h263P_rr = -1;
+static int hf_h263P_pbit = -1;
+static int hf_h263P_vbit = -1;
+static int hf_h263P_plen = -1;
+static int hf_h263P_pebit = -1;
+
 /* Source format types */
 #define SRCFORMAT_FORB   0  /* forbidden */
 #define SRCFORMAT_SQCIF  1
@@ -103,11 +114,11 @@ static int hf_h263_GN          = -1;
 
 static const value_string srcformat_vals[] =
 {
-  { SRCFORMAT_FORB,	"forbidden" },
+  { SRCFORMAT_FORB,		"forbidden" },
   { SRCFORMAT_SQCIF,	"sub-QCIF 128x96" },
-  { SRCFORMAT_QCIF,	"QCIF 176x144" },
-  { SRCFORMAT_CIF,	"CIF 352x288" },
-  { SRCFORMAT_4CIF,	"4CIF 704x576" },
+  { SRCFORMAT_QCIF,		"QCIF 176x144" },
+  { SRCFORMAT_CIF,		"CIF 352x288" },
+  { SRCFORMAT_4CIF,		"4CIF 704x576" },
   { SRCFORMAT_16CIF,	"16CIF 1408x1152" },
   { 0,		NULL },
 };
@@ -129,6 +140,11 @@ static const true_false_string PB_frames_mode_flg = {
 /* H.263 fields defining a sub tree */
 static gint ett_h263			= -1;
 static gint ett_h263_payload	= -1;
+
+/* H.263-1998 fields defining a sub tree */
+static gint ett_h263P			= -1;
+static gint ett_h263P_payload	= -1;
+
 static void
 dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -280,6 +296,55 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 }
 
+/* RFC 4629 */
+static void
+dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	proto_item *ti				= NULL;
+	proto_tree *h263P_tree	= NULL;
+	unsigned int offset			= 0;
+	guint16 data16, plen;
+	guint8 octet;
+	/*
+	tvbuff_t *next_tvb;
+	*/
+
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263-1998 " );
+	}
+
+	if ( tree ) {
+	  ti = proto_tree_add_item( tree, proto_h263P, tvb, offset, -1, FALSE );
+	  h263P_tree = proto_item_add_subtree( ti, ett_h263P );
+	  /* Add it as hidden to make a filter of h263 possible here as well */
+	  proto_tree_add_item_hidden( tree, proto_h263, tvb, offset, -1, FALSE );
+
+	  data16 = tvb_get_ntohs(tvb,offset);
+	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_vbit, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_plen, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, FALSE );
+	  offset = offset +2;
+	  /*
+	  plen = (data16 & 0x01f8) >> 3;
+	  if ((data16&0x0400)!=0){
+		  / P bit = 1 /
+		  octet = tvb_get_guint8(tvb,offset);
+		  if((octet&0xfc)==0x80){
+			  / PSC /
+			if ( check_col( pinfo->cinfo, COL_INFO) )
+				col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
+		  }else{
+			if ( check_col( pinfo->cinfo, COL_INFO) )
+			  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
+		  }
+	  }
+	*/
+	  offset = offset + plen;		
+	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
+	}
+}
 
 static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -820,6 +885,103 @@ proto_register_h263(void)
 }
 
 void
+proto_register_h263P(void)
+{
+	static hf_register_info hf[] =
+	{
+		{
+			&hf_h263P_payload,
+			{
+				"H.263-1998 payload",
+				"h263P.payload",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"The actual H.263-1998 data", HFILL
+			}
+		},
+		{
+			&hf_h263P_rr,
+			{
+				"Reserved",
+				"h263P.rr",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0xf800,
+				"Reserved SHALL be zero", HFILL
+			}
+		},
+		{
+			&hf_h263P_pbit,
+			{
+				"P",
+				"h263P.p",
+				FT_BOOLEAN,
+				16,
+				NULL,
+				0x0400,
+				"Indicates (GOB/Slice) start or (EOS or EOSBS)", HFILL
+			}
+		},
+		{
+			&hf_h263P_vbit,
+			{
+				"V",
+				"h263P.v",
+				FT_BOOLEAN,
+				16,
+				NULL,
+				0x0200,
+				"presence of Video Redundancy Coding (VRC) field", HFILL
+			}
+		},
+		{
+			&hf_h263P_plen,
+			{
+				"PLEN",
+				"h263P.plen",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x01f8,
+				"Length, in bytes, of the extra picture header", HFILL
+			}
+		},
+		{
+			&hf_h263P_pebit,
+			{
+				"PEBIT",
+				"h263P.pebit",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0003,
+				"number of bits that shall be ignored in the last byte of the picture header", HFILL
+			}
+		},
+
+	};
+
+	static gint *ett[] =
+	{
+		&ett_h263P,
+		&ett_h263P_payload,
+	};
+
+
+	proto_h263P = proto_register_protocol("ITU-T Recommendation H.263 RTP Payload header (RFC4629)",
+	    "H.263P", "h.263p");
+
+	proto_register_field_array(proto_h263P, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("h263P", dissect_h263P, proto_h263P);
+
+}
+
+void
 proto_reg_handoff_h263(void)
 {
 	dissector_handle_t h263_handle;
@@ -827,4 +989,14 @@ proto_reg_handoff_h263(void)
 	h263_handle = find_dissector("h263");
 	dissector_add("rtp.pt", PT_H263, h263_handle);
 	dissector_add("iax2.codec", AST_FORMAT_H263, h263_handle);
+}
+
+void
+proto_reg_handoff_h263P(void)
+{
+	dissector_handle_t h263P_handle;
+
+	h263P_handle = find_dissector("h263P");
+	dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
+	dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
 }
