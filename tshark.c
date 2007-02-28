@@ -1267,13 +1267,10 @@ main(int argc, char *argv[])
           exit(1);
         }
         if (capture_opts.multi_files_on) {
-          /* Multiple-file mode works only under certain conditions:
+          /* Multiple-file mode doesn't work under certain conditions:
              a) it doesn't work if you're writing to the standard output;
              b) it doesn't work if you're writing to a pipe;
-             c) it makes no sense if the maximum file size is set to "infinite"
-                (XXX - shouldn't that be "if there is no stop criterion",
-                as you might want to switch files based on a packet count
-                or a time). */
+	  */
           if (strcmp(capture_opts.save_file, "-") == 0) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture is being written to the standard output.");
@@ -1284,9 +1281,10 @@ main(int argc, char *argv[])
               "the capture file is a pipe.");
             exit(1);
           }
-          if (!capture_opts.has_autostop_filesize) {
+          if (!capture_opts.has_autostop_filesize &&
+	      !capture_opts.has_file_duration) {
             cmdarg_err("Multiple capture files requested, but "
-              "no maximum capture file size was specified.");
+              "no maximum capture file size or duration was specified.");
             exit(1);
           }
         }
