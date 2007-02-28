@@ -555,6 +555,7 @@ proto_registrar_is_protocol
 proto_registrar_n
 proto_set_cant_toggle
 proto_set_decoding
+proto_tree_add_bitmask
 proto_tree_add_boolean
 proto_tree_add_boolean_format
 proto_tree_add_boolean_format_value
