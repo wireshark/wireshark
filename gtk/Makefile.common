@@ -63,6 +63,8 @@ WIRESHARK_GTK_SRC = \
 	drag_and_drop.c 	\
 	wireshark-tap-register.c	\
 	expert_comp_table.c    \
+	export_object.c	       \
+	export_object_http.c   \
 	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
@@ -125,7 +127,6 @@ WIRESHARK_TAP_SRC = \
 	bootp_stat.c	\
 	camel_counter.c	\
 	camel_srt.c	\
-	content_list_http.c	\
 	conversations_eth.c	\
 	conversations_fc.c	\
 	conversations_fddi.c	\

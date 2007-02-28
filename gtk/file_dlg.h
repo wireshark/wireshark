@@ -56,7 +56,8 @@ typedef enum {
 	FILE_SELECTION_OPEN,            /**< open a file */
 	FILE_SELECTION_READ_BROWSE,     /**< browse for a file to read */
 	FILE_SELECTION_SAVE,            /**< save/export a file */
-	FILE_SELECTION_WRITE_BROWSE     /**< browse for a file to write to */
+	FILE_SELECTION_WRITE_BROWSE,    /**< browse for a file to write to */
+	FILE_SELECTION_CREATE_FOLDER    /**< browse for a dir. to save in */  
 } file_selection_action_t;
 
 /** Create a file selection dialog box window that belongs to Wireshark's

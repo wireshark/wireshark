@@ -84,6 +84,10 @@
 #include "u3.h"
 #include "macros_dlg.h"
 
+#if GTK_MAJOR_VERSION >= 2
+#include "export_object.h"
+#endif
+
 GtkWidget *popup_menu_object;
 
 static void
@@ -417,6 +421,10 @@ static GtkItemFactoryEntry menu_items[] =
 #endif
     ITEM_FACTORY_ENTRY("/File/Export/Selected Packet _Bytes...", "<control>H", savehex_cb,
                              0, NULL, NULL),
+#if GTK_MAJOR_VERSION >= 2
+    ITEM_FACTORY_ENTRY("/File/Export/_Objects/_HTTP", NULL, eo_http_cb, 0, NULL,
+		       NULL),
+#endif
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
@@ -983,9 +991,6 @@ register_stat_menu_item(
 
     switch(group) {
     case(REGISTER_STAT_GROUP_GENERIC): toolspath = "/Statistics/"; break;
-#if GTK_MAJOR_VERSION >= 2
-    case(REGISTER_STAT_GROUP_CONTENT_LIST): toolspath = "/Statistics/C_ontent List/"; break;
-#endif
     case(REGISTER_STAT_GROUP_CONVERSATION_LIST): toolspath = "/Statistics/_Conversation List/"; break;
     case(REGISTER_STAT_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
     case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
@@ -1105,12 +1110,6 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_STAT_GROUP_GENERIC):
                 break;
-	    case(REGISTER_STAT_GROUP_CONTENT_LIST):
-#if GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 6)
-                entry->item_type = "<StockItem>";
-                entry->extra_data = GTK_STOCK_FILE;
-#endif
-                break;
             case(REGISTER_STAT_GROUP_CONVERSATION_LIST):
                 entry->item_type = "<StockItem>";
                 entry->extra_data = WIRESHARK_STOCK_CONVERSATIONS;
@@ -1186,11 +1185,6 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_GENERIC)) {
         gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
     }
-#if GTK_MAJOR_VERSION >= 2
-    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_CONTENT_LIST)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
-    }
-#endif
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_CONVERSATION_LIST)) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }

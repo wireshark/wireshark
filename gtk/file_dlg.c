@@ -101,6 +101,11 @@ file_selection_new(const gchar *title, file_selection_action_t action)
     ok_button_text = GTK_STOCK_OK;
     break;
 
+  case FILE_SELECTION_CREATE_FOLDER:
+    gtk_action = GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER;
+    ok_button_text = GTK_STOCK_OK;
+    break;
+
   default:
     g_assert_not_reached();
     gtk_action = -1;
