@@ -2892,7 +2892,7 @@ static int dissect_resourceAddress(packet_info *pinfo, proto_tree *tree, tvbuff_
 
 static const ber_sequence_t ConnectToResourceArg_sequence[] = {
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_resourceAddress },
-  { BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_extensions_impl },
+  { BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extensions_impl },
   { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_serviceInteractionIndicators_impl },
   { 0, 0, 0, NULL }
 };

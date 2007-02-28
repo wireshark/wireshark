@@ -250,11 +250,11 @@ ConnectToResourceArg ::= SEQUENCE {
   resourceAddress
     CHOICE {ipRoutingAddress  [0]  IPRoutingAddress,
             legID             [1]  LegID,
-            both2
-              [2]  SEQUENCE {ipRoutingAddress  [0]  IPRoutingAddress,
-                             legID             [1]  LegID},
-            none              [3]  NULL},
-  extensions				    [4]  Extensions,
+            both2             [2]  SEQUENCE {
+				ipRoutingAddress  [0]  IPRoutingAddress,
+                legID             [1]  LegID},
+				none              [3]  NULL},
+  extensions				    [4]  Extensions OPTIONAL,
   serviceInteractionIndicators  [30]  ServiceInteractionIndicators OPTIONAL,
   ...
 }
