@@ -806,7 +806,7 @@ tcp port 23 and host 10.0.0.5
 	  <title>
 	    Capturing all telnet traffic not from 10.0.0.5</title>
 	  <programlisting>
-tcp port 23 and not host 10.0.0.5
+tcp port 23 and not src host 10.0.0.5
 	  </programlisting>
 	</example>
       </para>
