@@ -181,6 +181,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_misc_set_alignment (GTK_MISC (type_pm), 0.5, 0.0);
   gtk_container_add(GTK_CONTAINER(msg_vb), msg_label);
+  gtk_label_set_line_wrap(GTK_LABEL(msg_label), TRUE);
   gtk_widget_show(msg_label);
 
   if(btn_mask == ESD_BTN_NONE) {
