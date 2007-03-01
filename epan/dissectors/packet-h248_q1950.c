@@ -258,7 +258,7 @@ static h248_package_t h248_pkg_GB = {
 
 
 /* A.7 Bearer control tunnelling package */
-static dissector_handle_t sdp_dissector = NULL;
+static dissector_handle_t bctp_dissector = NULL;
 
 static int hf_h248_pkg_bt = -1;
 static int hf_h248_pkg_bt_tind = -1;
@@ -270,7 +270,7 @@ static gint ett_h248_pkg_bt_tind = -1;
 static gint ett_h248_pkg_bt_bit= -1;
 
 static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
-	tvbuff_t* sdp_tvb = NULL;
+	tvbuff_t* bctp_tvb = NULL;
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
@@ -279,11 +279,10 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 	
 	/* XXX: is this enough to guess it? */
 	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
-		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sdp_tvb);
+		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &bctp_tvb);
 		
-		if (sdp_tvb) {
-			/* XXX: are we sure it is always sdp? */
-			call_dissector(sdp_dissector,sdp_tvb,pinfo,tree);
+		if (bctp_tvb) {
+			call_dissector(bctp_dissector,bctp_tvb,pinfo,tree);
 		}
 	} else {
 		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
@@ -417,7 +416,7 @@ static h248_package_t h248_pkg_bcg = {
 
 
 void proto_reg_handoff_q1950(void) {
-	sdp_dissector = find_dissector("sdp");
+	bctp_dissector = find_dissector("bctp");
 	
 }
 

@@ -303,13 +303,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   in_media_description = FALSE;
 
-  /*
-    * in order to avoid an invalid line when used to dissect a q1950 parameter 
-    * we will find the first useful character and start parsing from there
-    */
-   offset = tvb_pbrk_guint8(tvb, offset, -1,"abcdefghijklmnopqrstuvwxyz");
-  if (offset < 0) offset = 0;
-
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     /*
      * Find the end of the line.
@@ -1835,4 +1828,5 @@ proto_reg_handoff_sdp(void)
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);
+  dissector_add("bctp.tpi", 0x20, sdp_handle);
 }
