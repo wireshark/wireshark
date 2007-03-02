@@ -11,17 +11,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -143,7 +143,7 @@ static const value_string tlv_types[] = {
 	{ SYSTEM_CAPABILITIES_TLV_TYPE,		"System Capabilities"},
 	{ MANAGEMENT_ADDR_TLV_TYPE,			"Management Address"},
 	{ ORGANIZATION_SPECIFIC_TLV_TYPE,	"Organization Specific"},
-	{ 0, NULL} 
+	{ 0, NULL}
 };
 
 static const value_string chassis_id_subtypes[] = {
@@ -155,7 +155,7 @@ static const value_string chassis_id_subtypes[] = {
 	{ 5,	"Network address"},
 	{ 6,	"Interface name"},
 	{ 7,	"Locally assigned"},
-	{ 0, NULL} 
+	{ 0, NULL}
 };
 
 static const value_string port_id_subtypes[] = {
@@ -167,14 +167,14 @@ static const value_string port_id_subtypes[] = {
 	{ 5,	"Interface name"},
 	{ 6, 	"Agent circuit Id"},
 	{ 7,	"Locally assigned"},
-	{ 0, NULL} 
+	{ 0, NULL}
 };
 
 static const value_string interface_subtype_values[] = {
 	{ 1,	"Unknown"},
 	{ 2,	"ifIndex"},
 	{ 3, 	"System port number"},
-	{ 0, NULL} 
+	{ 0, NULL}
 };
 
 static const value_string tlv_oui_subtype_vals[] = {
@@ -329,14 +329,14 @@ static const value_string civic_address_type_values[] = {
 	{ 0, NULL }
 };
 
-/* 
- * Define the text strings for the LLDP 802.3 MAC/PHY Configuration/Status 
+/*
+ * Define the text strings for the LLDP 802.3 MAC/PHY Configuration/Status
  * Operational MAU Type field.
- * 
- * These values are taken from the DESCRIPTION field of the dot3MauType 
+ *
+ * These values are taken from the DESCRIPTION field of the dot3MauType
  * objects defined in RFC 3636 (or subsequent revisions).
  */
- 
+
 static const value_string operational_mau_type_values[] = {
 	{ 1,	"AUI - no internal MAU, view from AUI" },
 	{ 2,	"10Base5 - thick coax MAU" },
@@ -400,9 +400,9 @@ static const value_string operational_mau_type_values[] = {
 #define MEDIA_CAPABILITY_INVENTORY			0x0020
 
 /*
- * Define constants for the LLDP 802.3 MAC/PHY Configuration/Status 
- * PMD Auto-Negotiation Advertised Capability field. 
- * These values are taken from the ifMauAutoNegCapAdvertisedBits 
+ * Define constants for the LLDP 802.3 MAC/PHY Configuration/Status
+ * PMD Auto-Negotiation Advertised Capability field.
+ * These values are taken from the ifMauAutoNegCapAdvertisedBits
  * object defined in RFC 3636.
  */
 
@@ -466,30 +466,30 @@ get_latitude_or_longitude(int option, guint64 value)
 	gboolean negativeNum = FALSE;
 	guint32 integerPortion = 0;
 	const char *direction;
-	
+
 	/* The latitude and longitude are 34 bit fixed point value consisting
-	   of 9 bits of integer and 25 bits of fraction.  
+	   of 9 bits of integer and 25 bits of fraction.
 	   When option is equal to 0, positive numbers are represent a location
 	   north of the equator and negative (2s complement) numbers are south of the equator.
-	   When option is equal to 1, positive values are east of the prime 
+	   When option is equal to 1, positive values are east of the prime
 	   meridian and negative (2s complement) numbers are west of the prime meridian.
 	*/
-	
+
 	if (value & G_GINT64_CONSTANT(0x0000000200000000))
 	{
 		/* Have a negative number (2s complement) */
 		negativeNum = TRUE;
-		
+
 		tempValue = ~value;
 		tempValue += 1;
 	}
-	
+
 	/* Get the integer portion */
 	integerPortion = (guint32)((tempValue & G_GINT64_CONSTANT(0x00000003FE000000)) >> 25);
-	
+
 	/* Calculate decimal portion (using 25 bits for fraction) */
 	tempValue = (tempValue & G_GINT64_CONSTANT(0x0000000001FFFFFF))/33554432;
-	
+
 	if (option == 0)
 	{
 		/* Latitude - north/south directions */
@@ -506,7 +506,7 @@ get_latitude_or_longitude(int option, guint64 value)
 		else
 			direction = "East";
 	}
-	
+
 	return ep_strdup_printf("%u.%04" PRIu64 " degrees %s",
 	    integerPortion, tempValue, direction);
 }
@@ -520,15 +520,15 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 	guint32 tempLen = 0;
 	const char *strPtr=NULL;
 	guint8 incorrectLen = 0;	/* incorrect length if 1 */
-	
+
 	const guint8 *mac_addr = NULL;
 	guint32 ip_addr;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
-	
+
 	proto_tree	*chassis_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
@@ -541,10 +541,10 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Chassis ID (%u)",
 						decode_boolean_bitfield(tempType, TLV_TYPE_MASK, 16, "", ""), tempType);
 		}
-		
+
 		return -1;
 	}
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
 	if (tempLen < 2)
@@ -557,13 +557,13 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Length: %u",
 						decode_boolean_bitfield(tempLen, TLV_INFO_LEN_MASK, 16, "", ""), tempLen);
 		}
-		
+
 		return -1;
 	}
-	
+
 	/* Get tlv subtype */
 	tempType = tvb_get_guint8(tvb, (offset+2));
-	
+
 	switch (tempType)
 	{
 	case 4:	/* MAC address */
@@ -573,10 +573,10 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			incorrectLen = 1; 	/* Invalid length */
 			break;
 		}
-			
+
 		mac_addr=tvb_get_ptr(tvb, (offset+3), 6);
 		strPtr = ether_to_str(mac_addr);
-	
+
 		break;
 	}
 	case 5:	/* Network address */
@@ -616,7 +616,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			incorrectLen = 1; 	/* Invalid length */
 			break;
 		}
-		
+
 		strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
 
 		break;
@@ -629,7 +629,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			incorrectLen = 1; 	/* Invalid length */
 			break;
 		}
-		
+
 		strPtr = tvb_bytes_to_str(tvb, (offset+3), (tempLen-1));
 		break;
 	}
@@ -640,13 +640,13 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			incorrectLen = 1; 	/* Invalid length */
 			break;
 		}
-		
+
 		strPtr = "Reserved";
-		
+
 		break;
 	}
 	}
-	
+
 	if (incorrectLen == 1)
 	{
 		if (tree)
@@ -655,31 +655,31 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
 			proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 			proto_tree_add_text(chassis_tree, tvb, offset, 2, "%s Invalid Length: %u",
-						decode_boolean_bitfield(tempLen, TLV_INFO_LEN_MASK, 16, "", ""), tempLen);			
+						decode_boolean_bitfield(tempLen, TLV_INFO_LEN_MASK, 16, "", ""), tempLen);
 			/* Get chassis id subtype */
 			proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, FALSE);
-		
+
 		}
-		
+
 		return -1;
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Chassis Id = %s ", strPtr);
-			
+
 	if (tree)
 	{
 		/* Set chassis tree */
-		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Chassis Subtype = %s", 
+		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Chassis Subtype = %s",
 								val_to_str(tempType, chassis_id_subtypes, "Reserved" ));
 		chassis_tree = proto_item_add_subtree(tf, ett_chassis_id);
-		
+
 		proto_tree_add_item(chassis_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(chassis_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Get chassis id subtype */
 		proto_tree_add_item(chassis_tree, hf_chassis_id_subtype, tvb, (offset+2), 1, FALSE);
-		
+
 		/* Get chassis id */
 		switch (tempType)
 		{
@@ -711,7 +711,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		}
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -727,20 +727,20 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	guint32 ip_addr;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
-	
+
 	proto_tree	*port_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
 	if (tempType != PORT_ID_TLV_TYPE)
 		return -1;
-		
+
 	/* Get tlv length and subtype */
 	tempLen = TLV_INFO_LEN(tempShort);
 	tempType = tvb_get_guint8(tvb, (offset+2));
-	
+
 	/* Get port id */
 	switch (tempType)
 	{
@@ -748,10 +748,10 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	{
 		if (tempLen != 7)
 			return -1; 	/* Invalid port id */
-			
+
 		mac_addr=tvb_get_ptr(tvb, (offset+3), 6);
 		strPtr = ether_to_str(mac_addr);
-	
+
 		break;
 	}
 	case 4:	/* Network address */
@@ -785,27 +785,27 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	default:
 	{
 		strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
-	
+
 		break;
 	}
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", strPtr);
-			
+
 	if (tree)
 	{
 		/* Set port tree */
-		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Port Subtype = %s", 
+		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Port Subtype = %s",
 								val_to_str(tempType, port_id_subtypes, "Unknown" ));
 		port_tree = proto_item_add_subtree(tf, ett_port_id);
-		
+
 		proto_tree_add_item(port_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(port_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Get port id subtype */
 		proto_tree_add_item(port_tree, hf_port_id_subtype, tvb, (offset+2), 1, FALSE);
-		
+
 		/* Get port id */
 		/*proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);*/
 		switch (tempType)
@@ -814,8 +814,8 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			proto_tree_add_ether(port_tree, hf_port_id_mac, tvb, (offset+3), 6, mac_addr);
 			break;
 		case 4: /* Network address */
-			/* Network address 
-			 * networkAddress is an octet string that identifies a particular network address family 
+			/* Network address
+			 * networkAddress is an octet string that identifies a particular network address family
 			 * and an associated network address that are encoded in network octet order.
  			 */
 			/* Network address family */
@@ -836,9 +836,9 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);
 			break;
 		}
-		
+
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -849,36 +849,36 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 	guint8 tempType;
 	guint16 tempShort;
 	guint32 tempLen = 0;
-	
+
 	proto_tree	*time_to_live_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type */
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
 	if (tempType != TIME_TO_LIVE_TLV_TYPE)
 		return -1;
-		
+
 	/* Get tlv length and seconds field */
 	tempLen = TLV_INFO_LEN(tempShort);
 	tempShort = tvb_get_ntohs(tvb, (offset+2));
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "TTL = %u ", tempShort);
-			
+
 	if (tree)
 	{
 		/* Set port tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Time To Live = %u sec", tempShort);
 		time_to_live_tree = proto_item_add_subtree(tf, ett_time_to_live);
-		
+
 		proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(time_to_live_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Display time to live information */
 		proto_tree_add_item(time_to_live_tree, hf_time_to_live, tvb, (offset+2), 2, FALSE);
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -888,26 +888,26 @@ dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	guint16 tempLen;
 	guint16 tempShort;
-	
+
 	proto_tree	*end_of_lldpdu_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-			
+
 	if (tree)
 	{
 		/* Set port tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "End of LLDPDU");
 		end_of_lldpdu_tree = proto_item_add_subtree(tf, ett_end_of_lldpdu);
-		
+
 		proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(end_of_lldpdu_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
 	}
-	
+
 	return -1;	/* Force the lldp dissector to terminate */
 }
 
@@ -918,16 +918,16 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint16 tempShort;
 	guint32 tempLen = 0;
 	const char *strPtr;
-	
+
 	proto_tree	*port_desc_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-			
+
 	if (tree)
 	{
 		strPtr = tvb_format_stringzpad(tvb, (offset+2), tempLen);
@@ -935,15 +935,15 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		/* Set port tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Port Description = %s", strPtr);
 		port_desc_tree = proto_item_add_subtree(tf, ett_port_description);
-		
+
 		proto_tree_add_item(port_desc_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(port_desc_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Display port description information */
 		proto_tree_add_text(port_desc_tree, tvb, (offset+2), tempLen, "Port Description: %s",
 		    strPtr);
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -955,37 +955,37 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint32 tempLen = 0;
 	guint8 tempType;
 	const char *strPtr;
-	
+
 	proto_tree	*system_name_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
 	tempType = TLV_TYPE(tempShort);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-			
+
 	if (tree)
 	{
 		strPtr = tvb_format_stringzpad(tvb, (offset+2), tempLen);
 
 		/* Set system name tree */
-		if (tempType == SYSTEM_NAME_TLV_TYPE) 
+		if (tempType == SYSTEM_NAME_TLV_TYPE)
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Name = %s", strPtr);
 		else
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Description = %s", strPtr);
 		system_name_tree = proto_item_add_subtree(tf, ett_system_name);
-		
+
 		proto_tree_add_item(system_name_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(system_name_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Display system name information */
-		proto_tree_add_text(system_name_tree, tvb, (offset+2), tempLen, "%s = %s", 
+		proto_tree_add_text(system_name_tree, tvb, (offset+2), tempLen, "%s = %s",
 					((tempType == SYSTEM_NAME_TLV_TYPE) ? "System Name" : "System Description"),
 					strPtr);
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -996,30 +996,30 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	guint16 tempShort;
 	guint32 tempLen = 0;
 	guint16 tempCapability;
-	
+
 	proto_tree	*system_capabilities_tree = NULL;
 	proto_tree	*capabilities_summary_tree = NULL;
 	proto_tree  *capabilities_enabled_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-	
+
 	/* Get system capabilities */
 	tempCapability = tvb_get_ntohs(tvb, (offset+2));
-			
+
 	if (tree)
 	{
 		/* Set system capabilities tree */
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Capabilities");
 		system_capabilities_tree = proto_item_add_subtree(tf, ett_system_cap);
-		
+
 		proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(system_capabilities_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Display system capability information */
 		tf = proto_tree_add_text(system_capabilities_tree, tvb, (offset+2), 2, "Capabilities: 0x%04x", tempCapability);
 		capabilities_summary_tree = proto_item_add_subtree(tf, ett_system_cap_summary);
@@ -1056,10 +1056,10 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			proto_tree_add_text(capabilities_summary_tree, tvb, (offset+2), 2, "%s",
 						decode_boolean_bitfield(tempCapability, SYSTEM_CAPABILITY_STATION,
 						16, "Station only", ""));
-						
+
 		/* Get enabled summary */
 		tempShort = tvb_get_ntohs(tvb, (offset+4));
-  
+
 		/* Display system capability information */
 		tf = proto_tree_add_text(system_capabilities_tree, tvb, (offset+4), 2, "Enabled Capabilities: 0x%04x", tempShort);
 		capabilities_enabled_tree = proto_item_add_subtree(tf, ett_system_cap_enabled);
@@ -1097,7 +1097,7 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 						decode_boolean_bitfield(tempShort, SYSTEM_CAPABILITY_STATION,
 						16, "Station only", ""));
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -1111,41 +1111,41 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	guint8  stringLen = 0;
 	guint32 tempOffset = offset;
 	guint32 tempLong;
-	
+
 	proto_tree	*system_mgm_addr = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, tempOffset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-			
+
 	if (tree)
 	{
 		/* Set system capabilities tree */
 		tf = proto_tree_add_text(tree, tvb, tempOffset, (tempLen + 2), "Management Address");
 		system_mgm_addr = proto_item_add_subtree(tf, ett_management_address);
-		
+
 		proto_tree_add_item(system_mgm_addr, hf_lldp_tlv_type, tvb, tempOffset, 2, FALSE);
 		proto_tree_add_item(system_mgm_addr, hf_lldp_tlv_len, tvb, tempOffset, 2, FALSE);
-		
+
 		tempOffset += 2;
-		
+
 		/* Get management address string length */
 		stringLen = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Address String Length: %u", stringLen);
-		
+
 		tempOffset++;
-		
+
 		/* Get management address subtype */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Address Subtype: %s (%u)",
 							val_to_str(tempByte, afn_vals, "Undefined"),
 							tempByte);
-							
+
 		tempOffset++;
-		
+
 		/* Get address */
 		switch (tempByte)
 		{
@@ -1156,40 +1156,40 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		case 2:		/* IPv6 */
 			proto_tree_add_item(system_mgm_addr, hf_mgn_addr_ipv6, tvb, tempOffset, 16, FALSE);
 			break;
-		default:	
+		default:
 			proto_tree_add_item(system_mgm_addr, hf_mgn_addr_hex, tvb, tempOffset, (stringLen-1), FALSE);
 			break;
 		}
-		
+
 		tempOffset += (stringLen-1);
-		
+
 		/* Get interface numbering subtype */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Interface Subtype: %s (%u)",
 							val_to_str(tempByte, interface_subtype_values, "Undefined"),
 							tempByte);
-		
+
 		tempOffset++;
-							
+
 		/* Get interface number */
 		tempLong = tvb_get_ntohl(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 4, "Interface Number: %u", tempLong);
-		
+
 		tempOffset += 4;
-		
+
 		/* Get OID string length */
 		stringLen = tvb_get_guint8(tvb, tempOffset);
 		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "OID String Length: %u", stringLen);
-		
+
 		if (stringLen > 0)
 		{
 			tempOffset++;
-			
+
 			/* Get OID identifier */
 			proto_tree_add_item(system_mgm_addr, hf_mgn_obj_id, tvb, tempOffset, stringLen, FALSE);
 		}
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -1201,18 +1201,18 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint8 tempByte;
 	guint16 tempShort;
 	guint32 tempOffset = offset;
-	
+
 	proto_tree	*vlan_flags = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
-	
+
 	if (tree)
 		proto_tree_add_item(tree, hf_ieee_802_1_subtype, tvb, tempOffset, 1, FALSE);
-		
+
 	tempOffset++;
-	
+
 	switch (subType)
 	{
 	case 0x01:	/* Port VLAN ID */
@@ -1221,7 +1221,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
-			
+
 		break;
 	}
 	case 0x02:	/* Port and Protocol VLAN ID */
@@ -1232,25 +1232,25 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Flags: 0x%02x", tempByte);
 			vlan_flags = proto_item_add_subtree(tf, ett_port_vlan_flags);
-		
+
 			/* Get supported flag */
 			proto_tree_add_text(vlan_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Port and Protocol VLAN: Supported", 
+						decode_boolean_bitfield(tempByte, 1 << 1, 8, "Port and Protocol VLAN: Supported",
 												"Port and Protocol VLAN: Not Supported"));
-									
+
 			/* Get enabled flag */
 			proto_tree_add_text(vlan_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "Port and Protocol VLAN: Enabled", 
+						decode_boolean_bitfield(tempByte, 1 << 2, 8, "Port and Protocol VLAN: Enabled",
 												"Port and Protocol VLAN: Not Enabled"));
 		}
-		
+
 		tempOffset++;
-		
+
 		/* Get port and protocol vlan id */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port and Protocol VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
-		
+
 		break;
 	}
 	case 0x03:	/* VLAN Name */
@@ -1259,23 +1259,23 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
-			
+
 		tempOffset += 2;
-		
+
 		/* Get vlan name length */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "VLAN Name Length: %u", tempByte);
-		
+
 		tempOffset++;
-		
+
 		if (tempByte > 0)
 		{
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "VLAN Name: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tempByte));
 		}
-		
+
 		break;
 	}
 	case 0x04:	/* Protocol ID */
@@ -1284,20 +1284,20 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Protocol Identity Length: %u", tempByte);
-		
+
 		tempOffset++;
-		
+
 		if (tempByte > 0)
 		{
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "Protocol Identity: %s",
 					tvb_bytes_to_str(tvb, tempOffset, tempByte));
 		}
-		
+
 		break;
 	}
 	}
-	
+
 	return;
 }
 
@@ -1310,20 +1310,20 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint16 tempShort;
 	guint32 tempLong;
 	guint32 tempOffset = offset;
-	
+
 	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*autoneg_advertised_subtree = NULL;
 
 	proto_item 	*tf = NULL;
-	
+
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
-	
+
 	if (tree)
 		proto_tree_add_item(tree, hf_ieee_802_3_subtype, tvb, tempOffset, 1, FALSE);
-		
+
 	tempOffset++;
-	
+
 	switch (subType)
 	{
 	case 0x01:	/* MAC/PHY Configuration/Status */
@@ -1334,18 +1334,18 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Auto-Negotiation Support/Status: 0x%02x", tempByte);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_flags);
-		
+
 			/* Get supported flag */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Auto-Negotiation: Supported", 
+						decode_boolean_bitfield(tempByte, 0x01, 8, "Auto-Negotiation: Supported",
 												"Auto-Negotiation: Not Supported"));
-									
+
 			/* Get enabled flag */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "Auto-Negotiation: Enabled", 
+						decode_boolean_bitfield(tempByte, 0x02, 8, "Auto-Negotiation: Enabled",
 												"Auto-Negotiation: Not Enabled"));
 		}
-		
+
 		tempOffset++;
 
 		/* Get pmd auto-negotiation advertised capability */
@@ -1436,18 +1436,18 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 							16, "other or unknown", ""));
 
 		}
-			
+
 		tempOffset += 2;
-		
+
 		/* Get operational MAU type */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Operational MAU Type: %s (0x%04X)",
 							val_to_str(tempShort,operational_mau_type_values,"Unknown"),
 							tempShort);
-			
+
 		tempOffset += 2;
-		
+
 		break;
 	}
 	case 0x02:	/* MDI Power Support */
@@ -1458,44 +1458,44 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "MDI Power Support: 0x%02x", tempByte);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_power);
-		
+
 			/* Get port class */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Port Class: PSE", 
+						decode_boolean_bitfield(tempByte, 0x01, 8, "Port Class: PSE",
 												"Port Class: PD"));
-									
+
 			/* Get PSE MDI power support */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "PSE MDI Power: Supported", 
+						decode_boolean_bitfield(tempByte, 0x02, 8, "PSE MDI Power: Supported",
 												"PSE MDI Power: Not Supported"));
-											
+
 			/* Get PSE MDI power state */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x04, 8, "PSE MDI Power Enabled: Yes", 
+						decode_boolean_bitfield(tempByte, 0x04, 8, "PSE MDI Power Enabled: Yes",
 												"PSE MDI Power Enabled: No"));
-												
+
 			/* Get PSE pairs control ability */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x08, 8, "PSE Pairs Control Ability: Yes", 
+						decode_boolean_bitfield(tempByte, 0x08, 8, "PSE Pairs Control Ability: Yes",
 												"PSE Pairs Control Ability: No"));
 		}
-		
+
 		tempOffset++;
-		
+
 		/* Get PSE power pair */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "PSE Power Pair: %u", tempByte);
-			
+
 		tempOffset++;
-		
+
 		/* Get power class */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Class: %u", tempByte);
-			
+
 		tempOffset++;
-		
+
 		break;
 	}
 	case 0x03:	/* Link Aggregation */
@@ -1506,27 +1506,27 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		{
 			tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Aggregation Status: 0x%02x", tempByte);
 			mac_phy_flags = proto_item_add_subtree(tf, ett_802_3_aggregation);
-		
+
 			/* Get aggregation capability */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x01, 8, "Aggregation Capability: Yes", 
+						decode_boolean_bitfield(tempByte, 0x01, 8, "Aggregation Capability: Yes",
 												"Aggregation Capability: No"));
-									
+
 			/* Get aggregation status */
 			proto_tree_add_text(mac_phy_flags, tvb, tempOffset, 1, "%s",
-						decode_boolean_bitfield(tempByte, 0x02, 8, "Aggregation Status: Enabled", 
+						decode_boolean_bitfield(tempByte, 0x02, 8, "Aggregation Status: Enabled",
 												"Aggregation Status: Not Enabled"));
 		}
-		
+
 		tempOffset++;
-		
+
 		/* Get aggregated port id */
 		tempLong = tvb_get_ntohl(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 4, "Aggregated Port Id: %u", tempLong);
-			
+
 		tempOffset += 4;
-		
+
 		break;
 	}
 	case 0x04:	/* Maximum Frame Size */
@@ -1535,13 +1535,13 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Maximum Frame Size: %u", tempShort);
-			
+
 		tempOffset += 2;
-		
-		break; 
+
+		break;
 	}
 	}
-		
+
 	return;
 }
 
@@ -1558,17 +1558,17 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	const char *strPtr;
 	guint32 LCI_Length;
 	guint64 temp64bit = 0;
-	
+
 	proto_tree	*media_flags = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
 	if (tree)
 		proto_tree_add_item(tree, hf_media_tlv_subtype, tvb, tempOffset, 1, FALSE);
 	tempOffset++;
 	tlvLen--;
-	
+
 	switch (subType)
 	{
 	case 1:		/* LLDP-MED Capabilities */
@@ -1586,32 +1586,32 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			media_flags = proto_item_add_subtree(tf, ett_media_capabilities);
 			if (tempShort & MEDIA_CAPABILITY_LLDP)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LLDP, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LLDP, 16,
 												"LLDP-MED Capabilities", ""));
 			if (tempShort & MEDIA_CAPABILITY_NETWORK_POLICY)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_NETWORK_POLICY, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_NETWORK_POLICY, 16,
 												"Network Policy", ""));
 			if (tempShort & MEDIA_CAPABILITY_LOCATION_ID)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LOCATION_ID, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_LOCATION_ID, 16,
 												"Location Identification", ""));
 			if (tempShort & MEDIA_CAPABILITY_MDI_PSE)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PSE, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PSE, 16,
 												"Extended Power via MDI-PSE", ""));
 			if (tempShort & MEDIA_CAPABILITY_MDI_PD)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PD, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_MDI_PD, 16,
 												"Extended Power via MDI-PD", ""));
 			if (tempShort & MEDIA_CAPABILITY_INVENTORY)
 				proto_tree_add_text(media_flags, tvb, tempOffset, 2, "%s",
-						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_INVENTORY, 16, 
+						decode_boolean_bitfield(tempShort, MEDIA_CAPABILITY_INVENTORY, 16,
 												"Inventory", ""));
 		}
 		tempOffset += 2;
 		tlvLen -= 2;
-		
+
 		/* Get Class type */
 		if (tlvLen < 1)
 		{
@@ -1623,7 +1623,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "Class Type: %s", val_to_str(tempByte, media_class_values, "Unknown"));
 		tempOffset++;
 		tlvLen--;
-	
+
 		break;
 	}
 	case 2:		/* Network Policy */
@@ -1636,11 +1636,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Applicaton Type: %s (%u)", 
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Applicaton Type: %s (%u)",
 							val_to_str(tempByte, media_application_type, "Unknown"), tempByte);
 		tempOffset++;
 		tlvLen--;
-		
+
 		/* Get flags */
 		if (tlvLen < 2)
 		{
@@ -1648,17 +1648,17 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			return;
 		}
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
-		
+
 		/* Unknown policy flag */
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
 						decode_boolean_bitfield(tempShort, 0x8000, 16,"Policy: Unknown", "Policy: Defined"));
-		
+
 		/* Tagged flag */
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s",
 						decode_boolean_bitfield(tempShort, 0x4000, 16,"Tagged: Yes", "Tagged: No"));
-						
+
 		/* Get vlan id */
 		tempVLAN = (tempShort & 0x1FFE) >> 1;
 		if (tree)
@@ -1666,7 +1666,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 						decode_boolean_bitfield(tempShort, 0x1FFE, 16, "VLAN Id:", "VLAN Id:"), tempVLAN);
 		tempOffset++;
 		tlvLen--;
-		
+
 		/* Get L2 priority */
 		if (tlvLen < 1)
 		{
@@ -1676,18 +1676,18 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",
-						decode_boolean_bitfield(tempShort, 0x01C0, 16, "L2 Priority:", "L2 Priority:"), 
+						decode_boolean_bitfield(tempShort, 0x01C0, 16, "L2 Priority:", "L2 Priority:"),
 												((tempShort & 0x01C0) >> 6));
 		tempOffset++;
 		tlvLen--;
-													
+
 		/* Get DSCP value */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-						decode_boolean_bitfield(tempByte, 0x3F, 8, "DSCP Value:", "DSCP Value:"), 
+						decode_boolean_bitfield(tempByte, 0x3F, 8, "DSCP Value:", "DSCP Value:"),
 												(tempByte & 0x3F));
-		
+
 		break;
 	}
 	case 3:	/* Location Identification */
@@ -1700,11 +1700,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Location Data Format: %s (%u)", 
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Location Data Format: %s (%u)",
 							val_to_str(tempByte, location_data_format, "Unknown"), tempByte);
 		tempOffset++;
 		tlvLen--;
-		
+
 		switch (tempByte)
 		{
 		case 1:	/* Coordinate-based LCI */
@@ -1719,29 +1719,29 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
 				return;
 			}
-			
+
 			/* Get latitude resolution */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-						decode_boolean_bitfield(tempByte, 0xFC, 8, "Latitude Resolution:", "Latitude Resolution:"), 
+						decode_boolean_bitfield(tempByte, 0xFC, 8, "Latitude Resolution:", "Latitude Resolution:"),
 												((tempByte & 0xFC) >> 2));
-												
+
 			/* Get latitude */
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" PRIX64 ")", 
+				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" PRIX64 ")",
 				    get_latitude_or_longitude(0, temp64bit),
 				    temp64bit);
-				
+
 			tempOffset += 5;
-			
+
 			/* Get longitude resolution */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %u",
-					decode_boolean_bitfield(tempByte, 0xFC, 8, "Longitude Resolution:", "Longitude Resolution:"), 
+					decode_boolean_bitfield(tempByte, 0xFC, 8, "Longitude Resolution:", "Longitude Resolution:"),
 											((tempByte & 0xFC) >> 2));
 
 			/* Get longitude */
@@ -1749,19 +1749,19 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			;
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" PRIX64 ")", 
+				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" PRIX64 ")",
 				    get_latitude_or_longitude(1,temp64bit),
 				    temp64bit);
-				
+
 			tempOffset += 5;
-			
+
 			/* Altitude Type */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
 			{
 				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "%s",
 						decode_boolean_bitfield(tempByte, 0xF0, 8, "Altitude Type: ", "Altitude Type: "));
-				
+
 				switch ((tempByte >> 4))
 				{
 				case 1:
@@ -1775,28 +1775,28 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					break;
 				}
 			}
-			
+
 			/* Get Altitude Resolution */
 			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 2, "%s %u",
 						decode_boolean_bitfield(tempShort, 0x0FC0, 16, "Altitude Resolution: ", "Altitude Type: "),
 						((tempShort & 0x0FC0) >> 6));
-						
+
 			tempOffset++;
-			
+
 			/* Get Altitude */
 			tempLong = (tvb_get_ntohl(tvb, tempOffset) & 0x03FFFFFFF);
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 4, "Altitude: 0x%08X", tempLong);
-				
+
 			tempOffset += 4;
-			
+
 			/* Get datum */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "Datum: %u", tempByte);	
-			
+				proto_tree_add_text(tree, tvb, tempOffset, 1, "Datum: %u", tempByte);
+
 			break;
 		}
 		case 2: /* Civic Address LCI */
@@ -1811,25 +1811,25 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
 				return;
 			}
-			
+
 			/* Get LCI length */
 			tempByte = tvb_get_guint8(tvb, tempOffset);
 			tlvLen--;
 			if (tempByte > tlvLen)
 			{
 				if (tree)
-					proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u (greater than TLV length)", tempByte); 
-					
+					proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u (greater than TLV length)", tempByte);
+
 				return;
 			}
-			
+
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u", tempByte); 
-				
+				proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u", tempByte);
+
 			LCI_Length = (guint32)tempByte;
-				
+
 			tempOffset++;
-			
+
 			/* Get what value */
 			if (LCI_Length < 1)
 			{
@@ -1843,7 +1843,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 									tempByte);
 			tempOffset++;
 			LCI_Length--;
-			
+
 			/* Get country code */
 			if (LCI_Length < 2)
 			{
@@ -1853,10 +1853,10 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			if (tree)
 				proto_tree_add_text(tree, tvb, tempOffset, 2, "Country: %s",
 				    tvb_format_text(tvb, tempOffset, 2));
-				
+
 			tempOffset += 2;
 			LCI_Length -= 2;
-			
+
 			while (LCI_Length > 0)
 			{
 				/* Get CA Type */
@@ -1870,10 +1870,10 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 					proto_tree_add_text(tree, tvb, tempOffset, 1, "CA Type: %s (%u)",
 									val_to_str(tempByte,civic_address_type_values,"Unknown"),
 									tempByte);
-									
+
 				tempOffset++;
 				LCI_Length--;
-				
+
 				/* Get CA Length */
 				if (LCI_Length < 1)
 				{
@@ -1883,26 +1883,26 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				tempByte = tvb_get_guint8(tvb, tempOffset);
 				if (tree)
 					proto_tree_add_text(tree, tvb, tempOffset, 1, "CA Length: %u", tempByte);
-				
+
 				tempOffset++;
 				LCI_Length--;
-				
+
 				/* Make sure the CA value is within the specified length */
 				if (tempByte > LCI_Length)
 					return;
-				
+
 				if (tempByte > 0)
 				{
 					/* Get CA Value */
 					if (tree)
 						proto_tree_add_text(tree, tvb, tempOffset, tempByte, "CA Value: %s",
 						    tvb_format_stringzpad(tvb, tempOffset, tempByte));
-				
+
 					tempOffset += tempByte;
 					LCI_Length -= tempByte;
 				}
 			}
-		
+
 			break;
 		}
 		case 3: /* ECS ELIN */
@@ -1912,42 +1912,42 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				if (tree)
 					proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "ELIN: %s",
 					    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
-					
+
 			}
-		
+
 			break;
 		}
 		}
-		
+
 		break;
 	}
 	case 4: /* Extended Power-via-MDI */
 	{
 		/* Get first byte */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
-		
+
 		/* Determine power type */
 		subType = ((tempByte & 0xC0) >> 6);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"), 
+						decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
 												val_to_str(subType, media_power_type, "Unknown"));
-				
-		/* Determine power source */								
+
+		/* Determine power source */
 		switch (subType)
 		{
 		case 0:
 		{
 			subType = ((tempByte & 0x30) >> 4);
 			strPtr = val_to_str(subType, media_power_pse_device, "Reserved");
-			
+
 			break;
 		}
 		case 1:
 		{
 			subType = ((tempByte & 0x30) >> 4);
 			strPtr = val_to_str(subType, media_power_pd_device, "Reserved");
-			
+
 			break;
 		}
 		default:
@@ -1958,23 +1958,23 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		}
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"), 
+						decode_boolean_bitfield(tempByte, 0x30, 8, "Power Source:", "Power Source:"),
 												strPtr);
-						
+
 		/* Determine power priority */
 		subType = (tempByte & 0x0F);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s",
-						decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"), 
+						decode_boolean_bitfield(tempByte, 0x0F, 8, "Power Priority:", "Power Priority:"),
 												val_to_str(subType, media_power_priority, "Reserved"));
-							
+
 		tempOffset++;
-							
+
 		/* Get power value */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 2, "Power Value: %u", tempShort);
-								
+
 		break;
 	}
 	case 5:	/* Hardware Revision */
@@ -1986,7 +1986,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Hardware Revision: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 6:	/* Firmware Revision */
@@ -1998,7 +1998,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Firmware Revision: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 7:	/* Software Revision */
@@ -2010,7 +2010,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Software Revision: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 8:	/* Serial Number */
@@ -2022,7 +2022,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Serial Number: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 9:	/* Manufacturer Name */
@@ -2034,7 +2034,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Manufacturer Name: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 10:	/* Model Name */
@@ -2046,7 +2046,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Model Name: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	case 11:	/* Asset ID */
@@ -2058,11 +2058,11 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Asset ID: %s",
 				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
 		}
-		
+
 		break;
 	}
 	}
-	
+
 	return;
 }
 
@@ -2106,13 +2106,13 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	e_guid_t * uuid;
 	guint16 mrrt_PortStatus;
 
-	
+
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, offset);
 	if (tree)
 		proto_tree_add_uint(tree, hf_profinet_tlv_subtype, tvb, offset, 1, subType);
 	offset++;
-	
+
 	switch (subType)
 	{
 	case 1:		/* Measured delay values */
@@ -2234,20 +2234,20 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint8 subType;
 	const char *ouiStr;
 	const char *subTypeStr;
-	
+
 	proto_tree	*org_tlv_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-	
+
 	/* Get OUI value */
 	oui = tvb_get_ntoh24(tvb, (offset+2));
 	subType = tvb_get_guint8(tvb, (offset+5));
-	
+
 	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
 	switch(oui)
 	{
@@ -2267,13 +2267,13 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = "Unknown";
 		break;
 	}
-	
+
 	if (tree)
 	{
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "%s - %s",
 		    ouiStr, subTypeStr);
 		org_tlv_tree = proto_item_add_subtree(tf, ett_org_spc_tlv);
-		
+
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 	}
 	if (tempLen < 4)
@@ -2281,17 +2281,17 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		if (tree)
 			proto_tree_add_uint_format(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2,
 			    tempShort, "TLV Length: %u (too short, must be >= 4)", tempLen);
-			
+
 		return (tempLen + 2);
 	}
 	if (tree)
 	{
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
-		
+
 		/* Display organizational unique id */
 		proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, (offset+2), 3, oui);
 	}
-	
+
 	switch (oui)
 	{
 	case OUI_IEEE_802_1:
@@ -2309,7 +2309,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	default:
 		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), FALSE);
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -2319,25 +2319,25 @@ dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
 	guint16 tempLen;
 	guint16 tempShort;
-	
+
 	proto_tree	*unknown_tlv_tree = NULL;
 	proto_item 	*tf = NULL;
-	
+
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
-		
+
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-	
+
 	if (tree)
 	{
 		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Unknown TLV");
 		unknown_tlv_tree = proto_item_add_subtree(tf, ett_unknown_tlv);
-		
+
 		proto_tree_add_item(unknown_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, FALSE);
 		proto_tree_add_item(unknown_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, FALSE);
 	}
-	
+
 	return (tempLen + 2);
 }
 
@@ -2348,87 +2348,87 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *lldp_tree = NULL;
-	
+
 	guint32 offset = 0;
 	gint32 rtnValue = 0;
 	guint16 tempShort;
 	guint8 tempType;
 	gboolean reachedEnd = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLDP");
-		
+
 	/* Clear the information column on summary display */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_clear(pinfo->cinfo, COL_INFO);
 	}
 
-	if (tree) 
+	if (tree)
 	{
 		ti = proto_tree_add_item(tree, proto_lldp, tvb, offset, -1, FALSE);
 		lldp_tree = proto_item_add_subtree(ti, ett_lldp);
 	}
-	
+
 	/* Get chassis id tlv */
 	rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
-			
+
 		return;
 	}
-	
+
 	offset += rtnValue;
-	
+
 	/* Get port id tlv */
 	rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
-			
+
 		return;
 	}
-	
+
 	offset += rtnValue;
-	
+
 	/* Get time to live tlv */
 	rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
 	if (rtnValue < 0)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
-			
+
 		return;
 	}
-	
+
 	offset += rtnValue;
-	
+
 	/* Dissect optional tlv's until end-of-lldpdu is reached */
 	while (!reachedEnd)
 	{
 		tempShort = tvb_get_ntohs(tvb, offset);
 		tempType = TLV_TYPE(tempShort);
-		
+
 		switch (tempType)
 		{
 		case CHASSIS_ID_TLV_TYPE:
 			rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate chassis id tlv */
-			if (check_col(pinfo->cinfo, COL_INFO)) 
+			if (check_col(pinfo->cinfo, COL_INFO))
 				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
 			break;
 		case PORT_ID_TLV_TYPE:
 			rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate port id tlv */
-			if (check_col(pinfo->cinfo, COL_INFO)) 
+			if (check_col(pinfo->cinfo, COL_INFO))
 				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
 			rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
-			if (check_col(pinfo->cinfo, COL_INFO)) 
+			if (check_col(pinfo->cinfo, COL_INFO))
 				col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
 			break;
 		case END_OF_LLDPDU_TLV_TYPE:
@@ -2454,13 +2454,13 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			rtnValue = dissect_lldp_unknown_tlv(tvb, pinfo, lldp_tree, offset);
 			break;
 		}
-		
+
 		if (rtnValue < 0)
 			reachedEnd = TRUE;
 		else
 			offset += rtnValue;
 	}
-	
+
 }
 
 /* Register the protocol with Wireshark */
@@ -2470,71 +2470,71 @@ proto_register_lldp(void)
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_lldp_tlv_type,
-			{ "TLV Type", "lldp.tlv.type", FT_UINT16, BASE_DEC, 
+			{ "TLV Type", "lldp.tlv.type", FT_UINT16, BASE_DEC,
 			VALS(tlv_types), TLV_TYPE_MASK, "", HFILL }
 		},
 		{ &hf_lldp_tlv_len,
-			{ "TLV Length", "lldp.tlv.len", FT_UINT16, BASE_DEC, 
+			{ "TLV Length", "lldp.tlv.len", FT_UINT16, BASE_DEC,
 			NULL, TLV_INFO_LEN_MASK, "", HFILL }
 		},
 		{ &hf_chassis_id_subtype,
-			{ "Chassis Id Subtype", "lldp.chassis.subtype", FT_UINT8, BASE_DEC, 
+			{ "Chassis Id Subtype", "lldp.chassis.subtype", FT_UINT8, BASE_DEC,
 			VALS(chassis_id_subtypes), 0, "", HFILL }
 		},
 		{ &hf_chassis_id,
-			{ "Chassis Id", "lldp.chassis.id", FT_BYTES, BASE_HEX, 
+			{ "Chassis Id", "lldp.chassis.id", FT_BYTES, BASE_HEX,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_chassis_id_mac,
-			{ "Chassis Id", "lldp.chassis.id.mac", FT_ETHER, BASE_NONE, 
+			{ "Chassis Id", "lldp.chassis.id.mac", FT_ETHER, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_chassis_id_ip4,
-			{ "Chassis Id", "lldp.chassis.id.ip4", FT_IPv4, BASE_NONE, 
+			{ "Chassis Id", "lldp.chassis.id.ip4", FT_IPv4, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_chassis_id_ip6,
-			{ "Chassis Id", "lldp.chassis.id.ip6", FT_IPv6, BASE_NONE, 
+			{ "Chassis Id", "lldp.chassis.id.ip6", FT_IPv6, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_port_id_subtype,
-			{ "Port Id Subtype", "lldp.port.subtype", FT_UINT8, BASE_DEC, 
+			{ "Port Id Subtype", "lldp.port.subtype", FT_UINT8, BASE_DEC,
 			VALS(port_id_subtypes), 0, "", HFILL }
 		},
 		{ &hf_port_id_mac,
-			{ "Port Id", "lldp.port.id.mac", FT_ETHER, BASE_NONE, 
+			{ "Port Id", "lldp.port.id.mac", FT_ETHER, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_lldp_network_address_family,
-			{ "Network Address family", "lldp.network_address.subtype", FT_UINT8, BASE_DEC, 
+			{ "Network Address family", "lldp.network_address.subtype", FT_UINT8, BASE_DEC,
 			VALS(afn_vals), 0, "Network Address family", HFILL }
 		},
 		{ &hf_port_id_ip4,
-			{ "Port Id", "lldp.port.id.ip4", FT_IPv4, BASE_NONE, 
+			{ "Port Id", "lldp.port.id.ip4", FT_IPv4, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_port_id_ip6,
-			{ "Port Id", "lldp.port.id.ip6", FT_IPv6, BASE_NONE, 
+			{ "Port Id", "lldp.port.id.ip6", FT_IPv6, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_time_to_live,
-			{ "Seconds", "lldp.time_to_live", FT_UINT16, BASE_DEC, 
+			{ "Seconds", "lldp.time_to_live", FT_UINT16, BASE_DEC,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_mgn_addr_ipv4,
-			{ "Management Address", "lldp.mgn.addr.ip4", FT_IPv4, BASE_NONE, 
+			{ "Management Address", "lldp.mgn.addr.ip4", FT_IPv4, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_mgn_addr_ipv6,
-			{ "Management Address", "lldp.mgn.addr.ip6", FT_IPv6, BASE_NONE, 
+			{ "Management Address", "lldp.mgn.addr.ip6", FT_IPv6, BASE_NONE,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_mgn_addr_hex,
-			{ "Management Address", "lldp.mgn.addr.hex", FT_BYTES, BASE_HEX, 
+			{ "Management Address", "lldp.mgn.addr.hex", FT_BYTES, BASE_HEX,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_mgn_obj_id,
-			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_HEX, 
+			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_HEX,
 			NULL, 0, "", HFILL }
 		},
 		{ &hf_org_spc_oui,
@@ -2646,7 +2646,7 @@ proto_register_lldp(void)
 	   		NULL, 0x0, "", HFILL }
 		},
 	};
-	
+
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_lldp,
