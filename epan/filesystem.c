@@ -1144,6 +1144,10 @@ file_open_error_message(int err, gboolean for_writing)
 		break;
 #endif
 
+	case EINVAL:
+		errmsg = "The file \"%s\" could not be created because an invalid filename was specified.";
+		break;
+
 	default:
 		g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 				"The file \"%%s\" could not be %s: %s.",
