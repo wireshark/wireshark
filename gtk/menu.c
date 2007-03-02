@@ -2118,6 +2118,8 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
       !capture_in_progress);
   set_menu_sensitivity(main_menu_factory, "/File/Open Recent",
       !capture_in_progress);
+  set_menu_sensitivity(main_menu_factory, "/File/Export",
+       capture_in_progress);
 #ifdef HAVE_LIBPCAP
   set_menu_sensitivity(main_menu_factory, "/Capture/Options...",
       !capture_in_progress);
