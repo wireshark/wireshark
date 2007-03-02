@@ -20,10 +20,12 @@ COPY	= xcopy
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y
 
+U3_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
+
 all:	package
 
 manifest.u3i:	manifest.tmpl $(TOPDIR)\config.nmake
-	sed -e 's/$$(VERSION)/$(VERSION)/g' < manifest.tmpl > manifest.u3i
+	sed -e 's/$$(VERSION)/$(U3_VERSION)/g' < manifest.tmpl > manifest.u3i
 
 host-dirs:
 	if not exist $(HOST) $(MKDIR) $(HOST)
