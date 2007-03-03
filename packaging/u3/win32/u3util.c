@@ -53,7 +53,12 @@
 
 #define MY_CAPTURES          "\\My Captures"
 
-#define BUFSIZ          256
+#define BUFSIZ              256
+#define FILEBUFSIZ          4096
+
+#define ENV_FILENAME        "\\u3_environment.txt"
+#define U3UTIL_APPSTART     "\\u3util.exe appStart %1"
+#define WIRESHARK_EXE       "\\wireshark.exe"
 
 static char *extensions[] = {
   ".5vw",
@@ -85,6 +90,21 @@ static char *extensions[] = {
   ".p7s",
   ".p7m",
   NULL
+};
+
+static char *environmentvars[] = {
+  "U3_DEVICE_SERIAL",
+  "U3_DEVICE_PATH",
+  "U3_DEVICE_DOCUMENT_PATH",
+  "U3_DEVICE_VENDOR",
+  "U3_DEVICE_PRODUCT",
+  "U3_DEVICE_VENDOR_ID",
+  "U3_APP_DATA_PATH",
+  "U3_HOST_EXEC_PATH",
+  "U3_DEVICE_EXEC_PATH",
+  "U3_ENV_VERSION",
+  "U3_ENV_LANGUAGE",
+  NULL,
 };
 
 #define TA_FAILED 0
@@ -288,7 +308,74 @@ void ExecuteAndWait(char *buffer)
 
   }
 }
-/* This is the new function */
+
+void app_start(int argc, char *argv[])
+{
+  char *u3hostexecpath;
+  char *envvar;
+  char *end;
+  char buffer[BUFSIZ+1];
+  char inBuffer[FILEBUFSIZ+1];
+  HANDLE *file;
+  DWORD numRead = 0;
+  int i;
+
+  /* read any environment variables that may be set as we are probably running this from a file association */
+
+  buffer[0] = '\0';
+  strncat(buffer, argv[0], strlen(argv[0]) + 1);
+  
+  /* truncate at last \\ */
+  if(end = strrchr(buffer, '\\')) 
+    *end = '\0';
+
+  strncat(buffer, ENV_FILENAME, strlen(ENV_FILENAME) + 1);
+
+  /* open the file */
+  if((file = CreateFile(buffer, FILE_READ_DATA, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
+
+    /* read the whole file in in one go */
+    if(ReadFile(file, &inBuffer, FILEBUFSIZ, &numRead, NULL) != 0) {
+      /* we were successful - parse the lines */
+      inBuffer[numRead] = '\0'; /* null terminate the data */
+
+      envvar = inBuffer;
+
+      while(end = strchr(envvar, '\n')) {
+	/* we have a line */
+	*end++ = '\0';
+	
+	_putenv(envvar);
+
+	/* point the next envar to the end */
+	envvar = end;
+      }
+    }
+
+    /* close the file */
+    CloseHandle(file);
+
+  } 
+
+  /* exec wireshark */
+  if((u3hostexecpath = getenv("U3_HOST_EXEC_PATH")) != NULL) {
+
+    buffer[0] = '\0';
+    strncat(buffer, u3hostexecpath, strlen(u3hostexecpath) + 1);
+    strncat(buffer, WIRESHARK_EXE, strlen(WIRESHARK_EXE) + 1);
+ 
+    /* copy the remaining arguments across */
+    for(i = 2; i < argc; i++) {
+      strncat(buffer, " ", 2);
+      strncat(buffer, argv[i], strlen(argv[i]) + 1);
+    }
+
+    ExecuteAndWait(buffer);
+
+  }
+
+}
+
 
 void app_stop(DWORD timeOut)
 {
@@ -359,6 +446,55 @@ void associate(char *extension)
 
 }
 
+BOOL save_environment()
+{
+  char **envptr;
+  char *envval;
+  HANDLE *file;
+  char buffer[BUFSIZ+1];
+  DWORD  buflen;
+  DWORD  numWritten;
+  BOOL   retval = FALSE;
+
+  envval = getenv("U3_HOST_EXEC_PATH");
+
+  buffer[0] = '\0';
+  strncat(buffer, envval, strlen(envval) + 1);
+  strncat(buffer, ENV_FILENAME, strlen(ENV_FILENAME) + 1);
+
+  /* open the file */
+  if((file = CreateFile(buffer, FILE_WRITE_DATA, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL)) != INVALID_HANDLE_VALUE) {
+
+    for(envptr = environmentvars; *envptr; envptr++) {
+
+      if(envval = getenv(*envptr)) {
+	/* write it out */
+	
+	buffer[0] = '\0';
+	strncat(buffer, *envptr, strlen(*envptr) + 1);
+	strncat(buffer, "=", 2);
+	strncat(buffer, envval, strlen(envval) + 1);
+	strncat(buffer, "\n", 2);
+
+	buflen = strlen(buffer);
+
+	WriteFile(file, buffer, buflen, &numWritten, NULL);
+      }
+      
+    }
+
+    /* close the file */
+    CloseHandle(file);
+    
+    retval = TRUE;
+
+  } 
+
+  return retval;
+
+}
+
+
 /* disassociate
 
 Remove any file types that are associated with the U3 Wireshark (which is being removed)
@@ -417,11 +553,6 @@ void host_configure(void)
   int  buflen = BUFSIZ;
   boolean hasWinPcap = FALSE;
 
-  /* compute the U3 path to wireshark */
-  u3_host_exec_path = getenv("U3_HOST_EXEC_PATH");
-  strncpy(wireshark_path, u3_host_exec_path, strlen(u3_host_exec_path) + 1);
-  strncat(wireshark_path, "\\wireshark.exe", 15);
-
   /* CREATE THE U3 Wireshark TYPE */
   if(RegCreateKeyEx(HKEY_CLASSES_ROOT, WIRESHARK_ASSOC, 0, NULL, 0,
 		    (KEY_READ | KEY_WRITE), NULL, &key, &disposition) == ERROR_SUCCESS) {
@@ -430,6 +561,11 @@ void host_configure(void)
 
     RegCloseKey(key);
   }
+
+  /* compute the U3 path to wireshark */
+  u3_host_exec_path = getenv("U3_HOST_EXEC_PATH");
+  strncpy(wireshark_path, u3_host_exec_path, strlen(u3_host_exec_path) + 1);
+  strncat(wireshark_path, U3UTIL_APPSTART, strlen(U3UTIL_APPSTART) + 1);
 
   strncpy(reg_key, WIRESHARK_ASSOC, strlen(WIRESHARK_ASSOC) + 1);
   strncat(reg_key, SHELL_OPEN_COMMAND, strlen(SHELL_OPEN_COMMAND) + 1);
@@ -448,6 +584,8 @@ void host_configure(void)
   strncat(reg_key, DEFAULT_ICON, strlen(DEFAULT_ICON) + 1);
 
   /* the icon is in the exe */
+  strncpy(wireshark_path, u3_host_exec_path, strlen(u3_host_exec_path) + 1);
+  strncat(wireshark_path, WIRESHARK_EXE, strlen(WIRESHARK_EXE) + 1);
   strncat(wireshark_path, ",1", 3);
 
   /* associate the application */
@@ -514,6 +652,8 @@ void host_configure(void)
   /* don't care if it succeeds or fails */
   (void) CreateDirectory(my_captures_path, NULL);
 
+  /* Save the environment so we can use it in the file assocation */
+  save_environment();
 }
 
 /* host_cleanup
@@ -629,6 +769,8 @@ main(int argc, char *argv[])
 
     if(!strncmp(argv[1], "hostConfigure", 13))
       host_configure();
+    else if(!strncmp(argv[1], "appStart", 9))
+      app_start(argc, argv);
     else if(!strncmp(argv[1], "appStop", 8))
       app_stop(time_out);
     else if(!strncmp(argv[1], "hostCleanUp", 11))
