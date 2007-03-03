@@ -4982,6 +4982,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8028):   /* RecordInputDataObjectElement for one subslot */
     case(0x8029):   /* RecordOutputDataObjectElement for one subslot */
     case(0x8050):   /* PDInterfaceMrpDataReal for one subslot */
+    case(0x8051):   /* PDInterfaceMrpDataCheck for one subslot */
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
     case(0x8054):   /* PDPortMrpDataReal for one subslot */
@@ -5014,7 +5015,6 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xc013):   /* Maintenance demanded in all codings for one slot */
 
     case(0xe002):   /* ModuleDiffBlock for one AR */
-    case(0xe00c):   /* Diagnosis, Maintenance, Qualified and Status for one AR */
     case(0xe010):   /* Maintenance required in channel coding for one AR */
     case(0xe011):   /* Maintenance demanded in channel coding for one AR */
     case(0xe012):   /* Maintenance required in all codings for one AR */
@@ -5089,6 +5089,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xe001):   /* RealIdentificationData for one AR */
     case(0xe00a):   /* Diagnosis in channel decoding for one AR */
     case(0xe00b):   /* Diagnosis in all codings for one AR */
+    case(0xe00c):   /* Diagnosis, Maintenance, Qualified and Status for one AR */
     case(0xe030):   /* IsochronousModeData for one AR */
 
     case(0xf000):   /* RealIdentificationData for one API */
