@@ -2115,7 +2115,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 
 	switch (subType)
 	{
-	case 1:		/* Measured delay values */
+	case 1:		/* LLDP_PNIO_DELAY */
 	{
 		port_rx_delay_local = tvb_get_ntohl(tvb, offset);
 		tf = proto_tree_add_uint(tree, hf_profinet_port_rx_delay_local, tvb, offset, 4, port_rx_delay_local);
@@ -2159,7 +2159,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		offset+=4;
 		break;
 	}
-	case 2:		/* Port status */
+	case 2:		/* LLDP_PNIO_PORTSTATUS */
 	{
 		class2_PortStatus = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_profinet_class2_port_status, tvb, offset, 2, class2_PortStatus);
@@ -2169,8 +2169,8 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		offset+=2;
 		break;
 	}
-	/*case 3:*/		/* XXX - Alias */
-	case 4:		/* MRP Port Status */
+	/*case 3:*/	/* XXX - LLDP_PNIO_ALIAS */
+	case 4:		/* LLDP_PNIO_MRPPORTSTATUS */
 	{
 	    /* DomainUUID */
 	    tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
@@ -2183,14 +2183,14 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 	    offset+=2;
 	    break;
 	}
-    case 5:     /* Chassis MAC */
+    case 5:     /* LLDP_PNIO_CHASSIS_MAC */
     {
 	mac_addr=tvb_get_ptr(tvb, offset, 6);
 	proto_tree_add_ether(tree, hf_profinet_cm_mac, tvb, offset, 6, mac_addr);
         offset += 6;
         break;
     }
-    case 6:     /* PTCP status */
+    case 6:     /* LLDP_PNIO_PTCPSTATUS */
     {
 	    /* MasterSourceAddress */
 	    mac_addr=tvb_get_ptr(tvb, offset, 6);
