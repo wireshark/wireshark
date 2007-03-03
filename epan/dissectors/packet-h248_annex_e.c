@@ -160,7 +160,7 @@ static h248_package_t h248_pkg_root = {
 	NULL,
 	NULL
 };
-/**/
+*/
 
 /* H.248.1 E.3  Tone Generator Package
 static int hf_h248_pkg_tonegen = -1;

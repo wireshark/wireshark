@@ -1056,31 +1056,18 @@ static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, N
 
 static GPtrArray* packages = NULL;
 
-extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u _U_, void* dissector_hdl) {
+extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u1 _U_, void* u2 _U_) {
   tvbuff_t *new_tvb = NULL;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
   int old_offset;
   const h248_package_t* pkg = NULL;
   guint i;
-  gint8 class;
-  gboolean pc, ind;
-  gint32 tag;
-  guint32 len;
   int offset = 0;
   
 	old_offset=offset;
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
-
-	if( (class!=BER_CLASS_UNI)
-	  ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
-		return;
-	}
-
-	new_tvb = tvb_new_subset(tvb,offset,len,len);
-	
+	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hfid , &new_tvb);
+  	
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
     name_major=tvb_get_ntohs(new_tvb, 0);
@@ -1117,7 +1104,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 		strval = ep_strdup_printf("Unknown (%d)",name_minor);
 	}
 
-	proto_item_set_text(pi,"Parameter: %s", strval);
+	proto_item_set_text(pi,"Signal ID: %s", strval);
 	}
 	
   }
@@ -1261,7 +1248,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	{
 		proto_item* pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 		const gchar* strval;
-	
+		
 		if (pkg->param_names && ( strval = match_strval(name_minor, pkg->param_names) )) {
 			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 		} else {
@@ -1337,7 +1324,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
 		proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_event_code, tvb, offset-2, 2, name_minor);
 		const gchar* strval;
 	
-		if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+		if (pkg->event_names && ( strval = match_strval(name_minor, pkg->event_names) )) {
 			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 		} else {
 			strval = ep_strdup_printf("Unknown (%d)",name_minor);
@@ -6445,7 +6432,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1858 "packet-h248-template.c"
+#line 1845 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -7807,7 +7794,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 2003 "packet-h248-template.c"
+#line 1990 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7976,7 +7963,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 2028 "packet-h248-template.c"
+#line 2015 "packet-h248-template.c"
   };
 
   module_t *h248_module;
