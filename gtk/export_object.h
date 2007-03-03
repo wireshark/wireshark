@@ -1,5 +1,5 @@
 /* export_object.h
- * Declarations of routines for tracking & saving content found in HTTP streams
+ * Common routines for tracking & saving objects found in streams of data
  * Copyright 2007, Stephen Fisher <stephentfisher@yahoo.com>
  *
  * $Id$
@@ -28,15 +28,6 @@
 #define __EXPORT_OBJECT_H__
 
 /* Common between protocols */
-enum {
-	EO_PKT_NUM_COLUMN,
-	EO_HOSTNAME_COLUMN,
-	EO_CONTENT_TYPE_COLUMN,
-	EO_BYTES_COLUMN,
-	EO_FILENAME_COLUMN,
-	EO_NUM_COLUMNS /* must be last */
-};
-
 typedef struct _export_object_list_t {
 	GSList *entries;
 	GtkWidget *tree, *dlg;
@@ -55,11 +46,7 @@ typedef struct _export_object_entry_t {
 	guint8 *payload_data;
 } export_object_entry_t;
 
-void eo_remember_row_num(GtkTreeSelection *sel, gpointer data);
-void eo_win_destroy_cb(GtkWindow *win _U_, gpointer data);
-void eo_save_entry_cb(GtkWidget *widget, export_object_entry_t *entry);
-void eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg);
-void eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg);
+void export_object_window(gchar *tapname, tap_packet_cb tap_packet);
 
 /* Protocol specific */
 void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);

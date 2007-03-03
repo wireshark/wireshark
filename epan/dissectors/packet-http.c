@@ -1079,7 +1079,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * be called if something was on some particular port.
 		 */
 
-		/* Save values for Content List -> HTTP GUI feature */
+		/* Save values for the Export Object GUI feature */
 		stat_info->content_type = se_strdup(headers.content_type);
 		stat_info->payload_len = next_tvb->length;
 		stat_info->payload_data = se_memdup(next_tvb->real_data,

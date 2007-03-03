@@ -469,6 +469,9 @@ topic_action(topic_action_e action)
     case(HELP_EXPORT_BYTES_WIN32_DIALOG):
         help_topic_html("ChIOExportSection.html#ChIOExportSelectedDialog");
         break;
+    case(HELP_EXPORT_OBJECT_LIST):
+	help_topic_html("ChIOExportSection.html#ChIOExportObjectsDialog");
+	break;
     case(HELP_OPEN_DIALOG):
     case(HELP_OPEN_WIN32_DIALOG):
         help_topic_html("ChIOOpenSection.html");

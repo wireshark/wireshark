@@ -939,6 +939,86 @@
 	</itemizedlist>	
 	  </para>
   </section>
+	<section id="ChIOExportObjectsDialog">
+	<title>The "Export Objects" dialog box</title>
+	  <para>
+	    This feature scans through HTTP streams in the currently
+	    open capture file or running capture and takes reassembled
+	    objects such as HTML documents, image files, executables
+	    and anything else that can be transferred over HTTP and
+	    lets you save them to disk.  If you have a capture
+	    running, this list is automatically updated every few
+	    seconds with any new objects seen.  The saved objects can then be
+	    opened with the proper viewer or executed in the case of
+	    executables (if it is for the same platform you are
+	    running Wireshark on) without any further work on your
+	    part.
+	  </para>
+    <figure>
+      <title>The "Export Objects" dialog box</title>
+      <graphic entityref="WiresharkExportObjectsDialog" format="PNG"/>
+    </figure>
+    
+	<itemizedlist>
+	  <para>Columns:</para>
+		<listitem><para>
+	  	<command>Packet num:</command> The packet number in
+	  	which this object was found.  In some cases, there can
+	  	be multiple objects in the same packet.
+		</para></listitem>
+
+		<listitem><para>
+		<command>Hostname:</command> The hostname of the
+		server that sent the object as a response to an HTTP request.
+		</para></listitem>
+
+		<listitem><para>
+		<command>Content Type:</command> The HTTP content type
+		of this object.
+		</para></listitem>
+
+		<listitem><para>
+		<command>Bytes:</command> The size of this object in bytes.
+		</para></listitem>
+
+		<listitem><para>
+		<command>Filename:</command> The final part of the URI
+		(after the last slash).  This is typically a filename,
+		but may be a long complex looking string, which
+		typically indicates that the file was received in response to
+		a HTTP POST request.
+		</para></listitem>
+	</itemizedlist>	
+
+	<itemizedlist>
+	  <para>Buttons:</para>
+		<listitem><para>
+	  	<command>Help:</command> Opens this section in the
+	  	user's guide.
+		</para></listitem>
+
+		<listitem><para>
+	  	<command>Close:</command> Closes this dialog.
+		</para></listitem>
+
+		<listitem><para>
+	  	<command>Save As:</command> Saves the currently
+	  	selected object as a filename you specify.  The
+	  	default filename to save as is taken from the filename
+	  	column of the objects list.
+		</para></listitem>
+
+		<listitem><para>
+	  	<command>Save All:</command> Saves all objects in the
+	  	list using the filename from the filename column.  You
+	  	will be asked what directory / folder to save them
+	  	in.  If	the filename is invalid for the operating system /
+	  	file system you are running Wireshark on, then an error
+	  	will appear and that object will not be saved (but all
+	  	of the others will be).
+		</para></listitem>
+	</itemizedlist>
+	</section>
   </section>
 
   <section id="ChIOPrintSection"><title>Printing packets</title>
