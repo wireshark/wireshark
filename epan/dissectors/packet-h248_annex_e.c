@@ -41,10 +41,15 @@ static int hf_h248_pkg_generic = -1;
 static int hf_h248_pkg_generic_cause_evt = -1;
 static int hf_h248_pkg_generic_cause_gencause = -1;
 static int hf_h248_pkg_generic_cause_failurecause = -1;
+static int hf_h248_pkg_generic_sc_evt = -1;
+static int hf_h248_pkg_generic_sc_sig_id = -1;
+static int hf_h248_pkg_generic_sc_meth = -1;
+static int hf_h248_pkg_generic_sc_slid = -1;
+static int hf_h248_pkg_generic_sc_rid = -1;
 
 static gint ett_h248_pkg_generic_cause_evt = -1;
-static gint ett_tdmc = -1;
 static gint ett_h248_pkg_generic = -1;
+static int ett_h248_pkg_generic_sc_evt = -1;
 
 static const value_string h248_pkg_generic_cause_vals[] = {
 	{1, "gencause"},
@@ -53,7 +58,8 @@ static const value_string h248_pkg_generic_cause_vals[] = {
 };
 
 static const value_string h248_pkg_generic_evt_vals[] = {
-	{1, "generic_cause"},
+	{1, "Cause"},
+	{2, "Signal Completion"},
 	{ 0, NULL }
 };
 
@@ -73,11 +79,36 @@ static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
-static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
-	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params, h248_pkg_generic_cause_gencause_vals},
-	{ 0, NULL, NULL, NULL, NULL}
+static const value_string h248_pkg_generic_sc_meth_vals[] = {
+	{0x0001,"SigID"},
+	{0x0002,"Meth"},
+	{0x0003,"SLID"},
+	{0x0004,"RID"},
+	{0,NULL}
 };
 
+static const value_string h248_pkg_generic_sc_vals[] = {
+	{0x0001,"TO - Signal timed out or otherwise completed on its own"},
+	{0x0002,"EV - Interrupted by event"},
+	{0x0003,"SD - Halted by new Signals Descriptor"},
+	{0x0004,"NC - Not completed, other cause"},
+	{0x0005,"PI - First to penultimate iteration"},
+	{0,NULL}
+};
+
+static h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
+	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, NULL },
+	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, NULL },
+	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, NULL },
+	{ 0x0004, &hf_h248_pkg_generic_sc_rid, h248_param_ber_integer, NULL },
+	{ 0, NULL, NULL, NULL}
+};
+
+static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
+	{ 0x0001, &hf_h248_pkg_generic_cause_evt, &ett_h248_pkg_generic_cause_evt, h248_pkg_generic_cause_evt_params, h248_pkg_generic_cause_gencause_vals},
+	{ 0x0002, &hf_h248_pkg_generic_sc_evt, &ett_h248_pkg_generic_sc_evt, h248_pkg_generic_sc_evt_params, h248_pkg_generic_sc_vals},
+	{ 0, NULL, NULL, NULL, NULL}
+};
 
 static h248_package_t h248_pkg_generic = {
 	0x0001,
@@ -94,7 +125,7 @@ static h248_package_t h248_pkg_generic = {
 };
 
 
-/* H.248.1 E.2  Base Root Package 
+/* H.248.1 E.2  Base Root Package
 static int hf_h248_pkg_root = -1;
 static int hf_h248_pkg_root_params = -1;
 static int hf_h248_pkg_root_maxnrofctx = -1;
@@ -119,13 +150,17 @@ static h248_package_t h248_pkg_root = {
 	&hf_h248_pkg_root,
 	&hf_h248_pkg_root_params,
 	&ett_h248_pkg_root,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	h248_pkg_root_properties,
 	NULL,
 	NULL,
 	NULL,
 	NULL
 };
-*/
+/**/
 
 /* H.248.1 E.3  Tone Generator Package
 static int hf_h248_pkg_tonegen = -1;
@@ -208,6 +243,7 @@ static h248_package_t h248_pkg_dg = {
 	NULL,					/* events		*/
 	NULL					/* statistics	*/
 };
+
 
 /* H.248.1 E.9 Analog Line Supervision Package */
 static int hf_h248_pkg_al = -1;
@@ -402,6 +438,11 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_generic_cause_evt, { "Cause Event", "h248.pkg.generic.cause", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_generic_cause_gencause, { "Generic Cause", "h248.pkg.generic.cause.gencause", FT_UINT32, BASE_HEX, VALS(h248_pkg_generic_cause_gencause_vals), 0, "", HFILL }}, 
 		{ &hf_h248_pkg_generic_cause_failurecause, { "Generic Cause", "h248.pkg.generic.cause.failurecause", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
+		{&hf_h248_pkg_generic_sc_evt, {"Signal Completion","h248.pkg.generic.sc",FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}},
+		{ &hf_h248_pkg_generic_sc_sig_id, { "Signal Identity", "h248.pkg.generic.sc.sig_id", FT_BYTES, BASE_HEX, NULL , 0, "", HFILL }}, 
+		{ &hf_h248_pkg_generic_sc_meth, { "Termination Method", "h248.pkg.generic.sc.meth", FT_UINT32, BASE_DEC, VALS(h248_pkg_generic_sc_vals) , 0, "", HFILL }}, 
+		{ &hf_h248_pkg_generic_sc_slid, { "Signal List ID", "h248.pkg.generic.sc.slid", FT_UINT32, BASE_DEC, NULL , 0, "", HFILL }}, 
+		{ &hf_h248_pkg_generic_sc_rid, { "Request ID", "h248.pkg.generic.sc.rid", FT_UINT32, BASE_DEC,  NULL, 0, "", HFILL }}, 
 		/* H.248.1 E.9 Analog Line Supervision Package */
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
 		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL }},
@@ -435,7 +476,6 @@ void proto_register_h248_annex_e(void) {
 		&ett_h248_pkg_al_evt_onhook,
 		
 		&ett_h248_pkg_rtp,
-		&ett_tdmc
 	};
 
 	proto_h248_annex_E = proto_register_protocol(PNAME, PSNAME, PFNAME);

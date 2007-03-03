@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h248.c                                                            */
+/* .\packet-h248.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p h248 -c h248.cnf -s packet-h248-template h248v3.asn */
 
 /* Input file: packet-h248-template.c */
@@ -49,6 +49,8 @@ static int hf_h248_pkg_name		= -1;
 static int hf_248_pkg_param = -1;
 static int hf_h248_event_name		= -1;
 static int hf_h248_signal_name		= -1;
+static int hf_h248_signal_code		= -1;
+static int hf_h248_event_code		= -1;
 static int hf_h248_pkg_bcp_BNCChar_PDU = -1;
 
 
@@ -383,7 +385,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 70 "packet-h248-template.c"
+#line 72 "packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -546,7 +548,7 @@ static gint ett_h248_TimeNotation = -1;
 static gint ett_h248_Value = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 89 "packet-h248-template.c"
+#line 91 "packet-h248-template.c"
 
 static dissector_handle_t h248_term_handle;
 
@@ -1052,6 +1054,76 @@ static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, 
 static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
+static GPtrArray* packages = NULL;
+
+extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u _U_, void* dissector_hdl) {
+  tvbuff_t *new_tvb = NULL;
+  proto_tree *package_tree=NULL;
+  guint16 name_major, name_minor;
+  int old_offset;
+  const h248_package_t* pkg = NULL;
+  guint i;
+  gint8 class;
+  gboolean pc, ind;
+  gint32 tag;
+  guint32 len;
+  int offset = 0;
+  
+	old_offset=offset;
+	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+
+	if( (class!=BER_CLASS_UNI)
+	  ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
+		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+		return;
+	}
+
+	new_tvb = tvb_new_subset(tvb,offset,len,len);
+	
+  if (new_tvb) {
+    /* this field is always 4 bytes  so just read it into two integers */
+    name_major=tvb_get_ntohs(new_tvb, 0);
+    name_minor=tvb_get_ntohs(new_tvb, 2);
+
+    /* do the prettification */
+    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+
+    if(tree){
+	proto_item* pi;
+	const gchar* strval;
+	    
+	package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+	proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
+
+	for(i=0; i < packages->len; i++) {
+		pkg = g_ptr_array_index(packages,i);
+
+		if (name_major == pkg->id) {
+			break;
+		} else {
+			pkg = NULL;
+		}
+	}
+
+	if (! pkg ) pkg = &no_package;
+
+
+	pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
+	
+	if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+		strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+	} else {
+		strval = ep_strdup_printf("Unknown (%d)",name_minor);
+	}
+
+	proto_item_set_text(pi,"Parameter: %s", strval);
+	}
+	
+  }
+}
+
+
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* trx_id_p) {
 	guint64 trx_id = 0;
   	gint8 class;
@@ -1139,8 +1211,6 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 	return offset;
 }
 
-static GPtrArray* packages = NULL;
-
 void h248_register_package(const h248_package_t* pkg) {
 	if (! packages) packages = g_ptr_array_new();
 
@@ -1209,7 +1279,6 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   return offset;
 }
 
-
 static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
@@ -1233,7 +1302,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
     if(tree){
       package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
     }
-    proto_tree_add_uint(package_tree, hf_h248_event_name, tvb, offset-4, 4, packageandid);
+    proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
 
 	for(i=0; i < packages->len; i++) {
@@ -1263,6 +1332,19 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
 	}
 
 	curr_info.evt = evt;
+
+	{
+		proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_event_code, tvb, offset-2, 2, name_minor);
+		const gchar* strval;
+	
+		if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+		} else {
+			strval = ep_strdup_printf("Unknown (%d)",name_minor);
+		}
+	
+		proto_item_set_text(pi,"Event ID: %s", strval);
+	}
 
   } else {
 	  curr_info.pkg = &no_package;
@@ -1297,7 +1379,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
     if(tree){
       package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
     }
-    proto_tree_add_uint(package_tree, hf_h248_signal_name, tvb, offset-4, 4, packageandid);
+    proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
     for(i=0; i < packages->len; i++) {
 		pkg = g_ptr_array_index(packages,i);
@@ -1325,6 +1407,19 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
 	} else {
 		curr_info.pkg = &no_package;
 		curr_info.sig = &no_signal;
+	}
+
+	{
+		proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_signal_code, tvb, offset-2, 2, name_minor);
+		const gchar* strval;
+	
+		if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
+			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
+		} else {
+			strval = ep_strdup_printf("Unknown (%d)",name_minor);
+		}
+	
+		proto_item_set_text(pi,"Signal ID: %s", strval);
 	}
 
   } else {
@@ -6350,7 +6445,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb, in
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1763 "packet-h248-template.c"
+#line 1858 "packet-h248-template.c"
 
 static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -6435,6 +6530,12 @@ void proto_register_h248(void) {
       VALS(package_name_vals), 0, "Package", HFILL }},
     { &hf_248_pkg_param, {
       "Parameter ID", "h248.package_paramid", FT_UINT16, BASE_HEX,
+      NULL, 0, "Parameter ID", HFILL }},
+    { &hf_h248_signal_code, {
+      "Signal ID", "h248.package_signalid", FT_UINT16, BASE_HEX,
+      NULL, 0, "Parameter ID", HFILL }},
+    { &hf_h248_event_code, {
+      "Event ID", "h248.package_eventid", FT_UINT16, BASE_HEX,
       NULL, 0, "Parameter ID", HFILL }},
     { &hf_h248_event_name, {
       "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX,
@@ -7706,7 +7807,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1902 "packet-h248-template.c"
+#line 2003 "packet-h248-template.c"
 
   { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
   { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
@@ -7728,9 +7829,9 @@ void proto_register_h248(void) {
     &ett_ctx_cmds,
     &ett_ctx_terms,
     &ett_ctx_term,
-	  &ett_h248_no_pkg,
-	  &ett_h248_no_sig,
-	  &ett_h248_no_evt,
+    &ett_h248_no_pkg,
+    &ett_h248_no_sig,
+    &ett_h248_no_evt,
 
 /*--- Included file: packet-h248-ettarr.c ---*/
 #line 1 "packet-h248-ettarr.c"
@@ -7875,7 +7976,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1927 "packet-h248-template.c"
+#line 2028 "packet-h248-template.c"
   };
 
   module_t *h248_module;
