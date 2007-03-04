@@ -418,6 +418,14 @@ static int winreg_dissect_element_OpenHKPN_handle_(tvbuff_t *tvb, int offset, pa
 static void
 winreg_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_WOW64_32KEY, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_CREATE_LINK, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_NOTIFY, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_CREATE_SUB_KEY, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_SET_VALUE, tvb, offset, 4, access);
+	proto_tree_add_boolean(tree, hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE, tvb, offset, 4, access);
 }
 struct access_mask_info winreg_access_mask_info = {
 	"WINREG",		/* Name of specific rights */
