@@ -49,28 +49,37 @@ static int ett_tapa_discover_req = -1;
 static int ett_tapa_tunnel = -1;
 
 /* hf elements */
-static int hf_tapa_type = -1;
-static int hf_tapa_flags = -1;
-static int hf_tapa_length = -1;
-static int hf_tapa_unknown = -1;
+static int hf_tapa_discover_type = -1;
+static int hf_tapa_discover_flags = -1;
+static int hf_tapa_discover_length = -1;
+static int hf_tapa_discover_unknown = -1;
 
-static int hf_tapa_req_type = -1;
-static int hf_tapa_req_pad = -1;
-static int hf_tapa_req_length = -1;
-static int hf_tapa_req_value = -1;
+static int hf_tapa_discover_req_type = -1;
+static int hf_tapa_discover_req_pad = -1;
+static int hf_tapa_discover_req_length = -1;
+static int hf_tapa_discover_req_value = -1;
 
-static int hf_tapa_newtlv_type = -1;
-static int hf_tapa_newtlv_pad = -1;
-static int hf_tapa_newtlv_length = -1;
-static int hf_tapa_newtlv_valuetext = -1;
-static int hf_tapa_newtlv_valuehex = -1;
+static int hf_tapa_discover_newtlv_type = -1;
+static int hf_tapa_discover_newtlv_pad = -1;
+static int hf_tapa_discover_newtlv_length = -1;
+static int hf_tapa_discover_newtlv_valuetext = -1;
+static int hf_tapa_discover_newtlv_valuehex = -1;
 
-static int hf_tapa_reply_switchip = -1;
-static int hf_tapa_reply_unused = -1;
-static int hf_tapa_reply_bias = -1;
-static int hf_tapa_reply_pad = -1;
+static int hf_tapa_discover_reply_switchip = -1;
+static int hf_tapa_discover_reply_unused = -1;
+static int hf_tapa_discover_reply_bias = -1;
+static int hf_tapa_discover_reply_pad = -1;
 
 static int hf_tapa_tunnel_version = -1;
+static int hf_tapa_tunnel_five = -1;
+static int hf_tapa_tunnel_type = -1;
+static int hf_tapa_tunnel_zero = -1;
+static int hf_tapa_tunnel_dmac = -1;
+static int hf_tapa_tunnel_smac = -1;
+static int hf_tapa_tunnel_seqno = -1;
+static int hf_tapa_tunnel_length = -1;
+static int hf_tapa_tunnel_0804 = -1;
+
 static int hf_tapa_tunnel_remaining = -1;
 
 #define PROTO_SHORT_NAME "TAPA"
@@ -83,9 +92,9 @@ typedef enum {
 	TAPA_TYPE_REPLY		= 0x02,
 	TAPA_TYPE_REQUEST_NEW	= 0x04,
 	TAPA_TYPE_REPLY_NEW	= 0x05
-} tapa_type_t;
+} tapa_discover_type_t;
 
-static const value_string tapa_type_vals[] = {
+static const value_string tapa_discover_type_vals[] = {
 	{ TAPA_TYPE_REQUEST,		"Request" },
 	{ TAPA_TYPE_REPLY,		"Reply" },
 	{ TAPA_TYPE_REQUEST_NEW,	"NewRequest" },
@@ -95,18 +104,30 @@ static const value_string tapa_type_vals[] = {
 };
 
 typedef enum {
+	TAPA_TUNNEL_TYPE_0	= 0x00,
+	TAPA_TUNNEL_TYPE_1	= 0x01
+} tapa_tunnel_type_t;
+
+static const value_string tapa_tunnel_type_vals[] = {
+	{ TAPA_TUNNEL_TYPE_0,	"Type 0" },
+	{ TAPA_TUNNEL_TYPE_1,	"Type 1" },
+
+	{ 0,	NULL }
+};
+
+typedef enum {
 	TAPA_REQUEST_SERIAL	= 0x01,
 	TAPA_REQUEST_MODEL	= 0x02
-} tapa_request_t;
+} tapa_discover_request_t;
 
-static const value_string tapa_request_vals[] = {
+static const value_string tapa_discover_request_vals[] = {
 	{ TAPA_REQUEST_SERIAL,	"SerialNo" },
 	{ TAPA_REQUEST_MODEL,	"Model" },
 
 	{ 0,	NULL }
 };
 
-static const value_string tapa_unknown_vals[] = {
+static const value_string tapa_discover_unknown_vals[] = {
 
 	{ 0,	NULL }
 };
@@ -123,9 +144,9 @@ check_ascii(const guint8 *buffer, gint length)
 }
 
 static int
-dissect_tapa_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
 {
-	proto_tree_add_item(tapa_tree, hf_tapa_reply_switchip, tvb, offset, 4,
+	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_switchip, tvb, offset, 4,
 		FALSE);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -134,16 +155,16 @@ dissect_tapa_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, gui
 
 	offset += 4;
 
-	proto_tree_add_item(tapa_tree, hf_tapa_reply_unused, tvb, offset, 1,
+	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_unused, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
-	proto_tree_add_item(tapa_tree, hf_tapa_reply_bias, tvb, offset, 1,
+	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_bias, tvb, offset, 1,
 		FALSE);
 	offset += 1;
 
 	remaining -= 6;
-	proto_tree_add_item(tapa_tree, hf_tapa_reply_pad, tvb, offset, remaining,
+	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_pad, tvb, offset, remaining,
 		FALSE);
 	offset += remaining;
 
@@ -151,10 +172,10 @@ dissect_tapa_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, gui
 }
 
 static int
-dissect_tapa_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
 {
 	proto_item	*item;
-	proto_tree	*tapa_item_tree;
+	proto_tree	*tapa_discover_item_tree;
 	guint8		 item_type;
 	gint		 item_length;
 	gchar		*item_text;
@@ -162,7 +183,7 @@ dissect_tapa_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint
 
 	while (remaining > 0) {
 		item_type = tvb_get_guint8(tvb, offset);
-		item_type_text = val_to_str(item_type, tapa_request_vals, "%d");
+		item_type_text = val_to_str(item_type, tapa_discover_request_vals, "%d");
 		item_length = tvb_get_ntohs(tvb, offset + 2);
 		item_text = tvb_format_text(tvb, offset + 4, item_length);
 
@@ -172,24 +193,24 @@ dissect_tapa_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s: %s",
 				item_type_text, item_text);
 
-        	item = proto_tree_add_text(tapa_tree, tvb, offset, 4 + item_length,
+        	item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
                 	"Type %d = %s, length %d, value %s",
                 	item_type, item_type_text, item_length, item_text);
 
-		tapa_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
+		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_req_type, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_type, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_req_pad, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_pad, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_req_length, tvb, offset, 2,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_length, tvb, offset, 2,
 			FALSE);
 		offset += 2;
-		proto_tree_add_item(tapa_item_tree, hf_tapa_req_value, tvb, offset, item_length,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_value, tvb, offset, item_length,
 			FALSE);
 		offset += item_length;
 
@@ -199,10 +220,10 @@ dissect_tapa_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint
 }
 
 static int
-dissect_tapa_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_tree, guint32 offset, gint remaining)
+dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
 {
 	proto_item	*item;
-	proto_tree	*tapa_item_tree;
+	proto_tree	*tapa_discover_item_tree;
 	guint8		 item_type;
 	gint		 item_length;
 	const gchar	*item_text;
@@ -211,7 +232,7 @@ dissect_tapa_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa
 
 	while (remaining > 0) {
 		item_type = tvb_get_guint8(tvb, offset);
-		item_type_text = val_to_str(item_type, tapa_unknown_vals, "%d");
+		item_type_text = val_to_str(item_type, tapa_discover_unknown_vals, "%d");
 		item_length = tvb_get_ntohs(tvb, offset + 2) - 4;
 
 		DISSECTOR_ASSERT(item_length > 0);
@@ -227,29 +248,29 @@ dissect_tapa_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", T=%d L=%d",
 				item_type, item_length);
 
-        	item = proto_tree_add_text(tapa_tree, tvb, offset, 4 + item_length,
+        	item = proto_tree_add_text(tapa_discover_tree, tvb, offset, 4 + item_length,
                 	"Type %d, length %d, value %s",
                 	item_type, item_length, item_text);
 
-		tapa_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
+		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_newtlv_type, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_type, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_newtlv_pad, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_pad, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_item_tree, hf_tapa_newtlv_length, tvb, offset, 2,
+		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_length, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
 		if (is_ascii)
-			proto_tree_add_item(tapa_item_tree, hf_tapa_newtlv_valuetext,
+			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuetext,
 				tvb, offset, item_length, FALSE);
 		else
-			proto_tree_add_item(tapa_item_tree, hf_tapa_newtlv_valuehex,
+			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuehex,
 				tvb, offset, item_length, FALSE);
 		offset += item_length;
 
@@ -262,7 +283,7 @@ static int
 dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *tapa_tree = NULL;
+	proto_tree *tapa_discover_tree = NULL;
 	guint32 offset = 0;
 	guint8 packet_type;
 	guint remaining;
@@ -276,39 +297,39 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "Discover - %s",
-			val_to_str(packet_type, tapa_type_vals, "Unknown (%d)"));
+			val_to_str(packet_type, tapa_discover_type_vals, "Unknown (%d)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
 			FALSE);
-		tapa_tree = proto_item_add_subtree(ti, ett_tapa_discover);
+		tapa_discover_tree = proto_item_add_subtree(ti, ett_tapa_discover);
 
-		proto_tree_add_item(tapa_tree, hf_tapa_type, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_type, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_tree, hf_tapa_flags, tvb, offset, 1,
+		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_flags, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		proto_tree_add_item(tapa_tree, hf_tapa_length, tvb, offset, 2,
+		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_length, tvb, offset, 2,
 			FALSE);
 		offset += 2;
 
 		switch (packet_type) {
 		case TAPA_TYPE_REQUEST:
-			offset = dissect_tapa_req(tvb, pinfo, tapa_tree, offset, remaining);
+			offset = dissect_tapa_discover_req(tvb, pinfo, tapa_discover_tree, offset, remaining);
 			break;
 		case TAPA_TYPE_REPLY:
-			offset = dissect_tapa_reply(tvb, pinfo, tapa_tree, offset, remaining);
+			offset = dissect_tapa_discover_reply(tvb, pinfo, tapa_discover_tree, offset, remaining);
 			break;
 		case TAPA_TYPE_REQUEST_NEW:
 		case TAPA_TYPE_REPLY_NEW:
-			offset = dissect_tapa_unknown_new_tlv(tvb, pinfo, tapa_tree,
+			offset = dissect_tapa_discover_unknown_new_tlv(tvb, pinfo, tapa_discover_tree,
 					offset, remaining);
 			break;
 		default:
-			proto_tree_add_item(tapa_tree, hf_tapa_unknown, tvb, offset,
+			proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_unknown, tvb, offset,
 					remaining, FALSE);
 		offset += 1;
 
@@ -322,34 +343,73 @@ static int
 dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *tapa_tree = NULL;
+	proto_tree *tapa_tunnel_tree = NULL;
 	guint32 offset = 0;
 	guint8 version;
+	guint8 type;
 	guint remaining;
 
 	version = tvb_get_guint8(tvb, 0) & 0xF0;
+	type = tvb_get_guint8(tvb, 1);
 	remaining = tvb_reported_length(tvb);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel");
-		/* col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel - %s",
-		 *	val_to_str(packet_type, tapa_type_vals, "Unknown (%d)"));
-		 */
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Tunnel - V=%d, T=%s", version >> 4,
+		 	val_to_str(type, tapa_tunnel_type_vals, "Unknown (%d)"));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
 			FALSE);
-		tapa_tree = proto_item_add_subtree(ti, ett_tapa_tunnel);
+		tapa_tunnel_tree = proto_item_add_subtree(ti, ett_tapa_tunnel);
 
-		proto_tree_add_item(tapa_tree, hf_tapa_tunnel_version, tvb, offset, 1,
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_version, tvb, offset, 1,
+			FALSE);
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_five, tvb, offset, 1,
 			FALSE);
 		offset += 1;
 
-		/* FIXME: This is just to help figuring out what the bytes mean */
-		proto_tree_add_item(tapa_tree, hf_tapa_tunnel_remaining, tvb, 0, remaining,
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_type, tvb, offset, 1,
 			FALSE);
+		offset += 1;
+
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_zero, tvb, offset, 8,
+			FALSE);
+		offset += 8;
+
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_dmac, tvb, offset, 6,
+			FALSE);
+		offset += 6;
+
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_smac, tvb, offset, 6,
+			FALSE);
+		offset += 6;
+
+		switch (type) {
+		case TAPA_TUNNEL_TYPE_0:
+			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_0804, tvb, offset, 2,
+				FALSE);
+			offset += 2;
+
+			break;
+		case TAPA_TUNNEL_TYPE_1:
+			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_seqno, tvb, offset, 2,
+				FALSE);
+			offset += 2;
+
+			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_length, tvb, offset, 2,
+				FALSE);
+			offset += 2;
+			break;
+		default:
+			break;
+		}
+
+
+		/* FIXME: This is just to help figuring out what the bytes mean */
+		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_remaining, tvb,
+			offset, remaining - offset, FALSE);
 		offset = remaining;
 
 	}
@@ -412,83 +472,119 @@ proto_register_tapa(void)
 	static hf_register_info hf[] = {
 
 	/* TAPA discover header */
-		{ &hf_tapa_type,
-		{ "Type",	"tapa.type", FT_UINT8, BASE_DEC, VALS(tapa_type_vals),
+		{ &hf_tapa_discover_type,
+		{ "Type",	"tapa.discover.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_type_vals),
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_flags,
-		{ "Flags",	"tapa.flags", FT_UINT8, BASE_HEX, NULL,
+		{ &hf_tapa_discover_flags,
+		{ "Flags",	"tapa.discover.flags", FT_UINT8, BASE_HEX, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_length,
-		{ "Length",	"tapa.length", FT_UINT16, BASE_DEC, NULL,
+		{ &hf_tapa_discover_length,
+		{ "Length",	"tapa.discover.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
 	/* TAPA discover request */
-		{ &hf_tapa_req_type,
-		{ "Req type",	"tapa.req.type", FT_UINT8, BASE_DEC, VALS(tapa_request_vals),
+		{ &hf_tapa_discover_req_type,
+		{ "Req type",	"tapa.discover.req.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_req_pad,
-		{ "Req padding",	"tapa.req.pad", FT_UINT8, BASE_DEC, NULL,
+		{ &hf_tapa_discover_req_pad,
+		{ "Req padding",	"tapa.discover.req.pad", FT_UINT8, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_req_length,
-		{ "Req length",	"tapa.req.length", FT_UINT16, BASE_DEC, NULL,
+		{ &hf_tapa_discover_req_length,
+		{ "Req length",	"tapa.discover.req.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-                { &hf_tapa_req_value,
-                { "Req value",   "tapa.req.value", FT_BYTES, BASE_NONE, NULL,
+                { &hf_tapa_discover_req_value,
+                { "Req value",   "tapa.discover.req.value", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
 	/* TAPA discover reply */
-                { &hf_tapa_reply_switchip,
-                { "Switch Ip",   "tapa.reply.switchip", FT_IPv4, BASE_NONE, NULL,
+                { &hf_tapa_discover_reply_switchip,
+                { "Switch Ip",   "tapa.discover.reply.switchip", FT_IPv4, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
-		{ &hf_tapa_reply_unused,
-		{ "Reply unused ",	"tapa.reply.unused", FT_UINT8, BASE_DEC, NULL,
+		{ &hf_tapa_discover_reply_unused,
+		{ "Reply unused ",	"tapa.discover.reply.unused", FT_UINT8, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_reply_bias,
-		{ "Reply bias",	"tapa.reply.bias", FT_UINT8, BASE_DEC, NULL,
+		{ &hf_tapa_discover_reply_bias,
+		{ "Reply bias",	"tapa.discover.reply.bias", FT_UINT8, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-                { &hf_tapa_reply_pad,
-                { "Reply pad",   "tapa.reply.pad", FT_BYTES, BASE_NONE, NULL,
+                { &hf_tapa_discover_reply_pad,
+                { "Reply pad",   "tapa.discover.reply.pad", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
 	/* TAPA discover new request/reply tlv */
-		{ &hf_tapa_newtlv_type,
-		{ "New tlv type",	"tapa.newtlv.type", FT_UINT8, BASE_DEC, VALS(tapa_request_vals),
+		{ &hf_tapa_discover_newtlv_type,
+		{ "New tlv type",	"tapa.discover.newtlv.type", FT_UINT8, BASE_DEC, VALS(tapa_discover_request_vals),
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_newtlv_pad,
-		{ "New tlv padding",	"tapa.newtlv.pad", FT_UINT8, BASE_DEC, NULL,
+		{ &hf_tapa_discover_newtlv_pad,
+		{ "New tlv padding",	"tapa.discover.newtlv.pad", FT_UINT8, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-		{ &hf_tapa_newtlv_length,
-		{ "New tlv length",	"tapa.newtlv.length", FT_UINT16, BASE_DEC, NULL,
+		{ &hf_tapa_discover_newtlv_length,
+		{ "New tlv length",	"tapa.discover.newtlv.length", FT_UINT16, BASE_DEC, NULL,
 			0x0, "", HFILL }},
 
-                { &hf_tapa_newtlv_valuetext,
-                { "New tlv value",   "tapa.newtlv.valuetext", FT_STRING, BASE_DEC, NULL,
+                { &hf_tapa_discover_newtlv_valuetext,
+                { "New tlv value",   "tapa.discover.newtlv.valuetext", FT_STRING, BASE_DEC, NULL,
                         0x0, "", HFILL }},
 
-                { &hf_tapa_newtlv_valuehex,
-                { "New tlv value",   "tapa.newtlv.valuehex", FT_BYTES, BASE_NONE, NULL,
+                { &hf_tapa_discover_newtlv_valuehex,
+                { "New tlv value",   "tapa.discover.newtlv.valuehex", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
 	/* TAPA discover unknown packet */
-                { &hf_tapa_unknown,
-                { "Tapa unknown packet",   "tapa.unknown", FT_BYTES, BASE_NONE, NULL,
+                { &hf_tapa_discover_unknown,
+                { "Tapa unknown packet",   "tapa.discover.unknown", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
 
 	/* TAPA tunnel */
                 { &hf_tapa_tunnel_version,
                 { "Tapa tunnel version",   "tapa.tunnel.version", FT_UINT8, BASE_HEX, NULL,
+                        0xF0, "", HFILL }},
+
+                { &hf_tapa_tunnel_five,
+                { "Tapa tunnel five",   "tapa.tunnel.five", FT_UINT8, BASE_HEX, NULL,
+                        0x0F, "", HFILL }},
+
+                { &hf_tapa_tunnel_type,
+                { "Tapa tunnel type",   "tapa.tunnel.type", FT_UINT8, BASE_HEX, VALS(tapa_tunnel_type_vals),
                         0x0, "", HFILL }},
 
+                { &hf_tapa_tunnel_zero,
+                { "Tapa tunnel zeroes",   "tapa.tunnel.zero", FT_BYTES, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
+                { &hf_tapa_tunnel_dmac,
+                { "Tapa tunnel dest mac",   "tapa.tunnel.dmac", FT_ETHER, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
+                { &hf_tapa_tunnel_smac,
+                { "Tapa tunnel src mac",   "tapa.tunnel.smac", FT_ETHER, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
+	/* TAPA tunnel type 0 */
+                { &hf_tapa_tunnel_0804,
+                { "Tapa tunnel 0804",   "tapa.tunnel.0804", FT_UINT16, BASE_HEX, NULL,
+                        0x0, "", HFILL }},
+
+	/* TAPA tunnel type 1 */
+                { &hf_tapa_tunnel_seqno,
+                { "Tapa tunnel seqno",   "tapa.tunnel.seqno", FT_UINT16, BASE_DEC, NULL,
+                        0x0, "", HFILL }},
+
+                { &hf_tapa_tunnel_length,
+                { "Tapa tunnel length",   "tapa.tunnel.length", FT_UINT16, BASE_DEC, NULL,
+                        0x0, "", HFILL }},
+
+
+	/* TAPA tunnel remaining stuff */
                 { &hf_tapa_tunnel_remaining,
                 { "Tapa tunnel all data",   "tapa.tunnel.remaining", FT_BYTES, BASE_NONE, NULL,
                         0x0, "", HFILL }},
