@@ -118,6 +118,8 @@ static gboolean uat_window_delete_event_cb(GtkWindow *w, GdkEvent* e, gpointer u
 
 static void set_buttons(uat_t* uat, gint row) {
 	
+	if (!uat->rep) return;
+	
 	if (row > 0) {
 		gtk_widget_set_sensitive (uat->rep->bt_up, TRUE);
 	} else {
@@ -182,6 +184,8 @@ static void append_row(uat_t* uat, guint idx) {
 	guint rownum;
 	guint colnum;
 	
+	if (! uat->rep) return;
+	
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ )
@@ -199,7 +203,9 @@ static void reset_row(uat_t* uat, guint idx) {
 	void* rec = UAT_INDEX_PTR(uat,idx);
 	uat_field_t* f = uat->fields;
 	guint colnum;
-	
+
+	if (! uat->rep) return;
+
 	gtk_clist_freeze(GTK_CLIST(uat->rep->clist));
 	
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
@@ -355,7 +361,8 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
     g_ptr_array_free(dd->entries,TRUE);
     window_destroy(GTK_WIDGET(dd->win));
 	
-	window_present(GTK_WIDGET(dd->uat->rep->window));
+	if (dd->uat->rep)
+		window_present(GTK_WIDGET(dd->uat->rep->window));
 	 
     return TRUE;
 on_failure:
@@ -367,7 +374,8 @@ on_failure:
 static gboolean uat_cancel_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	struct _uat_dlg_data* dd = user_data;
 
-	window_present(GTK_WIDGET(dd->uat->rep->window));
+	if (dd->uat->rep)
+		window_present(GTK_WIDGET(dd->uat->rep->window));
 
 	if (dd->is_new) g_free(dd->rec);
     g_ptr_array_free(dd->entries,TRUE);
@@ -537,20 +545,27 @@ static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
 	
 	uat_remove_record_idx(ud->uat, ud->idx);
-	gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
+	
+	if (ud->uat->rep)
+		gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx);
 	
 	ud->uat->changed = TRUE;
 	set_buttons(ud->uat,-1);
 	
     window_destroy(GTK_WIDGET(ud->win));
-	window_present(GTK_WIDGET(ud->uat->rep->window));
+	
+	if (ud->uat->rep)
+		window_present(GTK_WIDGET(ud->uat->rep->window));
+	
 	g_free(ud);
 }
 
 static void uat_cancel_del_cb(GtkButton *button _U_, gpointer u) {
 	struct _uat_del* ud = u;
     window_destroy(GTK_WIDGET(ud->win));
-	window_present(GTK_WIDGET(ud->uat->rep->window));
+
+	if (ud->uat->rep)
+		window_present(GTK_WIDGET(ud->uat->rep->window));
 	g_free(ud);
 }
 
@@ -617,16 +632,25 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 static void uat_new_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
+
+	if (! uat->rep) return;
+
 	uat_edit_dialog(uat, -1);
 }
 
 static void uat_edit_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
+
+	if (! uat->rep) return;
+
 	uat_edit_dialog(uat, uat->rep->selected);
 }
 
 static void uat_delete_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
+
+	if (! uat->rep) return;
+
 	uat_del_dlg(uat,uat->rep->selected);
 }
 
