@@ -653,6 +653,7 @@ DISSECTOR_SRC =	\
 	packet-t38.c	\
 	packet-tacacs.c	\
 	packet-tali.c	\
+	packet-tapa.c	\
 	packet-tcap.c	\
 	packet-tcp.c	\
 	packet-tds.c	\

@@ -153,6 +153,7 @@ static dissector_table_t ip_dissector_table;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t tapa_handle;
 
 static int proto_icmp = -1;
 static int hf_icmp_type = -1;
@@ -1441,6 +1442,17 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     goto end_of_ip;
   }
 
+  /* XXX This is an ugly hack because I didn't manage to make the IPIP
+   * dissector a heuristic one [JMayer]
+   * The TAPA protocol also uses IP protocol number 4 but it isn't really
+   * IPIP, so try to detect it first and call it explicitly before calling
+   * the generic ip.proto dispatcher
+   */
+  if (nxt == IP_PROTO_IPIP &&
+        (tvb_get_guint8(next_tvb, 0) & 0xF0) != 40 &&
+        tvb_get_ntohs(next_tvb, 2) < 20) {
+     call_dissector(tapa_handle,next_tvb, pinfo, parent_tree);
+
   /* Hand off to the next protocol.
 
      XXX - setting the columns only after trying various dissectors means
@@ -1448,7 +1460,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
      even be labelled as an IP frame; ideally, if a frame being dissected
      throws an exception, it'll be labelled as a mangled frame of the
      type in question. */
-  if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
+  } else if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
       if (check_col(pinfo->cinfo, COL_INFO))
@@ -2434,6 +2446,7 @@ proto_reg_handoff_ip(void)
 
         data_handle = find_dissector("data");
         ip_handle = find_dissector("ip");
+	tapa_handle = find_dissector("tapa");
 	dissector_add("ethertype", ETHERTYPE_IP, ip_handle);
 	dissector_add("ppp.protocol", PPP_IP, ip_handle);
 	dissector_add("ppp.protocol", ETHERTYPE_IP, ip_handle);
