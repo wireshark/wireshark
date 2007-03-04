@@ -276,7 +276,7 @@ int dummy##C
 #define WSLUA_META static const luaL_reg
 #define WSLUA_CLASS_FNREG(class,name) { #name, class##_##name }
 
-#define WSLUA_ERROR(name,error) { luaL_error(L, #name  ": " error); return 0; }
+#define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); return 0; }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
 

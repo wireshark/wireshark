@@ -1160,7 +1160,8 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     Tvb tvb = checkTvb(L,WSLUA_ARG_Dissector_call_TVB);
     Pinfo pinfo = checkPinfo(L,WSLUA_ARG_Dissector_call_PINFO);
     TreeItem ti = checkTreeItem(L,WSLUA_ARG_Dissector_call_TREE);
-    
+    char* error = NULL;
+	
     if (! ( d && tvb && pinfo) ) return 0;
     
     TRY {
@@ -1168,10 +1169,11 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
         proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-        WSLUA_ERROR(Dissector_call,"malformed frame");
-        return 0;
+	error = "malformed frame";
     } ENDTRY;
-    
+
+     if (error) { WSLUA_ERROR(Dissector_call,error); }
+
     return 0;
 }
 
@@ -1360,7 +1362,8 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     Pinfo pinfo = checkPinfo(L,4);
     TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
-    
+    gchar* error = NULL;
+	
     if (! (dt && tvb && pinfo && ti) ) return 0;
     
     type = get_dissector_table_selector_type(dt->name);
@@ -1390,8 +1393,10 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
 		/* XXX Are we sure about this??? is this the right/only thing to catch */
 	} CATCH(ReportedBoundsError) {
 		proto_tree_add_protocol_format(lua_tree->tree, lua_malformed, lua_tvb, 0, 0, "[Malformed Frame: Packet Length]" );
-		WSLUA_ERROR(DissectorTable_try,"malformed frame");
+		error = "malformed frame";
 	} ENDTRY;
+
+	if (error) { WSLUA_ERROR(DissectorTable_try,error); }
 
 	return 0;
 	
