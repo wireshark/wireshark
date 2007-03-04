@@ -832,6 +832,193 @@ standard libpcap format.
       <graphic entityref="WiresharkGUIPreferences" format="PNG"/>
     </figure>
   </section>
+  <section id="ChUserTable"><title>User Table</title>
+    <para>
+      The User Table editor is used for managing various tables in wireshark. It's main dialog works
+      very similarly to that of <xref linkend="ChCustColorizationSection"/>. 
+      </para>
+  </section>
+  
+  
+  <section id="ChDisplayFilterMacrosSection"><title>Display Filter Macros</title>
+    <para>
+	Display Filter Macos are a mechanism to create shortcuts for complex filters. For example defining a
+	display filter macro named <command>tcp_conv</command> whose text is
+	<command> ( (ip.src == $1and ip.dst == $2 and tcp.srcpt == $3 and tcp.dstpt == $4) or
+	(ip.src == $2and ip.dst == $1 and tcp.srcpt == $4 and tcp.dstpt == $3) ) </command> 
+	would allow to use a display filter like <command>${tcp_conv:10.1.1.2;10.1.1.3;1200;1400}</command>
+	instead of typing the whole filter.
+      </para>
+    <para>
+	Display Filter Macos can be managed with a <xref linkend="ChUserTable"/> selecting
+	the <command>Display Filter Macros</command> menu item from the <command>View</command> Menu.
+	The User Table has  the following fields
+      </para>
+            <variablelist>
+	  <varlistentry><term><command>name</command></term>
+	  <listitem>
+		<para>
+			the name of the macro.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>text</command></term>
+	  <listitem>
+		<para>
+			the replacement text for the macro it uses $1, $2, $3, ... as the input arguments.
+		</para>
+	  </listitem>
+	  </varlistentry>
+      </variablelist>
+
+  </section>
+  
+  
+    <section id="ChK12ProtocolsSection"><title>Tektronics K12xx/15 RF5 protocols Table</title>
+    <para>
+	The Tektronix's K12xx/15 rf5 file format uses helper files (*.stk) to identify the various protocols that are
+	used by a certain interface. Wireshark doesn't read these stk files, it uses a table that helps it identify
+	which lowest layer protocol to use.
+   </para>
+   <para>
+         Stk file to protocol matching is handled by an <xref linkend="ChUserTable"/> with the following fields.	
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>match</command></term>
+	  <listitem>
+		<para>
+		   a partial match for an stk filename, the first match wins, so if you have a specific case and a
+		   general one the specific one must appear first in the list.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>protos</command></term>
+	  <listitem>
+		<para>
+			This is the name of the encapsulating protocol (the lowest layer in the packet data) it can be either
+			just the name of the protocol (e.g. mtp2, eth_witoutfcs, sscf-nni ) or the name of the encapsulation
+			protocol and the "application" protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap, sscop:nbap, ...)
+		</para>
+	  </listitem>
+	  </varlistentry>
+      </variablelist>
+  </section>
+  
+  
+      <section id="ChUserDLTsSection"><title>User DLTs protocol table</title>
+    <para>
+          When a pcap file uses one of the user DLTs (147 to 162) wireshark uses this table to know which protocol(s) to use for each user DLT.
+   </para>
+   <para>
+         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.	
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>encap</command></term>
+	  <listitem>
+		<para>
+			one of the user dlts.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>payload_proto</command></term>
+	  <listitem>
+		<para>
+			This is the name of the payload protocol (the lowest layer in the packet data).
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>header_size</command></term>
+	  <listitem>
+		<para>
+			if there is a header protocol (before the payload protocol) this tells which size this header is. A value of 0 disables the header protocol.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>header_proto</command></term>
+	  <listitem>
+		<para>
+			The name of the header protocol to be used (uses "data" as default).
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  	  <varlistentry><term><command>trailer_size</command></term>
+	  <listitem>
+		<para>
+			if there is a trailer protocol (after the payload protocol) this tells which size this trailer is. A value of 0 disables the trailer protocol.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>trailer_proto</command></term>
+	  <listitem>
+		<para>
+			The name of the trailer protocol to be used (uses "data" as default).
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+      </variablelist>
+  </section>
+  
+
+  
+      <section id="ChSNMPUsersSection"><title>SNMP users Table</title>
+    <para>
+          Wireshark uses this table to verify auhentication and to decrypt encrypted SNMPv3 packets.
+   </para>
+   <para>
+         This table is handled by an <xref linkend="ChUserTable"/> with the following fields.	
+      </para>
+      <variablelist>
+	  <varlistentry><term><command>engine_id</command></term>
+	  <listitem>
+		<para>
+			If given this entry will be used only for packets whose engine id is this.
+			This field takes an hexadecimal string in the form 0102030405.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>userName</command></term>
+	  <listitem>
+		<para>
+			This is the userName. When a single user has more than one password
+			for different SNMP-engines the first entry to match both is taken, if you
+			need a catch all engine-id (empty) that entry should be the last one.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>auth_model</command></term>
+	  <listitem>
+		<para>
+			Which auth model to use (either "MD5" or "SHA1").
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>authPassword</command></term>
+	  <listitem>
+		<para>
+			The authentication password. Use '\xDD' for unprintable charachters.
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  	  <varlistentry><term><command>priv_proto</command></term>
+	  <listitem>
+		<para>
+			Which encryption algorithm to use (either "DES" or "AES").
+		</para>
+	  </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>privPassword</command></term>
+	  <listitem>
+		<para>
+			The privacy password. Use '\xDD' for unprintable charachters.
+		</para>
+	  </listitem>
+	  </varlistentry>
+
+      </variablelist>
+  </section>
+
+  
   
 </chapter>
 <!-- End of WSUG Chapter Customizing -->
