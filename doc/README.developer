@@ -3297,37 +3297,33 @@ The arguments to tcp_dissect_pdus are:
 
 The second reassembly mode is preferred when the dissector cannot determine 
 how many bytes it will need to read in order to determine the size of a PDU. 
+It may also be useful if your dissector needs to support reassembly from
+protocols other than TCP.
 
-This reassembly mode relies on Wireshark's mechanism for processing
-multiple PDUs per frame.  When a dissector processes a PDU from a tvbuff
-the PDU may not be aligned to a frame of the underlying protocol. 
-Wireshark allows dissectors to process PDUs in an idempotent
-way--dissectors only need to consider one PDU at a time.  If your
-dissector discovers that it can not process a complete PDU from the
-current tvbuff the dissector should halt processing and request
-additional bytes from the lower level dissector.
+Your dissect_PROTO will initially be passed a tvbuff containing the payload of
+the first packet. It should dissect as much data as it can, noting that it may
+contain more than one complete PDU. If the end of the provided tvbuff coincides
+with the end of a PDU then all is well and your dissector can just return as
+normal. (If it is a new-style dissector, it should return the number of bytes
+successfully processed.)
 
-Your dissect_PROTO will be called by the lower level dissector whenever 
-sufficient new bytes become available. Each time your dissector is called it is 
-provided a different tvbuff, though the tvbuffs may contain data that your 
-dissector declined to process during a previous call. When called a dissector 
-should examine the tvbuff provided and determine if an entire PDU is available. 
-If sufficient bytes are available the dissector processes the PDU and returns 
-the length of the PDU from your dissect_PROTO.
+If the dissector discovers that the end of the tvbuff does /not/ coincide with
+the end of a PDU, (ie, there is half of a PDU at the end of the tvbuff), it can
+indicate this to the parent dissector, by updating the pinfo struct. The
+desegment_offset field is the offset in the tvbuff at which the dissector will
+continue processing when next called.  The desegment_len field should contain
+the estimated number of additional bytes required for completing the PDU.  Next
+time your dissect_PROTO is called, it will be passed a tvbuff composed of the
+end of the data from the previous tvbuff together with desegment_len more bytes.
 
-Completion of a PDU is signified by dissect_PROTO returning a positive
-value.  The value is the number of bytes which were processed from the
-tvbuff.  If there were insufficient bytes in the tvbuff to complete a
-PDU then dissect_PROTO must update the pinfo structure to indicate that
-more bytes are required.  The desegment_offset field is the offset in
-the tvbuff at which the dissector will continue processing when next
-called.  The desegment_len field should contain the estimated number of
-additional bytes required for completing the PDU.  The dissect_PROTO
-will not be called again until the specified number of bytes are
-available.  pinfo->desegment_len may be set to -1 if dissect_PROTO
-cannot determine how many additional bytes are required.  Dissectors
-should set the desegment_len to a reasonable value when possible rather
-than always setting -1 as it will generally be more efficient.
+If the dissector cannot tell how many more bytes it will need, it should set
+desegment_len=DESEGMENT_ONE_MORE_SEGMENT; it will then be called again as soon
+as any more data becomes available. Dissectors should set the desegment_len to a
+reasonable value when possible rather than always setting
+DESEGMENT_ONE_MORE_SEGMENT as it will generally be more efficient. Also, you
+*must not* set desegment_len=1 in this case, in the hope that you can change
+your mind later: once you return a positive value from desegment_len, your PDU
+boundary is set in stone.
 
 static hf_register_info hf[] = {
     {&hf_cstring,
@@ -3337,7 +3333,7 @@ static hf_register_info hf[] = {
    };
 
 /**
-*   Dissect a buffer containing a C string.
+*   Dissect a buffer containing C strings.
 *
 *   @param  tvb     The buffer to dissect.
 *   @param  pinfo   Packet Info.
@@ -3346,32 +3342,38 @@ static hf_register_info hf[] = {
 static void dissect_cstr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     guint offset = 0;
-    gint available = tvb_reported_length_remaining(tvb, offset);
-    gint len = tvb_strnlen(tvb, offset, available);
+    while(offset < tvb_reported_length(tvb)) {
+        gint available = tvb_reported_length_remaining(tvb, offset);
+        gint len = tvb_strnlen(tvb, offset, available);
 
-    if( -1 == len ) {
-        /* No '\0' found, ask for another byte. */
-        pinfo->desegment_offset = offset;
-        pinfo->desegment_len = 1;
-        return;
-    }
+        if( -1 == len ) {
+            /* we ran out of data: ask for more */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return;
+        }       
+
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_set_str(pinfo->cinfo, COL_INFO, "C String");
+        }
+
+        len += 1; /* Add one for the '\0' */
     
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, "C String");
+        if (tree) {
+            proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
+        }
+        offset += (guint)len;
     }
 
-    len += 1; /* Add one for the '\0' */
-    
-    if (tree) {
-        proto_tree_add_item(tree, hf_cstring, tvb, offset, len, FALSE);
-    }
+    /* if we get here, then the end of the tvb coincided with the end of a
+       string. Happy days. */
 }
 
-This simple dissector will repeatedly return -1 requesting one more byte until 
-the tvbuff contains a complete C string. The C string will then be added to the 
-protocol tree. Unfortunately since there is no way to guess the size of C
-String without seeing the entire string this dissector can never request more
-than one additional byte.
+This simple dissector will repeatedly return DESEGMENT_ONE_MORE_SEGMENT
+requesting more data until the tvbuff contains a complete C string. The C string
+will then be added to the protocol tree. Note that there may be more
+than one complete C string in the tvbuff, so the dissection is done in a
+loop.
 
 2.8 ptvcursors.
 
