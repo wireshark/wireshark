@@ -744,10 +744,11 @@ static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,SCCP_PLOAD_NONE,
 static gboolean trace_sccp = FALSE;
 static guint32 next_assoc_id = 0;
 
-static sccp_assoc_info_t* sccp_assoc(packet_info* pinfo, guint src_lr, guint dst_lr) {
+static sccp_assoc_info_t* sccp_assoc(packet_info* pinfo, guint offset, guint src_lr, guint dst_lr) {
     guint32 opck, dpck;
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
+    guint framenum = pinfo->fd->num;
 	
     if (assoc)
 	return assoc;
@@ -877,19 +878,34 @@ static sccp_assoc_info_t* sccp_assoc(packet_info* pinfo, guint src_lr, guint dst
 	}
     }
 
-    if (assoc && trace_sccp && ! pinfo->fd->flags.visited) {
-	sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
-	msg->framenum = pinfo->fd->num;
-	msg->next = NULL;
-	    
-	if (assoc->msgs) {
+     if (assoc && trace_sccp) {
+	    if ( ! pinfo->fd->flags.visited) {
+		sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
+		msg->framenum = framenum;
+		msg->offset = offset;
+		msg->info = NULL;
+		msg->private_data = NULL;
+		msg->next = NULL;
+		    
+		if (assoc->msgs) {
+			sccp_msg_info_t* m;
+			for (m = assoc->msgs; m->next; m = m->next) ;
+			m->next = msg;
+		} else {
+			assoc->msgs = msg;
+		}
+		
+		assoc->cur_msg = msg;
+	    } else {
 		sccp_msg_info_t* m;
-		for (m = assoc->msgs; m->next; m = m->next) ;
-		m->next = msg;
-	} else {
-		assoc->msgs = msg;
+		for (m = assoc->msgs; m; m = m->next) {
+			if (m->framenum == framenum && m->offset == offset) {
+				assoc->cur_msg = m;
+				break;
+			}
+		}
 	}
-    }
+   }
     
     return assoc ? assoc : &no_assoc;
 }
@@ -1434,7 +1450,8 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn;
     guint8 other_ssn;
-
+    void* save_priv_data  = pinfo->private_data;
+	
     if (assoc) {
 	other_ssn = INVALID_SSN;
 
@@ -1450,26 +1467,34 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		other_ssn = assoc->calling_ssn;
 		break;
 	}
+	pinfo->private_data = assoc;
+	
     } else {
 	ssn = assoc->called_ssn;
 	other_ssn = assoc->calling_ssn;
+	pinfo->private_data = NULL;
     }
 
+    
+    
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
-	return;
+	goto done;
     }
 
     if (other_ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
-	return;
+	goto done;
     }
 
     /* try heuristic subdissector list to see if there are any takers */
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
-	return;
+	goto done;
     }
 
     /* No sub-dissection occured, treat it as raw data */
     call_dissector(data_handle, tvb, pinfo, tree);
+
+done:
+        pinfo->private_data = save_priv_data;
 }
 
 static void
@@ -1798,7 +1823,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   fragment_data *frag_msg = NULL;
   guint32 source_local_ref=0;
   guint8 more;
-
+  guint msg_offset = offset_from_real_beginning(tvb,0);
+	
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
     if (ptr_size == POINTER_LENGTH) \
@@ -1866,7 +1892,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
-      assoc = sccp_assoc(pinfo, slr, dlr);
+      assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
@@ -1891,7 +1917,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
@@ -1905,7 +1931,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_REFUSAL_CAUSE, offset,
@@ -1922,14 +1948,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RELEASE_CAUSE, offset,
 				     RELEASE_CAUSE_LENGTH);
 
     OPTIONAL_POINTER(POINTER_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
   case MESSAGE_TYPE_RLC:
@@ -1941,7 +1967,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     break;
 
@@ -1952,7 +1978,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     more = tvb_get_guint8(tvb, offset) & SEGMENTING_REASSEMBLING_MASK;
 
@@ -2008,7 +2034,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SEQUENCING_SEGMENTING, offset,
@@ -2021,7 +2047,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RECEIVE_SEQUENCE_NUMBER,
@@ -2038,7 +2064,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2060,7 +2086,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2080,7 +2106,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH);
 
@@ -2093,7 +2119,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     break;
 
@@ -2108,7 +2134,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RESET_CAUSE, offset,
 				     RESET_CAUSE_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
   case MESSAGE_TYPE_RSC:
@@ -2119,7 +2145,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
   case MESSAGE_TYPE_ERR:
@@ -2130,7 +2156,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_ERROR_CAUSE, offset,
 				     ERROR_CAUSE_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
   case MESSAGE_TYPE_IT:
@@ -2141,7 +2167,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_SOURCE_LOCAL_REFERENCE,
 				     offset, SOURCE_LOCAL_REFERENCE_LENGTH);
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2170,7 +2196,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
      *  message.
      */
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2256,7 +2282,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
     OPTIONAL_POINTER(POINTER_LENGTH)
 
-    assoc = sccp_assoc(pinfo, slr, dlr);
+    assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2283,7 +2309,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
       OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      assoc = sccp_assoc(pinfo, slr, dlr);
+      assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2312,7 +2338,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
       OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
-      assoc = sccp_assoc(pinfo, slr, dlr);
+      assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -2343,7 +2369,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		  for(m = assoc->msgs; m ; m = m->next) { 	
 			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
 			PROTO_ITEM_SET_GENERATED(pi);
-			if (m->framenum == pinfo->fd->num) {
+			if (m->info) proto_item_append_text(pi," %s", m->info);
+			if (m->framenum == pinfo->fd->num && m->offset == msg_offset ) {
 				proto_item_append_text(pi," (current)");
 			}
 		  }

@@ -34,10 +34,14 @@ typedef enum _sccp_payload_t {
 } sccp_payload_t;
 
 /* obscure to SCCP, to be defined by users */
-typedef struct _sccp_payload_data_t sccp_payload_data_t;
+typedef struct _sccp_msg_payload_data_t sccp_msg_payload_data_t;
+typedef struct _sccp_assoc_data_t sccp_assoc_data_t;
 
 typedef struct _sccp_msg_info_t {
 	guint framenum;
+	guint offset;
+	gchar* info;
+        sccp_msg_payload_data_t* private_data;
 	struct _sccp_msg_info_t* next;
 } sccp_msg_info_t;
 
@@ -51,7 +55,8 @@ typedef struct _sccp_assoc_info_t {
     gboolean has_called_key;
     sccp_msg_info_t* msgs;
     sccp_payload_t pload;
-    sccp_payload_data_t* private_data;
+    sccp_assoc_data_t* private_data;
+    sccp_msg_info_t* cur_msg;	
 } sccp_assoc_info_t;
 
 #endif
