@@ -115,6 +115,8 @@ static int hf_sack_chunk_number_of_gap_blocks = -1;
 static int hf_sack_chunk_number_of_dup_tsns = -1;
 static int hf_sack_chunk_gap_block_start = -1;
 static int hf_sack_chunk_gap_block_end = -1;
+static int hf_sack_chunk_gap_block_start_tsn = -1;
+static int hf_sack_chunk_gap_block_end_tsn = -1;
 static int hf_sack_chunk_duplicate_tsn = -1;
 
 static int hf_shutdown_chunk_cumulative_tsn_ack = -1;
@@ -217,6 +219,8 @@ static gint ett_sctp_shutdown_complete_chunk_flags = -1;
 static gint ett_sctp_pktdrop_chunk_flags = -1;
 static gint ett_sctp_parameter_type= -1;
 static gint ett_sctp_sack_chunk_gap_block = -1;
+static gint ett_sctp_sack_chunk_gap_block_start = -1;
+static gint ett_sctp_sack_chunk_gap_block_end = -1;
 static gint ett_sctp_unrecognized_parameter_parameter = -1;
 
 static gint ett_sctp_fragments = -1;
@@ -611,7 +615,7 @@ static sctp_half_assoc_t* get_half_assoc(packet_info* pinfo, guint32 spt, guint3
 	sctp_half_assoc_t** hb;
 	emem_tree_key_t *k;
 	
-	if (!enable_tsn_analysis) return NULL;
+	if (!enable_tsn_analysis || !vtag) return NULL;
 
 	/* look for the current half_assoc by spt, dpt and vtag */
 	
@@ -2746,12 +2750,25 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 	sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, -1, cum_tsn_ack);
 	
 	for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
+		proto_item* pi;
+		proto_tree* pt;
 	  start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
 	  end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
 	  block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
 	  block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
-	  proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset,                                     SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
-	  proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end,   chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
+
+	  pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_start, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_START_LENGTH, NETWORK_BYTE_ORDER);
+	  pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_start);
+	  pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_start_tsn,
+		chunk_tvb, gap_block_offset,SACK_CHUNK_GAP_BLOCK_START_LENGTH,cum_tsn_ack + start);
+	  PROTO_ITEM_SET_GENERATED(pi);
+		
+	  pi = proto_tree_add_item(block_tree, hf_sack_chunk_gap_block_end,   chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   NETWORK_BYTE_ORDER);
+	  pt = proto_item_add_subtree(pi, ett_sctp_sack_chunk_gap_block_end);
+	  pi = proto_tree_add_uint(pt, hf_sack_chunk_gap_block_end_tsn,   chunk_tvb,
+		gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH,   cum_tsn_ack + end);
+	  PROTO_ITEM_SET_GENERATED(pi);
+
 
 	  sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, cum_tsn_ack + start, cum_tsn_ack + end);
 	  gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
@@ -3523,7 +3540,9 @@ proto_register_sctp(void)
     { &hf_sack_chunk_number_of_gap_blocks,          { "Number of gap acknowledgement blocks ",       "sctp.sack_number_of_gap_blocks",                       FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_number_of_dup_tsns,            { "Number of duplicated TSNs",                   "sctp.sack_number_of_duplicated_tsns",                  FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_gap_block_start,               { "Start",                                       "sctp.sack_gap_block_start",                            FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_gap_block_start_tsn,               { "Start TSN",                                       "sctp.sack_gap_block_start_tsn",                            FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_gap_block_end,                 { "End",                                         "sctp.sack_gap_block_end",                              FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sack_chunk_gap_block_end_tsn,                 { "End TSN",                                         "sctp.sack_gap_block_end_tsn",                              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_sack_chunk_duplicate_tsn,                 { "Duplicate TSN",                               "sctp.sack_duplicate_tsn",                              FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_shutdown_chunk_cumulative_tsn_ack,        { "Cumulative TSN Ack",                          "sctp.shutdown_cumulative_tsn_ack",                     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_ecne_chunk_lowest_tsn,                    { "Lowest TSN",                                  "sctp.ecne_lowest_tsn",                                 FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
@@ -3616,6 +3635,8 @@ proto_register_sctp(void)
     &ett_sctp_pktdrop_chunk_flags,
     &ett_sctp_parameter_type,
     &ett_sctp_sack_chunk_gap_block,
+    &ett_sctp_sack_chunk_gap_block_start,
+    &ett_sctp_sack_chunk_gap_block_end,
     &ett_sctp_unrecognized_parameter_parameter,
     &ett_sctp_fragments,
     &ett_sctp_fragment,
