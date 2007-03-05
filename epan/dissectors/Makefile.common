@@ -451,6 +451,7 @@ DISSECTOR_SRC =	\
 	packet-mbtcp.c	\
 	packet-mdshdr.c	\
 	packet-media.c	\
+	packet-mikey.c	\
 	packet-mip.c	\
 	packet-mip6.c	\
 	packet-mms.c	\
@@ -884,6 +885,7 @@ DISSECTOR_INCLUDES =	\
 	packet-llc.h	\
 	packet-logotypecertextn.h	\
 	packet-MAP_DialoguePDU.h	\
+	packet-mikey.h	\
 	packet-mip6.h	\
 	packet-mms.h	\
 	packet-mount.h	\

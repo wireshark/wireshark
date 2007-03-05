@@ -54,6 +54,7 @@
 #include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
+#include <epan/base64.h>
 
 #include "tap.h"
 #include "packet-sdp.h"
@@ -160,6 +161,11 @@ static int hf_sdp_fmtp_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
 
+/* hf_session_attribute hf_media_attribute subfields */
+static int hf_key_mgmt_att_value = -1;
+static int hf_key_mgmt_prtcl_id = -1;
+static int hf_key_mgmt_data = -1;
+
 /* trees */
 static int ett_sdp = -1;
 static int ett_sdp_owner = -1;
@@ -173,6 +179,7 @@ static int ett_sdp_session_attribute = -1;
 static int ett_sdp_media = -1;
 static int ett_sdp_media_attribute = -1;
 static int ett_sdp_fmtp = -1;
+static int ett_sdp_key_mgmt = -1;
 
 
 #define SDP_MAX_RTP_CHANNELS 4
@@ -200,6 +207,12 @@ static gboolean msrp_transport_address_set = FALSE;
 static guint32  msrp_ipaddr[4];
 static guint16  msrp_port_number;
 
+/* key-mgmt dissector
+ * IANA registry:
+ * http://www.iana.org/assignments/sdp-parameters
+ */
+static dissector_table_t key_mgmt_dissector_table;
+
 
 /* Protocol registration */
 void proto_register_sdp(void);
@@ -220,7 +233,7 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti);
 static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti);
-static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti);
 static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                               transport_info_t *transport_info);
 static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, transport_info_t *transport_info);
@@ -543,7 +556,7 @@ call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, int hf, proto_tree* ti,
   } else if ( hf == hf_encryption_key ) {
     dissect_sdp_encryption_key(tvb,ti);
   } else if ( hf == hf_session_attribute ){
-    dissect_sdp_session_attribute(tvb,ti);
+    dissect_sdp_session_attribute(tvb,pinfo,ti);
   } else if ( hf == hf_media ) {
     dissect_sdp_media(tvb,ti,transport_info);
   } else if ( hf == hf_media_attribute ){
@@ -864,9 +877,77 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
                       tvb, offset, -1, FALSE);
 }
 
+/* Return a tvb that contains the binary representation of a base64
+   string */
+
+static tvbuff_t *
+base64_to_tvb(const char *base64)
+{
+  tvbuff_t *tvb;
+  char *data = g_strdup(base64);
+  size_t len;
+
+  len = epan_base64_decode(data);
+  tvb = tvb_new_real_data((const guint8 *)data, len, len);
+
+  tvb_set_free_cb(tvb, g_free);
+
+  return tvb;
+}
 
 
-static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
+static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti){
+  gchar *data = NULL;
+  gchar *prtcl_id = NULL;
+  gint len;
+  tvbuff_t *keymgmt_tvb;
+  gboolean found_match = FALSE;
+  proto_tree *key_tree;
+  gint next_offset;
+  gint offset = 0;
+  gint tokenlen;
+
+  key_tree = proto_item_add_subtree(ti, ett_sdp_key_mgmt);
+
+  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+    
+  if (next_offset == -1)
+    return;
+    
+  tokenlen = next_offset - offset;
+  prtcl_id = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+
+  proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, FALSE);
+
+  offset = next_offset + 1;
+
+  len = tvb_length_remaining(tvb, offset);
+  if (len < 0)
+    return;
+
+  data = tvb_get_ephemeral_string(tvb, offset, len);
+  keymgmt_tvb = base64_to_tvb(data);
+  tvb_set_child_real_data_tvbuff(tvb, keymgmt_tvb);
+  add_new_data_source(pinfo, keymgmt_tvb, "Key Management Data");
+
+  if ( prtcl_id != NULL && key_mgmt_dissector_table != NULL ) {
+    found_match = dissector_try_string(key_mgmt_dissector_table,
+				       prtcl_id,
+				       keymgmt_tvb, pinfo,
+				       key_tree);
+  }
+
+  if (found_match)
+    proto_tree_add_item_hidden(key_tree, hf_key_mgmt_data,
+			       keymgmt_tvb, 0, -1, FALSE);
+  else
+    proto_tree_add_item(key_tree, hf_key_mgmt_data,
+			keymgmt_tvb, 0, -1, FALSE);
+  return;
+}
+
+
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti){
   proto_tree *sdp_session_attribute_tree;
   gint offset, next_offset, tokenlen;
   guint8 *field_name;
@@ -918,7 +999,14 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
       return;
     
     proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_type,tvb,offset,tokenlen,FALSE);
-    
+  } else if (strcmp((char*)field_name, "key-mgmt") == 0) {
+    tvbuff_t *key_tvb;
+    proto_item *key_ti;
+
+    key_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    key_ti = proto_tree_add_item(sdp_session_attribute_tree, hf_key_mgmt_att_value, key_tvb, 0, -1, FALSE);
+
+    dissect_key_mgmt(key_tvb, pinfo, key_ti);
   } else {
     proto_tree_add_item(sdp_session_attribute_tree, hf_session_attribute_value,
                         tvb, offset, -1, FALSE);
@@ -1772,7 +1860,18 @@ proto_register_sdp(void)
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "sdp.h223LogicalChannelParameters", HFILL }},
-
+    { &hf_key_mgmt_att_value,
+      { "Key Management",
+        "sdp.key_mgmt", FT_STRING, BASE_NONE, NULL, 0x0,
+        "Key Management", HFILL }},
+    { &hf_key_mgmt_prtcl_id,
+      { "Key Management Protocol (kmpid)",
+        "sdp.key_mgmt.kmpid", FT_STRING, BASE_NONE, NULL, 0x0,
+        "Key Management Protocol", HFILL }},
+    { &hf_key_mgmt_data,
+      { "Key Management Data",
+        "sdp.key_mgmt.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Key Management Data", HFILL }},
   };
   static gint *ett[] = {
     &ett_sdp,
@@ -1787,6 +1886,7 @@ proto_register_sdp(void)
     &ett_sdp_media,
     &ett_sdp_media_attribute,
     &ett_sdp_fmtp,
+    &ett_sdp_key_mgmt,
   };
 
   module_t *sdp_module;
@@ -1795,6 +1895,9 @@ proto_register_sdp(void)
                                       "SDP", "sdp");
   proto_register_field_array(proto_sdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  key_mgmt_dissector_table = register_dissector_table("key_mgmt",
+	    "Key Management", FT_STRING, BASE_NONE);
 
   /*
    * Preferences registration
