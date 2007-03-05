@@ -2593,6 +2593,11 @@ Ryan Wamsley		<wamslers [AT] sbcglobal.net> {
 	Connection Configuration Object support in EtherNet/IP   	 
 }
 
+Dave Butt		<davidbutt [AT] mxtelecom.com> {
+	RTP payload reassembly support
+	H.223-over-RTP support
+}    
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
