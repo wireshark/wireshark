@@ -333,6 +333,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
+	int hdr_len;
 	proto_item *item=NULL;
 	proto_tree *next_tree=NULL;
 	guint8 c;
@@ -497,13 +498,15 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 	    offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 	  }
 
+	  hdr_len=offset-start_offset;
+
 	  switch(class) {
 	  case BER_CLASS_UNI:
        	    item=proto_tree_add_text(tree, tvb, offset, len, "%s", val_to_str(tag,ber_uni_tag_codes,"Unknown"));
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
-		while(offset < (int)(start_offset + len))
+		while(offset < (int)(start_offset + len + hdr_len))
 		  offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 		break;
 	  case BER_CLASS_APP:
@@ -514,7 +517,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 		if(item){
 			next_tree=proto_item_add_subtree(item, ett_ber_SEQUENCE);
 		}
-		while(offset < (int)(start_offset + len))
+		while(offset < (int)(start_offset + len + hdr_len))
 		  offset=dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 		break;
 
