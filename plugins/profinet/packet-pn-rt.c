@@ -432,8 +432,10 @@ proto_reg_handoff_pn_rt(void)
   }
   else {
     dissector_delete("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
+    dissector_delete("udp.port", 0x8892, pn_rt_handle);
   }
 
   dissector_add("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
+  dissector_add("udp.port", 0x8892, pn_rt_handle);
 }
 
