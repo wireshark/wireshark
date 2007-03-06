@@ -47,7 +47,13 @@ DUMPCAP=$WS_BIN_PATH/dumpcap
 # interface with at least a few packets/sec traffic on it
 # (e.g. start a web radio to generate some traffic :-)
 # an interfaces index (1 based) should do well for recent devbuilds
-TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-2}
+if [ "$WS_SYSTEM" = "Windows" -a -z "$TRAFFIC_CAPTURE_IFACE" ] ; then
+        # Try to fetch the first Ethernet interface.
+        TRAFFIC_CAPTURE_IFACE=`$TSHARK -D | \
+                egrep 'Ethernet|Network Connection' | \
+                head -1 | cut -c 1`
+fi
+TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-1}
 
 # time to capture some traffic (in seconds)
 # (you may increase this if you get errors caused by very low traffic)
