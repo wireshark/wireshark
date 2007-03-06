@@ -207,6 +207,7 @@ static const h248_pkg_param_t h248_pkg_GB_BNCChange_pars[] = {
 
 static const h248_pkg_evt_t h248_pkg_GB_events[] = {
 	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars, h248_pkg_GB_BNCChange_params_vals},
+	{ 0, NULL, NULL, NULL, NULL}
 };
 
 static const value_string h248_pkg_GB_signals_vals[] = {
