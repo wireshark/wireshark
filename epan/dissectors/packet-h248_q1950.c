@@ -253,8 +253,8 @@ static h248_package_t h248_pkg_GB = {
 	&hf_h248_pkg_GB,
 	&ett_h248_pkg_GB,
 	NULL,
-	h248_pkg_GB_events_vals,
 	h248_pkg_GB_signals_vals,
+	h248_pkg_GB_events_vals,
 	NULL,
 	NULL,						/* Properties */
 	h248_pkg_GB_signals,			/* signals */
