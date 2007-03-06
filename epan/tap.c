@@ -460,3 +460,19 @@ have_tap_listeners(void)
 {
 	return tap_listener_queue != NULL;
 }
+
+/* Returns TRUE there is an active tap listener for the specified tap id. */
+gboolean
+have_tap_listener(int tap_id)
+{
+	volatile tap_listener_t *tap_queue = tap_listener_queue;
+
+	while(tap_queue) {
+		if(tap_queue->tap_id == tap_id)
+			return TRUE;
+
+		tap_queue = tap_queue->next;
+	}
+
+	return FALSE;
+}

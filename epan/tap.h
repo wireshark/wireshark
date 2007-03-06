@@ -50,6 +50,7 @@ extern GString *register_tap_listener(const char *tapname, void *tapdata,
     tap_draw_cb tap_draw);
 extern void remove_tap_listener(void *tapdata);
 extern gboolean have_tap_listeners(void);
+extern gboolean have_tap_listener(int tap_id);
 extern const void *fetch_tapped_data(int tap_id, int idx);
 
 #endif
