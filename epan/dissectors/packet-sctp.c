@@ -196,7 +196,8 @@ static int hf_sctp_fragment = -1;
 static int hf_sctp_retrans = -1;
 static int hf_sctp_rtt = -1;
 static int hf_sctp_rto = -1;
-static int hf_sctp_ack = -1;
+static int hf_sctp_ack_tsn = -1;
+static int hf_sctp_ack_frame = -1;
 static int hf_sctp_acked = -1;
 static int hf_sctp_dup_ack = -1;
 
@@ -726,7 +727,7 @@ static void sctp_tsn(packet_info* pinfo,  tvbuff_t* tvb, proto_item* tsn_item, s
 	tsn_tree(t, tsn_item, pinfo, tvb, framenum);
 }
 
-static void ack_tree(sctp_tsn_t* t, proto_tree* acks_tree, tvbuff_t* tvb, packet_info* pinfo) {
+static void ack_tree(sctp_tsn_t* t, sctp_half_assoc_t* h, proto_tree* acks_tree, tvbuff_t* tvb, packet_info* pinfo) {
 	proto_item* pi;
 	proto_tree* pt;
 	nstime_t rtt;
@@ -739,10 +740,14 @@ static void ack_tree(sctp_tsn_t* t, proto_tree* acks_tree, tvbuff_t* tvb, packet
 	} else {
 		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
 		
-		pi = proto_tree_add_uint(acks_tree, hf_sctp_ack, tvb, 0 , 0, t->first_transmit.framenum);
-		pt = proto_item_add_subtree(pi, ett_sctp_acked);
-		
+		pi = proto_tree_add_uint(acks_tree, hf_sctp_ack_tsn, tvb, 0 , 0, t->tsn +  h->peer->first_tsn);
 		PROTO_ITEM_SET_GENERATED(pi);
+		
+		pt = proto_item_add_subtree(pi, ett_sctp_acked);
+
+		pi = proto_tree_add_uint(pt, hf_sctp_ack_frame, tvb, 0 , 0, t->first_transmit.framenum);
+		PROTO_ITEM_SET_GENERATED(pi);
+		
 		pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
@@ -780,7 +785,9 @@ static void sctp_ack(packet_info* pinfo, tvbuff_t* tvb,  proto_tree* acks_tree, 
 				emem_tree_insert32(h->peer->tsn_acks, framenum,t);
 			}
 		}
-		ack_tree(t, acks_tree, tvb, pinfo);
+		
+		if ( t->ack.framenum == framenum)
+			ack_tree(t, h, acks_tree, tvb, pinfo);
 		
 	} /* else {
 		proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
@@ -789,15 +796,27 @@ static void sctp_ack(packet_info* pinfo, tvbuff_t* tvb,  proto_tree* acks_tree, 
 static void sctp_ack_block(packet_info* pinfo, sctp_half_assoc_t* h, tvbuff_t* tvb, proto_item* acks_tree, guint32 tsn_start, guint32 tsn_end) {
 	sctp_tsn_t* t;
 	guint32 framenum;
-
+	gboolean cum = FALSE;
+	
 	if (!h || !h->peer || h->first_tsn < 0)
 		return;
 	
 	framenum =  pinfo->fd->num;
+	
+	/* FIXME rollover */
+	if (tsn_start == -1) {
+		tsn_start = h->peer->cumm_ack + h->peer->first_tsn;
+		cum = TRUE;
+		/* printf("%.3d CACK: %p->%p  [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end); */
+	} /* else {
+		printf("%.3d BACK: %p vs %p [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end);
+	} */
 
 	if (t = emem_tree_lookup32(h->peer->tsn_acks, framenum)) {
+		guint32 tsn = t->tsn +  h->peer->first_tsn;
 		for(;t;t = t->next) {
-			ack_tree(t, acks_tree, tvb, pinfo);
+			if (t->ack.framenum == framenum && (cum || tsn_start <= tsn) &&tsn <= tsn_end)
+				ack_tree(t, h, acks_tree, tvb, pinfo);
 		}
 		
 		return;
@@ -805,20 +824,15 @@ static void sctp_ack_block(packet_info* pinfo, sctp_half_assoc_t* h, tvbuff_t* t
 	
 	if (pinfo->fd->flags.visited) return;
 	
-	/* FIXME rollover */
-	if (tsn_start == -1) {
-		tsn_start = h->peer->cumm_ack + h->peer->first_tsn;
-		/* printf("%.3d CACK: %p->%p  [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end); */
-	} /* else {
-		printf("%.3d BACK: %p vs %p [%u-%u]\n",framenum,h,h->peer,tsn_start,tsn_end);
-	} */
-	
 	if (tsn_start <= tsn_end) {
 		guint32 tsn;
 		for (tsn = tsn_start ; tsn <= tsn_end ; tsn++) {
 			sctp_ack(pinfo, tvb,  acks_tree, h, tsn);
 		}
-		h->peer->cumm_ack = tsn_end - h->peer->first_tsn + 1;
+		
+		if (cum) 
+			h->peer->cumm_ack = tsn_end - h->peer->first_tsn + 1;
+
 	}
 }
 
@@ -3614,8 +3628,10 @@ proto_register_sctp(void)
 	    { "This TSN is a retransmission of one in frame", "sctp.retransmitted", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
     { &hf_sctp_acked,
 	    { "This chunk is acked in frame", "sctp.acked", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
-    { &hf_sctp_ack,
-	    { "Acknowledges the chunk in frame", "sctp.ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
+    { &hf_sctp_ack_tsn,
+	    { "Acknowledges TSN", "sctp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,	NULL, HFILL } },
+    { &hf_sctp_ack_frame,
+	    { "Chunk in frame", "sctp.ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
     { &hf_sctp_dup_ack,
 	    { "Retransmitted Ack, previous ack in frame", "sctp.retransmitted_ack", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
 
