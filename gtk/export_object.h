@@ -34,7 +34,7 @@ typedef struct _export_object_list_t {
 	GtkTreeView *tree_view;
 	GtkTreeIter *iter;
 	GtkTreeStore *store;
-	gint slist_pos, row_selected;
+	gint row_selected;
 } export_object_list_t;
 
 typedef struct _export_object_entry_t {

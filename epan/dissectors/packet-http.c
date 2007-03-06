@@ -1072,18 +1072,23 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * only if it was content-encoded and/or transfer-encoded.
 		 */
 
+		/* Save values for the Export Object GUI feature if we have
+		 * an active listener to process it (which happens when
+		 * the export object window is open).  These will be freed
+		 * when the export object window is destroyed. */
+		if(have_tap_listener(http_tap)) {
+			stat_info->content_type = g_strdup(headers.content_type);
+			stat_info->payload_len = next_tvb->length;
+			stat_info->payload_data = g_memdup(next_tvb->real_data,
+							    next_tvb->length);
+		}
+
 		/*
 		 * Do subdissector checks.
 		 *
 		 * First, check whether some subdissector asked that they
 		 * be called if something was on some particular port.
 		 */
-
-		/* Save values for the Export Object GUI feature */
-		stat_info->content_type = se_strdup(headers.content_type);
-		stat_info->payload_len = next_tvb->length;
-		stat_info->payload_data = se_memdup(next_tvb->real_data,
-						    next_tvb->length);
 
 		handle = dissector_get_port_handle(port_subdissector_table,
 		    pinfo->match_port);

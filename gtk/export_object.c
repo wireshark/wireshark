@@ -78,13 +78,14 @@ eo_remember_this_row(GtkTreeModel *model _U_, GtkTreePath *path,
 	gint *path_index;
 
 	if((path_index = gtk_tree_path_get_indices(path)) == NULL)
+		/* Row not found in tree - shouldn't happen */
 		return;
 
 	object_list->row_selected = path_index[0];
 
+	/* Select the corresponding packet in the packet list */
 	entry = g_slist_nth_data(object_list->entries,
 				 object_list->row_selected);
-       
 	cf_goto_frame(&cfile, entry->pkt_num);
 }
 
@@ -95,15 +96,28 @@ eo_remember_row_num(GtkTreeSelection *sel, gpointer data)
 }
 
 
+/* Called when the Export Object window is closed in any way */
 static void
 eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
-        export_object_list_t *object_list = data;
+	export_object_list_t *object_list = data;
+	export_object_entry_t *entry;
+	GSList *slist = object_list->entries;
 
         protect_thread_critical_region();
         remove_tap_listener(object_list);
         unprotect_thread_critical_region();
 
+	while(slist) {
+		entry = slist->data;
+		
+		g_free(entry->content_type);
+		g_free(entry->payload_data);
+		
+		slist = slist->next; 
+	}
+
+	g_slist_free(object_list->entries);
    	g_free(object_list);
 }
 
@@ -174,8 +188,7 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	export_object_list_t *object_list = arg;
 	export_object_entry_t *entry;
 	GtkWidget *save_in_w;
-	GSList *last_slist_entry;
-	gint last_slist_entry_num, i;
+	GSList *slist = object_list->entries;
 
 	save_in_w = file_selection_new("Wireshark: Save All Objects In ...",
 				       FILE_SELECTION_CREATE_FOLDER);
@@ -184,36 +197,27 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 				     GTK_WINDOW(object_list->dlg));
 
 	if(gtk_dialog_run(GTK_DIALOG(save_in_w)) == GTK_RESPONSE_ACCEPT) {
-
-		/* Find the last entry in the SList, then start at the beginning
-		   saving each one until we reach the last entry. */
-		last_slist_entry = g_slist_last(object_list->entries);
-		last_slist_entry_num = g_slist_position(object_list->entries,
-							last_slist_entry);
-
-		for(i = 0; i <= last_slist_entry_num; i++) {
-			
-			entry = g_slist_nth_data(object_list->entries, i);
+		while(slist) {
+			entry = slist->data;
 
 			save_as_fullpath = g_build_filename(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_in_w)), entry->filename, NULL);
 			
 			eo_save_entry(save_as_fullpath, entry);
+
+			slist = slist->next;
 		}
 	}
 
 	window_destroy(save_in_w);
 }
 
+/* Runs at the beginning of tapping only */
 static void
 eo_reset(void *tapdata)
 {
 	export_object_list_t *object_list = tapdata;
 
-	if(object_list->entries) {
-		g_slist_free(object_list->entries);
-		object_list->entries = NULL;
-	}
-
+	object_list->entries = NULL;
 	object_list->iter = NULL;
 	object_list->row_selected = -1;
 }
@@ -224,21 +228,12 @@ eo_draw(void *tapdata)
 	export_object_list_t *object_list = tapdata;
 	export_object_entry_t *eo_entry;
 
-	GSList *slist_entry = NULL;
-	GSList *last_slist_entry = NULL;
-	gint last_slist_entry_num;
+	GSList *slist = object_list->entries;
 	GtkTreeIter new_iter;
 	gchar *column_text[EO_NUM_COLUMNS];
 
-	last_slist_entry = g_slist_last(object_list->entries);
-	last_slist_entry_num = g_slist_position(object_list->entries,
-						last_slist_entry);
-
-	while(object_list->slist_pos <= last_slist_entry_num &&
-	      last_slist_entry_num != -1) {
-		slist_entry = g_slist_nth(object_list->entries,
-					  object_list->slist_pos);
-		eo_entry = slist_entry->data;
+	while(slist) {
+		eo_entry = slist->data;
 		
 		column_text[0] = g_strdup_printf("%u", eo_entry->pkt_num);
 		column_text[1] = g_strdup_printf("%s", eo_entry->hostname);
@@ -263,7 +258,7 @@ eo_draw(void *tapdata)
 		g_free(column_text[3]);
 		g_free(column_text[4]);
 
-		object_list->slist_pos++;
+		slist = slist->next;
 	}
 }
 
@@ -383,7 +378,7 @@ export_object_window(gchar *tapname, tap_packet_cb tap_packet)
 	help_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
 	SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_OBJECT_LIST);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
-			     "Show help on this dialog", NULL);
+			     "Show help for this dialog.", NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), help_bt, FALSE, FALSE, 0);
 
 	/* Save All button */
@@ -418,7 +413,7 @@ export_object_window(gchar *tapname, tap_packet_cb tap_packet)
         SIGNAL_CONNECT(object_list->dlg, "delete_event",
 		       window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(object_list->dlg, "destroy",
-		       eo_win_destroy_cb, NULL);
+		       eo_win_destroy_cb, object_list);
        	window_set_cancel_button(object_list->dlg, close_bt,
 				 window_cancel_button_cb);
 

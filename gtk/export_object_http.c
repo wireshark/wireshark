@@ -50,9 +50,10 @@ eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	const http_info_value_t *stat_info = data;
 	export_object_entry_t *entry;
 
-	if(stat_info->content_type) { /* We have new data waiting */
-		entry = g_malloc(sizeof(export_object_entry_t));
-
+	if(stat_info->content_type && /* We have data waiting for us */
+           g_ascii_strncasecmp(stat_info->content_type, "<NULL>", 6) != 0) {
+ 		entry = g_malloc(sizeof(export_object_entry_t));
+	
 		entry->pkt_num = pinfo->fd->num;
 		entry->hostname = stat_info->http_host;
 		entry->content_type = stat_info->content_type;
