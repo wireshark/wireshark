@@ -103,6 +103,12 @@ static int hf_h263P_pbit = -1;
 static int hf_h263P_vbit = -1;
 static int hf_h263P_plen = -1;
 static int hf_h263P_pebit = -1;
+static int hf_h263P_tid = -1;
+static int hf_h263P_trun = -1;
+static int hf_h263P_s = -1;
+static int hf_h263P_extra_hdr = -1;
+static int hf_h263P_PSC = -1;
+static int hf_h263P_TR = -1;
 
 /* Source format types */
 #define SRCFORMAT_FORB   0  /* forbidden */
@@ -132,6 +138,13 @@ static const true_false_string picture_coding_type_flg = {
   "INTRA (I-picture)"
 };
 
+static const value_string picture_coding_type_vals[] =
+{
+  { 0,		"I-Frame" },
+  { 1,		"P-frame" },
+  { 0,		NULL },
+};
+
 static const true_false_string PB_frames_mode_flg = {
   "PB-frame",
   "Normal I- or P-picture"
@@ -144,6 +157,7 @@ static gint ett_h263_payload	= -1;
 /* H.263-1998 fields defining a sub tree */
 static gint ett_h263P			= -1;
 static gint ett_h263P_payload	= -1;
+static gint ett_h263P_data = -1;
 
 static void
 dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -301,7 +315,9 @@ static void
 dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti				= NULL;
-	proto_tree *h263P_tree	= NULL;
+	proto_item *data_item		= NULL;
+	proto_tree *h263P_tree		= NULL;
+	proto_tree *h263P_data_tree		= NULL;
 	unsigned int offset			= 0;
 	guint16 data16, plen;
 	guint8 octet;
@@ -327,25 +343,130 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, FALSE );
 	  offset = offset +2;
 	  /*
+	   *   V: 1 bit
+	   *
+	   *      Indicates the presence of an 8-bit field containing information
+	   *      for Video Redundancy Coding (VRC), which follows immediately after
+	   *      the initial 16 bits of the payload header, if present.  For syntax
+	   *      and semantics of that 8-bit VRC field, see Section 5.2.
+	   */
+
+	  if ((data16&0x0200)==0x0200){
+		  /* V bit = 1 
+		   *   The format of the VRC header extension is as follows:
+		   *
+		   *         0 1 2 3 4 5 6 7
+		   *        +-+-+-+-+-+-+-+-+
+		   *        | TID | Trun  |S|
+		   *        +-+-+-+-+-+-+-+-+
+		   *
+		   *   TID: 3 bits
+		   *
+		   *   Thread ID.  Up to 7 threads are allowed.  Each frame of H.263+ VRC
+		   *   data will use as reference information only sync frames or frames
+		   *   within the same thread.  By convention, thread 0 is expected to be
+		   *   the "canonical" thread, which is the thread from which the sync frame
+		   *   should ideally be used.  In the case of corruption or loss of the
+		   *   thread 0 representation, a representation of the sync frame with a
+		   *   higher thread number can be used by the decoder.  Lower thread
+		   *   numbers are expected to contain representations of the sync frames
+		   *   equal to or better than higher thread numbers in the absence of data
+		   *   corruption or loss.  See [Vredun] for a detailed discussion of VRC.
+		   *
+		   *   Trun: 4 bits
+		   *
+		   *   Monotonically increasing (modulo 16) 4-bit number counting the packet
+		   *   number within each thread.
+		   *
+		   *   S: 1 bit
+		   *
+		   *   A bit that indicates that the packet content is for a sync frame.  
+		   *   :
+		   */
+		  proto_tree_add_item( h263P_tree, hf_h263P_tid, tvb, offset, 1, FALSE );
+		  proto_tree_add_item( h263P_tree, hf_h263P_trun, tvb, offset, 1, FALSE );
+		  proto_tree_add_item( h263P_tree, hf_h263P_s, tvb, offset, 1, FALSE );
+		  offset++;
+	  }
+
 	  plen = (data16 & 0x01f8) >> 3;
+	  if (plen != 0){
+		  /* Length, in bytes, of the extra picture header. */
+		  proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, FALSE );
+		  offset = offset + plen;		
+	  }
 	  if ((data16&0x0400)!=0){
-		  / P bit = 1 /
+		  /* P bit = 1 */
+		  data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
+		  h263P_data_tree = proto_item_add_subtree( data_item, ett_h263P_data );
 		  octet = tvb_get_guint8(tvb,offset);
 		  if((octet&0xfc)==0x80){
-			  / PSC /
+			  /* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
+			   * Here without the first two 0 bytes of the PSC
+			   */
 			if ( check_col( pinfo->cinfo, COL_INFO) )
 				col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
+
+			proto_tree_add_item( h263P_data_tree, hf_h263P_PSC, tvb, offset, 2, FALSE );
+			proto_tree_add_item( h263P_data_tree, hf_h263P_TR, tvb, offset, 2, FALSE );
+			/*
+			 * Bit 1: Always "1", in order to avoid start code emulation. 
+			 * Bit 2: Always "0", for distinction with Recommendation H.261.
+			 */
+			 offset = offset + 2;
+			 /* Bit 3: Split screen indicator, "0" off, "1" on. */
+			 proto_tree_add_item( h263P_data_tree, hf_h263_split_screen_indicator, tvb, offset, 1, FALSE );
+			 /* Bit 4: Document camera indicator, */
+			 proto_tree_add_item( h263P_data_tree, hf_h263_document_camera_indicator, tvb, offset, 1, FALSE );
+			 /* Bit 5: Full Picture Freeze Release, "0" off, "1" on. */
+			 proto_tree_add_item( h263P_data_tree, hf_h263_full_picture_freeze_release, tvb, offset, 1, FALSE );
+			 /* Bits 6-8: Source Format, "000" forbidden, "001" sub-QCIF, "010" QCIF, "011" CIF,
+			  * "100" 4CIF, "101" 16CIF, "110" reserved, "111" extended PTYPE.
+			  */
+			 proto_tree_add_item( h263P_data_tree, hf_h263_source_format, tvb, offset, 1, TRUE );
+			 octet = tvb_get_guint8(tvb,offset);
+			 if (( octet & 0x1c) != 0x1c){
+				 /* Not extended PTYPE */
+				 /* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
+				 proto_tree_add_item( h263P_data_tree, hf_h263_payload_picture_coding_type, tvb, offset, 1, FALSE );
+				 if ( check_col( pinfo->cinfo, COL_INFO) )
+					 col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str((octet & 0x02)>>1, picture_coding_type_vals, "Unknown (%u)"));
+
+				 /* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
+				 proto_tree_add_item( h263P_data_tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset, 1, FALSE );
+				 offset++;
+				 /* Bit 11: Optional Syntax-based Arithmetic Coding mode (see Annex E), "0" off, "1" on.*/
+				 proto_tree_add_item( h263P_data_tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset, 1, FALSE );
+				 /* Bit 12: Optional Advanced Prediction mode (see Annex F), "0" off, "1" on.*/
+				 proto_tree_add_item( h263P_data_tree, hf_h263_optional_advanced_prediction_mode, tvb, offset, 1, FALSE );
+				 /* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
+				 proto_tree_add_item( h263P_data_tree, hf_h263_PB_frames_mode, tvb, offset, 1, FALSE );
+			 }
+			 return;
 		  }else{
+			  /*
 			if ( check_col( pinfo->cinfo, COL_INFO) )
 			  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
+			  */
 		  }
 	  }
-	*/
-	  offset = offset + plen;		
 	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
 	}
 }
+/*
+TODO: Add these?
+	End Of Sequence (EOS) (22 bits)
+	A codeword of 22 bits. Its value is 0000 0000 0000 0000 1 11111.
 
+	Group of Block Start Code (GBSC) (17 bits)
+	A word of 17 bits. Its value is 0000 0000 0000 0000 1.
+
+	End Of Sub-Bitstream code (EOSBS) (23 bits)
+	The EOSBS code is a codeword of 23 bits. Its value is 0000 0000 0000 0000 1 11110 0.
+
+	Slice Start Code (SSC) (17 bits)
+	A word of 17 bits. Its value is 0000 0000 0000 0000 1.
+  */
 static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	guint offset = 0;
@@ -394,6 +515,9 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				  /* Not extended PTYPE */
 				  /* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
 				  proto_tree_add_item( h263_payload_tree, hf_h263_payload_picture_coding_type, tvb, offset, 1, FALSE );
+				  if ( check_col( pinfo->cinfo, COL_INFO) )
+					 col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str((octet & 0x02)>>1, picture_coding_type_vals, "Unknown (%u)"));
+
 				  /* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
 				  proto_tree_add_item( h263_payload_tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset, 1, FALSE );
 				  offset++;
@@ -962,12 +1086,87 @@ proto_register_h263P(void)
 			}
 		},
 
+
+		{
+			&hf_h263P_tid,
+			{
+				"Thread ID",
+				"h263P.tid",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0xe0,
+				"Thread ID", HFILL
+			}
+		},
+		{
+			&hf_h263P_trun,
+			{
+				"Trun",
+				"h263P.trun",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x1e,
+				"Monotonically increasing (modulo 16) 4-bit number counting the packet number within each thread", HFILL
+			}
+		},
+		{
+			&hf_h263P_s,
+			{
+				"S",
+				"h263P.s",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x01,
+				"Indicates that the packet content is for a sync frame", HFILL
+			}
+		},
+		{
+			&hf_h263P_extra_hdr,
+			{
+				"Extra picture header",
+				"h263P.extra_hdr",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Extra picture header", HFILL
+			}
+		},
+		{
+			&hf_h263P_PSC,
+			{
+				"H.263 PSC",
+				"h263P.PSC",
+				FT_UINT16,
+				BASE_HEX,
+				NULL,
+				0xfc00,
+				"Picture Start Code(PSC)", HFILL
+			}
+		},
+		{
+			&hf_h263P_TR,
+			{
+				"H.263 Temporal Reference",
+				"h263P.tr",
+				FT_UINT16,
+				BASE_HEX,
+				NULL,
+				0x03fc,
+				"Temporal Reference, TR", HFILL
+			}
+		},
+
 	};
 
 	static gint *ett[] =
 	{
 		&ett_h263P,
 		&ett_h263P_payload,
+		&ett_h263P_data,
 	};
 
 
