@@ -195,13 +195,18 @@ static const value_string h248_pkg_GB_BNCChange_type_vals[] = {
 	{0,NULL}
 };
 
+static const value_string h248_pkg_GB_BNCChange_params_vals[] = {
+	{0x01, "Type"},
+	{0,NULL}
+};
+
 static const h248_pkg_param_t h248_pkg_GB_BNCChange_pars[] = {
 	{ 0x0001, &hf_h248_pkg_GB_BNCChange_type, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
 static const h248_pkg_evt_t h248_pkg_GB_events[] = {
-	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars, h248_pkg_GB_events_vals},
+	{ 0x0001, &hf_h248_pkg_GB_BNCChange, &ett_h248_pkg_GB_BNCChange, h248_pkg_GB_BNCChange_pars, h248_pkg_GB_BNCChange_params_vals},
 };
 
 static const value_string h248_pkg_GB_signals_vals[] = {

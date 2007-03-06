@@ -774,7 +774,7 @@ BEGIN
 	RequestedEvent ::= SEQUENCE
 	{
 --		pkgdName				[0] PkgdName,
-		pkgdName				[0] EventName,
+		eventName				[0] EventName,
 		streamID				[1] StreamID OPTIONAL,
 		eventAction				[2] RequestedActions OPTIONAL,
 		evParList				[3] SEQUENCE OF EventParameter,

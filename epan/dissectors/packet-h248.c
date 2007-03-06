@@ -294,7 +294,6 @@ static int hf_h248_termList_item = -1;            /* TerminationID */
 static int hf_h248_nonStandardData = -1;          /* NonStandardData */
 static int hf_h248_eventList = -1;                /* SEQUENCE_OF_RequestedEvent */
 static int hf_h248_eventList_item = -1;           /* RequestedEvent */
-static int hf_h248_pkgdName = -1;                 /* EventName */
 static int hf_h248_eventAction = -1;              /* RequestedActions */
 static int hf_h248_evParList = -1;                /* SEQUENCE_OF_EventParameter */
 static int hf_h248_evParList_item = -1;           /* EventParameter */
@@ -309,7 +308,7 @@ static int hf_h248_resetEventsDescriptor = -1;    /* NULL */
 static int hf_h248_digitMapValue = -1;            /* DigitMapValue */
 static int hf_h248_secondaryEventList = -1;       /* SEQUENCE_OF_SecondRequestedEvent */
 static int hf_h248_secondaryEventList_item = -1;  /* SecondRequestedEvent */
-static int hf_h248_pkgdName1 = -1;                /* PkgdName */
+static int hf_h248_pkgdName = -1;                 /* PkgdName */
 static int hf_h248_secondaryEventAction = -1;     /* SecondRequestedActions */
 static int hf_h248_EventBufferDescriptor_item = -1;  /* EventSpec */
 static int hf_h248_SignalsDescriptor_item = -1;   /* SignalRequest */
@@ -2982,8 +2981,8 @@ static int dissect_iASignalName_impl(packet_info *pinfo, proto_tree *tree, tvbuf
 static int dissect_iAStatName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_iAStatName);
 }
-static int dissect_pkgdName1_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_pkgdName1);
+static int dissect_pkgdName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_pkgdName);
 }
 
 
@@ -3966,9 +3965,6 @@ static int dissect_requestId_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 static int dissect_eventName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventName);
 }
-static int dissect_pkgdName_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_pkgdName);
-}
 
 
 
@@ -4457,7 +4453,7 @@ static int dissect_evParList_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
 
 static const ber_sequence_t SecondRequestedEvent_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName1_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_secondaryEventAction_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_evParList_impl },
@@ -4530,7 +4526,7 @@ static int dissect_eventAction_impl(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static const ber_sequence_t RequestedEvent_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_pkgdName_impl },
+  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_streamID_impl },
   { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_eventAction_impl },
   { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_evParList_impl },
@@ -7440,10 +7436,6 @@ void proto_register_h248(void) {
       { "Item", "h248.eventList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.RequestedEvent", HFILL }},
-    { &hf_h248_pkgdName,
-      { "pkgdName", "h248.pkgdName",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "h248.EventName", HFILL }},
     { &hf_h248_eventAction,
       { "eventAction", "h248.eventAction",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7500,7 +7492,7 @@ void proto_register_h248(void) {
       { "Item", "h248.eventList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "h248.SecondRequestedEvent", HFILL }},
-    { &hf_h248_pkgdName1,
+    { &hf_h248_pkgdName,
       { "pkgdName", "h248.pkgdName",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h248.PkgdName", HFILL }},
