@@ -84,9 +84,10 @@ static const char *plot_style_name[MAX_PLOT_STYLES] = {
 
 #define COUNT_TYPE_FRAMES   0
 #define COUNT_TYPE_BYTES    1
-#define COUNT_TYPE_ADVANCED 2
-#define MAX_COUNT_TYPES 3
-static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Advanced..."};
+#define COUNT_TYPE_BITS     2
+#define COUNT_TYPE_ADVANCED 3
+#define MAX_COUNT_TYPES 4
+static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Bits/Tick", "Advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
@@ -398,6 +399,8 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 		return it->frames;
 	case COUNT_TYPE_BYTES:
 		return it->bytes;
+	case COUNT_TYPE_BITS:
+		return (it->bytes * 8);
 	}
 
 

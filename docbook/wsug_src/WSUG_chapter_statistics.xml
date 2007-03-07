@@ -414,7 +414,7 @@
 	<listitem>
 	<para>
 	<command>Unit</command> the unit for the y direction (Packets/Tick, 
-	Bytes/Tick, Advanced...)
+	Bytes/Tick, Bits/Tick, Advanced...)
 	</para>
 	</listitem>
 	<listitem>
