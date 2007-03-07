@@ -845,7 +845,7 @@ proto_register_iua(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_int_interface_id,      { "Integer interface identifier", "iua.int_interface_identifier",  FT_INT32,   BASE_HEX,  NULL,                           0x0,            "", HFILL } },
+    { &hf_int_interface_id,      { "Integer interface identifier", "iua.int_interface_identifier",  FT_UINT32,  BASE_HEX,  NULL,                           0x0,            "", HFILL } },
     { &hf_text_interface_id,     { "Text interface identifier",    "iua.text_interface_identifier", FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } },
     { &hf_info_string,           { "Info string",                  "iua.info_string",               FT_STRING,  BASE_NONE, NULL,                           0x0,            "", HFILL } },
     { &hf_dlci_zero_bit,         { "Zero bit",                     "iua.dlci_zero_bit",             FT_BOOLEAN, 8,         NULL,                           ZERO_BIT_MASK,  "", HFILL } },
