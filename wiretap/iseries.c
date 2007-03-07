@@ -254,7 +254,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 {
   guint line;
   int num_items_scanned;
-  char buf[ISERIES_LINE_LENGTH], protocol[8], tcpformat[1];
+  char buf[ISERIES_LINE_LENGTH], protocol[9], tcpformat[2];
   guint8 *sdate;
 
   /* Save trace format for passing between packets */

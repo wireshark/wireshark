@@ -33,6 +33,23 @@ Wireshark Info
       The following vulnerabilities have been fixed.  See the
       <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
 
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            On some systems, Wireshark could crash while reading
+            iSeries capture files.
+            <!-- Fixed in r20990 -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1415">1415</ulink>)
+          </para>
+          <para>Versions affected: 0.10.14 to 0.99.5</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+      </itemizedlist>
+
     </para>
 
     <para>
@@ -45,6 +62,8 @@ Wireshark Info
           WEP decryption would only work for the first key specified.
           disappear or become unusable.
         </para></listitem>
+
+
 
       </itemizedlist>
     </para>
