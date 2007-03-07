@@ -1,7 +1,7 @@
 /*
  *  packet-h248_10.c
  *
- * $Id: $
+ * $Id$
  *
  *  H.248.10
  *  Gateway control protocol: Media gateway
