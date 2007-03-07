@@ -1,5 +1,3 @@
-- allow [public] on typedefs only
-
 - EJS output backend shouldn't use the NDR levels stuff but instead 
   as the "C levels" and NDR levels don't necessarily match.
 
@@ -8,14 +6,19 @@
 - compatibility mode for generating MIDL-readable data:
  - strip out pidl-specific properties
 
+- remove declare in favor of typedef
+- make bitmap an optional attribute on enum
 - support nested elements
- - support typedefs properly
- - improve represent_as(): allow it to be used for arrays and other complex 
-   types
+- support typedefs properly (e.g. allow "typedef void **bla;")
+- make typedefs generate real typedefs
+- improve represent_as(): allow it to be used for arrays and other complex 
+  types
 
 - --explain-ndr option that dumps out parse tree ?
 
 - seperate tables for NDR and DCE/RPC
+ - maybe no tables for NDR at all? we only need them for ndrdump 
+   and that can use dlsym()
 
 - allow data structures outside of interfaces
 

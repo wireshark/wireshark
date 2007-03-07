@@ -4,7 +4,7 @@
 # Published under the GNU General Public License
 use strict;
 
-use Test::More tests => 62 * 2;
+use Test::More tests => 64 * 2 + 2;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util qw(test_errors);
@@ -107,3 +107,18 @@ testfail "import-nosemicolon", "import \"foo.idl\"",
          "<import-nosemicolon>:0: Syntax error near 'foo.idl'\n";
 testok "import-multiple", "import \"foo.idl\", \"bar.idl\";";
 testok "include-multiple", "include \"foo.idl\", \"bar.idl\";";
+testok "empty-struct", "interface test { struct foo { }; }";
+testok "typedef-double", "interface test { typedef struct foo { } foo; }";
+
+my $x = Parse::Pidl::IDL::parse_string("interface foo { struct x {}; }", "<foo>");
+
+is_deeply($x, 
+	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
+		 { 'NAME' => 'x', 'TYPE' => 'STRUCT', ELEMENTS => [] } ], 
+		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 
+
+$x = Parse::Pidl::IDL::parse_string("interface foo { struct x; }", "<foo>");
+is_deeply($x, 
+	 [ { 'FILE' => '<foo>', 'NAME' => 'foo', 'DATA' => [ 
+		 { 'NAME' => 'x', 'TYPE' => 'STRUCT' } ], 
+		 'TYPE' => 'INTERFACE', 'LINE' => 0 } ]); 

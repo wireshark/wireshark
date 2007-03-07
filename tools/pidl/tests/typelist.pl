@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 53;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -22,21 +22,45 @@ is("uint32_t", mapScalarType("uint32"));
 is("void", mapScalarType("void"));
 is("uint64_t", mapScalarType("hyper"));
 
-my $x = { TYPE => "ENUM", NAME => "foo" };
+my $x = { TYPE => "ENUM", NAME => "foo", EXTRADATA => 1 };
 addType($x);
-is($x, getType("foo"));
+is_deeply($x, getType("foo"));
 is(undef, getType("bloebla"));
+is_deeply(getType({ TYPE => "STRUCT" }), { TYPE => "STRUCT" });
+is_deeply(getType({ TYPE => "ENUM", NAME => "foo" }), $x);
+is_deeply(getType("uint16"), {
+		NAME => "uint16",
+		TYPE => "TYPEDEF",
+		DATA => { NAME => "uint16", TYPE => "SCALAR" }});
 
 is(0, typeIs("someUnknownType", "ENUM"));
+is(0, typeIs("foo", "ENUM"));
+addType({NAME => "mytypedef", TYPE => "TYPEDEF", DATA => { TYPE => "ENUM" }});
+is(1, typeIs("mytypedef", "ENUM"));
+is(0, typeIs("mytypedef", "BITMAP"));
+is(1, typeIs({ TYPE => "ENUM"}, "ENUM"));
+is(0, typeIs({ TYPE => "BITMAP"}, "ENUM"));
+is(1, typeIs("uint32", "SCALAR"));
+is(0, typeIs("uint32", "ENUM"));
 
 is(1, hasType("foo"));
 is(0, hasType("nonexistant"));
+is(0, hasType({TYPE => "ENUM", NAME => "someUnknownType"}));
+is(1, hasType({TYPE => "ENUM", NAME => "foo"}));
+is(1, hasType({TYPE => "ENUM"}));
+is(1, hasType({TYPE => "STRUCT"}));
 
 is(1, is_scalar("uint32"));
 is(0, is_scalar("nonexistant"));
+is(1, is_scalar({TYPE => "ENUM"}));
+is(0, is_scalar({TYPE => "STRUCT"}));
+is(1, is_scalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM" }}));
+is(1, is_scalar("mytypedef"));
+is(1, is_scalar({TYPE => "DECLARE", DATA => {TYPE => "ENUM" }}));
 
 is(1, scalar_is_reference("string"));
 is(0, scalar_is_reference("uint32"));
+is(0, scalar_is_reference({TYPE => "STRUCT", NAME => "echo_foobar"}));
 
 is("uint8", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {enum8bit => 1}}}));
 is("uint32", enum_type_fn({TYPE => "ENUM", PARENT=>{PROPERTIES => {v1_enum => 1}}}));

@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 34;
+use Test::More tests => 41;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -12,7 +12,7 @@ use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::NDR::Parser qw(check_null_pointer 
 	GenerateFunctionInEnv GenerateFunctionOutEnv GenerateStructEnv 
 	EnvSubstituteValue NeededFunction NeededElement NeededType $res
-	NeededInterface); 
+	NeededInterface TypeFunctionName ParseElementPrint); 
 
 my $output;
 sub print_fn($) { my $x = shift; $output.=$x; }
@@ -185,28 +185,28 @@ is_deeply($env, { foo => 0, this => "r" });
 
 my $needed = {};
 NeededElement({ TYPE => "foo", REPRESENTATION_TYPE => "foo" }, "pull", $needed); 
-is_deeply($needed, { pull_foo => 1 });
+is_deeply($needed, { ndr_pull_foo => 1 });
 
 # old settings should be kept
-$needed = { pull_foo => 0 };
+$needed = { ndr_pull_foo => 0 };
 NeededElement({ TYPE => "foo", REPRESENTATION_TYPE => "foo" }, "pull", $needed); 
-is_deeply($needed, { pull_foo => 0 });
+is_deeply($needed, { ndr_pull_foo => 0 });
 
 # print/pull/push are independent of each other
-$needed = { pull_foo => 0 };
+$needed = { ndr_pull_foo => 0 };
 NeededElement({ TYPE => "foo", REPRESENTATION_TYPE => "foo" }, "print", $needed); 
-is_deeply($needed, { pull_foo => 0, print_foo => 1 });
+is_deeply($needed, { ndr_pull_foo => 0, ndr_print_foo => 1 });
 
 $needed = { };
 NeededFunction({ NAME => "foo", ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] }, $needed); 
-is_deeply($needed, { pull_foo => 1, print_foo => 1, push_foo => 1,
-	                 pull_bar => 1, print_bar => 1, push_bar => 1});
+is_deeply($needed, { ndr_pull_foo => 1, ndr_print_foo => 1, ndr_push_foo => 1,
+	                 ndr_pull_bar => 1, ndr_print_bar => 1, ndr_push_bar => 1});
 
 # push/pull/print are always set for functions
-$needed = { pull_foo => 0 };
+$needed = { ndr_pull_foo => 0 };
 NeededFunction({ NAME => "foo", ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] }, $needed); 
-is_deeply($needed, { pull_foo => 1, print_foo => 1, push_foo => 1,
-	                 pull_bar => 1, push_bar => 1, print_bar => 1});
+is_deeply($needed, { ndr_pull_foo => 1, ndr_print_foo => 1, ndr_push_foo => 1,
+	                 ndr_pull_bar => 1, ndr_push_bar => 1, ndr_print_bar => 1});
 
 # public structs are always needed
 $needed = {};
@@ -220,7 +220,7 @@ NeededInterface({ TYPES => [ { PROPERTIES => { public => 1 }, NAME => "bla",
 				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", ELEMENTS => [] } } ] },
 			  $needed);
-is_deeply($needed, { pull_bla => 1, push_bla => 1, print_bla => 1 });
+is_deeply($needed, { ndr_pull_bla => 1, ndr_push_bla => 1, ndr_print_bla => 1 });
 
 # make sure types for elements are set too
 $needed = {};
@@ -229,8 +229,8 @@ NeededInterface({ TYPES => [ { PROPERTIES => { public => 1 }, NAME => "bla",
 	            DATA => { TYPE => "STRUCT", 
 						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } } ] },
 			  $needed);
-is_deeply($needed, { pull_bla => 1, pull_bar => 1, push_bla => 1, push_bar => 1,
-					 print_bla => 1, print_bar => 1});
+is_deeply($needed, { ndr_pull_bla => 1, ndr_pull_bar => 1, ndr_push_bla => 1, ndr_push_bar => 1,
+					 ndr_print_bla => 1, ndr_print_bar => 1});
 
 $needed = {};
 NeededInterface({ TYPES => [ { PROPERTIES => { gensize => 1}, NAME => "bla", 
@@ -241,13 +241,13 @@ NeededInterface({ TYPES => [ { PROPERTIES => { gensize => 1}, NAME => "bla",
 is_deeply($needed, { ndr_size_bla => 1 });
 	                 
 # make sure types for elements are set too
-$needed = { pull_bla => 1 };
+$needed = { ndr_pull_bla => 1 };
 NeededType({ NAME => "bla", 
 				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
 						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "bar" } ] } },
 			  $needed, "pull");
-is_deeply($needed, { pull_bla => 1, pull_bar => 1 });
+is_deeply($needed, { ndr_pull_bla => 1, ndr_pull_bar => 1 });
 
 $needed = {};
 NeededInterface({ TYPES => [ { PROPERTIES => { public => 1}, 
@@ -255,8 +255,9 @@ NeededInterface({ TYPES => [ { PROPERTIES => { public => 1},
 				TYPE => "TYPEDEF",
 	            DATA => { TYPE => "STRUCT", 
 						  ELEMENTS => [ { TYPE => "bar", REPRESENTATION_TYPE => "rep" } ] } } ] }, $needed);
-is_deeply($needed, { pull_bla => 1, push_bla => 1, print_bla => 1, print_rep => 1,
-	                 pull_bar => 1, push_bar => 1, 
+is_deeply($needed, { ndr_pull_bla => 1, ndr_push_bla => 1, ndr_print_bla => 1, 
+					 ndr_print_rep => 1,
+	                 ndr_pull_bar => 1, ndr_push_bar => 1, 
 				     ndr_bar_to_rep => 1, ndr_rep_to_bar => 1});
 	
 $res = "";
@@ -297,3 +298,28 @@ is($res, "if (ndr_flags & NDR_SCALARS) {
 if (ndr_flags & NDR_BUFFERS) {
 }
 ");
+
+is(TypeFunctionName("ndr_pull", "uint32"), "ndr_pull_uint32");
+is(TypeFunctionName("ndr_pull", {TYPE => "ENUM", NAME => "bar"}), "ndr_pull_ENUM_bar");
+is(TypeFunctionName("ndr_pull", {TYPE => "TYPEDEF", NAME => "bar", DATA => undef}), "ndr_pull_bar");
+is(TypeFunctionName("ndr_push", {TYPE => "STRUCT", NAME => "bar"}), "ndr_push_STRUCT_bar");
+
+# check noprint works
+$res = "";
+ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
+				    PROPERTIES => { noprint => 1},
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt"} ]}, "var", { "x" => "r->foobar" } );
+is($res, "");
+
+$res = "";
+ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
+				    PROPERTIES => {},
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt" }]}, "var", { "x" => "r->foobar" } );
+is($res, "ndr_print_rt(ndr, \"x\", &var);\n");
+
+# make sure that a print function for an element with value() set works
+$res = "";
+ParseElementPrint({ NAME => "x", TYPE => "uint32", REPRESENTATION_TYPE => "uint32", 
+				    PROPERTIES => { value => "23" },
+				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "uint32"} ]}, "var", { "x" => "r->foobar" } );
+is($res, "ndr_print_uint32(ndr, \"x\", (ndr->flags & LIBNDR_PRINT_SET_VALUES)?23:var);\n");

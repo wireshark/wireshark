@@ -4,12 +4,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 26;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::NDR qw(GetElementLevelTable ParseElement);
+use Parse::Pidl::NDR qw(GetElementLevelTable ParseElement align_type mapToScalar ParseType);
 
 # Case 1
 
@@ -203,3 +203,27 @@ $e = {
 
 $ne = ParseElement($e, undef);
 is($ne->{REPRESENTATION_TYPE}, "uint8");
+
+is(align_type("hyper"), 8);
+is(align_type("uint32"), 4);
+is(align_type("uint16"), 2);
+is(align_type("uint8"), 1);
+is(align_type({ TYPE => "STRUCT", "NAME" => "bla", 
+			    ELEMENTS => [ { TYPE => "uint16" } ] }), 4);
+is(align_type({ TYPE => "STRUCT", 
+			    ELEMENTS => [ { TYPE => "hyper" } ] }), 8);
+is(align_type({ TYPE => "DECLARE", DATA => { 
+				TYPE => "STRUCT", 
+			    ELEMENTS => [ { TYPE => "hyper" } ] }}), 8);
+is(align_type({ TYPE => "STRUCT", "NAME" => "bla", 
+			    ELEMENTS => [ { TYPE => "uint8" } ] }), 4);
+
+is(mapToScalar("someverymuchnotexistingtype"), undef);
+is(mapToScalar("uint32"), "uint32");
+is(mapToScalar({TYPE => "ENUM", PARENT => { PROPERTIES => { enum8bit => 1 } } }), "uint8");
+is(mapToScalar({TYPE => "BITMAP", PROPERTIES => { bitmap64bit => 1 } }),
+	"hyper");
+is(mapToScalar({TYPE => "TYPEDEF", DATA => {TYPE => "ENUM", PARENT => { PROPERTIES => { enum8bit => 1 } } }}), "uint8");
+
+is_deeply(ParseType({TYPE => "STRUCT", NAME => "foo" }, "ref"), 
+	{TYPE => "STRUCT", NAME => "foo" });

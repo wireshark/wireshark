@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 15;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -36,3 +36,18 @@ like(parse_idl("interface x { void foo ([in,out] uint32 x); };"),
 like(parse_idl("interface x { void foo (uint32 x); };"), qr/struct foo.*{.*struct\s+{\s+uint32_t x;\s+} in;\s+struct\s+{\s+uint32_t x;\s+} out;.*};/sm, "fn with no props implies in,out");
 like(parse_idl("interface p { struct x { int y; }; };"),
      qr/struct x.*{.*int32_t y;.*}.*;/sm, "interface member generated properly");
+
+like(parse_idl("interface p { struct x { struct y z; }; };"),
+     qr/struct x.*{.*struct y z;.*}.*;/sm, "tagged type struct member");
+
+like(parse_idl("interface p { struct x { union y z; }; };"),
+     qr/struct x.*{.*union y z;.*}.*;/sm, "tagged type union member");
+
+like(parse_idl("interface p { struct x { }; };"),
+     qr/struct x.*{.*char _empty_;.*}.*;/sm, "empty struct");
+
+like(parse_idl("interface p { struct x; };"),
+     qr/struct x;/sm, "struct declaration");
+
+like(parse_idl("interface p { typedef struct x { int p; } x; };"),
+     qr/struct x.*{.*int32_t p;.*};/sm, "double struct declaration");

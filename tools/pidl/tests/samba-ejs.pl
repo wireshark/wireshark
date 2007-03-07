@@ -4,13 +4,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 17;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::EJS qw(get_pointer_to get_value_of check_null_pointer
-        $res $res_hdr fn_declare);
+        $res $res_hdr fn_declare TypeFunctionName);
 
 is("&foo", get_pointer_to("foo"));
 is("&(&foo)", get_pointer_to(get_pointer_to("foo")));
@@ -40,3 +40,8 @@ $res_hdr = "";
 fn_declare({ PROPERTIES => {} }, "mybla(int foo)");
 is($res, "static mybla(int foo)\n");
 is($res_hdr, "");
+
+is(TypeFunctionName("ejs_pull", "uint32"), "ejs_pull_uint32");
+is(TypeFunctionName("ejs_pull", {TYPE => "ENUM", NAME => "bar"}), "ejs_pull_ENUM_bar");
+is(TypeFunctionName("ejs_pull", {TYPE => "TYPEDEF", NAME => "bar", DATA => undef}), "ejs_pull_bar");
+is(TypeFunctionName("ejs_push", {TYPE => "STRUCT", NAME => "bar"}), "ejs_push_STRUCT_bar");

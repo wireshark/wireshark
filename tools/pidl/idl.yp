@@ -66,21 +66,15 @@ interface_names:
 	| interface_names 'interface' identifier ';' { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
-interface: property_list 'interface' identifier base_interface '{' definitions '}' optional_semicolon
+interface: property_list 'interface' identifier '{' definitions '}' optional_semicolon
           {{
                "TYPE" => "INTERFACE", 
 	       "PROPERTIES" => $_[1],
 	       "NAME" => $_[3],
-	       "BASE" => $_[4],
-	       "DATA" => $_[6],
+	       "DATA" => $_[5],
 		   "FILE" => $_[0]->YYData->{FILE},
 		   "LINE" => $_[0]->YYData->{LINE},
           }}
-;
-
-base_interface:
-	#empty
-	| ':' identifier { $_[2] }
 ;
 
 definitions: 
@@ -293,7 +287,7 @@ pointers:
 ;
 
 element_list1: 
-    #empty
+	{ [] }
     | element_list1 base_element ';' { push(@{$_[1]}, $_[2]); $_[1] }
 ;
 
@@ -407,10 +401,6 @@ sub CleanData($)
     if (ref($v) eq "ARRAY") {
 	foreach my $i (0 .. $#{$v}) {
 	    CleanData($v->[$i]);
-	    if (ref($v->[$i]) eq "ARRAY" && $#{$v->[$i]}==-1) { 
-		    $v->[$i] = undef; 
-		    next; 
-	    }
 	}
 	# this removes any undefined elements from the array
 	@{$v} = grep { defined $_ } @{$v};
@@ -418,7 +408,6 @@ sub CleanData($)
 	foreach my $x (keys %{$v}) {
 	    CleanData($v->{$x});
 	    if (!defined $v->{$x}) { delete($v->{$x}); next; }
-	    if (ref($v->{$x}) eq "ARRAY" && $#{$v->{$x}}==-1) { delete($v->{$x}); next; }
 	}
     }
 	return $v;

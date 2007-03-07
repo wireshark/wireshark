@@ -57,7 +57,11 @@ sub HeaderElement($)
 	if (has_property($element, "represent_as")) {
 		pidl mapTypeName($element->{PROPERTIES}->{represent_as})." ";
 	} else {
-		HeaderType($element, $element->{TYPE}, "");
+		if (ref($element->{TYPE}) eq "HASH") {
+			HeaderType($element, $element->{TYPE}, $element->{TYPE}->{NAME});
+		} else {
+			HeaderType($element, $element->{TYPE}, "");
+		}
 		pidl " ";
 		my $numstar = $element->{POINTERS};
 		if ($numstar >= 1) {
@@ -90,14 +94,14 @@ sub HeaderElement($)
 sub HeaderStruct($$)
 {
     my($struct,$name) = @_;
-	pidl "struct $name {\n";
+	pidl "struct $name";
+    return if (not defined($struct->{ELEMENTS}));
+	pidl " {\n";
     $tab_depth++;
     my $el_count=0;
-    if (defined $struct->{ELEMENTS}) {
-		foreach (@{$struct->{ELEMENTS}}) {
-		    HeaderElement($_);
-		    $el_count++;
-		}
+	foreach (@{$struct->{ELEMENTS}}) {
+		HeaderElement($_);
+		$el_count++;
     }
     if ($el_count == 0) {
 	    # some compilers can't handle empty structures
@@ -174,7 +178,9 @@ sub HeaderUnion($$)
 	my($union,$name) = @_;
 	my %done = ();
 
-	pidl "union $name {\n";
+	pidl "union $name";
+	return if (not defined($union->{ELEMENTS}));
+	pidl " {\n";
 	$tab_depth++;
 	foreach my $e (@{$union->{ELEMENTS}}) {
 		if ($e->{TYPE} ne "EMPTY") {

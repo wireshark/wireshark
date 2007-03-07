@@ -18,7 +18,7 @@ package Parse::Pidl::Wireshark::NDR;
 
 use Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(field2name @ett %res PrintIdl StripPrefixes %hf_used RegisterInterfaceHandoff $conformance register_hf_field CheckUsed);
+@EXPORT_OK = qw(field2name @ett %res PrintIdl StripPrefixes %hf_used RegisterInterfaceHandoff $conformance register_hf_field CheckUsed ProcessImport ProcessInclude find_type DumpEttList DumpEttDeclaration DumpHfList DumpHfDeclaration DumpFunctionTable register_type register_ett);
 
 use strict;
 use Parse::Pidl qw(error warning);
@@ -671,7 +671,7 @@ sub RegisterInterface($)
 	indent;
 
 	$res{code}.=DumpHfList()."\n";
-	$res{code}.="\n".DumpEttList()."\n";
+	$res{code}.="\n".DumpEttList(@ett)."\n";
 	
 	if (defined($x->{UUID})) {
 	    # These can be changed to non-pidl_code names if the old dissectors
@@ -730,8 +730,9 @@ sub ProcessInclude
 {
 	my @includes = @_;
 	foreach (@includes) {
-		pidl_hdr "#include \"$_\"\n";
+		pidl_hdr "#include \"$_\"";
 	}
+	pidl_hdr "";
 }
 
 sub ProcessImport
@@ -741,8 +742,9 @@ sub ProcessImport
 		next if($_ eq "security");
 		s/\.idl\"$//;
 		s/^\"//;
-		pidl_hdr "#include \"packet-dcerpc-$_\.h\"\n";
+		pidl_hdr "#include \"packet-dcerpc-$_\.h\"";
 	}
+	pidl_hdr "";
 }
 
 sub ProcessInterface($)
@@ -924,7 +926,7 @@ sub Parse($$$$)
 		ProcessInclude(@{$_->{PATHS}}) if ($_->{TYPE} eq "INCLUDE");
 	}
 
-	$res{ett} = DumpEttDeclaration();
+	$res{ett} = DumpEttDeclaration(@ett);
 	$res{hf} = DumpHfDeclaration();
 
 	my $parser = $notice;
@@ -956,8 +958,9 @@ sub register_ett($)
 	push (@ett, $name);	
 }
 
-sub DumpEttList()
+sub DumpEttList
 {
+	my @ett = @_;
 	my $res = "\tstatic gint *ett[] = {\n";
 	foreach (@ett) {
 		$res .= "\t\t&$_,\n";
@@ -966,8 +969,9 @@ sub DumpEttList()
 	return "$res\t};\n";
 }
 
-sub DumpEttDeclaration()
+sub DumpEttDeclaration
 {
+	my @ett = @_;
 	my $res = "\n/* Ett declarations */\n";
 	foreach (@ett) {
 		$res .= "static gint $_ = -1;\n";

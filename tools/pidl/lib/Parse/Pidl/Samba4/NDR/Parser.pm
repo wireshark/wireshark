@@ -12,7 +12,7 @@ require Exporter;
 @EXPORT = qw(is_charset_array);
 @EXPORT_OK = qw(check_null_pointer GenerateFunctionInEnv 
    GenerateFunctionOutEnv EnvSubstituteValue GenerateStructEnv NeededFunction
-   NeededElement NeededType $res NeededInterface);
+   NeededElement NeededType $res NeededInterface TypeFunctionName ParseElementPrint);
 
 use strict;
 use Parse::Pidl::Typelist qw(hasType getType mapTypeName);
@@ -898,20 +898,14 @@ sub ParseDataPull($$$$$$)
 		defined($l->{DATA_TYPE}->{NAME})) {
 
 		my $ndr_flags = CalcNdrFlags($l, $primitives, $deferred);
-		my $t;
-		if (ref($l->{DATA_TYPE}) eq "HASH") {
-			$t = "$l->{DATA_TYPE}->{TYPE}_$l->{DATA_TYPE}->{NAME}";
-		} else {
-			$t = $l->{DATA_TYPE};
-		}
 
-		if (Parse::Pidl::Typelist::scalar_is_reference($t)) {
+		if (Parse::Pidl::Typelist::scalar_is_reference($l->{DATA_TYPE})) {
 			$var_name = get_pointer_to($var_name);
 		}
 
 		$var_name = get_pointer_to($var_name);
 
-		pidl "NDR_CHECK(ndr_pull_$t($ndr, $ndr_flags, $var_name));";
+		pidl "NDR_CHECK(".TypeFunctionName("ndr_pull", $l->{DATA_TYPE})."($ndr, $ndr_flags, $var_name));";
 
 		if (my $range = has_property($e, "range")) {
 			$var_name = get_value_of($var_name);
@@ -1487,8 +1481,6 @@ sub ParseStructPrint($$$)
 
 	my $env = GenerateStructEnv($struct, $varname);
 
-	EnvSubstituteValue($env, $struct);
-
 	DeclareArrayVariables($_) foreach (@{$struct->{ELEMENTS}});
 
 	pidl "ndr_print_struct(ndr, name, \"$name\");";
@@ -2055,7 +2047,6 @@ sub ParseFunctionPrint($)
 	pidl "ndr->depth++;";
 
 	my $env = GenerateFunctionInEnv($fn);
-	EnvSubstituteValue($env, $fn);
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		if (grep(/in/,@{$e->{DIRECTION}})) {
@@ -2457,7 +2448,7 @@ sub ParseTypePushFunction($$)
 	my ($e, $varname) = @_;
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "push", $e->{NAME}, $varname);
-	fn_declare("push", $e, "NTSTATUS ndr_push_$e->{NAME}(struct ndr_push *ndr, int ndr_flags, $args)") or return;
+	fn_declare("push", $e, "NTSTATUS ".TypeFunctionName("ndr_push", $e)."(struct ndr_push *ndr, int ndr_flags, $args)") or return;
 
 	pidl "{";
 	indent;
@@ -2485,7 +2476,7 @@ sub ParseTypePullFunction($$)
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "pull", $e->{NAME}, $varname);
 
-	fn_declare("pull", $e, "NTSTATUS ndr_pull_$e->{NAME}(struct ndr_pull *ndr, int ndr_flags, $args)") or return;
+	fn_declare("pull", $e, "NTSTATUS ".TypeFunctionName("ndr_pull", $e)."(struct ndr_pull *ndr, int ndr_flags, $args)") or return;
 
 	pidl "{";
 	indent;
@@ -2508,11 +2499,11 @@ sub ParseTypePrintFunction($$)
 	my ($e, $varname) = @_;
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "print", $e->{NAME}, $varname);
 
-	pidl_hdr "void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args);";
+	pidl_hdr "void ".TypeFunctionName("ndr_print", $e)."(struct ndr_print *ndr, const char *name, $args);";
 
 	return if (has_property($e, "noprint"));
 
-	pidl "_PUBLIC_ void ndr_print_$e->{NAME}(struct ndr_print *ndr, const char *name, $args)";
+	pidl "_PUBLIC_ void ".TypeFunctionName("ndr_print", $e)."(struct ndr_print *ndr, const char *name, $args)";
 	pidl "{";
 	indent;
 	ParseTypePrint($e, $varname);
@@ -2558,26 +2549,27 @@ sub ParseInterface($$)
 
 	# Typedefs
 	foreach my $d (@{$interface->{TYPES}}) {
-		($needed->{"push_$d->{NAME}"}) && ParseTypePushFunction($d, "r");
-		($needed->{"pull_$d->{NAME}"}) && ParseTypePullFunction($d, "r");
-		($needed->{"print_$d->{NAME}"}) && ParseTypePrintFunction($d, "r");
+		($needed->{TypeFunctionName("ndr_push", $d)}) && ParseTypePushFunction($d, "r");
+		($needed->{TypeFunctionName("ndr_pull", $d)}) && ParseTypePullFunction($d, "r");
+		($needed->{TypeFunctionName("ndr_print", $d)}) && ParseTypePrintFunction($d, "r");
 
 		# Make sure we don't generate a function twice...
-		$needed->{"push_$d->{NAME}"} = $needed->{"pull_$d->{NAME}"} = 
-			$needed->{"print_$d->{NAME}"} = 0;
+		$needed->{TypeFunctionName("ndr_push", $d)} = 
+		    $needed->{TypeFunctionName("ndr_pull", $d)} = 
+			$needed->{TypeFunctionName("ndr_print", $d)} = 0;
 
 		($needed->{"ndr_size_$d->{NAME}"}) && ParseTypeNdrSize($d);
 	}
 
 	# Functions
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
-		($needed->{"push_$d->{NAME}"}) && ParseFunctionPush($d);
-		($needed->{"pull_$d->{NAME}"}) && ParseFunctionPull($d);
-		($needed->{"print_$d->{NAME}"}) && ParseFunctionPrint($d);
+		($needed->{"ndr_push_$d->{NAME}"}) && ParseFunctionPush($d);
+		($needed->{"ndr_pull_$d->{NAME}"}) && ParseFunctionPull($d);
+		($needed->{"ndr_print_$d->{NAME}"}) && ParseFunctionPrint($d);
 
 		# Make sure we don't generate a function twice...
-		$needed->{"push_$d->{NAME}"} = $needed->{"pull_$d->{NAME}"} = 
-			$needed->{"print_$d->{NAME}"} = 0;
+		$needed->{"ndr_push_$d->{NAME}"} = $needed->{"ndr_pull_$d->{NAME}"} = 
+			$needed->{"ndr_print_$d->{NAME}"} = 0;
 	}
 
 	FunctionTable($interface);
@@ -2670,13 +2662,13 @@ sub NeededElement($$$)
 
 	my @fn = ();
 	if ($dir eq "print") {
-		push(@fn, "print_$rt");
+		push(@fn, TypeFunctionName("ndr_print", $e->{REPRESENTATION_TYPE}));
 	} elsif ($dir eq "pull") {
-		push (@fn, "pull_$t");
+		push (@fn, TypeFunctionName("ndr_pull", $e->{TYPE}));
 		push (@fn, "ndr_$t\_to_$rt")
 			if ($rt ne $t);
 	} elsif ($dir eq "push") {
-		push (@fn, "push_$t");
+		push (@fn, TypeFunctionName("ndr_push", $e->{TYPE}));
 		push (@fn, "ndr_$rt\_to_$t")
 			if ($rt ne $t);
 	} else {
@@ -2693,9 +2685,9 @@ sub NeededElement($$$)
 sub NeededFunction($$)
 {
 	my ($fn,$needed) = @_;
-	$needed->{"pull_$fn->{NAME}"} = 1;
-	$needed->{"push_$fn->{NAME}"} = 1;
-	$needed->{"print_$fn->{NAME}"} = 1;
+	$needed->{"ndr_pull_$fn->{NAME}"} = 1;
+	$needed->{"ndr_push_$fn->{NAME}"} = 1;
+	$needed->{"ndr_print_$fn->{NAME}"} = 1;
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		$e->{PARENT} = $fn;
 		NeededElement($e, $_, $needed) foreach ("pull", "push", "print");
@@ -2729,17 +2721,27 @@ sub NeededInterface($$)
 	NeededFunction($_, $needed) foreach (@{$interface->{FUNCTIONS}});
 	foreach (reverse @{$interface->{TYPES}}) {
 		if (has_property($_, "public")) {
-			$needed->{"pull\_$_->{NAME}"} = $needed->{"push\_$_->{NAME}"} = 
-				$needed->{"print\_$_->{NAME}"} = 1;
+			$needed->{TypeFunctionName("ndr_pull", $_)} = $needed->{TypeFunctionName("ndr_push", $_)} = 
+				$needed->{TypeFunctionName("ndr_print", $_)} = 1;
 		}
 
-		NeededType($_, $needed, "pull") if ($needed->{"pull_$_->{NAME}"});
-		NeededType($_, $needed, "push") if ($needed->{"push_$_->{NAME}"});
-		NeededType($_, $needed, "print") if ($needed->{"print_$_->{NAME}"});
+		NeededType($_, $needed, "pull") if ($needed->{TypeFunctionName("ndr_pull", $_)});
+		NeededType($_, $needed, "push") if ($needed->{TypeFunctionName("ndr_push", $_)});
+		NeededType($_, $needed, "print") if ($needed->{TypeFunctionName("ndr_print", $_)});
 		if (has_property($_, "gensize")) {
 			$needed->{"ndr_size_$_->{NAME}"} = 1;
 		}
 	}
+}
+
+sub TypeFunctionName($$)
+{
+	my ($prefix, $t) = @_;
+
+	return "$prefix\_$t->{NAME}" if (ref($t) eq "HASH" and 
+			($t->{TYPE} eq "TYPEDEF" or $t->{TYPE} eq "DECLARE"));
+	return "$prefix\_$t->{TYPE}_$t->{NAME}" if (ref($t) eq "HASH");
+	return "$prefix\_$t";
 }
 
 1;

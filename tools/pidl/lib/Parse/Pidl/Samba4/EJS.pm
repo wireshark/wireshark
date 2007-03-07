@@ -9,7 +9,7 @@ package Parse::Pidl::Samba4::EJS;
 use Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(get_pointer_to get_value_of check_null_pointer $res
-                $res_hdr fn_declare);
+                $res_hdr fn_declare TypeFunctionName);
 
 use strict;
 use Parse::Pidl::Typelist;
@@ -426,14 +426,7 @@ sub EjsPushScalar($$$$$)
 					$var = get_pointer_to($var);
 			}
 
-		my $t;
-		if (ref($e->{TYPE}) eq "HASH") {
-			$t = "$e->{TYPE}->{TYPE}_$e->{TYPE}->{NAME}";
-		} else {
-			$t = $e->{TYPE};
-		}
-
-		pidl "NDR_CHECK(ejs_push_$t(ejs, v, $name, $var));";
+		pidl "NDR_CHECK(".TypeFunctionName("ejs_push", $e->{TYPE})."(ejs, v, $name, $var));";
 	}
 }
 
@@ -619,21 +612,22 @@ sub EjsTypePushFunction($$)
 	my ($d, $name) = @_;
 	return if (has_property($d, "noejs"));
 
-	if ($d->{TYPE} eq "TYPEDEF") {
-		EjsTypePushFunction($d->{DATA}, $name);
-		return;
+	my $var = undef;
+	my $dt = $d;
+	if ($dt->{TYPE} eq "TYPEDEF") {
+		$dt = $dt->{DATA};
 	}
-
-	if ($d->{TYPE} eq "STRUCT") {
-		fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const struct $name *r)");
-	} elsif ($d->{TYPE} eq "UNION") {
-		fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const union $name *r)");
-	} elsif ($d->{TYPE} eq "ENUM") {
-		fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const enum $name *r)");
-	} elsif ($d->{TYPE} eq "BITMAP") {
-		my($type_decl) = Parse::Pidl::Typelist::mapTypeName($d->{BASE_TYPE});
-		fn_declare($d, "NTSTATUS ejs_push_$name(struct ejs_rpc *ejs, struct MprVar *v, const char *name, const $type_decl *r)");
+	if ($dt->{TYPE} eq "STRUCT") {
+		$var = "const struct $name *r";
+	} elsif ($dt->{TYPE} eq "UNION") {
+		$var = "const union $name *r";
+	} elsif ($dt->{TYPE} eq "ENUM") {
+		$var = "const enum $name *r";
+	} elsif ($dt->{TYPE} eq "BITMAP") {
+		my($type_decl) = Parse::Pidl::Typelist::mapTypeName($dt->{BASE_TYPE});
+		$var = "const $type_decl *r";
 	}
+	fn_declare($d, "NTSTATUS ".TypeFunctionName("ejs_push", $d) . "(struct ejs_rpc *ejs, struct MprVar *v, const char *name, $var)");
 	pidl "{";
 	indent;
 	EjsTypePush($d, "r");
@@ -644,6 +638,7 @@ sub EjsTypePushFunction($$)
 
 sub EjsTypePush($$)
 {
+	sub EjsTypePush($$);
 	my ($d, $varname) = @_;
 
 	if ($d->{TYPE} eq 'STRUCT') {
@@ -654,6 +649,8 @@ sub EjsTypePush($$)
 		EjsEnumPush($d, $varname);
 	} elsif ($d->{TYPE} eq 'BITMAP') {
 		EjsBitmapPush($d, $varname);
+	} elsif ($d->{TYPE} eq 'TYPEDEF') {
+		EjsTypePush($d->{DATA}, $varname);
 	} else {
 		warn "Unhandled push $varname of type $d->{TYPE}";
 	}
@@ -677,8 +674,7 @@ sub EjsPushFunction($)
 	}
 
 	if ($d->{RETURN_TYPE}) {
-		my $t = $d->{RETURN_TYPE};
-		pidl "NDR_CHECK(ejs_push_$t(ejs, v, \"result\", &r->out.result));";
+		pidl "NDR_CHECK(".TypeFunctionName("ejs_push", $d->{RETURN_TYPE})."(ejs, v, \"result\", &r->out.result));";
 	}
 
 	pidl "return NT_STATUS_OK;";
@@ -737,8 +733,8 @@ sub EjsInterface($$)
 	pidl_hdr "\n";
 
 	foreach my $d (@{$interface->{TYPES}}) {
-		($needed->{"push_$d->{NAME}"}) && EjsTypePushFunction($d, $d->{NAME});
-		($needed->{"pull_$d->{NAME}"}) && EjsTypePullFunction($d, $d->{NAME});
+		($needed->{TypeFunctionName("ejs_push", $d)}) && EjsTypePushFunction($d, $d->{NAME});
+		($needed->{TypeFunctionName("ejs_pull", $d)}) && EjsTypePullFunction($d, $d->{NAME});
 	}
 
 	foreach my $d (@{$interface->{FUNCTIONS}}) {
@@ -831,16 +827,16 @@ sub NeededFunction($$)
 {
 	my ($fn,$needed) = @_;
 
-	$needed->{"pull_$fn->{NAME}"} = 1;
-	$needed->{"push_$fn->{NAME}"} = 1;
+	$needed->{"ejs_pull_$fn->{NAME}"} = 1;
+	$needed->{"ejs_push_$fn->{NAME}"} = 1;
 	 
 	foreach (@{$fn->{ELEMENTS}}) {
 		next if (has_property($_, "subcontext")); #FIXME: Support subcontexts
 		if (grep(/in/, @{$_->{DIRECTION}})) {
-			$needed->{"pull_$_->{TYPE}"} = 1;
+			$needed->{TypeFunctionName("ejs_pull", $_->{TYPE})} = 1;
 		}
 		if (grep(/out/, @{$_->{DIRECTION}})) {
-			$needed->{"push_$_->{TYPE}"} = 1;
+			$needed->{TypeFunctionName("ejs_push", $_->{TYPE})} = 1;
 		}
 	}
 }
@@ -858,10 +854,8 @@ sub NeededType($$$)
 	foreach (@{$t->{ELEMENTS}}) {
 		next if (has_property($_, "subcontext")); #FIXME: Support subcontexts
 		my $n;
-		if (ref($_->{TYPE}) eq "HASH" and defined($_->{TYPE}->{NAME})) {
-			$needed->{"$req\_$_->{TYPE}->{TYPE}_$_->{TYPE}->{NAME}"} = 1;
-		} elsif (ref($_->{TYPE}) ne "HASH") {
-			$needed->{$req."_".$_->{TYPE}} = 1;
+		if (ref($_->{TYPE}) ne "HASH" or defined($_->{TYPE}->{NAME})) {
+			$needed->{TypeFunctionName("ejs_$req", $_->{TYPE})} = 1;
 		}
 		NeededType($_->{TYPE}, $needed, $req) if (ref($_->{TYPE}) eq "HASH");
 	}
@@ -877,13 +871,25 @@ sub NeededInterface($$)
 
 	foreach (reverse @{$interface->{TYPES}}) {
 		if (has_property($_, "public")) {
-			$needed->{"pull_$_->{NAME}"} = not has_property($_, "noejs");
-			$needed->{"push_$_->{NAME}"} = not has_property($_, "noejs");
+			$needed->{TypeFunctionName("ejs_pull", $_)} = not has_property($_, "noejs");
+			$needed->{TypeFunctionName("ejs_push", $_)} = not has_property($_, "noejs");
 		}
 
-		NeededType($_, $needed, "pull")  if ($needed->{"pull_$_->{NAME}"});
-		NeededType($_, $needed, "push")  if ($needed->{"push_$_->{NAME}"});
+		NeededType($_, $needed, "pull")  if ($needed->{TypeFunctionName("ejs_pull", $_)});
+		NeededType($_, $needed, "push")  if ($needed->{TypeFunctionName("ejs_push", $_)});
 	}
 }
+
+sub TypeFunctionName($$)
+{
+	my ($prefix, $t) = @_;
+
+	return "$prefix\_$t->{NAME}" if (ref($t) eq "HASH" and 
+			($t->{TYPE} eq "TYPEDEF" or $t->{TYPE} eq "DECLARE"));
+	return "$prefix\_$t->{TYPE}_$t->{NAME}" if (ref($t) eq "HASH");
+	return "$prefix\_$t";
+}
+
+
 
 1;
