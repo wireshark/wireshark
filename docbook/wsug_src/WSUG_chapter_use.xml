@@ -574,6 +574,20 @@
 	    </thead>
 	    <tbody>
 	      <row>
+		<entry><command>Copy > As Filter</command></entry>
+		<entry></entry>
+		<entry><para>
+			This menu item will use the selected item in the detail view to
+			create a display filter. This display filter is then copied to
+			the clipboard.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Find Packet...</command></entry>
 		<entry>Ctrl+F</entry>
 		<entry><para>

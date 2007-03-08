@@ -432,6 +432,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/File/_Quit", "<control>Q", file_quit_cmd_cb,
                              0, GTK_STOCK_QUIT),
     ITEM_FACTORY_ENTRY("/_Edit", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Copy", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Edit/Copy/As Filter", NULL, match_selected_ptree_cb,
+                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL),
 #if 0
     /* Un-#if this when we actually implement Cut/Copy/Paste. */
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Cut", "<control>X", NULL,
@@ -440,8 +443,8 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_COPY),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/Paste", "<control>V", NULL,
                              0, GTK_STOCK_PASTE),
-    ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>"),
 #endif
+    ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Find Packet...", "<control>F",
                              find_frame_cb, 0, GTK_STOCK_FIND),
     ITEM_FACTORY_ENTRY("/Edit/Find Ne_xt", "<control>N", find_next_cb, 0, NULL, NULL),
@@ -721,6 +724,9 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Copy/Summary (Text)", NULL, packet_list_copy_summary_cb, CS_TEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/Summary (CSV)", NULL, packet_list_copy_summary_cb, CS_CSV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/As Filter", NULL, match_selected_plist_cb,
+                       MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex Text)", NULL, copy_hex_cb, CD_ALLINFO, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex)", NULL, copy_hex_cb, CD_HEXCOLUMNS, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Printable Text Only)", NULL, copy_hex_cb, CD_TEXTONLY, NULL, NULL),
@@ -729,8 +735,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 #if GTK_MAJOR_VERSION >= 2
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY, NULL, NULL),
 #endif
-
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
@@ -749,24 +753,6 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Expand Subtrees", NULL, expand_tree_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Expand All", NULL, expand_all_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Collapse All", NULL, collapse_all_cb, 0, NULL, NULL),
-
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-
-    ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Copy/Description", NULL, copy_selected_plist_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex Text)", NULL, copy_hex_cb, CD_ALLINFO | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex)", NULL, copy_hex_cb, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy/Bytes (Printable Text Only)", NULL, copy_hex_cb, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Copy/Bytes (Hex Stream)", NULL, copy_hex_cb, CD_HEX | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-#if GTK_MAJOR_VERSION >= 2
-    ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-#endif
-
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-
-    ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
-                       0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
@@ -801,6 +787,25 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Follow SSL Stream", NULL, ssl_stream_cb,
+                       0, NULL, NULL),
+
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+
+    ITEM_FACTORY_ENTRY("/Copy", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Description", NULL, copy_selected_plist_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/As Filter", NULL, match_selected_ptree_cb, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex Text)", NULL, copy_hex_cb, CD_ALLINFO | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Bytes (Offset Hex)", NULL, copy_hex_cb, CD_HEXCOLUMNS | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Bytes (Printable Text Only)", NULL, copy_hex_cb, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/Copy/Bytes (Hex Stream)", NULL, copy_hex_cb, CD_HEX | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+#if GTK_MAJOR_VERSION >= 2
+    ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
+#endif
+
+    ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -2395,6 +2400,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
   set_menu_sensitivity(tree_view_menu_factory, "/Resolve Name",
       cf->current_frame != NULL && (g_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+  set_menu_sensitivity(packet_list_menu_factory, "/Copy",
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
@@ -2482,6 +2489,10 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
 	  "/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	set_menu_sensitivity(tree_view_menu_factory, "/Copy",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter",
@@ -2503,6 +2514,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	    "/Go/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
 	    "/Go to Corresponding Packet", FALSE);
+	set_menu_sensitivity(main_menu_factory, "/Edit/Copy", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);

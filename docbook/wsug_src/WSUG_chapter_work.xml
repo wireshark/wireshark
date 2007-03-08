@@ -185,6 +185,16 @@
 		</entry>
 		  </row>
 		  <row>
+		    <entry><command>Copy as Filter</command></entry>
+		    <entry>Analyze</entry>
+	 	    <entry>
+	            <para>
+	 	      Prepare a display filter based on the currently selected item
+		      and copy that filter to the clipboard.
+	            </para>
+	 	    </entry>
+		  </row>
+		  <row>
 		<entry><command>Copy/ Bytes (Offset Hex Text)</command></entry>
 		<entry>-</entry>
 		<entry>
@@ -350,6 +360,16 @@
 	    <para>
 	      Copy the displayed text of the selected field to the system 
 		  clipboard. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Copy/ As Filter</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item
+		  and copy it to the clipboard.
 	    </para>
 		</entry>
 	      </row>
@@ -1483,5 +1503,6 @@ eth.src[1-2] == 00:83
 
 </chapter>
 <!-- End of WSUG Chapter Work -->
+
 
 

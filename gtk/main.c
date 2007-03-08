@@ -247,8 +247,11 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     GtkWidget		*filter_te;
     char		*cur_filter, *new_filter;
 
-    if (!text)
+    if ((!text) || (0 == strlen(text))) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
 	return;
+    }
+
     g_assert(data);
     filter_te = OBJECT_GET_DATA(data, E_DFILTER_TE_KEY);
     g_assert(filter_te);
@@ -302,12 +305,20 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     /* Free up the copy we got of the old filter text. */
     g_free(cur_filter);
 
-    /* create a new one and set the display filter entry accordingly */
-    gtk_entry_set_text(GTK_ENTRY(filter_te), new_filter);
+    /* Don't change the current display filter if we only want to copy the filter */
+    if (action&MATCH_SELECTED_COPY_ONLY) {
+	GString *gtk_text_str = g_string_new("");
+	g_string_sprintfa(gtk_text_str, "%s", new_filter);
+	copy_to_clipboard(gtk_text_str);
+	g_string_free(gtk_text_str, TRUE);
+    } else {
+	/* create a new one and set the display filter entry accordingly */
+	gtk_entry_set_text(GTK_ENTRY(filter_te), new_filter);
 
-    /* Run the display filter so it goes in effect. */
-    if (action&MATCH_SELECTED_APPLY_NOW)
-	main_filter_packets(&cfile, new_filter, FALSE);
+	/* Run the display filter so it goes in effect. */
+	if (action&MATCH_SELECTED_APPLY_NOW)
+	    main_filter_packets(&cfile, new_filter, FALSE);
+    }
 
     /* Free up the new filter text. */
     g_free(new_filter);
@@ -321,8 +332,7 @@ match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
     if (cfile.finfo_selected) {
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
                                                        cfile.edt);
-        if (filter != NULL)
-            match_selected_cb_do((data ? data : w), action, filter);
+        match_selected_cb_do((data ? data : w), action, filter);
     }
 }
 
@@ -4638,6 +4648,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
      * of any widget that ends up calling a callback which needs
      * that text entry pointer */
     set_menu_object_data("/File/Open...", E_DFILTER_TE_KEY, filter_te);
+    set_menu_object_data("/Edit/Copy/As Filter", E_DFILTER_TE_KEY,
+                         filter_te);
     set_menu_object_data("/Analyze/Display Filters...", E_FILT_TE_PTR_KEY,
                          filter_te);
     set_menu_object_data("/Analyze/Follow TCP Stream", E_DFILTER_TE_KEY,

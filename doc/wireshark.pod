@@ -731,6 +731,17 @@ dialog box popped up by this menu item.
 
 Exit the application.
 
+=item Edit:Copy:As Filter
+
+Create a display filter based on the data currently highlighted in the
+packet details and copy that filter to the clipboard.
+
+If that data is a field that can be tested in a display filter
+expression, the display filter will test that field; otherwise, the
+display filter will be based on the absolute offset within the packet.
+Therefore it could be unreliable if the packet contains protocols with
+variable-length headers, such as a source-routed token-ring packet.
+
 =item Edit:Find Packet
 
 Search forward or backward, starting with the currently selected packet
@@ -972,28 +983,27 @@ changed, or deleted.
 
 =item Analyze:Apply as Filter
 
-Create a display filter, or add to the display filter strip at the
-bottom, a display filter based on the data currently highlighted in the
-packe details, and apply the filter.
+Create a display filter based on the data currently highlighted in the
+packet details and apply the filter.
 
 If that data is a field that can be tested in a display filter
 expression, the display filter will test that field; otherwise, the
-display filter will be based on absolute offset within the packet, and
-so could be unreliable if the packet contains protocols with
+display filter will be based on the absolute offset within the packet.
+Therefore it could be unreliable if the packet contains protocols with
 variable-length headers, such as a source-routed token-ring packet.
 
 The B<Selected> option creates a display filter that tests for a match
 of the data; the B<Not Selected> option creates a display filter that
 tests for a non-match of the data.  The B<And Selected>, B<Or Selected>,
 B<And Not Selected>, and B<Or Not Selected> options add to the end of
-the display filter in the strip at the bottom an AND or OR operator
-followed by the new display filter expression.
+the display filter in the strip at the top (or bottom) an AND or OR
+operator followed by the new display filter expression.
 
 =item Analyze:Prepare a Filter
 
-Create a display filter, or add to the display filter strip at the
-bottom, a display filter based on the data currently highlighted in the
-packet details, but don't apply the filter.
+Create a display filter based on the data currently highlighted in the
+packet details. The filter strip at the top (or bottom) is updated but 
+it is not yet applied.
 
 =item Analyze:Enabled Protocols
 
@@ -2226,4 +2236,5 @@ HTML versions of the Wireshark project man pages are available at:
 L<http://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
+
 

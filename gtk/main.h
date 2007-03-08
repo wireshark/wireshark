@@ -126,6 +126,9 @@ typedef enum {
 /** "bitwise or" this with MATCH_SELECTED_E value for instant apply instead of prepare only */
 #define MATCH_SELECTED_APPLY_NOW    0x100
 
+/** "bitwise or" this with MATCH_SELECTED_E value for copy to clipboard instead of prepare only */
+#define MATCH_SELECTED_COPY_ONLY    0x200
+
 /** User highlited item in details window and then right clicked and selected the copy option 
  *
  * @param widget parent widget
