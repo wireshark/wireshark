@@ -74,16 +74,16 @@ WIRESHARK_GTK_SRC = \
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \
-	gtkvumeter.c \
+	gtkvumeter.c	\
 	gui_stat_util.c	\
 	gui_prefs.c	\
-	gui_utils.c \
+	gui_utils.c	\
 	help_dlg.c	\
 	hostlist_table.c \
 	layout_prefs.c	\
-	macros_dlg.c \
-	main.c 	\
-	menu.c 	\
+	macros_dlg.c	\
+	main.c		\
+	menu.c		\
 	nameres_prefs.c	\
 	packet_history.c	\
 	packet_list.c	\
@@ -96,7 +96,7 @@ WIRESHARK_GTK_SRC = \
 	proto_dlg.c	\
 	proto_draw.c	\
 	proto_hier_stats_dlg.c	\
-	range_utils.c \
+	range_utils.c	\
 	recent.c	\
 	rtp_player.c	\
 	rtp_stream.c	\
@@ -114,9 +114,9 @@ WIRESHARK_GTK_SRC = \
 	tap_dfilter_dlg.c	\
 	text_page.c	\
 	toolbar.c	\
-	u3.c \
-	uat_gui.c \
-	voip_calls.c \
+	u3.c		\
+	uat_gui.c	\
+	voip_calls.c	\
 	webbrowser.c
 
 
@@ -151,15 +151,15 @@ WIRESHARK_TAP_SRC = \
 	gsm_map_summary.c	\
 	h225_counter.c	\
 	h225_ras_srt.c	\
-	hostlist_eth.c \
-	hostlist_fc.c \
+	hostlist_eth.c	\
+	hostlist_fc.c	\
 	hostlist_fddi.c \
-	hostlist_ip.c \
-	hostlist_ipx.c \
+	hostlist_ip.c	\
+	hostlist_ipx.c	\
 	hostlist_jxta.c	\
-        hostlist_ncp.c \
+	hostlist_ncp.c	\
 	hostlist_tcpip.c \
-	hostlist_tr.c \
+	hostlist_tr.c	\
 	hostlist_udpip.c \
 	hostlist_wlan.c \
 	hostlist_rsvp.c \
