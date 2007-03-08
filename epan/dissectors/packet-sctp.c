@@ -2775,9 +2775,11 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 	for(gap_block_number = 1; gap_block_number <= number_of_gap_blocks; gap_block_number++) {
 		proto_item* pi;
 		proto_tree* pt;
-		guint32 tsn_start = cum_tsn_ack + start;
+		guint32 tsn_start; = cum_tsn_ack + start;
 	  start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
 	  end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
+          tsn_start = cum_tsn_ack + start;
+	
 	  block_item = proto_tree_add_text(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
 	  block_tree = proto_item_add_subtree(block_item, ett_sctp_sack_chunk_gap_block);
 
