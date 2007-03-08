@@ -241,11 +241,6 @@
 		</entry>
 		  </row>
 	      <row>
-		<entry>-----</entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
-	      <row>
 		<entry><command>Export Selected Packet Bytes...</command></entry>
 		<entry>File</entry>
 		<entry>
@@ -429,11 +424,6 @@
 		<para>This option is not available in versions of Wireshark built using GTK+ 1.x.</para>
 		</entry>
 		  </row>
-	      <row>
-		<entry>-----</entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
 	      <row>
 		<entry><command>Export Selected Packet Bytes...</command></entry>
 		<entry>File</entry>
