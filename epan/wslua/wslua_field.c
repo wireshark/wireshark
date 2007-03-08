@@ -277,10 +277,16 @@ int FieldInfo_register(lua_State* L) {
 
 WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 	/* obtain all fields from the current tree */
-	GPtrArray* found = lua_tree->tree ? proto_all_finfos(lua_tree->tree) : NULL;
+	GPtrArray* found;
 	int items_found = 0;
 	guint i;
 
+	if (! lua_tree || ! lua_tree->tree ) {
+		WSLUA_ERROR(wslua_all_field_infos,"Cannot be called outside a listener or dissector");
+	}
+	
+	found = proto_all_finfos(lua_tree->tree);
+	
 	if (found) {
 		for (i=0; i<found->len; i++) {
 			pushFieldInfo(L,g_ptr_array_index(found,i));
