@@ -177,7 +177,7 @@ typedef struct _packet_info {
   void *usb_conv_info;
   void *tcp_tree;		/* proto_tree for the tcp layer */
 
-  char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
+  const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
 
 } packet_info;
 
