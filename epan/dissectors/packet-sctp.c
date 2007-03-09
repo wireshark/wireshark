@@ -5,9 +5,9 @@
  * - RFC 2960
  * - RFC 3309
  * - RFC 3758
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctpimpguide-15.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-13.txt
- * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-02.txt
+ * - RFC 4460
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-addip-sctp-18.txt
+ * - http://www.ietf.org/internet-drafts/draft-ietf-tsvwg-sctp-auth-08.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctp-pktdrprep-02.txt
  * - http://www.ietf.org/internet-drafts/draft-stewart-sctpstrrst-01.txt
  * - http://www.ietf.org/internet-drafts/draft-ladha-sctp-nonce-02.txt
@@ -1115,9 +1115,13 @@ dissect_chunks_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 }
 
 static const value_string hmac_id_values[] = {
-  { 0,              "Reserved" },
-  { 1,              "SHA-1"    },
-  { 2,              "MD-5"     },
+  { 0x0000,         "Reserved" },
+  { 0x0001,         "SHA-1"    },
+  { 0x0002,         "Reserved" },
+  { 0x0003,         "SHA-256"  },
+  { 0x8001,         "SHA_224"  },
+  { 0x8002,         "SHA_384"  },
+  { 0x8003,         "SHA_512"  },
   { 0,              NULL       } };
 
 #define HMAC_ID_LENGTH 2
