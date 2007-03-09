@@ -257,15 +257,18 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 					    NULL, tree);
   else {
     guint fragments=0;
+    guint32 *got;
+    fragment_data *fd;
+    fragment_data *fd_head;
+
       if(tree)
         proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
         fcount, fragments, rx_min
         );
-    guint32 *got = ep_alloc(fcount*sizeof(guint32));
+    got = ep_alloc(fcount*sizeof(guint32));
 
 	/* make a list of the findex (offset) numbers of the fragments we have */
-    fragment_data *fd = fragment_get(pinfo, seq, dcp_fragment_table);
-    fragment_data *fd_head;
+    fd = fragment_get(pinfo, seq, dcp_fragment_table);
 	for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
       if(fd_head->data) {
         got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
