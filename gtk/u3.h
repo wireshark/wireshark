@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-gboolean u3_active();
+gboolean u3_active(void);
 
 void u3_runtime_info(GString *str);
 

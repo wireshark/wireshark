@@ -814,7 +814,7 @@ static void sctp_ack_block(packet_info* pinfo, sctp_half_assoc_t* h, tvbuff_t* t
 	}
 
 	
-	if (t = emem_tree_lookup32(h->peer->tsn_acks, framenum)) {
+	if ((t = emem_tree_lookup32(h->peer->tsn_acks, framenum))) {
 		for(;t;t = t->next) {
 			guint32 tsn = t->tsn;
 			

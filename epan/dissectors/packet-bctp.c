@@ -118,3 +118,4 @@ proto_reg_handoff_bctp(void)
 	data_handle = find_dissector("data");
 	text_handle = find_dissector("data-text-lines");
 }
+

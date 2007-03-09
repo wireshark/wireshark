@@ -4563,16 +4563,16 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         if(airpcap_if_list == NULL) {
             /*No airpcap device found */
 			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
-			/** //recent.airpcap_toolbar_show = TRUE; **/
+			/* recent.airpcap_toolbar_show = TRUE; */
 	} else {
             /* default adapter is not airpcap... or is airpcap but is not found*/
             airpcap_set_toolbar_stop_capture(airpcap_if_active);
 			airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
-			//recent.airpcap_toolbar_show = TRUE;
+			/* recent.airpcap_toolbar_show = TRUE; */
 	}
     } else {
         airpcap_set_toolbar_stop_capture(airpcap_if_active);
-		//recent.airpcap_toolbar_show = TRUE;
+		/* recent.airpcap_toolbar_show = TRUE; */
     }
 #endif
 

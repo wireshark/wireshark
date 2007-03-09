@@ -740,7 +740,7 @@ static dissector_table_t sccp_ssn_dissector_table;
 
 static emem_tree_t* assocs = NULL;
 static sccp_assoc_info_t* assoc;
-static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,SCCP_PLOAD_NONE,NULL};
+static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,SCCP_PLOAD_NONE,NULL,NULL};
 static gboolean trace_sccp = FALSE;
 static guint32 next_assoc_id = 0;
 

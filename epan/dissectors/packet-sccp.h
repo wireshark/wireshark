@@ -1,7 +1,7 @@
 /* packet-sccp.h
  * Definitions for Signalling Connection Control Part (SCCP) dissection
  *
- * $Id: $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -30,7 +30,7 @@ typedef enum _sccp_payload_t {
     SCCP_PLOAD_BSSAP,
     SCCP_PLOAD_RANAP,
     SCCP_PLOAD_TCAP,
-    SCCP_PLOAD_CAMEL,
+    SCCP_PLOAD_CAMEL
 } sccp_payload_t;
 
 /* obscure to SCCP, to be defined by users */

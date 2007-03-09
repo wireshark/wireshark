@@ -379,7 +379,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 num_security_types;
 	guint32 text_len; /* Part of: Client Cut Text & Server Cut Text */
 	guint32 auth_result, desktop_name_len;
-	guint offset = 0;
+	gint offset = 0;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti=NULL;
@@ -506,7 +506,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(vnc_tree, hf_vnc_server_proto_ver, tvb, 4,
 				    7, FALSE);
 		per_conversation_info->server_proto_ver =
-			g_strtod(tvb_get_ephemeral_string(tvb, 4, 7), NULL);
+			g_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -519,7 +519,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(vnc_tree, hf_vnc_client_proto_ver, tvb, 4,
 				    7, FALSE);
 		per_conversation_info->client_proto_ver =
-			g_strtod(tvb_get_ephemeral_string(tvb, 4, 7), NULL);
+			g_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1524,6 +1524,7 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 				    *offset, 2, FALSE);
 		*offset += 2;
 	}
+	return *offset;
 }
 
 
@@ -1558,6 +1559,8 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_tree_add_item(tree, hf_vnc_server_cut_text, tvb, *offset,
 			    text_len, FALSE);
 	*offset += text_len;
+
+	return *offset;
 }
 
 

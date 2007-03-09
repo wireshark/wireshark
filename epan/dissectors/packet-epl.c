@@ -1116,7 +1116,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             offset += 7;
         }
 
-        // adjust size of packet
+        /* adjust size of packet */
         tvb_set_reported_length(tvb, offset + segment_size);
 
         if (segmented == EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
