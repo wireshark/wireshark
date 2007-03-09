@@ -48,6 +48,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Wireshark could exhaust system memory while reading a malformed
+            DCP ETSI packet.
+            <!-- Fixed in r21007 -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1264">1264</ulink>)
+          </para>
+          <para>Versions affected: 0.99.5</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

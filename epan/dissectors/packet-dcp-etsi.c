@@ -36,6 +36,7 @@
 #include <epan/reassemble.h>
 #include <epan/crcdrm.h>
 #include <epan/reedsolomon.h>
+#include <epan/emem.h>
 #include <string.h>
 
 /* forward reference */
@@ -214,7 +215,8 @@ gboolean rs_correct_data(guint8 *deinterleaved, guint8 *output,
   return TRUE;
 }
 
-
+/* Don't attempt reassembly if we have a huge number of fragments. */
+#define MAX_FRAGMENTS ((1 * 1024 * 1024) / sizeof(guint32))
 
 static tvbuff_t *
 dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
@@ -232,8 +234,14 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   guint16 decoded_size;
   guint32 c_max;
   guint32 rx_min;
-  gboolean first, last, decoded = TRUE;
+  gboolean first, last;
   tvbuff_t *new_tvb=NULL;
+
+  if (fcount > MAX_FRAGMENTS) {
+    if (tree)
+      proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", fcount);
+    return NULL;
+  }
 
   first = findex == 0;
   last = fcount == (findex+1);
@@ -249,42 +257,42 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 					    NULL, tree);
   else {
     guint fragments=0;
-    guint32 *got = g_malloc(fcount*sizeof(guint32));
+      if(tree)
+        proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
+        fcount, fragments, rx_min
+        );
+    guint32 *got = ep_alloc(fcount*sizeof(guint32));
 
+	/* make a list of the findex (offset) numbers of the fragments we have */
     fragment_data *fd = fragment_get(pinfo, seq, dcp_fragment_table);
     fragment_data *fd_head;
 	for (fd_head = fd; fd_head != NULL; fd_head = fd_head->next) {
       if(fd_head->data) {
-        got[fragments] = fd_head->offset;
-        fragments++;
+        got[fragments++] = fd_head->offset; /* this is the findex of the fragment */
       }
 	}
-	if(fragments>=rx_min) {
-      guint i,j;
+	/* put a sentinel at the end */
+    got[fragments++] = fcount;
+	/* have we got enough for Reed Solomon to try to correct ? */
+	if(fragments>=rx_min) { /* yes, in theory */
+      guint i,current_findex;
       fragment_data *frag=NULL;
-      guint8 *dummy_data = (guint8*) g_malloc (plen);
+      guint8 *dummy_data = (guint8*) ep_alloc0 (plen);
       tvbuff_t *dummytvb = tvb_new_real_data(dummy_data, plen, plen);
       /* try and decode with missing fragments */
       if(tree)
           proto_tree_add_text (tree, tvb, 0, -1, "want %d, got %d need %d",
           fcount, fragments, rx_min
           );
-      memset(dummy_data, 0, plen);
-      for(i=0,j=0; i<fragments; i++,j++) {
-        while(j<got[i]) {
+	  /* fill the fragment table with empty fragments */
+	  current_findex = 0;
+      for(i=0; i<fragments; i++) {
+	    guint next_fragment_we_have = got[i];
+        for(; current_findex<next_fragment_we_have; current_findex++) {
           frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
-            dcp_fragment_table, dcp_reassembled_table, j, plen, (j+1!=fcount));
-	  if(tree) {
-              proto_tree_add_text (tree, tvb, 0, -1, "missing %d", j);
-              if(frag) {
-                proto_tree_add_text (tree, tvb, 0, -1, "fragment %d was what we needed", j);
-                break;
-              } else {
-                proto_tree_add_text (tree, tvb, 0, -1, "added %d but still not reassembled", j);
-              }
-          }
-          j++;
+            dcp_fragment_table, dcp_reassembled_table, current_findex, plen, (current_findex+1!=fcount));
         }
+		current_findex++; /* skip over the fragment we have */
       }
       if(frag)
         new_tvb = process_reassembled_data (tvb, offset, pinfo,
@@ -292,9 +300,9 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 					    frag, &dcp_frag_items,
 					    NULL, tree);
     }
-    g_free(got);
   }
   if(new_tvb) {
+    gboolean decoded = TRUE;
     tvbuff_t *dtvb = NULL;
     const guint8 *input = tvb_get_ptr(new_tvb, 0, -1);
     guint16 reassembled_size = tvb_length(new_tvb);
