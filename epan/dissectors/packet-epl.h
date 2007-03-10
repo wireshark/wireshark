@@ -228,6 +228,9 @@ static const value_string asnd_cid_vals[] = {
     {EPL_ASND_NMTCOMMAND_NMTPUBLISHEMERGENCYNEW,      "NMTPublishEmergencyNew"    },
     {EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME,              "NMTPublishTime"            },
     {EPL_ASND_NMTCOMMAND_NMTINVALIDSERVICE,           "NMTInvalidService"         },
+    /* "special" values to cover all possibilities of CommandID in NMTRequests */
+    {EPL_ASND_IDENTRESPONSE,                          "IdentResponse"             },
+    {EPL_ASND_STATUSRESPONSE,                         "StatusResponse"            },
     {0,NULL}
 };
 

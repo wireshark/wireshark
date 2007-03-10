@@ -1,14 +1,14 @@
 /* packet-epl.c
- * Routines for "Ethernet Powerlink 2.0" dissection 
+ * Routines for "Ethernet Powerlink 2.0" dissection
  * (ETHERNET Powerlink V2.0 Communication Profile Specification Draft Standard Version 1.0.0)
  *
  * Copyright (c) 2006: Zurich University of Applied Sciences Winterthur (ZHW)
  *                     Institute of Embedded Systems (InES)
  *                     http://ines.zhwin.ch
- *                     
- *                     - Dominic B'chaz <bdo[AT]zhwin.ch>
+ *
+ *                     - Dominic Bechaz <bdo[AT]zhwin.ch>
  *                     - Damir Bursic <bum[AT]zhwin.ch>
- *                     - David B_chi <bhd[AT]zhwin.ch>
+ *                     - David Buechi <bhd[AT]zhwin.ch>
  *
  * Copyright (c) 2007: SYS TEC electronic GmbH
  *                     http://www.systec-electronic.com
@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/emem.h>
+#include <epan/prefs.h>
 
 #include "packet-epl.h"
 
@@ -222,6 +223,10 @@ static gint ett_epl_el_entry        = -1;
 static gint ett_epl_el_entry_type   = -1;
 static gint ett_epl_sdo_entry_type  = -1;
 
+/* preference whether or not display the SoC flags in info column */
+gboolean show_soc_flags = FALSE;
+
+
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
 
@@ -287,7 +292,8 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (epl_mtyp)
         {
             case EPL_SOC:
-                col_add_fstr(pinfo->cinfo, COL_INFO, "SoC    src = %3d   dst = %3d   ", epl_src, epl_dest);
+                /* source and destination NodeID are fixed according to the spec */
+                col_add_str(pinfo->cinfo, COL_INFO, "SoC    ");
                 break;
 
             case EPL_PREQ:
@@ -450,10 +456,10 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
     }
     offset += 2;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    if (show_soc_flags && check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "MC = %d   PS = %d",
-                        ((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "MC = %d   PS = %d",
+			((EPL_SOC_MC_MASK & flags) >> 7), ((EPL_SOC_PS_MASK & flags) >> 6));
     }
 
     if (epl_tree)
@@ -634,10 +640,10 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
     }
     offset += 1;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
+    if (svid != EPL_SOA_NOSERVICE && check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
-                        target, match_strval(svid, soa_svid_vals));
+	col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
+			target, match_strval(svid, soa_svid_vals));
     }
 
     if (epl_tree)
@@ -927,7 +933,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     nmt_state = tvb_get_guint8(tvb, offset);
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "NMTState = 0x%02X", nmt_state);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", match_strval(nmt_state, epl_nmt_cs_vals));
     }
 
     if (epl_tree)
@@ -1483,12 +1489,20 @@ static hf_register_info hf[] = {
         &ett_epl_sdo_entry_type,
     };
 
+    module_t *epl_module;
+
     /* Register the protocol name and description */
     proto_epl = proto_register_protocol("ETHERNET Powerlink v2", "EPL", "epl");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_epl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* register preferences */
+    epl_module = prefs_register_protocol(proto_epl, NULL);
+
+    prefs_register_bool_preference(epl_module, "show_soc_flags", "Show flags of SoC frame in Info column",
+        "If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
 
     /* tap-registration */
     /*  epl_tap = register_tap("epl");*/
