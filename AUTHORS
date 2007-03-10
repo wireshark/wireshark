@@ -2602,6 +2602,10 @@ Julian Cable		<julian_cable [AT] yahoo.com> {
 	DCP ETSI support
 }    
 
+Joost Yervante Damad <joost[AT]teluna.org> {
+	Erlang Port Mapper Daemon dissection support
+}    
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
