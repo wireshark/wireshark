@@ -792,6 +792,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
 	decrypted_data = g_malloc(length);
 	for(ske = service_key_list; ske != NULL; ske = g_slist_next(ske)){
+		gboolean do_continue = FALSE;
 		sk = (service_key_t *) ske->data;
 
 		des_fix_parity(DES3_KEY_SIZE, key, sk->contents);
@@ -816,10 +817,12 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		}
 		CATCH (BoundsError) {
 			tvb_free(encr_tvb);
-			continue;
+			do_continue = TRUE;
 		}
 		ENDTRY;
 
+		if (do_continue) continue;
+		
 		data_len = item_len + offset - CONFOUNDER_PLUS_CHECKSUM;
 		if ((int) item_len + offset > length) {
 			tvb_free(encr_tvb);
