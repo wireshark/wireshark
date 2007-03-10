@@ -485,7 +485,8 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	tvbuff_t *volatile tvb = 0;
 	wcp_window_t *buf_ptr = 0;
 	wcp_pdata_t *volatile pdata_ptr;
-
+	gboolean bounds_error = FALSE;
+	
 	buf_ptr = get_wcp_window_ptr( pinfo);
 
 	buf_start = buf_ptr->buffer;
@@ -587,17 +588,17 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
         TRY {
                 tvb = tvb_new_real_data( pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
-
         }
         CATCH(BoundsError) {
 		DISSECTOR_ASSERT_NOT_REACHED();
-		return NULL;
         }
         CATCH(ReportedBoundsError) {
-		return NULL;
+		bounds_error = TRUE;
         }
         ENDTRY;
 
+	if (bounds_error) return NULL;
+		
 	/* link new tvbuff into tvbuff chain so cleanup is done later */
         tvb_set_child_real_data_tvbuff( src_tvb, tvb);
 
