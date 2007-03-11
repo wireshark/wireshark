@@ -444,6 +444,8 @@ void check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                     "Packet storm detected (%u packets in < %u ms)",
                                                     global_arp_detect_request_storm_packets,
                                                     global_arp_detect_request_storm_period);
+	PROTO_ITEM_SET_GENERATED(ti);
+
         expert_add_info_format(pinfo, ti,
                                PI_SEQUENCE, PI_NOTE,
                                "ARP packet storm detected (%u packets in < %u ms)",
@@ -817,13 +819,13 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add target address if target MAC address is neither a broadcast/
        multicast address nor an all-zero address and if target IP address
        isn't all zeroes. */
-       
+
     /* Do not add target address if the packet is a Request. According to the RFC,
        target addresses in requests have no meaning */
-       
+
     ip = tvb_get_ipv4(tvb, tpa_offset);
     mac = tvb_get_ptr(tvb, tha_offset, 6);
-    if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0 
+    if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0
       && ar_op != ARPOP_REQUEST)
       add_ether_byip(ip, mac);
   }
@@ -842,9 +844,9 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* ARP requests/replies with the same sender and target protocol
      address are flagged as "gratuitous ARPs", i.e. ARPs sent out as,
      in effect, an announcement that the machine has MAC address
-     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to 
+     XX:XX:XX:XX:XX:XX and IPv4 address YY.YY.YY.YY. Requests are to
      provoke complaints if some other machine has the same IPv4 address,
-     replies are used to announce relocation of network address, like 
+     replies are used to announce relocation of network address, like
      in failover solutions. */
   if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) && (memcmp(spa_val, tpa_val, ar_pln) == 0))
     is_gratuitous = TRUE;
@@ -1092,7 +1094,7 @@ proto_register_arp(void)
       "", HFILL }},
 
     { &hf_arp_packet_storm,
-      { "",		"arp.packet-storm-detected",
+      { "Packet storm detected",	"arp.packet-storm-detected",
 	FT_NONE,	BASE_NONE,	NULL,	0x0,
       "", HFILL }}
   };
@@ -1104,7 +1106,7 @@ proto_register_arp(void)
   };
 
   module_t *arp_module;
-  
+
   proto_arp = proto_register_protocol("Address Resolution Protocol",
 				      "ARP/RARP", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));

@@ -1241,14 +1241,14 @@ dissect_execute_cdb_payload(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 		data_tvb=tvb_new_subset(tvb, offset, tvb_len, tvb_rlen);
 
 		if(ndmp_conv_data->task->itlq){
-			/* ndmp conceptually always send both read and write 
+			/* ndmp conceptually always send both read and write
 			 * data and always a full nonfragmented pdu
 			 */
 			ndmp_conv_data->task->itlq->task_flags=SCSI_DATA_READ|SCSI_DATA_WRITE;
 			ndmp_conv_data->task->itlq->data_length=payload_len;
 			ndmp_conv_data->task->itlq->bidir_data_length=payload_len;
 			dissect_scsi_payload(data_tvb, pinfo, top_tree, isreq,
-				   ndmp_conv_data->task->itlq, 
+				   ndmp_conv_data->task->itlq,
 				   get_itl_nexus(ndmp_conv_data, pinfo, FALSE),
 				   0);
 		}
@@ -3187,39 +3187,39 @@ proto_register_ndmp(void)
 		NULL, 0, "Default Env's for this Butype Info", HFILL }},
 
 	{ &hf_ndmp_butype_attr_backup_file_history, {
-		"", "ndmp.butype.attr.backup_file_history", FT_BOOLEAN, 32,
+		"Backup file history", "ndmp.butype.attr.backup_file_history", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_file_history), 0x00000001, "backup_file_history", HFILL }},
 
 	{ &hf_ndmp_butype_attr_backup_filelist, {
-		"", "ndmp.butype.attr.backup_filelist", FT_BOOLEAN, 32,
+		"Backup file list", "ndmp.butype.attr.backup_filelist", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_filelist), 0x00000002, "backup_filelist", HFILL }},
 
 	{ &hf_ndmp_butype_attr_recover_filelist, {
-		"", "ndmp.butype.attr.recover_filelist", FT_BOOLEAN, 32,
+		"Recover file list", "ndmp.butype.attr.recover_filelist", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_recover_filelist), 0x00000004, "recover_filelist", HFILL }},
 
 	{ &hf_ndmp_butype_attr_backup_direct, {
-		"", "ndmp.butype.attr.backup_direct", FT_BOOLEAN, 32,
+		"Backup direct", "ndmp.butype.attr.backup_direct", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_direct), 0x00000008, "backup_direct", HFILL }},
 
 	{ &hf_ndmp_butype_attr_recover_direct, {
-		"", "ndmp.butype.attr.recover_direct", FT_BOOLEAN, 32,
+		"Recover direct", "ndmp.butype.attr.recover_direct", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_recover_direct), 0x00000010, "recover_direct", HFILL }},
 
 	{ &hf_ndmp_butype_attr_backup_incremental, {
-		"", "ndmp.butype.attr.backup_incremental", FT_BOOLEAN, 32,
+		"Backup incremental", "ndmp.butype.attr.backup_incremental", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_incremental), 0x00000020, "backup_incremental", HFILL }},
 
 	{ &hf_ndmp_butype_attr_recover_incremental, {
-		"", "ndmp.butype.attr.recover_incremental", FT_BOOLEAN, 32,
+		"Recover incremental", "ndmp.butype.attr.recover_incremental", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_recover_incremental), 0x00000040, "recover_incremental", HFILL }},
 
 	{ &hf_ndmp_butype_attr_backup_utf8, {
-		"", "ndmp.butype.attr.backup_utf8", FT_BOOLEAN, 32,
+		"Backup UTF8", "ndmp.butype.attr.backup_utf8", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_backup_utf8), 0x00000080, "backup_utf8", HFILL }},
 
 	{ &hf_ndmp_butype_attr_recover_utf8, {
-		"", "ndmp.butype.attr.recover_utf8", FT_BOOLEAN, 32,
+		"Recover UTF8", "ndmp.butype.attr.recover_utf8", FT_BOOLEAN, 32,
 		TFS(&tfs_butype_attr_recover_utf8), 0x00000100, "recover_utf8", HFILL }},
 
 	{ &hf_ndmp_butype_env_name, {
@@ -3243,23 +3243,23 @@ proto_register_ndmp(void)
 		NULL, 0, "FS Info", HFILL }},
 
 	{ &hf_ndmp_fs_invalid_total_size, {
-		"", "ndmp.fs.invalid.total_size", FT_BOOLEAN, 32,
+		"Total size invalid", "ndmp.fs.invalid.total_size", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_invalid_total_size), 0x00000001, "If total size is invalid", HFILL }},
 
 	{ &hf_ndmp_fs_invalid_used_size, {
-		"", "ndmp.fs.invalid.used_size", FT_BOOLEAN, 32,
+		"Used size invalid", "ndmp.fs.invalid.used_size", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_invalid_used_size), 0x00000002, "If used size is invalid", HFILL }},
 
 	{ &hf_ndmp_fs_invalid_avail_size, {
-		"", "ndmp.fs.invalid.avail_size", FT_BOOLEAN, 32,
+		"Available size invalid", "ndmp.fs.invalid.avail_size", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_invalid_avail_size), 0x00000004, "If available size is invalid", HFILL }},
 
 	{ &hf_ndmp_fs_invalid_total_inodes, {
-		"", "ndmp.fs.invalid.total_inodes", FT_BOOLEAN, 32,
+		"Total number of inodes invalid", "ndmp.fs.invalid.total_inodes", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_invalid_total_inodes), 0x00000008, "If total number of inodes is invalid", HFILL }},
 
 	{ &hf_ndmp_fs_invalid_used_inodes, {
-		"", "ndmp.fs.invalid.used_inodes", FT_BOOLEAN, 32,
+		"Used number of inodes is invalid", "ndmp.fs.invalid.used_inodes", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_invalid_used_inodes), 0x00000010, "If used number of inodes is invalid", HFILL }},
 
 	{ &hf_ndmp_fs_fs_type, {
@@ -3327,11 +3327,11 @@ proto_register_ndmp(void)
 		NULL, 0, "Name of TAPE Device", HFILL }},
 
 	{ &hf_ndmp_tape_attr_rewind, {
-		"", "ndmp.tape.attr.rewind", FT_BOOLEAN, 32,
+		"Device supports rewind", "ndmp.tape.attr.rewind", FT_BOOLEAN, 32,
 		TFS(&tfs_tape_attr_rewind), 0x00000001, "If this device supports rewind", HFILL }},
 
 	{ &hf_ndmp_tape_attr_unload, {
-		"", "ndmp.tape.attr.unload", FT_BOOLEAN, 32,
+		"Device supports unload", "ndmp.tape.attr.unload", FT_BOOLEAN, 32,
 		TFS(&tfs_tape_attr_unload), 0x00000002, "If this device supports unload", HFILL }},
 
 	{ &hf_ndmp_tape_capability, {
@@ -3431,47 +3431,47 @@ proto_register_ndmp(void)
 		VALS(tape_open_mode_vals), 0, "Mode to open tape in", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_file_num, {
-		"", "ndmp.tape.invalid.file_num", FT_BOOLEAN, 32,
+		"Invalid file num", "ndmp.tape.invalid.file_num", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_file_num), 0x00000001, "invalid_file_num", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_soft_errors, {
-		"", "ndmp.tape.invalid.soft_errors", FT_BOOLEAN, 32,
+		"Soft errors", "ndmp.tape.invalid.soft_errors", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_soft_errors), 0x00000002, "soft_errors", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_block_size, {
-		"", "ndmp.tape.invalid.block_size", FT_BOOLEAN, 32,
+		"Block size", "ndmp.tape.invalid.block_size", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_block_size), 0x00000004, "block_size", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_block_no, {
-		"", "ndmp.tape.invalid.block_no", FT_BOOLEAN, 32,
+		"Block no", "ndmp.tape.invalid.block_no", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_block_no), 0x00000008, "block_no", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_total_space, {
-		"", "ndmp.tape.invalid.total_space", FT_BOOLEAN, 32,
+		"Total space", "ndmp.tape.invalid.total_space", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_total_space), 0x00000010, "total_space", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_space_remain, {
-		"", "ndmp.tape.invalid.space_remain", FT_BOOLEAN, 32,
+		"Space remain", "ndmp.tape.invalid.space_remain", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_space_remain), 0x00000020, "space_remain", HFILL }},
 
 	{ &hf_ndmp_tape_invalid_partition, {
-		"", "ndmp.tape.invalid.partition", FT_BOOLEAN, 32,
+		"Invalid partition", "ndmp.tape.invalid.partition", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_invalid_partition), 0x00000040, "partition", HFILL }},
 
 	{ &hf_ndmp_tape_flags_no_rewind, {
-		"", "ndmp.tape.flags.no_rewind", FT_BOOLEAN, 32,
+		"No rewind", "ndmp.tape.flags.no_rewind", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_flags_no_rewind), 0x00000008, "no_rewind", HFILL, }},
 
 	{ &hf_ndmp_tape_flags_write_protect, {
-		"", "ndmp.tape.flags.write_protect", FT_BOOLEAN, 32,
+		"Write protect", "ndmp.tape.flags.write_protect", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_flags_write_protect), 0x00000010, "write_protect", HFILL, }},
 
 	{ &hf_ndmp_tape_flags_error, {
-		"", "ndmp.tape.flags.error", FT_BOOLEAN, 32,
+		"Error", "ndmp.tape.flags.error", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_flags_error), 0x00000020, "error", HFILL, }},
 
 	{ &hf_ndmp_tape_flags_unload, {
-		"", "ndmp.tape.flags.unload", FT_BOOLEAN, 32,
+		"Unload", "ndmp.tape.flags.unload", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_tape_flags_unload), 0x00000040, "unload", HFILL, }},
 
 	{ &hf_ndmp_tape_file_num, {
@@ -3655,15 +3655,15 @@ proto_register_ndmp(void)
 		NULL, 0, "FH Info used for direct access", HFILL }},
 
 	{ &hf_ndmp_file_invalid_atime, {
-		"", "ndmp.file.invalid_atime", FT_BOOLEAN, 32,
+		"Invalid atime", "ndmp.file.invalid_atime", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_file_invalid_atime), 0x00000001, "invalid_atime", HFILL, }},
 
 	{ &hf_ndmp_file_invalid_ctime, {
-		"", "ndmp.file.invalid_ctime", FT_BOOLEAN, 32,
+		"Invalid ctime", "ndmp.file.invalid_ctime", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_file_invalid_ctime), 0x00000002, "invalid_ctime", HFILL, }},
 
 	{ &hf_ndmp_file_invalid_group, {
-		"", "ndmp.file.invalid_group", FT_BOOLEAN, 32,
+		"Invalid group", "ndmp.file.invalid_group", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_file_invalid_group), 0x00000004, "invalid_group", HFILL, }},
 
 	{ &hf_ndmp_file_mtime, {
@@ -3727,11 +3727,11 @@ proto_register_ndmp(void)
 		NULL, 0, "Other Name", HFILL }},
 
 	{ &hf_ndmp_state_invalid_ebr, {
-		"", "ndmp.bu.state.invalid_ebr", FT_BOOLEAN, 32,
+		"EstimatedBytesLeft valid", "ndmp.bu.state.invalid_ebr", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_state_invalid_ebr), 0x00000001, "Whether EstimatedBytesLeft is valid or not", HFILL, }},
 
 	{ &hf_ndmp_state_invalid_etr, {
-		"", "ndmp.bu.state.invalid_etr", FT_BOOLEAN, 32,
+		"EstimatedTimeLeft valid", "ndmp.bu.state.invalid_etr", FT_BOOLEAN, 32,
 		TFS(&tfs_ndmp_state_invalid_etr), 0x00000002, "Whether EstimatedTimeLeft is valid or not", HFILL, }},
 
 	{ &hf_ndmp_bu_operation, {

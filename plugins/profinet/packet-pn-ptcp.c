@@ -1,5 +1,5 @@
 /* packet-pn-ptcp.c
- * Routines for PN-PTCP (PROFINET Precision Time Clock Protocol) 
+ * Routines for PN-PTCP (PROFINET Precision Time Clock Protocol)
  * packet dissection.
  *
  * $Id$
@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -145,7 +145,7 @@ static const value_string pn_ptcp_profinet_subtype_vals[] = {
 
 
 static int
-dissect_PNPTCP_TLVHeader(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_TLVHeader(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 *type, guint16 *length)
 {
     guint16 tl_type;
@@ -165,7 +165,7 @@ dissect_PNPTCP_TLVHeader(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint8 mac[6];
@@ -177,7 +177,7 @@ dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
     /* SubdomainUUID */
     offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_ptcp_subdomain_uuid, &uuid);
 
-	proto_item_append_text(item, ": MasterSource=%02x:%02x:%02x:%02x:%02x:%02x", 
+	proto_item_append_text(item, ": MasterSource=%02x:%02x:%02x:%02x:%02x:%02x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     proto_item_append_text(item, ", Subdomain=%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -192,7 +192,7 @@ dissect_PNPTCP_Subdomain(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Time(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Time(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint32 Seconds;
@@ -208,7 +208,7 @@ dissect_PNPTCP_Time(tvbuff_t *tvb, int offset,
     /* NanoSeconds */
     offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_nanoseconds, &NanoSeconds);
 
-	proto_item_append_text(item, ": Seconds=%u NanoSeconds=%u", 
+	proto_item_append_text(item, ": Seconds=%u NanoSeconds=%u",
         Seconds, NanoSeconds);
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -219,7 +219,7 @@ dissect_PNPTCP_Time(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_TimeExtension(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_TimeExtension(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 Flags;
@@ -236,7 +236,7 @@ dissect_PNPTCP_TimeExtension(tvbuff_t *tvb, int offset,
     /* CurrentUTCOffset */
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_ptcp_currentutcoffset, &CurrentUTCOffset);
 
-	proto_item_append_text(item, ": Flags=0x%x, EpochNumber=%u, CurrentUTCOffset=%u", 
+	proto_item_append_text(item, ": Flags=0x%x, EpochNumber=%u, CurrentUTCOffset=%u",
         Flags, EpochNumber, CurrentUTCOffset);
 
     return offset;
@@ -244,7 +244,7 @@ dissect_PNPTCP_TimeExtension(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Master(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     e_uuid_t uuid;
@@ -271,7 +271,7 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
                                       uuid.Data4[4], uuid.Data4[5],
                                       uuid.Data4[6], uuid.Data4[7]);
 
-	proto_item_append_text(item, ", ClockStratum=%s, ClockVariance=%d", 
+	proto_item_append_text(item, ", ClockStratum=%s, ClockVariance=%d",
         val_to_str(ClockStratum, pn_ptcp_clock_stratum_vals, "(Reserved: 0x%x)"), ClockVariance);
 
     return offset;
@@ -279,7 +279,7 @@ dissect_PNPTCP_Master(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint32 t2portrxdelay;
@@ -295,11 +295,11 @@ dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset,
     /* T3PortTxDelay */
     offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t3porttxdelay, &t3porttxdelay);
 
-	proto_item_append_text(item, ": T2PortRxDelay=%uns, T3PortTxDelay=%uns", 
+	proto_item_append_text(item, ": T2PortRxDelay=%uns, T3PortTxDelay=%uns",
         t2portrxdelay, t3porttxdelay);
 
     if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", T2Rx=%uns, T3Tx=%uns", 
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", T2Rx=%uns, T3Tx=%uns",
         t2portrxdelay, t3porttxdelay);
 
     return offset;
@@ -307,7 +307,7 @@ dissect_PNPTCP_PortParameter(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint8 mac[6];
@@ -324,11 +324,11 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
     /* SyncID */
     offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_ptcp_sync_id, &syncid);
 
-    
-    proto_item_append_text(item, ": RequestSource=%02x:%02x:%02x:%02x:%02x:%02x", 
+
+    proto_item_append_text(item, ": RequestSource=%02x:%02x:%02x:%02x:%02x:%02x",
         mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-    proto_item_append_text(item, ", RequestPortID=0x%02x, SyncID=0x%02x", 
+    proto_item_append_text(item, ", RequestPortID=0x%02x, SyncID=0x%02x",
         requestportid, syncid);
 
     return offset;
@@ -336,7 +336,7 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
     guint8 subType;
@@ -373,7 +373,7 @@ dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Option(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
 	guint32 oui;
@@ -392,7 +392,7 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
 	/* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_ptcp_oui, &oui);
     length -= 3;
-	
+
 	switch (oui)
 	{
 	case OUI_PROFINET:
@@ -404,13 +404,13 @@ dissect_PNPTCP_Option(tvbuff_t *tvb, int offset,
         /* SubType */
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, length);
 	}
-	
+
 	return (offset);
 }
 
 
 static int
-dissect_PNPTCP_block(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, gboolean *end)
 {
     guint16 type;
@@ -436,10 +436,10 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 
     offset = dissect_PNPTCP_TLVHeader(tvb, offset, pinfo, tlvheader_tree, sub_item, &type, &length);
 
-	proto_item_append_text(sub_item, "%s", 
+	proto_item_append_text(sub_item, "%s",
         val_to_str(type, pn_ptcp_block_type, "Unknown"));
 
-	proto_item_append_text(tlvheader_item, ": Type=%s (%x), Length=%u", 
+	proto_item_append_text(tlvheader_item, ": Type=%s (%x), Length=%u",
         val_to_str(type, pn_ptcp_block_type, "Unknown"), type, length);
 
     switch(type) {
@@ -479,7 +479,7 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_blocks(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     gboolean end = FALSE;
@@ -494,7 +494,7 @@ dissect_PNPTCP_blocks(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_Header(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, gboolean delay_valid)
 {
 	proto_item *header_item;
@@ -547,19 +547,19 @@ dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
         delayms = (guint32) (delayns / (1000 * 1000));
 
         if (check_col(pinfo->cinfo, COL_INFO))
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", Delay=%11" PRIu64 "ns", 
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", Delay=%11" PRIu64 "ns",
             delayns);
           proto_item_append_text(item, ", Delay=%" PRIu64 "ns", delayns);
 
         if(delayns != 0) {
-            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns (%u.%03u,%03u,%03u sec)", 
-                delayns, 
+            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns (%u.%03u,%03u,%03u sec)",
+                delayns,
                 delayms / 1000,
                 delayms % 1000,
-                (delay10ns % (1000*100)) / 100, 
+                (delay10ns % (1000*100)) / 100,
                  delay10ns % 100 * 10 + delay1ns);
         } else {
-            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns", 
+            proto_item_append_text(header_item, ", Delay=%" PRIu64 "ns",
                 delayns);
         }
     }
@@ -569,7 +569,7 @@ dissect_PNPTCP_Header(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 u16FrameID)
 {
 
@@ -592,7 +592,7 @@ dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, FALSE /* !delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -601,7 +601,7 @@ dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_RTASyncPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_RTASyncPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 u16FrameID)
 {
 
@@ -626,7 +626,7 @@ dissect_PNPTCP_RTASyncPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, FALSE /* !delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -635,7 +635,7 @@ dissect_PNPTCP_RTASyncPDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_RTCSyncPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_RTCSyncPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
 
@@ -646,7 +646,7 @@ dissect_PNPTCP_RTCSyncPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, FALSE /* !delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -655,7 +655,7 @@ dissect_PNPTCP_RTCSyncPDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 u16FrameID)
 {
 
@@ -678,7 +678,7 @@ dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, FALSE /* !delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -687,7 +687,7 @@ dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_DelayReqPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_DelayReqPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
 
@@ -698,7 +698,7 @@ dissect_PNPTCP_DelayReqPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, FALSE /* !delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -707,7 +707,7 @@ dissect_PNPTCP_DelayReqPDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_DelayResPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_DelayResPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
 
@@ -718,7 +718,7 @@ dissect_PNPTCP_DelayResPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, TRUE /* delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -727,7 +727,7 @@ dissect_PNPTCP_DelayResPDU(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNPTCP_DelayFuResPDU(tvbuff_t *tvb, int offset, 
+dissect_PNPTCP_DelayFuResPDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
 
@@ -738,7 +738,7 @@ dissect_PNPTCP_DelayFuResPDU(tvbuff_t *tvb, int offset,
 
     /* dissect the header */
     offset = dissect_PNPTCP_Header(tvb, offset, pinfo, tree, item, TRUE /* delay_valid*/);
-    
+
     /* dissect the PDU */
     offset = dissect_PNPTCP_blocks(tvb, offset, pinfo, tree, item);
 
@@ -748,7 +748,7 @@ dissect_PNPTCP_DelayFuResPDU(tvbuff_t *tvb, int offset,
 
 /* possibly dissect a PN-RT packet (frame ID must be in the appropriate range) */
 static gboolean
-dissect_PNPTCP_Data_heur(tvbuff_t *tvb, 
+dissect_PNPTCP_Data_heur(tvbuff_t *tvb,
 	packet_info *pinfo, proto_tree *tree)
 {
     guint16 u16FrameID;
@@ -855,7 +855,7 @@ proto_register_pn_ptcp (void)
 	{ &hf_pn_ptcp_header,
         { "Header", "pn_ptcp.header", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_block,
-        { "", "pn_ptcp.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
+        { "Block", "pn_ptcp.block", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_block_tlvheader,
         { "TLVHeader", "pn_ptcp.tlvheader", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 
@@ -874,14 +874,14 @@ proto_register_pn_ptcp (void)
 
 	{ &hf_pn_ptcp_tl_length,
         { "TypeLength.Length", "pn_ptcp.tl_length", FT_UINT16, BASE_DEC, 0x0, 0x1FF, "", HFILL }},
-	{ &hf_pn_ptcp_tl_type, 
+	{ &hf_pn_ptcp_tl_type,
         { "TypeLength.Type", "pn_ptcp.tl_type", FT_UINT16, BASE_DEC, 0x0, 0xFE00, "", HFILL }},
 
 	{ &hf_pn_ptcp_master_source_address,
         { "MasterSourceAddress", "pn_ptcp.master_source_address", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_subdomain_uuid,
         { "SubdomainUUID", "pn_ptcp.subdomain_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
-	
+
     { &hf_pn_ptcp_request_source_address,
         { "RequestSourceAddress", "pn_ptcp.request_source_address", FT_ETHER, BASE_HEX, 0x0, 0x0, "", HFILL }},
     { &hf_pn_ptcp_request_port_id,
@@ -922,7 +922,7 @@ proto_register_pn_ptcp (void)
 	{ &hf_pn_ptcp_profinet_subtype,
 		{ "Subtype",	"pn_ptcp.subtype", FT_UINT8, BASE_HEX,
 	   	VALS(pn_ptcp_profinet_subtype_vals), 0x0, "PROFINET Subtype", HFILL }},
-        
+
 	{ &hf_pn_ptcp_irdata_uuid,
         { "IRDataUUID", "pn_ptcp.irdata_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, "", HFILL }},
 	};

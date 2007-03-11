@@ -802,7 +802,7 @@ static int hf_nt_policy_close_frame = -1;
 static gint ett_nt_policy_hnd = -1;
 
 /* this function is used to dissect a "handle".
- * it will keep track of which frame a handle is opened from and in which 
+ * it will keep track of which frame a handle is opened from and in which
  * frame it is closed.
  * normally, this function would be used for tracking 20 byte policy handles
  * as used in dcerpc  but it has shown VERY useful to also use it for tracking
@@ -925,18 +925,18 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-/* This function is called from PIDL generated dissectors to dissect a 
+/* This function is called from PIDL generated dissectors to dissect a
  * NT style policy handle (contect handle).
  *
  * param can be used to specify where policy handles are opened and closed
  * by setting PARAM_VALUE to
  *  PIDL_POLHND_OPEN where the policy handle is opened/created
  *  PIDL_POLHND_CLOSE where it is closed.
- * This enables policy handle tracking so that when a policy handle is 
+ * This enables policy handle tracking so that when a policy handle is
  * dissected it will be so as an expansion showing which frame it was
  * opened/closed in.
  *
- * See conformance file for winreg (epan/dissectors/pidl/winreg.cnf) 
+ * See conformance file for winreg (epan/dissectors/pidl/winreg.cnf)
  * for examples.
  */
 int
@@ -955,17 +955,17 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      param&PIDL_POLHND_OPEN, param&PIDL_POLHND_CLOSE,
 		      HND_TYPE_CTX_HANDLE);
 
-	/* If this was an open/create and we dont yet have a policy name 
+	/* If this was an open/create and we dont yet have a policy name
 	 * then create one.
-	 * XXX We do not yet have the infrastructure to know the name of the 
+	 * XXX We do not yet have the infrastructure to know the name of the
 	 * actual object  so just show it as <...> for the time being.
 	 */
-	if((param&PIDL_POLHND_OPEN) 
+	if((param&PIDL_POLHND_OPEN)
 	&& !pinfo->fd->flags.visited
 	&& !di->conformant_run){
 		char *pol_name=NULL;
 
-		pol_name=ep_strdup_printf("%s(<...>)", pinfo->dcerpc_procedure_name);	
+		pol_name=ep_strdup_printf("%s(<...>)", pinfo->dcerpc_procedure_name);
 		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
 	}
 
@@ -1653,57 +1653,57 @@ void dcerpc_smb_init(int proto_dcerpc)
 		    NULL, 0x0, "Acct CTRL", HFILL }},
 
 		{ &hf_nt_acb_disabled,
-		  { "", "nt.acb.disabled", FT_BOOLEAN, 32,
+		  { "Account disabled", "nt.acb.disabled", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_disabled), 0x0001,
 		    "If this account is enabled or disabled", HFILL }},
 
 		{ &hf_nt_acb_homedirreq,
-		  { "", "nt.acb.homedirreq", FT_BOOLEAN, 32,
+		  { "Home dir required", "nt.acb.homedirreq", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_homedirreq), 0x0002,
-		    "Is hom,edirs required for this account?", HFILL }},
+		    "Is homedirs required for this account?", HFILL }},
 
 		{ &hf_nt_acb_pwnotreq,
-		  { "", "nt.acb.pwnotreq", FT_BOOLEAN, 32,
+		  { "Password required", "nt.acb.pwnotreq", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_pwnotreq), 0x0004,
 		    "If a password is required for this account?", HFILL }},
 
 		{ &hf_nt_acb_tempdup,
-		  { "", "nt.acb.tempdup", FT_BOOLEAN, 32,
+		  { "Temporary duplicate account", "nt.acb.tempdup", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_tempdup), 0x0008,
 		    "If this is a temporary duplicate account", HFILL }},
 
 		{ &hf_nt_acb_normal,
-		  { "", "nt.acb.normal", FT_BOOLEAN, 32,
+		  { "Normal user account", "nt.acb.normal", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_normal), 0x0010,
 		    "If this is a normal user account", HFILL }},
 
 		{ &hf_nt_acb_mns,
-		  { "", "nt.acb.mns", FT_BOOLEAN, 32,
+		  { "MNS logon user account", "nt.acb.mns", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_mns), 0x0020,
 		    "MNS logon user account", HFILL }},
 
 		{ &hf_nt_acb_domtrust,
-		  { "", "nt.acb.domtrust", FT_BOOLEAN, 32,
+		  { "Interdomain trust account", "nt.acb.domtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_domtrust), 0x0040,
 		    "Interdomain trust account", HFILL }},
 
 		{ &hf_nt_acb_wstrust,
-		  { "", "nt.acb.wstrust", FT_BOOLEAN, 32,
+		  { "Workstation trust account", "nt.acb.wstrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_wstrust), 0x0080,
 		    "Workstation trust account", HFILL }},
 
 		{ &hf_nt_acb_svrtrust,
-		  { "", "nt.acb.svrtrust", FT_BOOLEAN, 32,
+		  { "Server trust account", "nt.acb.svrtrust", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_svrtrust), 0x0100,
 		    "Server trust account", HFILL }},
 
 		{ &hf_nt_acb_pwnoexp,
-		  { "", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
+		  { "Password expires", "nt.acb.pwnoexp", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_pwnoexp), 0x0200,
 		    "If this account expires or not", HFILL }},
 
 		{ &hf_nt_acb_autolock,
-		  { "", "nt.acb.autolock", FT_BOOLEAN, 32,
+		  { "Account is autolocked", "nt.acb.autolock", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_autolock), 0x0400,
 		    "If this account has been autolocked", HFILL }},
 

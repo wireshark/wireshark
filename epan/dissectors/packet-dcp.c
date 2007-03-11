@@ -1,9 +1,9 @@
 /* packet-dcp.c
- * Routines for Datagram Congestion Control Protocol, "DCCP" dissection: 
+ * Routines for Datagram Congestion Control Protocol, "DCCP" dissection:
  * it should be conformance to draft-ietf-dccp-spec-11.txt
  *
  * Copyright 2005 _FF_
- * 
+ *
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
  * $Id$
@@ -13,31 +13,31 @@
  * Copyright 1998 Gerald Combs
  *
  * Copied from packet-udp.c
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 
-/* NOTES: 
+/* NOTES:
  *
- * PROTOABBREV name collision problem, 'dccp' is used by 
+ * PROTOABBREV name collision problem, 'dccp' is used by
  * Distributed Checksum Clearinghouse Protocol.
  * This dissector should be named packet-dccp.c IMHO.
  *
  * Nov 13, 2006: makes checksum computation dependent
- * upon the header CsCov field (cf. RFC 4340, 5.1) 
+ * upon the header CsCov field (cf. RFC 4340, 5.1)
  * (Gerrit Renker)
  *
  * Nov 13, 2006: removes the case where checksums are zero
@@ -235,7 +235,7 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
 	   will always pick the right port number.
 	   XXX - we ignore port numbers of 0, as some dissectors use a port
 	   number of 0 to disable the port. */
-	
+
 	if (sport > dport) {
 		low_port = dport;
 		high_port = sport;
@@ -275,18 +275,18 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 	int offset=offset_start;
 	guint8 option_type = 0;
 	guint8 option_len = 0;
-	guint8 feature_number = 0; 
+	guint8 feature_number = 0;
 	int i;
 	proto_item *dcp_item = NULL;
-	
+
 	while( offset < offset_end ) {
-		
+
 		/* DBG("offset==%d\n", offset); */
 
 		/* first byte is the option type */
 		option_type = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_option_type, tvb, offset, 1, option_type);
-		
+
 		if (option_type >= 32) {                               /* variable length options */
 
 			if(!tvb_bytes_exist(tvb, offset, 1)) {
@@ -296,13 +296,13 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			}
 
 			option_len = tvb_get_guint8(tvb, offset + 1);
-			
+
 			if (option_len < 2) {
 				/* DBG("malformed\n"); */
 				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 				THROW(ReportedBoundsError);
 			}
-			
+
 			if(!tvb_bytes_exist(tvb, offset, option_len)) {
 				/* DBG("malformed\n"); */
 				proto_tree_add_boolean_hidden(dcp_options_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
@@ -312,9 +312,9 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 		} else {                                               /* 1byte options */
 			option_len = 1;
 		}
-		
+
 		switch (option_type) {
-			
+
 		case 0:
 			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Padding");
 			break;
@@ -330,10 +330,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 		case 32:
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-			
+
 			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							       "Change L(%s", 
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
+							       "Change L(%s",
 							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
 				for (i = 0; i < option_len - 3; i++) {
 					if(i==0)
@@ -344,10 +344,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Change L(Reserved feature number)");
 				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Change L(CCID-specific features)");
 			}
 			break;
@@ -355,10 +355,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 		case 33:
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-			
+
 			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							       "Confirm L(%s", 
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
+							       "Confirm L(%s",
 							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
 				for (i = 0; i < option_len - 3; i++) {
 					if(i==0)
@@ -369,10 +369,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Confirm L(Reserved feature number)");
 				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Confirm L(CCID-specific features)");
 			}
 			break;
@@ -380,10 +380,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 		case 34:
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-			
+
 			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							       "Change R(%s", 
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
+							       "Change R(%s",
 							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
 				for (i = 0; i < option_len - 3; i++) {
 					if(i==0)
@@ -394,10 +394,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Change R(Reserved feature number)");
 				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Change R(CCID-specific features)");
 			}
 			break;
@@ -405,10 +405,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 		case 35:
 			feature_number = tvb_get_guint8(tvb, offset + 2);
 			proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
-			
+
 			if( (feature_number < 10) && (feature_number!=0) ) {
-				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
-							       "Confirm R(%s", 
+				dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
+							       "Confirm R(%s",
 							       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
 				for (i = 0; i < option_len - 3; i++) {
 					if(i==0)
@@ -419,17 +419,17 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_item_append_text(dcp_item, ")");
 			} else {
 				if(((feature_number>=10)&&(feature_number<=127))||(feature_number==0))
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Confirm R(Reserved feature number)");
 				else
-					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+					proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 							    "Confirm R(CCID-specific features)");
 			}
 			break;
 
 		case 36:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Init Cookie(");
-			for (i = 0; i < option_len - 2; i++) { 
+			for (i = 0; i < option_len - 2; i++) {
 				if(i==0)
 					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
 				else
@@ -440,22 +440,22 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 37:
 			if(option_len==3)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 1, 
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 1,
 						    tvb_get_guint8(tvb, offset + 2));
 			else if (option_len==4)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 2, 
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 2,
 						    tvb_get_ntohs(tvb, offset + 2));
 			else if (option_len==5)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 3, 
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_ndp_count, tvb, offset + 2, 3,
 						    tvb_get_ntoh24(tvb, offset + 2));
 			else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "NDP Count too long (max 3 bytes)");
-			
+
 			break;
 
 		case 38:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector0(");
-			for (i = 0; i < option_len - 2; i++) { 
+			for (i = 0; i < option_len - 2; i++) {
 				if(i==0)
 					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
 				else
@@ -466,7 +466,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 39:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector1(");
-			for (i = 0; i < option_len - 2; i++) { 
+			for (i = 0; i < option_len - 2; i++) {
 				if(i==0)
 					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
 				else
@@ -477,7 +477,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 40:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Data Dropped(");
-			for (i = 0; i < option_len - 2; i++) { 
+			for (i = 0; i < option_len - 2; i++) {
 				if(i==0)
 					proto_item_append_text(dcp_item, "%02x", tvb_get_guint8(tvb, offset + 2 + i));
 				else
@@ -488,10 +488,10 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 41:
 			if(option_len==6)
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp, tvb, offset + 2, 4, 
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
 			else
-				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, 
+				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len,
 						    "Timestamp too long [%u != 6]", option_len);
 			break;
 
@@ -502,14 +502,14 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			else if (option_len==8) {
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp_echo, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
-				
+
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 6, 2,
 						    tvb_get_ntohs(tvb, offset + 6));
 			} else if (option_len==10) {
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_timestamp_echo, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
-				
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 6, 4, 
+
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 6, 4,
 						    tvb_get_ntohl(tvb, offset + 6));
 			} else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong Timestamp Echo length");
@@ -519,8 +519,8 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 			if(option_len==4)
 				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 2, 2,
 						    tvb_get_ntohs(tvb, offset + 2));
-			else if (option_len==6)				
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 2, 4, 
+			else if (option_len==6)
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_elapsed_time, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
 			else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong Elapsed Time length");
@@ -528,14 +528,14 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 44:
 			if(option_len==6) {
-				proto_tree_add_uint(dcp_options_tree, hf_dcp_data_checksum, tvb, offset + 2, 4, 
+				proto_tree_add_uint(dcp_options_tree, hf_dcp_data_checksum, tvb, offset + 2, 4,
 						    tvb_get_ntohl(tvb, offset + 2));
 			} else
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Wrong Data checksum length");
 			break;
-			
+
 		default :
-			if(((option_type >= 45) && (option_type <= 127)) || 
+			if(((option_type >= 45) && (option_type <= 127)) ||
 			   ((option_type >=  3) && (option_type <=  31))) {
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Reserved");
 				break;
@@ -545,7 +545,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 				proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "CCID option %d", option_type);
 				break;
 			}
-			
+
 			/* if here we don't know this option */
 			proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Unknown");
 			break;
@@ -560,7 +560,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 static inline guint dccp_csum_coverage(const e_dcphdr *dcph, guint len)
 {
 	guint cov;
-	
+
 	if (dcph->cscov == 0)
 		return len;
 	cov = (dcph->data_offset + dcph->cscov - 1) * sizeof(guint32);
@@ -582,7 +582,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint      advertised_dccp_header_len = 0;
 	guint      options_len = 0;
 	e_dcphdr   *dcph;
-	
+
 	/* get at least a full message header */
 	if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN_MIN)) {
 		/* DBG("malformed\n"); */
@@ -599,12 +599,12 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	SET_ADDRESS(&dcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 	SET_ADDRESS(&dcph->ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_clear(pinfo->cinfo, COL_INFO);
-	
+
         /* Extract generic header */
 	dcph->sport=tvb_get_ntohs(tvb, offset);
 	/* DBG("dcph->sport: %d\n", dcph->sport); */
@@ -651,18 +651,18 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dcph->seq+=tvb_get_ntohs(tvb, offset+10);
 		/* DBG("dcph->seq[24bits]: %llu\n", dcph->seq); */
 	}
-	
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s [%s] Seq=%" PRIu64,
 			     get_dccp_port(dcph->sport),
 			     get_dccp_port(dcph->dport),
 			     val_to_str(dcph->type, dcp_packet_type_vals, "Unknown Type"),
 			     dcph->seq);
-	
-	
+
+
 	if (tree) {
 		if(dcp_summary_in_tree) {
-			dcp_item = 
+			dcp_item =
 				proto_tree_add_protocol_format(tree, proto_dcp, tvb, offset, dcph->data_offset*4,
 							       "Datagram Congestion Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)"
 							       " [%s] Seq=%" PRIu64,
@@ -675,7 +675,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		dcp_tree = proto_item_add_subtree(dcp_item, ett_dcp);
-		
+
 		proto_tree_add_uint_format_value(dcp_tree, hf_dcp_srcport, tvb, offset, 2, dcph->sport,
 					   "%s (%u)", get_dccp_port(dcph->sport), dcph->sport);
 		proto_tree_add_uint_format_value(dcp_tree, hf_dcp_dstport, tvb, offset + 2, 2, dcph->dport,
@@ -683,13 +683,13 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_port, tvb, offset, 2, dcph->sport);
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_port, tvb, offset + 2, 2, dcph->dport);
-		
+
 		proto_tree_add_uint(dcp_tree, hf_dcp_data_offset, tvb, offset + 4, 1, dcph->data_offset);
 		proto_tree_add_uint(dcp_tree, hf_dcp_ccval, tvb, offset + 5, 1, dcph->ccval);
 		proto_tree_add_uint(dcp_tree, hf_dcp_cscov, tvb, offset + 5, 1, dcph->cscov);
-				
+
 		/* checksum analysis taken from packet-udp (difference: mandatory checksums in DCCP) */
-				
+
 		reported_len = tvb_reported_length(tvb);
 		len = tvb_length(tvb);
 		if (!pinfo->fragmented && len >= reported_len) {
@@ -700,7 +700,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   reassembly? */
 
 			if (dccp_check_checksum) {
-				
+
 				/* Set up the fields of the pseudo-header. */
 				cksum_vec[0].ptr = pinfo->src.data;
 				cksum_vec[0].len = pinfo->src.len;
@@ -708,7 +708,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				cksum_vec[1].len = pinfo->dst.len;
 				cksum_vec[2].ptr = (const guint8 *)&phdr;
 				switch (pinfo->src.type) {
-					
+
 				case AT_IPv4:
 					phdr[0] = g_htonl((IP_PROTO_DCCP<<16) + reported_len);
 					cksum_vec[2].len = 4;
@@ -718,7 +718,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					phdr[1] = g_htonl(IP_PROTO_DCCP);
 					cksum_vec[2].len = 8;
 					break;
-					
+
 				default:
 					/* DCCP runs only atop IPv4 and IPv6.... */
 				  /*DISSECTOR_ASSERT_NOT_REACHED();*/
@@ -729,7 +729,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				computed_cksum = in_cksum(&cksum_vec[0], 4);
 				if (computed_cksum == 0) {
 					proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
-									 offset + 6, 2, dcph->checksum, 
+									 offset + 6, 2, dcph->checksum,
 									 "0x%04x [correct]", dcph->checksum);
 				} else {
 					proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_checksum_bad, tvb, offset + 6, 2, TRUE);
@@ -738,14 +738,14 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									 in_cksum_shouldbe(dcph->checksum, computed_cksum));
 				}
 			} else {
-				proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb, 
+				proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
 								 offset + 6, 2, dcph->checksum, "0x%04x", dcph->checksum);
 			}
 		} else {
-			proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb, 
+			proto_tree_add_uint_format_value(dcp_tree, hf_dcp_checksum, tvb,
 							 offset + 6, 2, dcph->checksum, "0x%04x", dcph->checksum);
 		}
-				
+
 		proto_tree_add_uint_hidden(dcp_tree, hf_dcp_res1, tvb, offset + 8, 1, dcph->reserved1);
 		proto_tree_add_uint(dcp_tree, hf_dcp_type, tvb, offset + 8, 1, dcph->type);
 		proto_tree_add_boolean(dcp_tree, hf_dcp_x, tvb, offset + 8, 1, dcph->x);
@@ -754,18 +754,18 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint64(dcp_tree, hf_dcp_seq, tvb, offset + 10, 6, dcph->seq);
 		} else {
 			proto_tree_add_uint64(dcp_tree, hf_dcp_seq, tvb, offset + 9, 3, dcph->seq);
-			
+
 		}
-	}		
+	}
 
 	if(dcph->x)
 		offset+=16; /* Skip over extended Generic header */
 	else
 		offset+=12; /* Skip over not extended Generic header */
-	
+
 	/* dissecting type depending additional fields */
 	switch(dcph->type) {
-			
+
 	case 0x0: /* DCCP-Request */
 		if(!tvb_bytes_exist(tvb, offset, 4)) { /* at least 4 byte */
 			if(tree)
@@ -790,15 +790,15 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dcph->ack_reserved=tvb_get_ntohs(tvb, offset);
 		if(tree)
 			proto_tree_add_uint_hidden(dcp_tree, hf_dcp_ack_res, tvb, offset, 2, dcph->ack_reserved);
-		dcph->ack=tvb_get_ntohs(tvb, offset+2);  
-		dcph->ack<<=32;                          
+		dcph->ack=tvb_get_ntohs(tvb, offset+2);
+		dcph->ack<<=32;
 		dcph->ack+=tvb_get_ntohl(tvb, offset+4);
-		
+
 		if(tree)
 			proto_tree_add_uint64(dcp_tree, hf_dcp_ack, tvb, offset + 2, 6, dcph->ack);
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
-		
+
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 
 		if(!tvb_bytes_exist(tvb, offset, 4)) { /* at least 4 byte */
@@ -818,7 +818,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case 0x2: /* DCCP-Data */
 		/* nothing to dissect */
 		break;
-			
+
 	case 0x3: /* DCCP-Ack */
 	case 0x4: /* DCCP-DataAck */
 		if(dcph->x) {
@@ -878,7 +878,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", dcph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
-			
+
 		dcph->reset_code=tvb_get_guint8(tvb, offset);
 		dcph->data1=tvb_get_guint8(tvb, offset+1);
 		dcph->data2=tvb_get_guint8(tvb, offset+2);
@@ -891,7 +891,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (code=%s)", val_to_str(dcph->reset_code, dcp_reset_code_vals, "Unknown"));
-		
+
 		offset+=4; /* Skip over Reset Code and data123 */
 		break;
 
@@ -924,45 +924,45 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 		break;
 	}
-	
-	
+
+
 	/*  note: data_offset is the offset from the start of the packet's DCCP header to the
-	 *  start of its application data area, in 32-bit words. 
+	 *  start of its application data area, in 32-bit words.
 	 */
-		
+
 	/* it's time to do some checks */
 	advertised_dccp_header_len = dcph->data_offset*4;
 	options_len = advertised_dccp_header_len - offset;
-	
+
 	if ( advertised_dccp_header_len > DCCP_HDR_LEN_MAX ) {
 		if(tree)
-			proto_tree_add_text(dcp_tree, tvb, 4, 2, 
+			proto_tree_add_text(dcp_tree, tvb, 4, 2,
 					    "bogus data offset, advertised header length (%d) is larger than max (%d)",
 					    advertised_dccp_header_len, DCCP_HDR_LEN_MAX);
 		return;
 	}
-		
+
 	if(!tvb_bytes_exist(tvb, 0, advertised_dccp_header_len)) {
 		if(tree)
-			proto_tree_add_text(dcp_tree, tvb, offset, -1, "too short packet: missing %d bytes of DCCP header", 
+			proto_tree_add_text(dcp_tree, tvb, offset, -1, "too short packet: missing %d bytes of DCCP header",
 					    advertised_dccp_header_len - tvb_reported_length_remaining(tvb, offset));
 		return;
 	}
-		
+
 	if(options_len > DCCP_OPT_LEN_MAX) {
 		/* DBG("malformed\n"); */
 		if(tree)
 			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 		THROW(ReportedBoundsError);
 	}
-	
-	
-	/* Dissecting Options (if here we have at least (advertised_dccp_header_len - offset) bytes of options) */		
+
+
+	/* Dissecting Options (if here we have at least (advertised_dccp_header_len - offset) bytes of options) */
 	if(advertised_dccp_header_len == offset) {
 		; /* ok no options, no need to skip over */
 	} else if (advertised_dccp_header_len < offset) {
 		if(tree) {
-			proto_tree_add_text(dcp_tree, tvb, 4, 2, 
+			proto_tree_add_text(dcp_tree, tvb, 4, 2,
 					    "bogus data offset, advertised header length (%d) is shorter than expected",
 					    advertised_dccp_header_len);
 			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
@@ -975,12 +975,12 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		dissect_options(tvb, pinfo, dcp_options_tree, tree, dcph, offset, offset + options_len);
 	}
-		
-	offset+=options_len; /* Skip over Options */			
-	
+
+	offset+=options_len; /* Skip over Options */
+
 	/* Queuing tap data */
 	tap_queue_packet(dccp_tap, pinfo, dcph);
-	
+
 	/* Call sub-dissectors */
 
 	if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
@@ -1020,7 +1020,7 @@ void proto_register_dcp(void)
 		{ &hf_dcp_checksum_bad,
 		{ "Bad Checksum",	"dcp.checksum_bad", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
 		  "", HFILL }},
-		
+
 		{ &hf_dcp_checksum,
 		{ "Checksum",		"dcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 		  "", HFILL }},
@@ -1102,7 +1102,7 @@ void proto_register_dcp(void)
 		  "", HFILL }},
 
 		{ &hf_dcp_malformed,
-		{ "", "dcp.malformed", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		{ "Malformed", "dcp.malformed", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
 		  "", HFILL }},
 
 		{ &hf_dcp_options,

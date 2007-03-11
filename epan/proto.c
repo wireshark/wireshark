@@ -284,7 +284,7 @@ proto_init(void (register_all_protocols)(void),
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
-		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Proto Init",	"", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
 
@@ -3525,8 +3525,10 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 static int
 proto_register_field_init(header_field_info *hfinfo, int parent)
 {
-	/* The field must have names */
-	DISSECTOR_ASSERT(hfinfo->name);
+	/* The field must have a name (with length > 0) */
+	DISSECTOR_ASSERT(hfinfo->name && hfinfo->name[0]);
+
+	/* fields with an empty string for an abbreviation aren't filterable */
 	DISSECTOR_ASSERT(hfinfo->abbrev);
 
 	/* These types of fields are allowed to have value_strings, true_false_strings or a protocol_t struct*/
@@ -4027,7 +4029,7 @@ fill_label_enumerated_uint(field_info *fi, gchar *label_str)
 
 	/* Fill in the textual info */
 	if (hfinfo->display & BASE_RANGE_STRING) {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, 
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			rval_to_str(value, hfinfo->strings, "Unknown"), value);
 	} else {
@@ -4101,7 +4103,7 @@ fill_label_enumerated_int(field_info *fi, gchar *label_str)
 
 	/* Fill in the textual info */
 	if (hfinfo->display & BASE_RANGE_STRING) {
-	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, 
+	  ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 			format,  hfinfo->name,
 			rval_to_str(value, hfinfo->strings, "Unknown"), value);
 	} else {
@@ -5328,7 +5330,7 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
  * This array is terminated by a NULL entry.
  *
  * FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
- * FT_integer fields that have a value_string attached will have the 
+ * FT_integer fields that have a value_string attached will have the
  * matched string displayed on the expansion line.
  */
 proto_item *
