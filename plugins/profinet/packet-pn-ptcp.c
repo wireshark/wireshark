@@ -436,7 +436,7 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
 
     offset = dissect_PNPTCP_TLVHeader(tvb, offset, pinfo, tlvheader_tree, sub_item, &type, &length);
 
-	proto_item_append_text(sub_item, "%s",
+	proto_item_set_text(sub_item, "%s",
         val_to_str(type, pn_ptcp_block_type, "Unknown"));
 
 	proto_item_append_text(tlvheader_item, ": Type=%s (%x), Length=%u",

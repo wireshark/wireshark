@@ -4571,7 +4571,7 @@ dissect_block(tvbuff_t *tvb, int offset,
 		val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
         u16BlockLength, u8BlockVersionHigh, u8BlockVersionLow);
 
-	proto_item_append_text(sub_item, "%s",
+	proto_item_set_text(sub_item, "%s",
 		val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
 
     if (check_col(pinfo->cinfo, COL_INFO))
