@@ -584,6 +584,9 @@ proto_register_m2pa(void)
   proto_register_field_array(proto_m2pa, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  /* Allow other dissectors to find this one by name. */
+  register_dissector("m2pa", dissect_m2pa, proto_m2pa);
+
   m2pa_module = prefs_register_protocol(proto_m2pa, proto_reg_handoff_m2pa);
 
   prefs_register_enum_preference(m2pa_module, "version", "M2PA version", "Version used by Wireshark", &m2pa_version, m2pa_version_options, FALSE);
