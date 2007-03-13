@@ -62,6 +62,7 @@ typedef enum _http_type {
 #include <epan/tap.h>
 
 static int http_tap = -1;
+static int http_eo_tap = -1;
 
 static int proto_http = -1;
 static int hf_http_notification = -1;
@@ -165,7 +166,7 @@ typedef enum {
 } http_proto_t;
 
 typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
-    const guchar*);
+				 const guchar*, http_conv_t *);
 
 /*
  * Structure holding information from headers needed by main
@@ -181,13 +182,16 @@ typedef struct {
 } headers_t;
 
 static int is_http_request_or_reply(const gchar *data, int linelen,
-    http_type_t *type, ReqRespDissector *reqresp_dissector);
+				    http_type_t *type, ReqRespDissector
+				    *reqresp_dissector, http_conv_t *conv_data);
 static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *tree, int offset);
-static void http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_tree, packet_info *pinfo);
+static void http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
+				      proto_tree *sub_tree, packet_info *pinfo,
+				      http_conv_t *conv_data);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
-    proto_tree *tree, headers_t *eh_ptr);
+    proto_tree *tree, headers_t *eh_ptr, http_conv_t *conv_data);
 static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
     packet_info *pinfo, gchar *value);
@@ -506,6 +510,31 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
 	conversation_t  *conversation;
+	http_conv_t     *conv_data;
+	http_eo_t       *eo_info;
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
+	if(!conversation) {  /* Conversation does not exist yet - create it */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	/* Retrieve information from conversation
+	 * or add it if it isn't there yet
+	 */
+
+	conv_data = conversation_get_proto_data(conversation, proto_http);
+	if(!conv_data) {
+		/* Setup the conversation structure itself */
+		conv_data = se_alloc(sizeof(http_conv_t));
+
+		conv_data->response_code = 0;
+		conv_data->request_method = NULL;
+		conv_data->request_uri = NULL;
+
+		conversation_add_proto_data(conversation, proto_http,
+					    conv_data);
+	}
 
 	/*
 	 * Is this a request or response?
@@ -523,7 +552,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	is_request_or_reply = is_http_request_or_reply((const gchar *)line,
-	    first_linelen, &http_type, NULL);
+	    first_linelen, &http_type, NULL, conv_data);
 	if (is_request_or_reply) {
 		/*
 		 * Yes, it's a request or response.
@@ -540,25 +569,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-	if(!conversation) {  /* Conversation does not exist yet - create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-	/* Retrieve information from conversation
-	 * or add it if it isn't there yet
-	 */
-	stat_info = conversation_get_proto_data(conversation, proto_http);
-	if(!stat_info) {
-		stat_info = se_alloc(sizeof(http_info_value_t));
-		stat_info->response_code = 0;
-		stat_info->request_method = NULL;
-		stat_info->request_uri = NULL;
-		stat_info->http_host = NULL;
-
-		conversation_add_proto_data(conversation, proto_http, stat_info);
-	}
+	stat_info = ep_alloc(sizeof(http_info_value_t));
+	stat_info->framenum = pinfo->fd->num;
+	stat_info->response_code = 0;
+	stat_info->request_method = NULL;
+	stat_info->request_uri = NULL;
+	stat_info->http_host = NULL;
 
 	switch (pinfo->match_port) {
 
@@ -611,7 +627,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	headers.content_type = NULL;	/* content type not known yet */
-	stat_info->content_type = NULL; /* Reset for each packet */
 	headers.content_type_parameters = NULL;	/* content type parameters too */
 	headers.have_content_length = FALSE;	/* content length not known yet */
 	headers.content_encoding = NULL; /* content encoding not known yet */
@@ -644,7 +659,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		reqresp_dissector = NULL;
 		is_request_or_reply =
 		    is_http_request_or_reply((const gchar *)line,
-		    linelen, &http_type, &reqresp_dissector);
+		    linelen, &http_type, &reqresp_dissector, conv_data);
 		if (is_request_or_reply)
 			goto is_http;
 
@@ -797,14 +812,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
 				else req_tree = NULL;
 
-				reqresp_dissector(tvb, req_tree, offset, line, lineend);
+				reqresp_dissector(tvb, req_tree, offset, line,
+						  lineend, conv_data);
 			}
+
 		} else {
 			/*
 			 * Header.
 			 */
 			process_header(tvb, offset, next_offset, line, linelen,
-			    colon_offset, pinfo, http_tree, &headers);
+			    colon_offset, pinfo, http_tree, &headers, conv_data);
 		}
 		offset = next_offset;
 	}
@@ -1074,13 +1091,17 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		/* Save values for the Export Object GUI feature if we have
 		 * an active listener to process it (which happens when
-		 * the export object window is open).  These will be freed
-		 * when the export object window is destroyed. */
-		if(have_tap_listener(http_tap)) {
-			stat_info->content_type = g_strdup(headers.content_type);
-			stat_info->payload_len = next_tvb->length;
-			stat_info->payload_data = g_memdup(next_tvb->real_data,
-							    next_tvb->length);
+		 * the export object window is open). */
+		if(have_tap_listener(http_eo_tap)) {
+			eo_info = ep_alloc(sizeof(http_eo_t));
+
+			eo_info->hostname = conv_data->http_host;
+			eo_info->filename = conv_data->request_uri;
+			eo_info->content_type = headers.content_type;
+			eo_info->payload_len = next_tvb->length;
+			eo_info->payload_data = next_tvb->real_data;
+
+			tap_queue_packet(http_eo_tap, pinfo, eo_info);
 		}
 
 		/*
@@ -1146,7 +1167,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				call_dissector(media_handle, next_tvb, pinfo, tree);
 			} else {
 				/* Call the subdissector (defaults to data), otherwise. */
-				http_payload_subdissector(next_tvb, tree, http_tree, pinfo);
+				http_payload_subdissector(next_tvb, tree,
+							  http_tree, pinfo,
+							  conv_data);
 			}
 		}
 
@@ -1177,9 +1200,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
  */
 static void
 basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
-    const guchar *line, const guchar *lineend)
+			const guchar *line, const guchar *lineend,
+			http_conv_t *conv_data)
 {
 	const guchar *next_token;
+	gchar *request_uri;
 	int tokenlen;
 
 	/* The first token is the method. */
@@ -1195,9 +1220,14 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = get_token_len(line, lineend, &next_token);
 	if (tokenlen == 0)
 		return;
-	stat_info->request_uri = se_strdup((gchar*) tvb_get_ephemeral_string(tvb, offset, tokenlen));
+
+	/* Save the request URI for various later uses */
+	request_uri = (gchar *)tvb_get_string(tvb, offset, tokenlen);
+	stat_info->request_uri = ep_strdup(request_uri);
+ 	conv_data->request_uri = se_strdup(request_uri);
+	
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
-	    stat_info->request_uri);
+			      request_uri);
 	offset += next_token - line;
 	line = next_token;
 
@@ -1211,7 +1241,8 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 static void
 basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
-    const guchar *line, const guchar *lineend)
+			 const guchar *line, const guchar *lineend,
+			 http_conv_t *conv_data _U_)
 {
 	const guchar *next_token;
 	int tokenlen;
@@ -1233,7 +1264,8 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	memcpy(response_chars, line, 3);
 	response_chars[3] = '\0';
 
-	stat_info->response_code = strtoul(response_chars,NULL,10);
+	stat_info->response_code = conv_data->response_code = 
+		strtoul(response_chars, NULL, 10);
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
 	    stat_info->response_code);
@@ -1424,7 +1456,9 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 }
 
 static void
-http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_tree, packet_info *pinfo)
+http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
+			  proto_tree *sub_tree, packet_info *pinfo,
+			  http_conv_t *conv_data)
 {
 	/* tree = the main protocol tree that the subdissector would be listed in
 	 * sub_tree = the http protocol tree
@@ -1435,14 +1469,14 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
 	gchar **strings; /* An array for splitting the request URI into hostname and port */
 
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	if(stat_info->request_uri && stat_info->response_code == 200 &&
-	   stat_info->request_method && strncmp(stat_info->request_method, "CONNECT", 7) == 0) {
+	if(conv_data->response_code == 200 &&
+	   strncmp(conv_data->request_method, "CONNECT", 7) == 0) {
 
 		/* Call a subdissector to handle HTTP CONNECT's traffic */
 		tcpd=get_tcp_conversation_data(pinfo);
 
 		/* Grab the destination port number from the request URI to find the right subdissector */
-		strings = g_strsplit(stat_info->request_uri, ":", 2);
+		strings = g_strsplit(conv_data->request_uri, ":", 2);
 
 		if(strings[0] != NULL && strings[1] != NULL) { /* The string was successfuly split in two */
 			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect hostname: %s", strings[0]);
@@ -1490,7 +1524,8 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree, proto_tree *sub_
  */
 static int
 is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
-		ReqRespDissector *reqresp_dissector)
+			 ReqRespDissector *reqresp_dissector,
+			 http_conv_t *conv_data)
 {
 	int isHttpRequestOrReply = FALSE;
 	int prefix_len = 0;
@@ -1659,9 +1694,13 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
-			if (!stat_info->request_method)
-				stat_info->request_method = se_strndup(data, index+1);
-		}
+			
+			stat_info->request_method = ep_strndup(data, index+1);
+			conv_data->request_method = se_strndup(data, index+1);
+		}  
+
+		
+
 	}
 
 	return isHttpRequestOrReply;
@@ -1714,7 +1753,8 @@ static const header_info headers[] = {
 static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset,
-    packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr)
+    packet_info *pinfo, proto_tree *tree, headers_t *eh_ptr,
+    http_conv_t *conv_data)
 {
 	int len;
 	int line_end_offset;
@@ -1872,7 +1912,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_HOST:
-			stat_info->http_host = se_strndup(value, value_len);
+			stat_info->http_host = ep_strndup(value, value_len);
+			conv_data->http_host = se_strndup(value, value_len);
 			break;
 
 		}
@@ -2217,7 +2258,8 @@ proto_register_http(void)
 	/*
 	 * Register for tapping
 	 */
-	http_tap = register_tap("http");
+	http_tap = register_tap("http"); /* HTTP statistics tap */
+      	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
 }
 
 /*

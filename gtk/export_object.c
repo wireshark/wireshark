@@ -111,10 +111,13 @@ eo_win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	while(slist) {
 		entry = slist->data;
 		
+		g_free(entry->hostname);
 		g_free(entry->content_type);
+		g_free(entry->filename);
 		g_free(entry->payload_data);
 		
 		slist = slist->next; 
+       		g_free(entry);
 	}
 
 	g_slist_free(object_list->entries);
@@ -230,40 +233,27 @@ eo_draw(void *tapdata)
 
 	GSList *slist = object_list->entries;
 	GtkTreeIter new_iter;
-	gchar *column_text[EO_NUM_COLUMNS];
 
 	while(slist) {
 		eo_entry = slist->data;
 		
-		column_text[0] = g_strdup_printf("%u", eo_entry->pkt_num);
-		column_text[1] = g_strdup_printf("%s", eo_entry->hostname);
-		column_text[2] = g_strdup_printf("%s", eo_entry->content_type);
-		column_text[3] = g_strdup_printf("%u", eo_entry->payload_len);
-		column_text[4] = g_strdup_printf("%s", eo_entry->filename);
-
 		gtk_tree_store_append(object_list->store, &new_iter,
 				      object_list->iter);
 
 		gtk_tree_store_set(object_list->store, &new_iter,
-				   EO_PKT_NUM_COLUMN, column_text[0],
-				   EO_HOSTNAME_COLUMN, column_text[1],
-				   EO_CONTENT_TYPE_COLUMN, column_text[2],
-				   EO_BYTES_COLUMN, column_text[3],
-				   EO_FILENAME_COLUMN, column_text[4],
+				   EO_PKT_NUM_COLUMN, eo_entry->pkt_num,
+				   EO_HOSTNAME_COLUMN, eo_entry->hostname,
+				   EO_CONTENT_TYPE_COLUMN, eo_entry->content_type,
+				   EO_BYTES_COLUMN, eo_entry->payload_len,
+				   EO_FILENAME_COLUMN, eo_entry->filename,
 				   -1);
-
-		g_free(column_text[0]);
-		g_free(column_text[1]);
-		g_free(column_text[2]);
-		g_free(column_text[3]);
-		g_free(column_text[4]);
 
 		slist = slist->next;
 	}
 }
 
 void
-export_object_window(gchar *tapname, tap_packet_cb tap_packet)
+export_object_window(gchar *tapname, gchar *name, tap_packet_cb tap_packet)
 {
 	GtkWidget *sw;
 	GtkCellRenderer *renderer;
@@ -291,10 +281,10 @@ export_object_window(gchar *tapname, tap_packet_cb tap_packet)
 		return;
 	}
 
-	/* Set up our GUI window */
+	/* Setup our GUI window */
 	button_bar_tips = gtk_tooltips_new();
 
-	window_title = g_strdup_printf("Wireshark: %s object list", tapname);
+	window_title = g_strdup_printf("Wireshark: %s object list", name);
 	object_list->dlg = dlg_window_new(window_title);
 	g_free(window_title);
 
@@ -313,8 +303,8 @@ export_object_window(gchar *tapname, tap_packet_cb tap_packet)
 	gtk_container_add(GTK_CONTAINER(vbox), sw);
 
 	object_list->store = gtk_tree_store_new(EO_NUM_COLUMNS,
-						 G_TYPE_STRING, G_TYPE_STRING,
-						 G_TYPE_STRING, G_TYPE_STRING,
+						 G_TYPE_INT, G_TYPE_STRING,
+						 G_TYPE_STRING, G_TYPE_INT,
 						 G_TYPE_STRING);
 
 	object_list->tree = tree_view_new(GTK_TREE_MODEL(object_list->store));

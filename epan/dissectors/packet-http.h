@@ -28,15 +28,31 @@
 
 void http_dissector_add(guint32 port, dissector_handle_t handle);
 
-typedef struct _http_info_value_t
-{
+/* Used for HTTP statistics */
+typedef struct _http_info_value_t {
+	guint32 framenum;
 	gchar	*request_method;	
 	guint	 response_code;
 	gchar   *http_host;
 	gchar   *request_uri;
-	gchar   *content_type;
-	guint32  payload_len;
-	guint8  *payload_data;
 } http_info_value_t;
 
-#endif
+/* Used for HTTP Export Object feature */
+typedef struct _http_eo_t {
+	guint32  pkt_num;
+	gchar   *hostname;
+	gchar   *filename;
+	gchar   *content_type;
+	guint32  payload_len;
+	const guint8 *payload_data;
+} http_eo_t;
+
+/* Conversation data - used for the http_payload_subdissector() function. */
+typedef struct _http_conv_t {
+	guint    response_code;
+	gchar   *http_host;
+	gchar   *request_method;
+	gchar   *request_uri;
+} http_conv_t;
+
+#endif /* __PACKET_HTTP_H__ */

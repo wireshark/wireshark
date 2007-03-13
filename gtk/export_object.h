@@ -46,7 +46,8 @@ typedef struct _export_object_entry_t {
 	guint8 *payload_data;
 } export_object_entry_t;
 
-void export_object_window(gchar *tapname, tap_packet_cb tap_packet);
+void export_object_window(gchar *tapname, gchar *name, tap_packet_cb
+			  tap_packet);
 
 /* Protocol specific */
 void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
