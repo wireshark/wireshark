@@ -421,8 +421,10 @@ test_tapa_discover(tvbuff_t *tvb)
 {
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
 	if ( !tvb_bytes_exist(tvb, 0, 4)     ||
+		tvb_get_guint8(tvb, 0) < 1   ||
 		tvb_get_guint8(tvb, 0) > 5   ||
 		tvb_get_guint8(tvb, 1) > 8   ||
+		tvb_get_ntohs(tvb, 2) < 12   ||
 		tvb_get_ntohs(tvb, 2) > 1472) {
         	return FALSE;
 	}
