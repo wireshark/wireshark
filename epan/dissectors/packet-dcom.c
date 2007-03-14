@@ -1048,7 +1048,7 @@ dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
     if (tree) {
 		/* special formatted output of indexed value */
-        item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
+        *item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
     }
 
     if (pu32HResult)
