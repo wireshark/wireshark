@@ -154,6 +154,15 @@ cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
 cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 
 /**
+ * Determine whether this capture file (or a range of it) can be saved
+ * (except by copying the raw file data).
+ * 
+ * @param cf the capture file to check
+ * @return TRUE if it can be saved, FALSE if it can't
+ */
+gboolean cf_can_save_as(capture_file *cf);
+
+/**
  * Save a capture file (or a range of it).
  * 
  * @param cf the capture file to save to

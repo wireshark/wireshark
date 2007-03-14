@@ -1494,8 +1494,7 @@ main_cf_cb_file_closing(capture_file *cf)
     set_main_window_name("The Wireshark Network Analyzer");
 
     /* Disable all menu items that make sense only if you have a capture. */
-    set_menus_for_capture_file(FALSE);
-    set_menus_for_unsaved_capture_file(FALSE);
+    set_menus_for_capture_file(NULL);
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(cf);
     set_menus_for_capture_in_progress(FALSE);
@@ -1542,9 +1541,8 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_display_filename(cf);
 
     /* Enable menu items that make sense if you have a capture file you've
-     finished reading. */
-    set_menus_for_capture_file(TRUE);
-    set_menus_for_unsaved_capture_file(!cf->user_saved);
+       finished reading. */
+    set_menus_for_capture_file(cf);
 
     /* Enable menu items that make sense if you have some captured packets. */
     set_menus_for_captured_packets(TRUE);
@@ -1745,9 +1743,8 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
     set_menus_for_capture_in_progress(FALSE);
 
     /* Enable menu items that make sense if you have a capture file
-     you've finished reading. */
-    set_menus_for_capture_file(TRUE);
-    set_menus_for_unsaved_capture_file(!cf->user_saved);
+       you've finished reading. */
+    set_menus_for_capture_file(cf);
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
@@ -1952,7 +1949,7 @@ main_cf_cb_file_safe_failed(gpointer data _U_)
 static void
 main_cf_cb_file_safe_reload_finished(gpointer data _U_)
 {
-    set_menus_for_unsaved_capture_file(FALSE);
+    set_menus_for_capture_file(&cfile);
 }
 
 static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)

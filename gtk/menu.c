@@ -886,8 +886,7 @@ menus_init(void) {
     merge_all_tap_menus(tap_menu_tree_root);
 
     /* Initialize enabled/disabled state of menu items */
-    set_menus_for_unsaved_capture_file(FALSE);
-    set_menus_for_capture_file(FALSE);
+    set_menus_for_capture_file(NULL);
 #if 0
     /* Un-#if this when we actually implement Cut/Copy/Paste.
        Then make sure you enable them when they can be done. */
@@ -2088,30 +2087,39 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 }
 
 /* Enable or disable menu items based on whether you have a capture file
-   you've finished reading. */
+   you've finished reading and, if you have one, whether it's been saved
+   and whether it could be saved except by copying the raw packet data. */
 void
-set_menus_for_capture_file(gboolean have_capture_file)
+set_menus_for_capture_file(capture_file *cf)
 {
-  set_menu_sensitivity(main_menu_factory, "/File/Open...", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Open Recent", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Merge...", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Close", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Save As...",
-      have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/File/Export", have_capture_file);
-  set_menu_sensitivity(main_menu_factory, "/View/Reload", have_capture_file);
-  set_toolbar_for_capture_file(have_capture_file);
+  if (cf == NULL) {
+    /* We have no capture file */
+    set_menu_sensitivity(main_menu_factory, "/File/Merge...", FALSE);
+    set_menu_sensitivity(main_menu_factory, "/File/Close", FALSE);
+    set_menu_sensitivity(main_menu_factory, "/File/Save", FALSE);
+    set_menu_sensitivity(main_menu_factory, "/File/Save As...", FALSE);
+    set_menu_sensitivity(main_menu_factory, "/File/Export", FALSE);
+    set_menu_sensitivity(main_menu_factory, "/View/Reload", FALSE);
+    set_toolbar_for_capture_file(FALSE);
+    set_toolbar_for_unsaved_capture_file(FALSE);
+  } else {
+    set_menu_sensitivity(main_menu_factory, "/File/Merge...", TRUE);
+    set_menu_sensitivity(main_menu_factory, "/File/Close", TRUE);
+    set_menu_sensitivity(main_menu_factory, "/File/Save", !cf->user_saved);
+    /*
+     * "Save As..." works only if we can write the file out in at least
+     * one format (so we can save the whole file or just a subset) or
+     * if we have an unsaved capture (so writing the whole file out
+     * with a raw data copy makes sense).
+     */
+    set_menu_sensitivity(main_menu_factory, "/File/Save As...",
+        cf_can_save_as(cf) || !cf->user_saved);
+    set_menu_sensitivity(main_menu_factory, "/File/Export", TRUE);
+    set_menu_sensitivity(main_menu_factory, "/View/Reload", TRUE);
+    set_toolbar_for_unsaved_capture_file(!cf->user_saved);
+    set_toolbar_for_capture_file(TRUE);
+  }
   packets_bar_update();
-}
-
-/* Enable or disable menu items based on whether you have an unsaved
-   capture file you've finished reading. */
-void
-set_menus_for_unsaved_capture_file(gboolean have_unsaved_capture_file)
-{
-  set_menu_sensitivity(main_menu_factory, "/File/Save",
-      have_unsaved_capture_file);
-  set_toolbar_for_unsaved_capture_file(have_unsaved_capture_file);
 }
 
 /* Enable or disable menu items based on whether there's a capture in

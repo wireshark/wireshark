@@ -38,12 +38,9 @@ void add_menu_recent_capture_file(gchar *file);
 /* Routines to enable or disable sets of menu items. */
 
 /* Enable or disable menu items based on whether you have a capture file
-   you've finished reading. */
-void set_menus_for_capture_file(gboolean);
-
-/* Enable or disable menu items based on whether you have an unsaved
-   capture file you've finished reading. */
-void set_menus_for_unsaved_capture_file(gboolean);
+   you've finished reading and, if you have one, whether it's been saved
+   and whether it could be saved except by copying the raw packet data. */
+void set_menus_for_capture_file(capture_file *);
 
 /* Enable or disable menu items based on whether there's a capture in
    progress. */
