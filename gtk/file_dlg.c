@@ -27,32 +27,16 @@
 #endif
 
 #include <gtk/gtk.h>
-#if 0
-#include <gdk/gdkkeysyms.h>
-#endif
 
 #include <epan/filesystem.h>
 
-#if 0
-#include "globals.h"
-#endif
-
 #include "gtkglobals.h"
 #include "gui_utils.h"
-#if 0
-#include "dlg_utils.h"
-#endif
 #include "file_dlg.h"
 #include "keys.h"
 #include "compat_macros.h"
-#if 0
-#include "main.h"
-#endif
 
 #include <string.h>
-#if 0
-#include <stdio.h>
-#endif
 #include <errno.h>
 
 static gchar *last_open_dir = NULL;
