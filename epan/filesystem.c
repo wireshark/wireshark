@@ -56,6 +56,9 @@
 
 #define U3_MY_CAPTURES  "\\My Captures"
 
+char *persconffile_dir = NULL;
+char *persdatafile_dir = NULL;
+
 /*
  * Given a pathname, return a pointer to the last pathname separator
  * character in the pathname, or NULL if the pathname contains no
@@ -767,11 +770,10 @@ get_persconffile_dir(void)
 	const char *homedir;
 	struct passwd *pwd;
 #endif
-	static char *pf_dir = NULL;
 
 	/* Return the cached value, if available */
-	if (pf_dir != NULL)
-		return pf_dir;
+	if (persconffile_dir != NULL)
+		return persconffile_dir;
 
 #ifdef _WIN32
 	/*
@@ -782,7 +784,7 @@ get_persconffile_dir(void)
 		/*
 		 * We are; use the U3 application data path.
 		 */
-		pf_dir = u3appdatapath;
+		persconffile_dir = u3appdatapath;
 	} else {
 		/*
 		 * Use %APPDATA% or %USERPROFILE%, so that configuration
@@ -797,7 +799,7 @@ get_persconffile_dir(void)
 			/*
 			 * Concatenate %APPDATA% with "\Wireshark".
 			 */
-			pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+			persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 			    appdatadir, PF_DIR);
 		} else {
 			/*
@@ -806,14 +808,14 @@ get_persconffile_dir(void)
 			 */
 			userprofiledir = getenv_utf8("USERPROFILE");
 			if (userprofiledir != NULL) {
-				pf_dir = g_strdup_printf(
+				persconffile_dir = g_strdup_printf(
 				    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
 				    userprofiledir, PF_DIR);
 			} else {
 				/*
 				 * Give up and use "C:".
 				 */
-				pf_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
+				persconffile_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
 			}
 		}
 	}
@@ -838,10 +840,10 @@ get_persconffile_dir(void)
 		} else
 			homedir = "/tmp";
 	}
-	pf_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
+	persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
 #endif
 
-	return pf_dir;
+	return persconffile_dir;
 }
 
 /*
@@ -925,12 +927,13 @@ get_persdatafile_dir(void)
     char *u3devicedocumentpath;
     TCHAR tszPath[MAX_PATH];
 	char *szPath;
-/* SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
-#if 0
-	HRESULT hrRet;
-#else
-        BOOL bRet;
-#endif 
+	BOOL bRet;
+
+
+	/* Return the cached value, if available */
+	if (persdatafile_dir != NULL)
+		return persdatafile_dir;
+
 	/*
 	 * See if we are running in a U3 environment.
 	 */
@@ -945,17 +948,15 @@ get_persdatafile_dir(void)
 	  strcpy(szPath, u3devicedocumentpath);
 	  strcat(szPath, U3_MY_CAPTURES);
 
+	  persdatafile_dir = szPath;
 	  return szPath;
 
         } else {
-#if 0
-	hrRet = SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, tszPath);
-	if(hrRet == S_OK) {
-#else
-        bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
+	/* Hint: SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
+	bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
 	if(bRet == TRUE) {
-#endif
 		szPath = utf_16to8(tszPath);
+		persdatafile_dir = szPath;
 		return szPath;
 	} else {
 		return "";
@@ -1073,6 +1074,64 @@ get_persconffile_path(const char *filename, gboolean for_writing
 #endif
 
 	return path;
+}
+
+/* 
+ * process command line option belonging to the filesystem settings
+ * (move this e.g. to main.c and have set_persconffile_dir() instead in this file?)
+ */
+int
+filesystem_opt(int opt, const char *optarg)
+{
+  gchar *p, *colonp;
+
+  colonp = strchr(optarg, ':');
+  if (colonp == NULL) {
+    return 1;
+  }
+
+  p = colonp;
+  *p++ = '\0';
+
+  /*
+   * Skip over any white space (there probably won't be any, but
+   * as we allow it in the preferences file, we might as well
+   * allow it here).
+   */
+  while (isspace((guchar)*p))
+    p++;
+  if (*p == '\0') {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+    return 1;
+  }
+
+  /* directory should be existing */
+  /* XXX - is this a requirement? */
+  if(test_for_directory(p) != EISDIR) {
+    /*
+     * Put the colon back, so if our caller uses, in an
+     * error message, the string they passed us, the message
+     * looks correct.
+     */
+    *colonp = ':';
+	return 1;
+  }
+
+  if (strcmp(optarg,"persconf") == 0) {
+	persconffile_dir = p;
+  } else if (strcmp(optarg,"persdata") == 0) {
+	persdatafile_dir = p;
+  /* XXX - might need to add the temp file path */
+  } else {
+    return 1;
+  }
+  *colonp = ':'; /* put the colon back */
+  return 0;
 }
 
 /*

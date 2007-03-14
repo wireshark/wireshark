@@ -2131,7 +2131,7 @@ main(int argc, char *argv[])
   /*gchar			*cant_get_if_list_errstr;*/
 #endif
 
-#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2162,9 +2162,6 @@ main(int argc, char *argv[])
    * Now attempt to get the pathname of the plugins.
    */
   init_plugin_dir();
-
-  /* Init the "Open file" dialog directory */
-  set_last_open_dir(get_persdatafile_dir());
 
   /* initialize the funnel mini-api */
   initialize_funnel_ops();
@@ -2256,6 +2253,13 @@ main(int argc, char *argv[])
         print_usage(TRUE);
         exit(0);
         break;
+      case 'P':        /* Path settings - change these before the Preferences and alike are processed */
+	    status = filesystem_opt(opt, optarg);
+        if(status != 0) {
+			cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
+            exit(status);
+        }
+		break;
       case 'v':        /* Show version and exit */
         show_version();
         exit(0);
@@ -2272,6 +2276,10 @@ main(int argc, char *argv[])
         break;
     }
   }
+
+  /* Init the "Open file" dialog directory */
+  /* (do this after the path settings are processed) */
+  set_last_open_dir(get_persdatafile_dir());
 
   /* Set getopt index back to initial value, so it will start with the
      first command line parameter again.  Also reset opterr to 1, so that
@@ -2638,6 +2646,9 @@ main(int argc, char *argv[])
           g_assert_not_reached();
         }
         break;
+      case 'P':
+        /* Path settings were already processed just ignore them this time*/
+		break;
       case 'r':        /* Read capture file xxx */
 	/* We may set "last_open_dir" to "cf_name", and if we change
 	   "last_open_dir" later, we free the old value, so we have to

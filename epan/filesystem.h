@@ -111,6 +111,11 @@ extern char *get_persdatafile_dir(void);
  */
 extern char *get_tempfile_path(const char *filename);
 
+/* 
+ * process command line option belonging to the filesystem settings
+ */
+extern int filesystem_opt(int opt, const char *optarg);
+
 /*
  * Return an error message for UNIX-style errno indications on open or
  * create operations.
