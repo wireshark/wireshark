@@ -144,7 +144,8 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<!-- ************************ END IMS Cx Dx AVPS ******************* -->
-		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.329 version 6.7.0 Release 6 ********************* -->
+		<!-- ************************** IMS Cx Dx AVPS 3GPP TS 29.229 version 6.7.0 Release 6 ********************* -->
+		<!-- Note: The AVP codes from 633 to 699 are reserved for TS 29.229. -->
 		<avp name="Visited-Network-Identifier" code="600" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
