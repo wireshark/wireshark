@@ -27,6 +27,7 @@
 #endif
 
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -1119,13 +1120,13 @@ filesystem_opt(int opt, const char *optarg)
      * looks correct.
      */
     *colonp = ':';
-	return 1;
+    return 1;
   }
 
   if (strcmp(optarg,"persconf") == 0) {
-	persconffile_dir = p;
+    persconffile_dir = p;
   } else if (strcmp(optarg,"persdata") == 0) {
-	persdatafile_dir = p;
+    persdatafile_dir = p;
   /* XXX - might need to add the temp file path */
   } else {
     return 1;
