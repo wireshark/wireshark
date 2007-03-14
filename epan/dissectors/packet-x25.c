@@ -1855,6 +1855,12 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    localoffset++;
 		}
 	    }
+	} else {
+	  /* if there's no user data in the CALL REQUEST/
+	     INCOMING CALL packet, it's COTP; */
+
+	  x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
+
 	}
 	break;
     case X25_CALL_ACCEPTED:
