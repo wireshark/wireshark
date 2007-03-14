@@ -1470,6 +1470,7 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
 	if(conv_data->response_code == 200 &&
+	   conv_data->request_method &&
 	   strncmp(conv_data->request_method, "CONNECT", 7) == 0) {
 
 		/* Call a subdissector to handle HTTP CONNECT's traffic */
