@@ -2254,24 +2254,24 @@ main(int argc, char *argv[])
         exit(0);
         break;
       case 'P':        /* Path settings - change these before the Preferences and alike are processed */
-	    status = filesystem_opt(opt, optarg);
+        status = filesystem_opt(opt, optarg);
         if(status != 0) {
-			cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
+            cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
             exit(status);
         }
-		break;
+        break;
       case 'v':        /* Show version and exit */
         show_version();
         exit(0);
         break;
       case 'X':
-          /*
-           *  Extension command line options have to be processed before
-           *  we call epan_init() as they are supposed to be used by dissectors
-           *  or taps very early in the registration process.
-           */
-          ex_opt_add(optarg);
-          break;
+        /*
+         *  Extension command line options have to be processed before
+         *  we call epan_init() as they are supposed to be used by dissectors
+         *  or taps very early in the registration process.
+         */
+        ex_opt_add(optarg);
+        break;
       case '?':        /* Ignore errors - the "real" scan will catch them. */
         break;
     }
