@@ -314,6 +314,9 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     g_string_append(ip_str, "unknown");
   }
   gtk_label_set_text(GTK_LABEL(if_ip_lb), ip_str->str);
+#if GTK_CHECK_VERSION(2,6,0)
+  gtk_label_set_ellipsize(GTK_LABEL(if_ip_lb), PANGO_ELLIPSIZE_MIDDLE);
+#endif
   g_string_free(ip_str, TRUE);
 }
 
@@ -552,7 +555,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
                 *capture_fr, *capture_vb,
                 *if_hb, *if_cb, *if_lb,
-                *if_ip_hb, *if_ip_lb,
+                *if_ip_hb, *if_ip_lb, *if_ip_eb,
                 *linktype_hb, *linktype_lb, *linktype_om,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
@@ -717,8 +720,18 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if_ip_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
 
+  if_ip_eb = gtk_event_box_new();
+  gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_eb, TRUE, TRUE, 0);
+  gtk_tooltips_set_tip(tooltips, if_ip_eb, "Lists the IP address(es) "
+		       "assigned to the selected interface.  If there are "
+		       "more addresses than will fit in the window, the "
+		       "first few and the last few will be shown with \"...\" "
+		       "between them.",
+		       NULL);
+
   if_ip_lb = gtk_label_new("");
-  gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_lb, FALSE, FALSE, 6);
+  gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
+  gtk_container_add(GTK_CONTAINER(if_ip_eb), if_ip_lb);
 
   /* Linktype row */
   linktype_hb = gtk_hbox_new(FALSE, 3);
