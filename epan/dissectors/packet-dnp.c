@@ -1353,7 +1353,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           if (bitindex > 7)
           {
             bitindex = 0;
-            offset += 1;
+            offset += (indexbytes + 1);
           }
 
           /* Extract the bit from the packed byte */
@@ -1367,7 +1367,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           /* If we've read the last item, then move the offset past this byte */
           if (item_num == (num_items-1))
           {
-            offset += 1;
+            offset += (indexbytes + 1);
           }
 
           break;
@@ -1377,7 +1377,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           if (bitindex > 3)
           {
             bitindex = 0;
-            offset += 1;
+            offset += (indexbytes + 1);
           }
 
           /* Extract the Double-bit from the packed byte */
@@ -1391,7 +1391,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           /* If we've read the last item, then move the offset past this byte */
           if (item_num == (num_items-1))
           {
-            offset += 1;
+            offset += (indexbytes + 1);
           }
 
           break;
@@ -1419,7 +1419,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
               break;
           }
 
-          offset += 1;
+          offset += (indexbytes + 1);
           break;
 
         case AL_OBJ_2BI_STAT:    /* Double-bit Input With Status (Obj:03, Var:02) */
@@ -1433,7 +1433,7 @@ dnp3_al_process_object(tvbuff_t *tvb, int offset, proto_tree *robj_tree, gboolea
           proto_item_append_text(point_item, ", Value: %d", al_2bit);
           proto_item_set_len(point_item, indexbytes + 1);
 
-          offset += 1;
+          offset += (indexbytes + 1);
           break;
 
         case AL_OBJ_BIC_TIME:   /* Binary Input Change w/ Time (Obj:02, Var:02)  */
