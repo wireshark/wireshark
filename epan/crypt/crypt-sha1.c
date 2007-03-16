@@ -293,10 +293,10 @@ void sha1_finish( sha1_context *ctx, guint8 digest[20] )
 /*
  * Output HMAC-SHA-1(key,buf)
  */
-void sha1_hmac( const guint8 *key, guint keylen, const guint8 *buf, guint buflen,
+void sha1_hmac( const guint8 *key, guint32 keylen, const guint8 *buf, guint32 buflen,
                 guint8 digest[20] )
 {
-    guint i;
+    guint32 i;
     sha1_context ctx;
     guint8 k_ipad[64];
     guint8 k_opad[64];
