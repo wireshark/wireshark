@@ -76,6 +76,7 @@
 
 #include <epan/dissectors/format-oid.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include "packet-ber.h"
 
 /* XXX - The "plain" COPS port (3288) can be overridden in the prefs.
@@ -1260,8 +1261,13 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
     if (c_type != 1)
       break;
 
-    if (tvb_strnlen(tvb, offset, len) == -1)
-      proto_tree_add_text(tree, tvb, offset, len, "<PEP Id is not a NUL terminated ASCII string>");
+    if (tvb_strnlen(tvb, offset, len) == -1) {
+      proto_item *ti;
+      ti = proto_tree_add_text(tree, tvb, offset, len, "PEP Id is not a NULL terminated ASCII string");
+      expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_NOTE,
+                             "PEP Id is not a NULL terminated ASCII string");
+      PROTO_ITEM_SET_GENERATED(ti);
+    }
     else
       proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
                           tvb_strnlen(tvb, offset, len) + 1, FALSE);
