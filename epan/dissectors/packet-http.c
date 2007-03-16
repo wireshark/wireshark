@@ -1379,9 +1379,13 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len),
 			    chunk_offset, chunk_size);
 
-		new_tvb = tvb_new_real_data(raw_data,
-			    chunked_data_size, chunked_data_size);
-		tvb_set_free_cb(new_tvb, g_free);
+		/* Don't create a new tvb if we have a single chunk with
+		 * a size of zero (meaning it is the end of the chunks). */
+		if(chunked_data_size > 0) {
+			new_tvb = tvb_new_real_data(raw_data,
+			      chunked_data_size, chunked_data_size);
+			tvb_set_free_cb(new_tvb, g_free);
+		}
 
 
 		if (subtree) {
