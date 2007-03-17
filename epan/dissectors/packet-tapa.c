@@ -419,15 +419,27 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 test_tapa_discover(tvbuff_t *tvb)
 {
+	guint8 type, unknown, req_type;
+	guint16 length;
+
+	if (!tvb_bytes_exist(tvb, 0, 4))
+		return FALSE;
+
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
-	if ( !tvb_bytes_exist(tvb, 0, 4)     ||
-		tvb_get_guint8(tvb, 0) < 1   ||
-		tvb_get_guint8(tvb, 0) > 5   ||
-		tvb_get_guint8(tvb, 1) > 8   ||
-		tvb_get_ntohs(tvb, 2) < 12   ||
-		tvb_get_ntohs(tvb, 2) > 1472) {
-        	return FALSE;
+	type = tvb_get_guint8(tvb, 0);
+	unknown = tvb_get_guint8(tvb, 1);
+	length = tvb_get_ntohs(tvb, 2);
+	req_type = tvb_get_guint8(tvb, 4);
+
+	if (type < TAPA_TYPE_REQUEST	||
+	    type > TAPA_TYPE_REPLY_NEW	||
+	    unknown > 8			||
+	    length < 12			||
+	    length > 1472		||
+	    (type == TAPA_TYPE_REQUEST && (req_type < TAPA_REQUEST_SERIAL || req_type > TAPA_REQUEST_MODEL))) {
+		return FALSE;
 	}
+
 	return TRUE;
 }
 
@@ -436,9 +448,10 @@ test_tapa_tunnel(tvbuff_t *tvb)
 {
 	/* If it isn't IPv4, it's TAPA. IPv4: Version(1 byte) = 4,
 		length(2 bytes) >= 20 */
-	if ( !tvb_bytes_exist(tvb, 0, 4)     ||
-		(tvb_get_guint8(tvb, 0) & 0xF0) >= 0x40   ||
-		tvb_get_ntohs(tvb, 2) > 0) {
+	if (!tvb_bytes_exist(tvb, 0, 4) ||
+	    (tvb_get_guint8(tvb, 0) & 0xF0) >= 0x40 ||
+	    tvb_get_ntohs(tvb, 2) > 0 ||
+	    tvb_get_guint8(tvb, 1) > 1) {	/* Is tunnel type known? */
         	return FALSE;
 	}
 	return TRUE;
