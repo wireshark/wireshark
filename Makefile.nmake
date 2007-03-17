@@ -718,6 +718,8 @@ setup: verify_tools clean_setup
 
 # Cleanup files installed by the setup target. It will not remove the 
 # downloaded zip files.
+# WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO 
+# UPDATING REMOVES THE FORMER USER DIRS 
 clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
@@ -736,6 +738,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/user-guide
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
+    rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
 
 ################################################################################
