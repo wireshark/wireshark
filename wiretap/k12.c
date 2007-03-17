@@ -38,31 +38,34 @@
 #include "buffer.h"
 #include "k12.h"
 
+/*#define DEBUG_K12*/
 #ifdef DEBUG_K12
 #include <stdio.h>
+#include <ctype.h>
 #include <stdarg.h>
+
 
 FILE* dbg_out = NULL;
 char* env_file = NULL;
 
 static unsigned debug_level = 0;
 
-void k12_dbg(unsigned  level, char* fmt, ...) {
+void k12_fprintf(char* fmt, ...) {
     va_list ap;
-    
-    if (level > debug_level) return;
     
     va_start(ap,fmt);
     vfprintf(dbg_out, fmt, ap);
-    va_end(ap);
-    
-    fprintf(dbg_out,"\n");
-    
+    va_end(ap);    
 }
 
-#define K12_DBG(args) k12_dbg args
+#define CAT(a,b) a##b
+#define K12_DBG(level,args) do { if (level <= debug_level) { \
+	fprintf(dbg_out,"%s:%d: ",CAT(__FI,LE__),CAT(__LI,NE__)); \
+	k12_fprintf args ; \
+	fprintf(dbg_out,"\n"); \
+} } while(0)
 
-void k12_hexdump(gint64 offset, char* label, unsigned char* b, unsigned len) {
+void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsigned len) {
     static const char* c2t[] = {
         "00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f", 
         "10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f", 
@@ -82,29 +85,29 @@ void k12_hexdump(gint64 offset, char* label, unsigned char* b, unsigned len) {
         "f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"
     };
     unsigned i;
-    char c[33] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    if (debug_level < 2) return;
+	
+    if (debug_level < level) return;
     
-    fprintf(dbg_out,"%s(%.4x,%.4x): ",label,offset,len);
+    fprintf(dbg_out,"%s(%.8llx,%.4x): ",label,offset,len);
     
     for (i=0 ; i<len ; i++) {
-        if (!(i%32)) {
-            fprintf(dbg_out," %s \n", c);
-            
-        } else if (!(i%4))
+		
+        if (!(i%32))
+            fprintf(dbg_out,"\n");
+        else if (!(i%4))
             fprintf(dbg_out," ");
-        
+		
         fprintf(dbg_out,c2t[b[i]]);
-        c[i%32] = isprint(b[i]) ? b[i] : '.';
     }
-    c[i] = '\0';
-    fprintf(dbg_out," %s \n",c);
+	
+	fprintf(dbg_out,"\n");
 }
-#define K12_HEXDMP(a,b,c,d) k12_hexdump(a,b,c,d)
+
+#define K12_HEXDMP(x,a,b,c,d) k12_hexdump(x,a,b,c,d)
 
 #else
-#define K12_DBG(args)
-#define K12_HEXDMP(a,b,c,d)
+#define K12_DBG(level,args) (void)0
+#define K12_HEXDMP(x,a,b,c,d)
 #endif
 
 
@@ -121,6 +124,20 @@ void k12_hexdump(gint64 offset, char* label, unsigned char* b, unsigned len) {
  *  and a 2 byte terminator FFFF
  */
 
+typedef struct _k12_mode_t {
+	const gchar* name;
+	struct {
+		guint len;
+		const guint8* bytes;
+	} magic;
+} k12_mode_t;
+
+static const k12_mode_t k12_modes[] = {
+	{ "k1297", { 8, (guint8*)"\x00\x00\x02\x00\x12\x05\x00\x10" } },
+	{ "k15",   { 8, (guint8*)"\x00\x00\x02\x00\x12\x05\x00\x10" } },
+	{ NULL, { 0, NULL } }
+};
+
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
 
 struct _k12_t {
@@ -131,6 +148,8 @@ struct _k12_t {
     GHashTable* src_by_name; /* k12_srcdsc_recs by stack_name */
 
     Buffer extra_info; /* Buffer to hold per packet extra information */
+	
+	/*k12_mode_t mode;*/
 };
 
 typedef struct _k12_src_desc_t {
@@ -143,43 +162,46 @@ typedef struct _k12_src_desc_t {
 
 
 /* so far we've seen only 7 types of records */
-#define K12_REC_PACKET        0x00010020
+#define K12_REC_PACKET        0x00010020 /* an actual packet */
 #define K12_REC_SRCDSC        0x00070041 /* port-stack mapping + more, the key of the whole thing */
-#define K12_REC_SCENARIO    0x00070040 /* what appears as the window's title */
-#define K12_REC_70042        0x00070042 /* XXX: ??? */ 
-#define K12_REC_70044        0x00070044 /* text with a grammar (conditions/responses) */
-#define K12_REC_20030        0x00020030 /* human readable start time  */ 
-#define K12_REC_20032        0x00020031 /* human readable stop time */
+#define K12_REC_SCENARIO      0x00070040 /* what appears as the window's title */
+#define K12_REC_UNK01         0x00070042 /* UNKNOWN content */
+#define K12_REC_TEXT          0x00070044 /* a string containing something with a grammar (conditions/responses?) */
+#define K12_REC_START         0x00020030 /* a string containing human readable start time  */ 
+#define K12_REC_STOP          0x00020031 /* a string containing human readable stop time */
 
-#define K12_MASK_PACKET        0xfffffff0
+#define K12_MASK_PACKET       0xfffffff0  /* the last nibble in packet records somentimes change (not yet understood why) */
 
+/* offsets of elements in the records */
+#define K12_RECORD_LEN         0x0 /* uint32, in bytes */ 
+#define K12_RECORD_TYPE        0x4 /* uint32, see above */
+#define K12_RECORD_FRAME_LEN   0x8 /* uint32, in bytes */
+#define K12_RECORD_SRC_ID      0xc /* uint32 */
 
-#define K12_RECORD_LEN         0x0
-#define K12_RECORD_TYPE        0x4
-#define K12_RECORD_FRAME_LEN   0x8
-#define K12_RECORD_INPUT      0xc
+/* elements of packet records */
+#define K12_PACKET_TIMESTAMP  0x18 /* int64 (8b) representing 1/2us since 01-01-1990 Z00:00:00 */
 
-#define K12_PACKET_TIMESTAMP  0x18
-#define K12_PACKET_FRAME      0x20
+#define K12_PACKET_FRAME      0x20 /* start of the actual frame in the record */
 
-#define K12_PACKET_OFFSET_VP  0x08
-#define K12_PACKET_OFFSET_VC  0x0a
-#define K12_PACKET_OFFSET_CID 0x0c
+#define K12_PACKET_OFFSET_VP  0x08 /* 2 bytes, big endian */ 
+#define K12_PACKET_OFFSET_VC  0x0a /* 2 bytes, big endian */ 
+#define K12_PACKET_OFFSET_CID 0x0c /* 1 byte */
 
+/* elements of the source description records */
 #define K12_SRCDESC_COLOR_FOREGROUND 0x12 /* 1 byte */
 #define K12_SRCDESC_COLOR_BACKGROUND 0x13 /* 1 byte */
 
-#define K12_SRCDESC_PORT_TYPE  0x1a    /* 1 byte */
-#define K12_SRCDESC_EXTRALEN   0x1e
-#define K12_SRCDESC_NAMELEN    0x20
-#define K12_SRCDESC_STACKLEN   0x22
+#define K12_SRCDESC_PORT_TYPE  0x1a   /* 1 byte */
+#define K12_SRCDESC_EXTRALEN   0x1e   /* uint16, big endian */
+#define K12_SRCDESC_NAMELEN    0x20   /* uint16, big endian */
+#define K12_SRCDESC_STACKLEN   0x22   /* uint16, big endian */
 
-#define K12_SRCDESC_EXTRATYPE  0x24
-#define K12_SRCDESC_ATM_VPI    0x38
-#define K12_SRCDESC_ATM_VCI    0x3a
+#define K12_SRCDESC_EXTRATYPE  0x24   /* uint32, big endian */
+#define K12_SRCDESC_ATM_VPI    0x38   /* uint16, big endian */
+#define K12_SRCDESC_ATM_VCI    0x3a   /* uint16, big endian */
+
 #define K12_SRCDESC_ATM_AAL    0x3c    /* 1 byte */
-
-#define K12_SRCDESC_DS0_MASK   0x3c
+#define K12_SRCDESC_DS0_MASK   0x3c    /* 1 byte */
 
 
 /*
@@ -191,109 +213,125 @@ typedef struct _k12_src_desc_t {
  *
  * XXX: works at most with 0x1FFF bytes per record 
  */
-static gint get_record(guint8* buffer, FILE* fh, gint64 file_offset) {
-    long read;
-    long len;
-    gint64 i;
-    gint64 junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
-    
-    K12_DBG((5,"k12:get_record: ENTER offset=%lld",file_offset));
-    
-    if  ( junky_offset != 0x2000 ) {
+static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
+	static guint8* buffer = NULL;
+	static guint buffer_len = 0x2000 ;
+    guint read;
+	guint last_read;
+    guint actual_len, left;
+	guint8 junk[0x14];
+	guint8* readp;
+	
+	/* where the next unknown 0x10 bytes are stuffed to the file */
+	gint64 junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
+	
+	K12_DBG(6,("get_record: ENTER: junky_offset=%lld, file_offset=%lld",junky_offset,file_offset));
+
+	/* no buffer is given, lets create it */
+	if (buffer == NULL) {
+		buffer = g_malloc(0x2000);
+		buffer_len = 0x2000;
+	}
+	
+	*bufferp = buffer;
+	
+	if  ( junky_offset == 0x2000 ) {
+		/* the lenght of the record is 0x10 bytes ahead from we are reading */
+		read = file_read(junk,1,0x14,fh);
         
-        /* safe header */
-        read = file_read(buffer,1, 0x4,fh);
-        
-        if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
-            K12_DBG((1,"k12:get_record: EOF"));
-            return 0;
-        } else if ( read != 0x4 ) {
-            K12_DBG((1,"k12:get_record: SHORT READ"));
-            
-            return -1;
-        }
-        
-        len = pntohl(buffer) & 0x00001FFF;
-        
-        if (junky_offset > len) {
-            /* safe body */
-            if (len - 0x4 <= 0) {
-                K12_DBG((1,"k12:get_record: TOO SHORT"));
-                return -1;
-            }
-            
-            if ( file_read(buffer+0x4, 1, len - 0x4, fh) < len - 0x4 ) {
-                K12_DBG((1,"k12:get_record: SHORT READ"));
-                return -1;
-            } else {
-                K12_HEXDMP(file_offset, "GOT record", buffer, len);
-                return len;
-            }
-        } else {
-            if ( file_read(buffer+0x4, 1, len + 0xC, fh) < len ) {
-                return -1;
-            }
-            
-            for (i = junky_offset; i < len; i++) {
-                buffer[i] = buffer[i+0x10];
-            }
-            
-            K12_HEXDMP(file_offset, "GOT record", buffer, len);
-            
-            return len + 0x10;
-        }
-    } else {
-        /* unsafe header */
-        
-        read = file_read(buffer,1,0x14,fh);
-        
-        if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
-            K12_DBG((1,"k12:get_record: EOF"));            
+        if (read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
+            K12_DBG(1,("get_record: EOF"));            
             return 0;
         } else if ( read < 0x14 ){
-            K12_DBG((1,"k12:get_record: SHORT READ"));
+            K12_DBG(1,("get_record: SHORT READ"));
             return -1;
         }
-        
-        for (i = 0; i < 0x10; i++) {
-            buffer[i] = buffer[i+0x10];
-        }
-        
-        len = pntohl(buffer) & 0x00001FFF;
-        
-        if (len - 0x4 <= 0) {
-            K12_DBG((1,"k12:get_record: SHORT RECORD"));
+		
+		memcpy(buffer,&(junk[0x10]),4);
+	} else {
+		/* the lenght of the record is right where we are reading */
+		read = file_read(buffer,1, 0x4, fh);
+		
+		if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
+            K12_DBG(1,("get_record: EOF"));
+            return 0;
+        } else if ( read != 0x4 ) {
+            K12_DBG(1,("get_record: SHORT READ"));
             return -1;
         }
-        /* safe body */
-        if ( file_read(buffer + 0x4, 1, len - 0x4,fh) < len - 0x4 ) {
-            K12_DBG((1,"k12:get_record: READ ERROR"));
-            return -1;
-        } else {
-            K12_HEXDMP(file_offset, "GOT stuffed record", buffer, len);
-            return len + 0x10;
-        }
-    }
+	}
+	
+	actual_len = left = pntohl(buffer);
+	junky_offset -= 0x4;
+	readp = buffer + 4;
+	
+	K12_DBG(5,("get_record: GET length=%d",left));
+
+	g_assert(left >= 4);
+	
+	while (left > buffer_len) *bufferp = buffer = g_realloc(buffer,buffer_len*=2);
+	
+	left -= 4;
+	
+	do {
+		K12_DBG(6,("get_record: looping left=%d junky_offset=%lld",left,junky_offset));
+
+		if (junky_offset > left) {
+			read += last_read = file_read(readp,1, left, fh);
+			
+			if ( last_read != left ) {
+				K12_DBG(1,("get_record: SHORT READ"));
+				return -1;
+			} else {
+				K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
+				return read;
+			}
+		} else {
+			read += last_read = file_read(readp,1, junky_offset, fh);
+			
+			if ( last_read != junky_offset ) {
+				K12_DBG(1,("get_record: SHORT READ, read=%d expected=%d",last_read, junky_offset));
+				return -1;
+			}
+			
+			readp += last_read;
+
+			read += last_read = file_read(junk,1, 0x10, fh);
+			
+			if ( last_read != 0x10 ) {
+				K12_DBG(1,("get_record: SHORT READ"));
+				return -1;
+			}
+			
+			left -= junky_offset;
+			junky_offset = 0x2000;
+		}
+		
+	} while(left);
+	
+	K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
+	return read;
 }
 
 static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
     k12_src_desc_t* src_desc;
-    guint8 buffer[0x2000];
+    guint8* buffer = NULL;
     gint64 offset;
     long len;
     guint32 type;
+	guint32 src_id;
     guint64 ts;
     guint32 extra_len;
     
     offset = wth->data_offset;
     
-    K12_DBG((5,"k12_read: offset=%i",offset));
-    
     /* ignore the record if it isn't a packet */    
     do {
+		K12_DBG(5,("k12_read: offset=%i",offset));
+		
         *data_offset = offset;
         
-        len = get_record(buffer, wth->fh, offset);
+        len = get_record(&buffer, wth->fh, offset);
         
         if (len < 0) {
             *err = WTAP_ERR_SHORT_READ;
@@ -304,22 +342,23 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
         }
         
         type = pntohl(buffer + K12_RECORD_TYPE);
-        
-        K12_DBG((5,"k12_read: record type=%i",offset));
+        src_id = pntohl(buffer + K12_RECORD_SRC_ID);
+		src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id));
+
+        K12_DBG(5,("k12_read: record type=%x src_id=%x",type,src_id));
         
         offset += len;
         
-    } while ( (type & K12_MASK_PACKET) != K12_REC_PACKET );
+    } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET) || !src_id || !src_desc );
     
     wth->data_offset = offset;
     
     ts = pntohll(buffer + K12_PACKET_TIMESTAMP);
     
-    
     wth->phdr.ts.secs = (guint32) ((ts / 2000000) + 631152000);
     wth->phdr.ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
     
-    K12_DBG((5,"k12_read: secs=%u nsecs=%u", wth->phdr.ts.secs,wth->phdr.ts.nsecs));
+    K12_DBG(3,("k12_read: PACKET RECORD type=%x src_id=%x secs=%u nsecs=%u",type,src_id, wth->phdr.ts.secs,wth->phdr.ts.nsecs));
     
     wth->phdr.len = wth->phdr.caplen = pntohl(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     extra_len = len - K12_PACKET_FRAME - wth->phdr.caplen;
@@ -332,18 +371,16 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
     buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
            buffer + K12_PACKET_FRAME + wth->phdr.caplen, extra_len);
-    wth->pseudo_header.k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
     wth->pseudo_header.k12.extra_length = extra_len;
 
-    wth->pseudo_header.k12.input = pntohl(buffer + K12_RECORD_INPUT);
+    wth->pseudo_header.k12.input = src_id;
     
-    K12_DBG((5,"k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i",wth->pseudo_header.k12.input,wth->phdr.len));
-    
-    src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(wth->pseudo_header.k12.input));
-    
+    K12_DBG(5,("k12_read: wth->pseudo_header.k12.input=%x wth->phdr.len=%i",wth->pseudo_header.k12.input,wth->phdr.len));
+        
     if (src_desc) {
         
-        K12_DBG((5,"k12_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
+        K12_DBG(5,("k12_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
         wth->pseudo_header.k12.input_name = src_desc->input_name;
         wth->pseudo_header.k12.stack_file = src_desc->stack_file;
         wth->pseudo_header.k12.input_type = src_desc->input_type;
@@ -363,7 +400,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
             
         }
     } else {
-        K12_DBG((5,"k12_read: NO RECORD FOUND"));
+        K12_DBG(5,("k12_read: NO RECORD FOUND"));
 
         memset(&(wth->pseudo_header),0,sizeof(wth->pseudo_header));
         wth->pseudo_header.k12.input_name = "unknown port";
@@ -378,20 +415,20 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 
 static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info _U_) {
     k12_src_desc_t* src_desc;
-    guint8 buffer[0x2000];
+    guint8* buffer;
     long len;
     guint32 extra_len;
     guint32 input;
     
-    K12_DBG((5,"k12_seek_read: ENTER"));
+    K12_DBG(5,("k12_seek_read: ENTER"));
     
     if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-        K12_DBG((5,"k12_seek_read: SEEK ERROR"));
+        K12_DBG(5,("k12_seek_read: SEEK ERROR"));
         return FALSE;
     }
     
-    if ((len = get_record(buffer, wth->random_fh, seek_off)) < 1) {
-        K12_DBG((5,"k12_seek_read: READ ERROR"));
+    if ((len = get_record(&buffer, wth->random_fh, seek_off)) < 1) {
+        K12_DBG(5,("k12_seek_read: READ ERROR"));
         return FALSE;
     }
     
@@ -401,20 +438,20 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     buffer_assure_space(&(wth->capture.k12->extra_info), extra_len);
     memcpy(buffer_start_ptr(&(wth->capture.k12->extra_info)),
            buffer + K12_PACKET_FRAME + length, extra_len);
-    wth->pseudo_header.k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+    wth->pseudo_header.k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
     wth->pseudo_header.k12.extra_length = extra_len;
     if (pseudo_header) {
-        pseudo_header->k12.extra_info = buffer_start_ptr(&(wth->capture.k12->extra_info));
+        pseudo_header->k12.extra_info = (void*)buffer_start_ptr(&(wth->capture.k12->extra_info));
         pseudo_header->k12.extra_length = extra_len;
     }
     
-    input = pntohl(buffer + K12_RECORD_INPUT);
-    K12_DBG((5,"k12_seek_read: input=%.8x",input));
+    input = pntohl(buffer + K12_RECORD_SRC_ID);
+    K12_DBG(5,("k12_seek_read: input=%.8x",input));
     
     src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input));
     
     if (src_desc) {
-        K12_DBG((5,"k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
+        K12_DBG(5,("k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
         if (pseudo_header) {
             pseudo_header->k12.input_name = src_desc->input_name;
             pseudo_header->k12.stack_file = src_desc->stack_file;
@@ -454,7 +491,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
         }
         
     } else {
-        K12_DBG((5,"k12_seek_read: NO SRC_RECORD FOUND"));
+        K12_DBG(5,("k12_seek_read: NO SRC_RECORD FOUND"));
 
         if (pseudo_header) {
             memset(&(pseudo_header->k12),0,sizeof(pseudo_header->k12));
@@ -476,7 +513,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     wth->pseudo_header.k12.input = input;
     wth->pseudo_header.k12.stuff = wth->capture.k12;
 
-    K12_DBG((5,"k12_seek_read: DONE OK"));
+    K12_DBG(5,("k12_seek_read: DONE OK"));
 
     return TRUE;
 }
@@ -520,7 +557,7 @@ static void destroy_k12_file_data(k12_t* fd) {
 static void k12_close(wtap *wth) {
     destroy_k12_file_data(wth->capture.k12);
 #ifdef DEBUG_K12
-    K12_DBG((5,"k12_close: CLOSED"));
+    K12_DBG(5,("k12_close: CLOSED"));
     if (env_file) fclose(dbg_out);
 #endif
 }
@@ -528,7 +565,8 @@ static void k12_close(wtap *wth) {
 
 int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
     k12_src_desc_t* rec;
-    guint8 read_buffer[0x2000];
+    guint8 header_buffer[0x200];
+    guint8* read_buffer;
     guint32 type;
     long offset;
     long len;
@@ -545,15 +583,15 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
     if ( env_file ) dbg_out = fopen(env_file,"w");
     else dbg_out = stderr;
     if ( env_level ) debug_level = strtoul(env_level,NULL,10);
-    K12_DBG((1,"k12_open: ENTER debug_level=%u",debug_level));
+    K12_DBG(1,("k12_open: ENTER debug_level=%u",debug_level));
 #endif
     
-    if ( file_read(read_buffer,1,0x200,wth->fh) != 0x200 ) {
-        K12_DBG((1,"k12_open: FILE HEADER TOO SHORT"));
+    if ( file_read(header_buffer,1,0x200,wth->fh) != 0x200 ) {
+        K12_DBG(1,("k12_open: FILE HEADER TOO SHORT"));
         return 0;
     } else {
-        if ( memcmp(read_buffer,k12_file_magic,8) != 0 ) {
-            K12_DBG((1,"k12_open: BAD MAGIC"));
+        if ( memcmp(header_buffer,k12_file_magic,8) != 0 ) {
+            K12_DBG(1,("k12_open: BAD MAGIC"));
             return 0;
         }
     }
@@ -562,20 +600,20 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
     
     file_data = new_k12_file_data();
     
-    file_data->file_len = pntohl( read_buffer + 0x8);
-    file_data->num_of_records = pntohl( read_buffer + 0xC );
+    file_data->file_len = pntohl( header_buffer + 0x8);
+    file_data->num_of_records = pntohl( header_buffer + 0xC );
     
-    K12_DBG((5,"k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
+    K12_DBG(5,("k12_open: FILE_HEADER OK: offset=%x file_len=%i records=%i",
             offset,
             file_data->file_len,
             file_data->num_of_records ));
     
     do {
         
-        len = get_record(read_buffer, wth->fh, offset);
+        len = get_record(&read_buffer, wth->fh, offset);
         
         if ( len <= 0 ) {
-            K12_DBG((1,"k12_open: BAD HEADER RECORD",len));
+            K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             return -1;
         }
         
@@ -590,7 +628,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
                 destroy_k12_file_data(file_data);
                 return -1;
             }
-            K12_DBG((5,"k12_open: FIRST PACKET offset=%x",offset));
+            K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
             break;
         } else if (type == K12_REC_SRCDSC) {
             rec = g_malloc0(sizeof(k12_src_desc_t));
@@ -600,14 +638,14 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
             name_len = pntohs( read_buffer + K12_SRCDESC_NAMELEN );
             stack_len = pntohs( read_buffer + K12_SRCDESC_STACKLEN );
             
-            rec->input = pntohl( read_buffer + K12_RECORD_INPUT );
+            rec->input = pntohl( read_buffer + K12_RECORD_SRC_ID );
             
-            K12_DBG((5,"k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
+            K12_DBG(5,("k12_open: INTERFACE RECORD offset=%x interface=%x",offset,rec->input));
             
             if (name_len == 0 || stack_len == 0
                 || 0x20 + extra_len + name_len + stack_len > rec_len ) {
                 g_free(rec);
-                K12_DBG((5,"k12_open: failed (name_len == 0 || stack_len == 0 "
+                K12_DBG(5,("k12_open: failed (name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
                 return 0;
             }
