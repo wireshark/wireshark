@@ -124,20 +124,6 @@ void k12_hexdump(guint level, gint64 offset, char* label, unsigned char* b, unsi
  *  and a 2 byte terminator FFFF
  */
 
-typedef struct _k12_mode_t {
-	const gchar* name;
-	struct {
-		guint len;
-		const guint8* bytes;
-	} magic;
-} k12_mode_t;
-
-static const k12_mode_t k12_modes[] = {
-	{ "k1297", { 8, (guint8*)"\x00\x00\x02\x00\x12\x05\x00\x10" } },
-	{ "k15",   { 8, (guint8*)"\x00\x00\x02\x00\x12\x05\x00\x10" } },
-	{ NULL, { 0, NULL } }
-};
-
 static const guint8 k12_file_magic[] = { 0x00, 0x00, 0x02, 0x00 ,0x12, 0x05, 0x00, 0x10 };
 
 struct _k12_t {
@@ -148,8 +134,6 @@ struct _k12_t {
     GHashTable* src_by_name; /* k12_srcdsc_recs by stack_name */
 
     Buffer extra_info; /* Buffer to hold per packet extra information */
-	
-	/*k12_mode_t mode;*/
 };
 
 typedef struct _k12_src_desc_t {
@@ -161,11 +145,12 @@ typedef struct _k12_src_desc_t {
 } k12_src_desc_t;
 
 
-/* so far we've seen only 7 types of records */
+/* so far we've seen these types of records */
 #define K12_REC_PACKET        0x00010020 /* an actual packet */
 #define K12_REC_SRCDSC        0x00070041 /* port-stack mapping + more, the key of the whole thing */
 #define K12_REC_SCENARIO      0x00070040 /* what appears as the window's title */
-#define K12_REC_UNK01         0x00070042 /* UNKNOWN content */
+#define K12_REC_STK_FILE      0x00070042 /* a dump of an stk file */
+#define K12_REC_SRCDSC2       0x00070043 /* another port-stack mapping */
 #define K12_REC_TEXT          0x00070044 /* a string containing something with a grammar (conditions/responses?) */
 #define K12_REC_START         0x00020030 /* a string containing human readable start time  */ 
 #define K12_REC_STOP          0x00020031 /* a string containing human readable stop time */
@@ -263,7 +248,6 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	
 	actual_len = left = pntohl(buffer);
 	junky_offset -= 0x4;
-	readp = buffer + 4;
 	
 	K12_DBG(5,("get_record: GET length=%d",left));
 
@@ -271,6 +255,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	
 	while (left > buffer_len) *bufferp = buffer = g_realloc(buffer,buffer_len*=2);
 	
+	readp = buffer + 4;
 	left -= 4;
 	
 	do {
@@ -630,7 +615,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
             }
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
             break;
-        } else if (type == K12_REC_SRCDSC) {
+        } else if (type == K12_REC_SRCDSC || type == K12_REC_SRCDSC2 ) {
             rec = g_malloc0(sizeof(k12_src_desc_t));
             
             rec_len = pntohl( read_buffer + K12_RECORD_LEN );
