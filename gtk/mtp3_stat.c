@@ -428,7 +428,7 @@ mtp3_stat_gtk_cb(
 
     mtp3_stat_gtk_win_create(&dlg, "MTP3 Statistics");
 
-    mtp3_stat_draw(NULL);
+    mtp3_stat_draw(&mtp3_stat);
 }
 
 
