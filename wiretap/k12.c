@@ -205,7 +205,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	guint last_read;
     guint actual_len, left;
 	guint8 junk[0x14];
-	guint8* readp;
+	guint8* writep;
 	
 	/* where the next unknown 0x10 bytes are stuffed to the file */
 	gint64 junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
@@ -255,14 +255,14 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	
 	while (left > buffer_len) *bufferp = buffer = g_realloc(buffer,buffer_len*=2);
 	
-	readp = buffer + 4;
+	writep = buffer + 4;
 	left -= 4;
 	
 	do {
 		K12_DBG(6,("get_record: looping left=%d junky_offset=%lld",left,junky_offset));
 
 		if (junky_offset > left) {
-			read += last_read = file_read(readp,1, left, fh);
+			read += last_read = file_read(writep,1, left, fh);
 			
 			if ( last_read != left ) {
 				K12_DBG(1,("get_record: SHORT READ"));
@@ -272,14 +272,14 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 				return read;
 			}
 		} else {
-			read += last_read = file_read(readp,1, junky_offset, fh);
+			read += last_read = file_read(writep,1, junky_offset, fh);
 			
 			if ( last_read != junky_offset ) {
 				K12_DBG(1,("get_record: SHORT READ, read=%d expected=%d",last_read, junky_offset));
 				return -1;
 			}
 			
-			readp += last_read;
+			writep += last_read;
 
 			read += last_read = file_read(junk,1, 0x10, fh);
 			
