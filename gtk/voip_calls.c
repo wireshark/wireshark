@@ -124,14 +124,8 @@ static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
 void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 {
 	voip_calls_info_t *strinfo;
-	sip_calls_info_t *tmp_sipinfo;
-	h323_calls_info_t *tmp_h323info;
-	h245_address_t *h245_add;
-
 	graph_analysis_item_t *graph_item;
-
 	GList* list;
-	GList* list2;
 
 #ifdef HAVE_LIBPORTAUDIO
 #if GTK_MAJOR_VERSION >= 2
