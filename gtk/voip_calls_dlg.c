@@ -796,7 +796,7 @@ void voip_calls_dlg_reset(void *ptr _U_)
 	voip_calls_reset((voip_calls_tapinfo_t*) voip_calls_get_info());
 
 	/* close the graph window if open */
-	if (graph_analysis_data->dlg.window != NULL) {
+	if (graph_analysis_data && graph_analysis_data->dlg.window != NULL) {
 		window_cancel_button_cb(NULL, graph_analysis_data->dlg.window);
 		graph_analysis_data->dlg.window = NULL;
 	}
