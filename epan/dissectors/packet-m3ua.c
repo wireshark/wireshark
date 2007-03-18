@@ -47,6 +47,7 @@
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include "packet-mtp3.h"
+#include "tap.h"
 
 #define SCTP_PORT_M3UA         2905
 #define NETWORK_BYTE_ORDER     FALSE
@@ -300,6 +301,9 @@ static int hf_v6_deregistration_result_status = -1;
 static int hf_v6_deregistration_result_context = -1;
 static int hf_li = -1;
 
+
+static int m3ua_tap = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_m3ua = -1;
 static gint ett_parameter = -1;
@@ -319,7 +323,6 @@ typedef enum {
 
 static gint version = M3UA_RFC;
 
-static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
 
 
 static void
@@ -1106,18 +1109,24 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item;
- 
+  mtp3_tap_rec_t* mtp3_tap = ep_alloc(sizeof(mtp3_tap_rec_t));
 
-  mtp3_addr_dpc.type = mtp3_standard;
-  mtp3_addr_dpc.pc = tvb_get_ntohl(parameter_tvb,DATA_DPC_OFFSET);
-  mtp3_addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
+
+  mtp3_tap->addr_dpc.type = mtp3_standard;
+  mtp3_tap->addr_dpc.pc = tvb_get_ntohl(parameter_tvb,DATA_DPC_OFFSET);
+  mtp3_tap->addr_dpc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
+  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_dpc);
 
 	
-  mtp3_addr_opc.type = mtp3_standard;
-  mtp3_addr_opc.pc = tvb_get_ntohl(parameter_tvb,DATA_OPC_OFFSET);
-  mtp3_addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
-  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
+  mtp3_tap->addr_opc.type = mtp3_standard;
+  mtp3_tap->addr_opc.pc = tvb_get_ntohl(parameter_tvb,DATA_OPC_OFFSET);
+  mtp3_tap->addr_opc.ni = tvb_get_guint8(parameter_tvb, DATA_NI_OFFSET);
+  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) &mtp3_tap->addr_opc);
+
+  mtp3_tap->si_code = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
+  mtp3_tap->size = 0;
+
+  tap_queue_packet(m3ua_tap, pinfo, mtp3_tap);
 
   ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
 
@@ -1898,6 +1907,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *m3ua_item;
   proto_tree *m3ua_tree;
 
+
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     switch(version) {
@@ -1927,6 +1937,7 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_message(message_tvb, pinfo, tree, m3ua_tree);
+
 }
 
 /* Register the protocol with Wireshark */
@@ -2032,6 +2043,8 @@ proto_register_m3ua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m3ua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  m3ua_tap = register_tap("m3ua");
 
 }
 
