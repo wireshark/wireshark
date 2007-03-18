@@ -1502,7 +1502,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 		}
 	}
 
-	if (curr_info.sig->param_names && ( strval = match_strval(param_id, curr_info.sig->param_names) )) {
+	if (curr_info.sig && curr_info.sig->param_names && ( strval = match_strval(param_id, curr_info.sig->param_names) )) {
 		strval = ep_strdup_printf("%s (%d)",strval,param_id);
 	} else {
 		strval = ep_strdup_printf("Unknown (%d)",param_id);
