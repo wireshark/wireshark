@@ -53,6 +53,10 @@
 
 /*#include "packet-h248-exp.h"*/
 
+#define NULL_CONTEXT 0
+#define CHOOSE_CONTEXT 0xFFFFFFFE
+#define ALL_CONTEXTS 0xFFFFFFFF
+
 typedef enum {
     H248_CMD_NONE,
     H248_CMD_ADD_REQ,
@@ -161,6 +165,7 @@ typedef struct _h248_terms_t {
 
 typedef struct _h248_cmd_t {
     guint offset;
+	gchar* str;
     h248_cmd_type_t type;
     h248_terms_t terms;
     struct _h248_msg_t* msg;
@@ -173,7 +178,7 @@ typedef struct _h248_cmd_t {
 typedef struct _h248_ctx_t {
     h248_msg_t* initial;
     guint32 id;
-    struct _h248_cmd_msg_t* cmds;
+	struct _h248_cmd_msg_t* cmds;
     struct _h248_ctx_t* prev;
     h248_terms_t terms;
 } h248_ctx_t;

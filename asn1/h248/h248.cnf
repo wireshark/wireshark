@@ -103,12 +103,15 @@ IndAudStatisticsDescriptor/statName		iAStatName
 #.END
 
 #.FN_FTR ActionReply
-    if (!curr_info.cmd)
+    if (!curr_info.cmd) {
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_REPLY,offset);
+      H248_TAP();
+	}
 #.END
 
 #.FN_HDR Command/addReq
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_ADD_REQ,offset);
+      H248_TAP();
 #.END
 
 #.FN_FTR Command/addReq
@@ -117,6 +120,8 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/moveReq
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOVE_REQ,offset);
+      H248_TAP();
+
 #.END
 
 #.FN_FTR Command/moveReq
@@ -125,6 +130,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/modReq
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOD_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR Command/modReq
       curr_info.cmd = NULL;
@@ -132,6 +138,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/subtractReq
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SUB_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR Command/subtractReq
       curr_info.cmd = NULL;
@@ -139,6 +146,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/auditCapRequest
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITCAP_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR Command/auditCapRequest
       curr_info.cmd = NULL;
@@ -146,6 +154,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/auditValueRequest
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITVAL_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR Command/auditValueRequest
       curr_info.cmd = NULL;
@@ -153,6 +162,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR Command/notifyReq
 	  curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_NOTIFY_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR Command/notifyReq
       curr_info.cmd = NULL;
@@ -160,6 +170,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR ServiceChangeRequest
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR ServiceChangeRequest
       curr_info.cmd = NULL;
@@ -167,6 +178,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR ContextRequest/topologyReq
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_TOPOLOGY_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR ContextRequest/topologyReq
       curr_info.cmd = NULL;
@@ -174,6 +186,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR ActionRequest/contextAttrAuditReq
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_CTX_ATTR_AUDIT_REQ,offset);
+      H248_TAP();
 #.END
 #.FN_FTR ActionRequest/contextAttrAuditReq
       curr_info.cmd = NULL;
@@ -181,34 +194,42 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_HDR CommandReply/addReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_ADD_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/moveReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOVE_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/modReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_MOD_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/subtractReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SUB_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/notifyReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_NOTIFY_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR ServiceChangeReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_SVCCHG_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/auditCapReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITCAP_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/auditValueReply
       curr_info.cmd = h248_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,H248_CMD_AUDITVAL_REPLY,offset);
+      H248_TAP();
 #.END
 
 #.FN_BODY ErrorDescriptor/errorCode
