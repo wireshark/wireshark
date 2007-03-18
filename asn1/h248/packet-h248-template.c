@@ -1105,7 +1105,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 
 	curr_info.par = &no_param;
 
-	if (curr_info.evt->parameters) {
+	if (curr_info.evt && curr_info.evt->parameters) {
 		for(evtpar = curr_info.evt->parameters; evtpar->hfid; evtpar++) {
 			if (evtpar->id == param_id) {
 				curr_info.par = evtpar;
@@ -1116,7 +1116,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 		curr_info.par = &no_param;
 	}
 	
-	if (curr_info.evt->param_names && ( strval = match_strval(param_id, curr_info.evt->param_names) )) {
+	if (curr_info.evt && curr_info.evt->param_names && ( strval = match_strval(param_id, curr_info.evt->param_names) )) {
 		strval = ep_strdup_printf("%s (%d)",strval,param_id);
 	} else {
 		strval = ep_strdup_printf("Unknown (%d)",param_id);
