@@ -174,6 +174,7 @@ typedef struct _voip_calls_tapinfo {
 	int h225_dummy;
 	int h245dg_dummy;
 	int mtp3_dummy;
+	int m3ua_dummy;
 	int isup_dummy;
 	int q931_dummy;
 	int mgcp_dummy;

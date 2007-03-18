@@ -113,7 +113,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -1295,6 +1295,7 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 /****************************************************************************/
 
 static gboolean have_mtp3_tap_listener=FALSE;
+static gboolean have_m3ua_tap_listener=FALSE;
 
 void
 mtp3_calls_init_tap(void)
@@ -1319,6 +1320,25 @@ mtp3_calls_init_tap(void)
 		}
 		have_mtp3_tap_listener=TRUE;
 	}
+	
+	if(have_m3ua_tap_listener==FALSE)
+	{
+		error_string = register_tap_listener("m3ua", &(the_tapinfo_struct.mtp3_dummy),
+											 NULL,
+											 voip_calls_dlg_reset, 
+											 mtp3_calls_packet, 
+											 voip_calls_dlg_draw
+											 );
+		
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+						  error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_m3ua_tap_listener=TRUE;
+	}
+	
 }
 
 /****************************************************************************/
@@ -1328,9 +1348,11 @@ remove_tap_listener_mtp3_calls(void)
 {
 	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.mtp3_dummy));
+	remove_tap_listener(&(the_tapinfo_struct.m3ua_dummy));
 	unprotect_thread_critical_region();
 
 	have_mtp3_tap_listener=FALSE;
+	have_m3ua_tap_listener=FALSE;
 }
 
 /****************************************************************************/
