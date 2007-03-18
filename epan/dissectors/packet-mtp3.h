@@ -20,6 +20,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#ifndef __PACKET_MTP3_H_
+#define __PACKET_MTP3_H_
 
 typedef enum {
   ITU_STANDARD  = 1,
@@ -98,3 +100,5 @@ WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
  * I only want to gather stats for non-spare SI codes
  */
 #define	MTP3_NUM_SI_CODE	9
+
+#endif
