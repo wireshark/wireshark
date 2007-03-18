@@ -66,6 +66,7 @@
 
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
+#include <epan/dissectors/packet-h248.h>
 
 #ifdef HAVE_LIBPORTAUDIO
 #if GTK_MAJOR_VERSION >= 2
@@ -207,6 +208,7 @@ static void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_h225_calls();
 	remove_tap_listener_h245dg_calls();
 	remove_tap_listener_q931_calls();
+	remove_tap_listener_h248_calls();
 	remove_tap_listener_sdp_calls();
 	remove_tap_listener_rtp();
 	remove_tap_listener_rtp_event();
@@ -311,9 +313,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 
 	if (filter_length < max_filter_length){
 		gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
-	}
-	else{
-
+	} else {
 		g_string_free(filter_string_fwd, TRUE);
 		filter_string_fwd = g_string_new(filter_prepend);
 
@@ -358,6 +358,11 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				g_string_sprintfa(filter_string_fwd, ") ");
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 				break;
+			case TEL_H248: {
+				const h248_ctx_t* ctx = selected_call_fwd->prot_info;
+				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), ep_strdup_printf("h248.ctx == 0x%x", ctx->id ));
+				break;
+			}
 			case VOIP_MGCP:
 			case VOIP_AC_ISDN:
 			case VOIP_AC_CAS:
@@ -823,6 +828,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	h225_calls_init_tap();
 	h245dg_calls_init_tap();
 	q931_calls_init_tap();
+	h248_calls_init_tap();
 	sdp_calls_init_tap();
 	rtp_init_tap();
 	rtp_event_init_tap();

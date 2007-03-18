@@ -67,10 +67,11 @@ typedef enum _voip_protocol {
 		VOIP_MGCP,
 		VOIP_AC_ISDN,
 		VOIP_AC_CAS,
-		MEDIA_T38
+		MEDIA_T38,
+		TEL_H248,
 } voip_protocol;
 
-extern const char *voip_protocol_name[7];
+extern const char *voip_protocol_name[];
 
 /* defines specific SIP data */
 
@@ -138,6 +139,7 @@ typedef struct _voip_calls_info {
 	gchar *from_identity;
 	gchar *to_identity;
 	gpointer prot_info;
+	void(*free_prot_info)(gpointer);
 	address initial_speaker;
 	guint32 npackets;
 	guint32 first_frame_num; /* frame number of first frame */
@@ -177,6 +179,7 @@ typedef struct _voip_calls_tapinfo {
 	int mgcp_dummy;
 	int actrace_dummy;
 	int t38_dummy;
+	int h248_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -233,6 +236,7 @@ void rtp_event_init_tap(void);
 void mgcp_calls_init_tap(void);
 void actrace_calls_init_tap(void);
 void t38_init_tap(void);
+void h248_calls_init_tap(void);
 
 /*
 * Removes the voip_calls tap listener (if not already done)
@@ -250,6 +254,7 @@ void remove_tap_listener_rtp_event(void);
 void remove_tap_listener_mgcp_calls(void);
 void remove_tap_listener_actrace_calls(void);
 void remove_tap_listener_t38(void);
+void remove_tap_listener_h248_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.
