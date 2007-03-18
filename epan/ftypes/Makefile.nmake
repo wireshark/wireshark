@@ -34,7 +34,7 @@ ftypes.lib	: $(OBJECTS)
 	link /lib /out:ftypes.lib $(OBJECTS)
 
 clean:
-	rm -f $(OBJECTS) ftypes.lib $(PDB_FILE)
+	rm -f $(OBJECTS) ftypes.lib *.pdb
 
 distclean: clean
 

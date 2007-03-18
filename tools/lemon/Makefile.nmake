@@ -13,7 +13,7 @@ CFLAGS=-D_U_="" $(LOCAL_CFLAGS)
 all : lemon.exe
 
 clean:
-	rm -f lemon.obj lemon.exe lemon.ilk $(PDB_FILE) lemon.pdb
+	rm -f lemon.obj lemon.exe lemon.ilk *.pdb
 
 distclean: clean
 

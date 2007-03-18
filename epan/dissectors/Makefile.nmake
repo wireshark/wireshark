@@ -96,7 +96,7 @@ packet-ncp2222.c : ncp2222.py
 !ENDIF
 
 clean:
-	rm -f dissectors.lib $(PDB_FILE) \
+	rm -f dissectors.lib *.pdb \
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 distclean: clean
