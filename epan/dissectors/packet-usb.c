@@ -700,6 +700,11 @@ static void
 dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
     if(is_request){
+        /* descriptor index */
+        proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, TRUE);
+        usb_trans_info->u.get_descriptor.index=tvb_get_guint8(tvb, offset);
+        offset++;
+
         /* descriptor type */
         proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
         usb_trans_info->u.get_descriptor.type=tvb_get_guint8(tvb, offset);
@@ -708,11 +713,6 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                 val_to_str(usb_trans_info->u.get_descriptor.type, descriptor_type_vals, "Unknown type %x"));
         }
-
-        /* descriptor index */
-        proto_tree_add_item(tree, hf_usb_descriptor_index, tvb, offset, 1, TRUE);
-        usb_trans_info->u.get_descriptor.index=tvb_get_guint8(tvb, offset);
-        offset++;
 
         /* language id */
         proto_tree_add_item(tree, hf_usb_language_id, tvb, offset, 2, TRUE);
