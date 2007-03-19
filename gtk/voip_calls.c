@@ -2724,7 +2724,6 @@ remove_tap_listener_actrace_calls(void)
 
 /**************************** TAP for H248 **********************************/
 static gboolean have_h248_tap_listener = FALSE;
-static guint16 h248_call_num = 0;
 
 #define h248_is_req(type) ( type == H248_CMD_ADD_REQ || type == H248_CMD_MOVE_REQ || type == H248_CMD_MOD_REQ || \
 							type == H248_CMD_SUB_REQ || type == H248_CMD_AUDITCAP_REQ || type == H248_CMD_AUDITVAL_REQ || \
@@ -2788,7 +2787,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		COPY_ADDRESS(&(strinfo->initial_speaker), mgc);
 	
 		strinfo->protocol = TEL_H248;
-		strinfo->call_num = h248_call_num++;
+		strinfo->call_num = tapinfo->ncalls++;
 		strinfo->start_sec=pinfo->fd->rel_ts.secs;
 		strinfo->start_usec=pinfo->fd->rel_ts.nsecs;
 		strinfo->stop_sec=pinfo->fd->rel_ts.secs;
@@ -2825,7 +2824,9 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		++(tapinfo->npackets);
 	}
 	
-	add_to_graph(tapinfo, pinfo, cmd->str, "", strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+	add_to_graph(tapinfo, pinfo, cmd->str,
+				 ep_strdup_printf("TrxId = %d, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
+				 strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
 	tapinfo->redraw = TRUE;
 	
@@ -2853,8 +2854,6 @@ void h248_calls_init_tap(void)
 		
 		have_h248_tap_listener=TRUE;
 	}
-	
-	h248_call_num = 0;
 }
 
 void

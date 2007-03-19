@@ -1654,16 +1654,23 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
  * and Return -2 if the array is full
  */
 /****************************************************************************/
-static gint is_node_array(graph_analysis_data_t* user_data, address* node)
-{
-	int i;
-	for (i=0; i<MAX_NUM_NODES; i++){
-		if (user_data->nodes[i].type == AT_NONE)	return -1;	/* it is not in the array */
-		if (ADDRESSES_EQUAL((&user_data->nodes[i]),node)) return i;	/* it is in the array */
+static gint add_or_get_node(graph_analysis_data_t* user_data, address* node) {
+	guint i;
+	
+	if (node->type == AT_NONE) return NODE_OVERFLOW;
+		
+	for (i=0; i<MAX_NUM_NODES && i < user_data->num_nodes ; i++){
+		if ( CMP_ADDRESS(&(user_data->nodes[i]), node) == 0 ) return i;	/* it is in the array */
 	}
-	return -2;		/* array full */
+	
+	if (i == MAX_NUM_NODES) {
+		return  NODE_OVERFLOW;
+	} else {
+		user_data->num_nodes++;
+		COPY_ADDRESS(&(user_data->nodes[i]),node);
+		return i;
+	}
 }
-
 
 /* Get the nodes from the list */
 /****************************************************************************/
@@ -1671,79 +1678,22 @@ static void get_nodes(graph_analysis_data_t* user_data)
 {
 	GList* list;
 	graph_analysis_item_t *gai;
-	gint index;
 
 	/* fill the node array */
 	list = g_list_first(user_data->graph_info->list);
 	while (list)
 	{
 		gai = list->data;
-		if (gai->display){
+		if (gai->display) {
 			user_data->num_items++;
 			if (!user_data->dlg.inverse) {
-				/* check source node address */
-				index = is_node_array(user_data, &(gai->src_addr));
-				switch(index){
-					case -2: /* array full */
-						gai->src_node = NODE_OVERFLOW;
-						break;
-					case -1: /* not in array */
-						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
-						gai->src_node = user_data->num_nodes;
-						user_data->num_nodes++;
-						break;
-					default: /* it is in the array, just update the src_node */
-						gai->src_node = (guint16)index;
-				}
-
-				/* check destination node address*/
-				index = is_node_array(user_data, &(gai->dst_addr));
-				switch(index){
-					case -2: /* array full */
-						gai->dst_node = NODE_OVERFLOW;
-						break;
-					case -1: /* not in array */
-						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
-						gai->dst_node = user_data->num_nodes;
-						user_data->num_nodes++;
-						break;
-					default: /* it is in the array, just update the dst_node */
-						gai->dst_node = (guint16)index;
-				}
+				gai->src_node = (guint16)add_or_get_node(user_data, &(gai->src_addr));
+				gai->dst_node = (guint16)add_or_get_node(user_data, &(gai->dst_addr));
 			} else {
-				/* check destination node address*/
-				index = is_node_array(user_data, &(gai->dst_addr));
-				switch(index){
-					case -2: /* array full */
-						gai->dst_node = NODE_OVERFLOW;
-						break;
-					case -1: /* not in array */
-						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->dst_addr));
-						gai->dst_node = user_data->num_nodes;
-						user_data->num_nodes++;
-						break;
-					default: /* it is in the array, just update the dst_node */
-						gai->dst_node = (guint16)index;
-				}
-
-				/* check source node address */
-				index = is_node_array(user_data, &(gai->src_addr));
-				switch(index){
-					case -2: /* array full */
-						gai->src_node = NODE_OVERFLOW;
-						break;
-					case -1: /* not in array */
-						COPY_ADDRESS(&(user_data->nodes[user_data->num_nodes]),&(gai->src_addr));
-						gai->src_node = user_data->num_nodes;
-						user_data->num_nodes++;
-						break;
-					default: /* it is in the array, just update the src_node */
-						gai->src_node = (guint16)index;
-				}
-
+				gai->dst_node = (guint16)add_or_get_node(user_data, &(gai->src_addr));
+				gai->src_node = (guint16)add_or_get_node(user_data, &(gai->dst_addr));
 			}
 		}
-
 		list = g_list_next(list);
 	}
 }
