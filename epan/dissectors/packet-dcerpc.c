@@ -1458,7 +1458,6 @@ PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
         header_field_info *hf_info;
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 
         hf_info=proto_registrar_get_nth(hfindex);
 
