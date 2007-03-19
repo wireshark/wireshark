@@ -200,11 +200,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (tree) {
     if (udp_summary_in_tree) {
       if (ip_proto == IP_PROTO_UDP) {
-        ti = proto_tree_add_protocol_format(tree, proto_udp, tvb, offset, 8, 
+        ti = proto_tree_add_protocol_format(tree, proto_udp, tvb, offset, 8,
         "User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
         get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
       } else {
-        ti = proto_tree_add_protocol_format(tree, proto_udplite, tvb, offset, 8, 
+        ti = proto_tree_add_protocol_format(tree, proto_udplite, tvb, offset, 8,
         "Lightweight User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
         get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
       }
@@ -283,7 +283,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
     if (ip_proto == IP_PROTO_UDP) {
-      item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
+      item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (none)", 0);
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
@@ -292,7 +292,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       proto_tree_add_boolean(checksum_tree, hf_udp_checksum_bad, tvb,
                              offset + 6, 2, FALSE);
     } else {
-      item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0, 
+      item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (Illegal)", 0);
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
@@ -352,7 +352,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       } else {
         item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
                                           offset + 6, 2, udph->uh_sum,
-          "Checksum: 0x%04x [incorrect, should be 0x%04x]", udph->uh_sum,
+          "Checksum: 0x%04x [incorrect, should be 0x%04x (maybe caused by \"UDP checksum offload\"?)]", udph->uh_sum,
           in_cksum_shouldbe(udph->uh_sum, computed_cksum));
 
         checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
@@ -378,7 +378,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                              offset + 6, 2, FALSE);
       PROTO_ITEM_SET_GENERATED(item);
     }
-  } else {    	
+  } else {
     item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb,
       offset + 6, 2, udph->uh_sum, "Checksum: 0x%04x", udph->uh_sum);
 
