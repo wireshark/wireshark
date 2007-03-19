@@ -51,6 +51,7 @@
 #include <epan/uat-int.h>
 
 /* Internal functions */
+static module_t *find_subtree(module_t *parent, const char *name);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
@@ -166,13 +167,27 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	const char *p;
 	guchar c;
 
+	/* this module may have been created as a subtree item previously */
+	if(module = find_subtree(parent, title)) {
+	  /* the module is currently a subtree */
+	  module->name = name;
+	  module->apply_cb = apply_cb;
+	  module->description = description;
+
+	  if(prefs_find_module(name) == NULL)
+	    modules = g_list_insert_sorted(modules, module,
+					   module_compare_name);
+	      
+	  return module;
+	}
+
 	module = g_malloc(sizeof (module_t));
 	module->name = name;
 	module->title = title;
 	module->description = description;
-	module->is_subtree = is_subtree;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
+	module->submodules = NULL;	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 	module->obsolete = FALSE;
@@ -238,7 +253,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * It goes into the list for this module.
 		 */
-		parent->prefs = g_list_insert_sorted(parent->prefs, module,
+		parent->submodules = g_list_insert_sorted(parent->submodules, module,
 		    module_compare_title);
 	}
 
@@ -270,6 +285,59 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 	    proto_get_protocol_short_name(protocol),
 	    proto_get_protocol_name(id), apply_cb);
 }
+
+
+module_t *
+prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(void))
+{
+	protocol_t *protocol;
+	module_t   *subtree_module;
+	module_t   *new_module;
+	char       *sep = NULL, *ptr = NULL;
+	char       *csubtree = NULL;
+
+	/*
+	 * Have we yet created the "Protocols" subtree?
+	 */
+	if (protocols_module == NULL) {
+		/*
+		 * No.  Do so.
+		 */
+		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
+	}
+
+	subtree_module = protocols_module;
+
+	if(subtree) {
+	  /* take a copy of the buffer */
+	  ptr = csubtree = g_strdup(subtree);
+
+	  while(ptr && *ptr) {
+
+	    if((sep = strchr(ptr, '/')))
+	      *sep++ = '\0';
+
+	    if(!(new_module = find_subtree(subtree_module, ptr))) {
+	      /* create it */
+	      new_module = prefs_register_subtree(subtree_module, ptr, NULL);
+	    } 
+
+	    subtree_module = new_module;
+	    ptr = sep;
+
+	  }
+
+	  /* g_free(csubtree); */
+	  
+	}
+
+	protocol = find_protocol_by_id(id);
+	return prefs_register_module(subtree_module,
+	    proto_get_protocol_filter_name(id),
+	    proto_get_protocol_short_name(protocol), 
+	    proto_get_protocol_name(id), apply_cb);
+}
+
 
 /*
  * Register that a protocol used to have preferences but no longer does,
@@ -317,6 +385,27 @@ prefs_find_module(const char *name)
 	GList *list_entry;
 
 	list_entry = g_list_find_custom(modules, name, module_match);
+	if (list_entry == NULL)
+		return NULL;	/* no such module */
+	return (module_t *) list_entry->data;
+}
+
+static gint
+subtree_match(gconstpointer a, gconstpointer b)
+{
+	const module_t *module = a;
+	const char *title = b;
+
+	return strcmp(title, module->title);
+}
+
+static module_t *
+find_subtree(module_t *parent, const char *name)
+{
+	GList *list_entry;
+
+	list_entry = g_list_find_custom(parent ? parent->submodules : top_level_modules,
+					name, subtree_match);
 	if (list_entry == NULL)
 		return NULL;	/* no such module */
 	return (module_t *) list_entry->data;
@@ -1306,13 +1395,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         }
         break;
       case IN_VAL:
-        if (got_c != '#')  {
-          g_string_append_c(cur_val, (gchar) got_c);
-        } else {
-          while (isspace((guchar)cur_val->str[cur_val->len]) && cur_val->len > 0)
-            g_string_truncate(cur_val, cur_val->len - 1);
-          state = IN_SKIP;
-        }
+	g_string_append_c(cur_val, (gchar) got_c);
         break;
     }
   }

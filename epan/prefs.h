@@ -195,6 +195,14 @@ extern module_t *prefs_register_subtree(module_t *parent, const char *title,
 extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
+ * Register that a protocol has preferences and group it under a single
+ * subtree 
+ */
+#define PREFERENCE_GROUPING
+extern module_t *prefs_register_protocol_subtree(const char *subtree, int id, 
+						 void (*apply_cb)(void));
+
+/*
  * Register that a protocol used to have preferences but no longer does,
  * by creating an "obsolete" module for it.
  */

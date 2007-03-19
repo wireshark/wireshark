@@ -127,6 +127,8 @@ struct ct_struct {
   gboolean     is_protocol;
 };
 
+static gint blank_page = 0;
+
 static guint
 pref_exists(pref_t *pref _U_, gpointer user_data _U_)
 {
@@ -277,7 +279,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   /*
    * Is this module a subtree, with modules underneath it?
    */
-  if (!module->is_subtree) {
+  if (!module->submodules) {
     /*
      * No.
      * Does it have any preferences (other than possibly obsolete ones)?
@@ -299,25 +301,24 @@ module_prefs_show(module_t *module, gpointer user_data)
   strcpy(label_str, module->title);
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->tree), cts->node, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, !module->is_subtree,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, !module->submodules,
   		FALSE);
 #else
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-  if (module->is_subtree)
-      gtk_tree_store_append(model, &iter, NULL);
-  else
-      gtk_tree_store_append(model, &iter, &cts->iter);
+  if (module->submodules && !cts->iter.stamp)
+    gtk_tree_store_append(model, &iter, NULL);
+  else 
+    gtk_tree_store_append(model, &iter, &cts->iter);
 #endif
 
   /*
    * Is this a subtree?
    */
-  if (module->is_subtree) {
+  if (module->submodules) {
     /*
      * Yes.
      */
 
-    /* Note that there's no page attached to this item */
 #if GTK_MAJOR_VERSION < 2
     gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
   		GINT_TO_POINTER(-1));
@@ -336,10 +337,15 @@ module_prefs_show(module_t *module, gpointer user_data)
 #endif
     if (module == protocols_module)
       child_cts.is_protocol = TRUE;
-    prefs_module_list_foreach(module->prefs, module_prefs_show, &child_cts);
-  } else {
+    prefs_module_list_foreach(module->submodules, module_prefs_show, &child_cts);
+
+    /* keep the page count right */
+    cts->page = child_cts.page;
+
+  } 
+  if(module->prefs) {
     /*
-     * No.  Create a notebook page for it.
+     * Has preferences.  Create a notebook page for it.
      */
 
     /* Scrolled window */
@@ -383,10 +389,21 @@ module_prefs_show(module_t *module, gpointer user_data)
     OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
 #endif
 
-    cts->page++;
+  cts->page++;
 
     /* Show 'em what we got */
     gtk_widget_show_all(main_sw);
+  } else {
+    /* show the blank page */
+
+#if GTK_MAJOR_VERSION < 2
+    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
+  		GINT_TO_POINTER(blank_page));
+#else
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, blank_page, -1);
+#endif
+    
+
   }
 
   return 0;
@@ -434,8 +451,10 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
   frame = gtk_frame_new(title);
   gtk_widget_show(frame);
-  gtk_container_add(GTK_CONTAINER(frame), page);
-  OBJECT_SET_DATA(prefs_w, page_key, page);
+  if(page) {
+    gtk_container_add(GTK_CONTAINER(frame), page);
+    OBJECT_SET_DATA(prefs_w, page_key, page);
+  }
   gtk_notebook_append_page (GTK_NOTEBOOK(notebook), frame, NULL);
 
   return frame;
@@ -518,6 +537,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #else
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
   cts.tree = tree_view_new(GTK_TREE_MODEL(store));
+  cts.iter.stamp = 0; /* mark this as the toplevel */
   OBJECT_SET_DATA(prefs_w, E_PREFSW_TREE_KEY, cts.tree);
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(cts.tree), FALSE);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(cts.tree));
@@ -544,6 +564,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(prefs_nb);
 
   cts.page = 0;
+
+  /* Blank Page */
+  strcpy(label_str, "(No Specific Preferences)");
+  prefs_nb_page_add(prefs_nb, label_str, NULL, NULL);
+  blank_page = cts.page++;
 
   /* GUI prefs */
   strcpy(label_str, "User Interface");
@@ -1673,9 +1698,31 @@ module_search_properties(module_t *module, gpointer user_data)
     p->module = module;
     return 1;	/* stops the search */
   }
+  
+  if(module->submodules)
+    return prefs_module_list_foreach(module->submodules, module_search_properties, p);
+
   return 0;
 }
 
+#if GTK_MAJOR_VERSION >= 2
+static void
+tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
+{
+  GtkTreeIter   parent;
+  GtkTreePath   *path;
+
+  /* expand the parent first */
+  if(gtk_tree_model_iter_parent(model, &parent, iter))
+    tree_expand_row(model, tree_view, &parent);
+
+  path = gtk_tree_model_get_path(model, iter);
+  gtk_tree_view_expand_row(tree_view, path, FALSE);
+  /*expand_tree(tree_view, &parent, NULL, NULL);*/
+
+  gtk_tree_path_free(path);
+}
+#endif 
 
 /* select a node in the tree view */
 /* XXX - this is almost 100% copied from byte_view_select() in proto_draw.c,
@@ -1691,8 +1738,7 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 	GtkTreeIter  local_iter = *iter;
     GtkTreeView  *tree_view = GTK_TREE_VIEW(tree);
     GtkTreeModel *model;
-    GtkTreePath  *first_path, *path;
-    GtkTreeIter   parent;
+    GtkTreePath  *first_path;
 #endif
 
 #if GTK_MAJOR_VERSION < 2
@@ -1718,17 +1764,9 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 
     /* Expand our field's row */
     first_path = gtk_tree_model_get_path(model, &local_iter);
-    gtk_tree_view_expand_row(tree_view, first_path, FALSE);
-    /*expand_tree(tree_view, &iter, NULL, NULL);*/
 
-    /* ... and its parents */
-    while (gtk_tree_model_iter_parent(model, &parent, &local_iter)) {
-        path = gtk_tree_model_get_path(model, &parent);
-        gtk_tree_view_expand_row(tree_view, path, FALSE);
-        /*expand_tree(tree_view, &parent, NULL, NULL);*/
-        local_iter = parent;
-        gtk_tree_path_free(path);
-    }
+    /* expand from the top down */
+    tree_expand_row(model, tree_view, &local_iter);
 
     /* select our field's row */
     gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
@@ -1774,7 +1812,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
      XXX - should we just associate protocols with modules directly? */
   p.title = title;
   p.module = NULL;
-  prefs_module_list_foreach(protocols_module->prefs, module_search_properties,
+  prefs_module_list_foreach(protocols_module->submodules, module_search_properties,
                             &p);
   if (p.module == NULL) {
     /* We didn't find it - that protocol probably has no preferences. */
