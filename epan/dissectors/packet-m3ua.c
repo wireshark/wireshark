@@ -1109,7 +1109,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, pro
   guint16 ulp_length;
   tvbuff_t *payload_tvb;
   proto_item *item;
-  mtp3_tap_rec_t* mtp3_tap = ep_alloc(sizeof(mtp3_tap_rec_t));
+  mtp3_tap_rec_t* mtp3_tap = ep_alloc0(sizeof(mtp3_tap_rec_t));
 
 
   mtp3_tap->addr_dpc.type = mtp3_standard;
