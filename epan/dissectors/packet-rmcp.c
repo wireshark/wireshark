@@ -50,10 +50,6 @@ static int hf_rmcp_type = -1;
 static int proto_rsp = -1;
 static int hf_rsp_session_id = -1;
 static int hf_rsp_sequence = -1;
-static int hf_rsp_pad = -1;
-static int hf_rsp_pad_length = -1;
-static int hf_rsp_next_header = -1;
-static int hf_rsp_integrity_data = -1;
 
 static gint ett_rmcp = -1;
 static gint ett_rmcp_typeclass = -1;
