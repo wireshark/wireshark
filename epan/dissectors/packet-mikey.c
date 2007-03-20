@@ -2,7 +2,7 @@
  * Routines for Multimedia Internet KEYing dissection
  * Copyright 2007, Mikael Magnusson <mikma@users.sourceforge.net>
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -541,7 +541,7 @@ add_next_payload(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static int
-dissect_payload_cs_id_srtp(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree)
+dissect_payload_cs_id_srtp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_,  proto_tree *tree)
 {
 	proto_item *id_ti;
 	proto_tree *id_tree;
@@ -696,7 +696,7 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 		fprintf(stderr, "Dissect PK/RSA-R key data %d\n", encr_length);
 /* 		sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length); */
 
-/* 		dissect_payload_keydata(mikey, sub_tvb, tree); */
+/* 		dissect_payload_keydata(mikey, sub_tvb, pinfo, tree); */
 		sub_payload = PL_KEY_DATA;
 		break;
 	}
@@ -711,7 +711,7 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 }
 
 static int
-dissect_payload_pke(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_pke(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 length;
@@ -736,7 +736,7 @@ dissect_payload_pke(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 static int
-dissect_payload_dh(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 dh_group;
@@ -778,7 +778,7 @@ dissect_payload_dh(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_payload_sign(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_sign(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 length;
@@ -801,7 +801,7 @@ dissect_payload_sign(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_payload_t(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 ts_type;
 	int offset = 0;
@@ -842,7 +842,7 @@ dissect_payload_t(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static int
-dissect_payload_id(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 type;
@@ -869,7 +869,7 @@ dissect_payload_id(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_payload_cert(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 type;
@@ -898,7 +898,7 @@ dissect_payload_cert(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tr
 }
 
 static int
-dissect_payload_v(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_v(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 length;
@@ -932,7 +932,7 @@ dissect_payload_v(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static int
-dissect_payload_sp_param(enum sp_prot_t proto, mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_sp_param(enum sp_prot_t proto, tvbuff_t *tvb, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 type;
@@ -970,7 +970,7 @@ dissect_payload_sp_param(enum sp_prot_t proto, mikey_t *mikey, tvbuff_t *tvb, pa
 }
 
 static int
-dissect_payload_sp(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 length;
@@ -1004,7 +1004,7 @@ dissect_payload_sp(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		tvbuff_t *subtvb;
 
 		subtvb = tvb_new_subset(tvb, offset+sub_pos, length-sub_pos, length-sub_pos);
-		param_len = dissect_payload_sp_param(type, mikey, subtvb, pinfo, tree);
+		param_len = dissect_payload_sp_param(type, subtvb, tree);
 
 		if (param_len < 0)
 			return -1;
@@ -1017,7 +1017,7 @@ dissect_payload_sp(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 static int
-dissect_payload_rand(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_rand(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 length;
@@ -1039,7 +1039,7 @@ dissect_payload_rand(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* TODO support salt and kv data */
 static int
-dissect_payload_keydata(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint16 data_len;
 
