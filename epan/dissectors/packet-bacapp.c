@@ -4264,6 +4264,7 @@ fObjectPropertyValue (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 #endif
 
+#if 0
 static guint
 fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -4285,6 +4286,7 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	}
 	return offset;
 }
+#endif
 
 static guint
 fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset)
