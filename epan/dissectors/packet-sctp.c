@@ -741,7 +741,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 }
 
 static void
-ack_tree(sctp_tsn_t *t, sctp_half_assoc_t *h, proto_tree *acks_tree,
+ack_tree(sctp_tsn_t *t, proto_tree *acks_tree,
 	 tvbuff_t *tvb, packet_info *pinfo)
 {
 	proto_item *pi;
@@ -801,7 +801,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
 		}
 
 		if ( t->ack.framenum == framenum)
-			ack_tree(t, h, acks_tree, tvb, pinfo);
+			ack_tree(t, acks_tree, tvb, pinfo);
 
 	} /* else {
 		proto_tree_add_text(acks_tree, tvb, 0 , 0, "Assoc: %p vs %p ?? %ld",h,h->peer,tsn);
@@ -846,7 +846,7 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
 			}
 
 			if (t->ack.framenum == framenum && ( (!tsn_start_ptr) || rel_start <= tsn) && tsn <= rel_end)
-				ack_tree(t, h, acks_tree, tvb, pinfo);
+				ack_tree(t, acks_tree, tvb, pinfo);
 		}
 
 		return;
@@ -2583,7 +2583,6 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   guint16 stream_id, stream_seq_num = 0;
   guint32 tsn;
   proto_item* tsn_item = NULL;
-  proto_tree* tsn_tree = NULL;
 
   if (chunk_length <= DATA_CHUNK_HEADER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
