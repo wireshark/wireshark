@@ -2188,7 +2188,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo,
 	/* Don't report on calculated delays below the threshold.
 	   Will report delays less than -threshold, to highlight
 	   problems with generated reports */
-	if (abs(delay) < global_rtcp_show_roundtrip_calculation_minimum)
+	if (abs(delay) < (int)global_rtcp_show_roundtrip_calculation_minimum)
 	{
 		return;
 	}
