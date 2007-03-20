@@ -36,12 +36,9 @@
 #include "packet-smb-common.h"
 
 static int proto_smb_logon = -1;
-static int proto_smb_netlogon = -1;
-static int proto_smb_ntlogon = -1;
 static int hf_command = -1;
 static int hf_computer_name = -1;
 static int hf_unicode_computer_name = -1;
-static int hf_unknown_int = -1;
 static int hf_server_name = -1;
 static int hf_user_name = -1;
 static int hf_domain_name = -1;
