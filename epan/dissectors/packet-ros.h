@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-ros.h                                                             */
+/* ./packet-ros.h                                                             */
 /* ../../tools/asn2wrs.py -b -e -p ros -c ros.cnf -s packet-ros-template ros.asn */
 
 /* Input file: packet-ros-template.h */
@@ -39,8 +39,8 @@
 #line 1 "packet-ros-exp.h"
 extern const value_string ros_InvokeId_vals[];
 extern const value_string ros_Code_vals[];
-int dissect_ros_InvokeId(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-int dissect_ros_Code(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_ros_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-ros-exp.h ---*/
 #line 30 "packet-ros-template.h"

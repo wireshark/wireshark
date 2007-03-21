@@ -152,7 +152,7 @@ static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
 
 
 static int
-dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 23 "spnego.cnf"
 
   gssapi_oid_value *value;
@@ -183,10 +183,10 @@ dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
-static int dissect_MechTypeList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_MechTypeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_MechTypeList_item);
 }
-static int dissect_thisMech(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_thisMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_thisMech);
 }
 
@@ -196,7 +196,7 @@ static const ber_sequence_t MechTypeList_sequence_of[1] = {
 };
 
 static int
-dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 91 "spnego.cnf"
 
   conversation_t *conversation;
@@ -229,7 +229,7 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
-static int dissect_mechTypes(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_mechTypes(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_MechTypeList(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechTypes);
 }
 
@@ -246,21 +246,21 @@ static const asn_namedbit ContextFlags_bits[] = {
 };
 
 static int
-dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
                                     ContextFlags_bits, hf_index, ett_spnego_ContextFlags,
                                     NULL);
 
   return offset;
 }
-static int dissect_reqFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_reqFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_ContextFlags(FALSE, tvb, offset, pinfo, tree, hf_spnego_reqFlags);
 }
 
 
 
 static int
-dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 121 "spnego.cnf"
 
   tvbuff_t *mechToken_tvb = NULL;
@@ -281,14 +281,14 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_mechToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_mechToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_mechToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechToken);
 }
 
 
 
 static int
-dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 135 "spnego.cnf"
 
   gint8 class;
@@ -331,7 +331,7 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_negTokenInit_mechListMIC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_negTokenInit_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_NegTokenInit_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenInit_mechListMIC);
 }
 
@@ -345,13 +345,13 @@ static const ber_sequence_t NegTokenInit_sequence[] = {
 };
 
 static int
-dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    NegTokenInit_sequence, hf_index, ett_spnego_NegTokenInit);
 
   return offset;
 }
-static int dissect_negTokenInit(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_negTokenInit(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_NegTokenInit(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenInit);
 }
 
@@ -365,20 +365,20 @@ static const value_string spnego_T_negResult_vals[] = {
 
 
 static int
-dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_negResult(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_negResult(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_negResult(FALSE, tvb, offset, pinfo, tree, hf_spnego_negResult);
 }
 
 
 
 static int
-dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 173 "spnego.cnf"
 
   conversation_t *conversation;
@@ -412,14 +412,14 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
-static int dissect_supportedMech(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_supportedMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_supportedMech(FALSE, tvb, offset, pinfo, tree, hf_spnego_supportedMech);
 }
 
 
 
 static int
-dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 205 "spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
@@ -449,14 +449,14 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
-static int dissect_responseToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_responseToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_responseToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_responseToken);
 }
 
 
 
 static int
-dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 232 "spnego.cnf"
 
   tvbuff_t *mechListMIC_tvb;
@@ -484,7 +484,7 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
-static int dissect_mechListMIC(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_T_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechListMIC);
 }
 
@@ -498,13 +498,13 @@ static const ber_sequence_t NegTokenTarg_sequence[] = {
 };
 
 static int
-dissect_spnego_NegTokenTarg(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_NegTokenTarg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    NegTokenTarg_sequence, hf_index, ett_spnego_NegTokenTarg);
 
   return offset;
 }
-static int dissect_negTokenTarg(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_negTokenTarg(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_NegTokenTarg(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenTarg);
 }
 
@@ -522,7 +522,7 @@ static const ber_choice_t NegotiationToken_choice[] = {
 };
 
 static int
-dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  NegotiationToken_choice, hf_index, ett_spnego_NegotiationToken,
                                  NULL);
@@ -533,14 +533,14 @@ dissect_spnego_NegotiationToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static int
-dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                             pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_principal(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_principal(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_GeneralString(FALSE, tvb, offset, pinfo, tree, hf_spnego_principal);
 }
 
@@ -551,7 +551,7 @@ static const ber_sequence_t PrincipalSeq_sequence[] = {
 };
 
 static int
-dissect_spnego_PrincipalSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_PrincipalSeq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    PrincipalSeq_sequence, hf_index, ett_spnego_PrincipalSeq);
 
@@ -561,7 +561,7 @@ dissect_spnego_PrincipalSeq(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
 
 static int
-dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 48 "spnego.cnf"
 
   gssapi_oid_value *next_level_value;
@@ -609,7 +609,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
-static int dissect_innerContextToken(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_innerContextToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_spnego_InnerContextToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_innerContextToken);
 }
 
@@ -621,7 +621,7 @@ static const ber_sequence_t InitialContextToken_sequence[] = {
 };
 
 static int
-dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    InitialContextToken_sequence, hf_index, ett_spnego_InitialContextToken);
 

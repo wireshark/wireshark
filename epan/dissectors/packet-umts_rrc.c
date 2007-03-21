@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-umts_rrc.c                                                        */
-/* ../../tools/asn2wrs.py -u -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
+/* ./packet-umts_rrc.c                                                        */
+/* ../../tools/asn2wrs.py -X -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
 
 /* Input file: packet-umts_rrc-template.c */
 
@@ -14,8 +14,8 @@
  *
  * $Id$
  *
- * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@ethereal.com>
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
@@ -212,7 +212,7 @@ static proto_tree *top_tree;
 
 
 static int
-dissect_umts_rrc_NULL(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -292,7 +292,7 @@ static const per_choice_t DL_DCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_DL_DCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_DCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_DL_DCCH_MessageType, DL_DCCH_MessageType_choice,
                                  NULL);
@@ -308,7 +308,7 @@ static const per_sequence_t DL_DCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_DL_DCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_DCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_DL_DCCH_Message, DL_DCCH_Message_sequence);
 
@@ -389,7 +389,7 @@ static const per_choice_t UL_DCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_UL_DCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_DCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_UL_DCCH_MessageType, UL_DCCH_MessageType_choice,
                                  NULL);
@@ -405,7 +405,7 @@ static const per_sequence_t UL_DCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_UL_DCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_DCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_UL_DCCH_Message, UL_DCCH_Message_sequence);
 
@@ -438,7 +438,7 @@ static const per_choice_t DL_CCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_DL_CCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_CCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_DL_CCCH_MessageType, DL_CCCH_MessageType_choice,
                                  NULL);
@@ -454,7 +454,7 @@ static const per_sequence_t DL_CCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_DL_CCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_CCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_DL_CCCH_Message, DL_CCCH_Message_sequence);
 
@@ -479,7 +479,7 @@ static const per_choice_t UL_CCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_UL_CCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_CCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_UL_CCCH_MessageType, UL_CCCH_MessageType_choice,
                                  NULL);
@@ -495,7 +495,7 @@ static const per_sequence_t UL_CCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_UL_CCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_CCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_UL_CCCH_Message, UL_CCCH_Message_sequence);
 
@@ -516,7 +516,7 @@ static const per_choice_t PCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_PCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_PCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_PCCH_MessageType, PCCH_MessageType_choice,
                                  NULL);
@@ -531,7 +531,7 @@ static const per_sequence_t PCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_PCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_PCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_PCCH_Message, PCCH_Message_sequence);
 
@@ -552,7 +552,7 @@ static const per_choice_t DL_SHCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_DL_SHCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_SHCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_DL_SHCCH_MessageType, DL_SHCCH_MessageType_choice,
                                  NULL);
@@ -567,7 +567,7 @@ static const per_sequence_t DL_SHCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_DL_SHCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_DL_SHCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_DL_SHCCH_Message, DL_SHCCH_Message_sequence);
 
@@ -588,7 +588,7 @@ static const per_choice_t UL_SHCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_UL_SHCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_SHCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_UL_SHCCH_MessageType, UL_SHCCH_MessageType_choice,
                                  NULL);
@@ -603,7 +603,7 @@ static const per_sequence_t UL_SHCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_UL_SHCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_UL_SHCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_UL_SHCCH_Message, UL_SHCCH_Message_sequence);
 
@@ -628,7 +628,7 @@ static const per_choice_t BCCH_FACH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_BCCH_FACH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_BCCH_FACH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_BCCH_FACH_MessageType, BCCH_FACH_MessageType_choice,
                                  NULL);
@@ -643,7 +643,7 @@ static const per_sequence_t BCCH_FACH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_BCCH_FACH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_BCCH_FACH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_BCCH_FACH_Message, BCCH_FACH_Message_sequence);
 
@@ -657,7 +657,7 @@ static const per_sequence_t BCCH_BCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_BCCH_BCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_BCCH_BCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_BCCH_BCH_Message, BCCH_BCH_Message_sequence);
 
@@ -706,7 +706,7 @@ static const per_choice_t MCCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_MCCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_MCCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_MCCH_MessageType, MCCH_MessageType_choice,
                                  NULL);
@@ -721,7 +721,7 @@ static const per_sequence_t MCCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_MCCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_MCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_MCCH_Message, MCCH_Message_sequence);
 
@@ -746,7 +746,7 @@ static const per_choice_t MSCH_MessageType_choice[] = {
 };
 
 static int
-dissect_umts_rrc_MSCH_MessageType(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_MSCH_MessageType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_umts_rrc_MSCH_MessageType, MSCH_MessageType_choice,
                                  NULL);
@@ -761,7 +761,7 @@ static const per_sequence_t MSCH_Message_sequence[] = {
 };
 
 int
-dissect_umts_rrc_MSCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
+dissect_umts_rrc_MSCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_umts_rrc_MSCH_Message, MSCH_Message_sequence);
 
@@ -770,9 +770,9 @@ dissect_umts_rrc_MSCH_Message(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, p
 
 /*--- PDUs ---*/
 
-static void dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   dissect_umts_rrc_DL_DCCH_Message(tvb, 0, &asn1_ctx, tree, hf_umts_rrc_DL_DCCH_Message_PDU);
 }
 

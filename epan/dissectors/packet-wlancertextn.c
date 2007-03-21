@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-wlancertextn.c                                                    */
+/* ./packet-wlancertextn.c                                                    */
 /* ../../tools/asn2wrs.py -b -e -p wlancertextn -c wlancertextn.cnf -s packet-wlancertextn-template WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
@@ -82,13 +82,13 @@ static gint ett_wlancertextn_SSIDList = -1;
 
 
 static int
-dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_SSIDList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_SSIDList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_wlancertextn_SSID(FALSE, tvb, offset, pinfo, tree, hf_wlancertextn_SSIDList_item);
 }
 
@@ -98,7 +98,7 @@ static const ber_sequence_t SSIDList_sequence_of[1] = {
 };
 
 static int
-dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
@@ -107,7 +107,7 @@ dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
 /*--- PDUs ---*/
 
-static void dissect_SSIDList_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   dissect_wlancertextn_SSIDList(FALSE, tvb, 0, pinfo, tree, hf_wlancertextn_SSIDList_PDU);
 }
 

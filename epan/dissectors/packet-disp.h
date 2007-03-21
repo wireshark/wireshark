@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-disp.h                                                            */
+/* ./packet-disp.h                                                            */
 /* ../../tools/asn2wrs.py -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
 
 /* Input file: packet-disp-template.h */
@@ -37,7 +37,7 @@
 
 /*--- Included file: packet-disp-exp.h ---*/
 #line 1 "packet-disp-exp.h"
-int dissect_disp_AgreementID(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+int dissect_disp_AgreementID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-disp-exp.h ---*/
 #line 30 "packet-disp-template.h"

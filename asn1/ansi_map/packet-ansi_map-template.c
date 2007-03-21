@@ -677,7 +677,7 @@ static const value_string ansi_map_np_vals[]  = {
 };
 
 static void 
-dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	char		*digit_str;
 	int offset = 0;
 	proto_item *item;
@@ -692,7 +692,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 }
 
 static void 
-dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	
 	guint8 octet;
 	guint8 b1,b2,b3,b4;
@@ -823,7 +823,7 @@ static const value_string ansi_map_sub_addr_type_vals[]  = {
 };
 
 static void 
-dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -916,7 +916,7 @@ static const value_string ansi_map_AlertCode_Alert_Action_vals[]  = {
 	{	0, NULL }
 };
 static void
-dissect_ansi_map_alertcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_alertcode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1071,7 +1071,7 @@ static const value_string ansi_map_AnnouncementCode_std_ann_vals[]  = {
 
 
 static void
-dissect_ansi_map_announcementcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_announcementcode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1127,7 +1127,7 @@ indicates anything else the Value is set to zero
 on sending and ignored on receipt. 
 */
 static void
-dissect_ansi_map_authorizationperiod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_authorizationperiod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1149,7 +1149,7 @@ static const value_string ansi_map_AvailabilityType_vals[]  = {
 
 /* 6.5.2.16 BillingID */
 static void
-dissect_ansi_map_billingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_billingid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1181,7 +1181,7 @@ static const value_string ansi_map_FeatureActivity_vals[]  = {
 
 
 static void
-dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	int length; 
 	proto_item *item;
@@ -1338,7 +1338,7 @@ static const true_false_string ansi_map_CDMACallMode_cls10_bool_val  = {
 };
 
 static void
-dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	int length; 
 	proto_item *item;
@@ -1391,7 +1391,7 @@ static const value_string ansi_map_cdmachanneldata_band_cls_vals[]  = {
 };
 
 static void
-dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	int length; 
@@ -1465,7 +1465,7 @@ static const true_false_string ansi_map_CDMAStationClassMark_dmi_bool_val  = {
 
 
 static void
-dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1496,7 +1496,7 @@ static const value_string ansi_map_ChannelData_dtx_vals[]  = {
 
 
 static void
-dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1526,7 +1526,7 @@ static const true_false_string ansi_map_ConfidentialityModes_bool_val  = {
 	"Off"
 };
 static void
-dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1553,7 +1553,7 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo, proto_t
 /* SDCC2 ( octet 4, bit A and B )*/
 
 static void
-dissect_ansi_map_controlchanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_controlchanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1610,7 +1610,7 @@ on sending and ignored on receipt.
 */
 
 static void
-dissect_ansi_map_deniedauthorizationperiod(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_deniedauthorizationperiod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1644,7 +1644,7 @@ static const value_string ansi_map_msc_type_vals[]  = {
 };
 
 static void
-dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1662,7 +1662,7 @@ dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 /* 6.5.2.65 ExtendedSystemMyTypeCode */
 static void
-dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1700,7 +1700,7 @@ static const true_false_string ansi_map_HandoffState_pi_bool_val  = {
 	"Originator is handing off"
 };
 static void
-dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1715,7 +1715,7 @@ dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 /* 6.5.2.72 InterMSCCircuitID */
 /* Trunk Member Number (M) Octet2 */
 static void
-dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1744,7 +1744,7 @@ static const value_string ansi_map_MessageWaitingNotificationCount_type_vals[]  
 };
 
 static void
-dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1781,7 +1781,7 @@ static const value_string ansi_map_MessageWaitingNotificationType_mwi_vals[]  = 
 };
 
 static void
-dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -1803,7 +1803,7 @@ dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinf
 /* 6.5.2.82 MSCID */
 
 static void
-dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1819,7 +1819,7 @@ dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
 /* 6.5.2.84 MSLocation */
 static void
-dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1839,7 +1839,7 @@ dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 /* 6.5.2.85 NAMPSCallMode */
 static void
-dissect_ansi_map_nampscallmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_nampscallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1877,7 +1877,7 @@ static const value_string ansi_map_NAMPSChannelData_ccinidicator_vals[]  = {
 
 
 static void
-dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -1947,7 +1947,7 @@ static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
 	{	0, NULL }
 };
 static void
-dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -2122,7 +2122,7 @@ static const true_false_string ansi_map_originationtriggers_fifteendig_bool_val 
 };
 
 static void
-dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2227,7 +2227,7 @@ static const value_string ansi_map_PACA_Level_vals[]  = {
 };
 
 static void
-dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2251,7 +2251,7 @@ static const value_string ansi_map_PageIndicator_vals[]  = {
 
 /* 6.5.2.93 PC_SSN */
 static void
-dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2280,7 +2280,7 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 }
 /* 6.5.2.94 PilotBillingID */
 static void
-dissect_ansi_map_pilotbillingid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_pilotbillingid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2424,7 +2424,7 @@ static const true_false_string ansi_map_SMS_OriginationRestrictions_fmc_bool_val
 };
 
 static void
-dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2519,7 +2519,7 @@ static const true_false_string ansi_map_systemcapabilities_dp_bool_val  = {
 };
 
 static void
-dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2612,7 +2612,7 @@ static const value_string ansi_map_terminationtriggers_nr_vals[]  = {
 
 /* 6.5.2.159 TerminationTriggers N.S0005-0 v 1.0*/
 static void
-dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2708,7 +2708,7 @@ static const true_false_string ansi_map_trans_cap_waddr_bool_val  = {
 
 
 static void
-dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -2851,7 +2851,7 @@ static const range_string cdmaserviceoption_vals[] = {
 };
 
 static void
-dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
 	proto_item *item;
 	proto_tree *subtree;
@@ -3155,7 +3155,7 @@ static const true_false_string ansi_map_Availability_bool_val  = {
   "Name available/unknown"
 };
 static void
-dissect_ansi_map_callingpartyname(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_callingpartyname(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	proto_item *item;
 	proto_tree *subtree;
@@ -3206,7 +3206,7 @@ static const true_false_string ansi_map_triggercapability_bool_val  = {
 };
 
 static void
-dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -3289,7 +3289,7 @@ static const true_false_string ansi_map_winoperationscapability_pos_bool_val  = 
   "Sender is not capable of supporting the PositionRequest operation"
 };
 static void
-dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;
@@ -3314,7 +3314,7 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo, prot
 /* Second marcet ID etc */
 /* 6.5.2.ek ControlNetworkID N.S0018*/
 static void
-dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 
 	int offset = 0;
 	proto_item *item;

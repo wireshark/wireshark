@@ -1,6 +1,6 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# .\cmip-exp.cnf
+# ./cmip-exp.cnf
 # ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn
 
 #.MODULE

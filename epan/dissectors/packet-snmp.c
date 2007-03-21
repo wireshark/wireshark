@@ -1636,15 +1636,15 @@ gboolean check_ScopedPdu(tvbuff_t* tvb) {
 
 
 static int
-dissect_snmp_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, &oid_tvb);
 
   return offset;
 }
-static int dissect_name(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_name);
 }
-static int dissect_subtree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_subtree(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_subtree);
 }
 
@@ -1652,7 +1652,7 @@ static int dissect_subtree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
 
 
 static int
-dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 343 "snmp.cnf"
 	guint length;
 	
@@ -1663,14 +1663,14 @@ dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Integer_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_integer_value);
 }
 
 
 
 static int
-dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 337 "snmp.cnf"
 	guint length;
 	
@@ -1681,14 +1681,14 @@ dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_string_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_string_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_String_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_string_value);
 }
 
 
 
 static int
-dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 349 "snmp.cnf"
 	guint length;
 	
@@ -1699,14 +1699,14 @@ dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
-static int dissect_objectID_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_objectID_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ObjectID_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_objectID_value);
 }
 
 
 
 static int
-dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 355 "snmp.cnf"
 	guint length;
 	
@@ -1719,7 +1719,7 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
   return offset;
 }
-static int dissect_empty(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_empty(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Empty(FALSE, tvb, offset, pinfo, tree, hf_snmp_empty);
 }
 
@@ -1741,98 +1741,98 @@ static const ber_choice_t SimpleSyntax_choice[] = {
 };
 
 static int
-dissect_snmp_SimpleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SimpleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  SimpleSyntax_choice, hf_index, ett_snmp_SimpleSyntax,
                                  NULL);
 
   return offset;
 }
-static int dissect_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_SimpleSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_simple);
 }
 
 
 
 static int
-dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_ipAddress_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_ipAddress_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_ipAddress_value);
 }
-static int dissect_internet(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_internet(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
 }
 
 
 
 static int
-dissect_snmp_Counter32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Counter32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Counter32(FALSE, tvb, offset, pinfo, tree, hf_snmp_counter_value);
 }
 
 
 
 static int
-dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_timeticks_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_timeticks_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_timeticks_value);
 }
-static int dissect_time_stamp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_time_stamp(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_time_stamp);
 }
 
 
 
 static int
-dissect_snmp_Opaque(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Opaque(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_arbitrary_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_arbitrary_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Opaque(FALSE, tvb, offset, pinfo, tree, hf_snmp_arbitrary_value);
 }
 
 
 
 static int
-dissect_snmp_Counter64(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Counter64(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_big_counter_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_big_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Counter64(FALSE, tvb, offset, pinfo, tree, hf_snmp_big_counter_value);
 }
 
 
 
 static int
-dissect_snmp_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_unsigned_integer_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_unsigned_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Unsigned32(FALSE, tvb, offset, pinfo, tree, hf_snmp_unsigned_integer_value);
 }
 
@@ -1858,14 +1858,14 @@ static const ber_choice_t ApplicationSyntax_choice[] = {
 };
 
 static int
-dissect_snmp_ApplicationSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ApplicationSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ApplicationSyntax_choice, hf_index, ett_snmp_ApplicationSyntax,
                                  NULL);
 
   return offset;
 }
-static int dissect_application_wide(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_application_wide(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ApplicationSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_application_wide);
 }
 
@@ -1883,27 +1883,27 @@ static const ber_choice_t ObjectSyntax_choice[] = {
 };
 
 static int
-dissect_snmp_ObjectSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ObjectSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ObjectSyntax_choice, hf_index, ett_snmp_ObjectSyntax,
                                  NULL);
 
   return offset;
 }
-static int dissect_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ObjectSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_value);
 }
 
 
 
 static int
-dissect_snmp_Integer32(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Integer32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_bulkPDU_request_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_bulkPDU_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Integer32(FALSE, tvb, offset, pinfo, tree, hf_snmp_bulkPDU_request_id);
 }
 
@@ -1919,14 +1919,14 @@ static const ber_choice_t NetworkAddress_choice[] = {
 };
 
 static int
-dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  NetworkAddress_choice, hf_index, ett_snmp_NetworkAddress,
                                  NULL);
 
   return offset;
 }
-static int dissect_agent_addr(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_agent_addr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NetworkAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_agent_addr);
 }
 
@@ -1942,63 +1942,63 @@ static const value_string snmp_Version_vals[] = {
 
 
 static int
-dissect_snmp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_version);
 }
-static int dissect_msgVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgVersion);
 }
 
 
 
 static int
-dissect_snmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_community(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_community(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_community);
 }
-static int dissect_parameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_parameters);
 }
-static int dissect_encrypted(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_encrypted(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_encrypted);
 }
-static int dissect_contextEngineID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_contextEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextEngineID);
 }
-static int dissect_contextName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_contextName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextName);
 }
-static int dissect_password(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_password(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_password);
 }
 
 
 
 static int
-dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_request_id(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_request_id);
 }
-static int dissect_error_index(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_error_index(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_index);
 }
-static int dissect_specific_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_specific_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_specific_trap);
 }
 
@@ -2028,34 +2028,34 @@ static const value_string snmp_T_error_status_vals[] = {
 
 
 static int
-dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_error_status(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_error_status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_error_status(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_status);
 }
 
 
 
 static int
-dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
-static int dissect_unSpecified(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_unSpecified(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NULL(FALSE, tvb, offset, pinfo, tree, hf_snmp_unSpecified);
 }
-static int dissect_noSuchObject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_noSuchObject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchObject);
 }
-static int dissect_noSuchInstance_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_noSuchInstance_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchInstance);
 }
-static int dissect_endOfMibView_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_endOfMibView_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_endOfMibView);
 }
 
@@ -2079,14 +2079,14 @@ static const ber_choice_t ValueType_choice[] = {
 };
 
 static int
-dissect_snmp_ValueType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ValueType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ValueType_choice, hf_index, ett_snmp_ValueType,
                                  NULL);
 
   return offset;
 }
-static int dissect_valueType(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_valueType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ValueType(FALSE, tvb, offset, pinfo, tree, hf_snmp_valueType);
 }
 
@@ -2098,7 +2098,7 @@ static const ber_sequence_t VarBind_sequence[] = {
 };
 
 static int
-dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 323 "snmp.cnf"
 	oid_tvb = NULL;
 	value_tvb = NULL;
@@ -2115,7 +2115,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
   return offset;
 }
-static int dissect_VarBindList_item(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_VarBindList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_VarBind(FALSE, tvb, offset, pinfo, tree, hf_snmp_VarBindList_item);
 }
 
@@ -2125,13 +2125,13 @@ static const ber_sequence_t VarBindList_sequence_of[1] = {
 };
 
 static int
-dissect_snmp_VarBindList(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_VarBindList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
                                       VarBindList_sequence_of, hf_index, ett_snmp_VarBindList);
 
   return offset;
 }
-static int dissect_variable_bindings(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_variable_bindings(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_VarBindList(FALSE, tvb, offset, pinfo, tree, hf_snmp_variable_bindings);
 }
 
@@ -2145,7 +2145,7 @@ static const ber_sequence_t PDU_sequence[] = {
 };
 
 static int
-dissect_snmp_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    PDU_sequence, hf_index, ett_snmp_PDU);
 
@@ -2156,7 +2156,7 @@ dissect_snmp_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_in
 
 
 static int
-dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 37 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2176,7 +2176,7 @@ dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_get_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_get_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_get_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_request);
 }
 
@@ -2184,7 +2184,7 @@ static int dissect_get_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *t
 
 
 static int
-dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 52 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2204,7 +2204,7 @@ dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
-static int dissect_get_next_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_get_next_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_get_next_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_next_request);
 }
 
@@ -2212,7 +2212,7 @@ static int dissect_get_next_request(packet_info *pinfo, proto_tree *tree, tvbuff
 
 
 static int
-dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 67 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2232,7 +2232,7 @@ dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
-static int dissect_get_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_get_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_get_response(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_response);
 }
 
@@ -2240,7 +2240,7 @@ static int dissect_get_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 
 
 static int
-dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 82 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2261,22 +2261,22 @@ dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_set_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_set_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_set_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_set_request);
 }
 
 
 
 static int
-dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_enterprise(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_enterprise(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_enterprise);
 }
-static int dissect_identity(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_identity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_identity);
 }
 
@@ -2294,13 +2294,13 @@ static const value_string snmp_T_generic_trap_vals[] = {
 
 
 static int
-dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_generic_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_generic_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_generic_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_generic_trap);
 }
 
@@ -2316,7 +2316,7 @@ static const ber_sequence_t Trap_PDU_sequence[] = {
 };
 
 static int
-dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Trap_PDU_sequence, hf_index, ett_snmp_Trap_PDU);
 
@@ -2326,7 +2326,7 @@ dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
 
 static int
-dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 98 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2346,26 +2346,26 @@ dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
-static int dissect_trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_trap);
 }
 
 
 
 static int
-dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_msgID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgID);
 }
-static int dissect_non_repeaters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_non_repeaters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_non_repeaters);
 }
-static int dissect_max_repetitions(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_max_repetitions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_max_repetitions);
 }
 
@@ -2379,7 +2379,7 @@ static const ber_sequence_t BulkPDU_sequence[] = {
 };
 
 static int
-dissect_snmp_BulkPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_BulkPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    BulkPDU_sequence, hf_index, ett_snmp_BulkPDU);
 
@@ -2389,7 +2389,7 @@ dissect_snmp_BulkPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packe
 
 
 static int
-dissect_snmp_GetBulkRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_GetBulkRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_snmp_BulkPDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -2398,7 +2398,7 @@ dissect_snmp_GetBulkRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
 
 static int
-dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 113 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2418,14 +2418,14 @@ dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-static int dissect_getBulkRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_getBulkRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_getBulkRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_getBulkRequest);
 }
 
 
 
 static int
-dissect_snmp_InformRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_InformRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -2434,7 +2434,7 @@ dissect_snmp_InformRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
 
 static int
-dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 128 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2454,14 +2454,14 @@ dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
   return offset;
 }
-static int dissect_informRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_informRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_informRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_informRequest);
 }
 
 
 
 static int
-dissect_snmp_SNMPv2_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SNMPv2_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -2470,7 +2470,7 @@ dissect_snmp_SNMPv2_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
 
 
 static int
-dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 143 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2490,14 +2490,14 @@ dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_sNMPv2_Trap(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_sNMPv2_Trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_sNMPv2_Trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_sNMPv2_Trap);
 }
 
 
 
 static int
-dissect_snmp_Report_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Report_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_snmp_PDU(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
@@ -2506,7 +2506,7 @@ dissect_snmp_Report_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 static int
-dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 158 "snmp.cnf"
  gint8 class;
  gboolean pc, ind_field;
@@ -2526,7 +2526,7 @@ dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_report(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_report(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_report(FALSE, tvb, offset, pinfo, tree, hf_snmp_report);
 }
 
@@ -2558,7 +2558,7 @@ static const ber_choice_t PDUs_choice[] = {
 };
 
 static int
-dissect_snmp_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 30 "snmp.cnf"
 gint pdu_type;
 
@@ -2573,13 +2573,13 @@ gint pdu_type;
 
   return offset;
 }
-static int dissect_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_data);
 }
-static int dissect_v2u_plaintext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_v2u_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_v2u_plaintext);
 }
-static int dissect_pDUs(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_pDUs(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_pDUs);
 }
 
@@ -2592,7 +2592,7 @@ static const ber_sequence_t Message_sequence[] = {
 };
 
 static int
-dissect_snmp_Message(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Message_sequence, hf_index, ett_snmp_Message);
 
@@ -2613,14 +2613,14 @@ static const ber_choice_t T_datav2u_choice[] = {
 };
 
 static int
-dissect_snmp_T_datav2u(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_datav2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  T_datav2u_choice, hf_index, ett_snmp_T_datav2u,
                                  NULL);
 
   return offset;
 }
-static int dissect_datav2u(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_datav2u(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_datav2u(FALSE, tvb, offset, pinfo, tree, hf_snmp_datav2u);
 }
 
@@ -2633,7 +2633,7 @@ static const ber_sequence_t Messagev2u_sequence[] = {
 };
 
 static int
-dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    Messagev2u_sequence, hf_index, ett_snmp_Messagev2u);
 
@@ -2644,7 +2644,7 @@ dissect_snmp_Messagev2u(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
 
 static int
-dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 185 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
@@ -2659,53 +2659,53 @@ dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgAuthoritativeEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineID(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineID);
 }
 
 
 
 static int
-dissect_snmp_T_msgAuthoritativeEngineBoots(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgAuthoritativeEngineBoots(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &usm_p.boots);
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineBoots(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgAuthoritativeEngineBoots(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineBoots(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineBoots);
 }
 
 
 
 static int
-dissect_snmp_T_msgAuthoritativeEngineTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgAuthoritativeEngineTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &usm_p.time);
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineTime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgAuthoritativeEngineTime(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineTime(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineTime);
 }
 
 
 
 static int
-dissect_snmp_T_msgUserName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgUserName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &usm_p.user_tvb);
 
   return offset;
 }
-static int dissect_msgUserName(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgUserName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgUserName(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgUserName);
 }
 
 
 
 static int
-dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 198 "snmp.cnf"
 	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
@@ -2716,20 +2716,20 @@ dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_msgAuthenticationParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgAuthenticationParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgAuthenticationParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthenticationParameters);
 }
 
 
 
 static int
-dissect_snmp_T_msgPrivacyParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgPrivacyParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        &usm_p.priv_tvb);
 
   return offset;
 }
-static int dissect_msgPrivacyParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgPrivacyParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgPrivacyParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgPrivacyParameters);
 }
 
@@ -2745,7 +2745,7 @@ static const ber_sequence_t UsmSecurityParameters_sequence[] = {
 };
 
 static int
-dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    UsmSecurityParameters_sequence, hf_index, ett_snmp_UsmSecurityParameters);
 
@@ -2755,20 +2755,20 @@ dissect_snmp_UsmSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
 static int
-dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_msgMaxSize(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgMaxSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER_484_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgMaxSize);
 }
 
 
 
 static int
-dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 307 "snmp.cnf"
 	tvbuff_t *parameter_tvb = NULL;
 
@@ -2791,20 +2791,20 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
-static int dissect_msgFlags(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgFlags(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgFlags);
 }
 
 
 
 static int
-dissect_snmp_T_msgSecurityModel(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgSecurityModel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   &MsgSecurityModel);
 
   return offset;
 }
-static int dissect_msgSecurityModel(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgSecurityModel(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgSecurityModel(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityModel);
 }
 
@@ -2818,20 +2818,20 @@ static const ber_sequence_t HeaderData_sequence[] = {
 };
 
 static int
-dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    HeaderData_sequence, hf_index, ett_snmp_HeaderData);
 
   return offset;
 }
-static int dissect_msgGlobalData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgGlobalData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_HeaderData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgGlobalData);
 }
 
 
 
 static int
-dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 250 "snmp.cnf"
 
 	switch(MsgSecurityModel){
@@ -2853,7 +2853,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb, i
 
   return offset;
 }
-static int dissect_msgSecurityParameters(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgSecurityParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_msgSecurityParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityParameters);
 }
 
@@ -2866,20 +2866,20 @@ static const ber_sequence_t ScopedPDU_sequence[] = {
 };
 
 static int
-dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ScopedPDU_sequence, hf_index, ett_snmp_ScopedPDU);
 
   return offset;
 }
-static int dissect_plaintext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ScopedPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_plaintext);
 }
 
 
 
 static int
-dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 207 "snmp.cnf"
 	tvbuff_t* crypt_tvb;
 	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
@@ -2927,7 +2927,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
 
   return offset;
 }
-static int dissect_encryptedPDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_encryptedPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_encryptedPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_encryptedPDU);
 }
 
@@ -2945,14 +2945,14 @@ static const ber_choice_t ScopedPduData_choice[] = {
 };
 
 static int
-dissect_snmp_ScopedPduData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ScopedPduData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  ScopedPduData_choice, hf_index, ett_snmp_ScopedPduData,
                                  NULL);
 
   return offset;
 }
-static int dissect_msgData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_msgData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ScopedPduData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgData);
 }
 
@@ -2966,7 +2966,7 @@ static const ber_sequence_t SNMPv3Message_sequence[] = {
 };
 
 static int
-dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SNMPv3Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SNMPv3Message_sequence, hf_index, ett_snmp_SNMPv3Message);
 
@@ -3020,26 +3020,26 @@ static const value_string snmp_T_smux_version_vals[] = {
 
 
 static int
-dissect_snmp_T_smux_version(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_smux_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_smux_version(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_smux_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_smux_version(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_version);
 }
 
 
 
 static int
-dissect_snmp_DisplayString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_DisplayString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_description(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_description(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_DisplayString(FALSE, tvb, offset, pinfo, tree, hf_snmp_description);
 }
 
@@ -3053,13 +3053,13 @@ static const ber_sequence_t SimpleOpen_sequence[] = {
 };
 
 static int
-dissect_snmp_SimpleOpen(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SimpleOpen(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    SimpleOpen_sequence, hf_index, ett_snmp_SimpleOpen);
 
   return offset;
 }
-static int dissect_smux_simple(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_smux_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_SimpleOpen(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_simple);
 }
 
@@ -3075,14 +3075,14 @@ static const ber_choice_t OpenPDU_choice[] = {
 };
 
 static int
-dissect_snmp_OpenPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_OpenPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  OpenPDU_choice, hf_index, ett_snmp_OpenPDU,
                                  NULL);
 
   return offset;
 }
-static int dissect_open(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_open(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_OpenPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_open);
 }
 
@@ -3099,26 +3099,26 @@ static const value_string snmp_ClosePDU_vals[] = {
 
 
 static int
-dissect_snmp_ClosePDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_ClosePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_close(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_close(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_ClosePDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_close);
 }
 
 
 
 static int
-dissect_snmp_INTEGER_M1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_INTEGER_M1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_priority(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_priority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_INTEGER_M1_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_priority);
 }
 
@@ -3132,13 +3132,13 @@ static const value_string snmp_T_operation_vals[] = {
 
 
 static int
-dissect_snmp_T_operation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_T_operation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_operation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_operation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_T_operation(FALSE, tvb, offset, pinfo, tree, hf_snmp_operation);
 }
 
@@ -3151,13 +3151,13 @@ static const ber_sequence_t RReqPDU_sequence[] = {
 };
 
 static int
-dissect_snmp_RReqPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_RReqPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    RReqPDU_sequence, hf_index, ett_snmp_RReqPDU);
 
   return offset;
 }
-static int dissect_registerRequest(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_registerRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_RReqPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerRequest);
 }
 
@@ -3169,13 +3169,13 @@ static const value_string snmp_RRspPDU_vals[] = {
 
 
 static int
-dissect_snmp_RRspPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_RRspPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_rRspPDU(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_rRspPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_RRspPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_rRspPDU);
 }
 
@@ -3193,14 +3193,14 @@ static const ber_choice_t RegisterResponse_choice[] = {
 };
 
 static int
-dissect_snmp_RegisterResponse(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_RegisterResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  RegisterResponse_choice, hf_index, ett_snmp_RegisterResponse,
                                  NULL);
 
   return offset;
 }
-static int dissect_registerResponse(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_registerResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_RegisterResponse(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerResponse);
 }
 
@@ -3213,13 +3213,13 @@ static const value_string snmp_SOutPDU_vals[] = {
 
 
 static int
-dissect_snmp_SOutPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SOutPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_commitOrRollback(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_commitOrRollback(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_SOutPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_commitOrRollback);
 }
 
@@ -3243,7 +3243,7 @@ static const ber_choice_t SMUX_PDUs_choice[] = {
 };
 
 static int
-dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
                                  SMUX_PDUs_choice, hf_index, ett_snmp_SMUX_PDUs,
                                  NULL);
@@ -3253,7 +3253,7 @@ dissect_snmp_SMUX_PDUs(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
 
 /*--- PDUs ---*/
 
-static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   dissect_snmp_SMUX_PDUs(FALSE, tvb, 0, pinfo, tree, hf_snmp_SMUX_PDUs_PDU);
 }
 

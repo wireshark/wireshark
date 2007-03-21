@@ -257,7 +257,7 @@ gsm_map_calc_bitrate(guint8 value){
 }
 
 static void 
-dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
     proto_item *item;
     proto_tree *subtree;
@@ -395,7 +395,7 @@ static const value_string dir_of_alt_vals[] = {
 
 
 void
-dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 
 	proto_item *lat_item, *long_item, *major_item, *minor_item, *alt_item;
 	/*proto_tree *subtree; */
@@ -1527,7 +1527,7 @@ static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index _U_) {
 
   char *version_ptr;
   struct tcap_private_t * p_private_tcap;

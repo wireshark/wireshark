@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-pkixtsp.h                                                         */
+/* ./packet-pkixtsp.h                                                         */
 /* ../../tools/asn2wrs.py -b -e -p pkixtsp -c pkixtsp.cnf -s packet-pkixtsp-template PKIXTSP.asn */
 
 /* Input file: packet-pkixtsp-template.h */

@@ -166,8 +166,6 @@ static int hf_gsm_ss_SS_Code = -1;
 /* Initialize the subtree pointers */
 #include "packet-gsm_ss-ett.c"
 
-static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
-
 #include "packet-gsm_ss-fn.c"
 
 
@@ -352,7 +350,7 @@ gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,g
 }
 
 static void
-dissect_gsm_ss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gsm_ss(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
 
 }

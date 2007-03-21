@@ -853,9 +853,9 @@ class EthCtx:
       out += "static "
     out += "int "
     if (self.Ber()):
-      out += "dissect_%s_%s(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
     out += ";\n"
     return out
 
@@ -883,9 +883,9 @@ class EthCtx:
       out += "static "
     out += "int\n"
     if (self.Ber()):
-      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
-      out += "dissect_%s_%s(tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {\n" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     if self.conform.get_fn_presence(tname):
       out += self.conform.get_fn_text(tname, 'FN_HDR')
     elif self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
@@ -1055,10 +1055,10 @@ class EthCtx:
         if (self.Ber()):
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
-          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {\n'
+          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {\n'
           par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         else:
-          out += 'static int dissect_'+f+'(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree) {\n'
+          out += 'static int dissect_'+f+'(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {\n'
           par=(('tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
         out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
                                 par=par)
@@ -1077,7 +1077,7 @@ class EthCtx:
         out += 'int'
       else:
         out += 'void'
-      out += ' dissect_'+f+'(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {\n'
+      out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
       if (self.Per()):
         if (self.Aligned()):
           aligned = 'TRUE'
