@@ -126,5 +126,5 @@ gchar * utf_16to8(const wchar_t *utf16str) {
 }
 
 #else
-	;
+
 #endif

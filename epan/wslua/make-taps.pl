@@ -203,7 +203,7 @@ ENUMELEM
 
 print CFILE <<"TAIL";
 	return 0;
-};
+}
 
 
 tap_extractor_t wslua_get_tap_extractor(const gchar* name) {
