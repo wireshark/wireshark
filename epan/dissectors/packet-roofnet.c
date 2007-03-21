@@ -80,7 +80,7 @@ static const value_string roofnet_flags_vals[] = {
 #define ROOFNET_LINK_LEN 24
 
 /* forward reference */
-void proto_reg_handoff_roofnet();
+void proto_reg_handoff_roofnet(void);
 
 static dissector_handle_t ip_handle;
 static int proto_roofnet = -1;

@@ -6053,7 +6053,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
 
 #ifdef	HAVE_AIRPDCAP
 static
-void set_airpdcap_keys()
+void set_airpdcap_keys(void)
 {
 	guint i = 0;
 	AIRPDCAP_KEY_ITEM key;

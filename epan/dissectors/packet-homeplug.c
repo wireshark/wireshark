@@ -77,7 +77,7 @@
 #define HOMEPLUG_NS_EXT_LEN   199
 
 /* forward reference */
-void proto_reg_handoff_homeplug();
+void proto_reg_handoff_homeplug(void);
 
 static int proto_homeplug = -1;
 

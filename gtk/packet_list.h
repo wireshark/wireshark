@@ -100,11 +100,11 @@ extern void packet_list_set_sel_browse(gboolean val);
 
 /** Move to the next packet
  */
-extern void packet_list_next();
+extern void packet_list_next(void);
 
 /** Move to the previous packet
  */
-extern void packet_list_prev();
+extern void packet_list_prev(void);
 
 /* Different modes of copying summary data */
 typedef enum {

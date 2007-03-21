@@ -723,13 +723,13 @@ packet_list_next_prev(gboolean next)
 }
 
 void
-packet_list_next()
+packet_list_next(void)
 {
     packet_list_next_prev(TRUE);
 }
 
 void
-packet_list_prev()
+packet_list_prev(void)
 {
     packet_list_next_prev(FALSE);
 }
