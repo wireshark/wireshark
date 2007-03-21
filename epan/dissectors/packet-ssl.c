@@ -292,6 +292,7 @@ ssl_parse(void)
 
 }
 
+#if 0
 /* function that save app_data during sub protocol reassembling */
 static void
 ssl_add_app_data(SslDecryptSession* ssl, guchar* data, gint data_len){
@@ -322,6 +323,7 @@ ssl_add_app_data(SslDecryptSession* ssl, guchar* data, gint data_len){
     memcpy(app->data,data,data_len);
   }
 }
+#endif
 
 #if 0
 static void
@@ -847,7 +849,6 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 {
   gboolean save_fragmented;
   SslDataInfo *appl_data;
-  proto_tree *ti;
   tvbuff_t *next_tvb;
 
   /* show decrypted data info, if available */
@@ -894,7 +895,7 @@ static gint
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
                     guint *conv_version, gboolean *need_desegmentation,
-                    SslDecryptSession* ssl, gboolean first_record_in_frame)
+                    SslDecryptSession* ssl, gboolean first_record_in_frame _U_)
 {
 
     /*
