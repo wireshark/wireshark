@@ -540,7 +540,7 @@ proto_register_lwapp(void)
     proto_lwapp_l3 = proto_register_protocol ("LWAPP Layer 3 Packet", 
                                          "LWAPP-L3", "lwapp-l3");
 
-    proto_lwapp_control = proto_register_protocol ("LWAP Control Message", 
+    proto_lwapp_control = proto_register_protocol ("LWAPP Control Message", 
                                          "LWAPP-CNTL", "lwapp-cntl");
     proto_register_field_array(proto_lwapp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -593,7 +593,7 @@ proto_reg_handoff_lwapp(void)
      *
      */
 
-    /* Obsceleted LWAP via encapsulated 802.3 over UDP */
+    /* Obsoleted LWAPP via encapsulated 802.3 over UDP */
 
     dissector_add("udp.port", 12220, lwapp_l3_handle);
 
