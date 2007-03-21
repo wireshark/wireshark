@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/emem.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -40,6 +41,7 @@
 #include "packet-per.h"
 #include "packet-ranap.h"
 #include "packet-e212.h"
+#include "packet-sccp.h"
 
 #define SCCP_SSN_RANAP 0x8E
 
@@ -76,6 +78,7 @@ static proto_tree *top_tree;
 static guint type_of_message;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
+
 
 static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
 static int dissect_ranap_FirstValue_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree);
@@ -556,6 +559,7 @@ static int dissect_ranap_ies(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_
 			break;
 			
 	}
+	
 	return offset;
 }
 
@@ -1069,12 +1073,25 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
+	
 
     /* create the ranap protocol tree */
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
 	offset = dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
+
+	if (pinfo->sccp_info) {
+		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
+		const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
+		
+		if (sccp_msg->assoc)
+			sccp_msg->assoc->proto = SCCP_PLOAD_RANAP;
+		
+		if (! sccp_msg->label) {
+			sccp_msg->label = se_strdup(str);
+		}
+	}
 
 }
 
@@ -1113,6 +1130,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_ranap(tvb, pinfo, tree);
 
+    
     return TRUE;
 }
 
