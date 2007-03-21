@@ -648,7 +648,7 @@ typedef enum {
     PARAM_PORT_SRC,
     PARAM_PORT_DST,
     PARAM_CIRCUIT_ID,
-    PARAM_PORT_TYPE,
+    PARAM_PORT_TYPE
 } pinfo_param_type_t;
 
 static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ ) {

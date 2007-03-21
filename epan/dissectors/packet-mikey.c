@@ -167,7 +167,7 @@ static const value_string payload_vals[] = {
 enum ts_type_t {
 	T_NTP_UTC = 0,
 	T_NTP,
-	T_COUNTER,
+	T_COUNTER
 };
 
 static const value_string ts_type_vals[] = {
@@ -217,7 +217,7 @@ static const value_string mac_alg_vals[] = {
 enum pke_c_t {
 	PKE_C_NO_CACHE = 0,
 	PKE_C_CACHE,
-	PKE_C_CACHE_CSB,
+	PKE_C_CACHE_CSB
 };
 
 static const value_string pke_c_vals[] = {
