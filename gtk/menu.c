@@ -2500,6 +2500,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(main_menu_factory, "/Edit/Copy",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy",
+	  TRUE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Copy/As Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
