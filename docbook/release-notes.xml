@@ -37,6 +37,19 @@ Wireshark Info
 
         <listitem>
           <para>
+            Wireshark could crash when dissecting an HTTP chunked
+            response.
+            <!-- Fixed in r21034 -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394">1394</ulink>)
+          </para>
+          <para>Versions affected: 0.99.5</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             On some systems, Wireshark could crash while reading
             iSeries capture files.
             <!-- Fixed in r20990 -->
