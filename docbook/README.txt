@@ -115,6 +115,7 @@ lynx:               lynx                    M
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into fop-0.20.5 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
+zip:                zip                     O
 
 
 Packages for Suse 9.3
