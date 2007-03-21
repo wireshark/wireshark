@@ -194,6 +194,8 @@ static int hf_sctp_fragments = -1;
 static int hf_sctp_fragment = -1;
 
 static int hf_sctp_retransmission = -1;
+static int hf_sctp_retransmitted = -1;
+static int hf_sctp_retransmitted_count = -1;
 static int hf_sctp_rtt = -1;
 static int hf_sctp_rto = -1;
 static int hf_sctp_ack_tsn = -1;
@@ -229,7 +231,9 @@ static gint ett_sctp_fragment  = -1;
 static gint ett_sctp_tsn = -1;
 static gint ett_sctp_ack = -1;
 static gint ett_sctp_acked = -1;
-static gint ett_sctp_tsn_retrans = -1;
+static gint ett_sctp_tsn_retransmission = -1;
+static gint ett_sctp_tsn_retransmitted_count = -1;
+static gint ett_sctp_tsn_retransmitted = -1;
 static dissector_handle_t data_handle;
 
 static gboolean enable_tsn_analysis = FALSE;
@@ -569,6 +573,12 @@ typedef struct _sctp_tsn_t {
 		guint32 framenum;
 		nstime_t ts;
 	} ack;
+	struct _retransmit_t {
+		guint32 framenum;
+		nstime_t ts;
+		struct _retransmit_t *next;
+	} *retransmit;
+	guint32 retransmit_count;
 	struct _sctp_tsn_t *next;
 } sctp_tsn_t;
 
@@ -669,31 +679,105 @@ static void
 tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 	 tvbuff_t *tvb, guint32 framenum)
 {
+	proto_item *pi;
+	proto_tree *pt;
 	proto_tree *tsn_tree = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
+	struct _retransmit_t **r;
+	int i;
 
 	if (t->first_transmit.framenum != framenum) {
-		proto_item *pi = proto_tree_add_uint(tsn_tree, hf_sctp_retransmission, tvb, 0 , 0, t->first_transmit.framenum);
-		proto_tree *pt = proto_item_add_subtree(pi ,ett_sctp_tsn_retrans);
 		nstime_t rto;
 
+		pi = proto_tree_add_uint(tsn_tree, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
+		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
 		PROTO_ITEM_SET_GENERATED(pi);
 		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Duplicate TSN");
 
 		nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
 		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
 		PROTO_ITEM_SET_GENERATED(pi);
-	} else if (t->ack.framenum) {
-		proto_item *pi = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
-		proto_tree *pt = proto_item_add_subtree(pi, ett_sctp_ack);
+
+		if (pinfo->fd->flags.visited)
+			return;
+
+/*  Limit the number of retransmissions we track (to limit memory usage--and
+ *  tree size--in pathological cases, for example zero window probing forever).
+ */
+#define MAX_RETRANS_TRACKED_PER_TSN 100
+
+		t->retransmit_count++;
+		r = &t->retransmit;
+		i = 0;
+		while (*r && i < MAX_RETRANS_TRACKED_PER_TSN) {
+			r = &(*r)->next;
+			i++;
+		}
+
+		if (i == MAX_RETRANS_TRACKED_PER_TSN)
+			return;
+
+		/*  TODO: we're allocating 16 bytes here.  The se_
+		 *  allocator adds 8 bytes of canary to that at each
+		 *  allocation.  Should these allocations be batched
+		 *  or does it not matter for the rare cases when there's
+		 *  more than 1 or 2 retransmissions of a TSN?
+		 *  For now, go with simplicity (of code here).
+		 */
+		*r = se_alloc0(sizeof(struct _retransmit_t));
+		(*r)->framenum = framenum;
+		(*r)->ts.secs = pinfo->fd->abs_ts.secs;
+		(*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
+
+		return;
+	}
+
+	if (t->retransmit) {
+		struct _retransmit_t **r;
+		nstime_t rto;
+		char ds[64];
+
+		if (t->retransmit_count > MAX_RETRANS_TRACKED_PER_TSN)
+			g_snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
+		else
+			ds[0] = 0;
+
+		pi = proto_tree_add_uint_format(tsn_tree,
+						hf_sctp_retransmitted_count,
+						tvb, 0, 0, t->retransmit_count,
+						"This TSN was retransmitted %d time%s%s",
+						t->retransmit_count,
+						plurality(t->retransmit_count, "", "s"),
+						ds);
+		PROTO_ITEM_SET_GENERATED(pi);
+		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmitted_count);
+
+		r = &t->retransmit;
+		while (*r) {
+			nstime_delta(&rto, &((*r)->ts), &pinfo->fd->abs_ts);
+			pi = proto_tree_add_uint_format(pt,
+							hf_sctp_retransmitted,
+							tvb, 0, 0,
+							(*r)->framenum,
+							"This TSN was retransmitted in frame %d (%s seconds after this frame)",
+							(*r)->framenum,
+							rel_time_to_secs_str(&rto));
+			PROTO_ITEM_SET_GENERATED(pi);
+
+			r = &(*r)->next;
+		}
+	}
+
+	if (t->ack.framenum) {
 		nstime_t rtt;
 
+		pi = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
 		PROTO_ITEM_SET_GENERATED(pi);
+		pt = proto_item_add_subtree(pi, ett_sctp_ack);
 
 		nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
 		pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
 		PROTO_ITEM_SET_GENERATED(pi);
 	}
-
 }
 
 #define RELTSN(tsn) (((tsn) < h->first_tsn) ? (tsn + (0xffffffff - (h->first_tsn)) + 1) : (tsn - h->first_tsn))
@@ -3661,13 +3745,17 @@ proto_register_sctp(void)
     { &hf_sctp_rto,
 	    { "Retransmitted after", "sctp.retransmission_time", FT_RELATIVE_TIME, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_sctp_retransmission,
-	    { "This TSN is a retransmission of one in frame", "sctp.retransmission", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
+	    { "This TSN is a retransmission of one in frame", "sctp.retransmission", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_sctp_retransmitted,
+	    { "This TSN is retransmitted in frame", "sctp.retransmitted", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL }},
+    { &hf_sctp_retransmitted_count,
+	    { "TSN was retransmitted this many times", "sctp.retransmitted_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
     { &hf_sctp_acked,
-	    { "This chunk is acked in frame", "sctp.acked", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
+	    { "This chunk is acked in frame", "sctp.acked", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL } },
     { &hf_sctp_ack_tsn,
-	    { "Acknowledges TSN", "sctp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,	NULL, HFILL } },
+	    { "Acknowledges TSN", "sctp.ack", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_sctp_ack_frame,
-	    { "Chunk in frame", "sctp.ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL } },
+	    { "Chunk in frame", "sctp.ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL } },
 
  };
 
@@ -3693,7 +3781,9 @@ proto_register_sctp(void)
     &ett_sctp_ack,
     &ett_sctp_acked,
     &ett_sctp_tsn,
-    &ett_sctp_tsn_retrans
+    &ett_sctp_tsn_retransmission,
+    &ett_sctp_tsn_retransmitted_count,
+    &ett_sctp_tsn_retransmitted
   };
 
   static enum_val_t sctp_checksum_options[] = {
