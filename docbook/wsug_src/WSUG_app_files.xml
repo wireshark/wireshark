@@ -230,10 +230,12 @@
     </table>
 	<note><title>Windows folders</title>
 	<para>
-	%APPDATA% points to the personal configuration folder, typically 
+	%APPDATA% points to the personal configuration folder, e.g.:
 	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename> 
-	(for further details, have a look at <xref linkend="ChWindowsProfiles"/>), 
-	%WIRESHARK% points to the Wireshark program folder, typically 
+	(details can be found at: <xref linkend="ChWindowsProfiles"/>), 
+	</para>
+	<para>
+	%WIRESHARK% points to the Wireshark program folder, e.g.:
 	<filename>C:\Program Files\Wireshark</filename>
 	</para>
 	</note>
@@ -242,6 +244,9 @@
 	The <filename>/etc</filename> folder is the global Wireshark configuration 
 	folder. The folder actually used on your system 
 	may vary, maybe something like: <filename>/usr/local/etc</filename>.
+	</para>
+	<para>
+    $HOME is usually something like: <filename>/home/&lt;username&gt;</filename>
 	</para>
 	</note>
     <para>
@@ -485,34 +490,30 @@ c0-a8-1c-00      CEO
 	</para>
 	</note>
 	<para>
-	The following will try to guide 
+	The following guides 
 	you to the right place where to look for Wireshark's profile data.
 	</para>
 	<para>
       <variablelist>
 	<varlistentry>
-	  <term><command>95/98/ME</command></term>
+	  <term><command>Vista</command></term>
 	  <listitem>
 	<para>
-	The default in Windows 95/98/ME is: all users work with the same profile,
-	which is located at: 
-	<filename>C:\windows\Application Data\Wireshark</filename>
+	<filename>C:\Users\&lt;username&gt;\AppData\Roaming\Wireshark</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>98/ME (with enabled user profiles)</command></term>
+	  <term><command>XP/2000</command></term>
 	  <listitem>
 	<para>
-	In Windows 98 and ME you can enable separate user profiles. In that case,
-	something like:
-	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
-	is used.
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
+	"Documents and Settings" and "Application Data" might be internationalized.
 	</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>NT 4</command></term>
+	  <term><command>NT 4 (no longer supported by Wireshark)</command></term>
 	  <listitem>
 	<para>
 	<filename>C:\WINNT\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
@@ -520,11 +521,23 @@ c0-a8-1c-00      CEO
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
-	  <term><command>2000/XP</command></term>
+	  <term><command>ME/98 - with enabled user profiles  (no longer supported by Wireshark)</command></term>
 	  <listitem>
 	<para>
-	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
-	"Documents and Settings" and "Application Data" might be internationalized.
+	In Windows ME and 98 you can enable separate user profiles. In that case,
+	something like:
+	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Wireshark</filename>
+	is used.
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>ME/98/95 (no longer supported by Wireshark)</command></term>
+	  <listitem>
+	<para>
+	The default in Windows ME/98/95 is: all users work with the same profile,
+	which is located at: 
+	<filename>C:\windows\Application Data\Wireshark</filename>
 	</para>
 	  </listitem>
 	</varlistentry>
@@ -533,11 +546,11 @@ c0-a8-1c-00      CEO
 	</section>
 
 	<section id="ChWindowsRoamingProfiles">
-	<title>Windows NT/2000/XP roaming profiles</title>
+	<title>Windows Vista/XP/2000/NT roaming profiles</title>
 	<para>
 	The following will only be applicable if you are using roaming profiles.
 	This might be the case, if you work in a Windows domain environment 
-	(used in huge company networks). The configurations of all 
+	(used in company networks). The configurations of all 
 	programs you use won't be saved on the local hard drive of the computer 
 	you are currently working on, but on the domain server.
 	</para>
@@ -562,10 +575,32 @@ c0-a8-1c-00      CEO
 	variable. This variable will be set by the windows installer.
 	</para>
 	<para>
-	The default location for temporary files on NT 4 is just 
-	<filename>C:\TEMP</filename>, and in 2000 the default location 
-	is some directory under your profile directory but it might have 
-	"Temporary Files" in the path name.
+      <variablelist>
+	<varlistentry>
+	  <term><command>Vista</command></term>
+	  <listitem>
+	<para>
+	<filename>XXX - could someone give information about this?</filename>
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>XP/2000</command></term>
+	  <listitem>
+	<para>
+	<filename>C:\Documents and Settings\&lt;username&gt;\Local Settings\Temp</filename>
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>NT 4</command></term>
+	  <listitem>
+	<para>
+	<filename>C:\TEMP</filename>
+	</para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
 	</para>
 	</section>
 
