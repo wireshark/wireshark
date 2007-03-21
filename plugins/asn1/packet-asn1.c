@@ -1179,7 +1179,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			      }
 		      }
 		      g_free(octets);
-		      g_free(ename);
+		      g_free( (gpointer) ename);
 		      break;
 
 		case BER_UNI_TAG_BITSTRING:
@@ -1601,7 +1601,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					}
 				}
 				g_free(octets);
-				g_free(ename);
+				g_free( (gpointer) ename);
 			  	break;
 			}
 		  } else {
