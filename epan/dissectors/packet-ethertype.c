@@ -108,6 +108,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_TIPC,				"Transparent Inter Process Communication" },
     {ETHERTYPE_LLDP,				"802.1 Link Layer Discovery Protocol (LLDP)" },
     {ETHERTYPE_3GPP2,                           "CDMA2000 A10 3GPP2 Packet" },
+    {ETHERTYPE_LLTD,			"Link Layer Topology Discovery (LLTD)" },
     {ETHERTYPE_COBRANET,		"Cirrus Cobranet Packet" },
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level

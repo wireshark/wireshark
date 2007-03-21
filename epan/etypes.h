@@ -328,6 +328,10 @@
 #endif									/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 										/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
+#ifndef ETHERTYPE_LLTD
+#define ETHERTYPE_LLTD		0x88d9  /* Link Layer Topology Discovery (LLTD) */
+#endif
+
 #ifndef ETHERTYPE_MRP
 #define ETHERTYPE_MRP	        0x88e3  /* IEC 61158-6-10 Media Redundancy Protocol (MRP) */
 #endif
