@@ -106,6 +106,7 @@
 #include "packet-q931.h"
 #include "packet-gsm_a.h"
 #include "packet-ipv6.h"
+#include "packet-sccp.h"
 
 #include "packet-ppp.h"
 
@@ -1292,6 +1293,8 @@ static proto_tree *g_tree;
 static gint comp_type_tag;
 static guint32 localValue;
 
+static sccp_msg_info_t* sccp_msg;
+static sccp_assoc_info_t* sccp_assoc;
 
 /*
  * this should be set on a per message basis, if possible
@@ -2370,7 +2373,7 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	value = tvb_get_ntohs(tvb, curr_offset);
 
 	proto_tree_add_item(tree, hf_gsm_a_cell_lac, tvb, curr_offset, 2, FALSE);
-
+		
 	curr_offset += 2;
 
 	if (add_string)
@@ -3608,8 +3611,14 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 	    tvb, curr_offset, len - (curr_offset - offset),
 	    a_bigbuf,
 	    "BCD Digits: %s",
-	    a_bigbuf);
+		a_bigbuf);
 
+	if (sccp_assoc && ! sccp_assoc->calling_party) {
+		sccp_assoc->calling_party = se_strdup_printf(
+			((oct & 0x07) == 3) ? "IMEISV: %s" : "IMSI: %s",
+			a_bigbuf );
+	}
+	
 	if (add_string)
 	    g_snprintf(add_string, string_len, " - %s (%s)",
 		((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
@@ -4221,7 +4230,12 @@ de_rr_ch_dsc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
     	{
     		str = "SDCCH/8 + SACCH/C8 or CBCH (SDCCH/8), Subchannel";
     		subchannel = ((oct8 % 0x38)>>3);
-   	 	}
+   	 	} else {
+			str = "";
+			subchannel = 0;
+			DISSECTOR_ASSERT_NOT_REACHED();
+		}
+		
 		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
     	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
     }
@@ -4333,6 +4347,10 @@ de_rr_ch_dsc2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		{
 			str = "TCH/F + FACCH/F and SACCH/M + unidirectional channels at timeslot";
 			subchannel = ((oct8 % 0x38)>>3);
+		} else {
+			str = "";
+			subchannel = 0;
+			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 		other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
     	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s %d",a_bigbuf,str,subchannel);
@@ -7166,6 +7184,10 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
 	"BCD Digits: %s",
 	a_bigbuf);
 
+	if (sccp_assoc && ! sccp_assoc->called_party) {
+		sccp_assoc->called_party = se_strdup(a_bigbuf);
+	}
+	
     curr_offset += len - (curr_offset - offset);
 
     if (add_string)
@@ -7980,6 +8002,7 @@ static const ber_choice_t ERROR_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
+#if 0
 static int
 dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -7987,6 +8010,7 @@ dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_i
 
   return offset;
 }
+#endif
 
 static guint8
 de_facility(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint fac_len, gchar *add_string _U_, int string_len _U_)
@@ -8922,7 +8946,7 @@ de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * [7] 10.5.5.8
  */
 static guint8
-de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
     proto_item 	*curr_item;
@@ -18077,8 +18101,17 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*bssmap_item = NULL;
     proto_tree	*bssmap_tree = NULL;
     const gchar	*str;
+	
 
-
+	sccp_msg = pinfo->sccp_info;
+	
+	if (sccp_msg && sccp_msg->assoc) {
+		sccp_assoc = sccp_msg->assoc;
+	} else {
+		sccp_assoc = NULL;
+		sccp_msg = NULL;
+	}
+	
     if (check_col(pinfo->cinfo, COL_INFO))
     {
 	col_append_str(pinfo->cinfo, COL_INFO, "(BSSMAP) ");
@@ -18110,6 +18143,10 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     str = match_strval_idx((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
 
+	if (sccp_msg && !sccp_msg->label) {
+		sccp_msg->label = se_strdup(val_to_str((guint32) oct, gsm_a_bssmap_msg_strings, "BSSMAP (0x%02x)"));
+	}
+	
     /*
      * create the protocol tree
      */
@@ -18321,6 +18358,15 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
+	sccp_msg = pinfo->sccp_info;
+	
+	if (sccp_msg && sccp_msg->assoc) {
+		sccp_assoc = sccp_msg->assoc;
+	} else {
+		sccp_assoc = NULL;
+		sccp_msg = NULL;
+	}
+	
     /*
      * create the protocol tree
      */
@@ -18332,6 +18378,12 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		oct);
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg);
+	
+	if (sccp_msg && !sccp_msg->label) {
+		sccp_msg->label = se_strdup_printf("DTAP (0x%02x)",oct);
+	}
+	
+	
     }
     else
     {
@@ -18341,6 +18393,10 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msg_str);
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_tree);
+
+	if (sccp_msg && !sccp_msg->label) {
+		sccp_msg->label = se_strdup(msg_str);
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{

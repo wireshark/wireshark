@@ -56,6 +56,7 @@
 #include "packet-bssap.h"
 #include "packet-gsm_a.h"
 #include "packet-e212.h"
+#include "packet-sccp.h"
 
 static void init_bssap(void);
 
@@ -579,6 +580,9 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, ((bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP"));
     }
+
+    if ( pinfo->sccp_info && pinfo->sccp_info->assoc  ) 
+		pinfo->sccp_info->assoc->proto = SCCP_PLOAD_BSSAP;
 
     /*
      * create the bssap protocol tree
@@ -1627,6 +1631,10 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSAP+");
     }
+    
+    if (pinfo->sccp_info && pinfo->sccp_info->assoc)
+		pinfo->sccp_info->assoc->proto = SCCP_PLOAD_BSSAP;
+    
     /* create the BSSAP+ protocol tree */
     bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, FALSE);
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);

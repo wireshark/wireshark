@@ -681,6 +681,7 @@ rtp_free_hash_dyn_payload
 rtp_payload_type_vals           DATA
 rtp_payload_type_short_vals    DATA
 running_in_build_directory
+sccp_message_type_acro_values		DATA
 scsi_mmc_vals					DATA
 scsi_smc_vals					DATA
 scsi_sbc_vals					DATA

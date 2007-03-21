@@ -52,83 +52,62 @@
 #include <epan/reassemble.h>
 #include "packet-tcap.h"
 #include "packet-sccp.h"
+#include "tap.h"
 
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
 
-#define MESSAGE_TYPE_OFFSET 0
-#define MESSAGE_TYPE_LENGTH 1
+#define SCCP_MSG_TYPE_OFFSET 0
+#define SCCP_MSG_TYPE_LENGTH 1
 #define POINTER_LENGTH      1
 #define POINTER_LENGTH_LONG 2
 
-#define MESSAGE_TYPE_CR    0x01
-#define MESSAGE_TYPE_CC    0x02
-#define MESSAGE_TYPE_CREF  0x03
-#define MESSAGE_TYPE_RLSD  0x04
-#define MESSAGE_TYPE_RLC   0x05
-#define MESSAGE_TYPE_DT1   0x06
-#define MESSAGE_TYPE_DT2   0x07
-#define MESSAGE_TYPE_AK    0x08
-#define MESSAGE_TYPE_UDT   0x09
-#define MESSAGE_TYPE_UDTS  0x0a
-#define MESSAGE_TYPE_ED    0x0b
-#define MESSAGE_TYPE_EA    0x0c
-#define MESSAGE_TYPE_RSR   0x0d
-#define MESSAGE_TYPE_RSC   0x0e
-#define MESSAGE_TYPE_ERR   0x0f
-#define MESSAGE_TYPE_IT    0x10
-#define MESSAGE_TYPE_XUDT  0x11
-#define MESSAGE_TYPE_XUDTS 0x12
-/* The below 2 are ITU only */
-#define MESSAGE_TYPE_LUDT  0x13
-#define MESSAGE_TYPE_LUDTS 0x14
-
 /* Same as below but with names typed out */
 static const value_string sccp_message_type_values[] = {
-  { MESSAGE_TYPE_CR,     "Connection Request" },
-  { MESSAGE_TYPE_CC,     "Connection Confirm" },
-  { MESSAGE_TYPE_CREF,   "Connection Refused" },
-  { MESSAGE_TYPE_RLSD,   "Released" },
-  { MESSAGE_TYPE_RLC,    "Release Complete" },
-  { MESSAGE_TYPE_DT1,    "Data Form 1" },
-  { MESSAGE_TYPE_DT2,    "Data Form 2" },
-  { MESSAGE_TYPE_AK,     "Data Acknowledgement" },
-  { MESSAGE_TYPE_UDT,    "Unitdata" },
-  { MESSAGE_TYPE_UDTS,   "Unitdata Service" },
-  { MESSAGE_TYPE_ED,     "Expedited Data" },
-  { MESSAGE_TYPE_EA,     "Expedited Data Acknowledgement" },
-  { MESSAGE_TYPE_RSR,    "Reset Request" },
-  { MESSAGE_TYPE_RSC,    "Reset Confirmation" },
-  { MESSAGE_TYPE_ERR,    "Error" },
-  { MESSAGE_TYPE_IT,     "Inactivity Timer" },
-  { MESSAGE_TYPE_XUDT,   "Extended Unitdata" },
-  { MESSAGE_TYPE_XUDTS,  "Extended Unitdata Service" },
-  { MESSAGE_TYPE_LUDT,   "Long Unitdata (ITU)" },
-  { MESSAGE_TYPE_LUDTS,  "Long Unitdata Service (ITU)" },
+  { SCCP_MSG_TYPE_CR,     "Connection Request" },
+  { SCCP_MSG_TYPE_CC,     "Connection Confirm" },
+  { SCCP_MSG_TYPE_CREF,   "Connection Refused" },
+  { SCCP_MSG_TYPE_RLSD,   "Released" },
+  { SCCP_MSG_TYPE_RLC,    "Release Complete" },
+  { SCCP_MSG_TYPE_DT1,    "Data Form 1" },
+  { SCCP_MSG_TYPE_DT2,    "Data Form 2" },
+  { SCCP_MSG_TYPE_AK,     "Data Acknowledgement" },
+  { SCCP_MSG_TYPE_UDT,    "Unitdata" },
+  { SCCP_MSG_TYPE_UDTS,   "Unitdata Service" },
+  { SCCP_MSG_TYPE_ED,     "Expedited Data" },
+  { SCCP_MSG_TYPE_EA,     "Expedited Data Acknowledgement" },
+  { SCCP_MSG_TYPE_RSR,    "Reset Request" },
+  { SCCP_MSG_TYPE_RSC,    "Reset Confirmation" },
+  { SCCP_MSG_TYPE_ERR,    "Error" },
+  { SCCP_MSG_TYPE_IT,     "Inactivity Timer" },
+  { SCCP_MSG_TYPE_XUDT,   "Extended Unitdata" },
+  { SCCP_MSG_TYPE_XUDTS,  "Extended Unitdata Service" },
+  { SCCP_MSG_TYPE_LUDT,   "Long Unitdata (ITU)" },
+  { SCCP_MSG_TYPE_LUDTS,  "Long Unitdata Service (ITU)" },
   { 0,			 NULL } };
 
 /* Same as above but in acronym form (for the Info column) */
-static const value_string sccp_message_type_acro_values[] = {
-  { MESSAGE_TYPE_CR,     "CR" },
-  { MESSAGE_TYPE_CC,     "CC" },
-  { MESSAGE_TYPE_CREF,   "CREF" },
-  { MESSAGE_TYPE_RLSD,   "RLSD" },
-  { MESSAGE_TYPE_RLC,    "RLC" },
-  { MESSAGE_TYPE_DT1,    "DT1" },
-  { MESSAGE_TYPE_DT2,    "DT2" },
-  { MESSAGE_TYPE_AK,     "AK" },
-  { MESSAGE_TYPE_UDT,    "UDT" },
-  { MESSAGE_TYPE_UDTS,   "UDTS" },
-  { MESSAGE_TYPE_ED,     "ED" },
-  { MESSAGE_TYPE_EA,     "EA" },
-  { MESSAGE_TYPE_RSR,    "RSR" },
-  { MESSAGE_TYPE_RSC,    "RSC" },
-  { MESSAGE_TYPE_ERR,    "ERR" },
-  { MESSAGE_TYPE_IT,     "IT" },
-  { MESSAGE_TYPE_XUDT,   "XUDT" },
-  { MESSAGE_TYPE_XUDTS,  "XUDTS" },
-  { MESSAGE_TYPE_LUDT,   "LUDT" },
-  { MESSAGE_TYPE_LUDTS,  "LUDTS" },
+const value_string sccp_message_type_acro_values[] = {
+  { SCCP_MSG_TYPE_CR,     "CR" },
+  { SCCP_MSG_TYPE_CC,     "CC" },
+  { SCCP_MSG_TYPE_CREF,   "CREF" },
+  { SCCP_MSG_TYPE_RLSD,   "RLSD" },
+  { SCCP_MSG_TYPE_RLC,    "RLC" },
+  { SCCP_MSG_TYPE_DT1,    "DT1" },
+  { SCCP_MSG_TYPE_DT2,    "DT2" },
+  { SCCP_MSG_TYPE_AK,     "AK" },
+  { SCCP_MSG_TYPE_UDT,    "UDT" },
+  { SCCP_MSG_TYPE_UDTS,   "UDTS" },
+  { SCCP_MSG_TYPE_ED,     "ED" },
+  { SCCP_MSG_TYPE_EA,     "EA" },
+  { SCCP_MSG_TYPE_RSR,    "RSR" },
+  { SCCP_MSG_TYPE_RSC,    "RSC" },
+  { SCCP_MSG_TYPE_ERR,    "ERR" },
+  { SCCP_MSG_TYPE_IT,     "IT" },
+  { SCCP_MSG_TYPE_XUDT,   "XUDT" },
+  { SCCP_MSG_TYPE_XUDTS,  "XUDTS" },
+  { SCCP_MSG_TYPE_LUDT,   "LUDT" },
+  { SCCP_MSG_TYPE_LUDTS,  "LUDTS" },
   { 0,			 NULL } };
 
 #define PARAMETER_LENGTH_LENGTH 1
@@ -693,6 +672,9 @@ static gint ett_sccp_assoc = -1;
 /* Declarations to desegment XUDT Messages */
 static gboolean sccp_xudt_desegment = TRUE;
 
+static int sccp_tap = -1;
+
+
 static const fragment_items sccp_xudt_msg_frag_items = {
 	/* Fragment subtrees */
 	&ett_sccp_xudt_msg_fragment,
@@ -740,174 +722,147 @@ static dissector_table_t sccp_ssn_dissector_table;
 
 static emem_tree_t* assocs = NULL;
 static sccp_assoc_info_t* assoc;
-static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,SCCP_PLOAD_NONE,NULL,NULL};
+static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL};
 static gboolean trace_sccp = FALSE;
 static guint32 next_assoc_id = 0;
 
-static sccp_assoc_info_t* sccp_assoc(packet_info* pinfo, guint offset, guint src_lr, guint dst_lr) {
+static const value_string assoc_protos[] = {
+	{  SCCP_PLOAD_BSSAP, "BSSAP" },
+	{  SCCP_PLOAD_RANAP, "RANAP" },
+	{ 0 , NULL }
+};
+
+static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
+	sccp_assoc_info_t* a = se_alloc(sizeof(sccp_assoc_info_t));
+
+	a->id = next_assoc_id++;
+	a->calling_dpc = calling;
+	a->called_dpc = called;
+	a->calling_ssn = INVALID_SSN;
+	a->called_ssn = INVALID_SSN;
+	a->has_fw_key = FALSE;
+	a->has_bw_key = FALSE;
+	a->proto = SCCP_PLOAD_NONE;
+	a->calling_party = NULL;
+	a->called_party = NULL;
+	a->extra_info = NULL;
+	a->msgs = NULL;
+
+	return a;				
+}
+
+static sccp_assoc_info_t* sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr) {
     guint32 opck, dpck;
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
     guint framenum = pinfo->fd->num;
 	
     if (assoc)
-	return assoc;
-
+		return assoc;
+	
     if (!src_lr && !dst_lr){
-	return &no_assoc;
+		return &no_assoc;
     }
-
+	
     opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
     dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
-
+	
+	
     switch (message_type) {
-	case MESSAGE_TYPE_CR:
-	{
-	    /* Calling and called is seen from initiator of CR */
-	    emem_tree_key_t key[] = {
-		{1, NULL},
-		{1, NULL},
-		{1, NULL},
-		{0, NULL}
-	    };
+		case SCCP_MSG_TYPE_CR:
+		{
+			/* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
+			emem_tree_key_t bw_key[] = {
+				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+			};
 
-	    key[0].key = &dpck;
-	    key[1].key = &opck;
-	    key[2].key = &src_lr;
-
-	    if (! ( assoc = se_tree_lookup32_array(assocs,key) ) ) {
-		assoc = se_alloc(sizeof(sccp_assoc_info_t));
-		
-		assoc->id = next_assoc_id++;
-		assoc->calling_dpc = dpck;
-		assoc->called_dpc = opck;
-		assoc->calling_ssn = INVALID_SSN;
-		assoc->called_ssn = INVALID_SSN;
-		assoc->has_calling_key = FALSE;
-		assoc->has_called_key = TRUE;
-		assoc->pload = SCCP_PLOAD_NONE;
-		assoc->private_data = NULL;
-		assoc->msgs = NULL;
-		
-		se_tree_insert32_array(assocs,key,assoc);
-	    }
-	    break;
-	}
-	case MESSAGE_TYPE_CC:
-	{
-	    /* Calling and called is seen from initiator of CR */
-	    emem_tree_key_t called_key[] = {
-		{1, NULL},
-		{1, NULL},
-		{1, NULL},
-		{0, NULL}
-	    };
-	    emem_tree_key_t calling_key[] = {
-		{1, NULL},
-		{1, NULL},
-		{1, NULL},
-		{0, NULL}
-	    };
-
-	    called_key[0].key = &opck;
-	    called_key[1].key = &dpck;
-	    called_key[2].key = &dst_lr;
-
-	    calling_key[0].key = &dpck;
-	    calling_key[1].key = &opck;
-	    calling_key[2].key = &src_lr;
-
-	    if (( assoc = se_tree_lookup32_array(assocs,calling_key) )) {
-		if ( ! assoc->has_called_key ) {
-		    se_tree_insert32_array(assocs,called_key,assoc);
-		    assoc->has_called_key = TRUE;
+			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
+				assoc = new_assoc(opck,dpck);
+				se_tree_insert32_array(assocs,bw_key,assoc);
+				assoc->has_bw_key = TRUE;
+			}
+			break;
 		}
-	    } else if (( assoc = se_tree_lookup32_array(assocs,called_key) )) {
-		if ( ! assoc->has_calling_key ) {
-		    se_tree_insert32_array(assocs,calling_key,assoc);
-		    assoc->has_calling_key = TRUE;
+		case SCCP_MSG_TYPE_CC:
+		{
+			emem_tree_key_t fw_key[] = {
+				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+			};
+			emem_tree_key_t bw_key[] = {
+				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+			};
+
+			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
+				goto got_assoc;
+			} 
+			
+			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+				goto got_assoc;				
+			}
+			
+			assoc = new_assoc(opck,dpck);
+
+	 got_assoc:
+			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+
+				se_tree_insert32_array(assocs,bw_key,assoc);
+				assoc->has_bw_key = TRUE;
+			}
+			
+			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+				se_tree_insert32_array(assocs,fw_key,assoc);
+				assoc->has_fw_key = TRUE;
+			}
+
+			break;
 		}
-	    } else {
-		assoc = se_alloc(sizeof(sccp_assoc_info_t));
+		default:
+		{
+			emem_tree_key_t key[] = {
+				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+			};
+			
+			assoc = se_tree_lookup32_array(assocs,key);
 
-		assoc->id = next_assoc_id++;
-		assoc->calling_dpc = dpck;
-		assoc->called_dpc = opck;
-		assoc->calling_ssn = INVALID_SSN;
-		assoc->called_ssn = INVALID_SSN;
-		assoc->has_calling_key = TRUE;
-		assoc->has_called_key = TRUE;
-		assoc->pload = SCCP_PLOAD_NONE;
-		assoc->private_data = NULL;
-		assoc->msgs = NULL;
-		
-		se_tree_insert32_array(assocs,calling_key,assoc);
-		se_tree_insert32_array(assocs,called_key,assoc);
-	    }
-	    break;
-	}
-	default:
-	{
-	    emem_tree_key_t calling_key[] = {
-		{1, NULL},
-		{1, NULL},
-		{1, NULL},
-		{0, NULL}
-	    };
-
-	    calling_key[0].key = &opck;
-	    calling_key[1].key = &dpck;
-	    calling_key[2].key = &dst_lr;
-
-	    assoc = se_tree_lookup32_array(assocs,calling_key);
-	    /* Should a check be made on pinfo->p2p_dir ??? */
-	    if (!assoc){
-		emem_tree_key_t called_key[] = {
-		    {1, NULL},
-		    {1, NULL},
-		    {1, NULL},
-		    {0, NULL}
-		};
-
-		called_key[0].key = &dpck;
-		called_key[1].key = &opck;
-		called_key[2].key = &dst_lr;
-		assoc = se_tree_lookup32_array(assocs,called_key);
-	    }
-	    break;
-	}
+			break;
+		}
     }
-
-     if (assoc && trace_sccp) {
+	
+	if (assoc && trace_sccp) {
 	    if ( ! pinfo->fd->flags.visited) {
-		sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
-		msg->framenum = framenum;
-		msg->offset = offset;
-		msg->info = NULL;
-		msg->private_data = NULL;
-		msg->next = NULL;
-		    
-		if (assoc->msgs) {
-			sccp_msg_info_t* m;
-			for (m = assoc->msgs; m->next; m = m->next) ;
-			m->next = msg;
-		} else {
-			assoc->msgs = msg;
-		}
-		
-		assoc->cur_msg = msg;
+			sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
+			msg->framenum = framenum;
+			msg->offset = offset;
+			msg->next = NULL;
+			msg->assoc = assoc;
+			msg->label = NULL;
+			msg->comment = NULL;
+			msg->type = message_type;
+			
+			if (assoc->msgs) {
+				sccp_msg_info_t* m;
+				for (m = assoc->msgs; m->next; m = m->next) ;
+				m->next = msg;
+			} else {
+				assoc->msgs = msg;
+			}
+			
+			assoc->curr_msg = msg;
+			
 	    } else {
-		sccp_msg_info_t* m;
-		for (m = assoc->msgs; m; m = m->next) {
-			if (m->framenum == framenum && m->offset == offset) {
-				assoc->cur_msg = m;
-				break;
+			
+			sccp_msg_info_t* m;
+			
+			for (m = assoc->msgs; m; m = m->next) {
+				if (m->framenum == framenum && m->offset == offset) {
+					assoc->curr_msg = m;
+					break;
+				}
 			}
 		}
 	}
-   }
-    
-    return assoc ? assoc : &no_assoc;
+	
+	return assoc ? assoc : &no_assoc;
 }
 
 
@@ -1448,53 +1403,52 @@ dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 static void
 dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 ssn;
-    guint8 other_ssn;
-    void* save_priv_data  = pinfo->private_data;
+    guint8 ssn = INVALID_SSN;
+    guint8 other_ssn = INVALID_SSN;
 	
-    if (assoc) {
-	other_ssn = INVALID_SSN;
+	if (trace_sccp && assoc && assoc != &no_assoc) {
+		pinfo->sccp_info = assoc->curr_msg;
+	} else {
+		pinfo->sccp_info = NULL;
+	}
+	
+    if ( assoc ) {
+		other_ssn = INVALID_SSN;
 
-	switch (pinfo->p2p_dir) {
-	    case P2P_DIR_SENT:
-		ssn = assoc->calling_ssn;
-		break;
-	    case P2P_DIR_RECV:
-		ssn = assoc->called_ssn;
-		break;
-	    default:
+		switch (pinfo->p2p_dir) {
+			case P2P_DIR_SENT:
+				ssn = assoc->calling_ssn;
+				break;
+			case P2P_DIR_RECV:
+				ssn = assoc->called_ssn;
+				break;
+			default:
+				ssn = assoc->called_ssn;
+				other_ssn = assoc->calling_ssn;
+				break;
+		}
+		
+    } else {
 		ssn = assoc->called_ssn;
 		other_ssn = assoc->calling_ssn;
-		break;
-	}
-	pinfo->private_data = assoc;
-	
-    } else {
-	ssn = assoc->called_ssn;
-	other_ssn = assoc->calling_ssn;
-	pinfo->private_data = NULL;
     }
-
-    
     
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
-	goto done;
+		return;
     }
 
     if (other_ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, other_ssn, tvb, pinfo, tree)) {
-	goto done;
+		return;
     }
 
     /* try heuristic subdissector list to see if there are any takers */
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree)) {
-	goto done;
+		return;
     }
 
     /* No sub-dissection occured, treat it as raw data */
     call_dissector(data_handle, tvb, pinfo, tree);
 
-done:
-        pinfo->private_data = save_priv_data;
 }
 
 static void
@@ -1618,8 +1572,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     default:
-      if (!sccp_tree)
-	return(parameter_length);
+      if (!sccp_tree) return(parameter_length);
 
     }
 
@@ -1853,8 +1806,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
 
   /* Extract the message type;  all other processing is based on this */
-  message_type   = tvb_get_guint8(tvb, MESSAGE_TYPE_OFFSET);
-  offset = MESSAGE_TYPE_LENGTH;
+  message_type   = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
+  offset = SCCP_MSG_TYPE_LENGTH;
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -1863,7 +1816,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   if (sccp_tree) {
     /* add the message type to the protocol tree */
     proto_tree_add_uint(sccp_tree, hf_sccp_message_type, tvb,
-			MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type);
+			SCCP_MSG_TYPE_OFFSET, SCCP_MSG_TYPE_LENGTH, message_type);
 
   };
 
@@ -1871,17 +1824,20 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   dlr = 0;
   slr = 0;
   assoc = NULL;
+  
   no_assoc.calling_dpc = 0;
   no_assoc.called_dpc = 0;
   no_assoc.calling_ssn = INVALID_SSN;
   no_assoc.called_ssn = INVALID_SSN;
-  no_assoc.has_calling_key = FALSE;
-  no_assoc.has_called_key = FALSE;
-  no_assoc.pload = SCCP_PLOAD_NONE;
-  no_assoc.private_data = NULL;
+  no_assoc.has_fw_key = FALSE;
+  no_assoc.has_bw_key = FALSE;
+  no_assoc.proto = SCCP_PLOAD_NONE;
+  no_assoc.called_party = NULL;
+  no_assoc.calling_party = NULL;
+  no_assoc.extra_info = NULL;
 
   switch(message_type) {
-  case MESSAGE_TYPE_CR:
+  case SCCP_MSG_TYPE_CR:
   /*  TTC and NTT (Japan) say that the connection-oriented messages are
    *  deleted (not standardized), but they appear to be used anyway, so
    *  we'll dissect it...
@@ -1902,7 +1858,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer1);
     break;
 
-  case MESSAGE_TYPE_CC:
+  case SCCP_MSG_TYPE_CC:
     /*  TODO: connection has been established;  theoretically we could keep
      *  keep track of the SLR/DLR with the called/calling from the CR and
      *  track the connection (e.g., on subsequent messages regarding this
@@ -1925,7 +1881,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     OPTIONAL_POINTER(POINTER_LENGTH);
     break;
 
-  case MESSAGE_TYPE_CREF:
+  case SCCP_MSG_TYPE_CREF:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -1939,7 +1895,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     OPTIONAL_POINTER(POINTER_LENGTH);
     break;
 
-  case MESSAGE_TYPE_RLSD:
+  case SCCP_MSG_TYPE_RLSD:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -1958,7 +1914,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
-  case MESSAGE_TYPE_RLC:
+  case SCCP_MSG_TYPE_RLC:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -1971,7 +1927,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     break;
 
-  case MESSAGE_TYPE_DT1:
+  case SCCP_MSG_TYPE_DT1:
     source_local_ref = tvb_get_letoh24(tvb, offset);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
@@ -2028,7 +1984,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     /* End reassemble */
     break;
 
-  case MESSAGE_TYPE_DT2:
+  case SCCP_MSG_TYPE_DT2:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2041,7 +1997,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     SEQUENCING_SEGMENTING_LENGTH);
     break;
 
-  case MESSAGE_TYPE_AK:
+  case SCCP_MSG_TYPE_AK:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2056,7 +2012,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_CREDIT, offset, CREDIT_LENGTH);
     break;
 
-  case MESSAGE_TYPE_UDT:
+  case SCCP_MSG_TYPE_UDT:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2077,7 +2033,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer3);
     break;
 
-  case MESSAGE_TYPE_UDTS:
+  case SCCP_MSG_TYPE_UDTS:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
@@ -2100,7 +2056,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer3);
     break;
 
-  case MESSAGE_TYPE_ED:
+  case SCCP_MSG_TYPE_ED:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2114,7 +2070,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer1);
     break;
 
-  case MESSAGE_TYPE_EA:
+  case SCCP_MSG_TYPE_EA:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2123,7 +2079,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     break;
 
-  case MESSAGE_TYPE_RSR:
+  case SCCP_MSG_TYPE_RSR:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2137,7 +2093,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
-  case MESSAGE_TYPE_RSC:
+  case SCCP_MSG_TYPE_RSC:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2148,7 +2104,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
-  case MESSAGE_TYPE_ERR:
+  case SCCP_MSG_TYPE_ERR:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2159,7 +2115,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     assoc = sccp_assoc(pinfo, msg_offset,  slr, dlr);
     break;
 
-  case MESSAGE_TYPE_IT:
+  case SCCP_MSG_TYPE_IT:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_DESTINATION_LOCAL_REFERENCE,
 				     offset,
@@ -2178,7 +2134,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_CREDIT, offset, CREDIT_LENGTH);
     break;
 
-  case MESSAGE_TYPE_XUDT:
+  case SCCP_MSG_TYPE_XUDT:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2269,7 +2225,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     }
     break;
 
-  case MESSAGE_TYPE_XUDTS:
+  case SCCP_MSG_TYPE_XUDTS:
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
@@ -2294,7 +2250,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer3);
     break;
 
-  case MESSAGE_TYPE_LUDT:
+  case SCCP_MSG_TYPE_LUDT:
     if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
@@ -2323,7 +2279,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       dissect_sccp_unknown_message(tvb, sccp_tree);
     break;
 
-  case MESSAGE_TYPE_LUDTS:
+  case SCCP_MSG_TYPE_LUDTS:
     if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
@@ -2368,11 +2324,18 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		sccp_msg_info_t* m;
 		  for(m = assoc->msgs; m ; m = m->next) { 	
 			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
-			PROTO_ITEM_SET_GENERATED(pi);
-			if (m->info) proto_item_append_text(pi," %s", m->info);
+			
+			if (assoc->proto != SCCP_PLOAD_NONE) 
+				proto_item_append_text(pi," %s", val_to_str(assoc->proto, assoc_protos, "Unknown"));
+			
+			if (m->label)
+				proto_item_append_text(pi," %s", m->label);
+			
 			if (m->framenum == pinfo->fd->num && m->offset == msg_offset ) {
+				tap_queue_packet(sccp_tap, pinfo, m);
 				proto_item_append_text(pi," (current)");
 			}
+			PROTO_ITEM_SET_GENERATED(pi);
 		  }
 	  }
   }
@@ -2911,6 +2874,8 @@ proto_register_sccp(void)
   register_init_routine(&init_sccp);
 
   assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sccp_associations");
+
+  sccp_tap = register_tap("sccp");
 
 }
 

@@ -25,24 +25,47 @@
 #ifndef __PACKET_SCCP_H 
 #define __PACKET_SCCP_H
 
+#define SCCP_MSG_TYPE_CR    0x01
+#define SCCP_MSG_TYPE_CC    0x02
+#define SCCP_MSG_TYPE_CREF  0x03
+#define SCCP_MSG_TYPE_RLSD  0x04
+#define SCCP_MSG_TYPE_RLC   0x05
+#define SCCP_MSG_TYPE_DT1   0x06
+#define SCCP_MSG_TYPE_DT2   0x07
+#define SCCP_MSG_TYPE_AK    0x08
+#define SCCP_MSG_TYPE_UDT   0x09
+#define SCCP_MSG_TYPE_UDTS  0x0a
+#define SCCP_MSG_TYPE_ED    0x0b
+#define SCCP_MSG_TYPE_EA    0x0c
+#define SCCP_MSG_TYPE_RSR   0x0d
+#define SCCP_MSG_TYPE_RSC   0x0e
+#define SCCP_MSG_TYPE_ERR   0x0f
+#define SCCP_MSG_TYPE_IT    0x10
+#define SCCP_MSG_TYPE_XUDT  0x11
+#define SCCP_MSG_TYPE_XUDTS 0x12
+
+/* The below 2 are ITU only */
+#define SCCP_MSG_TYPE_LUDT  0x13
+#define SCCP_MSG_TYPE_LUDTS 0x14
+
+WS_VAR_IMPORT const value_string sccp_message_type_acro_values[];
+
 typedef enum _sccp_payload_t {
     SCCP_PLOAD_NONE,
     SCCP_PLOAD_BSSAP,
     SCCP_PLOAD_RANAP,
-    SCCP_PLOAD_TCAP,
-    SCCP_PLOAD_CAMEL
+    SCCP_PLOAD_NUM_PLOADS
 } sccp_payload_t;
-
-/* obscure to SCCP, to be defined by users */
-typedef struct _sccp_msg_payload_data_t sccp_msg_payload_data_t;
-typedef struct _sccp_assoc_data_t sccp_assoc_data_t;
 
 typedef struct _sccp_msg_info_t {
 	guint framenum;
 	guint offset;
-	gchar* info;
-        sccp_msg_payload_data_t* private_data;
+	guint type;
+	struct _sccp_assoc_info_t* assoc;
 	struct _sccp_msg_info_t* next;
+	
+	gchar* label;
+	gchar* comment;
 } sccp_msg_info_t;
 
 typedef struct _sccp_assoc_info_t {
@@ -51,12 +74,16 @@ typedef struct _sccp_assoc_info_t {
     guint32 called_dpc;
     guint8 calling_ssn;
     guint8 called_ssn;
-    gboolean has_calling_key;
-    gboolean has_called_key;
+    gboolean has_fw_key;
+    gboolean has_bw_key;
     sccp_msg_info_t* msgs;
-    sccp_payload_t pload;
-    sccp_assoc_data_t* private_data;
-    sccp_msg_info_t* cur_msg;	
+    sccp_msg_info_t* curr_msg;
+	
+    sccp_payload_t proto;
+    gchar* calling_party;
+    gchar* called_party;
+    gchar* extra_info;
+
 } sccp_assoc_info_t;
 
 #endif

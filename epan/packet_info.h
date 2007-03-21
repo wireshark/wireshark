@@ -179,6 +179,7 @@ typedef struct _packet_info {
 
   const char *dcerpc_procedure_name;	/* Used by PIDL to store the name of the current dcerpc procedure */
 
+  struct _sccp_msg_info_t* sccp_info;
 } packet_info;
 
 #endif /* __PACKET_INFO_H__ */
