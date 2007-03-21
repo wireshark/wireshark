@@ -71,7 +71,7 @@ static const value_string status_vals[] = {
 
 
 static void
-dissect_usb_ms_reset(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
+dissect_usb_ms_reset(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
     if(is_request){
         proto_tree_add_item(tree, hf_usb_ms_value, tvb, offset, 2, FALSE);
@@ -88,7 +88,7 @@ dissect_usb_ms_reset(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 }
 
 static void
-dissect_usb_ms_get_max_lun(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
+dissect_usb_ms_get_max_lun(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
     if(is_request){
         proto_tree_add_item(tree, hf_usb_ms_value, tvb, offset, 2, FALSE);
