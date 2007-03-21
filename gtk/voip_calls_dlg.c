@@ -209,6 +209,7 @@ static void voip_calls_remove_tap_listener(void)
 	remove_tap_listener_h245dg_calls();
 	remove_tap_listener_q931_calls();
 	remove_tap_listener_h248_calls();
+	remove_tap_listener_sccp_calls();
 	remove_tap_listener_sdp_calls();
 	remove_tap_listener_rtp();
 	remove_tap_listener_rtp_event();
@@ -363,6 +364,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), ep_strdup_printf("h248.ctx == 0x%x", ctx->id ));
 				break;
 			}
+			case TEL_SCCP:
 			case VOIP_MGCP:
 			case VOIP_AC_ISDN:
 			case VOIP_AC_CAS:
@@ -829,6 +831,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 	h245dg_calls_init_tap();
 	q931_calls_init_tap();
 	h248_calls_init_tap();
+	sccp_calls_init_tap();
 	sdp_calls_init_tap();
 	rtp_init_tap();
 	rtp_event_init_tap();

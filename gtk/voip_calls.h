@@ -44,6 +44,7 @@
 /****************************************************************************/
 /* defines voip call state */
 typedef enum _voip_call_state {
+		VOIP_NO_STATE,
         VOIP_CALL_SETUP,
         VOIP_RINGING,
         VOIP_IN_CALL,
@@ -53,7 +54,7 @@ typedef enum _voip_call_state {
         VOIP_UNKNOWN
 } voip_call_state;
 
-extern const char *voip_call_state_name[7];
+extern const char *voip_call_state_name[8];
 
 typedef enum _voip_call_active_state {
         VOIP_ACTIVE,
@@ -69,6 +70,9 @@ typedef enum _voip_protocol {
 		VOIP_AC_CAS,
 		MEDIA_T38,
 		TEL_H248,
+		TEL_SCCP,
+		TEL_BSSMAP,
+		TEL_RANAP
 } voip_protocol;
 
 extern const char *voip_protocol_name[];
@@ -181,6 +185,7 @@ typedef struct _voip_calls_tapinfo {
 	int actrace_dummy;
 	int t38_dummy;
 	int h248_dummy;
+	int sccp_dummy;
 } voip_calls_tapinfo_t;
 
 
@@ -238,6 +243,7 @@ void mgcp_calls_init_tap(void);
 void actrace_calls_init_tap(void);
 void t38_init_tap(void);
 void h248_calls_init_tap(void);
+void sccp_calls_init_tap(void);
 
 /*
 * Removes the voip_calls tap listener (if not already done)
@@ -256,6 +262,7 @@ void remove_tap_listener_mgcp_calls(void);
 void remove_tap_listener_actrace_calls(void);
 void remove_tap_listener_t38(void);
 void remove_tap_listener_h248_calls(void);
+void remove_tap_listener_sccp_calls(void);
 
 /*
 * Retrieves a constant reference to the unique info structure of the voip_calls tap listener.
