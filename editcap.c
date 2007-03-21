@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
       	    optarg);
       	exit(1);
       }
-      srand(time(NULL) + getpid());
+      srand( (unsigned int) (time(NULL) + getpid()) );
       break;
 
     case 'F':

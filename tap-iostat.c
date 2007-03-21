@@ -76,7 +76,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 	GPtrArray *gp;
 	guint i;
 
-	current_time=((pinfo->fd->rel_ts.secs*1000)+(pinfo->fd->rel_ts.nsecs/1000000));
+	current_time=(gint32) ((pinfo->fd->rel_ts.secs*1000)+(pinfo->fd->rel_ts.nsecs/1000000));
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=mit->prev;
@@ -171,7 +171,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=new_time->secs*1000+new_time->nsecs/1000000;
+					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val<it->counter){
@@ -216,7 +216,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=new_time->secs*1000+new_time->nsecs/1000000;
+					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
 					if((it->frames==1)&&(i==0)){
 						it->counter=val;
 					} else if(val>it->counter){
@@ -254,7 +254,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val=new_time->secs*1000+new_time->nsecs/1000000;
+					val=(guint32) (new_time->secs*1000+new_time->nsecs/1000000);
 					it->counter+=val;
 					break;
 				}

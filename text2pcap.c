@@ -1276,7 +1276,7 @@ parse_options (int argc, char *argv[])
         output_filename = "Standard output";
     }
 
-    ts_sec = time(0);		/* initialize to current time */
+    ts_sec = (gint32) time(0);		/* initialize to current time */
 
     /* Display summary of our state */
     if (!quiet) {
