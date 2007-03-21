@@ -332,7 +332,7 @@ static t38_conv_info *p_t38_packet_conv_info = NULL;
 
 void proto_reg_handoff_t38(void);
 
-static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, conversation_t *p_conv, t38_conv *p_t38_conv);
+static void show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conv);
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_t38_show_setup_info = TRUE;
 
@@ -431,14 +431,6 @@ void t38_add_address(packet_info *pinfo,
 		p_conv_data->dst_t38_info.time_first_t4_data = 0;
 }
 
-
-/* T30 Routines */
-
-static int
-dissect_t30_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tree *tree _U_)
-{
-	return offset;
-}
 
 static const value_string t30_control_vals[] = {
 	{ 0xC0, "non-final frames within the procedure" },
@@ -1511,8 +1503,8 @@ static const value_string Data_Field_field_type_vals[] = {
 };
 
 fragment_data *
-force_reassmeble_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
-	     GHashTable *fragment_table, guint32 frag_number)
+force_reassemble_seq(packet_info *pinfo, guint32 id,
+	     GHashTable *fragment_table)
 {
 	fragment_key key;
 	fragment_data *fd_head;
@@ -1659,10 +1651,10 @@ dissect_t38_Data_Field_field_type(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, p
 					 * and get some stat, like packet lost and burst number of packet lost
 					*/
 					if (!frag_msg) {
-						force_reassmeble_seq(tvb, offset, actx->pinfo,
+						force_reassemble_seq(actx->pinfo,
 							p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
-							data_fragment_table, /* list of message fragments */
-							seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum);  /* fragment sequence number */
+							data_fragment_table /* list of message fragments */
+						);
 					} else {
 						if (check_col(actx->pinfo->cinfo, COL_INFO))
 							col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");	
@@ -1857,7 +1849,7 @@ dissect_t38_Seq_number(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *
 }
 
 static int
-dissect_t38_Primary_ifp_packet(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
+dissect_t38_Primary_ifp_packet(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     guint32 length;
 
@@ -1877,7 +1869,7 @@ dissect_t38_Primary_ifp_packet(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, prot
 }
 
 static int
-dissect_t38_Secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
+dissect_t38_Secondary_ifp_packets_item(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     guint32 length;
 
@@ -2144,7 +2136,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Show Conversation setup info if exists*/
 	if (global_t38_show_setup_info) {
-		show_setup_info(tvb, pinfo, tr, p_conv, p_t38_packet_conv);
+		show_setup_info(tvb, tr, p_t38_packet_conv);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -2197,7 +2189,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Show Conversation setup info if exists*/
 	if (global_t38_show_setup_info) {
-		show_setup_info(tvb, pinfo, tr, p_conv, p_t38_packet_conv);
+		show_setup_info(tvb, tr, p_t38_packet_conv);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -2265,7 +2257,8 @@ dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Look for conversation info and display any setup info found */
-void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, conversation_t *p_conv, t38_conv *p_t38_conv)
+void 
+show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conv)
 {
 	proto_tree *t38_setup_tree;
 	proto_item *ti;
