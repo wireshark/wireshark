@@ -246,7 +246,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	if(time_delta.secs<0){
 		return FALSE;
 	}
-	idx=(time_delta.secs*1000+time_delta.nsecs/1000000)/git->io->interval;
+	idx=(int) ((time_delta.secs*1000+time_delta.nsecs/1000000)/git->io->interval);
 
 	/* some sanity checks */
 	if((idx<0)||(idx>=NUM_IO_ITEMS)){
@@ -318,11 +318,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 				new_time=fvalue_get(&((field_info *)gp->pdata[0])->value);
 
 				switch(git->calc_type){
-#ifdef G_HAVE_UINT64
 					guint64 t, pt; /* time in us */
-#else
-					guint32 t, pt;
-#endif
 					int i;
 				case CALC_TYPE_LOAD:
 					/* it is a LOAD calculation of a relative time field. 
@@ -340,7 +336,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 						pt=t;
 					}
 					while(t){
-						git->items[i].time_tot.nsecs+=pt*1000;
+						git->items[i].time_tot.nsecs+=(int) (pt*1000);
 						if(git->items[i].time_tot.nsecs>1000000000){
 							git->items[i].time_tot.secs++;
 							git->items[i].time_tot.nsecs-=1000000000;
@@ -453,30 +449,27 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 			value=it->frames;
 			break;
 		case CALC_TYPE_MAX:
-			value=it->time_max.secs*1000000+it->time_max.nsecs/1000;
+			value=(guint32) (it->time_max.secs*1000000+it->time_max.nsecs/1000);
 			break;
 		case CALC_TYPE_MIN:
-			value=it->time_min.secs*1000000+it->time_min.nsecs/1000;
+			value=(guint32) (it->time_min.secs*1000000+it->time_min.nsecs/1000);
 			break;
 		case CALC_TYPE_SUM:
-			value=it->time_tot.secs*1000000+it->time_tot.nsecs/1000;
+			value=(guint32) (it->time_tot.secs*1000000+it->time_tot.nsecs/1000);
 			break;
 		case CALC_TYPE_AVG:
 			if(it->frames){
-#ifdef G_HAVE_UINT64
 				guint64 t; /* time in us */
-#else
-				guint32 t;
-#endif
+
 				t=it->time_tot.secs;
 				t=t*1000000+it->time_tot.nsecs/1000;
-				value=t/it->frames;
+				value=(guint32) (t/it->frames);
 			} else {
 				value=0;
 			}
 			break;
 		case CALC_TYPE_LOAD:
-			value=(it->time_tot.secs*1000000+it->time_tot.nsecs/1000)/io->interval;
+			value=(guint32) ((it->time_tot.secs*1000000+it->time_tot.nsecs/1000)/io->interval);
 			break;
 		default:
 			break;

@@ -704,7 +704,7 @@ packet_list_thaw(void)
 void
 packet_list_select_row(gint row)
 {
-    SIGNAL_EMIT_BY_NAME(packet_list, "select_row", row);
+    SIGNAL_EMIT_BY_NAME(SIGNAL_EMIT_OBJECT(packet_list), "select_row", row);
 }
 
 static void
@@ -713,7 +713,7 @@ packet_list_next_prev(gboolean next)
 #if GTK_MAJOR_VERSION >= 2
     GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
 #endif
-    SIGNAL_EMIT_BY_NAME(packet_list, "scroll_vertical",
+    SIGNAL_EMIT_BY_NAME(SIGNAL_EMIT_OBJECT(packet_list), "scroll_vertical",
         next ? GTK_SCROLL_STEP_FORWARD : GTK_SCROLL_STEP_BACKWARD, 0.0);
 #if GTK_MAJOR_VERSION >= 2
     /* Set the focus back where it was */

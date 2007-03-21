@@ -230,9 +230,9 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 		if (!strinfo) {
 			tmp_strinfo.npackets = 0;
 			tmp_strinfo.first_frame_num = pinfo->fd->num;
-			tmp_strinfo.start_sec = pinfo->fd->abs_ts.secs;
+			tmp_strinfo.start_sec = (guint32) pinfo->fd->abs_ts.secs;
 			tmp_strinfo.start_usec = pinfo->fd->abs_ts.nsecs/1000;
-			tmp_strinfo.start_rel_sec = pinfo->fd->rel_ts.secs;
+			tmp_strinfo.start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 			tmp_strinfo.start_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 			tmp_strinfo.tag_vlan_error = 0;
 			tmp_strinfo.tag_diffserv_error = 0;
@@ -284,7 +284,7 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 
 		/* increment the packets counter for this stream */
 		++(strinfo->npackets);
-		strinfo->stop_rel_sec = pinfo->fd->rel_ts.secs;
+		strinfo->stop_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 		strinfo->stop_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 
 		/* increment the packets counter of all streams */
@@ -298,7 +298,7 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 			   FALSE, so that we don't *have* all the data? */
 			sample.header.rec_time = 
 				(pinfo->fd->abs_ts.nsecs/1000 + 1000000 - tapinfo->filter_stream_fwd->start_usec)/1000
-				+ (pinfo->fd->abs_ts.secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
+				+ (guint32) (pinfo->fd->abs_ts.secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
 			sample.header.frame_length = rtpinfo->info_data_len;
 			sample.frame = rtpinfo->info_data;
 			rtp_write_sample(&sample, tapinfo->save_file);

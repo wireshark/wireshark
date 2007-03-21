@@ -1011,7 +1011,7 @@ static int paCallback(   void *inputBuffer, void *outputBuffer,
                              PaTimestamp outTime, void *userData)
 {
 #else /* PORTAUDIO_API_1 */
-static int paCallback( void *inputBuffer, void *outputBuffer,
+static int paCallback( const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
 							 const PaStreamCallbackTimeInfo* outTime,
 							 PaStreamCallbackFlags statusFlags,

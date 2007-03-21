@@ -111,6 +111,7 @@ gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
  *  handlers to be run.
  */
 #define SIGNAL_EMIT_BY_NAME gtk_signal_emit_by_name
+#define SIGNAL_EMIT_OBJECT(object) GTK_OBJECT(object)
 
 /** This function aborts a signal's current emission. It will prevent the
  *  default method from running, if the signal was GTK_RUN_LAST and you
@@ -304,6 +305,7 @@ g_object_get_data(G_OBJECT(widget), key)
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
 #define SIGNAL_EMIT_BY_NAME g_signal_emit_by_name
+#define SIGNAL_EMIT_OBJECT(object) G_OBJECT(object)
 
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
 g_signal_stop_emission_by_name(G_OBJECT(widget), name)

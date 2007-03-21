@@ -187,9 +187,9 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 		tmp_strinfo.npackets = 0;
 		tmp_strinfo.apackets = 0;
 		tmp_strinfo.first_frame_num = pinfo->fd->num;
-		tmp_strinfo.start_sec = pinfo->fd->abs_ts.secs;
+		tmp_strinfo.start_sec = (guint32) pinfo->fd->abs_ts.secs;
 		tmp_strinfo.start_usec = pinfo->fd->abs_ts.nsecs/1000;
-		tmp_strinfo.start_rel_sec = pinfo->fd->rel_ts.secs;
+		tmp_strinfo.start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 		tmp_strinfo.start_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 		tmp_strinfo.vlan_id = 0;
 
@@ -222,7 +222,7 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 			tapinfo->allstreams = g_malloc(sizeof(mcast_stream_info_t));
 			tapinfo->allstreams->element.buff = 
 					(struct timeval *)g_malloc(buffsize * sizeof(struct timeval));
-			tapinfo->allstreams->start_rel_sec = pinfo->fd->rel_ts.secs;
+			tapinfo->allstreams->start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 			tapinfo->allstreams->start_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 			tapinfo->allstreams->total_bytes = 0;
 			tapinfo->allstreams->element.first=0;
@@ -241,7 +241,7 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 	}
 
 	/* time between first and last packet in the group */
-	strinfo->stop_rel_sec = pinfo->fd->rel_ts.secs;
+	strinfo->stop_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 	strinfo->stop_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 	deltatime = ((float)((strinfo->stop_rel_sec * 1000000 + strinfo->stop_rel_usec)
 					- (strinfo->start_rel_sec*1000000 + strinfo->start_rel_usec)))/1000000;
@@ -253,10 +253,10 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 
 	/* increment the packets counter for this stream and calculate average pps */
 	++(strinfo->npackets);
-	strinfo->apackets = strinfo->npackets / deltatime;
+	strinfo->apackets = (guint32) (strinfo->npackets / deltatime);
 
 	/* time between first and last packet in any group */
-	tapinfo->allstreams->stop_rel_sec = pinfo->fd->rel_ts.secs;
+	tapinfo->allstreams->stop_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 	tapinfo->allstreams->stop_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
 	deltatime = ((float)((tapinfo->allstreams->stop_rel_sec * 1000000 + tapinfo->allstreams->stop_rel_usec)
 		- (tapinfo->allstreams->start_rel_sec*1000000 + tapinfo->allstreams->start_rel_usec)))/1000000;
@@ -386,7 +386,7 @@ void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double empt
     strinfo->element.buffusage+=pinfo->fd->pkt_len;
 
     /* bytes cleared from buffer */
-    strinfo->element.buffusage-=(timeelapsed * emptyspeed / 8);
+    strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed / 8);
 
     if(strinfo->element.buffusage < 0) strinfo->element.buffusage=0;
     if(strinfo->element.buffusage > strinfo->element.topbuffusage) 
@@ -421,7 +421,7 @@ void slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
     }
 
     /* burst count */
-    buffer[strinfo->element.last].tv_sec = pinfo->fd->rel_ts.secs;
+    buffer[strinfo->element.last].tv_sec = (guint32) pinfo->fd->rel_ts.secs;
     buffer[strinfo->element.last].tv_usec = pinfo->fd->rel_ts.nsecs/1000;
     while(comparetimes((struct timeval *)&(buffer[strinfo->element.first]), 
 						(struct timeval *)&(buffer[strinfo->element.last]), burstint)){

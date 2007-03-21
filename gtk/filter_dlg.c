@@ -775,7 +775,7 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
                     /*
                      * Yes - do so.
                      */
-                    SIGNAL_EMIT_BY_NAME(parent_filter_te, "activate", NULL);
+                    SIGNAL_EMIT_BY_NAME(SIGNAL_EMIT_OBJECT(parent_filter_te), "activate", NULL);
                 }
             }
         }
@@ -867,7 +867,7 @@ filter_apply(GtkWidget *main_w, gboolean destroy)
 		 * to destroy it.
 		 */
 		if (construct_args->activate_on_ok) {
-			SIGNAL_EMIT_BY_NAME(parent_filter_te, "activate", NULL);
+			SIGNAL_EMIT_BY_NAME(SIGNAL_EMIT_OBJECT(parent_filter_te), "activate", NULL);
 		}
 	}
 }
