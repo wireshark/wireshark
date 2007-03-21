@@ -29,7 +29,7 @@
 typedef struct {
   time_t start_time;
   time_t secs;
-  time_t usecs;
+  int usecs;
   guint32 caplen;
   guint32 len;
 } ascend_pkthdr;

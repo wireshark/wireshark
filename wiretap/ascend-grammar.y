@@ -360,7 +360,7 @@ wdd_date: WDD_DATE decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD str
   wddt.tm_year = ($4 > 1970) ? $4 - 1900 : 70;
   wddt.tm_isdst = -1;
   
-  start_time = mktime(&wddt);
+  start_time = (guint32) mktime(&wddt);
 }
 ;
 

@@ -490,7 +490,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     if (visual->index_table_index == 0)
     {
         /* This is the first packet.  Save its start time as the file time. */
-        visual->start_time = phdr->ts.secs;
+        visual->start_time = (guint32) phdr->ts.secs;
 
         /* Initialize the index table */
         visual->index_table = g_malloc(1024 * sizeof *visual->index_table);
@@ -499,7 +499,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Calculate milliseconds since capture start. */
     delta_msec = phdr->ts.nsecs / 1000000;
-    delta_msec += (phdr->ts.secs - visual->start_time) * 1000;
+    delta_msec += ( (guint32) phdr->ts.secs - visual->start_time) * 1000;
     vpkt_hdr.ts_delta = htolel(delta_msec);
 
     /* Fill in the length fields. */

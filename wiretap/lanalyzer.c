@@ -576,7 +576,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       if (*err)
             return FALSE;
 
-	  tv.tv_sec  = phdr->ts.secs;
+	  tv.tv_sec  = (long int) phdr->ts.secs;
 	  tv.tv_usec = phdr->ts.nsecs / 1000;
 
       if (!itmp->init) {
@@ -714,7 +714,7 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err)
 static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
 {
       LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->dump.opaque);
-      struct tm  *fT     = localtime(&(itmp->start.tv_sec));
+      struct tm  *fT     = localtime( (time_t *) &(itmp->start.tv_sec));
       guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
                               ? BOARD_325TR     /* LANalyzer Board Type */
                               : BOARD_325;      /* LANalyzer Board Type */

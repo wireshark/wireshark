@@ -2297,7 +2297,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 	}
 
-	rec_hdr.hdr.ts_sec = phdr->ts.secs;
+	rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
 	if(wdh->tsprecision == WTAP_FILE_TSPREC_NSEC) {
 		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;
 	} else {

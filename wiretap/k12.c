@@ -208,7 +208,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	guint8* writep;
 	
 	/* where the next unknown 0x10 bytes are stuffed to the file */
-	gint64 junky_offset = 0x2000 - ( (file_offset - 0x200) % 0x2000 );
+	gint junky_offset = 0x2000 - (gint) ( (file_offset - 0x200) % 0x2000 );
 	
 	K12_DBG(6,("get_record: ENTER: junky_offset=%lld, file_offset=%lld",junky_offset,file_offset));
 
