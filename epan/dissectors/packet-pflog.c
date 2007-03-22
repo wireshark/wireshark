@@ -78,48 +78,6 @@ static int hf_old_pflog_dir = -1;
 
 static gint ett_old_pflog = -1;
 
-static void
-capture_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
-{
-  const struct pfloghdr *pflogh;
-  unsigned int hdrlen;
-
-  pflogh = (const struct pfloghdr *)pd;
-
-  if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint8))) {
-    ld->other++;
-    return;
-  }
-
-  if (pflogh->length < MIN_PFLOG_HDRLEN) {
-    ld->other++;
-    return;
-  }
-  hdrlen = BPF_WORDALIGN(pflogh->length);
-  if (!BYTES_ARE_IN_FRAME(offset, hdrlen, sizeof(guint8))) {
-    ld->other++;
-    return;
-  }
-  offset += hdrlen;
-
-  switch (pflogh->af) {
-
-  case BSD_PF_INET:
-    capture_ip(pd, offset, len, ld);
-    break;
-
-#ifdef notyet
-  case BSD_PF_INET6:
-    capture_ipv6(pd, offset, len, ld);
-    break;
-#endif
-
-  default:
-    ld->other++;
-    break;
-  }
-}
-
 static const value_string af_vals[] = {
   { BSD_PF_INET,  "IPv4" },
   { BSD_PF_INET6, "IPv6" },
@@ -314,41 +272,6 @@ proto_reg_handoff_pflog(void)
 
   pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
   dissector_add("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
-}
-
-
-static void
-capture_old_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
-{
-  struct old_pfloghdr pflogh;
-
-  if (!BYTES_ARE_IN_FRAME(offset, len, (int)OLD_PFLOG_HDRLEN)) {
-    ld->other++;
-    return;
-  }
-
-  offset += OLD_PFLOG_HDRLEN;
-
-  /* Copy out the pflog header to insure alignment */
-  memcpy(&pflogh, pd, sizeof(pflogh));
-  pflogh.af = g_ntohl(pflogh.af);
-
-  switch (pflogh.af) {
-
-  case BSD_PF_INET:
-    capture_ip(pd, offset, len, ld);
-    break;
-
-#ifdef notyet
-  case BSD_PF_INET6:
-    capture_ipv6(pd, offset, len, ld);
-    break;
-#endif
-
-  default:
-    ld->other++;
-    break;
-  }
 }
 
 static void

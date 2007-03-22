@@ -1225,6 +1225,10 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	header.src_ip = tvb_get_ipv4(tvb, offset+4);
 	header.src_port = tvb_get_ntohs(tvb, offset+8);
 
+	/* avoid gcc warnings */
+	header.dgm_length = 0;
+	header.pkt_offset = 0;
+	header.error_code = 0;
 	switch (header.msg_type) {
 
 	case NBDS_DIRECT_UNIQUE:

@@ -174,7 +174,9 @@ static void dissect_payload_kink_isakmp(packet_info *pinfo, tvbuff_t *tvb, int o
 static void dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 static void dissect_payload_kink_not_defined(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
+#ifdef HAVE_KERBEROS
 static void dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int payload_length);
+#endif
  
 /* This function is dissecting the kink header. */
 static void 
@@ -777,6 +779,7 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   }
 }
 
+#ifdef HAVE_KERBEROS
 static void
 dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int payload_length){
   
@@ -800,6 +803,7 @@ dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
   control_payload(pinfo, tvb, offset, next_payload, decrypt_kink_encrypt_tree);
 }
+#endif
 
 static void
 dissect_payload_kink_error(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree){

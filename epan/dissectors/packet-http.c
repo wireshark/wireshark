@@ -629,6 +629,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.content_type = NULL;	/* content type not known yet */
 	headers.content_type_parameters = NULL;	/* content type parameters too */
 	headers.have_content_length = FALSE;	/* content length not known yet */
+	headers.content_length = 0;		/* content length set to 0 (avoid a gcc warning) */
 	headers.content_encoding = NULL; /* content encoding not known yet */
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
