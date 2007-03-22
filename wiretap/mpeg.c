@@ -258,7 +258,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 
 	now.secs = time(NULL);
 	now.nsecs = 0;
-	t0 = now.secs;
+	t0 = (double) now.secs;
 
 	if (mpeg_read_header(wth, err, err_info, &n) == -1)
 		return -1;
