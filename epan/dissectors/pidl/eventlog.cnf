@@ -129,7 +129,7 @@ eventlog_get_unicode_string_length(tvbuff_t *tvb, int offset)
 }
 
 static int
-eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
 {
 	char *str;
 	int len;
@@ -143,7 +143,7 @@ eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_in
 }
 
 static int
-eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
 {
 	char *str;
 	int len;
@@ -179,7 +179,7 @@ eventlog_dissect_element_Record_stringoffset(tvbuff_t *tvb, int offset, packet_i
 }
 
 static int
-eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_)
 {
 	while(string_offset && num_of_strings){
 		char *str;
