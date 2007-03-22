@@ -122,7 +122,7 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 #PANGO_INST_VERSION=1.14
 # GTK 2.10 is the mainline since Wireshark 0.99.5
 GTK2_INST_VERSION=2.10
-PANGO_INST_VERSION=1.14
+PANGO_INST_VERSION=1.16
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
