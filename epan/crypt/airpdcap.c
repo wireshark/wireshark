@@ -208,11 +208,6 @@ static INT AirPDcapGetSa(
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
         ;
 
-static INT AirPDcapFreeSa(
-        PAIRPDCAP_CONTEXT ctx,
-        INT index)	/* index of the structure to free		*/
-        ;
-
 static INT AirPDcapStoreSa(
         PAIRPDCAP_CONTEXT ctx,
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
@@ -1149,29 +1144,6 @@ AirPDcapGetSa(
         }
 
         return -1;
-}
-
-static INT
-AirPDcapFreeSa(
-        PAIRPDCAP_CONTEXT ctx,
-        INT index)								/* index of the structure to free		*/
-{
-        /* set the structure as free (the reset will be done in AIRPDCAP_store_sta_info)	*/
-        ctx->sa[index].used=0;
-
-        /* set the first_free_index to avoid free blocks in the middle	*/
-        if (index<ctx->first_free_index)
-                ctx->first_free_index=index;
-
-        /* decrement the last_stored_index if this was the last stored block	*/
-        if (index==ctx->last_stored_index)
-                ctx->last_stored_index--;
-
-        /* if the list is empty, set the index	*/
-        if (ctx->last_stored_index==-1)
-                ctx->index=-1;
-
-        return ctx->index;
 }
 
 static INT

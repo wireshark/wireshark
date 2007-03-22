@@ -25,6 +25,10 @@ INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 noinst_LTLIBRARIES = libairpdcap.la
 
 CLEANFILES = \

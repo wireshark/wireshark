@@ -21,6 +21,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 INCLUDES = -I$(top_srcdir) @LUA_INCLUDES@
 
 noinst_LTLIBRARIES = libwslua.la
