@@ -371,7 +371,10 @@ static const struct encap_type_info {
 	{ "IEEE 802.16 MAC Common Part Sublayer", "ieee-802-16-mac-cps" },
 
 	/* WTAP_ENCAP_NETTL_RAW_TELNET */
-	{ "Raw telnet with nettl headers", "raw-telnet-nettl" }
+	{ "Raw telnet with nettl headers", "raw-telnet-nettl" },
+
+	/* WTAP_ENCAP_MPEG */
+	{ "MPEG", "mpeg" },
 };
 
 /* Name that should be somewhat descriptive. */

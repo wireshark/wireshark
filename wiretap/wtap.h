@@ -190,9 +190,10 @@ extern "C" {
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS		93
 #define WTAP_ENCAP_NETTL_RAW_TELNET		94
 #define WTAP_ENCAP_USB_LINUX                    95
+#define WTAP_ENCAP_MPEG                         96
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			96
+#define WTAP_NUM_ENCAP_TYPES			97
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -243,8 +244,9 @@ extern "C" {
 #define WTAP_FILE_ETHERPEEK_V56			43
 #define WTAP_FILE_ETHERPEEK_V7			44
 #define WTAP_FILE_AIROPEEK_V9			45
+#define WTAP_FILE_MPEG				46
 
-#define WTAP_NUM_FILE_TYPES			46
+#define WTAP_NUM_FILE_TYPES			47
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0

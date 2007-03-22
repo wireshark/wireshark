@@ -51,6 +51,8 @@ NONGENERATED_C_FILES = \
 	k12.c			\
 	lanalyzer.c		\
 	libpcap.c		\
+	mpeg.c			\
+	mpeg-audio.c		\
 	netmon.c		\
 	nettl.c			\
 	network_instruments.c	\
@@ -90,6 +92,8 @@ NONGENERATED_HEADER_FILES = \
 	k12.h			\
 	lanalyzer.h		\
 	libpcap.h		\
+	mpeg.h			\
+	mpeg-audio.h		\
 	netmon.h		\
 	nettl.h			\
 	network_instruments.h	\

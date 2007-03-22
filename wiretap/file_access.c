@@ -72,6 +72,7 @@
 #include "k12.h"
 #include "ber.h"
 #include "catapult_dct2000.h"
+#include "mpeg.h"
 
 /* The open_file_* routines should return:
  *
@@ -111,6 +112,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	k12_open,
 	catapult_dct2000_open,
 	ber_open,
+	mpeg_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -541,6 +543,9 @@ static const struct file_type_info {
 	{ "Wildpacket Ether/AiroPeek (V9)", "peek9", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
 	  NULL, NULL },
     
+	/* WTAP_FILE_MPEG */
+	{ "MPEG", "mpeg", "*.mpeg;*.mpg;*.mp3", ".mpeg", FALSE,
+	  NULL, NULL },
 };
 
 /* Name that should be somewhat descriptive. */
