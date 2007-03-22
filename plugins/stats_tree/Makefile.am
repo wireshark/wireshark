@@ -26,6 +26,10 @@ INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = stats_tree.la

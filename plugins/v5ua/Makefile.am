@@ -26,6 +26,10 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = v5ua.la

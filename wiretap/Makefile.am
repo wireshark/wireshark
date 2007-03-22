@@ -25,6 +25,10 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 include Makefile.common
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 lib_LTLIBRARIES = libwiretap.la
 libwiretap_la_LDFLAGS = -version-info 0:1:0 @LDFLAGS_SHAREDLIB@
 

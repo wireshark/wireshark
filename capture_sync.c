@@ -451,7 +451,7 @@ sync_pipe_start(capture_options *capture_opts) {
       eth_close(1);
       dup(sync_pipe[PIPE_WRITE]);
       eth_close(sync_pipe[PIPE_READ]);
-      execv(exename, argv);
+      execv(exename, (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		exename, strerror(errno));
       sync_pipe_errmsg_to_parent(errmsg, "");

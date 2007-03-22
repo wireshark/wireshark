@@ -215,8 +215,6 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *tree, gint 
 static void
 dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset);
 static void
-dissect_megaco_Remotedescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset);
-static void
 dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset);
 static void
 dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *tree, gint tvb_next_offset, gint tvb_current_offset);
@@ -1547,7 +1545,7 @@ dissect_megaco_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, 
 }
 
 static void
-dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset, gint len, gchar *msg)
+dissect_megaco_h324_h223caprn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *megaco_tree, gint offset _U_, gint len, gchar *msg)
 {
 	guint8 *buf = ep_alloc(10240);
 	asn1_ctx_t actx;
@@ -2748,27 +2746,7 @@ dissect_megaco_Localdescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor
 		call_dissector(sdp_handle, next_tvb, pinfo, megaco_localdescriptor_tree);
 	}
 }
-static void
-dissect_megaco_Remotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,packet_info *pinfo, gint tvb_next_offset, gint tvb_current_offset)
-{
-	gint tokenlen;
-	tvbuff_t *next_tvb;
 
-
-	proto_tree  *megaco_Remotedescriptor_tree, *megaco_Remotedescriptor_ti;
-
-	tokenlen = 0;
-
-	tokenlen = tvb_next_offset - tvb_current_offset;
-
-	megaco_Remotedescriptor_ti = proto_tree_add_item(megaco_mediadescriptor_tree,hf_megaco_Remote_descriptor,tvb,tvb_current_offset,tokenlen, FALSE);
-	megaco_Remotedescriptor_tree = proto_item_add_subtree(megaco_Remotedescriptor_ti, ett_megaco_Remotedescriptor);
-
-	if ( tokenlen > 3 ){
-		next_tvb = tvb_new_subset(tvb, tvb_current_offset, tokenlen, tokenlen);
-		call_dissector(sdp_handle, next_tvb, pinfo, megaco_Remotedescriptor_tree);
-	}
-}
 /*
  *   localControlDescriptor = LocalControlToken LBRKT localParm
  *                          *(COMMA localParm) RBRKT

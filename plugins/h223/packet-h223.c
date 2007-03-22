@@ -716,7 +716,7 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
  * end_of_mux_sdu true if this is a segmentable VC and this is the last
  * 		fragment in an SDU
  */
-static void dissect_mux_sdu_fragment(tvbuff_t *next_tvb,
+static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
                                     packet_info *pinfo,
                                     guint32 pkt_offset,
                                     proto_tree *pdu_tree,
@@ -790,7 +790,7 @@ static void dissect_mux_sdu_fragment(tvbuff_t *next_tvb,
                     dissect_mux_al_pdu(next_tvb, pinfo, vc_tree,/* subcircuit,*/ lc_params );
                 }
         } else {
-            call_dissector(data_handle,next_tvb,pinfo,vc_tree);
+		call_dissector(data_handle,next_tvb,pinfo,vc_tree);
         }
     }
 

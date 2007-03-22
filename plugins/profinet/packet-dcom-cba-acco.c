@@ -330,7 +330,7 @@ GList *cba_pdevs;
 /* as we are a plugin, we cannot get this from libwireshark! */
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
-
+#if 0
 static void
 cba_connection_dump(cba_connection_t *conn, const char *role)
 {
@@ -356,7 +356,6 @@ cba_connection_dump(cba_connection_t *conn, const char *role)
 }
 
 
-#if 0
 static void
 cba_object_dump(void)
 {

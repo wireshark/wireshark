@@ -25,6 +25,10 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 INCLUDES= @LUA_INCLUDES@
 
+if USING_GCC
+AM_CFLAGS = -Werror
+endif
+
 #
 # This is a hideous hack.
 #

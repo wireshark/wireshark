@@ -4497,7 +4497,7 @@ indexReservedForProfiles(guint16 u16Index)
     if(u16Index >= 0xf400 && u16Index <= 0xf7ff) {
         return "Reserved for Profiles (API specific)";
     }
-    if(u16Index >= 0xfc00 && u16Index <= 0xffff) {
+    if(u16Index >= 0xfc00 /* up to 0xffff */) {
         return "Reserved for Profiles (device specific)";
     }
 

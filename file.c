@@ -379,14 +379,15 @@ cf_read(capture_file *cf)
   char         errmsg_errno[1024+1];
   gchar        err_str[2048+1];
   gint64       data_offset;
-  progdlg_t   *progbar = NULL;
+  progdlg_t *volatile progbar = NULL;
   gboolean     stop_flag;
-  gint64       size, file_pos;
-  float        progbar_val;
+  volatile gint64 size;
+  gint64       file_pos;
+  volatile float progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
-  gint64       progbar_nextstep;
-  gint64       progbar_quantum;
+  volatile gint64 progbar_nextstep;
+  volatile gint64 progbar_quantum;
   dfilter_t   *dfcode;
 
   /* Compile the current display filter.
@@ -619,11 +620,11 @@ cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *er
 }
 
 cf_read_status_t
-cf_continue_tail(capture_file *cf, int to_read, int *err)
+cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
   gint64 data_offset = 0;
   gchar *err_info;
-  int newly_displayed_packets = 0;
+  volatile int newly_displayed_packets = 0;
   dfilter_t   *dfcode;
 
   /* Compile the current display filter.
