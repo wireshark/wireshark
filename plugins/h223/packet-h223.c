@@ -1222,7 +1222,7 @@ static gint dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset, packe
 #ifdef DEBUG_H223_FRAGMENTATION
             g_debug("\tBailing, requesting %i-%i=%u more bytes", pdu_minlen,(offset-start_offset),needed);
 #endif
-            return -needed;
+            return - (gint) needed;
         }
     }
 
