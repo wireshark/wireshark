@@ -75,45 +75,45 @@
 	
 %}
 
-%START OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR
+%START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR
 %%
 [:blank:]   ;
 #[^\n]*		;
 
 <JUNK>.*\qn		;
 
-<OUT>VENDOR { BEGIN VENDOR; }
-<OUT>ATTRIBUTE { BEGIN ATTR; }
-<OUT>VALUE { BEGIN VALUE; }
-<OUT>\$INCLUDE { BEGIN INCLUDE; }
-<OUT>BEGIN-VENDOR { BEGIN BEGIN_VENDOR; }
-<OUT>END-VENDOR { BEGIN END_VENDOR; }
+<WS_OUT>VENDOR { BEGIN VENDOR; }
+<WS_OUT>ATTRIBUTE { BEGIN ATTR; }
+<WS_OUT>VALUE { BEGIN VALUE; }
+<WS_OUT>\$INCLUDE { BEGIN INCLUDE; }
+<WS_OUT>BEGIN-VENDOR { BEGIN BEGIN_VENDOR; }
+<WS_OUT>END-VENDOR { BEGIN END_VENDOR; }
 
 <BEGIN_VENDOR>[0-9a-z_-]+ {
     if (current_vendor) {
         g_free(current_vendor);
     }
     current_vendor = g_strdup(yytext);
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 <END_VENDOR>[^\n]* {
     if (current_vendor) {
         g_free(current_vendor);
         current_vendor = NULL;
     }
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 
 <VENDOR>[0-9a-z_-]+   { vendor_name = g_strdup(yytext); BEGIN VENDOR_W_NAME; }
 <VENDOR_W_NAME>[0-9]+   {
     add_vendor(vendor_name,strtol(yytext,NULL,10));
     g_free(vendor_name);
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 <VENDOR_W_NAME>0x[0-9a-f]+   {
     add_vendor(vendor_name,strtol(yytext,NULL,16));
     g_free(vendor_name);
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 
 <ATTR>[0-9a-z_/-]+			{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
@@ -140,7 +140,7 @@
     attr_id = NULL;
     attr_vendor = NULL;
     attr_name = NULL;
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 <ATTR_W_TYPE>\n						{
     add_attribute(attr_name,attr_id,attr_type,current_vendor,encrypted,has_tag);
@@ -149,7 +149,7 @@
     linenums[include_stack_ptr]++;
     has_tag = FALSE;
     encrypted=FALSE;
-    BEGIN OUT;
+    BEGIN WS_OUT;
 }
 <ATTR_W_VENDOR>\n					{
     add_attribute(attr_name,attr_id,attr_type,attr_vendor,encrypted,has_tag);
@@ -157,13 +157,13 @@
     g_free(attr_vendor);
     g_free(attr_name);
     linenums[include_stack_ptr]++; 
-    BEGIN OUT;
+    BEGIN WS_OUT;
 };
 
 <VALUE>[0-9a-z_/-]+					{ attr_name = g_strdup(yytext); BEGIN VALUE_W_ATTR; }
 <VALUE_W_ATTR>[^[:blank:]]+			{ value_repr = g_strdup(yytext); BEGIN VALUE_W_NAME; }
-<VALUE_W_NAME>[0-9]+				{ add_value(attr_name,value_repr,strtol(yytext,NULL,10));  g_free(attr_name); g_free(value_repr); BEGIN OUT;}
-<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(attr_name,value_repr,strtol(yytext,NULL,16));  g_free(attr_name); g_free(value_repr); BEGIN OUT;}
+<VALUE_W_NAME>[0-9]+				{ add_value(attr_name,value_repr,strtol(yytext,NULL,10));  g_free(attr_name); g_free(value_repr); BEGIN WS_OUT;}
+<VALUE_W_NAME>0x[0-9a-f]+			{ add_value(attr_name,value_repr,strtol(yytext,NULL,16));  g_free(attr_name); g_free(value_repr); BEGIN WS_OUT;}
 
 <INCLUDE>[^[:blank:]\n]+   {
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
@@ -189,7 +189,7 @@
 	}
 	
 
-	BEGIN OUT;
+	BEGIN WS_OUT;
 }
 
 <<EOF>> {
@@ -207,10 +207,10 @@
 		yy_switch_to_buffer(include_stack[include_stack_ptr]);
 	}
 
-	BEGIN OUT;
+	BEGIN WS_OUT;
 }
 
-\n 	{ linenums[include_stack_ptr]++; BEGIN OUT; }
+\n 	{ linenums[include_stack_ptr]++; BEGIN WS_OUT; }
 
 
 %%
@@ -377,7 +377,7 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 	
 	value_strings = g_hash_table_new(g_str_hash,g_str_equal);
 	
-	BEGIN OUT;
+	BEGIN WS_OUT;
 
 	yylex();
 
