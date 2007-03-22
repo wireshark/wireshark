@@ -2923,9 +2923,9 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		COPY_ADDRESS(&(strinfo->initial_speaker), &(pinfo->src));
 		
 		strinfo->protocol =   SP2VP(assoc->payload);
-		strinfo->start_sec=pinfo->fd->rel_ts.secs;
+		strinfo->start_sec=(gint32) pinfo->fd->rel_ts.secs;
 		strinfo->start_usec=pinfo->fd->rel_ts.nsecs;
-		strinfo->stop_sec=pinfo->fd->rel_ts.secs;
+		strinfo->stop_sec=(gint32) pinfo->fd->rel_ts.secs;
 		strinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
 		
 		strinfo->selected = FALSE;
@@ -2945,7 +2945,7 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		}
 		
 		strinfo->protocol =  SP2VP(assoc->payload);
-		strinfo->stop_sec=pinfo->fd->rel_ts.secs;
+		strinfo->stop_sec=(gint32) pinfo->fd->rel_ts.secs;
 		strinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
 		strinfo->last_frame_num=pinfo->fd->num;
 		++(strinfo->npackets);
