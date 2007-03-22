@@ -118,7 +118,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -2867,8 +2867,10 @@ remove_tap_listener_h248_calls(void)
 	have_h248_tap_listener=FALSE;
 }
 
-/**************************** TAP for SCCP **********************************/
+/**************************** TAP for SCCP and SUA **********************************/
+/**************************** ( RANAP and BSSAP ) **********************************/
 static gboolean have_sccp_tap_listener = FALSE;
+static gboolean have_sua_tap_listener = FALSE;
 
 static const voip_protocol sccp_proto_map[] = {
 	TEL_SCCP,
@@ -2876,8 +2878,9 @@ static const voip_protocol sccp_proto_map[] = {
 	TEL_RANAP
 };
 #define SP2VP(ap) ((ap) < SCCP_PLOAD_NUM_PLOADS ? sccp_proto_map[(ap)] : TEL_SCCP)
+const value_string* sccp_payload_values;
 
-static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	const sccp_msg_info_t* msg = prot_info;
 	sccp_assoc_info_t* assoc = msg->assoc;
@@ -2919,10 +2922,10 @@ static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		
 		COPY_ADDRESS(&(strinfo->initial_speaker), &(pinfo->src));
 		
-		strinfo->protocol =   SP2VP(assoc->proto);
-		strinfo->start_sec=(gint32) pinfo->fd->rel_ts.secs;
+		strinfo->protocol =   SP2VP(assoc->payload);
+		strinfo->start_sec=pinfo->fd->rel_ts.secs;
 		strinfo->start_usec=pinfo->fd->rel_ts.nsecs;
-		strinfo->stop_sec=(gint32) pinfo->fd->rel_ts.secs;
+		strinfo->stop_sec=pinfo->fd->rel_ts.secs;
 		strinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
 		
 		strinfo->selected = FALSE;
@@ -2941,8 +2944,8 @@ static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 			strinfo->to_identity =  g_strdup(assoc->called_party);
 		}
 		
-		strinfo->protocol =  SP2VP(assoc->proto);
-		strinfo->stop_sec=(gint32) pinfo->fd->rel_ts.secs;
+		strinfo->protocol =  SP2VP(assoc->payload);
+		strinfo->stop_sec=pinfo->fd->rel_ts.secs;
 		strinfo->stop_usec=pinfo->fd->rel_ts.nsecs;
 		strinfo->last_frame_num=pinfo->fd->num;
 		++(strinfo->npackets);
@@ -2963,7 +2966,7 @@ static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 	if (msg->label) {
 		label = msg->label;
 	} else {
-		label = val_to_str(msg->type, sccp_message_type_acro_values, "Unknown(%d)");
+		label = val_to_str(msg->type, sccp_payload_values, "Unknown(%d)");
 	}
 	
 	if (msg->comment) {
@@ -2980,6 +2983,18 @@ static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 	
 	return 1;
 }
+
+static int sccp_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+	sccp_payload_values = sccp_message_type_acro_values;
+	return sccp_calls(pinfo, prot_info);
+}
+
+
+static int sua_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
+	sccp_payload_values = sua_co_class_type_acro_values;
+	return sccp_calls(pinfo, prot_info);
+}
+
 
 void sccp_calls_init_tap(void)
 {
@@ -3002,6 +3017,25 @@ void sccp_calls_init_tap(void)
 		
 		have_sccp_tap_listener=TRUE;
 	}
+
+	if(have_sua_tap_listener==FALSE)
+	{
+		error_string = register_tap_listener("sua", &(the_tapinfo_struct.sua_dummy),
+											 NULL,
+											 voip_calls_dlg_reset,
+											 sua_calls_packet,
+											 voip_calls_dlg_draw);
+		
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+						  error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		
+		have_sua_tap_listener=TRUE;
+	}
+	
 }
 
 void
@@ -3012,6 +3046,7 @@ remove_tap_listener_sccp_calls(void)
 	unprotect_thread_critical_region();
 	
 	have_sccp_tap_listener=FALSE;
+	have_sua_tap_listener=FALSE;
 }
 
 

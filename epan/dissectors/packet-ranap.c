@@ -41,6 +41,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -473,7 +474,7 @@ static int hf_ranap_mBMSServiceAreaList = -1;     /* MBMSServiceAreaList */
 static int hf_ranap_MBMSServiceAreaList_item = -1;  /* MBMSServiceAreaCode */
 static int hf_ranap_rAI = -1;                     /* RAI */
 static int hf_ranap_PDP_TypeInformation_item = -1;  /* PDP_Type */
-static int hf_ranap_iMSI = -1;                    /* IMSI */
+static int hf_ranap_iMSI = -1;                    /* T_iMSI */
 static int hf_ranap_PermittedEncryptionAlgorithms_item = -1;  /* EncryptionAlgorithm */
 static int hf_ranap_PermittedIntegrityProtectionAlgorithms_item = -1;  /* IntegrityProtectionAlgorithm */
 static int hf_ranap_PLMNs_in_shared_network_item = -1;  /* PLMNs_in_shared_network_item */
@@ -594,7 +595,7 @@ static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
 static int hf_ranap_private_value = -1;           /* RANAP_PRIVATE_IES_Value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 69 "packet-ranap-template.c"
+#line 70 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -861,7 +862,7 @@ static gint ett_ranap_PrivateIE_Container = -1;
 static gint ett_ranap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 74 "packet-ranap-template.c"
+#line 75 "packet-ranap-template.c"
 
 
 /* Global variables */
@@ -982,7 +983,7 @@ static int dissect_secondCriticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ranap_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "ranap.cnf"
+#line 67 "ranap.cnf"
 	
 	offset = dissect_ranap_messages(tvb, offset, actx, tree);
 
@@ -1274,7 +1275,7 @@ static int dissect_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ranap_RANAP_PROTOCOL_IES_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "ranap.cnf"
+#line 71 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, actx, tree);
 
@@ -1351,7 +1352,7 @@ static int dissect_ext_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ranap_Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 75 "ranap.cnf"
+#line 90 "ranap.cnf"
 
 	offset = dissect_ranap_ies(tvb, offset, actx, tree);
 
@@ -1909,7 +1910,7 @@ static int dissect_private_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ranap_RANAP_PRIVATE_IES_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "ranap.cnf"
+#line 94 "ranap.cnf"
 /* FIX ME */
 
 
@@ -3058,7 +3059,7 @@ static int dissect_aPN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_ranap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "ranap.cnf"
+#line 97 "ranap.cnf"
 
 	tvbuff_t *parameter_tvb=NULL;
 
@@ -4575,7 +4576,7 @@ static int dissect_id_DRX_CycleLengthCoefficient(tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ranap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 60 "ranap.cnf"
+#line 75 "ranap.cnf"
 
 tvbuff_t *nas_pdu_tvb=NULL;
 
@@ -5081,11 +5082,35 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_iMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_ranap_IMSI(tvb, offset, actx, tree, hf_ranap_iMSI);
-}
 static int dissect_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_ranap_IMSI(tvb, offset, actx, tree, hf_ranap_imsi);
+}
+
+
+
+static int
+dissect_ranap_T_iMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 52 "ranap.cnf"
+  tvbuff_t* imsi_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_ranap_iMSI,
+                                       3, 8, &imsi_tvb);
+  
+	if ( actx->pinfo->sccp_info
+		 && actx->pinfo->sccp_info->assoc
+		 && ! actx->pinfo->sccp_info->assoc->calling_party ) {
+	   
+		guint len = tvb_length(imsi_tvb);
+		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
+
+		actx->pinfo->sccp_info->assoc->calling_party = 
+			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );
+	}
+
+
+  return offset;
+}
+static int dissect_iMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
+  return dissect_ranap_T_iMSI(tvb, offset, actx, tree, hf_ranap_iMSI);
 }
 
 
@@ -5095,7 +5120,7 @@ static const value_string ranap_PermanentNAS_UE_ID_vals[] = {
 };
 
 static const per_choice_t PermanentNAS_UE_ID_choice[] = {
-  {   0, &hf_ranap_iMSI          , ASN1_EXTENSION_ROOT    , dissect_ranap_IMSI },
+  {   0, &hf_ranap_iMSI          , ASN1_EXTENSION_ROOT    , dissect_ranap_T_iMSI },
   { 0, NULL, 0, NULL }
 };
 
@@ -8199,7 +8224,7 @@ static int dissect_id_RAB_SetupOrModifiedList(tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ranap_FirstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "ranap.cnf"
+#line 87 "ranap.cnf"
 	offset = dissect_ranap_FirstValue_ies(tvb, offset, actx, tree);
 
 
@@ -8214,7 +8239,7 @@ static int dissect_firstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ranap_SecondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "ranap.cnf"
+#line 84 "ranap.cnf"
 	offset = dissect_ranap_SecondValue_ies(tvb, offset, actx, tree);
 
 
@@ -9758,7 +9783,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 88 "packet-ranap-template.c"
+#line 89 "packet-ranap-template.c"
 
 
 
@@ -10753,16 +10778,17 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
+	ProcedureCode = 0xFFFFFFFF;
 	offset = dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 
 	if (pinfo->sccp_info) {
 		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
-		const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
 		
 		if (sccp_msg->assoc)
-			sccp_msg->assoc->proto = SCCP_PLOAD_RANAP;
+			sccp_msg->assoc->payload = SCCP_PLOAD_RANAP;
 		
-		if (! sccp_msg->label) {
+		if (! sccp_msg->label && ProcedureCode != 0xFFFFFFFF) {
+			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
 			sccp_msg->label = se_strdup(str);
 		}
 	}
@@ -12432,7 +12458,7 @@ void proto_register_ranap(void) {
     { &hf_ranap_iMSI,
       { "iMSI", "ranap.iMSI",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ranap.IMSI", HFILL }},
+        "ranap.T_iMSI", HFILL }},
     { &hf_ranap_PermittedEncryptionAlgorithms_item,
       { "Item", "ranap.PermittedEncryptionAlgorithms_item",
         FT_UINT32, BASE_DEC, VALS(ranap_EncryptionAlgorithm_vals), 0,
@@ -12907,7 +12933,7 @@ void proto_register_ranap(void) {
         "ranap.RANAP_PRIVATE_IES_Value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1168 "packet-ranap-template.c"
+#line 1170 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13176,7 +13202,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1175 "packet-ranap-template.c"
+#line 1177 "packet-ranap-template.c"
   };
 
   /* Register protocol */

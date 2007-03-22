@@ -50,6 +50,9 @@
 
 WS_VAR_IMPORT const value_string sccp_message_type_acro_values[];
 
+/* from packet-sua.c */
+WS_VAR_IMPORT const value_string sua_co_class_type_acro_values[];
+
 typedef enum _sccp_payload_t {
     SCCP_PLOAD_NONE,
     SCCP_PLOAD_BSSAP,
@@ -79,11 +82,14 @@ typedef struct _sccp_assoc_info_t {
     sccp_msg_info_t* msgs;
     sccp_msg_info_t* curr_msg;
 	
-    sccp_payload_t proto;
+    sccp_payload_t payload;
     gchar* calling_party;
     gchar* called_party;
     gchar* extra_info;
 
 } sccp_assoc_info_t;
+
+
+extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type);
 
 #endif

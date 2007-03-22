@@ -37,7 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <gmodule.h>
+#include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -49,7 +49,7 @@
 
 #include <string.h>
 
-#include "epan/packet.h"
+#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
@@ -582,7 +582,7 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if ( pinfo->sccp_info && pinfo->sccp_info->assoc  ) 
-		pinfo->sccp_info->assoc->proto = SCCP_PLOAD_BSSAP;
+		pinfo->sccp_info->assoc->payload = SCCP_PLOAD_BSSAP;
 
     /*
      * create the bssap protocol tree
@@ -1633,7 +1633,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     
     if (pinfo->sccp_info && pinfo->sccp_info->assoc)
-		pinfo->sccp_info->assoc->proto = SCCP_PLOAD_BSSAP;
+		pinfo->sccp_info->assoc->payload = SCCP_PLOAD_BSSAP;
     
     /* create the BSSAP+ protocol tree */
     bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, FALSE);

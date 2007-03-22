@@ -2,7 +2,7 @@
  * Routines for SS7 SCCP-User Adaptation Layer (SUA) dissection
  * It is hopefully (needs testing) compilant to
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-sua-08.txt
- * http://www.ietf.org/rfc/rfc3838.txt
+ * http://www.ietf.org/rfc/rfc3868.txt
  *
  * Copyright 2002, 2003, 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
@@ -36,7 +36,9 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
-#include <packet-mtp3.h>
+#include <epan/tap.h>
+#include "packet-mtp3.h"
+#include "packet-sccp.h"
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -214,6 +216,21 @@ static const value_string message_class_type_acro_values[] = {
   { MESSAGE_CLASS_RKM_MESSAGE   * 256 + MESSAGE_TYPE_DEREG_RSP ,    "DEREG_RSP" },
   { 0,                           NULL } };
 
+const value_string sua_co_class_type_acro_values[] = {
+	{ MESSAGE_TYPE_CORE ,         "CORE" },
+	{ MESSAGE_TYPE_COAK ,         "COAK" },
+	{ MESSAGE_TYPE_COREF ,        "COREF" },
+	{ MESSAGE_TYPE_RELRE ,        "RELRE" },
+	{ MESSAGE_TYPE_RELCO ,        "RELCO" },
+	{ MESSAGE_TYPE_RESCO ,        "RESCO" },
+	{ MESSAGE_TYPE_RESRE ,        "RESRE" },
+	{ MESSAGE_TYPE_CODT ,         "CODT" },
+	{ MESSAGE_TYPE_CODA ,         "CODA" },
+	{ MESSAGE_TYPE_COERR ,        "COERR" },
+	{ MESSAGE_TYPE_COIT ,         "COIT" },
+	{ 0, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_sua = -1;
 static int hf_version = -1;
@@ -327,9 +344,13 @@ static gint ett_sua_receive_sequence_number_number = -1;
 static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
 static gint ett_sua_protcol_classes = -1;
 
+static int sua_tap = -1;
+
 static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
+
+static guint32  message_class, message_type, drn, srn;
 
 /* stuff for supporting multiple versions */
 typedef enum {
@@ -345,7 +366,6 @@ dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, gui
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *sua_tree)
 {
-  guint8  message_class, message_type;
  
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
@@ -746,7 +766,8 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
 static void
 dissect_source_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_source_reference_number, parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET, SOURCE_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
+ 	srn = tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET);
+ proto_tree_add_item(parameter_tree, hf_source_reference_number, parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET, SOURCE_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, SOURCE_REFERENCE_NUMBER_OFFSET));
 }
 
@@ -756,6 +777,7 @@ dissect_source_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 static void
 dissect_destination_reference_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+	drn = tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET);
   proto_tree_add_item(parameter_tree, hf_destination_reference_number, parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET, DESTINATION_REFERENCE_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, DESTINATION_REFERENCE_NUMBER_OFFSET));
 }
@@ -1815,12 +1837,27 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   guint8 source_ssn = INVALID_SSN;
   guint8 dest_ssn = INVALID_SSN;
 
+  message_class = 0;
+  message_type = 0;
+  drn = 0;
+  srn = 0;
+  
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
   parameters_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
   dissect_parameters(parameters_tvb, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
 
+  if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
+	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */ 
+	  sccp_assoc_info_t* assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
+	  
+	  if (assoc && assoc->curr_msg) {
+		  pinfo->sccp_info = assoc->curr_msg;
+		  tap_queue_packet(sua_tap,pinfo,assoc->curr_msg);
+	  }
+  } 
+  
   /* If there was SUA data it could be dissected */
   if(data_tvb)
   {
@@ -1873,6 +1910,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
+  
 }
 
 /* Register the protocol with Wireshark */
@@ -2017,6 +2055,7 @@ proto_register_sua(void)
   prefs_register_enum_preference(sua_module, "version", "SUA Version", "Version used by Wireshark", &version, options, FALSE);
 
   register_heur_dissector_list("sua", &heur_subdissector_list);
+  sua_tap = register_tap("sua");
 
 }
 
