@@ -4317,8 +4317,8 @@ struct symbol *Symbol_new(const char *x)
 ** smallest parser tables in SQLite.
 */
 int Symbolcmpp(const void *a_arg, const void *b_arg){
-  struct symbol *const *a = a_arg;
-  struct symbol *const *b = b_arg;
+  struct symbol *const *a = (struct symbol *const *) a_arg;
+  struct symbol *const *b = (struct symbol *const *) b_arg;
   int i1 = (**a).index + 10000000*((**a).name[0]>'Z');
   int i2 = (**b).index + 10000000*((**b).name[0]>'Z');
   return i1-i2;
