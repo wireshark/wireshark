@@ -4019,6 +4019,7 @@ decode_iei_rim_application_identity(bssgp_ie_t *ie _U_, build_info_t *bi, int ie
 
 }
 
+#if 0
 static void 
 decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
   proto_tree *tf;
@@ -4047,6 +4048,8 @@ decode_ran_information_common(build_info_t *bi, proto_tree *parent_tree) {
     proto_item_append_text(ti, ": %s", rai_ci);
   }
 }
+#endif
+
 /*
  * 11.3.77 RIM Routing Information
  */
