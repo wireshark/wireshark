@@ -52,7 +52,7 @@
 static size_t 
 mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
-	off_t offset = file_tell(wth->fh);
+	gint64 offset = file_tell(wth->fh);
 	size_t count = 0;
 	int sync = file_getc(wth->fh);
 
@@ -84,7 +84,7 @@ mpeg_read_header(wtap *wth, int *err, gchar **err_info _U_,
 		return -1;
 	}
 	*n = g_ntohl(*n);
-	if (file_seek(wth->fh, -sizeof *n, SEEK_CUR, err) == -1)
+	if (file_seek(wth->fh, -(gint64)(sizeof *n), SEEK_CUR, err) == -1)
 		return -1;
 	return bytes_read;
 }
@@ -121,7 +121,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 	if (bytes_read == -1)
 		return FALSE;
 	if (PES_VALID(n)) {
-		off_t offset = file_tell(wth->fh);
+		gint64 offset = file_tell(wth->fh);
 		guint8 stream;
 		int bytes_read;
 
@@ -175,15 +175,15 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 					stuffing &= 0x07;
 					packet_size = 14 + stuffing;
 
-					scr =
-						(pack >> 59 & 0x0007) << 30 |
+					scr = (guint32)
+						((pack >> 59 & 0x0007) << 30 |
 						(pack >> 43 & 0x7fff) << 15 |
-						(pack >> 27 & 0x7fff) << 0;
-					scr_ext = pack >> 17 & 0x1ff;
+						 (pack >> 27 & 0x7fff) << 0);
+					scr_ext = (guint16)(pack >> 17 & 0x1ff);
 					t = t0 + scr / 90e3 + scr_ext / 27e6;
 
-					now.nsecs = modf(t, &secs) * 1e9;
-					now.secs = secs;
+					now.nsecs = (int)(modf(t, &secs) * 1e9);
+					now.secs = (time_t)secs;
 					ts = now;
 					break;
 				default:
@@ -264,7 +264,7 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	MPA_UNMARSHAL(&mpa, n);
 	if (!MPA_SYNC_VALID(&mpa)) {
-		off_t offset;
+		gint64 offset;
 		size_t count;
 
 		offset = file_tell(wth->fh);
