@@ -583,19 +583,19 @@ typedef struct _sctp_tsn_t {
 } sctp_tsn_t;
 
 
-static emem_tree_key_t *
-make_address_key(guint32 spt, guint32 dpt, address *addr)
+static emem_tree_key_t*
+make_address_key(guint32 spt, guint32 dpt, address *addr) 
 {
-	emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*8);
+	emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*6);
 
 	k[0].length = 1;    k[0].key = ep_memdup(&spt,sizeof(spt));
 	k[1].length = 1;    k[1].key = ep_memdup(&dpt,sizeof(dpt));
 	k[2].length = 1;    k[2].key = &(addr->type);
-	k[3].length = 1;    k[3].key = &(addr->len);
+	k[3].length = 1;    k[3].key = (guint32*)&(addr->len);
 
-	k[4].length = ((addr->len/4)+(addr->len%4? 1 : 0));
-	k[4].key = ep_alloc0(((addr->len/4)+(addr->len%4? 1 : 0))*4);
-	memcpy(k[4].key, addr->data, addr->len);
+	k[4].length = ((addr->len/4)+1);
+	k[4].key = ep_alloc0(((addr->len/4)+1)*4);
+	if (addr->len) memcpy(k[4].key, addr->data, addr->len);
 
 	k[5].length = 0;    k[5].key = NULL;
 
@@ -633,7 +633,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 
 	k = make_dir_key(spt, dpt, vtag);
 	if (( ha = emem_tree_lookup32_array(dirs_by_ptvtag, k)  )) {
-		/* found, if it has been already matched we're done*/
+		/* found, if it has been already matched we're done */
 		if (ha->peer) return ha;
 	} else {
 		/* not found, make a new one and add it to the table */
@@ -657,7 +657,7 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 	if (( hb = emem_tree_lookup32_array(dirs_by_ptaddr, k) )) {
 		/*the table contains a pointer to a pointer to a half */
 		if (! *hb) {
-			/* if there is no half pointed by this add the current half to the table */
+			/* if there is no half pointed by this, add the current half to the table */
 			*hb = ha;
 		} else {
 			/* there's a half pointed by this, assume it's our peer and clear the table's pointer */
