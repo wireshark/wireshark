@@ -622,32 +622,32 @@ col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 	  case(TS_PREC_FIXED_SEC):
 	  case(TS_PREC_AUTO_SEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs / 1000000000, SECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs / 1000000000, SECS);
 		  break;
 	  case(TS_PREC_FIXED_DSEC):
 	  case(TS_PREC_AUTO_DSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs / 100000000, DSECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs / 100000000, DSECS);
 		  break;
 	  case(TS_PREC_FIXED_CSEC):
 	  case(TS_PREC_AUTO_CSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs / 10000000, CSECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs / 10000000, CSECS);
 		  break;
 	  case(TS_PREC_FIXED_MSEC):
 	  case(TS_PREC_AUTO_MSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs / 1000000, MSECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs / 1000000, MSECS);
 		  break;
 	  case(TS_PREC_FIXED_USEC):
 	  case(TS_PREC_AUTO_USEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs / 1000, USECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs / 1000, USECS);
 		  break;
 	  case(TS_PREC_FIXED_NSEC):
 	  case(TS_PREC_AUTO_NSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->rel_ts.secs, fd->rel_ts.nsecs, NSECS);
+			(gint32) fd->rel_ts.secs, fd->rel_ts.nsecs, NSECS);
 		  break;
 	  default:
 		  g_assert_not_reached();
@@ -666,32 +666,32 @@ col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 	  case(TS_PREC_FIXED_SEC):
 	  case(TS_PREC_AUTO_SEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs / 1000000000, SECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs / 1000000000, SECS);
 		  break;
 	  case(TS_PREC_FIXED_DSEC):
 	  case(TS_PREC_AUTO_DSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs / 100000000, DSECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs / 100000000, DSECS);
 		  break;
 	  case(TS_PREC_FIXED_CSEC):
 	  case(TS_PREC_AUTO_CSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs / 10000000, CSECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs / 10000000, CSECS);
 		  break;
 	  case(TS_PREC_FIXED_MSEC):
 	  case(TS_PREC_AUTO_MSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs / 1000000, MSECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs / 1000000, MSECS);
 		  break;
 	  case(TS_PREC_FIXED_USEC):
 	  case(TS_PREC_AUTO_USEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs / 1000, USECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs / 1000, USECS);
 		  break;
 	  case(TS_PREC_FIXED_NSEC):
 	  case(TS_PREC_AUTO_NSEC):
 		  display_signed_time(cinfo->col_buf[col], COL_MAX_LEN,
-			fd->del_ts.secs, fd->del_ts.nsecs, NSECS);
+			(gint32) fd->del_ts.secs, fd->del_ts.nsecs, NSECS);
 		  break;
 	  default:
 		  g_assert_not_reached();

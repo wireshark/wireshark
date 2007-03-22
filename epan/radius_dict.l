@@ -224,7 +224,7 @@ void add_vendor(const gchar* name, guint32 vendor_id) {
 	v->ett = -1;
     
 	g_hash_table_insert(dict->vendors_by_id,GUINT_TO_POINTER(v->code),v);
-	g_hash_table_insert(dict->vendors_by_name,v->name,v);
+	g_hash_table_insert(dict->vendors_by_name, (gpointer) v->name, v);
 }
 
 void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_t type, const  gchar* vendor_name, gboolean crypt, gboolean tagged) {
@@ -332,7 +332,7 @@ static gboolean destroy_attrs(gpointer k _U_, gpointer v, gpointer p _U_) {
 
 static gboolean destroy_vendors(gpointer k _U_, gpointer v, gpointer p) {
 	radius_vendor_info_t* vnd = v;
-	g_free(vnd->name);
+	g_free( (gpointer) vnd->name);
 	g_hash_table_foreach_remove(vnd->attrs_by_id,destroy_attrs,p);
 	g_hash_table_destroy(vnd->attrs_by_id);
 	g_free(vnd);
