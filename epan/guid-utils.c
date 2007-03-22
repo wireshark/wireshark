@@ -114,7 +114,7 @@ guids_add_guid(e_guid_t *guid, const gchar *name)
 	guidkey[0].length=4;
 	guidkey[1].length=0;
 
-	pe_tree_insert32_array(guid_to_name_tree, &guidkey[0], name);
+	pe_tree_insert32_array(guid_to_name_tree, &guidkey[0], (gchar *) name);
 }
 
 

@@ -629,7 +629,7 @@ rel_time_to_str(nstime_t *rel_time)
 	   (the seconds part should be zero in that case), stick
 	   a "-" in front of the entire time stamp. */
 	sign = "";
-	time = rel_time->secs;
+	time = (gint) rel_time->secs;
 	nsec = rel_time->nsecs;
 	if (time == 0 && nsec == 0) {
 		g_snprintf(buf, 1+TIME_SECS_LEN+1+6+1, "0.000000000 seconds");
@@ -644,7 +644,7 @@ rel_time_to_str(nstime_t *rel_time)
 		 * or zero; if it's not, the time stamp is bogus,
 		 * with a positive seconds and negative microseconds.
 		 */
-		time = -rel_time->secs;
+		time = (gint) -rel_time->secs;
 	}
 
 	time_secs_to_str_buf(time, nsec, TRUE, p, 1+TIME_SECS_LEN+1+6+1);
@@ -663,7 +663,7 @@ rel_time_to_secs_str(nstime_t *rel_time)
 
 	buf=ep_alloc(REL_TIME_SECS_LEN);
 
-        display_signed_time(buf, REL_TIME_SECS_LEN, rel_time->secs,
+        display_signed_time(buf, REL_TIME_SECS_LEN, (gint32) rel_time->secs,
             rel_time->nsecs, NSECS);
         return buf;
 }
