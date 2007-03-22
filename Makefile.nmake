@@ -311,7 +311,7 @@ text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
 clean_gtk2.tmp:
-	rm -f gtk2.tmp/*.*
+	rm -f gtk2.tmp/*
 	if exist gtk2.tmp rmdir gtk2.tmp
 
 clean: clean_gtk2.tmp clean-deps
