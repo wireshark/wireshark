@@ -400,14 +400,15 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define TAG_ERP_INFO             0x2A
 #define TAG_TS_DELAY		 0x2B
 #define TAG_TCLAS_PROCESS	 0x2C
-#define TAG_HT_INFO		  0x2D	/* IEEE Stc 802.11n/D1.0 */
+#define TAG_HT_INFO              0x2D	/* IEEE Stc 802.11n/D1.0 */
 #define TAG_QOS_CAPABILITY	 0x2E
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE               0x30
 #define TAG_EXT_SUPP_RATES       0x32
 #define TAG_AGERE_PROPRIETARY	 0x80
-#define TAG_CISCO_UNKNOWN_1	 0x85	/* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_1	 0x85	/* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_2	 0x88	/* Cisco Compatible eXtensions? */
+#define TAG_CISCO_UNKNOWN_3	 0x95	/* Cisco Compatible eXtensions */
 #define TAG_VENDOR_SPECIFIC_IE	 0xDD
 #define TAG_SYMBOL_PROPRIETARY	 0xAD
 
@@ -2020,6 +2021,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
 	{ TAG_CISCO_UNKNOWN_1,      "Cisco Unknown 1 + Device Name" },
 	{ TAG_CISCO_UNKNOWN_2,      "Cisco Unknown 2" },
+	{ TAG_CISCO_UNKNOWN_3,      "Cisco Unknown 3" },
 	{ TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
 	{ TAG_SYMBOL_PROPRIETARY,   "Symbol Proprietary"},
 	{ TAG_AGERE_PROPRIETARY,    "Agere Proprietary"},
@@ -2539,6 +2541,16 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_CISCO_UNKNOWN_1:
+	/* From WCS manual:
+         * If Aironet IE support is enabled, the access point sends an Aironet
+         * IE 0x85 (which contains the access point name, load, number of
+         * associated clients, and so on) in the beacon and probe responses of
+         * this WLAN, and the controller sends Aironet IEs 0x85 and 0x95
+         * (which contains the management IP address of the controller and
+         * the IP address of the access point) in the reassociation response
+         * if it receives Aironet IE 0x85 in the reassociation request.
+         */
+
       /* The Name of the sending device starts at offset 10 and is up to
          15 or 16 bytes in length, \0 padded */
       if (tag_len < 26)
