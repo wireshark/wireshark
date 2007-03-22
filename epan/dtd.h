@@ -31,6 +31,7 @@
 #define _DTD_H_
 
 #include <glib.h>
+#include <stdlib.h> /* exit() */
 
 typedef struct _dtd_build_data_t {
 	gchar* proto_name;
