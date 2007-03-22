@@ -142,7 +142,7 @@ cf_status_t cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempf
  * @param err the error code, if an error had occured
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
+cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
 
 /**
  * Finish reading from "end" of a capture file.
