@@ -43,3 +43,11 @@ eth_stdio_unlink
 eth_stdio_remove
 eth_stdio_fopen
 eth_stdio_freopen
+
+mpa_padding
+mpa_layers
+mpa_samples
+mpa_frequencies
+mpa_bitrates
+mpa_versions
+
