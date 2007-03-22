@@ -44,8 +44,8 @@ my %types = %{{
 	'address' => '{ Address a = g_malloc(sizeof(address)); COPY_ADDRESS(a, &(v->%s)); pushAddress(L,a); }',
 	'address*' => '{ Address a = g_malloc(sizeof(address)); COPY_ADDRESS(a, v->%s); pushAddress(L,a); }',
 	'int' => 'lua_pushnumber(L,(lua_Number)v->%s);',
-	'nstime_t' => '{lua_Number t = v->%s.secs; t += v->%s.nsecs * 1e-9; lua_pushnumber(L,t); }',
-	'nstime_t*' => '{lua_Number t = v->%s->secs; t += v->%s->nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t' => '{lua_Number t = (lua_Number) v->%s.secs; t += v->%s.nsecs * 1e-9; lua_pushnumber(L,t); }',
+	'nstime_t*' => '{lua_Number t = (lua_Number) v->%s->secs; t += v->%s->nsecs * 1e-9; lua_pushnumber(L,t); }',
 }};
 
 my %comments = %{{
