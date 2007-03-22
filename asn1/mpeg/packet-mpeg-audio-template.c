@@ -1,0 +1,210 @@
+/* MPEG audio packet decoder.
+ * Written by Shaun Jackman <sjackman@gmail.com>.
+ * Copyright 2007 Shaun Jackman
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <string.h>
+
+#include <glib.h>
+
+#include <epan/packet.h>
+#include <epan/prefs.h>
+
+#include <wiretap/mpeg-audio.h>
+
+#include "packet-per.h"
+
+#include "packet-mpeg-audio-hf.c"
+#include "packet-mpeg-audio-ett.c"
+#include "packet-mpeg-audio-fn.c"
+
+static int hf_mpeg_audio = -1;
+static int hf_mpeg_audio_data = -1;
+static int hf_mpeg_audio_padbytes = -1;
+static int hf_id3v1 = -1;
+static int hf_id3v2 = -1;
+
+static size_t
+read_header(tvbuff_t *tvb, packet_info *pinfo, struct mpa *mpa)
+{
+	size_t data_size = 0;
+	guint32 h = tvb_get_ntohl(tvb, 0);
+	MPA_UNMARSHAL(mpa, h);
+	if (MPA_SYNC_VALID(mpa)) {
+		if (MPA_VERSION_VALID(mpa) && MPA_LAYER_VALID(mpa)) {
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+				static const char *version_names[] = { "1", "2", "2.5" };
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+						"MPEG-%s", version_names[MPA_VERSION(mpa)]);
+			}
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_add_fstr(pinfo->cinfo, COL_INFO,
+						"Audio Layer %d", MPA_LAYER(mpa) + 1);
+			if (MPA_BITRATE_VALID(mpa) && MPA_FREQUENCY_VALID(mpa)) {
+				data_size = MPA_DATA_BYTES(mpa) - sizeof mpa;
+				if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
+					SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
+					col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+							"%d kb/s", MPA_BITRATE(mpa) / 1000);
+				}
+				if (check_col(pinfo->cinfo, COL_DEF_DST)) {
+					SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
+					col_add_fstr(pinfo->cinfo, COL_DEF_DST,
+							"%g kHz", MPA_FREQUENCY(mpa) / (float)1000);
+				}
+			}
+		} else {
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_add_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
+		}
+	}
+	return data_size;
+}
+
+static gboolean
+dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	struct mpa mpa;
+	size_t data_size;
+	asn1_ctx_t asn1_ctx;
+	int offset = 0;
+
+	data_size = read_header(tvb, pinfo, &mpa);
+	if (!MPA_SYNC_VALID(&mpa))
+		return FALSE;
+
+	if (tree == NULL)
+		return TRUE;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	offset = dissect_mpeg_audio_Audio(tvb, offset, &asn1_ctx,
+			tree, hf_mpeg_audio);
+	if (data_size > 0) {
+		unsigned int padding;
+
+		proto_tree_add_item(tree, hf_mpeg_audio_data, tvb,
+				offset / 8, data_size, FALSE);
+		offset += data_size * 8;
+		padding = MPA_PADDING(&mpa);
+		if (padding > 0) {
+			proto_tree_add_item(tree, hf_mpeg_audio_padbytes, tvb,
+					offset / 8, padding, FALSE);
+			offset += padding * 8;
+		}
+	}
+	return TRUE;
+}
+
+static void
+dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	asn1_ctx_t asn1_ctx;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
+	if (tree == NULL)
+		return;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+	dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
+			tree, hf_id3v1);
+}
+
+static void
+dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
+	proto_tree_add_item(tree, hf_id3v2, tvb,
+			0, -1, FALSE);
+}
+
+static gboolean
+dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	int magic;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_clear(pinfo->cinfo, COL_PROTOCOL);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	magic = tvb_get_ntoh24(tvb, 0);
+	switch (magic) {
+		case 0x544147: /* TAG */
+			dissect_id3v1(tvb, pinfo, tree);
+			return TRUE;
+		case 0x494433: /* ID3 */
+			dissect_id3v2(tvb, pinfo, tree);
+			return TRUE;
+		default:
+			return dissect_mpeg_audio_frame(tvb, pinfo, tree);
+	}
+}
+
+static int proto_mpeg_audio = -1;
+
+void
+proto_register_mpeg_audio(void)
+{
+	static hf_register_info hf[] = {
+#include "packet-mpeg-audio-hfarr.c"
+		{ &hf_mpeg_audio,
+			{ "MPEG Audio", "mpeg.audio",
+				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_audio_data,
+			{ "Data", "mpeg.audio.data",
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_mpeg_audio_padbytes,
+			{ "Padding", "mpeg.audio.padbytes",
+				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_id3v1,
+			{ "ID3v1", "id3v1",
+				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_id3v2,
+			{ "ID3v2", "id3v2",
+				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	};
+
+	static gint *ett[] = {
+#include "packet-mpeg-audio-ettarr.c"
+	};
+
+	if (proto_mpeg_audio != -1)
+		return;
+
+	proto_mpeg_audio = proto_register_protocol(
+			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg.audio");
+	proto_register_field_array(proto_mpeg_audio, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_mpeg_audio(void)
+{
+	heur_dissector_add("mpeg", dissect_mpeg_audio, proto_mpeg_audio);
+}

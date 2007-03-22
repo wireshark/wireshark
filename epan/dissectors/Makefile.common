@@ -463,6 +463,8 @@ DISSECTOR_SRC =	\
 	packet-mount.c	\
 	packet-mp2t.c	\
 	packet-mpeg1.c	\
+	packet-mpeg-audio.c	\
+	packet-mpeg-pes.c	\
 	packet-mpls.c	\
 	packet-mpls-echo.c   \
 	packet-mq.c		\

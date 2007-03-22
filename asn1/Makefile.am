@@ -203,6 +203,13 @@ EXTRA_DIST = \
 	mms/mms-exp.cnf	\
 	mms/packet-mms-template.c	\
 	mms/packet-mms-template.h	\
+	mpeg/Makefile \
+	mpeg/mpeg-audio.asn \
+	mpeg/mpeg-audio.cnf \
+	mpeg/mpeg-pes.asn \
+	mpeg/mpeg-pes.cnf \
+	mpeg/packet-mpeg-audio-template.c \
+	mpeg/packet-mpeg-pes-template.c \
 	nbap/Makefile	\
 	nbap/Makefile.nmake	\
 	nbap/nbap.asn	\

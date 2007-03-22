@@ -1,0 +1,13 @@
+# mpeg-audio.cnf
+# mpeg-audio conformation file
+#
+# $Id$
+
+#.TYPE_ATTR
+ID3v1/tag TYPE=FT_STRING
+ID3v1/title TYPE=FT_STRING
+ID3v1/artist TYPE=FT_STRING
+ID3v1/album TYPE=FT_STRING
+ID3v1/year TYPE=FT_STRING
+ID3v1/comment TYPE=FT_STRING
+#.END

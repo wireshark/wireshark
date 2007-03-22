@@ -1,0 +1,12 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# ./mpeg-pes-exp.cnf
+# ../../tools/asn2wrs.py -e -p mpeg-pes -c mpeg-pes.cnf -s packet-mpeg-pes-template mpeg-pes.asn
+
+#.MODULE
+MPEG  mpeg-pes
+#.END
+
+#.TYPE_ATTR
+#.END
+
