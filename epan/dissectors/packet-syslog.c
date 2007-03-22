@@ -284,8 +284,12 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  /* Call MTP dissector if encapsulated MSU was found */
+  /* Call MTP dissector if encapsulated MSU was found... */
   if (mtp3_tvb) {
+    /* ...and add the encapsulated MSU as a new data source so that it gets
+     * its own tab in the packet bytes pane.
+     */
+    add_new_data_source(pinfo, mtp3_tvb, "Encapsulated MSU");
     call_dissector(mtp_handle, mtp3_tvb, pinfo, tree);
   }
 
