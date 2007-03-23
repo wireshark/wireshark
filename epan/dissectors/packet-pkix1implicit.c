@@ -448,6 +448,29 @@ void proto_reg_handoff_pkix1implicit(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.7", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-ipsecUser");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.8", dissect_Dummy_PDU, proto_pkix1implicit, "id-kp-timeStamping");
   register_ber_oid_dissector("1.3.6.1.5.5.7.3.9", dissect_Dummy_PDU, proto_pkix1implicit, "OCSPSigning");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.12.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-any-application-policy");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-ctl-usage-signing");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-time-stamp-signing");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.4", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-efs");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.4.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-efs-recovery");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.5", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-whql-crypto");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.6", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-nt5-crypto");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.7", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-oem-whql-crypto");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.8", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-embedded-nt-crypto");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.9", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-root-list-signer");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.10", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-qualified-subordination");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.11", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-key-recovery");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.12", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-document-signing");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.3.13", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-lifetime-signing");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.5.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-drm");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.6.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-licenses");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.10.6.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-license-server");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.20.2.1", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-enrollment-agent");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.20.2.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-smartcard-logon");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.21.5", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-ca-exchange");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.21.6", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-kp-key-recovery-agent");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.21.19", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-ds-email-replication");
+  register_ber_oid_dissector("1.3.6.1.5.5.8.2.2", dissect_Dummy_PDU, proto_pkix1implicit, "id-ms-ipsec-kp-ike-intermediate");
 
 
 /*--- End of included file: packet-pkix1implicit-dis-tab.c ---*/
