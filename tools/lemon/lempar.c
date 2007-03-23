@@ -523,7 +523,7 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yyidx -= yysize;
-  yyact = yy_find_reduce_action(yymsp[-yysize].stateno,yygoto);
+  yyact = yy_find_reduce_action(yymsp[-yysize].stateno,(YYCODETYPE)yygoto);
   if( yyact < YYNSTATE ){
 #ifdef NDEBUG
     /* If we are not debugging and the reduce action popped at least
@@ -649,7 +649,7 @@ void Parse(
 #endif
 
   do{
-    yyact = yy_find_shift_action(yypParser,yymajor);
+    yyact = yy_find_shift_action(yypParser,(YYCODETYPE)yymajor);
     if( yyact<YYNSTATE ){
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
       yypParser->yyerrcnt--;
@@ -698,7 +698,7 @@ void Parse(
              yyTracePrompt,yyTokenName[yymajor]);
         }
 #endif
-        yy_destructor(yymajor,&yyminorunion);
+        yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
@@ -709,7 +709,7 @@ void Parse(
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yyidx < 0 || yymajor==0 ){
-          yy_destructor(yymajor,&yyminorunion);
+          yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
