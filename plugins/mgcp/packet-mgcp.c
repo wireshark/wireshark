@@ -245,10 +245,10 @@ static int mgcp_tap = -1;
  * the raw text of the mgcp message, much like the HTTP dissector does.
  *
  */
-static int global_mgcp_gateway_tcp_port = TCP_PORT_MGCP_GATEWAY;
-static int global_mgcp_gateway_udp_port = UDP_PORT_MGCP_GATEWAY;
-static int global_mgcp_callagent_tcp_port = TCP_PORT_MGCP_CALLAGENT;
-static int global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
+static guint global_mgcp_gateway_tcp_port = TCP_PORT_MGCP_GATEWAY;
+static guint global_mgcp_gateway_udp_port = UDP_PORT_MGCP_GATEWAY;
+static guint global_mgcp_callagent_tcp_port = TCP_PORT_MGCP_CALLAGENT;
+static guint global_mgcp_callagent_udp_port = UDP_PORT_MGCP_CALLAGENT;
 static gboolean global_mgcp_raw_text = FALSE;
 static gboolean global_mgcp_message_count = FALSE;
 
@@ -955,10 +955,10 @@ void proto_reg_handoff_mgcp(void)
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const gchar **verb_name)
 {
 	int returnvalue = FALSE;
-	guint8 word[5];
+	gchar word[5];
 
 	/* Read the string into 'word' and see if it looks like the start of a verb */
-	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
+	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), (guint8*)word))
 	{
 		if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
 		    ((strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
@@ -1332,7 +1332,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
                        /* set the observedEvents or signalReq used in Voip Calls analysis */
                        if (buf != NULL) {
-                               *buf = tvb_get_ephemeral_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+                               *buf = (gchar*)tvb_get_ephemeral_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
                        }
 		}
 	}
@@ -1841,7 +1841,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
+	tokenline = (gchar*)tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);
@@ -1953,7 +1953,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
+	tokenline = (gchar*)tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);

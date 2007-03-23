@@ -480,9 +480,9 @@ static int ett_artnet = -1;
 
 static guint global_udp_port_artnet = UDP_PORT_ARTNET;
 static guint udp_port_artnet = UDP_PORT_ARTNET;
-static guint global_disp_chan_val_type = 0;
-static guint global_disp_col_count = 16;
-static guint global_disp_chan_nr_type = 0;
+static gint global_disp_chan_val_type = 0;
+static gint global_disp_col_count = 16;
+static gint global_disp_chan_nr_type = 0;
 
 /* A static handle for the ip dissector */
 static dissector_handle_t ip_handle;

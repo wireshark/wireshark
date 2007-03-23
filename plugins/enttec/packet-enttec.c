@@ -124,9 +124,9 @@ static guint udp_port_enttec = UDP_PORT_ENTTEC;
 static guint global_tcp_port_enttec = TCP_PORT_ENTTEC;
 static guint tcp_port_enttec = TCP_PORT_ENTTEC;
 
-static guint global_disp_chan_val_type = 0;
-static guint global_disp_col_count = 16;
-static guint global_disp_chan_nr_type = 0;
+static gint global_disp_chan_val_type = 0;
+static gint global_disp_col_count = 16;
+static gint global_disp_chan_nr_type = 0;
 
 
 /* A static handle for the ip dissector */

@@ -70,7 +70,7 @@ static void draw_stats_tree(void *psp) {
 }
 
 static void  init_stats_tree(const char *optarg,void* userdata _U_) {
-	guint8* abbr = stats_tree_get_abbr(optarg);
+	guint8* abbr = stats_tree_get_abbr((guint8*)optarg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree* st = NULL;
@@ -79,8 +79,8 @@ static void  init_stats_tree(const char *optarg,void* userdata _U_) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
 		if (cfg != NULL) {
-			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
-				st = stats_tree_new(cfg,NULL,((guint8*)optarg)+strlen(cfg->pr->init_string));
+			if (strncmp (optarg, (char*)cfg->pr->init_string, strlen((char*)cfg->pr->init_string)) == 0){
+				st = stats_tree_new(cfg,NULL,(char*)(optarg)+strlen((char*)cfg->pr->init_string));
 			} else {
 				report_failure("Wrong stats_tree (%s) found when looking at ->init_string",abbr);
 				return;
@@ -97,12 +97,12 @@ static void  init_stats_tree(const char *optarg,void* userdata _U_) {
 		return;
 	}
 	
-	error_string = register_tap_listener( st->cfg->tapname,
-										  st,
-										  st->filter,
-										  stats_tree_reset,
-										  stats_tree_packet,
-										  draw_stats_tree);
+	error_string = register_tap_listener((char*)st->cfg->tapname,
+					     st,
+					     st->filter,
+					     stats_tree_reset,
+					     stats_tree_packet,
+					     draw_stats_tree);
 	
 	if (error_string) {
 		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
@@ -117,9 +117,9 @@ void register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	stats_tree_cfg* cfg = v;
 	
 	cfg->pr = g_malloc(sizeof(tree_cfg_pres));
-	cfg->pr->init_string = g_strdup_printf("%s,tree",cfg->abbr);
+	cfg->pr->init_string = (guint8*)g_strdup_printf("%s,tree",cfg->abbr);
 
-	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree, NULL);
+	register_stat_cmd_arg((char*)cfg->pr->init_string, init_stats_tree, NULL);
 	
 }
 

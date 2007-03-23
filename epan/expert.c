@@ -121,7 +121,7 @@ packet_info *pinfo, proto_item *pi, int group, int severity, const char *format,
 
 	/* XXX - use currently nonexistant se_vsnprintf instead */
 	ret = g_vsnprintf(formatted, sizeof(formatted), format, ap);
-	if ((ret == -1) || (ret >= sizeof(formatted)))
+	if ((ret == -1) || (ret >= (int)sizeof(formatted)))
 		formatted[sizeof(formatted) - 1] = '\0';
 
 	ei = ep_alloc(sizeof(expert_info_t));

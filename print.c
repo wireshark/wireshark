@@ -623,7 +623,7 @@ get_field_data(GSList *src_list, field_info *fi)
 static void
 print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
-	const unsigned char *p;
+	const char *p;
 
 	for (p = unescaped_string; *p != '\0'; p++) {
 		switch (*p) {
@@ -810,7 +810,7 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
 			 * and advance the offset.
 			 */
 			line[k] = '\0';
-			if (!print_line(stream, 0, line))
+			if (!print_line(stream, 0, (char*)line))
 				return FALSE;
 			ad += 16;
 		}
@@ -1013,7 +1013,7 @@ static gboolean
 print_preamble_ps(print_stream_t *self, gchar *filename)
 {
 	output_ps *output = self->data;
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	print_ps_preamble(output->fh);
 
@@ -1021,7 +1021,7 @@ print_preamble_ps(print_stream_t *self, gchar *filename)
 	fputs("/Courier findfont 10 scalefont setfont\n", output->fh);
 	fputs("\n", output->fh);
 	fputs("%% the page title\n", output->fh);
-	ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
+	ps_clean_string(psbuffer, (guchar*)filename, MAX_PS_LINE_LENGTH);
 	fprintf(output->fh, "/eth_pagetitle (%s - Wireshark) def\n", psbuffer);
 	fputs("\n", output->fh);
 	return !ferror(output->fh);
@@ -1031,9 +1031,9 @@ static gboolean
 print_line_ps(print_stream_t *self, int indent, const char *line)
 {
 	output_ps *output = self->data;
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
-	ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
+	ps_clean_string(psbuffer, (guchar*)line, MAX_PS_LINE_LENGTH);
 	fprintf(output->fh, "%d (%s) putline\n", indent, psbuffer);
 	return !ferror(output->fh);
 }
@@ -1042,7 +1042,7 @@ static gboolean
 print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
 {
 	output_ps *output = self->data;
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+	unsigned char psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
 	/*
 	 * See the Adobe "pdfmark reference":
@@ -1057,7 +1057,7 @@ print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
 	 *
 	 * The "/DEST" creates the destination.
 	 */
-	ps_clean_string(psbuffer, title, MAX_PS_LINE_LENGTH);
+	ps_clean_string(psbuffer, (guchar*)title, MAX_PS_LINE_LENGTH);
 	fprintf(output->fh, "[/Dest /%s /Title (%s)   /OUT pdfmark\n", name,
 	    psbuffer);
 	fputs("[/View [/XYZ -4 currentpoint matrix currentmatrix matrix defaultmatrix\n",

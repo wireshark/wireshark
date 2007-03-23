@@ -606,6 +606,7 @@ static void append_avpl(GString* str, AVPL* avpl) {
 	g_string_sprintfa(str,")");
 }
 
+#if 0 /* XXX - Not used anywhere, for testing only? */
 static void print_transforms(gpointer k, gpointer v, gpointer p) {
 	AVPL_Transf* t;
 	GString* str = p;
@@ -656,6 +657,7 @@ static void print_transforms(gpointer k, gpointer v, gpointer p) {
 
 	g_string_sprintfa(str,"};\n\n");
 }
+#endif /* 0 */
 
 static void append_transforms(GString* s, GPtrArray* ts) {
 	guint i;
@@ -677,6 +679,8 @@ static void print_hfid_hash(gpointer k, gpointer v, gpointer p _U_) {
 	g_string_sprintfa((GString*)p,"\tExtract %s From %s;\n",(guint8*)v,my_protoname(*(int*)k));
 }
 
+/* XXX - Not used anywhere, for testing only? */
+#if 0
 static void print_pdu_config(mate_cfg_pdu* cfg, GString* s) {
 	guint i;
 	int hfid;
@@ -858,6 +862,7 @@ static void print_config(void) {
 	
 	g_string_free(config_text,TRUE);
 }
+#endif /* 0 */
 
 extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	gint* ett;

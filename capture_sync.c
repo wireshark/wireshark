@@ -562,7 +562,7 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
 
 
     /* read header (indicator and 3-byte length) */
-    newly = pipe_read_bytes(pipe, header, 4);
+    newly = pipe_read_bytes(pipe, (char*)header, 4);
     if(newly != 4) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
               "read %d failed to read header: %u", pipe, newly);
@@ -675,10 +675,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     break;
   case SP_ERROR_MSG:
     /* convert primary message */
-    pipe_convert_header(buffer, 4, &indicator, &primary_len);
+    pipe_convert_header((guchar*)buffer, 4, &indicator, &primary_len);
     primary_msg = buffer+4;
     /* convert secondary message */
-    pipe_convert_header(primary_msg + primary_len, 4, &indicator, &secondary_len);
+    pipe_convert_header((guchar*)primary_msg + primary_len, 4, &indicator, &secondary_len);
     secondary_msg = primary_msg + primary_len + 4;
     /* message output */
     capture_input_error_message(capture_opts, primary_msg, secondary_msg);

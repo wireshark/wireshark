@@ -4649,7 +4649,6 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 rid = GPOINTER_TO_INT(dcv->private_data);
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
 	guint32 status;
