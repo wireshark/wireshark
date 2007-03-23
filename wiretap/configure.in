@@ -49,8 +49,18 @@ else
   AC_MSG_RESULT(no)
 fi
 
-# Create the USING_GCC variable for use in Makefile.am files
-AM_CONDITIONAL(USING_GCC, test "x$GCC" != "x")
+AC_ARG_WITH(warnings-as-errors,
+[  --with-warnings-as-errors Treat warnings as errors (if using gcc). [default=no]],
+[  
+  if test "x$GCC" != "x"; then
+    if test "x$withval" != "xno"; then
+      with_warnings_as_errors="yes"
+    fi
+  else
+    with_warnings_as_errors="no"
+  fi
+],)
+AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
 
 #
 # Add any platform-specific compiler flags needed.

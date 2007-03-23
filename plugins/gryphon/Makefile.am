@@ -28,7 +28,7 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 
-if USING_GCC
+if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 

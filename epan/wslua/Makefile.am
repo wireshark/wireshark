@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-if USING_GCC
+if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
