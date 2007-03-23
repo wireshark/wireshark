@@ -2507,6 +2507,18 @@ void Parse(struct lemon *gp)
   ps.filename = gp->filename;
   ps.errorcnt = 0;
   ps.state = INITIALIZE;
+  ps.prevrule = NULL;
+  ps.preccounter = 0;
+  ps.lastrule = NULL;
+  ps.firstrule = NULL;
+  ps.lhs = NULL;
+  ps.nrhs = 0;
+  ps.lhsalias = NULL;
+  ps.declkeyword = NULL;
+  ps.declargslot = NULL;
+  ps.decllnslot = NULL;
+  ps.declassoc = UNK;
+  ps.fallback = NULL;
 
   /* Begin by reading the input file */
   fp = fopen(ps.filename,"rb");
@@ -3479,6 +3491,16 @@ static const char *minimum_size_type(int lwr, int upr){
   }
 }
 
+static const char *minimum_signed_size_type(int lwr, int upr){
+	if( lwr>=-127 && upr<=127 ){
+		return "signed char";
+	}else if( lwr>=-32767 && upr<32767 ){
+		return "short";
+	}else{
+		return "int";
+	}
+}
+
 /*
 ** Each state contains a set of token transaction and a set of
 ** nonterminal transactions.  Each of these sets makes an instance
@@ -3553,10 +3575,10 @@ void ReportTable(
 
   /* Generate the defines */
   fprintf(out,"#define YYCODETYPE %s\n",
-    minimum_size_type(0, lemp->nsymbol+5)); lineno++;
+    minimum_signed_size_type(0, lemp->nsymbol+5)); lineno++;
   fprintf(out,"#define YYNOCODE %d\n",lemp->nsymbol+1);  lineno++;
   fprintf(out,"#define YYACTIONTYPE %s\n",
-    minimum_size_type(0, lemp->nstate+lemp->nrule+5));  lineno++;
+    minimum_signed_size_type(0, lemp->nstate+lemp->nrule+5));  lineno++;
   if( lemp->wildcard ){
     fprintf(out,"#define YYWILDCARD %d\n",
        lemp->wildcard->index); lineno++;
