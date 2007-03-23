@@ -367,6 +367,11 @@ static const char *keytab_filename = "insert filename here";
 #endif
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+#ifdef _WIN32
+/* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
+#undef HAVE_STDARG_H
+#undef HAVE_SYS_TYPES_H
+#endif
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
 
