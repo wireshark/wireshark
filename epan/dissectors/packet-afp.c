@@ -1066,7 +1066,7 @@ print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
 	tv.nsecs = 0;
 	proto_tree_add_time(tree, id, tvb, offset, 4, &tv);
 
-	return date;
+	return (guint32) date;
 }
 
 /* -------------------------- */

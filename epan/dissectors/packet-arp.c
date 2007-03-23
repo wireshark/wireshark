@@ -408,7 +408,7 @@ void check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
     {
         /* Seeing packet for first time - check against preference settings */
-        gint seconds_delta  = pinfo->fd->abs_ts.secs - time_at_start_of_count.secs;
+        gint seconds_delta  = (gint) (pinfo->fd->abs_ts.secs - time_at_start_of_count.secs);
         gint nseconds_delta = pinfo->fd->abs_ts.nsecs - time_at_start_of_count.nsecs;
         gint gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
 

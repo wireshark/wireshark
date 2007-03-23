@@ -351,14 +351,14 @@ PIDL_dissect_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         switch(hf_info->display){
         case BASE_DEC:
             if(hf_info->strings){
-                g_snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(%" PRIu64 ")",val_to_str( (guint32) val, hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "%" PRIu64, val);
             }
             break;
         case BASE_HEX:
             if(hf_info->strings){
-                g_snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str(val, hf_info->strings, "Unknown:%u"), val);
+                g_snprintf(valstr, 64, "%s(0x%" PRIx64 ")",val_to_str( (guint32) val, hf_info->strings, "Unknown:%u"), val);
             } else {
                 g_snprintf(valstr, 64, "0x%" PRIx64, val);
             }
