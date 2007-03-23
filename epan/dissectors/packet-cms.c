@@ -322,7 +322,7 @@ static int dissect_serialNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tv
 
 int
 dissect_cms_ContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "cms.cnf"
+#line 73 "cms.cnf"
   	const char *name = NULL;
 
 	  offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &object_identifier_id);
@@ -351,7 +351,7 @@ static int dissect_encryptedContentType(packet_info *pinfo _U_, proto_tree *tree
 
 static int
 dissect_cms_T_content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "cms.cnf"
+#line 83 "cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -372,7 +372,7 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 
 int
 dissect_cms_ContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 60 "cms.cnf"
+#line 64 "cms.cnf"
   top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
@@ -445,7 +445,7 @@ static int dissect_digestAlgorithms(packet_info *pinfo _U_, proto_tree *tree _U_
 
 static int
 dissect_cms_T_eContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 83 "cms.cnf"
+#line 87 "cms.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -493,7 +493,7 @@ static int dissect_encapContentInfo(packet_info *pinfo _U_, proto_tree *tree _U_
 
 static int
 dissect_cms_T_attrType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "cms.cnf"
+#line 115 "cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -516,7 +516,7 @@ static int dissect_attrType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff
 
 static int
 dissect_cms_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 121 "cms.cnf"
+#line 125 "cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
@@ -1078,7 +1078,7 @@ static int dissect_keyAttrId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuf
 
 static int
 dissect_cms_T_keyAttr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "cms.cnf"
+#line 108 "cms.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -1499,7 +1499,7 @@ dissect_cms_AuthenticatedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 125 "cms.cnf"
+#line 129 "cms.cnf"
   proto_item *pi;
   int old_offset = offset;
 
@@ -1588,7 +1588,7 @@ dissect_cms_KeyWrapAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_cms_RC2ParameterVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "cms.cnf"
+#line 166 "cms.cnf"
   guint32 length = 0;
 
     offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
@@ -1669,7 +1669,7 @@ static int dissect_rc2CBCParameter(packet_info *pinfo _U_, proto_tree *tree _U_,
 
 static int
 dissect_cms_T_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "cms.cnf"
+#line 147 "cms.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_cms_attrType, &object_identifier_id);
@@ -1693,7 +1693,7 @@ static int dissect_capability(packet_info *pinfo _U_, proto_tree *tree _U_, tvbu
 
 static int
 dissect_cms_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 154 "cms.cnf"
+#line 158 "cms.cnf"
 
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
@@ -2340,6 +2340,7 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.15", dissect_SMIMECapabilities_PDU, proto_cms, "id-smime-capabilities");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.11", dissect_SMIMEEncryptionKeyPreference_PDU, proto_cms, "id-encryption-key-preference");
   register_ber_oid_dissector("1.2.840.113549.3.2", dissect_RC2CBCParameters_PDU, proto_cms, "id-alg-rc2-cbc");
+  register_ber_oid_dissector("1.2.840.113549.3.4", dissect_RC2CBCParameters_PDU, proto_cms, "id-alg-rc4");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.3.7", dissect_RC2WrapParameter_PDU, proto_cms, "id-alg-cmsrc2-wrap");
 
 
