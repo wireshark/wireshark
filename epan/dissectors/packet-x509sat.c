@@ -2910,6 +2910,8 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-gender");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfCitizenship");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfResidence");
+  register_ber_oid_dissector("0.9.2342.19200300.100.1.25", dissect_SyntaxIA5String_PDU, proto_x509sat, "dc");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.20.2.3", dissect_SyntaxUTF8String_PDU, proto_x509sat, "id-ms-user-principal-name");
   register_ber_oid_dissector("1.2.826.0.1063.7.0.0.0", dissect_Integer_PDU, proto_x509sat, "unknown-UK-organisation-defined-extension");
 
 
@@ -2945,6 +2947,11 @@ void proto_reg_handoff_x509sat(void) {
   
   add_oid_str_name("2.5.6.28", "parent");
   add_oid_str_name("2.5.6.29", "child");
+
+  /* RFC 2247 */
+  add_oid_str_name("1.3.6.1.4.1.1446.344", "dcObject");
+  add_oid_str_name("0.9.2342.19200300.100.4.13", "domain");
+
 }
 
 

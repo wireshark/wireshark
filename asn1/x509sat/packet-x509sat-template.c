@@ -109,6 +109,11 @@ void proto_reg_handoff_x509sat(void) {
   
   add_oid_str_name("2.5.6.28", "parent");
   add_oid_str_name("2.5.6.29", "child");
+
+  /* RFC 2247 */
+  add_oid_str_name("1.3.6.1.4.1.1446.344", "dcObject");
+  add_oid_str_name("0.9.2342.19200300.100.4.13", "domain");
+
 }
 
 
