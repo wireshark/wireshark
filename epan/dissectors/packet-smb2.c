@@ -343,7 +343,7 @@ smb2_saved_info_hash_unmatched(gconstpointer k)
 	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
 	guint32 hash;
 
-	hash=key->seqnum&0xffffffff;
+	hash=(guint32) (key->seqnum&0xffffffff);
 	return hash;
 }
 
@@ -364,7 +364,7 @@ smb2_saved_info_hash_matched(gconstpointer k)
 	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
 	guint32 hash;
 
-	hash=key->seqnum&0xffffffff;
+	hash=(guint32) (key->seqnum&0xffffffff);
 	return hash;
 }
 
@@ -1723,7 +1723,7 @@ static int
 dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t s_olb;
-	ntlmssp_header_t *ntlmssph;
+	const ntlmssp_header_t *ntlmssph;
 	static int ntlmssp_tap_id = 0;
 	int idx;
 

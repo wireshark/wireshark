@@ -4551,7 +4551,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     old_proto=pinfo->current_proto;
     pinfo->current_proto="SCSI";
 
-    opcode = cdata->itlq->scsi_opcode;
+    opcode = (guint8) cdata->itlq->scsi_opcode;
     devtype = cdata->itl->cmdset&SCSI_CMDSET_MASK;
 
     if (tree) {

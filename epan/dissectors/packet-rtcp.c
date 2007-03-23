@@ -2145,8 +2145,8 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 		if (p_conv_data->last_received_ts == lsr)
 		{
 			/* Look at time of since original packet was sent */
-			gint seconds_between_packets =
-			      pinfo->fd->abs_ts.secs - p_conv_data->last_received_timestamp.secs;
+			gint seconds_between_packets = (gint)
+			      (pinfo->fd->abs_ts.secs - p_conv_data->last_received_timestamp.secs);
 			gint nseconds_between_packets =
 			      pinfo->fd->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
 

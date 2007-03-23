@@ -1453,7 +1453,7 @@ vnc_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			    length, FALSE);
 	*offset += length;
 
-	length = floor((width + 7)/8) * height;
+	length = (guint) (floor((width + 7)/8) * height);
 	proto_tree_add_item(tree, hf_vnc_cursor_encoding_bitmask, tvb, *offset,
 			    length, FALSE);
 	*offset += length;

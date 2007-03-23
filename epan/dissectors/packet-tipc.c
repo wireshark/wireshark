@@ -1254,7 +1254,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, int offset, guint8 us
 		offset = offset + (opt_p << 2);
 	}
 	/* TIPCv2 data */
-        if ( msg_size > (orig_hdr_size<<2))
+        if ( msg_size > (guint8) (orig_hdr_size<<2))
 		proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"TIPCv2 data: %u bytes", (msg_size - (orig_hdr_size<<2)));
 
 }
