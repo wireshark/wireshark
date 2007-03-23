@@ -113,7 +113,6 @@ static int hf_uma_urr_gci				= -1;
 static int hf_uma_urr_tura				= -1;
 static int hf_uma_urr_gc				= -1;
 static int hf_uma_urr_uc				= -1;
-static int hf_uma_urr_tlra				= -1;
 static int hf_uma_urr_rrs				= -1;
 static int hf_uma_urr_IP_Address_type	= -1;
 static int hf_uma_urr_FQDN				= -1;

@@ -168,7 +168,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	guchar c;
 
 	/* this module may have been created as a subtree item previously */
-	if(module = find_subtree(parent, title)) {
+	if((module = find_subtree(parent, title))) {
 	  /* the module is currently a subtree */
 	  module->name = name;
 	  module->apply_cb = apply_cb;

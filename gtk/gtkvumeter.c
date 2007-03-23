@@ -201,7 +201,6 @@ static void gtk_vumeter_size_calculate (GtkWidget *widget, GtkRequisition *requi
         /* iterate through scale items to get the highest scale item */
         for (current = vumeter->scale_items; current != NULL; current = g_list_next(current)) {
             GtkVUMeterScaleItem * item = current->data;
-            int scale_level = gtk_vumeter_sound_level_to_draw_level (vumeter, item->level);
 
             pitches++;
 

@@ -1864,7 +1864,7 @@ static const true_false_string tfs_ace_flags_failed_access = {
 
 
 static int
-dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree, packet_info *pinfo, guint8 *drep)
+dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -2035,7 +2035,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case ACE_TYPE_ACCESS_DENIED_OBJECT:
 		case ACE_TYPE_SYSTEM_AUDIT_OBJECT:
 		case ACE_TYPE_SYSTEM_ALARM_OBJECT:
-			offset=dissect_nt_ace_object(tvb, offset, tree, pinfo, drep);
+			offset=dissect_nt_ace_object(tvb, offset, tree);
 		}
 
 		/* SID */
