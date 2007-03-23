@@ -316,7 +316,8 @@ asn1_header_decode(ASN1_SCK *asn1, guint *cls, guint *con, guint *tag,
 			gboolean *defp, guint *lenp)
 {
     int   ret;
-    guint def, len = 0;
+    guint len = 0;
+    gboolean def;
 
     ret = asn1_id_decode (asn1, cls, con, tag);
     if (ret != ASN1_ERR_NOERROR)
@@ -781,7 +782,7 @@ asn1_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
 {
     int          ret;
     int          start;
-    int          enc_len;
+    guint          enc_len;
     guint        cls;
     guint        con;
     guint        tag;

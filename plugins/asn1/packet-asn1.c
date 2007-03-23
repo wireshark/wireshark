@@ -580,12 +580,12 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 					p += sprintf(p, "%2.2X", octets[i]);
 				}
 				*p++ = ' '; /* insert space */
-				strncpy(p, octets, len);
+				strncpy(p, (gchar *)octets, len);
 				p[len] = 0;
 			} else {
 				/* g_strdup_printf("%*s%s", len, octets, endstr) does not work ?? */
 				str = g_malloc(len+5);
-				strncpy(str, octets, len);
+				strncpy(str, (gchar *)octets, len);
 				strcpy(&str[len], endstr);
 			}
 		}
@@ -704,7 +704,8 @@ static void
 dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   ASN1_SCK asn1;
-  guint cls, con, tag, def, len, offset, reassembled;
+  guint cls, con, tag, len, offset, reassembled;
+  gboolean def;
   char lenstr[BUFLS];
   char tagstr[BUFLS];
   char headstr[BUFLL];
@@ -715,14 +716,16 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree * volatile ti = 0, * volatile ti2 = 0, *asn1_tree, *tree2;
   PDUprops props;
   static guint lastseq;
+  struct tcpinfo *info;
+  gint delta;
 
   pcount++;
   boffset = 0;
 
   reassembled = 1;		/* UDP is not a stream, and thus always reassembled .... */
   if (pinfo->ipproto == IP_PROTO_TCP) {	/* we have tcpinfo */
-	  struct tcpinfo *info = (struct tcpinfo *)pinfo->private_data;
-	  gint delta = info->seq - lastseq;
+	  info = (struct tcpinfo *)pinfo->private_data;
+	  delta = info->seq - lastseq;
 	  reassembled = info->is_reassembled;
 	  lastseq = info->seq;
 
@@ -754,7 +757,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
 
-  asn1_close(&asn1, &offset);
+  asn1_close(&asn1, (gint *)&offset);
 
   PDUreset(pcount, 0);		/* arguments are just for debugging */
   getPDUprops(&props, boffset, cls, tag, con);
@@ -819,7 +822,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    /* open BER decoding */
 	    asn1_open(&asn1, tvb, offset);
 	    asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
-	    asn1_close(&asn1, &offset);
+	    asn1_close(&asn1, (gint *)&offset);
 
 	    PDUreset(pcount, i+1);
 	    getPDUprops(&props, boffset, cls, tag, con);
@@ -932,7 +935,8 @@ static guint
 decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, int level)
 {
   ASN1_SCK asn1;
-  guint ret, cls, con, tag, def, len, boffset, soffset, eos;
+  guint ret, cls, con, tag, len, boffset, soffset, eos;
+  gboolean def;
   guint value;
   const char *clsstr, *constr, *tagstr;
   char tagbuf[BUFLM];
@@ -960,7 +964,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	  boffset = offset;
 	  asn1_open(&asn1, tvb, offset);
 	  ret = asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
-	  asn1_close(&asn1, &offset); /* mark current position */
+	  asn1_close(&asn1, (gint *)&offset); /* mark current position */
 	  if (ret != ASN1_ERR_NOERROR) {
 		proto_tree_add_text(pt, tvb, offset, 1, "ASN1 ERROR: %s", asn1_err_to_str(ret) );
 		break;
@@ -1017,8 +1021,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	    case BER_CLASS_UNI:	/* fprintf(stderr, "Universal\n"); */
 	      switch(tag) {
 	        case BER_UNI_TAG_INTEGER:
-		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
 				   (tbl_types_wireshark[props.type] != FT_UINT32) )
@@ -1055,8 +1059,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      break;
 
 	        case BER_UNI_TAG_ENUMERATED:
-		      ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = getPDUenum(&props, boffset, cls, tag, value);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1094,8 +1098,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		      break;
 
 	        case BER_UNI_TAG_BOOLEAN:
-		      ret = asn1_bool_decode(&asn1, len, &value); /* read value */
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
 				   (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
@@ -1143,7 +1147,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		case BER_UNI_TAG_GeneralizedTime:
 			/* read value, \0 terminated */
 		      ret = asn1_string_value_decode(&asn1, len, &octets);
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = showoctets(octets, len, (tag == BER_UNI_TAG_OCTETSTRING) ? 4 : 0 );
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1155,12 +1159,12 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							tname, name, ename, empty);
 			      else {
 					proto_tree_add_string_format(pt, props.value_id, tvb, boffset,
-							offset - boffset, octets, /* \0 termnated */
+							offset - boffset, (gchar *)octets, /* \0 termnated */
 							textfmt_s, boffset, clsstr, constr, tagstr,
 							tname, name, ename, matchind);
 					if (props.type_id != -1)
 						proto_tree_add_string_hidden(pt, props.type_id, tvb,
-								boffset, offset - boffset, octets);
+								boffset, offset - boffset, (gchar *)octets);
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1171,11 +1175,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							"(%s)%s: %s", tname, name, ename);
 			      else {
 					proto_tree_add_string_format(pt, props.value_id, tvb, boffset,
-							offset - boffset, octets, /* \0 terminated */
+							offset - boffset, (gchar *)octets, /* \0 terminated */
 							"(%s)%s: %s ~", tname, name, ename);
 					if (props.type_id != -1)
 						proto_tree_add_string_hidden(pt, props.type_id, tvb,
-								boffset, offset - boffset, octets);
+								boffset, offset - boffset, (gchar *)octets);
 			      }
 		      }
 		      g_free(octets);
@@ -1184,7 +1188,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 		case BER_UNI_TAG_BITSTRING:
 		      ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused); /* read value */
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = showbitnames(bits, (con*8)-unused, &props, offset);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1297,7 +1301,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 
 		case BER_UNI_TAG_OID:
 		      ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
-		      asn1_close(&asn1, &offset); /* mark where we are now */
+		      asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 		      ename = showoid(oid, con);
 		      if (asn1_debug) {
 			      if ( (props.value_id == -1) ||
@@ -1308,11 +1312,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							  ename, empty);
 			      else {
 				      proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
-								 offset - boffset, ename,/* XXX length?*/
+								 offset - boffset, (guint8 *)ename,/* XXX length?*/
 								 "(%s)%s: %s ~", tname, name, ename);
 					if (props.type_id != -1)
 						proto_tree_add_bytes_hidden(pt, props.type_id, tvb,
-								boffset, offset - boffset, ename);
+								boffset, offset - boffset, (guint8 *)ename);
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1323,11 +1327,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							"(%s)%s: %s", tname, name, ename);
 			      else {
 					proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
-							offset - boffset, ename, /* XXX length ? */
+							offset - boffset, (guint8 *)ename, /* XXX length ? */
 							"(%s)%s: %s ~", tname, name, ename);
 					if (props.type_id != -1)
 						proto_tree_add_bytes_hidden(pt, props.type_id, tvb,
-								boffset, offset - boffset, ename);
+								boffset, offset - boffset, (guint8 *)ename);
 			      }
 		      }
 		      g_free(oid);
@@ -1379,8 +1383,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_INTEGER:
 				if (len > 4)
 					goto dostring;
-				ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are now */
+				ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
 					     (tbl_types_wireshark[props.type] != FT_UINT32) )
@@ -1419,8 +1423,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_ENUMERATED:
 				if (len > 4)
 					goto dostring;
-				ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
-		 		asn1_close(&asn1, &offset); /* mark where we are now */
+				ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+		 		asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				ename = getPDUenum(&props, boffset, cls, tag, value);
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
@@ -1461,7 +1465,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					goto dostring;
 								/* read value */
 				ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused);
-				asn1_close(&asn1, &offset); /* mark where we are now */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				ename = showbitnames(bits, (con*8)-unused, &props, offset);
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
@@ -1506,8 +1510,8 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_BOOLEAN:
 				if (len > 1)
 					goto dostring;
-				ret = asn1_bool_decode(&asn1, len, &value); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are now */
+				ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
 					     (tbl_types_wireshark[props.type] != FT_BOOLEAN) )
@@ -1566,7 +1570,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 			case TBL_OCTETSTRING:
 				/* defined length, not constructed, must be a string.... */
 				ret = asn1_string_value_decode(&asn1, len, &octets); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are now */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are now */
 				ename = showoctets(octets, len, 2); /* convert octets to printable */
 				if (asn1_debug) {
 					if ( (props.value_id == -1) ||
@@ -1578,12 +1582,12 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    tagstr, tname, name, ename, empty);
 					else {
 						proto_tree_add_string_format(pt, props.value_id, tvb,
-							    boffset, offset - boffset, octets, /* XXX */
+							    boffset, offset - boffset, (gchar *)octets, /* XXX */
 							    textfmt_s, boffset, clsstr, constr,
 							    tagstr, tname, name, ename, matchind);
 						if (props.type_id != -1)
 							proto_tree_add_string_hidden(pt, props.type_id,
-								tvb, boffset, offset - boffset, octets);
+								tvb, boffset, offset - boffset, (gchar *)octets);
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1593,11 +1597,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    "(%s)%s: %s", tname, name, ename);
 					else {
 						proto_tree_add_string_format(pt, props.value_id, tvb,
-							    boffset, offset - boffset, octets, /* XXX */
+							    boffset, offset - boffset, (gchar *)octets, /* XXX */
 							    "(%s)%s: %s ~", tname, name, ename);
 						if (props.type_id != -1)
 							proto_tree_add_string_hidden(pt, props.type_id,
-								tvb, boffset, offset - boffset, octets);
+								tvb, boffset, offset - boffset, (gchar *)octets);
 					}
 				}
 				g_free(octets);
@@ -1707,7 +1711,8 @@ static guint
 parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 {
 	ASN1_SCK asn1;
-	guint eos, ret, cls, con, tag, def, len, value;
+	guint eos, ret, cls, con, tag, len, value;
+	gboolean def;
 	guchar *octets, *bits, unused;
 	subid_t *oid;
 	const char *clsstr, *constr, *tagstr;
@@ -1726,7 +1731,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 
 		asn1_open(&asn1, tvb, offset);
 		ret = asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
-		asn1_close(&asn1, &offset); /* mark where we are */
+		asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 		icount++;
 		clsstr = asn1_cls[cls];
 		constr = asn1_con[con];
@@ -1748,13 +1753,13 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			switch(tag) {
 			case BER_UNI_TAG_INTEGER:
 			case BER_UNI_TAG_ENUMERATED:
-				ret = asn1_int32_value_decode(&asn1, len, &value); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are */
+				ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				break;
 
 			case BER_UNI_TAG_BOOLEAN:
-				ret = asn1_bool_decode(&asn1, len, &value); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are */
+				ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				break;
 
 			case BER_UNI_TAG_OCTETSTRING:
@@ -1766,13 +1771,13 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			case BER_UNI_TAG_UTCTime:
 			case BER_UNI_TAG_GeneralizedTime:
 				ret = asn1_string_value_decode(&asn1, len, &octets); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				g_free(octets);
 				break;
 
 			case BER_UNI_TAG_BITSTRING:
 				ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused);
-				asn1_close(&asn1, &offset); /* mark where we are */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				g_free(bits);
 				break;
 
@@ -1789,7 +1794,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 
 			case BER_UNI_TAG_OID:
 				ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
-				asn1_close(&asn1, &offset); /* mark where we are */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				g_free(oid);
 				break;
 
@@ -1817,7 +1822,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			if (def && !con) {
 				/* defined length, not constructed, must be a string.... */
 				asn1_string_value_decode(&asn1, len, &octets); /* read value */
-				asn1_close(&asn1, &offset); /* mark where we are */
+				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				g_free(octets);
 			} else {
 				/* indefinite length or constructed.... must be a sequence .... */
@@ -2005,7 +2010,8 @@ static guint
 get_asn1_int(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
-	guint ret, cls, con, tag, def, len;
+	guint ret, cls, con, tag, len;
+	gboolean def;
 	guint value;
 
 	/* g_message("%d get_asn1_int", offset); */
@@ -2033,7 +2039,8 @@ static subid_t *			/* with prepended length ..... */
 get_asn1_oid(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
-	guint ret, cls, con, tag, def, len;
+	guint ret, cls, con, tag, len;
+	gboolean def;
 	subid_t *oid;
 
 	/* g_message("%d get_asn1_oid", offset); */
@@ -2064,7 +2071,8 @@ static guchar *			/* 0 terminated string */
 get_asn1_string(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
-	guint ret, cls, con, tag, def, len;
+	guint ret, cls, con, tag, len;
+	gboolean def;
 	guchar *octets;
 
 	/* g_message("%d get_asn1_string", offset); */
@@ -2113,7 +2121,8 @@ static gboolean
 check_tag(guint want_tag, guint offset)
 {
 	ASN1_SCK asn1;
-	guint ret, cls, con, tag, def, len;
+	guint ret, cls, con, tag, len;
+	gboolean def;
 
 	asn1_open(&asn1, asn1_desc, offset);
 
@@ -2377,7 +2386,7 @@ is_typedef(GNode *node, gpointer data)
 
 	if (d == 0) return FALSE;
 	if (d->type != TBLTYPE_TypeDef) return FALSE;
-	if (strcmp(s->key, d->typeName) == 0) {
+	if (strcmp(s->key, (gchar *)d->typeName) == 0) {
 		s->here = node;
 		return TRUE;
 	}
@@ -2424,7 +2433,7 @@ is_named(GNode *node, gpointer data)
 	if (num->value > n->used)  /* track max used value, there may be holes... */
 		n->used = num->value;
 
-	n->info[num->value].name = num->name;
+	n->info[num->value].name = (gchar *)num->name;
 
 	return FALSE;
 }
@@ -2451,7 +2460,7 @@ index_typedef(GNode *node, gpointer data)
 		n->used = d->typeDefId;
 
 	t = &(n->info[d->typeDefId]);
-	t->name = d->typeName;
+	t->name = (gchar *)d->typeName;
 	t->type = node;
 	t->refs = g_ptr_array_new();	/* collect references here */
 	node = g_node_first_child(node); /* the real type */
@@ -2602,6 +2611,8 @@ get_values(void)		/* collect values from ASN.1 tree */
 static void
 showGNode(GNode *p, int n)
 {
+
+  const char *fn, *s = empty;
 	if (p == 0) return;
 	n *=2; /* 2 spaces per level */
 	if (p->data) { /* show value ... */
@@ -2623,9 +2634,8 @@ showGNode(GNode *p, int n)
 			break;
 		case TBLTYPE_Type: {
 			TBLType *t = (TBLType *)p->data;
-			const char *fn, *s = empty;
 			if (t->fieldName)
-				s = t->fieldName;
+				s = (gchar *)t->fieldName;
 			/* typeId is a value from enum TBLTypeId */
 			fn = TBLTYPE(t->typeId);
 			if (asn1_verbose) g_message("%*stype %d[%s]%s [%s]", n, empty, t->typeId, fn,
@@ -2634,7 +2644,6 @@ showGNode(GNode *p, int n)
 		        break;
 		case TBLTYPE_Tag: {
 			TBLTag *t = (TBLTag *)p->data;
-			const char *s = empty;
 			if ((t->tclass == BER_CLASS_UNI) && (t->code < 32))
 				s = asn1_tag[t->code];
 			if (asn1_verbose) g_message("%*stag %c%d[%s]", n, empty,
@@ -2655,7 +2664,6 @@ showGNode(GNode *p, int n)
 			break;
 		case TBLTYPE_TypeRef: {
 			TBLTypeRef *r = (TBLTypeRef *)p->data;
-			const char *s = empty;
 			if (typeDef_names)
 				s = typeDef_names[r->typeDefId].name;
 			if (asn1_verbose) g_message("%*styperef %d[%s]%s", n, empty,
@@ -2741,6 +2749,7 @@ read_asn1_type_table(const char *filename)
 	guint size;
 	guchar *data;
 	struct stat stat;
+	static guint mylogh = 0;
 
 	if ((filename == 0) || (strlen(filename) == 0))
 		return;		/* no filename provided */
@@ -2783,7 +2792,6 @@ read_asn1_type_table(const char *filename)
 	   * Sleep(5 * 1000);
 	   */
 
-		static guint mylogh = 0;
 
 		g_message("logging to file %s", asn1_logfile);
 
@@ -2847,6 +2855,8 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 	PDUinfo *p = (PDUinfo *)pdu->data, *p1;
 	guint nvals;
 	value_string *v;
+	char ss[128];
+	int i;
 
 	if (n > 40) {  /* don't believe this....! ...... stop recursion ...... */
 		g_warning("****tbl_typeref: n>40, return [recursion too deep] ****************");
@@ -2899,7 +2909,6 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			}
 		}
 	} else {
-		char ss[128];
 
 		ss[0] = 0;
 		if (p->tclass==CLASSREF)
@@ -2908,7 +2917,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 
 		if (p->tclass==CLASSREF) {
 			TypeRef *tr;
-			int i = p->basetype;
+			i = p->basetype;
 			/* CLASSREF....., get it defined using type of the reference */
 
 			/* p->basetype may be -1 .... ? XXX */
@@ -2953,7 +2962,7 @@ tbl_typeref(guint n, GNode *pdu, GNode *tree, guint fullindex)
 			p = g_malloc0(sizeof(PDUinfo));
 			nvals++;
 			p->type = TBL_ENUMERATED;
-			p->name = (((TBLNamedNumber *)q->data)->name);
+			p->name = (gchar *) (((TBLNamedNumber *)q->data)->name);
 			p->tag = (((TBLNamedNumber *)q->data)->value);
 			p->flags = PDU_NAMEDNUM;
 			if (asn1_verbose) g_message("%*s  %3d %s", n*2, empty, p->tag, p->name);
@@ -3062,9 +3071,9 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 			if (((TBLType *)list->data)->fieldName == 0) { /* no name assigned */
 				/* assign an anonymous name [XXX refer to parent typename...] */
 				((TBLType *)list->data)->fieldName =
-							g_strdup_printf("anon%d", anonCount++);
+							(guint8 *)g_strdup_printf("anon%d", anonCount++);
 			}
-			p->name = ((TBLType *)list->data)->fieldName;
+			p->name = (gchar *)((TBLType *)list->data)->fieldName;
 
 			ni = fullindex;
 			ni += g_snprintf(&fieldname[ni], sizeof(fieldname) - ni, ".%s", p->name);
@@ -3129,7 +3138,7 @@ tbl_type(guint n, GNode *pdu, GNode *list, guint fullindex) /* indent, pdu, sour
 				p = g_malloc0(sizeof(PDUinfo));
 				nvals++;
 				p->type = TBL_ENUMERATED;
-				p->name = (((TBLNamedNumber *)q->data)->name);
+				p->name = (gchar *)(((TBLNamedNumber *)q->data)->name);
 				p->tag = (((TBLNamedNumber *)q->data)->value);
 				p->flags = PDU_NAMEDNUM;
 				if (asn1_verbose) g_message("%*s  %3d %s", n*2, empty, p->tag, p->name);
@@ -3337,6 +3346,11 @@ build_pdu_tree(const char *pduname)
 	guint pdudef, i, tcount;
 	guint sav_len;
 	PDUinfo *info;
+	char text[400];
+	guint j, k;
+	gint defid;
+	PDUinfo *p, *q;
+	TypeRef *tr;
 
 	if (asn1_verbose) g_message("build msg tree from '%s' for '%s'", current_asn1, pduname);
 
@@ -3400,7 +3414,7 @@ build_pdu_tree(const char *pduname)
 	if (asn1_verbose)
 		g_message("Define the types that are actually referenced through the top level PDU");
 	for (i=0, tcount=0; i<numTypedefs; i++) {
-		TypeRef *tr = &(typeDef_names[i]);
+		tr = &(typeDef_names[i]);
 
 		if (tr->pdu) {	/* ignore if not used in main pdu */
 			tcount++;
@@ -3444,11 +3458,7 @@ build_pdu_tree(const char *pduname)
 	if (asn1_verbose)
 		g_message("Type index:");
 	for (i=0; i<numTypedefs; i++) {
-		TypeRef *tr = &(typeDef_names[i]);
-		guint j, k;
-		gint defid;
-		PDUinfo *p, *q;
-		char text[400];
+		tr = &(typeDef_names[i]);
 
 		if (tr->pdu == 0) /* skip if not used */
 			continue;
@@ -4940,7 +4950,7 @@ proto_register_asn1(void) {
   prefs_register_enum_preference(asn1_module, "type_recursion",
 				 "Eliminate references to level",
 				 "Allow this recursion level for eliminated type references",
-				 &type_recursion_level,
+				 (gint *)&type_recursion_level,
 				 type_recursion_opts, FALSE);
   prefs_register_bool_preference(asn1_module, "debug",
 				 "ASN.1 debug mode",
