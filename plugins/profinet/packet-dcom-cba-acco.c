@@ -588,7 +588,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
     }
     ip = g_ntohl(ip);
 
-    pdev = cba_pdev_add(pinfo, (char *) &ip);
+    pdev = cba_pdev_add(pinfo, (guint8 *) &ip);
     delim++;
 
     ldev = cba_ldev_add(pinfo, pdev, delim);
