@@ -116,7 +116,8 @@
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 
 static nstime_t first_ts;
-static nstime_t prev_ts;
+static nstime_t prev_dis_ts;
+static nstime_t prev_cap_ts;
 static GString *comp_info_str, *runtime_info_str;
 
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
@@ -276,7 +277,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
-  fprintf(output, "  -t ad|a|r|d|e            output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
@@ -1034,6 +1035,8 @@ main(int argc, char *argv[])
           timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
+        else if (strcmp(optarg, "dd") == 0)
+          timestamp_set_type(TS_DELTA_DIS);
         else if (strcmp(optarg, "e") == 0)
           timestamp_set_type(TS_EPOCH);
         else {
@@ -2242,12 +2245,12 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
     first_ts = fdata->abs_ts;
   }
 
-  /* If we don't have the time stamp of the previous displayed packet,
-     it's because this is the first displayed packet.  Save the time
-     stamp of this packet as the time stamp of the previous displayed
+  /* If we don't have the time stamp of the previous captured packet,
+     it's because this is the first packet.  Save the time
+     stamp of this packet as the time stamp of the previous captured
      packet. */
-  if (nstime_is_zero(&prev_ts)) {
-    prev_ts = fdata->abs_ts;
+  if (nstime_is_zero(&prev_cap_ts)) {
+    prev_cap_ts = fdata->abs_ts;
   }
 
   /* Get the time elapsed between the first packet and this packet. */
@@ -2263,8 +2266,15 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
-  nstime_delta(&fdata->del_ts, &fdata->abs_ts, &prev_ts);
-  prev_ts = fdata->abs_ts;
+  if (nstime_is_zero(&prev_dis_ts))
+    nstime_set_zero(&fdata->del_dis_ts);
+  else
+    nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+
+  /* Get the time elapsed between the previous captured packet and
+     this packet. */
+  nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &prev_cap_ts);
+  prev_cap_ts = fdata->abs_ts;
 }
 
 /* Free up all data attached to a "frame_data" structure. */
@@ -2341,6 +2351,11 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
   }
 
   if (passed) {
+    /* Keep the time of the current packet if the packet passed 
+       the read filter so that the delta time since last displayed
+       packet can be calculated */
+    prev_dis_ts = fdata.abs_ts;
+
     /* Process this packet. */
     if (print_packet_info) {
       /* We're printing packet information; print the information for
@@ -2963,7 +2978,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     cf->has_snap = TRUE;
   nstime_set_zero(&cf->elapsed_time);
   nstime_set_zero(&first_ts);
-  nstime_set_zero(&prev_ts);
+  nstime_set_zero(&prev_dis_ts);
+  nstime_set_zero(&prev_cap_ts);
 
   return CF_OK;
 

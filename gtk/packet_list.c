@@ -170,7 +170,10 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
       return COMPARE_TS(rel_ts);
 
     case TS_DELTA:
-      return COMPARE_TS(del_ts);
+      return COMPARE_TS(del_cap_ts);
+
+    case TS_DELTA_DIS:
+      return COMPARE_TS(del_dis_ts);
 
     case TS_NOT_SET:
       return 0;
@@ -185,7 +188,10 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     return COMPARE_TS(rel_ts);
 
   case COL_DELTA_TIME:
-    return COMPARE_TS(del_ts);
+    return COMPARE_TS(del_cap_ts);
+
+  case COL_DELTA_TIME_DIS:
+    return COMPARE_TS(del_dis_ts);
 
   case COL_PACKET_LENGTH:
     return COMPARE_NUM(pkt_len);

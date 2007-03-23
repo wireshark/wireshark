@@ -62,6 +62,7 @@ enum {
   COL_ABS_TIME,       /* Absolute time */
   COL_ABS_DATE_TIME,  /* Absolute date and time */
   COL_DELTA_TIME,     /* Delta time */
+  COL_DELTA_TIME_DIS, /* Delta time displayed*/
   COL_DEF_SRC,        /* Source address */
   COL_RES_SRC,        /* Resolved source */
   COL_UNRES_SRC,      /* Unresolved source */

@@ -296,6 +296,7 @@ static const struct col_names_t colnames[] = {
     {"rel_time",COL_REL_TIME},
     {"date",COL_ABS_DATE_TIME},
     {"delta_time",COL_DELTA_TIME},
+    {"delta_time_displayed",COL_DELTA_TIME_DIS},
     {"src",COL_DEF_SRC},
     {"src_res",COL_RES_SRC},
     {"src_unres",COL_UNRES_SRC},
@@ -583,7 +584,8 @@ PINFO_GET_NUMBER(Pinfo_len,pinfo->fd->pkt_len)
 PINFO_GET_NUMBER(Pinfo_caplen,pinfo->fd->cap_len)
 PINFO_GET_NUMBER(Pinfo_abs_ts,(((double)pinfo->fd->abs_ts.secs) + (((double)pinfo->fd->abs_ts.nsecs) / 1000000000.0) ))
 PINFO_GET_NUMBER(Pinfo_rel_ts,(((double)pinfo->fd->rel_ts.secs) + (((double)pinfo->fd->rel_ts.nsecs) / 1000000000.0) ))
-PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_ts.secs) + (((double)pinfo->fd->del_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_delta_ts,(((double)pinfo->fd->del_cap_ts.secs) + (((double)pinfo->fd->del_cap_ts.nsecs) / 1000000000.0) ))
+PINFO_GET_NUMBER(Pinfo_delta_dis_ts,(((double)pinfo->fd->del_dis_ts.secs) + (((double)pinfo->fd->del_dis_ts.nsecs) / 1000000000.0) ))
 PINFO_GET_NUMBER(Pinfo_ipproto,pinfo->ipproto)
 PINFO_GET_NUMBER(Pinfo_circuit_id,pinfo->circuit_id)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ptype)
@@ -769,8 +771,11 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture */
     {"rel_ts",Pinfo_rel_ts, pushnil_param, PARAM_NONE },
 
-	/* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last packet */
+	/* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last captured packet */
     {"delta_ts",Pinfo_delta_ts, pushnil_param, PARAM_NONE },
+
+	/* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet */
+    {"delta_dis_ts",Pinfo_delta_dis_ts, pushnil_param, PARAM_NONE },
 
 	/* WSLUA_ATTRIBUTE Pinfo_visited RO Whether this packet hass been already visited */
     {"visited",Pinfo_visited, pushnil_param, PARAM_NONE },

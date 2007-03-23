@@ -792,8 +792,9 @@
 		  <note><title>Note!</title>
 		  <para>
 		  The fields "Time of Day", "Date and Time of
-	      Day", "Seconds Since Beginning of Capture" and "Seconds Since
-	      Previous Packet" are mutually exclusive.
+	      Day", "Seconds Since Beginning of Capture", "Seconds Since
+	      Previous Captured Packet" and "Seconds Since Previous
+	      Displayed Packet" are mutually exclusive.
 		  </para>
 		  </note>
 		  </para></entry>
@@ -817,11 +818,20 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Time Display Format > Seconds Since Previous Packet:  1.123456</command></entry>
+		<entry><command>Time Display Format > Seconds Since Previous Captured Packet:  1.123456</command></entry>
 		<entry></entry>
 		<entry><para>
 	      Selecting this tells Wireshark to display time stamps in
-	      seconds since previous packet format, see
+	      seconds since previous captured packet format, see
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Seconds Since Previous Displayed Packet:  1.123456</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Wireshark to display time stamps in
+	      seconds since previous displayed packet format, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>

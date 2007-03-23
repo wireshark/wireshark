@@ -51,6 +51,7 @@ col_format_to_string(gint fmt) {
 	"%At",
 	"%Yt",
 	"%Tt",
+	"%Gt",
 	"%s",
 	"%rs",
 	"%us",
@@ -116,6 +117,7 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"Absolute time",                            /* COL_ABS_TIME */
 	"Absolute date and time",                   /* COL_ABS_DATE_TIME */
 	"Delta time",                               /* COL_DELTA_TIME */
+	"Delta time displayed",                     /* COL_DELTA_TIME_DIS */
 	"Source address",                           /* COL_DEF_SRC */
 	"Src addr (resolved)",                      /* COL_RES_SRC */
 	"Src addr (unresolved)",                    /* COL_UNRES_SRC */
@@ -355,6 +357,7 @@ get_timestamp_column_longest_string(gint type, gint precision)
 		break;
 	case(TS_RELATIVE):	/* fallthrough */
 	case(TS_DELTA):
+	case(TS_DELTA_DIS):
 		switch(precision) {
 			case(TS_PREC_AUTO_SEC):
 			case(TS_PREC_FIXED_SEC):
@@ -472,6 +475,9 @@ get_column_longest_string(gint format)
     case COL_DELTA_TIME:
       return get_timestamp_column_longest_string(TS_DELTA, timestamp_get_precision());
       break;
+    case COL_DELTA_TIME_DIS:
+      return get_timestamp_column_longest_string(TS_DELTA_DIS, timestamp_get_precision());
+      break;
     case COL_DEF_SRC:
     case COL_RES_SRC:
     case COL_UNRES_SRC:
@@ -581,6 +587,7 @@ get_column_char_width(gint format)
 #define TIME_ABS      2
 #define DATE_TIME_ABS 3
 #define TIME_DEL      4
+#define TIME_DEL_DIS  5
 
 #define RES_DEF  0
 #define RES_DO   1
@@ -671,6 +678,9 @@ get_column_format_from_str(gchar *str) {
         break;
       case 'T':
         time_off = TIME_DEL;
+        break;
+      case 'G': /* Todo: use a better letter for time since last displayed packet */
+        time_off = TIME_DEL_DIS;
         break;
       case 'L':
         return COL_PACKET_LENGTH;

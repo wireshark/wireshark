@@ -32,7 +32,8 @@ typedef enum {
 	TS_RELATIVE,            /* Since start of capture */
 	TS_ABSOLUTE,
 	TS_ABSOLUTE_WITH_DATE,
-	TS_DELTA,               /* Since previous packet */
+	TS_DELTA,               /* Since previous captured packet */
+	TS_DELTA_DIS,           /* Since previous displayed packet */
 	TS_EPOCH,               /* Seconds (and fractions) since epoch */
 
 /*

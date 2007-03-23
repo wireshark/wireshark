@@ -46,7 +46,8 @@ typedef struct _frame_data {
   guint32      cum_bytes;   /* Cumulative bytes into the capture */
   nstime_t     abs_ts;      /* Absolute timestamp */
   nstime_t     rel_ts;      /* Relative timestamp (yes, it can be negative) */
-  nstime_t     del_ts;      /* Delta timestamp (yes, it can be negative) */
+  nstime_t     del_dis_ts;  /* Delta timestamp to previous displayed frame (yes, it can be negative) */
+  nstime_t     del_cap_ts;  /* Delta timestamp to previous captured frame (yes, it can be negative) */
   gint64       file_off;    /* File offset */
   int          lnk_t;       /* Per-packet encapsulation/data-link type */
   struct {

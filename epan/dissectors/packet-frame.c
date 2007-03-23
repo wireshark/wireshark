@@ -43,6 +43,7 @@ int proto_frame = -1;
 int hf_frame_arrival_time = -1;
 static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
+static int hf_frame_time_delta_displayed = -1;
 static int hf_frame_time_relative = -1;
 int hf_frame_number = -1;
 int hf_frame_packet_len = -1; /* Deprecated in favor of hf_frame_len */
@@ -195,9 +196,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
       }
 
-	  ts = pinfo->fd->del_ts;
+	  ts = pinfo->fd->del_cap_ts;
 
 	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+		0, 0, &ts);
+	  PROTO_ITEM_SET_GENERATED(item);
+
+	  ts = pinfo->fd->del_dis_ts;
+
+	  item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
 		0, 0, &ts);
 	  PROTO_ITEM_SET_GENERATED(item);
 
@@ -462,7 +469,12 @@ proto_register_frame(void)
 			"The timestamp from the capture is out of the valid range", HFILL }},
 
 		{ &hf_frame_time_delta,
-		{ "Time delta from previous displayed frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+		{ "Time delta from previous captured frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
+			0x0,
+			"Time delta from previous captured frame", HFILL }},
+
+		{ &hf_frame_time_delta_displayed,
+		{ "Time delta from previous displayed frame",	"frame.time_delta_displayed", FT_RELATIVE_TIME, BASE_NONE, NULL,
 			0x0,
 			"Time delta from previous displayed frame", HFILL }},
 

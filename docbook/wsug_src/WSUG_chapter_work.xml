@@ -1406,8 +1406,11 @@ eth.src[1-2] == 00:83
 		"Time Reference" before this packet (see <xref 
 		linkend="ChWorkTimeReferencePacketSection"/>).</para>
 	</listitem>
-	<listitem><para><command>Seconds Since Previous Packet:  1.123456</command>
-		The time relative to the previous packet.</para>
+	<listitem><para><command>Seconds Since Previous Captured Packet:  1.123456</command>
+		The time relative to the previous captured packet.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Previous Displayed Packet:  1.123456</command>
+		The time relative to the previous displayed packet.</para>
 	</listitem>
 	</itemizedlist>
 	</para>

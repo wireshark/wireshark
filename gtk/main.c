@@ -1263,7 +1263,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "User interface:\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
-  fprintf(output, "  -t ad|a|r|d|e            output format of time stamps (def: r: rel. to first)\n");
+  fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see man page for details\n");
   fprintf(output, "  -z <statistics>          show various statistics, see man page for details\n");
 
@@ -2669,6 +2669,8 @@ main(int argc, char *argv[])
           timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
         else if (strcmp(optarg, "d") == 0)
           timestamp_set_type(TS_DELTA);
+        else if (strcmp(optarg, "dd") == 0)
+          timestamp_set_type(TS_DELTA_DIS);
         else if (strcmp(optarg, "e") == 0)
           timestamp_set_type(TS_EPOCH);
         else {
