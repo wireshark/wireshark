@@ -69,9 +69,9 @@ struct _value_string;
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
 #define TFS(x)	(const struct true_false_string*)(x)
 
-/** Make a const value_string[] look like a _value_string pointer, used to set
+/** Make a const range_string[] look like a _range_string pointer, used to set
  * header_field_info.strings */
-#define RVALS(x) (const struct _value_string*)(x)
+#define RVALS(x) (const struct _range_string*)(x)
 
 struct _protocol;
 
