@@ -94,6 +94,10 @@ OrderedListSyntax         B "2.5.29.47" "id-ce-orderedList"
 DeltaInformation          B "2.5.29.53" "id-ce-deltaInfo"
 SkipCerts                 B "2.5.29.54" "id-ce-inhibitAnyPolicy"
 
+# Microsoft extensions
+CertificateTemplate		B "1.3.6.1.4.1.311.21.7"  "id-ms-certificate-template"
+CertificatePoliciesSyntax	B "1.3.6.1.4.1.311.21.10" "id-ms-application-certificate-policies"
+
 #.NO_EMIT
 
 #.TYPE_RENAME

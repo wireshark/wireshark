@@ -86,6 +86,7 @@ static int hf_x509ce_DeltaInformation_PDU = -1;   /* DeltaInformation */
 static int hf_x509ce_CRLDistPointsSyntax_PDU = -1;  /* CRLDistPointsSyntax */
 static int hf_x509ce_IssuingDistPointSyntax_PDU = -1;  /* IssuingDistPointSyntax */
 static int hf_x509ce_BaseCRLNumber_PDU = -1;      /* BaseCRLNumber */
+static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
 static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
@@ -187,6 +188,9 @@ static int hf_x509ce_maxCRLNumber = -1;           /* CRLNumber */
 static int hf_x509ce_reasonFlags = -1;            /* ReasonFlags */
 static int hf_x509ce_firstIssuer = -1;            /* Name */
 static int hf_x509ce_lastSubject = -1;            /* Name */
+static int hf_x509ce_templateID = -1;             /* OBJECT_IDENTIFIER */
+static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
+static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
 /* named bits */
 static int hf_x509ce_KeyUsage_digitalSignature = -1;
 static int hf_x509ce_KeyUsage_nonRepudiation = -1;
@@ -263,6 +267,7 @@ static gint ett_x509ce_CertificatePairAssertion = -1;
 static gint ett_x509ce_CertificateListExactAssertion = -1;
 static gint ett_x509ce_CertificateListAssertion = -1;
 static gint ett_x509ce_PkiPathMatchSyntax = -1;
+static gint ett_x509ce_CertificateTemplate = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
 #line 58 "packet-x509ce-template.c"
@@ -349,7 +354,7 @@ static int dissect_type_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "x509ce.cnf"
+#line 124 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -386,7 +391,7 @@ dissect_x509ce_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                             pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 123 "x509ce.cnf"
+#line 127 "x509ce.cnf"
   if(hf_index == hf_x509ce_uniformResourceIdentifier)
 	PROTO_ITEM_SET_URL(get_ber_last_created_item());
 
@@ -425,7 +430,7 @@ static int dissect_ediPartyName_impl(packet_info *pinfo _U_, proto_tree *tree _U
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 113 "x509ce.cnf"
+#line 117 "x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
 	offset+=4;
 
@@ -453,6 +458,9 @@ static int dissect_subjectPublicKeyAlgID_impl(packet_info *pinfo _U_, proto_tree
 }
 static int dissect_otherNameForm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_otherNameForm);
+}
+static int dissect_templateID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateID);
 }
 
 
@@ -701,7 +709,7 @@ static int dissect_policyQualifierId(packet_info *pinfo _U_, proto_tree *tree _U
 
 static int
 dissect_x509ce_PolicyQualifierValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 110 "x509ce.cnf"
+#line 114 "x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
 
 
@@ -871,6 +879,12 @@ static int dissect_endingNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U
 }
 static int dissect_modulus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_modulus);
+}
+static int dissect_templateMajorVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateMajorVersion);
+}
+static int dissect_templateMinorVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateMinorVersion);
 }
 
 
@@ -1585,6 +1599,22 @@ dissect_x509ce_PkiPathMatchSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   return offset;
 }
 
+
+static const ber_sequence_t CertificateTemplate_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_templateID },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_templateMajorVersion },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_templateMinorVersion },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_x509ce_CertificateTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   CertificateTemplate_sequence, hf_index, ett_x509ce_CertificateTemplate);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_AuthorityKeyIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -1658,6 +1688,9 @@ static void dissect_IssuingDistPointSyntax_PDU(tvbuff_t *tvb _U_, packet_info *p
 }
 static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   dissect_x509ce_BaseCRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_BaseCRLNumber_PDU);
+}
+static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509ce_CertificateTemplate(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CertificateTemplate_PDU);
 }
 
 
@@ -1796,6 +1829,10 @@ void proto_register_x509ce(void) {
       { "BaseCRLNumber", "x509ce.BaseCRLNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509ce.BaseCRLNumber", HFILL }},
+    { &hf_x509ce_CertificateTemplate_PDU,
+      { "CertificateTemplate", "x509ce.CertificateTemplate",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509ce.CertificateTemplate", HFILL }},
     { &hf_x509ce_keyIdentifier,
       { "keyIdentifier", "x509ce.keyIdentifier",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -2200,6 +2237,18 @@ void proto_register_x509ce(void) {
       { "lastSubject", "x509ce.lastSubject",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "x509if.Name", HFILL }},
+    { &hf_x509ce_templateID,
+      { "templateID", "x509ce.templateID",
+        FT_OID, BASE_NONE, NULL, 0,
+        "x509ce.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_x509ce_templateMajorVersion,
+      { "templateMajorVersion", "x509ce.templateMajorVersion",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "x509ce.INTEGER", HFILL }},
+    { &hf_x509ce_templateMinorVersion,
+      { "templateMinorVersion", "x509ce.templateMinorVersion",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "x509ce.INTEGER", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2346,6 +2395,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_CertificateListExactAssertion,
     &ett_x509ce_CertificateListAssertion,
     &ett_x509ce_PkiPathMatchSyntax,
+    &ett_x509ce_CertificateTemplate,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
 #line 102 "packet-x509ce-template.c"
@@ -2393,6 +2443,8 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.29.47", dissect_OrderedListSyntax_PDU, proto_x509ce, "id-ce-orderedList");
   register_ber_oid_dissector("2.5.29.53", dissect_DeltaInformation_PDU, proto_x509ce, "id-ce-deltaInfo");
   register_ber_oid_dissector("2.5.29.54", dissect_SkipCerts_PDU, proto_x509ce, "id-ce-inhibitAnyPolicy");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.21.7", dissect_CertificateTemplate_PDU, proto_x509ce, "id-ms-certificate-template");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
