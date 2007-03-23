@@ -567,7 +567,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	new_nfs_fh=se_alloc(sizeof(nfs_fhandle_data_t));
 	new_nfs_fh->len=nfs_fh->len;
 	new_nfs_fh->fh=se_alloc(sizeof(guint32)*(nfs_fh->len/4));
-	memcpy(new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
+	memcpy( (void *) new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
 	new_nfs_fh->tvb=tvb_new_real_data(new_nfs_fh->fh, new_nfs_fh->len, new_nfs_fh->len);
 	fhlen=nfs_fh->len/4;
 	fhkey[0].length=1;
@@ -1275,7 +1275,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	guint32 handle_type = tvb_get_ntohl(tvb, offset + 24);
 	guint32 inum = tvb_get_ntohl(tvb, offset + 12);
 		
-	char *handle_string=NULL;
+	const char *handle_string=NULL;
 	const char *handle_type_strings [] = { "NORMAL",
 					       "UNEXP",
 					       "VOLDIR",

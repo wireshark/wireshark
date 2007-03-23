@@ -198,7 +198,7 @@ static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
 		nstime_t delta;
 
 		nstime_delta(&delta, &key1->req_time, &key2->req_time);
-		if (abs(nstime_to_sec(&delta)) > (double) 5) return 0;
+		if (abs( (int) nstime_to_sec(&delta)) > (double) 5) return 0;
 
 		if (key1->code == key2->code)
 			return 1;

@@ -551,11 +551,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
   if(ssl){   
     if(ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)){
-      ssl->server.seq=sequence_number;
+      ssl->server.seq=(guint32)sequence_number;
       ssl->server.epoch=epoch;
     }
     else{
-      ssl->client.seq=sequence_number;
+      ssl->client.seq=(guint32)sequence_number;
       ssl->client.epoch=epoch;
     }
   }

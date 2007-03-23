@@ -2077,7 +2077,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                     break;
                 }
 
-                offset += content_len;
+                offset += (guint) content_len;
             }
         } else {
             available = tvb_reported_length_remaining(tvb, offset);
@@ -2094,7 +2094,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                     break;
                 }
 
-                offset += content_len;
+                offset += (guint) content_len;
             }
         }
 
@@ -2253,7 +2253,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         }
 
         /* content */
-        element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
+        element_content_tvb = tvb_new_subset(tvb, tree_offset, (gint)content_len, (gint)content_len);
 
         if (mediatype) {
             if (0 == strcmp("application/x-jxta-tls-block", mediatype)) {
@@ -2287,7 +2287,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             /* display it as raw data */
             call_dissector(data_handle, element_content_tvb, pinfo, jxta_elem_tree);
         }
-        tree_offset += content_len;
+        tree_offset += (guint) content_len;
 
         /* process the signature element */
         if ((flags & JXTAMSG2_ELMFLAG_SIGNATURE) != 0) {

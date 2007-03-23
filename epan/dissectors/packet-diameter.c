@@ -1309,9 +1309,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vendorName="None";
   }
   /* Do the bit twiddling */
-  version = DIAM_GET_VERSION(dh);
+  version = (guint8) DIAM_GET_VERSION(dh);
   pktLength = DIAM_GET_LENGTH(dh);
-  flags = DIAM_GET_FLAGS(dh);
+  flags = (guint8) DIAM_GET_FLAGS(dh);
   commandCode = DIAM_GET_COMMAND(dh);
     break;
     case DIAMETER_RFC:
@@ -1332,9 +1332,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         applicationName="None";
       }
       /* Do the bit twiddling */
-      version = DIAM_GET_VERSION(dh2);
+      version = (guint8) DIAM_GET_VERSION(dh2);
       pktLength = DIAM_GET_LENGTH(dh2);
-      flags = DIAM_GET_FLAGS(dh2);
+      flags = (guint8) DIAM_GET_FLAGS(dh2);
       commandCode = DIAM_GET_COMMAND(dh2);
     break;
   }

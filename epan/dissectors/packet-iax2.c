@@ -1358,13 +1358,13 @@ static void iax2_add_ts_fields(packet_info * pinfo, proto_tree * iax2_tree, iax_
 
   if(iax_packet->abstime.secs == -1) {
     time_t start_secs = iax_packet->call_data->start_time.secs;
-    gint32 abs_secs = start_secs + longts/1000;
+    gint32 abs_secs = (gint32) (start_secs + longts/1000);
 
     /* deal with short timestamps by assuming that packets are never more than
      * 16 seconds late */
     while(abs_secs < pinfo->fd->abs_ts.secs - 16) {
       longts += 32768;
-      abs_secs = start_secs + longts/1000;
+      abs_secs = (gint32) (start_secs + longts/1000);
     }
 
     iax_packet->abstime.secs=abs_secs;

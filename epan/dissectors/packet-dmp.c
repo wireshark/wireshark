@@ -2001,7 +2001,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo _U_,
 		if (secs == -1 || secs == -2) {
 			proto_item_append_text (tf, "Reserved (0x%2.2x)", time_diff);
 		} else {
-			proto_item_append_text (tf, "%s", time_secs_to_str (secs));
+			proto_item_append_text (tf, "%s", time_secs_to_str ( (gint32) secs));
 		}
 		offset += 1;
 	}
@@ -2343,8 +2343,8 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo _U_,
 			proto_item_append_text (ei, " (0 seconds)");
 		} else {
 			proto_item_append_text (tf, "%s (offset from the original message"
-						" submission time)", time_secs_to_str (secs));
-			proto_item_append_text (ei, " (%s)", time_secs_to_str (secs));
+						" submission time)", time_secs_to_str ((gint32) secs));
+			proto_item_append_text (ei, " (%s)", time_secs_to_str ((gint32) secs));
 		}
 	} else {
 		dmp.ndr = TRUE;
@@ -2457,7 +2457,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 			proto_item_append_text (tf, "Reserved (0x%2.2x)", rec_time);
 		} else {
 			proto_item_append_text (tf, "%s (offset from the original message"
-						" submission time)", time_secs_to_str (secs));
+						" submission time)", time_secs_to_str ((gint32) secs));
 		}
 		offset += 1;
 
@@ -2799,7 +2799,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo _U_,
 		} else if (secs == -1 || secs == -2) {
 			proto_item_append_text (tf, "Reserved (0x%2.2x)", exp_time);
 		} else {
-			proto_item_append_text (tf, "%s (%s)", time_secs_to_str (secs),
+			proto_item_append_text (tf, "%s (%s)", time_secs_to_str ((gint32) secs),
 						abs_time_secs_to_str (dmp.subm_time + secs));
 		}
 		offset += 1;
@@ -2825,7 +2825,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo _U_,
 						dtg_sign.false_string,
 						abs_time_secs_to_str (dmp.subm_time));
 		} else {
-			proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_str(secs),
+			proto_item_append_text (tf, "%s in the %s (%s)", time_secs_to_str((gint32) secs),
 						(dtg & 0x80) ? dtg_sign.true_string : 
 						dtg_sign.false_string, (dtg & 0x80) ?
 						abs_time_secs_to_str (dmp.subm_time + secs) :

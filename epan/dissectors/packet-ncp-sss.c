@@ -642,7 +642,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                 {
                     msg_length = tvb_get_letohl(tvb, foffset);
                     foffset += 4;
-                    if (tvb_length_remaining(tvb, foffset) < msg_length)
+                    if (tvb_length_remaining(tvb, foffset) < (gint) msg_length)
                     {
                         proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, TRUE);
                     }

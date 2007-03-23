@@ -622,7 +622,7 @@ dissect_fmp_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (time_tree) {
 		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
-		                    ts.secs);
+		                    (guint32) ts.secs);
 		proto_tree_add_uint(time_tree, hf_time_nsec, tvb, offset+4, 4,
 		                    ts.nsecs);
 	}

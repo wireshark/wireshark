@@ -1793,7 +1793,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 			break;
 		    }
 		    
-		    for(i = 0; i < num_bcs; i++) {
+		    for(i = 0; i < (int) num_bcs; i++) {
 			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
 					    "BC %d: %.10g bytes/s (%.0f bits/s)", i,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),

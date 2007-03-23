@@ -3854,7 +3854,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       /*	Davide Schiera (2006-11-21): enable TKIP and CCMP decryption			*/
       /*		checking for the trailer														*/
       if (next_tvb!=NULL) {
-        if (reported_len < sec_trailer) {
+        if (reported_len < (gint) sec_trailer) {
           /* There is no space for a trailer, ignore it and don't decrypt	*/
           ;
         } else if (len < reported_len) {
