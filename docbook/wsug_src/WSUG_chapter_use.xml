@@ -575,7 +575,7 @@
 	    <tbody>
 	      <row>
 		<entry><command>Copy > As Filter</command></entry>
-		<entry></entry>
+		<entry>Shift+Ctrl+C</entry>
 		<entry><para>
 			This menu item will use the selected item in the detail view to
 			create a display filter. This display filter is then copied to

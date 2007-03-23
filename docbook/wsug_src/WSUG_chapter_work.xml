@@ -185,8 +185,8 @@
 		</entry>
 		  </row>
 		  <row>
-		    <entry><command>Copy as Filter</command></entry>
-		    <entry>Analyze</entry>
+		    <entry><command>Copy/ As Filter</command></entry>
+		    <entry></entry>
 	 	    <entry>
 	            <para>
 	 	      Prepare a display filter based on the currently selected item
@@ -360,7 +360,7 @@
 	      </row>
 	      <row>
 		<entry><command>Copy/ As Filter</command></entry>
-		<entry>-</entry>
+		<entry>Edit</entry>
 		<entry>
 	    <para>
 		  Prepare a display filter based on the currently selected item

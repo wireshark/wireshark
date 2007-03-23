@@ -433,7 +433,7 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_QUIT),
     ITEM_FACTORY_ENTRY("/_Edit", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Edit/Copy", NULL, NULL, 0, "<Branch>", NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Copy/As Filter", NULL, match_selected_ptree_cb,
+    ITEM_FACTORY_ENTRY("/Edit/Copy/As Filter", "<shift><control>C", match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY, NULL, NULL),
 #if 0
     /* Un-#if this when we actually implement Cut/Copy/Paste. */
