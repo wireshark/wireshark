@@ -783,7 +783,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Read context name until find '.' */
     for (n=0; linebuff[n] != '.' && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++)
     {
-        if (!isalnum(linebuff[n]) && (linebuff[n] != '_'))
+	if (!isalnum((int)linebuff[n]) && (linebuff[n] != '_'))
         {
             return FALSE;
         }
@@ -809,7 +809,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (port_digits <= MAX_PORT_DIGITS) && (n+1 < line_length);
          n++, port_digits++)
     {
-        if (!isdigit(linebuff[n]))
+	if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -836,7 +836,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
          n++, protocol_chars++)
     {
-        if (!isalnum(linebuff[n]) && linebuff[n] != '_')
+	if (!isalnum((int)linebuff[n]) && linebuff[n] != '_')
         {
             return FALSE;
         }
@@ -860,10 +860,10 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
     /* Following the / is the variant number.  No digits indicate 1 */
     for (variant_digits = 0;
-         (isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
+         (isdigit((int)linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
          n++, variant_digits++)
     {
-        if (!isdigit(linebuff[n]))
+	if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -892,11 +892,11 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
         n++;
 
         for (outhdr_chars = 0;
-             (isdigit(linebuff[n]) || linebuff[n] == ',') &&
+             (isdigit((int)linebuff[n]) || linebuff[n] == ',') &&
              (outhdr_chars <= MAX_OUTHDR_NAME) && (n+1 < line_length);
              n++, outhdr_chars++)
         {
-            if (!isdigit(linebuff[n]) && (linebuff[n] != ','))
+	    if (!isdigit((int)linebuff[n]) && (linebuff[n] != ','))
             {
                 return FALSE;
             }
@@ -1012,7 +1012,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
 
         /* Read consecutive hex chars into atm header buffer */
         for (;
-             (isalnum(linebuff[n]) &&
+             (isalnum((int)linebuff[n]) &&
               (n < line_length) &&
               (header_chars_seen < AAL_HEADER_CHARS));
              n++, header_chars_seen++)
@@ -1063,7 +1063,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     /* Find and read the timestamp                                       */
 
     /* Now scan to the next digit, which should be the start of the timestamp */
-    for (; !isdigit(linebuff[n]) && (n < line_length); n++);
+    for (; !isdigit((int)linebuff[n]) && (n < line_length); n++);
     if (n >= line_length)
     {
         return FALSE;
@@ -1078,7 +1078,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, seconds_chars++)
     {
-        if (!isdigit(linebuff[n]))
+	if (!isdigit((int)linebuff[n]))
         {
             /* Found a non-digit before decimal point. Fail */
             return FALSE;
@@ -1110,7 +1110,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
          (n < line_length);
          n++, subsecond_decimals_chars++)
     {
-        if (!isdigit(linebuff[n]))
+	if (!isdigit((int)linebuff[n]))
         {
             return FALSE;
         }
@@ -1277,7 +1277,7 @@ void set_aal_info(union wtap_pseudo_header *pseudo_header, packet_direction_t di
 
     /* cid is usually last byte.  Unless last char is not hex digit, in which
        case cid is derived from last char in ascii */
-    if (isalnum(aal_header_chars[11]))
+    if (isalnum((int)aal_header_chars[11]))
     {
         pseudo_header->dct2000.inner_pseudo_header.atm.aal2_cid =
             ((hex_from_char(aal_header_chars[10]) << 4) |
