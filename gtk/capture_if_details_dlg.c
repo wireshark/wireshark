@@ -52,10 +52,14 @@
 #include "gtkvumeter.h"
 #endif
 
-#ifndef HAVE_SOCKADDR_STORAGE
-/* packet32.h requires sockaddr_storage (usually defined in Platform SDK)
+/* packet32.h requires sockaddr_storage 
+ * wether sockaddr_storage is defined or not depends on the Platform SDK 
+ * version installed. The only one not defining it is the SDK that comes
+ * with MSVC 6.0 (WINVER 0x0400).
+ *
  * copied from RFC2553 (and slightly modified because of datatypes) ...
  * XXX - defined more than once, move this to a header file */
+#if (WINVER <= 0x0400)
 typedef unsigned short eth_sa_family_t;
 
 /*
@@ -71,10 +75,6 @@ typedef unsigned short eth_sa_family_t;
 #define ETH_SS_PAD2SIZE   (ETH_SS_MAXSIZE - (sizeof (eth_sa_family_t) + \
                               ETH_SS_PAD1SIZE + ETH_SS_ALIGNSIZE))
 
-/* sockaddr_storage seems to depend if a Platform SDK is installed,
-   (or to be more precise, if WINSOCK2 is available)
-   and not on the MSVC version installed */
-#if defined _WIN32 && !defined _WINSOCK2API_
 struct sockaddr_storage {
     eth_sa_family_t  __ss_family;     /* address family */
     /* Following fields are implementation specific */
@@ -90,9 +90,7 @@ struct sockaddr_storage {
               /* __ss_pad1, __ss_align fields is 112 */
 };
 /* ... copied from RFC2553 */
-#endif /* _WIN32 */
-#endif /* HAVE_SOCKADDR_STORAGE */
-
+#endif /* WINVER */
 
 #include <Packet32.h>
 #include <windows.h>
