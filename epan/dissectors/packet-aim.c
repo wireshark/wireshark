@@ -542,7 +542,7 @@ const aim_family *aim_get_family( guint16 famnum )
 	return NULL;
 }
 
-int aim_get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset)
+int aim_get_buddyname( guchar *name, tvbuff_t *tvb, int len_offset, int name_offset)
 {
   guint8 buddyname_length;
 

@@ -79,7 +79,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint8 buddyname_length = 0;
 	int offset = 0;
-	char buddyname[MAX_BUDDYNAME_LENGTH + 1];
+	guchar buddyname[MAX_BUDDYNAME_LENGTH + 1];
 
 	/* Info Type */
 	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);

@@ -378,7 +378,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree)
       /* HEADER VALUE
        */
       orig_pos = pos;
-      hval_len = get_nstring(tvb, pos, hval, sizeof hval);
+      hval_len = get_nstring(tvb, pos, (guint8*)hval, sizeof hval);
 
       pos+=hval_len+2;
       dp = pos - orig_pos;
@@ -629,7 +629,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
      */
     orig_pos = pos;
     hval=ep_alloc(8192);
-    hval_len = get_nstring(tvb, pos, hval, 8192);
+    hval_len = get_nstring(tvb, pos, (guint8*)hval, 8192);
 
     pos+=hval_len+2;
     dp = pos - orig_pos;

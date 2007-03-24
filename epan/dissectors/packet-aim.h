@@ -61,7 +61,7 @@ void aim_init_family(int proto, int ett, guint16 family, const aim_subtype *subt
 
 int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 void aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
-int aim_get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
+int aim_get_buddyname( guchar *name, tvbuff_t *tvb, int len_offset, int name_offset);
 int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 
 int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,

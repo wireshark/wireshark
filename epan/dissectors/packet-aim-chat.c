@@ -85,7 +85,7 @@ static int dissect_aim_chat_userinfo_list(tvbuff_t *tvb, packet_info *pinfo, pro
 
 static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree _U_)
 {
-	char *buddyname;
+	guchar *buddyname;
 	guchar *msg;
 	int buddyname_length;
 
@@ -106,7 +106,7 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 
 static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *chat_tree)
 {
-	char *buddyname;
+	guchar *buddyname;
 	guchar *msg;
 	/* channel message to client */
 	int buddyname_length;

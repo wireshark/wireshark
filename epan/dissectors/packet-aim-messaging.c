@@ -223,14 +223,18 @@ int dissect_aim_tlv_value_rendezvous ( proto_item *ti, guint16 valueid _U_, tvbu
 
 	offset = dissect_aim_capability(entry, tvb, offset);
 
-	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry, rendezvous_tlvs);
+	return dissect_aim_tlv_sequence(tvb, pinfo, offset, entry, 
+							rendezvous_tlvs);
 }
 
-static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
+static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, 
+						  proto_tree *msg_tree)
 {
 	int offset = 0;
 	const aim_tlv *ch_tlvs = NULL;
 	guint16 channel_id;
+	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
+	int buddyname_length;
 	
 	/* ICBM Cookie */
 	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, FALSE);
@@ -244,11 +248,10 @@ static int dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* Add the outgoing username to the info column */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		char buddyname[MAX_BUDDYNAME_LENGTH+1];
-		int buddyname_length = aim_get_buddyname(buddyname, tvb, offset, 
-											 offset + 1);
+		buddyname_length = aim_get_buddyname(buddyname, tvb, offset, 
+								  offset + 1);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
-						format_text(buddyname, buddyname_length));
+				    format_text(buddyname, buddyname_length));
 	}
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
