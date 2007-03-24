@@ -231,6 +231,16 @@ static gint ssl_decrypted_data_avail = 0;
 static gchar* ssl_keys_list = NULL;
 static gchar* ssl_debug_file_name = NULL;
 
+const gchar* ssl_version_short_names[] = {
+    "SSL",
+    "SSLv2",
+    "SSLv3",
+    "TLSv1",
+    "TLSv1.1",
+    "DTLSv1.0",
+    "PCT"
+};
+
 /* Forward declaration we need below */
 void proto_reg_handoff_ssl(void);
 

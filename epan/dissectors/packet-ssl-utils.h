@@ -69,18 +69,6 @@
 #define SSL_VER_DTLS     		  5
 #define SSL_VER_PCT                       6
 
-/* corresponds to the #defines above */
-
-const gchar* ssl_version_short_names[] = {
-    "SSL",
-    "SSLv2",
-    "SSLv3",
-    "TLSv1",
-    "TLSv1.1",
-    "DTLSv1.0",
-    "PCT"
-};
-
 /* other defines */
 #define SSL_ID_CHG_CIPHER_SPEC         0x14
 #define SSL_ID_ALERT                   0x15
