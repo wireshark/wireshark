@@ -10,6 +10,7 @@
 ;
 EXPORTS
 abs_time_to_str
+abs_time_secs_to_str
 address_to_str
 address_to_str_buf
 add_new_data_source
@@ -121,6 +122,8 @@ dfilter_macro_foreach
 dfilter_macro_get_uat
 DisengageReason_vals            DATA
 DisengageRejectReason_vals      DATA
+display_signed_time
+display_epoch_time
 dissector_add
 dissector_add_handle
 dissector_add_string
@@ -486,6 +489,8 @@ num_tap_filters                 DATA
 num_tree_types                  DATA
 offset_from_real_beginning
 oid_has_dissector
+oid_to_str
+oid_to_str_buf
 other_decode_bitfield_value
 parse_key_string
 plugin_list                     DATA
@@ -661,6 +666,7 @@ RegistrationRejectReason_vals   DATA
 ReleaseCompleteReason_vals      DATA
 relinquish_special_privs_perm
 rel_time_to_str
+rel_time_to_secs_str
 remove_tap_listener
 report_failure
 report_open_failure
