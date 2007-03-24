@@ -892,8 +892,8 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     } else {
         src_addr.device = src_device = 0xffffffff;
         src_addr.endpoint = src_endpoint = NO_ENDPOINT;
-        dst_addr.device = src_device = htolel(tmp_addr);
-        dst_addr.endpoint = src_endpoint = htolel(endpoint);
+        dst_addr.device = dst_device = htolel(tmp_addr);
+        dst_addr.endpoint = dst_endpoint = htolel(endpoint);
     }
 
     SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
