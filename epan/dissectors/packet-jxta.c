@@ -57,10 +57,10 @@ static const gchar JXTA_MSGELEM_SIG[] = { 'j', 'x', 'e', 'l' };
 static const gchar JXTA_WELCOME_MSG_SIG[] = { 'J', 'X', 'T', 'A', 'H', 'E', 'L', 'L', 'O', ' ' };
 
 static const gchar* JXTA_WELCOME_MSG_VERSION_1_1 = "1.1";
-static const gchar* JXTA_WELCOME_MSG_VERSION_3_0 = "3.0"; 
+static const gchar* JXTA_WELCOME_MSG_VERSION_3_0 = "3.0";
 
-static const int JXTA_MSG_VERSION_1 = 0; 
-static const int JXTA_MSG_VERSION_2 = 1; 
+static const int JXTA_MSG_VERSION_1 = 0;
+static const int JXTA_MSG_VERSION_2 = 1;
 
 static const int JXTAMSG1_ELMFLAG_TYPE = 1 << 0;
 static const int JXTAMSG1_ELMFLAG_ENCODING = 1 << 1;
@@ -909,7 +909,14 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 pinfo->ptype = PT_NONE;
                 pinfo->srcport = 0;
                 pinfo->destport = 0;
-            }
+            } else {
+		/*  Just to avoid compilers from thinking (falsely) that these
+		 *  could be unitialized
+		 */
+		memset(&saved_src_addr, 0, sizeof(saved_src_addr));
+		memset(&saved_dst_addr, 0, sizeof(saved_dst_addr));
+	    }
+
 
             dissected =
                 dissector_try_string(media_type_dissector_table, content_type, jxta_message_tvb, pinfo, tree);
@@ -1171,14 +1178,14 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
                   token_offset += strlen(*current_token) + 1;
                   current_token++;
-                  
+
                   if (jxta_welcome_tree) {
                       proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_msgVers, tvb, token_offset, strlen(*current_token), FALSE);
                   }
 
                   token_offset += strlen(*current_token) + 1;
                   current_token++;
-                  
+
                   if (jxta_welcome_tree) {
                       proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, strlen(*current_token), FALSE);
                   }
@@ -1387,7 +1394,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
     while (TRUE) {
         guint8 message_version;
-    
+
         /* First pass. Make sure all of the bytes we need are available */
         available = tvb_reported_length_remaining(tvb, offset);
         if (available < sizeof(JXTA_MSG_SIG)) {
@@ -1425,7 +1432,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 break;
             } else {
                 offset += sizeof(guint8);
-            }            
+            }
         }
 
         /* Read names table */
@@ -1476,7 +1483,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             for (each_elem = 0; each_elem < elem_count; each_elem++) {
                 tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, offset, -1, -1);
                 int processed;
-                
+
                 if(JXTA_MSG_VERSION_1 == message_version) {
                     processed = dissect_jxta_message_element_1(jxta_message_element_tvb, pinfo, NULL, 0, NULL);
                 } else if(JXTA_MSG_VERSION_2 == message_version) {
@@ -1589,7 +1596,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         message_version = tvb_get_guint8(tvb, tree_offset);
         proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_version, tvb, tree_offset, sizeof(guint8), message_version);
         tree_offset += sizeof(guint8);
-        
+
         if( message_version > 0 ) {
             guint8 flags = tvb_get_guint8(tvb, tree_offset);
             proto_item *flags_ti = proto_tree_add_uint(jxta_msg_tree, hf_jxta_message_flags, tvb, tree_offset, sizeof(guint8), flags);
@@ -1956,13 +1963,13 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 *   Dissect a tvbuff containing a JXTA Message Element (Version 2).
 *
 *   WARNING : The Version 2 Message Format is still under development and may change without notice (breaking this dissector).
-*    
+*
 *   @param  tvb The buffer to dissect.
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
 *   @param  names_count The number of elements in the names table.
 *   @param  names The table of names.
-*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if 
+*   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
 *           the packet was not recognized as a JXTA packet and negative if the
 *           dissector needs more bytes in order to process a PDU.
 **/
@@ -2035,9 +2042,9 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 }
 
                 offset += name_len;
-            }        
+            }
         }
-        
+
         /* type field */
         if ((flags & JXTAMSG2_ELMFLAG_TYPE) != 0) {
             available = tvb_reported_length_remaining(tvb, offset);
@@ -2059,8 +2066,8 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
             offset += sizeof(guint16);
         }
-        
-        
+
+
         /* content field */
         if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
             available = tvb_reported_length_remaining(tvb, offset);
@@ -2198,7 +2205,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             if (mimeID < names_count) {
                 proto_item_append_text(mime_ti, " (%s)", names_table[mimeID]);
                 mediatype = strdup( names_table[mimeID] );
-                
+
                 /* remove any params */
                 {
                     gchar *parms_at = strchr(mediatype, ';');
@@ -2220,7 +2227,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             } else {
                 proto_item_append_text(mime_ti, " * BAD *");
             }
-            
+
             tree_offset += sizeof(guint16);
         } else {
             mediatype = strdup( "application/octect-stream" );
@@ -2237,11 +2244,11 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             } else {
                 proto_item_append_text(encoding_ti, " * BAD *");
             }
-            
+
             tree_offset += sizeof(guint16);
-        } 
-        
-        
+        }
+
+
         if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
             content_len = tvb_get_ntoh64(tvb, tree_offset);
             jxta_elem_length_item = proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), FALSE);
@@ -2265,13 +2272,13 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
                 }
             } else if (0 == strcmp("application/gzip", mediatype)) {
                 tvbuff_t *uncomp_tvb = tvb_uncompress(element_content_tvb, 0, tvb_length(element_content_tvb));
-                
+
                 if( NULL != uncomp_tvb ) {
                     proto_item_append_text( jxta_elem_length_item, " -> (%u uncompressed)", tvb_length(uncomp_tvb) );
 
                     tvb_set_child_real_data_tvbuff(element_content_tvb, uncomp_tvb);
 		    add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Element Content");
-                
+
                     /* XXX bondolo 20060201 Force XML for uncompressed data. */
                     media_type_recognized = dissector_try_string(media_type_dissector_table,
                                                              "text/xml", uncomp_tvb, pinfo, jxta_elem_tree);

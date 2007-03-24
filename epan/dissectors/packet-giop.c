@@ -458,7 +458,7 @@ static gint ett_giop_locate_reply = -1;
 static gint ett_giop_fragment = -1;
 
 static gint ett_giop_scl = -1;	/* ServiceContextList */
-static gint ett_giop_scl_st1 = -1; 
+static gint ett_giop_scl_st1 = -1;
 static gint ett_giop_ior = -1;	/* IOR  */
 
 static dissector_handle_t data_handle;
@@ -676,10 +676,6 @@ GHashTable *giop_complete_reply_hash = NULL; /* hash */
  * objkey -> repoid -> sub_dissector via registered module/interface
  *
  */
-
-
-static int giop_module_init_count = 100; /* storage size for our permanent data */
-                                         /* ie: 100 entries -- needs tweaking -- FS */
 
 struct giop_module_key {
   gchar *module;		/* module (interface?) name  */
@@ -3684,7 +3680,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 	  }
 
 	if (len > 0) {
-	  
+
 	  if(locate_request_tree)
 	    {
 
@@ -4031,7 +4027,7 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
   return message_size + GIOP_HEADER_SIZE;
 }
 
-static void 
+static void
 dissect_giop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 	tcp_dissect_pdus(tvb, pinfo, tree, giop_desegment, GIOP_HEADER_SIZE,
 	    get_giop_pdu_len, dissect_giop_common);
@@ -4049,7 +4045,7 @@ dissect_giop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
 
   tot_len = tvb_length_remaining(tvb, 0);
-  
+
   if (tot_len < GIOP_HEADER_SIZE) /* tot_len < 12 */
     {
       /* Not enough data captured to hold the GIOP header; don't try
@@ -4309,7 +4305,7 @@ proto_register_giop (void)
   { "Request id", "giop.request_id",
 	  FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }
   },
-	  
+
   { &hf_giop_req_operation,
   { "Request operation", "giop.request_op",
 	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
@@ -4328,9 +4324,9 @@ proto_register_giop (void)
   },
 
   };
-	
-		
-		
+
+
+
   static gint *ett[] = {
     &ett_giop,
     &ett_giop_reply,
@@ -4757,22 +4753,22 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  *        CodeSetId  char_data;
  *        CodeSetId  wchar_data;
  *     };
- *   }; 
- *  
+ *   };
+ *
  *   Code sets are identified by a 32-bit integer id from OSF.
  *   See:  ftp://ftp.opengroup.org/pub/code_set_registry
  */
 static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
                             gboolean stream_is_be, guint32 boundary) {
 
-  /* The boundary being passed in is the offset where the context_data 
+  /* The boundary being passed in is the offset where the context_data
    * sequence begins. */
- 
+
   guint32 code_set_id;
   if(tree) {
   /* We pass in -boundary, because the alignment is calculated relative to
      the beginning of the context_data sequence.
-     Inside get_CDR_ulong(), the calculation will be (offset +(- boundary)) % 4 
+     Inside get_CDR_ulong(), the calculation will be (offset +(- boundary)) % 4
      to determine the correct alignment of the short. */
     code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
@@ -4798,13 +4794,13 @@ static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
  *
  *  The RT-CORBA priority is a CDR encoded short value in a sequence<octet>
  *  buffer.
- */ 
-static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset, 
+ */
+static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
 	                           gboolean stream_is_be, guint32 boundary) {
 
-  /* The boundary being passed in is the offset where the context_data 
+  /* The boundary being passed in is the offset where the context_data
    * sequence begins. */
- 
+
   gint16 rtpriority;
 
   /* RTCorbaPriority is stored as a CDR encoded short */
@@ -4815,7 +4811,7 @@ static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
   rtpriority = get_CDR_short(tvb, offset, stream_is_be, -((gint32) boundary) );
 
   if(tree) {
-    /* Highlight all of context_data except for the first endian byte */ 
+    /* Highlight all of context_data except for the first endian byte */
     proto_tree_add_text (tree, tvb, *offset - 2, 2,
                              "RTCorbaPriority: %d", rtpriority);
   }
@@ -4949,18 +4945,18 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
        service_context_name = val_to_str(scid, service_context_ids, "(0x%x)");
     } else { /* Proprietary vscid */
        service_context_name = "Unknown";
-    } 
+    }
 
     if(tree) {
       proto_tree_add_text (tree, tvb, *offset -sizeof(context_id), 4,
-                           "Service Context ID: %s (%u)", service_context_name, 
+                           "Service Context ID: %s (%u)", service_context_name,
 	                                   context_id);
     }
 
     temp_offset1 = *offset;
     /* The OMG has vscid of 0 reserved */
     if( vscid != 0 || scid > max_service_context_id ) {
-        decode_UnknownServiceContext(tvb, tree, offset, stream_is_be, boundary); 
+        decode_UnknownServiceContext(tvb, tree, offset, stream_is_be, boundary);
         continue;
     }
 
@@ -4987,23 +4983,23 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
     switch(scid)
     {
 	case 0x01: /* Codesets */
-           decode_CodeSets(tvb, sub_tree1, offset, 
-	                          encapsulation_is_be, encapsulation_boundary); 
+           decode_CodeSets(tvb, sub_tree1, offset,
+	                          encapsulation_is_be, encapsulation_boundary);
 	   break;
 	case 0x0a: /* RTCorbaPriority */
-           decode_RTCorbaPriority(tvb, sub_tree1, offset, 
-	                          encapsulation_is_be, encapsulation_boundary); 
+           decode_RTCorbaPriority(tvb, sub_tree1, offset,
+	                          encapsulation_is_be, encapsulation_boundary);
 	   break;
 	default:
 
            /* Need to fill these in as we learn them */
 	   *offset = temp_offset1;
-           decode_UnknownServiceContext(tvb, sub_tree1, offset, stream_is_be, 
+           decode_UnknownServiceContext(tvb, sub_tree1, offset, stream_is_be,
 			                boundary);
 	   break;
     }
     /* Set the offset to the end of the context_data sequence */
-    *offset = temp_offset1 + sizeof(context_data_len) + context_data_len; 
+    *offset = temp_offset1 + sizeof(context_data_len) + context_data_len;
 
   } /* for seqlen  */
 

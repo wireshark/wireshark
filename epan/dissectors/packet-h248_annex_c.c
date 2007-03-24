@@ -175,14 +175,6 @@ static gint ett_annexc = -1;
 static gint ett_vpvc = -1;
 static gint ett_codec = -1;
 
-static int two = 2;
-static int three = 3;
-static int four = 4;
-static int twelve = 12;
-static int sixteen = 16;
-static int twenty = 20;
-static int thirty = 30;
-
 static value_string h248_annexc_package_properties_vals[] = {
 	{ 0x1001, "media" },
 	{ 0x1002, "transmission mode" },

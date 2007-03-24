@@ -750,7 +750,7 @@ static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
 	a->extra_info = NULL;
 	a->msgs = NULL;
 
-	return a;				
+	return a;
 }
 
 sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type) {
@@ -758,18 +758,18 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
     guint framenum = pinfo->fd->num;
-	
+
     if (assoc)
 		return assoc;
-	
+
     if (!src_lr && !dst_lr){
 		return &no_assoc;
     }
-	
+
     opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
     dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
-	
-	
+
+
     switch (msg_type) {
 		case SCCP_MSG_TYPE_CR:
 		{
@@ -796,12 +796,12 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
 				goto got_assoc;
-			} 
-			
-			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
-				goto got_assoc;				
 			}
-			
+
+			if ( (assoc = se_tree_lookup32_array(assocs,fw_key) ) ) {
+				goto got_assoc;
+			}
+
 			assoc = new_assoc(opck,dpck);
 
 	 got_assoc:
@@ -810,7 +810,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
-			
+
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
 				se_tree_insert32_array(assocs,fw_key,assoc);
 				assoc->has_fw_key = TRUE;
@@ -823,13 +823,13 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t key[] = {
 				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
 			};
-			
+
 			assoc = se_tree_lookup32_array(assocs,key);
 
 			break;
 		}
     }
-	
+
 	if (assoc && trace_sccp) {
 	    if ( ! pinfo->fd->flags.visited) {
 			sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
@@ -840,7 +840,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			msg->label = NULL;
 			msg->comment = NULL;
 			msg->type = msg_type;
-			
+
 			if (assoc->msgs) {
 				sccp_msg_info_t* m;
 				for (m = assoc->msgs; m->next; m = m->next) ;
@@ -848,13 +848,13 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			} else {
 				assoc->msgs = msg;
 			}
-			
+
 			assoc->curr_msg = msg;
-			
+
 	    } else {
-			
+
 			sccp_msg_info_t* m;
-			
+
 			for (m = assoc->msgs; m; m = m->next) {
 				if (m->framenum == framenum && m->offset == offset) {
 					assoc->curr_msg = m;
@@ -863,7 +863,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			}
 		}
 	}
-	
+
 	return assoc ? assoc : &no_assoc;
 }
 
@@ -898,7 +898,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
   PROTO_ITEM_SET_HIDDEN(lr_item);
 
   if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%ld ", dlr);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%d ", dlr);
 }
 
 static void
@@ -912,7 +912,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
   PROTO_ITEM_SET_HIDDEN(lr_item);
 
   if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%ld ", slr);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", slr);
 }
 
 static void
@@ -1428,13 +1428,13 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn = INVALID_SSN;
     guint8 other_ssn = INVALID_SSN;
-	
+
 	if (trace_sccp && assoc && assoc != &no_assoc) {
 		pinfo->sccp_info = assoc->curr_msg;
 	} else {
 		pinfo->sccp_info = NULL;
 	}
-	
+
     if ( assoc ) {
 		other_ssn = INVALID_SSN;
 
@@ -1450,12 +1450,12 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				other_ssn = assoc->calling_ssn;
 				break;
 		}
-		
+
     } else {
 		ssn = assoc->called_ssn;
 		other_ssn = assoc->calling_ssn;
     }
-    
+
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
 		return;
     }
@@ -1805,7 +1805,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   guint32 source_local_ref=0;
   guint8 more;
   guint msg_offset = offset_from_real_beginning(tvb,0);
-	
+
 /* Macro for getting pointer to mandatory variable parameters */
 #define VARIABLE_POINTER(var, hf_var, ptr_size) \
     if (ptr_size == POINTER_LENGTH) \
@@ -1853,7 +1853,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   dlr = 0;
   slr = 0;
   assoc = NULL;
-  
+
   no_assoc.calling_dpc = 0;
   no_assoc.called_dpc = 0;
   no_assoc.calling_ssn = INVALID_SSN;
@@ -2344,22 +2344,22 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   if (orig_opt_ptr)
     dissect_sccp_optional_parameters(tvb, pinfo, sccp_tree, tree,
 				     optional_pointer);
-  
+
   if (trace_sccp && assoc && assoc != &no_assoc) {
 	  proto_item* pi = proto_tree_add_uint(sccp_tree,hf_sccp_assoc_id,tvb,0,0,assoc->id);
 	  proto_tree* pt = proto_item_add_subtree(pi,ett_sccp_assoc);
 	  PROTO_ITEM_SET_GENERATED(pi);
 	  if (assoc->msgs) {
 		sccp_msg_info_t* m;
-		  for(m = assoc->msgs; m ; m = m->next) { 	
+		  for(m = assoc->msgs; m ; m = m->next) {
 			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
-			
-			if (assoc->payload != SCCP_PLOAD_NONE) 
+
+			if (assoc->payload != SCCP_PLOAD_NONE)
 				proto_item_append_text(pi," %s", val_to_str(assoc->payload, assoc_protos, "Unknown"));
-			
+
 			if (m->label)
 				proto_item_append_text(pi," %s", m->label);
-			
+
 			if (m->framenum == pinfo->fd->num && m->offset == msg_offset ) {
 				tap_queue_packet(sccp_tap, pinfo, m);
 				proto_item_append_text(pi," (current)");
@@ -2455,7 +2455,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_sccp_message(tvb, pinfo, sccp_tree, tree);
-  
+
 }
 
 static void init_sccp(void) {
@@ -2899,13 +2899,13 @@ proto_register_sccp(void)
 				 "Whether to keep infomation about messages and their associations",
 				 &trace_sccp);
 
-  
+
   prefs_register_bool_preference(sccp_module, "show_more_info",
 								 "Show key parameters in Info Column",
 								 "Show SLR, DLR, and CAUSE Parameters in the Information Column of the Summary",
 								 &show_key_params);
-  
-  
+
+
 
   register_init_routine(&init_sccp);
 

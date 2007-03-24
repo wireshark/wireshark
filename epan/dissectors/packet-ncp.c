@@ -106,7 +106,7 @@ static struct novell_tap ncp_tap;
 struct ncp_common_header	header;
 struct ncp_common_header    *ncp_hdr;
 
-/* Tables for reassembly of fragments. */ 
+/* Tables for reassembly of fragments. */
 GHashTable *nds_fragment_table = NULL;
 GHashTable *nds_reassembled_table = NULL;
 dissector_handle_t nds_data_handle;
@@ -166,10 +166,10 @@ static const value_string burst_command[] = {
 	(c) 1996 by Steve Conner & Diane Conner
 	Published by Annabooks, San Diego, California
         ISBN: 0-929392-31-0
-        
+
  And:
     http:developer.novell.com
-    NCP documentation        
+    NCP documentation
 
 */
 
@@ -267,9 +267,9 @@ mncp_hash_insert(conversation_t *conversation, guint32 nwconnection, guint8 nwta
     key->nwtask = nwtask;
 
 	value = se_alloc(sizeof(mncp_rhash_value));
-       
+
 	g_hash_table_insert(mncp_rhash, key, value);
-    
+
     if (ncp_echo_conn && nwconnection != 65535) {
         expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Detected New Server Session. Connection %d, Task %d", nwconnection, nwtask);
         value->session_start_packet_num = pinfo->fd->num;
@@ -336,7 +336,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
     ncp_tree = proto_item_add_subtree(ti, ett_ncp);
     if (is_tcp) {
-        if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY) 
+        if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY)
             commhdr += 1;
         /* Get NCPIP Header data */
         ncpiph.signature	= tvb_get_ntohl(tvb, commhdr);
@@ -360,7 +360,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 commhdr += 8;
             }
         }
+    } else {
+	/* Initialize this structure, we use it below */
+	memset(&ncpiph, 0, sizeof(ncpiph));
     }
+
     header.type		    = tvb_get_ntohs(tvb, commhdr);
     header.sequence		= tvb_get_guint8(tvb, commhdr+2);
     header.conn_low		= tvb_get_guint8(tvb, commhdr+3);
@@ -368,7 +372,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     header.conn_high	= tvb_get_guint8(tvb, commhdr+5);
     proto_tree_add_uint(ncp_tree, hf_ncp_type,	tvb, commhdr, 2, header.type);
     nw_connection = (header.conn_high*256)+header.conn_low;
-    
+
     /* Ok, we need to track the conversation so that we can
      * determine if a new server session is occuring for this
      * connection.
@@ -401,7 +405,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     &pinfo->dst, PT_NCP, (guint32) pinfo->srcport, (guint32) pinfo->destport, 0);
                 request_value = mncp_hash_insert(conversation, nw_connection, header.task, pinfo);
             }
-            /* If this is a request packet then we 
+            /* If this is a request packet then we
              * might have a new task
              */
             if (ncpiph.signature == NCPIP_RPLY) {
@@ -664,7 +668,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
 		length_remaining = tvb_length_remaining(tvb, commhdr + 4);
-		if (length_remaining > 4) { 
+		if (length_remaining > 4) {
 			testvar = tvb_get_ntohl(tvb, commhdr+4);
 			if (testvar == 0x4c495020) {
 				proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, FALSE);
@@ -672,7 +676,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 		}
 		/* otherwise fall through */
-    
+
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
@@ -1042,9 +1046,9 @@ proto_register_ncp(void)
 	FT_UINT32, BASE_HEX, NULL, 0x0,
 	"Packet Burst File Handle", HFILL }},
  	{ &hf_ncp_burst_reserved,
-	{ "Reserved", "ncp.burst_reserved", 
+	{ "Reserved", "ncp.burst_reserved",
     FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }},
-  
+
   };
   static gint *ett[] = {
     &ett_ncp,

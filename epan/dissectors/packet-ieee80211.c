@@ -726,7 +726,6 @@ static int txbf_uncomp_sm_bf_ant = -1;
 static int txbf_comp_sm_bf_ant = -1;
 
 /* 802.11n 7.3.2.48 */
-static int hta_control_channel = -1;
 static int hta_cap = -1;
 static int hta_ext_chan_offset = -1;
 static int hta_rec_tx_width = -1;

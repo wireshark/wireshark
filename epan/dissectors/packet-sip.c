@@ -1070,7 +1070,6 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	gchar *name;
 	header_parameter_t *auth_parameter;
 	guint i = 0;
-	gboolean in_quoted_string = FALSE;
 
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1247,7 +1246,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 		while (current_offset < line_end_offset)
 		{
 			c = tvb_get_guint8(tvb, current_offset);
-	
+
 			if (!isdigit(c))
 			{
 				if (current_offset > port_offset)
@@ -1265,7 +1264,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 				}
 				break;
 			}
-	
+
 			current_offset++;
 		}
 	}
@@ -1362,7 +1361,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 				break;
 			}
 		}
-	
+
 		/* If not matched, just add as text... */
 		if (i == array_length(via_parameters_hf_array))
 		{
@@ -1467,7 +1466,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	guint token_1_len = 0;
 	guint current_method_idx = 0;
 	proto_item *ts = NULL, *ti = NULL, *th = NULL, *sip_element_item = NULL;
-	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL, 
+	proto_tree *sip_tree = NULL, *reqresp_tree = NULL , *hdr_tree = NULL,
 		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
 		*via_tree = NULL, *reason_tree = NULL, *rack_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
@@ -3118,7 +3117,7 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"P-User-Database Header", HFILL }
 		},
- 
+
 		{ &hf_header_array[POS_P_VISITED_NETWORK_ID],
 		       { "P-Visited-Network-ID", 	"sip.P-Visited-Network-ID",
 		       FT_STRING, BASE_NONE,NULL,0x0,
