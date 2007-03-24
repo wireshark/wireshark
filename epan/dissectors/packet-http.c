@@ -1226,7 +1226,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	request_uri = (gchar *)tvb_get_string(tvb, offset, tokenlen);
 	stat_info->request_uri = ep_strdup(request_uri);
  	conv_data->request_uri = se_strdup(request_uri);
-	
+
 	proto_tree_add_string(tree, hf_http_request_uri, tvb, offset, tokenlen,
 			      request_uri);
 	offset += next_token - line;
@@ -1265,7 +1265,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	memcpy(response_chars, line, 3);
 	response_chars[3] = '\0';
 
-	stat_info->response_code = conv_data->response_code = 
+	stat_info->response_code = conv_data->response_code =
 		strtoul(response_chars, NULL, 10);
 
 	proto_tree_add_uint(tree, hf_http_response_code, tvb, offset, 3,
@@ -1476,7 +1476,8 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
 	if(conv_data->response_code == 200 &&
 	   conv_data->request_method &&
-	   strncmp(conv_data->request_method, "CONNECT", 7) == 0) {
+	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
+	   conv_data->request_uri) {
 
 		/* Call a subdissector to handle HTTP CONNECT's traffic */
 		tcpd=get_tcp_conversation_data(pinfo);
@@ -1700,12 +1701,12 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
-			
+
 			stat_info->request_method = ep_strndup(data, index+1);
 			conv_data->request_method = se_strndup(data, index+1);
-		}  
+		}
 
-		
+
 
 	}
 
