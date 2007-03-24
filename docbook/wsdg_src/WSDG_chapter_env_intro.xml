@@ -239,6 +239,11 @@
 	</listitem>
 	<listitem>
     <para>
+	Win32 U3 (.u3 file). Special distribution for U3 capable USB memory sticks.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
 	Debian (.deb file). A user of a Debian Package Manager (DPKG) based system 
 	is used to get a .deb file from which the package manager checks the 
 	dependancies and installs the software.
@@ -289,6 +294,91 @@
 	Before building Wireshark from a source distribution, make sure you have
 	all the tools and libraries required to build. The following chapters will
 	describe the required tools and libraries in detail.
+    </para>
+	</section>
+  </section>
+  
+  <section id="ChIntroAutomated">
+    <title>Automated Builds (Buildbot)</title>
+    <para>
+	The Wireshark Buildbot automatically rebuilds Wireshark on every 
+	change of the source code repository and indicates problematic changes.
+	This frees the developers from repeating (and annoying) work, so time can 
+	be spend on more interesting tasks.
+    </para>
+	<section>
+	<title>Advantages</title>
+	<itemizedlist>
+	<listitem><para>
+	Recognizing (cross platform) build problems - early. Compilation problems 
+	can be narrowed down to a few commits, making a fix much easier.
+	</para></listitem>
+	<listitem><para>
+	"Health status" overview of the sources. A quick look at: <ulink 
+	url="http://buildbot.wireshark.org/trunk/" /> gives a good "feeling" if 
+	the sources are currently "well". 
+	On the other hand, if all is "red", an update of a personal source tree 
+	might better be done later ...
+	</para></listitem>
+	<listitem><para>
+	"Up to date" binary packages are available. 
+	After a change was committed to the repository, a binary package / 
+	installer is usually available within a few hours at: <ulink 
+	url="http://www.wireshark.org/download/automated/" />. 
+	This can be quite helpful, e.g. a bug reporter can easily verify a bugfix
+	by installing a recent build.
+	</para></listitem>
+	<listitem><para>
+	Automated regression tests. Especially the fuzz tests often indicate 
+	"real life" problems that are otherwise hard to find.
+	</para></listitem>
+	</itemizedlist>
+	</section>
+	<section>
+	<title>What does the Buildbot do?</title>
+    <para>
+	The Buildbot will do the following (to a different degree on the different 
+	platforms):
+	<itemizedlist>
+	<listitem><para>
+	checkout from the source repository
+	</para></listitem>
+	<listitem><para>
+	build
+	</para></listitem>
+	<listitem><para>
+	create binary package(s) / installer
+	</para></listitem>
+	<listitem><para>
+	create source package (and check completeness)
+	</para></listitem>
+	<listitem><para>
+	run regression tests 
+	</para></listitem>
+	</itemizedlist>
+	Each step is represented at the status page by a rectangle, green if it 
+	succeeded or red if it failed. Most steps provide a link to the corresponding 
+	console logfile, to get additional information.
+    </para>
+    <para>
+	The Buildbot runs on a patform collection that represents the different 
+	"platform specialties" pretty good:
+	<itemizedlist>
+	<listitem><para>
+	Windows XP x86 (Win32, little endian, MSVC)
+	</para></listitem>
+	<listitem><para>
+	Ubuntu x86 (Linux, little endian, gcc)
+	</para></listitem>
+	<listitem><para>
+	Solaris SPARC (Solaris, big endian, gcc)
+	</para></listitem>
+	<listitem><para>
+	Mac OS-X PPC (BSD, big endian, gcc)
+	</para></listitem>
+	</itemizedlist>
+	Each platform is represented at the status page by a single column, the 
+	most recent entries are at the top. 
     </para>
 	</section>
   </section>
@@ -346,7 +436,45 @@
 	format is easier to use.
     </para>
 	</section>
-	
+
+    <section id="ChIntroOtherSources"><title>Other sources
+    </title>
+    <para>
+	If you don't find the information you need inside this book, there are 
+	various other sources of information:
+	<itemizedlist>
+	<listitem>
+	<para>
+    see the file <filename>doc/README.developer</filename> and 
+	all the other README.xxx files in the source code - these are various 
+	documentation files on different topics
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    have a look at the Wireshark source code
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    tool documentation of the various tools used 
+	(e.g. manpages of sed, gcc, ...)
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    the different mailing lists <xref linkend="ChIntroMailingLists"/>
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+    ...
+	</para>
+	</listitem>
+	</itemizedlist>
+    </para>
+    </section>
+
 	<section id="ChIntroMailingLists"><title>Mailing Lists</title>
     <para>
       There are several mailing lists of specific Wireshark topics available:
@@ -415,9 +543,9 @@
     </para>
 	</section>
 
-	<section id="ChIntroBugDatabase"><title>Bug database</title>
+	<section id="ChIntroBugDatabase"><title>Bug database (Bugzilla)</title>
 	<para>
-	The Wireshark community started collecting bug reports in a Bugzilla database at
+	The Wireshark community collects bug reports in a Bugzilla database at
 	<ulink url="&WiresharkBugsSite;">&WiresharkBugsSite;</ulink>.
 	This database is filled with manually filed bug reports, usually after some 
 	discussion on wireshark-dev, and bug reports from the QA build tooling.
@@ -545,44 +673,6 @@ $
 	<xref linkend="ChIntroReportProblems"/>.
     </para>
   </section>
-  </section>
-
-  <section id="ChIntroOtherSources"><title>Other sources of developer information
-  </title>
-    <para>
-	If you don't find the information you need inside this book, there are 
-	various other sources of information:
-	<itemizedlist>
-	<listitem>
-	<para>
-    see the file <filename>doc/README.developer</filename> and 
-	all the other README.xxx files in the source code - these are various 
-	documentation files on different topics
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-    have a look at the Wireshark source code
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-    tool documentation of the various tools used 
-	(e.g. manpages of sed, gcc, ...)
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-    the different mailing lists <xref linkend="ChIntroMailingLists"/>
-	</para>
-	</listitem>
-	<listitem>
-	<para>
-    ...
-	</para>
-	</listitem>
-	</itemizedlist>
-    </para>
   </section>
 
 </chapter>
