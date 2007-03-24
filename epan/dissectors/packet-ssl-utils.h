@@ -71,7 +71,7 @@
 
 /* corresponds to the #defines above */
 
-static const gchar* ssl_version_short_names[] = {
+const gchar* ssl_version_short_names[] = {
     "SSL",
     "SSLv2",
     "SSLv3",

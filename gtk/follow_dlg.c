@@ -694,7 +694,7 @@ follow_read_stream(follow_info_t *follow_info,
 
 		case SHOW_EBCDIC:
 		    /* If our native arch is ASCII, call: */
-		    EBCDIC_to_ASCII(buffer, nchars);
+		    EBCDIC_to_ASCII((guint8*)buffer, nchars);
 		    if (!(*print_line) (buffer, nchars, is_server, arg))
 			goto print_error;
 		    break;

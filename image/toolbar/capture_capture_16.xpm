@@ -1,5 +1,5 @@
 /* XPM */
-static char * capture_capture_16_xpm[] = {
+char * capture_capture_16_xpm[] = {
 "16 16 151 2",
 "  	c None",
 ". 	c #7F7F7F",

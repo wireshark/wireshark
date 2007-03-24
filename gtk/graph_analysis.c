@@ -617,7 +617,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
         PangoLayout  *big_layout;
         PangoLayout  *small_layout;
 #endif
-        guint32 label_width, label_height;
+        gint label_width, label_height;
         guint32 draw_width, draw_height;
         char label_string[MAX_COMMENT];
 	GList* list;
@@ -989,7 +989,7 @@ static void dialog_graph_draw(graph_analysis_data_t* user_data)
 			label_x = arrow_width/2+end_arrow;
 		}
 
-		if (label_width>arrow_width) arrow_width = label_width;
+		if (label_width>(gint)arrow_width) arrow_width = label_width;
 
 		if ((int)left_x_border > ((int)label_x-(int)label_width/2))
 			label_x = left_x_border + label_width/2;

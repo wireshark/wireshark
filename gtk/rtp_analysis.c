@@ -1243,7 +1243,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
         PangoLayout  *layout;
 #endif
-        guint32 label_width, label_height;
+        int label_width, label_height;
         guint32 draw_width, draw_height;
         char label_string[15];
 

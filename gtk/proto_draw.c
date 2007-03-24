@@ -910,7 +910,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 {
 	GtkWidget *bv;
 
-    int len;
+    guint len;
     int bytes_consumed = 0;
     int flags;
 
@@ -942,7 +942,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 	    end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
 	    start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
 
-        if(start >= 0 && end > start && (end - start <= len)) {
+	if(start >= 0 && end > start && (end - start <= (int)len)) {
             len = end - start;
             data_p += start;
         }
@@ -997,7 +997,8 @@ static void
 savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 {
         GtkWidget *bv;
-	int fd, start, end, len;
+	int fd, start, end;
+	guint len;
 	const guint8 *data_p = NULL;
 	const char *file = NULL;
 
@@ -1055,7 +1056,8 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 /* Launch the dialog box to put up the file selection box etc */
 void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-	int start, end, len;
+	int start, end;
+	guint len;
 	const guint8 *data_p = NULL;
         gchar *label;
 
@@ -1456,8 +1458,8 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     else
       revstyle = "bold";
 
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, -1, "plain",
-                                             NULL);
+    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, -1,
+					     "plain", NULL);
     /* Do we start in reverse? */
     reverse = i >= bstart && i < bend;
     j   = i;
@@ -1475,7 +1477,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       newreverse = i >= bstart && i < bend;
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+	gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, cur,
                                                  revstyle, NULL);
         cur = 0;
       }
@@ -1489,7 +1491,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       }
       /* Have we gone from plain to reversed? */
       if (!reverse && (reverse != newreverse)) {
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+	gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, cur,
                                                  "plain", NULL);
         mark = gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE);
         cur = 0;
@@ -1497,13 +1499,13 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       reverse = newreverse;
     }
     /* Print remaining part of line */
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, cur,
                                              reverse ? revstyle : "plain",
                                              NULL);
     cur = 0;
     /* Print some space at the end of the line */
     line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, cur,
                                              "plain", NULL);
     cur = 0;
 
@@ -1530,7 +1532,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       newreverse = i >= bstart && i < bend;
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
-        convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
+	convline = g_locale_to_utf8((gchar*)line, cur, NULL, &newsize, NULL);
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                                  revstyle, NULL);
         g_free( (gpointer) convline);
@@ -1544,7 +1546,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       }
       /* Have we gone from plain to reversed? */
       if (!reverse && (reverse != newreverse)) {
-        convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
+	convline = g_locale_to_utf8((gchar*)line, cur, NULL, &newsize, NULL);
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                                  "plain", NULL);
         g_free( (gpointer) convline);
@@ -1553,14 +1555,14 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       reverse = newreverse;
     }
     /* Print remaining part of line */
-    convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
+    convline = g_locale_to_utf8((gchar*)line, cur, NULL, &newsize, NULL);
     gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
                                              reverse ? revstyle : "plain",
                                              NULL);
     g_free( (gpointer) convline);
     cur = 0;
     line[cur++] = '\n';
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, (gchar*)line, cur,
                                              "plain", NULL);
 #endif
   }
@@ -1616,7 +1618,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
   OBJECT_SET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY,
-                  GINT_TO_POINTER(fd->flags.encoding));
+                  GUINT_TO_POINTER((guint)fd->flags.encoding));
 
   packet_hex_print_common(bv, pd, len, bstart, bend, fd->flags.encoding);
 }
@@ -1991,7 +1993,7 @@ tree_view_follow_link(field_info   *fi)
         cf_goto_frame(&cfile, fi->value.value.uinteger);
     }
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
-      url = g_strndup(tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);
+	    url = g_strndup((gchar*)tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);
       browser_open_url(url);
       g_free(url);
     }

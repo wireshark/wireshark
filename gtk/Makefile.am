@@ -23,6 +23,10 @@
 
 include Makefile.common
 
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS = -Werror
+endif
+
 noinst_LIBRARIES = libui.a
 
 CLEANFILES = \

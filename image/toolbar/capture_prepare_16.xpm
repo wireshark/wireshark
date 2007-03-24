@@ -1,5 +1,5 @@
 /* XPM */
-static char * capture_prepare_16_xpm[] = {
+char * capture_prepare_16_xpm[] = {
 "16 16 159 2",
 "  	c None",
 ". 	c #808080",
