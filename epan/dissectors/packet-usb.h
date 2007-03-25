@@ -25,10 +25,10 @@
 #define __PACKET_USB_H__
 
 typedef struct _usb_address_t {
-#define USB_ADDR_LEN (sizeof(guint32)) /* size of the device field */
     guint32 device;
     guint32 endpoint;
 } usb_address_t;
+#define USB_ADDR_LEN (sizeof(usb_address_t))
 
 
 typedef struct _usb_conv_info_t usb_conv_info_t;

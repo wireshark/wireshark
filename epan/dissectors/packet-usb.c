@@ -229,7 +229,7 @@ get_usb_conv_info(conversation_t *conversation)
 }  
 
 static conversation_t *
-get_usb_conversation(packet_info *pinfo, guint32 src_endpoint, guint32 dst_endpoint)
+get_usb_conversation(packet_info *pinfo, address *src_addr, address *dst_addr, guint32 src_endpoint, guint32 dst_endpoint)
 {
     conversation_t *conversation;
 
@@ -237,7 +237,7 @@ get_usb_conversation(packet_info *pinfo, guint32 src_endpoint, guint32 dst_endpo
      * Do we have a conversation for this connection?
      */
     conversation = find_conversation(pinfo->fd->num, 
-                               &pinfo->src, &pinfo->dst,
+                               src_addr, dst_addr,
                                pinfo->ptype, 
                                src_endpoint, dst_endpoint, 0);
     if(conversation){
@@ -246,7 +246,7 @@ get_usb_conversation(packet_info *pinfo, guint32 src_endpoint, guint32 dst_endpo
 
     /* We don't yet have a conversation, so create one. */
     conversation = conversation_new(pinfo->fd->num, 
-                           &pinfo->src, &pinfo->dst,
+                           src_addr, dst_addr,
                            pinfo->ptype,
                            src_endpoint, dst_endpoint, 0);
     return conversation;
@@ -559,9 +559,27 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
         conversation_t *conversation;
 
         if(pinfo->destport==NO_ENDPOINT){
-            conversation=get_usb_conversation(pinfo, endpoint, pinfo->destport);
+            static address tmp_addr;
+            static usb_address_t usb_addr;
+
+            /* Create a new address structure that points to the same device
+             * but the new endpoint.
+             */
+            usb_addr.device=((usb_address_t *)(pinfo->src.data))->device;
+            usb_addr.endpoint=endpoint;
+            SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
+            conversation=get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, endpoint, pinfo->destport);
         } else {
-            conversation=get_usb_conversation(pinfo, pinfo->srcport, endpoint);
+            static address tmp_addr;
+            static usb_address_t usb_addr;
+
+            /* Create a new address structure that points to the same device
+             * but the new endpoint.
+             */
+            usb_addr.device=((usb_address_t *)(pinfo->dst.data))->device;
+            usb_addr.endpoint=endpoint;
+            SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
+            conversation=get_usb_conversation(pinfo, &pinfo->src, &tmp_addr, pinfo->srcport, endpoint);
         }
 
         conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);
@@ -957,7 +975,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     pinfo->srcport=src_endpoint;
     pinfo->destport=dst_endpoint;
 
-    conversation=get_usb_conversation(pinfo, pinfo->srcport, pinfo->destport);
+    conversation=get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
 
     usb_conv_info=get_usb_conv_info(conversation);
     pinfo->usb_conv_info=usb_conv_info;
