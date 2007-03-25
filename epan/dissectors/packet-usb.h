@@ -65,6 +65,13 @@ struct _usb_conv_info_t {
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
 };
 
+/* This is what a tap will tap */
+typedef struct _usb_tap_data_t {
+    guint8 urb_type;
+    guint8 transfer_type;
+    usb_conv_info_t *conv_info;
+    usb_trans_info_t *trans_info;
+} usb_tap_data_t;
 
 /* This is the endpoint number user for "no endpoint" or the fake endpoint 
  * for the host side since we need two endpoints to manage conversations

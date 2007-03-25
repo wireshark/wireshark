@@ -32,6 +32,7 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
+#include <epan/tap.h>
 #include <epan/conversation.h>
 #include <string.h>
 #include "packet-usb.h"
@@ -112,6 +113,8 @@ static gint ett_configuration_bmAttributes = -1;
 static gint ett_configuration_bEndpointAddress = -1;
 static gint ett_endpoint_bmAttributes = -1;
 
+
+static int usb_tap = -1;
 
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
@@ -845,6 +848,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     usb_conv_info_t *usb_conv_info=NULL;
     usb_trans_info_t *usb_trans_info=NULL;
     conversation_t *conversation;
+    usb_tap_data_t *tap_data=NULL;
     
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
@@ -956,7 +960,6 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     conversation=get_usb_conversation(pinfo, pinfo->srcport, pinfo->destport);
 
     usb_conv_info=get_usb_conv_info(conversation);
-
     pinfo->usb_conv_info=usb_conv_info;
 
    
@@ -1009,7 +1012,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
-
+    
     /* For DLT189 it seems 
      * that all INTERRUPT or BULK packets as well as all CONTROL responses
      * are prepended with 8 mysterious bytes.
@@ -1027,6 +1030,14 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }
+
+    tap_data=ep_alloc(sizeof(usb_tap_data_t));
+    tap_data->urb_type=(guint8)pinfo->pseudo_header->linux_usb.event_type;
+    tap_data->transfer_type=(guint8)type;
+    tap_data->conv_info=usb_conv_info;
+    tap_data->trans_info=usb_trans_info;
+    tap_queue_packet(usb_tap, pinfo, tap_data);
+
 
     switch(type){
     case URB_BULK:
@@ -1484,6 +1495,7 @@ proto_register_usb(void)
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
 
+    usb_tap=register_tap("usb");
 }
 
 void
