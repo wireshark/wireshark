@@ -218,7 +218,7 @@ get_usb_conv_info(conversation_t *conversation)
     if(!usb_conv_info){
         /* no not yet so create some */
         usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
-        usb_conv_info->class=IF_CLASS_UNKNOWN;
+        usb_conv_info->interfaceClass=IF_CLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
         usb_conv_info->class_data=NULL;
 
@@ -477,10 +477,10 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
     /* bInterfaceClass */
     proto_tree_add_item(tree, hf_usb_bInterfaceClass, tvb, offset, 1, TRUE);
     /* save the class so we can access it later in the endpoint descriptor */
-    usb_conv_info->class=tvb_get_guint8(tvb, offset);
+    usb_conv_info->interfaceClass=tvb_get_guint8(tvb, offset);
     if(!pinfo->fd->flags.visited){
         usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
-        usb_trans_info->interface_info->class=tvb_get_guint8(tvb, offset);
+        usb_trans_info->interface_info->interfaceClass=tvb_get_guint8(tvb, offset);
         usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
     }
     offset++;
@@ -1061,14 +1061,14 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         {
         proto_item *item;
 
-        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->class);
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(item);
         if(tvb_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
 
             pinfo->usb_conv_info=usb_conv_info;
             next_tvb=tvb_new_subset(tvb, offset, -1, -1);
-            if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->class, next_tvb, pinfo, parent)){
+            if(dissector_try_port(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                 return;
             }
         }
@@ -1082,7 +1082,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         proto_tree *setup_tree = NULL;
         int type;
  
-        ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
+        ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(is_request){
@@ -1141,7 +1141,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 case RQT_SETUP_TYPE_CLASS:
                     /* Try to find a class specific dissector */  
                     next_tvb=tvb_new_subset(tvb, offset, -1, -1);
-                    if(dissector_try_port(usb_control_dissector_table, usb_conv_info->class, next_tvb, pinfo, tree)){
+                    if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
                     /* XXX - dump as hex */
                     }
@@ -1157,7 +1157,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             if(usb_conv_info->usb_trans_info){
                 /* Try to find a class specific dissector */  
                 next_tvb=tvb_new_subset(tvb, offset, -1, -1);
-                if(dissector_try_port(usb_control_dissector_table, usb_conv_info->class, next_tvb, pinfo, tree)){
+                if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
                 }
 

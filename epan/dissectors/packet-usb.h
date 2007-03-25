@@ -59,7 +59,7 @@ typedef struct _usb_trans_info_t {
 
 /* there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
-    guint16 class;		/* class for this conversation */
+    guint16 interfaceClass;		/* class for this conversation */
     emem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
     void *class_data;	/* private class/id decode data */
