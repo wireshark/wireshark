@@ -2603,9 +2603,13 @@ Julian Cable		<julian_cable [AT] yahoo.com> {
 	DCP ETSI support
 }    
 
-Joost Yervante Damad <joost[AT]teluna.org> {
+Joost Yervante Damad <joost [AT] teluna.org> {
 	Erlang Port Mapper Daemon dissection support
 }    
+
+Martin Sustrik <sustrik [AT] imatix.com>  {
+	AMQP support
+}
 
 and by:
 

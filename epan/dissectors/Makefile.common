@@ -97,6 +97,7 @@ DISSECTOR_SRC =	\
 	packet-aim-userlookup.c \
 	packet-ajp13.c	\
 	packet-alcap.c	\
+	packet-amqp.c	\
 	packet-amr.c	\
 	packet-ans.c	\
 	packet-ansi_637.c	\
