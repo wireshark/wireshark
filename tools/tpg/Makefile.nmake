@@ -5,8 +5,6 @@
 
 include ..\..\config.nmake
 
-CFLAGS=-D_U_="" $(LOCAL_CFLAGS)
-
 all : TPG.pm
 
 clean:
