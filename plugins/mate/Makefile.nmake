@@ -11,7 +11,7 @@ include Makefile.common
 
 LEMON=..\..\tools\lemon
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
