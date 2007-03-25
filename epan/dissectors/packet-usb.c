@@ -220,7 +220,7 @@ get_usb_conv_info(conversation_t *conversation)
         usb_conv_info = se_alloc(sizeof(usb_conv_info_t));
         usb_conv_info->class=IF_CLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_conv_info->masstorage=NULL;
+        usb_conv_info->class_data=NULL;
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
@@ -482,7 +482,6 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
         usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
         usb_trans_info->interface_info->class=tvb_get_guint8(tvb, offset);
         usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
-        usb_trans_info->interface_info->masstorage=NULL;
     }
     offset++;
 

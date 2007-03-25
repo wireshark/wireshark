@@ -61,8 +61,8 @@ typedef struct _usb_trans_info_t {
 struct _usb_conv_info_t {
     guint16 class;		/* class for this conversation */
     emem_tree_t *transactions;
-    void *masstorage;           /* mass storage data */
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
+    void *class_data;	/* private class/id decode data */
 };
 
 /* This is what a tap will tap */

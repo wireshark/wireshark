@@ -197,12 +197,12 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     usb_conv_info=pinfo->usb_conv_info;
     /* verify that we do have a usb_ms_conv_info */
-    usb_ms_conv_info=usb_conv_info->masstorage;
+    usb_ms_conv_info=usb_conv_info->class_data;
     if(!usb_ms_conv_info){
         usb_ms_conv_info=se_alloc(sizeof(usb_ms_conv_info_t));
         usb_ms_conv_info->itl=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITL");
         usb_ms_conv_info->itlq=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "USB ITLQ");
-        usb_conv_info->masstorage=usb_ms_conv_info;
+        usb_conv_info->class_data=usb_ms_conv_info;
     }
 
 
