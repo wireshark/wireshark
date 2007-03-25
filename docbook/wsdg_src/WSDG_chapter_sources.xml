@@ -277,8 +277,8 @@
 	<para>
 	As development evolves, the Wireshark sources are compilable most of the 
 	time - but not always.
-	You may take a look at the <xref linkend="ChIntroAutomated">buildbot status</xref> first, to see if the 
-	sources are currently in a good shape.
+	You may take a look at the <xref linkend="ChIntroAutomated"/> first, 
+	to see if the sources are currently in a good shape.
 	</para>
 	</tip>
 	
