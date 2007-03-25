@@ -147,6 +147,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
                             ;
 			}
                         break;
+		case AT_USB:
+			return "usb.sa";
 		default:
 			;
 		}
@@ -183,6 +185,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
                             ;
 			}
                         break;
+		case AT_USB:
+			return "usb.da";
 		default:
 			;
 		}
@@ -219,6 +223,8 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
                             ;
 			}
                         break;
+		case AT_USB:
+			return "usb.addr";
 		default:
 			;
 		}

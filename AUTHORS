@@ -2611,6 +2611,10 @@ Martin Sustrik <sustrik [AT] imatix.com>  {
 	AMQP support
 }
 
+Jon Smirl <jonsmirl [AT] gmail.com> {
+	USB conversation list
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

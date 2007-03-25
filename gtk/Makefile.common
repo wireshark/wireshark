@@ -137,6 +137,7 @@ WIRESHARK_TAP_SRC = \
 	conversations_tcpip.c	\
 	conversations_tr.c	\
 	conversations_udpip.c	\
+	conversations_usb.c	\
 	conversations_wlan.c	\
 	conversations_ncp.c     \
 	conversations_rsvp.c	\
