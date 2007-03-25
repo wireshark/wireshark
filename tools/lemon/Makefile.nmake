@@ -5,7 +5,7 @@
 
 include ..\..\config.nmake
 
-CFLAGS=-D_U_="" $(LOCAL_CFLAGS)
+CFLAGS=-WX -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
    $(CC) $(CFLAGS) -Fd.\ -c $<
