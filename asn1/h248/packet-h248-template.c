@@ -56,14 +56,6 @@ static int hf_h248_term_wild_type = -1;
 static int hf_h248_term_wild_level = -1;
 static int hf_h248_term_wild_position = -1;
 
-static int hf_h248_ctx = -1;
-static int hf_h248_ctx_term = -1;
-static int hf_h248_ctx_term_type = -1;
-static int hf_h248_ctx_term_bir = -1;
-static int hf_h248_ctx_term_nsap = -1;
-static int hf_h248_ctx_cmd = -1;
-
-
 static int hf_h248_no_pkg = -1;
 static int hf_h248_no_sig = -1;
 static int hf_h248_no_evt = -1;
@@ -80,17 +72,13 @@ static gint ett_packagename = -1;
 static gint ett_codec = -1;
 static gint ett_wildcard = -1;
 
-static gint ett_cmd = -1;
-static gint ett_ctx = -1;
-static gint ett_ctx_cmds = -1;
-static gint ett_ctx_terms = -1;
-static gint ett_ctx_term = -1;
-
 static gint ett_h248_no_pkg = -1;
 static gint ett_h248_no_sig = -1;
 static gint ett_h248_no_evt = -1;
 
 static int h248_tap = -1;
+
+static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 
 #include "packet-h248-ett.c"
 
@@ -117,15 +105,6 @@ static tvbuff_t* h248_tvb;
 static dissector_handle_t h248_handle;
 static dissector_handle_t h248_term_handle;
 static dissector_handle_t h248_tpkt_handle;
-
-static const value_string term_types[] = {
-  {   H248_TERM_TYPE_AAL1, "aal1" },
-  {   H248_TERM_TYPE_AAL2, "aal2" },
-  {   H248_TERM_TYPE_AAL1_STRUCT, "aal1struct" },
-  {   H248_TERM_TYPE_IP_RTP, "ipRtp" },
-  {   H248_TERM_TYPE_TDM, "tdm" },
-  { 0, NULL }
-};
 
 /* Forward declarations */
 static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
@@ -535,34 +514,9 @@ static const value_string wildcard_levels[] = {
     { 0, NULL }
 };
 
-
-static const value_string cmd_type[] = {
-    { H248_CMD_NONE, "NoCommand"},
-    { H248_CMD_ADD_REQ, "addReq"},
-    { H248_CMD_MOVE_REQ, "moveReq"},
-    { H248_CMD_MOD_REQ, "modReq"},
-    { H248_CMD_SUB_REQ, "subtractReq"},
-    { H248_CMD_AUDITCAP_REQ, "auditCapRequest"},
-    { H248_CMD_AUDITVAL_REQ, "auditValueRequest"},
-    { H248_CMD_NOTIFY_REQ, "notifyReq"},
-    { H248_CMD_SVCCHG_REQ, "serviceChangeReq"},
-    { H248_CMD_TOPOLOGY_REQ, "topologyReq"},
-    { H248_CMD_CTX_ATTR_AUDIT_REQ, "ctxAttrAuditReq"},
-    { H248_CMD_ADD_REPLY, "addReply"},
-    { H248_CMD_MOVE_REPLY, "moveReply"},
-    { H248_CMD_MOD_REPLY, "modReply"},
-    { H248_CMD_SUB_REPLY, "subtractReply"},
-    { H248_CMD_AUDITCAP_REPLY, "auditCapReply"},
-    { H248_CMD_AUDITVAL_REPLY, "auditValReply"},
-    { H248_CMD_NOTIFY_REPLY, "notifyReply"},
-    { H248_CMD_SVCCHG_REPLY, "serviceChangeReply"},
-    { H248_CMD_TOPOLOGY_REPLY, "topologyReply"},
-    { 0, NULL }
-};
-
 static h248_curr_info_t curr_info = {NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 static guint32 error_code;
-static h248_wildcard_t wild_term;
+static gcp_wildcard_t wild_term;
 
 
 extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
@@ -1183,676 +1137,6 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
   return offset;
 }
 
-/*
- *   Context and Transaction Tracing
- */
-
-
-
-static h248_msg_t* h248_msg(packet_info* pinfo, int o) {
-    h248_msg_t* m;
-    guint32 framenum = (guint32)pinfo->fd->num;
-	guint32 offset = (guint32)o;
-	address* src = &(pinfo->src);
-	address* dst = &(pinfo->dst);
-	address* lo_addr;
-	address* hi_addr;
-
-
-    if (keep_persistent_data) {
-		emem_tree_key_t key[] = {
-			{1,&(framenum)},
-			{1,&offset},
-			{0,NULL},
-		};
-
-        if (( m = se_tree_lookup32_array(msgs,key) )) {
-            m->commited = TRUE;
-			return m;
-        } else {
-            m = se_alloc(sizeof(h248_msg_t));
-            m->framenum = framenum;
-            m->trxs = NULL;
-            m->commited = FALSE;
-
-            se_tree_insert32_array(msgs,key,m);
-        }
-    } else {
-        m = ep_new0(h248_msg_t);
-        m->framenum = framenum;
-        m->trxs = NULL;
-        m->commited = FALSE;
-    }
-
-	if (CMP_ADDRESS(src, dst) < 0)  {
-		lo_addr = src;
-		hi_addr = dst;
-	} else {
-		lo_addr = dst;
-		hi_addr = src;
-	}
-
-	switch(lo_addr->type) {
-		case AT_NONE:
-			m->lo_addr = 0;
-			m->hi_addr = 0;
-			break;
-		case AT_IPv4:
-			memcpy((guint8*)&(m->hi_addr),hi_addr->data,4);
-			memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
-			break;
-		case AT_SS7PC:
-			m->hi_addr = mtp3_pc_hash(hi_addr->data);
-			m->lo_addr = mtp3_pc_hash(lo_addr->data);
-			break;
-		default:
-			/* XXX: heuristic and error prone */
-			m->hi_addr = g_str_hash(address_to_str(hi_addr));
-			m->lo_addr = g_str_hash(address_to_str(lo_addr));
-			break;
-	}
-
-    return m;
-}
-
-static h248_trx_t* h248_trx(h248_msg_t* m ,guint32 t_id , h248_trx_type_t type) {
-    h248_trx_t* t = NULL;
-    h248_trx_msg_t* trxmsg;
-
-    if ( !m ) return NULL;
-
-    if (keep_persistent_data) {
-        if (m->commited) {
-
-            for ( trxmsg = m->trxs; trxmsg; trxmsg = trxmsg->next) {
-                if (trxmsg->trx && trxmsg->trx->id == t_id) {
-                    return trxmsg->trx;
-                }
-            }
-
-            DISSECTOR_ASSERT(! "a trx that should exist does not!" );
-
-        } else {
-			emem_tree_key_t key[] = {
-				{1,&(m->hi_addr)},
-				{1,&(m->lo_addr)},
-				{1,&(t_id)},
-				{0,NULL}
-			};
-
-            trxmsg = se_alloc(sizeof(h248_trx_msg_t));
-            t = se_tree_lookup32_array(trxs,key);
-
-            if (!t) {
-                t = se_alloc(sizeof(h248_trx_t));
-                t->initial = m;
-                t->id = t_id;
-                t->type = type;
-                t->pendings = 0;
-                t->error = 0;
-                t->cmds = NULL;
-
-                se_tree_insert32_array(trxs,key,t);
-            }
-
-            /* XXX: request, reply and ack + point to frames where they are */
-            switch ( type ) {
-                case H248_TRX_PENDING:
-                    t->pendings++;
-                    break;
-                default:
-                    break;
-            }
-
-        }
-    } else {
-        t = ep_new(h248_trx_t);
-        trxmsg = ep_new(h248_trx_msg_t);
-        t->initial = NULL;
-        t->id = t_id;
-        t->type = type;
-        t->pendings = 0;
-        t->error = 0;
-        t->cmds = NULL;
-    }
-
-    trxmsg->trx = t;
-    trxmsg->next = NULL;
-    trxmsg->last = trxmsg;
-
-    if (m->trxs) {
-        m->trxs->last = m->trxs->last->next = trxmsg;
-    } else {
-        m->trxs = trxmsg;
-    }
-
-    return t;
-}
-
-
-static h248_ctx_t* h248_ctx(h248_msg_t* m, h248_trx_t* t, guint32 c_id) {
-    h248_ctx_t* context = NULL;
-    h248_ctx_t** context_p = NULL;
-	
-    if ( !m || !t ) return NULL;
-		
-    if (keep_persistent_data) {
-		
-		emem_tree_key_t ctx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(c_id)},
-		{0,NULL}
-		};
-
-		emem_tree_key_t trx_key[] = {
-		{1,&(m->hi_addr)},
-		{1,&(m->lo_addr)},
-		{1,&(t->id)},
-		{0,NULL}
-		};
-
-        if (m->commited) {
-            if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
-                return context;
-            } if ((context_p = se_tree_lookup32_array(ctxs,ctx_key))) {
-                context = *context_p;
-
-                do {
-                    if (context->initial->framenum <= m->framenum) {
-                        return context;
-                    }
-                } while(( context = context->prev ));
-
-                DISSECTOR_ASSERT(! "a context should exist");
-            }
-        } else {
-            if (c_id == CHOOSE_CONTEXT) {
-                if (! ( context = se_tree_lookup32_array(ctxs_by_trx,trx_key))) {
-                    context = se_alloc(sizeof(h248_ctx_t));
-                    context->initial = m;
-                    context->cmds = NULL;
-                    context->id = c_id;
-                    context->terms.last = &(context->terms);
-                    context->terms.next = NULL;
-                    context->terms.term = NULL;
-					
-                    se_tree_insert32_array(ctxs_by_trx,trx_key,context);
-                }
-            } else {
-                if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
-                    if (( context_p = se_tree_lookup32_array(ctxs,ctx_key) )) {
-                        if (context != *context_p) {
-                            context = se_alloc(sizeof(h248_ctx_t));
-                            context->initial = m;
-                            context->id = c_id;
-                            context->cmds = NULL;
-                            context->terms.last = &(context->terms);
-                            context->terms.next = NULL;
-                            context->terms.term = NULL;
-
-                            context->prev = *context_p;
-                            *context_p = context;
-                        }
-                    } else {
-                        context_p = se_alloc(sizeof(void*));
-                        *context_p = context;
-                        context->initial = m;
-                        context->id = c_id;
-                        se_tree_insert32_array(ctxs,ctx_key,context_p);
-                    }
-                } else if (! ( context_p = se_tree_lookup32_array(ctxs,ctx_key) )) {
-                    context = se_alloc(sizeof(h248_ctx_t));
-                    context->initial = m;
-                    context->id = c_id;
-                    context->cmds = NULL;
-                    context->terms.last = &(context->terms);
-                    context->terms.next = NULL;
-                    context->terms.term = NULL;
-
-                    context_p = se_alloc(sizeof(void*));
-                    *context_p = context;
-                    se_tree_insert32_array(ctxs,ctx_key,context_p);
-                } else {
-                    context = *context_p;
-                }
-            }
-        }
-    } else {
-        context = ep_new(h248_ctx_t);
-        context->initial = m;
-        context->cmds = NULL;
-        context->id = c_id;
-        context->terms.last = &(context->terms);
-        context->terms.next = NULL;
-        context->terms.term = NULL;
-    }
-
-    return context;
-}
-
-static h248_cmd_t* h248_cmd(h248_msg_t* m, h248_trx_t* t, h248_ctx_t* c, h248_cmd_type_t type, guint offset) {
-    h248_cmd_t* cmd;
-    h248_cmd_msg_t* cmdtrx;
-    h248_cmd_msg_t* cmdctx;
-
-    if ( !m || !t || !c) return NULL;
-
-    if (keep_persistent_data) {
-        if (m->commited) {
-            DISSECTOR_ASSERT(t->cmds != NULL);
-
-            for (cmdctx = t->cmds; cmdctx; cmdctx = cmdctx->next) {
-                cmd = cmdctx->cmd;
-                if (cmd->msg == m && cmd->offset == offset) {
-                    return cmd;
-                }
-            }
-
-            DISSECTOR_ASSERT(!"called for a command that does not exist!");
-
-            return NULL;
-        } else {
-            cmd = se_alloc(sizeof(h248_cmd_t));
-            cmdtrx = se_alloc(sizeof(h248_cmd_msg_t));
-            cmdctx = se_alloc(sizeof(h248_cmd_msg_t));
-        }
-    } else {
-        cmd = ep_new(h248_cmd_t);
-        cmdtrx = ep_new(h248_cmd_msg_t);
-        cmdctx = ep_new(h248_cmd_msg_t);
-    }
-
-    cmd->type = type;
-    cmd->offset = offset;
-    cmd->terms.term = NULL;
-    cmd->terms.next = NULL;
-    cmd->terms.last = &(cmd->terms);
-    cmd->str = NULL;
-    cmd->msg = m;
-    cmd->trx = t;
-    cmd->ctx = c;
-    cmd->error = 0;
-
-    cmdctx->cmd = cmdtrx->cmd = cmd;
-    cmdctx->next =  cmdtrx->next = NULL;
-    cmdctx->last = cmdtrx->last = NULL;
-
-    if (t->cmds) {
-        t->cmds->last->next = cmdtrx;
-        t->cmds->last = cmdtrx;
-    } else {
-        t->cmds = cmdtrx;
-        t->cmds->last = cmdtrx;
-    }
-
-    if (c->cmds) {
-        c->cmds->last->next = cmdctx;
-        c->cmds->last = cmdctx;
-    } else {
-        c->cmds = cmdctx;
-        c->cmds->last = cmdctx;
-    }
-	
-    return cmd;
-}
-
-
-static h248_term_t* h248_cmd_add_term(h248_msg_t* m, h248_trx_t* tr, h248_cmd_t* c, h248_term_t* t, h248_wildcard_t wildcard) {
-    h248_terms_t* ct;
-    h248_terms_t* ct2;
-
-    static h248_term_t all_terms = {"$",(guint8*)"",1,H248_TERM_TYPE_UNKNOWN,NULL,NULL,NULL};
-
-    if ( !c ) return NULL;
-
-    if ( wildcard == H248_WILDCARD_CHOOSE) {
-        return &all_terms;
-    }
-
-    if (keep_persistent_data) {
-        if ( c->msg->commited ) {
-            if (wildcard == H248_WILDCARD_ALL) {
-                for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                    /* XXX not handling more wilcards in one msg */
-                    if ( ct->term->start == m ) {
-                        return ct->term;
-                    }
-                }
-                return NULL;
-            } else {
-                for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                    if ( g_str_equal(ct->term->str,t->str) ) {
-                        return ct->term;
-                    }
-                }
-                return NULL;
-            }
-        } else {
-
-            for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                if ( g_str_equal(ct->term->str,t->str) || ct->term->start == m) {
-                    break;
-                }
-            }
-
-            if ( ! ct ) {
-
-                if (wildcard == H248_WILDCARD_ALL) {
-                    ct = se_alloc(sizeof(h248_terms_t));
-                    ct->next = NULL;
-                    ct->term = se_alloc0(sizeof(h248_term_t));
-
-                    ct->term->start = m;
-                    ct->term->str = "*";
-                    ct->term->buffer = NULL;
-                    ct->term->len = 0;
-
-                    c->terms.last = c->terms.last->next = ct;
-
-                    ct2 = se_alloc0(sizeof(h248_terms_t));
-                    ct2->term = ct->term;
-
-                    c->ctx->terms.last->next = ct2;
-                    c->ctx->terms.last = ct2;
-
-                    return ct->term;
-                } else {
-                    for (ct = c->ctx->terms.next; ct; ct = ct->next) {
-                        /* XXX not handling more wilcards in one msg */
-                        if ( ct->term->buffer == NULL && tr->cmds->cmd->msg == ct->term->start ) {
-                            ct->term->str = se_strdup(t->str);
-                            ct->term->buffer = se_memdup(t->buffer,t->len);
-                            ct->term->len = t->len;
-
-                            ct2 = se_alloc0(sizeof(h248_terms_t));
-                            ct2->term = ct->term;
-
-                            c->terms.last = c->terms.last->next = ct2;
-
-                            return ct->term;
-                        }
-
-                        if  ( g_str_equal(ct->term->str,t->str) ) {
-                            ct2 = se_alloc0(sizeof(h248_terms_t));
-                            ct2->term = ct->term;
-
-                            c->terms.last = c->terms.last->next = ct2;
-
-                            return ct->term;
-                        }
-                    }
-
-                    ct = se_alloc(sizeof(h248_terms_t));
-                    ct->next = NULL;
-                    ct->term = se_alloc0(sizeof(h248_term_t));
-
-                    ct->term->start = m;
-                    ct->term->str = se_strdup(t->str);
-                    ct->term->buffer = se_memdup(t->buffer,t->len);
-                    ct->term->len = t->len;
-
-                    ct2 = se_alloc0(sizeof(h248_terms_t));
-                    ct2->term = ct->term;
-
-                    c->terms.last = c->terms.last->next = ct2;
-
-                    ct2 = se_alloc0(sizeof(h248_terms_t));
-                    ct2->term = ct->term;
-
-                    c->ctx->terms.last = c->ctx->terms.last->next = ct2;
-
-                    return ct->term;
-                }
-            } else {
-                ct2 = se_alloc0(sizeof(h248_terms_t));
-                ct2->term = ct->term;
-
-                c->terms.last = c->terms.last->next = ct2;
-                return ct->term;
-            }
-
-            DISSECTOR_ASSERT_NOT_REACHED();
-            return NULL;
-        }
-    } else {
-        ct = ep_new(h248_terms_t);
-        ct->term = t;
-        ct->next = NULL;
-        c->terms.last = c->terms.last->next = ct;
-
-        return t;
-    }
-
-}
-
-static gchar* h248_cmd_to_str(h248_cmd_t* c) {
-    gchar* s = "-";
-    h248_terms_t* term;
-
-    if ( !c ) return "-";
-
-    switch (c->type) {
-        case H248_CMD_NONE:
-            return "-";
-            break;
-        case H248_CMD_ADD_REQ:
-            s = "AddReq {";
-            break;
-        case H248_CMD_MOVE_REQ:
-            s = "MoveReq {";
-            break;
-        case H248_CMD_MOD_REQ:
-            s = "ModReq {";
-            break;
-        case H248_CMD_SUB_REQ:
-            s = "SubReq {";
-            break;
-        case H248_CMD_AUDITCAP_REQ:
-            s = "AuditCapReq {";
-            break;
-        case H248_CMD_AUDITVAL_REQ:
-            s = "AuditValReq {";
-            break;
-        case H248_CMD_NOTIFY_REQ:
-            s = "NotifyReq {";
-            break;
-        case H248_CMD_SVCCHG_REQ:
-            s = "SvcChgReq {";
-            break;
-        case H248_CMD_TOPOLOGY_REQ:
-            s = "TopologyReq {";
-            break;
-        case H248_CMD_CTX_ATTR_AUDIT_REQ:
-            s = "CtxAttribAuditReq {";
-            break;
-        case H248_CMD_ADD_REPLY:
-            s = "AddReply {";
-            break;
-        case H248_CMD_MOVE_REPLY:
-            s = "MoveReply {";
-            break;
-        case H248_CMD_MOD_REPLY:
-            s = "ModReply {";
-            break;
-        case H248_CMD_SUB_REPLY:
-            s = "SubReply {";
-            break;
-        case H248_CMD_AUDITCAP_REPLY:
-            s = "AuditCapReply {";
-            break;
-        case H248_CMD_AUDITVAL_REPLY:
-            s = "AuditValReply {";
-            break;
-        case H248_CMD_NOTIFY_REPLY:
-            s = "NotifyReply {";
-            break;
-        case H248_CMD_SVCCHG_REPLY:
-            s = "SvcChgReply {";
-            break;
-        case H248_CMD_TOPOLOGY_REPLY:
-            s = "TopologyReply {";
-            break;
-        case H248_CMD_REPLY:
-            s = "ActionReply {";
-            break;
-    }
-
-    for (term = c->terms.next; term; term = term->next) {
-        s = ep_strdup_printf("%s %s",s,term->term->str);
-    };
-
-    if (c->error) {
-        s = ep_strdup_printf("%s Error=%i",s,c->error);
-    }
-
-	s = ep_strdup_printf("%s }", s);
-
-	if (keep_persistent_data) {
-		if (! c->str) c->str = se_strdup(s);
-	} else {
-		c->str = s;
-	}
-	
-    return s;
-}
-
-static gchar* h248_trx_to_str(h248_msg_t* m, h248_trx_t* t) {
-    gchar* s;
-    h248_cmd_msg_t* c;
-
-    if ( !m || !t ) return "-";
-
-	s = ep_strdup_printf("T %x { ",t->id);
-
-    if (t->cmds) {
-        if (t->cmds->cmd->ctx) {
-            s = ep_strdup_printf("%s C %x {",s,t->cmds->cmd->ctx->id);
-
-            for (c = t->cmds; c; c = c->next) {
-                if (c->cmd->msg == m)
-                    s = ep_strdup_printf("%s %s",s,h248_cmd_to_str(c->cmd));
-            }
-
-            s = ep_strdup_printf("%s %s",s,"}");
-        }
-    }
-
-    if (t->error) {
-        s = ep_strdup_printf("%s Error=%i",s,t->error);
-    }
-
-    return ep_strdup_printf("%s %s",s,"}");
-}
-
-static gchar* h248_msg_to_str(h248_msg_t* m) {
-    h248_trx_msg_t* t;
-    gchar* s = "";
-
-    if ( !m ) return "-";
-
-    for (t = m->trxs; t; t = t->next) {
-        s = ep_strdup_printf("%s %s",s,h248_trx_to_str(m,t->trx));
-    };
-
-    return s;
-}
-
-typedef struct _h248_ctxs_t {
-    struct _h248_ctx_t* ctx;
-    struct _h248_ctxs_t* next;
-} h248_ctxs_t;
-
-/*static const gchar* trx_types[] = {"None","Req","Reply","Pending","Ack"};*/
-
-static void analyze_h248_msg(h248_msg_t* m) {
-    h248_trx_msg_t* t;
-    h248_ctxs_t contexts = {NULL,NULL};
-    h248_ctxs_t* ctx_node;
-    h248_cmd_msg_t* c;
-
-
-    for (t = m->trxs; t; t = t->next) {
-        for (c = t->trx->cmds; c; c = c->next) {
-            h248_ctx_t* ctx = c->cmd->ctx;
-
-            for (ctx_node = contexts.next; ctx_node; ctx_node = ctx_node->next) {
-                if (ctx_node->ctx->id == ctx->id) {
-                    break;
-                }
-            }
-
-            if (! ctx_node) {
-                ctx_node = ep_new(h248_ctxs_t);
-                ctx_node->ctx = ctx;
-                ctx_node->next = contexts.next;
-                contexts.next = ctx_node;
-            }
-
-        }
-    }
-
-    for (ctx_node = contexts.next; ctx_node; ctx_node = ctx_node->next) {
-        h248_ctx_t* ctx = ctx_node->ctx;
-        proto_item* ctx_item = proto_tree_add_uint(h248_tree,hf_h248_ctx,h248_tvb,0,0,ctx->id);
-        proto_tree* ctx_tree = proto_item_add_subtree(ctx_item,ett_ctx);
-        h248_terms_t *ctx_term;
-
-        PROTO_ITEM_SET_GENERATED(ctx_item);
-
-        if (( c = ctx->cmds )) {
-            proto_item* history_item = proto_tree_add_text(ctx_tree,h248_tvb,0,0,"[ Command History ]");
-            proto_tree* history_tree = proto_item_add_subtree(history_item,ett_ctx_cmds);
-
-            for (c = ctx->cmds; c; c = c->next) {
-                proto_item* cmd_item = proto_tree_add_uint(history_tree,hf_h248_ctx_cmd,h248_tvb,0,0,c->cmd->msg->framenum);
-                proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
-                PROTO_ITEM_SET_GENERATED(cmd_item);
-                if (c->cmd->error) {
-                    proto_item_set_expert_flags(cmd_item, PI_RESPONSE_CODE, PI_WARN);
-                }
-            }
-        }
-
-        if (( ctx_term = ctx->terms.next )) {
-            proto_item* terms_item = proto_tree_add_text(ctx_tree,h248_tvb,0,0,"[ Terminations Used ]");
-            proto_tree* terms_tree = proto_item_add_subtree(terms_item,ett_ctx_terms);
-
-            for (; ctx_term; ctx_term = ctx_term->next ) {
-                if ( ctx_term->term && ctx_term->term->str) {
-                    proto_item* pi = proto_tree_add_string(terms_tree,hf_h248_ctx_term,h248_tvb,0,0,ctx_term->term->str);
-                    proto_tree* term_tree = proto_item_add_subtree(pi,ett_ctx_term);
-
-                    PROTO_ITEM_SET_GENERATED(pi);
-
-                    if (ctx_term->term->type) {
-                        pi = proto_tree_add_uint(term_tree,hf_h248_ctx_term_type,h248_tvb,0,0,ctx_term->term->type);
-                        PROTO_ITEM_SET_GENERATED(pi);
-                    }
-
-                    if (ctx_term->term->bir) {
-                        pi = proto_tree_add_string(term_tree,hf_h248_ctx_term_bir,h248_tvb,0,0,ctx_term->term->bir);
-                        PROTO_ITEM_SET_GENERATED(pi);
-                    }
-
-                    if (ctx_term->term->nsap) {
-                        pi = proto_tree_add_string(term_tree,hf_h248_ctx_term_nsap,h248_tvb,0,0,ctx_term->term->nsap);
-                        PROTO_ITEM_SET_GENERATED(pi);
-                    }
-
-                    if (ctx_term->term->bir && ctx_term->term->nsap) {
-                        gchar* key = ep_strdup_printf("%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
-                        g_strdown(key);
-                        alcap_tree_from_bearer_key(term_tree, h248_tvb, key);
-                    }
-                }
-            }
-        }
-    }
-}
-
-#define h248_cmd_set_error(c,e) (c->error = e)
-#define h248_trx_set_error(t,e) (t->error = e)
 #define H248_TAP() do { if (keep_persistent_data && curr_info.cmd) tap_queue_packet(h248_tap, pinfo, curr_info.cmd); } while(0)
 
 #include "packet-h248-fn.c"
@@ -1966,7 +1250,7 @@ void proto_register_h248(void) {
       VALS(signal_name_vals), 0, "Package", HFILL }},
 	{ &hf_h248_pkg_bcp_BNCChar_PDU,
       { "BNCChar", "h248.package_bcp.BNCChar",
-        FT_UINT32, BASE_DEC, VALS(term_types), 0,
+        FT_UINT32, BASE_DEC, VALS(gcp_term_types), 0,
         "BNCChar", HFILL }},
 
   { &hf_h248_error_code,
@@ -2013,12 +1297,8 @@ void proto_register_h248(void) {
 
 #include "packet-h248-hfarr.c"
 
-  { &hf_h248_ctx, { "Context", "h248.ctx", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_term, { "Termination", "h248.ctx.term", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_term_type, { "Type", "h248.ctx.term.type", FT_UINT32, BASE_HEX, VALS(term_types), 0, "", HFILL }},
-  { &hf_h248_ctx_term_bir, { "BIR", "h248.ctx.term.bir", FT_STRING, BASE_HEX, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_term_nsap, { "NSAP", "h248.ctx.term.nsap", FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-  { &hf_h248_ctx_cmd, { "Command in Frame", "h248.ctx.cmd", FT_FRAMENUM, BASE_DEC, NULL, 0, "", HFILL }},
+	GCP_HF_ARR_ELEMS("h248",h248_arrel)
+
   };
 
   /* List of subtrees */
@@ -2028,14 +1308,11 @@ void proto_register_h248(void) {
     &ett_packagename,
     &ett_codec,
     &ett_wildcard,
-    &ett_cmd,
-    &ett_ctx,
-    &ett_ctx_cmds,
-    &ett_ctx_terms,
-    &ett_ctx_term,
     &ett_h248_no_pkg,
     &ett_h248_no_sig,
     &ett_h248_no_evt,
+	GCP_ETT_ARR_ELEMS(h248_arrel),
+	  
 #include "packet-h248-ettarr.c"
   };
 
@@ -2080,6 +1357,8 @@ void proto_register_h248(void) {
   ctxs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_ctxs");
 
   h248_tap = register_tap("h248");
+
+  gcp_init();
 }
 
 /*--- proto_reg_handoff_h248 -------------------------------------------*/
