@@ -49,7 +49,7 @@
 	people think of a version control system as a sort of "time machine".
 	</quote>
 	</para>
-	<tip><title>Tip!</title>
+	<tip><title>Tip: Subversion and SVN is the same!</title>
 	<para>
 	Subversion is often abbreviated as SVN, as the command-line tools are 
 	abbreviated that way. You will find both terms with the same meaning in 
@@ -81,12 +81,11 @@
 	</itemizedlist>
 	</para>
 	<para>
-	The way Wireshark uses Subversion, it can be parted into a client and a 
-	server part. Thanks to Gerald Combs (the maintainer of the Subversion 
-	server), no user usually has to deal with the
-	Subversion server. You will only need a Subversion client, which is 
-	available as a command-line tool for many different platforms. GUI based 
-	tools also becoming more and more available these days.
+	Subversion is parted into a client and a server part. 
+	Thanks to Gerald Combs (the maintainer of the Subversion server), 
+	no user has to deal with the maintenance of the Subversion server. 
+	You will only need a Subversion client, which are available as 
+	command-line and GUI tools for many different platforms. 
 	</para>
 	<para>
 	For further reference about Subversion, have a look at the homepage of the 
@@ -95,17 +94,13 @@
 	url="http://svnbook.red-bean.com/"/>.
 	</para>
 	<para>
-	Please note that the anonymous Subversion repository is separate from 
-	the main repository. It may take several minutes for committed changes to 
-	appear in the anonymous repository. XXX - be more specific here.
+	Please note that Wireshark's public (anonymous) Subversion repository is 
+	separate from the main repository. 
+	It may take several minutes for committed changes to appear in the 
+	public repository - so please be patient for a few minutes if you 
+	desperately need a code change that was commited to the repository 
+	very recently.
 	</para>
-	<tip><title>Tip!</title>
-	<para>
-	As the Wireshark project has switched from CVS (Concurrent versioning 
-	system) to Subversion some time ago, you may still find old references to 
-	CVS in the Wireshark documentation and source files.
-	</para>
-	</tip>
 	
   <section id="ChSrcWebInterface">
 	<title>The web interface to the Subversion repository</title>
@@ -148,21 +143,20 @@
 	There are several ways to obtain the sources from Wireshark's Subversion 
 	server.
 	</para>
-	<tip><title>Tip!</title>
+	<tip><title>Anonymous Subversion access is recommended!</title>
 	<para>
-	Anonymous Subversion access can make your life much easier, compared to
-	update your source tree by using any of the zip file methods mentioned 
-	below.
+	It can make your life much easier, compared to update your source tree by 
+	using any of the zip file methods mentioned below.
 	Subversion handles merging of changes into your personal source tree in a 
 	very comfortable and quick way. So you can update your source tree several 
 	times a day without much effort.
 	</para>
 	</tip>
-	<note><title>Note!</title>
+	<note><title>Keep your sources "up to date"!</title>
 	<para>
 	The following ways to retrieve the Wireshark sources are sorted in 
-	decreasing 
-	actuality. If you plan to commit changes you've made to the sources,
+	decreasing actuality. 
+	If you plan to commit changes you've made to the sources,
 	it's a good idea to keep your private source tree as actual as possible.
 	</para>
 	</note>
@@ -206,8 +200,8 @@
 	<section id="ChSrcSVNWeb">
 	<title>Anonymous Subversion web interface</title>
 	<para>
-	Recommended for development purposes, if direct Subversion access isn't 
-	possible (e.g. because of a restrictive firewall).
+	Recommended for informational purposes only, as only individual files can 
+	be downloaded.
 	</para>
 	<para>
 	Age: a few minutes (same as anonymous Subversion access).
@@ -216,9 +210,9 @@
 	 The entire source tree of the Subversion repository is available via a 
 	 web interface at:
 	 <ulink url="http://anonsvn.wireshark.org/viewvc/viewvc.cgi/"/>. 
-	 You can view 
-	 each revision of a particular file, as well as diffs between different 
-	 revisions. You can also download individual files or entire directories.
+	 You can view each revision of a particular file, as well as diffs between 
+	 different revisions. 
+	 You can also download individual files but not entire directories.
 	</para>
 	</section>	
 	 
@@ -279,6 +273,14 @@
 	might want to keep them in sync with the sources at the Subversion 
 	repository.
 	</para>
+	<tip><title>Take a look at the buildbot first!</title>
+	<para>
+	As development evolves, the Wireshark sources are compilable most of the 
+	time - but not always.
+	You may take a look at the <xref linkend="ChIntroAutomated">buildbot status</xref> first, to see if the 
+	sources are currently in a good shape.
+	</para>
+	</tip>
 	
 	<section id="ChSrcAnonUpdate">
 	<title>... with Anonymous Subversion access</title>
