@@ -52,6 +52,7 @@ LIBWIRESHARK_SRC = 		\
 	follow.c		\
 	frame_data.c		\
 	funnel.c    \
+	gcp.c		\
 	guid-utils.c    \
 	h225-persistentdata.c	\
 	in_cksum.c		\
@@ -134,6 +135,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	follow.h		\
 	frame_data.h		\
 	funnel.h		\
+	gcp.h			\
 	gnuc_format_check.h	\
 	greproto.h		\
 	guid-utils.h		\
