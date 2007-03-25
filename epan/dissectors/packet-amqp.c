@@ -1119,6 +1119,8 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *prop_tree;
     size_t length;
     int offset;
+    guint8 type;
+    guint16 channel, method, class;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
@@ -1130,18 +1132,43 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
         ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, FALSE);
         amqp_tree = proto_item_add_subtree(ti, ett_amqp);
+
 	proto_tree_add_item(amqp_tree, hf_amqp_type, tvb, 0, 1, FALSE);
+	type=tvb_get_guint8(tvb, 0);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s/",
+			val_to_str(type, amqp_frame_types, "Unknown method:%u"));
+	}
+
 	proto_tree_add_item(amqp_tree, hf_amqp_channel, tvb, 1, 2, FALSE);
+	channel=tvb_get_ntohs(tvb, 1);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%d/",
+			channel);
+	}
+
 	proto_tree_add_item(amqp_tree, hf_amqp_length, tvb, 3, 4, FALSE);
         length = tvb_get_ntohl(tvb, 3);
         switch (tvb_get_guint8(tvb, 0)) {
         case AMQP_FRAME_TYPE_METHOD:
             proto_tree_add_item(amqp_tree, hf_amqp_method_class_id,
                 tvb, 7, 2, FALSE);
+            class=tvb_get_ntohs(tvb, 7);
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s/",
+                    val_to_str(class, amqp_method_classes, "Unknown class:%u"));
+            }
+
             switch (tvb_get_ntohs(tvb, 7)) {
             case AMQP_CLASS_CONNECTION:
                 proto_tree_add_item(amqp_tree, hf_amqp_method_connection_method_id,
                     tvb, 9, 2, FALSE);              
+                method=tvb_get_ntohs(tvb, 9);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+                        val_to_str(method, amqp_method_connection_methods, "unknown method:%x"));
+                }
+
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, FALSE);
                 args_tree = proto_item_add_subtree(ti, ett_args);
