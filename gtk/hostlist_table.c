@@ -130,6 +130,8 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
                             ;
 			}
                         break;
+		case AT_USB:
+			return "usb.addr";
 		default:
 			;
 		}

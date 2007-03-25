@@ -162,6 +162,7 @@ WIRESHARK_TAP_SRC = \
 	hostlist_tcpip.c \
 	hostlist_tr.c	\
 	hostlist_udpip.c \
+	hostlist_usb.c \
 	hostlist_wlan.c \
 	hostlist_rsvp.c \
 	io_stat.c	\
