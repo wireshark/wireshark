@@ -149,6 +149,11 @@ typedef struct {
 	guint32	start_usecs;
 } catapult_dct2000_t;
 
+typedef struct {
+	struct wtap_nstime now;
+	double t0;
+} mpeg_t;
+
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
@@ -179,7 +184,8 @@ struct wtap {
 		airopeek9_t		*airopeek9;
 		erf_t			*erf;
 		k12_t			*k12;
-		catapult_dct2000_t*	catapult_dct2000;
+		catapult_dct2000_t	*catapult_dct2000;
+		mpeg_t			*mpeg;
 		void			*generic;
 	} capture;
 

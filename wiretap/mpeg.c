@@ -106,9 +106,6 @@ mpeg_read_rec_data(FILE_T fh, guchar *pd, int length, int *err)
 	return TRUE;
 }
 
-static struct wtap_nstime now;
-static double t0;
-
 static gboolean 
 mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		gint64 *data_offset)
@@ -116,7 +113,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 	guint32 n;
 	int bytes_read = mpeg_read_header(wth, err, err_info, &n);
 	unsigned packet_size;
-	struct wtap_nstime ts = now;
+	struct wtap_nstime ts = wth->capture.mpeg->now;
 
 	if (bytes_read == -1)
 		return FALSE;
@@ -180,11 +177,11 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 						(pack >> 43 & 0x7fff) << 15 |
 						 (pack >> 27 & 0x7fff) << 0);
 					scr_ext = (guint16)(pack >> 17 & 0x1ff);
-					t = t0 + scr / 90e3 + scr_ext / 27e6;
+					t = wth->capture.mpeg->t0 + scr / 90e3 + scr_ext / 27e6;
 
-					now.nsecs = (int)(modf(t, &secs) * 1e9);
-					now.secs = (time_t)secs;
-					ts = now;
+					wth->capture.mpeg->now.nsecs = (int)(modf(t, &secs) * 1e9);
+					wth->capture.mpeg->now.secs = (time_t)secs;
+					ts = wth->capture.mpeg->now;
 					break;
 				default:
 					packet_size = 12;
@@ -210,10 +207,10 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 		MPA_UNMARSHAL(&mpa, n);
 		if (MPA_VALID(&mpa)) {
 			packet_size = MPA_BYTES(&mpa);
-			now.nsecs += MPA_DURATION_NS(&mpa);
-			if (now.nsecs >= 1000000000) {
-				now.secs++;
-				now.nsecs -= 1000000000;
+			wth->capture.mpeg->now.nsecs += MPA_DURATION_NS(&mpa);
+			if (wth->capture.mpeg->now.nsecs >= 1000000000) {
+				wth->capture.mpeg->now.secs++;
+				wth->capture.mpeg->now.nsecs -= 1000000000;
 			}
 		} else {
 			packet_size = mpeg_resync(wth, err, err_info);
@@ -245,9 +242,9 @@ mpeg_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static void
-mpeg_close(wtap *wth _U_)
+mpeg_close(wtap *wth)
 {
-
+	g_free(wth->capture.mpeg);
 }
 
 /* XXX We probably need more magic to open more types */
@@ -255,27 +252,25 @@ struct _mpeg_magic {
 	size_t len;
 	gchar* match;
 } magic[] = {
+	{3,"TAG"},
 	{3,"ID3"},
 	{0,NULL}
 };
 
 int 
-mpeg_open(wtap *wth, int *err, gchar **err_info)
+mpeg_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-	guint32 n;
-	struct mpa mpa;
-	struct _mpeg_magic* m;
+	int bytes_read;
 	char magic_buf[16];
+	struct _mpeg_magic* m;
 	
-	now.secs = time(NULL);
-	now.nsecs = 0;
-	t0 = (double) now.secs;
-
-	if ( file_read(magic_buf, 1, 16, wth->fh) != 16 ) {
-		return -1;
-	} else {
-		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(magic_buf, 1, sizeof magic_buf, wth->fh);
+	if (bytes_read != (int) sizeof magic_buf) {
+		*err = file_error(wth->fh);
+		if (*err != 0)
 			return -1;
+		return 0;
 	}
 
 	for (m=magic;m->match;m++) {
@@ -283,33 +278,12 @@ mpeg_open(wtap *wth, int *err, gchar **err_info)
 			goto good_magic;
 	}
 	
-	return -1;
-	
-good_magic:
-	if (mpeg_read_header(wth, err, err_info, &n) == -1)
-		return -1;
-	
-	MPA_UNMARSHAL(&mpa, n);
-	if (!MPA_SYNC_VALID(&mpa)) {
-		gint64 offset;
-		size_t count;
+	return 0;
 
-		offset = file_tell(wth->fh);
-		if (offset == -1)
-			return -1;
-		count = mpeg_resync(wth, err, err_info);
-		if (count == 0)
-			return 0;
-		if (file_seek(wth->fh, count, SEEK_CUR, err) == -1)
-			return -1;
-		if (mpeg_read_header(wth, err, err_info, &n) == -1)
-			return 0;
-		MPA_UNMARSHAL(&mpa, n);
-		if (!MPA_SYNC_VALID(&mpa))
-			return 0;
-		if (file_seek(wth->fh, offset, SEEK_SET, err) == -1)
-			return -1;
-	}
+good_magic:
+	/* This appears to be a file with MPEG data. */
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+		return -1;
 
 	wth->file_type = WTAP_FILE_MPEG;
 	wth->file_encap = WTAP_ENCAP_MPEG;
@@ -318,5 +292,11 @@ good_magic:
 	wth->subtype_seek_read = mpeg_seek_read;
 	wth->subtype_close = mpeg_close;
 	wth->snapshot_length = 0;
+
+	wth->capture.mpeg = g_malloc(sizeof(libpcap_t));
+	wth->capture.mpeg->now.secs = time(NULL);
+	wth->capture.mpeg->now.nsecs = 0;
+	wth->capture.mpeg->t0 = (double) wth->capture.mpeg->now.secs;
+
 	return 1;
 }
