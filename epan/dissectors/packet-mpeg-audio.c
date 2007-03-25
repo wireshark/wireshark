@@ -454,60 +454,56 @@ dissect_mpeg_audio_ID3v1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 /*--- End of included file: packet-mpeg-audio-fn.c ---*/
 #line 44 "packet-mpeg-audio-template.c"
 
+static int proto_mpeg_audio = -1;
+
 static int hf_mpeg_audio = -1;
 static int hf_mpeg_audio_data = -1;
 static int hf_mpeg_audio_padbytes = -1;
 static int hf_id3v1 = -1;
 static int hf_id3v2 = -1;
 
-static size_t
-read_header(tvbuff_t *tvb, packet_info *pinfo, struct mpa *mpa)
-{
-	size_t data_size = 0;
-	guint32 h = tvb_get_ntohl(tvb, 0);
-	MPA_UNMARSHAL(mpa, h);
-	if (MPA_SYNC_VALID(mpa)) {
-		if (MPA_VERSION_VALID(mpa) && MPA_LAYER_VALID(mpa)) {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-				static const char *version_names[] = { "1", "2", "2.5" };
-				col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
-						"MPEG-%s", version_names[MPA_VERSION(mpa)]);
-			}
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_add_fstr(pinfo->cinfo, COL_INFO,
-						"Audio Layer %d", MPA_LAYER(mpa) + 1);
-			if (MPA_BITRATE_VALID(mpa) && MPA_FREQUENCY_VALID(mpa)) {
-				data_size = MPA_DATA_BYTES(mpa) - sizeof mpa;
-				if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
-					SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
-					col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-							"%d kb/s", MPA_BITRATE(mpa) / 1000);
-				}
-				if (check_col(pinfo->cinfo, COL_DEF_DST)) {
-					SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
-					col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-							"%g kHz", MPA_FREQUENCY(mpa) / (float)1000);
-				}
-			}
-		} else {
-			if (check_col(pinfo->cinfo, COL_PROTOCOL))
-				col_add_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
-		}
-	}
-	return data_size;
-}
-
 static gboolean
 dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint32 h;
 	struct mpa mpa;
-	size_t data_size;
+	size_t data_size = 0;
 	asn1_ctx_t asn1_ctx;
 	int offset = 0;
 
-	data_size = read_header(tvb, pinfo, &mpa);
+	if (!tvb_bytes_exist(tvb, 0, 4))
+		return FALSE;	/* not enough data for an MPEG audio frame */
+
+	h = tvb_get_ntohl(tvb, 0);
+	MPA_UNMARSHAL(&mpa, h);
 	if (!MPA_SYNC_VALID(&mpa))
 		return FALSE;
+	if (!MPA_VERSION_VALID(&mpa))
+		return FALSE;
+	if (!MPA_LAYER_VALID(&mpa))
+		return FALSE;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		static const char *version_names[] = { "1", "2", "2.5" };
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+				"MPEG-%s", version_names[MPA_VERSION(&mpa)]);
+	}
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO,
+				"Audio Layer %d", MPA_LAYER(&mpa) + 1);
+	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
+		data_size = MPA_DATA_BYTES(&mpa) - sizeof mpa;
+		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
+			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
+			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
+					"%d kb/s", MPA_BITRATE(&mpa) / 1000);
+		}
+		if (check_col(pinfo->cinfo, COL_DEF_DST)) {
+			SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
+			col_add_fstr(pinfo->cinfo, COL_DEF_DST,
+					"%g kHz", MPA_FREQUENCY(&mpa) / (float)1000);
+		}
+	}
 
 	if (tree == NULL)
 		return TRUE;
@@ -538,6 +534,8 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 	if (tree == NULL)
 		return;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -550,6 +548,8 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 	proto_tree_add_item(tree, hf_id3v2, tvb,
 			0, -1, FALSE);
 }
@@ -559,11 +559,8 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int magic;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_clear(pinfo->cinfo, COL_PROTOCOL);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
+	if (!tvb_bytes_exist(tvb, 0, 3))
+		return FALSE;	/* not enough data for an ID tag or audio frame */
 	magic = tvb_get_ntoh24(tvb, 0);
 	switch (magic) {
 		case 0x544147: /* TAG */
@@ -576,8 +573,6 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return dissect_mpeg_audio_frame(tvb, pinfo, tree);
 	}
 }
-
-static int proto_mpeg_audio = -1;
 
 void
 proto_register_mpeg_audio(void)
@@ -676,7 +671,7 @@ proto_register_mpeg_audio(void)
         "mpeg_audio.T_genre", HFILL }},
 
 /*--- End of included file: packet-mpeg-audio-hfarr.c ---*/
-#line 175 "packet-mpeg-audio-template.c"
+#line 170 "packet-mpeg-audio-template.c"
 		{ &hf_mpeg_audio,
 			{ "MPEG Audio", "mpeg.audio",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -703,11 +698,8 @@ proto_register_mpeg_audio(void)
     &ett_mpeg_audio_ID3v1,
 
 /*--- End of included file: packet-mpeg-audio-ettarr.c ---*/
-#line 195 "packet-mpeg-audio-template.c"
+#line 190 "packet-mpeg-audio-template.c"
 	};
-
-	if (proto_mpeg_audio != -1)
-		return;
 
 	proto_mpeg_audio = proto_register_protocol(
 			"Moving Picture Experts Group Audio", "MPEG Audio", "mpeg.audio");
