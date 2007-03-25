@@ -20,7 +20,6 @@ all: \
 	irda \
 	lwres \
 	mate \
-	megaco \
 	mgcp \
 	opsi \
 	pcli \

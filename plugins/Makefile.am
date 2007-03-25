@@ -34,7 +34,6 @@ SUBDIRS = \
 	irda \
 	lwres \
 	mate \
-	megaco \
 	mgcp \
 	opsi \
 	pcli \

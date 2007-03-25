@@ -48,6 +48,21 @@ VAL_PTR = &ProtocolIE_ID
 
 VAL_PTR = &ProtocolIE_ID
 
+#.FN_BODY PermanentNAS-UE-ID/iMSI
+  tvbuff_t* imsi_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_ranap_iMSI,
+                                       3, 8, &imsi_tvb);
+  
+	if ( actx->pinfo->sccp_info
+		 && actx->pinfo->sccp_info->assoc
+		 && ! actx->pinfo->sccp_info->assoc->calling_party ) {
+	   
+		guint len = tvb_length(imsi_tvb);
+		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
+
+		actx->pinfo->sccp_info->assoc->calling_party = 
+			se_strdup_printf("IMSI: %%s", bytes_to_str(bytes, len) );
+	}
 #.FN_BODY Value
 	
 	offset = dissect_ranap_messages(tvb, offset, %(ACTX)s, tree);

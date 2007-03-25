@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -1079,16 +1080,17 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
     ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
+	ProcedureCode = 0xFFFFFFFF;
 	offset = dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);
 
 	if (pinfo->sccp_info) {
 		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
-		const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
 		
 		if (sccp_msg->assoc)
-			sccp_msg->assoc->proto = SCCP_PLOAD_RANAP;
+			sccp_msg->assoc->payload = SCCP_PLOAD_RANAP;
 		
-		if (! sccp_msg->label) {
+		if (! sccp_msg->label && ProcedureCode != 0xFFFFFFFF) {
+			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
 			sccp_msg->label = se_strdup(str);
 		}
 	}

@@ -455,6 +455,7 @@ DISSECTOR_SRC =	\
 	packet-mbtcp.c	\
 	packet-mdshdr.c	\
 	packet-media.c	\
+	packet-megaco.c	\
 	packet-mikey.c	\
 	packet-mip.c	\
 	packet-mip6.c	\

@@ -14,3 +14,7 @@ clean:
 
 copy_files: generate_dissector
 	cp $(DISSECTOR_FILES) ../../epan/dissectors
+	touch copy_files
+
+compile: copy_files
+	( cd ../../epan/dissectors && make packet-h248.o )
