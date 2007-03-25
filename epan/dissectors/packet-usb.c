@@ -967,10 +967,10 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
     }
 
-    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&(src_addr.device));
-    SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&(src_addr.device));
-    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&(dst_addr.device));
-    SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&(dst_addr.device));
+    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+    SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+    SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
     pinfo->ptype=PT_USB;
     pinfo->srcport=src_endpoint;
     pinfo->destport=dst_endpoint;
