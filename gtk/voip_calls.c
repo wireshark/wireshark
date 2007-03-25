@@ -2722,17 +2722,17 @@ remove_tap_listener_actrace_calls(void)
 
 
 
-/**************************** TAP for H248 **********************************/
+/**************************** TAP for H248/MEGACO **********************************/
 static gboolean have_h248_tap_listener = FALSE;
 
-#define h248_is_req(type) ( type == H248_CMD_ADD_REQ || type == H248_CMD_MOVE_REQ || type == H248_CMD_MOD_REQ || \
-							type == H248_CMD_SUB_REQ || type == H248_CMD_AUDITCAP_REQ || type == H248_CMD_AUDITVAL_REQ || \
-							type == H248_CMD_NOTIFY_REQ || type == H248_CMD_SVCCHG_REQ || type == H248_CMD_TOPOLOGY_REQ || \
-							type == H248_CMD_CTX_ATTR_AUDIT_REQ )
+#define gcp_is_req(type) ( type == GCP_CMD_ADD_REQ || type == GCP_CMD_MOVE_REQ || type == GCP_CMD_MOD_REQ || \
+							type == GCP_CMD_SUB_REQ || type == GCP_CMD_AUDITCAP_REQ || type == GCP_CMD_AUDITVAL_REQ || \
+							type == GCP_CMD_NOTIFY_REQ || type == GCP_CMD_SVCCHG_REQ || type == GCP_CMD_TOPOLOGY_REQ || \
+							type == GCP_CMD_CTX_ATTR_AUDIT_REQ )
 
 static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
-	const h248_cmd_t* cmd = prot_info;
+	const gcp_cmd_t* cmd = prot_info;
 	GList* list;
 	voip_calls_info_t *strinfo = NULL;
 	address* mgw;
@@ -2745,7 +2745,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		return 0;
 	}
 	
-	if ( h248_is_req(cmd->type) ) {
+	if ( gcp_is_req(cmd->type) ) {
 		mgw = &(pinfo->dst);
 		mgc = &(pinfo->src);
 	} else {
@@ -2799,14 +2799,14 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 
 	} else {
 		GString* s = g_string_new("");
-		h248_terms_t *ctx_term;
+		gcp_terms_t *ctx_term;
 
 		g_free(strinfo->from_identity);
-		strinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, ((h248_ctx_t*)strinfo->prot_info)->id);
+		strinfo->from_identity = g_strdup_printf("%s : %.8x", mgw_addr, ((gcp_ctx_t*)strinfo->prot_info)->id);
 
 		g_free(strinfo->to_identity);
 
-		for (ctx_term = ((h248_ctx_t*)strinfo->prot_info)->terms.next;
+		for (ctx_term = ((gcp_ctx_t*)strinfo->prot_info)->terms.next;
 			 ctx_term;
 			 ctx_term = ctx_term->next ) {
 			if ( ctx_term->term && ctx_term->term->str) {

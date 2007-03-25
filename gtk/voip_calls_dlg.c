@@ -360,7 +360,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 				break;
 			case TEL_H248: {
-				const h248_ctx_t* ctx = selected_call_fwd->prot_info;
+				const gcp_ctx_t* ctx = selected_call_fwd->prot_info;
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), ep_strdup_printf("h248.ctx == 0x%x", ctx->id ));
 				break;
 			}
