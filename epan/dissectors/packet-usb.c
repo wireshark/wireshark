@@ -100,6 +100,9 @@ static int hf_usb_configuration_selfpowered = -1;
 static int hf_usb_configuration_remotewakeup = -1;
 static int hf_usb_bEndpointAddress_direction = -1;
 static int hf_usb_bEndpointAddress_number = -1;
+static int hf_usb_response_in = -1;
+static int hf_usb_time = -1;
+static int hf_usb_request_in = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
@@ -838,7 +841,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     guint32 src_device, dst_device, tmp_addr;
     static usb_address_t src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint32 src_endpoint, dst_endpoint;
-    gboolean is_request;
+    gboolean is_request=FALSE;
     usb_conv_info_t *usb_conv_info=NULL;
     usb_trans_info_t *usb_trans_info=NULL;
     conversation_t *conversation;
@@ -867,7 +870,12 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             val_to_str(type, usb_transfer_type_vals, "Unknown type %x"));
     }
 
+#if 0
+    /* The direction flag is broken so we must strip it off */
     endpoint=pinfo->pseudo_header->linux_usb.endpoint_number;
+#else
+    endpoint=pinfo->pseudo_header->linux_usb.endpoint_number&(~URB_TRANSFER_IN);
+#endif
     proto_tree_add_uint(tree, hf_usb_endpoint_number, tvb, 0, 0, endpoint);
 
     tmp_addr=pinfo->pseudo_header->linux_usb.device_address;
@@ -882,24 +890,65 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     proto_tree_add_uint(tree, hf_usb_data_flag, tvb, 0, 0,
                         pinfo->pseudo_header->linux_usb.data_flag);
 
-    /* set up addresses and ports */
+#if 0
+    /* this is how it is supposed to work but this flag seems to be broken -- ronnie */
     is_request = endpoint & URB_TRANSFER_IN;
-    if (is_request){
-        src_addr.device = src_device = htolel(tmp_addr);
-        src_addr.endpoint = src_endpoint = htolel(endpoint);
-        dst_addr.device = dst_device = 0xffffffff;
-        dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
-    } else {
+#else
+    /* Determine whether this is a request or a response */
+    switch(type){
+    case URB_BULK:
+    case URB_CONTROL:
+        switch(pinfo->pseudo_header->linux_usb.event_type){
+        case URB_SUBMIT:
+            is_request=TRUE;
+            break;
+        case URB_COMPLETE:
+        case URB_ERROR:
+            is_request=FALSE;
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
+        break;
+    case URB_INTERRUPT:
+        switch(pinfo->pseudo_header->linux_usb.event_type){
+        case URB_SUBMIT:
+            is_request=FALSE;
+            break;
+        case URB_COMPLETE:
+        case URB_ERROR:
+            is_request=TRUE;
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+        }
+        break;
+     default:
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
+#endif
+
+    /* Set up addresses and ports.
+     * Note that URB_INTERRUPT goes in the reverse direction and thus
+     * the request comes from the device and not the host.
+     */
+    if ( (is_request&&(type!=URB_INTERRUPT))
+      || (!is_request&&(type==URB_INTERRUPT)) ){
         src_addr.device = src_device = 0xffffffff;
         src_addr.endpoint = src_endpoint = NO_ENDPOINT;
         dst_addr.device = dst_device = htolel(tmp_addr);
         dst_addr.endpoint = dst_endpoint = htolel(endpoint);
+    } else {
+        src_addr.device = src_device = htolel(tmp_addr);
+        src_addr.endpoint = src_endpoint = htolel(endpoint);
+        dst_addr.device = dst_device = 0xffffffff;
+        dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
     }
 
-    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
-    SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
-    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
-    SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
+    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&(src_addr.device));
+    SET_ADDRESS(&pinfo->src, AT_USB, USB_ADDR_LEN, (char *)&(src_addr.device));
+    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&(dst_addr.device));
+    SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&(dst_addr.device));
     pinfo->ptype=PT_USB;
     pinfo->srcport=src_endpoint;
     pinfo->destport=dst_endpoint;
@@ -909,6 +958,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     usb_conv_info=get_usb_conv_info(conversation);
 
     pinfo->usb_conv_info=usb_conv_info;
+
    
     /* request/response matching so we can keep track of transaction specific
      * data.
@@ -920,11 +970,19 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             usb_trans_info=se_alloc(sizeof(usb_trans_info_t));
             usb_trans_info->request_in=pinfo->fd->num;
             usb_trans_info->response_in=0;
+            usb_trans_info->req_time=pinfo->fd->abs_ts;
             usb_trans_info->requesttype=0;
             usb_trans_info->request=0;
             se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
         usb_conv_info->usb_trans_info=usb_trans_info;
+
+        if(usb_trans_info && usb_trans_info->response_in){
+            proto_item *ti;
+
+            ti=proto_tree_add_uint(tree, hf_usb_response_in, tvb, 0, 0, usb_trans_info->response_in);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     } else {
         /* this is a response */
         if(pinfo->fd->flags.visited){
@@ -937,15 +995,45 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             }
         } 
         usb_conv_info->usb_trans_info=usb_trans_info;
+
+        if(usb_trans_info && usb_trans_info->request_in){
+            proto_item *ti;
+            nstime_t t, deltat;
+
+            ti=proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            t = pinfo->fd->abs_ts;
+            nstime_delta(&deltat, &t, &usb_trans_info->req_time);
+            ti=proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     }
 
+    /* For DLT189 it seems 
+     * that all INTERRUPT or BULK packets as well as all CONTROL responses
+     * are prepended with 8 mysterious bytes.
+     */
+    switch(type){
+    case URB_CONTROL:
+        if(pinfo->pseudo_header->linux_usb.event_type!=URB_SUBMIT){
+            offset+=8;
+        }
+        break;
+    case URB_BULK:
+    case URB_INTERRUPT:
+        offset+=8;
+        break;
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
+    }
 
     switch(type){
     case URB_BULK:
         {
         proto_item *item;
 
-        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->class);
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->class);
         PROTO_ITEM_SET_GENERATED(item);
         if(tvb_length_remaining(tvb, offset)){
             tvbuff_t *next_tvb;
@@ -1360,6 +1448,18 @@ proto_register_usb(void)
         { &hf_usb_bEndpointAddress_direction,
         { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8, 
           TFS(&tfs_endpoint_direction), 0x80, "", HFILL }},
+
+	{ &hf_usb_request_in,
+		{ "Request in", "usb.request_in", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "The request to this packet is in this packet", HFILL }},
+
+	{ &hf_usb_time,
+		{ "Time from request", "usb.time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Time between Request and Response for USB cmds", HFILL }},
+
+	{ &hf_usb_response_in,
+		{ "Response in", "usb.response_in", FT_FRAMENUM, BASE_NONE,
+		NULL, 0, "The response to this packet is in this packet", HFILL }},
 
     };
     
