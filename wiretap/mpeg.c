@@ -250,18 +250,45 @@ mpeg_close(wtap *wth _U_)
 
 }
 
+/* XXX We probably need more magic to open more types */
+struct _mpeg_magic {
+	size_t len;
+	gchar* match;
+} magic[] = {
+	{3,"ID3"},
+	{0,NULL}
+};
+
 int 
 mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint32 n;
 	struct mpa mpa;
-
+	struct _mpeg_magic* m;
+	char magic_buf[16];
+	
 	now.secs = time(NULL);
 	now.nsecs = 0;
 	t0 = (double) now.secs;
 
+	if ( file_read(magic_buf, 1, 16, wth->fh) != 16 ) {
+		return -1;
+	} else {
+		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+			return -1;
+	}
+
+	for (m=magic;m->match;m++) {
+		if (memcmp(magic_buf,m->match,m->len) == 0)
+			goto good_magic;
+	}
+	
+	return -1;
+	
+good_magic:
 	if (mpeg_read_header(wth, err, err_info, &n) == -1)
 		return -1;
+	
 	MPA_UNMARSHAL(&mpa, n);
 	if (!MPA_SYNC_VALID(&mpa)) {
 		gint64 offset;
