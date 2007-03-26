@@ -1494,7 +1494,7 @@ main(int argc, char *argv[])
         capture_opts.has_autostop_packets ? capture_opts.autostop_packets : 0,
         capture_opts.has_autostop_filesize ? capture_opts.autostop_filesize : 0);
 #else
-    err = load_cap_file(&cfile, NULL, out_file_type);
+    err = load_cap_file(&cfile, NULL, out_file_type, 0, 0);
 #endif
     if (err != 0) {
       epan_cleanup();
