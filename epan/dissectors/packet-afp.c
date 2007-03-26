@@ -1056,7 +1056,7 @@ decode_vol_attribute (proto_tree *tree, tvbuff_t *tvb, gint offset)
 #define DATE_NOT_SET         0x80000000
 #define AD_DATE_DELTA         946684800
 #define AD_DATE_TO_UNIX(x)    (x + AD_DATE_DELTA)
-static guint32
+static void
 print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
 {
 	time_t date = tvb_get_ntohl(tvb, offset);
@@ -1065,8 +1065,6 @@ print_date(proto_tree *tree,int id, tvbuff_t *tvb, gint offset)
 	tv.secs = AD_DATE_TO_UNIX(date);
 	tv.nsecs = 0;
 	proto_tree_add_time(tree, id, tvb, offset, 4, &tv);
-
-	return (guint32) date;
 }
 
 /* -------------------------- */

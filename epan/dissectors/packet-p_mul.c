@@ -196,9 +196,9 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
     if ((c1 += c0) > 254) { c1 -= 255; }
   }
 
-  if ((cs = ((ctmp * c0) - c1) % 255L) < 0) { cs += 255; }
+  if ((cs = ((ctmp * c0) - c1) % 255) < 0) { cs += 255; }
   ret = cs << 8;
-  if ((cs = (c1 - ((ctmp + 1L) * c0)) % 255L) < 0) { cs += 255; }
+  if ((cs = (c1 - ((ctmp + 1L) * c0)) % 255) < 0) { cs += 255; }
   ret |= cs;
 
   return ret;
