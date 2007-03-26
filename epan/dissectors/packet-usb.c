@@ -163,25 +163,47 @@ static const value_string usb_urb_type_vals[] = {
     {0, NULL}
 };
 
-#define USB_DT_DEVICE		1
-#define USB_DT_CONFIGURATION	2
-#define USB_DT_STRING		3
-#define USB_DT_INTERFACE	4
-#define USB_DT_ENDPOINT		5
-#define USB_DT_DEVICE_QUALIFIER	6
-#define USB_DT_OTHER_SPEED_CONFIGURATION	7
-#define USB_DT_INTERFACE_POWER	8
-#define USB_DT_HID		0x21
+#define USB_DT_DEVICE                   0x01
+#define USB_DT_CONFIG                   0x02
+#define USB_DT_STRING                   0x03
+#define USB_DT_INTERFACE                0x04
+#define USB_DT_ENDPOINT                 0x05
+#define USB_DT_DEVICE_QUALIFIER         0x06
+#define USB_DT_OTHER_SPEED_CONFIG       0x07
+#define USB_DT_INTERFACE_POWER          0x08
+/* these are from a minor usb 2.0 revision (ECN) */
+#define USB_DT_OTG                      0x09
+#define USB_DT_DEBUG                    0x0a
+#define USB_DT_INTERFACE_ASSOCIATION    0x0b
+/* these are from the Wireless USB spec */
+#define USB_DT_SECURITY                 0x0c
+#define USB_DT_KEY                      0x0d
+#define USB_DT_ENCRYPTION_TYPE          0x0e
+#define USB_DT_BOS                      0x0f
+#define USB_DT_DEVICE_CAPABILITY        0x10
+#define USB_DT_WIRELESS_ENDPOINT_COMP   0x11
+#define USB_DT_HID			0x21
+#define USB_DT_RPIPE                    0x22
 static const value_string descriptor_type_vals[] = {
     {USB_DT_DEVICE,			"DEVICE"},
-    {USB_DT_CONFIGURATION,		"CONFIGURATION"},
+    {USB_DT_CONFIG,			"CONFIGURATION"},
     {USB_DT_STRING,			"STRING"},
     {USB_DT_INTERFACE,			"INTERFACE"},
     {USB_DT_ENDPOINT,			"ENDPOINT"},
-    {USB_DT_DEVICE_QUALIFIER,		"DEVICE_QUALIFIER"},
-    {USB_DT_OTHER_SPEED_CONFIGURATION,	"OTHER_SPEED_CONFIGURATION"},
-    {USB_DT_INTERFACE_POWER,		"INTERFACE_POWER"},
+    {USB_DT_DEVICE_QUALIFIER,		"DEVICE QUALIFIER"},
+    {USB_DT_OTHER_SPEED_CONFIG,		"OTHER_SPEED CONFIG"},
+    {USB_DT_INTERFACE_POWER,		"INTERFACE POWER"},
+    {USB_DT_OTG,			"OTG"},
+    {USB_DT_DEBUG,			"DEBUG"},
+    {USB_DT_INTERFACE_ASSOCIATION,	"INTERFACE ASSOCIATION"},
+    {USB_DT_SECURITY,			"SECURITY"},
+    {USB_DT_KEY,			"KEY"},
+    {USB_DT_ENCRYPTION_TYPE,		"ENCRYPTION TYPE"},
+    {USB_DT_BOS,			"BOS"},
+    {USB_DT_DEVICE_CAPABILITY,		"DEVICE CAPABILITY"},
+    {USB_DT_WIRELESS_ENDPOINT_COMP,	"WIRELESS ENDPOINT COMP"},
     {USB_DT_HID,			"HID"},
+    {USB_DT_RPIPE,			"RPIPE"},
     {0,NULL}
 };
 
@@ -788,7 +810,7 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         case USB_DT_DEVICE:
             offset=dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
-        case USB_DT_CONFIGURATION:
+        case USB_DT_CONFIG:
             offset=dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         case USB_DT_STRING: 
