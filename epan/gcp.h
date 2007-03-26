@@ -73,7 +73,6 @@ typedef struct _gcp_hf_ett_t {
 
 typedef enum {
     GCP_CMD_NONE,
-    GCP_CMD_OTHER_REQ,
     GCP_CMD_ADD_REQ,
     GCP_CMD_MOVE_REQ,
     GCP_CMD_MOD_REQ,
