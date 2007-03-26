@@ -62,6 +62,8 @@
 #include <epan/dissectors/packet-h245.h>
 #include <epan/dissectors/packet-ip.h>
 
+#include <epan/gcp.h>
+
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
@@ -139,8 +141,11 @@ static int ett_megaco_signalsdescriptor			= -1;
 static int ett_megaco_requestedsignal			= -1;
 static int ett_megaco_h245 						= -1;
 
+static gcp_hf_ett_t megaco_ctx_ids = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
+
 static dissector_handle_t megaco_text_handle;
 
+static int megaco_tap = -1;
 
 /*
 * Here are the global variables associated with
@@ -226,6 +231,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
 static dissector_handle_t h248_handle;
+
+static gboolean keep_persistent_data = FALSE;
 
 static proto_tree *top_tree;
 /*
@@ -313,7 +320,18 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		tempchar;
 	gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
 	guint		token_index=0;
-
+	
+	gcp_msg_t* msg = NULL;
+	gcp_trx_t* trx = NULL;
+	gcp_ctx_t* ctx = NULL;
+	gcp_cmd_t* cmd = NULL;
+	gcp_term_t* term = NULL;
+	gcp_trx_type_t trx_type = GCP_TRX_NONE;
+	guint32 trx_id = 0;
+	guint32 ctx_id = 0;
+	gcp_cmd_type_t cmd_type = GCP_CMD_NONE;
+	gcp_wildcard_t wild_term = GCP_WILDCARD_NONE;
+	
 	top_tree=tree;
 	/* Initialize variables */
 	tvb_len						= tvb_length(tvb);
@@ -330,6 +348,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	RBRKT_counter				= 0;
 	LBRKT_counter				= 0;
 
+	msg = gcp_msg(pinfo, TVB_RAW_OFFSET(tvb), keep_persistent_data); 
 
 	/*
 	 * Check to see whether we're really dealing with MEGACO by looking
@@ -500,6 +519,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * transactionAck = transactionID / (transactionID "-" transactionID)
 			 */
 		case RESPONSEACKTOKEN:
+			trx_type = GCP_TRX_ACK;
 			tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
 			tvb_offset = tvb_LBRKT;
 			ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_offset-tvb_previous_offset,
@@ -518,10 +538,14 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
 				tvb_format_text(tvb,tvb_previous_offset,len));
+
+				trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+				
 			if(tree)
 				my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb,
 				tvb_previous_offset, len,
 				tvb_format_text(tvb,tvb_previous_offset,len));
+				
 				if(global_megaco_raw_text){
 					tvb_raw_text_add(tvb, megaco_tree);
 				}
@@ -530,6 +554,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		/* Pe and PN is transactionPending, P+"any char" is transactionReply */
 		case PENDINGTOKEN:
+			trx_type = GCP_TRX_PENDING;
 
 			tvb_offset  = tvb_find_guint8(tvb, tvb_previous_offset, tvb_len, '=')+1;
 			tvb_offset = tvb_skip_wsp(tvb, tvb_offset);
@@ -549,6 +574,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
 				tvb_format_text(tvb,tvb_offset,len));
+				trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
 
 			if(tree)
 				my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb,
@@ -559,6 +585,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* transactionReply */
 		case REPLYTOKEN:
+			trx_type = GCP_TRX_REPLY;
 			tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
 			ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset,
 					"%s",tvb_format_text(tvb, tvb_previous_offset, tvb_LBRKT-tvb_previous_offset+1));
@@ -577,6 +604,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply  ",
 				tvb_format_text(tvb,tvb_offset,len));
+				trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
+			
 			if(tree)
 				my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb,
 					tvb_offset, len, tvb_format_text(tvb,tvb_offset,len));
@@ -591,8 +620,9 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Offset should be at first printarable char after { */
 			tvb_previous_offset = tvb_offset;
 			break;
-		case TRANSTOKEN:
+		case TRANSTOKEN:			
 			/* TransactionRequest 	*/
+			trx_type = GCP_TRX_REQUEST;
 			tvb_LBRKT  = tvb_find_guint8(tvb, tvb_offset, tvb_len, '{');
 			tvb_current_offset = tvb_LBRKT;
 			ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_current_offset-tvb_previous_offset,
@@ -610,6 +640,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
 				tvb_format_text(tvb,tvb_offset,len));
+				trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
 			if(tree)
 				my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb, tvb_offset,len,
 					tvb_format_text(tvb,tvb_offset,len));
@@ -639,8 +670,13 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *			TransToken = ("Transaction" / "T")
  */
 
+		trx = gcp_trx(msg , trx_id , trx_type, keep_persistent_data);
+
 		/* Find Context */
 nextcontext:
+
+
+
 
 		tvb_next_offset = tvb_find_guint8(tvb, tvb_previous_offset,	tvb_len, '{');
 		ti = proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, tvb_next_offset-tvb_previous_offset+1,
@@ -664,8 +700,10 @@ nextcontext:
 			tokenlen--;
 		}
 
+
 		switch ( tempchar ){
 		case '$':
+			ctx_id = CHOOSE_CONTEXT;
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
 				tvb_previous_offset, 1,
 				"Choose one");
@@ -673,6 +711,7 @@ nextcontext:
 				col_append_fstr(pinfo->cinfo, COL_INFO, " |=Choose one");
 			break;
 		case '*':
+			ctx_id = ALL_CONTEXTS;
 			my_proto_tree_add_string(megaco_context_tree, hf_megaco_Context, tvb,
 				tvb_previous_offset, 1,
 				"All");
@@ -680,6 +719,7 @@ nextcontext:
 				col_append_fstr(pinfo->cinfo, COL_INFO, " |=All");
 			break;
 		case '-':
+			ctx_id = NULL_CONTEXT;
 			proto_tree_add_text(megaco_context_tree, tvb, tvb_previous_offset, tokenlen, "Context: NULL" );
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_append_fstr(pinfo->cinfo, COL_INFO, " |=NULL");
@@ -689,9 +729,13 @@ nextcontext:
 				tvb_previous_offset, tokenlen,
 				tvb_format_text(tvb, tvb_previous_offset,
 				tokenlen));
+			ctx_id = strtoul(tvb_format_text(tvb, tvb_previous_offset, tokenlen),NULL,10);
+
 			if (check_col(pinfo->cinfo, COL_INFO) )
 				col_append_fstr(pinfo->cinfo, COL_INFO, " |=%s",tvb_format_text(tvb, tvb_previous_offset,tokenlen));
 		}
+
+		ctx = gcp_ctx(msg,trx,ctx_id,keep_persistent_data);
 
 		/* Find Commands */
 
@@ -849,6 +893,12 @@ nextcontext:
 							switch ( tempchar ){
 
 							case 'V':
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_AUDITVAL_REPLY; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_AUDITVAL_REQ; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
+								
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"AuditValue");
@@ -857,6 +907,11 @@ nextcontext:
 								break;
 
 							case 'C':
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_AUDITCAP_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_AUDITCAP_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"AuditCapability");
@@ -865,6 +920,12 @@ nextcontext:
 								break;
 
 							default:
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_ADD_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_ADD_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
+								
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Add");
@@ -875,6 +936,12 @@ nextcontext:
 							break;
 
 						case 'N':
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_NOTIFY_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_NOTIFY_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+							
 							my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 								tvb_command_start_offset, tokenlen,
 								"Notify");
@@ -882,12 +949,18 @@ nextcontext:
 									col_append_fstr(pinfo->cinfo, COL_INFO, " Notify");
 							break;
 
-						case 'M':
+						case 'M': 
 
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
 
 							switch ( tempchar ){
 							case 'F':
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_MOD_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_MOD_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
+								
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Modify");
@@ -896,6 +969,11 @@ nextcontext:
 								break;
 
 							case 'V':
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_MOVE_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_MOVE_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Move");
@@ -906,6 +984,7 @@ nextcontext:
 							break;
 
 						case 'P':
+							cmd_type = GCP_CMD_NONE; 
 							/*
 							PackagesToken	= ("Packages"	/ "PG")
 							PendingToken	= ("Pending"	/ "PN")
@@ -944,12 +1023,22 @@ nextcontext:
 							switch ( tempchar ){
 
 							case 'C':
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SVCCHG_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_SVCCHG_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"ServiceChange");
 								break;
 
 							default:
+								switch(trx_type) {
+									case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SUB_REQ; break;
+									case GCP_TRX_REPLY: cmd_type = GCP_CMD_SUB_REPLY; break;
+									default: cmd_type = GCP_CMD_NONE; break;
+								}								
 								my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 									tvb_command_start_offset, tokenlen,
 									"Subtract");
@@ -971,21 +1060,98 @@ nextcontext:
 						}
 					}
 					else{
+						gchar* command = tvb_format_text(tvb, tvb_command_start_offset, tokenlen);
+						
+						if ( g_str_equal(command,"Subtract") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SUB_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_SUB_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}								
+						} else if ( g_str_equal(command,"AuditValue") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_AUDITVAL_REPLY; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_AUDITVAL_REQ; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"AuditCapability") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_AUDITCAP_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_AUDITCAP_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"Add") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_ADD_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_ADD_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"Notify") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_NOTIFY_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_NOTIFY_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"Modify") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_MOD_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_MOD_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"Move") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_MOVE_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_MOVE_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"ServiceChange") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SVCCHG_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_SVCCHG_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else if ( g_str_equal(command,"Subtract") ) {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_SUB_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_SUB_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						} else {
+							switch(trx_type) {
+								case GCP_TRX_REQUEST: cmd_type = GCP_CMD_OTHER_REQ; break;
+								case GCP_TRX_REPLY: cmd_type = GCP_CMD_REPLY; break;
+								default: cmd_type = GCP_CMD_NONE; break;
+							}
+						}
+						
+						
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_command, tvb,
 							tvb_command_start_offset, tokenlen,
 							tvb_format_text(tvb, tvb_command_start_offset,
 							tokenlen));
 							if (check_col(pinfo->cinfo, COL_INFO) )
-								col_append_fstr(pinfo->cinfo, COL_INFO, " %s",tvb_format_text(tvb, tvb_command_start_offset,tokenlen));
+								col_append_fstr(pinfo->cinfo, COL_INFO, " %s",command);
 					}
-
-
+					
+					if (cmd_type == GCP_CMD_NONE && trx_type == GCP_TRX_REPLY) {
+						cmd_type = GCP_CMD_REPLY;
+					}
+				
+					if (cmd_type != GCP_CMD_NONE) {
+						cmd = gcp_cmd(msg, trx, ctx, cmd_type, tvb_command_start_offset, keep_persistent_data);
+						tap_queue_packet(megaco_tap, pinfo, cmd);
+					}
+					
 					tvb_offset  = tvb_find_guint8(tvb, tvb_command_start_offset,
 						tvb_len, '=');
 					tvb_offset = tvb_skip_wsp(tvb, tvb_offset+1);
 					tokenlen = tvb_next_offset - tvb_offset;
 
 					tempchar = tvb_get_guint8(tvb, tvb_offset);
+
+					term = ep_new0(gcp_term_t);
+					wild_term = GCP_WILDCARD_NONE;
+					term->type = GCP_TERM_TYPE_UNKNOWN;
 
 					switch ( tempchar ){
 
@@ -996,12 +1162,25 @@ nextcontext:
 						}
 						tvb_get_nstringz0(tvb,tvb_offset,tokenlen+1,TermID);
 						TermID[0] = 'e';
+
+						term->len = tokenlen;
+						term->str = (gchar*)(term->buffer = TermID);
+
+						term = gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+						
+						/*** TERM ***/
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							(gchar*)TermID);
 						break;
 
 					case '*':
+						wild_term = GCP_WILDCARD_ALL;
+						term->len = 1;
+						term->buffer = (guint8*)(term->str = "*");
+						
+						term = gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+						
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							"WildCard all");
@@ -1010,6 +1189,13 @@ nextcontext:
 						break;
 
 					case '$':
+						wild_term = GCP_WILDCARD_CHOOSE;
+						
+						term->len = 1;
+						term->buffer = (guint8*)(term->str = "$");
+						
+						term = gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+						
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							"WildCard any");
@@ -1018,10 +1204,17 @@ nextcontext:
 						break;
 
 					default:
+						/*** TERM ***/
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
 							tvb_format_text(tvb, tvb_offset,
 							tokenlen));
+						
+						term->len = tokenlen;
+						term->buffer = (guint8*)(term->str = tvb_format_text(tvb, tvb_offset, tokenlen));
+						
+						term = gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
+						
 							if (check_col(pinfo->cinfo, COL_INFO) )
 								col_append_fstr(pinfo->cinfo, COL_INFO, "=%s",tvb_format_text(tvb, tvb_offset,tokenlen));
 						break;
@@ -1065,6 +1258,11 @@ nextcontext:
 
 			}
 		} while ( tvb_command_end_offset < tvb_len );
+
+	if (keep_persistent_data) {
+		gcp_msg_to_str(msg,keep_persistent_data);
+		gcp_analyze_msg(megaco_tree, tvb, msg, &megaco_ctx_ids );
+	}
 
 	if(global_megaco_raw_text){
 		tvb_raw_text_add(tvb, megaco_tree);
@@ -3168,6 +3366,7 @@ proto_register_megaco(void)
         FT_NONE, BASE_NONE, NULL, 0,
         "megaco.h245.H223Capability", HFILL }},
 
+		GCP_HF_ARR_ELEMS("megaco",megaco_ctx_ids),
 
 		/* Add more fields here */
 	};
@@ -3192,7 +3391,9 @@ proto_register_megaco(void)
 		&ett_megaco_signalsdescriptor,
 		&ett_megaco_requestedsignal,
 		&ett_megaco_h245,
+		GCP_ETT_ARR_ELEMS(megaco_ctx_ids),
 	};
+	
 	module_t *megaco_module;
 
 	proto_megaco = proto_register_protocol("MEGACO",
@@ -3244,6 +3445,13 @@ proto_register_megaco(void)
 		"instead of (or in addition to) the "
 		"raw text",
 		&global_megaco_dissect_tree);
+	prefs_register_bool_preference(megaco_module, "ctx_info",
+								   "Track Context",
+								   "Mantain relationships between transactions and contexts and display an extra tree showing context data",
+								   &keep_persistent_data);
+
+	megaco_tap = register_tap("megaco");
+	
 }
 
 
