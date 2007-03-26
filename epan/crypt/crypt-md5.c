@@ -286,11 +286,6 @@ static void MD5Transform(guint32 buf[4], guint32 const in[16])
 #define MD5Update md5_append
 #define MD5Final(c,s) md5_finish((s), (c))
 
-#ifdef _WIN32
-#define bcopy(s,d,l) memcpy(d,s,l)
-#define bzero(b,l) memset(b,0,l)
-#endif
-
 /* from RFC 2104 HMAC  Appendix -- Sample Code */
 
 /*
@@ -340,10 +335,10 @@ void md5_hmac(const guint8* text, gint text_len, const guint8* key, gint key_len
 	 */
 
 	/* start out by storing key in pads */
-	bzero( k_ipad, sizeof k_ipad);
-	bzero( k_opad, sizeof k_opad);
-	bcopy( key, k_ipad, key_len);
-	bcopy( key, k_opad, key_len);
+	memset(k_ipad, 0, sizeof(k_ipad));
+	memset(k_opad, 0, sizeof(k_opad));
+	memcpy(k_ipad, key, key_len);
+	memcpy(k_opad, key, key_len);
 
 	/* XOR key with ipad and opad values */
 	for (i=0; i<64; i++) {
