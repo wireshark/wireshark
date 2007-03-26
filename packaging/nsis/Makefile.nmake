@@ -12,7 +12,7 @@ include ../../config.nmake
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 !IFDEF GTK1_ONLY
-# define installer name and undefine GTK2_DIR to get a separate 
+# define installer name and undefine GTK2_DIR to get a separate
 # installer for Wireshark GTK1 version
 DEST=wireshark-gtk1
 !IFDEF GTK2_DIR
@@ -22,7 +22,7 @@ DEST=wireshark-gtk1
 
 
 !IFDEF GTK2_ONLY
-# define installer name and undefine GTK1_DIR to get a separate 
+# define installer name and undefine GTK1_DIR to get a separate
 # installer for Wireshark GTK2 version
 DEST=wireshark-gtk2
 !IFDEF GTK1_DIR
@@ -78,7 +78,6 @@ PLUGINS= \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
 	../../plugins/mate/mate.dll \
-	../../plugins/megaco/megaco.dll \
 	../../plugins/mgcp/mgcp.dll \
 	../../plugins/opsi/opsi.dll \
 	../../plugins/pcli/pcli.dll \
@@ -133,14 +132,14 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 !IFDEF NEED_CAIRO_DLL
 	/DNEED_CAIRO_DLL=$(NEED_CAIRO_DLL) \
 !ENDIF
-!ENDIF	
+!ENDIF
 !IFDEF GTK_WIMP_DIR
 	/DGTK_WIMP_DIR=$(GTK_WIMP_DIR) \
 	/DGTK_WIMP_DLLDST_DIR=$(GTK_WIMP_DLLDST_DIR) \
 	/DGTK_WIMP_DLLSRC_DIR=$(GTK_WIMP_DLLSRC_DIR) \
 	/DGTK_WIMP_RCDST_DIR=$(GTK_WIMP_RCDST_DIR) \
 	/DGTK_WIMP_RCSRC_DIR=$(GTK_WIMP_RCSRC_DIR) \
-!ENDIF	
+!ENDIF
 	/DGLIB_DIR=$(GLIB_DIR) \
 	/DICONV_DIR=$(ICONV_DIR) \
 	/DGETTEXT_DIR=$(GETTEXT_DIR) \

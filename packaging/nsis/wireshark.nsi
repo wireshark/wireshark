@@ -3,9 +3,9 @@
 ;
 ; $Id$
 
- 
+
 ; Set the compression mechanism first.
-; As of NSIS 2.07, solid compression which makes installer about 1MB smaller 
+; As of NSIS 2.07, solid compression which makes installer about 1MB smaller
 ; is no longer the default, so use the /SOLID switch.
 ; This unfortunately is unknown to NSIS prior to 2.07 and creates an error.
 ; So if you get an error here, please update to at least NSIS 2.07!
@@ -73,9 +73,9 @@ XPStyle on
 ;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
-; the file's extension. "README.win32" won't work in most cases, because extension "win32" 
-; is usually not associated with an appropriate text editor. We should use extension "txt" 
-; for a text file or "html" for an html README file.  
+; the file's extension. "README.win32" won't work in most cases, because extension "win32"
+; is usually not associated with an appropriate text editor. We should use extension "txt"
+; for a text file or "html" for an html README file.
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
@@ -98,7 +98,7 @@ Page custom DisplayAdditionalTasksPage
 Page custom DisplayWinPcapPage
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
- 
+
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_COMPONENTS
@@ -108,16 +108,16 @@ Page custom DisplayWinPcapPage
 ; ============================================================================
 ; MUI Languages
 ; ============================================================================
- 
+
 !insertmacro MUI_LANGUAGE "English"
 
 ; ============================================================================
 ; Reserve Files
 ; ============================================================================
-  
+
   ;Things that need to be extracted on first (keep these lines before any File command!)
   ;Only useful for BZIP2 compression
-  
+
   ReserveFile "AdditionalTasksPage.ini"
   ReserveFile "WinPcapPage.ini"
   !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
@@ -210,22 +210,22 @@ ShowUninstDetails show
 
 	!define UPDATEICONS_UNIQUE ${__LINE__}
 
-	IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.next1_${UPDATEICONS_UNIQUE} UpdateIcons.error1_${UPDATEICONS_UNIQUE} 
-UpdateIcons.next1_${UPDATEICONS_UNIQUE}:	
+	IfFileExists "$SYSDIR\shell32.dll" UpdateIcons.next1_${UPDATEICONS_UNIQUE} UpdateIcons.error1_${UPDATEICONS_UNIQUE}
+UpdateIcons.next1_${UPDATEICONS_UNIQUE}:
 	GetDllVersion "$SYSDIR\shell32.dll" $R0 $R1
 	IntOp $R2 $R0 / 0x00010000
 	IntCmp $R2 4 UpdateIcons.next2_${UPDATEICONS_UNIQUE} UpdateIcons.error2_${UPDATEICONS_UNIQUE}
-UpdateIcons.next2_${UPDATEICONS_UNIQUE}:	
-	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)' 
-	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}	
-	
-UpdateIcons.error1_${UPDATEICONS_UNIQUE}: 
-	MessageBox MB_OK|MB_ICONSTOP  "Can't find 'shell32.dll' library. Impossible to update icons" 
+UpdateIcons.next2_${UPDATEICONS_UNIQUE}:
+	System::Call 'shell32.dll::SHChangeNotify(i, i, i, i) v (${SHCNE_ASSOCCHANGED}, ${SHCNF_IDLIST}, 0, 0)'
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
-UpdateIcons.error2_${UPDATEICONS_UNIQUE}: 	
-	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons" 
+
+UpdateIcons.error1_${UPDATEICONS_UNIQUE}:
+	MessageBox MB_OK|MB_ICONSTOP  "Can't find 'shell32.dll' library. Impossible to update icons"
 	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
-UpdateIcons.quit_${UPDATEICONS_UNIQUE}:	
+UpdateIcons.error2_${UPDATEICONS_UNIQUE}:
+	MessageBox MB_OK|MB_ICONINFORMATION "You should install the free 'Microsoft Layer for Unicode' to update Wireshark capture file icons"
+	Goto UpdateIcons.quit_${UPDATEICONS_UNIQUE}
+UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 	!undef UPDATEICONS_UNIQUE
 	Pop $R2
 	Pop $R1
@@ -236,7 +236,7 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
 Function Associate
 	; $R0 should contain the prefix to associate to Wireshark
 	Push $R1
-	
+
 	ReadRegStr $R1 HKCR $R0 ""
 	StrCmp $R1 "" Associate.doRegister
 	Goto Associate.end
@@ -250,21 +250,21 @@ FunctionEnd
 Function un.unlink
 	; $R0 should contain the prefix to unlink
 	Push $R1
-	
+
 	ReadRegStr $R1 HKCR $R0 ""
 	StrCmp $R1 ${WIRESHARK_ASSOC} un.unlink.doUnlink
 	Goto un.unlink.end
 un.unlink.doUnlink:
 	; The extension is associated with Wireshark so, we must destroy this!
-	DeleteRegKey HKCR $R0	
-un.unlink.end:	
+	DeleteRegKey HKCR $R0
+un.unlink.end:
 	pop $R1
 FunctionEnd
 
 Function .onInit
   ;Extract InstallOptions INI files
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"  
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"  
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "AdditionalTasksPage.ini"
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "WinpcapPage.ini"
 FunctionEnd
 
 Function DisplayAdditionalTasksPage
@@ -365,7 +365,7 @@ File "..\..\*.manifest"
 File "${ZLIB_DIR}\zlib1.dll.manifest"
 !endif
 
-; C-runtime redistributable 
+; C-runtime redistributable
 !ifdef VCREDIST_EXE
 ; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer
 File "${VCREDIST_EXE}"
@@ -383,7 +383,7 @@ File "${MSVCR_DLL}"
 !endif	; VCREDIST_EXE
 
 
-; global config files - don't overwrite if already existing 
+; global config files - don't overwrite if already existing
 ;IfFileExists cfilters dont_overwrite_cfilters
 File "..\..\cfilters"
 ;dont_overwrite_cfilters:
@@ -398,7 +398,7 @@ File "..\..\dfilters"
 ;
 ; Install the Diameter DTD and XML files in the "diameter" subdirectory
 ; of the installation directory.
-; 
+;
 SetOutPath $INSTDIR\diameter
 File "..\..\diameter\chargecontrol.xml"
 File "..\..\diameter\dictionary.dtd"
@@ -607,7 +607,7 @@ push $R0
   	StrCpy $R0 ".trace"
   	Call Associate
 	StrCpy $R0 ".trc"
-  	Call Associate  	
+  	Call Associate
   	StrCpy $R0 ".wpc"
   	Call Associate
   	StrCpy $R0 ".wpz"
@@ -711,7 +711,7 @@ File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
 #File "${GTK2_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
 
 SectionEnd
- 
+
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
@@ -759,7 +759,6 @@ File "..\..\plugins\gryphon\gryphon.dll"
 File "..\..\plugins\h223\h223.dll"
 File "..\..\plugins\irda\irda.dll"
 File "..\..\plugins\lwres\lwres.dll"
-File "..\..\plugins\megaco\megaco.dll"
 File "..\..\plugins\mgcp\mgcp.dll"
 File "..\..\plugins\opsi\opsi.dll"
 File "..\..\plugins\pcli\pcli.dll"
@@ -915,14 +914,14 @@ push $R0
   	StrCpy $R0 ".trace"
   	Call un.unlink
 	StrCpy $R0 ".trc"
-  	Call un.unlink  	
+  	Call un.unlink
   	StrCpy $R0 ".wpc"
   	Call un.unlink
   	StrCpy $R0 ".wpz"
   	Call un.unlink
 pop $R0
 
-DeleteRegKey HKCR ${WIRESHARK_ASSOC} 
+DeleteRegKey HKCR ${WIRESHARK_ASSOC}
 DeleteRegKey HKCR "${WIRESHARK_ASSOC}\Shell\open\command"
 DeleteRegKey HKCR "${WIRESHARK_ASSOC}\DefaultIcon"
 !insertmacro UpdateIcons
@@ -1057,7 +1056,7 @@ SectionIn 1 2
 ; this test must be done after all other things uninstalled (e.g. Global Settings)
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
     MessageBox MB_OK "Please note: The directory $INSTDIR could not be removed!" IDOK 0 ; skipped if dir doesn't exist
-NoFinalErrorMsg: 
+NoFinalErrorMsg:
 SectionEnd
 
 
@@ -1068,12 +1067,12 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !ifdef GTK1_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK1} "${PROGRAM_NAME} using the classical GTK1 user interface."
-!endif  
-!ifdef GTK2_DIR  
+!endif
+!ifdef GTK2_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
 !ifdef GTK_WIMP_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK-Wimp is the GTK2 windows impersonator (native Win32 look and feel, for Win2000 and up)."
-!endif  
+!endif
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
@@ -1093,14 +1092,14 @@ SectionEnd
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
-!insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN 
+!insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all Wireshark components."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous Wireshark versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\cfilters"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecWinPcap} "Call WinPcap's uninstall program."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
-  
+
 ; ============================================================================
 ; Callback functions
 ; ============================================================================
@@ -1120,7 +1119,7 @@ onSelChange.disableGTK2Sections:
 	Goto onSelChange.end
 onSelChange.end:
 	Pop $0
-FunctionEnd	
+FunctionEnd
 
 !else
 !ifdef GTK1_DIR | GTK2_DIR
@@ -1142,9 +1141,9 @@ Function .onSelChange
 	SectionGetFlags ${SecFileExtensions} $0
 	IntOp  $0 $0 & 16
 	IntCmp $0 16 onSelChange.unreadonly
-	Goto onSelChange.end	
+	Goto onSelChange.end
 !endif
-onSelChange.unselect:	
+onSelChange.unselect:
 	SectionGetFlags ${SecFileExtensions} $0
 	IntOp $0 $0 & 0xFFFFFFFE
 	IntOp $0 $0 | 0x10
@@ -1174,18 +1173,18 @@ Function myShowCallback
 ; XXX - doesn't work, but kept here for further experiments
 ;ReadRegStr $WIRESHARK_UNINSTALL HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
 ;IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, WinPcap is not installed
-;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Wireshark version first (recommended)?" 
+;MessageBox MB_YESNO|MB_ICONQUESTION "Uninstall the old Wireshark version first (recommended)?"
 ; Hide the installer while uninstalling
 ;GetDlgItem $0 $HWNDPARENT 1
 ;FindWindow $0 "#32770" "" $HWNDPARENT
-;MessageBox MB_OK "Window $0" 
+;MessageBox MB_OK "Window $0"
 ;ShowWindow $0 ${SW_HIDE}
 ;HideWindow
 ;ExecWait '$WIRESHARK_UNINSTALL' $0
 ;DetailPrint "WinPcap uninstaller returned $0"
 ;GetDlgItem $0 $HWNDPARENT 1
 ;ShowWindow $0 ${SW_SHOW}
-;MessageBox MB_OK "Uninstalled" 
+;MessageBox MB_OK "Uninstalled"
 ;lbl_wireshark_notinstalled:
 
 
@@ -1200,18 +1199,18 @@ Function myShowCallback
 	StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
 	Goto lbl_winversion_supported
 lbl_winversion_unsupported:
-	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!" 
+	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0!"
 	Quit
 
 lbl_winversion_unsupported_nt4:
-	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!" 
+	MessageBox MB_OK "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4!"
 	Quit
 
 lbl_winversion_supported:
 !ifdef GTK2_DIR
 	; Enable GTK-Wimp only for Windows 2000/XP/2003
 	; ...as Win9x/ME/NT known to have problems with it!
-	
+
 	;DetailPrint 'Windows Version: $R0'
 	StrCmp $R0 '2000' lbl_select_wimp
 	StrCmp $R0 'XP' lbl_select_wimp
@@ -1270,7 +1269,7 @@ lbl_winpcap_do_install:
 
 lbl_winpcap_done:
 
-	; Disable NPF service setting for Win OT 
+	; Disable NPF service setting for Win OT
 	StrCmp $R0 '95' lbl_npf_disable
 	StrCmp $R0 '98' lbl_npf_disable
 	StrCmp $R0 'ME' lbl_npf_disable
@@ -1284,12 +1283,12 @@ lbl_winpcap_done:
 lbl_npf_disable:
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 8" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 9" "Flags" "DISABLED"	
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 9" "Flags" "DISABLED"
 lbl_npf_done:
 
 
 	; if Wireshark was previously installed, unselect previously not installed icons etc.
-	; detect if Wireshark is already installed -> 
+	; detect if Wireshark is already installed ->
 	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Wireshark" "UninstallString"
 	IfErrors lbl_wireshark_notinstalled ;if RegKey is unavailable, Wireshark is not installed
 
