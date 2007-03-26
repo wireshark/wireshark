@@ -852,17 +852,15 @@ static const value_string setup_request_names_vals[] = {
 };  
 
 
-
-
-
-
-
+#define USB_DIR_OUT                     0               /* to device */
+#define USB_DIR_IN                      0x80            /* to host */
 
 static const true_false_string tfs_bmrequesttype_direction = {
 	"Device-to-host",
 	"Host-to-device"
 };
 
+#define USB_TYPE_MASK                   (0x03 << 5)
 #define RQT_SETUP_TYPE_STANDARD	0
 #define RQT_SETUP_TYPE_CLASS	1
 #define RQT_SETUP_TYPE_VENDOR	2
@@ -895,7 +893,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset,
 	}
 
 	bmRequestType = tvb_get_guint8(tvb, offset);
-	*type = (bmRequestType >> 5) & 0x03;
+	*type = (bmRequestType & USB_TYPE_MASK) >>5;
 	proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, TRUE);
 	proto_tree_add_item(tree, hf_usb_bmRequestType_type, tvb, offset, 1, TRUE);
 	proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, TRUE);
@@ -1352,11 +1350,11 @@ proto_register_usb(void)
     
         { &hf_usb_bmRequestType_direction,
         { "Direction", "usb.bmRequestType.direction", FT_BOOLEAN, 8, 
-          TFS(&tfs_bmrequesttype_direction), 0x80, "", HFILL }},
+          TFS(&tfs_bmrequesttype_direction), USB_DIR_IN, "", HFILL }},
 
         { &hf_usb_bmRequestType_type,
         { "Type", "usb.bmRequestType.type", FT_UINT8, BASE_HEX, 
-          VALS(bmrequesttype_type_vals), 0x60, "", HFILL }},
+          VALS(bmrequesttype_type_vals), USB_TYPE_MASK, "", HFILL }},
 
         { &hf_usb_bmRequestType_recipient,
         { "Recipient", "usb.bmRequestType.recipient", FT_UINT8, BASE_HEX, 
