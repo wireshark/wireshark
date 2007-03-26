@@ -943,7 +943,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 
 				string = ep_alloc(length);
 
-				tvb_memcpy(tvb, string, start, length);
+				tvb_memcpy(tvb, (guint8*)string, start, length);
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {
@@ -978,8 +978,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-				string = tvb_get_ephemeral_string(tvb, start,
-					length);
+				string = (gchar*)tvb_get_ephemeral_string(tvb,
+									  start,
+									  length);
 			}
 			new_fi->length = length;
 			proto_tree_set_string(new_fi, string);
@@ -1964,7 +1965,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
-	string = tvb_get_ephemeral_string(tvb, start, length);
+	string = (gchar*)tvb_get_ephemeral_string(tvb, start, length);
 	proto_tree_set_string(fi, string);
 }
 
@@ -3871,14 +3872,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-            if(strlen(bytes) > ITEM_LABEL_LENGTH) {
+	    if(strlen((char*)bytes) > ITEM_LABEL_LENGTH) {
 			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s [truncated]: %s", hfinfo->name,
-				    format_text(bytes, strlen(bytes)));
+				    format_text(bytes, strlen((char*)bytes)));
             } else {
 			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s: %s", hfinfo->name,
-				    format_text(bytes, strlen(bytes)));
+				    format_text(bytes, strlen((char*)bytes)));
             }
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
@@ -5150,10 +5151,15 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				dfilter_len = abbrev_len + 4 + 11 + 1;
 				*filter = ep_alloc0(dfilter_len);
 				format = hfinfo_numeric_format(hfinfo);
-				g_snprintf(*filter, dfilter_len, format,
-				    hfinfo->abbrev,
-				    is_signed_num ? fvalue_get_sinteger(&finfo->value)
-				                  : fvalue_get_uinteger(&finfo->value));
+				if(is_signed_num) {
+					g_snprintf(*filter, dfilter_len, format,
+						   hfinfo->abbrev,
+						   fvalue_get_sinteger(&finfo->value));
+				} else {
+					g_snprintf(*filter, dfilter_len, format,
+						   hfinfo->abbrev,
+					           fvalue_get_uinteger(&finfo->value));
+				}
 			}
 			break;
 

@@ -48,13 +48,13 @@ static GHashTable* registry = NULL;
 extern void stats_tree_get_strs_from_node(const stat_node* node, guint8* value, guint8* rate, guint8* percent) {
 	float f;
 	
-	if (value) g_snprintf(value,NUM_BUF_SIZE,"%u",node->counter);
+	if (value) g_snprintf((char*)value,NUM_BUF_SIZE,"%u",node->counter);
 	
 	if (rate) {
 		*rate = '\0';
 		if (node->st->elapsed > 0.0) {
 			f = ((float)node->counter) / (float)node->st->elapsed;
-			g_snprintf(rate,NUM_BUF_SIZE,"%f",f);
+			g_snprintf((gchar*)rate,NUM_BUF_SIZE,"%f",f);
 		}
 	}
 	
@@ -62,7 +62,7 @@ extern void stats_tree_get_strs_from_node(const stat_node* node, guint8* value, 
 		*percent = '\0';
 		if (node->parent->counter > 0) {
 			f = (float)(((float)node->counter * 100.0) / node->parent->counter);
-			g_snprintf(percent,NUM_BUF_SIZE,"%.2f%%",f);
+			g_snprintf((gchar*)percent,NUM_BUF_SIZE,"%.2f%%",f);
 		}
 	}
 }
@@ -73,10 +73,10 @@ if buffer is NULL returns a newly allocated string */
 extern guint8* stats_tree_node_to_str(const stat_node* node,
 								guint8* buffer, guint len) {
 	if (buffer) {
-		g_snprintf(buffer,len,"%s: %i",node->name, node->counter);
+		g_snprintf((gchar*)buffer,len,"%s: %i",node->name, node->counter);
 		return buffer;
 	} else {
-		return g_strdup_printf("%s: %i",node->name, node->counter);
+		return (guint8*)g_strdup_printf("%s: %i",node->name, node->counter);
 	}
 }
 
@@ -117,7 +117,7 @@ extern void stats_tree_branch_to_str(const stat_node* node, GString* s, guint in
 		format = g_strdup_printf(" %%s%%-%us%%12s   %%12s    %%12s\n",stats_tree_branch_max_namelen(node,0));
 	}
 	
-	stats_tree_get_strs_from_node(node, value, rate, percent);
+	stats_tree_get_strs_from_node(node, (guint8*)value, (guint8*)rate, (guint8*)percent);
 	
 	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
 	
@@ -256,9 +256,9 @@ extern void stats_tree_register(const guint8* tapname,
 	/* at the very least the abbrev and the packet function should be given */ 
 	g_assert( tapname && abbr && packet );
 
-	cfg->tapname = g_strdup(tapname);
-	cfg->abbr = g_strdup(abbr);
-	cfg->name = name ? g_strdup(name) : g_strdup(abbr);
+	cfg->tapname = (guint8*)g_strdup((gchar*)tapname);
+	cfg->abbr = (guint8*)g_strdup((gchar*)abbr);
+	cfg->name = name ? (guint8*)g_strdup((gchar*)name) : (guint8*)g_strdup((gchar*)abbr);
 	
 	cfg->packet = packet;
 	cfg->init = init;
@@ -294,7 +294,7 @@ extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filte
 	st->elapsed = 0.0;
 
 	st->root.counter = 0;
-	st->root.name = g_strdup(cfg->name);
+	st->root.name = g_strdup((gchar*)cfg->name);
 	st->root.st = st;
 	st->root.parent = NULL;
 	st->root.children = NULL;
@@ -390,11 +390,11 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 *    as_named_node: whether or not it has to be registered in the root namespace
 */
 static stat_node*  new_stat_node(stats_tree* st,
-								 const gchar* name,
-								 int parent_id,
-								 gboolean with_hash,
-								 gboolean as_parent_node) {
-	
+				 const gchar* name,
+				 int parent_id,
+				 gboolean with_hash,
+				 gboolean as_parent_node) {
+
 	stat_node *node = g_malloc (sizeof(stat_node));
 	stat_node* last_chld = NULL;
 	
@@ -494,7 +494,7 @@ extern int stats_tree_manip_node(manip_node_mode mode, stats_tree* st, const gui
 	}
 	
 	if ( node == NULL ) 
-		node = new_stat_node(st,name,parent_id,with_hash,with_hash);
+		node = new_stat_node(st,(gchar*)name,parent_id,with_hash,with_hash);
 	
 	switch (mode) {
 		case MN_INCREASE: node->counter += value; break;
@@ -518,7 +518,7 @@ extern guint8* stats_tree_get_abbr(const guint8* optarg) {
 	for (i=0; optarg[i] && optarg[i] != ','; i++);
 	
 	if (optarg[i] == ',') {
-		return g_strndup(optarg,i);
+		return (guint8*)g_strndup((gchar*)optarg,i);
 	} else {
 		return NULL;
 	}
@@ -593,7 +593,7 @@ extern int stats_tree_create_range_node(stats_tree* st,
 
 	va_start( list, parent_id );
 	while (( curr_range = va_arg(list, guint8*) )) {
-		range_node = new_stat_node(st, curr_range, rng_root->id, FALSE, FALSE);
+		range_node = new_stat_node(st, (gchar*)curr_range, rng_root->id, FALSE, FALSE);
 		range_node->rng = get_range(curr_range);
 	}
 	va_end( list );
@@ -624,7 +624,7 @@ extern int stats_tree_range_node_with_pname(stats_tree* st,
 
 	va_start( list, parent_name );
 	while (( curr_range = va_arg(list, guint8*) )) {
-		range_node = new_stat_node(st, curr_range, rng_root->id, FALSE, FALSE);
+		range_node = new_stat_node(st, (gchar*)curr_range, rng_root->id, FALSE, FALSE);
 		range_node->rng = get_range(curr_range);
 	}
 	va_end( list );
@@ -697,13 +697,13 @@ extern int stats_tree_create_pivot_by_pname(stats_tree* st,
 }
 
 extern int stats_tree_tick_pivot(stats_tree* st,
-					  int pivot_id,
-					  const gchar* pivot_value) {
+				 int pivot_id,
+				 const gchar* pivot_value) {
 	
 	stat_node* parent = g_ptr_array_index(st->parents,pivot_id);
 	
 	parent->counter++;
-	stats_tree_manip_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
+	stats_tree_manip_node( MN_INCREASE, st, (guint8*)pivot_value, pivot_id, FALSE, 1);
 	
 	return pivot_id;
 }

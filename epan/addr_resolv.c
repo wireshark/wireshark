@@ -63,6 +63,14 @@
  * sites still using NIS rather than DNS for that....)
  */
 
+#ifdef HAVE_GNU_ADNS
+# include <errno.h>
+# include <adns.h>
+# ifdef inet_aton
+#  undef inet_aton
+# endif
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -99,14 +107,6 @@
 
 #ifdef NEED_INET_V6DEFS_H
 # include "inet_v6defs.h"
-#endif
-
-#ifdef HAVE_GNU_ADNS
-# include <errno.h>
-# include <adns.h>
-# ifdef inet_aton
-#  undef inet_aton
-# endif
 #endif
 
 #if defined(_WIN32) && defined(INET6)
@@ -553,7 +553,7 @@ static const gchar *solve_address_to_name(address *addr)
     return get_hostname6(&ipv6_addr);
 
   case AT_STRINGZ:
-    return addr->data;
+    return (gchar*)addr->data;
 
   default:
     return NULL;

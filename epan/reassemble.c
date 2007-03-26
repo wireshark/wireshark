@@ -1096,7 +1096,7 @@ static gboolean
 fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	     packet_info *pinfo, guint32 frag_number,
 	     guint32 frag_data_len, gboolean more_frags,
-	     guint32 flags)
+	     guint32 flags _U_)
 {
 	fragment_data *fd;
 	fragment_data *fd_i;

@@ -26,6 +26,10 @@ INCLUDES = -I$(top_srcdir)
 
 include Makefile.common
 
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS = -Werror
+endif
+
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = mate.la

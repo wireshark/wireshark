@@ -257,7 +257,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
     /* out of order packet */
     if(data_length > 0 && sequence > seq[src_index] ) {
       tmp_frag = (tcp_frag *)g_malloc( sizeof( tcp_frag ) );
-      tmp_frag->data = (guchar *)g_malloc( data_length );
+      tmp_frag->data = (gchar *)g_malloc( data_length );
       tmp_frag->seq = sequence;
       tmp_frag->len = length;
       tmp_frag->data_len = data_length;

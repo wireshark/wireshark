@@ -1082,7 +1082,7 @@ get_persconffile_path(const char *filename, gboolean for_writing
  * (move this e.g. to main.c and have set_persconffile_dir() instead in this file?)
  */
 int
-filesystem_opt(int opt, const char *optarg)
+filesystem_opt(int opt _U_, const char *optarg)
 {
   gchar *p, *colonp;
 

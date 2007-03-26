@@ -148,7 +148,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Content-Length:", 15) == 0) {
-					header_val = tvb_get_ephemeral_string(tvb,
+					header_val = (gchar*)tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 15,
 					    linelen - 15);
 					if (sscanf(header_val,
@@ -161,7 +161,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				} else if (tvb_strncaseeql(tvb, next_offset_sav,
 				    "Connection:", 11) == 0) {
 					/* Check for keep-alive */
-					header_val = tvb_get_ephemeral_string(tvb,
+					header_val = (gchar*)tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 11,
 					    linelen - 11);
 					if(header_val){
@@ -184,7 +184,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					gchar *p;
 					gint len;
 
-					header_val = tvb_get_ephemeral_string(tvb,
+					header_val = (gchar*)tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 18, linelen - 18);
 					p = header_val;
 					len = strlen(header_val);
@@ -282,7 +282,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				}
 				
 				/* We have a line with the chunk size in it.*/
-				chunk_string = tvb_get_ephemeral_string(tvb, next_offset,
+				chunk_string = (gchar*)tvb_get_ephemeral_string(tvb, next_offset,
 				    linelen);
 				c = chunk_string;
 

@@ -429,13 +429,6 @@ extern AVP* avp_copy(AVP* from) {
 	return new;
 }
 
-
-static void rename_avp(AVP* avp, gchar* name) {
-	gchar* s = avp->n;
-	avp->n = scs_subscribe(avp_strings,name);
-	scs_unsubscribe(avp_strings,s);
-}
-
 /**
  * new_avpl:
  * @name: the name the avpl will have.
@@ -1281,38 +1274,6 @@ extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* s
 	
 	return avpl;
 }
-
-/**
- * new_avpl_transform:
- *
- * creates an empty avpl transformation
- *
- * Return value: a pointer to the newly created avpl transformation
- **/
-static AVPL_Transf* new_avpl_transform(gchar* name, AVPL* mixed, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
-	AVPL_Transf* t = g_malloc(sizeof(AVPL_Transf));
-	AVP* avp;
-
-	t->name = g_strdup(name);
-	t->match = new_avpl("match");
-	t->replace = new_avpl("replace");
-	t->match_mode = match_mode;
-	t->replace_mode  = replace_mode;
-	t->next = NULL;
-	t->map = NULL;
-
-	while (( avp = extract_first_avp(mixed) )) {
-		if (*(avp->n) == '.') {
-			rename_avp(avp,((avp->n)+1));
-			insert_avp(t->replace, avp);
-		} else {
-			insert_avp(t->match, avp);
-		}
-	}
-
-	return t;
-}
-
 
 /**
  * delete_avpl_transform:
