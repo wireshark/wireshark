@@ -1414,7 +1414,6 @@ AC_OUTPUT(
   plugins/irda/Makefile
   plugins/lwres/Makefile
   plugins/mate/Makefile
-  plugins/megaco/Makefile
   plugins/mgcp/Makefile
   plugins/opsi/Makefile
   plugins/pcli/Makefile
