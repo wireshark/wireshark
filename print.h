@@ -106,6 +106,18 @@ typedef struct {
 } print_args_t;
 
 /*
+ * Print user selected list of fields
+ */
+struct _output_fields;
+typedef struct _output_fields output_fields_t;
+
+extern output_fields_t* output_fields_new();
+extern void output_fields_free(output_fields_t* info);
+extern void output_fields_add(output_fields_t* info, const gchar* field);
+extern gsize output_fields_num_fields(output_fields_t* info);
+extern gboolean output_fields_set_option(output_fields_t* info, gchar* option);
+extern void output_fields_list_options(FILE *fh);
+/*
  * Higher-level packet-printing code.
  */
 
@@ -124,5 +136,9 @@ extern void write_psml_finale(FILE *fh);
 extern void write_csv_preamble(FILE *fh);
 extern void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
 extern void write_csv_finale(FILE *fh);
+
+extern void write_fields_preamble(output_fields_t* fields, FILE *fh);
+extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh);
+extern void write_fields_finale(output_fields_t* fields, FILE *fh);
 
 #endif /* print.h */

@@ -35,6 +35,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 
 #include "packet-range.h"
 #include "print.h"
@@ -65,6 +66,22 @@ typedef struct {
 	epan_dissect_t		*edt;
 } write_pdml_data;
 
+typedef struct {
+    output_fields_t* fields;
+	epan_dissect_t		*edt;
+} write_field_data_t;
+
+struct _output_fields {
+    gboolean print_header;
+    gchar separator;
+    GPtrArray* fields;
+    GHashTable* field_indicies;
+    const gchar** field_values;
+    gchar quote;
+};
+
+static const gchar* get_field_hex_value(GSList* src_list, field_info *fi);
+static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
@@ -76,6 +93,8 @@ static void ps_clean_string(unsigned char *out, const unsigned char *in,
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
 
 static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
+
+static void proto_tree_get_node_field_values(proto_node *node, gpointer data);
 
 static FILE *
 open_print_dest(int to_file, const char *dest)
@@ -1142,4 +1161,353 @@ print_stream_ps_stdio_new(FILE *fh)
 	stream->data = output;
 
 	return stream;
+}
+
+output_fields_t* output_fields_new()
+{
+    output_fields_t* fields = g_new(output_fields_t, 1);
+    fields->print_header = FALSE;
+    fields->separator = '\t';
+    fields->fields = NULL; /*Do lazy initialisation */
+    fields->field_indicies = NULL;
+    fields->field_values = NULL;
+    fields->quote='\0'; 
+    return fields;
+}
+
+gsize output_fields_num_fields(output_fields_t* fields)
+{
+    g_assert(fields);
+
+    if(NULL == fields->fields) {
+        return 0;
+    } else {
+        return fields->fields->len;
+    }
+}
+
+void output_fields_free(output_fields_t* fields)
+{
+    g_assert(fields);
+
+    if(NULL != fields->field_indicies) {
+        /* Keys are stored in fields->fields, values are
+         * integers.
+         */
+        g_hash_table_destroy(fields->field_indicies);
+    }
+    if(NULL != fields->fields) {
+        gsize i;
+        for(i = 0; i < fields->fields->len; ++i) {
+            gchar* field = g_ptr_array_index(fields->fields,i);
+            g_free(field);
+        }
+        g_ptr_array_free(fields->fields, TRUE);
+    }
+
+    g_free(fields);    
+}
+
+void output_fields_add(output_fields_t* fields, const gchar* field)
+{
+    gchar* field_copy;
+
+    g_assert(fields);
+    g_assert(field);
+
+
+    if(NULL == fields->fields) {
+        fields->fields = g_ptr_array_new();
+    }
+
+    field_copy = g_strdup(field);
+
+    g_ptr_array_add(fields->fields, field_copy);
+}
+
+gboolean output_fields_set_option(output_fields_t* info, gchar* option)
+{
+    const gchar* option_name;
+    const gchar* option_value;
+
+    g_assert(info);
+    g_assert(option);
+
+    if('\0' == *option) {
+        return FALSE; /* Is this guarded against by option parsing? */
+    }
+    option_name = strtok(option,"=");
+    option_value = option + strlen(option_name) + 1;
+    if(0 == strcmp(option_name, "header")) {
+        switch(NULL == option_value ? '\0' : *option_value) {
+        case 'n':
+            info->print_header = FALSE;
+            break;
+        case 'y':
+            info->print_header = TRUE;
+            break;
+        default:
+            return FALSE;
+        }
+        return TRUE;
+    }
+
+    if(0 == strcmp(option_name,"separator")) {
+        switch(NULL == option_value ? '\0' : *option_value) {
+        case '\0':
+            return FALSE;
+        case '/':
+            switch(*++option_value) {
+            case 't':
+                info->separator = '\t';
+                break;
+            case 's':
+                info->separator = ' ';
+                break;
+            default:
+                info->separator = '\\';
+            }
+            break;
+        default:
+            info->separator = *option_value;
+            break;
+        }
+        return TRUE;       
+    }
+
+    if(0 == strcmp(option_name, "quote")) {
+        switch(NULL == option_value ? '\0' : *option_value) {
+        default: /* Fall through */
+        case '\0':
+            info->quote='\0';
+            return FALSE;
+        case 'd':
+            info->quote='"';
+            break;
+        case 's':
+            info->quote='\'';
+            break;
+        case 'n':
+            info->quote='\0';
+            break;
+        }
+        return TRUE;        
+    }
+
+    return FALSE;
+}
+
+void output_fields_list_options(FILE *fh)
+{
+    fprintf(fh, "TShark: The available options for field output \"E\" are:\n");
+    fputs("header=y|n   Print field abbreviations as first line of output (def: N: no)\n", fh);
+    fputs("separator=/t|/s|<character>   Set the separator to use; \"/t\" = tab,\n \"/s\" = space (def: /t: tab)\n", fh);
+    fputs("quote=d|s|n   Print either d: double-quotes, s: single quotes or n: no quotes around field values (def: n: none)\n", fh);
+}
+
+
+void write_fields_preamble(output_fields_t* fields, FILE *fh)
+{
+    gsize i;
+
+    g_assert(fields);
+    g_assert(fh);
+
+    if(!fields->print_header) {
+        return;
+    }
+
+    for(i = 0; i < fields->fields->len; ++i) {
+        const gchar* field = g_ptr_array_index(fields->fields,i);
+        if(i != 0 ) {
+            fputc(fields->separator, fh);
+        }
+    	fputs(field, fh);
+    }    
+    fputc('\n', fh);
+}
+
+
+
+
+static void proto_tree_get_node_field_values(proto_node *node, gpointer data) 
+{
+    write_field_data_t *call_data;
+	field_info	*fi;
+    gpointer field_index;
+
+    call_data = data;
+    fi = PITEM_FINFO(node);
+
+    field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
+    if(NULL != field_index) {
+        const gchar* value;
+
+        value = get_node_field_value(fi, call_data->edt); /* ep_alloced string */
+
+        if(NULL != value && '\0' != *value) {
+            guint actual_index;
+            actual_index = GPOINTER_TO_UINT(field_index);
+            /* Unwrap change made to disambiguiate zero / null */
+            call_data->fields->field_values[actual_index - 1] = value;
+        }
+    }
+    
+	/* Recurse here. */
+	if (node->first_child != NULL) {
+		proto_tree_children_foreach(node,
+				proto_tree_get_node_field_values, call_data);
+	}
+}
+
+void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh)
+{
+    gsize i;
+
+    write_field_data_t data;
+
+    g_assert(fields);
+    g_assert(edt);
+    g_assert(fh);
+
+    data.fields = fields;
+    data.edt = edt;
+
+    if(NULL == fields->field_indicies) {
+        /* Prepare a lookup table from string abbreviation for field to its index. */
+        fields->field_indicies = g_hash_table_new(g_str_hash, g_str_equal);
+
+        i = 0;
+        while( i < fields->fields->len) {
+            gchar* field = g_ptr_array_index(fields->fields, i);
+             /* Store field indicies +1 so that zero is not a valid value, 
+              * and can be distinguished from NULL as a pointer.
+              */
+            ++i;
+            g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));            
+        }
+    }
+
+    /* Buffer to store values for this packet */
+    fields->field_values = ep_alloc_array0(const gchar*, fields->fields->len);
+    
+	proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
+	    &data);
+
+    for(i = 0; i < fields->fields->len; ++i) {
+        if(0 != i) {
+            fputc(fields->separator, fh);
+        }
+        if(NULL != fields->field_values[i]) {
+            if(fields->quote != '\0') {
+                fputc(fields->quote, fh);
+            }
+            fputs(fields->field_values[i], fh);
+            if(fields->quote != '\0') {
+                fputc(fields->quote, fh);
+            }
+        }
+    }
+}
+
+void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
+{
+    /* Nothing to do */
+}
+
+/* Returns an ep_alloced string or a static constant*/
+static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
+{
+	/* Text label. */
+	if (fi->hfinfo->id == hf_text_only) {
+		/* Get the text */
+		if (fi->rep) {
+            return fi->rep->representation;
+		}
+		else {
+			return get_field_hex_value(edt->pi.data_src, fi);
+		}
+	}
+	/* Uninterpreted data, i.e., the "Data" protocol, is
+	 * printed as a field instead of a protocol. */
+	else if (fi->hfinfo->id == proto_data) {
+        return get_field_hex_value(edt->pi.data_src, fi);
+	}
+
+	/* Normal protocols and fields */
+	else {
+    	gchar		*dfilter_string;
+	    gint		chop_len;
+
+		switch (fi->hfinfo->type)
+		{
+		case FT_PROTOCOL:
+            /* Print out the full details for the protocol. */
+		    if (fi->rep) {
+                return fi->rep->representation;
+		    } else {
+                /* Just print out the protocol abbreviation */
+                return fi->hfinfo->abbrev;;
+            }
+		case FT_NONE:
+			return NULL;
+		default:
+			/* XXX - this is a hack until we can just call
+			 * fvalue_to_string_repr() for *all* FT_* types. */
+			dfilter_string = proto_construct_match_selected_string(fi,
+			    edt);
+			if (dfilter_string != NULL) {
+				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+
+				/* XXX - Remove double-quotes. Again, once we
+				 * can call fvalue_to_string_repr(), we can
+				 * ask it not to produce the version for
+				 * display-filters, and thus, no
+				 * double-quotes. */
+				if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+					dfilter_string[strlen(dfilter_string)-1] = '\0';
+					chop_len++;
+				}
+
+                return &(dfilter_string[chop_len]);
+			} else {
+    			return get_field_hex_value(edt->pi.data_src, fi);
+            }
+		}
+    }
+}
+
+static const gchar*
+get_field_hex_value(GSList* src_list, field_info *fi)
+{
+	const guint8 *pd;
+
+	if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
+		return "field length invalid!";
+	}
+
+	/* Find the data for this field. */
+	pd = get_field_data(src_list, fi);
+
+	if (pd) {
+    	int i;
+        gchar* buffer;
+        gchar* p;
+        int len;
+        const int chars_per_byte = 2;
+
+        len = chars_per_byte * fi->length;
+        buffer = ep_alloc_array(gchar, len + 1);
+        buffer[len] = '\0'; /* Ensure NULL termination in bad cases */
+        p = buffer;
+		/* Print a simple hex dump */
+		for (i = 0 ; i < fi->length; i++) {
+			g_snprintf(p, len, "%02x", pd[i]);
+            p += chars_per_byte;
+            len -= chars_per_byte;
+		}
+        return buffer;
+	} else {
+        return NULL;
+    }
 }

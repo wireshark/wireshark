@@ -12,6 +12,8 @@ S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
 S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
 S<[ B<-D> ]>
+S<[ B<-e> E<lt>fieldE<gt> ]>
+S<[ B<-E> E<lt>field print optionE<gt> ]>
 S<[ B<-f> E<lt>capture filterE<gt> ]>
 S<[ B<-F> E<lt>file formatE<gt> ]>
 S<[ B<-h> ]>
@@ -28,7 +30,7 @@ S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
 S<[ B<-S> ]>
 S<[ B<-t> ad|a|r|d|e ]>
-S<[ B<-T> pdml|psml|ps|text ]>
+S<[ B<-T> pdml|psml|ps|text|fields ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
@@ -134,8 +136,10 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have 
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of I<value>
 kilobytes (where a kilobyte is 1024 bytes). If this option 
-is used together with the -b option, Wireshark will stop writing to the 
-current capture file and switch to the next one if filesize is reached.
+is used together with the -b option, B<TShark> will stop writing to the 
+current capture file and switch to the next one if filesize is reached. When reading a capture file,
+B<TShark> will stop reading the file after the number of bytes read exceeds this number
+(the complete packet will be read, so more bytes than this number may be read).
 
 B<files>:I<value> Stop writing to capture files after I<value> number of files were written.
 
@@ -177,7 +181,7 @@ disk. If you encounter packet drops while capturing, try to increase this size.
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
-data.
+data. If reading a capture file, set the maximum number of packets to read.
 
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
@@ -207,6 +211,27 @@ with special privileges (for example, as root) to be able to capture
 network traffic.
 If B<TShark -D> is not run from such an account, it will not list 
 any interfaces.
+
+=item -e  E<lt>fieldE<gt>
+
+Add a field to the list of fields to display if B<-T fields> is selected. This option can be used multiple times
+on the command line. At least one field must be provided if the fields option is selected.
+
+Example: B<-e frame.number -e ip.addr -e udp>
+
+Giving a protocol rather than a single field will print multiple items of data about the protocol as a single field. Fields are separated by tab characters by default. B<-E> controls the format of the printed fields.
+
+=item -E  E<lt>field print optionE<gt>
+
+Set an option controlling the printing of fields when B<-T fields> is selected.
+
+Options are:
+
+B<header=y|n> If B<y>, print a list of the field names given using B<-e> as the first line of the output; the field name will be separated using the same character as the field values. Defaults to B<n>.
+
+B<separator=/t|/s|>E<lt>characterE<gt> Set the separator character to use for fields. If B</t> tab will be used (this is the default), if B</s>, s single space will be used. Otherwise any character that can be accepted by the command line as part of the option may be used.
+
+B<quote=d|s|n> Set the quote character to use to surround fields. B<d> uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
 
 =item -f  E<lt>capture filterE<gt>
 

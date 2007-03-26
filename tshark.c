@@ -126,7 +126,8 @@ static gboolean print_packet_info;	/* TRUE if we're to print packet information 
  */
 typedef enum {
 	WRITE_TEXT,	/* summary or detail text */
-	WRITE_XML	/* PDML or PSML */
+	WRITE_XML,	/* PDML or PSML */
+    WRITE_FIELDS /* User defined list of fields */
 	/* Add CSV and the like here */
 } output_action_e;
 static output_action_e output_action;
@@ -137,6 +138,8 @@ static gboolean line_buffered;
 static guint32 cum_bytes = 0;
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
+
+static output_fields_t* output_fields  = NULL;
 
 /*
  * Standard secondary message for unexpected errors.
@@ -178,7 +181,7 @@ static void report_counts_siginfo(int);
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-static int load_cap_file(capture_file *, char *, int);
+static int load_cap_file(capture_file *, char *, int, int, gint64);
 static gboolean process_packet(capture_file *cf, gint64 offset,
     const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
     const guchar *pd);
@@ -276,7 +279,14 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -S                       display packets even when writing to a file\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
-  fprintf(output, "  -T pdml|ps|psml|text     output format of text output (def: text)\n");
+  fprintf(output, "  -T pdml|ps|psml|text|fields\n");
+  fprintf(output, "                           format of text output (def: text)\n");
+  fprintf(output, "  -e <field>               field to print if -Tfields selected (e.g. tcp.port);\n");
+  fprintf(output, "                           this option can be repeated to print multiple fields\n");
+  fprintf(output, "  -E<fieldsoption>=<value> set options for output when -Tfields selected:\n");
+  fprintf(output, "     header=y|n            switch headers on and off\n");
+  fprintf(output, "     separator=/t|/s|<char> select tab, space, printable character as separator\n");
+  fprintf(output, "     quote=d|s|n           select double, single, no quotes for values\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
@@ -697,7 +707,7 @@ main(int argc, char *argv[])
   int                  status;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:d:Df:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:d:De:E:f:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -909,6 +919,8 @@ main(int argc, char *argv[])
   /* Print format defaults to this. */
   print_format = PR_FMT_TEXT;
 
+  output_fields = output_fields_new();
+
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -946,6 +958,18 @@ main(int argc, char *argv[])
         capture_option_specified = TRUE;
         arg_error = TRUE;
 #endif
+        break;
+      case 'e':
+        /* Field entry */
+        output_fields_add(output_fields, optarg);
+        break;
+      case 'E':
+        /* Field option */
+        if(!output_fields_set_option(output_fields, optarg)) {
+          cmdarg_err("\"%s\" is not a valid field output option=value pair.", optarg);
+          output_fields_list_options(stderr);
+          exit(1);
+        }
         break;
       case 'F':
         out_file_type = wtap_short_string_to_file_type(optarg);
@@ -1060,9 +1084,12 @@ main(int argc, char *argv[])
         } else if (strcmp(optarg, "psml") == 0) {
           output_action = WRITE_XML;
           verbose = FALSE;
+        } else if(strcmp(optarg, "fields") == 0) {
+          output_action = WRITE_FIELDS;
+          verbose = TRUE; /* Need full tree info */
         } else {
           cmdarg_err("Invalid -T parameter.");
-          cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", or \"psml\".");
+          cmdarg_err_cont("It must be \"ps\", \"text\", \"pdml\", \"psml\" or \"fields\".");
           exit(1);
         }
         break;
@@ -1112,6 +1139,18 @@ main(int argc, char *argv[])
         break;
     }
   }
+
+  /* If we specified output fields, but not the output field type... */
+  if(WRITE_FIELDS != output_action && 0 != output_fields_num_fields(output_fields)) {
+        cmdarg_err("Output fields were specified with \"-e\", "
+            "but \"-Tfields\" was not specified.");
+        exit(1);
+  } else if(WRITE_FIELDS == output_action && 0 == output_fields_num_fields(output_fields)) {
+        cmdarg_err("\"-Tfields\" was specified, but no fields were "
+                    "specified with \"-e\".");
+
+        exit(1);
+  }   
 
   /* If no capture filter or read filter has been specified, and there are
      still command-line arguments, treat them as the tokens of a capture
@@ -1209,14 +1248,6 @@ main(int argc, char *argv[])
       exit(1);
     }
   } else {
-    /* If they didn't specify a "-w" flag, but specified a maximum capture
-       file size, tell them that this doesn't work, and exit. */
-    if (capture_opts.has_autostop_filesize && capture_opts.save_file == NULL) {
-      cmdarg_err("Maximum capture file size specified, but "
-        "capture isn't being saved to a file.");
-      exit(1);
-    }
-
     if (cf_name) {
       /*
        * "-r" was specified, so we're reading a capture file.
@@ -1242,16 +1273,11 @@ main(int argc, char *argv[])
           "a capture isn't being done.");
         exit(1);
       }
-      if (capture_opts.has_autostop_packets) {
-        cmdarg_err("A maximum number of captured packets was specified, but "
-          "a capture isn't being done.");
-        exit(1);
-      }
-      if (capture_opts.has_autostop_filesize) {
-        cmdarg_err("A maximum capture file size was specified, but "
-          "a capture isn't being done.");
-        exit(1);
-      }
+      
+      /* Note: TShark now allows the restriction of a _read_ file by packet count
+       * and byte count as well as a write file. Other autostop options remain valid
+       * only for a write file.
+       */
       if (capture_opts.has_autostop_duration) {
         cmdarg_err("A maximum capture time was specified, but "
           "a capture isn't being done.");
@@ -1464,7 +1490,9 @@ main(int argc, char *argv[])
 
     /* Process the packets in the file */
 #ifdef HAVE_LIBPCAP
-    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type);
+    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type, 
+        capture_opts.has_autostop_packets ? capture_opts.autostop_packets : 0,
+        capture_opts.has_autostop_filesize ? capture_opts.autostop_filesize : 0);
 #else
     err = load_cap_file(&cfile, NULL, out_file_type);
 #endif
@@ -1535,6 +1563,9 @@ main(int argc, char *argv[])
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
   epan_cleanup();
+
+  output_fields_free(output_fields);
+  output_fields = NULL;
 
   return 0;
 }
@@ -2074,7 +2105,8 @@ report_counts_siginfo(int signum _U_)
 #endif /* HAVE_LIBPCAP */
 
 static int
-load_cap_file(capture_file *cf, char *save_file, int out_file_type)
+load_cap_file(capture_file *cf, char *save_file, int out_file_type, 
+    int max_packet_count, gint64 max_byte_count)
 {
   gint         linktype;
   int          snapshot_length;
@@ -2154,6 +2186,14 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type)
           wtap_dump_close(pdh, &err);
           exit(2);
         }
+      }
+      /* Stop reading if we have the maximum number of packets;
+       * note that a zero max_packet_count will never be matched
+       * (unless we roll over the packet number?)
+       */
+      if(max_packet_count == cf->count || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+        err = 0; /* This is not an error */
+        break;
       }
     }
   }
@@ -2461,6 +2501,10 @@ write_preamble(capture_file *cf)
       write_psml_preamble(stdout);
     return !ferror(stdout);
 
+  case WRITE_FIELDS:
+    write_fields_preamble(output_fields, stdout);
+    return !ferror(stdout);
+
   default:
     g_assert_not_reached();
     return FALSE;
@@ -2752,6 +2796,10 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       proto_tree_write_pdml(edt, stdout);
       printf("\n");
       return !ferror(stdout);
+    case WRITE_FIELDS:
+      proto_tree_write_fields(output_fields, edt, stdout);
+      printf("\n");
+      return !ferror(stdout);            
     }
   } else {
     /* Just fill in the columns. */
@@ -2768,6 +2816,9 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     case WRITE_XML:
         proto_tree_write_psml(edt, stdout);
         return !ferror(stdout);
+    case WRITE_FIELDS: /*No non-verbose "fields" format */
+        g_assert_not_reached();
+        break;
     }
   }
   if (print_hex) {
@@ -2793,6 +2844,10 @@ write_finale(void)
       write_pdml_finale(stdout);
     else
       write_psml_finale(stdout);
+    return !ferror(stdout);
+
+  case WRITE_FIELDS:
+    write_fields_finale(output_fields, stdout);
     return !ferror(stdout);
 
   default:

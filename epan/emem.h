@@ -69,6 +69,11 @@ gchar* ep_strdup_printf(const gchar* fmt, ...)
 /* allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
+/* allocates with a packet lifetime scope an array of type made of num elements,
+ * initialised to zero.
+ */
+#define ep_alloc_array0(type,num) (type*)ep_alloc0(sizeof(type)*(num))
+
 /* 
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
