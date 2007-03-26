@@ -179,8 +179,7 @@ if test x$GCC == xyes ; then
   # some versions of GCC support this directive
   rm -rf conftest*
   echo "int foo;" >>conftest.c
-  $CC -c -o conftest.o conftest.c -Wdeclaration-after-statement
-  if [ $? == 0 ] ; then
+  if $CC -c -o conftest.o conftest.c -Wdeclaration-after-statement > /dev/null 2>&1 ; then
     CFLAGS="$CFLAGS -Wdeclaration-after-statement"
     AC_MSG_RESULT(yes)
   else
