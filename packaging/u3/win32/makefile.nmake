@@ -67,7 +67,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(MANIFEST) $(COPY_FLAGS)
 # device
 #
-# these files stay on the U3 device and should not cause Wireshark to become unstable 
+# these files stay on the U3 device and should not cause Wireshark to become unstable
 # if they are missing (e.g. U3 device removed)
 #
 	$(COPY) $(TOPDIR)\AUTHORS-SHORT $(DEVICE) $(COPY_FLAGS)
@@ -98,12 +98,12 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\doc\dumpcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\doc\editcap.html $(DEVICE) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\example_snmp_users_file $(DEVICE) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\help\toc $(DEVICE)\help $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\help\toc $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\overview.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\getting_started.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\capturing.txt $(DEVICE)\help $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\help\capture_filters.txt $(DEVICE)\help $(COPY_FLAGS) 
-	$(COPY) $(TOPDIR)\help\display_filters.txt $(DEVICE)\help $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\help\capture_filters.txt $(DEVICE)\help $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\help\display_filters.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\help\faq.txt $(DEVICE)\help $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\manuf $(DEVICE) $(COPY_FLAGS)
 !IFDEF HHC_DIR
@@ -124,10 +124,9 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\plugins\giop\parlay.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\giop\tango.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\gryphon\gryphon.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\h223\h223.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\plugins\h223\h223.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\irda\irda.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\lwres\lwres.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-	$(COPY) $(TOPDIR)\plugins\megaco\megaco.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\mgcp\mgcp.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\opsi\opsi.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\plugins\pcli\pcli.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
@@ -219,10 +218,10 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 #
 # these files are copied onto the U3 host and are required to make Wireshark stable
 #
-	$(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll $(HOST) $(COPY_FLAGS)	
-	if exist $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(HOST) $(COPY_FLAGS)	
+	$(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll $(HOST) $(COPY_FLAGS)
+	if exist $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(COPY) $(TOPDIR)\wiretap\wiretap-$(WTAP_VERSION).dll.manifest $(HOST) $(COPY_FLAGS)
 !IFDEF ENABLE_LIBWIRESHARK
-	$(COPY) $(TOPDIR)\epan\libwireshark.dll $(HOST) $(COPY_FLAGS)	
+	$(COPY) $(TOPDIR)\epan\libwireshark.dll $(HOST) $(COPY_FLAGS)
 	if exist $(TOPDIR)\epan\libwireshark.dll.manifest $(COPY) $(TOPDIR)\epan\libwireshark.dll.manifest $(HOST) /d
 !ENDIF
 	$(COPY) $(GLIB_DIR)\bin\libglib-2.0-0.dll $(HOST) $(COPY_FLAGS)
@@ -256,10 +255,10 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 !endif
 
 !IFDEF GTK2_DIR
-	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS) 
+	$(COPY) $(TOPDIR)\wireshark-gtk2.exe $(HOST) $(COPY_FLAGS)
 # can't get /i to work with $(COPY) above to do the rename there
 	mv $(HOST)\wireshark-gtk2.exe $(HOST)\wireshark.exe
-	if exist $(TOPDIR)\wireshark-gtk2.exe.manifest $(COPY) $(TOPDIR)\wireshark-gtk2.exe.manifest $(HOST) $(COPY_FLAGS) 
+	if exist $(TOPDIR)\wireshark-gtk2.exe.manifest $(COPY) $(TOPDIR)\wireshark-gtk2.exe.manifest $(HOST) $(COPY_FLAGS)
 # can't get /i to work with $(COPY) above to do the rename there
 	if exist $(HOST)\wireshark-gtk2.exe.manifest mv $(HOST)\wireshark-gtk2.exe.manifest $(HOST)\wireshark.exe.manifest
 	$(COPY) $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(HOST) $(COPY_FLAGS)
@@ -274,7 +273,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 !ENDIF
 !IFDEF NEED_LIBPNG_DLL
 	$(COPY) $(GTK2_DIR)\bin\libpng13.dll $(HOST) $(COPY_FLAGS)
-!ENDIF 
+!ENDIF
 	$(COPY) $(GTK2_DIR)\etc\gtk-2.0\*.* $(HOST)\etc\gtk-2.0 $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\etc\pango\pango.* $(HOST)\etc\pango $(COPY_FLAGS)
 	$(COPY) $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders $(COPY_FLAGS)
@@ -299,20 +298,20 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
 
 package:	distribution
-	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) 
+	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST)
 
-u3util_LIBS= user32.lib shell32.lib 
+u3util_LIBS= user32.lib shell32.lib
 
 u3util.exe:	u3util.obj
 	@echo Linking $@
-	$(LINK) /OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll) 
-	
+	$(LINK) /OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll)
+
 clean:
 	rm -rf manifest.u3i
-	rm -rf $(HOST)	
-	rm -rf $(DEVICE)	
-	rm -rf $(DATA)	
-	rm -rf $(MANIFEST)	
+	rm -rf $(HOST)
+	rm -rf $(DEVICE)
+	rm -rf $(DATA)
+	rm -rf $(MANIFEST)
 	rm -rf u3util.{exe,obj}
 	rm -rf wireshark*.u3p
    	rm -rf *~ *.*~
