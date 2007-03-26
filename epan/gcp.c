@@ -562,6 +562,10 @@ gchar* gcp_cmd_to_str(gcp_cmd_t* c, gboolean persistent) {
         case GCP_CMD_REPLY:
             s = "ActionReply {";
             break;
+        case GCP_CMD_OTHER_REQ:
+            s = "Request {";
+            break;
+			
     }
 
     for (term = c->terms.next; term; term = term->next) {
