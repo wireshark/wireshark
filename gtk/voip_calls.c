@@ -118,7 +118,7 @@ static h245_labels_t h245_labels;
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /* the one and only global voip_rtp_tapinfo_t structure */
 static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
@@ -2724,6 +2724,7 @@ remove_tap_listener_actrace_calls(void)
 
 /**************************** TAP for H248/MEGACO **********************************/
 static gboolean have_h248_tap_listener = FALSE;
+static gboolean have_megaco_tap_listener = FALSE;
 
 #define gcp_is_req(type) ( type == GCP_CMD_ADD_REQ || type == GCP_CMD_MOVE_REQ || type == GCP_CMD_MOD_REQ || \
 							type == GCP_CMD_SUB_REQ || type == GCP_CMD_AUDITCAP_REQ || type == GCP_CMD_AUDITVAL_REQ || \
@@ -2838,6 +2839,25 @@ void h248_calls_init_tap(void)
 {
 	GString *error_string;
 	
+	
+	if(have_megaco_tap_listener==FALSE)
+	{
+		error_string = register_tap_listener("megaco", &(the_tapinfo_struct.megaco_dummy),
+											 NULL,
+											 voip_calls_dlg_reset,
+											 h248_calls_packet,
+											 voip_calls_dlg_draw);
+		
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+						  error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		
+		have_megaco_tap_listener=TRUE;
+	}
+	
 	if(have_h248_tap_listener==FALSE)
 	{
 		error_string = register_tap_listener("h248", &(the_tapinfo_struct.h248_dummy),
@@ -2862,10 +2882,13 @@ remove_tap_listener_h248_calls(void)
 {
 	protect_thread_critical_region();
 	remove_tap_listener(&(the_tapinfo_struct.h248_dummy));
+	remove_tap_listener(&(the_tapinfo_struct.megaco_dummy));
 	unprotect_thread_critical_region();
 	
+	have_megaco_tap_listener=FALSE;
 	have_h248_tap_listener=FALSE;
 }
+
 
 /**************************** TAP for SCCP and SUA **********************************/
 /**************************** ( RANAP and BSSAP ) **********************************/

@@ -187,6 +187,7 @@ typedef struct _voip_calls_tapinfo {
 	int h248_dummy;
 	int sccp_dummy;
 	int sua_dummy;
+	int megaco_dummy;
 } voip_calls_tapinfo_t;
 
 
