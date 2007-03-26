@@ -171,6 +171,7 @@ static const value_string usb_urb_type_vals[] = {
 #define USB_DT_DEVICE_QUALIFIER	6
 #define USB_DT_OTHER_SPEED_CONFIGURATION	7
 #define USB_DT_INTERFACE_POWER	8
+#define USB_DT_HID		0x21
 static const value_string descriptor_type_vals[] = {
     {USB_DT_DEVICE,			"DEVICE"},
     {USB_DT_CONFIGURATION,		"CONFIGURATION"},
@@ -180,6 +181,7 @@ static const value_string descriptor_type_vals[] = {
     {USB_DT_DEVICE_QUALIFIER,		"DEVICE_QUALIFIER"},
     {USB_DT_OTHER_SPEED_CONFIGURATION,	"OTHER_SPEED_CONFIGURATION"},
     {USB_DT_INTERFACE_POWER,		"INTERFACE_POWER"},
+    {USB_DT_HID,			"HID"},
     {0,NULL}
 };
 
@@ -611,6 +613,37 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     return offset;
 }
 
+static int
+dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset=offset;
+    guint8 bLength;
+
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, 0, "UNKNOWN DESCRIPTOR");
+        tree=proto_item_add_subtree(item, ett_descriptor_device);
+    }
+
+    /* bLength */
+    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
+    bLength = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    /* bDescriptorType */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
+    offset++;
+
+    offset += bLength - 2;
+
+    if(item){
+        proto_item_set_len(item, offset-old_offset);
+    }
+
+    return offset;
+}
+
 /* 9.6.3 */
 static const true_false_string tfs_mustbeone = {
     "Must be 1 for USB 1.1 and higher",
@@ -707,7 +740,9 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset=dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         default:
-            return offset;
+            offset=dissect_usb_unknown_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
+            break;
+            /* was: return offset; */
         }
     }
 
