@@ -227,7 +227,6 @@ plugin_ldadd = \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/lwres/lwres.la \
 	-dlopen plugins/mate/mate.la \
-	-dlopen plugins/megaco/megaco.la \
 	-dlopen plugins/mgcp/mgcp.la \
 	-dlopen plugins/opsi/opsi.la \
 	-dlopen plugins/pcli/pcli.la \
