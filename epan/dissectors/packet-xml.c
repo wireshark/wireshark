@@ -242,7 +242,7 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	proto_item* pi;
 	proto_tree* pt;
 	tvbparse_elem_t* name_tok = tok->sub->next;
-	gchar* name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+	gchar* name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
 	xml_ns_t* ns = g_hash_table_lookup(xmpli_names,name);
 
 	int hf_tag;
@@ -305,8 +305,8 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
         tvbparse_elem_t* leaf_tok = name_tok->sub->sub->next->next;
         xml_ns_t* nameroot_ns;
 
-        root_name = tvb_get_ephemeral_string(root_tok->tvb,root_tok->offset,root_tok->len);
-        name = tvb_get_ephemeral_string(leaf_tok->tvb,leaf_tok->offset,leaf_tok->len);
+        root_name = (gchar*)tvb_get_ephemeral_string(root_tok->tvb,root_tok->offset,root_tok->len);
+        name = (gchar*)tvb_get_ephemeral_string(leaf_tok->tvb,leaf_tok->offset,leaf_tok->len);
 
         nameroot_ns = g_hash_table_lookup(xml_ns.elements,root_name);
 
@@ -320,7 +320,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
         }
 
     } else {
-        name = tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
+        name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
         g_strdown(name);
 
         if(current_frame->ns) {
@@ -440,7 +440,7 @@ static void get_attrib_value(void* tvbparse_data _U_, const void* wanted_data _U
 static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbparse_elem_t* tok) {
 	GPtrArray* stack = tvbparse_data;
 	xml_frame_t* current_frame = g_ptr_array_index(stack,stack->len - 1);
-	gchar* name = tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
+	gchar* name = (gchar*)tvb_get_ephemeral_string(tok->sub->tvb,tok->sub->offset,tok->sub->len);
 	tvbparse_elem_t* value = tok->sub->next->next->data;
 	int* hfidp;
 	int hfid;

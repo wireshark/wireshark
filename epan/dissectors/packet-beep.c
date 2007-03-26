@@ -447,7 +447,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
   /* XXX - is this still "Dangerous" now that we don't copy to the
      last byte of "int_buff[]"? */
-  sscanf(int_buff, "%d", &ival);
+  sscanf((gchar*)int_buff, "%d", &ival);
 
   if (tree) {
     proto_tree_add_uint(tree, hf, tvb, offset, i, ival);

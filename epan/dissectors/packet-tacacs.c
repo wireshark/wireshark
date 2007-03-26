@@ -857,7 +857,7 @@ mkipv4_address( address **addr, const char *str_addr )
 	inet_pton( AF_INET, str_addr, addr_data );
 	(*addr)->type=AT_IPv4;
 	(*addr)->len=4;
-	(*addr)->data=addr_data;
+	(*addr)->data=(guint8*)addr_data;
 }
 static void
 parse_tuple( char *key_from_option )

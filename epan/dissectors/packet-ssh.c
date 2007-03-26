@@ -179,7 +179,7 @@ static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree,int is_response,
 		int number, gboolean *need_desegmentation );
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
-		int offset, proto_tree *tree,int is_response,int *version,
+		int offset, proto_tree *tree,int is_response,guint *version,
 		gboolean *need_desegmentation);
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree,int is_response);
@@ -613,7 +613,7 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
-	       	int offset, proto_tree *tree, int is_response, int * version,
+	       	int offset, proto_tree *tree, int is_response, guint * version,
 		gboolean *need_desegmentation)
 {
 	guint	remain_length;

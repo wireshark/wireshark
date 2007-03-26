@@ -101,7 +101,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *tali_item = NULL;
   proto_tree *tali_tree = NULL;
   
-  tvb_memcpy(tvb, opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
+  tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
   opcode[TALI_OPCODE_LENGTH] = '\0';
   length = tvb_get_letohs(tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
 
@@ -154,11 +154,11 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tvb_reported_length(tvb) < TALI_HEADER_LENGTH)	/* Mandatory header	*/
     return FALSE;
 
-  tvb_memcpy(tvb, sync, 0, TALI_SYNC_LENGTH);
+  tvb_memcpy(tvb, (guint8*)sync, 0, TALI_SYNC_LENGTH);
   if (strncmp(sync, TALI_SYNC, TALI_SYNC_LENGTH) != 0)
     return FALSE;
 
-  tvb_memcpy(tvb, opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
+  tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
   if (strncmp(opcode, TALI_TEST, TALI_OPCODE_LENGTH) != 0 &&
       strncmp(opcode, TALI_ALLO, TALI_OPCODE_LENGTH) != 0 &&
       strncmp(opcode, TALI_PROH, TALI_OPCODE_LENGTH) != 0 &&

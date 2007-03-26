@@ -1124,7 +1124,7 @@ trans_param_address(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, 
 	    else
 	    {
 		proto_tree_add_bytes(tree, hf_ansi_637_bin_addr, tvb, offset, num_fields - 1,
-		    ansi_637_bigbuf);
+		    (guint8*)ansi_637_bigbuf);
 	    }
 
 	    offset += (num_fields - 1);
@@ -1372,7 +1372,7 @@ trans_param_subaddress(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offse
     ansi_637_bigbuf[i] = '\0';
 
     proto_tree_add_bytes(tree, hf_ansi_637_bin_addr, tvb, offset, num_fields - 1,
-	ansi_637_bigbuf);
+	(guint8*)ansi_637_bigbuf);
 
     offset += (num_fields - 1);
 

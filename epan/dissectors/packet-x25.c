@@ -1509,6 +1509,10 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     void *saved_private_data;
     fragment_data *fd_head;
 
+
+    guint8 spi;
+    int is_x_264;
+    guint8 prt_id;
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
 
@@ -1596,19 +1600,16 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	localoffset = 3;
 	if (localoffset < x25_pkt_len) { /* calling/called addresses */
 	    if (toa)
-		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+		x25_toa(x25_tree, (gint*)&localoffset, tvb, pinfo);
 	    else
-		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+		x25_ntoa(x25_tree, (gint*)&localoffset, tvb, pinfo, FALSE);
 	}
 
 	if (localoffset < x25_pkt_len) /* facilities */
-	    dump_facilities(x25_tree, &localoffset, tvb);
+	    dump_facilities(x25_tree, (gint*)&localoffset, tvb);
 
 	if (localoffset < tvb_reported_length(tvb)) /* user data */
 	{
-	    guint8 spi;
-	    int is_x_264;
-	    guint8 prt_id;
 
 	    if (x25_tree) {
 		ti = proto_tree_add_text(x25_tree, tvb, localoffset, -1,
@@ -1891,13 +1892,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	localoffset = 3;
         if (localoffset < x25_pkt_len) { /* calling/called addresses */
 	    if (toa)
-		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+		x25_toa(x25_tree, (gint*)&localoffset, tvb, pinfo);
 	    else
-		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+		x25_ntoa(x25_tree, (gint*)&localoffset, tvb, pinfo, FALSE);
 	}
 
 	if (localoffset < x25_pkt_len) /* facilities */
-	    dump_facilities(x25_tree, &localoffset, tvb);
+	    dump_facilities(x25_tree, (gint*)&localoffset, tvb);
 	break;
     case X25_CLEAR_REQUEST:
         switch (dir) {
@@ -1947,13 +1948,13 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (localoffset < tvb_reported_length(tvb)) { /* extended clear conf format */
 	    if (toa)
-		x25_toa(x25_tree, &localoffset, tvb, pinfo);
+		x25_toa(x25_tree, (gint*)&localoffset, tvb, pinfo);
 	    else
-		x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
+		x25_ntoa(x25_tree,(gint*)&localoffset, tvb, pinfo, FALSE);
 	}
 
 	if (localoffset < tvb_reported_length(tvb)) /* facilities */
-	    dump_facilities(x25_tree, &localoffset, tvb);
+	    dump_facilities(x25_tree, (gint*)&localoffset, tvb);
 	break;
     case X25_DIAGNOSTIC:
 	if(check_col(pinfo->cinfo, COL_INFO)) {
@@ -2083,7 +2084,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    X25_REGISTRATION_REQUEST);
 	localoffset = 3;
 	if (localoffset < x25_pkt_len)
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, TRUE);
+	    x25_ntoa(x25_tree, (gint*)&localoffset, tvb, pinfo, TRUE);
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len)
@@ -2110,7 +2111,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	localoffset = 5;
 	if (localoffset < x25_pkt_len)
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, TRUE);
+	    x25_ntoa(x25_tree, (gint*)&localoffset, tvb, pinfo, TRUE);
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len)

@@ -213,7 +213,7 @@ static enum_val_t pkt_ccc_protocol_versions[] = {
 };
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
-static gint pkt_ccc_option = 122;
+static guint pkt_ccc_option = 122;
 
 
 static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
@@ -842,7 +842,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		/* PXE protocol 2.1 as described in the intel specs */
 		if (*vendor_class_id_p != NULL &&
-		    strncmp(*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
+		    strncmp((gchar*)*vendor_class_id_p, "PXEClient", strlen((gchar*)"PXEClient")) == 0) {
 			proto_item_append_text(vti, " (PXEClient)");
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
@@ -852,9 +852,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					tvb, optoff, optend);
 			}
 		} else if (*vendor_class_id_p != NULL &&
-			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
-                            (strncmp(*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
-                            (strncmp(*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
+			   ((strncmp((gchar*)*vendor_class_id_p, "pktc", strlen((gchar*)"pktc")) == 0) ||
+                            (strncmp((gchar*)*vendor_class_id_p, "docsis", strlen((gchar*)"docsis")) == 0) ||
+                            (strncmp((gchar*)*vendor_class_id_p, "CableHome", strlen((gchar*)"CableHome")) == 0))) {
 		        /* CableLabs standard - see www.cablelabs.com/projects */
 		        proto_item_append_text(vti, " (CableLabs)");
 
@@ -941,12 +941,23 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		proto_item_append_text(vti, " = \"%s\"",
 			tvb_format_stringzpad(tvb, optoff, consumed-2));
-		if ((tvb_memeql(tvb, optoff, PACKETCABLE_MTA_CAP10, strlen(PACKETCABLE_MTA_CAP10)) == 0) ||
-			(tvb_memeql(tvb, optoff, PACKETCABLE_MTA_CAP15, strlen(PACKETCABLE_MTA_CAP10)) == 0)) {
+		if ((tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_MTA_CAP10, 
+				      strlen(PACKETCABLE_MTA_CAP10)) == 0)
+		    ||
+		    (tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_MTA_CAP15, 
+				      strlen(PACKETCABLE_MTA_CAP10)) == 0)) 
+		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
-		} else if (tvb_memeql(tvb, optoff, PACKETCABLE_CM_CAP11, strlen(PACKETCABLE_CM_CAP11)) == 0 ||
-				tvb_memeql(tvb, optoff, PACKETCABLE_CM_CAP20, strlen(PACKETCABLE_CM_CAP20)) == 0 ) {
+		} 
+		else {
+		  if (tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_CM_CAP11, 
+				      strlen(PACKETCABLE_CM_CAP11)) == 0
+		      ||
+		      tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_CM_CAP20, 
+				      strlen(PACKETCABLE_CM_CAP20)) == 0 ) 
+		  {
 			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
+		  }
 		}
 		break;
 
@@ -2297,7 +2308,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	proto_tree *subtree, *subtree2;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 			"Bogus length: %s", asc_val);
 		return;
@@ -2312,7 +2323,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
@@ -2377,7 +2388,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 					case PKT_MDC_PROV_FLOWS:
 						tvb_memcpy(tvb, flow_val_str, off + 4, 4);
 						flow_val_str[4] = '\0';
-						flow_val = strtoul(flow_val_str, NULL, 16);
+						flow_val = strtoul((gchar*)flow_val_str, NULL, 16);
 						proto_item_append_text(ti,
 						    "0x%04lx", flow_val);
 						break;
@@ -2440,7 +2451,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 
 					subopt_off += 2;
 					tvb_memcpy(tvb, asc_val, subopt_off, 2);
-					if (sscanf(asc_val, "%x", &mib_val) != 1) {
+					if (sscanf((gchar*)asc_val, "%x", &mib_val) != 1) {
 						proto_tree_add_text(v_tree, tvb, subopt_off, 2,
 									"[Bogus bitfield: %s]", asc_val);
 						return;
@@ -2490,7 +2501,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 	proto_item *ti;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 				    "Bogus length: %s", asc_val);
 		return;
@@ -2505,7 +2516,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf(asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
@@ -2553,7 +2564,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case DOCS_CM_TET:
 					case DOCS_CM_TET_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
-						raw_val = strtoul(asc_val, NULL, 16);
+						raw_val = strtoul((gchar*)asc_val, NULL, 16);
 						proto_item_append_text(ti,
 						    "%lu", raw_val);
 						break;
@@ -2562,13 +2573,13 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 					case DOCS_CM_LLCFILT_SUP:
 					case DOCS_CM_LLCFILT_SUP_LC:
 						tvb_memcpy (tvb, asc_val, off + 4, 4);
-						raw_val = strtoul(asc_val, NULL, 16);
+						raw_val = strtoul((gchar*)asc_val, NULL, 16);
 						proto_item_append_text(ti,
 						    "%lu", raw_val);
 						break;
 					case DOCS_CM_FILT_SUP:
 						tvb_memcpy (tvb, asc_val, off + 4, 2);
-						raw_val = strtoul(asc_val, NULL, 16);
+						raw_val = strtoul((gchar*)asc_val, NULL, 16);
 						if (raw_val & 0x01)
 							proto_item_append_text(ti,
 							    "802.1p filtering");
@@ -3133,7 +3144,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
 						   SERVER_NAME_OFFSET,
 						   SERVER_NAME_LEN,
-						   tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
+						   (gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
 						   "Server host name not given");
 		}
 
@@ -3147,7 +3158,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
 						   FILE_NAME_OFFSET,
 						   FILE_NAME_LEN,
-						   tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
+						   (gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
 						   "Boot file name not given");
 		}
 	}

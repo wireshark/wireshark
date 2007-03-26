@@ -393,139 +393,6 @@ wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 }
 
 static char *
-wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
-{
-	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = NULL;
-
-	if ( token && ( (strcmp(token, "Code") == 0)
-		|| (strcmp(token, "ContentSize") == 0)
-		|| (strcmp(token, "MessageCount") == 0)
-		|| (strcmp(token, "Validity") == 0)
-		|| (strcmp(token, "KeepAliveTime") == 0)
-		|| (strcmp(token, "TimeToLive") == 0)
-		|| (strcmp(token, "AcceptedContentLength") == 0)
-		|| (strcmp(token, "MultiTrans") == 0)
-		|| (strcmp(token, "ParserSize") == 0)
-		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPAddress") == 0)
-		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) ) )
-	{
-		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
-	}
-	else if ( token && ( strcmp(token, "DateTime") == 0) )
-	{
-		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
-	}
-
-	if (str == NULL) { /* Error, or not parsed */
-		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
-	}
-	*length += data_len;
-	return str;
-}
-
-static char *
-wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
-		guint8 token, guint8 codepage, guint32 *length)
-{
-	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = NULL;
-
-	switch (codepage) {
-		case 0: /* Common code page */
-			switch (token) {
-				case 0x0B: /* <Code> */
-				case 0x0F: /* <ContentSize> */
-				case 0x1A: /* <MessageCount> */
-				case 0x3C: /* <Validity> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				case 0x11: /* <DateTime> */
-					str = wv_datetime_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-			break;
-		case 1: /* Access code page */
-			switch (token) {
-				case 0x1C: /* <KeepAliveTime> */
-				case 0x32: /* <TimeToLive> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-		case 3: /* Client capability code page */
-			switch (token) {
-				case 0x06: /* <AcceptedContentLength> */
-				case 0x0C: /* <MultiTrans> */
-				case 0x0D: /* <ParserSize> */
-				case 0x0E: /* <ServerPollMin> */
-				case 0x11: /* <TCPAddress> */
-				case 0x12: /* <TCPPort> */
-				case 0x13: /* <UDPPort> */
-					str = wv_integer_from_opaque(tvb,
-							offset + *length, data_len);
-					break;
-				default:
-					break;
-			}
-			break;
-		default:
-			break;
-	}
-	if (str == NULL) { /* Error, or not parsed */
-		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
-	}
-	*length += data_len;
-
-	return str;
-}
-
-static char *
-wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
-		const char *token, guint8 codepage _U_, guint32 *length)
-{
-	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
-	char *str = NULL;
-
-	if ( token && ( (strcmp(token, "Code") == 0)
-		|| (strcmp(token, "ContentSize") == 0)
-		|| (strcmp(token, "MessageCount") == 0)
-		|| (strcmp(token, "Validity") == 0)
-		|| (strcmp(token, "KeepAliveTime") == 0)
-		|| (strcmp(token, "TimeToLive") == 0)
-		|| (strcmp(token, "AcceptedContentLength") == 0)
-		|| (strcmp(token, "MultiTrans") == 0)
-		|| (strcmp(token, "ParserSize") == 0)
-		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPPort") == 0)
-		|| (strcmp(token, "UDPPort") == 0) ) )
-	{
-		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
-	}
-	else
-	if ( token && ( (strcmp(token, "DateTime") == 0)
-		|| (strcmp(token, "DeliveryTime") == 0) ) )
-	{
-		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
-	}
-
-	if (str == NULL) { /* Error, or not parsed */
-		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
-	}
-	*length += data_len;
-	return str;
-}
-
-static char *
 wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		guint8 token, guint8 codepage, guint32 *length)
 {
@@ -593,6 +460,143 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	}
 	*length += data_len;
 
+	return str;
+}
+
+static char *
+wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
+		guint8 token, guint8 codepage, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	switch (codepage) {
+		case 0: /* Common code page */
+			switch (token) {
+				case 0x0B: /* <Code> */
+				case 0x0F: /* <ContentSize> */
+				case 0x1A: /* <MessageCount> */
+				case 0x3C: /* <Validity> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				case 0x11: /* <DateTime> */
+					str = wv_datetime_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		case 1: /* Access code page */
+			switch (token) {
+				case 0x1C: /* <KeepAliveTime> */
+				case 0x32: /* <TimeToLive> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+		case 3: /* Client capability code page */
+			switch (token) {
+				case 0x06: /* <AcceptedContentLength> */
+				case 0x0C: /* <MultiTrans> */
+				case 0x0D: /* <ParserSize> */
+				case 0x0E: /* <ServerPollMin> */
+				case 0x11: /* <TCPAddress> */
+				case 0x12: /* <TCPPort> */
+				case 0x13: /* <UDPPort> */
+					str = wv_integer_from_opaque(tvb,
+							offset + *length, data_len);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+
+	return str;
+}
+
+
+
+#ifdef Remove_this_comment_when_WV_CSP_will_be_an_approved_spec
+static char *
+wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if ( token && ( (strcmp(token, "Code") == 0)
+		|| (strcmp(token, "ContentSize") == 0)
+		|| (strcmp(token, "MessageCount") == 0)
+		|| (strcmp(token, "Validity") == 0)
+		|| (strcmp(token, "KeepAliveTime") == 0)
+		|| (strcmp(token, "TimeToLive") == 0)
+		|| (strcmp(token, "AcceptedContentLength") == 0)
+		|| (strcmp(token, "MultiTrans") == 0)
+		|| (strcmp(token, "ParserSize") == 0)
+		|| (strcmp(token, "ServerPollMin") == 0)
+		|| (strcmp(token, "TCPPort") == 0)
+		|| (strcmp(token, "UDPPort") == 0) ) )
+	{
+		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	}
+	else
+	if ( token && ( (strcmp(token, "DateTime") == 0)
+		|| (strcmp(token, "DeliveryTime") == 0) ) )
+	{
+		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+	}
+
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
+	return str;
+}
+
+
+static char *
+wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
+		const char *token, guint8 codepage _U_, guint32 *length)
+{
+	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
+	char *str = NULL;
+
+	if ( token && ( (strcmp(token, "Code") == 0)
+		|| (strcmp(token, "ContentSize") == 0)
+		|| (strcmp(token, "MessageCount") == 0)
+		|| (strcmp(token, "Validity") == 0)
+		|| (strcmp(token, "KeepAliveTime") == 0)
+		|| (strcmp(token, "TimeToLive") == 0)
+		|| (strcmp(token, "AcceptedContentLength") == 0)
+		|| (strcmp(token, "MultiTrans") == 0)
+		|| (strcmp(token, "ParserSize") == 0)
+		|| (strcmp(token, "ServerPollMin") == 0)
+		|| (strcmp(token, "TCPAddress") == 0)
+		|| (strcmp(token, "TCPPort") == 0)
+		|| (strcmp(token, "UDPPort") == 0) ) )
+	{
+		str = wv_integer_from_opaque(tvb, offset + *length, data_len);
+	}
+	else if ( token && ( strcmp(token, "DateTime") == 0) )
+	{
+		str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
+	}
+
+	if (str == NULL) { /* Error, or not parsed */
+		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
+	}
+	*length += data_len;
 	return str;
 }
 
@@ -715,6 +719,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 
 	return str;
 }
+#endif
 
 static char *
 sic10_opaque_literal_attr(tvbuff_t *tvb, guint32 offset,
@@ -5561,7 +5566,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				DebugLog(("STAG: LITERAL tag (peek = 0x%02X, off = %u) - TableRef follows!\n", peek, off));
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				tag_new_literal = tvb_get_ptr (tvb, str_tbl+index, str_len);
+				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+index, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;
@@ -5948,7 +5953,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 							" - TableRef follows!\n", peek, off));
 				index = tvb_get_guintvar (tvb, off+1, &tag_len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				tag_new_literal = tvb_get_ptr (tvb, str_tbl+index, str_len);
+				tag_new_literal = (gchar*)tvb_get_ptr (tvb, str_tbl+index, str_len);
 				tag_new_known = 0; /* invalidate known tag_new */
 			} else { /* Known tag */
 				tag_new_known = peek & 0x3F;

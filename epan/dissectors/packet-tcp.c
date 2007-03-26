@@ -2607,7 +2607,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if( data_out_file ) {
       reassemble_tcp( tcph->th_seq,		/* sequence number */
           tcph->th_seglen,			/* data length */
-          tvb_get_ptr(tvb, offset, length_remaining),	/* data */
+          (gchar*)tvb_get_ptr(tvb, offset, length_remaining),	/* data */
           length_remaining,		/* captured data length */
           ( tcph->th_flags & TH_SYN ),		/* is syn set? */
           &pinfo->net_src,

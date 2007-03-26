@@ -170,7 +170,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				mfp->last_frame=0;
 				mfp->tot_len=l2cap_length+4;
 				mfp->reassembled=se_alloc(l2cap_length+4);
-				tvb_memcpy(tvb, mfp->reassembled, offset, tvb_length_remaining(tvb, offset));
+				tvb_memcpy(tvb, (guint8*)mfp->reassembled, offset, tvb_length_remaining(tvb, offset));
 				mfp->cur_off=tvb_length_remaining(tvb, offset);
 				se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
 			} else {
@@ -189,7 +189,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			mfp=se_tree_lookup32_le(chandle_data->start_fragments, pinfo->fd->num);
 			if(!pinfo->fd->flags.visited){
 				if(mfp && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off+tvb_length_remaining(tvb, offset))){
-					tvb_memcpy(tvb, mfp->reassembled+mfp->cur_off, offset, tvb_length_remaining(tvb, offset));
+					tvb_memcpy(tvb, (guint8*)mfp->reassembled+mfp->cur_off, offset, tvb_length_remaining(tvb, offset));
 					mfp->cur_off+=tvb_length_remaining(tvb, offset);
 					if(mfp->cur_off==mfp->tot_len){
 						mfp->last_frame=pinfo->fd->num;
@@ -205,7 +205,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			}
 			if(mfp && mfp->last_frame==pinfo->fd->num){
-				next_tvb = tvb_new_real_data(mfp->reassembled, mfp->tot_len, mfp->tot_len);
+				next_tvb = tvb_new_real_data((guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);
 				tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 				add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ACL");
 

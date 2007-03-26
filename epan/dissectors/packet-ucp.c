@@ -793,7 +793,7 @@ ucp_handle_int(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
-    strval = tvb_get_ephemeral_string(tvb, *offset, len);
+    strval = (gchar*)tvb_get_ephemeral_string(tvb, *offset, len);
     if (len > 0) {
 	intval = atoi(strval);
 	proto_tree_add_uint(tree, field, tvb, *offset, idx, intval);
@@ -819,7 +819,7 @@ ucp_handle_time(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 	tvb_ensure_bytes_exist(tvb, *offset, len + 1);
     } else
 	len = idx - *offset;
-    strval = tvb_get_ephemeral_string(tvb, *offset, len);
+    strval = (gchar*)tvb_get_ephemeral_string(tvb, *offset, len);
     if (len > 0) {
 	tval = ucp_mktime(strval);
 	tmptime.secs  = tval;

@@ -2062,10 +2062,10 @@ dissect_ber_GeneralString(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 	if(name_string) {
 		if(out_tvb && tvb_length(out_tvb) >= name_len) {
-			tvb_memcpy(out_tvb, name_string, 0, name_len-1);
+			tvb_memcpy(out_tvb, (guint8*)name_string, 0, name_len-1);
 			name_string[name_len-1] = '\0';
 		} else if(out_tvb) {
-			tvb_memcpy(out_tvb, name_string, 0, -1);
+			tvb_memcpy(out_tvb, (guint8*)name_string, 0, -1);
 			name_string[tvb_length(out_tvb)] = '\0';
 		}
 	}

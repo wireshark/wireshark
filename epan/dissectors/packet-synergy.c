@@ -161,7 +161,7 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_protocol_format(tree, proto_synergy, tvb, 0, -1,"Synergy Protocol");
 		synergy_tree = proto_item_add_subtree(ti, ett_synergy);
 
-		tvb_get_nstringz(tvb,offset+4,20,buffer);
+		tvb_get_nstringz(tvb,offset+4,20,(guint8*)buffer);
 
 		if(strncmp(buffer,"Synergy",7)==0)
 			dissect_synergy_handshake(tvb,pinfo,synergy_tree,offset+4);

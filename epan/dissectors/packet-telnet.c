@@ -873,7 +873,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
 	case TN_AC_NAME:
 		if(len<255){
 			name=ep_alloc(256);
-			tvb_memcpy(tvb, name, offset, len);
+			tvb_memcpy(tvb, (guint8*)name, offset, len);
 			name[len]=0;
 		} else {
 			name="<...name too long...>";

@@ -808,7 +808,7 @@ static void
 dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
 	guint8 octet;
-	gchar *t4_data;
+	guint8 *t4_data;
 
 	if (len < 2) {
 		proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: FCD length must be at least 2 bytes]");
@@ -836,7 +836,7 @@ static void
 dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
 	guint8 octet;
-	gchar *non_standard_bytes;
+	guint8 *non_standard_bytes;
 
 	if (len < 2) {
 		proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: NSC length must be at least 2 bytes]");

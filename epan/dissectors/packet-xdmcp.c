@@ -118,7 +118,7 @@ static gint xdmcp_add_string(proto_tree *tree, gint hf,
   len = tvb_get_ntohs(tvb, offset);
   p = tvb_get_ptr(tvb, offset+2, len);
   str = g_malloc(len+1);
-  stringCopy(str, p, len);
+  stringCopy(str, (gchar*)p, len);
   proto_tree_add_string(tree, hf, tvb, offset, len+2, str);
   g_free(str);
 
@@ -135,7 +135,7 @@ static gint xdmcp_add_text(proto_tree *tree, const char *text,
   len = tvb_get_ntohs(tvb, offset);
   p = tvb_get_ptr(tvb, offset+2, len);
   str = g_malloc(len+1);
-  stringCopy(str, p, len);
+  stringCopy(str, (gchar*)p, len);
   proto_tree_add_text(tree, tvb, offset, len+2, "%s: %s", text, str);
   g_free(str);
 

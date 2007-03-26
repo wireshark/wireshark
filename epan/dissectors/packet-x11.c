@@ -2026,7 +2026,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  s = ep_alloc(l + 1);
 		  allocated = l + 1;
 	    }
-	    stringCopy(s, tvb_get_ptr(tvb, *offsetp + 1, l), l); /* Nothing better for now. We need a better string handling API. */
+	    stringCopy(s, (gchar *)tvb_get_ptr(tvb, *offsetp + 1, l), l); /* Nothing better for now. We need a better string handling API. */
 	    proto_tree_add_string_format(tt, hf_item, tvb, *offsetp, l + 1, s, "\"%s\"", s);
 	    *offsetp += l + 1;
       }
@@ -2082,7 +2082,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 	    if (truncated) { *dp++ = '.'; *dp++ = '.'; *dp++ = '.'; }
 
 	    *dp++ = '\0';
-	    proto_tree_add_string_format(t, hf, tvb, offset, length, tvb_get_ptr(tvb, offset, length), "%s: %s",
+	    proto_tree_add_string_format(t, hf, tvb, offset, length, (gchar *)tvb_get_ptr(tvb, offset, length), "%s: %s",
 					proto_registrar_get_nth(hf) -> name, *s);
       } else
 	    proto_tree_add_item(t, hf_bytes, tvb, offset, length, little_endian);
@@ -2130,7 +2130,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 			s = ep_alloc(l + 1);
 			allocated = l + 1;
 		  }
-		  stringCopy(s, tvb_get_ptr(tvb, *offsetp + 2, l), l);
+		  stringCopy(s, (gchar *)tvb_get_ptr(tvb, *offsetp + 2, l), l);
 		  tti = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, *offsetp, l + 2,
 						       "textitem (string): delta = %d, \"%s\"",
 						       delta, s);
@@ -2406,7 +2406,7 @@ static void string8(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 
       p = tvb_get_ptr(tvb, *offsetp, length);
       s = ep_alloc(length + 1);
-      stringCopy(s, p, length);
+      stringCopy(s, (gchar *)p, length);
       proto_tree_add_string(t, hf, tvb, *offsetp, length, s);
       *offsetp += length;
 }
@@ -2417,7 +2417,7 @@ static void string16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
     int hf_bytes, unsigned length, gboolean little_endian)
 {
       char *s = NULL;
-      unsigned l = 0;
+      gint l = 0;
 
       length += length;
       string16_with_buffer_preallocated(tvb, t, hf, hf_bytes, *offsetp, length,
@@ -2982,7 +2982,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
 		v16 = VALUE16(tvb, 4);
 		name = se_alloc(v16 + 1);
-		stringCopy(name, tvb_get_ptr(tvb, 8, v16), v16);
+		stringCopy(name, (gchar*)tvb_get_ptr(tvb, 8, v16), v16);
 
 		/* store string of extension, opcode will be set at reply */
 		i = 0;

@@ -3586,9 +3586,9 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
-	poctets,
+	(gchar*)poctets,
 	"Digits: %s",
-	format_text(poctets, len - (curr_offset - offset)));
+	(gchar*)format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -6902,9 +6902,9 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
-	poctets,
+	(gchar*)poctets,
 	"Digits: %s",
-	format_text(poctets, len - (curr_offset - offset)));
+	(gchar*)format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 

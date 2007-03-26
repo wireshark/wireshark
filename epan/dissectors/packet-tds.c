@@ -699,7 +699,7 @@ dissect_tds_query_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	if (is_unicode)
 		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, len/2, TRUE);
 	else
-		msg = tvb_get_ephemeral_string(tvb, offset, len);
+		msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
 
 	proto_tree_add_text(query_tree, tvb, offset, len, "Query: %s", msg);
 	offset += len;
@@ -718,7 +718,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree
     if (is_unicode)
         msg = tvb_get_ephemeral_faked_unicode(tvb, offset, (len)/2, TRUE);
     else
-        msg = tvb_get_ephemeral_string(tvb, offset, len);
+        msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
 
     proto_tree_add_text(tree, tvb, offset, len, "Language text: %s", msg);
 }
@@ -891,7 +891,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 
 				len *= 2;
-				val = tvb_get_ephemeral_string(tvb, offset2, len);
+				val = (gchar*)tvb_get_ephemeral_string(tvb, offset2, len);
 				val2 = g_malloc((len/2)+1);
 
 				for(j = 0, k = 0; j < len; j += 2, k++) {
@@ -1198,7 +1198,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 					new_len, TRUE);
 				new_len *= 2;
 			} else
-				new_val = tvb_get_ephemeral_string(tvb, string_offset, new_len);
+				new_val = (gchar*)tvb_get_ephemeral_string(tvb, string_offset, new_len);
 			proto_tree_add_text(tree, tvb, string_offset, new_len,
 				"New Value: %s", new_val);
 		}
@@ -1225,7 +1225,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, guint offset, guint token_sz,
 			    old_len, TRUE);
 			old_len *= 2;
 		} else
-			old_val = tvb_get_ephemeral_string(tvb, string_offset, old_len);
+			old_val = (gchar*)tvb_get_ephemeral_string(tvb, string_offset, old_len);
 		proto_tree_add_text(tree, tvb, string_offset, old_len,
 		    "Old Value: %s", old_val);
 	 }
@@ -1257,9 +1257,9 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, msg_len, TRUE);
 		msg_len *= 2;
 	} else {
-		msg = tvb_get_ephemeral_string(tvb, offset, msg_len);
+		msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
 	}
-	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text(msg, strlen(msg)));
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Error: %s", format_text((guchar*)msg, strlen(msg)));
 	offset += msg_len;
 
 	srvr_len = tvb_get_guint8(tvb, offset);
@@ -1271,7 +1271,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 			msg = tvb_get_ephemeral_faked_unicode(tvb, offset, srvr_len, TRUE);
 			srvr_len *=2;
 		} else {
-			msg = tvb_get_ephemeral_string(tvb, offset, srvr_len);
+			msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, srvr_len);
 		}
 		proto_tree_add_text(tree, tvb, offset, srvr_len, "Server name: %s", msg);
 		offset += srvr_len;
@@ -1286,7 +1286,7 @@ dissect_tds_err_token(tvbuff_t *tvb, guint offset, guint token_sz _U_, proto_tre
 			msg = tvb_get_ephemeral_faked_unicode(tvb, offset, proc_len, TRUE);
 			proc_len *=2;
 		} else {
-			msg = tvb_get_ephemeral_string(tvb, offset, proc_len);
+			msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, proc_len);
 		}
 		proto_tree_add_text(tree, tvb, offset, proc_len, "Process name: %s", msg);
 		offset += proc_len;
@@ -1322,9 +1322,9 @@ dissect_tds_login_ack_token(tvbuff_t *tvb, guint offset, guint token_sz, proto_t
 		msg = tvb_get_ephemeral_faked_unicode(tvb, offset, msg_len, TRUE);
 		msg_len *= 2;
 	} else {
-		msg = tvb_get_ephemeral_string(tvb, offset, msg_len);
+		msg = (gchar*)tvb_get_ephemeral_string(tvb, offset, msg_len);
 	}
-	proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text(msg, strlen(msg)));
+	proto_tree_add_text(tree, tvb, offset, msg_len, "Text: %s", format_text((guchar*)msg, strlen(msg)));
 	offset += msg_len;
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Server Version");
@@ -1435,7 +1435,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			len = tvb_get_guint8(tvb, offset);
 			proto_tree_add_text(tree, tvb, offset, 1, "RPC Name Length: %u", len);
 			offset += 1;
-			val = tvb_get_ephemeral_string(tvb, offset, len);
+			val = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
 			proto_tree_add_text(tree, tvb, offset, len, "RPC Name: %s", val);
 			offset += len;
 			break;

@@ -532,7 +532,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  total_msti_length = version_3_length * MSTI_MESSAGE_SIZE;
 	}
       } else {
-	if (tvb_reported_length(tvb) == config_format_selector + MST_BPDU_SIZE + 1 ) {
+	if (tvb_reported_length(tvb) == (guint)config_format_selector + MST_BPDU_SIZE + 1 ) {
 	  msti_format = MSTI_FORMAT_ALTERNATIVE;
 	  total_msti_length = config_format_selector - VERSION_3_STATIC_LENGTH;
 	} else {
