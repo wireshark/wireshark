@@ -1,6 +1,6 @@
 /* packet-amqp.c
  *
- * AMQP Wireshark dissector
+ * AMQP v0-9 Wireshark dissector plug-in
  *
  * Author: Martin Sustrik <sustrik@imatix.com>
  *
@@ -71,7 +71,6 @@ static int amqp_port = 5672;
 #define AMQP_CLASS_TX                                             90
 #define AMQP_CLASS_DTX                                            100
 #define AMQP_CLASS_TUNNEL                                         110
-#define AMQP_CLASS_TEST                                           120
 
 #define AMQP_METHOD_CONNECTION_START                              10
 #define AMQP_METHOD_CONNECTION_START_OK                           11
@@ -81,17 +80,20 @@ static int amqp_port = 5672;
 #define AMQP_METHOD_CONNECTION_TUNE_OK                            31
 #define AMQP_METHOD_CONNECTION_OPEN                               40
 #define AMQP_METHOD_CONNECTION_OPEN_OK                            41
-#define AMQP_METHOD_CONNECTION_REDIRECT                           50
-#define AMQP_METHOD_CONNECTION_CLOSE                              60
-#define AMQP_METHOD_CONNECTION_CLOSE_OK                           61
+#define AMQP_METHOD_CONNECTION_REDIRECT                           42
+#define AMQP_METHOD_CONNECTION_CLOSE                              50
+#define AMQP_METHOD_CONNECTION_CLOSE_OK                           51
 
 #define AMQP_METHOD_CHANNEL_OPEN                                  10
 #define AMQP_METHOD_CHANNEL_OPEN_OK                               11
 #define AMQP_METHOD_CHANNEL_FLOW                                  20
 #define AMQP_METHOD_CHANNEL_FLOW_OK                               21
-#define AMQP_METHOD_CHANNEL_ALERT                                 30
 #define AMQP_METHOD_CHANNEL_CLOSE                                 40
 #define AMQP_METHOD_CHANNEL_CLOSE_OK                              41
+#define AMQP_METHOD_CHANNEL_RESUME                                50
+#define AMQP_METHOD_CHANNEL_PING                                  60
+#define AMQP_METHOD_CHANNEL_PONG                                  70
+#define AMQP_METHOD_CHANNEL_OK                                    80
 
 #define AMQP_METHOD_ACCESS_REQUEST                                10
 #define AMQP_METHOD_ACCESS_REQUEST_OK                             11
@@ -105,6 +107,8 @@ static int amqp_port = 5672;
 #define AMQP_METHOD_QUEUE_DECLARE_OK                              11
 #define AMQP_METHOD_QUEUE_BIND                                    20
 #define AMQP_METHOD_QUEUE_BIND_OK                                 21
+#define AMQP_METHOD_QUEUE_UNBIND                                  50
+#define AMQP_METHOD_QUEUE_UNBIND_OK                               51
 #define AMQP_METHOD_QUEUE_PURGE                                   30
 #define AMQP_METHOD_QUEUE_PURGE_OK                                31
 #define AMQP_METHOD_QUEUE_DELETE                                  40
@@ -164,15 +168,6 @@ static int amqp_port = 5672;
 #define AMQP_METHOD_DTX_START_OK                                  21
 
 #define AMQP_METHOD_TUNNEL_REQUEST                                10
-
-#define AMQP_METHOD_TEST_INTEGER                                  10
-#define AMQP_METHOD_TEST_INTEGER_OK                               11
-#define AMQP_METHOD_TEST_STRING                                   20
-#define AMQP_METHOD_TEST_STRING_OK                                21
-#define AMQP_METHOD_TEST_TABLE                                    30
-#define AMQP_METHOD_TEST_TABLE_OK                                 31
-#define AMQP_METHOD_TEST_CONTENT                                  40
-#define AMQP_METHOD_TEST_CONTENT_OK                               41
 
 /*  Registration functions for the dissector  */
 
@@ -257,15 +252,27 @@ dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
 static size_t
-dissect_amqp_method_channel_alert(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
 dissect_amqp_method_channel_close(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
 static size_t
 dissect_amqp_method_channel_close_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_channel_resume(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_channel_ping(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_channel_pong(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_channel_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
 static size_t
@@ -306,6 +313,14 @@ dissect_amqp_method_queue_bind(tvbuff_t *tvb,
 
 static size_t
 dissect_amqp_method_queue_bind_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_queue_unbind(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree);
+
+static size_t
+dissect_amqp_method_queue_unbind_ok(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
 static size_t
@@ -521,38 +536,6 @@ dissect_amqp_method_tunnel_request(tvbuff_t *tvb,
     int offset, int bound, proto_tree *args_tree);
 
 static size_t
-dissect_amqp_method_test_integer(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_integer_ok(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_string(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_string_ok(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_table(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_table_ok(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_content(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
-dissect_amqp_method_test_content_ok(tvbuff_t *tvb,
-    int offset, int bound, proto_tree *args_tree);
-
-static size_t
 dissect_amqp_content_header_basic(tvbuff_t *tvb,
     int offset, int bound, proto_tree *prop_tree);
 
@@ -587,7 +570,6 @@ static int hf_amqp_method_stream_method_id = -1;
 static int hf_amqp_method_tx_method_id = -1;
 static int hf_amqp_method_dtx_method_id = -1;
 static int hf_amqp_method_tunnel_method_id = -1;
-static int hf_amqp_method_test_method_id = -1;
 static int hf_amqp_method_arguments = -1;
 static int hf_amqp_method_connection_start_version_major = -1;
 static int hf_amqp_method_connection_start_version_minor = -1;
@@ -617,15 +599,14 @@ static int hf_amqp_method_connection_close_reply_text = -1;
 static int hf_amqp_method_connection_close_class_id = -1;
 static int hf_amqp_method_connection_close_method_id = -1;
 static int hf_amqp_method_channel_open_out_of_band = -1;
+static int hf_amqp_method_channel_open_ok_channel_id = -1;
 static int hf_amqp_method_channel_flow_active = -1;
 static int hf_amqp_method_channel_flow_ok_active = -1;
-static int hf_amqp_method_channel_alert_reply_code = -1;
-static int hf_amqp_method_channel_alert_reply_text = -1;
-static int hf_amqp_method_channel_alert_details = -1;
 static int hf_amqp_method_channel_close_reply_code = -1;
 static int hf_amqp_method_channel_close_reply_text = -1;
 static int hf_amqp_method_channel_close_class_id = -1;
 static int hf_amqp_method_channel_close_method_id = -1;
+static int hf_amqp_method_channel_resume_channel_id = -1;
 static int hf_amqp_method_access_request_realm = -1;
 static int hf_amqp_method_access_request_exclusive = -1;
 static int hf_amqp_method_access_request_passive = -1;
@@ -663,6 +644,11 @@ static int hf_amqp_method_queue_bind_exchange = -1;
 static int hf_amqp_method_queue_bind_routing_key = -1;
 static int hf_amqp_method_queue_bind_nowait = -1;
 static int hf_amqp_method_queue_bind_arguments = -1;
+static int hf_amqp_method_queue_unbind_ticket = -1;
+static int hf_amqp_method_queue_unbind_queue = -1;
+static int hf_amqp_method_queue_unbind_exchange = -1;
+static int hf_amqp_method_queue_unbind_routing_key = -1;
+static int hf_amqp_method_queue_unbind_arguments = -1;
 static int hf_amqp_method_queue_purge_ticket = -1;
 static int hf_amqp_method_queue_purge_queue = -1;
 static int hf_amqp_method_queue_purge_nowait = -1;
@@ -683,6 +669,7 @@ static int hf_amqp_method_basic_consume_no_local = -1;
 static int hf_amqp_method_basic_consume_no_ack = -1;
 static int hf_amqp_method_basic_consume_exclusive = -1;
 static int hf_amqp_method_basic_consume_nowait = -1;
+static int hf_amqp_method_basic_consume_filter = -1;
 static int hf_amqp_method_basic_consume_ok_consumer_tag = -1;
 static int hf_amqp_method_basic_cancel_consumer_tag = -1;
 static int hf_amqp_method_basic_cancel_nowait = -1;
@@ -725,6 +712,7 @@ static int hf_amqp_method_file_consume_no_local = -1;
 static int hf_amqp_method_file_consume_no_ack = -1;
 static int hf_amqp_method_file_consume_exclusive = -1;
 static int hf_amqp_method_file_consume_nowait = -1;
+static int hf_amqp_method_file_consume_filter = -1;
 static int hf_amqp_method_file_consume_ok_consumer_tag = -1;
 static int hf_amqp_method_file_cancel_consumer_tag = -1;
 static int hf_amqp_method_file_cancel_nowait = -1;
@@ -762,6 +750,7 @@ static int hf_amqp_method_stream_consume_consumer_tag = -1;
 static int hf_amqp_method_stream_consume_no_local = -1;
 static int hf_amqp_method_stream_consume_exclusive = -1;
 static int hf_amqp_method_stream_consume_nowait = -1;
+static int hf_amqp_method_stream_consume_filter = -1;
 static int hf_amqp_method_stream_consume_ok_consumer_tag = -1;
 static int hf_amqp_method_stream_cancel_consumer_tag = -1;
 static int hf_amqp_method_stream_cancel_nowait = -1;
@@ -781,22 +770,6 @@ static int hf_amqp_method_stream_deliver_exchange = -1;
 static int hf_amqp_method_stream_deliver_queue = -1;
 static int hf_amqp_method_dtx_start_dtx_identifier = -1;
 static int hf_amqp_method_tunnel_request_meta_data = -1;
-static int hf_amqp_method_test_integer_integer_1 = -1;
-static int hf_amqp_method_test_integer_integer_2 = -1;
-static int hf_amqp_method_test_integer_integer_3 = -1;
-static int hf_amqp_method_test_integer_integer_4 = -1;
-static int hf_amqp_method_test_integer_operation = -1;
-static int hf_amqp_method_test_integer_ok_result = -1;
-static int hf_amqp_method_test_string_string_1 = -1;
-static int hf_amqp_method_test_string_string_2 = -1;
-static int hf_amqp_method_test_string_operation = -1;
-static int hf_amqp_method_test_string_ok_result = -1;
-static int hf_amqp_method_test_table_table = -1;
-static int hf_amqp_method_test_table_integer_op = -1;
-static int hf_amqp_method_test_table_string_op = -1;
-static int hf_amqp_method_test_table_ok_integer_result = -1;
-static int hf_amqp_method_test_table_ok_string_result = -1;
-static int hf_amqp_method_test_content_ok_content_checksum = -1;
 static int hf_amqp_field = -1;
 static int hf_amqp_header_class_id = -1;
 static int hf_amqp_header_weight = -1;
@@ -837,11 +810,17 @@ static int hf_amqp_header_tunnel_data_name = -1;
 static int hf_amqp_header_tunnel_durable = -1;
 static int hf_amqp_header_tunnel_broadcast = -1;
 static int hf_amqp_payload = -1;
+static int hf_amqp_init_protocol = -1;
+static int hf_amqp_init_id_major = -1;
+static int hf_amqp_init_id_minor = -1;
+static int hf_amqp_init_version_major = -1;
+static int hf_amqp_init_version_minor = -1;
 
 static gint ett_amqp = -1;
 static gint ett_args = -1;
 static gint ett_props = -1;
 static gint ett_field_table = -1;
+static gint ett_amqp_init = -1;
 
 /*  Various enumerations  */
 
@@ -869,7 +848,6 @@ static const value_string amqp_method_classes [] = {
     {90, "Tx"},
     {100, "Dtx"},
     {110, "Tunnel"},
-    {120, "Test"},
     {0, NULL}
 };
 
@@ -882,9 +860,9 @@ static const value_string amqp_method_connection_methods [] = {
     {31, "Tune-Ok"},
     {40, "Open"},
     {41, "Open-Ok"},
-    {50, "Redirect"},
-    {60, "Close"},
-    {61, "Close-Ok"},
+    {42, "Redirect"},
+    {50, "Close"},
+    {51, "Close-Ok"},
     {0, NULL}
 };
 
@@ -893,9 +871,12 @@ static const value_string amqp_method_channel_methods [] = {
     {11, "Open-Ok"},
     {20, "Flow"},
     {21, "Flow-Ok"},
-    {30, "Alert"},
     {40, "Close"},
     {41, "Close-Ok"},
+    {50, "Resume"},
+    {60, "Ping"},
+    {70, "Pong"},
+    {80, "Ok"},
     {0, NULL}
 };
 
@@ -918,6 +899,8 @@ static const value_string amqp_method_queue_methods [] = {
     {11, "Declare-Ok"},
     {20, "Bind"},
     {21, "Bind-Ok"},
+    {50, "Unbind"},
+    {51, "Unbind-Ok"},
     {30, "Purge"},
     {31, "Purge-Ok"},
     {40, "Delete"},
@@ -998,23 +981,14 @@ static const value_string amqp_method_tunnel_methods [] = {
     {0, NULL}
 };
 
-static const value_string amqp_method_test_methods [] = {
-    {10, "Integer"},
-    {11, "Integer-Ok"},
-    {20, "String"},
-    {21, "String-Ok"},
-    {30, "Table"},
-    {31, "Table-Ok"},
-    {40, "Content"},
-    {41, "Content-Ok"},
-    {0, NULL}
-};
-
 /*  Main dissection routine  */
 
 static void
 dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    /*  Minimal frame size is 8 bytes - smaller frames are malformed  */
+    DISSECTOR_ASSERT (tvb_length (tvb) >= 8);
+
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 7,
         get_amqp_message_len, dissect_amqp_frame);
 }
@@ -1022,6 +996,13 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_amqp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
+    /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
+    if (tvb_get_guint8(tvb, 0) == 'A' &&
+          tvb_get_guint8(tvb, 1) == 'M' &&
+          tvb_get_guint8(tvb, 2) == 'Q' &&
+          tvb_get_guint8(tvb, 3) == 'P')
+        return 8;
+
     return (guint) tvb_get_ntohl(tvb, offset + 3) + 8;
 }
 
@@ -1119,8 +1100,6 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *prop_tree;
     size_t length;
     int offset;
-    guint8 type;
-    guint16 channel, method, class;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
@@ -1129,46 +1108,41 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
+
+        /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
+        if (tvb_get_guint8(tvb, 0) == 'A' &&
+              tvb_get_guint8(tvb, 1) == 'M' &&
+              tvb_get_guint8(tvb, 2) == 'Q' &&
+              tvb_get_guint8(tvb, 3) == 'P') {
+
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Protocol header");
+
+            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, FALSE);
+            amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, FALSE);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_id_major, tvb, 4, 1, FALSE);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_id_minor, tvb, 5, 1, FALSE);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_version_major, tvb, 6, 1, FALSE);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_version_minor, tvb, 7, 1, FALSE);
+
+            return;
+        }
         
         ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, FALSE);
         amqp_tree = proto_item_add_subtree(ti, ett_amqp);
-
-	proto_tree_add_item(amqp_tree, hf_amqp_type, tvb, 0, 1, FALSE);
-	type=tvb_get_guint8(tvb, 0);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s/",
-			val_to_str(type, amqp_frame_types, "Unknown method:%u"));
-	}
-
-	proto_tree_add_item(amqp_tree, hf_amqp_channel, tvb, 1, 2, FALSE);
-	channel=tvb_get_ntohs(tvb, 1);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%d/",
-			channel);
-	}
-
-	proto_tree_add_item(amqp_tree, hf_amqp_length, tvb, 3, 4, FALSE);
+        proto_tree_add_item(amqp_tree, hf_amqp_type, tvb, 0, 1, FALSE);
+        proto_tree_add_item(amqp_tree, hf_amqp_channel, tvb, 1, 2, FALSE);
+        proto_tree_add_item(amqp_tree, hf_amqp_length, tvb, 3, 4, FALSE);
         length = tvb_get_ntohl(tvb, 3);
         switch (tvb_get_guint8(tvb, 0)) {
         case AMQP_FRAME_TYPE_METHOD:
             proto_tree_add_item(amqp_tree, hf_amqp_method_class_id,
                 tvb, 7, 2, FALSE);
-            class=tvb_get_ntohs(tvb, 7);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s/",
-                    val_to_str(class, amqp_method_classes, "Unknown class:%u"));
-            }
-
             switch (tvb_get_ntohs(tvb, 7)) {
             case AMQP_CLASS_CONNECTION:
                 proto_tree_add_item(amqp_tree, hf_amqp_method_connection_method_id,
                     tvb, 9, 2, FALSE);              
-                method=tvb_get_ntohs(tvb, 9);
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-                        val_to_str(method, amqp_method_connection_methods, "unknown method:%x"));
-                }
-
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, FALSE);
                 args_tree = proto_item_add_subtree(ti, ett_args);
@@ -1176,46 +1150,79 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_CONNECTION_START:
                     offset = dissect_amqp_method_connection_start(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Start");
                     break;
                 case AMQP_METHOD_CONNECTION_START_OK:
                     offset = dissect_amqp_method_connection_start_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Start-Ok");
                     break;
                 case AMQP_METHOD_CONNECTION_SECURE:
                     offset = dissect_amqp_method_connection_secure(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Secure");
                     break;
                 case AMQP_METHOD_CONNECTION_SECURE_OK:
                     offset = dissect_amqp_method_connection_secure_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Secure-Ok");
                     break;
                 case AMQP_METHOD_CONNECTION_TUNE:
                     offset = dissect_amqp_method_connection_tune(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Tune");
                     break;
                 case AMQP_METHOD_CONNECTION_TUNE_OK:
                     offset = dissect_amqp_method_connection_tune_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Tune-Ok");
                     break;
                 case AMQP_METHOD_CONNECTION_OPEN:
                     offset = dissect_amqp_method_connection_open(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Open");
                     break;
                 case AMQP_METHOD_CONNECTION_OPEN_OK:
                     offset = dissect_amqp_method_connection_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Open-Ok");
                     break;
                 case AMQP_METHOD_CONNECTION_REDIRECT:
                     offset = dissect_amqp_method_connection_redirect(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Redirect");
                     break;
                 case AMQP_METHOD_CONNECTION_CLOSE:
                     offset = dissect_amqp_method_connection_close(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Close");
                     break;
                 case AMQP_METHOD_CONNECTION_CLOSE_OK:
                     offset = dissect_amqp_method_connection_close_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Connection.Close-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1231,30 +1238,72 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_CHANNEL_OPEN:
                     offset = dissect_amqp_method_channel_open(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Open");
                     break;
                 case AMQP_METHOD_CHANNEL_OPEN_OK:
                     offset = dissect_amqp_method_channel_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Open-Ok");
                     break;
                 case AMQP_METHOD_CHANNEL_FLOW:
                     offset = dissect_amqp_method_channel_flow(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Flow");
                     break;
                 case AMQP_METHOD_CHANNEL_FLOW_OK:
                     offset = dissect_amqp_method_channel_flow_ok(tvb,
                         11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_CHANNEL_ALERT:
-                    offset = dissect_amqp_method_channel_alert(tvb,
-                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Flow-Ok");
                     break;
                 case AMQP_METHOD_CHANNEL_CLOSE:
                     offset = dissect_amqp_method_channel_close(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Close");
                     break;
                 case AMQP_METHOD_CHANNEL_CLOSE_OK:
                     offset = dissect_amqp_method_channel_close_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Close-Ok");
+                    break;
+                case AMQP_METHOD_CHANNEL_RESUME:
+                    offset = dissect_amqp_method_channel_resume(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Resume");
+                    break;
+                case AMQP_METHOD_CHANNEL_PING:
+                    offset = dissect_amqp_method_channel_ping(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Ping");
+                    break;
+                case AMQP_METHOD_CHANNEL_PONG:
+                    offset = dissect_amqp_method_channel_pong(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Pong");
+                    break;
+                case AMQP_METHOD_CHANNEL_OK:
+                    offset = dissect_amqp_method_channel_ok(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Channel.Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1270,10 +1319,16 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_ACCESS_REQUEST:
                     offset = dissect_amqp_method_access_request(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Access.Request");
                     break;
                 case AMQP_METHOD_ACCESS_REQUEST_OK:
                     offset = dissect_amqp_method_access_request_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Access.Request-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1289,18 +1344,30 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_EXCHANGE_DECLARE:
                     offset = dissect_amqp_method_exchange_declare(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Exchange.Declare");
                     break;
                 case AMQP_METHOD_EXCHANGE_DECLARE_OK:
                     offset = dissect_amqp_method_exchange_declare_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Exchange.Declare-Ok");
                     break;
                 case AMQP_METHOD_EXCHANGE_DELETE:
                     offset = dissect_amqp_method_exchange_delete(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Exchange.Delete");
                     break;
                 case AMQP_METHOD_EXCHANGE_DELETE_OK:
                     offset = dissect_amqp_method_exchange_delete_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Exchange.Delete-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1316,34 +1383,72 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_QUEUE_DECLARE:
                     offset = dissect_amqp_method_queue_declare(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Declare");
                     break;
                 case AMQP_METHOD_QUEUE_DECLARE_OK:
                     offset = dissect_amqp_method_queue_declare_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Declare-Ok");
                     break;
                 case AMQP_METHOD_QUEUE_BIND:
                     offset = dissect_amqp_method_queue_bind(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Bind");
                     break;
                 case AMQP_METHOD_QUEUE_BIND_OK:
                     offset = dissect_amqp_method_queue_bind_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Bind-Ok");
+                    break;
+                case AMQP_METHOD_QUEUE_UNBIND:
+                    offset = dissect_amqp_method_queue_unbind(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Unbind");
+                    break;
+                case AMQP_METHOD_QUEUE_UNBIND_OK:
+                    offset = dissect_amqp_method_queue_unbind_ok(tvb,
+                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Unbind-Ok");
                     break;
                 case AMQP_METHOD_QUEUE_PURGE:
                     offset = dissect_amqp_method_queue_purge(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Purge");
                     break;
                 case AMQP_METHOD_QUEUE_PURGE_OK:
                     offset = dissect_amqp_method_queue_purge_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Purge-Ok");
                     break;
                 case AMQP_METHOD_QUEUE_DELETE:
                     offset = dissect_amqp_method_queue_delete(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Delete");
                     break;
                 case AMQP_METHOD_QUEUE_DELETE_OK:
                     offset = dissect_amqp_method_queue_delete_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Queue.Delete-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1359,62 +1464,107 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_BASIC_QOS:
                     offset = dissect_amqp_method_basic_qos(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Qos");
                     break;
                 case AMQP_METHOD_BASIC_QOS_OK:
                     offset = dissect_amqp_method_basic_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Qos-Ok");
                     break;
                 case AMQP_METHOD_BASIC_CONSUME:
                     offset = dissect_amqp_method_basic_consume(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Consume");
                     break;
                 case AMQP_METHOD_BASIC_CONSUME_OK:
                     offset = dissect_amqp_method_basic_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Consume-Ok");
                     break;
                 case AMQP_METHOD_BASIC_CANCEL:
                     offset = dissect_amqp_method_basic_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Cancel");
                     break;
                 case AMQP_METHOD_BASIC_CANCEL_OK:
                     offset = dissect_amqp_method_basic_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Cancel-Ok");
                     break;
                 case AMQP_METHOD_BASIC_PUBLISH:
                     offset = dissect_amqp_method_basic_publish(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Publish");
                     break;
                 case AMQP_METHOD_BASIC_RETURN:
                     offset = dissect_amqp_method_basic_return(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Return");
                     break;
                 case AMQP_METHOD_BASIC_DELIVER:
                     offset = dissect_amqp_method_basic_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Deliver");
                     break;
                 case AMQP_METHOD_BASIC_GET:
                     offset = dissect_amqp_method_basic_get(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Get");
                     break;
                 case AMQP_METHOD_BASIC_GET_OK:
                     offset = dissect_amqp_method_basic_get_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Get-Ok");
                     break;
                 case AMQP_METHOD_BASIC_GET_EMPTY:
                     offset = dissect_amqp_method_basic_get_empty(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Get-Empty");
                     break;
                 case AMQP_METHOD_BASIC_ACK:
                     offset = dissect_amqp_method_basic_ack(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Ack");
                     break;
                 case AMQP_METHOD_BASIC_REJECT:
                     offset = dissect_amqp_method_basic_reject(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Reject");
                     break;
                 case AMQP_METHOD_BASIC_RECOVER:
                     offset = dissect_amqp_method_basic_recover(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Basic.Recover");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1430,58 +1580,100 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_FILE_QOS:
                     offset = dissect_amqp_method_file_qos(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Qos");
                     break;
                 case AMQP_METHOD_FILE_QOS_OK:
                     offset = dissect_amqp_method_file_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Qos-Ok");
                     break;
                 case AMQP_METHOD_FILE_CONSUME:
                     offset = dissect_amqp_method_file_consume(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Consume");
                     break;
                 case AMQP_METHOD_FILE_CONSUME_OK:
                     offset = dissect_amqp_method_file_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Consume-Ok");
                     break;
                 case AMQP_METHOD_FILE_CANCEL:
                     offset = dissect_amqp_method_file_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Cancel");
                     break;
                 case AMQP_METHOD_FILE_CANCEL_OK:
                     offset = dissect_amqp_method_file_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Cancel-Ok");
                     break;
                 case AMQP_METHOD_FILE_OPEN:
                     offset = dissect_amqp_method_file_open(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Open");
                     break;
                 case AMQP_METHOD_FILE_OPEN_OK:
                     offset = dissect_amqp_method_file_open_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Open-Ok");
                     break;
                 case AMQP_METHOD_FILE_STAGE:
                     offset = dissect_amqp_method_file_stage(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Stage");
                     break;
                 case AMQP_METHOD_FILE_PUBLISH:
                     offset = dissect_amqp_method_file_publish(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Publish");
                     break;
                 case AMQP_METHOD_FILE_RETURN:
                     offset = dissect_amqp_method_file_return(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Return");
                     break;
                 case AMQP_METHOD_FILE_DELIVER:
                     offset = dissect_amqp_method_file_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Deliver");
                     break;
                 case AMQP_METHOD_FILE_ACK:
                     offset = dissect_amqp_method_file_ack(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Ack");
                     break;
                 case AMQP_METHOD_FILE_REJECT:
                     offset = dissect_amqp_method_file_reject(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "File.Reject");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1497,38 +1689,65 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_STREAM_QOS:
                     offset = dissect_amqp_method_stream_qos(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Qos");
                     break;
                 case AMQP_METHOD_STREAM_QOS_OK:
                     offset = dissect_amqp_method_stream_qos_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Qos-Ok");
                     break;
                 case AMQP_METHOD_STREAM_CONSUME:
                     offset = dissect_amqp_method_stream_consume(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Consume");
                     break;
                 case AMQP_METHOD_STREAM_CONSUME_OK:
                     offset = dissect_amqp_method_stream_consume_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Consume-Ok");
                     break;
                 case AMQP_METHOD_STREAM_CANCEL:
                     offset = dissect_amqp_method_stream_cancel(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Cancel");
                     break;
                 case AMQP_METHOD_STREAM_CANCEL_OK:
                     offset = dissect_amqp_method_stream_cancel_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Cancel-Ok");
                     break;
                 case AMQP_METHOD_STREAM_PUBLISH:
                     offset = dissect_amqp_method_stream_publish(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Publish");
                     break;
                 case AMQP_METHOD_STREAM_RETURN:
                     offset = dissect_amqp_method_stream_return(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Return");
                     break;
                 case AMQP_METHOD_STREAM_DELIVER:
                     offset = dissect_amqp_method_stream_deliver(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Stream.Deliver");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1544,26 +1763,44 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_TX_SELECT:
                     offset = dissect_amqp_method_tx_select(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Select");
                     break;
                 case AMQP_METHOD_TX_SELECT_OK:
                     offset = dissect_amqp_method_tx_select_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Select-Ok");
                     break;
                 case AMQP_METHOD_TX_COMMIT:
                     offset = dissect_amqp_method_tx_commit(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Commit");
                     break;
                 case AMQP_METHOD_TX_COMMIT_OK:
                     offset = dissect_amqp_method_tx_commit_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Commit-Ok");
                     break;
                 case AMQP_METHOD_TX_ROLLBACK:
                     offset = dissect_amqp_method_tx_rollback(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Rollback");
                     break;
                 case AMQP_METHOD_TX_ROLLBACK_OK:
                     offset = dissect_amqp_method_tx_rollback_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tx.Rollback-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1579,18 +1816,30 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_DTX_SELECT:
                     offset = dissect_amqp_method_dtx_select(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Dtx.Select");
                     break;
                 case AMQP_METHOD_DTX_SELECT_OK:
                     offset = dissect_amqp_method_dtx_select_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Dtx.Select-Ok");
                     break;
                 case AMQP_METHOD_DTX_START:
                     offset = dissect_amqp_method_dtx_start(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Dtx.Start");
                     break;
                 case AMQP_METHOD_DTX_START_OK:
                     offset = dissect_amqp_method_dtx_start_ok(tvb,
                         11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Dtx.Start-Ok");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1606,49 +1855,9 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case AMQP_METHOD_TUNNEL_REQUEST:
                     offset = dissect_amqp_method_tunnel_request(tvb,
                         11, tvb_length (tvb), args_tree);
-                    break;
-                default:
-                    DISSECTOR_ASSERT(FALSE);
-                }
-                break;
-            case AMQP_CLASS_TEST:
-                proto_tree_add_item(amqp_tree, hf_amqp_method_test_method_id,
-                    tvb, 9, 2, FALSE);              
-                ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
-                    tvb, 11, length - 4, FALSE);
-                args_tree = proto_item_add_subtree(ti, ett_args);
-                switch (tvb_get_ntohs(tvb, 9)) {
-                case AMQP_METHOD_TEST_INTEGER:
-                    offset = dissect_amqp_method_test_integer(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_INTEGER_OK:
-                    offset = dissect_amqp_method_test_integer_ok(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_STRING:
-                    offset = dissect_amqp_method_test_string(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_STRING_OK:
-                    offset = dissect_amqp_method_test_string_ok(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_TABLE:
-                    offset = dissect_amqp_method_test_table(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_TABLE_OK:
-                    offset = dissect_amqp_method_test_table_ok(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_CONTENT:
-                    offset = dissect_amqp_method_test_content(tvb,
-                        11, tvb_length (tvb), args_tree);
-                    break;
-                case AMQP_METHOD_TEST_CONTENT_OK:
-                    offset = dissect_amqp_method_test_content_ok(tvb,
-                        11, tvb_length (tvb), args_tree);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                        col_append_fstr(pinfo->cinfo, COL_INFO,
+                            "Tunnel.Request");
                     break;
                 default:
                     DISSECTOR_ASSERT(FALSE);
@@ -1691,10 +1900,14 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             default:
                 DISSECTOR_ASSERT(FALSE);
             }
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Content header");
             break;
         case AMQP_FRAME_TYPE_CONTENT_BODY:
             proto_tree_add_item(amqp_tree, hf_amqp_payload,
                 tvb, 7, length, FALSE);
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_fstr(pinfo->cinfo, COL_INFO, "Content body");
             break;
         default:
             DISSECTOR_ASSERT(FALSE);
@@ -1705,21 +1918,21 @@ dissect_amqp_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*  Dissection routine for method Connection.Start                        */
 
 static size_t
-dissect_amqp_method_connection_start(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_start(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
-    /*  version major (octet)    */
+    /*  version-major (octet)    */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_start_version_major,
         tvb, offset, 1, FALSE);
     AMQP_INCREMENT(offset, 1, bound);
 
-    /*  version minor (octet)    */
+    /*  version-minor (octet)    */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_start_version_minor,
         tvb, offset, 1, FALSE);
     AMQP_INCREMENT(offset, 1, bound);
 
-    /*  server properties (table)  */
+    /*  server-properties (table)  */
     ti = proto_tree_add_item(
         args_tree, hf_amqp_method_connection_start_server_properties,
         tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
@@ -1743,11 +1956,11 @@ dissect_amqp_method_connection_start(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Start-Ok                     */
 
 static size_t
-dissect_amqp_method_connection_start_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_start_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
-    /*  client properties (table)  */
+    /*  client-properties (table)  */
     ti = proto_tree_add_item(
         args_tree, hf_amqp_method_connection_start_ok_client_properties,
         tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
@@ -1776,8 +1989,8 @@ dissect_amqp_method_connection_start_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Secure                       */
 
 static size_t
-dissect_amqp_method_connection_secure(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_secure(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  challenge (longstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_secure_challenge,
@@ -1790,8 +2003,8 @@ dissect_amqp_method_connection_secure(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Secure-Ok                    */
 
 static size_t
-dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  response (longstr)       */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_secure_ok_response,
@@ -1804,15 +2017,15 @@ dissect_amqp_method_connection_secure_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Tune                         */
 
 static size_t
-dissect_amqp_method_connection_tune(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_tune(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  channel max (short)      */
+    /*  channel-max (short)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_channel_max,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  frame max (long)         */
+    /*  frame-max (long)         */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_frame_max,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -1828,15 +2041,15 @@ dissect_amqp_method_connection_tune(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Tune-Ok                      */
 
 static size_t
-dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  channel max (short)      */
+    /*  channel-max (short)      */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_ok_channel_max,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  frame max (long)         */
+    /*  frame-max (long)         */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_tune_ok_frame_max,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -1852,10 +2065,10 @@ dissect_amqp_method_connection_tune_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Open                         */
 
 static size_t
-dissect_amqp_method_connection_open(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_open(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  virtual host (shortstr)  */
+    /*  virtual-host (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_virtual_host,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -1875,10 +2088,10 @@ dissect_amqp_method_connection_open(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Open-Ok                      */
 
 static size_t
-dissect_amqp_method_connection_open_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_open_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  known hosts (shortstr)   */
+    /*  known-hosts (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_ok_known_hosts,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -1889,15 +2102,15 @@ dissect_amqp_method_connection_open_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Redirect                     */
 
 static size_t
-dissect_amqp_method_connection_redirect(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_redirect(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  host (shortstr)          */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_redirect_host,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  known hosts (shortstr)   */
+    /*  known-hosts (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_redirect_known_hosts,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -1908,25 +2121,25 @@ dissect_amqp_method_connection_redirect(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Connection.Close                        */
 
 static size_t
-dissect_amqp_method_connection_close(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_connection_close(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  reply code (short)       */
+    /*  reply-code (short)       */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_reply_code,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  reply text (shortstr)    */
+    /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  class id (short)         */
+    /*  class-id (short)         */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_class_id,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  method id (short)        */
+    /*  method-id (short)        */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_method_id,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
@@ -1946,10 +2159,10 @@ dissect_amqp_method_connection_close_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Channel.Open                            */
 
 static size_t
-dissect_amqp_method_channel_open(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_channel_open(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  out of band (shortstr)   */
+    /*  out-of-band (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_open_out_of_band,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -1960,17 +2173,22 @@ dissect_amqp_method_channel_open(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Channel.Open-Ok                         */
 
 static size_t
-dissect_amqp_method_channel_open_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_channel_open_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
+    /*  channel-id (longstr)     */
+    proto_tree_add_item(args_tree, hf_amqp_method_channel_open_ok_channel_id,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
     return offset;
 }
 
 /*  Dissection routine for method Channel.Flow                            */
 
 static size_t
-dissect_amqp_method_channel_flow(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_channel_flow(tvbuff_t *tvb,
+    int offset, int bound _U_, proto_tree *args_tree)
 {
     /*  active (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_flow_active,
@@ -1982,8 +2200,8 @@ dissect_amqp_method_channel_flow(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Channel.Flow-Ok                         */
 
 static size_t
-dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb,
+    int offset, int bound _U_, proto_tree *args_tree)
 {
     /*  active (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_flow_ok_active,
@@ -1992,56 +2210,28 @@ dissect_amqp_method_channel_flow_ok(tvbuff_t *tvb _U_,
     return offset;
 }
 
-/*  Dissection routine for method Channel.Alert                           */
-
-static size_t
-dissect_amqp_method_channel_alert(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    proto_item *ti;
-    /*  reply code (short)       */
-    proto_tree_add_item(args_tree, hf_amqp_method_channel_alert_reply_code,
-        tvb, offset, 2, FALSE);
-    AMQP_INCREMENT(offset, 2, bound);
-
-    /*  reply text (shortstr)    */
-    proto_tree_add_item(args_tree, hf_amqp_method_channel_alert_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
-    AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
-
-    /*  details (table)          */
-    ti = proto_tree_add_item(
-        args_tree, hf_amqp_method_channel_alert_details,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
-    dissect_amqp_field_table (tvb, offset + 4,
-        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
-    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    return offset;
-}
-
 /*  Dissection routine for method Channel.Close                           */
 
 static size_t
-dissect_amqp_method_channel_close(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_channel_close(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  reply code (short)       */
+    /*  reply-code (short)       */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_code,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  reply text (shortstr)    */
+    /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  class id (short)         */
+    /*  class-id (short)         */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_class_id,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  method id (short)        */
+    /*  method-id (short)        */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_method_id,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
@@ -2058,11 +2248,52 @@ dissect_amqp_method_channel_close_ok(tvbuff_t *tvb _U_,
     return offset;
 }
 
+/*  Dissection routine for method Channel.Resume                          */
+
+static size_t
+dissect_amqp_method_channel_resume(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
+{
+    /*  channel-id (longstr)     */
+    proto_tree_add_item(args_tree, hf_amqp_method_channel_resume_channel_id,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
+    return offset;
+}
+
+/*  Dissection routine for method Channel.Ping                            */
+
+static size_t
+dissect_amqp_method_channel_ping(tvbuff_t *tvb _U_,
+    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
+/*  Dissection routine for method Channel.Pong                            */
+
+static size_t
+dissect_amqp_method_channel_pong(tvbuff_t *tvb _U_,
+    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
+/*  Dissection routine for method Channel.Ok                              */
+
+static size_t
+dissect_amqp_method_channel_ok(tvbuff_t *tvb _U_,
+    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
 /*  Dissection routine for method Access.Request                          */
 
 static size_t
-dissect_amqp_method_access_request(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_access_request(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  realm (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_access_request_realm,
@@ -2095,8 +2326,8 @@ dissect_amqp_method_access_request(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Access.Request-Ok                       */
 
 static size_t
-dissect_amqp_method_access_request_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_access_request_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_access_request_ok_ticket,
@@ -2109,8 +2340,8 @@ dissect_amqp_method_access_request_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Exchange.Declare                        */
 
 static size_t
-dissect_amqp_method_exchange_declare(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_exchange_declare(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
     /*  ticket (short)           */
@@ -2136,7 +2367,7 @@ dissect_amqp_method_exchange_declare(tvbuff_t *tvb _U_,
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_declare_durable,
         tvb, offset, 1, FALSE);
 
-    /*  auto delete (bit)        */
+    /*  auto-delete (bit)        */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_declare_auto_delete,
         tvb, offset, 1, FALSE);
 
@@ -2172,8 +2403,8 @@ dissect_amqp_method_exchange_declare_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Exchange.Delete                         */
 
 static size_t
-dissect_amqp_method_exchange_delete(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_exchange_delete(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_delete_ticket,
@@ -2185,7 +2416,7 @@ dissect_amqp_method_exchange_delete(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  if unused (bit)          */
+    /*  if-unused (bit)          */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_delete_if_unused,
         tvb, offset, 1, FALSE);
 
@@ -2208,8 +2439,8 @@ dissect_amqp_method_exchange_delete_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Declare                           */
 
 static size_t
-dissect_amqp_method_queue_declare(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_declare(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
     /*  ticket (short)           */
@@ -2234,7 +2465,7 @@ dissect_amqp_method_queue_declare(tvbuff_t *tvb _U_,
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_exclusive,
         tvb, offset, 1, FALSE);
 
-    /*  auto delete (bit)        */
+    /*  auto-delete (bit)        */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_auto_delete,
         tvb, offset, 1, FALSE);
 
@@ -2257,20 +2488,20 @@ dissect_amqp_method_queue_declare(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Declare-Ok                        */
 
 static size_t
-dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_ok_queue,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  message count (long)     */
+    /*  message-count (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_ok_message_count,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
 
-    /*  consumer count (long)    */
+    /*  consumer-count (long)    */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_ok_consumer_count,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -2281,8 +2512,8 @@ dissect_amqp_method_queue_declare_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Bind                              */
 
 static size_t
-dissect_amqp_method_queue_bind(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_bind(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
     /*  ticket (short)           */
@@ -2300,7 +2531,7 @@ dissect_amqp_method_queue_bind(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2330,11 +2561,58 @@ dissect_amqp_method_queue_bind_ok(tvbuff_t *tvb _U_,
     return offset;
 }
 
+/*  Dissection routine for method Queue.Unbind                            */
+
+static size_t
+dissect_amqp_method_queue_unbind(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
+{
+    proto_item *ti;
+    /*  ticket (short)           */
+    proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_ticket,
+        tvb, offset, 2, FALSE);
+    AMQP_INCREMENT(offset, 2, bound);
+
+    /*  queue (shortstr)         */
+    proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_queue,
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
+    AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
+
+    /*  exchange (shortstr)      */
+    proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_exchange,
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
+    AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
+
+    /*  routing-key (shortstr)   */
+    proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_routing_key,
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
+    AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
+
+    /*  arguments (table)        */
+    ti = proto_tree_add_item(
+        args_tree, hf_amqp_method_queue_unbind_arguments,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    dissect_amqp_field_table (tvb, offset + 4,
+        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
+    return offset;
+}
+
+/*  Dissection routine for method Queue.Unbind-Ok                         */
+
+static size_t
+dissect_amqp_method_queue_unbind_ok(tvbuff_t *tvb _U_,
+    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+{
+    return offset;
+}
+
 /*  Dissection routine for method Queue.Purge                             */
 
 static size_t
-dissect_amqp_method_queue_purge(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_purge(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_purge_ticket,
@@ -2356,10 +2634,10 @@ dissect_amqp_method_queue_purge(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Purge-Ok                          */
 
 static size_t
-dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  message count (long)     */
+    /*  message-count (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_purge_ok_message_count,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -2370,8 +2648,8 @@ dissect_amqp_method_queue_purge_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Delete                            */
 
 static size_t
-dissect_amqp_method_queue_delete(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_delete(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_ticket,
@@ -2383,11 +2661,11 @@ dissect_amqp_method_queue_delete(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  if unused (bit)          */
+    /*  if-unused (bit)          */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_if_unused,
         tvb, offset, 1, FALSE);
 
-    /*  if empty (bit)           */
+    /*  if-empty (bit)           */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_if_empty,
         tvb, offset, 1, FALSE);
 
@@ -2401,10 +2679,10 @@ dissect_amqp_method_queue_delete(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Queue.Delete-Ok                         */
 
 static size_t
-dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  message count (long)     */
+    /*  message-count (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_ok_message_count,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -2415,15 +2693,15 @@ dissect_amqp_method_queue_delete_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Qos                               */
 
 static size_t
-dissect_amqp_method_basic_qos(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_qos(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  prefetch size (long)     */
+    /*  prefetch-size (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_qos_prefetch_size,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
 
-    /*  prefetch count (short)   */
+    /*  prefetch-count (short)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_qos_prefetch_count,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
@@ -2447,9 +2725,10 @@ dissect_amqp_method_basic_qos_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Consume                           */
 
 static size_t
-dissect_amqp_method_basic_consume(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_consume(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
+    proto_item *ti;
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_ticket,
         tvb, offset, 2, FALSE);
@@ -2460,16 +2739,16 @@ dissect_amqp_method_basic_consume(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  no local (bit)           */
+    /*  no-local (bit)           */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_no_local,
         tvb, offset, 1, FALSE);
 
-    /*  no ack (bit)             */
+    /*  no-ack (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_no_ack,
         tvb, offset, 1, FALSE);
 
@@ -2481,16 +2760,25 @@ dissect_amqp_method_basic_consume(tvbuff_t *tvb _U_,
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_nowait,
         tvb, offset, 1, FALSE);
 
+    AMQP_INCREMENT(offset, 1, bound);
+    /*  filter (table)           */
+    ti = proto_tree_add_item(
+        args_tree, hf_amqp_method_basic_consume_filter,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    dissect_amqp_field_table (tvb, offset + 4,
+        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
     return offset;
 }
 
 /*  Dissection routine for method Basic.Consume-Ok                        */
 
 static size_t
-dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2501,10 +2789,10 @@ dissect_amqp_method_basic_consume_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Cancel                            */
 
 static size_t
-dissect_amqp_method_basic_cancel(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_cancel(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_cancel_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2519,10 +2807,10 @@ dissect_amqp_method_basic_cancel(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Cancel-Ok                         */
 
 static size_t
-dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_cancel_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2533,8 +2821,8 @@ dissect_amqp_method_basic_cancel_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Publish                           */
 
 static size_t
-dissect_amqp_method_basic_publish(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_publish(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_ticket,
@@ -2546,7 +2834,7 @@ dissect_amqp_method_basic_publish(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2565,15 +2853,15 @@ dissect_amqp_method_basic_publish(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Return                            */
 
 static size_t
-dissect_amqp_method_basic_return(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_return(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  reply code (short)       */
+    /*  reply-code (short)       */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_reply_code,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  reply text (shortstr)    */
+    /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2583,7 +2871,7 @@ dissect_amqp_method_basic_return(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2594,15 +2882,15 @@ dissect_amqp_method_basic_return(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Deliver                           */
 
 static size_t
-dissect_amqp_method_basic_deliver(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_deliver(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2617,7 +2905,7 @@ dissect_amqp_method_basic_deliver(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2628,8 +2916,8 @@ dissect_amqp_method_basic_deliver(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Get                               */
 
 static size_t
-dissect_amqp_method_basic_get(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_get(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ticket,
@@ -2641,7 +2929,7 @@ dissect_amqp_method_basic_get(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  no ack (bit)             */
+    /*  no-ack (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_no_ack,
         tvb, offset, 1, FALSE);
 
@@ -2651,10 +2939,10 @@ dissect_amqp_method_basic_get(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Get-Ok                            */
 
 static size_t
-dissect_amqp_method_basic_get_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_get_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2669,12 +2957,12 @@ dissect_amqp_method_basic_get_ok(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  message count (long)     */
+    /*  message-count (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_message_count,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -2685,10 +2973,10 @@ dissect_amqp_method_basic_get_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Get-Empty                         */
 
 static size_t
-dissect_amqp_method_basic_get_empty(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_get_empty(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  cluster id (shortstr)    */
+    /*  cluster-id (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_empty_cluster_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2699,10 +2987,10 @@ dissect_amqp_method_basic_get_empty(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Ack                               */
 
 static size_t
-dissect_amqp_method_basic_ack(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_ack(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_ack_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2717,10 +3005,10 @@ dissect_amqp_method_basic_ack(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Reject                            */
 
 static size_t
-dissect_amqp_method_basic_reject(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_reject(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_reject_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2735,8 +3023,8 @@ dissect_amqp_method_basic_reject(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Basic.Recover                           */
 
 static size_t
-dissect_amqp_method_basic_recover(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_basic_recover(tvbuff_t *tvb,
+    int offset, int bound _U_, proto_tree *args_tree)
 {
     /*  requeue (bit)            */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_recover_requeue,
@@ -2748,15 +3036,15 @@ dissect_amqp_method_basic_recover(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Qos                                */
 
 static size_t
-dissect_amqp_method_file_qos(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_qos(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  prefetch size (long)     */
+    /*  prefetch-size (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_file_qos_prefetch_size,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
 
-    /*  prefetch count (short)   */
+    /*  prefetch-count (short)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_qos_prefetch_count,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
@@ -2780,9 +3068,10 @@ dissect_amqp_method_file_qos_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Consume                            */
 
 static size_t
-dissect_amqp_method_file_consume(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_consume(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
+    proto_item *ti;
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_ticket,
         tvb, offset, 2, FALSE);
@@ -2793,16 +3082,16 @@ dissect_amqp_method_file_consume(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  no local (bit)           */
+    /*  no-local (bit)           */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_no_local,
         tvb, offset, 1, FALSE);
 
-    /*  no ack (bit)             */
+    /*  no-ack (bit)             */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_no_ack,
         tvb, offset, 1, FALSE);
 
@@ -2814,16 +3103,25 @@ dissect_amqp_method_file_consume(tvbuff_t *tvb _U_,
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_nowait,
         tvb, offset, 1, FALSE);
 
+    AMQP_INCREMENT(offset, 1, bound);
+    /*  filter (table)           */
+    ti = proto_tree_add_item(
+        args_tree, hf_amqp_method_file_consume_filter,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    dissect_amqp_field_table (tvb, offset + 4,
+        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
     return offset;
 }
 
 /*  Dissection routine for method File.Consume-Ok                         */
 
 static size_t
-dissect_amqp_method_file_consume_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_consume_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2834,10 +3132,10 @@ dissect_amqp_method_file_consume_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Cancel                             */
 
 static size_t
-dissect_amqp_method_file_cancel(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_cancel(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_cancel_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2852,10 +3150,10 @@ dissect_amqp_method_file_cancel(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Cancel-Ok                          */
 
 static size_t
-dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_cancel_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2866,15 +3164,15 @@ dissect_amqp_method_file_cancel_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Open                               */
 
 static size_t
-dissect_amqp_method_file_open(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_open(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  identifier (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_open_identifier,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  content size (longlong)  */
+    /*  content-size (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_open_content_size,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2885,10 +3183,10 @@ dissect_amqp_method_file_open(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Open-Ok                            */
 
 static size_t
-dissect_amqp_method_file_open_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_open_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  staged size (longlong)   */
+    /*  staged-size (longlong)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_open_ok_staged_size,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2908,8 +3206,8 @@ dissect_amqp_method_file_stage(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Publish                            */
 
 static size_t
-dissect_amqp_method_file_publish(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_publish(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_file_publish_ticket,
@@ -2921,7 +3219,7 @@ dissect_amqp_method_file_publish(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_publish_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2946,15 +3244,15 @@ dissect_amqp_method_file_publish(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Return                             */
 
 static size_t
-dissect_amqp_method_file_return(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_return(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  reply code (short)       */
+    /*  reply-code (short)       */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_reply_code,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  reply text (shortstr)    */
+    /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2964,7 +3262,7 @@ dissect_amqp_method_file_return(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -2975,15 +3273,15 @@ dissect_amqp_method_file_return(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Deliver                            */
 
 static size_t
-dissect_amqp_method_file_deliver(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_deliver(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -2998,7 +3296,7 @@ dissect_amqp_method_file_deliver(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3014,10 +3312,10 @@ dissect_amqp_method_file_deliver(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Ack                                */
 
 static size_t
-dissect_amqp_method_file_ack(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_ack(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_ack_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -3032,10 +3330,10 @@ dissect_amqp_method_file_ack(tvbuff_t *tvb _U_,
 /*  Dissection routine for method File.Reject                             */
 
 static size_t
-dissect_amqp_method_file_reject(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_file_reject(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_reject_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -3050,20 +3348,20 @@ dissect_amqp_method_file_reject(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Qos                              */
 
 static size_t
-dissect_amqp_method_stream_qos(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_qos(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  prefetch size (long)     */
+    /*  prefetch-size (long)     */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_qos_prefetch_size,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
 
-    /*  prefetch count (short)   */
+    /*  prefetch-count (short)   */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_qos_prefetch_count,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  consume rate (long)      */
+    /*  consume-rate (long)      */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_qos_consume_rate,
         tvb, offset, 4, FALSE);
     AMQP_INCREMENT(offset, 4, bound);
@@ -3087,9 +3385,10 @@ dissect_amqp_method_stream_qos_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Consume                          */
 
 static size_t
-dissect_amqp_method_stream_consume(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_consume(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
+    proto_item *ti;
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_ticket,
         tvb, offset, 2, FALSE);
@@ -3100,12 +3399,12 @@ dissect_amqp_method_stream_consume(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  no local (bit)           */
+    /*  no-local (bit)           */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_no_local,
         tvb, offset, 1, FALSE);
 
@@ -3117,16 +3416,25 @@ dissect_amqp_method_stream_consume(tvbuff_t *tvb _U_,
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_nowait,
         tvb, offset, 1, FALSE);
 
+    AMQP_INCREMENT(offset, 1, bound);
+    /*  filter (table)           */
+    ti = proto_tree_add_item(
+        args_tree, hf_amqp_method_stream_consume_filter,
+        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
+    dissect_amqp_field_table (tvb, offset + 4,
+        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
+    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
+
     return offset;
 }
 
 /*  Dissection routine for method Stream.Consume-Ok                       */
 
 static size_t
-dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3137,10 +3445,10 @@ dissect_amqp_method_stream_consume_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Cancel                           */
 
 static size_t
-dissect_amqp_method_stream_cancel(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_cancel(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_cancel_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3155,10 +3463,10 @@ dissect_amqp_method_stream_cancel(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Cancel-Ok                        */
 
 static size_t
-dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_cancel_ok_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3169,8 +3477,8 @@ dissect_amqp_method_stream_cancel_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Publish                          */
 
 static size_t
-dissect_amqp_method_stream_publish(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_publish(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     /*  ticket (short)           */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_publish_ticket,
@@ -3182,7 +3490,7 @@ dissect_amqp_method_stream_publish(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_publish_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3201,15 +3509,15 @@ dissect_amqp_method_stream_publish(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Return                           */
 
 static size_t
-dissect_amqp_method_stream_return(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_return(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  reply code (short)       */
+    /*  reply-code (short)       */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_reply_code,
         tvb, offset, 2, FALSE);
     AMQP_INCREMENT(offset, 2, bound);
 
-    /*  reply text (shortstr)    */
+    /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_reply_text,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3219,7 +3527,7 @@ dissect_amqp_method_stream_return(tvbuff_t *tvb _U_,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  routing key (shortstr)   */
+    /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_routing_key,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3230,15 +3538,15 @@ dissect_amqp_method_stream_return(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Stream.Deliver                          */
 
 static size_t
-dissect_amqp_method_stream_deliver(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_stream_deliver(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  consumer tag (shortstr)  */
+    /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_deliver_consumer_tag,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
 
-    /*  delivery tag (longlong)  */
+    /*  delivery-tag (longlong)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_deliver_delivery_tag,
         tvb, offset, 8, FALSE);
     AMQP_INCREMENT(offset, 8, bound);
@@ -3331,10 +3639,10 @@ dissect_amqp_method_dtx_select_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Dtx.Start                               */
 
 static size_t
-dissect_amqp_method_dtx_start(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_dtx_start(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
-    /*  dtx identifier (shortstr)  */
+    /*  dtx-identifier (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_dtx_start_dtx_identifier,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3354,173 +3662,17 @@ dissect_amqp_method_dtx_start_ok(tvbuff_t *tvb _U_,
 /*  Dissection routine for method Tunnel.Request                          */
 
 static size_t
-dissect_amqp_method_tunnel_request(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
+dissect_amqp_method_tunnel_request(tvbuff_t *tvb,
+    int offset, int bound, proto_tree *args_tree)
 {
     proto_item *ti;
-    /*  meta data (table)        */
+    /*  meta-data (table)        */
     ti = proto_tree_add_item(
         args_tree, hf_amqp_method_tunnel_request_meta_data,
         tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
     dissect_amqp_field_table (tvb, offset + 4,
         offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
     AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.Integer                            */
-
-static size_t
-dissect_amqp_method_test_integer(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  integer 1 (octet)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_integer_1,
-        tvb, offset, 1, FALSE);
-    AMQP_INCREMENT(offset, 1, bound);
-
-    /*  integer 2 (short)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_integer_2,
-        tvb, offset, 2, FALSE);
-    AMQP_INCREMENT(offset, 2, bound);
-
-    /*  integer 3 (long)         */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_integer_3,
-        tvb, offset, 4, FALSE);
-    AMQP_INCREMENT(offset, 4, bound);
-
-    /*  integer 4 (longlong)     */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_integer_4,
-        tvb, offset, 8, FALSE);
-    AMQP_INCREMENT(offset, 8, bound);
-
-    /*  operation (octet)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_operation,
-        tvb, offset, 1, FALSE);
-    AMQP_INCREMENT(offset, 1, bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.Integer-Ok                         */
-
-static size_t
-dissect_amqp_method_test_integer_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  result (longlong)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_integer_ok_result,
-        tvb, offset, 8, FALSE);
-    AMQP_INCREMENT(offset, 8, bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.String                             */
-
-static size_t
-dissect_amqp_method_test_string(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  string 1 (shortstr)      */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_string_string_1,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
-    AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
-
-    /*  string 2 (longstr)       */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_string_string_2,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
-    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    /*  operation (octet)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_string_operation,
-        tvb, offset, 1, FALSE);
-    AMQP_INCREMENT(offset, 1, bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.String-Ok                          */
-
-static size_t
-dissect_amqp_method_test_string_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  result (longstr)         */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_string_ok_result,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
-    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.Table                              */
-
-static size_t
-dissect_amqp_method_test_table(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    proto_item *ti;
-    /*  table (table)            */
-    ti = proto_tree_add_item(
-        args_tree, hf_amqp_method_test_table_table,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
-    dissect_amqp_field_table (tvb, offset + 4,
-        offset + 4 + tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset), ti);
-    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    /*  integer op (octet)       */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_table_integer_op,
-        tvb, offset, 1, FALSE);
-    AMQP_INCREMENT(offset, 1, bound);
-
-    /*  string op (octet)        */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_table_string_op,
-        tvb, offset, 1, FALSE);
-    AMQP_INCREMENT(offset, 1, bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.Table-Ok                           */
-
-static size_t
-dissect_amqp_method_test_table_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  integer result (longlong)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_table_ok_integer_result,
-        tvb, offset, 8, FALSE);
-    AMQP_INCREMENT(offset, 8, bound);
-
-    /*  string result (longstr)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_table_ok_string_result,
-        tvb, offset + 4, tvb_get_ntohl(tvb, offset), FALSE);
-    AMQP_INCREMENT(offset, 4 + tvb_get_ntohl(tvb, offset), bound);
-
-    return offset;
-}
-
-/*  Dissection routine for method Test.Content                            */
-
-static size_t
-dissect_amqp_method_test_content(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    return offset;
-}
-
-/*  Dissection routine for method Test.Content-Ok                         */
-
-static size_t
-dissect_amqp_method_test_content_ok(tvbuff_t *tvb _U_,
-    int offset _U_, int bound _U_, proto_tree *args_tree _U_)
-{
-    /*  content checksum (long)  */
-    proto_tree_add_item(args_tree, hf_amqp_method_test_content_ok_content_checksum,
-        tvb, offset, 4, FALSE);
-    AMQP_INCREMENT(offset, 4, bound);
 
     return offset;
 }
@@ -3537,7 +3689,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
 
     prop_flags = tvb_get_ntohs(tvb, 19);
     if (prop_flags & 0x8000) {
-    /*  content type (shortstr)  */
+    /*  content-type (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_type,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3545,7 +3697,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  content encoding (shortstr)  */
+    /*  content-encoding (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_encoding,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3564,7 +3716,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  delivery mode (octet)    */
+    /*  delivery-mode (octet)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_delivery_mode,
         tvb, offset, 1, FALSE);
     AMQP_INCREMENT(offset, 1, bound);
@@ -3580,7 +3732,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  correlation id (shortstr)  */
+    /*  correlation-id (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_correlation_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3588,7 +3740,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  reply to (shortstr)      */
+    /*  reply-to (shortstr)      */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_reply_to,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3604,7 +3756,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  message id (shortstr)    */
+    /*  message-id (shortstr)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_message_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3628,7 +3780,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  user id (shortstr)       */
+    /*  user-id (shortstr)       */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_user_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3636,7 +3788,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  app id (shortstr)        */
+    /*  app-id (shortstr)        */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_app_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3644,7 +3796,7 @@ dissect_amqp_content_header_basic(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  cluster id (shortstr)    */
+    /*  cluster-id (shortstr)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_basic_cluster_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3665,7 +3817,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
 
     prop_flags = tvb_get_ntohs(tvb, 19);
     if (prop_flags & 0x8000) {
-    /*  content type (shortstr)  */
+    /*  content-type (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_file_content_type,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3673,7 +3825,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  content encoding (shortstr)  */
+    /*  content-encoding (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_file_content_encoding,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3700,7 +3852,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  reply to (shortstr)      */
+    /*  reply-to (shortstr)      */
     proto_tree_add_item(prop_tree, hf_amqp_header_file_reply_to,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3708,7 +3860,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  message id (shortstr)    */
+    /*  message-id (shortstr)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_file_message_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3732,7 +3884,7 @@ dissect_amqp_content_header_file(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  cluster id (shortstr)    */
+    /*  cluster-id (shortstr)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_file_cluster_id,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3753,7 +3905,7 @@ dissect_amqp_content_header_stream(tvbuff_t *tvb,
 
     prop_flags = tvb_get_ntohs(tvb, 19);
     if (prop_flags & 0x8000) {
-    /*  content type (shortstr)  */
+    /*  content-type (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_stream_content_type,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3761,7 +3913,7 @@ dissect_amqp_content_header_stream(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  content encoding (shortstr)  */
+    /*  content-encoding (shortstr)  */
     proto_tree_add_item(prop_tree, hf_amqp_header_stream_content_encoding,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3820,7 +3972,7 @@ dissect_amqp_content_header_tunnel(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  proxy name (shortstr)    */
+    /*  proxy-name (shortstr)    */
     proto_tree_add_item(prop_tree, hf_amqp_header_tunnel_proxy_name,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3828,7 +3980,7 @@ dissect_amqp_content_header_tunnel(tvbuff_t *tvb,
     }
     prop_flags <<= 1;
     if (prop_flags & 0x8000) {
-    /*  data name (shortstr)     */
+    /*  data-name (shortstr)     */
     proto_tree_add_item(prop_tree, hf_amqp_header_tunnel_data_name,
         tvb, offset + 1, tvb_get_guint8(tvb, offset), FALSE);
     AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), bound);
@@ -3918,26 +4070,22 @@ static hf_register_info hf[] = {
         "Method", "amqp.method.method",
         FT_UINT16, BASE_DEC, VALS(amqp_method_tunnel_methods), 0x0,
         "Method ID", HFILL}},
-    {&hf_amqp_method_test_method_id, {
-        "Method", "amqp.method.method",
-        FT_UINT16, BASE_DEC, VALS(amqp_method_test_methods), 0x0,
-        "Method ID", HFILL}},
     {&hf_amqp_method_arguments, {
         "Arguments", "amqp.method.arguments",
         FT_NONE, BASE_NONE, NULL, 0x0,
         "Method arguments", HFILL}},
     {&hf_amqp_method_connection_start_version_major, {
-        "Version Major", "amqp.method.arguments.version_major",
+        "Version-Major", "amqp.method.arguments.version_major",
         FT_UINT8, BASE_DEC, NULL, 0,
-        "version major", HFILL}},
+        "version-major", HFILL}},
     {&hf_amqp_method_connection_start_version_minor, {
-        "Version Minor", "amqp.method.arguments.version_minor",
+        "Version-Minor", "amqp.method.arguments.version_minor",
         FT_UINT8, BASE_DEC, NULL, 0,
-        "version minor", HFILL}},
+        "version-minor", HFILL}},
     {&hf_amqp_method_connection_start_server_properties, {
-        "Server Properties", "amqp.method.arguments.server_properties",
+        "Server-Properties", "amqp.method.arguments.server_properties",
         FT_NONE, BASE_NONE, NULL, 0,
-        "server properties", HFILL}},
+        "server-properties", HFILL}},
     {&hf_amqp_method_connection_start_mechanisms, {
         "Mechanisms", "amqp.method.arguments.mechanisms",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -3947,9 +4095,9 @@ static hf_register_info hf[] = {
         FT_BYTES, BASE_NONE, NULL, 0,
         "locales", HFILL}},
     {&hf_amqp_method_connection_start_ok_client_properties, {
-        "Client Properties", "amqp.method.arguments.client_properties",
+        "Client-Properties", "amqp.method.arguments.client_properties",
         FT_NONE, BASE_NONE, NULL, 0,
-        "client properties", HFILL}},
+        "client-properties", HFILL}},
     {&hf_amqp_method_connection_start_ok_mechanism, {
         "Mechanism", "amqp.method.arguments.mechanism",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -3971,33 +4119,33 @@ static hf_register_info hf[] = {
         FT_BYTES, BASE_NONE, NULL, 0,
         "response", HFILL}},
     {&hf_amqp_method_connection_tune_channel_max, {
-        "Channel Max", "amqp.method.arguments.channel_max",
+        "Channel-Max", "amqp.method.arguments.channel_max",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "channel max", HFILL}},
+        "channel-max", HFILL}},
     {&hf_amqp_method_connection_tune_frame_max, {
-        "Frame Max", "amqp.method.arguments.frame_max",
+        "Frame-Max", "amqp.method.arguments.frame_max",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "frame max", HFILL}},
+        "frame-max", HFILL}},
     {&hf_amqp_method_connection_tune_heartbeat, {
         "Heartbeat", "amqp.method.arguments.heartbeat",
          FT_UINT16, BASE_DEC, NULL, 0,
         "heartbeat", HFILL}},
     {&hf_amqp_method_connection_tune_ok_channel_max, {
-        "Channel Max", "amqp.method.arguments.channel_max",
+        "Channel-Max", "amqp.method.arguments.channel_max",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "channel max", HFILL}},
+        "channel-max", HFILL}},
     {&hf_amqp_method_connection_tune_ok_frame_max, {
-        "Frame Max", "amqp.method.arguments.frame_max",
+        "Frame-Max", "amqp.method.arguments.frame_max",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "frame max", HFILL}},
+        "frame-max", HFILL}},
     {&hf_amqp_method_connection_tune_ok_heartbeat, {
         "Heartbeat", "amqp.method.arguments.heartbeat",
          FT_UINT16, BASE_DEC, NULL, 0,
         "heartbeat", HFILL}},
     {&hf_amqp_method_connection_open_virtual_host, {
-        "Virtual Host", "amqp.method.arguments.virtual_host",
+        "Virtual-Host", "amqp.method.arguments.virtual_host",
         FT_STRING, BASE_NONE, NULL, 0,
-        "virtual host", HFILL}},
+        "virtual-host", HFILL}},
     {&hf_amqp_method_connection_open_capabilities, {
         "Capabilities", "amqp.method.arguments.capabilities",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4007,37 +4155,41 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x01,
         "insist", HFILL}},
     {&hf_amqp_method_connection_open_ok_known_hosts, {
-        "Known Hosts", "amqp.method.arguments.known_hosts",
+        "Known-Hosts", "amqp.method.arguments.known_hosts",
         FT_STRING, BASE_NONE, NULL, 0,
-        "known hosts", HFILL}},
+        "known-hosts", HFILL}},
     {&hf_amqp_method_connection_redirect_host, {
         "Host", "amqp.method.arguments.host",
         FT_STRING, BASE_NONE, NULL, 0,
         "host", HFILL}},
     {&hf_amqp_method_connection_redirect_known_hosts, {
-        "Known Hosts", "amqp.method.arguments.known_hosts",
+        "Known-Hosts", "amqp.method.arguments.known_hosts",
         FT_STRING, BASE_NONE, NULL, 0,
-        "known hosts", HFILL}},
+        "known-hosts", HFILL}},
     {&hf_amqp_method_connection_close_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
+        "Reply-Code", "amqp.method.arguments.reply_code",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
+        "reply-code", HFILL}},
     {&hf_amqp_method_connection_close_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
+        "Reply-Text", "amqp.method.arguments.reply_text",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
+        "reply-text", HFILL}},
     {&hf_amqp_method_connection_close_class_id, {
-        "Class Id", "amqp.method.arguments.class_id",
+        "Class-Id", "amqp.method.arguments.class_id",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "class id", HFILL}},
+        "class-id", HFILL}},
     {&hf_amqp_method_connection_close_method_id, {
-        "Method Id", "amqp.method.arguments.method_id",
+        "Method-Id", "amqp.method.arguments.method_id",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "method id", HFILL}},
+        "method-id", HFILL}},
     {&hf_amqp_method_channel_open_out_of_band, {
-        "Out Of Band", "amqp.method.arguments.out_of_band",
+        "Out-Of-Band", "amqp.method.arguments.out_of_band",
         FT_STRING, BASE_NONE, NULL, 0,
-        "out of band", HFILL}},
+        "out-of-band", HFILL}},
+    {&hf_amqp_method_channel_open_ok_channel_id, {
+        "Channel-Id", "amqp.method.arguments.channel_id",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "channel-id", HFILL}},
     {&hf_amqp_method_channel_flow_active, {
         "Active", "amqp.method.arguments.active",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4046,34 +4198,26 @@ static hf_register_info hf[] = {
         "Active", "amqp.method.arguments.active",
         FT_BOOLEAN, 8, NULL, 0x01,
         "active", HFILL}},
-    {&hf_amqp_method_channel_alert_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
-         FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
-    {&hf_amqp_method_channel_alert_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
-    {&hf_amqp_method_channel_alert_details, {
-        "Details", "amqp.method.arguments.details",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "details", HFILL}},
     {&hf_amqp_method_channel_close_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
+        "Reply-Code", "amqp.method.arguments.reply_code",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
+        "reply-code", HFILL}},
     {&hf_amqp_method_channel_close_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
+        "Reply-Text", "amqp.method.arguments.reply_text",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
+        "reply-text", HFILL}},
     {&hf_amqp_method_channel_close_class_id, {
-        "Class Id", "amqp.method.arguments.class_id",
+        "Class-Id", "amqp.method.arguments.class_id",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "class id", HFILL}},
+        "class-id", HFILL}},
     {&hf_amqp_method_channel_close_method_id, {
-        "Method Id", "amqp.method.arguments.method_id",
+        "Method-Id", "amqp.method.arguments.method_id",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "method id", HFILL}},
+        "method-id", HFILL}},
+    {&hf_amqp_method_channel_resume_channel_id, {
+        "Channel-Id", "amqp.method.arguments.channel_id",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "channel-id", HFILL}},
     {&hf_amqp_method_access_request_realm, {
         "Realm", "amqp.method.arguments.realm",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4123,9 +4267,9 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x02,
         "durable", HFILL}},
     {&hf_amqp_method_exchange_declare_auto_delete, {
-        "Auto Delete", "amqp.method.arguments.auto_delete",
+        "Auto-Delete", "amqp.method.arguments.auto_delete",
         FT_BOOLEAN, 8, NULL, 0x04,
-        "auto delete", HFILL}},
+        "auto-delete", HFILL}},
     {&hf_amqp_method_exchange_declare_internal, {
         "Internal", "amqp.method.arguments.internal",
         FT_BOOLEAN, 8, NULL, 0x08,
@@ -4147,9 +4291,9 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_exchange_delete_if_unused, {
-        "If Unused", "amqp.method.arguments.if_unused",
+        "If-Unused", "amqp.method.arguments.if_unused",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "if unused", HFILL}},
+        "if-unused", HFILL}},
     {&hf_amqp_method_exchange_delete_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x02,
@@ -4175,9 +4319,9 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x04,
         "exclusive", HFILL}},
     {&hf_amqp_method_queue_declare_auto_delete, {
-        "Auto Delete", "amqp.method.arguments.auto_delete",
+        "Auto-Delete", "amqp.method.arguments.auto_delete",
         FT_BOOLEAN, 8, NULL, 0x08,
-        "auto delete", HFILL}},
+        "auto-delete", HFILL}},
     {&hf_amqp_method_queue_declare_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x10,
@@ -4191,13 +4335,13 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_queue_declare_ok_message_count, {
-        "Message Count", "amqp.method.arguments.message_count",
+        "Message-Count", "amqp.method.arguments.message_count",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "message count", HFILL}},
+        "message-count", HFILL}},
     {&hf_amqp_method_queue_declare_ok_consumer_count, {
-        "Consumer Count", "amqp.method.arguments.consumer_count",
+        "Consumer-Count", "amqp.method.arguments.consumer_count",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "consumer count", HFILL}},
+        "consumer-count", HFILL}},
     {&hf_amqp_method_queue_bind_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4211,14 +4355,34 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_queue_bind_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_queue_bind_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x01,
         "nowait", HFILL}},
     {&hf_amqp_method_queue_bind_arguments, {
+        "Arguments", "amqp.method.arguments.arguments",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "arguments", HFILL}},
+    {&hf_amqp_method_queue_unbind_ticket, {
+        "Ticket", "amqp.method.arguments.ticket",
+         FT_UINT16, BASE_DEC, NULL, 0,
+        "ticket", HFILL}},
+    {&hf_amqp_method_queue_unbind_queue, {
+        "Queue", "amqp.method.arguments.queue",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "queue", HFILL}},
+    {&hf_amqp_method_queue_unbind_exchange, {
+        "Exchange", "amqp.method.arguments.exchange",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "exchange", HFILL}},
+    {&hf_amqp_method_queue_unbind_routing_key, {
+        "Routing-Key", "amqp.method.arguments.routing_key",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "routing-key", HFILL}},
+    {&hf_amqp_method_queue_unbind_arguments, {
         "Arguments", "amqp.method.arguments.arguments",
         FT_NONE, BASE_NONE, NULL, 0,
         "arguments", HFILL}},
@@ -4235,9 +4399,9 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x01,
         "nowait", HFILL}},
     {&hf_amqp_method_queue_purge_ok_message_count, {
-        "Message Count", "amqp.method.arguments.message_count",
+        "Message-Count", "amqp.method.arguments.message_count",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "message count", HFILL}},
+        "message-count", HFILL}},
     {&hf_amqp_method_queue_delete_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4247,29 +4411,29 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_queue_delete_if_unused, {
-        "If Unused", "amqp.method.arguments.if_unused",
+        "If-Unused", "amqp.method.arguments.if_unused",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "if unused", HFILL}},
+        "if-unused", HFILL}},
     {&hf_amqp_method_queue_delete_if_empty, {
-        "If Empty", "amqp.method.arguments.if_empty",
+        "If-Empty", "amqp.method.arguments.if_empty",
         FT_BOOLEAN, 8, NULL, 0x02,
-        "if empty", HFILL}},
+        "if-empty", HFILL}},
     {&hf_amqp_method_queue_delete_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x04,
         "nowait", HFILL}},
     {&hf_amqp_method_queue_delete_ok_message_count, {
-        "Message Count", "amqp.method.arguments.message_count",
+        "Message-Count", "amqp.method.arguments.message_count",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "message count", HFILL}},
+        "message-count", HFILL}},
     {&hf_amqp_method_basic_qos_prefetch_size, {
-        "Prefetch Size", "amqp.method.arguments.prefetch_size",
+        "Prefetch-Size", "amqp.method.arguments.prefetch_size",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "prefetch size", HFILL}},
+        "prefetch-size", HFILL}},
     {&hf_amqp_method_basic_qos_prefetch_count, {
-        "Prefetch Count", "amqp.method.arguments.prefetch_count",
+        "Prefetch-Count", "amqp.method.arguments.prefetch_count",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "prefetch count", HFILL}},
+        "prefetch-count", HFILL}},
     {&hf_amqp_method_basic_qos_global, {
         "Global", "amqp.method.arguments.global",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4283,17 +4447,17 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_basic_consume_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_basic_consume_no_local, {
-        "No Local", "amqp.method.arguments.no_local",
+        "No-Local", "amqp.method.arguments.no_local",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "no local", HFILL}},
+        "no-local", HFILL}},
     {&hf_amqp_method_basic_consume_no_ack, {
-        "No Ack", "amqp.method.arguments.no_ack",
+        "No-Ack", "amqp.method.arguments.no_ack",
         FT_BOOLEAN, 8, NULL, 0x02,
-        "no ack", HFILL}},
+        "no-ack", HFILL}},
     {&hf_amqp_method_basic_consume_exclusive, {
         "Exclusive", "amqp.method.arguments.exclusive",
         FT_BOOLEAN, 8, NULL, 0x04,
@@ -4302,22 +4466,26 @@ static hf_register_info hf[] = {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x08,
         "nowait", HFILL}},
+    {&hf_amqp_method_basic_consume_filter, {
+        "Filter", "amqp.method.arguments.filter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "filter", HFILL}},
     {&hf_amqp_method_basic_consume_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_basic_cancel_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_basic_cancel_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x01,
         "nowait", HFILL}},
     {&hf_amqp_method_basic_cancel_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_basic_publish_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4327,9 +4495,9 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_basic_publish_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_basic_publish_mandatory, {
         "Mandatory", "amqp.method.arguments.mandatory",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4339,29 +4507,29 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x02,
         "immediate", HFILL}},
     {&hf_amqp_method_basic_return_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
+        "Reply-Code", "amqp.method.arguments.reply_code",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
+        "reply-code", HFILL}},
     {&hf_amqp_method_basic_return_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
+        "Reply-Text", "amqp.method.arguments.reply_text",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
+        "reply-text", HFILL}},
     {&hf_amqp_method_basic_return_exchange, {
         "Exchange", "amqp.method.arguments.exchange",
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_basic_return_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_basic_deliver_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_basic_deliver_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_basic_deliver_redelivered, {
         "Redelivered", "amqp.method.arguments.redelivered",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4371,9 +4539,9 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_basic_deliver_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_basic_get_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4383,13 +4551,13 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_basic_get_no_ack, {
-        "No Ack", "amqp.method.arguments.no_ack",
+        "No-Ack", "amqp.method.arguments.no_ack",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "no ack", HFILL}},
+        "no-ack", HFILL}},
     {&hf_amqp_method_basic_get_ok_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_basic_get_ok_redelivered, {
         "Redelivered", "amqp.method.arguments.redelivered",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4399,29 +4567,29 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_basic_get_ok_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_basic_get_ok_message_count, {
-        "Message Count", "amqp.method.arguments.message_count",
+        "Message-Count", "amqp.method.arguments.message_count",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "message count", HFILL}},
+        "message-count", HFILL}},
     {&hf_amqp_method_basic_get_empty_cluster_id, {
-        "Cluster Id", "amqp.method.arguments.cluster_id",
+        "Cluster-Id", "amqp.method.arguments.cluster_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "cluster id", HFILL}},
+        "cluster-id", HFILL}},
     {&hf_amqp_method_basic_ack_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_basic_ack_multiple, {
         "Multiple", "amqp.method.arguments.multiple",
         FT_BOOLEAN, 8, NULL, 0x01,
         "multiple", HFILL}},
     {&hf_amqp_method_basic_reject_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_basic_reject_requeue, {
         "Requeue", "amqp.method.arguments.requeue",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4431,13 +4599,13 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x01,
         "requeue", HFILL}},
     {&hf_amqp_method_file_qos_prefetch_size, {
-        "Prefetch Size", "amqp.method.arguments.prefetch_size",
+        "Prefetch-Size", "amqp.method.arguments.prefetch_size",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "prefetch size", HFILL}},
+        "prefetch-size", HFILL}},
     {&hf_amqp_method_file_qos_prefetch_count, {
-        "Prefetch Count", "amqp.method.arguments.prefetch_count",
+        "Prefetch-Count", "amqp.method.arguments.prefetch_count",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "prefetch count", HFILL}},
+        "prefetch-count", HFILL}},
     {&hf_amqp_method_file_qos_global, {
         "Global", "amqp.method.arguments.global",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4451,17 +4619,17 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_file_consume_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_file_consume_no_local, {
-        "No Local", "amqp.method.arguments.no_local",
+        "No-Local", "amqp.method.arguments.no_local",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "no local", HFILL}},
+        "no-local", HFILL}},
     {&hf_amqp_method_file_consume_no_ack, {
-        "No Ack", "amqp.method.arguments.no_ack",
+        "No-Ack", "amqp.method.arguments.no_ack",
         FT_BOOLEAN, 8, NULL, 0x02,
-        "no ack", HFILL}},
+        "no-ack", HFILL}},
     {&hf_amqp_method_file_consume_exclusive, {
         "Exclusive", "amqp.method.arguments.exclusive",
         FT_BOOLEAN, 8, NULL, 0x04,
@@ -4470,34 +4638,38 @@ static hf_register_info hf[] = {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x08,
         "nowait", HFILL}},
+    {&hf_amqp_method_file_consume_filter, {
+        "Filter", "amqp.method.arguments.filter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "filter", HFILL}},
     {&hf_amqp_method_file_consume_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_file_cancel_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_file_cancel_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x01,
         "nowait", HFILL}},
     {&hf_amqp_method_file_cancel_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_file_open_identifier, {
         "Identifier", "amqp.method.arguments.identifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "identifier", HFILL}},
     {&hf_amqp_method_file_open_content_size, {
-        "Content Size", "amqp.method.arguments.content_size",
+        "Content-Size", "amqp.method.arguments.content_size",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "content size", HFILL}},
+        "content-size", HFILL}},
     {&hf_amqp_method_file_open_ok_staged_size, {
-        "Staged Size", "amqp.method.arguments.staged_size",
+        "Staged-Size", "amqp.method.arguments.staged_size",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "staged size", HFILL}},
+        "staged-size", HFILL}},
     {&hf_amqp_method_file_publish_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4507,9 +4679,9 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_file_publish_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_file_publish_mandatory, {
         "Mandatory", "amqp.method.arguments.mandatory",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4523,29 +4695,29 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "identifier", HFILL}},
     {&hf_amqp_method_file_return_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
+        "Reply-Code", "amqp.method.arguments.reply_code",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
+        "reply-code", HFILL}},
     {&hf_amqp_method_file_return_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
+        "Reply-Text", "amqp.method.arguments.reply_text",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
+        "reply-text", HFILL}},
     {&hf_amqp_method_file_return_exchange, {
         "Exchange", "amqp.method.arguments.exchange",
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_file_return_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_file_deliver_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_file_deliver_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_file_deliver_redelivered, {
         "Redelivered", "amqp.method.arguments.redelivered",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4555,41 +4727,41 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_file_deliver_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_file_deliver_identifier, {
         "Identifier", "amqp.method.arguments.identifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "identifier", HFILL}},
     {&hf_amqp_method_file_ack_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_file_ack_multiple, {
         "Multiple", "amqp.method.arguments.multiple",
         FT_BOOLEAN, 8, NULL, 0x01,
         "multiple", HFILL}},
     {&hf_amqp_method_file_reject_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_file_reject_requeue, {
         "Requeue", "amqp.method.arguments.requeue",
         FT_BOOLEAN, 8, NULL, 0x01,
         "requeue", HFILL}},
     {&hf_amqp_method_stream_qos_prefetch_size, {
-        "Prefetch Size", "amqp.method.arguments.prefetch_size",
+        "Prefetch-Size", "amqp.method.arguments.prefetch_size",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "prefetch size", HFILL}},
+        "prefetch-size", HFILL}},
     {&hf_amqp_method_stream_qos_prefetch_count, {
-        "Prefetch Count", "amqp.method.arguments.prefetch_count",
+        "Prefetch-Count", "amqp.method.arguments.prefetch_count",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "prefetch count", HFILL}},
+        "prefetch-count", HFILL}},
     {&hf_amqp_method_stream_qos_consume_rate, {
-        "Consume Rate", "amqp.method.arguments.consume_rate",
+        "Consume-Rate", "amqp.method.arguments.consume_rate",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "consume rate", HFILL}},
+        "consume-rate", HFILL}},
     {&hf_amqp_method_stream_qos_global, {
         "Global", "amqp.method.arguments.global",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4603,13 +4775,13 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_stream_consume_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_stream_consume_no_local, {
-        "No Local", "amqp.method.arguments.no_local",
+        "No-Local", "amqp.method.arguments.no_local",
         FT_BOOLEAN, 8, NULL, 0x01,
-        "no local", HFILL}},
+        "no-local", HFILL}},
     {&hf_amqp_method_stream_consume_exclusive, {
         "Exclusive", "amqp.method.arguments.exclusive",
         FT_BOOLEAN, 8, NULL, 0x02,
@@ -4618,22 +4790,26 @@ static hf_register_info hf[] = {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x04,
         "nowait", HFILL}},
+    {&hf_amqp_method_stream_consume_filter, {
+        "Filter", "amqp.method.arguments.filter",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "filter", HFILL}},
     {&hf_amqp_method_stream_consume_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_stream_cancel_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_stream_cancel_nowait, {
         "Nowait", "amqp.method.arguments.nowait",
         FT_BOOLEAN, 8, NULL, 0x01,
         "nowait", HFILL}},
     {&hf_amqp_method_stream_cancel_ok_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_stream_publish_ticket, {
         "Ticket", "amqp.method.arguments.ticket",
          FT_UINT16, BASE_DEC, NULL, 0,
@@ -4643,9 +4819,9 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_stream_publish_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_stream_publish_mandatory, {
         "Mandatory", "amqp.method.arguments.mandatory",
         FT_BOOLEAN, 8, NULL, 0x01,
@@ -4655,29 +4831,29 @@ static hf_register_info hf[] = {
         FT_BOOLEAN, 8, NULL, 0x02,
         "immediate", HFILL}},
     {&hf_amqp_method_stream_return_reply_code, {
-        "Reply Code", "amqp.method.arguments.reply_code",
+        "Reply-Code", "amqp.method.arguments.reply_code",
          FT_UINT16, BASE_DEC, NULL, 0,
-        "reply code", HFILL}},
+        "reply-code", HFILL}},
     {&hf_amqp_method_stream_return_reply_text, {
-        "Reply Text", "amqp.method.arguments.reply_text",
+        "Reply-Text", "amqp.method.arguments.reply_text",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply text", HFILL}},
+        "reply-text", HFILL}},
     {&hf_amqp_method_stream_return_exchange, {
         "Exchange", "amqp.method.arguments.exchange",
         FT_STRING, BASE_NONE, NULL, 0,
         "exchange", HFILL}},
     {&hf_amqp_method_stream_return_routing_key, {
-        "Routing Key", "amqp.method.arguments.routing_key",
+        "Routing-Key", "amqp.method.arguments.routing_key",
         FT_STRING, BASE_NONE, NULL, 0,
-        "routing key", HFILL}},
+        "routing-key", HFILL}},
     {&hf_amqp_method_stream_deliver_consumer_tag, {
-        "Consumer Tag", "amqp.method.arguments.consumer_tag",
+        "Consumer-Tag", "amqp.method.arguments.consumer_tag",
         FT_STRING, BASE_NONE, NULL, 0,
-        "consumer tag", HFILL}},
+        "consumer-tag", HFILL}},
     {&hf_amqp_method_stream_deliver_delivery_tag, {
-        "Delivery Tag", "amqp.method.arguments.delivery_tag",
+        "Delivery-Tag", "amqp.method.arguments.delivery_tag",
         FT_UINT64, BASE_DEC, NULL, 0,
-        "delivery tag", HFILL}},
+        "delivery-tag", HFILL}},
     {&hf_amqp_method_stream_deliver_exchange, {
         "Exchange", "amqp.method.arguments.exchange",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4687,77 +4863,13 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "queue", HFILL}},
     {&hf_amqp_method_dtx_start_dtx_identifier, {
-        "Dtx Identifier", "amqp.method.arguments.dtx_identifier",
+        "Dtx-Identifier", "amqp.method.arguments.dtx_identifier",
         FT_STRING, BASE_NONE, NULL, 0,
-        "dtx identifier", HFILL}},
+        "dtx-identifier", HFILL}},
     {&hf_amqp_method_tunnel_request_meta_data, {
-        "Meta Data", "amqp.method.arguments.meta_data",
+        "Meta-Data", "amqp.method.arguments.meta_data",
         FT_NONE, BASE_NONE, NULL, 0,
-        "meta data", HFILL}},
-    {&hf_amqp_method_test_integer_integer_1, {
-        "Integer 1", "amqp.method.arguments.integer_1",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "integer 1", HFILL}},
-    {&hf_amqp_method_test_integer_integer_2, {
-        "Integer 2", "amqp.method.arguments.integer_2",
-         FT_UINT16, BASE_DEC, NULL, 0,
-        "integer 2", HFILL}},
-    {&hf_amqp_method_test_integer_integer_3, {
-        "Integer 3", "amqp.method.arguments.integer_3",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "integer 3", HFILL}},
-    {&hf_amqp_method_test_integer_integer_4, {
-        "Integer 4", "amqp.method.arguments.integer_4",
-        FT_UINT64, BASE_DEC, NULL, 0,
-        "integer 4", HFILL}},
-    {&hf_amqp_method_test_integer_operation, {
-        "Operation", "amqp.method.arguments.operation",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "operation", HFILL}},
-    {&hf_amqp_method_test_integer_ok_result, {
-        "Result", "amqp.method.arguments.result",
-        FT_UINT64, BASE_DEC, NULL, 0,
-        "result", HFILL}},
-    {&hf_amqp_method_test_string_string_1, {
-        "String 1", "amqp.method.arguments.string_1",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "string 1", HFILL}},
-    {&hf_amqp_method_test_string_string_2, {
-        "String 2", "amqp.method.arguments.string_2",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "string 2", HFILL}},
-    {&hf_amqp_method_test_string_operation, {
-        "Operation", "amqp.method.arguments.operation",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "operation", HFILL}},
-    {&hf_amqp_method_test_string_ok_result, {
-        "Result", "amqp.method.arguments.result",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "result", HFILL}},
-    {&hf_amqp_method_test_table_table, {
-        "Table", "amqp.method.arguments.table",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "table", HFILL}},
-    {&hf_amqp_method_test_table_integer_op, {
-        "Integer Op", "amqp.method.arguments.integer_op",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "integer op", HFILL}},
-    {&hf_amqp_method_test_table_string_op, {
-        "String Op", "amqp.method.arguments.string_op",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        "string op", HFILL}},
-    {&hf_amqp_method_test_table_ok_integer_result, {
-        "Integer Result", "amqp.method.arguments.integer_result",
-        FT_UINT64, BASE_DEC, NULL, 0,
-        "integer result", HFILL}},
-    {&hf_amqp_method_test_table_ok_string_result, {
-        "String Result", "amqp.method.arguments.string_result",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "string result", HFILL}},
-    {&hf_amqp_method_test_content_ok_content_checksum, {
-        "Content Checksum", "amqp.method.arguments.content_checksum",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "content checksum", HFILL}},
+        "meta-data", HFILL}},
     {&hf_amqp_field, {
         "AMQP", "amqp",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4783,41 +4895,41 @@ static hf_register_info hf[] = {
         FT_NONE, BASE_NONE, NULL, 0x0,
         "Message properties", HFILL}},
     {&hf_amqp_header_basic_content_type, {
-        "Content Type", "amqp.method.properties.content_type",
+        "Content-Type", "amqp.method.properties.content_type",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content type", HFILL}},
+        "content-type", HFILL}},
     {&hf_amqp_header_basic_content_encoding, {
-        "Content Encoding", "amqp.method.properties.content_encoding",
+        "Content-Encoding", "amqp.method.properties.content_encoding",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content encoding", HFILL}},
+        "content-encoding", HFILL}},
     {&hf_amqp_header_basic_headers, {
         "Headers", "amqp.method.properties.headers",
         FT_NONE, BASE_NONE, NULL, 0,
         "headers", HFILL}},
     {&hf_amqp_header_basic_delivery_mode, {
-        "Delivery Mode", "amqp.method.properties.delivery_mode",
+        "Delivery-Mode", "amqp.method.properties.delivery_mode",
         FT_UINT8, BASE_DEC, NULL, 0,
-        "delivery mode", HFILL}},
+        "delivery-mode", HFILL}},
     {&hf_amqp_header_basic_priority, {
         "Priority", "amqp.method.properties.priority",
         FT_UINT8, BASE_DEC, NULL, 0,
         "priority", HFILL}},
     {&hf_amqp_header_basic_correlation_id, {
-        "Correlation Id", "amqp.method.properties.correlation_id",
+        "Correlation-Id", "amqp.method.properties.correlation_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "correlation id", HFILL}},
+        "correlation-id", HFILL}},
     {&hf_amqp_header_basic_reply_to, {
-        "Reply To", "amqp.method.properties.reply_to",
+        "Reply-To", "amqp.method.properties.reply_to",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply to", HFILL}},
+        "reply-to", HFILL}},
     {&hf_amqp_header_basic_expiration, {
         "Expiration", "amqp.method.properties.expiration",
         FT_STRING, BASE_NONE, NULL, 0,
         "expiration", HFILL}},
     {&hf_amqp_header_basic_message_id, {
-        "Message Id", "amqp.method.properties.message_id",
+        "Message-Id", "amqp.method.properties.message_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "message id", HFILL}},
+        "message-id", HFILL}},
     {&hf_amqp_header_basic_timestamp, {
         "Timestamp", "amqp.method.properties.timestamp",
         FT_UINT64, BASE_DEC, NULL, 0,
@@ -4827,25 +4939,25 @@ static hf_register_info hf[] = {
         FT_STRING, BASE_NONE, NULL, 0,
         "type", HFILL}},
     {&hf_amqp_header_basic_user_id, {
-        "User Id", "amqp.method.properties.user_id",
+        "User-Id", "amqp.method.properties.user_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "user id", HFILL}},
+        "user-id", HFILL}},
     {&hf_amqp_header_basic_app_id, {
-        "App Id", "amqp.method.properties.app_id",
+        "App-Id", "amqp.method.properties.app_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "app id", HFILL}},
+        "app-id", HFILL}},
     {&hf_amqp_header_basic_cluster_id, {
-        "Cluster Id", "amqp.method.properties.cluster_id",
+        "Cluster-Id", "amqp.method.properties.cluster_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "cluster id", HFILL}},
+        "cluster-id", HFILL}},
     {&hf_amqp_header_file_content_type, {
-        "Content Type", "amqp.method.properties.content_type",
+        "Content-Type", "amqp.method.properties.content_type",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content type", HFILL}},
+        "content-type", HFILL}},
     {&hf_amqp_header_file_content_encoding, {
-        "Content Encoding", "amqp.method.properties.content_encoding",
+        "Content-Encoding", "amqp.method.properties.content_encoding",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content encoding", HFILL}},
+        "content-encoding", HFILL}},
     {&hf_amqp_header_file_headers, {
         "Headers", "amqp.method.properties.headers",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4855,13 +4967,13 @@ static hf_register_info hf[] = {
         FT_UINT8, BASE_DEC, NULL, 0,
         "priority", HFILL}},
     {&hf_amqp_header_file_reply_to, {
-        "Reply To", "amqp.method.properties.reply_to",
+        "Reply-To", "amqp.method.properties.reply_to",
         FT_STRING, BASE_NONE, NULL, 0,
-        "reply to", HFILL}},
+        "reply-to", HFILL}},
     {&hf_amqp_header_file_message_id, {
-        "Message Id", "amqp.method.properties.message_id",
+        "Message-Id", "amqp.method.properties.message_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "message id", HFILL}},
+        "message-id", HFILL}},
     {&hf_amqp_header_file_filename, {
         "Filename", "amqp.method.properties.filename",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4871,17 +4983,17 @@ static hf_register_info hf[] = {
         FT_UINT64, BASE_DEC, NULL, 0,
         "timestamp", HFILL}},
     {&hf_amqp_header_file_cluster_id, {
-        "Cluster Id", "amqp.method.properties.cluster_id",
+        "Cluster-Id", "amqp.method.properties.cluster_id",
         FT_STRING, BASE_NONE, NULL, 0,
-        "cluster id", HFILL}},
+        "cluster-id", HFILL}},
     {&hf_amqp_header_stream_content_type, {
-        "Content Type", "amqp.method.properties.content_type",
+        "Content-Type", "amqp.method.properties.content_type",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content type", HFILL}},
+        "content-type", HFILL}},
     {&hf_amqp_header_stream_content_encoding, {
-        "Content Encoding", "amqp.method.properties.content_encoding",
+        "Content-Encoding", "amqp.method.properties.content_encoding",
         FT_STRING, BASE_NONE, NULL, 0,
-        "content encoding", HFILL}},
+        "content-encoding", HFILL}},
     {&hf_amqp_header_stream_headers, {
         "Headers", "amqp.method.properties.headers",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4899,13 +5011,13 @@ static hf_register_info hf[] = {
         FT_NONE, BASE_NONE, NULL, 0,
         "headers", HFILL}},
     {&hf_amqp_header_tunnel_proxy_name, {
-        "Proxy Name", "amqp.method.properties.proxy_name",
+        "Proxy-Name", "amqp.method.properties.proxy_name",
         FT_STRING, BASE_NONE, NULL, 0,
-        "proxy name", HFILL}},
+        "proxy-name", HFILL}},
     {&hf_amqp_header_tunnel_data_name, {
-        "Data Name", "amqp.method.properties.data_name",
+        "Data-Name", "amqp.method.properties.data_name",
         FT_STRING, BASE_NONE, NULL, 0,
-        "data name", HFILL}},
+        "data-name", HFILL}},
     {&hf_amqp_header_tunnel_durable, {
         "Durable", "amqp.method.properties.durable",
         FT_UINT8, BASE_DEC, NULL, 0,
@@ -4918,6 +5030,26 @@ static hf_register_info hf[] = {
         "Payload", "amqp.payload",
         FT_BYTES, BASE_NONE, NULL, 0,
         "Message payload", HFILL}},
+    {&hf_amqp_init_protocol, {
+        "Protocol", "amqp.init.protocol",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Protocol name", HFILL}},
+    {&hf_amqp_init_id_major, {
+        "Protocol ID Major", "amqp.init.id_major",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Protocol ID major", HFILL}},
+    {&hf_amqp_init_id_minor, {
+        "Protocol ID Minor", "amqp.init.id_minor",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Protocol ID minor", HFILL}},
+    {&hf_amqp_init_version_major, {
+        "Version Major", "amqp.init.version_major",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Protocol version major", HFILL}},
+    {&hf_amqp_init_version_minor, {
+        "Version Minor", "amqp.init.version_minor",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Protocol version minor", HFILL}}
 };
 
 /*  Setup of protocol subtree array  */
@@ -4926,7 +5058,8 @@ static gint *ett [] = {
      &ett_amqp,
      &ett_args,
      &ett_props,
-     &ett_field_table
+     &ett_field_table,
+     &ett_amqp_init
 };
 
 /*  Basic registration functions  */
