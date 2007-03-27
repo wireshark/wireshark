@@ -15984,9 +15984,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * need to track it
 	 */
 	if(!pinfo->fd->flags.visited && si->cmd==0x75 && !si->request){
-		offset=dissect_smb_tid(tvb, pinfo, htree, offset, si->tid, TRUE, FALSE);
+		offset=dissect_smb_tid(tvb, pinfo, htree, offset, (guint16)si->tid, TRUE, FALSE);
 	} else {
-		offset=dissect_smb_tid(tvb, pinfo, htree, offset, si->tid, FALSE, FALSE);
+		offset=dissect_smb_tid(tvb, pinfo, htree, offset, (guint16)si->tid, FALSE, FALSE);
 	}
 
 	/* PID */

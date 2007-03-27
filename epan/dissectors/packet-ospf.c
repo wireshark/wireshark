@@ -1156,27 +1156,27 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case OSPF_HELLO:
 	    dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version,
-			    ospflen - ospf_header_length);
+			    (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	case OSPF_DB_DESC:
-	    dissect_ospf_db_desc(tvb, ospf_header_length, ospf_tree, version,
-			    ospflen - ospf_header_length);
+	    dissect_ospf_db_desc(tvb, (int)ospf_header_length, ospf_tree, version,
+			    (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	case OSPF_LS_REQ:
-	    dissect_ospf_ls_req(tvb, ospf_header_length, ospf_tree, version,
-			    ospflen - ospf_header_length);
+	    dissect_ospf_ls_req(tvb, (int)ospf_header_length, ospf_tree, version,
+			    (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	case OSPF_LS_UPD:
-	    dissect_ospf_ls_upd(tvb, ospf_header_length, ospf_tree, version,
-			    ospflen - ospf_header_length);
+	    dissect_ospf_ls_upd(tvb, (int)ospf_header_length, ospf_tree, version,
+			    (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	case OSPF_LS_ACK:
-	    dissect_ospf_ls_ack(tvb, ospf_header_length, ospf_tree, version,
-			    ospflen - ospf_header_length);
+	    dissect_ospf_ls_ack(tvb, (int)ospf_header_length, ospf_tree, version,
+			    (guint16)(ospflen - ospf_header_length));
 	    break;
 
 	default:

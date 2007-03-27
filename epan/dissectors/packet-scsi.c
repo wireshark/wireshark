@@ -4646,7 +4646,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this PDU already contains all the expected data we dont have to do
      * reassembly.
      */
-    if( (!relative_offset) && (tvb_length_remaining(tvb, offset)==expected_length) ){
+    if( (!relative_offset) && ((guint32)tvb_length_remaining(tvb, offset) == expected_length) ){
         goto dissect_the_payload;
     }
 

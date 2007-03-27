@@ -3976,11 +3976,10 @@ dissect_ipmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*ipmi_tree = NULL, *field_tree = NULL;
 	proto_item	*ti = NULL, *tf;
 	gint			offset = 0;
-	gint			auth_offset = 0;
 	/* tvbuff_t	*next_tvb; */  /* modified by lane */
 	guint32		session_id;
 	/*payloadtype for RMCPP*/
-	guint8		authtype, payloadtype = 0, netfn, cmd, ccode, len, response;
+	guint8		authtype, payloadtype = 0, netfn, cmd, ccode, len, response, auth_offset = 0;
 	gboolean	payloadtype_auth, payloadtype_enc = 0;
 
 	/* session authtype, 0=no authcode present */
