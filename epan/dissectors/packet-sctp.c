@@ -675,6 +675,11 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
 	return ha;
 }
 
+/*  Limit the number of retransmissions we track (to limit memory usage--and
+ *  tree size--in pathological cases, for example zero window probing forever).
+ */
+#define MAX_RETRANS_TRACKED_PER_TSN 100
+
 static void
 tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 	 tvbuff_t *tvb, guint32 framenum)
@@ -682,8 +687,6 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 	proto_item *pi;
 	proto_tree *pt;
 	proto_tree *tsn_tree = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
-	struct _retransmit_t **r;
-	int i;
 
 	if (t->first_transmit.framenum != framenum) {
 		nstime_t rto;
@@ -696,42 +699,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 		nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
 		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
 		PROTO_ITEM_SET_GENERATED(pi);
-
-		if (pinfo->fd->flags.visited)
-			return;
-
-/*  Limit the number of retransmissions we track (to limit memory usage--and
- *  tree size--in pathological cases, for example zero window probing forever).
- */
-#define MAX_RETRANS_TRACKED_PER_TSN 100
-
-		t->retransmit_count++;
-		r = &t->retransmit;
-		i = 0;
-		while (*r && i < MAX_RETRANS_TRACKED_PER_TSN) {
-			r = &(*r)->next;
-			i++;
-		}
-
-		if (i == MAX_RETRANS_TRACKED_PER_TSN)
-			return;
-
-		/*  TODO: we're allocating 16 bytes here.  The se_
-		 *  allocator adds 8 bytes of canary to that at each
-		 *  allocation.  Should these allocations be batched
-		 *  or does it not matter for the rare cases when there's
-		 *  more than 1 or 2 retransmissions of a TSN?
-		 *  For now, go with simplicity (of code here).
-		 */
-		*r = se_alloc0(sizeof(struct _retransmit_t));
-		(*r)->framenum = framenum;
-		(*r)->ts.secs = pinfo->fd->abs_ts.secs;
-		(*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
-
-		return;
-	}
-
-	if (t->retransmit) {
+	} else if (t->retransmit) {
 		struct _retransmit_t **r;
 		nstime_t rto;
 		char ds[64];
@@ -762,7 +730,6 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 							(*r)->framenum,
 							rel_time_to_secs_str(&rto));
 			PROTO_ITEM_SET_GENERATED(pi);
-
 			r = &(*r)->next;
 		}
 	}
@@ -821,6 +788,33 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 		emem_tree_insert32(h->tsns,reltsn,t);
 	}
 
+	if ( (! pinfo->fd->flags.visited ) && t->first_transmit.framenum != framenum  ) {
+		struct _retransmit_t **r;
+		int i;
+		
+		t->retransmit_count++;
+		r = &t->retransmit;
+		i = 0;
+		while (*r && i < MAX_RETRANS_TRACKED_PER_TSN) {
+			r = &(*r)->next;
+			i++;
+		}
+
+		if (i <= MAX_RETRANS_TRACKED_PER_TSN) {
+			/*  TODO: we're allocating 16 bytes here.  The se_
+			 *  allocator adds 8 bytes of canary to that at each
+			 *  allocation.  Should these allocations be batched
+			 *  or does it not matter for the rare cases when there's
+			 *  more than 1 or 2 retransmissions of a TSN?
+			 *  For now, go with simplicity (of code here).
+			 */
+			*r = se_alloc0(sizeof(struct _retransmit_t));
+			(*r)->framenum = framenum;
+			(*r)->ts.secs = pinfo->fd->abs_ts.secs;
+			(*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
+		}
+	}
+	
 	tsn_tree(t, tsn_item, pinfo, tvb, framenum);
 }
 
