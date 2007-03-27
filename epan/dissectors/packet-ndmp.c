@@ -1358,7 +1358,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
 	status=tvb_get_ntohl(tvb, offset);
 	if(ndmp_conv_data->task->itlq){
-		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE), status);
+		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(ndmp_conv_data, pinfo, FALSE), (guint8)status);
 	}
 	offset += 4;
 
