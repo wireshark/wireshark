@@ -4368,9 +4368,9 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean dci, gboolean do_col_protocol, gboolean have_rm,
     kerberos_callbacks *cb)
 {
-    int offset = 0;
-    proto_tree *kerberos_tree = NULL;
-    proto_item *item = NULL;
+    volatile int offset = 0;
+    proto_tree *volatile kerberos_tree = NULL;
+    proto_item *volatile item = NULL;
     void *saved_private_data;
 
     /* TCP record mark and length */

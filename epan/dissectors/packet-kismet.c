@@ -183,7 +183,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					 * *KISMET: {Version} {Start time} \001{Server name}\001 {Build Revision}
 					 * two fields left undocumented: {???} {?ExtendedVersion?}
 					 */
-					if (!strncmp(reqresp, "*KISMET", 7)) {
+					if (!strncmp((char*)reqresp, "*KISMET", 7)) {
 						offset += next_token - line;
 						linelen -= next_token - line;
 						line = next_token;
@@ -236,7 +236,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					/*
 					 * *TIME: {Time}
 					 */
-					if (!strncmp(reqresp, "*TIME", 5)) {
+					if (!strncmp((char*)reqresp, "*TIME", 5)) {
 						time_t t;
 						char *ptr;
 
@@ -278,10 +278,10 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static gboolean
 response_is_continuation(const guchar * data)
 {
-	if (!strncmp(data, "*", 1))
+	if (!strncmp((char*)data, "*", 1))
 		return FALSE;
 
-	if (!strncmp(data, "!", 1))
+	if (!strncmp((char*)data, "!", 1))
 		return FALSE;
 
 	return TRUE;

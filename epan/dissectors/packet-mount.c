@@ -172,7 +172,7 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			unsigned const char *dir;
 			int len;
 
-			host=ip_to_str(pinfo->dst.data);
+			host=(unsigned char*)ip_to_str(pinfo->dst.data);
 			len=tvb_get_ntohl(tvb, offset);
                         if (len >= ITEM_LABEL_LENGTH)
                                 THROW(ReportedBoundsError);
@@ -180,16 +180,16 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			dir=tvb_get_ptr(tvb, offset+4, len);
 			if(dir){
 				unsigned char *ptr;
-				name=g_malloc(strlen(host)+1+len+1+200);
+				name=(unsigned char*)g_malloc(strlen(host)+1+len+1+200);
 				ptr=name;
-				memcpy(ptr, host, strlen(host));
-				ptr+=strlen(host);
+				memcpy(ptr, host, strlen((char*)host));
+				ptr+=strlen((char*)host);
 				*ptr++=':';
 				memcpy(ptr, dir, len);
 				ptr+=len;
 				*ptr=0;
 
-				nfs_name_snoop_add_name(civ->xid, tvb, -1, strlen(name), 0, 0, name);
+				nfs_name_snoop_add_name(civ->xid, tvb, -1, strlen((char*)name), 0, 0, name);
 			}
 		}
 	}
