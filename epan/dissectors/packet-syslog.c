@@ -40,6 +40,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/ws_strsplit.h>
 
 #define UDP_PORT_SYSLOG 514
 
@@ -51,7 +52,7 @@
 
 #define LEVEL_EMERG	0
 #define LEVEL_ALERT	1
-#define LEVEL_CRIT	2	
+#define LEVEL_CRIT	2
 #define LEVEL_ERR	3
 #define LEVEL_WARNING	4
 #define LEVEL_NOTICE	5
@@ -171,7 +172,7 @@ static gint ett_syslog = -1;
 
 static dissector_handle_t mtp_handle;
 
-/*  The Cisco ITP's packet logging facility allows selected (SS7) MSUs to be 
+/*  The Cisco ITP's packet logging facility allows selected (SS7) MSUs to be
  *  to be encapsulated in syslog UDP datagrams and sent to a monitoring tool.
  *  However, no actual tool to monitor/decode the MSUs is provided. The aim
  *  of this routine is to extract the hex dump of the MSU from the syslog
