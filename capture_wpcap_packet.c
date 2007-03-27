@@ -51,7 +51,7 @@
  *
  * copied from RFC2553 (and slightly modified because of datatypes) ...
  * XXX - defined more than once, move this to a header file */
-#if (WINVER <= 0x0400)
+#if (WINVER <= 0x0400) && defined(_MSC_VER)
 typedef unsigned short eth_sa_family_t;
 
 /*
