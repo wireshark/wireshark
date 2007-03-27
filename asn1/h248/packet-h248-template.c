@@ -1369,7 +1369,6 @@ void proto_reg_handoff_h248(void) {
   h248_tpkt_handle = find_dissector("h248.tpkt");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
-  dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID, h248_handle);
   dissector_add("udp.port", udp_port, h248_handle);
   dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
 }

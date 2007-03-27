@@ -63,16 +63,10 @@
 #include <epan/dissectors/packet-ip.h>
 
 #include <epan/gcp.h>
+#include <epan/tap.h>
 
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
-
-#ifdef _MSC_VER
-/* disable: warning C4013: 'xy' undefined; assuming extern returning int */
-#pragma warning(disable:4013)
-#endif
-
-void proto_reg_handoff_megaco(void);
 
 /* Define the megaco proto */
 static int proto_megaco			= -1;
@@ -3243,6 +3237,41 @@ static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
 }
 
 /* Register all the bits needed with the filtering engine */
+/* The registration hand-off routine */
+void
+proto_reg_handoff_megaco(void)
+{
+	static int megaco_prefs_initialized = FALSE;
+	static dissector_handle_t megaco_text_tcp_handle;
+
+	sdp_handle = find_dissector("sdp");
+	h245_handle = find_dissector("h245dg");
+	h248_handle = find_dissector("h248");
+
+	if (!megaco_prefs_initialized) {
+		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
+			proto_megaco);
+		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp,
+			proto_megaco);
+
+		megaco_prefs_initialized = TRUE;
+	}
+	else {
+		dissector_delete("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
+		dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
+	}
+
+	/* Set our port number for future use */
+
+	txt_tcp_port = global_megaco_txt_tcp_port;
+	txt_udp_port = global_megaco_txt_udp_port;
+
+	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
+	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
+
+	dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
+
+}
 
 void
 proto_register_megaco(void)
@@ -3461,54 +3490,6 @@ proto_register_megaco(void)
 
 
 
-/* The registration hand-off routine */
-void
-proto_reg_handoff_megaco(void)
-{
-	static int megaco_prefs_initialized = FALSE;
-	static dissector_handle_t megaco_text_tcp_handle;
-
-	sdp_handle = find_dissector("sdp");
-	h245_handle = find_dissector("h245dg");
-	h248_handle = find_dissector("h248");
-
-	if (!megaco_prefs_initialized) {
-		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
-			proto_megaco);
-		megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp,
-			proto_megaco);
-
-		megaco_prefs_initialized = TRUE;
-	}
-	else {
-		dissector_delete("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
-		dissector_delete("udp.port", txt_udp_port, megaco_text_handle);
-#if 0
-		dissector_delete("tcp.port", bin_tcp_port, megaco_text_tcp_handle);
-		dissector_delete("udp.port", bin_udp_port, megaco_bin_handle);
-#endif
-	}
-
-	/* Set our port number for future use */
-
-	txt_tcp_port = global_megaco_txt_tcp_port;
-	txt_udp_port = global_megaco_txt_udp_port;
-
-#if 0
-	bin_tcp_port = global_megaco_bin_tcp_port;
-	bin_udp_port = global_megaco_bin_udp_port;
-#endif
-
-	dissector_add("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
-	dissector_add("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
-#if 0
-	dissector_add("tcp.port", global_megaco_bin_tcp_port, megaco_bin_handle);
-	dissector_add("udp.port", global_megaco_bin_udp_port, megaco_bin_handle);
-#endif
-	/* XXX - text or binary?  Does that depend on the port number? */
-	dissector_add("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
-
-}
 
 /*
 * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
