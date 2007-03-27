@@ -3,7 +3,7 @@
 #
 # Author(s): David M. Beazley (dave@dabeaz.com)
 #
-# Copyright (C) 2001-2006, David M. Beazley
+# Copyright (C) 2001-2007, David M. Beazley
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -50,7 +50,7 @@
 # own risk!
 # ----------------------------------------------------------------------------
 
-__version__ = "2.2"
+__version__ = "2.3"
 
 #-----------------------------------------------------------------------------
 #                     === User configurable parameters ===
@@ -72,6 +72,16 @@ import re, types, sys, cStringIO, md5, os.path
 # Exception raised for yacc-related errors
 class YaccError(Exception):   pass
 
+# Available instance types.  This is used when parsers are defined by a class.
+# it's a little funky because I want to preserve backwards compatibility
+# with Python 2.0 where types.ObjectType is undefined.
+
+try:
+   _INSTANCETYPE = (types.InstanceType, types.ObjectType)
+except AttributeError:
+   _INSTANCETYPE = types.InstanceType
+   class object: pass     # Note: needed if no new-style classes present
+
 #-----------------------------------------------------------------------------
 #                        ===  LR Parsing Engine ===
 #
@@ -89,7 +99,7 @@ class YaccError(Exception):   pass
 #        .lexpos     = Starting lex position
 #        .endlexpos  = Ending lex position (optional, set automatically)
 
-class YaccSymbol:
+class YaccSymbol(object):
     def __str__(self):    return self.type
     def __repr__(self):   return str(self)
 
@@ -107,17 +117,16 @@ class YaccProduction:
         self.slice = s
         self.pbstack = []
         self.stack = stack
-
     def __getitem__(self,n):
-        if type(n) == types.IntType:
-             if n >= 0: return self.slice[n].value
-             else: return self.stack[n].value
-        else:
-             return [s.value for s in self.slice[n.start:n.stop:n.step]]
+        if n >= 0: return self.slice[n].value
+        else: return self.stack[n].value
 
     def __setitem__(self,n,v):
         self.slice[n].value = v
 
+    def __getslice__(self,i,j):
+        return [s.value for s in self.slice[i:j]]
+        
     def __len__(self):
         return len(self.slice)
     
@@ -168,7 +177,7 @@ class Parser:
         self.method      = "Unknown LR"  # Table construction method used
 
     def errok(self):
-        self.errorcount = 0
+        self.errorok     = 1
 
     def restart(self):
         del self.statestack[:]
@@ -177,28 +186,28 @@ class Parser:
         sym.type = '$end'
         self.symstack.append(sym)
         self.statestack.append(0)
-        
-    def parse(self,input=None,lexer=None,debug=0):
+
+    def parse(self,input=None,lexer=None,debug=0,tracking=0):
         lookahead = None                 # Current lookahead symbol
         lookaheadstack = [ ]             # Stack of lookahead symbols
         actions = self.action            # Local reference to action table
         goto    = self.goto              # Local reference to goto table
         prod    = self.productions       # Local reference to production list
         pslice  = YaccProduction(None)   # Production object passed to grammar rules
-        pslice.parser = self             # Parser object
-        self.errorcount = 0              # Used during error recovery
+        errorcount = 0                   # Used during error recovery
 
         # If no lexer was given, we will try to use the lex module
         if not lexer:
             import lex
             lexer = lex.lexer
-
-        pslice.lexer = lexer
         
+        pslice.lexer = lexer
+        pslice.parser = self
+
         # If input was supplied, pass to lexer
         if input:
             lexer.input(input)
-
+            
         # Tokenize function
         get_token = lexer.token
 
@@ -211,17 +220,18 @@ class Parser:
         errtoken   = None               # Err token
 
         # The start state is assumed to be (0,$end)
+
         statestack.append(0)
         sym = YaccSymbol()
         sym.type = '$end'
         symstack.append(sym)
-        
+        state = 0
         while 1:
             # Get the next symbol on the input.  If a lookahead symbol
             # is already set, we just use that. Otherwise, we'll pull
             # the next token off of the lookaheadstack or from the lexer
             if debug > 1:
-                print 'state', statestack[-1]
+                print 'state', state
             if not lookahead:
                 if not lookaheadstack:
                     lookahead = get_token()     # Get the next token
@@ -234,9 +244,8 @@ class Parser:
                 errorlead = ("%s . %s" % (" ".join([xx.type for xx in symstack][1:]), str(lookahead))).lstrip()
 
             # Check the action table
-            s = statestack[-1]
             ltype = lookahead.type
-            t = actions.get((s,ltype),None)
+            t = actions[state].get(ltype)
 
             if debug > 1:
                 print 'action', t
@@ -248,15 +257,14 @@ class Parser:
                         sys.stderr.write("yacc: Parse error. EOF\n")
                         return
                     statestack.append(t)
+                    state = t
                     if debug > 1:
                         sys.stderr.write("%-60s shift state %s\n" % (errorlead, t))
                     symstack.append(lookahead)
                     lookahead = None
 
                     # Decrease error count on successful shift
-                    if self.errorcount > 0:
-                        self.errorcount -= 1
-                        
+                    if errorcount: errorcount -=1
                     continue
                 
                 if t < 0:
@@ -275,20 +283,22 @@ class Parser:
                     if plen:
                         targ = symstack[-plen-1:]
                         targ[0] = sym
-                        try:
-                            sym.lineno = targ[1].lineno
-                            sym.endlineno = getattr(targ[-1],"endlineno",targ[-1].lineno)
-                            sym.lexpos = targ[1].lexpos
-                            sym.endlexpos = getattr(targ[-1],"endlexpos",targ[-1].lexpos)
-                        except AttributeError:
-                            sym.lineno = 0
+                        if tracking:
+                           t1 = targ[1]
+                           sym.lineno = t1.lineno
+                           sym.lexpos = t1.lexpos
+                           t1 = targ[-1]
+                           sym.endlineno = getattr(t1,"endlineno",t1.lineno)
+                           sym.endlexpos = getattr(t1,"endlexpos",t1.lexpos)
                         del symstack[-plen:]
                         del statestack[-plen:]
                     else:
-                        sym.lineno = 0
+                        if tracking:
+                           sym.lineno = lexer.lineno
+                           sym.lexpos = lexer.lexpos
                         targ = [ sym ]
                     pslice.slice = targ
-                    pslice.pbstack = []
+
                     # Call the grammar rule with our special slice object
                     p.func(pslice)
 
@@ -298,15 +308,16 @@ class Parser:
                         for _t in pslice.pbstack:
                             lookaheadstack.append(_t)
                         lookahead = None
+                        pslice.pbstack = []
 
                     symstack.append(sym)
-                    statestack.append(goto[statestack[-1],pname])
+                    state = goto[statestack[-1]][pname]
+                    statestack.append(state)
                     continue
 
                 if t == 0:
                     n = symstack[-1]
                     return getattr(n,"value",None)
-                    sys.stderr.write(errorlead, "\n")
 
             if t == None:
                 if debug:
@@ -321,8 +332,9 @@ class Parser:
                 # the user defined p_error() function if this is the
                 # first syntax error.  This function is only called if
                 # errorcount == 0.
-                if not self.errorcount:
-                    self.errorcount = error_count
+                if errorcount == 0 or self.errorok:
+                    errorcount = error_count
+                    self.errorok = 0
                     errtoken = lookahead
                     if errtoken.type == '$end':
                         errtoken = None               # End of file!
@@ -334,7 +346,7 @@ class Parser:
                         tok = self.errorfunc(errtoken)
                         del errok, token, restart   # Delete special functions
                         
-                        if not self.errorcount:
+                        if self.errorok:
                             # User must have done some kind of panic
                             # mode recovery on their own.  The
                             # returned token is the next lookahead
@@ -354,7 +366,7 @@ class Parser:
                             return
 
                 else:
-                    self.errorcount = error_count
+                    errorcount = error_count
                 
                 # case 1:  the statestack only has 1 entry on it.  If we're in this state, the
                 # entire parse has been rolled back and we're completely hosed.   The token is
@@ -1637,12 +1649,15 @@ def lr_parse_table(method):
     if method == 'LALR':
         add_lalr_lookaheads(C)
 
+
     # Build the parser table, state by state
     st = 0
     for I in C:
         # Loop over each production in I
         actlist = [ ]              # List of actions
-        
+        st_action  = { }
+        st_actionp = { }
+        st_goto    = { }
         if yaccdebug:
             _vf.write("\nstate %d\n\n" % st)
             for p in I:
@@ -1654,8 +1669,8 @@ def lr_parse_table(method):
                 if p.prod[-1] == ".":
                     if p.name == "S'":
                         # Start symbol. Accept!
-                        action[st,"$end"] = 0
-                        actionp[st,"$end"] = p
+                        st_action["$end"] = 0
+                        st_actionp["$end"] = p
                     else:
                         # We are at the end of a production.  Reduce!
                         if method == 'LALR':
@@ -1664,25 +1679,25 @@ def lr_parse_table(method):
                             laheads = Follow[p.name]
                         for a in laheads:
                             actlist.append((a,p,"reduce using rule %d (%s)" % (p.number,p)))
-                            r = action.get((st,a),None)
+                            r = st_action.get(a,None)
                             if r is not None:
                                 # Whoa. Have a shift/reduce or reduce/reduce conflict
                                 if r > 0:
                                     # Need to decide on shift or reduce here
                                     # By default we favor shifting. Need to add
                                     # some precedence rules here.
-                                    sprec,slevel = Productions[actionp[st,a].number].prec                                    
+                                    sprec,slevel = Productions[st_actionp[a].number].prec                                    
                                     rprec,rlevel = Precedence.get(a,('right',0))
                                     if (slevel < rlevel) or ((slevel == rlevel) and (rprec == 'left')):
                                         # We really need to reduce here.  
-                                        action[st,a] = -p.number
-                                        actionp[st,a] = p
+                                        st_action[a] = -p.number
+                                        st_actionp[a] = p
                                         if not slevel and not rlevel:
                                             _vfc.write("shift/reduce conflict in state %d resolved as reduce.\n" % st)
                                             _vf.write("  ! shift/reduce conflict for %s resolved as reduce.\n" % a)
                                             n_srconflict += 1
                                     elif (slevel == rlevel) and (rprec == 'nonassoc'):
-                                        action[st,a] = None
+                                        st_action[a] = None
                                     else:
                                         # Hmmm. Guess we'll keep the shift
                                         if not rlevel:
@@ -1695,17 +1710,17 @@ def lr_parse_table(method):
                                     oldp = Productions[-r]
                                     pp = Productions[p.number]
                                     if oldp.line > pp.line:
-                                        action[st,a] = -p.number
-                                        actionp[st,a] = p
+                                        st_action[a] = -p.number
+                                        st_actionp[a] = p
                                     # sys.stderr.write("Reduce/reduce conflict in state %d\n" % st)
                                     n_rrconflict += 1
-                                    _vfc.write("reduce/reduce conflict in state %d resolved using rule %d (%s).\n" % (st, actionp[st,a].number, actionp[st,a]))
-                                    _vf.write("  ! reduce/reduce conflict for %s resolved using rule %d (%s).\n" % (a,actionp[st,a].number, actionp[st,a]))
+                                    _vfc.write("reduce/reduce conflict in state %d resolved using rule %d (%s).\n" % (st, st_actionp[a].number, st_actionp[a]))
+                                    _vf.write("  ! reduce/reduce conflict for %s resolved using rule %d (%s).\n" % (a,st_actionp[a].number, st_actionp[a]))
                                 else:
                                     sys.stderr.write("Unknown conflict in state %d\n" % st)
                             else:
-                                action[st,a] = -p.number
-                                actionp[st,a] = p
+                                st_action[a] = -p.number
+                                st_actionp[a] = p
                 else:
                     i = p.lr_index
                     a = p.prod[i+1]       # Get symbol right after the "."
@@ -1715,7 +1730,7 @@ def lr_parse_table(method):
                         if j >= 0:
                             # We are in a shift state
                             actlist.append((a,p,"shift and go to state %d" % j))
-                            r = action.get((st,a),None)
+                            r = st_action.get(a,None)
                             if r is not None:
                                 # Whoa have a shift/reduce or shift/shift conflict
                                 if r > 0:
@@ -1726,18 +1741,18 @@ def lr_parse_table(method):
                                     #   -  if precedence of reduce rule is higher, we reduce.
                                     #   -  if precedence of reduce is same and left assoc, we reduce.
                                     #   -  otherwise we shift
-                                    rprec,rlevel = Productions[actionp[st,a].number].prec
+                                    rprec,rlevel = Productions[st_actionp[a].number].prec
                                     sprec,slevel = Precedence.get(a,('right',0))
                                     if (slevel > rlevel) or ((slevel == rlevel) and (rprec != 'left')):
                                         # We decide to shift here... highest precedence to shift
-                                        action[st,a] = j
-                                        actionp[st,a] = p
+                                        st_action[a] = j
+                                        st_actionp[a] = p
                                         if not rlevel:
                                             n_srconflict += 1
                                             _vfc.write("shift/reduce conflict in state %d resolved as shift.\n" % st)
                                             _vf.write("  ! shift/reduce conflict for %s resolved as shift.\n" % a)
                                     elif (slevel == rlevel) and (rprec == 'nonassoc'):
-                                        action[st,a] = None
+                                        st_action[a] = None
                                     else:                                            
                                         # Hmmm. Guess we'll keep the reduce
                                         if not slevel and not rlevel:
@@ -1748,8 +1763,8 @@ def lr_parse_table(method):
                                 else:
                                     sys.stderr.write("Unknown conflict in state %d\n" % st)
                             else:
-                                action[st,a] = j
-                                actionp[st,a] = p
+                                st_action[a] = j
+                                st_actionp[a] = p
                                 
             except StandardError,e:
                 raise YaccError, "Hosed in lr_parse_table", e
@@ -1758,14 +1773,14 @@ def lr_parse_table(method):
         if yaccdebug:
           _actprint = { }
           for a,p,m in actlist:
-            if action.has_key((st,a)):
-                if p is actionp[st,a]:
+            if st_action.has_key(a):
+                if p is st_actionp[a]:
                     _vf.write("    %-15s %s\n" % (a,m))
                     _actprint[(a,m)] = 1
           _vf.write("\n")
           for a,p,m in actlist:
-            if action.has_key((st,a)):
-                if p is not actionp[st,a]:
+            if st_action.has_key(a):
+                if p is not st_actionp[a]:
                     if not _actprint.has_key((a,m)):
                         _vf.write("  ! %-15s [ %s ]\n" % (a,m))
                         _actprint[(a,m)] = 1
@@ -1782,9 +1797,13 @@ def lr_parse_table(method):
             g = lr0_goto(I,n)
             j = _lr0_cidhash.get(id(g),-1)            
             if j >= 0:
-                goto[st,n] = j
+                st_goto[n] = j
                 if yaccdebug:
                     _vf.write("    %-30s shift and go to state %d\n" % (n,j))
+
+        action[st] = st_action
+        actionp[st] = st_actionp
+        goto[st] = st_goto
 
         st += 1
 
@@ -1828,14 +1847,15 @@ _lr_signature = %s
         # Factor out names to try and make smaller
         if smaller:
             items = { }
-        
-            for k,v in _lr_action.items():
-                i = items.get(k[1])
-                if not i:
-                    i = ([],[])
-                    items[k[1]] = i
-                i[0].append(k[0])
-                i[1].append(v)
+
+            for s,nd in _lr_action.items():
+               for name,v in nd.items():
+                  i = items.get(name)
+                  if not i:
+                     i = ([],[])
+                     items[name] = i
+                  i[0].append(s)
+                  i[1].append(v)
 
             f.write("\n_lr_action_items = {")
             for k,v in items.items():
@@ -1853,7 +1873,8 @@ _lr_signature = %s
 _lr_action = { }
 for _k, _v in _lr_action_items.items():
    for _x,_y in zip(_v[0],_v[1]):
-       _lr_action[(_x,_k)] = _y
+      if not _lr_action.has_key(_x):  _lr_action[_x] = { }
+      _lr_action[_x][_k] = _y
 del _lr_action_items
 """)
             
@@ -1866,14 +1887,15 @@ del _lr_action_items
         if smaller:
             # Factor out names to try and make smaller
             items = { }
-        
-            for k,v in _lr_goto.items():
-                i = items.get(k[1])
-                if not i:
-                    i = ([],[])
-                    items[k[1]] = i
-                i[0].append(k[0])
-                i[1].append(v)
+
+            for s,nd in _lr_goto.items():
+               for name,v in nd.items():
+                  i = items.get(name)
+                  if not i:
+                     i = ([],[])
+                     items[name] = i
+                  i[0].append(s)
+                  i[1].append(v)
 
             f.write("\n_lr_goto_items = {")
             for k,v in items.items():
@@ -1891,7 +1913,8 @@ del _lr_action_items
 _lr_goto = { }
 for _k, _v in _lr_goto_items.items():
    for _x,_y in zip(_v[0],_v[1]):
-       _lr_goto[(_x,_k)] = _y
+       if not _lr_goto.has_key(_x): _lr_goto[_x] = { }
+       _lr_goto[_x][_k] = _y
 del _lr_goto_items
 """)
         else:
@@ -1915,8 +1938,8 @@ del _lr_goto_items
         f.close()
 
     except IOError,e:
-        print "Unable to create '%s'" % filename
-        print e
+        print >>sys.stderr, "Unable to create '%s'" % filename
+        print >>sys.stderr, e
         return
 
 def lr_read_tables(module=tab_module,optimize=0):
@@ -1936,15 +1959,6 @@ def lr_read_tables(module=tab_module,optimize=0):
     except (ImportError,AttributeError):
         return 0
 
-
-# Available instance types.  This is used when parsers are defined by a class.
-# it's a little funky because I want to preserve backwards compatibility
-# with Python 2.0 where types.ObjectType is undefined.
-
-try:
-   _INSTANCETYPE = (types.InstanceType, types.ObjectType)
-except AttributeError:
-   _INSTANCETYPE = types.InstanceType
 
 # -----------------------------------------------------------------------------
 # yacc(module)
@@ -2040,7 +2054,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
                     v1 = [x.split(".") for x in v]
                     Requires[r] = v1
                 except StandardError:
-                    print "Invalid specification for rule '%s' in require. Expected a list of strings" % r            
+                    print >>sys.stderr, "Invalid specification for rule '%s' in require. Expected a list of strings" % r            
 
         
         # Build the dictionary of terminals.  We a record a 0 in the
@@ -2048,12 +2062,12 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
         # used in the grammar
 
         if 'error' in tokens:
-            print "yacc: Illegal token 'error'.  Is a reserved word."
+            print >>sys.stderr, "yacc: Illegal token 'error'.  Is a reserved word."
             raise YaccError,"Illegal token name"
 
         for n in tokens:
             if Terminals.has_key(n):
-                print "yacc: Warning. Token '%s' multiply defined." % n
+                print >>sys.stderr, "yacc: Warning. Token '%s' multiply defined." % n
             Terminals[n] = [ ]
 
         Terminals['error'] = [ ]
@@ -2088,7 +2102,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
             global Errorfunc
             Errorfunc = ef
         else:
-            print "yacc: Warning. no p_error() function is defined."
+            print >>sys.stderr, "yacc: Warning. no p_error() function is defined."
             
         # Get the list of built-in functions with p_ prefix
         symbols = [ldict[f] for f in ldict.keys()
@@ -2160,7 +2174,7 @@ def yacc(method=default_lr, debug=yaccdebug, module=None, tabmodule=tab_module, 
                     f.write(_vf.getvalue())
                     f.close()
                 except IOError,e:
-                    print "yacc: can't create '%s'" % debugfile,e
+                    print >>sys.stderr, "yacc: can't create '%s'" % debugfile,e
         
     # Made it here.   Create a parser object and set up its internal state.
     # Set global parse() method to bound method of parser object.
