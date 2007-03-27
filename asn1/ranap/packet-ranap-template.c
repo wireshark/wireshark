@@ -1086,12 +1086,12 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pinfo->sccp_info) {
 		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
 		
-		if (sccp_msg->assoc)
-			sccp_msg->assoc->payload = SCCP_PLOAD_RANAP;
+		if (sccp_msg->data.co.assoc)
+			sccp_msg->data.co.assoc->payload = SCCP_PLOAD_RANAP;
 		
-		if (! sccp_msg->label && ProcedureCode != 0xFFFFFFFF) {
+		if (! sccp_msg->data.co.label && ProcedureCode != 0xFFFFFFFF) {
 			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
-			sccp_msg->label = se_strdup(str);
+			sccp_msg->data.co.label = se_strdup(str);
 		}
 	}
 

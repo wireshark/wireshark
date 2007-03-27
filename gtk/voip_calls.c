@@ -2906,7 +2906,7 @@ const value_string* sccp_payload_values;
 static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
 	const sccp_msg_info_t* msg = prot_info;
-	sccp_assoc_info_t* assoc = msg->assoc;
+	sccp_assoc_info_t* assoc = msg->data.co.assoc;
 	GList* list;
 	voip_calls_info_t *strinfo = NULL;
 	const gchar* label = NULL;
@@ -2986,14 +2986,14 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		}
 	}
 	
-	if (msg->label) {
-		label = msg->label;
+	if (msg->data.co.label) {
+		label = msg->data.co.label;
 	} else {
 		label = val_to_str(msg->type, sccp_payload_values, "Unknown(%d)");
 	}
 	
-	if (msg->comment) {
-		comment = msg->comment;
+	if (msg->data.co.comment) {
+		comment = msg->data.co.comment;
 	} else {
 		comment = "";
 	}

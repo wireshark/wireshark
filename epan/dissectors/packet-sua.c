@@ -330,6 +330,8 @@ static int hf_ssn_number = -1;
 static int hf_ipv4 = -1;
 static int hf_hostname = -1;
 static int hf_ipv6 = -1;
+static int hf_assoc_id = -1;
+static int hf_assoc_msg = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sua = -1;
@@ -343,6 +345,7 @@ static gint ett_sua_sequence_number_sent_number = -1;
 static gint ett_sua_receive_sequence_number_number = -1;
 static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
 static gint ett_sua_protcol_classes = -1;
+static gint ett_sua_assoc = -1;
 
 static int sua_tap = -1;
 
@@ -1850,13 +1853,23 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
   if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
 	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */ 
-	  sccp_assoc_info_t* assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
+	  sccp_assoc_info_t* assoc;
+	  printf("t=%d ::",message_type);
+	  reset_sccp_assoc();
+	  assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
 	  
 	  if (assoc && assoc->curr_msg) {
+		printf("-->1\n");
 		  pinfo->sccp_info = assoc->curr_msg;
 		  tap_queue_packet(sua_tap,pinfo,assoc->curr_msg);
+	  } else {
+		printf("-->2\n");
+		   pinfo->sccp_info = NULL;
 	  }
-  } 
+  } else {
+		printf("-->3\n");
+	  pinfo->sccp_info = NULL;
+  }
   
   /* If there was SUA data it could be dissected */
   if(data_tvb)
@@ -1869,11 +1882,21 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
     {
 		/* try heuristic subdissector list to see if there are any takers */
 		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree)) {
-			return;
+			goto done;
 		}
       /* No sub-dissection occured, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, sua_tree);
     }
+  }
+  done:
+  
+  if (pinfo->sccp_info) {
+	sccp_msg_info_t* m = pinfo->sccp_info;
+	  
+	  printf("p=%p fnum=%d o=%d t=%d l='%s' c='%s' a=%p\n",
+	  m,m->framenum,m->offset,m->type,m->data.co.label,m->data.co.comment,m->data.co.assoc);
+  } else {
+	 printf("-------\n"); 
   }
 }
 
@@ -2017,7 +2040,14 @@ proto_register_sua(void)
     { &hf_ipv4,                                  { "IP Version 4 address",         "sua.ipv4_address",                              FT_IPv4,    BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_hostname,                              { "Hostname",                     "sua.hostname.name",                             FT_STRING,  BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_ipv6,                                  { "IP Version 6 address",         "sua.ipv6_address",                              FT_IPv6,    BASE_NONE, NULL,                               0x0,                      "", HFILL } },
-  };
+     { &hf_assoc_id,
+      { "Association ID", "sccp.assoc.id",
+	FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    {&hf_assoc_msg,
+	{"Message in frame", "sccp.assoc.msg",
+	FT_FRAMENUM, BASE_NONE, NULL, 0x00, "", HFILL }
+    },
+ };
 
   /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -2031,7 +2061,9 @@ proto_register_sua(void)
     &ett_sua_receive_sequence_number_number,
     &ett_sua_protcol_classes,
     &ett_sua_first_remaining,
-    &ett_sua_return_on_error_bit_and_protocol_class
+    &ett_sua_return_on_error_bit_and_protocol_class,
+    &ett_sua_assoc
+
   };
   
   module_t *sua_module;

@@ -724,6 +724,7 @@ static dissector_table_t sccp_ssn_dissector_table;
 
 static emem_tree_t* assocs = NULL;
 static sccp_assoc_info_t* assoc;
+static sccp_msg_info_t* sccp_msg;
 static sccp_assoc_info_t no_assoc = {0,0,0,0,0,FALSE,FALSE,NULL,NULL,SCCP_PLOAD_NONE,NULL,NULL,NULL};
 static gboolean trace_sccp = FALSE;
 static guint32 next_assoc_id = 0;
@@ -753,18 +754,18 @@ static sccp_assoc_info_t* new_assoc(guint32 calling, guint32 called){
 	return a;
 }
 
+void reset_sccp_assoc(void) {
+	assoc = NULL;
+}
+
 sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type) {
     guint32 opck, dpck;
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
     guint framenum = pinfo->fd->num;
 
-    if (assoc)
-		return assoc;
-
-    if (!src_lr && !dst_lr){
-		return &no_assoc;
-    }
+    if(assoc)
+	    return assoc;
 
     opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
     dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
@@ -777,9 +778,11 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
 			};
+				printf("pinfo->fd->flags.visited=%d\n",pinfo->fd->flags.visited);
 
 			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
 				assoc = new_assoc(opck,dpck);
+				printf("A %d->%d %d\n",dpck,opck,src_lr);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
@@ -806,12 +809,14 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 	 got_assoc:
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-
+			printf("B %d->%d %d\n",opck,dpck,dst_lr);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
 
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+			printf("C %d->%d %d\n",dpck,opck,src_lr);
+
 				se_tree_insert32_array(assocs,fw_key,assoc);
 				assoc->has_fw_key = TRUE;
 			}
@@ -835,16 +840,16 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			sccp_msg_info_t* msg = se_alloc(sizeof(sccp_msg_info_t));
 			msg->framenum = framenum;
 			msg->offset = offset;
-			msg->next = NULL;
-			msg->assoc = assoc;
-			msg->label = NULL;
-			msg->comment = NULL;
+			msg->data.co.next = NULL;
+			msg->data.co.assoc = assoc;
+			msg->data.co.label = NULL;
+			msg->data.co.comment = NULL;
 			msg->type = msg_type;
 
 			if (assoc->msgs) {
 				sccp_msg_info_t* m;
-				for (m = assoc->msgs; m->next; m = m->next) ;
-				m->next = msg;
+				for (m = assoc->msgs; m->data.co.next; m = m->data.co.next) ;
+				m->data.co.next = msg;
 			} else {
 				assoc->msgs = msg;
 			}
@@ -855,7 +860,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 			sccp_msg_info_t* m;
 
-			for (m = assoc->msgs; m; m = m->next) {
+			for (m = assoc->msgs; m; m = m->data.co.next) {
 				if (m->framenum == framenum && m->offset == offset) {
 					assoc->curr_msg = m;
 					break;
@@ -864,6 +869,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 		}
 	}
 
+	printf("no_assoc=%p assoc=%p curr_msg=%p\n",&no_assoc,assoc,assoc ? assoc->curr_msg: (void*)(0xffffffff));
 	return assoc ? assoc : &no_assoc;
 }
 
@@ -915,6 +921,12 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", slr);
 }
 
+
+#define is_connectionless(m) \
+	( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
+        || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
+        || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
+
 static void
 dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 				    guint length, gboolean even_length,
@@ -939,6 +951,12 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 				   "Unknown"), GT_MAX_SIGNALS - strlen(gt_digits));
 
     offset += GT_SIGNAL_LENGTH;
+  }
+
+  if (is_connectionless(message_type) && sccp_msg) {
+	guint8** gt_ptr = called ? &(sccp_msg->data.ud.called_gt) : &(sccp_msg->data.ud.calling_gt);
+
+	*gt_ptr  = ep_strdup(gt_digits);
   }
 
   proto_tree_add_string_format(tree, called ? hf_sccp_called_gt_digits
@@ -1183,6 +1201,12 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       else if (assoc)
 	assoc->calling_ssn = ssn;
 
+        if (is_connectionless(message_type) && sccp_msg) {
+		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+
+		*ssn_ptr  = ssn;
+	}
+
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
@@ -1255,7 +1279,13 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       else if (assoc)
 	assoc->calling_ssn = ssn;
 
-      proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+        if (is_connectionless(message_type) && sccp_msg) {
+		guint* ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+
+		*ssn_ptr  = ssn;
+	}
+
+	proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       proto_tree_add_uint_hidden(call_tree, hf_sccp_ssn, tvb, offset,
@@ -1790,6 +1820,18 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
+static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type) {
+	sccp_msg_info_t* m = ep_alloc(sizeof(sccp_msg_info_t));
+	m->framenum = pinfo->fd->num;
+	m->offset = 0; /* irrelevant */
+	m->type = 0;
+	m->data.ud.calling_gt = NULL;
+	m->data.ud.calling_ssn = 0;
+	m->data.ud.called_gt = NULL;
+	m->data.ud.called_ssn = 0;
+
+	return m;
+}
 
 static void
 dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
@@ -2042,6 +2084,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_UDT:
+    pinfo->sccp_info = sccp_msg = new_ud_msg(pinfo,message_type);
+  
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2063,6 +2107,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_UDTS:
+    pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
+  
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
@@ -2164,6 +2210,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_XUDT:
+    pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
@@ -2255,6 +2302,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_XUDTS:
+    pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
@@ -2280,7 +2328,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_LUDT:
-    if (decode_mtp3_standard != ANSI_STANDARD)
+     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
+   if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_CLASS, offset,
@@ -2309,7 +2358,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case SCCP_MSG_TYPE_LUDTS:
-    if (decode_mtp3_standard != ANSI_STANDARD)
+     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
+   if (decode_mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_RETURN_CAUSE, offset,
@@ -2351,14 +2401,14 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 	  PROTO_ITEM_SET_GENERATED(pi);
 	  if (assoc->msgs) {
 		sccp_msg_info_t* m;
-		  for(m = assoc->msgs; m ; m = m->next) {
+		  for(m = assoc->msgs; m ; m = m->data.co.next) { 	
 			pi = proto_tree_add_uint( pt,hf_sccp_assoc_msg,tvb,0,0,m->framenum);
 
 			if (assoc->payload != SCCP_PLOAD_NONE)
 				proto_item_append_text(pi," %s", val_to_str(assoc->payload, assoc_protos, "Unknown"));
 
-			if (m->label)
-				proto_item_append_text(pi," %s", m->label);
+			if (m->data.co.label)
+				proto_item_append_text(pi," %s", m->data.co.label);
 
 			if (m->framenum == pinfo->fd->num && m->offset == msg_offset ) {
 				tap_queue_packet(sccp_tap, pinfo, m);

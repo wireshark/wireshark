@@ -64,11 +64,21 @@ typedef struct _sccp_msg_info_t {
 	guint framenum;
 	guint offset;
 	guint type;
-	struct _sccp_assoc_info_t* assoc;
-	struct _sccp_msg_info_t* next;
 	
-	gchar* label;
-	gchar* comment;
+	union {
+		struct {
+			gchar* label;
+			gchar* comment;
+			struct _sccp_assoc_info_t* assoc;
+			struct _sccp_msg_info_t* next;
+		} co;
+		struct {
+			guint8* calling_gt;
+			guint calling_ssn;
+			guint8* called_gt;
+			guint called_ssn;
+		} ud;
+	} data;
 } sccp_msg_info_t;
 
 typedef struct _sccp_assoc_info_t {
@@ -89,7 +99,7 @@ typedef struct _sccp_assoc_info_t {
 
 } sccp_assoc_info_t;
 
-
+extern void reset_sccp_assoc(void);
 extern sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr, guint msg_type);
 
 #endif

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ranap.c                                                           */
+/* .\packet-ranap.c                                                           */
 /* ../../tools/asn2wrs.py -e -F -p ranap -c ranap.cnf -s packet-ranap-template ranap.asn */
 
 /* Input file: packet-ranap-template.c */
@@ -5096,13 +5096,13 @@ dissect_ranap_T_iMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                        3, 8, &imsi_tvb);
   
 	if ( actx->pinfo->sccp_info
-		 && actx->pinfo->sccp_info->assoc
-		 && ! actx->pinfo->sccp_info->assoc->calling_party ) {
+		 && actx->pinfo->sccp_info->data.co.assoc
+		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
 	   
 		guint len = tvb_length(imsi_tvb);
 		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
 
-		actx->pinfo->sccp_info->assoc->calling_party = 
+		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
 			se_strdup_printf("IMSI: %s", bytes_to_str(bytes, len) );
 	}
 
@@ -10784,12 +10784,12 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pinfo->sccp_info) {
 		sccp_msg_info_t* sccp_msg = pinfo->sccp_info;
 		
-		if (sccp_msg->assoc)
-			sccp_msg->assoc->payload = SCCP_PLOAD_RANAP;
+		if (sccp_msg->data.co.assoc)
+			sccp_msg->data.co.assoc->payload = SCCP_PLOAD_RANAP;
 		
-		if (! sccp_msg->label && ProcedureCode != 0xFFFFFFFF) {
+		if (! sccp_msg->data.co.label && ProcedureCode != 0xFFFFFFFF) {
 			const gchar* str = val_to_str(ProcedureCode, ranap_ProcedureCode_vals,"Unknown RANAP");
-			sccp_msg->label = se_strdup(str);
+			sccp_msg->data.co.label = se_strdup(str);
 		}
 	}
 

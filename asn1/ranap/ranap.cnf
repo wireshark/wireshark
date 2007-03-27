@@ -54,13 +54,13 @@ VAL_PTR = &ProtocolIE_ID
                                        3, 8, &imsi_tvb);
   
 	if ( actx->pinfo->sccp_info
-		 && actx->pinfo->sccp_info->assoc
-		 && ! actx->pinfo->sccp_info->assoc->calling_party ) {
+		 && actx->pinfo->sccp_info->data.co.assoc
+		 && ! actx->pinfo->sccp_info->data.co.assoc->calling_party ) {
 	   
 		guint len = tvb_length(imsi_tvb);
 		guint8* bytes = ep_tvb_memdup(imsi_tvb,0,len);
 
-		actx->pinfo->sccp_info->assoc->calling_party = 
+		actx->pinfo->sccp_info->data.co.assoc->calling_party = 
 			se_strdup_printf("IMSI: %%s", bytes_to_str(bytes, len) );
 	}
 #.FN_BODY Value

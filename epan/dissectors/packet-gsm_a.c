@@ -18105,8 +18105,8 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	sccp_msg = pinfo->sccp_info;
 	
-	if (sccp_msg && sccp_msg->assoc) {
-		sccp_assoc = sccp_msg->assoc;
+	if (sccp_msg && sccp_msg->data.co.assoc) {
+		sccp_assoc = sccp_msg->data.co.assoc;
 	} else {
 		sccp_assoc = NULL;
 		sccp_msg = NULL;
@@ -18143,8 +18143,8 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     str = match_strval_idx((guint32) oct, gsm_a_bssmap_msg_strings, &idx);
 
-	if (sccp_msg && !sccp_msg->label) {
-		sccp_msg->label = se_strdup(val_to_str((guint32) oct, gsm_a_bssmap_msg_strings, "BSSMAP (0x%02x)"));
+	if (sccp_msg && !sccp_msg->data.co.label) {
+		sccp_msg->data.co.label = se_strdup(val_to_str((guint32) oct, gsm_a_bssmap_msg_strings, "BSSMAP (0x%02x)"));
 	}
 	
     /*
@@ -18360,8 +18360,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	sccp_msg = pinfo->sccp_info;
 	
-	if (sccp_msg && sccp_msg->assoc) {
-		sccp_assoc = sccp_msg->assoc;
+	if (sccp_msg && sccp_msg->data.co.assoc) {
+		sccp_assoc = sccp_msg->data.co.assoc;
 	} else {
 		sccp_assoc = NULL;
 		sccp_msg = NULL;
@@ -18379,8 +18379,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_dtap_msg);
 	
-	if (sccp_msg && !sccp_msg->label) {
-		sccp_msg->label = se_strdup_printf("DTAP (0x%02x)",oct);
+	if (sccp_msg && !sccp_msg->data.co.label) {
+		sccp_msg->data.co.label = se_strdup_printf("DTAP (0x%02x)",oct);
 	}
 	
 	
@@ -18394,8 +18394,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dtap_tree = proto_item_add_subtree(dtap_item, ett_tree);
 
-	if (sccp_msg && !sccp_msg->label) {
-		sccp_msg->label = se_strdup(msg_str);
+	if (sccp_msg && !sccp_msg->data.co.label) {
+		sccp_msg->data.co.label = se_strdup(msg_str);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))

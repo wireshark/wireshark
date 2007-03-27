@@ -581,8 +581,8 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, ((bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP"));
     }
 
-    if ( pinfo->sccp_info && pinfo->sccp_info->assoc  ) 
-		pinfo->sccp_info->assoc->payload = SCCP_PLOAD_BSSAP;
+    if ( pinfo->sccp_info && pinfo->sccp_info->data.co.assoc  ) 
+		pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;
 
     /*
      * create the bssap protocol tree
@@ -1632,8 +1632,8 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSSAP+");
     }
     
-    if (pinfo->sccp_info && pinfo->sccp_info->assoc)
-		pinfo->sccp_info->assoc->payload = SCCP_PLOAD_BSSAP;
+    if (pinfo->sccp_info && pinfo->sccp_info->data.co.assoc)
+		pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;
     
     /* create the BSSAP+ protocol tree */
     bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, FALSE);
