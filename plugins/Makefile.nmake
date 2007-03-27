@@ -95,11 +95,6 @@ mate::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd .. 
 
-megaco::
-	cd megaco
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
 mgcp::
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -187,9 +182,6 @@ clean:
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
-	cd megaco
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -257,9 +249,6 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd megaco
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd mgcp
@@ -331,9 +320,6 @@ maintainer-clean: distclean
 	cd mate
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
-	cd megaco
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -384,7 +370,6 @@ install-plugins:
 	xcopy irda\*.dll $(VERSION) /d
 	xcopy lwres\*.dll $(VERSION) /d
 	xcopy mate\*.dll $(VERSION) /d
-	xcopy megaco\*.dll $(VERSION) /d
 	xcopy mgcp\*.dll $(VERSION) /d
 	xcopy opsi\*.dll $(VERSION) /d
 	xcopy pcli\*.dll $(VERSION) /d
