@@ -48,6 +48,10 @@
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif
 
+#ifdef _MSC_VER
+/* disable warning: "unreference local variable" */
+#pragma warning(disable:4101)
+#endif
 
 
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
