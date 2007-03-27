@@ -67,7 +67,7 @@
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: warning C4013: 'xy' undefined; assuming extern returning int */
 #pragma warning(disable:4013)
 #endif

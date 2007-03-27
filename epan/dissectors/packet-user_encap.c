@@ -36,7 +36,7 @@
 #include <epan/uat.h>
 #include <epan/emem.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: warning C4090: 'XY' : different 'const' qualifiers */
 #pragma warning(disable:4090)
 #endif

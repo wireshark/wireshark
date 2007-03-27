@@ -49,7 +49,7 @@
 
 
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
 #pragma warning(disable:4146)
 #endif

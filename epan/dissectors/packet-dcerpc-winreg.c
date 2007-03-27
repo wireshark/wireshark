@@ -13,7 +13,7 @@
 #include "config.h"
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: warning C4005: 'xx' : macro redefinition */
 #pragma warning(disable:4005)
 /* disable: warning C4013: 'initshutdown_dissect_struct_String' undefined; assuming extern returning int */
