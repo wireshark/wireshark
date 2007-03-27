@@ -913,7 +913,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
+	value = (char*)tvb_get_ephemeral_string(tvb, value_offset, value_len);
         msg_type = (char *)g_datalist_get_data(&msg_types, value);
         if(msg_type) {
             summary_label = g_string_new(msg_type);
@@ -972,10 +972,10 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    packet. */
                 return TRUE;
             }
-            tag_str = tvb_get_ephemeral_string(tvb, field_offset, tag_len);
+            tag_str = (char*)tvb_get_ephemeral_string(tvb, field_offset, tag_len);
             tag = atoi(tag_str);
 
-            value = tvb_get_ephemeral_string(tvb, value_offset, value_len);
+            value = (char*)tvb_get_ephemeral_string(tvb, value_offset, value_len);
 
             switch(tag) {
                 case 1: /* Field Account */

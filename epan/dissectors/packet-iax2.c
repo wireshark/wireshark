@@ -1203,7 +1203,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
             /* we don't understand this ie: add a generic one */
             guint32 value;
             const guint8 *ptr;
-            const guint8 *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
+            const guint8 *ie_name = (guint8*)val_to_str(ies_type, iax_ies_type, "Unknown");
 	  
             switch(ies_len) {
               case 1:
@@ -1234,7 +1234,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
                 ptr = tvb_get_ptr(tvb, offset + 2, ies_len);
                 ie_item =
                   proto_tree_add_string_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTES,
-                                               tvb, offset+2, ies_len, ptr,
+                                               tvb, offset+2, ies_len, (char*)ptr,
                                                "%s: %s", ie_name, ptr );
                 break;
             }
@@ -1258,7 +1258,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 	else {
           guint8 *ie_val = NULL;
 	  ie_val = g_malloc(ITEM_LABEL_LENGTH);
-	  proto_item_fill_label(ie_finfo, ie_val);
+	  proto_item_fill_label(ie_finfo, (gchar*)ie_val);
 	  proto_item_set_text(ti, "Information Element: %s",
 			      ie_val);
 	  g_free(ie_val);

@@ -480,18 +480,18 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 		 	 * ends in '-time' then assume they are timestamps instead
 		 	 * of integers.
 		 	 */
-			name_val=tvb_get_ptr(tvb, offset + 1 + 2, name_length);
-			if( (name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2 + name_length - 5, "-time", 5)){
+			name_val=(char*)tvb_get_ptr(tvb, offset + 1 + 2, name_length);
+			if( (name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2 + name_length - 5, (guint8*)"-time", 5)){
 				ti = proto_tree_add_text(tree, tvb, offset,
 				    1 + 2 + name_length + 2 + value_length,
 				    "%s: %s",
-				    format_text(name_val, name_length),
+				    format_text((guchar*)name_val, name_length),
 				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2)));
 			} else {
 				ti = proto_tree_add_text(tree, tvb, offset,
 				    1 + 2 + name_length + 2 + value_length,
 				    "%s: %u",
-				    format_text(name_val, name_length),
+				    format_text((guchar*)name_val, name_length),
 				    tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2));
 			}
 		}
@@ -620,7 +620,7 @@ add_value_head(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 		proto_tree_add_text(tree, tvb, offset, name_length,
 		    "Name: %s", format_text(nv, name_length));
 		if(name_val){
-			*name_val=nv;
+			*name_val=(char*)nv;
 		}
 	}
 	offset += name_length;

@@ -315,7 +315,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_ftp_request_command, tvb, offset,
 				    tokenlen, FALSE);
 			}
-			if (strncmp(line, "PORT", tokenlen) == 0)
+			if (strncmp((char*)line, "PORT", tokenlen) == 0)
 				is_port_request = TRUE;
 		}
 	} else {
@@ -337,7 +337,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * One-line reply, or first or last line
 			 * of a multi-line reply.
 			 */
-			tvb_get_nstringz0(tvb, offset, sizeof(code_str), code_str);
+			tvb_get_nstringz0(tvb, offset, sizeof(code_str), (guint8*)code_str);
 			code = strtoul(code_str, NULL, 10);
 				
 			if (tree) {

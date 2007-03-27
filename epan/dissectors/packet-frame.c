@@ -110,7 +110,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item	*volatile ti = NULL;
 	nstime_t	ts;
 	int		cap_len = 0, frame_len = 0;
-	proto_tree	*tree;
+	proto_tree	*volatile tree;
         proto_item  *item;
 	int frame_number;
 

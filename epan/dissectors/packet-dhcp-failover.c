@@ -584,7 +584,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    format_text(client_identifier_str, option_length));
 			proto_tree_add_string(option_tree,
 			    hf_dhcpfo_client_identifier, tvb, offset,
-			    option_length, client_identifier_str);
+			    option_length, (char*)client_identifier_str);
 			break;
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
@@ -661,7 +661,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    format_text(vendor_class_str, option_length));
 			proto_tree_add_string(option_tree,
 			    hf_dhcpfo_vendor_class, tvb, offset,
-			    option_length, vendor_class_str);
+			    option_length, (char*)vendor_class_str);
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:

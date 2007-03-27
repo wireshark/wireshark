@@ -1590,7 +1590,8 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset;
 			len = tvb_get_guint8(tvb, tp_ofs);
 			tp_ofs++;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs, len);
+			name = (gchar*)tvb_get_ephemeral_string(tvb, tp_ofs,
+								len);
 			return name;
 		}
 		offset += 2;
@@ -1628,7 +1629,8 @@ name_in_bitmap(tvbuff_t *tvb, gint offset, guint16 bitmap, int isdir)
 			tp_ofs = nameoff +org_offset +4;
 			len16 = tvb_get_ntohs(tvb, tp_ofs);
 			tp_ofs += 2;
-			name = tvb_get_ephemeral_string(tvb, tp_ofs, len16);
+			name = (gchar*)tvb_get_ephemeral_string(tvb, tp_ofs,
+								len16);
 			return name;
 		}
 	}
@@ -2391,7 +2393,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,FALSE);
 	offset += len +1;
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ptr(tvb, offset +1, len_uam);
+	uam = (char*)tvb_get_ptr(tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len_uam +1;
 
@@ -2426,7 +2428,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += len +1;
 
 	len_uam = tvb_get_guint8(tvb, offset);
-	uam = tvb_get_ptr(tvb, offset +1, len_uam);
+	uam = (char*)tvb_get_ptr(tvb, offset +1, len_uam);
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len_uam +1;
 

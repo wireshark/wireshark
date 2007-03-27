@@ -468,7 +468,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 		ofs = utf_ofs;
 		ulen = tvb_get_ntohs(tvb, ofs);
-		tmp = tvb_get_ephemeral_string(tvb, ofs + 2, ulen);
+		tmp = (char*)tvb_get_ephemeral_string(tvb, ofs + 2, ulen);
 		ti = proto_tree_add_text(tree, tvb, ofs, ulen + 2, "UTF8 server name: %s", tmp);
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_utf8_name);
 		proto_tree_add_uint(sub_tree, hf_dsi_utf8_server_name_len, tvb, ofs, 2, ulen);

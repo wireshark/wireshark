@@ -1260,7 +1260,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                        3)));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
-        str = zonenm_to_str (tvb, offset+4);
+	str = (char*)zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, idlen, str);
         break;
@@ -1311,7 +1311,7 @@ dissect_swils_zone_obj (tvbuff_t *tvb, proto_tree *zobj_tree, int offset)
                          1, 0);
     proto_tree_add_item (zobj_tree, hf_swils_zone_protocol, tvb,
                          offset+1, 1, 0);
-    str = zonenm_to_str (tvb, offset+4);
+    str = (char*)zonenm_to_str (tvb, offset+4);
     proto_tree_add_string (zobj_tree, hf_swils_zone_objname, tvb,
                            offset+4, ZONENAME_LEN (tvb, offset+4), str);
 
@@ -1356,7 +1356,7 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
                                  "Active ZoneSet Length: %u", zonesetlen);
 
             if (zonesetlen) {
-            	str = zonenm_to_str (tvb, offset+4);
+		str = (char*)zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (mr_tree, hf_swils_zone_activezonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);
@@ -1503,7 +1503,7 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
                                  "ZoneSet Length: %d", zonesetlen);
 
             if (zonesetlen) {
-            	str = zonenm_to_str (tvb, offset+4);
+		str = (char*)zonenm_to_str (tvb, offset+4);
                 proto_tree_add_string (sfc_tree, hf_swils_sfc_zonenm, tvb,
                                        offset+4, ZONENAME_LEN (tvb, offset+4),
                                        str);

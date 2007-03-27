@@ -3787,7 +3787,7 @@ decode_qos_umts(tvbuff_t *tvb, int offset, proto_tree *tree, const gchar* qos_st
 
 static const gchar* dissect_radius_qos_umts(proto_tree *tree, tvbuff_t *tvb) {
 	decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-	return tvb_get_ephemeral_string(tvb,0,tvb_length(tvb));
+	return (gchar*)tvb_get_ephemeral_string(tvb,0,tvb_length(tvb));
 }
 
 static void
@@ -3810,7 +3810,7 @@ decode_apn(tvbuff_t *tvb, int offset, guint16 length, proto_tree *tree) {
 		} else
 			apn = tvb_get_ephemeral_string(tvb, offset, length);
 
-		proto_tree_add_string (tree, hf_gtp_apn, tvb, offset, length, apn);
+		proto_tree_add_string (tree, hf_gtp_apn, tvb, offset, length, (char*)apn);
 	}
 }
 

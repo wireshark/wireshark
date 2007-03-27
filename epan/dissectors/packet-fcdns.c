@@ -602,7 +602,7 @@ dissect_fcdns_gspnid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                  tvb, offset, 1, 0);
             proto_tree_add_string (req_tree, hf_fcdns_rply_spname, tvb,
                                    offset+1, len,
-                                   tvb_get_ptr (tvb, offset+1, len));
+                                   (char*)tvb_get_ptr (tvb, offset+1, len));
         }
     }
 }
@@ -1234,7 +1234,7 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                        3)));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
-        str = zonenm_to_str (tvb, offset+4);
+	str = (char*)zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
                                offset+4, idlen, str);
         break;
@@ -1452,7 +1452,7 @@ dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             proto_tree_add_text (req_tree, tvb, offset, 1, "Name Length: %d",
                                  strlen);
             proto_tree_add_string (req_tree, hf_fcdns_zonenm, tvb, offset+3,
-                                   strlen, tvb_get_ptr (tvb, offset+3, strlen));
+                                   strlen, (char*)tvb_get_ptr (tvb, offset+3, strlen));
         }
     }
     else {

@@ -173,7 +173,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *item;
 	proto_tree *subtree;
 	int return_offset = 0;
-	gssapi_conv_info_t *gss_info;
+	gssapi_conv_info_t *volatile gss_info;
 	gssapi_oid_value *oidvalue;
 	dissector_handle_t handle;
 	conversation_t *conversation;
