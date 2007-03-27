@@ -36,6 +36,11 @@
 #include <epan/uat.h>
 #include <epan/emem.h>
 
+#ifdef _WIN32
+/* disable: warning C4090: 'XY' : different 'const' qualifiers */
+#pragma warning(disable:4090)
+#endif
+
 typedef struct _user_encap_t {
 	guint encap;
 	dissector_handle_t payload_proto;

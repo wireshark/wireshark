@@ -22,6 +22,11 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-wzcsvc.h"
 
+#ifdef _WIN32
+/* disable: warning C4101: 'xy' : unreferenced local variable */
+#pragma warning(disable:4101)
+#endif
+
 /* Ett declarations */
 static gint ett_dcerpc_wzcsvc = -1;
 

@@ -22,6 +22,11 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-eventlog.h"
 
+#ifdef _WIN32
+/* disable: warning C4018: '<' : signed/unsigned mismatch */
+#pragma warning(disable:4018)
+#endif
+
 /* Ett declarations */
 static gint ett_dcerpc_eventlog = -1;
 static gint ett_eventlog_eventlogReadFlags = -1;

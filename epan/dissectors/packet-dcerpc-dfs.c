@@ -22,6 +22,11 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-dfs.h"
 
+#ifdef _WIN32
+/* disable: warning C4101: 'xy' : unreferenced local variable */
+#pragma warning(disable:4101)
+#endif
+
 /* Ett declarations */
 static gint ett_dcerpc_netdfs = -1;
 static gint ett_netdfs_dfs_Info0 = -1;

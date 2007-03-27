@@ -13,6 +13,13 @@
 #include "config.h"
 #endif
 
+#ifdef _WIN32
+/* disable: warning C4005: 'xx' : macro redefinition */
+#pragma warning(disable:4005)
+/* disable: warning C4013: 'initshutdown_dissect_struct_String' undefined; assuming extern returning int */
+#pragma warning(disable:4013)
+#endif
+
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>

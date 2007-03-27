@@ -22,6 +22,13 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-srvsvc.h"
 
+#ifdef _WIN32
+/* disable: warning C4101: 'xy' : unreferenced local variable */
+#pragma warning(disable:4101)
+/* disable: warning C4013: 'xy' undefined; assuming extern returning int */
+#pragma warning(disable:4013)
+#endif
+
 /* Ett declarations */
 static gint ett_dcerpc_srvsvc = -1;
 static gint ett_srvsvc_srvsvc_NetCharDevInfo0 = -1;
