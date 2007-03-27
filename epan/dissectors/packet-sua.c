@@ -1854,20 +1854,16 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
 	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) */ 
 	  sccp_assoc_info_t* assoc;
-	  printf("t=%d ::",message_type);
 	  reset_sccp_assoc();
 	  assoc = get_sccp_assoc(pinfo, offset_from_real_beginning(message_tvb,0), srn, drn, message_type);
 	  
 	  if (assoc && assoc->curr_msg) {
-		printf("-->1\n");
 		  pinfo->sccp_info = assoc->curr_msg;
 		  tap_queue_packet(sua_tap,pinfo,assoc->curr_msg);
 	  } else {
-		printf("-->2\n");
 		   pinfo->sccp_info = NULL;
 	  }
   } else {
-		printf("-->3\n");
 	  pinfo->sccp_info = NULL;
   }
   
@@ -1882,21 +1878,11 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
     {
 		/* try heuristic subdissector list to see if there are any takers */
 		if (dissector_try_heuristic(heur_subdissector_list, data_tvb, pinfo, tree)) {
-			goto done;
+			return;
 		}
       /* No sub-dissection occured, treat it as raw data */
       call_dissector(data_handle, data_tvb, pinfo, sua_tree);
     }
-  }
-  done:
-  
-  if (pinfo->sccp_info) {
-	sccp_msg_info_t* m = pinfo->sccp_info;
-	  
-	  printf("p=%p fnum=%d o=%d t=%d l='%s' c='%s' a=%p\n",
-	  m,m->framenum,m->offset,m->type,m->data.co.label,m->data.co.comment,m->data.co.assoc);
-  } else {
-	 printf("-------\n"); 
   }
 }
 
