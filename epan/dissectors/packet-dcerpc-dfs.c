@@ -22,7 +22,7 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-dfs.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: warning C4101: 'xy' : unreferenced local variable */
 #pragma warning(disable:4101)
 #endif

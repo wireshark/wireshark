@@ -48,7 +48,7 @@
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
 #pragma warning(disable:4101)
 #endif

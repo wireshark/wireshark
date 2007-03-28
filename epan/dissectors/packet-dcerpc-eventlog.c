@@ -22,7 +22,7 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-eventlog.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 /* disable: warning C4018: '<' : signed/unsigned mismatch */
 #pragma warning(disable:4018)
 #endif

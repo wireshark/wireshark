@@ -24,8 +24,10 @@
 
 #include <epan/crypt/wep-wpadefs.h>  /* WEP_KEY_MAX_SIZE */
 
+#ifdef _MSC_VER
 /* This disables a VS warning for zero-sized arrays. All the compilers we support have that feature */
 #pragma warning( disable : 4200)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
