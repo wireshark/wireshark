@@ -930,7 +930,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       /* XXX - should be done in "address_to_str_buf()", but that routine
          doesn't know COL_MAX_LEN; it should be changed to take the
          maximum length as an argument. */
-      strncpy(pinfo->cinfo->col_buf[col], (gchar*)addr->data, COL_MAX_LEN);
+      strncpy(pinfo->cinfo->col_buf[col], addr->data, COL_MAX_LEN);
       pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
       break;
 

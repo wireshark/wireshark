@@ -820,7 +820,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
    * The name might contain octets that aren't printable characters,
    * format it for display.
    */
-  name_out = format_text((guchar*)name, strlen(name));
+  name_out = format_text(name, strlen(name));
 
   if (cinfo != NULL) {
     col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name_out);
@@ -1051,7 +1051,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
      * The name might contain octets that aren't printable characters,
      * format it for display.
      */
-    name_out = format_text((guchar*)name, strlen(name));
+    name_out = format_text(name, strlen(name));
     if (type != T_OPT) {
       trr = proto_tree_add_text(dns_tree, tvb, offset,
 		    (data_offset - data_start) + data_len,
@@ -1101,7 +1101,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int ns_name_len;
 
       ns_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &ns_name);
-      name_out = format_text((guchar*)ns_name, strlen(ns_name));
+      name_out = format_text(ns_name, strlen(ns_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1118,7 +1118,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int cname_len;
 
       cname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &cname);
-      name_out = format_text((guchar*)cname, strlen(cname));
+      name_out = format_text(cname, strlen(cname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1142,7 +1142,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 minimum;
 
       mname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &mname);
-      name_out = format_text((guchar*)mname, strlen(mname));
+      name_out = format_text(mname, strlen(mname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1152,7 +1152,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	cur_offset += mname_len;
 
 	rname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &rname);
-        name_out = format_text((guchar*)rname, strlen(rname));
+        name_out = format_text(rname, strlen(rname));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, rname_len, "Responsible authority's mailbox: %s",
 		       name_out);
 	cur_offset += rname_len;
@@ -1190,7 +1190,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int pname_len;
 
       pname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &pname);
-      name_out = format_text((guchar*)pname, strlen(pname));
+      name_out = format_text(pname, strlen(pname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1323,7 +1323,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       preference = tvb_get_ntohs(tvb, cur_offset);
       mx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, &mx_name);
-      name_out = format_text((guchar*)mx_name, strlen(mx_name));
+      name_out = format_text(mx_name, strlen(mx_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
       if (dns_tree != NULL) {
@@ -1423,7 +1423,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	signer_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &signer_name);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, signer_name_len,
 		"Signer's name: %s",
-		format_text((guchar*)signer_name, strlen(signer_name)));
+		format_text(signer_name, strlen(signer_name)));
 	cur_offset += signer_name_len;
 	rr_len -= signer_name_len;
 
@@ -1573,7 +1573,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	   case 3:
 	     gw_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &gw);
 	     proto_tree_add_text(rr_tree, tvb, cur_offset, gw_name_len,
-				 "Gateway: %s", format_text((guchar*)gw, strlen(gw)));
+				 "Gateway: %s", format_text(gw, strlen(gw)));
 
 	     cur_offset += gw_name_len;
 	     rr_len -= gw_name_len;	     
@@ -1643,7 +1643,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
         pname="";
         pname_len = 0;
       }
-      name_out = format_text((guchar*)pname, strlen(pname));
+      name_out = format_text(pname, strlen(pname));
 
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %d %s %s",
@@ -1680,7 +1680,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       dname_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			       &dname);
-      name_out = format_text((guchar*)dname, strlen(dname));
+      name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1742,7 +1742,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			&next_domain_name);
-      name_out = format_text((guchar*)next_domain_name, strlen(next_domain_name));
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1790,7 +1790,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       next_domain_name_len = get_dns_name(tvb, cur_offset, dns_data_offset,
 			&next_domain_name);
-      name_out = format_text((guchar*)next_domain_name, strlen(next_domain_name));
+      name_out = format_text(next_domain_name, strlen(next_domain_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -1827,7 +1827,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       preference = tvb_get_ntohs(tvb, cur_offset);
       kx_name_len = get_dns_name(tvb, cur_offset + 2, dns_data_offset, &kx_name);
-      name_out = format_text((guchar*)kx_name, strlen(kx_name));
+      name_out = format_text(kx_name, strlen(kx_name));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %s", preference, name_out);
       if (dns_tree != NULL) {
@@ -1951,7 +1951,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	tkey_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tkey_algname);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_algname_len,
 		"Algorithm name: %s",
-		format_text((guchar*)tkey_algname, strlen(tkey_algname)));
+		format_text(tkey_algname, strlen(tkey_algname)));
 	cur_offset += tkey_algname_len;
 	rr_len -= tkey_algname_len;
 
@@ -2074,7 +2074,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
       if (dns_tree != NULL) {
 	tsig_algname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &tsig_raw_algname);
-	tsig_algname=format_text((guchar*)tsig_raw_algname, strlen(tsig_raw_algname));
+	tsig_algname=format_text(tsig_raw_algname, strlen(tsig_raw_algname));
 	proto_tree_add_string(rr_tree, hf_dns_tsig_algorithm_name, tvb, cur_offset, tsig_algname_len, tsig_algname);
 	cur_offset += tsig_algname_len;
 	rr_len -= tsig_algname_len;
@@ -2262,7 +2262,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       rr_len -= 4;
 
       dname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &dname);
-      name_out = format_text((guchar*)dname, strlen(dname));
+      name_out = format_text(dname, strlen(dname));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", name_out);
       if (dns_tree != NULL) {
@@ -2286,7 +2286,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       port = tvb_get_ntohs(tvb, cur_offset+4);
 
       target_len = get_dns_name(tvb, cur_offset + 6, dns_data_offset, &target);
-      name_out = format_text((guchar*)target, strlen(target));
+      name_out = format_text(target, strlen(target));
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %u %u %u %s", priority, weight, port, name_out);
       if (dns_tree != NULL) {
@@ -2322,7 +2322,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       offset += 2;
       flags_len = tvb_get_guint8(tvb, offset);
       offset++;
-      flags = (gchar*)tvb_get_ephemeral_string(tvb, offset, flags_len);
+      flags = tvb_get_ephemeral_string(tvb, offset, flags_len);
       offset += flags_len;
       service_len = tvb_get_guint8(tvb, offset);
       offset++;

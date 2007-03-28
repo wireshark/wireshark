@@ -257,7 +257,7 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	
 		
 	if ( Size != 0 ) {
-		s = (char*)tvb_get_ephemeral_string(tvb, offset, Size);
+		s = tvb_get_ephemeral_string(tvb, offset, Size);
 		if (tree && add_hf)
 			proto_tree_add_string(tree, hf_icep, tvb, offset, Size, s);
 	} else {

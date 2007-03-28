@@ -696,7 +696,7 @@ append_to_preamble(char *str)
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
             return;	/* no room to add the token to the preamble */
-        strcpy((char*)&packet_preamble[packet_preamble_len], str);
+        strcpy(&packet_preamble[packet_preamble_len], str);
         packet_preamble_len += toklen;
     }
 }
@@ -731,7 +731,7 @@ parse_preamble (void)
 	/* Ensure preamble has more than two chars before atempting to parse.
 	 * This should cover line breaks etc that get counted.
 	 */
-	if ( strlen((char*)packet_preamble) > 2 ) {
+	if ( strlen(packet_preamble) > 2 ) {
 		/*
 		 * Initialize to the Epoch, just in case not all fields
 		 * of the date and time are specified.
@@ -747,7 +747,7 @@ parse_preamble (void)
 		timecode.tm_isdst = -1;
 
 		/* Get Time leaving subseconds */
-		subsecs = strptime( (char*)packet_preamble, ts_fmt, &timecode );
+		subsecs = strptime( packet_preamble, ts_fmt, &timecode );
 		if (subsecs != NULL) {
 			/* Get the long time from the tm structure */
 			ts_sec  = (gint32)mktime( &timecode );

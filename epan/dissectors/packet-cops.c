@@ -1361,7 +1361,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
     variable->type=mib_to_asn_type(subtree->type);
 
   if (!sprint_realloc_by_type(&buf, &buf_len, &out_len, FALSE, variable, subtree->enums, subtree->hint, NULL))
-    g_snprintf((char*)buf,SPRINT_MAX_LEN,"%s","sprint_realloc_by_type failed");
+    g_snprintf(buf,SPRINT_MAX_LEN,"%s","sprint_realloc_by_type failed");
 
   return buf;
 }
@@ -1448,7 +1448,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
           value = vb_integer_value;
           variable.val.integer = &value;
           variable.val_len = vb_length ;
-          vb_display_string=(gchar*)format_asn_value(&variable,
+          vb_display_string=format_asn_value(&variable,
                                              last_decoded_prid_oid,last_decoded_prid_oid_length,ASN_INTEGER);
 
           proto_tree_add_text(tree, tvb, vb_value_start, length,
@@ -1475,7 +1475,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
           variable.val.integer = &value;
           variable.val_len = vb_length;
 
-          vb_display_string=(gchar*)format_asn_value(&variable,
+          vb_display_string=format_asn_value(&variable,
                                              last_decoded_prid_oid,last_decoded_prid_oid_length,ASN_UINTEGER);
 
           proto_tree_add_text(tree,tvb, vb_value_start, length, "Value %s: %s",vb_type_name, vb_display_string);
@@ -1504,7 +1504,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
           variable.type = 0;
           variable.val.string = vb_octet_string;
           variable.val_len = vb_length;
-          vb_display_string = (gchar*)format_asn_value(&variable,
+          vb_display_string = format_asn_value(&variable,
                                                last_decoded_prid_oid,last_decoded_prid_oid_length,ASN_OCTET_STR);
           proto_tree_add_text(tree, tvb, vb_value_start, length,
                               "Value: %s (ASN.1 type from packet: %s)", vb_display_string, vb_type_name);

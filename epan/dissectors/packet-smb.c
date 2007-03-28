@@ -2082,7 +2082,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/*Dialect Name */
 		CHECK_BYTE_COUNT(len);
 		proto_tree_add_string(dtr, hf_smb_dialect_name, tvb, offset,
-			len, (char*)str);
+			len, str);
 		COUNT_BYTES(len);
 	}
 
@@ -2429,7 +2429,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Directory: %s",
-		    format_text(dn, strlen((guchar*)dn)));
+		    format_text(dn, strlen(dn)));
 	}
 
 	END_OF_SMB
@@ -2534,7 +2534,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(an, strlen((guchar*)an)));
+		    format_text(an, strlen(an)));
 	}
 
 	/* buffer format */
@@ -2813,12 +2813,12 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-	        fn_len,	fn, "Old File Name: %s", format_text(fn, strlen((guchar*)fn)));
+	        fn_len,	fn, "Old File Name: %s", format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* buffer format */
@@ -2832,12 +2832,12 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "New File Name: %s", format_text(fn, strlen((guchar*)fn)));
+		fn_len,	fn, "New File Name: %s", format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -2882,12 +2882,12 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Source File Name: %s", format_text(fn, strlen((guchar*)fn)));
+		fn_len,	fn, "Source File Name: %s", format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Source Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* buffer format */
@@ -2902,11 +2902,11 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
 		fn_len,	fn, "Destination File Name: %s",
-		format_text(fn, strlen((guchar*)fn)));
+		format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(fn, strlen((guchar*)fn)));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Destination Name: %s", format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -2989,7 +2989,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3253,7 +3253,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3318,7 +3318,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3360,7 +3360,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* buffer format */
@@ -3379,7 +3379,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3427,7 +3427,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* buffer format */
@@ -3446,7 +3446,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", New Name: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3486,7 +3486,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3564,7 +3564,7 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -3933,7 +3933,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -4777,7 +4777,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* buffer format */
@@ -5395,7 +5395,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -6318,8 +6318,8 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			else
 				col_append_fstr(pinfo->cinfo, COL_INFO,
 						"%s\\%s",
-						format_text(dn, strlen((guchar*)dn)),
-						format_text(an, strlen((guchar*)an)));
+						format_text(dn, strlen(dn)),
+						format_text(an, strlen(an)));
 		}
 
 		/* OS */
@@ -6656,7 +6656,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(an, strlen((guchar*)an)));
+		    format_text(an, strlen(an)));
 	}
 
 	/*
@@ -6669,7 +6669,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = (char*)tvb_get_ptr(tvb, offset, an_len);
+	an = tvb_get_ptr(tvb, offset, an_len);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -6769,7 +6769,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* XXX - what if this runs past bc? */
 	an_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(an_len);
-	an = (char*)tvb_get_ptr(tvb, offset, an_len);
+	an = tvb_get_ptr(tvb, offset, an_len);
 	proto_tree_add_string(tree, hf_smb_service, tvb,
 		offset, an_len, an);
 	COUNT_BYTES(an_len);
@@ -7909,7 +7909,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 1;
 
 		/* file name */
-		fn = (char*)get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, &bc);
+		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, &bc);
 		if (fn != NULL) {
 			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 				fn);
@@ -8507,7 +8507,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 			if(len<0)break;
 
 			/* file name */
-			fn = (char*)get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, &bc);
+			fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, &bc);
 			if (fn == NULL)
 				break;
 			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
@@ -9348,7 +9348,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	END_OF_SMB
@@ -9978,7 +9978,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 		break;
 	case 0x01:	/*TRANS2_FIND_FIRST2*/
@@ -10019,7 +10019,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Pattern: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10061,7 +10061,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Continue: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10110,7 +10110,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10137,7 +10137,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10267,7 +10267,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10301,7 +10301,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", Dir: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 		break;
 	case 0x0e:	/*TRANS2_SESSION_SETUP*/
@@ -10322,7 +10322,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10336,7 +10336,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    format_text(fn, strlen((guchar*)fn)));
+			    format_text(fn, strlen(fn)));
 		}
 
 		break;
@@ -10845,7 +10845,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* EA name */
 
 		name = tvb_get_ephemeral_string(tvb, offset, name_len);
-		proto_item_append_text(item, ": %s", format_text(name, strlen((guchar*)name)));
+		proto_item_append_text(item, ": %s", format_text(name, strlen(name)));
 
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
 		proto_tree_add_item(
@@ -11158,7 +11158,7 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	/* file name */
 	CHECK_BYTE_COUNT_SUBR(fn_len);
-	fn = (char*)get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, bcp);
+	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, bcp);
 	if (fn != NULL) {
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
@@ -11229,7 +11229,7 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			fn);
 		COUNT_BYTES_SUBR(fn_len);
 
-		proto_item_append_text(item, ": %s", format_text(fn, strlen((guchar*)fn)));
+		proto_item_append_text(item, ": %s", format_text(fn, strlen(fn)));
 		proto_item_set_len(item, offset-old_offset);
 
 		if (neo == 0)
@@ -12595,10 +12595,10 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -12701,10 +12701,10 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -12785,7 +12785,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* skip to next structure */
@@ -12803,7 +12803,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -12890,7 +12890,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* skip to next structure */
@@ -12908,7 +12908,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -13021,7 +13021,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* skip to next structure */
@@ -13039,7 +13039,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
@@ -13100,7 +13100,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
-		    format_text(fn, strlen((guchar*)fn)));
+		    format_text(fn, strlen(fn)));
 	}
 
 	/* skip to next structure */
@@ -13118,7 +13118,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		}
 	}
 
-	proto_item_append_text(item, " File: %s", format_text(fn, strlen((guchar*)fn)));
+	proto_item_append_text(item, " File: %s", format_text(fn, strlen(fn)));
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;

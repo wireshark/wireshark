@@ -1603,11 +1603,11 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		 */
 		cdb_buf=ep_alloc(16+ahs_cdb_length);
 		/* the 16 first bytes of the cdb */
-		tvb_memcpy(tvb, (guint8*)cdb_buf, cdb_offset, 16);
+		tvb_memcpy(tvb, cdb_buf, cdb_offset, 16);
 		/* the remainder of the cdb from the ahs */
-		tvb_memcpy(tvb, (guint8*)cdb_buf+16, ahs_cdb_offset, ahs_cdb_length);
+		tvb_memcpy(tvb, cdb_buf+16, ahs_cdb_offset, ahs_cdb_length);
 
-		cdb_tvb = tvb_new_real_data((guint8*)cdb_buf,
+		cdb_tvb = tvb_new_real_data(cdb_buf,
 					  ahs_cdb_length+16,
 					  ahs_cdb_length+16);
 

@@ -553,7 +553,7 @@ static const gchar *solve_address_to_name(address *addr)
     return get_hostname6(&ipv6_addr);
 
   case AT_STRINGZ:
-    return (gchar*)addr->data;
+    return addr->data;
 
   default:
     return NULL;

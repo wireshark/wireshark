@@ -273,7 +273,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   */
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
-	      iseries_UNICODE_to_ASCII ((guint8*)buf, ISERIES_LINE_LENGTH);
+	      iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
 	    }
 	  num_items_scanned = sscanf (buf,
 				      "   Object protocol  . . . . . . :  %8s",
@@ -384,7 +384,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
 	      /* buflen is #bytes to 1st 0x0A */
-	      buflen = iseries_UNICODE_to_ASCII ((guint8*)buf, ISERIES_LINE_LENGTH);
+	      buflen = iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
 	    }
 	  else
 	    {
@@ -502,7 +502,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  iseries_UNICODE_to_ASCII ((guint8*)data, ISERIES_LINE_LENGTH);
+	  iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
 	}
       /* look for packet header */
       num_items_scanned =
@@ -543,7 +543,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   if (wth->capture.iseries->sdate)
     {
       num_items_scanned =
-	sscanf ((char*)wth->capture.iseries->sdate, "%d/%d/%d", &month, &day, &year);
+	sscanf (wth->capture.iseries->sdate, "%d/%d/%d", &month, &day, &year);
       tm.tm_year = 100 + year;
       tm.tm_mon = month - 1;
       tm.tm_mday = day;
@@ -578,9 +578,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * Allocate 2 work buffers to handle concatentation of the hex data block
    */
   tcpdatabuf = g_malloc (ISERIES_PKT_ALLOC_SIZE);
-  g_snprintf ((gchar*)tcpdatabuf, 1, "%s", "");
+  g_snprintf (tcpdatabuf, 1, "%s", "");
   workbuf = g_malloc (ISERIES_PKT_ALLOC_SIZE);
-  g_snprintf ((gchar*)workbuf, 1, "%s", "");
+  g_snprintf (workbuf, 1, "%s", "");
   /* loop through packet lines and breakout when the next packet header is read */
   pktline = 0;
   while (isCurrentPacket)
@@ -607,7 +607,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII and determine line length */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  buflen = iseries_UNICODE_to_ASCII ((guint8*)data, ISERIES_LINE_LENGTH);
+	  buflen = iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
 	}
       else
 	{
@@ -649,19 +649,19 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	  switch (num_items_scanned)
 	    {
 	    case 1:
-	      g_snprintf ((gchar*)workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
+	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s", tcpdatabuf,
 			  hex1);
 	      break;
 	    case 2:
-	      g_snprintf ((gchar*)workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
+	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s",
 			  tcpdatabuf, hex1, hex2);
 	      break;
 	    case 3:
-	      g_snprintf ((gchar*)workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
+	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s",
 			  tcpdatabuf, hex1, hex2, hex3);
 	      break;
 	    default:
-	      g_snprintf ((gchar*)workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
+	      g_snprintf (workbuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s",
 			  tcpdatabuf, hex1, hex2, hex3, hex4);
 	    }
 	  memcpy (tcpdatabuf, workbuf, ISERIES_PKT_ALLOC_SIZE);
@@ -720,20 +720,20 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       if (wth->capture.iseries->tcp_formatted)
 	{
 	  /* build string for formatted fields */
-	  g_snprintf ((gchar*)asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s%s",
+	  g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s%s",
 		      destmac, srcmac, type, ipheader, tcpheader, tcpdatabuf);
 	}
       else
 	{
 	  /* build string for unformatted data fields */
-	  g_snprintf ((gchar*)asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s", destmac,
+	  g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s", destmac,
 		      srcmac, type, tcpdatabuf);
 	}
     }
   else
     {
       /* No data in the packet */
-      g_snprintf ((gchar*)asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s", destmac,
+      g_snprintf (asciibuf, ISERIES_PKT_ALLOC_SIZE, "%s%s%s%s%s", destmac,
 		  srcmac, type, ipheader, tcpheader);
     }
 
@@ -741,7 +741,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    * Extract the packet length from the actual IP header, this may differ from the capture length
    * reported by the formatted trace
    */
-  num_items_scanned = sscanf ((gchar*)asciibuf + 32, "%4x", &pkt_len);
+  num_items_scanned = sscanf (asciibuf + 32, "%4x", &pkt_len);
   wth->phdr.len = pkt_len + 14;
 
   /* Make sure we have enough room for the packet, only create buffer if none supplied */
@@ -750,12 +750,12 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       buffer_assure_space (wth->frame_buffer, ISERIES_MAX_PACKET_LEN);
       buf = buffer_start_ptr (wth->frame_buffer);
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (asciibuf, buf, strlen ((gchar*)asciibuf));
+      iseries_parse_hex_string (asciibuf, buf, strlen (asciibuf));
     }
   else
     {
       /* Convert ascii data to binary and return in the frame buffer */
-      iseries_parse_hex_string (asciibuf, pd, strlen ((gchar*)asciibuf));
+      iseries_parse_hex_string (asciibuf, pd, strlen (asciibuf));
     }
 
   /* free buffers allocs and return */

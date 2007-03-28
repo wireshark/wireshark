@@ -170,7 +170,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   	iface_len = 6;
 
   interface_name=ep_alloc(iface_len+1);
-  tvb_get_nstringz0(tvb, 2, iface_len, (guint8*)interface_name);
+  tvb_get_nstringz0(tvb, 2, iface_len, interface_name);
 
   /* Known interface name - if not, remember it */
   found=FALSE;

@@ -588,9 +588,9 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                 iap_conv->iap_query_frame = pinfo->fd->num;
                 iap_conv->pattr_dissector = NULL;
 
-                tvb_memcpy(tvb, (guint8*)class_name, offset + 1 + 1, clen);
+                tvb_memcpy(tvb, class_name, offset + 1 + 1, clen);
                 class_name[clen] = 0;
-                tvb_memcpy(tvb, (guint8*)attr_name, offset + 1 + 1 + clen + 1, alen);
+                tvb_memcpy(tvb, attr_name, offset + 1 + 1 + clen + 1, alen);
                 attr_name[alen] = 0;
 
                 /* Find the attribute dissector */
@@ -614,9 +614,9 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
                 col_add_str(pinfo->cinfo, COL_INFO, "GetValueByClass: \"");
 
-                tvb_memcpy(tvb, (guint8*)buf, offset + 1 + 1, clen);
+                tvb_memcpy(tvb, buf, offset + 1 + 1, clen);
                 memcpy(&buf[clen], "\" \"", 3);
-                tvb_memcpy(tvb, (guint8*)buf + clen + 3, offset + 1 + 1 + clen + 1, alen);
+                tvb_memcpy(tvb, buf + clen + 3, offset + 1 + 1 + clen + 1, alen);
                 buf[clen + 3 + alen] = '\"';
                 buf[clen + 3 + alen + 1] = 0;
                 col_append_str(pinfo->cinfo, COL_INFO, buf);
@@ -762,7 +762,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         case IAS_STRING:
                             strcpy(buf, ", \"");
                             n = tvb_get_guint8(tvb, offset + 8);
-                            tvb_memcpy(tvb, (guint8*)buf + 3, offset + 9, n);
+                            tvb_memcpy(tvb, buf + 3, offset + 9, n);
                             strcpy(buf + 3 + n, "\"");
                             break;
                     }
@@ -1643,7 +1643,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
                         if (name_len > 22)
                             name_len = 22;
-                        tvb_memcpy(tvb, (guint8*)buf, offset, name_len);
+                        tvb_memcpy(tvb, buf, offset, name_len);
                         buf[name_len] = 0;
                         col_append_str(pinfo->cinfo, COL_INFO, ", \"");
                         col_append_str(pinfo->cinfo, COL_INFO, buf);
@@ -1690,7 +1690,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         length = tvb_length(tvb);
         if (length > sizeof(buf)-1)
             length = sizeof(buf)-1;
-        tvb_memcpy(tvb, (guint8*)buf, 0, length);
+        tvb_memcpy(tvb, buf, 0, length);
         buf[length] = 0;
         if (buf[length-1] == '\n')
             buf[length-1] = 0;

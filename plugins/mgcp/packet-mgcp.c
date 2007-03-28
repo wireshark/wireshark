@@ -958,7 +958,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 	gchar word[5];
 
 	/* Read the string into 'word' and see if it looks like the start of a verb */
-	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), (guint8*)word))
+	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
 	{
 		if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
 		    ((strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
@@ -1332,7 +1332,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf)
 
                        /* set the observedEvents or signalReq used in Voip Calls analysis */
                        if (buf != NULL) {
-                               *buf = (gchar*)tvb_get_ephemeral_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
+                               *buf = tvb_get_ephemeral_string(tvb, tvb_current_offset, (len - tvb_current_offset + offset));
                        }
 		}
 	}
@@ -1841,7 +1841,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 
 	/* The P: line */
 	offset += param_type_len; /* skip the P: */
-	tokenline = (gchar*)tvb_get_ephemeral_string(tvb, offset, param_val_len);
+	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);
@@ -1953,7 +1953,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 
 	/* The L: line */
 	offset += param_type_len; /* skip the L: */
-	tokenline = (gchar*)tvb_get_ephemeral_string(tvb, offset, param_val_len);
+	tokenline = tvb_get_ephemeral_string(tvb, offset, param_val_len);
 
 	/* Split into type=value pairs separated by comma */
 	tokens = ep_strsplit(tokenline, ",", -1);

@@ -512,7 +512,7 @@ static int cond_hash(tvbparse_t* tt, int offset, const tvbparse_wanted_t* wanted
     if (key_len < 0) 
         return -1;
     
-    key = (gchar*)tvb_get_ephemeral_string(key_elem->tvb,key_elem->offset,key_elem->len);
+    key = tvb_get_ephemeral_string(key_elem->tvb,key_elem->offset,key_elem->len);
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_HASH) g_warning("cond_hash: got key='%s'",key);
 #endif

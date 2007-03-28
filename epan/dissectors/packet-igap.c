@@ -200,7 +200,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     	}
 	tvb_memcpy(tvb, account, offset, asize);
 	account[asize] = '\0';
-	proto_tree_add_string(tree, hf_account, tvb, offset, asize, (char*)account);
+	proto_tree_add_string(tree, hf_account, tvb, offset, asize, account);
     }
     offset += ACCOUNT_SIZE;
 

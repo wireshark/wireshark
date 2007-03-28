@@ -66,6 +66,23 @@ else
 fi
 rm -rf conftest*
 
+AC_MSG_CHECKING(to see if we can add '-Wno-pointer-sign' to CFLAGS)
+if test x$GCC == xyes ; then
+  # some versions of GCC support this directive
+  rm -rf conftest*
+  echo "int foo;" >>conftest.c
+  if $CC -c -o conftest.o conftest.c -Wno-pointer-sign > /dev/null 2>&1 ; then
+    CFLAGS="$CFLAGS -Wno-pointer-sign"
+    AC_MSG_RESULT(yes)
+  else
+    AC_MSG_RESULT(no)
+  fi
+else
+  # non-gcc compilers do not support this directive
+  AC_MSG_RESULT(no)
+fi
+rm -rf conftest*
+
 AC_ARG_WITH(warnings-as-errors,
 [  --with-warnings-as-errors Treat warnings as errors (if using gcc). [default=no]],
 [  

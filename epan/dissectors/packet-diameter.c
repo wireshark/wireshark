@@ -1871,7 +1871,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 					data = tvb_get_ptr(tvb, offset, avpDataLength);
 					proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-					                             tvb, offset, avpDataLength, (char*)data,
+					                             tvb, offset, avpDataLength, data,
 					                             "Identity: %*.*s",
 					                             (int)avpDataLength,
 					                             (int)avpDataLength, data);
@@ -1883,7 +1883,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 		
 					data = tvb_get_ptr(tvb, offset, avpDataLength);
 					proto_tree_add_string_format(avpi_tree, hf_diameter_avp_data_string,
-					                             tvb, offset, avpDataLength, (char*)data,
+					                             tvb, offset, avpDataLength, data,
 					                             "UTF8String: %*.*s",
 					                             (int)avpDataLength,
 					                             (int)avpDataLength, data);

@@ -489,7 +489,7 @@ recent_set_arg(char *prefarg)
 	guchar *p, *colonp;
 	int ret;
 
-	colonp = (guchar*)strchr(prefarg, ':');
+	colonp = strchr(prefarg, ':');
 	if (colonp == NULL)
 		return PREFS_SET_SYNTAX_ERR;
 
@@ -513,7 +513,7 @@ recent_set_arg(char *prefarg)
 		return PREFS_SET_SYNTAX_ERR;
 	}
 
-	ret = read_set_recent_pair_static(prefarg, (gchar*)p, NULL);
+	ret = read_set_recent_pair_static(prefarg, p, NULL);
 	*colonp = ':';	/* put the colon back */
 	return ret;
 }

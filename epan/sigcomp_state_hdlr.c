@@ -467,7 +467,7 @@ int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_
 		partial_state[n] = buff[p_id_start + n];
 		n++;
 	}
-	partial_state_str = bytes_to_str((guint8*)partial_state, p_id_length);
+	partial_state_str = bytes_to_str(partial_state, p_id_length);
 	proto_tree_add_text(tree,tvb, 0, -1,"### Accessing state ###");
 	proto_tree_add_string(tree,hf_id, tvb, 0, 0, partial_state_str);
 
@@ -581,7 +581,7 @@ void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint16 p_id_
 		partial_state[i] = state_identifier[i];
 		i++;
 	}
-	partial_state_str = bytes_to_str((guint8*)partial_state, p_id_length);
+	partial_state_str = bytes_to_str(partial_state, p_id_length);
 
 	dummy_buff = g_hash_table_lookup(state_buffer_table, partial_state_str);
 	if ( dummy_buff == NULL ){

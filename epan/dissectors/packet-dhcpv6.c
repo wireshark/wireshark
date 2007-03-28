@@ -579,7 +579,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				    status_code);
 
 		if (optlen - 2 > 0) {
-		    status_message = (char*)tvb_get_ephemeral_string(tvb, off + 2, optlen - 2);
+		    status_message = tvb_get_ephemeral_string(tvb, off + 2, optlen - 2);
 		    proto_tree_add_text(subtree, tvb, off + 2, optlen - 2,
 					"Status Message: %s",
 					status_message);

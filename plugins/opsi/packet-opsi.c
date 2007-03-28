@@ -339,7 +339,7 @@ void decode_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int 
 	}
 	
 	pbuffer=tvb_get_string(tvb, offset+4, length-4);
-	proto_tree_add_string(tree, *hfValue, tvb, offset+4, length-4, (char*)pbuffer);
+	proto_tree_add_string(tree, *hfValue, tvb, offset+4, length-4, pbuffer);
 	g_free(pbuffer);	
 }
 

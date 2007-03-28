@@ -1971,7 +1971,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         /* add interface instance to database (we currently only handle IPv4) */
         if(pinfo->net_src.type == AT_IPv4) {
             dcom_if = dcom_interface_new(pinfo, 
-	        (guint8*)ip,
+	        ip,
                 &iid, oxid, oid, &ipid);
         }
     }

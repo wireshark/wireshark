@@ -361,7 +361,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
 	 */
 	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
-	if (strncasecmp((gchar*)word, "MEGACO", 6) != 0 && (gchar)tvb_get_guint8(tvb, tvb_offset ) != '!'){
+	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
 		call_dissector(h248_handle,tvb,pinfo,tree);
 		return;
 	}
@@ -1169,7 +1169,7 @@ nextcontext:
 						/*** TERM ***/
 						my_proto_tree_add_string(megaco_tree_command_line, hf_megaco_termid, tvb,
 							tvb_offset, tokenlen,
-							(gchar*)TermID);
+							TermID);
 						break;
 
 					case '*':
@@ -2312,7 +2312,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
 				break;
 
 			tvb_get_nstringz0(tvb,tvb_current_offset,4,ServiceChangeReason_str);
-			reason = atoi((gchar*)ServiceChangeReason_str);
+			reason = atoi(ServiceChangeReason_str);
 
 			proto_item_append_text(item,"[ %s ]", val_to_str(reason, MEGACO_ServiceChangeReasons_vals,"Unknown (%u)"));
 			break;
@@ -2792,7 +2792,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset , tvb_RBRKT, '=');
 	tvb_current_offset = tvb_skip_wsp(tvb, tvb_current_offset +1);
 	tvb_get_nstringz0(tvb,tvb_current_offset,4,error);
-	error_code = atoi((gchar*)error);
+	error_code = atoi(error);
 	proto_tree_add_string_hidden(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
 					 		tvb_current_offset, 3,
 							tvb_format_text(tvb, tvb_current_offset,
@@ -3160,7 +3160,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 				tokenlen));
 			
 			tvb_get_nstringz0(tvb,tvb_current_offset,3,code_str);
-			proto_item_append_text(item,"[ %s ]", val_to_str(strtoul((gchar*)code_str,NULL,16), dscp_vals,"Unknown (%u)"));
+			proto_item_append_text(item,"[ %s ]", val_to_str(strtoul(code_str,NULL,16), dscp_vals,"Unknown (%u)"));
 			
 			tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
 			break;

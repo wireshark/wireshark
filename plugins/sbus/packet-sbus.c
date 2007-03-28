@@ -1098,13 +1098,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      /* Response: Firmware version */
                      case SBUS_RD_PROGRAM_VERSION:
                             /*PCD type*/
-			    tmp_string = (char*)tvb_get_string(tvb, offset, 5);
+			    tmp_string = tvb_get_string(tvb, offset, 5);
                             proto_tree_add_string(sbus_tree,
                                 hf_sbus_cpu_type, tvb, offset, 5, tmp_string);
                             offset += 5; 
                             g_free(tmp_string);
                             /*FW version*/
-                            tmp_string = (char*)tvb_get_string(tvb , offset, 3);
+                            tmp_string = tvb_get_string(tvb , offset, 3);
                             proto_tree_add_string(sbus_tree,
                                 hf_sbus_fw_version, tvb, offset, 3, tmp_string);
                             offset += 4;

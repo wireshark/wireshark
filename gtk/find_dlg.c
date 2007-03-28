@@ -677,7 +677,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     } else {
       /* The raw packet data */
       if(string){
-	found_packet = cf_find_packet_data(&cfile, (guint8*)string, strlen(string));
+	found_packet = cf_find_packet_data(&cfile, string, strlen(string));
         g_free(string);
       }
       if (!found_packet) {
@@ -751,7 +751,7 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
         cf_find_packet_summary_line(&cfile, string);
       } else {
         /* The raw packet data */
-        cf_find_packet_data(&cfile, (guint8*)string, strlen(string));
+        cf_find_packet_data(&cfile, string, strlen(string));
       }
       g_free(string);
     } else {

@@ -131,8 +131,8 @@ static void draw_gtk_node(stat_node* node) {
 	static gchar percent[NUM_BUF_SIZE];
 	stat_node* child;
 	
-	stats_tree_get_strs_from_node(node, (guint8*)value, (guint8*)rate,
-				      (guint8*)percent);
+	stats_tree_get_strs_from_node(node, value, rate,
+				      percent);
 	
 #if GTK_MAJOR_VERSION >= 2
 	if (node->st->pr->store && node->pr->iter) {
@@ -230,7 +230,7 @@ static void reset_tap(void* p) {
 
 /* initializes the stats_tree window */
 static void init_gtk_tree(const char* optarg, void *userdata _U_) {
-	guint8* abbr = stats_tree_get_abbr((guint8*)optarg);
+	guint8* abbr = stats_tree_get_abbr(optarg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;
 	tree_pres* pr = g_malloc(sizeof(tree_pres));
@@ -269,7 +269,7 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 				if (init_strlen == strlen(optarg)) {
 					st = stats_tree_new(cfg,pr,NULL);
 				} else { 
-					st = stats_tree_new(cfg,pr,((gchar*)optarg)+init_strlen+1);
+					st = stats_tree_new(cfg,pr,(char*)optarg+init_strlen+1);
 				}
 				
 			} else {
@@ -371,7 +371,7 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 
 	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 	
-	error_string = register_tap_listener( (char*)cfg->tapname,
+	error_string = register_tap_listener( cfg->tapname,
 					      st,
 					      st->filter,
 					      reset_tap,
@@ -419,7 +419,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	cfg->pr->stat_dlg->tap_init_cb = init_gtk_tree;
 	cfg->pr->stat_dlg->index = -1;
 	
-	register_dfilter_stat(cfg->pr->stat_dlg, (char*)cfg->name,
+	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name,
 	    REGISTER_STAT_GROUP_NONE);
 }
 

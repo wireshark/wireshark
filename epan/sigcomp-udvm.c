@@ -2463,7 +2463,7 @@ execute_next_instruction:
 			if (print_level_3 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               Addr: %5u State value: %u (0x%x) ASCII(%s)",
-					k,buff[k],buff[k],format_text((guchar*)string, 1));
+					k,buff[k],buff[k],format_text(string, 1));
 			}
 			k = ( k + 1 ) & 0xffff;
 			n++;
@@ -2584,7 +2584,7 @@ execute_next_instruction:
 			if (print_level_3 ){
 				proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,
 					"               Output value: %u (0x%x) ASCII(%s) from Addr: %u ,output to dispatcher position %u",
-					buff[k],buff[k],format_text((guchar*)string,1), k,output_address);
+					buff[k],buff[k],format_text(string,1), k,output_address);
 			}
 			k = ( k + 1 ) & 0xffff;
 			output_address ++;

@@ -158,7 +158,7 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
 
 	argv_len=len>255?255:len;
-	tvb_memcpy(tvb, (guint8*)argv, offset, argv_len);
+	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
 	proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, FALSE);
@@ -189,7 +189,7 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
 
 	argv_len=len>255?255:len;
-	tvb_memcpy(tvb, (guint8*)argv, offset, argv_len);
+	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
 	proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, FALSE);
@@ -220,7 +220,7 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
 
 	argv_len=len>255?255:len;
-	tvb_memcpy(tvb, (guint8*)argv, offset, argv_len);
+	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
 	proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, FALSE);
@@ -313,11 +313,11 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		/* read the token */
-		tvb_memcpy(tvb, (guint8*)token, offset, 4);
+		tvb_memcpy(tvb, token, offset, 4);
 		offset+=4;
 
 		/* read the parameter */
-		sscanf((char*)tvb_get_ptr(tvb, offset, 8), "%08x", &parameter);
+		sscanf(tvb_get_ptr(tvb, offset, 8), "%08x", &parameter);
 		offset+=8;
 
 		if(!strncmp(token, "DIST", 4)){

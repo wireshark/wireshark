@@ -943,7 +943,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 
 				string = ep_alloc(length);
 
-				tvb_memcpy(tvb, (guint8*)string, start, length);
+				tvb_memcpy(tvb, string, start, length);
 			} else if (length == 0) {
 				string = "[Empty]";
 			} else {
@@ -978,7 +978,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 				 * we made string values counted
 				 * rather than null-terminated.)
 				 */
-				string = (gchar*)tvb_get_ephemeral_string(tvb,
+				string = tvb_get_ephemeral_string(tvb,
 									  start,
 									  length);
 			}
@@ -1965,7 +1965,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 		length = tvb_ensure_length_remaining(tvb, start);
 	}
 
-	string = (gchar*)tvb_get_ephemeral_string(tvb, start, length);
+	string = tvb_get_ephemeral_string(tvb, start, length);
 	proto_tree_set_string(fi, string);
 }
 
@@ -3872,14 +3872,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-	    if(strlen((char*)bytes) > ITEM_LABEL_LENGTH) {
+	    if(strlen(bytes) > ITEM_LABEL_LENGTH) {
 			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s [truncated]: %s", hfinfo->name,
-				    format_text(bytes, strlen((char*)bytes)));
+				    format_text(bytes, strlen(bytes)));
             } else {
 			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				    "%s: %s", hfinfo->name,
-				    format_text(bytes, strlen((char*)bytes)));
+				    format_text(bytes, strlen(bytes)));
             }
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';

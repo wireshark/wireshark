@@ -513,7 +513,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	token_2_len = space_offset - token_2_start;
 
 	/* Transaction ID found store it for later use */
-	transaction_id_str = (char*)tvb_get_ephemeral_string(tvb, token_2_start, token_2_len);
+	transaction_id_str = tvb_get_ephemeral_string(tvb, token_2_start, token_2_len);
 
 	/* Look for another space in this line to indicate a 4th token */
 	token_3_start = space_offset + 1;
@@ -590,7 +590,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			reqresp_tree = proto_item_add_subtree(th, ett_msrp_reqresp);
 			proto_tree_add_item(reqresp_tree,hf_msrp_transactionID,tvb,token_2_start,token_2_len,FALSE);
 			proto_tree_add_uint(reqresp_tree,hf_msrp_status_code,tvb,token_3_start,token_3_len,
-			                    atoi((char*)tvb_get_string(tvb, token_3_start, token_3_len)));
+			                    atoi(tvb_get_string(tvb, token_3_start, token_3_len)));
 
 		}else{
 			th = proto_tree_add_item(msrp_tree,hf_msrp_request_line,tvb,0,linelen,FALSE);
@@ -654,7 +654,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 * Fetch the value.
 					 */
 					value_len = line_end_offset - value_offset;
-					value = (char*)tvb_get_ephemeral_string(tvb, value_offset,
+					value = tvb_get_ephemeral_string(tvb, value_offset,
 				                       value_len);
 
 					/*
@@ -684,10 +684,10 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									parameter_offset++;
 								content_type_len = semi_colon_offset - value_offset;
 								content_type_parameter_str_len = line_end_offset - parameter_offset;
-								content_type_parameter_str = (char*)tvb_get_ephemeral_string(tvb,
+								content_type_parameter_str = tvb_get_ephemeral_string(tvb,
 										     parameter_offset, content_type_parameter_str_len);
 							}
-							media_type_str = (char*)tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
+							media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
 #if GLIB_MAJOR_VERSION < 2
 							media_type_str_lower_case = g_strdup(media_type_str);
 							g_strdown(media_type_str_lower_case);

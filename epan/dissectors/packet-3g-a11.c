@@ -496,7 +496,7 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
 
     if(msid_len > A11_MSG_MSID_ELEM_LEN_MAX)
     {
-        p_msid = (guint8 *)"MSID is too long";
+        p_msid = "MSID is too long";
     }else
     {
        /* Decode the BCD digits */
@@ -527,7 +527,7 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
    
 
     proto_tree_add_string
-      (ext_tree, hf_a11_ses_msid, tvb, msid_start_offset, msid_len, (gchar *)p_msid);
+      (ext_tree, hf_a11_ses_msid, tvb, msid_start_offset, msid_len, p_msid);
 
     return;
 }

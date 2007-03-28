@@ -529,7 +529,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
     p+=MIN(MAX_BUF_LEN-(p-buf),
 	   g_snprintf(p, MAX_BUF_LEN-(p-buf), "%s", dtag->desc));
     if (vr > 0) {
-	vval = (guint8*)tvb_format_text(tvb, vr, 2);
+	vval = tvb_format_text(tvb, vr, 2);
 	p+=MIN(MAX_BUF_LEN-(p-buf),
 	       g_snprintf(p, MAX_BUF_LEN-(p-buf), " [%s]", vval));
     }
@@ -537,7 +537,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
     switch (tr > 0 ? tr : dtag->dtype) {
     case DCM_TSTR:
     default:		/* try ascii */
-	vval = (guint8*)tvb_format_text(tvb, offset, len);
+	vval = tvb_format_text(tvb, offset, len);
 	p+=MIN(MAX_BUF_LEN-(p-buf),
 	       g_snprintf(p, MAX_BUF_LEN-(p-buf), " %s", vval));
 	break;
@@ -639,7 +639,7 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
 		proto_tree_add_item(dcm_tree, hf_dcm_pdi_syntax, tvb, offset, len > 65 ? 65 : len, FALSE);
 	    if (reply && di && di->valid) {
 		name = tvb_get_ephemeral_string(tvb, offset, len);
-		dcm_setSyntax(di, (char*)name);
+		dcm_setSyntax(di, name);
 	    }
 	    reply = 0;
 	    offset += len;
