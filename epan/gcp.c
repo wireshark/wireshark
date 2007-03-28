@@ -676,7 +676,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
 
             for (c = ctx->cmds; c; c = c->next) {
                 proto_item* cmd_item = proto_tree_add_uint(history_tree,ids->hf.ctx_cmd,gcp_tvb,0,0,c->cmd->msg->framenum);
-                proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
+                if (c->cmd->str) proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
                 PROTO_ITEM_SET_GENERATED(cmd_item);
                 if (c->cmd->error) {
                     proto_item_set_expert_flags(cmd_item, PI_RESPONSE_CODE, PI_WARN);
