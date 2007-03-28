@@ -262,7 +262,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (linelen >= 4 && ISALPHA(line[0]) && ISALPHA(line[1]) &&
 	      ISALPHA(line[2]) && ISALPHA(line[3]) &&
 	      (linelen == 4 || line[4] == ' ')) {
-	    if (strncasecmp(line, "DATA", 4) == 0) {
+	    if (strncasecmp((char*)line, "DATA", 4) == 0) {
 
 	      /*
 	       * DATA command.
@@ -281,9 +281,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    }
 	  } else {
-		if ((linelen >= 7) && line[0] == 'X' && ( (strncasecmp(line, "X-EXPS ", 7) == 0) ||
-			((linelen >=13) && (strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
-			((linelen >= 8) && (strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
+		if ((linelen >= 7) && line[0] == 'X' && ( (strncasecmp((char*)line, "X-EXPS ", 7) == 0) ||
+			((linelen >=13) && (strncasecmp((char*)line, "X-LINK2STATE ", 13) == 0)) || 
+			((linelen >= 8) && (strncasecmp((char*)line, "XEXCH50 ", 8) == 0)) ))
 				frame_data->pdu_type = SMTP_PDU_CMD;
 		else
 	    /*

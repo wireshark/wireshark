@@ -2424,7 +2424,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 
 	buf = tvb_get_ephemeral_string(tvb, 3, len);
 	EBCDIC_to_ASCII(buf, len);
-	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, buf);
+	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, (char*)buf);
 }
 
 static void

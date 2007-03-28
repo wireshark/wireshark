@@ -337,7 +337,7 @@ static gboolean
 dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-  if (tvb_memeql(tvb, 0, "YMSG", 4) == -1) {
+  if (tvb_memeql(tvb, 0, (guint8*)"YMSG", 4) == -1) {
     /* Not a Yahoo Messenger packet. */
     return FALSE;
   }

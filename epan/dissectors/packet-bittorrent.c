@@ -710,8 +710,8 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
             /* The version number is 4 numeric characters for the
                client ids beginning with '-' and 3 characters for the
                rest. */
-            version = tvb_get_string(tvb, offset + strlen(peer_id[i].id),
-	       (guint8*)(peer_id[i].id[0] == '-') ? 4 : 3);
+	    version = (char*)tvb_get_string(tvb, offset + strlen(peer_id[i].id),
+	       (peer_id[i].id[0] == '-') ? 4 : 3);
             proto_tree_add_text(tree, tvb, offset, 20, "Client is %s v%s",
                peer_id[i].name,
 	       format_text((guchar*)version, (peer_id[i].id[0] == '-') ? 4 : 3));

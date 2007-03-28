@@ -1711,7 +1711,7 @@ static void
 dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
 {
 	if( (tvb_length(tvb)>=7)
-	&&  (!tvb_memeql(tvb, 0, "NTLMSSP", 7))){
+	&&  (!tvb_memeql(tvb, 0, (guint8*)"NTLMSSP", 7))){
 		call_dissector(ntlmssp_handle, tvb, pinfo, tree);
 	} else {
 		call_dissector(gssapi_handle, tvb, pinfo, tree);
