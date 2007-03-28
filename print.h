@@ -111,7 +111,7 @@ typedef struct {
 struct _output_fields;
 typedef struct _output_fields output_fields_t;
 
-extern output_fields_t* output_fields_new();
+extern output_fields_t* output_fields_new(void);
 extern void output_fields_free(output_fields_t* info);
 extern void output_fields_add(output_fields_t* info, const gchar* field);
 extern gsize output_fields_num_fields(output_fields_t* info);
