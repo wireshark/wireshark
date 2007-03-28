@@ -327,7 +327,7 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 #define cVALS(x) (const value_string*)(x)
 
-proto_item *
+static proto_item *
 h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 {
 	gint offset;
@@ -344,7 +344,6 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 	guint32 mask32	= 0xffffffff;
 	guint8 shift;
 	int i;
-	const char *format = NULL;
 
 	if((bit_offset&0x7)==0)
 		is_bytealigned = TRUE;
@@ -440,7 +439,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 	/* prepare the string */
 	str=ep_alloc(256);
-	g_snprintf(str, 256, "");
+	str[0]='0';
 	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
 		if(bit&&(!(bit%4))){
 			strcat(str, " ");
@@ -494,7 +493,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
                       "%s: %s",
 					  str,
-					  val_to_str(value, cVALS(hfinfo->strings), "Unknown"), value);
+					  val_to_str(value, cVALS(hfinfo->strings), "Unknown"));
 	}
 	switch(hfinfo->display){
 	case BASE_DEC:
@@ -520,8 +519,8 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 /*
  * Length is used for the "Extra header" otherwise set to -1.
  */
-int
-dissect_h263_picture_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gint length, gboolean is_rfc4626)
+static int
+dissect_h263_picture_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gint length _U_, gboolean is_rfc4626)
 {
 	proto_tree *h263_opptype_tree	= NULL;
 	proto_item *opptype_item		= NULL;

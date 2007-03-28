@@ -605,7 +605,7 @@ enum {
 	STREAM_PADDING = 0xbe,
 	STREAM_PRIVATE2 = 0xbf,
 	STREAM_AUDIO = 0xc0,
-	STREAM_VIDEO = 0xe0,
+	STREAM_VIDEO = 0xe0
 };
 
 void
