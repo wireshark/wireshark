@@ -787,7 +787,7 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 	tvbuff_t* new_tvb = NULL;
 	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, pinfo, tree, tvb, 0, hfid, &new_tvb);
 	if (new_tvb)
-		dissect_q931_bearer_capability_ie(new_tvb, 0, 3, tree);
+		dissect_q931_bearer_capability_ie(new_tvb, 0, tvb_length(new_tvb), tree);
 }
 
 gboolean h248_c_implicit = TRUE;
