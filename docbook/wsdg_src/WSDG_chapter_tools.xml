@@ -634,7 +634,7 @@ PARTICULAR PURPOSE.]]>
           with the Windows operating system. This is also a
           wrongful interpretation, and the&#160; 
           <ulink url="http://www.gnu.org/licenses/gpl-faq.xml#WindowsRuntimeAndGPL">
-          GPL FAQ</ulink>explicitly addresses this issue.</para>
+          GPL FAQ</ulink> explicitly addresses this issue.</para>
         </listitem>
       </orderedlist>Similar applies to Visual Studio 2005 and
       alike.</para>
@@ -808,6 +808,11 @@ Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
 NMAKE : fatal error U1064: MAKEFILE not found and no target specified
 Stop.]]>
 </programlisting>However, the version string may vary.</para>
+      <para>
+	Documenation on nmake ca be found at <ulink
+	url="http://msdn2.microsoft.com/en-us/library/dd9y37ha(VS.71).aspx">
+	Microsoft MSDN</ulink>
+      </para>
     </section>
     <section>
       <title>link.exe (Linker)</title>
