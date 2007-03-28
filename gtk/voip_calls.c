@@ -2741,8 +2741,6 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 	gchar mgw_addr[128];
 	
 	if (cmd->ctx->id == NULL_CONTEXT || cmd->ctx->id == ALL_CONTEXTS ) {
-		tapinfo->redraw = FALSE;
-		
 		return 0;
 	}
 	
@@ -2824,7 +2822,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		++(strinfo->npackets);
 	}
 	
-	add_to_graph(tapinfo, pinfo, cmd->str,
+	add_to_graph(tapinfo, pinfo, cmd->str ? cmd->str : "unknown Msg",
 				 ep_strdup_printf("TrxId = %u, CtxId = %.8x",cmd->trx->id,cmd->ctx->id),
 				 strinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 	
