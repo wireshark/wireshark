@@ -79,6 +79,7 @@ static int hf_tapa_tunnel_smac = -1;
 static int hf_tapa_tunnel_seqno = -1;
 static int hf_tapa_tunnel_length = -1;
 static int hf_tapa_tunnel_0804 = -1;
+static int hf_tapa_tunnel_tagsetc = -1;
 
 static int hf_tapa_tunnel_remaining = -1;
 
@@ -392,6 +393,10 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				FALSE);
 			offset += 2;
 
+			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_tagsetc, tvb, offset, 6,
+				FALSE);
+			offset += 6;
+
 			break;
 		case TAPA_TUNNEL_TYPE_1:
 			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_seqno, tvb, offset, 2,
@@ -455,19 +460,6 @@ test_tapa_tunnel(tvbuff_t *tvb)
         	return FALSE;
 	}
 	return TRUE;
-}
-
-static gboolean
-dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	if (test_tapa_discover(tvb)) {
-		dissect_tapa_discover(tvb, pinfo, tree);
-		return TRUE;
-	} else if (test_tapa_tunnel(tvb)) {
-		dissect_tapa_tunnel(tvb, pinfo, tree);
-		return TRUE;
-	} else
-		return FALSE;
 }
 
 static int
@@ -589,6 +581,10 @@ proto_register_tapa(void)
                 { "Tapa tunnel 0804",   "tapa.tunnel.0804", FT_UINT16, BASE_HEX, NULL,
                         0x0, "", HFILL }},
 
+                { &hf_tapa_tunnel_tagsetc,
+                { "Tapa tunnel tags, seqno, pad",   "tapa.tunnel.tags", FT_BYTES, BASE_NONE, NULL,
+                        0x0, "", HFILL }},
+
 	/* TAPA tunnel type 1 */
                 { &hf_tapa_tunnel_seqno,
                 { "Tapa tunnel seqno",   "tapa.tunnel.seqno", FT_UINT16, BASE_DEC, NULL,
@@ -627,7 +623,5 @@ proto_reg_handoff_tapa(void)
 
 	tapa_handle = new_create_dissector_handle(dissect_tapa_static, proto_tapa);
 	dissector_add("udp.port", PORT_TAPA, tapa_handle);
-
-        heur_dissector_add("udp", dissect_tapa_heur, proto_tapa);
 }
 
