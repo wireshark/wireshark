@@ -95,7 +95,7 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 clean:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
 		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp libwireshark.pdb \
-		doxygen.cfg html/*.*
+		vc60.pdb doxygen.cfg html/*.*
 	if exist html rmdir html	
 	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean

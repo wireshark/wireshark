@@ -312,7 +312,7 @@ clean:
 	rm -rf $(DEVICE)
 	rm -rf $(DATA)
 	rm -rf $(MANIFEST)
-	rm -rf u3util.{exe,obj}
+	rm -rf u3util.{exe,obj,pdb}
 	rm -rf wireshark*.u3p
    	rm -rf *~ *.*~
 
