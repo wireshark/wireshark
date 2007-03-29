@@ -179,7 +179,6 @@ plugin_src = \
 	../plugins/gryphon/packet-gryphon.c \
 	../plugins/irda/packet-irda.c \
 	../plugins/lwres/packet-lwres.c \
-	../plugins/megaco/packet-megaco.c \
 	../plugins/mgcp/packet-mgcp.c \
 	../plugins/pcli/packet-pcli.c \
 	../plugins/rdm/packet-rdm.c \
