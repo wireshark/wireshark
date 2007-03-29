@@ -13,6 +13,11 @@
 #include "config.h"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4005)
+#pragma warning(disable:4013)
+#endif
+
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -21,11 +26,6 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-eventlog.h"
-
-#ifdef _MSC_VER
-/* disable: warning C4018: '<' : signed/unsigned mismatch */
-#pragma warning(disable:4018)
-#endif
 
 /* Ett declarations */
 static gint ett_dcerpc_eventlog = -1;
@@ -212,9 +212,11 @@ static int eventlog_dissect_element_DeregisterEventSource_handle_(tvbuff_t *tvb 
 static int eventlog_dissect_element_GetNumRecords_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetNumRecords_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetNumRecords_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int eventlog_dissect_element_GetNumRecords_number_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetOldestRecord_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetOldestRecord_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetOldestRecord_oldest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int eventlog_dissect_element_GetOldestRecord_oldest_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ChangeNotify_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ChangeNotify_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ChangeNotify_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -252,7 +254,9 @@ static int eventlog_dissect_element_ReadEventLogW_data(tvbuff_t *tvb _U_, int of
 static int eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_data__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_sent_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int eventlog_dissect_element_ReadEventLogW_sent_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_ReadEventLogW_real_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int eventlog_dissect_element_ReadEventLogW_real_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetLogIntormation_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetLogIntormation_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetLogIntormation_dwInfoLevel(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -260,6 +264,7 @@ static int eventlog_dissect_element_GetLogIntormation_lpBuffer(tvbuff_t *tvb _U_
 static int eventlog_dissect_element_GetLogIntormation_lpBuffer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetLogIntormation_cbBufSize(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_GetLogIntormation_cbBytesNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int eventlog_dissect_element_GetLogIntormation_cbBytesNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_FlushEventLog_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int eventlog_dissect_element_FlushEventLog_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 /* Add this one manually until we can compile LSA */
@@ -294,7 +299,7 @@ eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, int offset, packet_i
 	 * NDR encoded at all and there are byte offsets into this buffer
 	 * encoded therein.
 	 */
-	record_tvb=tvb_new_subset(tvb, offset, MIN(len, tvb_length_remaining(tvb, offset)), len);
+	record_tvb=tvb_new_subset(tvb, offset, MIN((gint)len, tvb_length_remaining(tvb, offset)), len);
 	eventlog_dissect_struct_Record(record_tvb, 0, pinfo, tree, drep, hf_eventlog_Record, 0);
 	offset+=len;
 	return offset;
@@ -319,7 +324,7 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 		/* this blob contains an NT SID. 
 		 * tvb starts at the beginning of the record.
 		 */
-		sid_tvb=tvb_new_subset(tvb, sid_offset, MIN(sid_length, tvb_length_remaining(tvb, offset)), sid_length);
+		sid_tvb=tvb_new_subset(tvb, sid_offset, MIN((gint)sid_length, tvb_length_remaining(tvb, offset)), sid_length);
 		dissect_nt_sid(sid_tvb, 0, tree, "SID", NULL, -1);
 	}
 	return offset;
@@ -1071,6 +1076,14 @@ eventlog_dissect_element_GetNumRecords_handle_(tvbuff_t *tvb _U_, int offset _U_
 static int
 eventlog_dissect_element_GetNumRecords_number(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, eventlog_dissect_element_GetNumRecords_number_, NDR_POINTER_REF, "Pointer to Number (uint32)",hf_eventlog_eventlog_GetNumRecords_number);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_GetNumRecords_number_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetNumRecords_number, 0);
 
 	return offset;
@@ -1078,7 +1091,7 @@ eventlog_dissect_element_GetNumRecords_number(tvbuff_t *tvb _U_, int offset _U_,
 
 /* IDL: NTSTATUS eventlog_GetNumRecords( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [out] uint32 number */
+/* IDL: [out] [ref] uint32 *number */
 /* IDL: ); */
 
 static int
@@ -1126,6 +1139,14 @@ eventlog_dissect_element_GetOldestRecord_handle_(tvbuff_t *tvb _U_, int offset _
 static int
 eventlog_dissect_element_GetOldestRecord_oldest(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, eventlog_dissect_element_GetOldestRecord_oldest_, NDR_POINTER_REF, "Pointer to Oldest (uint32)",hf_eventlog_eventlog_GetOldestRecord_oldest);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_GetOldestRecord_oldest_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetOldestRecord_oldest, 0);
 
 	return offset;
@@ -1133,7 +1154,7 @@ eventlog_dissect_element_GetOldestRecord_oldest(tvbuff_t *tvb _U_, int offset _U
 
 /* IDL: NTSTATUS eventlog_GetOldestRecord( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [out] uint32 oldest */
+/* IDL: [out] [ref] uint32 *oldest */
 /* IDL: ); */
 
 static int
@@ -1596,6 +1617,14 @@ eventlog_dissect_element_ReadEventLogW_data(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 eventlog_dissect_element_ReadEventLogW_sent_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, eventlog_dissect_element_ReadEventLogW_sent_size_, NDR_POINTER_REF, "Pointer to Sent Size (uint32)",hf_eventlog_eventlog_ReadEventLogW_sent_size);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_ReadEventLogW_sent_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_sent_size, 0);
 
 	return offset;
@@ -1603,6 +1632,14 @@ eventlog_dissect_element_ReadEventLogW_sent_size(tvbuff_t *tvb _U_, int offset _
 
 static int
 eventlog_dissect_element_ReadEventLogW_real_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, eventlog_dissect_element_ReadEventLogW_real_size_, NDR_POINTER_REF, "Pointer to Real Size (uint32)",hf_eventlog_eventlog_ReadEventLogW_real_size);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_ReadEventLogW_real_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_ReadEventLogW_real_size, 0);
 
@@ -1615,8 +1652,8 @@ eventlog_dissect_element_ReadEventLogW_real_size(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] uint32 offset, */
 /* IDL: [in] uint32 number_of_bytes, */
 /* IDL: [size_is(number_of_bytes)] [out] [ref] uint8 *data, */
-/* IDL: [out] uint32 sent_size, */
-/* IDL: [out] uint32 real_size */
+/* IDL: [out] [ref] uint32 *sent_size, */
+/* IDL: [out] [ref] uint32 *real_size */
 /* IDL: ); */
 
 static int
@@ -1983,6 +2020,14 @@ eventlog_dissect_element_GetLogIntormation_cbBufSize(tvbuff_t *tvb _U_, int offs
 static int
 eventlog_dissect_element_GetLogIntormation_cbBytesNeeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, eventlog_dissect_element_GetLogIntormation_cbBytesNeeded_, NDR_POINTER_REF, "Pointer to Cbbytesneeded (int32)",hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded);
+
+	return offset;
+}
+
+static int
+eventlog_dissect_element_GetLogIntormation_cbBytesNeeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_GetLogIntormation_cbBytesNeeded, 0);
 
 	return offset;
@@ -1993,7 +2038,7 @@ eventlog_dissect_element_GetLogIntormation_cbBytesNeeded(tvbuff_t *tvb _U_, int 
 /* IDL: [in] uint32 dwInfoLevel, */
 /* IDL: [size_is(cbBufSize)] [out] uint8 lpBuffer[*], */
 /* IDL: [in] uint32 cbBufSize, */
-/* IDL: [out] int32 cbBytesNeeded */
+/* IDL: [out] [ref] int32 *cbBytesNeeded */
 /* IDL: ); */
 
 static int

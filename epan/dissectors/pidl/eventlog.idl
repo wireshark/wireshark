@@ -85,14 +85,14 @@
 	/* Function: 0x04 */
 	NTSTATUS eventlog_GetNumRecords(
 		[in] policy_handle *handle,
-		[out] uint32 number
+		[out,ref] uint32 *number
 	);
 
 	/******************/
 	/* Function: 0x05 */
 	NTSTATUS eventlog_GetOldestRecord(
 		[in] policy_handle *handle,
-		[out] uint32 oldest
+		[out,ref] uint32 *oldest
 	);
 
 	/******************/
@@ -148,8 +148,8 @@
 		[in] uint32 offset,
 		[in] uint32 number_of_bytes,
 		[out,size_is(number_of_bytes)] uint8 *data,
-		[out] uint32 sent_size,
-		[out] uint32 real_size
+		[out,ref] uint32 *sent_size,
+		[out,ref] uint32 *real_size
 	);
 
 	/*****************/
@@ -203,7 +203,7 @@
 		[in] uint32 dwInfoLevel,
 		[out] [size_is(cbBufSize)] char lpBuffer[*],
 		[in] uint32 cbBufSize,
-		[out] long cbBytesNeeded
+		[out,ref] long *cbBytesNeeded
 	);
 
 	/*****************/
