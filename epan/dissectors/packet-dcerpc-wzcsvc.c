@@ -13,6 +13,13 @@
 #include "config.h"
 #endif
 
+#ifdef _MSC_VER
+#pragma warning(disable:4005)
+#pragma warning(disable:4013)
+#pragma warning(disable:4018)
+#pragma warning(disable:4101)
+#endif
+
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
@@ -21,11 +28,6 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc-wzcsvc.h"
-
-#ifdef _MSC_VER
-/* disable: warning C4101: 'xy' : unreferenced local variable */
-#pragma warning(disable:4101)
-#endif
 
 /* Ett declarations */
 static gint ett_dcerpc_wzcsvc = -1;
@@ -39,8 +41,8 @@ static gint proto_dcerpc_wzcsvc = -1;
 
 
 static e_uuid_t uuid_dcerpc_wzcsvc = {
-	0x378e52b0, 0xc0a9, 0x11cf,
-	{ 0x82, 0x2d, 0x00, 0xaa, 0x00, 0x51, 0xe4, 0x0f }
+	0x621dff68, 0x3c39, 0x4c6c,
+	{ 0xaa, 0xe3, 0xe6, 0x8e, 0x2c, 0x65, 0x03, 0xad }
 };
 static guint16 ver_dcerpc_wzcsvc = 1;
 
@@ -52,14 +54,14 @@ static guint16 ver_dcerpc_wzcsvc = 1;
 static int
 wzcsvc_dissect_EnumInterfaces_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EnumInterfaces";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EnumInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EnumInterfaces";
 	return offset;
 }
 
@@ -70,14 +72,14 @@ wzcsvc_dissect_EnumInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 wzcsvc_dissect_QueryInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="QueryInterface";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_QueryInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryInterface";
 	return offset;
 }
 
@@ -88,14 +90,14 @@ wzcsvc_dissect_QueryInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 wzcsvc_dissect_SetInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="SetInterface";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_SetInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SetInterface";
 	return offset;
 }
 
@@ -106,14 +108,14 @@ wzcsvc_dissect_SetInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 wzcsvc_dissect_RefreshInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="RefreshInterface";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_RefreshInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="RefreshInterface";
 	return offset;
 }
 
@@ -124,14 +126,14 @@ wzcsvc_dissect_RefreshInterface_request(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 wzcsvc_dissect_QueryContext_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="QueryContext";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_QueryContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="QueryContext";
 	return offset;
 }
 
@@ -142,14 +144,14 @@ wzcsvc_dissect_QueryContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 wzcsvc_dissect_SetContext_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="SetContext";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_SetContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="SetContext";
 	return offset;
 }
 
@@ -160,14 +162,14 @@ wzcsvc_dissect_SetContext_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 wzcsvc_dissect_EapolUIResponse_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolUIResponse";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolUIResponse_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolUIResponse";
 	return offset;
 }
 
@@ -178,14 +180,14 @@ wzcsvc_dissect_EapolUIResponse_request(tvbuff_t *tvb _U_, int offset _U_, packet
 static int
 wzcsvc_dissect_EapolGetCustomAuthData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolGetCustomAuthData";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolGetCustomAuthData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolGetCustomAuthData";
 	return offset;
 }
 
@@ -196,14 +198,14 @@ wzcsvc_dissect_EapolGetCustomAuthData_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 wzcsvc_dissect_EapolSetCustomAuthData_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolSetCustomAuthData";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolSetCustomAuthData_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolSetCustomAuthData";
 	return offset;
 }
 
@@ -214,14 +216,14 @@ wzcsvc_dissect_EapolSetCustomAuthData_request(tvbuff_t *tvb _U_, int offset _U_,
 static int
 wzcsvc_dissect_EapolGetInterfaceParams_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolGetInterfaceParams";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolGetInterfaceParams_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolGetInterfaceParams";
 	return offset;
 }
 
@@ -232,14 +234,14 @@ wzcsvc_dissect_EapolGetInterfaceParams_request(tvbuff_t *tvb _U_, int offset _U_
 static int
 wzcsvc_dissect_EapolSetInterfaceParams_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolSetInterfaceParams";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolSetInterfaceParams_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolSetInterfaceParams";
 	return offset;
 }
 
@@ -250,14 +252,14 @@ wzcsvc_dissect_EapolSetInterfaceParams_request(tvbuff_t *tvb _U_, int offset _U_
 static int
 wzcsvc_dissect_EapolReAuthenticateInterface_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolReAuthenticateInterface";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolReAuthenticateInterface_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolReAuthenticateInterface";
 	return offset;
 }
 
@@ -268,14 +270,14 @@ wzcsvc_dissect_EapolReAuthenticateInterface_request(tvbuff_t *tvb _U_, int offse
 static int
 wzcsvc_dissect_EapolQueryInterfaceState_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EapolQueryInterfaceState";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EapolQueryInterfaceState_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EapolQueryInterfaceState";
 	return offset;
 }
 
@@ -286,14 +288,14 @@ wzcsvc_dissect_EapolQueryInterfaceState_request(tvbuff_t *tvb _U_, int offset _U
 static int
 wzcsvc_dissect_OpenWZCDbLogSession_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="OpenWZCDbLogSession";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_OpenWZCDbLogSession_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="OpenWZCDbLogSession";
 	return offset;
 }
 
@@ -304,14 +306,14 @@ wzcsvc_dissect_OpenWZCDbLogSession_request(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 wzcsvc_dissect_CloseWZCDbLogSession_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="CloseWZCDbLogSession";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_CloseWZCDbLogSession_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="CloseWZCDbLogSession";
 	return offset;
 }
 
@@ -322,14 +324,14 @@ wzcsvc_dissect_CloseWZCDbLogSession_request(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 wzcsvc_dissect_EnumWZCDbLogRecords_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="EnumWZCDbLogRecords";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_EnumWZCDbLogRecords_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="EnumWZCDbLogRecords";
 	return offset;
 }
 
@@ -340,14 +342,14 @@ wzcsvc_dissect_EnumWZCDbLogRecords_request(tvbuff_t *tvb _U_, int offset _U_, pa
 static int
 wzcsvc_dissect_FlushWZCdbLog_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="FlushWZCdbLog";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_FlushWZCdbLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="FlushWZCdbLog";
 	return offset;
 }
 
@@ -358,14 +360,14 @@ wzcsvc_dissect_FlushWZCdbLog_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 wzcsvc_dissect_GetWZCDbLogRecord_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	guint32 status;
-
+	pinfo->dcerpc_procedure_name="GetWZCDbLogRecord";
 	return offset;
 }
 
 static int
 wzcsvc_dissect_GetWZCDbLogRecord_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
+	pinfo->dcerpc_procedure_name="GetWZCDbLogRecord";
 	return offset;
 }
 

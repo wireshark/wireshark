@@ -3,7 +3,7 @@
 */
 
 [
-  uuid("378e52b0-c0a9-11cf-822d-00aa0051e40f"),
+  uuid("621dff68-3c39-4c6c-aae3-e68e2c6503ad"),
   version(1.0),
   helpstring("Wireless Configuration Service")
 ]
