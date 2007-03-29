@@ -471,7 +471,7 @@ void dfilter_macro_init(void) {
 	dfilter_macro_uat = uat_new("Display Filter Macros",
 								sizeof(dfilter_macro_t),
 								DFILTER_MACRO_FILENAME,
-								(void**) &macros,
+								(void*) &macros,
 								&num_macros,
 								NULL,
 								"ChDisplayFilterMacrosSection",
