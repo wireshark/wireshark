@@ -16,7 +16,7 @@
 		DFS_MANAGER_VERSION_W2K3	= 4
 	} dfs_ManagerVersion;
 
-	void dfs_GetManagerVersion(
+	[public] void dfs_GetManagerVersion(
 		[out]		dfs_ManagerVersion *version
 		);
 
@@ -381,7 +381,7 @@
 	WERROR dfs_Remove2();
 
 	/* Function 0x15 */
-	WERROR dfs_EnumEx(
+	[public] WERROR dfs_EnumEx(
 		[in]		[string,charset(UTF16)] uint16 dfs_name[],
 		[in]		uint32 level,
 		[in]		uint32 bufsize,
