@@ -16,6 +16,9 @@ MANUAL srvsvc_dissect_element_NetSrvInfo102_server_type
 MANUAL srvsvc_dissect_element_NetGetFileSecurity_securityinformation
 MANUAL srvsvc_dissect_element_NetSetFileSecurity_securityinformation
 CODE START
+	#include "packet-smb.h"
+	#include "packet-smb-browse.h"
+
 static int
 srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
@@ -69,9 +72,6 @@ srvsvc_dissect_element_NetShareInfo502_sd_(tvbuff_t *tvb, int offset, packet_inf
 static int
 srvsvc_dissect_ServerType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-int dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, gboolean infoflag);
-
-	guint32 len;
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
@@ -98,7 +98,7 @@ srvsvc_dissect_element_NetSrvInfo102_server_type(tvbuff_t *tvb, int offset, pack
 
 
 static int
-srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
+srvsvc_dissect_secinfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep _U_)
 {
 	dcerpc_info *di;
 
