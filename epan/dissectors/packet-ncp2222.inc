@@ -2480,14 +2480,14 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
 {
 	proto_tree		*tree_pointer;
 	proto_tree		*tree_loc;
-	proto_tree		*struct_tree_pointer;
+	proto_tree		*struct_tree_pointer = NULL;
     char            temp_buffer[256]="\0";
     gboolean        in_struct=FALSE;
        
     tree_loc = ncp_tree->first_child;
 	for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
 	{
-        /* We currently only go one structure deap in our search for values */
+        /* We currently only go one structure deep in our search for values */
         if (tree_pointer->first_child && !in_struct && search_structs) {
             struct_tree_pointer = tree_pointer;
             tree_pointer = tree_pointer->first_child;
@@ -5814,7 +5814,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		guint32 nw_connection, guint8 sequence,
 		guint16 type, proto_tree *volatile ncp_tree)
 {
-	guint8			func, subfunc = 0;
+	guint8			func;
+	volatile guint8		subfunc = 0;
 	gboolean		requires_subfunc = FALSE;
 	gboolean		has_length = FALSE;
 	ncp_req_hash_value	*volatile request_value = NULL;

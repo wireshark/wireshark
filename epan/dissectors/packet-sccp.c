@@ -1814,7 +1814,7 @@ dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
-static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type) {
+static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type _U_) {
 	sccp_msg_info_t* m = ep_alloc(sizeof(sccp_msg_info_t));
 	m->framenum = pinfo->fd->num;
 	m->offset = 0; /* irrelevant */

@@ -747,7 +747,7 @@ lookupCtx(dcmState_t *dd, guint8 ctx)
 static void 
 dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
 {
-    int len, offset, toffset, state, vr, tr;
+    int len, offset, toffset, state, vr = 0, tr = 0;
     proto_tree *dcm_tree;
     dcmItem_t *di;
     guint8 ctx, syntax = DCM_UNK;
@@ -761,7 +761,7 @@ dissect_dcm_data(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb)
     /*
      * XXX - telling the user to "click on ASSOC request" is bogus if we
      * have already identified the ASSOC request and can connect it to
-     * this mnessage; if clicking on a request prior to this one causes
+     * this message; if clicking on a request prior to this one causes
      * additional state information to be set up that would affect the
      * dissection of this request, we should set up that state *at the
      * time we dissect that request*, if possible, and if clicking on it

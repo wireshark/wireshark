@@ -5744,13 +5744,13 @@ fConvertXXXtoUTF8 (const guint8 *in, size_t *inbytesleft, guint8 *out, size_t *o
 #if HAVE_ICONV
 	guint32 i;
 	iconv_t icd;
-	const guint8 *inp = in;
+	const char *inp = in;
 	guint8 *outp = out;
-	const guint8 **inpp = &inp;
+	const char **inpp = &inp;
 	guint8 **outpp = &outp;
 
     if ((icd = iconv_open ("UTF-8", fromcoding)) != (iconv_t) -1) {
-        i = iconv (icd, (char**) inpp, inbytesleft, (char**) outpp, outbytesleft);
+        i = iconv (icd, inpp, inbytesleft, (char**) outpp, outbytesleft);
 		*outpp[0] = '\0';
         iconv_close (icd);
         return i;
