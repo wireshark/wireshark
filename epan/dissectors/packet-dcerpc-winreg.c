@@ -29,10 +29,13 @@ static gint ett_winreg_winreg_String = -1;
 static gint ett_winreg_KeySecurityData = -1;
 static gint ett_winreg_winreg_SecBuf = -1;
 static gint ett_winreg_winreg_StringBuf = -1;
+static gint ett_winreg_KeySecurityAttribute = -1;
 static gint ett_winreg_QueryMultipleValue = -1;
 
 
 /* Header field declarations */
+static gint hf_winreg_winreg_RestoreKey_handle = -1;
+static gint hf_winreg_KeySecurityAttribute_data_size = -1;
 static gint hf_winreg_winreg_QueryInfoKey_max_valbufsize = -1;
 static gint hf_winreg_winreg_SecBuf_inherit = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_key_handle = -1;
@@ -44,6 +47,7 @@ static gint hf_winreg_winreg_QueryInfoKey_max_subkeysize = -1;
 static gint hf_winreg_winreg_OpenKey_unknown = -1;
 static gint hf_winreg_winreg_SetValue_data = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_values = -1;
+static gint hf_winreg_winreg_RestoreKey_flags = -1;
 static gint hf_winreg_winreg_QueryInfoKey_last_changed_time = -1;
 static gint hf_winreg_QueryMultipleValue_name = -1;
 static gint hf_winreg_winreg_EnumValue_type = -1;
@@ -52,11 +56,13 @@ static gint hf_winreg_access_mask = -1;
 static gint hf_winreg_winreg_CreateKey_secdesc = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_buffer = -1;
 static gint hf_winreg_winreg_GetVersion_version = -1;
+static gint hf_winreg_KeySecurityAttribute_inherit = -1;
 static gint hf_winreg_winreg_SetKeySecurity_access_mask = -1;
 static gint hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_unknown = -1;
 static gint hf_winreg_winreg_LoadKey_filename = -1;
 static gint hf_winreg_winreg_EnumValue_enum_index = -1;
+static gint hf_winreg_winreg_RestoreKey_filename = -1;
 static gint hf_winreg_winreg_CreateKey_action_taken = -1;
 static gint hf_winreg_winreg_QueryValue_size = -1;
 static gint hf_winreg_winreg_QueryMultipleValues_buffer_size = -1;
@@ -89,6 +95,7 @@ static gint hf_winreg_winreg_InitiateSystemShutdownEx_reason = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdown_message = -1;
 static gint hf_winreg_winreg_DeleteValue_value = -1;
 static gint hf_winreg_winreg_SetValue_name = -1;
+static gint hf_winreg_winreg_SaveKey_filename = -1;
 static gint hf_winreg_winreg_EnumKey_keyclass = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree = -1;
 static gint hf_winreg_winreg_EnumKey_name = -1;
@@ -100,11 +107,12 @@ static gint hf_winreg_winreg_QueryInfoKey_num_subkeys = -1;
 static gint hf_winreg_winreg_String_name_len = -1;
 static gint hf_winreg_opnum = -1;
 static gint hf_winreg_QueryMultipleValue_type = -1;
-static gint hf_winreg_winreg_QueryInfoKey_class_in = -1;
 static gint hf_winreg_winreg_InitiateSystemShutdownEx_timeout = -1;
 static gint hf_winreg_handle = -1;
 static gint hf_winreg_winreg_GetKeySecurity_sec_info = -1;
+static gint hf_winreg_winreg_QueryInfoKey_classname = -1;
 static gint hf_winreg_winreg_DeleteKey_key = -1;
+static gint hf_winreg_winreg_SaveKey_sec_attrib = -1;
 static gint hf_winreg_winreg_AccessMask_KEY_NOTIFY = -1;
 static gint hf_winreg_winreg_EnumKey_last_changed_time = -1;
 static gint hf_winreg_winreg_QueryInfoKey_max_subkeylen = -1;
@@ -134,7 +142,9 @@ static gint hf_winreg_winreg_OpenHKCU_access_mask = -1;
 static gint hf_winreg_winreg_AccessMask_KEY_ENUMERATE_SUB_KEYS = -1;
 static gint hf_winreg_winreg_AccessMask_KEY_QUERY_VALUE = -1;
 static gint hf_winreg_winreg_StringBuf_length = -1;
+static gint hf_winreg_winreg_SaveKey_handle = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_string1 = -1;
+static gint hf_winreg_KeySecurityAttribute_sec_data = -1;
 static gint hf_winreg_winreg_NotifyChangeKeyValue_string2 = -1;
 
 static gint proto_dcerpc_winreg = -1;
@@ -217,6 +227,9 @@ static int winreg_dissect_element_StringBuf_size(tvbuff_t *tvb _U_, int offset _
 static int winreg_dissect_element_StringBuf_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_StringBuf_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_StringBuf_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_KeySecurityAttribute_data_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_KeySecurityAttribute_sec_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_KeySecurityAttribute_inherit(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryMultipleValue_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryMultipleValue_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryMultipleValue_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -320,8 +333,8 @@ static int winreg_dissect_element_OpenKey_handle(tvbuff_t *tvb _U_, int offset _
 static int winreg_dissect_element_OpenKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryInfoKey_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryInfoKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int winreg_dissect_element_QueryInfoKey_class_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
-static int winreg_dissect_element_QueryInfoKey_class_in_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_QueryInfoKey_classname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_QueryInfoKey_classname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryInfoKey_num_subkeys(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryInfoKey_num_subkeys_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryInfoKey_max_subkeylen(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -350,6 +363,17 @@ static int winreg_dissect_element_QueryValue_size(tvbuff_t *tvb _U_, int offset 
 static int winreg_dissect_element_QueryValue_size_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryValue_length(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_QueryValue_length_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_RestoreKey_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_RestoreKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_RestoreKey_filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_RestoreKey_filename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_RestoreKey_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_filename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_sec_attrib(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
+static int winreg_dissect_element_SaveKey_sec_attrib_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_SetKeySecurity_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_SetKeySecurity_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
 static int winreg_dissect_element_SetKeySecurity_access_mask(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);
@@ -798,6 +822,65 @@ winreg_dissect_struct_StringBuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 	offset = winreg_dissect_element_StringBuf_size(tvb, offset, pinfo, tree, drep);
 
 	offset = winreg_dissect_element_StringBuf_name(tvb, offset, pinfo, tree, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+
+/* IDL: struct { */
+/* IDL: 	uint32 data_size; */
+/* IDL: 	KeySecurityData sec_data; */
+/* IDL: 	uint8 inherit; */
+/* IDL: } */
+
+static int
+winreg_dissect_element_KeySecurityAttribute_data_size(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_KeySecurityAttribute_data_size, 0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_KeySecurityAttribute_sec_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = winreg_dissect_struct_KeySecurityData(tvb,offset,pinfo,tree,drep,hf_winreg_KeySecurityAttribute_sec_data,0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_KeySecurityAttribute_inherit(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_winreg_KeySecurityAttribute_inherit, 0);
+
+	return offset;
+}
+
+int
+winreg_dissect_struct_KeySecurityAttribute(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_winreg_KeySecurityAttribute);
+	}
+	
+	offset = winreg_dissect_element_KeySecurityAttribute_data_size(tvb, offset, pinfo, tree, drep);
+
+	offset = winreg_dissect_element_KeySecurityAttribute_sec_data(tvb, offset, pinfo, tree, drep);
+
+	offset = winreg_dissect_element_KeySecurityAttribute_inherit(tvb, offset, pinfo, tree, drep);
 
 
 	proto_item_set_len(item, offset-old_offset);
@@ -2269,17 +2352,17 @@ winreg_dissect_element_QueryInfoKey_handle_(tvbuff_t *tvb _U_, int offset _U_, p
 }
 
 static int
-winreg_dissect_element_QueryInfoKey_class_in(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_element_QueryInfoKey_classname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryInfoKey_class_in_, NDR_POINTER_REF, "Pointer to Class In (winreg_String)",hf_winreg_winreg_QueryInfoKey_class_in);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_QueryInfoKey_classname_, NDR_POINTER_REF, "Pointer to Classname (winreg_String)",hf_winreg_winreg_QueryInfoKey_classname);
 
 	return offset;
 }
 
 static int
-winreg_dissect_element_QueryInfoKey_class_in_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+winreg_dissect_element_QueryInfoKey_classname_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = winreg_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_QueryInfoKey_class_in,0);
+	offset = winreg_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_QueryInfoKey_classname,0);
 
 	return offset;
 }
@@ -2414,7 +2497,7 @@ winreg_dissect_element_QueryInfoKey_last_changed_time_(tvbuff_t *tvb _U_, int of
 
 /* IDL: WERROR winreg_QueryInfoKey( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [out] [in] [ref] winreg_String *class_in, */
+/* IDL: [out] [in] [ref] winreg_String *classname, */
 /* IDL: [out] [ref] uint32 *num_subkeys, */
 /* IDL: [out] [ref] uint32 *max_subkeylen, */
 /* IDL: [out] [ref] uint32 *max_subkeysize, */
@@ -2431,7 +2514,7 @@ winreg_dissect_QueryInfoKey_response(tvbuff_t *tvb _U_, int offset _U_, packet_i
 	guint32 status;
 
 	pinfo->dcerpc_procedure_name="QueryInfoKey";
-	offset = winreg_dissect_element_QueryInfoKey_class_in(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_QueryInfoKey_classname(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 	offset = winreg_dissect_element_QueryInfoKey_num_subkeys(tvb, offset, pinfo, tree, drep);
@@ -2472,7 +2555,7 @@ winreg_dissect_QueryInfoKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 	pinfo->dcerpc_procedure_name="QueryInfoKey";
 	offset = winreg_dissect_element_QueryInfoKey_handle(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-	offset = winreg_dissect_element_QueryInfoKey_class_in(tvb, offset, pinfo, tree, drep);
+	offset = winreg_dissect_element_QueryInfoKey_classname(tvb, offset, pinfo, tree, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
@@ -2652,8 +2735,50 @@ winreg_dissect_ReplaceKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 	return offset;
 }
 
+static int
+winreg_dissect_element_RestoreKey_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_RestoreKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_RestoreKey_handle);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_RestoreKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_RestoreKey_handle, 0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_RestoreKey_filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_RestoreKey_filename_, NDR_POINTER_REF, "Pointer to Filename (winreg_String)",hf_winreg_winreg_RestoreKey_filename);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_RestoreKey_filename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = winreg_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_RestoreKey_filename,0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_RestoreKey_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_RestoreKey_flags, 0);
+
+	return offset;
+}
+
 /* IDL: WERROR winreg_RestoreKey( */
-/* IDL:  */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [in] [ref] winreg_String *filename, */
+/* IDL: [in] uint32 flags */
 /* IDL: ); */
 
 static int
@@ -2674,11 +2799,67 @@ static int
 winreg_dissect_RestoreKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	pinfo->dcerpc_procedure_name="RestoreKey";
+	offset = winreg_dissect_element_RestoreKey_handle(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = winreg_dissect_element_RestoreKey_filename(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = winreg_dissect_element_RestoreKey_flags(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SaveKey_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_winreg_winreg_SaveKey_handle);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, drep, hf_winreg_winreg_SaveKey_handle, 0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_filename(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SaveKey_filename_, NDR_POINTER_REF, "Pointer to Filename (winreg_String)",hf_winreg_winreg_SaveKey_filename);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_filename_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = winreg_dissect_struct_String(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_SaveKey_filename,0);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_sec_attrib(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, winreg_dissect_element_SaveKey_sec_attrib_, NDR_POINTER_UNIQUE, "Pointer to Sec Attrib (KeySecurityAttribute)",hf_winreg_winreg_SaveKey_sec_attrib);
+
+	return offset;
+}
+
+static int
+winreg_dissect_element_SaveKey_sec_attrib_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
+{
+	offset = winreg_dissect_struct_KeySecurityAttribute(tvb,offset,pinfo,tree,drep,hf_winreg_winreg_SaveKey_sec_attrib,0);
+
 	return offset;
 }
 
 /* IDL: WERROR winreg_SaveKey( */
-/* IDL:  */
+/* IDL: [in] [ref] policy_handle *handle, */
+/* IDL: [in] [ref] winreg_String *filename, */
+/* IDL: [in] [unique(1)] KeySecurityAttribute *sec_attrib */
 /* IDL: ); */
 
 static int
@@ -2699,6 +2880,12 @@ static int
 winreg_dissect_SaveKey_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
 	pinfo->dcerpc_procedure_name="SaveKey";
+	offset = winreg_dissect_element_SaveKey_handle(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = winreg_dissect_element_SaveKey_filename(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
+	offset = winreg_dissect_element_SaveKey_sec_attrib(tvb, offset, pinfo, tree, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
 	return offset;
 }
 
@@ -2745,7 +2932,7 @@ winreg_dissect_element_SetKeySecurity_sd_(tvbuff_t *tvb _U_, int offset _U_, pac
 /* IDL: WERROR winreg_SetKeySecurity( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] winreg_AccessMask access_mask, */
-/* IDL: [out] [in] [ref] KeySecurityData *sd */
+/* IDL: [in] [ref] KeySecurityData *sd */
 /* IDL: ); */
 
 static int
@@ -2754,9 +2941,6 @@ winreg_dissect_SetKeySecurity_response(tvbuff_t *tvb _U_, int offset _U_, packet
 	guint32 status;
 
 	pinfo->dcerpc_procedure_name="SetKeySecurity";
-	offset = winreg_dissect_element_SetKeySecurity_sd(tvb, offset, pinfo, tree, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, drep);
-
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_winreg_werror, &status);
 
 	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -3773,6 +3957,10 @@ static dcerpc_sub_dissector winreg_dissectors[] = {
 void proto_register_dcerpc_winreg(void)
 {
 	static hf_register_info hf[] = {
+	{ &hf_winreg_winreg_RestoreKey_handle, 
+	  { "Handle", "winreg.winreg_RestoreKey.handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityAttribute_data_size, 
+	  { "Data Size", "winreg.KeySecurityAttribute.data_size", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryInfoKey_max_valbufsize, 
 	  { "Max Valbufsize", "winreg.winreg_QueryInfoKey.max_valbufsize", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_SecBuf_inherit, 
@@ -3795,6 +3983,8 @@ void proto_register_dcerpc_winreg(void)
 	  { "Data", "winreg.winreg_SetValue.data", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryMultipleValues_values, 
 	  { "Values", "winreg.winreg_QueryMultipleValues.values", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_RestoreKey_flags, 
+	  { "Flags", "winreg.winreg_RestoreKey.flags", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryInfoKey_last_changed_time, 
 	  { "Last Changed Time", "winreg.winreg_QueryInfoKey.last_changed_time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_QueryMultipleValue_name, 
@@ -3811,6 +4001,8 @@ void proto_register_dcerpc_winreg(void)
 	  { "Buffer", "winreg.winreg_QueryMultipleValues.buffer", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_GetVersion_version, 
 	  { "Version", "winreg.winreg_GetVersion.version", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityAttribute_inherit, 
+	  { "Inherit", "winreg.KeySecurityAttribute.inherit", FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_SetKeySecurity_access_mask, 
 	  { "Access Mask", "winreg.winreg_SetKeySecurity.access_mask", FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_WOW64_64KEY, 
@@ -3821,6 +4013,8 @@ void proto_register_dcerpc_winreg(void)
 	  { "Filename", "winreg.winreg_LoadKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_EnumValue_enum_index, 
 	  { "Enum Index", "winreg.winreg_EnumValue.enum_index", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_RestoreKey_filename, 
+	  { "Filename", "winreg.winreg_RestoreKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_CreateKey_action_taken, 
 	  { "Action Taken", "winreg.winreg_CreateKey.action_taken", FT_UINT32, BASE_DEC, VALS(winreg_winreg_CreateAction_vals), 0, "", HFILL }},
 	{ &hf_winreg_winreg_QueryValue_size, 
@@ -3885,6 +4079,8 @@ void proto_register_dcerpc_winreg(void)
 	  { "Value", "winreg.winreg_DeleteValue.value", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_SetValue_name, 
 	  { "Name", "winreg.winreg_SetValue.name", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SaveKey_filename, 
+	  { "Filename", "winreg.winreg_SaveKey.filename", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_EnumKey_keyclass, 
 	  { "Keyclass", "winreg.winreg_EnumKey.keyclass", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_NotifyChangeKeyValue_watch_subtree, 
@@ -3907,16 +4103,18 @@ void proto_register_dcerpc_winreg(void)
 	  { "Operation", "winreg.opnum", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_QueryMultipleValue_type, 
 	  { "Type", "winreg.QueryMultipleValue.type", FT_UINT32, BASE_DEC, VALS(winreg_winreg_Type_vals), 0, "", HFILL }},
-	{ &hf_winreg_winreg_QueryInfoKey_class_in, 
-	  { "Class In", "winreg.winreg_QueryInfoKey.class_in", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_InitiateSystemShutdownEx_timeout, 
 	  { "Timeout", "winreg.winreg_InitiateSystemShutdownEx.timeout", FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }},
 	{ &hf_winreg_handle, 
 	  { "Handle", "winreg.handle", FT_BYTES, BASE_NONE, NULL, 0, " ", HFILL }},
 	{ &hf_winreg_winreg_GetKeySecurity_sec_info, 
 	  { "Sec Info", "winreg.winreg_GetKeySecurity.sec_info", FT_NONE, BASE_HEX, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_QueryInfoKey_classname, 
+	  { "Classname", "winreg.winreg_QueryInfoKey.classname", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_DeleteKey_key, 
 	  { "Key", "winreg.winreg_DeleteKey.key", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SaveKey_sec_attrib, 
+	  { "Sec Attrib", "winreg.winreg_SaveKey.sec_attrib", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_AccessMask_KEY_NOTIFY, 
 	  { "Key Notify", "winreg.winreg_AccessMask.KEY_NOTIFY", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_NOTIFY_tfs), ( 0x00010 ), "", HFILL }},
 	{ &hf_winreg_winreg_EnumKey_last_changed_time, 
@@ -3975,8 +4173,12 @@ void proto_register_dcerpc_winreg(void)
 	  { "Key Query Value", "winreg.winreg_AccessMask.KEY_QUERY_VALUE", FT_BOOLEAN, 32, TFS(&winreg_AccessMask_KEY_QUERY_VALUE_tfs), ( 0x00001 ), "", HFILL }},
 	{ &hf_winreg_winreg_StringBuf_length, 
 	  { "Length", "winreg.winreg_StringBuf.length", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+	{ &hf_winreg_winreg_SaveKey_handle, 
+	  { "Handle", "winreg.winreg_SaveKey.handle", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_NotifyChangeKeyValue_string1, 
 	  { "String1", "winreg.winreg_NotifyChangeKeyValue.string1", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
+	{ &hf_winreg_KeySecurityAttribute_sec_data, 
+	  { "Sec Data", "winreg.KeySecurityAttribute.sec_data", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	{ &hf_winreg_winreg_NotifyChangeKeyValue_string2, 
 	  { "String2", "winreg.winreg_NotifyChangeKeyValue.string2", FT_NONE, BASE_NONE, NULL, 0, "", HFILL }},
 	};
@@ -3989,6 +4191,7 @@ void proto_register_dcerpc_winreg(void)
 		&ett_winreg_KeySecurityData,
 		&ett_winreg_winreg_SecBuf,
 		&ett_winreg_winreg_StringBuf,
+		&ett_winreg_KeySecurityAttribute,
 		&ett_winreg_QueryMultipleValue,
 	};
 
