@@ -120,7 +120,8 @@ static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
 static gboolean mtp3_show_itu_priority = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
-static mtp3_addr_pc_t mtp3_addr_dpc, mtp3_addr_opc;
+static mtp3_addr_pc_t* mtp3_addr_dpc;
+static mtp3_addr_pc_t* mtp3_addr_opc;
 
 #define SIO_LENGTH                1
 #define SLS_LENGTH                1
@@ -449,8 +450,8 @@ dissect_mtp3_sio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
   sio = tvb_get_guint8(tvb, SIO_OFFSET);
   proto_tree_add_uint(sio_tree, hf_mtp3_network_indicator, tvb, SIO_OFFSET, SIO_LENGTH, sio);
 
-  mtp3_addr_opc.ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
-  mtp3_addr_dpc.ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
+  mtp3_addr_opc->ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
+  mtp3_addr_dpc->ni = (sio & NETWORK_INDICATOR_MASK) >> 6;
 
   switch(mtp3_standard){
   case ANSI_STANDARD:
@@ -583,13 +584,13 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
-  mtp3_addr_opc.type = mtp3_standard;
-  mtp3_addr_opc.pc = opc;
-  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_opc), (guint8 *) &mtp3_addr_opc);
+  mtp3_addr_opc->type = mtp3_standard;
+  mtp3_addr_opc->pc = opc;
+  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 
-  mtp3_addr_dpc.type = mtp3_standard;
-  mtp3_addr_dpc.pc = dpc;
-  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_dpc), (guint8 *) &mtp3_addr_dpc);
+  mtp3_addr_dpc->type = mtp3_standard;
+  mtp3_addr_dpc->pc = dpc;
+  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 }
 
 static void
@@ -628,7 +629,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  static mtp3_tap_rec_t tap_rec;
+  mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
 
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *mtp3_item = NULL;
@@ -669,20 +670,21 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  memset(&mtp3_addr_opc, 0, sizeof(mtp3_addr_opc));
-  memset(&mtp3_addr_dpc, 0, sizeof(mtp3_addr_dpc));
+  mtp3_addr_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+  mtp3_addr_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
 
   /* Dissect the packet (even if !tree so can call sub-dissectors and update
    * the source and destination address columns) */
   dissect_mtp3_sio(tvb, pinfo, mtp3_tree);
   dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
 
-  tap_rec.addr_opc = mtp3_addr_opc;
-  tap_rec.addr_dpc = mtp3_addr_dpc;
-  tap_rec.si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
-  tap_rec.size = tvb_length(tvb);
+  memcpy(&(tap_rec->addr_opc),mtp3_addr_opc,sizeof(mtp3_addr_pc_t));
+  memcpy(&(tap_rec->addr_dpc),mtp3_addr_dpc,sizeof(mtp3_addr_pc_t));
 
-  tap_queue_packet(mtp3_tap, pinfo, &tap_rec);
+  tap_rec->si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
+  tap_rec->size = tvb_length(tvb);
+
+  tap_queue_packet(mtp3_tap, pinfo, tap_rec);
 
   dissect_mtp3_payload(tvb, pinfo, tree);
 }
