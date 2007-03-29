@@ -778,11 +778,9 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
 			};
-				printf("pinfo->fd->flags.visited=%d\n",pinfo->fd->flags.visited);
 
 			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
 				assoc = new_assoc(opck,dpck);
-				printf("A %d->%d %d\n",dpck,opck,src_lr);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
@@ -809,14 +807,11 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 
 	 got_assoc:
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
-			printf("B %d->%d %d\n",opck,dpck,dst_lr);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
 
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
-			printf("C %d->%d %d\n",dpck,opck,src_lr);
-
 				se_tree_insert32_array(assocs,fw_key,assoc);
 				assoc->has_fw_key = TRUE;
 			}
@@ -869,7 +864,6 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 		}
 	}
 
-	printf("no_assoc=%p assoc=%p curr_msg=%p\n",&no_assoc,assoc,assoc ? assoc->curr_msg: (void*)(0xffffffff));
 	return assoc ? assoc : &no_assoc;
 }
 
