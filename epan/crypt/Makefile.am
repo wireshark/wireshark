@@ -39,11 +39,12 @@ CLEANFILES = \
 DISTCLEANFILES =
 
 MAINTAINERCLEANFILES =	\
-       Makefile.in
+	Makefile.in
 
 libairpdcap_la_SOURCES =	\
 	$(LIBAIRPDCAP_SRC)	\
 	$(LIBAIRPDCAP_INCLUDES)
 
 EXTRA_DIST = \
-       Makefile.nmake 
+	Makefile.common	\
+	Makefile.nmake 
