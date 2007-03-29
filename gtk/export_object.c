@@ -372,7 +372,7 @@ export_object_window(gchar *tapname, gchar *name, tap_packet_cb tap_packet)
 	gtk_box_pack_start(GTK_BOX(bbox), help_bt, FALSE, FALSE, 0);
 
 	/* Save All button */
-	save_all_bt = gtk_button_new_with_mnemonic("Save _All");
+	save_all_bt = gtk_button_new_with_mnemonic("Save A_ll");
 	SIGNAL_CONNECT(save_all_bt, "clicked", eo_save_all_clicked_cb,
 		       object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_all_bt,
