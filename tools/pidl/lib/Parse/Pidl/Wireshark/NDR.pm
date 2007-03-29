@@ -146,7 +146,7 @@ sub Enum($$$)
 	}
 	
 	pidl_hdr "extern const value_string $valsstring\[];";
-	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param);";
+	pidl_hdr "int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);";
 
 	pidl_def "const value_string ".$valsstring."[] = {";
     	foreach (@{$e->{ELEMENTS}}) {
@@ -159,10 +159,21 @@ sub Enum($$$)
 
 	pidl_fn_start $dissectorname;
 	pidl_code "int";
-	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 *param)";
+	pidl_code "$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)";
 	pidl_code "{";
 	indent;
-	pidl_code "offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, drep, hf_index, param);";
+	pidl_code "g$e->{BASE_TYPE} parameter=0;";
+	pidl_code "if(param){";
+	indent;
+	pidl_code "parameter=(g$e->{BASE_TYPE})*param;";
+	deindent;
+	pidl_code "}";
+	pidl_code "offset = dissect_ndr_$e->{BASE_TYPE}(tvb, offset, pinfo, tree, drep, hf_index, &parameter);";
+	pidl_code "if(param){";
+	indent;
+	pidl_code "*param=(guint32)parameter;";
+	deindent;
+	pidl_code "}";
 	pidl_code "return offset;";
 	deindent;
 	pidl_code "}\n";
@@ -180,11 +191,11 @@ sub Bitmap($$$)
 
 	register_ett("ett_$ifname\_$name");
 
-	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);";
+	pidl_hdr "int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);";
 
 	pidl_fn_start $dissectorname;
 	pidl_code "int";
-	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
+	pidl_code "$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)";
 	pidl_code "{";
 	indent;
 	pidl_code "proto_item *item = NULL;";
@@ -390,10 +401,10 @@ sub Element($$$)
 
 	foreach (@{$e->{LEVELS}}) {
 		next if ($_->{TYPE} eq "SWITCH");
-		pidl_def "static int $dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep);";
+		pidl_def "static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);";
 		pidl_fn_start "$dissectorname$add";
 		pidl_code "static int";
-		pidl_code "$dissectorname$add(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)";
+		pidl_code "$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 		pidl_code "{";
 		indent;
 
@@ -427,7 +438,7 @@ sub Function($$$)
 	PrintIdl DumpFunction($fn->{ORIGINAL});
 	pidl_fn_start "$ifname\_dissect\_$fn_name\_response";
 	pidl_code "static int";
-	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)";
+	pidl_code "$ifname\_dissect\_${fn_name}_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
 	indent;
 	if ( not defined($fn->{RETURN_TYPE})) {
@@ -492,7 +503,7 @@ sub Function($$$)
 
 	pidl_fn_start "$ifname\_dissect\_$fn_name\_request";
 	pidl_code "static int";
-	pidl_code "$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo, proto_tree *tree _U_, guint8 *drep _U_)";
+	pidl_code "$ifname\_dissect\_${fn_name}_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)";
 	pidl_code "{";
 	indent;
 	pidl_code "pinfo->dcerpc_procedure_name=\"${fn_name}\";";
@@ -522,11 +533,11 @@ sub Struct($$$)
 	my $res = "";
 	($res.="\t".Element($_, $name, $ifname)."\n\n") foreach (@{$e->{ELEMENTS}});
 
-	pidl_hdr "int $dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_);";
+	pidl_hdr "int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);";
 
 	pidl_fn_start $dissectorname;
 	pidl_code "int";
-	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
+	pidl_code "$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)";
 	pidl_code "{";
 	indent;
 	pidl_code "proto_item *item = NULL;";
@@ -591,7 +602,7 @@ sub Union($$$)
 
 	pidl_fn_start $dissectorname;
 	pidl_code "static int";
-	pidl_code "$dissectorname(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)";
+	pidl_code "$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)";
 	pidl_code "{";
 	indent;
 	pidl_code "proto_item *item = NULL;";
