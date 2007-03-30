@@ -776,7 +776,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
      this in the same capture frame.  Could use se_alloc...
   */
   #define BUFFER_SIZE 128
-  buffer = g_malloc(BUFFER_SIZE);
+  buffer = ep_alloc(BUFFER_SIZE);
   buffer[0] = 0;
 
   A = ACN_DMP_ADT_EXTRACT_A(adt->flags);
@@ -950,8 +950,6 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       proto_item_set_text(ti, "Mixed size data items");
       break;
   } /* of switch (D) */
-  /* free our memory! */
-  g_free(buffer);
   
   return offset;
 }
@@ -976,7 +974,7 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
      this in the same capture frame.  Could use se_alloc...
   */
   #define BUFFER_SIZE 128
-  buffer = g_malloc(BUFFER_SIZE);
+  buffer = ep_alloc(BUFFER_SIZE);
 
   buffer[0] = 0;
 
@@ -1064,8 +1062,6 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
       } /* of (x=0;x<adt->count;x++) */
       break;
   } /* of switch (D) */
-  /* free our memory! */
-  g_free(buffer);
   
   return offset;
 }
