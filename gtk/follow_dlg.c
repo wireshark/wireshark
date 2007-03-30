@@ -1153,7 +1153,25 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
      * to be able to see the data we *should* see
      * in the GtkText widget.
      */
-    size_t i;
+    size_t i,j;
+    char *str;
+
+    /* XXX - workaround for bug 598 
+     * convert CRLF to LF because the GTK copy function seems
+     * to convert CR to LF, resulting in double LF's
+     */
+    str = g_malloc(nchars + 1);
+    for (i = 0,j = 0; i < nchars; i++) {
+        if (i>0 && buffer[i-1] == '\r' && buffer[i] == '\n')
+	    str[j-1] = buffer[i];
+	else
+	    str[j++] = buffer[i];
+    }
+    nchars = nchars + j - i;
+    memcpy(buffer, str, nchars);
+    buffer[nchars] = 0;
+    g_free(str);
+    /* end of workaround for bug 598 */
 
     for (i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r')
