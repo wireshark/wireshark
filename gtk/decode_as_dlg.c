@@ -570,7 +570,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
         gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(list), TRUE);
         gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(list), FALSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(list),
-                                    GTK_SELECTION_MULTIPLE);
+                                    GTK_SELECTION_NONE);
 
 	for (column = 0; column < E_LIST_D_COLUMNS; column++) {
             renderer = gtk_cell_renderer_text_new();
