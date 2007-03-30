@@ -420,7 +420,7 @@ static gint ett_afs_vldb_flags = -1;
 		offset += 4; \
 		p = tvb_get_ptr(tvb,offset,i); \
 		len = ((i+4-1)/4)*4; \
-		tmp = ep_malloc(i+1); \
+		tmp = ep_alloc(i+1); \
 		memcpy(tmp, p, i); \
 		tmp[i] = '\0'; \
 		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \

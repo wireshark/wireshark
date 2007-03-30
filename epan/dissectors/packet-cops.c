@@ -1557,7 +1557,7 @@ static int decode_cops_pr_asn1_data(tvbuff_t *tvb,packet_info *pinfo, guint32 of
       offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &ber_tag);
       offset = dissect_ber_length(pinfo, tree, tvb, offset, &vb_length, &ind);
       oid_buf = tvb_get_ptr(tvb, vb_value_start, vb_length);
-      vb_oid = ep_malloc((vb_length+1) * sizeof(gulong));
+      vb_oid = ep_alloc((vb_length+1) * sizeof(gulong));
       vb_oid_length = oid_to_subid_buf(oid_buf, vb_length, vb_oid, ((vb_length+1) * sizeof(gulong)));
 
       offset = offset + vb_length;
