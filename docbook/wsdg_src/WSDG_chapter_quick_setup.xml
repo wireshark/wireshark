@@ -242,7 +242,7 @@
       C:/Programme - take this also in account where C:\Program
       Files appears elsewhere</para>
     </section>
-    <section>
+    <section id="ChSetupPrepareCommandCom">
       <title>Prepare command.com</title>
       <para>Prepare command.com - set environment and current dir. 
       <orderedlist>
@@ -302,10 +302,9 @@
       <para>
         <programlisting>
           <![CDATA[Checking for required applications:
-        cl: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/cl
-        link: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/link
-        nmake: /cygdrive/c/Program Files/Microsoft Visual Studio/VC98/bin/nmake
-
+        cl: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/cl
+        link: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/link
+        nmake: /cygdrive/c/Programme/Microsoft Visual Studio 8/VC/BIN/nmake
         bash: /usr/bin/bash
         bison: /usr/bin/bison
         flex: /usr/bin/flex
@@ -321,9 +320,10 @@
 </programlisting>
       </para>
       <para>If you have problems with all the first three ones,
-      check if you called ...\Microsoft Visual
-      Studio\VC98\Bin\vcvars32.bat before (which will "fix" your
-      PATH settings).</para>
+      check if you called vcvars32/SetEnv as mentioned in <xref 
+	  linkend="ChSetupPrepareCommandCom" /> (which will "fix" 
+	  your PATH settings). However, the exact text will be slightly 
+	  different depending on the MSVC version used.</para>
       <para>Unfortunately, the link command is defined both from
       cygwin and from MSVC with completely different purpose,
       you'll need the MSVC link. If your link command looks
