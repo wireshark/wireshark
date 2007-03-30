@@ -8080,6 +8080,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint32 padcnt;
 	smb_nt_transact_info_t *nti=NULL;
 
+	ntd.subcmd = ntd.sd_len = ntd.ea_len = 0;
+
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
 	sip = si->sip;

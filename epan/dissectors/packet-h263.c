@@ -336,7 +336,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 	header_field_info *hfinfo;
 	guint32 value = 0;
 	int bit;
-	guint32 mask, tmp;
+	guint32 mask = 0, tmp;
 	gboolean is_bytealigned = FALSE;
 	guint8 mask8	= 0xff;
 	guint16 mask16	= 0xffff;

@@ -2634,7 +2634,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	const gchar *param_descrip, *data_descrip, *aux_data_descrip = NULL;
 	gboolean has_data;
 	gboolean has_ent_count;
-	guint16 ent_count, aux_count;
+	guint16 ent_count = 0, aux_count;
 	guint i;
 	proto_item *data_item;
 	proto_tree *data_tree;

@@ -1457,7 +1457,6 @@ int
 PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param)
 {
         header_field_info *hf_info;
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
         hf_info=proto_registrar_get_nth(hfindex);
 
@@ -2553,7 +2552,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_auth_info auth_info;
     char *uuid_str;
     const char *uuid_name = NULL;
-	proto_item *iface_item;
+    proto_item *iface_item = NULL;
 
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_max_xmit, NULL);
@@ -2571,7 +2570,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 3;
 
     for (i = 0; i < num_ctx_items; i++) {
-	    proto_item *ctx_item;
+	    proto_item *ctx_item = NULL;
 	    proto_tree *ctx_tree = NULL, *iface_tree = NULL;
         gint ctx_offset = offset;
 

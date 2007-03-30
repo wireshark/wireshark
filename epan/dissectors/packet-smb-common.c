@@ -283,7 +283,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 {
   gchar *cur;
   const gchar *string;
-  int string_len;
+  int string_len = 0;
   int copylen;
   gboolean overflow = FALSE;
 
