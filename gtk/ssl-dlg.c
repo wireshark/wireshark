@@ -88,7 +88,7 @@ typedef struct {
 	GtkWidget	*carray_bt;
 	GtkWidget	*raw_bt;
 	GtkWidget	*follow_save_as_w;
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_CHECK_VERSION(2,4,0)
 	GtkWidget	*find_dlg_w;
 #endif
 	gboolean        is_ipv6;
@@ -105,7 +105,7 @@ static void follow_destroy_cb(GtkWidget * win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget * w, gpointer parent_w);
 static void follow_load_text(follow_info_t *follow_info);
 static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_CHECK_VERSION(2,4,0)
 static void follow_find_cb(GtkWidget * w, gpointer data);
 static void follow_find_button_cb(GtkWidget * w _U_, gpointer parent_w);
 static void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
@@ -344,7 +344,7 @@ ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     hbox = gtk_hbox_new(FALSE, 1);
     gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
 
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_CHECK_VERSION(2,4,0)
 	/* Create Find Button */
 	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_FIND);
 	SIGNAL_CONNECT(button, "clicked", follow_find_cb, follow_info);
@@ -763,7 +763,7 @@ print_error:
     return FRS_PRINT_ERROR;
 }
 
-#if GTK_MAJOR_VERSION >= 2
+#if GTK_CHECK_VERSION(2,4,0)
 static void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
@@ -883,7 +883,7 @@ follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 	/* Note that we no longer have a dialog box. */
 	follow_info->find_dlg_w = NULL;
 }
-#endif /* GTK_MAJOR_VERSION >= 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 
 
 /*
