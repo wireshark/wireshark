@@ -188,6 +188,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
         break;
 
     case 22:
+    case 118:
         encap = WTAP_ENCAP_CHDLC_WITH_PHDR;
         break;
 
@@ -242,6 +243,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     int phdr_size = sizeof(vpkt_hdr);
     time_t  secs;
     guint32 usecs;
+    guint8 *buf;
     double  t;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
@@ -310,9 +312,16 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
        with a media type of HDLC can be either Cisco EtherType or PPP. */
-    if ((wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR) && (vpkt_hdr.encap_hint == 14))
-        wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-
+    if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
+    {
+        /* examine first two octets to verify encapsulation */
+        buf = buffer_start_ptr(wth->frame_buffer);
+        if ((0xff == buf[0]) && (0x03 == buf[1]))
+        {
+            /* It is actually PPP */
+            wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+        }
+    }
     return TRUE;
 }
 
