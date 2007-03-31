@@ -997,6 +997,8 @@ standard libpcap format.
 	  <listitem>
 		<para>
 			The authentication password. Use '\xDD' for unprintable charachters.
+			An hexadecimal password must be entered as a sequence of '\xDD' characters.
+			For example the hex passowrd 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
 		</para>
 	  </listitem>
 	  </varlistentry>
@@ -1011,6 +1013,8 @@ standard libpcap format.
 	  <listitem>
 		<para>
 			The privacy password. Use '\xDD' for unprintable charachters.
+			An hexadecimal password must be entered as a sequence of '\xDD' characters.
+			For example the hex passowrd 010203040506 must be entered as '\x01\x02\x03\x04\x05\x06'.
 		</para>
 	  </listitem>
 	  </varlistentry>
