@@ -579,7 +579,7 @@ Wireshark uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
 intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
-trying to keep things consistent for other users.
+trying to keep things consistent for other developers.
 
 1.1.5 White space convention.
 
@@ -601,6 +601,15 @@ logic and even if it very tempting, never ever use a restyler/reindenter
 utility on an existing file.  If you run across wildly varying
 indentation styles within the same file, it might be helpful to send a
 note to wireshark-dev for guidance.
+
+1.1.6 Compiler warnings
+
+You should write code that is free of compiler warnings. Such warnings will 
+often indicate questionable code and sometimes even real bugs, so it's best 
+to avoid warnings at all. 
+
+The compiler flags in the Makefiles are set to "treat warnings as errors", 
+so your code won't even compile when warnings occur.
 
 1.2 Skeleton code.
 
