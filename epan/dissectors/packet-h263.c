@@ -328,7 +328,7 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 #define cVALS(x) (const value_string*)(x)
 
 static proto_item *
-h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
+h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value)
 {
 	gint offset;
 	guint length;
@@ -439,7 +439,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 	/* prepare the string */
 	str=ep_alloc(256);
-	str[0]='0';
+	str[0]='\0';
 	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
 		if(bit&&(!(bit%4))){
 			strcat(str, " ");
@@ -474,6 +474,9 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 	strcat(str," = ");
 	strcat(str,hfinfo->name);
+	if(return_value){
+		*return_value=value;
+	}
 	if (no_of_bits== 1){
 		/* Boolean field */
 		if (hfinfo->strings) {
@@ -504,7 +507,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 		break;
 	case BASE_HEX:
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-	                 "%s: %x",
+	                 "%s: 0x%x",
 					  str,
 					  value);
 		break;
@@ -520,28 +523,29 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
  * Length is used for the "Extra header" otherwise set to -1.
  */
 static int
-dissect_h263_picture_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gint length _U_, gboolean is_rfc4626)
+dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length _U_, gboolean is_rfc4626)
 {
 	proto_tree *h263_opptype_tree	= NULL;
 	proto_item *opptype_item		= NULL;
 	unsigned int offset_in_bits		= offset << 3;
-	guint8 source_format;
-	guint16 ufep;
+	guint32 source_format;
+	guint32 ufep;
+	guint32 picture_coding_type;
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
-		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 6);
+		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 6, NULL);
 		offset_in_bits = offset_in_bits +6;
 
 	}else{
 	/* Check for PSC, PSC is a word of 22 bits. 
 	 * Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
 	 */
-		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 22);
+		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 22, NULL);
 		offset_in_bits = offset_in_bits +22;
 
 	}
-	h263_proto_tree_add_bits(tree, hf_h263_TR, tvb, offset_in_bits, 8);
+	h263_proto_tree_add_bits(tree, hf_h263_TR, tvb, offset_in_bits, 8, NULL);
 	offset_in_bits = offset_in_bits +8;
 	/*
 	 * Bit 1: Always "1", in order to avoid start code emulation. 
@@ -549,57 +553,57 @@ dissect_h263_picture_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gint l
 	 */
 	offset_in_bits = offset_in_bits +2;
 	/* Bit 3: Split screen indicator, "0" off, "1" on. */
-	h263_proto_tree_add_bits( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1);
+	h263_proto_tree_add_bits( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, NULL);
 	offset_in_bits++;
 	/* Bit 4: Document camera indicator, */
-	h263_proto_tree_add_bits( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1);
+	h263_proto_tree_add_bits( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, NULL);
 	offset_in_bits++;
 	/* Bit 5: Full Picture Freeze Release, "0" off, "1" on. */
-	h263_proto_tree_add_bits( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1);
+	h263_proto_tree_add_bits( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1, NULL);
 	offset_in_bits++;
 	/* Bits 6-8: Source Format, "000" forbidden, "001" sub-QCIF, "010" QCIF, "011" CIF,
 	 * "100" 4CIF, "101" 16CIF, "110" reserved, "111" extended PTYPE.
 	 */
-	h263_proto_tree_add_bits( tree, hf_h263_source_format, tvb, offset_in_bits, 3);
+	h263_proto_tree_add_bits( tree, hf_h263_source_format, tvb, offset_in_bits, 3 ,&source_format);
 	offset_in_bits = offset_in_bits +3;
-	source_format = (tvb_get_guint8(tvb,(offset_in_bits>>3)& 0x1c)>>2);
 	if (source_format != H263_PLUSPTYPE){
 		/* Not extended PTYPE */
 		/* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
-		h263_proto_tree_add_bits( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1);
+		h263_proto_tree_add_bits( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type);
+		if ( check_col( pinfo->cinfo, COL_INFO) )
+			col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
 		offset_in_bits++;
 		/* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
-		h263_proto_tree_add_bits( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1);
+		h263_proto_tree_add_bits( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 		/* Bit 11: Optional Syntax-based Arithmetic Coding mode (see Annex E), "0" off, "1" on.*/
-		h263_proto_tree_add_bits( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1);
+		h263_proto_tree_add_bits( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 		/* Bit 12: Optional Advanced Prediction mode (see Annex F), "0" off, "1" on.*/
-		h263_proto_tree_add_bits( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1);
+		h263_proto_tree_add_bits( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 		/* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
-		h263_proto_tree_add_bits( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1);
+		h263_proto_tree_add_bits( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 	}else{
 		/* Extended PTYPE 
 		 * Update Full Extended PTYPE (UFEP) (3 bits)
 		 */
-		ufep = (tvb_get_ntohs(tvb,offset)&0x0380)>>7;
 		/* .... ..xx x... .... */
-		h263_proto_tree_add_bits( tree, hf_h263_UFEP, tvb, offset_in_bits, 3);
+		h263_proto_tree_add_bits( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep);
 		offset_in_bits = offset_in_bits +3;
 		if(ufep==1){
 			/* The Optional Part of PLUSPTYPE (OPPTYPE) (18 bits) 
 			 */
 			 /*  .xxx xxxx  xxxx xxxx  xxx. .... */
-			opptype_item = h263_proto_tree_add_bits( tree, hf_h263_opptype, tvb, offset_in_bits, 18);
+			opptype_item = h263_proto_tree_add_bits( tree, hf_h263_opptype, tvb, offset_in_bits, 18, NULL);
 			h263_opptype_tree = proto_item_add_subtree( opptype_item, ett_h263_optype );
 			/*
 			 * If UFEP is "001", then the following bits are present in PLUSPTYPE:
 			 *  Bits 1-3 Source Format, "000" reserved, "001" sub-QCIF, "010" QCIF, "011" CIF,
 			 * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
 			 */
-			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_source_format, tvb, offset_in_bits, 3);
+			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_source_format, tvb, offset_in_bits, 3, NULL);
 			offset_in_bits = offset_in_bits +3;
 			offset_in_bits = offset_in_bits +15;/* 18-3 */
 			/*
@@ -659,7 +663,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset				= 0;
 	unsigned int start_offset		= 0;
 	guint16 data16, plen;
-	guint8 octet;
+	guint8 startcode;
 
 	/*
 	tvbuff_t *next_tvb;
@@ -736,7 +740,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, FALSE );
 		  h263P_extr_hdr_tree = proto_item_add_subtree( extra_hdr_item, ett_h263P_extra_hdr );
 		  
-		  dissect_h263_picture_layer( tvb, h263P_extr_hdr_tree, offset, plen, TRUE);
+		  dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, TRUE);
 
 		  offset = start_offset + plen;		
 	  }
@@ -744,40 +748,66 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  /* P bit = 1 */
 		  data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
 		  h263P_data_tree = proto_item_add_subtree( data_item, ett_h263P_data );
-		  octet = tvb_get_guint8(tvb,offset);
-		  if((octet&0xfc)==0x80){
-			  /* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
-			   * Here without the first two 0 bytes of the PSC
-			   */
-			if ( check_col( pinfo->cinfo, COL_INFO) )
-				col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
-
-			offset = dissect_h263_picture_layer( tvb, h263P_data_tree, offset, -1, TRUE);
-			return;
+		  /* Startc code holds bit 17 -23 of the codeword */
+		  startcode = tvb_get_guint8(tvb,offset)&0xfe;
+		  if (startcode & 0x80){
+			  switch(startcode){
+			  case 0xf8:
+				  /* End Of Sub-Bitstream code (EOSBS) 
+				   * ( 1111 100. )
+				   */
+				  break;
+			  case 0x80:
+			  case 0x82:
+				  /* Picture Start Code (PSC)
+				   * ( 1000 00x.)
+				   */
+				  if(check_col( pinfo->cinfo, COL_INFO))
+					  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
+				  offset = dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, TRUE);
+				  break;
+			  case 0xfc:
+			  case 0xfe:
+				  /* End Of Sequence (EOS)
+				   * ( 1111 11x. )
+				   */
+			  default:
+				  /* Group of Block Start Code (GBSC) or
+				   * Slice Start Code (SSC)
+				   */
+				  if ( check_col( pinfo->cinfo, COL_INFO) )
+					  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
+				  break;
+			  }
 		  }else{
-			  /*
-			if ( check_col( pinfo->cinfo, COL_INFO) )
-			  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-			  */
-			  return;
+			  /* Error */
 		  }
+		  return;
 	  }
 	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
 	}
 }
 /*
-TODO: Add these?
+	5.1.1 Picture Start Code (PSC) (22 bits)
+	PSC is a word of 22 bits. Its value is 0000 0000 0000 0000 1 00000. All picture start codes shall be
+	byte aligned.
+	( 1000 00xx)
+
 	End Of Sequence (EOS) (22 bits)
 	A codeword of 22 bits. Its value is 0000 0000 0000 0000 1 11111.
+	( 1111 11xx )
 
 	Group of Block Start Code (GBSC) (17 bits)
 	A word of 17 bits. Its value is 0000 0000 0000 0000 1.
+	( 1xxx xxxx )
 
 	End Of Sub-Bitstream code (EOSBS) (23 bits)
 	The EOSBS code is a codeword of 23 bits. Its value is 0000 0000 0000 0000 1 11110 0.
+	( 1111 100x )
 
 	Slice Start Code (SSC) (17 bits)
 	A word of 17 bits. Its value is 0000 0000 0000 0000 1.
+	( 1xxx xxxx )
   */
 static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -803,7 +833,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			if ( check_col( pinfo->cinfo, COL_INFO) )
 			  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
 			if( tree ) {
-				offset = dissect_h263_picture_layer( tvb, h263_payload_tree, offset, -1, FALSE);
+				offset = dissect_h263_picture_layer( tvb, pinfo ,h263_payload_tree, offset, -1, FALSE);
 			}
 		} else { /* GBSC found */
 			if ( check_col( pinfo->cinfo, COL_INFO) )
