@@ -87,10 +87,6 @@ gboolean uat_load(uat_t* , char** );
 
 void uat_load_all(void);
 
-char* uat_undquote(const char* si, guint in_len, guint* len_p);
-char* uat_unbinstring(const char* si, guint in_len, guint* len_p);
-char* uat_esc(const char* buf, guint len);
-
 #define UAT_UPDATE(uat) do { *((uat)->user_ptr) = (void*)((uat)->user_data->data); *((uat)->nrows_p) = (uat)->user_data->len; } while(0)
 #define UAT_INDEX_PTR(uat,idx) (uat->user_data->data + (uat->record_size * (idx)))
 #endif
