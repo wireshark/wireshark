@@ -388,6 +388,158 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* 
 	return FALSE;
 }
 
+static int xton(char d) {
+	switch(d) {
+		case '0': return 0;
+		case '1': return 1; 
+		case '2': return 2;
+		case '3': return 3;
+		case '4': return 4;
+		case '5': return 5;
+		case '6': return 6;
+		case '7': return 7;
+		case '8': return 8;
+		case '9': return 9;
+		case 'a':  case 'A': return 10;
+		case 'b':  case 'B': return 11;
+		case 'c':  case 'C': return 12;
+		case 'd':  case 'D': return 13;
+		case 'e':  case 'E': return 14;
+		case 'f':  case 'F': return 15;
+		default: return -1;
+	}
+}
+
+char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
+	guint8* buf;
+	guint len = in_len/2;
+	int i = 0;
+	
+	if (in_len%2) {
+		return NULL;
+	}
+	
+	buf= g_malloc(len);
+	*len_p = len;
+	
+	while(in_len) {
+		int d1 = xton(*(si++));
+		int d0 = xton(*(si++));
+		
+		buf[i++] = (d1 * 16) + d0;
+		
+		in_len -= 2;
+	}
+	
+	return (void*)buf;
+}
+
+char* uat_unesc(const char* si, guint in_len, guint* len_p) {
+	char* buf = g_malloc0(in_len);
+	char* p = buf;
+	guint len = 0;
+	const char* s;
+	const char* in_end = si+in_len;
+
+	for (s = (void*)si; s < in_end; s++) {
+		switch(*s) {
+			case '\\':
+				switch(*(++s)) {
+					case 'a': *(p++) = '\a'; len++; break;
+					case 'b': *(p++) = '\b'; len++; break;
+					case 'e': *(p++) = '\033' /* '\e' is non ANSI-C */; len++; printf("."); break;
+					case 'f': *(p++) = '\f'; len++; break;
+					case 'n': *(p++) = '\n'; len++; break;
+					case 'r': *(p++) = '\r'; len++; break;
+					case 't': *(p++) = '\t'; len++; break;
+					case 'v': *(p++) = '\v'; len++; break;
+						
+					case '0':
+					case '1': 
+					case '2': 
+					case '3': 
+					case '4': 
+					case '5': 
+					case '6': 
+					case '7': 
+					{
+						int c0 = 0;
+						int c1 = 0;
+						int c2 = 0;
+						int c = 0;
+						
+						c0 = (*s) - '0';
+						
+						if ( s[1] >= '0' && s[1] <= '7' ) {
+							c1 = c0;
+							c0 = (*++s) - '0';
+							
+							if ( s[1] >= '0' && s[1] <= '7' ) {
+								c2 = c1;
+								c1 = c0;
+								c0 = (*++s) - '0';
+							}
+						}
+						c = (64 * c2) + (8 * c1) + c0;
+						*(p++) = (char) (c > 255 ? 255 : c);
+						len++; 
+						break;
+					}
+						
+					case 'x':
+					{
+						char c1 = *(s+1);
+						char c0 = *(s+2);
+						
+						if (isxdigit(c1) && isxdigit(c0)) {
+							*(p++) = (xton(c1) * 0x10) + xton(c0);
+							s += 2;
+						} else {
+							*(p++) = *s;
+						}
+						len++;
+						break;
+					}
+					default:
+						*p++ = *s;
+						break;
+				}
+				break;
+			default:
+				*(p++) = *s;
+				len++;
+				break;
+		}
+	}
+	
+	if (len_p) *len_p = len;
+	return buf;
+}
+
+char* uat_undquote(const char* si, guint in_len, guint* len_p) {
+	return uat_unesc(si+1,in_len-2,len_p);
+}
+
+
+char* uat_esc(const char* buf, guint len) {
+	const guint8* end = ((guint8*)buf)+len;
+	char* out = ep_alloc0((4*len)+1);
+	const guint8* b;
+	char* s = out;
+	
+	for (b = (void*)buf; b < end; b++) {
+		if (isprint(*b) ) {
+			*(s++) = (*b);
+		} else {
+			g_snprintf(s,5,"\\x%.2x",((guint)*b));
+			s+=4;
+		}
+	}
+	
+	return out;
+	
+}
+
 CHK_STR_IS_DEF(isprint)
 CHK_STR_IS_DEF(isalpha)
 CHK_STR_IS_DEF(isalnum)

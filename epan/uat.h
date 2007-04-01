@@ -318,11 +318,11 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_LSTRING_CB_DEF(basename,field_name,rec_t,ptr_element,len_element) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	if ((((rec_t*)rec)->ptr_element)) g_free((((rec_t*)rec)->ptr_element)); \
-	(((rec_t*)rec)->ptr_element) = g_strndup(buf,len); \
-	(((rec_t*)rec)->len_element) = len; } \
+	(((rec_t*)rec)->ptr_element) = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); }\
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if (((rec_t*)rec)->ptr_element ) { \
-		*out_ptr = (((rec_t*)rec)->ptr_element); *out_len = (((rec_t*)rec)->len_element); \
+		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
+		*out_len = strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } }
 
