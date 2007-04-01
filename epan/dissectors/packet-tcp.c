@@ -2453,7 +2453,26 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, reported_len);
       cksum_vec[3].len = reported_len;
       computed_cksum = in_cksum(&cksum_vec[0], 4);
-      if (computed_cksum == 0) {
+      if (computed_cksum == 0 && th_sum == 0xffff) {
+        item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+           offset + 16, 2, th_sum,
+	   "Checksum: 0x%04x [should be 0x0000 (see RFC 1624)]", th_sum);
+
+	checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
+        item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
+	   offset + 16, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_bad, tvb,
+	   offset + 16, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_WARN, "TCP Checksum 0xffff instead of 0x0000 (see RFC 1624)");
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM 0xFFFF]");
+
+        /* Checksum is treated as valid on most systems, so we're willing to desegment it. */
+        desegment_ok = TRUE;
+      } else if (computed_cksum == 0) {
         item = proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
           offset + 16, 2, th_sum, "Checksum: 0x%04x [correct]", th_sum);
 
