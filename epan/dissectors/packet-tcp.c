@@ -843,12 +843,313 @@ finished_checking_retransmission_type:
 
 }
 
+/* 
+ * Prints results of the sequence number analysis concerning tcp segments
+ * retransmitted or out-of-order 
+ */ 
+static void 
+tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo, 
+						  tvbuff_t * tvb, 
+						  proto_tree * flags_tree, 
+						  struct tcp_acked *ta
+						  )
+{
+  proto_item * flags_item;
+
+  /* TCP Rentransmission */
+  if (ta->flags & TCP_A_RETRANSMISSION) {
+    flags_item=proto_tree_add_none_format(flags_tree,	
+					  hf_tcp_analysis_retransmission, 
+					  tvb, 0, 0, 
+					  "This frame is a (suspected) "
+					  "retransmission"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Retransmission (suspected)");
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+    }
+    if (ta->rto_ts.secs || ta->rto_ts.nsecs) {
+      flags_item = proto_tree_add_time(flags_tree, hf_tcp_analysis_rto,
+					      tvb, 0, 0, &ta->rto_ts);
+      PROTO_ITEM_SET_GENERATED(flags_item);
+      flags_item=proto_tree_add_uint(flags_tree, hf_tcp_analysis_rto_frame,
+					      tvb, 0, 0, ta->rto_frame);
+      PROTO_ITEM_SET_GENERATED(flags_item);
+    }
+  }
+  /* TCP Fast Rentransmission */
+  if (ta->flags & TCP_A_FAST_RETRANSMISSION) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_fast_retransmission, 
+					  tvb, 0, 0, 
+					  "This frame is a (suspected) fast" 
+					  " retransmission"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, 
+					  "Fast retransmission (suspected)");
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_retransmission, 
+					  tvb, 0, 0, 
+					  "This frame is a (suspected) "
+					  "retransmission"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					  "[TCP Fast Retransmission] ");
+    }
+  }
+  /* TCP Out-Of-Order */
+  if (ta->flags & TCP_A_OUT_OF_ORDER) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_out_of_order, 
+					  tvb, 0, 0, 
+					  "This frame is a (suspected) "
+					  "out-of-order segment"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, 
+					  "Out-Of-Order segment");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Out-Of-Order] ");
+    }
+  }
+}
+
+/* Prints results of the sequence number analysis concerning lost tcp segments */ 
+static void 
+tcp_sequence_number_analysis_print_lost(packet_info * pinfo, 
+					tvbuff_t * tvb, 
+					proto_tree * flags_tree, 
+					struct tcp_acked *ta
+					)
+{
+  proto_item * flags_item;
+
+  /* TCP Lost Segment */
+  if (ta->flags & TCP_A_LOST_PACKET) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_lost_packet, 
+					  tvb, 0, 0, 
+					  "A segment before this frame was "
+					  "lost"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, 
+			    "Previous segment lost (common at capture start)");
+    if(check_col(pinfo->cinfo, COL_INFO)){
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					    "[TCP Previous segment lost] ");
+    }
+  }
+  /* TCP Ack lost segment */
+  if (ta->flags & TCP_A_ACK_LOST_PACKET) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_ack_lost_packet, 
+					  tvb, 0, 0, 
+					  "This frame ACKs a segment we have "
+					  "not seen (lost?)"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, 
+			      "ACKed lost segment (common at capture start)");
+    if(check_col(pinfo->cinfo, COL_INFO)){
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					  "[TCP ACKed lost segment] ");
+    }
+  }
+}
+
+/* Prints results of the sequence number analysis concerning tcp window */ 
+static void 
+tcp_sequence_number_analysis_print_window(packet_info * pinfo, 
+					  tvbuff_t * tvb, 
+					  proto_tree * flags_tree, 
+					  struct tcp_acked *ta
+					  )
+{
+  proto_item * flags_item;
+
+  /* TCP Window Update */
+  if (ta->flags & TCP_A_WINDOW_UPDATE) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_window_update, 
+					  tvb, 0, 0, 
+					  "This is a tcp window update"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Window update");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
+    }
+  }
+  /* TCP Full Window */
+  if (ta->flags & TCP_A_WINDOW_FULL) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_window_full, 
+					  tvb, 0, 0, 
+					  "The transmission window is now "
+					  "completely full"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Window is full");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Full] ");
+    }
+  }
+}
+
+/* Prints results of the sequence number analysis concerning tcp keepalive */ 
+static void 
+tcp_sequence_number_analysis_print_keepalive(packet_info * pinfo, 
+					  tvbuff_t * tvb, 
+					  proto_tree * flags_tree, 
+					  struct tcp_acked *ta
+					  )
+{
+  proto_item * flags_item;
+
+  /*TCP Keep Alive */
+  if (ta->flags & TCP_A_KEEP_ALIVE){
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_keep_alive, 
+					  tvb, 0, 0, 
+					  "This is a TCP keep-alive segment"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Keep-Alive");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
+    }
+  }
+  /* TCP Ack Keep Alive */
+  if (ta->flags & TCP_A_KEEP_ALIVE_ACK) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_keep_alive_ack, 
+					  tvb, 0, 0, 
+					  "This is an ACK to a TCP keep-alive "
+					  "segment"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Keep-Alive ACK");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive ACK] ");
+    }
+  }
+}
+
+/* Prints results of the sequence number analysis concerning tcp duplicate ack */ 
+static void 
+tcp_sequence_number_analysis_print_duplicate(packet_info * pinfo, 
+					      tvbuff_t * tvb, 
+					      proto_tree * flags_tree, 
+					      struct tcp_acked *ta,
+					      proto_tree * tree
+					    )
+{
+  proto_item * flags_item;
+
+  /* TCP Duplicate ACK */
+  if (ta->dupack_num) {
+    if (ta->flags & TCP_A_DUPLICATE_ACK ) {
+      flags_item=proto_tree_add_none_format(flags_tree, 
+					    hf_tcp_analysis_duplicate_ack, 
+					    tvb, 0, 0, 
+					    "This is a TCP duplicate ack"
+					    );
+      PROTO_ITEM_SET_GENERATED(flags_item);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					    "[TCP Dup ACK %u#%u] ", 
+					    ta->dupack_frame, 
+					    ta->dupack_num
+					    );
+      }
+    }
+    flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_num,
+					    tvb, 0, 0, ta->dupack_num);
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
+					    tvb, 0, 0, ta->dupack_frame);
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					    "Duplicate ACK (#%u)",
+					    ta->dupack_num
+					    );
+  }
+}
+
+/* Prints results of the sequence number analysis concerning tcp zero window */ 
+static void 
+tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo, 
+					      tvbuff_t * tvb, 
+					      proto_tree * flags_tree, 
+					      struct tcp_acked *ta
+					    )
+{
+  proto_item * flags_item;
+
+  /* TCP Zeor Window Probe */
+  if (ta->flags & TCP_A_ZERO_WINDOW_PROBE) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_zero_window_probe, 
+					  tvb, 0, 0, 
+					  "This is a TCP zero-window-probe"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Zero window probe");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
+    }
+  }
+  /* TCP Zero Window */
+  if (ta->flags&TCP_A_ZERO_WINDOW) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_zero_window, 
+					  tvb, 0, 0, 
+					  "This is a ZeroWindow segment"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Zero window");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
+    }
+  }
+  /* TCP Zero Window Probe Ack */
+  if (ta->flags & TCP_A_ZERO_WINDOW_PROBE_ACK) {
+    flags_item=proto_tree_add_none_format(flags_tree, 
+					  hf_tcp_analysis_zero_window_probe_ack, 
+					  tvb, 0, 0, 
+					  "This is an ACK to a TCP zero-window-probe"
+					  );
+    PROTO_ITEM_SET_GENERATED(flags_item);
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, 
+					  "Zero window probe ACK");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, 
+					  "[TCP ZeroWindowProbeAck] ");
+    }
+  }
+}
+
+
 static void
 tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct tcp_analysis *tcpd)
 {
 	struct tcp_acked *ta;
 	proto_item *item;
 	proto_tree *tree;
+	proto_tree *flags_tree=NULL;
 	
 	if(!tcpd->ta){
 		tcp_analyze_get_acked_struct(pinfo->fd->num, FALSE, tcpd);
@@ -878,134 +1179,27 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 	}
 
 	if(ta->flags){
-		proto_item *flags_item=NULL;
-		proto_tree *flags_tree=NULL;
+		item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
+		PROTO_ITEM_SET_GENERATED(item);
+		flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
-		flags_item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
-        PROTO_ITEM_SET_GENERATED(flags_item);
-		flags_tree=proto_item_add_subtree(flags_item, ett_tcp_analysis);
-		if( ta->flags&TCP_A_RETRANSMISSION ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Retransmission (suspected)");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
-			}
-			if( ta->rto_ts.secs || ta->rto_ts.nsecs ){
-				item = proto_tree_add_time(flags_tree, hf_tcp_analysis_rto,
-					tvb, 0, 0, &ta->rto_ts);
-				PROTO_ITEM_SET_GENERATED(item);
-				item=proto_tree_add_uint(flags_tree, hf_tcp_analysis_rto_frame, tvb, 0, 0, ta->rto_frame);
-				PROTO_ITEM_SET_GENERATED(item);
-			}
-		}
-		if( ta->flags&TCP_A_FAST_RETRANSMISSION ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_fast_retransmission, tvb, 0, 0, "This frame is a (suspected) fast retransmission");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Fast retransmission (suspected)");
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Fast Retransmission] ");
-			}
-		}
-		if( ta->flags&TCP_A_OUT_OF_ORDER ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_out_of_order, tvb, 0, 0, "This frame is a (suspected) out-of-order segment");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Out-Of-Order segment");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Out-Of-Order] ");
-			}
-		}
-		if( ta->flags&TCP_A_LOST_PACKET ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, "A segment before this frame was lost");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "Previous segment lost (common at capture start)");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
-			}
-		}
-		if( ta->flags&TCP_A_ACK_LOST_PACKET ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, "This frame ACKs a segment we have not seen (lost?)");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN, "ACKed lost segment (common at capture start)");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
-			}
-		}
-		if( ta->flags&TCP_A_WINDOW_UPDATE ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_update, tvb, 0, 0, "This is a tcp window update");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Window update");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
-			}
-		}
-		if( ta->flags&TCP_A_WINDOW_FULL ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_window_full, tvb, 0, 0, "The transmission window is now completely full");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Window is full");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Full] ");
-			}
-		}
-		if( ta->flags&TCP_A_KEEP_ALIVE ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, "This is a TCP keep-alive segment");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Keep-Alive");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
-			}
-		}
-		if( ta->flags&TCP_A_KEEP_ALIVE_ACK ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive_ack, tvb, 0, 0, "This is an ACK to a TCP keep-alive segment");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Keep-Alive ACK");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive ACK] ");
-			}
-		}
-		if( ta->dupack_num){
-			if( ta->flags&TCP_A_DUPLICATE_ACK ){
-				flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, "This is a TCP duplicate ack");
-				PROTO_ITEM_SET_GENERATED(flags_item);
-				if(check_col(pinfo->cinfo, COL_INFO)){
-					col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Dup ACK %u#%u] ", ta->dupack_frame, ta->dupack_num);
-				}
-			}
-			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_num,
-				tvb, 0, 0, ta->dupack_num);
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
-				tvb, 0, 0, ta->dupack_frame);
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Duplicate ACK (#%u)",
-				ta->dupack_num);
-		}
-		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, "This is a TCP zero-window-probe");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window probe");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
-			}
-		}
-		if( ta->flags&TCP_A_ZERO_WINDOW ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, "This is a ZeroWindow segment");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
-			}
-		}
-		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE_ACK ){
-			flags_item=proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe_ack, tvb, 0, 0, "This is an ACK to a TCP zero-window-probe");
-			PROTO_ITEM_SET_GENERATED(flags_item);
-			expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE, "Zero window probe ACK");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbeAck] ");
-			}
-		}
+		/* print results for retransmission and out-of-order segments */
+		tcp_sequence_number_analysis_print_retransmission(pinfo, tvb, flags_tree, ta);
+
+		/* print results for lost tcp segments */
+		tcp_sequence_number_analysis_print_lost(pinfo, tvb, flags_tree, ta);
+
+		/* print results for tcp window information */
+		tcp_sequence_number_analysis_print_window(pinfo, tvb, flags_tree, ta);
+
+		/* print results for tcp keep alive information */
+		tcp_sequence_number_analysis_print_keepalive(pinfo, tvb, flags_tree, ta);
+
+		/* print results for tcp duplicate acks */
+		tcp_sequence_number_analysis_print_duplicate(pinfo, tvb, flags_tree, ta, tree);
+
+		/* print results for tcp zero window  */
+		tcp_sequence_number_analysis_print_zero_window(pinfo, tvb, flags_tree, ta);
 	}
 
 }
@@ -1014,8 +1208,6 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 /* **************************************************************************
  * End of tcp sequence number analysis
  * **************************************************************************/
-
-
 
 
 /* Minimum TCP header length. */
