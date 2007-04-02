@@ -46,6 +46,7 @@
 #include <epan/nlpid.h>
 #include <epan/crc16.h>
 #include <epan/crc32.h>
+#include <epan/ipproto.h>
 
 #define ppp_min(a, b)  ((a<b) ? a : b)
 
@@ -185,6 +186,20 @@ static gint ett_ipv6cp = -1;
 static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compress_opt = -1;  
+
+static int proto_iphc_crtp = -1;	    /* CRTP vars */
+static int hf_iphc_crtp_cid8 = -1;
+static int hf_iphc_crtp_cid16 = -1;
+static int hf_iphc_crtp_gen = -1;
+static int hf_iphc_crtp_seq = -1;
+static int hf_iphc_crtp_fh_flags = -1;
+static int hf_iphc_crtp_cs_flags = -1;
+static int hf_iphc_crtp_cs_cnt = -1;
+static int hf_iphc_crtp_cs_invalid = -1;
+
+static gint ett_iphc_crtp = -1;
+static gint ett_iphc_crtp_hdr = -1;
+static gint ett_iphc_crtp_info = -1;
 
 static dissector_table_t ppp_subdissector_table;
 static dissector_handle_t chdlc_handle;
@@ -3068,6 +3083,263 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
+ * RFC 2508 Internet Protocol Header Compression
+ */
+
+#define IPHC_CRTP_FH_FLAG_MASK	0xc0
+#define IPHC_CRTP_FH_FLAG_POS	6
+#define IPHC_CRTP_FH_CID8	1
+#define IPHC_CRTP_FH_CID16	3
+
+#define IPHC_CRTP_CS_CID8	1
+#define IPHC_CRTP_CS_CID16	2
+
+static const value_string iphc_crtp_fh_flags[] = {
+	{IPHC_CRTP_FH_CID8,	"8-bit Context Id" },
+	{IPHC_CRTP_FH_CID16,	"16-bit Context Id" },
+	{0,          	NULL }
+};
+
+static const value_string iphc_crtp_cs_flags[] = {
+	{IPHC_CRTP_CS_CID8,	"8-bit Context Id" },
+	{IPHC_CRTP_CS_CID16,	"16-bit Context Id" },
+	{0,          	NULL }
+};
+
+/* 
+ * 0x61 Packets: Full IP/UDP Header 
+ */ 
+
+static void
+dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *fh_tree, *info_tree;
+  proto_item *ti = NULL;
+
+  guint ip_hdr_len, flags;
+  guint length;
+  guint hdr_len;
+  tvbuff_t *next_tvb;
+
+  int offset_seq;
+  int offset_cid;
+
+  guint8 ip_version;
+  guint8 next_protocol;
+
+  guchar* ip_packet;
+
+  length = tvb_reported_length(tvb);
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "Full Header");
+
+  /* only dissect IPv4 and UDP */
+  ip_version = tvb_get_guint8(tvb, 0) >> 4;
+  next_protocol = tvb_get_guint8(tvb, 9);
+
+  DISSECTOR_ASSERT((ip_version == 4) && (next_protocol == IP_PROTO_UDP));
+
+  if (tree) {
+
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+					"%s", val_to_str(PPP_RTP_FH, ppp_vals, "Unknown"));
+    fh_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
+
+    flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
+
+    /* calculate length of IP header, assume IPv4 */
+    ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
+    
+    /* calculate total hdr length, assume UDP */
+    hdr_len = ip_hdr_len + 8;
+
+    /* flags field */
+    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
+    
+    /* generation field */
+    ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
+
+    /* context id and sequence fields */
+    switch (flags) {
+
+    case IPHC_CRTP_FH_CID8:
+      offset_cid = 3;
+      offset_seq = ip_hdr_len + 5;
+      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_cid8, tvb, offset_cid, 1, FALSE);
+      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
+      break;
+
+    case IPHC_CRTP_FH_CID16:
+      offset_seq = 3;
+      offset_cid = ip_hdr_len + 4;
+      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_seq, tvb, offset_seq, 1, FALSE);
+      ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_cid16, tvb, offset_cid, 2, FALSE);
+      break;
+    }
+
+    /* information field */
+    tvb_ensure_bytes_exist (tvb, 0, length);
+    ti = proto_tree_add_text(fh_tree, tvb, 0,length,"Information Field");
+    info_tree = proto_item_add_subtree(ti,ett_iphc_crtp_info);
+
+    /* allocate a copy of the IP packet */
+    ip_packet = tvb_memdup(tvb, 0, length);
+
+    /* restore the proper values to the IP and UDP length fields */
+    ip_packet[2] = length >> 8;
+    ip_packet[3] = length;
+
+    ip_packet[ip_hdr_len + 4] = (length - ip_hdr_len) >> 8;
+    ip_packet[ip_hdr_len + 5] = (length - ip_hdr_len);
+
+    next_tvb = tvb_new_real_data(ip_packet, length, length);
+    tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+    add_new_data_source(pinfo, next_tvb, "Decompressed Data");
+    tvb_set_free_cb(next_tvb, g_free);
+
+    if (!dissector_try_port(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, info_tree)) {
+	call_dissector_only(data_handle, next_tvb, pinfo, info_tree);
+    }
+  } /* if tree */
+}
+
+/* 
+ * 0x2067 Packets:  Compressed UDP with 16-bit Context Identifier
+ */
+static void
+dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *cudp_tree;
+  proto_item *ti = NULL;
+  guint length;
+  guint hdr_length;
+  int offset = 0;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "Compressed UDP 16");
+
+  length = tvb_reported_length(tvb);
+
+  if (tree) {
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+					"%s", val_to_str(PPP_RTP_CUDP16, ppp_vals, "Unknown"));
+    cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
+
+    hdr_length = 3;
+
+    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid16, tvb, 0, 2, FALSE);
+    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 2, 1, FALSE);
+
+    offset += hdr_length;
+    length -= hdr_length;
+
+    ti = proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
+  } /* if tree */
+}
+
+/* 
+ * 0x67 Packets:  Compressed UDP with 8-bit Context Identifier
+ */
+static void
+dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *cudp_tree;
+  proto_item *ti = NULL;
+  guint length;
+  guint hdr_length;
+  int offset = 0;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "Compressed UDP 8");
+
+  length = tvb_reported_length(tvb);
+
+  if (tree) {
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+					"%s", val_to_str(PPP_RTP_CUDP8, ppp_vals, "Unknown"));
+    cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
+
+    hdr_length = 2;
+
+    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_cid8, tvb, 0, 1, FALSE);
+    ti = proto_tree_add_item(cudp_tree, hf_iphc_crtp_seq, tvb, 1, 1, FALSE);
+
+    offset += hdr_length;
+    length -= hdr_length;
+
+    ti = proto_tree_add_text(cudp_tree, tvb, offset, length, "Data (%d bytes)", length);
+  } /* if tree */
+}
+
+
+/* 
+ * 0x2065 Packets:  Context State
+ */
+static void
+dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree *cs_tree;
+  proto_item *ti = NULL;
+  guint8 flags, cnt;
+  guint length, cid_size;
+  guint offset = 2, hf;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "Context State");
+
+  if (tree) {
+    
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+					"%s", val_to_str(PPP_RTP_CS, ppp_vals, "Unknown"));
+    
+    cs_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
+
+    ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_flags, tvb, 0, 1, FALSE);
+    ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_cnt, tvb, 1, 1, FALSE);
+
+    /* calculate required length */
+    flags = tvb_get_guint8(tvb, 0);
+    cnt = tvb_get_guint8(tvb, 1);
+
+    if (flags == IPHC_CRTP_CS_CID8) {
+      hf = hf_iphc_crtp_cid8;
+      cid_size = 1;
+      length = 3 * cnt;
+    } else {
+      hf = hf_iphc_crtp_cid16;
+      cid_size = 2;
+      length = 4 * cnt;
+    }
+ 
+    tvb_ensure_bytes_exist(tvb, offset, length);
+
+    while (offset < length) {
+      ti = proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, FALSE);
+      offset += cid_size;
+      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, FALSE);
+      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_seq, tvb, offset, 1, FALSE);
+      ++offset;
+      ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_gen, tvb, offset, 1, FALSE);
+      ++offset;
+    }
+  } /* if tree */
+}
+
+
+/*
  * RFC 3032.
  */
 static void
@@ -4416,4 +4688,124 @@ proto_reg_handoff_ipv6cp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_IPV6CP, ipv6cp_handle);
+}
+
+void
+proto_register_iphc_crtp(void)
+{
+  static hf_register_info hf[] =
+  {
+    {
+      &hf_iphc_crtp_cid16,
+      {
+        "Context Id", "crtp.cid",
+        FT_UINT16, BASE_DEC,
+        NULL, 0x0,
+        "The context identifier of the compressed packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_cid8,
+      {
+        "Context Id", "crtp.cid",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0,
+        "The context identifier of the compressed packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_gen,
+      {
+        "Generation", "crtp.gen",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x3f,
+        "The generation of the compressed packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_seq,
+      {
+        "Sequence", "crtp.seq",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0f,
+        "The sequence of the compressed packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_fh_flags,
+      {
+        "Flags", "crtp.flags",
+        FT_UINT8, BASE_HEX,
+        iphc_crtp_fh_flags, 0xc0,
+        "The flags of the full header packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_cs_flags,
+      {
+        "Flags", "crtp.flags",
+        FT_UINT8, BASE_DEC,
+        iphc_crtp_cs_flags, 0x0,
+        "The flags of the context state packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_cs_cnt,
+      {
+        "Count", "crtp.cnt",
+        FT_UINT8, BASE_DEC,
+        NULL, 0x0,
+        "The count of the context state packet.", HFILL
+      }
+    },
+    {
+      &hf_iphc_crtp_cs_invalid,
+      {
+        "Invalid", "crtp.invalid",
+        FT_BOOLEAN, 8,
+        NULL, 0x80,
+        "The invalid bit of the context state packet.", HFILL
+      }
+    },
+ };
+	
+  static gint *ett[] = {
+    &ett_iphc_crtp,
+    &ett_iphc_crtp_hdr,
+    &ett_iphc_crtp_info,
+  };
+
+  proto_iphc_crtp = proto_register_protocol("CRTP", "CRTP", "crtp");
+  proto_register_field_array(proto_iphc_crtp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_iphc_crtp(void)
+{
+  dissector_handle_t fh_handle;
+  dissector_handle_t cudp16_handle;
+  dissector_handle_t cudp8_handle;
+  dissector_handle_t cs_handle;
+
+  fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
+  dissector_add("ppp.protocol", PPP_RTP_FH, fh_handle);
+
+  cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp);
+  dissector_add("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
+
+  cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp);
+  dissector_add("ppp.protocol", PPP_RTP_CUDP8, cudp16_handle);
+
+  cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp);
+  dissector_add("ppp.protocol", PPP_RTP_CS, cs_handle);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_RTP_FH, fh_handle);
+  dissector_add("ethertype", PPP_RTP_CUDP16, cudp16_handle);
+  dissector_add("ethertype", PPP_RTP_CUDP8, cudp16_handle);
+  dissector_add("ethertype", PPP_RTP_CS, cs_handle);
 }
