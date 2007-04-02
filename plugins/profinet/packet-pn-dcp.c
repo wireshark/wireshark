@@ -77,6 +77,7 @@ static int hf_pn_dcp_suboption_device_nameofstation = -1;
 static int hf_pn_dcp_suboption_vendor_id = -1;
 static int hf_pn_dcp_suboption_device_id = -1;
 static int hf_pn_dcp_suboption_device_role = -1;
+static int hf_pn_dcp_suboption_device_aliasname = -1;
 
 static int hf_pn_dcp_suboption_dhcp = -1;
 static int hf_pn_dcp_suboption_dhcp_device_id = -1;
@@ -208,6 +209,7 @@ static const value_string pn_dcp_suboption_ip_block_info[] = {
 #define PNDCP_SUBOPTION_DEVICE_DEV_ID           0x03
 #define PNDCP_SUBOPTION_DEVICE_DEV_ROLE         0x04
 #define PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS      0x05
+#define PNDCP_SUBOPTION_DEVICE_ALIAS_NAME       0x06
 
 static const value_string pn_dcp_suboption_device[] = {
 	{ 0x00, "Reserved" },
@@ -216,7 +218,8 @@ static const value_string pn_dcp_suboption_device[] = {
 	{ PNDCP_SUBOPTION_DEVICE_DEV_ID,        "Device ID" },
 	{ PNDCP_SUBOPTION_DEVICE_DEV_ROLE,      "Device Role" },
 	{ PNDCP_SUBOPTION_DEVICE_DEV_OPTIONS,   "Device Options" },
-    /*0x06 - 0xff reserved */
+	{ PNDCP_SUBOPTION_DEVICE_ALIAS_NAME,    "Alias Name" },
+    /*0x07 - 0xff reserved */
     { 0, NULL }
 };
 
@@ -412,6 +415,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 device_id;
     char *typeofstation;
     char *nameofstation;
+    char *aliasname;
     guint16 status=0;
 
 
@@ -440,7 +444,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
         nameofstation[block_length] = '\0';
         proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
-        pn_append_info(pinfo, dcp_item, ", NameOfStation");
+        pn_append_info(pinfo, dcp_item, ep_strdup_printf(", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if(is_response)
             proto_item_append_text(block_item, ", Status: %u", status);
@@ -483,6 +487,18 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset = dissect_PNDCP_Option(tvb, offset, pinfo, tree, NULL /*block_item*/, hf_pn_dcp_option, 
                 FALSE /* append_col */);
         }
+        break;
+    case(PNDCP_SUBOPTION_DEVICE_ALIAS_NAME):
+        aliasname = ep_alloc(block_length+1);
+        tvb_memcpy(tvb, (guint8 *) aliasname, offset, block_length);
+        aliasname[block_length] = '\0';
+        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, aliasname);
+        pn_append_info(pinfo, dcp_item, ep_strdup_printf(", AliasName:\"%s\"", aliasname));
+        proto_item_append_text(block_item, "Device/AliasName");
+        if(is_response)
+            proto_item_append_text(block_item, ", Status: %u", status);
+        proto_item_append_text(block_item, ", \"%s\"", aliasname);
+        offset += block_length;
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length); 
@@ -830,7 +846,7 @@ dissect_PNDCP_Data_heur(tvbuff_t *tvb,
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
 	/* frame id must be in valid range (acyclic Real-Time, DCP) */
-	if (u16FrameID < FRAME_ID_UC || u16FrameID > FRAME_ID_MC_RESP) {
+	if (u16FrameID < FRAME_ID_DCP_HELLO || u16FrameID > FRAME_ID_DCP_IDENT_RES) {
         /* we are not interested in this packet */
         return FALSE;
     }
@@ -909,6 +925,8 @@ proto_register_pn_dcp (void)
 		{ "DeviceID", "pn_dcp.suboption_device_id", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
     { &hf_pn_dcp_suboption_device_role,
 		{ "Device-role", "pn_dcp.suboption_device_role", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+    { &hf_pn_dcp_suboption_device_aliasname,
+		{ "AliasName", "pn_dcp.suboption_device_aliasname", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     { &hf_pn_dcp_suboption_dhcp,
 		{ "Suboption", "pn_dcp.suboption_dhcp", FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0, "", HFILL }},

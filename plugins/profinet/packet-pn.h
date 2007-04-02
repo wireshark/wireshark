@@ -22,9 +22,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#define FRAME_ID_UC         0xfefd
-#define FRAME_ID_MC         0xfefe
-#define FRAME_ID_MC_RESP    0xfeff
+#define FRAME_ID_DCP_HELLO      0xfefc
+#define FRAME_ID_DCP_GETORSET   0xfefd
+#define FRAME_ID_DCP_IDENT_REQ  0xfefe
+#define FRAME_ID_DCP_IDENT_RES  0xfeff
 
 
 extern void init_pn(int proto);

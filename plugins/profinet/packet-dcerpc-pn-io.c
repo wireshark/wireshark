@@ -401,6 +401,11 @@ static int hf_pn_io_im_tag_location = -1;
 static int hf_pn_io_im_date = -1;
 static int hf_pn_io_im_descriptor = -1;
 
+static int hf_pn_io_fs_hello_mode = -1;
+static int hf_pn_io_fs_hello_interval = -1;
+static int hf_pn_io_fs_hello_retry = -1;
+static int hf_pn_io_fs_hello_delay = -1;
+
 
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
@@ -544,6 +549,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0240, "PDInterfaceDataReal"},
 	{ 0x0400, "MultipleBlockHeader"},
 	{ 0x0500, "RecordDataReadQuery"},
+	{ 0x0600, "FSHello"},
 	{ 0x0F00, "MaintenanceItem"},
 	{ 0, NULL }
 };
@@ -1118,7 +1124,9 @@ static const value_string pn_io_index[] = {
 	{ 0xE030, "IsochronousModeData for one AR" },
     /*0xE031 - 0xE03F reserved */
 	{ 0xE040, "MultipleWrite" },
-    /*0xE041 - 0xEBFF reserved */
+    /*0xE041 - 0xE04F reserved */
+	{ 0xE050, "FastStartUp data for one AR" },
+    /*0xE051 - 0xE05F reserved */
     /*0xEC00 - 0xEFFF reserved */
 
     /* API specific */
@@ -1397,6 +1405,12 @@ static const value_string pn_io_control_properties_aplication_ready_vals[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_fs_hello_mode_vals[] = {
+    { 0x0000, "OFF" },
+    { 0x0001, "Send req on LinkUp" },
+    { 0x0002, "Send req on LinkUp after HelloDelay" },
+    { 0, NULL }
+};
 
 
 static int dissect_block(tvbuff_t *tvb, int offset,
@@ -3750,6 +3764,40 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the FS Hello block */
+static int
+dissect_FSHello_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep)
+{
+	guint32 u32FSHelloMode;
+	guint32 u32FSHelloInterval;
+	guint32 u32FSHelloRetry;
+	guint32 u32FSHelloDelay;
+
+
+	offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+	/* FSHelloMode */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_hello_mode, &u32FSHelloMode);
+	/* FSHelloInterval */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_hello_interval, &u32FSHelloInterval);
+	/* FSHelloRetry */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_hello_retry, &u32FSHelloRetry);
+	/* FSHelloDelay */
+	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_fs_hello_delay, &u32FSHelloDelay);
+
+    proto_item_append_text(item, ": Mode:%s, Interval:%ums, Retry:%u, Delay:%ums",
+        val_to_str(u32FSHelloMode, pn_io_fs_hello_mode_vals, "0x%x"),
+		u32FSHelloInterval, u32FSHelloRetry, u32FSHelloDelay);
+
+	return offset;
+}
+
+
 /* dissect the ARBlockReq */
 static int
 dissect_ARBlockReq(tvbuff_t *tvb, int offset,
@@ -4772,6 +4820,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0500):
         dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, *u16Index, u16BodyLength);
         break;
+    case(0x0600):
+        dissect_FSHello_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
+        break;
     case(0x0f00):
         dissect_Maintenance_block(tvb, offset, pinfo, sub_tree, sub_item, drep);
         break;
@@ -5168,6 +5219,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x8070):   /* PDNCDataCheck for one subslot */
 
     case(0xe030):   /* IsochronousModeData for one AR */
+    case(0xe050):   /* FastStartUp data for one AR */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen);
         break;
     default:
@@ -6138,6 +6190,15 @@ proto_register_pn_io (void)
 	    { "IM_Date", "pn_io.im_date", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_pn_io_im_descriptor,
 	    { "IM_Descriptor", "pn_io.im_descriptor", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_pn_io_fs_hello_mode,
+	    { "FSHelloMode", "pn_io.fs_hello_mode", FT_UINT32, BASE_HEX, VALS(pn_io_fs_hello_mode_vals), 0x0, "", HFILL }},
+    { &hf_pn_io_fs_hello_interval,
+	    { "FSHelloInterval", "pn_io.fs_hello_interval", FT_UINT32, BASE_DEC, NULL, 0x0, "ms before conveying a second DCP_Hello.req", HFILL }},
+    { &hf_pn_io_fs_hello_retry,
+	    { "FSHelloRetry", "pn_io.fs_hello_retry", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+    { &hf_pn_io_fs_hello_delay,
+	    { "FSHelloDelay", "pn_io.fs_hello_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
 
     };
 

@@ -212,19 +212,19 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: Acyclic PN-IO Alarm low priority";
         }
-        if (u16FrameID == 0xfefd) {
+        if (u16FrameID == FRAME_ID_DCP_GETORSET) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol)";
         }
-        if (u16FrameID == 0xfefe) {
+        if (u16FrameID == FRAME_ID_DCP_IDENT_REQ) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
 	        pszProtComment	= "Real-Time: DCP (Dynamic Configuration Protocol) identify multicast request";
         }
-        if (u16FrameID == 0xfeff) {
+        if (u16FrameID == FRAME_ID_DCP_IDENT_RES) {
 			pszProtShort 	= "PN-RTA";
             pszProtAddInfo  = "";
 	        pszProtSummary	= "acyclic Real-Time";
