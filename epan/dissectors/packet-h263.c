@@ -573,6 +573,8 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32 source_format;
 	guint32 ufep;
 	guint32 picture_coding_type;
+	guint32 PB_frames_mode = 0;
+	guint32 cpm;
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
@@ -625,7 +627,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		h263_proto_tree_add_bits( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 		/* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
-		h263_proto_tree_add_bits( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, NULL);
+		h263_proto_tree_add_bits( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode);
 		offset_in_bits++;
 	}else{
 		/* Extended PTYPE 
@@ -734,20 +736,150 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
 		 * immediately after PLUSPTYPE in the picture header.
 		 */
-		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, NULL);
+		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm);
 		offset_in_bits++;
-		h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
-		offset_in_bits = offset_in_bits +2;
+		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
+		 * only present if Continuous Presence Multipoint and Video
+		 * Multiplex mode is indicated by CPM.
+		 */
+		if(cpm==1){
+			h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
+			offset_in_bits = offset_in_bits +2;
+		}
+		/* TODO Add the rest of the fields */
+		/* 5.1.5 Custom Picture Format (CPFMT) (23 bits)
+		 * present only if the use of a custom picture format is
+		 * signalled in PLUSPTYPE and UFEP is '001'. When present, CPFMT consists of:
+		 * Bits 1-4 Pixel Aspect Ratio Code: A 4-bit index to the PAR value in Table 5. For
+		 * extended PAR, the exact pixel aspect ratio shall be specified in EPAR
+		 * (see 5.1.6);
+		 * Bits 5-13 Picture Width Indication: Range [0, ... , 511]; Number of pixels per
+		 * line = (PWI + 1) * 4;
+		 * Bit 14 Equal to "1" to prevent start code emulation;
+		 * Bits 15-23 Picture Height Indication: Range [1, ... , 288]; Number of lines = PHI * 4.
+		 */
+		/* 5.1.6 Extended Pixel Aspect Ratio (EPAR) (16 bits)
+		 * A fixed length codeword of 16 bits that is present only if CPFMT is present and extended PAR is
+		 * indicated therein. When present, EPAR consists of:
+		 *  Bits 1-8 PAR Width: "0" is forbidden. The natural binary representation of the PAR
+		 * width;
+		 *  Bits 9-16 PAR Height: "0" is forbidden. The natural binary representation of the PAR
+		 * height.
+		 */
+		/* 5.1.7 Custom Picture Clock Frequency Code (CPCFC) (8 bits)
+		 * A fixed length codeword of 8 bits that is present only if PLUSPTYPE is present and UFEP is 001
+		 * and a custom picture clock frequency is signalled in PLUSPTYPE. When present, CPCFC consists of:
+		 * Bit 1 Clock Conversion Code: "0" indicates a clock conversion factor of 1000 and
+		 * "1" indicates 1001;
+		 * Bits 2-8 Clock Divisor: "0" is forbidden. The natural binary representation of the value
+		 * of the clock divisor.
+		 */
+		/* 5.1.8 Extended Temporal Reference (ETR) (2 bits)
+		 * A fixed length codeword of 2 bits which is present only if a custom picture clock frequency is in
+		 * use (regardless of the value of UFEP). It is the two MSBs of the 10-bit number defined in 5.1.2.
+		 */
+		/* 5.1.9 Unlimited Unrestricted Motion Vectors Indicator (UUI) (Variable length)
+		 * A variable length codeword of 1 or 2 bits that is present only if the optional Unrestricted Motion
+		 * Vector mode is indicated in PLUSPTYPE and UFEP is 001. When UUI is present it indicates the
+		 * effective limitation of the range of the motion vectors being used.
+		 *  UUI = "1" The motion vector range is limited according to Tables D.1 and D.2.
+		 *  UUI = "01" The motion vector range is not limited except by the picture size.
+		 */
+		/*
+		 *  5.1.10 Slice Structured Submode bits (SSS) (2 bits)
+		 *  A fixed length codeword of 2 bits which is present only if the optional Slice Structured mode
+		 *  (see Annex K) is indicated in PLUSPTYPE and UFEP is 001. If the Slice Structured mode is in use
+		 *  but UFEP is not 001, the last values sent for SSS shall remain in effect.
+		 *  – Bit 1 Rectangular Slices, "0" indicates free-running slices, "1" indicates rectangular
+		 *  slices;
+		 *  – Bit 2 Arbitrary Slice Ordering, "0" indicates sequential order, "1" indicates arbitrary
+		 *  order.
+		 *  5.1.11 Enhancement Layer Number (ELNUM) (4 bits)
+		 *  A fixed length codeword of 4 bits which is present only if the optional Temporal, SNR, and Spatial
+		 *  Scalability mode is in use (regardless of the value of UFEP). The particular enhancement layer is
+		 *  identified by an enhancement layer number, ELNUM. Picture correspondence between layers is
+		 *  achieved via the temporal reference. Picture size is either indicated within each enhancement layer
+		 *  using the existing source format fields or is inferred by the relationship to the reference layer. The
+		 *  first enhancement layer above the base layer is designated as Enhancement Layer Number 2, and
+		 *  the base layer has number 1.
+		 *  5.1.12 Reference Layer Number (RLNUM) (4 bits)
+		 *  A fixed length codeword of 4 bits which is present only if the optional Temporal, SNR, and Spatial
+		 *  Scalability mode is in use (see Annex O) and UFEP is 001. The layer number for the pictures used
+		 *  as reference anchors is identified by a Reference Layer Number (RLNUM). Time correspondence
+		 *  between layers is achieved via the temporal reference.
+		 *  Note that for B-pictures in an enhancement layer having temporally surrounding EI- or EP-pictures
+		 *  which are present in the same enhancement layer, RLNUM shall be equal to ELNUM
+		 *  (see Annex O).
+		 *  5.1.13 Reference Picture Selection Mode Flags (RPSMF) (3 bits)
+		 *  A fixed length codeword of 3 bits that is present only if the Reference Picture Selection mode is in
+		 *  use and UFEP is 001. When present, RPSMF indicates which type of back-channel messages are
+		 *  needed by the encoder. If the Reference Picture Selection mode is in use but RPSMF is not present,
+		 *  the last value of RPSMF that was sent shall remain in effect.
+		 *  – 100: neither ACK nor NACK signals needed;
+		 *  – 101: need ACK signals to be returned;
+		 *  – 110: need NACK signals to be returned;
+		 *  – 111: need both ACK and NACK signals to be returned;
+		 *  – 000-011: Reserved.
+		 *  5.1.14 Temporal Reference for Prediction Indication (TRPI) (1 bit)
+		 *  A fixed length codeword of 1 bit that is present only if the optional Reference Picture Selection
+		 *  mode is in use (regardless of the value of UFEP). When present, TRPI indicates the presence of the
+		 *  following TRP field:
+		 *  – 0: TRP field is not present;
+		 *  – 1: TRP field is present.
+		 *  TRPI shall be 0 whenever the picture header indicates an I- or EI-picture.
+		 *  5.1.15 Temporal Reference for Prediction (TRP) (10 bits)
+		 *  When present (as indicated in TRPI), TRP indicates the Temporal Reference which is used for
+		 *  prediction of the encoding, except for in the case of B-pictures. For B-pictures, the picture having
+		 *  the temporal reference TRP is used for the prediction in the forward direction. (Prediction in the
+		 *  reverse-temporal direction always uses the immediately temporally subsequent picture.) TRP is a
+		 *  ten-bit number. If a custom picture clock frequency was not in use for the reference picture, the two
+		 *  MSBs of TRP are zero and the LSBs contain the eight-bit TR found in the picture header of the
+		 *  reference picture. If a custom picture clock frequency was in use for the reference picture, TRP is a
+		 *  ten-bit number consisting of the concatenation of ETR and TR from the reference picture header.
+		 *  When TRP is not present, the most recent temporally previous anchor picture shall be used for
+		 *  prediction, as when not in the Reference Picture Selection mode. TRP is valid until the next PSC,
+		 *  GSC, or SSC.
+		 *  5.1.16 Back-Channel message Indication (BCI) (Variable length)
+		 *  A variable length field of one or two bits that is present only if the optional Reference Picture
+		 *  Selection mode is in use. When set to "1", this signals the presence of the following optional video
+		 *  Back-Channel Message (BCM) field. "01" indicates the absence or the end of the video backchannel
+		 *  message field. Combinations of BCM and BCI may not be present, and may be repeated
+		 *  when present. BCI shall be set to "01" if the videomux submode of the optional Reference Picture
+		 *  Selection mode is not in use.
+		 *  5.1.17 Back-Channel Message (BCM) (Variable length)
+		 *  The Back-Channel message with syntax as specified in N.4.2, which is present only if the preceding
+		 *  BCI field is present and is set to "1".
+		 *  5.1.18 Reference Picture Resampling Parameters (RPRP) (Variable length)
+		 *  A variable length field that is present only if the optional Reference Picture Resampling mode bit is
+		 *  set in PLUSPTYPE. This field carries the parameters of the Reference Picture Resampling mode
+		 *  (see Annex P). Note that the Reference Picture Resampling mode can also be invoked implicitly by
+		 *  the occurrence of a picture header for an INTER coded picture having a picture size which differs
+		 *  from that of the previous encoded picture, in which case the RPRP field is not present and the
+		 *  Reference Picture Resampling mode bit is not set.
+		 */
+		return offset_in_bits>>3;
 	}
 	/* 5.1.19 Quantizer Information (PQUANT) (5 bits) */
 	h263_proto_tree_add_bits( tree, hf_h263_pquant, tvb, offset_in_bits, 5, NULL);
 	offset_in_bits = offset_in_bits +5;
 	if (source_format != H263_PLUSPTYPE){
-		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, NULL);
+		h263_proto_tree_add_bits( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm);
 		offset_in_bits++;
-		h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
-		offset_in_bits = offset_in_bits +2;
+		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
+		 * only present if Continuous Presence Multipoint and Video
+		 * Multiplex mode is indicated by CPM.
+		 */
+		if(cpm==1){
+			h263_proto_tree_add_bits( tree, hf_h263_psbi, tvb, offset_in_bits, 2, NULL);
+			offset_in_bits = offset_in_bits +2;
+		}
 	}
+	/* 5.1.22 Temporal Reference for B-pictures in PB-frames (TRB) (3/5 bits)
+	 * TRB is present if PTYPE or PLUSPTYPE indicates "PB-frame" or "Improved PB-frame"
+	 * It is 3 bits long for standard CIF picture clock frequency and is
+	 * extended to 5 bits when a custom picture clock frequency is in use.
+	 */
+	/* TODO Add the rest of the fields */
 
 	return offset_in_bits>>3;
 
