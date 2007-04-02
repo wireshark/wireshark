@@ -80,6 +80,7 @@ struct wlan_header_v2 {
   guint8 pad[2];
 };
 
+static int hf_wlan_magic = -1;
 static int hf_wlan_version = -1;
 static int hf_wlan_length = -1;
 static int hf_wlan_mactime = -1;
@@ -97,6 +98,7 @@ static int hf_wlan_encoding = -1;
 static int hf_wlan_sequence = -1;
 static int hf_wlan_drops = -1;
 static int hf_wlan_sniffer_addr = -1;
+static int hf_wlan_padding = -1;
 
 static gint ett_wlan = -1;
 
@@ -165,8 +167,10 @@ proto_register_wlancap(void)
   };
 
   static hf_register_info hf[] = {
+    { &hf_wlan_magic, { "Header magic", "wlancap.magic", FT_UINT32, 
+			  BASE_HEX, NULL, 0xFFFFFFF0, "", HFILL } },
     { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32, 
-			  BASE_DEC, NULL, 0x0, "", HFILL } },
+			  BASE_DEC, NULL, 0xF, "", HFILL } },
     { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32, 
 			 BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_mactime, { "MAC timestamp", "wlancap.mactime", FT_UINT64, 
@@ -199,6 +203,8 @@ proto_register_wlancap(void)
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_sniffer_addr, { "Sniffer Address", "wlancap.sniffer_addr", FT_ETHER, 
 			       BASE_NONE, NULL, 0x0, "Sniffer Hardware Address", HFILL } },
+    { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES, 
+			  BASE_NONE, NULL, 0x0, "", HFILL } },
   };
   static gint *ett[] = {
     &ett_wlan
@@ -250,27 +256,20 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_protocol_format(tree, proto_wlancap,
             tvb, 0, length, "AVS WLAN Monitoring Header");
       wlan_tree = proto_item_add_subtree(ti, ett_wlan);
-      proto_tree_add_uint(wlan_tree, hf_wlan_version, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset) - WLANCAP_MAGIC_COOKIE_BASE);
+      proto_tree_add_item(wlan_tree, hf_wlan_magic, tvb, offset, 4, FALSE);
+      proto_tree_add_item(wlan_tree, hf_wlan_version, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_length, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_length, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_item(wlan_tree, hf_wlan_mactime, tvb, offset,
-			  8, FALSE);
+      proto_tree_add_item(wlan_tree, hf_wlan_mactime, tvb, offset, 8, FALSE);
       offset+=8;
-      proto_tree_add_item(wlan_tree, hf_wlan_hosttime, tvb, offset,
-			  8, FALSE);
+      proto_tree_add_item(wlan_tree, hf_wlan_hosttime, tvb, offset, 8, FALSE);
       offset+=8;
-
-      proto_tree_add_uint(wlan_tree, hf_wlan_phytype, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_phytype, tvb, offset, 4, FALSE);
       offset+=4;
       /* XXX cook channel (fh uses different numbers) */
-      proto_tree_add_uint(wlan_tree, hf_wlan_channel, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_channel, tvb, offset, 4, FALSE);
       offset+=4;
-
       /* XXX - all other 802.11 pseudo-headers use 500Kb/s, not 100Kb/s,
          as the units. */
       datarate = tvb_get_ntohl(tvb, offset);
@@ -278,41 +277,35 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 4, datarate * 100, 
 				 "Data Rate: %u Kb/s", datarate * 100);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_antenna, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_antenna, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_priority, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_priority, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_ssi_type, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_type, tvb, offset, 4, FALSE);
       offset+=4;
       /* XXX cook ssi_signal (Based on type; ie format) */
-      proto_tree_add_int(wlan_tree, hf_wlan_ssi_signal, tvb, offset,
-			 4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_signal, tvb, offset, 4, FALSE);
       offset+=4;
       /* XXX cook ssi_noise (Based on type; ie format) */
-      proto_tree_add_int(wlan_tree, hf_wlan_ssi_noise, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_noise, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_preamble, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_preamble, tvb, offset, 4, FALSE);
       offset+=4;
-      proto_tree_add_uint(wlan_tree, hf_wlan_encoding, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(wlan_tree, hf_wlan_encoding, tvb, offset, 4, FALSE);
       offset+=4;
       if (version > 1) {
-	      proto_tree_add_uint(wlan_tree, hf_wlan_sequence, tvb, offset,
-				  4, tvb_get_ntohl(tvb, offset));
+	      proto_tree_add_item(wlan_tree, hf_wlan_sequence, tvb, offset,
+			4, FALSE);
 	      offset+=4;
-	      proto_tree_add_uint(wlan_tree, hf_wlan_drops, tvb, offset,
-				  4, tvb_get_ntohl(tvb, offset));
+	      proto_tree_add_item(wlan_tree, hf_wlan_drops, tvb, offset,
+			4, FALSE);
 	      offset+=4;
-	      proto_tree_add_ether(wlan_tree, hf_wlan_sniffer_addr, tvb, 
-				   offset, 6, 
-				   tvb_get_ptr(tvb, offset, 6));
-	      /* Yes, this is supposed to be 8. */
-	      offset+=8;
+	      proto_tree_add_item(wlan_tree, hf_wlan_sniffer_addr, tvb, offset,
+			6, FALSE);
+	      offset+=6;
+	      proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset,
+			2, FALSE);
+	      offset+=2;
       }
     }
 
