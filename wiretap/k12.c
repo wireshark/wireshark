@@ -163,6 +163,15 @@ typedef struct _k12_src_desc_t {
 #define K12_RECORD_FRAME_LEN   0x8 /* uint32, in bytes */
 #define K12_RECORD_SRC_ID      0xc /* uint32 */
 
+/*
+ * Some records from K15 files have a port ID of an undeclared
+ * interface which happens to be the only one with the first byte changed.
+ * It is still unknown how to recognize when this happens.
+ * If the lookup of the interface record fails we'll mask it
+ * and retry.
+ */
+#define K12_RECORD_SRC_ID_MASK 0x00ffffff
+
 /* elements of packet records */
 #define K12_PACKET_TIMESTAMP  0x18 /* int64 (8b) representing 1/2us since 01-01-1990 Z00:00:00 */
 
@@ -328,8 +337,19 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
         
         type = pntohl(buffer + K12_RECORD_TYPE);
         src_id = pntohl(buffer + K12_RECORD_SRC_ID);
-		src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id));
-
+	
+		
+        if ( ! (src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
+			/*
+			 * Some records from K15 files have a port ID of an undeclared
+			 * interface which happens to be the only one with the first byte changed.
+			 * It is still unknown how to recognize when this happens.
+			 * If the lookup of the interface record fails we'll mask it
+			 * and retry.
+			 */
+			src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
+		}
+	
         K12_DBG(5,("k12_read: record type=%x src_id=%x",type,src_id));
         
         offset += len;
@@ -433,8 +453,17 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     input = pntohl(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("k12_seek_read: input=%.8x",input));
     
-    src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input));
-    
+	if ( ! (src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input))) ) {
+		/*
+		 * Some records from K15 files have a port ID of an undeclared
+		 * interface which happens to be the only one with the first byte changed.
+		 * It is still unknown how to recognize when this happens.
+		 * If the lookup of the interface record fails we'll mask it
+		 * and retry.
+		 */
+		src_desc = g_hash_table_lookup(wth->capture.k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
+	}
+	
     if (src_desc) {
         K12_DBG(5,("k12_seek_read: input_name='%s' stack_file='%s' type=%x",src_desc->input_name,src_desc->stack_file,src_desc->input_type));
         if (pseudo_header) {
