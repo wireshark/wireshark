@@ -733,6 +733,9 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *  if someone analyzed that web server's traffic in Wireshark, would result
  *  in Wireshark handing an HTTP packet to your dissector).  For example:
  */
+	/* Check that there's enough data */
+	if (tvb_length(tvb) < /* your protocol's smallest packet size */)
+		return 0;
 
 	/* Get some values from the packet header, probably using tvb_get_*() */
 	if ( /* these values are not possible in PROTONAME */ )

@@ -452,7 +452,7 @@ dissect_rx_flags(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *parent_tree, 
 	return offset;
 }
 
-static void
+static int
 dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree;
@@ -462,6 +462,15 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint8 type;
 	guint32 seq, callnumber;
 	guint16 serviceid;
+
+	/* Ensure we have enough data */
+	if (tvb_length(tvb) < 28)
+		return 0;
+
+	/* Make sure it's a known type */
+	type = tvb_get_guint8(tvb, 20);
+	if (type == 0 || type == 10 || type == 11 || type == 12 || type > 13)
+		return 0;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
@@ -582,6 +591,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	}
 
+	return(tvb_length(tvb));
 }
 
 void
@@ -784,7 +794,7 @@ proto_reg_handoff_rx(void)
 
 	/* Ports in the range UDP_PORT_RX_LOW to UDP_PORT_RX_HIGH
 	   are all used for various AFS services. */
-	rx_handle = create_dissector_handle(dissect_rx, proto_rx);
+	rx_handle = new_create_dissector_handle(dissect_rx, proto_rx);
 	for (port = UDP_PORT_RX_LOW; port <= UDP_PORT_RX_HIGH; port++)
 		dissector_add("udp.port", port, rx_handle);
 	dissector_add("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
