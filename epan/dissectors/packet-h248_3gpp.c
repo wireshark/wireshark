@@ -30,6 +30,7 @@
 #define PSNAME "H2483GPP"
 #define PFNAME "h2483gpp"
 
+#include "packet-isup.h"
 
 /* 
  * 3GUP Package
@@ -274,6 +275,56 @@ static gint ett_h248_package_3GTFO = -1;
 static gint ett_h248_3GTFO_evt_status = -1;
 static gint ett_h248_3GTFO_evt_distant_codec_list = -1;
 static gint ett_h248_3GTFO_evt_codec_modify = -1;
+static gint ett_h248_3GTFO_codec_list = -1;
+static gint ett_h248_3GTFO_codec = -1;
+
+
+static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu, void* ignored _U_) {
+	tvbuff_t* sub_tvb = NULL;
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	
+	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	
+	/* XXX: is this enough to guess it? */
+	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
+		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sub_tvb );
+		
+		if (sub_tvb) {
+			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec);
+			dissect_codec_mode(pt, sub_tvb, 0, tvb_length(tvb));
+		}
+	} else {
+		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+	}
+	
+}
+
+static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu, void* ignored _U_) {
+	tvbuff_t* sub_tvb = NULL;
+	gint8 class;
+	gboolean pc;
+	gint32 tag;
+	
+	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	
+	if ((tag==BER_UNI_TAG_OCTETSTRING)) {
+		dissect_ber_octet_string(FALSE, pinfo, tree, tvb, 0, hfid, &sub_tvb );
+		
+		if (sub_tvb) {
+			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec_list);
+			int len = tvb_length(sub_tvb);
+			int offset = 0;
+			do {
+				offset = dissect_codec_mode(pt, sub_tvb, offset, len);
+			} while(offset < len);
+		}
+	} else {
+		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+	}
+}
+
 
 static const value_string h248_package_3GTFO_props_vals[] = {
 	{1,"enable"},
@@ -313,19 +364,19 @@ static const value_string tfoenable_vals[] = {
 
 static const h248_pkg_param_t h248_package_3GTFO_props[] = {
 	{ 0x0001, &hf_h248_pkg_3GTFO_enable, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_3GTFO_codeclist, h248_param_item, &implicit }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
+	{ 0x0002, &hf_h248_pkg_3GTFO_codeclist, dissect_3GTFO_codec_list, NULL }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
 
 static const h248_pkg_param_t h248_pkg_3GTFO_evt_codec_modify_params[] = {
-	{ 0x0011, &hf_h248_pkg_3GTFO_evt_codec_modify_optimalcodec, h248_param_ber_octetstring, &implicit }, /* Q.765.5 + TS 26.103 .*/
+	{ 0x0011, &hf_h248_pkg_3GTFO_evt_codec_modify_optimalcodec, dissect_3GTFO_codec_mode, NULL }, /* Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
 
 static const h248_pkg_param_t h248_pkg_3GTFO_evt_distant_codec_list_params[] = {
-	{ 0x0013, &hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist, h248_param_item, &implicit }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
+	{ 0x0013, &hf_h248_pkg_3GTFO_evt_distant_codec_list_distlist, dissect_3GTFO_codec_list, NULL }, /* Sub-list of Octet string Q.765.5 + TS 26.103 .*/
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -504,7 +555,9 @@ void proto_register_h248_3gpp(void) {
 		&ett_h248_package_3GTFO,
 		&ett_h248_3GTFO_evt_status,
 		&ett_h248_3GTFO_evt_distant_codec_list,
-		&ett_h248_3GTFO_evt_codec_modify
+		&ett_h248_3GTFO_evt_codec_modify,
+		&ett_h248_3GTFO_codec_list,
+		&ett_h248_3GTFO_codec
 	};
 	
 	hf_h248_package_3GUP = proto_register_protocol(PNAME, PSNAME, PFNAME);
