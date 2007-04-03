@@ -343,7 +343,6 @@ DISSECTOR_SRC =	\
 	packet-dmp.c	\
 	packet-dnp.c	\
 	packet-dns.c	\
-	packet-drda.c 	\
 	packet-dsi.c	\
 	packet-dtls.c	\
 	packet-dtp.c	\
@@ -1045,3 +1044,6 @@ DISSECTOR_SUPPORT_SRC =	\
 # this target needed for distribution only
 noinst_HEADERS =	\
 	$(DISSECTOR_INCLUDES)
+
+ALL_DISSECTORS_SRC = $(DISSECTOR_SRC) $(CLEAN_DISSECTOR_SRC) \ 
+		      $(PIDL_DISSECTOR_SRC) $(ASN_DISSECTOR_SRC)
