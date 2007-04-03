@@ -22,8 +22,14 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # 
 
+if [ "$WS_SYSTEM" == "Windows" ] ; then
+	MAKE=nmake
+else
+	MAKE=make
+fi
+
 unittests_step_test() {
-	make -C `dirname $DUT` `basename $DUT` >testout.txt 2>&1
+	( cd `dirname $DUT` && $MAKE `basename $DUT` ) >testout.txt 2>&1
 	if [ $? -ne 0 ]; then
 		echo
 		cat ./testout.txt
