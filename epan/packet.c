@@ -666,11 +666,12 @@ find_uint_dtbl_entry(dissector_table_t sub_dissectors, guint32 pattern)
 void
 dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 {
-	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dissector_table_t sub_dissectors;
 	dtbl_entry_t *dtbl_entry;
 
+	sub_dissectors = find_dissector_table(name);
 /* sanity checks */
-	g_assert( sub_dissectors);
+	g_assert(sub_dissectors);
 	switch (sub_dissectors->type) {
 
 	case FT_UINT8:

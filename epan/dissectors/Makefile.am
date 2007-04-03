@@ -20,16 +20,33 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-noinst_LTLIBRARIES = libdissectors.la
+noinst_LTLIBRARIES = libdissectors.la libcleandissectors.la libasndissectors.la libpidldissectors.la
+
+
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. \
 	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
 
 include Makefile.common
 
+
+libasndissectors_la_SOURCES = \
+	$(ASN_DISSECTOR_SRC)
+
+libpidldissectors_la_SOURCES = \
+	$(PIDL_DISSECTOR_SRC)
+
 libdissectors_la_SOURCES = \
 	$(DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
+
+if HAVE_WARNINGS_AS_ERRORS
+AM_CLEAN_CFLAGS = -Werror
+endif
+libcleandissectors_la_SOURCES = \
+	$(CLEAN_DISSECTOR_SRC)
+libcleandissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
+
 
 EXTRA_DIST = \
 	Makefile.common		\
@@ -89,13 +106,14 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-re
 	@if test -n $(PYTHON); then \
 		echo Making register.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
-		    dissectors $(DISSECTOR_SRC) ; \
+		    dissectors $(DISSECTOR_SRC) $(CLEAN_DISSECTOR_SRC) \
+		    $(PIDL_DISSECTOR_SRC) $(ASN_DISSECTOR_SRC) ; \
 	else \
 		echo Making register.c with shell script ; \
 		$(top_srcdir)/tools/make-dissector-reg $(srcdir) \
-		   dissectors $(plugin_src) $(DISSECTOR_SRC) ; \
+		   dissectors $(plugin_src) $(DISSECTOR_SRC) $(CLEAN_DISSECTOR_SRC) \
+		    $(PIDL_DISSECTOR_SRC) $(ASN_DISSECTOR_SRC) ; \
 	fi
-
 #
 # Currently register.c can be included in the distribution because
 # we always build all protocol dissectors. We used to have to check
@@ -115,8 +133,14 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-re
 #	@rm -f $(distdir)/register.c
 
 CLEANFILES = \
+	libcleandissectors.a \
+	libcleandissectors.la \
 	libdissectors.a		\
 	libdissectors.la	\
+	libasndissectors.la \
+	libasndissectors.a \
+	libpidldissectors.la \
+	libpidldissectors.a \
 	register.c-tmp		\
 	$(GENERATED_HEADER_FILES)	\
 	*~
