@@ -29,6 +29,8 @@
 #include "tvbuff.h"
 #include "pint.h"
 
+gboolean failed = FALSE;
+
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
 gboolean
@@ -48,6 +50,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (length != expected_length) {
 		printf("01: Failed TVB=%s Length of tvb=%u while expected length=%u\n",
 				name, length, expected_length);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -67,6 +70,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (!ex_thrown) {
 		printf("02: Failed TVB=%s No BoundsError when retrieving %u bytes\n",
 				name, length + 1);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -87,6 +91,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (!ex_thrown) {
 		printf("03: Failed TVB=%s No ReportedBoundsError when retrieving %u bytes\n",
 				name, length + 2);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -106,6 +111,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (!ex_thrown) {
 		printf("04: Failed TVB=%s No BoundsError when retrieving 2 bytes from"
 				" offset -1\n", name);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -125,6 +131,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (ex_thrown) {
 		printf("05: Failed TVB=%s BoundsError when retrieving 1 bytes from"
 				" offset 0\n", name);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -144,6 +151,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (ex_thrown) {
 		printf("06: Failed TVB=%s BoundsError when retrieving 1 bytes from"
 				" offset -1\n", name);
+		failed = TRUE;
 		return FALSE;
 	}
 
@@ -162,6 +170,7 @@ test(tvbuff_t *tvb, gchar* name,
 		if (ex_thrown) {
 			printf("07: Failed TVB=%s Exception when retrieving "
 					"guint32 from offset 0\n", name);
+			failed = TRUE;
 			return FALSE;
 		}
 
@@ -169,6 +178,7 @@ test(tvbuff_t *tvb, gchar* name,
 		if (val32 != expected32) {
 			printf("08: Failed TVB=%s  guint32 @ 0 %u != expected %u\n",
 					name, val32, expected32);
+			failed = TRUE;
 			return FALSE;
 		}
 	}
@@ -187,6 +197,7 @@ test(tvbuff_t *tvb, gchar* name,
 		if (ex_thrown) {
 			printf("09: Failed TVB=%s Exception when retrieving "
 					"guint32 from offset 0\n", name);
+			failed = TRUE;
 			return FALSE;
 		}
 
@@ -194,6 +205,7 @@ test(tvbuff_t *tvb, gchar* name,
 		if (val32 != expected32) {
 			printf("10: Failed TVB=%s guint32 @ -4 %u != expected %u\n",
 					name, val32, expected32);
+			failed = TRUE;
 			return FALSE;
 		}
 	}
@@ -207,6 +219,7 @@ test(tvbuff_t *tvb, gchar* name,
 				printf("11: Failed TVB=%s Offset=%d Length=%d "
 						"Bad memdup\n",
 						name, i, incr);
+				failed = TRUE;
 				g_free(ptr);
 				return FALSE;
 			}
@@ -219,6 +232,7 @@ test(tvbuff_t *tvb, gchar* name,
 	if (memcmp(ptr, expected_data, length) != 0) {
 		printf("12: Failed TVB=%s Offset=0 Length=-1 "
 				"Bad memdup\n", name);
+		failed = TRUE;
 		g_free(ptr);
 		return FALSE;
 	}
@@ -410,5 +424,5 @@ main(void)
 	run_tests();
 	tvbuff_cleanup();
 	except_deinit();
-	exit(0);
+	exit(failed?1:0);
 }
