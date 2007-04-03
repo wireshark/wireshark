@@ -46,6 +46,4 @@ void parse_token(token_t token, char *str);
 
 int yylex(void);
 
-#define YY_NO_UNPUT
-
 #endif
