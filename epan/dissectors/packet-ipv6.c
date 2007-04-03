@@ -224,16 +224,16 @@ ipv6_reassemble_init(void)
 }
 
 enum {
-  IPv6_SOURCE_ROUTING=0,
-  NIMROD,
-  MobileIP
+  IPv6_RT_HEADER_SOURCE_ROUTING=0,
+  IPv6_RT_HEADER_NIMROD,
+  IPv6_RT_HEADER_MobileIP
 };
 
 /* Routeing Header Types */
 static const value_string routing_header_type[] = {
-  { IPv6_SOURCE_ROUTING, "IPv6 Source Routing" },
-  { 1, "Nimrod" },
-  { 2, "Mobile IP" },
+  { IPv6_RT_HEADER_SOURCE_ROUTING, "IPv6 Source Routing" },
+  { IPv6_RT_HEADER_NIMROD, "Nimrod" },
+  { IPv6_RT_HEADER_MobileIP, "Mobile IP" },
   { 0, NULL }
 };
 
@@ -271,7 +271,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 	proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_left, tvb,
 		  offset + offsetof(struct ip6_rthdr, ip6r_segleft), 1, FALSE);
 
-	if (rt.ip6r_type == 0 && len <= sizeof(buf)) {
+	if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING && len <= sizeof(buf)) {
 	    struct e_in6_addr *a;
 	    int n;
 	    struct ip6_rthdr0 *rt0;
@@ -288,7 +288,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 			      sizeof(struct e_in6_addr), FALSE);
 	    }
 	}
-	if (rt.ip6r_type == 2) {
+	if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
 	  proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb, 
 			      offset + 8, 16, FALSE);
 	}
