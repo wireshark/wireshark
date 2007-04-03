@@ -36,11 +36,12 @@ test(tvbuff_t *tvb, gchar* name,
 		guint8* expected_data, guint expected_length)
 {
 	guint			length;
+	const guint8	       *cptr;
 	guint8			*ptr;
 	volatile gboolean	ex_thrown;
 	volatile guint32	val32;
 	guint32			expected32;
-	int			incr, i;
+	guint			incr, i;
 
 	length = tvb_length(tvb);
 
@@ -53,7 +54,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		ptr = tvb_get_ptr(tvb, 0, length + 1);
+		cptr = tvb_get_ptr(tvb, 0, length + 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -73,7 +74,7 @@ test(tvbuff_t *tvb, gchar* name,
 	   exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		ptr = tvb_get_ptr(tvb, 0, length + 2);
+		cptr = tvb_get_ptr(tvb, 0, length + 2);
 	}
 	CATCH(BoundsError) {
 		printf("03: Caught wrong exception: BoundsError\n");
@@ -92,7 +93,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		ptr = tvb_get_ptr(tvb, -1, 2);
+		cptr = tvb_get_ptr(tvb, -1, 2);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -111,7 +112,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		ptr = tvb_get_ptr(tvb, 0, 1);
+		cptr = tvb_get_ptr(tvb, 0, 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -130,7 +131,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		ptr = tvb_get_ptr(tvb, -1, 1);
+		cptr = tvb_get_ptr(tvb, -1, 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
