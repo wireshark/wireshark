@@ -888,6 +888,8 @@ void proto_register_camel(void) {
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
+  register_dissector("camel", dissect_camel, proto_camel);
+
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

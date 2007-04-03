@@ -42,6 +42,7 @@
 #include <epan/report_err.h>
 #include <epan/filesystem.h>
 #include <epan/packet.h>
+#include <epan/range.h>
 
 #include "uat-int.h"
 
@@ -386,6 +387,27 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* 
 
 	*err = ep_strdup_printf("invalid value: %s",str);
 	return FALSE;
+}
+
+gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3, char** err) {
+	char* str = ep_strndup(strptr,len);
+	range_t* r = NULL;
+	convert_ret_t ret = range_convert_str(&r, str,GPOINTER_TO_UINT(u3));
+	
+	switch (  ret ) {
+		case CVT_NO_ERROR:
+			*err = NULL;
+			return TRUE;
+		case CVT_SYNTAX_ERROR:
+			*err = ep_strdup_printf("syntax error in range: %s",str);
+			return FALSE;
+		case CVT_NUMBER_TOO_BIG:
+			*err = ep_strdup_printf("value too large in range: '%s' (max = %u)",str,GPOINTER_TO_UINT(u3));
+			return FALSE;
+		default:
+			*err = "This should not happen, it is a bug in wireshark! please report to wireshark-dev@wireshark.org";
+			return FALSE;
+	}
 }
 
 static int xton(char d) {

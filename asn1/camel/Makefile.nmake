@@ -40,6 +40,6 @@ fix_eol: generate_dissector
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
 	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
 
-copy_files: generate_dissector fix_eol
+copy_files: generate_dissector
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
 	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y

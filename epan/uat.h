@@ -203,6 +203,7 @@ typedef struct _uat_field_t {
 
 
 #define UAT_CAT_GENERAL "General"
+#define UAT_CAT_PORTS "Port Assignments"
 #define UAT_CAT_CRYPTO "Decryption"
 #define UAT_CAT_FFMT "File Formats"
 
@@ -260,6 +261,7 @@ gboolean uat_fld_chk_proto(void*, const char*, unsigned, void*,void*, char** err
 gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, void*, void*, char** err);
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, void*, void*, char** err);
 gboolean uat_fld_chk_enum(void*, const char*, unsigned, void*, void*, char**);
+gboolean uat_fld_chk_range(void*, const char*, unsigned, void*, void*, char**);
 
 #define CHK_STR_IS_DECL(what) \
 gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, char**)
@@ -432,6 +434,28 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_PROTO(basename,field_name,desc) \
 	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_proto,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+/*
+ * RANGE macros
+ */
+
+#define UAT_RANGE_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2) {\
+	char* rng = ep_strndup(buf,len);\
+		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
+	} \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+	if ( ((rec_t*)rec)->field_name ) { \
+		*out_ptr = range_convert_range(((rec_t*)rec)->field_name);  *out_len = strlen(*out_ptr); \
+	} else { \
+		*out_ptr = ""; *out_len = 0; } } 
+
+
+#define UAT_FLD_RANGE(basename,field_name,max,desc) \
+	{#field_name, PT_TXTMOD_STRING,{uat_fld_chk_range,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},\
+	  {GUINT_TO_POINTER(max),GUINT_TO_POINTER(max),GUINT_TO_POINTER(max)},0,desc,FLDFILL}
+
+
 
 
 

@@ -70,6 +70,8 @@ gint ett_tcap_stat = -1;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
+static dissector_handle_t requested_subdissector_handle = NULL;
+
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
 #include "packet-tcap-ett.c"
@@ -568,7 +570,13 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     subdissector_handle=p_tcap_context->subdissector_handle;
     is_subdissector=TRUE;
   }
-  
+
+  /* Have SccpUsersTable protocol taking precedence over sccp.ssn table */
+  if (!is_subdissector && requested_subdissector_handle) {
+	  is_subdissector = TRUE;
+	  subdissector_handle = requested_subdissector_handle;
+  }
+
   if (!is_subdissector) {
     /*
      * If we do not currently know the subdissector, we have to find it
@@ -607,6 +615,7 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   } else {
     /* We have it already */
   }
+    
   /* Call the sub dissector if present, and not already called */
   if (is_subdissector)
     call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
@@ -647,3 +656,21 @@ dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
+
+
+void call_tcap_dissector(dissector_handle_t handle, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+
+	requested_subdissector_handle = handle;
+
+	TRY {
+		dissect_tcap(tvb, pinfo, tree);
+	} CATCH_ALL {
+		requested_subdissector_handle = NULL;
+		RETHROW;
+	} ENDTRY;
+	
+	requested_subdissector_handle = NULL;
+
+}
+
+

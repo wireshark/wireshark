@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-gsm_map.c                                                         */
+/* .\packet-gsm_map.c                                                         */
 /* ../../tools/asn2wrs.py -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -16619,7 +16619,7 @@ static guint8 gsmmap_pdu_type = 0;
 static guint8 gsm_map_pdu_size = 0;
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index _U_) {
 
   char *version_ptr;
   struct tcap_private_t * p_private_tcap;
@@ -21548,7 +21548,9 @@ void proto_register_gsm_map(void) {
 
   /* Register protocol */
   proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
-/*XXX  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);*/
+
+  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

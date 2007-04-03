@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.c                                                            */
+/* .\packet-tcap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.c */
@@ -206,6 +206,8 @@ gint ett_tcap_stat = -1;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
+static dissector_handle_t requested_subdissector_handle = NULL;
+
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
 
@@ -263,7 +265,7 @@ static gint ett_tcap_OperationCode = -1;
 static gint ett_tcap_ErrorCode = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 76 "packet-tcap-template.c"
+#line 78 "packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -2322,7 +2324,7 @@ dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 141 "packet-tcap-template.c"
+#line 143 "packet-tcap-template.c"
 
 
 
@@ -2971,7 +2973,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 297 "packet-tcap-template.c"
+#line 299 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3036,7 +3038,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 307 "packet-tcap-template.c"
+#line 309 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3301,7 +3303,13 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     subdissector_handle=p_tcap_context->subdissector_handle;
     is_subdissector=TRUE;
   }
-  
+
+  /* Have SccpUsersTable protocol taking precedence over sccp.ssn table */
+  if (!is_subdissector && requested_subdissector_handle) {
+	  is_subdissector = TRUE;
+	  subdissector_handle = requested_subdissector_handle;
+  }
+
   if (!is_subdissector) {
     /*
      * If we do not currently know the subdissector, we have to find it
@@ -3340,6 +3348,7 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   } else {
     /* We have it already */
   }
+    
   /* Call the sub dissector if present, and not already called */
   if (is_subdissector)
     call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
@@ -3380,3 +3389,21 @@ dissect_tcap_TheExternUserInfo(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
+
+
+void call_tcap_dissector(dissector_handle_t handle, tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+
+	requested_subdissector_handle = handle;
+
+	TRY {
+		dissect_tcap(tvb, pinfo, tree);
+	} CATCH_ALL {
+		requested_subdissector_handle = NULL;
+		RETHROW;
+	} ENDTRY;
+	
+	requested_subdissector_handle = NULL;
+
+}
+
+

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.h                                                            */
+/* .\packet-tcap.h                                                            */
 /* ../../tools/asn2wrs.py -b -e -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
 /* Input file: packet-tcap-template.h */
@@ -49,6 +49,7 @@
 #define ANSI_TC_INVOKE_N	0xed
 #define ANSI_TC_RRN		0xee
 
+
 #define	TCAP_SEQ_TAG		0x30
 #define	TCAP_SET_TAG		0x31
 
@@ -83,5 +84,7 @@ extern void add_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector)
 
 extern void delete_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
 extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissector);
+
+extern void call_tcap_dissector(dissector_handle_t, tvbuff_t*, packet_info*, proto_tree*);
 
 #endif  /* PACKET_tcap_H */

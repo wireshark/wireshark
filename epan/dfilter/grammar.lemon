@@ -14,6 +14,10 @@
 
 #include "grammar.h"
 
+#ifdef _WIN32
+#pragma warning(disable:4671)
+#endif
+	
 /* End of C code */
 }
 

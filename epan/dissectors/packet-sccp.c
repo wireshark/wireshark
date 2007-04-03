@@ -53,6 +53,7 @@
 #include "packet-tcap.h"
 #include "packet-sccp.h"
 #include "tap.h"
+#include <epan/uat.h>
 
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
@@ -61,6 +62,7 @@ static Standard_Type decode_mtp3_standard;
 #define SCCP_MSG_TYPE_LENGTH 1
 #define POINTER_LENGTH      1
 #define POINTER_LENGTH_LONG 2
+
 
 /* Same as below but with names typed out */
 static const value_string sccp_message_type_values[] = {
@@ -699,6 +701,44 @@ static GHashTable *sccp_xudt_msg_fragment_table = NULL;
 static GHashTable *sccp_xudt_msg_reassembled_table = NULL;
 
 
+#define SCCP_USER_DATA 0
+#define SCCP_USER_TCAP 1
+#define SCCP_USER_RANAP 2
+#define SCCP_USER_BSSAP 3
+#define SCCP_USER_GSMMAP 4
+#define SCCP_USER_CAMEL 5
+#define SCCP_USER_INAP 6
+
+typedef struct _sccp_user_t {
+	guint ni;
+	range_t* called_pc;
+	range_t* called_ssn;
+	guint user;
+	gboolean uses_tcap;
+	dissector_handle_t* handlep;
+} sccp_user_t;
+
+static sccp_user_t* sccp_users;
+static guint num_sccp_users;
+
+static dissector_handle_t data_handle;
+static dissector_handle_t tcap_handle;
+static dissector_handle_t ranap_handle;
+static dissector_handle_t bssap_handle;
+static dissector_handle_t gsmmap_handle;
+static dissector_handle_t camel_handle;
+static dissector_handle_t inap_handle;
+
+static value_string sccp_users_vals[] = {
+	{ SCCP_USER_DATA, "Data"},
+	{ SCCP_USER_TCAP, "TCAP"},
+	{ SCCP_USER_RANAP, "RANAP"},
+	{ SCCP_USER_BSSAP, "BSSAP"},
+	{ SCCP_USER_GSMMAP, "GSM MAP"},
+	{ SCCP_USER_CAMEL, "CAMEL"},
+	{ SCCP_USER_INAP, "INAP"},
+	{ 0, NULL }
+};
 
 /*
  * Here are the global variables associated with
@@ -719,7 +759,6 @@ static guint8 message_type = 0;
 static guint dlr = 0;
 static guint slr = 0;
 
-static dissector_handle_t data_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 
 static emem_tree_t* assocs = NULL;
@@ -778,12 +817,15 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
 			};
-
+			
 			if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
 				assoc = new_assoc(opck,dpck);
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
 			}
+			
+			pinfo->p2p_dir = P2P_DIR_SENT;
+			
 			break;
 		}
 		case SCCP_MSG_TYPE_CC:
@@ -794,7 +836,7 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t bw_key[] = {
 				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
 			};
-
+			
 			if ( ( assoc = se_tree_lookup32_array(assocs,bw_key) ) ) {
 				goto got_assoc;
 			}
@@ -803,9 +845,12 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 				goto got_assoc;
 			}
 
-			assoc = new_assoc(opck,dpck);
+			assoc = new_assoc(dpck,opck);
 
 	 got_assoc:
+			
+			pinfo->p2p_dir = P2P_DIR_RECV;
+			
 			if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
 				se_tree_insert32_array(assocs,bw_key,assoc);
 				assoc->has_bw_key = TRUE;
@@ -823,9 +868,17 @@ sccp_assoc_info_t* get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_
 			emem_tree_key_t key[] = {
 				{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
 			};
-
+			
 			assoc = se_tree_lookup32_array(assocs,key);
-
+			
+			if (assoc) {
+				if (assoc->calling_dpc == dpck) {
+					pinfo->p2p_dir = P2P_DIR_RECV;
+				} else {
+					pinfo->p2p_dir = P2P_DIR_SENT;
+				}			
+			}
+			
 			break;
 		}
     }
@@ -1446,40 +1499,74 @@ dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint length, 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
+
 /* This function is used for both data and long data (ITU only) parameters */
 static void
 dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ssn = INVALID_SSN;
     guint8 other_ssn = INVALID_SSN;
-
+    const mtp3_addr_pc_t* dpc;
+    const mtp3_addr_pc_t* opc;
+	
 	if (trace_sccp && assoc && assoc != &no_assoc) {
 		pinfo->sccp_info = assoc->curr_msg;
 	} else {
 		pinfo->sccp_info = NULL;
 	}
 
-    if ( assoc ) {
-		other_ssn = INVALID_SSN;
+	switch (pinfo->p2p_dir) {
+		case P2P_DIR_SENT:
+			ssn = assoc->calling_ssn;
+			dpc = (mtp3_addr_pc_t*)pinfo->dst.data;
+			opc = (mtp3_addr_pc_t*)pinfo->src.data;
+			break;
+		case P2P_DIR_RECV:
+			ssn = assoc->called_ssn;
+			dpc = (mtp3_addr_pc_t*)pinfo->src.data;
+			opc = (mtp3_addr_pc_t*)pinfo->dst.data;
+			break;
+		default:
+			ssn = assoc->called_ssn;
+			other_ssn = assoc->calling_ssn;
+			dpc = (mtp3_addr_pc_t*)pinfo->dst.data;
+			opc = (mtp3_addr_pc_t*)pinfo->src.data;
+			break;
+	}
 
-		switch (pinfo->p2p_dir) {
-			case P2P_DIR_SENT:
-				ssn = assoc->calling_ssn;
-				break;
-			case P2P_DIR_RECV:
-				ssn = assoc->called_ssn;
-				break;
-			default:
-				ssn = assoc->called_ssn;
-				other_ssn = assoc->calling_ssn;
-				break;
+    
+    if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
+	guint i;
+	dissector_handle_t handle = NULL;
+        gboolean uses_tcap = FALSE;
+	
+	for (i=0; i < num_sccp_users; i++) {
+		sccp_user_t* u = &(sccp_users[i]);
+		
+		if (dpc->ni != u->ni) continue;
+			
+		 if (value_is_in_range(u->called_ssn, ssn)  && value_is_in_range(u->called_pc, dpc->pc) ) { 
+			handle = *(u->handlep);
+			uses_tcap = u->uses_tcap;
+			break;
+		} else if (value_is_in_range(u->called_ssn, other_ssn) && value_is_in_range(u->called_pc, opc->pc) ) { 
+			handle = *(u->handlep);
+			uses_tcap = u->uses_tcap;
+			break;
 		}
+	}
 
-    } else {
-		ssn = assoc->called_ssn;
-		other_ssn = assoc->calling_ssn;
-    }
+	if (handle) {
+		if (uses_tcap) {
+			call_tcap_dissector(handle, tvb, pinfo, tree);
+		} else {
+			call_dissector(handle, tvb, pinfo, tree);
+		}
+		return;
+	}
 
+   }
+    
     if (ssn != INVALID_SSN && dissector_try_port(sccp_ssn_dissector_table, ssn, tvb, pinfo, tree)) {
 		return;
     }
@@ -2502,6 +2589,68 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+/*** SccpUsers Table **/
+
+static struct _sccp_ul {
+	guint id;
+	gboolean uses_tcap;
+	dissector_handle_t* handlep;
+	} user_list[] = {
+	{SCCP_USER_DATA,FALSE,&data_handle},
+	{SCCP_USER_TCAP,FALSE,&tcap_handle},
+	{SCCP_USER_RANAP,FALSE,&ranap_handle},
+	{SCCP_USER_BSSAP,FALSE,&bssap_handle},
+	{SCCP_USER_GSMMAP,TRUE,&gsmmap_handle},
+	{SCCP_USER_CAMEL,TRUE,&camel_handle},
+	{SCCP_USER_INAP,TRUE,&inap_handle},
+	{0,FALSE,NULL}
+};
+
+static void sccp_users_update_cb(void* r, char** err _U_) {
+	sccp_user_t* u = r;
+	struct _sccp_ul* c;
+		
+	for (c=user_list; c->handlep; c++) {
+		if (c->id == u->user) {
+			u->uses_tcap = c->uses_tcap;
+			u->handlep = c->handlep;
+			return;
+		}
+	}
+	
+	u->uses_tcap = FALSE;
+	u->handlep = &data_handle;
+}
+
+static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz) {
+	const sccp_user_t* u = o;
+	sccp_user_t* un = n;
+	
+	un->ni = u->ni;
+	un->user = u->user;
+	un->uses_tcap = u->uses_tcap;
+	un->handlep = u->handlep;
+	if (u->called_pc) un->called_pc = range_copy(u->called_pc);
+	if (u->called_ssn) un->called_ssn= range_copy(u->called_ssn);
+	
+	return n;
+}
+
+static void sccp_users_free_cb(void*r) {
+	sccp_user_t* u = r;
+	if (u->called_pc) g_free(u->called_pc);
+	if (u->called_ssn) g_free(u->called_ssn);
+}
+
+
+UAT_DEC_CB_DEF(sccp_users, ni, sccp_user_t)
+UAT_RANGE_CB_DEF(sccp_users,called_pc,sccp_user_t)
+UAT_RANGE_CB_DEF(sccp_users,called_ssn,sccp_user_t)
+UAT_VS_DEF(sccp_users, user, sccp_user_t, SCCP_USER_DATA, "Data")
+
+/** End SccpUsersTable **/
+
+
 static void init_sccp(void) {
     next_assoc_id = 1;
     fragment_table_init (&sccp_xudt_msg_fragment_table);
@@ -2908,7 +3057,29 @@ proto_register_sccp(void)
     &ett_sccp_assoc
   };
 
-  /* Register the protocol name and description */
+ 
+  static uat_field_t users_flds[] = {
+		UAT_FLD_DEC(sccp_users,ni,"Network Indicator"),
+		UAT_FLD_RANGE(sccp_users,called_pc,65535,"DPCs for which this protocol is to be used"),
+		UAT_FLD_RANGE(sccp_users,called_ssn,65535,"Called SSNs for which this protocol is to be used"),
+		UAT_FLD_VS(sccp_users,user,sccp_users_vals,"The User Protocol"),
+		UAT_END_FIELDS
+  };
+
+
+  uat_t* users_uat = uat_new("SCCP Users Table",
+	sizeof(sccp_user_t),
+	"sccp_users",
+	(void**) &sccp_users,
+	&num_sccp_users,
+	UAT_CAT_PORTS,
+	"ChSccpUsers",
+	sccp_users_copy_cb,
+	sccp_users_update_cb,
+	sccp_users_free_cb,
+	users_flds );
+  
+ /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
 				       "SCCP", "sccp");
 
@@ -2917,6 +3088,7 @@ proto_register_sccp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sccp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
 
   sccp_ssn_dissector_table = register_dissector_table("sccp.ssn", "SCCP SSN", FT_UINT8, BASE_DEC);
 
@@ -2950,6 +3122,9 @@ proto_register_sccp(void)
 								 &show_key_params);
 
 
+  prefs_register_uat_preference(sccp_module, "users_table", "Users Table",
+								  "A table that enumerates user protocols to be used against specific PCs and SSNs",
+								  users_uat);
 
   register_init_routine(&init_sccp);
 
@@ -2970,5 +3145,11 @@ proto_reg_handoff_sccp(void)
   dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
   data_handle = find_dissector("data");
+  tcap_handle = find_dissector("tcap");
+  ranap_handle = find_dissector("ranap");
+  bssap_handle = find_dissector("bssap");
+  gsmmap_handle = find_dissector("gsm_map");
+  camel_handle = find_dissector("camel");
+  inap_handle = find_dissector("inap");
 }
 
