@@ -1055,3 +1055,13 @@ int main(int argc, char **argv)
     printf(failure?"FAILURE\n":"SUCCESS\n");
     return failure;
 }
+
+
+/* the following are used by packet-mpeg-audio.c; define them here to avoid
+ * pulling in libwiretap. */
+const int mpa_versions[4];
+const int mpa_layers[4];
+const unsigned mpa_samples[3][3];
+const unsigned mpa_bitrates[3][3][16];
+const unsigned mpa_frequencies[3][4];
+const unsigned mpa_padding[3];
