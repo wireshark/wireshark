@@ -23,7 +23,7 @@
 # 
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-	MAKE=nmake
+	MAKE="nmake -f Makefile.nmake"
 else
 	MAKE=make
 fi
