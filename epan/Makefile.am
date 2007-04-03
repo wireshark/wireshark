@@ -109,7 +109,7 @@ libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @IN
 libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la $(wslua_lib)
 
 EXTRA_PROGRAMS = reassemble_test
-reassemble_test_LDADD = $(GLIB_LIBS) libwireshark.la
+reassemble_test_LDADD = $(GLIB_LIBS) @LIBGCRYPT_LIBS@ libwireshark.la
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
