@@ -1058,7 +1058,9 @@ read_packet(capture_file *cf, dfilter_t *dfcode, gint64 offset)
   fdata->flags.ref_time = 0;
   fdata->color_filter = NULL;
 
-  fdata->abs_ts  = *((nstime_t *) &phdr->ts);
+  fdata->abs_ts.secs = phdr->ts.secs;
+  fdata->abs_ts.nsecs = phdr->ts.nsecs;
+
   if (cf->plist_end != NULL)
     nstime_delta(&fdata->del_cap_ts, &fdata->abs_ts, &cf->plist_end->abs_ts);
   else
@@ -3324,7 +3326,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   int           err;
 
   /* init the wtap header for saving */
-  hdr.ts         = *(struct wtap_nstime *) &fdata->abs_ts;
+  hdr.ts.secs    = fdata->abs_ts.secs;
+  hdr.ts.nsecs   = fdata->abs_ts.nsecs;
   hdr.caplen     = fdata->cap_len;
   hdr.len        = fdata->pkt_len;
   hdr.pkt_encap  = fdata->lnk_t;

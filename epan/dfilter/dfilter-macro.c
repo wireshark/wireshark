@@ -469,16 +469,16 @@ void dfilter_macro_init(void) {
 	};
 	
 	dfilter_macro_uat = uat_new("Display Filter Macros",
-								sizeof(dfilter_macro_t),
-								DFILTER_MACRO_FILENAME,
-								(void**) &macros,
-								&num_macros,
-								NULL,
-								"ChDisplayFilterMacrosSection",
-								macro_copy,
-								macro_update,
-								macro_free,
-								uat_fields);
+				    sizeof(dfilter_macro_t),
+				    DFILTER_MACRO_FILENAME,
+				    (void*) &macros,
+				    &num_macros,
+				    NULL,
+				    "ChDisplayFilterMacrosSection",
+				    macro_copy,
+				    macro_update,
+				    macro_free,
+				    uat_fields);
 }
 
 void dfilter_macro_get_uat(void** p) {

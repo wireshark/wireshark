@@ -2270,7 +2270,8 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
   fdata->lnk_t = phdr->pkt_encap;
-  fdata->abs_ts = *((nstime_t *) &phdr->ts);
+  fdata->abs_ts.secs = phdr->ts.secs;
+  fdata->abs_ts.nsecs = phdr->ts.nsecs;
   fdata->flags.passed_dfilter = 0;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;

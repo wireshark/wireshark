@@ -494,7 +494,7 @@ static void analize_pdu(mate_pdu* pdu) {
 	if ((gopkey_match = new_avpl_exact_match("gop_key_match",pdu->avpl,cfg->key, TRUE))) {
 		gop_key = avpl_to_str(gopkey_match);
 		
-		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer*)&orig_gop_key,(gpointer*)&gop);
+		g_hash_table_lookup_extended(cfg->gop_index,(gconstpointer)gop_key,(gpointer)&orig_gop_key,(gpointer)&gop);
 		
 		if ( gop ) {
 			g_free(gop_key);

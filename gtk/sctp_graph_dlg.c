@@ -205,7 +205,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				{
 					if (nr>0)
 					{
-						gap = (struct gaps *)(&(sack_header->tsns));
+						gap = (struct gaps *)sack_header->tsns;
 						for(i=0;i<nr; i++)
 						{
 							gap_start=ntohs(gap->start);

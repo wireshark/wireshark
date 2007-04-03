@@ -27,6 +27,8 @@
 
 #include <time.h>
 
+#include <wiretap/wtap.h>
+
 typedef struct {
 	time_t	secs;
 	int	nsecs;
@@ -66,5 +68,8 @@ extern double nstime_to_msec(const nstime_t *time);
 
 /* converts nstime to double, time base is seconds */
 extern double nstime_to_sec(const nstime_t *time);
+
+/* converts wtap_nstime to double, time base is seconds */
+extern double wtap_nstime_to_sec(const struct wtap_nstime *time);
 
 #endif /* __NSTIME_H__  */
