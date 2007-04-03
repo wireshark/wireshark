@@ -95,7 +95,9 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 clean:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
 		libwireshark.lib libwireshark.dll libwireshark.dll.manifest libwireshark.exp libwireshark.pdb \
-		vc60.pdb doxygen.cfg html/*.*
+		vc60.pdb doxygen.cfg html/*.* \
+		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
+
 	if exist html rmdir html	
 	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -183,6 +185,25 @@ doxygen-run:
 
 doxygen: doxygen.cfg doxygen-run
 
+# Rules for making unit tests
+exntest: exntest.exe
+reassemble_test: reassemble_test.exe
+tvbtest: tvbtest.exe
+
+exntest.exe: exntest.obj except.obj
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) $^
+
+tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) $^
+
+reassemble_test.exe: reassemble_test.obj libwireshark.dll
+	@echo Linking $@
+	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) $^
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
@@ -216,4 +237,4 @@ LEMON=..\tools\lemon
 
 dtd_grammar.c: dtd_grammar.lemon $(LEMON)\lemon.exe
 	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
-	
+
