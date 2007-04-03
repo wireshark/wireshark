@@ -20,7 +20,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
+DISSECTOR_OBJECTS = $(ALL_DISSECTOR_SRC:.c=.obj)
 
 DISSECTOR_SUPPORT_OBJECTS = $(DISSECTOR_SUPPORT_SRC:.c=.obj)
 
@@ -74,13 +74,13 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 # All subsequent arguments are the files to scan.
 #
 
-register.c: $(DISSECTOR_SRC)
+register.c: $(ALL_DISSECTOR_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
-	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(DISSECTOR_SRC)
+	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTOR_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . dissectors $(DISSECTOR_SRC)
+	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTOR_SRC) \
 !ENDIF
 
 packet-ncp2222.c : ncp2222.py
