@@ -10,6 +10,8 @@ include Makefile.common
 
 ############### no need to modify below this line #########
 
+LINK= link
+
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(ADNS_CFLAGS) $(PCRE_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	-D_U_="" $(LOCAL_CFLAGS)
