@@ -74,6 +74,7 @@
 #define OutOfMemoryError	6
 
 
+
 /* Usage:
  *
  * TRY {
@@ -171,7 +172,17 @@
                            * RETHROW, and don't reenter FINALLY if a
                            * different exception is thrown */
 
-#define TRY \
+#ifdef _MSC_VER
+#define WINTRY __try {
+#define WINENDTRY_BEGIN }  __finally { 
+#define WINENDTRY_END } 
+#else
+#define WINTRY
+#define WINENDTRY_BEGIN 
+#define WINENDTRY_END
+#endif 
+
+#define TRY /**/\
 {\
 	except_t *exc; \
 	volatile int except_state = 0; \
@@ -184,14 +195,16 @@
 	except_state &= ~EXCEPT_CAUGHT;                \
 	                                               \
 	if (except_state == 0 && exc == 0)             \
-		/* user's code goes here */
+	WINTRY /* user's code goes here */
+
 
 #define ENDTRY \
-	/* rethrow the exception if necessary */ \
+	WINENDTRY_BEGIN /* rethrow the exception if necessary */ \
 	if(!(except_state&EXCEPT_CAUGHT) && exc != 0)  \
 	    except_rethrow(exc);                 \
-	except_try_pop();\
+	except_try_pop(); WINENDTRY_END\
 }
+
 
 /* the (except_state |= EXCEPT_CAUGHT) in the below is a way of setting
  * except_state before the user's code, without disrupting the user's code if
