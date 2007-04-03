@@ -196,6 +196,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-atm.c	\
 	packet-auto_rp.c	\
 	packet-ax4000.c	\
+	packet-drda.c \
 	packet-isis-clv.c	\
 	packet-isis-hello.c	\
 	packet-isis-lsp.c	\
