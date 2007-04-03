@@ -389,7 +389,7 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* 
 	return FALSE;
 }
 
-gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3, char** err) {
+gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, unsigned len, void* v _U_, void* u3, char** err) {
 	char* str = ep_strndup(strptr,len);
 	range_t* r = NULL;
 	convert_ret_t ret = range_convert_str(&r, str,GPOINTER_TO_UINT(u3));
