@@ -68,6 +68,12 @@ GString* quoted_string = NULL;
 %x RANGE_PUNCT
 %x DQUOTE
 
+/* we don't use unput, so don't generate code for it.
+ * This is flex-only, but current thinking is that our lexers don't work
+ * with non-flex anyway...
+ */
+%option nounput
+
 %%
 
 [[:blank:]\n]+	/* ignore whitespace */
