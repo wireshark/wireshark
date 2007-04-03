@@ -839,13 +839,6 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             goto Common_Exit;
         }
 
-        jxta_tree_item =
-            proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
-        jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
-
-        /* Redo header processing, this time populating the tree. */
-        headers_len = dissect_jxta_message_framing(tvb, pinfo, jxta_tree, &content_length, &content_type);
-
         available = tvb_reported_length_remaining(tvb, offset + headers_len);
         if (available >= content_length) {
             tvbuff_t *jxta_message_tvb = tvb_new_subset(tvb, offset + headers_len, (gint) content_length, (gint) content_length);
@@ -856,6 +849,13 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             guint32 saved_dst_port = 0;
             port_type saved_port_type = PT_NONE;
             gboolean dissected;
+
+            jxta_tree_item =
+                proto_tree_add_protocol_format(tree, proto_jxta, tvb, offset, -1, "JXTA" );
+            jxta_tree = proto_item_add_subtree(jxta_tree_item, ett_jxta);
+
+            /* Redo header processing, this time populating the tree. */
+            headers_len = dissect_jxta_message_framing(tvb, pinfo, jxta_tree, &content_length, &content_type);
 
             tpt_conversation = get_tpt_conversation(pinfo, TRUE);
 
