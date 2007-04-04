@@ -212,6 +212,7 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 	tmp_strinfo.dest_port = pinfo->destport;
 	tmp_strinfo.ssrc = rtpinfo->info_sync_src;
 	tmp_strinfo.pt = rtpinfo->info_payload_type;
+	tmp_strinfo.info_payload_type_str = rtpinfo->info_payload_type_str;
 
 	if (tapinfo->mode == TAP_ANALYSE) {
 		/* check wether we already have a stream with these parameters in the list */
