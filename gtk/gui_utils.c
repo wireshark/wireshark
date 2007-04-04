@@ -30,11 +30,6 @@
 
 #include <string.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -47,6 +42,9 @@
 #include "compat_macros.h"
 #include "recent.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include "image/wsicon16.xpm"
 
@@ -1109,7 +1107,7 @@ void copy_binary_get_cb(GtkClipboard *clipboard _U_, GtkSelectionData *selection
 void copy_binary_to_clipboard(const guint8* data_p, int len)
 {
     static GtkTargetEntry target_entry[] = {
-         {"application/octet_stream", 0, 0}}; /* XXX - this not understood by most applications, 
+         {"application/octet_stream", 0, 0}}; /* XXX - this not understood by most applications,
                                              * but can be pasted into the better hex editors - is
                                              * there something better that we can do?
                                              */
@@ -1129,7 +1127,7 @@ void copy_binary_to_clipboard(const guint8* data_p, int len)
 
     if(!ret) {
         destroy_copy_binary_t(copy_data);
-    }                
+    }
 }
 #endif /* GTK_MAJOR_VERSION >= 2 */
 

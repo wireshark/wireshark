@@ -40,15 +40,15 @@
 #include <unistd.h>
 #endif
 
-#ifdef _WIN32
-#include <windows.h>	/* VirtualAlloc, VirtualProtect */
-#include <process.h>    /* getpid */
-#endif
-
 #include <glib.h>
 #include <proto.h>
 #include "emem.h"
 #include <wiretap/file_util.h>
+
+#ifdef _WIN32
+#include <windows.h>	/* VirtualAlloc, VirtualProtect */
+#include <process.h>    /* getpid */
+#endif
 
 
 /*
