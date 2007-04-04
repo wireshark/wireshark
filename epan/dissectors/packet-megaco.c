@@ -61,6 +61,7 @@
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-h245.h>
 #include <epan/dissectors/packet-ip.h>
+#include <epan/dissectors/packet-ber.h>
 
 #include <epan/gcp.h>
 #include <epan/tap.h>
@@ -226,6 +227,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 static void
 dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+static dissector_handle_t data_handle;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
 static dissector_handle_t h248_handle;
@@ -361,8 +363,24 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
 	 */
 	if(!tvb_get_nstringz0(tvb,tvb_offset,sizeof(word),word)) return;
+
+	
+	
+	
 	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
-		call_dissector(h248_handle,tvb,pinfo,tree);
+		gint8 class;
+		gboolean pc;
+		gint32 tag;
+		dissector_handle_t handle = data_handle;
+
+		get_ber_identifier(tvb, 0, &class, &pc, &tag);
+
+		if (class == BER_CLASS_UNI && pc && tag == BER_UNI_TAG_SEQUENCE ) {
+			handle = h248_handle;
+		}
+
+		call_dissector(handle,tvb,pinfo,tree);
+
 		return;
 	}
 
@@ -476,6 +494,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *			TransToken = ("Transaction" / "T")
  */
 	tempchar = tvb_get_guint8(tvb, tvb_previous_offset);
+	if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+		tempchar = tempchar - 0x20;
 
 	/* Find token length */
 	for (tvb_offset=tvb_previous_offset; tvb_offset < tvb_len-1; tvb_offset++){
@@ -887,6 +907,8 @@ nextcontext:
 						case 'A':
 
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
+							if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+								tempchar = tempchar - 0x20;
 
 							switch ( tempchar ){
 
@@ -950,6 +972,8 @@ nextcontext:
 						case 'M': 
 
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
+							if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+								tempchar = tempchar - 0x20;
 
 							switch ( tempchar ){
 							case 'F':
@@ -990,6 +1014,8 @@ nextcontext:
 							ProfileToken	= ("Profile"	/ "PF")
 							*/
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
+							if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+								tempchar = tempchar - 0x20;
 
 							switch ( tempchar ){
 							case 'G':
@@ -1017,6 +1043,8 @@ nextcontext:
 
 						case 'S':
 							tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
+							if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+								tempchar = tempchar - 0x20;
 
 							switch ( tempchar ){
 
@@ -1146,6 +1174,8 @@ nextcontext:
 					tokenlen = tvb_next_offset - tvb_offset;
 
 					tempchar = tvb_get_guint8(tvb, tvb_offset);
+					if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+						tempchar = tempchar - 0x20;
 
 					term = ep_new0(gcp_term_t);
 					wild_term = GCP_WILDCARD_NONE;
@@ -1241,7 +1271,7 @@ nextcontext:
 
 				tempchar = tvb_get_guint8(tvb, tvb_command_start_offset);
 
-				if ( tempchar == 'E'){
+				if ( tempchar == 'E'|| tempchar == 'e'){
 					dissect_megaco_descriptors(tvb, megaco_tree, pinfo, tvb_command_start_offset-1,tvb_descriptors_end_offset);
 				}
 				else {
@@ -1938,7 +1968,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 				requested_event_start_offset = tvb_skip_wsp(tvb, requested_event_start_offset +1);
 				requested_event_end_offset = tvb_skip_wsp_return(tvb, requested_event_end_offset-1);
 
-				if ( tempchar == 'D' ){
+				if ( tempchar == 'D' || tempchar == 'd'){
 					dissect_megaco_digitmapdescriptor(tvb, megaco_requestedevent_tree, requested_event_end_offset, requested_event_start_offset);
 				}
 				else{
@@ -2506,6 +2536,8 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 
 				tvb_help_offset = tvb_skip_wsp(tvb, requested_event_start_offset +1);
 				tempchar = tvb_get_guint8(tvb, tvb_help_offset);
+				if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+					tempchar = tempchar - 0x20;
 
 				requested_event_start_offset = tvb_skip_wsp(tvb, requested_event_start_offset +1)-1;
 				requested_event_end_offset = tvb_skip_wsp_return(tvb, requested_event_end_offset-1);
@@ -2841,6 +2873,8 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
 		tempchar = tvb_get_guint8(tvb, tvb_current_offset);
 		tvb_current_offset = tvb_skip_wsp(tvb, tvb_offset +1);
+		if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+			tempchar = tempchar - 0x20;
 
 		switch ( tempchar ){
 
@@ -2852,6 +2886,8 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
 			tempchar = tvb_get_guint8(tvb, tvb_current_offset);
 			tokenlen = tvb_offset - tvb_current_offset;
+			if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+				tempchar = tempchar - 0x20;
 
 			proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Service_State, tvb,
 				tvb_current_offset, tokenlen,
@@ -2869,6 +2905,8 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
 			tempchar = tvb_get_guint8(tvb, tvb_current_offset);
 			tokenlen = tvb_offset - tvb_current_offset;
+			if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+				tempchar = tempchar - 0x20;
 
 			proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Event_Buffer_Control, tvb,
 				tvb_current_offset, tokenlen,
@@ -2885,6 +2923,8 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_medi
 
 			tempchar = tvb_get_guint8(tvb, tvb_current_offset);
 			tokenlen = tvb_offset - tvb_current_offset;
+			if ( (tempchar >= 'a')&& (tempchar <= 'z'))
+				tempchar = tempchar - 0x20;
 
 			proto_tree_add_string(megaco_TerminationState_tree, hf_megaco_Event_Buffer_Control, tvb,
 				tvb_current_offset, tokenlen,
@@ -3247,7 +3287,8 @@ proto_reg_handoff_megaco(void)
 	sdp_handle = find_dissector("sdp");
 	h245_handle = find_dissector("h245dg");
 	h248_handle = find_dissector("h248");
-
+	data_handle = find_dissector("data");
+	
 	if (!megaco_prefs_initialized) {
 		megaco_text_handle = create_dissector_handle(dissect_megaco_text,
 			proto_megaco);
