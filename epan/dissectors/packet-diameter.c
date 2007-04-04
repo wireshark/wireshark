@@ -172,7 +172,7 @@ static ApplicationId   *ApplicationIdHead=NULL;
 
 #include "packet-diameter-defs.h"
 
-#define  NTP_TIME_DIFF                   (2208988800UL)
+#define  NTP_TIME_DIFF                   (2208988800U)
 
 #define TCP_PORT_DIAMETER	3868
 #define SCTP_PORT_DIAMETER	3868
@@ -2049,13 +2049,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 				case DIAMETER_TIME:
 					if (avpDataLength == 4) {
+						guint32 ntp_timestamp_secs;
 						nstime_t data;
 						struct tm *gmtp;
 		
-						data.secs = tvb_get_ntohl(tvb, offset);
+						ntp_timestamp_secs = tvb_get_ntohl(tvb, offset);
 						/* Present the time as UTC, Time before 00:00:00 UTC, January 1, 1970 can't be presented correctly  */
-						if ( data.secs >= NTP_TIME_DIFF){
-							data.secs -= NTP_TIME_DIFF;
+						if ( ntp_timestamp_secs >= NTP_TIME_DIFF){
+							data.secs = ntp_timestamp_secs - NTP_TIME_DIFF;
 							data.nsecs = 0;
 		
 							gmtp = gmtime(&data.secs);
