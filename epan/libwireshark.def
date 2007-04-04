@@ -845,4 +845,5 @@ val_to_str
 value_is_in_range
 write_prefs
 ws_strsplit
+wtap_nstime_to_sec
 xml_escape
