@@ -5576,7 +5576,7 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
 
     { &hf_aironet_ie_data,
-      { "Aironet IE data", "wlan_mgmt.aironet.data",
+      { "Aironet IE data", "wlan_mgt.aironet.data",
         FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
 
     {&hf_qbss_version,
