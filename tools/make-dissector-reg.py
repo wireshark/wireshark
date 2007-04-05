@@ -42,12 +42,6 @@ else:
 #
 files = sys.argv[3:]
 
-#
-# The minimum number of files, protocol registrations, and handoff
-# registrations we should have.
-# This is an arbitrary value.
-min_object_count = 100
-
 # Create the proper list of filenames
 filenames = []
 for file in files:
@@ -56,8 +50,8 @@ for file in files:
 	else:
 		filenames.append("%s/%s" % (srcdir, file))
 
-if len(filenames) < min_object_count:
-    print "Too few files found: %d" % len(filenames)
+if len(filenames) < 1:
+    print "No files found"
     sys.exit(1)
 
 
@@ -98,11 +92,8 @@ for filename in filenames:
 	file.close()
 
 # Make sure we actually processed something
-if len(proto_reg) < min_object_count:
-    print "Too few protocol registrations found: %d" % len(proto_reg)
-    sys.exit(1)
-if len(handoff_reg) < min_object_count:
-    print "Too few handoff registrations found: %d" % len(handoff_reg)
+if len(proto_reg) < 1:
+    print "No protocol registrations found"
     sys.exit(1)
 
 # Sort the lists to make them pretty
