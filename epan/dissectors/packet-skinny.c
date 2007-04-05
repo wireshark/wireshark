@@ -2140,8 +2140,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x11D : /* DialedNumberMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_calledParty, tvb, offset+12, StationMaxDirnumSize, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16+StationMaxDirnumSize, 4, TRUE);
-      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20+StationMaxDirnumSize, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12+StationMaxDirnumSize, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12+StationMaxDirnumSize+4, 4, TRUE);
       break;
 
     case 0x11E : /* UserToDeviceDataMessage */
