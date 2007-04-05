@@ -76,13 +76,13 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 # All subsequent arguments are the files to scan.
 #
 
-register.c: $(ALL_DISSECTOR_SRC)
+register.c: $(ALL_DISSECTORS_SRC)
 !IFDEF PYTHON
 	@echo Making register.c (using python)
-	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTOR_SRC)
+	@$(PYTHON) "../../tools/make-dissector-reg.py" . dissectors $(ALL_DISSECTORS_SRC)
 !ELSE
 	@echo Making register.c (using sh)
-	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTOR_SRC) \
+	@$(SH) ../../tools/make-dissector-reg . dissectors $(ALL_DISSECTORS_SRC) \
 !ENDIF
 
 packet-ncp2222.c : ncp2222.py

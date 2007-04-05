@@ -35,12 +35,18 @@ elif registertype == "dissectors":
 else:
 	print "Unknown output type '%s'" % registertype
 	sys.exit(1)
-	
+
 
 #
 # All subsequent arguments are the files to scan.
 #
 files = sys.argv[3:]
+
+#
+# The minimum number of files, protocol registrations, and handoff
+# registrations we should have.
+# This is an arbitrary value.
+min_object_count = 100
 
 # Create the proper list of filenames
 filenames = []
@@ -49,6 +55,10 @@ for file in files:
 		filenames.append(file)
 	else:
 		filenames.append("%s/%s" % (srcdir, file))
+
+if len(filenames) < min_object_count:
+    print "Too few files found: %d" % len(filenames)
+    sys.exit(1)
 
 
 # Look through all files, applying the regex to each line.
@@ -86,6 +96,14 @@ for filename in filenames:
 				list = action[0]
 				list.append(symbol)
 	file.close()
+
+# Make sure we actually processed something
+if len(proto_reg) < min_object_count:
+    print "Too few protocol registrations found: %d" % len(proto_reg)
+    sys.exit(1)
+if len(handoff_reg) < min_object_count:
+    print "Too few handoff registrations found: %d" % len(handoff_reg)
+    sys.exit(1)
 
 # Sort the lists to make them pretty
 proto_reg.sort()
