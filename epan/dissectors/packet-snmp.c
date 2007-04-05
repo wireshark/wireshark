@@ -234,6 +234,8 @@ static int hf_snmp_engineid_data = -1;
 static int hf_snmp_counter64 = -1;
 static int hf_snmp_decryptedPDU = -1;
 static int hf_snmp_msgAuthentication = -1;
+static int hf_snmp_internet_ipv6 = -1;
+static int hf_snmp_internet_other = -1;
 
 
 /*--- Included file: packet-snmp-hf.c ---*/
@@ -251,7 +253,7 @@ static int hf_snmp_timeticks_value = -1;          /* TimeTicks */
 static int hf_snmp_arbitrary_value = -1;          /* Opaque */
 static int hf_snmp_big_counter_value = -1;        /* Counter64 */
 static int hf_snmp_unsigned_integer_value = -1;   /* Unsigned32 */
-static int hf_snmp_internet = -1;                 /* IpAddress */
+static int hf_snmp_internet = -1;                 /* T_internet */
 static int hf_snmp_version = -1;                  /* Version */
 static int hf_snmp_community = -1;                /* OCTET_STRING */
 static int hf_snmp_data = -1;                     /* PDUs */
@@ -323,7 +325,7 @@ static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
 static int hf_snmp_operation = -1;                /* T_operation */
 
 /*--- End of included file: packet-snmp-hf.c ---*/
-#line 231 "packet-snmp-template.c"
+#line 233 "packet-snmp-template.c"
 
 static int hf_smux_version = -1;
 static int hf_smux_pdutype = -1;
@@ -336,6 +338,7 @@ static gint ett_msgFlags = -1;
 static gint ett_encryptedPDU = -1;
 static gint ett_decrypted = -1;
 static gint ett_authParameters = -1;
+static gint ett_internet = -1;
 
 
 /*--- Included file: packet-snmp-ett.c ---*/
@@ -366,8 +369,11 @@ static gint ett_snmp_SimpleOpen = -1;
 static gint ett_snmp_RReqPDU = -1;
 
 /*--- End of included file: packet-snmp-ett.c ---*/
-#line 245 "packet-snmp-template.c"
+#line 248 "packet-snmp-template.c"
 
+
+static int dissect_snmp_IpAddressIpv6(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
+static int dissect_snmp_IpAddressOther(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -1715,8 +1721,6 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 
-
-
   return offset;
 }
 static int dissect_empty(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
@@ -1763,9 +1767,6 @@ dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 static int dissect_ipAddress_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_ipAddress_value);
-}
-static int dissect_internet(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
 }
 
 
@@ -1908,6 +1909,50 @@ static int dissect_bulkPDU_request_id(packet_info *pinfo _U_, proto_tree *tree _
 }
 
 
+
+static int
+dissect_snmp_T_internet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 361 "snmp.cnf"
+	/* see http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1125 */
+  guint32 len;
+  int cur_offset;
+	
+  cur_offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+  get_ber_length(NULL, tvb, cur_offset, &len, NULL);
+
+  switch (len) {
+	  case 4:  offset = dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet); break;
+	  case 16: offset = dissect_snmp_IpAddressIpv6(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_ipv6); break;
+	  default: offset = dissect_snmp_IpAddressOther(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_other); break;
+  }
+  
+  if (len != 4) {
+	proto_item* pi = get_ber_last_created_item();
+	proto_tree* pt = proto_item_add_subtree(pi,ett_internet);
+	/*
+	 * It might be possible to do so, although the dissector should probably still put
+	 * a complaint into the protocol tree ("not irritating Cisco by pointing out where
+	 * they're violating the standard" is not a project goal for Wireshark :-)).
+	 * -- Guy Harris
+	 */
+	pi = proto_tree_add_text(pt,tvb,cur_offset,len,
+		"The host that generated this packet is violating"
+		"the SNMP protocol definition and sends corrupt and invalid packets");
+	PROTO_ITEM_SET_GENERATED(pi);
+	expert_add_info_format( pinfo, pi, PI_MALFORMED, PI_ERROR,
+		"Corrupt and Invalid packet" );
+  }
+  
+
+
+
+  return offset;
+}
+static int dissect_internet(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  return dissect_snmp_T_internet(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
+}
+
+
 static const value_string snmp_NetworkAddress_vals[] = {
   {   0, "internet" },
   { 0, NULL }
@@ -1928,6 +1973,26 @@ dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 static int dissect_agent_addr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_snmp_NetworkAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_agent_addr);
+}
+
+
+
+static int
+dissect_snmp_IpAddressIpv6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_snmp_IpAddressOther(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
 }
 
 
@@ -3259,7 +3324,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1506 "packet-snmp-template.c"
+#line 1512 "packet-snmp-template.c"
 
 
 guint
@@ -3810,7 +3875,12 @@ void proto_register_snmp(void) {
 		  { &hf_snmp_decryptedPDU, {
 					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
 					NULL, 0, "Decrypted PDU", HFILL }},
-
+		{ &hf_snmp_internet_ipv6, {
+		    "internet", "snmp.internet", FT_IPv6, BASE_NONE,
+		    NULL, 0, "", HFILL }},
+		{ &hf_snmp_internet_other, {
+		    "internet", "snmp.internet", FT_BYTES, BASE_NONE,
+		    NULL, 0, "", HFILL }},
 
 /*--- Included file: packet-snmp-hfarr.c ---*/
 #line 1 "packet-snmp-hfarr.c"
@@ -3869,7 +3939,7 @@ void proto_register_snmp(void) {
     { &hf_snmp_internet,
       { "internet", "snmp.internet",
         FT_IPv4, BASE_NONE, NULL, 0,
-        "snmp.IpAddress", HFILL }},
+        "snmp.T_internet", HFILL }},
     { &hf_snmp_version,
       { "version", "snmp.version",
         FT_INT32, BASE_DEC, VALS(snmp_Version_vals), 0,
@@ -4148,7 +4218,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2058 "packet-snmp-template.c"
+#line 2069 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -4159,7 +4229,8 @@ void proto_register_snmp(void) {
 	  &ett_encryptedPDU,
 	  &ett_decrypted,
 	  &ett_authParameters,
-
+	  &ett_internet,
+	  
 
 /*--- Included file: packet-snmp-ettarr.c ---*/
 #line 1 "packet-snmp-ettarr.c"
@@ -4189,7 +4260,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2070 "packet-snmp-template.c"
+#line 2082 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t fields[] = {

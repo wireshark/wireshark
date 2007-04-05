@@ -357,7 +357,37 @@ gint pdu_type;
 	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
+#.FN_BODY NetworkAddress/internet
+	/* see http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1125 */
+  guint32 len;
+  int cur_offset;
+	
+  cur_offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
+  get_ber_length(NULL, tvb, cur_offset, &len, NULL);
 
+  switch (len) {
+	  case 4:  offset = dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet); break;
+	  case 16: offset = dissect_snmp_IpAddressIpv6(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_ipv6); break;
+	  default: offset = dissect_snmp_IpAddressOther(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_other); break;
+  }
+  
+  if (len != 4) {
+	proto_item* pi = get_ber_last_created_item();
+	proto_tree* pt = proto_item_add_subtree(pi,ett_internet);
+	/*
+	 * It might be possible to do so, although the dissector should probably still put
+	 * a complaint into the protocol tree ("not irritating Cisco by pointing out where
+	 * they're violating the standard" is not a project goal for Wireshark :-)).
+	 * -- Guy Harris
+	 */
+	pi = proto_tree_add_text(pt,tvb,cur_offset,len,
+		"The host that generated this packet is violating"
+		"the SNMP protocol definition and sends corrupt and invalid packets");
+	PROTO_ITEM_SET_GENERATED(pi);
+	expert_add_info_format( pinfo, pi, PI_MALFORMED, PI_ERROR,
+		"Corrupt and Invalid packet" );
+  }
+  
 
 #.TYPE_ATTR
 Counter64 TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL

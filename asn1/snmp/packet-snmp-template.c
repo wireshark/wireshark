@@ -226,6 +226,8 @@ static int hf_snmp_engineid_data = -1;
 static int hf_snmp_counter64 = -1;
 static int hf_snmp_decryptedPDU = -1;
 static int hf_snmp_msgAuthentication = -1;
+static int hf_snmp_internet_ipv6 = -1;
+static int hf_snmp_internet_other = -1;
 
 #include "packet-snmp-hf.c"
 
@@ -240,9 +242,13 @@ static gint ett_msgFlags = -1;
 static gint ett_encryptedPDU = -1;
 static gint ett_decrypted = -1;
 static gint ett_authParameters = -1;
+static gint ett_internet = -1;
 
 #include "packet-snmp-ett.c"
 
+
+static int dissect_snmp_IpAddressIpv6(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
+static int dissect_snmp_IpAddressOther(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -2053,7 +2059,12 @@ void proto_register_snmp(void) {
 		  { &hf_snmp_decryptedPDU, {
 					"Decrypted ScopedPDU", "snmp.decrypted_pdu", FT_BYTES, BASE_HEX,
 					NULL, 0, "Decrypted PDU", HFILL }},
-
+		{ &hf_snmp_internet_ipv6, {
+		    "internet", "snmp.internet", FT_IPv6, BASE_NONE,
+		    NULL, 0, "", HFILL }},
+		{ &hf_snmp_internet_other, {
+		    "internet", "snmp.internet", FT_BYTES, BASE_NONE,
+		    NULL, 0, "", HFILL }},
 #include "packet-snmp-hfarr.c"
   };
 
@@ -2065,7 +2076,8 @@ void proto_register_snmp(void) {
 	  &ett_encryptedPDU,
 	  &ett_decrypted,
 	  &ett_authParameters,
-
+	  &ett_internet,
+	  
 #include "packet-snmp-ettarr.c"
   };
   module_t *snmp_module;

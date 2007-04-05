@@ -1,4 +1,4 @@
--- $Id:$
+-- $Id$
    RFC1157-SNMP DEFINITIONS ::= BEGIN
 
 --      IMPORTS
@@ -104,6 +104,10 @@ NetworkAddress ::=
 IpAddress ::=
     [APPLICATION 0]
         IMPLICIT OCTET STRING (SIZE (4))
+
+-- see http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1125 
+IpAddressIpv6 ::= [APPLICATION 0] IMPLICIT OCTET STRING (SIZE (16))
+IpAddressOther ::= [APPLICATION 0] IMPLICIT OCTET STRING
 
 -- this wraps
 Counter32 ::=
