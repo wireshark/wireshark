@@ -74,7 +74,7 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # a plugin.c file for a plugin.
 # All subsequent arguments are the files to scan.
 #
-plugin.c: $(DISSECTOR_SRC)
+plugin.c: $(DISSECTOR_SRC) ../../tools/make-dissector-reg.py ../../tools/make-dissector-reg
 !IFDEF PYTHON
 	@echo Making plugin.c (using python)
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(DISSECTOR_SRC)
