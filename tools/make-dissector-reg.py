@@ -14,6 +14,7 @@
 import os
 import sys
 import re
+import pickle
 
 #
 # The first argument is the directory in which the source files live.
@@ -29,9 +30,11 @@ registertype = sys.argv[2]
 if registertype == "plugin":
 	tmp_filename = "plugin.c-tmp"
 	final_filename = "plugin.c"
+	cache_filename = None
 elif registertype == "dissectors":
 	tmp_filename = "register.c-tmp"
 	final_filename = "register.c"
+	cache_filename = "register-cache.pkl"
 else:
 	print "Unknown output type '%s'" % registertype
 	sys.exit(1)
@@ -58,8 +61,10 @@ if len(filenames) < 1:
 # Look through all files, applying the regex to each line.
 # If the pattern matches, save the "symbol" section to the
 # appropriate array.
-proto_reg = []
-handoff_reg = []
+regs = {
+	'proto_reg': [],
+	'handoff_reg': [],
+	}
 
 # For those that don't know Python, r"" indicates a raw string,
 # devoid of Python escapes.
@@ -71,15 +76,41 @@ handoff_regex1 = r"void\s+(?P<symbol>proto_reg_handoff_[_A-Za-z0-9]+)\s*\([^;]+$
 
 # This table drives the pattern-matching and symbol-harvesting
 patterns = [
-	( proto_reg, re.compile(proto_regex0) ),
-	( proto_reg, re.compile(proto_regex1) ),
-	( handoff_reg, re.compile(handoff_regex0) ),
-	( handoff_reg, re.compile(handoff_regex1) ),
+	( 'proto_reg', re.compile(proto_regex0) ),
+	( 'proto_reg', re.compile(proto_regex1) ),
+	( 'handoff_reg', re.compile(handoff_regex0) ),
+	( 'handoff_reg', re.compile(handoff_regex1) ),
 	]
+
+# Open our registration symbol cache
+cache = None
+if cache_filename:
+	try:
+		cache_file = open(cache_filename, 'rb')
+		cache = pickle.load(cache_file)
+		cache_file.close()
+	except:
+		cache = {}
 
 # Grep
 for filename in filenames:
 	file = open(filename)
+	cur_mtime = os.fstat(file.fileno()).st_mtime
+	if cache and cache.has_key(filename):
+		cdict = cache[filename]
+		if cur_mtime == cdict['mtime']:
+#			print "Pulling %s from cache" % (filename)
+			regs['proto_reg'].extend(cdict['proto_reg'])
+			regs['handoff_reg'].extend(cdict['handoff_reg'])
+			file.close()
+			continue
+	# We don't have a cache entry
+	if cache is not None:
+		cache[filename] = {
+			'mtime': cur_mtime,
+			'proto_reg': [],
+			'handoff_reg': [],
+			}
 #	print "Searching %s" % (filename)
 	for line in file.readlines():
 		for action in patterns:
@@ -87,18 +118,26 @@ for filename in filenames:
 			match = regex.search(line)
 			if match:
 				symbol = match.group("symbol")
-				list = action[0]
-				list.append(symbol)
+				sym_type = action[0]
+				regs[sym_type].append(symbol)
+				if cache is not None:
+#					print "Caching %s for %s: %s" % (sym_type, filename, symbol)
+					cache[filename][sym_type].append(symbol)
 	file.close()
 
+if cache is not None and cache_filename is not None:
+	cache_file = open(cache_filename, 'wb')
+	pickle.dump(cache, cache_file)
+	cache_file.close()
+
 # Make sure we actually processed something
-if len(proto_reg) < 1:
+if len(regs['proto_reg']) < 1:
     print "No protocol registrations found"
     sys.exit(1)
 
 # Sort the lists to make them pretty
-proto_reg.sort()
-handoff_reg.sort()
+regs['proto_reg'].sort()
+regs['handoff_reg'].sort()
 
 reg_code = open(tmp_filename, "w")
 
@@ -133,7 +172,7 @@ register_all_protocols(void)
 {
 """);
 
-for symbol in proto_reg:
+for symbol in regs['proto_reg']:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	reg_code.write(line)
 
@@ -154,7 +193,7 @@ register_all_protocol_handoffs(void)
 {
 """);
 
-for symbol in handoff_reg:
+for symbol in regs['handoff_reg']:
 	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
 	reg_code.write(line)
 

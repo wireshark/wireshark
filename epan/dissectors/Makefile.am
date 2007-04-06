@@ -130,6 +130,8 @@ register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissect
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
+# XXX - We may want to add register-cache.pkl to the distribution at
+# some point.  It should be portable across architectures.
 CLEANFILES = \
 	libcleandissectors.a \
 	libcleandissectors.la \
@@ -140,6 +142,7 @@ CLEANFILES = \
 	libpidldissectors.la \
 	libpidldissectors.a \
 	register.c-tmp		\
+	register-cache.pkl		\
 	$(GENERATED_HEADER_FILES)	\
 	*~
 
