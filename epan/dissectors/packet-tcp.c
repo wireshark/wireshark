@@ -191,13 +191,6 @@ static SLAB_FREE_LIST_DEFINE(tcp_unacked_t)
 	SLAB_FREE(fi, tcp_unacked_t)
 
 
-/* Idea for gt: either x > y, or y is much bigger (assume wrap) */
-#define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
-#define LT_SEQ(x, y) ((gint32)((x) - (y)) < 0)
-#define GE_SEQ(x, y) ((gint32)((y) - (x)) <= 0)
-#define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
-#define EQ_SEQ(x, y) ((x) == (y))
-
 #define TCP_A_RETRANSMISSION		0x0001
 #define TCP_A_LOST_PACKET		0x0002
 #define TCP_A_ACK_LOST_PACKET		0x0004
@@ -309,12 +302,12 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
    and let TCP try to find out what it can about this segment
 */
 static int
-scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, struct tcp_analysis *tcpd)
+scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int offset, guint32 seq, guint32 nxtseq, emem_tree_t *multisegment_pdus)
 {
         struct tcp_multisegment_pdu *msp=NULL;
 
 	if(!pinfo->fd->flags.visited){
-		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+		msp=se_tree_lookup32_le(multisegment_pdus, seq-1);
 		if(msp){
 			/* If this is a continuation of a PDU started in a
 			 * previous segment we need to update the last_frame
@@ -349,7 +342,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 		 * this segment we also verify that the found PDU does span
 		 * beyond the end of this segment.
 		 */
-		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, nxtseq-1);
+		msp=se_tree_lookup32_le(multisegment_pdus, nxtseq-1);
 		if(msp){
 			if( (pinfo->fd->num==msp->first_frame)
 			){
@@ -369,7 +362,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 		/* Second we check if this segment is part of a PDU started
 		 * prior to the segment (seq-1)
 		 */
-		msp=se_tree_lookup32_le(tcpd->fwd->multisegment_pdus, seq-1);
+		msp=se_tree_lookup32_le(multisegment_pdus, seq-1);
 		if(msp){
 			/* If this segment is completely within a previous PDU
 			 * then we just skip this packet
@@ -392,8 +385,8 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
 /* if we saw a PDU that extended beyond the end of the segment,
    use this function to remember where the next pdu starts
 */
-static struct tcp_multisegment_pdu *
-pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, struct tcp_analysis *tcpd)
+struct tcp_multisegment_pdu *
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, emem_tree_t *multisegment_pdus)
 {
 	struct tcp_multisegment_pdu *msp;
 
@@ -404,7 +397,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
 	msp->last_frame=pinfo->fd->num;
 	msp->last_frame_time=pinfo->fd->abs_ts;
 	msp->flags=0;
-	se_tree_insert32(tcpd->fwd->multisegment_pdus, seq, (void *)msp);
+	se_tree_insert32(multisegment_pdus, seq, (void *)msp);
 	return msp;
 }
 
@@ -1587,11 +1580,11 @@ again:
 			 * above.
 			 */
 			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
-				deseg_seq, nxtseq+1, tcpd);
+				deseg_seq, nxtseq+1, tcpd->fwd->multisegment_pdus);
 			msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
 		} else {
 			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
-				deseg_seq, nxtseq+pinfo->desegment_len, tcpd);
+				deseg_seq, nxtseq+pinfo->desegment_len, tcpd->fwd->multisegment_pdus);
 		}
 
 		/* add this segment as the first one for this new pdu */
@@ -2231,7 +2224,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			if(tcp_analyze_seq && (!tcp_desegment)){
 				if(seq || nxtseq){
 					offset=scan_for_next_pdu(tvb, tcp_tree, pinfo, offset,
-						seq, nxtseq, tcpd);
+						seq, nxtseq, tcpd->fwd->multisegment_pdus);
 				}
 			}
 		}
@@ -2258,7 +2251,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 						    pinfo,
                 	                            seq,
 						    nxtseq+pinfo->bytes_until_next_pdu,
-						    tcpd);
+						    tcpd->fwd->multisegment_pdus);
 					}
 				}
 			}
@@ -2287,7 +2280,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 					pdu_store_sequencenumber_of_next_pdu(pinfo,
         	                            seq,
 					    nxtseq+pinfo->bytes_until_next_pdu,
-					    tcpd);
+					    tcpd->fwd->multisegment_pdus);
 				}
 			}
 		}

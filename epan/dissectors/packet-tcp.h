@@ -34,6 +34,12 @@
 #define TH_ECN  0x40
 #define TH_CWR  0x80
 
+/* Idea for gt: either x > y, or y is much bigger (assume wrap) */
+#define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
+#define LT_SEQ(x, y) ((gint32)((x) - (y)) < 0)
+#define GE_SEQ(x, y) ((gint32)((y) - (x)) <= 0)
+#define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
+#define EQ_SEQ(x, y) ((x) == (y))
 
 /* the tcp header structure, passed to tap listeners */
 struct tcpheader {
@@ -86,6 +92,8 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int),
 		 dissector_t dissect_pdu);
 
+extern struct tcp_multisegment_pdu *
+pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nxtpdu, emem_tree_t *multisegment_pdus);
 
 typedef struct _tcp_unacked_t {
 	struct _tcp_unacked_t *next;
