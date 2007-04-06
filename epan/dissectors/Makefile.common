@@ -83,6 +83,7 @@ ASN_DISSECTOR_SRC = \
 	packet-cmp.c \
 	packet-cms.c \
 	packet-crmf.c \
+	packet-ctdb.c \
 	packet-dap.c \
 	packet-disp.c \
 	packet-dop.c \
