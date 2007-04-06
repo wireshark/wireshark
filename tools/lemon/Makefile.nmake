@@ -13,7 +13,7 @@ CFLAGS=-WX -D_U_="" $(LOCAL_CFLAGS)
 all : lemon.exe
 
 clean:
-	rm -f lemon.obj lemon.exe lemon.ilk *.pdb
+	rm -f lemon.obj lemon.exe lemon.ilk *.pdb lemon.exe.manifest
 
 distclean: clean
 
