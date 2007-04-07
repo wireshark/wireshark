@@ -202,10 +202,10 @@ tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 
-reassemble_test.exe: reassemble_test.obj libwireshark.dll
+reassemble_test.exe: reassemble_test.obj libwireshark.lib
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) reassemble_test.obj libwireshark.dll
+		$(GLIB_LIBS) reassemble_test.obj libwireshark.lib
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
