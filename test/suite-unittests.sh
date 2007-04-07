@@ -37,14 +37,11 @@ unittests_step_test() {
 		return
 	fi
 
-        # temporary hack to disable output redirection, in the hope
-        # this will shed some light on the mysterious windows buildbot failures.
-	$DUT 
-# > testout.txt 2>&1
+	$DUT > testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
-		#cat ./testout.txt
+		cat ./testout.txt
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
 		return
 	fi
@@ -74,7 +71,7 @@ unittests_cleanup_step() {
 unittests_suite() {
 	test_step_set_pre unittests_cleanup_step
 	test_step_set_post unittests_cleanup_step
-	test_step_add "exntest" unittests_step_exntest
+	#test_step_add "exntest" unittests_step_exntest
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest
 }
