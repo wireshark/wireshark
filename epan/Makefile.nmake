@@ -192,6 +192,20 @@ exntest: exntest.exe
 reassemble_test: reassemble_test.exe
 tvbtest: tvbtest.exe
 
+# don't really understand why we need all this extra guff - shouldn't
+# they be in libwireshark.lib, otherwise how does tshark.exe link?
+REASSEMBLE_TEST_LIBS=\
+            crypt\airpdcap.lib \
+            dfilter\dfilter.lib \
+            ftypes\ftypes.lib \
+            $(ADNS_LIBS) \
+            $(PCRE_LIBS) \
+            $(ZLIB_LIBS) \
+            $(GLIB_LIBS) \
+            $(GNUTLS_LIBS) \
+            libwireshark.lib
+
+
 exntest.exe: exntest.obj except.obj
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
@@ -202,10 +216,10 @@ tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 
-reassemble_test.exe: reassemble_test.obj libwireshark.lib
+reassemble_test.exe: reassemble_test.obj $(REASSEMBLE_TEST_LIBS)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) reassemble_test.obj libwireshark.lib
+		$(REASSEMBLE_TEST_LIBS) reassemble_test.obj
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
