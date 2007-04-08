@@ -26,8 +26,8 @@ AC_SUBST(FLEX_PATH)
 # If we're running gcc, add '-Wall -W -Wcast-qual' to CFLAGS, and add
 # '-D_U_="__attribute__((unused))"' as well, so we can use _U_ to
 # flag unused function arguments and not get warnings about them.
-# If "--with-extra-gcc-checks" was specified, add "-Wcast-align"
-# as well.  (Add more checks here in the future?)
+# If "--with-extra-gcc-checks" was specified, add some additional
+# warning checks.
 #
 # Otherwise, add '-D_U_=""', so that _U_ used to flag an unused function
 # argument will compile with non-GCC compilers.
