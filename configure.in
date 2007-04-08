@@ -165,7 +165,7 @@ AC_ARG_WITH(extra-gcc-checks,
 		wireshark_extra_gcc_flags=" -Wcast-qual -Wcast-align -Wbad-function-cast -pedantic -Wstrict-prototypes -Wmissing-declarations -Wwrite-strings"
 	fi
 ],)
-AC_MSG_CHECKING(to see if we can add '-Wall -W $wireshark_extra_gcc_flags' to CFLAGS)
+AC_MSG_CHECKING(to see if we can add '-Wall -W$wireshark_extra_gcc_flags' to CFLAGS)
 if test x$GCC != x ; then
   CFLAGS="-D_U_=\"__attribute__((unused))\" -Wall -Wpointer-arith -W $wireshark_extra_gcc_flags $CFLAGS"
   AC_MSG_RESULT(yes)
@@ -299,7 +299,7 @@ darwin*)
 	# the system version in /usr/lib).
 	#
 	LDFLAGS="-Wl,-search_paths_first $LDFLAGS"
-	AC_MSG_RESULT(Apple linker - added -Wl,-single_module and -Wl,-search_paths_first)
+	AC_MSG_RESULT([Apple linker - added -Wl,-single_module and -Wl,-search_paths_first])
 	;;
 cygwin*)
 	#
