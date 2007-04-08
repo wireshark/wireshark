@@ -195,6 +195,7 @@ tvbtest: tvbtest.exe
 # don't really understand why we need all this extra guff - shouldn't
 # they be in libwireshark.lib, otherwise how does tshark.exe link?
 REASSEMBLE_TEST_LIBS=\
+            dissectors\dissectors.lib \
             crypt\airpdcap.lib \
             dfilter\dfilter.lib \
             ftypes\ftypes.lib \
