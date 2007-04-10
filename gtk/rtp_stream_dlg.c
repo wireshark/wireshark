@@ -103,8 +103,17 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
 	data[3] = g_strdup_printf("%u", strinfo->dest_port);
 	data[4] = g_strdup_printf("%u", strinfo->ssrc);
-	data[5] = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
-		"Unknown (%u)"));
+	if(strinfo->pt>95){
+		if(strinfo->info_payload_type_str != NULL){
+			data[5] = g_strdup(strinfo->info_payload_type_str);
+		}else{
+			data[5] = g_strdup_printf("Unknown(%u)",strinfo->pt);
+		}
+
+	}else{
+		data[5] = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_vals,
+			"Unknown (%u)"));
+	}
 	data[6] = g_strdup_printf("%u", strinfo->npackets);
 
 	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
