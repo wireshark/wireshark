@@ -414,7 +414,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				hfinfo = arg1->value.hfinfo;
 				while(hfinfo) {
 					accum = proto_check_for_protocol_or_field(tree,
-							arg1->value.hfinfo->id);
+							hfinfo->id);
 					if (accum) {
 						break;
 					}
