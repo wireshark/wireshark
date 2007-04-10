@@ -275,8 +275,9 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	    {
 	      iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
 	    }
+	  g_strup(buf);
 	  num_items_scanned = sscanf (buf,
-				      "   Object protocol  . . . . . . :  %8s",
+				      "   OBJECT PROTOCOL  . . . . . . :  %8s",
 				      protocol);
 	  if (num_items_scanned == 1)
 	    {
@@ -288,7 +289,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   * Determine if the data has been formatted or not
 	   */
 	  num_items_scanned = sscanf (buf,
-				      "   Format TCP/IP data only  . . :  %1s",
+				      "   FORMAT TCP/IP DATA ONLY  . . :  %1s",
 				      tcpformat);
 	  if (num_items_scanned == 1)
 	    {
@@ -307,12 +308,13 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   * extract it here and store for all packets to access
 	   */
 	  num_items_scanned = sscanf (buf,
-				      "   Start date/Time  . . . . . . :  %8s",
+				      "   START DATE/TIME  . . . . . . :  %8s",
 				      sdate);
 	  if (num_items_scanned == 1)
 	    {
 	      wth->capture.iseries->sdate = sdate;
 	    }
+
 	}
       else
 	{
