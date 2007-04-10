@@ -26,6 +26,8 @@
 #ifndef __ADDRESS_H__
 #define __ADDRESS_H__
 
+#include "emem.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -109,6 +111,15 @@ typedef struct _address {
 	COPY_ADDRESS_data = g_malloc((from)->len); \
 	memcpy(COPY_ADDRESS_data, (from)->data, (from)->len); \
 	(to)->data = COPY_ADDRESS_data; \
+	}
+
+#define SE_COPY_ADDRESS(to, from) { \
+	guint8 *SE_COPY_ADDRESS_data; \
+	(to)->type = (from)->type; \
+	(to)->len = (from)->len; \
+	SE_COPY_ADDRESS_data = se_alloc((from)->len); \
+	memcpy(SE_COPY_ADDRESS_data, (from)->data, (from)->len); \
+	(to)->data = SE_COPY_ADDRESS_data; \
 	}
 
 /* Types of port numbers Wireshark knows about. */
