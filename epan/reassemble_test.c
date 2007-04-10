@@ -1072,7 +1072,7 @@ const unsigned mpa_padding[3];
 int eth_stdio_stat (const gchar *filename _U_, struct stat *buf _U_)
 { return -1; }
 
-int eth_stdio_fopen (const gchar *filename _U_, const gchar *mode _U_)
+FILE *eth_stdio_fopen (const gchar *filename _U_, const gchar *mode _U_)
 { return 0; }
 
 int eth_stdio_mkdir (const gchar *filename _U_, int mode _U_)
