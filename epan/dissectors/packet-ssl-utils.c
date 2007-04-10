@@ -1255,7 +1255,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
 
     /* And the MAC */
-    if (decoder->cipher_suite->dig_len > worklen)
+    if (decoder->cipher_suite->dig_len > (gint)worklen)
     {
         ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
         return -1;
