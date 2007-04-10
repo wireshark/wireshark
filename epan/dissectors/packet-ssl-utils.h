@@ -29,10 +29,6 @@
 #include <epan/gnuc_format_check.h>
 #include <epan/value_string.h>
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 #ifdef HAVE_LIBGNUTLS
 #ifdef _WIN32
 #include <winposixtype.h>
@@ -591,12 +587,7 @@ typedef struct _SslFlow {
 	emem_tree_t *multisegment_pdus;
 } SslFlow;
 
-typedef struct _SslDecompress {
-    gint compression;
-#ifdef HAVE_LIBZ
-    z_stream istream;
-#endif
-} SslDecompress;
+typedef struct _SslDecompress SslDecompress;
 
 typedef struct _SslDecoder {
     SslCipherSuite* cipher_suite;

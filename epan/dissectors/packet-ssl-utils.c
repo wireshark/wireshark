@@ -34,6 +34,19 @@
 
 #include <epan/emem.h>
 
+/* we keep this internal to packet-ssl-utils, as there should be
+   no need to access it any other way.
+
+   This also allows us to hide the dependency on zlib.
+*/
+struct _SslDecompress {
+    gint compression;
+#ifdef HAVE_LIBZ
+    z_stream istream;
+#endif
+};
+
+
 static gint ver_major, ver_minor, ver_patch;
 
 void 
