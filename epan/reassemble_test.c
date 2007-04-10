@@ -1065,3 +1065,23 @@ const unsigned mpa_samples[3][3];
 const unsigned mpa_bitrates[3][3][16];
 const unsigned mpa_frequencies[3][4];
 const unsigned mpa_padding[3];
+
+#include "wiretap/file_util.h"
+
+/* these are used by the wiretap file_util stuffs under win32 */
+int eth_stdio_stat (const gchar *filename _U_, struct stat *buf _U_)
+{ return -1; }
+
+int eth_stdio_fopen (const gchar *filename _U_, const gchar *mode _U_)
+{ return 0; }
+
+int eth_stdio_mkdir (const gchar *filename _U_, int mode _U_)
+{ return -1; }
+
+int eth_stdio_unlink (const gchar *filename _U_)
+{ return -1; }
+
+
+
+
+    

@@ -195,6 +195,8 @@ tvbtest: tvbtest.exe
 # don't really understand why we need all this extra guff - shouldn't
 # they be in libwireshark.lib, otherwise how does tshark.exe link?
 REASSEMBLE_TEST_LIBS=\
+            $(NET_SNMP_LIBS) \
+            wsock32.lib user32.lib \
             dissectors\dissectors.lib \
             crypt\airpdcap.lib \
             dfilter\dfilter.lib \
@@ -204,6 +206,7 @@ REASSEMBLE_TEST_LIBS=\
             $(ZLIB_LIBS) \
             $(GLIB_LIBS) \
             $(GNUTLS_LIBS) \
+            $(WSLUA_LIB) \
             libwireshark.lib
 
 
