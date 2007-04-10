@@ -2,7 +2,7 @@
  *
  * Routines for ITU-T Recommendation H.263 dissection
  *
- * Copyright 2003 Niklas Ögren <niklas.ogren@7l.se>
+ * Copyright 2003 Niklas ™gren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
  * $Id$
@@ -30,8 +30,9 @@
 
 /*
  * This dissector tries to dissect the H.263 protocol according to
- * ITU-T Recommendations and RFC 2190 and
+ * ITU-T Recommendations and RFC 2190,
  * http://www.ietf.org/rfc/rfc4629.txt?number=4629
+ * and http://www.itu.int/rec/T-REC-H.263/en
  */
 
 
@@ -100,7 +101,11 @@ static int hf_h263_opptype		= -1;
 static int hf_h263_pquant		= -1;
 static int hf_h263_cpm			= -1;
 static int hf_h263_psbi			= -1;
-
+static int hf_h263_picture_type_code = -1;
+static int hf_h263_ext_source_format = -1;
+static int hf_h263_custom_pcf	= -1;
+static int hf_h263_pei			= -1;
+static int hf_h263_psupp		= -1;
 
 /* H.263 RFC 4629 fields */
 static int hf_h263P_payload = -1;
@@ -138,6 +143,24 @@ static const value_string srcformat_vals[] =
   { 0,		NULL },
 };
 
+/*
+ * If UFEP is "001", then the following bits are present in PLUSPTYPE:
+ *  Bits 1-3 Source Format, "000" reserved, "001" sub-QCIF, "010" QCIF, "011" CIF,
+ * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
+ */
+static const value_string ext_srcformat_vals[] =
+{
+  { 0,							"reserved" },
+  { H263_SRCFORMAT_SQCIF,		"sub-QCIF 128x96" },
+  { H263_SRCFORMAT_QCIF,		"QCIF 176x144" },
+  { H263_SRCFORMAT_CIF,			"CIF 352x288" },
+  { H263_SRCFORMAT_4CIF,		"4CIF 704x576" },
+  { H263_SRCFORMAT_16CIF,		"16CIF 1408x1152" },
+  { 6,							"Custom source format",},
+  { 7,							"Reserved" },
+  { 0,		NULL },
+};
+
 static const value_string h263_ufep_vals[] =
 {
   { 0,		"Only MPPTYPE included" },
@@ -165,9 +188,29 @@ static const true_false_string PB_frames_mode_flg = {
   "PB-frame",
   "Normal I- or P-picture"
 };
+
 static const true_false_string cpm_flg = {
   "On",
   "Off"
+};
+
+static const true_false_string custom_pcf_flg = {
+  "Custom PCF",
+  "CIF PCF"
+};
+
+/*  Bits 1-3 Picture Type Code:*/
+static const value_string picture_type_code_vals[] =
+{
+  { 0,		"I-picture (INTRA)" },
+  { 1,		"P-picture (INTER)" },
+  { 2,		"Improved PB-frame (see Annex M)" },
+  { 3,		"B-picture (see Annex O)" },
+  { 4,		"EI-picture (see Annex O)" },
+  { 5,		"EP-picture (see Annex O)" },
+  { 6,		"Reserved" },
+  { 7,		"Reserved" },
+  { 0,		NULL },
 };
 
 /* H.263 fields defining a sub tree */
@@ -341,7 +384,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 	guint length;
 	guint bit_length;
 	char *str;
-	header_field_info *hfinfo;
+	header_field_info *hf_field;
 	guint32 value = 0;
 	int bit;
 	guint32 mask = 0, tmp;
@@ -356,7 +399,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 	if((bit_offset&0x7)==0)
 		is_bytealigned = TRUE;
 
-	hfinfo = proto_registrar_get_nth(hf_index);
+	hf_field = proto_registrar_get_nth(hf_index);
 
 	offset = bit_offset>>3;
 	bit_length = ((bit_offset&0x7)+no_of_bits);
@@ -488,34 +531,41 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 		strcat(str,".");
 	}
 
-
-	strcat(str," = ");
-	strcat(str,hfinfo->name);
 	if(return_value){
 		*return_value=value;
 	}
-	if (no_of_bits== 1){
+	if(hf_index == -1)
+		return NULL;
+
+	strcat(str," = ");
+	strcat(str,hf_field->name);
+
+	if (hf_field->type == FT_BOOLEAN){
 		/* Boolean field */
-		if (hfinfo->strings) {
+		if (hf_field->strings) {
 			const true_false_string		*tfstring = &tfs_true_false;
-			tfstring = (const struct true_false_string*) hfinfo->strings;
+			tfstring = (const struct true_false_string*) hf_field->strings;
 
 			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
 				"%s: %s",
 				str,
 				value ? tfstring->true_string : tfstring->false_string);
+		}else{
+			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
+				"%s: %u",
+				str,
+				value);
 		}
-
 	}
-	/* 2 - 32 bits field */
+	/* 1 - 32 bits field */
 
-	if (hfinfo->strings) {
+	if (hf_field->strings) {
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
                       "%s: %s",
 					  str,
-					  val_to_str(value, cVALS(hfinfo->strings), "Unknown"));
+					  val_to_str(value, cVALS(hf_field->strings), "Unknown"));
 	}
-	switch(hfinfo->display){
+	switch(hf_field->display){
 	case BASE_DEC:
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
 	                 "%s: %u",
@@ -536,6 +586,16 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 }
 
+/*
+ * 5.3 Macroblock layer
+static int
+dissect_h263_macroblock_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+
+}
+ */
+
+
 static int
 dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gboolean is_rfc4626)
 {
@@ -547,7 +607,9 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		h263_proto_tree_add_bits(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 	}else{
-		/* Group of Block Start Code (GBSC) (17 bits) */
+		/* Group of Block Start Code (GBSC) (17 bits) 
+		 * A word of 17 bits. Its value is 0000 0000 0000 0000 1.
+		 */
 		h263_proto_tree_add_bits(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, NULL);
 		offset_in_bits = offset_in_bits +17;
 	}
@@ -556,6 +618,18 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	 */
 	h263_proto_tree_add_bits(tree, hf_h263_GN, tvb, offset_in_bits, 5, NULL);
 	offset_in_bits = offset_in_bits +5;
+	/* 5.2.4 GOB Sub-Bitstream Indicator (GSBI) (2 bits)
+	 * A fixed length codeword of 2 bits that is only present if CPM is "1" in the picture header.
+	 */
+	/* 
+	 * 5.2.5 GOB Frame ID (GFID) (2 bits)
+	 */
+	/*
+	 * 5.2.6 Quantizer Information (GQUANT) (5 bits)
+	 */
+	/*
+	 * 5.3 Macroblock layer
+	 */
 
 	return offset_in_bits>>3;
 }
@@ -574,7 +648,10 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint32 ufep;
 	guint32 picture_coding_type;
 	guint32 PB_frames_mode = 0;
+	guint32 custom_pcf = 0;
+	guint32 picture_type_code =0;
 	guint32 cpm;
+	guint32 pei;
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
@@ -647,12 +724,13 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 *  Bits 1-3 Source Format, "000" reserved, "001" sub-QCIF, "010" QCIF, "011" CIF,
 			 * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
 			 */
-			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_source_format, tvb, offset_in_bits, 3, NULL);
+			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, NULL);
 			offset_in_bits = offset_in_bits +3;
 			
 			/*
 			 *  Bit 4 Optional Custom PCF, "0" CIF PCF, "1" custom PCF;
 			 */
+			h263_proto_tree_add_bits( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 3, &custom_pcf);
 			offset_in_bits++;
 			/*
 			 *  Bit 5 Optional Unrestricted Motion Vector (UMV) mode (see Annex D), "0" off, "1" on;
@@ -714,7 +792,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * 5.1.4.3 The mandatory part of PLUSPTYPE when PLUSPTYPE present (MPPTYPE) (9 bits)
 		 * Regardless of the value of UFEP, the following 9 bits are also present in PLUSPTYPE:
-		 * – Bits 1-3 Picture Type Code:
+		 * - Bits 1-3 Picture Type Code:
 		 * "000" I-picture (INTRA);
 		 * "001" P-picture (INTER);
 		 * "010" Improved PB-frame (see Annex M);
@@ -723,14 +801,33 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * "101" EP-picture (see Annex O);
 		 * "110" Reserved;
 		 * "111" Reserved;
+		 */
+		h263_proto_tree_add_bits( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code);
+		offset_in_bits = offset_in_bits +3;
+		/*
 		 *  Bit 4 Optional Reference Picture Resampling (RPR) mode (see Annex P), "0" off, "1" on;
+		 */
+		offset_in_bits++;
+		/*
 		 *  Bit 5 Optional Reduced-Resolution Update (RRU) mode (see Annex Q), "0" off, "1" on;
+		 */
+		offset_in_bits++;
+		/*
 		 *  Bit 6 Rounding Type (RTYPE) (see 6.1.2);
+		 */
+		offset_in_bits++;
+		/*
 		 *  Bit 7 Reserved, shall be equal to "0";
+		 */
+		offset_in_bits++;
+		/*
 		 *  Bit 8 Reserved, shall be equal to "0";
+		 */
+		offset_in_bits++;
+		/*
 		 *  Bit 9 Equal to "1" to prevent start code emulation.
 		 */
-		offset_in_bits = offset_in_bits +9;
+		offset_in_bits++;
 		/* The picture header location of CPM (1 bit) and PSBI (2 bits)
 		 * the picture header depends on whether or not PLUSPTYPE is present 
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
@@ -790,9 +887,9 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  A fixed length codeword of 2 bits which is present only if the optional Slice Structured mode
 		 *  (see Annex K) is indicated in PLUSPTYPE and UFEP is 001. If the Slice Structured mode is in use
 		 *  but UFEP is not 001, the last values sent for SSS shall remain in effect.
-		 *  – Bit 1 Rectangular Slices, "0" indicates free-running slices, "1" indicates rectangular
+		 *  - Bit 1 Rectangular Slices, "0" indicates free-running slices, "1" indicates rectangular
 		 *  slices;
-		 *  – Bit 2 Arbitrary Slice Ordering, "0" indicates sequential order, "1" indicates arbitrary
+		 *  - Bit 2 Arbitrary Slice Ordering, "0" indicates sequential order, "1" indicates arbitrary
 		 *  order.
 		 *  5.1.11 Enhancement Layer Number (ELNUM) (4 bits)
 		 *  A fixed length codeword of 4 bits which is present only if the optional Temporal, SNR, and Spatial
@@ -815,17 +912,17 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  use and UFEP is 001. When present, RPSMF indicates which type of back-channel messages are
 		 *  needed by the encoder. If the Reference Picture Selection mode is in use but RPSMF is not present,
 		 *  the last value of RPSMF that was sent shall remain in effect.
-		 *  – 100: neither ACK nor NACK signals needed;
-		 *  – 101: need ACK signals to be returned;
-		 *  – 110: need NACK signals to be returned;
-		 *  – 111: need both ACK and NACK signals to be returned;
-		 *  – 000-011: Reserved.
+		 *  - 100: neither ACK nor NACK signals needed;
+		 *  - 101: need ACK signals to be returned;
+		 *  - 110: need NACK signals to be returned;
+		 *  - 111: need both ACK and NACK signals to be returned;
+		 *  - 000-011: Reserved.
 		 *  5.1.14 Temporal Reference for Prediction Indication (TRPI) (1 bit)
 		 *  A fixed length codeword of 1 bit that is present only if the optional Reference Picture Selection
 		 *  mode is in use (regardless of the value of UFEP). When present, TRPI indicates the presence of the
 		 *  following TRP field:
-		 *  – 0: TRP field is not present;
-		 *  – 1: TRP field is present.
+		 *  - 0: TRP field is not present;
+		 *  - 1: TRP field is present.
 		 *  TRPI shall be 0 whenever the picture header indicates an I- or EI-picture.
 		 *  5.1.15 Temporal Reference for Prediction (TRP) (10 bits)
 		 *  When present (as indicated in TRPI), TRP indicates the Temporal Reference which is used for
@@ -857,7 +954,6 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  from that of the previous encoded picture, in which case the RPRP field is not present and the
 		 *  Reference Picture Resampling mode bit is not set.
 		 */
-		return offset_in_bits>>3;
 	}
 	/* 5.1.19 Quantizer Information (PQUANT) (5 bits) */
 	h263_proto_tree_add_bits( tree, hf_h263_pquant, tvb, offset_in_bits, 5, NULL);
@@ -879,7 +975,44 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * It is 3 bits long for standard CIF picture clock frequency and is
 	 * extended to 5 bits when a custom picture clock frequency is in use.
 	 */
-	/* TODO Add the rest of the fields */
+	if((PB_frames_mode == 1)||(picture_type_code == 2 )){
+		if(custom_pcf == 0){
+			h263_proto_tree_add_bits( tree, hf_h263_trb, tvb, offset_in_bits, 3, NULL);
+			offset_in_bits = offset_in_bits +3;
+		}else{
+			h263_proto_tree_add_bits( tree, hf_h263_trb, tvb, offset_in_bits, 5, NULL);
+			offset_in_bits = offset_in_bits +5;
+		}
+	}
+	/* 5.1.23 Quantization information for B-pictures in PB-frames (DBQUANT) (2 bits)
+	 * DBQUANT is present if PTYPE or PLUSPTYPE indicates "PB-frame" or "Improved PB-frame"
+	 */
+	if((PB_frames_mode == 1)||(picture_type_code == 2 )){
+		offset_in_bits = offset_in_bits +2;
+	}
+	/* 5.1.24 Extra Insertion Information (PEI) (1 bit)
+	 * A bit which when set to "1" signals the presence of the following optional data field.
+	 */
+	h263_proto_tree_add_bits( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei);
+	while(pei==1)
+	{
+		/*5.1.25 Supplemental Enhancement Information (PSUPP) (0/8/16 ... bits) 
+		 * If PEI is set to "1", then 9 bits follow consisting of 8 bits of data (PSUPP) and then another PEI bit
+		 * to indicate if a further 9 bits follow and so on. Encoders shall use PSUPP as specified in Annex L.
+		 */
+		h263_proto_tree_add_bits( tree, hf_h263_psupp, tvb, offset_in_bits, 8, NULL);
+		offset_in_bits = offset_in_bits +8;
+		h263_proto_tree_add_bits( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei);
+
+	}
+	/* For the first GOB in each picture (with number 0), no GOB header shall be transmitted.
+	 * For all other GOBs, the GOB header may be empty, depending on the encoder strategy.
+	 */
+
+	/*
+	 * 5.3 Macroblock layer
+	 * dissect_h263_macroblock_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+	 */
 
 	return offset_in_bits>>3;
 
@@ -986,9 +1119,13 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  /* Startc code holds bit 17 -23 of the codeword */
 		  startcode = tvb_get_guint8(tvb,offset)&0xfe;
 		  if (startcode & 0x80){
+			  /* All picture, slice, and EOSBS start codes
+			   * shall be byte aligned, and GOB and EOS start codes may be byte aligned.
+			   */
 			  switch(startcode){
 			  case 0xf8:
 				  /* End Of Sub-Bitstream code (EOSBS) 
+				   * EOSBS codes shall be byte aligned
 				   * ( 1111 100. )
 				   */
 				  break;
@@ -1098,7 +1235,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 */
 				if ( check_col( pinfo->cinfo, COL_INFO) )
 					col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-				dissect_h263_group_of_blocks_layer( tvb, pinfo, h263_payload_tree, offset,FALSE);
+				offset = dissect_h263_group_of_blocks_layer( tvb, pinfo, h263_payload_tree, offset,FALSE);
 				break;
 			}
 		}else{
@@ -1465,11 +1602,23 @@ proto_register_h263(void)
 			&hf_h263_source_format,
 			{
 				"H.263 Source Format",
-				"h263.split_screen_indicator",
+				"h263.source_format",
 				FT_UINT8,
 				BASE_HEX,
 				VALS(srcformat_vals),
 				0x1c,
+				"Source Format", HFILL
+			}
+		},
+		{
+			&hf_h263_ext_source_format,
+			{
+				"H.263 Source Format",
+				"h263.ext_source_format",
+				FT_UINT8,
+				BASE_HEX,
+				VALS(ext_srcformat_vals),
+				0x0,
 				"Source Format", HFILL
 			}
 		},
@@ -1605,7 +1754,54 @@ proto_register_h263(void)
 				"Picture Sub-Bitstream Indicator (PSBI)", HFILL
 			}
 		},
-
+		{
+			&hf_h263_picture_type_code,
+			{
+				"H.263 Picture Type Code",
+				"h263.psi",
+				FT_UINT32,
+				BASE_DEC,
+				VALS(picture_type_code_vals),
+				0x0,
+				"Picture Type Code", HFILL
+			}
+		},
+		{
+			&hf_h263_custom_pcf,
+			{
+				"H.263 Custom PCF",
+				"h263.custom_pcf",
+				FT_BOOLEAN,
+				8,
+				TFS(&custom_pcf_flg),
+				0x0,
+				"Custom PCF", HFILL
+			}
+		},
+		{
+			&hf_h263_pei,
+			{
+				"H.263 Extra Insertion Information (PEI)",
+				"h263.pei",
+				FT_BOOLEAN,
+				8,
+				NULL,
+				0x0,
+				"Extra Insertion Information (PEI)", HFILL
+			}
+		},
+		{
+			&hf_h263_psupp,
+			{
+				"H.263 Supplemental Enhancement Information (PSUPP)",
+				"h263.psupp",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Supplemental Enhancement Information (PSUPP)", HFILL
+			}
+		},
 };
 
 	static gint *ett[] =
