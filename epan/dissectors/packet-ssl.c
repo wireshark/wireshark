@@ -2446,7 +2446,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     available_bytes      = 0;
     ssl_record_tree      = NULL;
 
-    /* pull first byte; if high bit is set, then record
+    /* pull first byte; if high bit is unset, then record
      * length is three bytes due to padding; otherwise
      * record length is two bytes
      */
@@ -2572,7 +2572,18 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 (*conv_version == SSL_VER_PCT)
                                 ? "PCT" : "SSLv2",
                                 "Encrypted Data");
+
+	    /* Unlike SSLv3, the SSLv2 record layer does not have a
+	     * version field. To make it possible to filter on record
+	     * layer version we create a generated field with ssl 
+	     * record layer version 0x0002
+	     */
+	    ti = proto_tree_add_uint(ssl_record_tree, 
+				     hf_ssl_record_version, tvb, 
+				     initial_offset, 0, 0x0002);
+	    PROTO_ITEM_SET_GENERATED(ti);
         }
+
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Data");
         return initial_offset + record_length_length + record_length;
@@ -2597,6 +2608,16 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     if (ssl_record_tree)
     {
+	/* Unlike SSLv3, the SSLv2 record layer does not have a
+	 * version field. To make it possible to filter on record
+	 * layer version we create a generated field with ssl 
+	 * record layer version 0x0002
+	 */
+	ti = proto_tree_add_uint(ssl_record_tree, 
+				 hf_ssl_record_version, tvb, 
+				 initial_offset, 0, 0x0002);
+	PROTO_ITEM_SET_GENERATED(ti);
+
         /* add the record length */
         tvb_ensure_bytes_exist(tvb, offset, record_length_length);
         ti = proto_tree_add_uint (ssl_record_tree,
@@ -2729,7 +2750,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
     {
         /* show the version */
         if (tree)
-            proto_tree_add_item(tree, hf_ssl_record_version, tvb,
+            proto_tree_add_item(tree, hf_ssl_handshake_client_version, tvb,
                             offset, 2, FALSE);
         offset += 2;
 
