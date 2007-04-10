@@ -70,6 +70,8 @@ static int hf_pn_ptcp_sync_id = -1;
 static int hf_pn_ptcp_t2portrxdelay = -1;
 static int hf_pn_ptcp_t3porttxdelay = -1;
 
+static int hf_pn_ptcp_t2timestamp = -1;
+
 static int hf_pn_ptcp_seconds = -1;
 static int hf_pn_ptcp_nanoseconds = -1;
 
@@ -94,17 +96,29 @@ static gint ett_pn_ptcp_block_header = -1;
 #define OUI_PROFINET_MULTICAST		0x010ECF	/* PROFIBUS Nutzerorganisation e.V. */
 
 
-static const value_string pn_ptcp_block_type[] = {
-	{ 0x00, "End" },
-	{ 0x01, "Subdomain"},
-	{ 0x02, "Time"},
-	{ 0x03, "TimeExtension"},
-	{ 0x04, "Master"},
-	{ 0x05, "PortParameter"},
-	{ 0x06, "DelayParameter"},
-    /*0x07 - 0x7E Reserved */
-	{ 0x7F, "Organizationally Specific"},
+#define PN_PTCP_BT_END              0x00
+#define PN_PTCP_BT_SUBDOMAIN        0x01
+#define PN_PTCP_BT_TIME             0x02
+#define PN_PTCP_BT_TIME_EXTENSION   0x03
+#define PN_PTCP_BT_MASTER           0x04
+#define PN_PTCP_BT_PORT_PARAMETER   0x05
+#define PN_PTCP_BT_DELAY_PARAMETER  0x06
+#define PN_PTCP_BT_PORT_TIME        0x07
+#define PN_PTCP_BT_OPTION           0x7F
+#define PN_PTCP_BT_RTDATA           0x7F
 
+
+static const value_string pn_ptcp_block_type[] = {
+	{ PN_PTCP_BT_END,               "End" },
+	{ PN_PTCP_BT_SUBDOMAIN,         "Subdomain"},
+	{ PN_PTCP_BT_TIME,              "Time"},
+	{ PN_PTCP_BT_TIME_EXTENSION,    "TimeExtension"},
+	{ PN_PTCP_BT_MASTER,            "Master"},
+	{ PN_PTCP_BT_PORT_PARAMETER,    "PortParameter"},
+	{ PN_PTCP_BT_DELAY_PARAMETER,   "DelayParameter"},
+	{ PN_PTCP_BT_PORT_TIME,         "PortTime"},
+    /*0x08 - 0x7E Reserved */
+	{ PN_PTCP_BT_OPTION,            "Organizationally Specific"},
     { 0, NULL }
 };
 
@@ -336,6 +350,28 @@ dissect_PNPTCP_DelayParameter(tvbuff_t *tvb, int offset,
 
 
 static int
+dissect_PNPTCP_PortTime(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, proto_item *item)
+{
+    guint32 t2timestamp;
+
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+	/* T2TimeStamp */
+    offset = dissect_pn_uint32(tvb, offset, pinfo, tree, hf_pn_ptcp_t2timestamp, &t2timestamp);
+
+	proto_item_append_text(item, ": T2TimeStamp=%uns", t2timestamp);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", T2TS=%uns", t2timestamp);
+
+	return offset;
+}
+
+
+static int
 dissect_PNPTCP_Option_PROFINET(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length)
 {
@@ -463,6 +499,9 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
         break;
     case(0x06): /* DelayParameter */
         dissect_PNPTCP_DelayParameter(tvb, offset, pinfo, sub_tree, sub_item);
+        break;
+    case(0x07): /* PortTime */
+        dissect_PNPTCP_PortTime(tvb, offset, pinfo, sub_tree, sub_item);
         break;
     case(0x7F): /* Organizational Specific */
         dissect_PNPTCP_Option(tvb, offset, pinfo, sub_tree, sub_item, length);
@@ -893,6 +932,8 @@ proto_register_pn_ptcp (void)
         { "T2PortRxDelay (ns)", "pn_ptcp.t2portrxdelay", FT_UINT32, BASE_DEC, 0x0, 0x0, "", HFILL }},
 	{ &hf_pn_ptcp_t3porttxdelay,
         { "T3PortTxDelay (ns)", "pn_ptcp.t3porttxdelay", FT_UINT32, BASE_DEC, 0x0, 0x0, "", HFILL }},
+	{ &hf_pn_ptcp_t2timestamp,
+        { "T2TimeStamp (ns)", "pn_ptcp.t2timestamp", FT_UINT32, BASE_DEC, 0x0, 0x0, "", HFILL }},
 
 	{ &hf_pn_ptcp_seconds,
         { "Seconds", "pn_ptcp.seconds", FT_UINT32, BASE_DEC, 0x0, 0x0, "", HFILL }},
