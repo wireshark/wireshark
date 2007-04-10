@@ -25,8 +25,13 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/emem.h>
 #include <epan/gnuc_format_check.h>
 #include <epan/value_string.h>
+
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
 
 #ifdef HAVE_LIBGNUTLS
 #ifdef _WIN32
@@ -346,7 +351,7 @@ static const value_string ssl_31_handshake_type[] = {
 
 static const value_string ssl_31_compression_method[] = {
     { 0, "null" },
-    { 1, "ZLIB" },
+    { 1, "DEFLATE" },
     { 64, "LZS" },
     { 0x00, NULL }
 };
@@ -580,14 +585,29 @@ typedef struct _SslCipherSuite {
      gint mode;
 } SslCipherSuite;
 
+typedef struct _SslFlow {
+    guint32 byte_seq;
+	guint16 flags;
+	emem_tree_t *multisegment_pdus;
+} SslFlow;
+
+typedef struct _SslDecompress {
+    gint compression;
+#ifdef HAVE_LIBZ
+    z_stream istream;
+#endif
+} SslDecompress;
+
 typedef struct _SslDecoder {
     SslCipherSuite* cipher_suite;
+    gint compression;
     guchar _mac_key[20];
     StringInfo mac_key;
-    SSL_CIPHER_CTX evp;    
+    SSL_CIPHER_CTX evp;
+    SslDecompress *decomp;
     guint32 seq;
     guint16 epoch;
-    guint32 byte_seq;
+    SslFlow *flow;
 } SslDecoder;
 
 #define KEX_RSA         0x10
@@ -622,6 +642,7 @@ typedef struct _SslDataInfo {
     StringInfo plain_data;
     guint32 seq;
     guint32 nxtseq;
+    SslFlow *flow;
     struct _SslDataInfo *next;
 } SslDataInfo;
 
@@ -646,10 +667,13 @@ typedef struct _SslDecryptSession {
     StringInfo client_data_for_iv;
     
     gint cipher;
+    gint compression;
     gint state;
     SslCipherSuite cipher_suite;
-    SslDecoder server;
-    SslDecoder client;
+    SslDecoder *server;
+    SslDecoder *client;
+    SslDecoder *server_new;
+    SslDecoder *client_new;
     SSL_PRIVATE_KEY* private_key;
     guint32 version;
     guint16 version_netorder;  
@@ -716,6 +740,9 @@ ssl_find_cipher(int num,SslCipherSuite* cs);
 extern gint 
 ssl_generate_keyring_material(SslDecryptSession*ssl_session);
 
+extern void 
+ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
+
 /* Try to decrypt in place the encrypted pre_master_secret
  @param ssl_session the store for the decrypted pre_master_secret
  @param entrypted_pre_master the rsa encrypted pre_master_secret
@@ -736,7 +763,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
  @return 0 on success */
 extern gint 
 ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct, 
-        const guchar* in, gint inl,guchar*out,gint* outl);
+        const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl);
 
 
 /* Common part bitween SSL and DTLS dissectors */
@@ -786,14 +813,14 @@ extern tvbuff_t*
 ssl_get_record_info(gint proto, packet_info *pinfo, gint record_id);
 
 void
-ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, guint32 seq);
+ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow);
 
 SslDataInfo* 
 ssl_get_data_info(int proto, packet_info *pinfo, gint key);
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 extern void 
-ssl_common_init(GHashTable **session_hash , StringInfo * decrypted_data);
+ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInfo *compressed_data);
 
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void 

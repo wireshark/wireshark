@@ -106,10 +106,12 @@
 #include <glib.h>
 
 #include <epan/conversation.h>
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
-#include <epan/inet_v6defs.h>
-#include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
+#include <epan/inet_v6defs.h>
+#include <epan/dissectors/packet-tcp.h>
+#include <epan/dissectors/packet-x509af.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
@@ -203,6 +205,14 @@ static gint hf_pct_handshake_cipher	= -1;
 static gint hf_pct_handshake_exch	= -1;
 static gint hf_pct_handshake_sig		= -1;
 static gint hf_pct_msg_error_type	= -1;
+static int hf_ssl_reassembled_in = -1;
+static int hf_ssl_segments = -1;
+static int hf_ssl_segment = -1;
+static int hf_ssl_segment_overlap = -1;
+static int hf_ssl_segment_overlap_conflict = -1;
+static int hf_ssl_segment_multiple_tails = -1;
+static int hf_ssl_segment_too_long_fragment = -1;
+static int hf_ssl_segment_error = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ssl                   = -1;
@@ -220,11 +230,32 @@ static gint ett_pct_cipher_suites	  = -1;
 static gint ett_pct_hash_suites		  = -1;
 static gint ett_pct_cert_suites		  = -1;
 static gint ett_pct_exch_suites		  = -1;
+static gint ett_ssl_segments = -1;
+static gint ett_ssl_segment  = -1;
+
+
+/* not all of the hf_fields below make sense for SSL but we have to provide
+   them anyways to comply with the api (which was aimed for ip fragment
+   reassembly) */
+static const fragment_items ssl_segment_items = {
+	&ett_ssl_segment,
+	&ett_ssl_segments,
+	&hf_ssl_segments,
+	&hf_ssl_segment,
+	&hf_ssl_segment_overlap,
+	&hf_ssl_segment_overlap_conflict,
+	&hf_ssl_segment_multiple_tails,
+	&hf_ssl_segment_too_long_fragment,
+	&hf_ssl_segment_error,
+	&hf_ssl_reassembled_in,
+	"Segments"
+};
 
 static GHashTable *ssl_session_hash = NULL;
 static GHashTable *ssl_key_hash = NULL;
 static GTree* ssl_associations = NULL;
 static dissector_handle_t ssl_handle = NULL;
+static StringInfo ssl_compressed_data = {NULL, 0};
 static StringInfo ssl_decrypted_data = {NULL, 0};
 static gint ssl_decrypted_data_avail = 0;
 
@@ -244,11 +275,21 @@ const gchar* ssl_version_short_names[] = {
 /* Forward declaration we need below */
 void proto_reg_handoff_ssl(void);
 
+/* Desegmentation of SSL streams */
+/* table to hold defragmented SSL streams */
+static GHashTable *ssl_fragment_table = NULL;
+static void
+ssl_fragment_init(void)
+{
+	fragment_table_init(&ssl_fragment_table);
+}
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
 ssl_init(void)
 {
-  ssl_common_init(&ssl_session_hash, &ssl_decrypted_data);
+  ssl_common_init(&ssl_session_hash, &ssl_decrypted_data, &ssl_compressed_data);
+  ssl_fragment_init();
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -302,135 +343,6 @@ ssl_parse(void)
 
 }
 
-#if 0
-/* function that save app_data during sub protocol reassembling */
-static void
-ssl_add_app_data(SslDecryptSession* ssl, guchar* data, gint data_len){
-  StringInfo * app;
-  app=&ssl->app_data_segment;
-
-  if(app->data_len!=0){
-    guchar* tmp;
-    gint tmp_len;
-    tmp=g_malloc(app->data_len);
-    tmp_len=app->data_len;
-    memcpy(tmp,app->data,app->data_len);
-    if(app->data!=NULL)
-      g_free(app->data);
-    app->data_len=0;
-    app->data=g_malloc(tmp_len+data_len);
-    app->data_len=tmp_len+data_len;
-    memcpy(app->data,tmp,tmp_len);
-    g_free(tmp);
-    memcpy(app->data+tmp_len, data,data_len);
-  }
-  else{
-    /* it's new */
-    if(app->data!=NULL)
-      g_free(app->data);
-    app->data=g_malloc(data_len);
-    app->data_len=data_len;
-    memcpy(app->data,data,data_len);
-  }
-}
-#endif
-
-#if 0
-static void
-ssl_desegment_ssl_app_data(SslDecryptSession * ssl,  packet_info *pinfo){
-   SslPacketInfo* pi;
-   SslAssociation* association;
-   SslPacketInfo* pi2;
-   pi = p_get_proto_data(pinfo->fd, proto_ssl);
-	  if (pi && pi->app_data.data)
-	    {
-	      tvbuff_t* new_tvb;
-	      packet_info * pp;
-	      /* find out a dissector using server port*/
-	      association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
-	      association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype == PT_TCP);
-	      /* create a copy of packet_info */
-	      pp=g_malloc(sizeof(packet_info));
-	      memcpy(pp, pinfo, sizeof(packet_info));
-
-	      if (association && association->handle) {
-		/* it's the first SS segmented packet */
-		if(ssl->app_data_segment.data==NULL){
-		  /* create new tvbuff for the decrypted data */
-		  new_tvb = tvb_new_real_data(pi->app_data.data,
-					      pi->app_data.data_len, pi->app_data.data_len);
-		  tvb_set_free_cb(new_tvb, g_free);
-		  /* we allow subdissector to tell us more bytes */
-		  pp->can_desegment=2;
-		  /* subdissector call  */
-		  call_dissector(association->handle, new_tvb, pp, NULL);
-		  /* if the dissector need more bytes */
-		  if(pp->desegment_len>0){
-		    /* we save the actual data to reuse them later */
-		    ssl_add_app_data(ssl, pi->app_data.data, pi->app_data.data_len);
-		    /* we remove data to forbid subdissection */
-		    p_remove_proto_data(pinfo->fd, proto_ssl);
-		    /* update of COL_INFO */
-		    if (check_col(pinfo->cinfo, COL_INFO)){
-		      col_append_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
-		      pinfo->cinfo->writable=FALSE;
-		    }
-		    return;
-		  }
-		}
-		else
-		  {
-		    /* it isn't the first SSL segmented packet */
-		    /* we add actual data to reuse them later */
-		    ssl_add_app_data(ssl, pi->app_data.data, pi->app_data.data_len);
-		    /* create new tvbuff for the decrypted data */
-		    new_tvb = tvb_new_real_data(ssl->app_data_segment.data,
-						ssl->app_data_segment.data_len,
-						ssl->app_data_segment.data_len);
-		    tvb_set_free_cb(new_tvb, g_free);
-		    /* we allow subdissector to tell us more bytes */
-		    pp->can_desegment=2;
-		    /* subdissector call  */
-		    call_dissector(association->handle, new_tvb, pp, NULL);
-		    /* if the dissector need more bytes */
-		    if(pp->desegment_len>0){
-		      /* we remove data to forbid subdissection */
-		      p_remove_proto_data(pinfo->fd, proto_ssl);
-		      /* update of COL_INFO */
-		      if (check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
-			pinfo->cinfo->writable=FALSE;
-		      }
-		      return;
-		    }
-		    else
-		      {
-			/* we create SslPacketInfo to save data */
-			pi2=g_malloc(sizeof(SslPacketInfo));
-			pi2->app_data.data=g_malloc(ssl->app_data_segment.data_len);
-			memcpy(pi2->app_data.data,ssl->app_data_segment.data,ssl->app_data_segment.data_len);
-			pi2->app_data.data_len=ssl->app_data_segment.data_len;
-
-			/* we remove data if it's useful */
-			p_remove_proto_data(pinfo->fd, proto_ssl);
-			/* we add reassembled subprotocol data */
-			p_add_proto_data(pinfo->fd, proto_ssl, pi2);
-			/* we delete saved app_data */
-			if(ssl->app_data_segment.data)
-			  g_free(ssl->app_data_segment.data);
-			ssl->app_data_segment.data=NULL;
-			ssl->app_data_segment.data_len=0;
-		      }
-		  }
-		/* we delete pp structure  */
-		g_free(pp);
-
-	      }
-	    }
-
-
-}
-#endif /* 0 */
 /*********************************************************************
  *
  * Forward Declarations
@@ -803,34 +715,24 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     ssl_debug_printf("decrypt_ssl3_record: app_data len %d ssl, state 0x%02X\n",
         record_length, ssl->state);
     direction = ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
-    if (!(ssl->state & SSL_HAVE_SESSION_KEY)) {
-        ssl_debug_printf("decrypt_ssl3_record: no session key\n");
-        /* save data to update IV if session key is obtained later */
-        data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
-        data_for_iv_len = (record_length < 24) ? record_length : 24;
-        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
-        return ret;
-    }
 
     /* retrive decoder for this packet direction*/
     if (direction != 0) {
         ssl_debug_printf("decrypt_ssl3_record: using server decoder\n");
-        decoder = &ssl->server;
+        decoder = ssl->server;
     }
     else {
         ssl_debug_printf("decrypt_ssl3_record: using client decoder\n");
-        decoder = &ssl->client;
+        decoder = ssl->client;
     }
 
-    /* ensure we have enough storage space for decrypted data */
-    if (record_length > ssl_decrypted_data.data_len)
-    {
-        ssl_debug_printf("decrypt_ssl3_record: allocating %d bytes"
-                " for decrypt data (old len %d)\n",
-                record_length + 32, ssl_decrypted_data.data_len);
-        ssl_decrypted_data.data = g_realloc(ssl_decrypted_data.data,
-            record_length + 32);
-        ssl_decrypted_data.data_len = record_length + 32;
+    if (!decoder) {
+        ssl_debug_printf("decrypt_ssl3_record: no decoder available\n");
+        /* save data to update IV if decoder is available later */
+        data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
+        data_for_iv_len = (record_length < 24) ? record_length : 24;
+        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+        return ret;
     }
 
     /* run decryption and add decrypted payload to protocol data, if decryption
@@ -838,7 +740,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     ssl_decrypted_data_avail = ssl_decrypted_data.data_len;
     if (ssl_decrypt_record(ssl, decoder,
           content_type, tvb_get_ptr(tvb, offset, record_length),
-          record_length,  ssl_decrypted_data.data, &ssl_decrypted_data_avail) == 0)
+          record_length, &ssl_compressed_data, &ssl_decrypted_data, &ssl_decrypted_data_avail) == 0)
         ret = 1;
     /*  */
     if (!ret) {
@@ -848,10 +750,432 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
     }
     if (ret && save_plaintext) {
-      ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, decoder->byte_seq);
-      decoder->byte_seq += ssl_decrypted_data_avail;
+      ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  TVB_RAW_OFFSET(tvb)+offset, decoder->flow);
     }
     return ret;
+}
+
+static void
+process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
+	proto_tree *root_tree, proto_tree *tree, SslAssociation* association,
+	guint32 seq, guint32 nxtseq, gboolean is_ssl_segment,
+	SslFlow *flow);
+
+static void
+desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
+		guint32 seq, guint32 nxtseq,
+		SslAssociation* association,
+		proto_tree *root_tree, proto_tree *tree,
+		SslFlow *flow)
+{
+	fragment_data *ipfd_head;
+	gboolean must_desegment;
+	gboolean called_dissector;
+	int another_pdu_follows;
+	int deseg_offset;
+	guint32 deseg_seq;
+	gint nbytes;
+	proto_item *item;
+	proto_item *frag_tree_item;
+	proto_item *ssl_tree_item;
+    struct tcp_multisegment_pdu *msp;
+
+again:
+	ipfd_head=NULL;
+	must_desegment = FALSE;
+	called_dissector = FALSE;
+	another_pdu_follows = 0;
+	msp=NULL;
+
+	/*
+	 * Initialize these to assume no desegmentation.
+	 * If that's not the case, these will be set appropriately
+	 * by the subdissector.
+	 */
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
+
+	/*
+	 * Initialize this to assume that this segment will just be
+	 * added to the middle of a desegmented chunk of data, so
+	 * that we should show it all as data.
+	 * If that's not the case, it will be set appropriately.
+	 */
+	deseg_offset = offset;
+
+	/* find the most previous PDU starting before this sequence number */
+	msp=se_tree_lookup32_le(flow->multisegment_pdus, seq-1);
+	if(msp && msp->seq<=seq && msp->nxtpdu>seq){
+		int len;
+
+		if(!pinfo->fd->flags.visited){
+			msp->last_frame=pinfo->fd->num;
+			msp->last_frame_time=pinfo->fd->abs_ts;
+		}
+
+		/* OK, this PDU was found, which means the segment continues
+		   a higher-level PDU and that we must desegment it.
+		*/
+		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
+			/* The dissector asked for the entire segment */
+			len=tvb_length_remaining(tvb, offset);
+		} else {
+			len=MIN(nxtseq, msp->nxtpdu) - seq;
+		}
+
+		ipfd_head = fragment_add(tvb, offset, pinfo, msp->first_frame,
+			ssl_fragment_table,
+			seq - msp->seq,
+			len,
+			(LT_SEQ (nxtseq,msp->nxtpdu)) );
+
+		if(msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT){
+			msp->flags&=(~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
+
+			/* If we consumed the entire segment there is no
+			 * other pdu starting anywhere inside this segment.
+			 * So update nxtpdu to point at least to the start
+			 * of the next segment.
+			 * (If the subdissector asks for even more data we
+			 * will advance nxtpdu even furhter later down in
+			 * the code.)
+			 */
+			msp->nxtpdu=nxtseq;
+		}
+
+		if( (msp->nxtpdu<nxtseq)
+		&&  (msp->nxtpdu>=seq)
+		&&  (len>0) ){
+			another_pdu_follows=msp->nxtpdu-seq;
+		}
+	} else {
+		/* This segment was not found in our table, so it doesn't
+		   contain a continuation of a higher-level PDU.
+		   Call the normal subdissector.
+		*/
+		process_ssl_payload(tvb, offset, pinfo, root_tree, tree,
+				association, 0, 0, FALSE, flow);
+		called_dissector = TRUE;
+
+		/* Did the subdissector ask us to desegment some more data
+		   before it could handle the packet?
+		   If so we have to create some structures in our table but
+		   this is something we only do the first time we see this
+		   packet.
+		*/
+		if(pinfo->desegment_len) {
+			if (!pinfo->fd->flags.visited)
+				must_desegment = TRUE;
+
+			/*
+			 * Set "deseg_offset" to the offset in "tvb"
+			 * of the first byte of data that the
+			 * subdissector didn't process.
+			 */
+			deseg_offset = offset + pinfo->desegment_offset;
+		}
+
+		/* Either no desegmentation is necessary, or this is
+		   segment contains the beginning but not the end of
+		   a higher-level PDU and thus isn't completely
+		   desegmented.
+		*/
+		ipfd_head = NULL;
+	}
+
+
+	/* is it completely desegmented? */
+	if(ipfd_head){
+		/*
+		 * Yes, we think it is.
+		 * We only call subdissector for the last segment.
+		 * Note that the last segment may include more than what
+		 * we needed.
+		 */
+		if(ipfd_head->reassembled_in==pinfo->fd->num){
+			/*
+			 * OK, this is the last segment.
+			 * Let's call the subdissector with the desegmented
+			 * data.
+			 */
+			tvbuff_t *next_tvb;
+			int old_len;
+
+			/* create a new TVB structure for desegmented data */
+			next_tvb = tvb_new_real_data(ipfd_head->data,
+					ipfd_head->datalen, ipfd_head->datalen);
+
+			/* add this tvb as a child to the original one */
+			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+
+			/* add desegmented data to the data source list */
+			add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
+
+			/* call subdissector */
+			process_ssl_payload(next_tvb, 0, pinfo, root_tree,
+			    tree, association, 0, 0, FALSE, flow);
+			called_dissector = TRUE;
+
+			/*
+			 * OK, did the subdissector think it was completely
+			 * desegmented, or does it think we need even more
+			 * data?
+			 */
+			old_len=(int)(tvb_reported_length(next_tvb)-tvb_reported_length_remaining(tvb, offset));
+			if(pinfo->desegment_len &&
+			    pinfo->desegment_offset<=old_len){
+				/*
+				 * "desegment_len" isn't 0, so it needs more
+				 * data for something - and "desegment_offset"
+				 * is before "old_len", so it needs more data
+				 * to dissect the stuff we thought was
+				 * completely desegmented (as opposed to the
+				 * stuff at the beginning being completely
+				 * desegmented, but the stuff at the end
+				 * being a new higher-level PDU that also
+				 * needs desegmentation).
+				 */
+				fragment_set_partial_reassembly(pinfo,msp->first_frame,ssl_fragment_table);
+				/* Update msp->nxtpdu to point to the new next
+				 * pdu boundary.
+				 */
+				if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
+					/* We want reassembly of at least one
+					 * more segment so set the nxtpdu 
+					 * boundary to one byte into the next 
+					 * segment.
+					 * This means that the next segment 
+					 * will complete reassembly even if it
+					 * is only one single byte in length.
+					 */
+					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + 1;
+					msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+				} else {
+					msp->nxtpdu=seq+tvb_reported_length_remaining(tvb, offset) + pinfo->desegment_len;
+				}
+				/* Since we need at least some more data
+				 * there can be no pdu following in the
+				 * tail of this segment.
+				 */
+				another_pdu_follows=0;
+			} else {
+				/*
+				 * Show the stuff in this TCP segment as
+				 * just raw TCP segment data.
+				 */
+				nbytes =
+				    tvb_reported_length_remaining(tvb, offset);
+				proto_tree_add_text(tree, tvb, offset, -1,
+				    "SSL segment data (%u byte%s)", nbytes,
+				    plurality(nbytes, "", "s"));
+
+				/*
+				 * The subdissector thought it was completely
+				 * desegmented (although the stuff at the
+				 * end may, in turn, require desegmentation),
+				 * so we show a tree with all segments.
+				 */
+				show_fragment_tree(ipfd_head, &ssl_segment_items,
+					root_tree, pinfo, next_tvb, &frag_tree_item);
+				/*
+				 * The toplevel fragment subtree is now
+				 * behind all desegmented data; move it
+				 * right behind the TCP tree.
+				 */
+				ssl_tree_item = proto_tree_get_parent(tree);
+				if(frag_tree_item && ssl_tree_item) {
+					proto_tree_move_item(root_tree, ssl_tree_item, frag_tree_item);
+				}
+
+				/* Did the subdissector ask us to desegment
+				   some more data?  This means that the data
+				   at the beginning of this segment completed
+				   a higher-level PDU, but the data at the
+				   end of this segment started a higher-level
+				   PDU but didn't complete it.
+
+				   If so, we have to create some structures
+				   in our table, but this is something we
+				   only do the first time we see this packet.
+				*/
+				if(pinfo->desegment_len) {
+					if (!pinfo->fd->flags.visited)
+						must_desegment = TRUE;
+
+					/* The stuff we couldn't dissect
+					   must have come from this segment,
+					   so it's all in "tvb".
+
+				 	   "pinfo->desegment_offset" is
+				 	   relative to the beginning of
+				 	   "next_tvb"; we want an offset
+				 	   relative to the beginning of "tvb".
+
+				 	   First, compute the offset relative
+				 	   to the *end* of "next_tvb" - i.e.,
+				 	   the number of bytes before the end
+				 	   of "next_tvb" at which the
+				 	   subdissector stopped.  That's the
+				 	   length of "next_tvb" minus the
+				 	   offset, relative to the beginning
+				 	   of "next_tvb, at which the
+				 	   subdissector stopped.
+				 	*/
+					deseg_offset =
+					    ipfd_head->datalen - pinfo->desegment_offset;
+
+					/* "tvb" and "next_tvb" end at the
+					   same byte of data, so the offset
+					   relative to the end of "next_tvb"
+					   of the byte at which we stopped
+					   is also the offset relative to
+					   the end of "tvb" of the byte at
+					   which we stopped.
+
+					   Convert that back into an offset
+					   relative to the beginninng of
+					   "tvb", by taking the length of
+					   "tvb" and subtracting the offset
+					   relative to the end.
+					*/
+					deseg_offset=tvb_reported_length(tvb) - deseg_offset;
+				}
+			}
+		}
+	}
+
+	if (must_desegment) {
+	    /* If the dissector requested "reassemble until FIN"
+	     * just set this flag for the flow and let reassembly
+	     * proceed at normal.  We will check/pick up these
+	     * reassembled PDUs later down in dissect_tcp() when checking
+	     * for the FIN flag.
+	     */
+	    if(pinfo->desegment_len==DESEGMENT_UNTIL_FIN){
+		  flow->flags|=TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+	    }
+	    /*
+	     * The sequence number at which the stuff to be desegmented
+	     * starts is the sequence number of the byte at an offset
+	     * of "deseg_offset" into "tvb".
+	     *
+	     * The sequence number of the byte at an offset of "offset"
+	     * is "seq", i.e. the starting sequence number of this
+	     * segment, so the sequence number of the byte at
+	     * "deseg_offset" is "seq + (deseg_offset - offset)".
+	     */
+	    deseg_seq = seq + (deseg_offset - offset);
+
+	    if( ((nxtseq - deseg_seq) <= 1024*1024)
+	    &&  (!pinfo->fd->flags.visited) ){
+		if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
+			/* The subdissector asked to reassemble using the
+			 * entire next segment.
+			 * Just ask reassembly for one more byte
+			 * but set this msp flag so we can pick it up
+			 * above.
+			 */
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+				deseg_seq, nxtseq+1, flow->multisegment_pdus);
+			msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
+		} else {
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+				deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
+		}
+
+		/* add this segment as the first one for this new pdu */
+		fragment_add(tvb, deseg_offset, pinfo, msp->first_frame,
+			ssl_fragment_table,
+			0,
+			nxtseq - deseg_seq,
+			LT_SEQ(nxtseq, msp->nxtpdu));
+		}
+	}
+
+	if (!called_dissector || pinfo->desegment_len != 0) {
+		if (ipfd_head != NULL && ipfd_head->reassembled_in != 0 &&
+		    !(ipfd_head->flags & FD_PARTIAL_REASSEMBLY)) {
+			/*
+			 * We know what frame this PDU is reassembled in;
+			 * let the user know.
+			 */
+			item=proto_tree_add_uint(tree, *ssl_segment_items.hf_reassembled_in,
+			    tvb, 0, 0, ipfd_head->reassembled_in);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+
+		/*
+		 * Either we didn't call the subdissector at all (i.e.,
+		 * this is a segment that contains the middle of a
+		 * higher-level PDU, but contains neither the beginning
+		 * nor the end), or the subdissector couldn't dissect it
+		 * all, as some data was missing (i.e., it set
+		 * "pinfo->desegment_len" to the amount of additional
+		 * data it needs).
+		 */
+		if (pinfo->desegment_offset == 0) {
+			/*
+			 * It couldn't, in fact, dissect any of it (the
+			 * first byte it couldn't dissect is at an offset
+			 * of "pinfo->desegment_offset" from the beginning
+			 * of the payload, and that's 0).
+			 * Just mark this as SSL.
+			 */
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
+			}
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
+			}
+		}
+
+		/*
+		 * Show what's left in the packet as just raw TCP segment
+		 * data.
+		 * XXX - remember what protocol the last subdissector
+		 * was, and report it as a continuation of that, instead?
+		 */
+		nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
+		proto_tree_add_text(tree, tvb, deseg_offset, -1,
+		    "SSL segment data (%u byte%s)", nbytes,
+		    plurality(nbytes, "", "s"));
+	}
+	pinfo->can_desegment=0;
+	pinfo->desegment_offset = 0;
+	pinfo->desegment_len = 0;
+
+	if(another_pdu_follows){
+		/* there was another pdu following this one. */
+		pinfo->can_desegment=2;
+		/* we also have to prevent the dissector from changing the 
+		 * PROTOCOL and INFO colums since what follows may be an 
+		 * incomplete PDU and we dont want it be changed back from
+		 *  <Protocol>   to <TCP>
+		 * XXX There is no good way to block the PROTOCOL column
+		 * from being changed yet so we set the entire row unwritable.
+		 */
+		col_set_fence(pinfo->cinfo, COL_INFO);
+		col_set_writable(pinfo->cinfo, FALSE);
+		offset += another_pdu_follows;
+		seq += another_pdu_follows;
+		goto again;
+	}
+}
+
+static void
+process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
+	proto_tree *root_tree, proto_tree *tree, SslAssociation* association,
+	guint32 seq, guint32 nxtseq, gboolean is_ssl_segment,
+	SslFlow *flow)
+{
+  tvbuff_t *next_tvb;
+
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+
+  if (association && association->handle) {
+    ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
+    call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+  }
 }
 
 void
@@ -867,6 +1191,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
   /* try to dissect decrypted data*/
   ssl_debug_printf("dissect_ssl3_record decrypted len %d\n", appl_data->plain_data.data_len);
+  ssl_print_text_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
 
   /* create a new TVB structure for desegmented data */
   next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
@@ -878,19 +1203,18 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
   add_new_data_source(pinfo, next_tvb, "Decrypted SSL data");
 
   /* Can we desegment this segment? */
-  if (FALSE /*ssl_desegment_app_data ignore till implemented well */) {
+  if (ssl_desegment_app_data) {
     /* Yes. */
-    /*desegment_ssl(next_tvb, pinfo, offset, seq, nxtseq, sport, dport, tree,
-        tcp_tree, tcpd);*/
+    pinfo->can_desegment = 2;
+    desegment_ssl(next_tvb, pinfo, 0, appl_data->seq, appl_data->nxtseq, association, proto_tree_get_root(tree), tree, appl_data->flow);
   } else if (association && association->handle) {
     /* No - just call the subdissector.
        Mark this as fragmented, so if somebody throws an exception,
        we don't report it as a malformed frame. */
+    pinfo->can_desegment = 0;
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
-    ssl_print_text_data("decrypted app data fragment", appl_data->plain_data.data, appl_data->plain_data.data_len);
-    call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+    process_ssl_payload(next_tvb, 0, pinfo,	proto_tree_get_root(tree), tree, association, appl_data->seq, appl_data->nxtseq, TRUE, appl_data->flow);
     pinfo->fragmented = save_fragmented;
   }
 }
@@ -1113,11 +1437,12 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     switch (content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
+        ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, conv_version, content_type);
-        ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
+        if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP));
         break;
     case SSL_ID_ALERT:
       {
@@ -1858,14 +2183,16 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
             ssl->state |= SSL_HAVE_SESSION_KEY;
         }
 no_cipher:
-        if (!tree)
-            return;
 
         /* now the server-selected cipher suite */
         proto_tree_add_item(tree, hf_ssl_handshake_cipher_suite,
                     tvb, offset, 2, FALSE);
         offset += 2;
 
+      if (ssl) {
+          /* store selected compression method for decryption */
+          ssl->compression = tvb_get_guint8(tvb, offset);
+      }
         /* and the server-selected compression method */
         proto_tree_add_item(tree, hf_ssl_handshake_comp_method,
                             tvb, offset, 1, FALSE);
@@ -3146,24 +3473,28 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
   }
   ssl->state |= SSL_HAVE_SESSION_KEY;
 
+  /* chenge ciphers immediately */
+  ssl_change_cipher(ssl, TRUE);
+  ssl_change_cipher(ssl, FALSE);
+
   /* update seq numbers is available */
-  if (client_seq != (guint32)-1) {
-    ssl->client.seq = client_seq;
-    ssl_debug_printf("ssl_set_master_secret client.seq updated to %u\n", ssl->client.seq);
+  if (ssl->client && (client_seq != (guint32)-1)) {
+    ssl->client->seq = client_seq;
+    ssl_debug_printf("ssl_set_master_secret client->seq updated to %u\n", ssl->client->seq);
   }
-  if (server_seq != (guint32)-1) {
-    ssl->server.seq = server_seq;
-    ssl_debug_printf("ssl_set_master_secret server.seq updated to %u\n", ssl->server.seq);
+  if (ssl->server && (server_seq != (guint32)-1)) {
+    ssl->server->seq = server_seq;
+    ssl_debug_printf("ssl_set_master_secret server->seq updated to %u\n", ssl->server->seq);
   }
 
   /* update IV from last data */
   iv_len = (ssl->cipher_suite.block>1) ? ssl->cipher_suite.block : 8;
-  if ((ssl->client.seq > 0) || (ssl->client_data_for_iv.data_len > iv_len)) {
-    ssl_cipher_setiv(&ssl->client.evp, ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
+  if (ssl->client && ((ssl->client->seq > 0) || (ssl->client_data_for_iv.data_len > iv_len))) {
+    ssl_cipher_setiv(&ssl->client->evp, ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
     ssl_print_data("ssl_set_master_secret client IV updated",ssl->client_data_for_iv.data + ssl->client_data_for_iv.data_len - iv_len, iv_len);
   }
-  if ((ssl->server.seq > 0) || (ssl->server_data_for_iv.data_len > iv_len)) {
-    ssl_cipher_setiv(&ssl->server.evp, ssl->server_data_for_iv.data + ssl->server_data_for_iv.data_len - iv_len, iv_len);
+  if (ssl->server && ((ssl->server->seq > 0) || (ssl->server_data_for_iv.data_len > iv_len))) {
+    ssl_cipher_setiv(&ssl->server->evp, ssl->server_data_for_iv.data + ssl->server_data_for_iv.data_len - iv_len, iv_len);
     ssl_print_data("ssl_set_master_secret server IV updated",ssl->server_data_for_iv.data + ssl->server_data_for_iv.data_len - iv_len, iv_len);
   }
 }
@@ -3856,6 +4187,37 @@ proto_register_ssl(void)
                 FT_NONE, BASE_NONE, NULL , 0x0,
                 "PCT Server Certificate", HFILL }
         },
+		{ &hf_ssl_segment_overlap,
+		{ "Segment overlap",	"ssl.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment overlaps with other segments", HFILL }},
+
+		{ &hf_ssl_segment_overlap_conflict,
+		{ "Conflicting data in segment overlap",	"ssl.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping segments contained conflicting data", HFILL }},
+
+		{ &hf_ssl_segment_multiple_tails,
+		{ "Multiple tail segments found",	"ssl.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when reassembling the pdu", HFILL }},
+
+		{ &hf_ssl_segment_too_long_fragment,
+		{ "Segment too long",	"ssl.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment contained data past end of the pdu", HFILL }},
+
+		{ &hf_ssl_segment_error,
+		{ "Reassembling error", "ssl.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Reassembling error due to illegal segments", HFILL }},
+
+		{ &hf_ssl_segment,
+		{ "SSL Segment", "ssl.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"SSL Segment", HFILL }},
+
+		{ &hf_ssl_segments,
+		{ "Reassembled SSL Segments", "ssl.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+			"SSL Segments", HFILL }},
+
+		{ &hf_ssl_reassembled_in,
+		{ "Reassembled PDU in frame", "ssl.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The PDU that doesn't end in this segment is reassembled in this frame", HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -3875,6 +4237,8 @@ proto_register_ssl(void)
 	&ett_pct_hash_suites,
 	&ett_pct_cert_suites,
 	&ett_pct_exch_suites,
+		&ett_ssl_segments,
+		&ett_ssl_segment,
     };
 
     /* Register the protocol name and description */

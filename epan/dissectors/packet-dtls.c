@@ -149,6 +149,7 @@ static GHashTable *dtls_session_hash = NULL;
 static GHashTable *dtls_key_hash = NULL;
 static GTree* dtls_associations = NULL;
 static dissector_handle_t dtls_handle = NULL;
+static StringInfo dtls_compressed_data = {NULL, 0};
 static StringInfo dtls_decrypted_data = {NULL, 0};
 static gint dtls_decrypted_data_avail = 0;
 
@@ -161,7 +162,7 @@ static gchar* dtls_debug_file_name = NULL;
 static void
 dtls_init(void)
 {
-  ssl_common_init(&dtls_session_hash, &dtls_decrypted_data);
+  ssl_common_init(&dtls_session_hash, &dtls_decrypted_data, &dtls_compressed_data);
 }
 
 /* parse dtls related preferences (private keys and ports association strings) */
@@ -454,11 +455,11 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   /* retrive decoder for this packet direction */
   if ((direction = ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
-    decoder = &ssl->server;
+    decoder = ssl->server;
   }
   else {
     ssl_debug_printf("decrypt_dtls_record: using client decoder\n");
-    decoder = &ssl->client;
+    decoder = ssl->client;
   }
 
   /* ensure we have enough storage space for decrypted data */
@@ -477,7 +478,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
   if (ssl_decrypt_record(ssl, decoder,
 			 content_type, tvb_get_ptr(tvb, offset, record_length),
-			 record_length,  dtls_decrypted_data.data, &dtls_decrypted_data_avail) == 0)
+			 record_length, &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
     ret = 1;
 
     if (ret && save_plaintext) {
@@ -553,12 +554,16 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
   if(ssl){
     if(ssl_packet_from_server(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP)){
-      ssl->server.seq=(guint32)sequence_number;
-      ssl->server.epoch=epoch;
+     if (ssl->server) {
+      ssl->server->seq=(guint32)sequence_number;
+      ssl->server->epoch=epoch;
+     }
     }
     else{
-      ssl->client.seq=(guint32)sequence_number;
-      ssl->client.epoch=epoch;
+     if (ssl->client) {
+      ssl->client->seq=(guint32)sequence_number;
+      ssl->client->epoch=epoch;
+     }
     }
   }
   if (!ssl_is_valid_content_type(content_type)) {

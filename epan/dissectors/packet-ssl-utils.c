@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef HAVE_LIBZ
+#include <zlib.h>
+#endif
 #include "packet-ssl-utils.h"
 
 #include <epan/emem.h>
@@ -368,6 +371,28 @@ ssl_data_alloc(StringInfo* str, guint len)
     return 0;
 }
 
+static gint 
+ssl_data_realloc(StringInfo* str, guint len)
+{
+    str->data = g_realloc(str->data, len);
+    if (!str->data)
+        return -1;
+    str->data_len = len;
+    return 0;
+}
+
+static gint 
+ssl_data_copy(StringInfo* dst, StringInfo* src)
+{
+    if (dst->data_len < src->data_len) {
+      if (ssl_data_realloc(dst, src->data_len))
+        return -1;
+    }
+    memcpy(dst->data, src->data, src->data_len);
+    dst->data_len = src->data_len;
+    return 0;
+}
+
 #define PRF(ssl,secret,usage,rnd1,rnd2,out) ((ssl->version_netorder==SSLV3_VERSION)? \
         ssl3_prf(secret,usage,rnd1,rnd2,out): \
         tls_prf(secret,usage,rnd1,rnd2,out))
@@ -625,12 +650,71 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     return(0);
 }
 
-static gint 
-ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite, 
+static SslFlow*
+ssl_create_flow(void)
+{
+  SslFlow *flow;
+
+  flow = se_alloc(sizeof(SslFlow));
+  flow->byte_seq = 0;
+  flow->flags = 0;
+  flow->multisegment_pdus = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "ssl_multisegment_pdus");
+  return flow;
+}
+
+/* memory allocations functions for zlib intialization */
+static void* ssl_zalloc(void* opaque, unsigned int no, unsigned int size)
+{
+	return g_malloc0(no*size);
+}
+static void ssl_zfree(void* opaque, void* address)
+{
+	g_free(address);
+}
+
+static SslDecompress*
+ssl_create_decompressor(gint compression)
+{
+  SslDecompress *decomp;
+  int err;
+
+  if (compression == 0) return NULL;
+  ssl_debug_printf("ssl_create_decompressor: compression method %d\n", compression);
+  decomp = se_alloc(sizeof(SslDecompress));
+  decomp->compression = compression;
+  switch (decomp->compression) {
+#ifdef HAVE_LIBZ
+    case 1:  /* DEFLATE */
+      decomp->istream.zalloc = ssl_zalloc;
+      decomp->istream.zfree = ssl_zfree;
+      decomp->istream.opaque = Z_NULL;
+      decomp->istream.next_in = Z_NULL;
+      decomp->istream.next_out = Z_NULL;
+      decomp->istream.avail_in = 0;
+      decomp->istream.avail_out = 0;
+      err = inflateInit_(&decomp->istream, ZLIB_VERSION, sizeof(z_stream));
+      if (err != Z_OK) {
+        ssl_debug_printf("ssl_create_decompressor: inflateInit_() failed - %d\n", err);
+        return NULL;
+      }
+      break;
+#endif
+    default:
+      ssl_debug_printf("ssl_create_decompressor: unsupported compression method %d\n", decomp->compression);
+      return NULL;
+  }
+  return decomp;
+}
+
+static SslDecoder*
+ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
         guint8 *mk, guint8 *sk, guint8 *iv)
 {
+    SslDecoder *dec;
     gint ciph;
     ciph=0;
+
+    dec = se_alloc0(sizeof(SslDecoder));
     /* Find the SSLeay cipher */
     if(cipher_suite->enc!=ENC_NULL) {
         ssl_debug_printf("ssl_create_decoder CIPHER: %s\n", ciphers[cipher_suite->enc-0x30]);
@@ -639,16 +723,18 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     if (ciph == 0) {
         ssl_debug_printf("ssl_create_decoder can't find cipher %s\n", 
             ciphers[(cipher_suite->enc-0x30) > 7 ? 7 : (cipher_suite->enc-0x30)]);
-        return -1;
+        return NULL;
     }
     
     /* init mac buffer: mac storage is embedded into decoder struct to save a
      memory allocation and waste samo more memory*/
     dec->cipher_suite=cipher_suite;
+    dec->compression = compression;
     dec->mac_key.data = dec->_mac_key;
     ssl_data_set(&dec->mac_key, mk, cipher_suite->dig_len);
     dec->seq = 0;
-    dec->byte_seq = 0;
+    dec->decomp = ssl_create_decompressor(compression);
+    dec->flow = ssl_create_flow();
     
     if (dec->evp)
         ssl_cipher_cleanup(&dec->evp);
@@ -656,11 +742,11 @@ ssl_create_decoder(SslDecoder *dec, SslCipherSuite *cipher_suite,
     if (ssl_cipher_init(&dec->evp,ciph,sk,iv,cipher_suite->mode) < 0) {
         ssl_debug_printf("ssl_create_decoder: can't create cipher id:%d mode:%d\n",
             ciph, cipher_suite->mode);
-        return -1;
+        return NULL;
     }
 
     ssl_debug_printf("decoder initialized (digest len %d)\n", cipher_suite->dig_len);
-    return 0;    
+    return dec;    
 }
 
 int 
@@ -853,26 +939,39 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     
     /* create both client and server ciphers*/
     ssl_debug_printf("ssl_generate_keyring_material ssl_create_decoder(client)\n");
-    if (ssl_create_decoder(&ssl_session->client,
-            &ssl_session->cipher_suite,c_mk,c_wk,c_iv)) {
+    ssl_session->client_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->compression, c_mk, c_wk, c_iv);
+    if (!ssl_session->client_new) {
         ssl_debug_printf("ssl_generate_keyring_material can't init client decoder\n");        
         goto fail;
     }
     ssl_debug_printf("ssl_generate_keyring_material ssl_create_decoder(server)\n");
-    if (ssl_create_decoder(&ssl_session->server,
-            &ssl_session->cipher_suite,s_mk,s_wk,s_iv)) {
+    ssl_session->server_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->compression, s_mk, s_wk, s_iv);
+    if (!ssl_session->server_new) {
         ssl_debug_printf("ssl_generate_keyring_material can't init client decoder\n");        
         goto fail;
     }
       
-    ssl_debug_printf("ssl_generate_keyring_material client seq %d server seq %d\n",
-        ssl_session->client.seq, ssl_session->server.seq);
+    ssl_debug_printf("ssl_generate_keyring_material: client seq %d, server seq %d\n",
+        ssl_session->client_new->seq, ssl_session->server_new->seq);
     g_free(key_block.data);
     return 0;
     
 fail:
     g_free(key_block.data);
     return -1;
+}
+
+void 
+ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
+{
+  ssl_debug_printf("ssl_change_cipher %s\n", (server)?"SERVER":"CLIENT");        
+  if (server) {
+    ssl_session->server = ssl_session->server_new;
+    ssl_session->server_new = NULL;
+  } else {
+    ssl_session->client = ssl_session->client_new;
+    ssl_session->client_new = NULL;
+  }
 }
 
 int 
@@ -1075,27 +1174,68 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
  
 int 
-ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
-        const guchar* in, gint inl, guchar*out, gint* outl)
+ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {
-    gint pad, worklen;
-    guint8 *mac;
+  gint err;
 
+  switch (decomp->compression) {
+#ifdef HAVE_LIBZ
+    case 1:  /* DEFLATE */
+      err = Z_OK;
+      if (out_str->data_len < 16384) {  /* maximal plain length */
+        ssl_data_realloc(out_str, 16384);
+      }
+      decomp->istream.next_in = (guchar*)in;
+      decomp->istream.avail_in = inl;
+      decomp->istream.next_out = out_str->data;
+      decomp->istream.avail_out = out_str->data_len;
+      if (inl > 0)
+        err = inflate(&decomp->istream, Z_SYNC_FLUSH);
+      if (err != Z_OK) {
+        ssl_debug_printf("ssl_decompress_record: inflate() failed - %d\n", err);
+        return -1;
+      }
+      *outl = out_str->data_len - decomp->istream.avail_out;
+      break;
+#endif  /* HAVE_LIBZ */
+    default:
+      ssl_debug_printf("ssl_decompress_record: unsupported compression method %d\n", decomp->compression);
+      return -1;
+  }
+  return 0;
+}
+
+int 
+ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
+        const guchar* in, guint inl, StringInfo* comp_str, StringInfo* out_str, guint* outl)
+{
+    guint pad, worklen, uncomplen;
+    guint8 *mac;
 
     ssl_debug_printf("ssl_decrypt_record ciphertext len %d\n", inl);
     ssl_print_data("Ciphertext",in, inl);
+
+    /* ensure we have enough storage space for decrypted data */
+    if (inl > out_str->data_len)
+    {
+        ssl_debug_printf("ssl_decrypt_record: allocating %d bytes for decrypt data (old len %d)\n",
+                inl + 32, out_str->data_len);
+        ssl_data_realloc(out_str, inl + 32);
+    }
   
     /* First decrypt*/
-    if ((pad = ssl_cipher_decrypt(&decoder->evp,out,*outl,in,inl))!= 0)
-        ssl_debug_printf("ssl_decrypt_record: %s %s\n", gcry_strsource (pad),
+    if ((pad = ssl_cipher_decrypt(&decoder->evp, out_str->data, out_str->data_len, in, inl))!= 0) {
+        ssl_debug_printf("ssl_decrypt_record failed: ssl_cipher_decrypt: %s %s\n", gcry_strsource (pad),
                     gcry_strerror (pad));
+        return -1;
+    }
 
-    ssl_print_data("Plaintext",out,inl);
+    ssl_print_data("Plaintext", out_str->data, inl);
     worklen=inl;
 
     /* Now strip off the padding*/
-    if(decoder->cipher_suite->block!=1){
-        pad=out[inl-1];
+    if(decoder->cipher_suite->block!=1) {
+        pad=out_str->data[inl-1];
         worklen-=(pad+1);
         ssl_debug_printf("ssl_decrypt_record found padding %d final len %d\n", 
             pad, worklen);
@@ -1108,42 +1248,56 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
         return -1;
     }
-    mac=out+worklen;
+    mac = out_str->data + worklen;
 
     /* if TLS 1.1 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
     if(ssl->version_netorder==TLSV1DOT1_VERSION){
 	worklen=worklen-decoder->cipher_suite->block; 
-	memcpy(out,out+decoder->cipher_suite->block,worklen);
+	memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
    }
   if(ssl->version_netorder==DTLSV1DOT0_VERSION){
         worklen=worklen-decoder->cipher_suite->block; 
-	memcpy(out,out+decoder->cipher_suite->block,worklen);
+	memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
    }
     /* Now check the MAC */
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n", 
         worklen, ssl->version_netorder, ct, decoder->seq);
     if(ssl->version_netorder==SSLV3_VERSION){
-        if(ssl3_check_mac(decoder,ct,out,worklen,mac) < 0) {
+        if(ssl3_check_mac(decoder,ct,out_str->data,worklen,mac) < 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
     else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION){
-        if(tls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0) {
+        if(tls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
     else if(ssl->version_netorder==DTLSV1DOT0_VERSION){
       /* follow the openssl dtls errors the rigth test is : dtls_check_mac(decoder,ct,ssl->version_netorder,out,worklen,mac)< 0 */
-	if(tls_check_mac(decoder,ct,TLSV1_VERSION,out,worklen,mac)< 0) {
+	if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)< 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
     ssl_debug_printf("ssl_decrypt_record: mac ok\n");
     *outl = worklen;
-    return(0);
+
+    if (decoder->compression > 0) {
+      ssl_debug_printf("ssl_decrypt_record: compression method %d\n", decoder->compression);
+      ssl_data_copy(comp_str, out_str);
+      ssl_print_data("Plaintext compressed", comp_str->data, worklen);
+      if (!decoder->decomp) {
+        ssl_debug_printf("decrypt_ssl3_record: no decoder available\n");
+        return -1;
+      }
+      if (ssl_decompress_record(decoder->decomp, comp_str->data, worklen, out_str, &uncomplen) < 0) return -1;
+      ssl_print_data("Plaintext uncompressed", out_str->data, uncomplen);
+      *outl = uncomplen;
+    }
+
+    return 0;
 }
 
 static void 
@@ -1541,7 +1695,7 @@ ssl_packet_from_server(GTree* associations, guint port, gboolean tcp)
   register gint ret;
   ret = ssl_association_find(associations, port, tcp) != 0;
 
-  ssl_debug_printf("packet_from_server: is from server %d\n", ret);    
+  ssl_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");    
   return ret;
 }    
 
@@ -1591,7 +1745,7 @@ ssl_get_record_info(int proto, packet_info *pinfo, gint record_id)
 }
 
 void
-ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, guint32 seq)
+ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow)
 {
   SslDataInfo *rec, **prec;
   SslPacketInfo *pi;
@@ -1608,9 +1762,12 @@ ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, g
   rec->plain_data.data = (guchar*)(rec + 1);
   memcpy(rec->plain_data.data, data, data_len);
   rec->plain_data.data_len = data_len;
-  rec->seq = seq;
-  rec->nxtseq = seq + data_len;
+  rec->seq = flow->byte_seq;
+  rec->nxtseq = flow->byte_seq + data_len;
+  rec->flow = flow;
   rec->next = NULL;
+
+  flow->byte_seq += data_len;
 
   /* insertion */
   prec = &pi->appl_data;
@@ -1641,15 +1798,19 @@ ssl_get_data_info(int proto, packet_info *pinfo, gint key)
 
 /* initialize/reset per capture state data (ssl sessions cache) */
 void 
-ssl_common_init(GHashTable **session_hash , StringInfo * decrypted_data)
+ssl_common_init(GHashTable **session_hash, StringInfo *decrypted_data, StringInfo *compressed_data)
 {
   if (*session_hash)
     g_hash_table_destroy(*session_hash);
   *session_hash = g_hash_table_new(ssl_hash, ssl_equal);
+
   if (decrypted_data->data)
     g_free(decrypted_data->data);
-  decrypted_data->data = g_malloc0(32);
-  decrypted_data->data_len = 32;
+  ssl_data_alloc(decrypted_data, 32);
+
+  if (compressed_data->data)
+    g_free(compressed_data->data);
+  ssl_data_alloc(compressed_data, 32);
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
