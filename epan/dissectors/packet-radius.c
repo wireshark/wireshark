@@ -1261,7 +1261,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 	radius_attr_info_t* dictionary_entry;
 	GHashTable* by_id;
 
-	g_assert(radius_avp_dissector != NULL);
+	DISSECTOR_ASSERT(radius_avp_dissector != NULL);
 
 	if (vendor_id) {
 		vendor = g_hash_table_lookup(dict->vendors_by_id,GUINT_TO_POINTER(vendor_id));

@@ -941,10 +941,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	timeval.secs=val; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
 
-	if(range==0){
-		/* something is really wrong if range is 0 */
-		g_assert_not_reached();
-	}
+	/* something is really wrong if range is 0 */
+	DISSECTOR_ASSERT(range!=0);
 
 	if(range==1){
 		val_start = offset>>3; val_length = 0;

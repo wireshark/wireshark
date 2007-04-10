@@ -451,7 +451,7 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 		}
 
 	}else{
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	/* prepare the string */

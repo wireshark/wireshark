@@ -4421,10 +4421,10 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pinfo->current_proto="SCSI";
 
     if(!itlq){
-        g_assert_not_reached();
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
     if(!itl){
-        g_assert_not_reached();
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
 
     opcode = tvb_get_guint8 (tvb, offset);
@@ -4723,7 +4723,7 @@ get_cmdset_data(itlq_nexus_t *itlq, itl_nexus_t *itl)
 
     /* we must have an itlq structure */
     if(!itlq){
-        g_assert_not_reached();
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
 
     if(itl){
