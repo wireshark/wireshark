@@ -47,8 +47,6 @@ struct _SslDecompress {
 };
 
 
-static gint ver_major, ver_minor, ver_patch;
-
 void 
 ssl_data_set(StringInfo* str, const guchar* data, guint len)
 {
@@ -57,6 +55,8 @@ ssl_data_set(StringInfo* str, const guchar* data, guint len)
 }
 
 #ifdef HAVE_LIBGNUTLS
+
+static gint ver_major, ver_minor, ver_patch;
 
 /* hmac abstraction layer */
 #define SSL_HMAC gcry_md_hd_t
@@ -676,11 +676,11 @@ ssl_create_flow(void)
 }
 
 /* memory allocations functions for zlib intialization */
-static void* ssl_zalloc(void* opaque, unsigned int no, unsigned int size)
+static void* ssl_zalloc(void* opaque _U_, unsigned int no, unsigned int size)
 {
 	return g_malloc0(no*size);
 }
-static void ssl_zfree(void* opaque, void* address)
+static void ssl_zfree(void* opaque _U_, void* address)
 {
 	g_free(address);
 }
@@ -1255,12 +1255,12 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
 
     /* And the MAC */
-    worklen-=decoder->cipher_suite->dig_len;
-    if (worklen < 0)
+    if (decoder->cipher_suite->dig_len > worklen)
     {
         ssl_debug_printf("ssl_decrypt_record wrong record len/padding outlen %d\n work %d\n",*outl, worklen);
         return -1;
     }
+    worklen-=decoder->cipher_suite->dig_len;
     mac = out_str->data + worklen;
 
     /* if TLS 1.1 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
@@ -1515,7 +1515,7 @@ ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session,
 
 int 
 ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct, 
-        const guchar* in, gint inl, guchar*out, gint* outl)
+        const guchar* in, guint inl, StringInfo* comp_str _U_, StringInfo* out, guint* outl)
 {
     ssl_debug_printf("ssl_decrypt_record: impossible without gnutls. ssl %p"
         "decoder %p ct %d, in %p inl %d out %p outl %p\n", ssl, decoder, ct,
@@ -1524,7 +1524,7 @@ ssl_decrypt_record(SslDecryptSession*ssl, SslDecoder* decoder, gint ct,
 }
 
 gint
-ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len)
+ssl_cipher_setiv(SSL_CIPHER_CTX *cipher _U_, guchar* iv _U_, gint iv_len _U_)
 {
     ssl_debug_printf("ssl_cipher_setiv: impossible without glutls.\n");
     return 0; 
