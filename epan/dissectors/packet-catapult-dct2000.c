@@ -64,6 +64,7 @@ static int hf_catapult_dct2000_ipprim_udp_port = -1;
 static int hf_catapult_dct2000_ipprim_tcp_src_port = -1;
 static int hf_catapult_dct2000_ipprim_tcp_dst_port = -1;
 static int hf_catapult_dct2000_ipprim_tcp_port = -1;
+static int hf_catapult_dct2000_ipprim_conn_id = -1;
 
 
 /* Variables used for preferences */
@@ -117,7 +118,8 @@ static void attach_fp_info(packet_info *pinfo, gboolean received,
 static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 direction,
                                         guint32 *source_addr_offset, guint32 *dest_addr_offset,
                                         guint32 *source_port_offset, guint32 *dest_port_offset,
-                                        port_type *type_of_port)
+                                        port_type *type_of_port,
+                                        guint16 *conn_id_offset)
 {
     guint8 length;
     int offset = *data_offset;
@@ -184,6 +186,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                     }
                 }
             }
+            else
             if (tag == 0x32 && length == 4)
             {
                 /* Local IP address */
@@ -197,6 +200,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                     *dest_addr_offset = offset;
                 }
             }
+            else
             if (tag == 0x33 && length == 2)
             {
                 /* Get local port */
@@ -210,8 +214,15 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                     *dest_port_offset = offset;
                 }
             }
+            else
+            if (tag == 0x36 && length == 2)
+            {
+                /* Get conn_id */
+                *conn_id_offset = offset;
+            }
 
-            /* Skip the following value */
+
+            /* Skip the length of the indicated value */
             offset += length;
         }
     }
@@ -457,6 +468,12 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     {
         return find_dissector("gtp");
     }
+    else
+    if (strcmp(protocol_name, "dhcpv4") == 0)
+    {
+        return find_dissector("bootp");
+    }
+
 
     /* Try for an exact match */
     else
@@ -853,20 +870,23 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             */
             protocol_handle = 0;
 
+
             /* Try IP Prim heuristic if configured to */
-            if (catapult_dct2000_try_ipprim_heuristic)
+            if (!protocol_handle && catapult_dct2000_try_ipprim_heuristic)
             {
-                guint32 source_addr_offset = 0, dest_addr_offset = 0;
-                guint32 source_port_offset = 0, dest_port_offset = 0;
-                port_type type_of_port = PT_NONE;
-                int offset_before_ipprim_header = offset;
+                guint32      source_addr_offset = 0, dest_addr_offset = 0;
+                guint32      source_port_offset = 0, dest_port_offset = 0;
+                port_type    type_of_port = PT_NONE;
+                guint16      conn_id_offset = 0;
+                int          offset_before_ipprim_header = offset;
 
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
                     find_ipprim_data_offset(tvb, &offset, direction,
                                             &source_addr_offset, &dest_addr_offset,
                                             &source_port_offset, &dest_port_offset,
-                                            &type_of_port))
+                                            &type_of_port,
+                                            &conn_id_offset))
                 {
                     proto_tree *ipprim_tree;
                     proto_item *ti;
@@ -907,8 +927,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        (dest_port_offset) ?
                                                            tvb_get_ntohs(tvb, dest_port_offset) :
                                                            0);
-                    ipprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_ipprim);
+                    if ((type_of_port == PT_TCP) && (conn_id_offset != 0)) {
+                        proto_item_append_text(ti, " (conn_id=%u)", tvb_get_ntohs(tvb, conn_id_offset));
+                    }
 
+                    /* Add these IPPRIM fields inside an IPPRIM subtree */
+                    ipprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_ipprim);
 
                     if (source_addr_offset != 0)
                     {
@@ -958,11 +982,18 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                       tvb, dest_port_offset, 2, FALSE);
                         PROTO_ITEM_SET_HIDDEN(port_ti);
                     }
+                    if (conn_id_offset != 0)
+                    {
+                        proto_tree_add_item(ipprim_tree,
+                                            hf_catapult_dct2000_ipprim_conn_id,
+                                            tvb, conn_id_offset, 2, FALSE);
+                    }
 
                     /* Set length for IPPrim tree */
                     proto_item_set_len(ipprim_tree, offset - offset_before_ipprim_header);
                 }
             }
+
 
             /* Try SCTP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic)
@@ -1165,6 +1196,12 @@ void proto_register_catapult_dct2000(void)
             { "TCP Port",
               "dct2000.ipprim.tcp.port", FT_UINT16, BASE_DEC, NULL, 0x0,
               "IPPrim TCP Port", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ipprim_conn_id,
+            { "Conn Id",
+              "dct2000.ipprim.conn-id", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "IPPrim Connection ID", HFILL
             }
         }
     };
