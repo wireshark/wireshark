@@ -208,6 +208,7 @@ reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.
                  reassemble.obj
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+                user32.lib wsock32.lib \
                 $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
                 except.obj strutil.obj emem.obj reassemble.obj
 
