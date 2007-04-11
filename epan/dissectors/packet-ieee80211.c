@@ -94,7 +94,10 @@ static gboolean wlan_defragment = TRUE;
 static gboolean wlan_check_fcs = FALSE;
 
 /* Ignore the WEP bit; assume packet is decrypted */
-static gboolean wlan_ignore_wep = FALSE;
+#define WLAN_IGNORE_WEP_NO     0
+#define WLAN_IGNORE_WEP_WO_IV  1
+#define WLAN_IGNORE_WEP_W_IV   2
+static gint wlan_ignore_wep = WLAN_IGNORE_WEP_NO;
 
 /* Tables for reassembly of fragments. */
 static GHashTable *wlan_fragment_table = NULL;
@@ -200,7 +203,7 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define IS_RETRY(x)            ((x) & FLAG_RETRY)
 #define POWER_MGT_STATUS(x)    ((x) & FLAG_POWER_MGT)
 #define HAS_MORE_DATA(x)       ((x) & FLAG_MORE_DATA)
-#define IS_PROTECTED(x)        (!wlan_ignore_wep && ((x) & FLAG_PROTECTED))
+#define IS_PROTECTED(x)        ((x) & FLAG_PROTECTED)
 #define IS_STRICTLY_ORDERED(x) ((x) & FLAG_ORDER)
 
 /*
@@ -869,6 +872,13 @@ static const fragment_items frag_items = {
 	"fragments"
 };
 
+static enum_val_t wlan_ignore_wep_options[] = {
+  { "no",         "No",               WLAN_IGNORE_WEP_NO    },
+  { "without_iv", "Yes - without IV", WLAN_IGNORE_WEP_WO_IV },
+  { "with_iv",    "Yes - with IV",    WLAN_IGNORE_WEP_W_IV  },
+  { NULL,         NULL,               0                     }
+};
+
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
@@ -947,7 +957,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 
   fcf = pletohs (&pd[offset]);
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf)))
+  if (IS_PROTECTED(FCF_FLAGS(fcf)) && wlan_ignore_wep == WLAN_IGNORE_WEP_NO)
     {
       ld->other++;
       return;
@@ -3743,7 +3753,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       return;
     }
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf))) {
+  if (IS_PROTECTED(FCF_FLAGS(fcf)) && wlan_ignore_wep != WLAN_IGNORE_WEP_WO_IV) {
     /*
      * It's a WEP or WPA encrypted frame; dissect the protections parameters
      * and decrypt the data, if we have a matching key. Otherwise display it as data.
@@ -3961,7 +3971,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     /* Davide Schiera (2006-11-26): decrypted before parsing header and		*/
     /*		protection header																	*/
 #endif
-		if (!can_decrypt || next_tvb == NULL) {
+    if (!can_decrypt || next_tvb == NULL) {
       /*
        * WEP decode impossible or failed, treat payload as raw data
        * and don't attempt fragment reassembly or further dissection.
@@ -3980,14 +3990,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         } else if (algorithm==PROTECTION_ALG_CCMP) {
         } else if (algorithm==PROTECTION_ALG_TKIP) {
         }
-        /* Davide Schiera (2006-11-21) ----------------------------------	*/
-
-        if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC)
-        {
-          /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
-          call_dissector(data_handle, next_tvb, pinfo, tree);
-          goto end_of_wlan;
-        }
+      }
+      /* Davide Schiera (2006-11-21) ----------------------------------	*/
+      
+      if (pinfo->ethertype != ETHERTYPE_CENTRINO_PROMISC && wlan_ignore_wep == WLAN_IGNORE_WEP_NO) {
+	/* Some wireless drivers (such as Centrino) WEP payload already decrypted */
+	call_dissector(data_handle, next_tvb, pinfo, tree);
+	goto end_of_wlan;
       }
     } else {
       /* Davide Schiera (2006-11-21): added WEP or WPA separation				*/
@@ -5866,10 +5875,11 @@ proto_register_ieee80211 (void)
 
 	/* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"		*/
 	/*		(according to the document IEEE Std 802.11i-2004)							*/
-  prefs_register_bool_preference(wlan_module, "ignore_wep",
+  prefs_register_enum_preference(wlan_module, "ignore_wep",
 		"Ignore the Protection bit",
-		"Some 802.11 cards leave the Protection bit set even though the packet is decrypted.",
-				 &wlan_ignore_wep);
+		"Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
+		"and some also leave the IV (initialization vector).",
+				 &wlan_ignore_wep, wlan_ignore_wep_options, TRUE);
 
 #ifndef USE_ENV
 
