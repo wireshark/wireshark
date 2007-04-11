@@ -1057,31 +1057,47 @@ int main(int argc, char **argv)
 }
 
 
-/* the following are used by packet-mpeg-audio.c; define them here to avoid
- * pulling in libwiretap. */
-const int mpa_versions[4];
-const int mpa_layers[4];
-const unsigned mpa_samples[3][3];
-const unsigned mpa_bitrates[3][3][16];
-const unsigned mpa_frequencies[3][4];
-const unsigned mpa_padding[3];
+/* stubs */
+void add_new_data_source(packet_info *pinfo _U_, tvbuff_t *tvb _U_,
+                        const char *name _U_)
+{}
 
-#include "wiretap/file_util.h"
+proto_item *
+proto_tree_add_uint(proto_tree *tree _U_, int hfindex _U_, tvbuff_t *tvb _U_,
+                    gint start _U_, gint length _U_, guint32 value _U_)
+{ return NULL; }
 
-/* these are used by the wiretap file_util stuffs under win32 */
-int eth_stdio_stat (const gchar *filename _U_, struct stat *buf _U_)
-{ return -1; }
+void proto_item_append_text(proto_item *ti _U_, const char *format _U_, ...)
+{}
 
-FILE *eth_stdio_fopen (const gchar *filename _U_, const gchar *mode _U_)
+proto_item *proto_tree_add_uint_format(proto_tree *tree _U_, int hfindex _U_,
+                                       tvbuff_t *tvb _U_, gint start _U_,
+                                       gint length _U_, guint32 value _U_,
+                                       const char *format _U_, ...)
+{ return NULL; }
+
+proto_tree* proto_item_add_subtree(proto_item *ti _U_, gint idx _U_)
+{ return NULL; }
+
+proto_item *proto_tree_add_boolean(proto_tree *tree _U_, int hfindex _U_,
+                                   tvbuff_t *tvb _U_, gint start _U_,
+                                   gint length _U_, guint32 value _U_)
+{ return NULL; }
+
+proto_item *proto_tree_add_item(proto_tree *tree _U_, int hfindex _U_,
+                                tvbuff_t *tvb _U_, gint start _U_,
+                                gint length _U_, gboolean little_endian _U_)
+{ return NULL; }
+
+gint check_col(column_info *cinfo _U_, gint col _U_)
 { return 0; }
 
-int eth_stdio_mkdir (const gchar *filename _U_, int mode _U_)
-{ return -1; }
-
-int eth_stdio_unlink (const gchar *filename _U_)
-{ return -1; }
-
-
-
+void col_add_fstr(column_info *cinfo _U_, gint col _U_, const gchar *format _U_,
+                       ...)
+{}
 
     
+
+
+
+

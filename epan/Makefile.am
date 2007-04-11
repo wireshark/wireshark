@@ -108,8 +108,12 @@ MAINTAINERCLEANFILES = \
 libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SNMP_LIBS@ @SSL_LIBS@ -lm
 libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib)
 
-EXTRA_PROGRAMS = reassemble_test
-reassemble_test_LDADD = $(GLIB_LIBS) @LIBGCRYPT_LIBS@ libwireshark.la
+#EXTRA_PROGRAMS = reassemble_test
+#reassemble_test_LDADD = $(GLIB_LIBS)
+
+reassemble_test: reassemble_test.o tvbuff.o except.o strutil.o emem.o \
+                 reassemble.o 
+	$(LINK) $^ $(GLIB_LIBS) -lz
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
 	$(LINK) $^ $(GLIB_LIBS) -lz

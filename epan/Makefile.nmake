@@ -192,21 +192,6 @@ exntest: exntest.exe
 reassemble_test: reassemble_test.exe
 tvbtest: tvbtest.exe
 
-# don't really understand why we need all this extra guff - shouldn't
-# they be in libwireshark.lib, otherwise how does tshark.exe link?
-REASSEMBLE_TEST_LIBS=\
-            $(NET_SNMP_LIBS) \
-            dissectors\dissectors.lib \
-            crypt\airpdcap.lib \
-            dfilter\dfilter.lib \
-            ftypes\ftypes.lib \
-            $(ADNS_LIBS) \
-            $(PCRE_LIBS) \
-            $(ZLIB_LIBS) \
-            $(GLIB_LIBS) \
-            $(GNUTLS_LIBS) \
-            $(WSLUA_LIB) \
-            libwireshark.lib
 
 
 exntest.exe: exntest.obj except.obj
@@ -219,11 +204,12 @@ tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 
-reassemble_test.exe: reassemble_test.obj $(REASSEMBLE_TEST_LIBS)
+reassemble_test.exe: reassemble_test.obj tvbuff.o except.o strutil.o emem.o \
+                 reassemble.o
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                wsock32.lib user32.lib \
-		$(REASSEMBLE_TEST_LIBS) reassemble_test.obj
+                $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.o except.o strutil.o emem.o \
+                reassemble.o
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
