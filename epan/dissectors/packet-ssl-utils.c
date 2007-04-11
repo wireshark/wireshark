@@ -46,6 +46,15 @@ struct _SslDecompress {
 #endif
 };
 
+static gint 
+ssl_data_alloc(StringInfo* str, guint len)
+{
+    str->data = g_malloc(len);
+    if (!str->data)
+        return -1;
+    str->data_len = len;
+    return 0;
+}
 
 void 
 ssl_data_set(StringInfo* str, const guchar* data, guint len)
@@ -374,16 +383,6 @@ out:
 }
 
 /* stringinfo interface */
-static gint 
-ssl_data_alloc(StringInfo* str, guint len)
-{
-    str->data = g_malloc(len);
-    if (!str->data)
-        return -1;
-    str->data_len = len;
-    return 0;
-}
-
 static gint 
 ssl_data_realloc(StringInfo* str, guint len)
 {
@@ -1503,6 +1502,12 @@ ssl_generate_keyring_material(SslDecryptSession*ssl)
         ssl);
     return 0; 
 }
+void 
+ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
+{
+  ssl_debug_printf("ssl_change_cipher %s: makes no sence without gnutls. ssl %p\n", (server)?"SERVER":"CLIENT", ssl_session);        
+}
+
 int 
 ssl_decrypt_pre_master_secret(SslDecryptSession* ssl_session, 
     StringInfo* entrypted_pre_master, SSL_PRIVATE_KEY *pk)
