@@ -694,7 +694,7 @@ WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
     addr = g_malloc(sizeof(address));
 
     ip_addr = g_malloc(sizeof(guint32));
-    *ip_addr = tvb_get_ntohl(tvbr->tvb,tvbr->offset);
+    *ip_addr = tvb_get_ipv4(tvbr->tvb,tvbr->offset);
 
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);

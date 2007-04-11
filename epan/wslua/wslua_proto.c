@@ -892,7 +892,9 @@ static int Proto_set_dissector(lua_State* L) {
 
 	if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
-       
+		gchar* loname = ep_strdup(proto->name);
+		g_strdown(loname);
+
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
@@ -901,6 +903,8 @@ static int Proto_set_dissector(lua_State* L) {
         
         proto->handle = create_dissector_handle(dissect_lua, proto->hfid);
         
+	register_dissector(loname, dissect_lua, proto->hfid);
+		
         return 0;
     } else {
         luaL_argerror(L,3,"The dissector of a protocol must be a function");
