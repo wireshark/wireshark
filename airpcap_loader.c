@@ -1138,7 +1138,10 @@ get_airpcap_interface_list(int *err, char **err_str)
     char errbuf[PCAP_ERRBUF_SIZE];
 
     if (!AirpcapLoaded)
+    {
+	*err = AIRPCAP_NOT_LOADED;
 	return il;
+    }
 
     if (!g_PAirpcapGetDeviceList(&devsList, errbuf))
     {

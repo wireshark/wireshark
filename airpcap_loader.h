@@ -33,6 +33,7 @@
 /* Error values from "get_airpcap_interface_list()". */
 #define	CANT_GET_AIRPCAP_INTERFACE_LIST	0	/* error getting list */
 #define	NO_AIRPCAP_INTERFACES_FOUND	1	/* list is empty */
+#define AIRPCAP_NOT_LOADED		2	/* Airpcap DLL not loaded */
 
 #define AIRPCAP_CHANNEL_ANY_NAME "ANY"
 
