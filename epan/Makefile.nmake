@@ -204,12 +204,13 @@ tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 
-reassemble_test.exe: reassemble_test.obj tvbuff.o except.o strutil.o emem.o \
-                 reassemble.o
+reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.obj \
+                 reassemble.obj
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.o except.o strutil.o emem.o \
-                reassemble.o
+                $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
+                except.obj strutil.obj emem.obj reassemble.obj
+
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
