@@ -1164,9 +1164,9 @@ again:
 
 static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-	proto_tree *root_tree, proto_tree *tree, SslAssociation* association,
-	guint32 seq, guint32 nxtseq, gboolean is_ssl_segment,
-	SslFlow *flow)
+	proto_tree *root_tree _U_ , proto_tree *tree, SslAssociation* association,
+	guint32 seq _U_, guint32 nxtseq _U_, gboolean is_ssl_segment _U_,
+	SslFlow *flow _U_)
 {
   tvbuff_t *next_tvb;
 
