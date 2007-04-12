@@ -35,6 +35,7 @@
 #include "packet-raw.h"
 #include "packet-ip.h"
 #include "packet-ppp.h"
+#include "packet-ipv6.h"
 
 static int proto_raw = -1;
 static gint ett_raw = -1;
