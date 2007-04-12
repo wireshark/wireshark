@@ -124,6 +124,7 @@ static gint hf_sip_via_rport             = -1;
 static gint hf_sip_via_received          = -1;
 static gint hf_sip_via_ttl               = -1;
 static gint hf_sip_via_comp              = -1;
+static gint hf_sip_via_sigcomp_id        = -1;
 
 static gint hf_sip_rack_rseq_no          = -1;
 static gint hf_sip_rack_cseq_no          = -1;
@@ -485,7 +486,8 @@ static header_parameter_t via_parameters_hf_array[] =
 	{"rport",         &hf_sip_via_rport},
 	{"received",      &hf_sip_via_received},
 	{"ttl",           &hf_sip_via_ttl},
-	{"comp",          &hf_sip_via_comp}
+	{"comp",          &hf_sip_via_comp},
+	{"sigcomp-id",    &hf_sip_via_sigcomp_id}
 };
 
 /*
@@ -3494,6 +3496,11 @@ void proto_register_sip(void)
 			{ "Comp",  "sip.Via.comp",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 		    	"SIP Via comp", HFILL}
+		},
+		{ &hf_sip_via_sigcomp_id,
+			{ "Sigcomp identifier",  "sip.Via.sigcomp-id",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    	"SIP Via sigcomp identifier", HFILL}
 		},
 		{ &hf_sip_rack_rseq_no,
 			{ "RSeq Sequence Number",  "sip.RAck.RSeq.seq",
