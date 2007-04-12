@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-mms.c                                                             */
+/* .\packet-mms.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p mms -c mms.cnf -s packet-mms-template mms.asn */
 
 /* Input file: packet-mms-template.c */
@@ -432,7 +432,6 @@ static int hf_mms_listOfVariableListName_item = -1;  /* ObjectName */
 static int hf_mms_scopeOfDelete2 = -1;            /* T_scopeOfDelete2 */
 static int hf_mms_listOfTypeName = -1;            /* SEQUENCE_OF_ObjectName */
 static int hf_mms_listOfTypeName_item = -1;       /* ObjectName */
-static int hf_mms_success1 = -1;                  /* Data */
 static int hf_mms_array1 = -1;                    /* SEQUENCE_OF_Data */
 static int hf_mms_array_item = -1;                /* Data */
 static int hf_mms_structure1 = -1;                /* SEQUENCE_OF_Data */
@@ -559,7 +558,7 @@ static int hf_mms_eventConditionName2 = -1;       /* T_eventConditionName1 */
 static int hf_mms_actionResult = -1;              /* T_actionResult */
 static int hf_mms_eventActioName = -1;            /* ObjectName */
 static int hf_mms_eventActionResult = -1;         /* T_eventActionResult */
-static int hf_mms_success2 = -1;                  /* ConfirmedServiceResponse */
+static int hf_mms_success1 = -1;                  /* ConfirmedServiceResponse */
 static int hf_mms_failure1 = -1;                  /* ServiceError */
 static int hf_mms_causingTransitions = -1;        /* Transitions */
 static int hf_mms_timeOfDayT = -1;                /* TimeOfDay */
@@ -971,9 +970,6 @@ static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int dissect_listOfData_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_mms_Data(FALSE, tvb, offset, pinfo, tree, hf_mms_listOfData_item);
-}
-static int dissect_success1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_mms_Data(FALSE, tvb, offset, pinfo, tree, hf_mms_success1);
 }
 static int dissect_array_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_mms_Data(FALSE, tvb, offset, pinfo, tree, hf_mms_array_item);
@@ -5562,13 +5558,35 @@ static int dissect_failure_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tv
 
 static const value_string mms_AccessResult_vals[] = {
   {   0, "failure" },
-  {   1, "success" },
+  {   1, "array" },
+  {   2, "structure" },
+  {   3, "boolean" },
+  {   4, "bit-string" },
+  {   5, "integer" },
+  {   6, "unsigned" },
+  {   7, "floating-point" },
+  {   9, "octet-string" },
+  {  10, "visible-string" },
+  {  12, "binary-time" },
+  {  13, "bcd" },
+  {  14, "booleanArray" },
   { 0, NULL }
 };
 
 static const ber_choice_t AccessResult_choice[] = {
   {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_failure_impl },
-  {   1, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_success1 },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_array1_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_structure1_impl },
+  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_boolean1_impl },
+  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_bit_string1_impl },
+  {   5, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_integer1_impl },
+  {   6, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_unsigned1_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_floating_point_impl },
+  {   9, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_octet_string1_impl },
+  {  10, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_visible_string1_impl },
+  {  12, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_binary_time1_impl },
+  {  13, BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_bcd1_impl },
+  {  14, BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_booleanArray_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -7652,8 +7670,8 @@ dissect_mms_ConfirmedServiceResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 static int dissect_confirmedServiceResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, pinfo, tree, hf_mms_confirmedServiceResponse);
 }
-static int dissect_success2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, pinfo, tree, hf_mms_success2);
+static int dissect_success1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  return dissect_mms_ConfirmedServiceResponse(FALSE, tvb, offset, pinfo, tree, hf_mms_success1);
 }
 
 
@@ -7757,7 +7775,7 @@ static const value_string mms_T_eventActionResult_vals[] = {
 };
 
 static const ber_choice_t T_eventActionResult_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_success2 },
+  {   0, BER_CLASS_CON, 0, 0, dissect_success1 },
   {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_failure1_impl },
   { 0, 0, 0, 0, NULL }
 };
@@ -10089,10 +10107,6 @@ void proto_register_mms(void) {
       { "Item", "mms.listOfTypeName_item",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "mms.ObjectName", HFILL }},
-    { &hf_mms_success1,
-      { "success", "mms.success",
-        FT_UINT32, BASE_DEC, VALS(mms_Data_vals), 0,
-        "mms.Data", HFILL }},
     { &hf_mms_array1,
       { "array", "mms.array",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10597,7 +10611,7 @@ void proto_register_mms(void) {
       { "eventActionResult", "mms.eventActionResult",
         FT_UINT32, BASE_DEC, VALS(mms_T_eventActionResult_vals), 0,
         "mms.T_eventActionResult", HFILL }},
-    { &hf_mms_success2,
+    { &hf_mms_success1,
       { "success", "mms.success",
         FT_UINT32, BASE_DEC, VALS(mms_ConfirmedServiceResponse_vals), 0,
         "mms.ConfirmedServiceResponse", HFILL }},
