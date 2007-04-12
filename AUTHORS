@@ -2571,11 +2571,12 @@ Sebastien Tandel	<sebastien [AT] tandel.be> {
 
 Clay Jones		<clay.jones [AT] email.com> {
 	Shomiti wireless packet support
+	802.11n support
 }
 
 Kriang Lerdsuwanakij	<lerdsuwa [AT] users.sourceforge.net> {
 	SSCOP improvements
-	K12-rf5 file format improvements	
+	K12-rf5 file format improvements
 }
 
 Abhik Sarkar 		<sarkar.abhik [AT] gmail.com> {
@@ -2592,21 +2593,21 @@ Chris Bontje		<cbontje [AT] gmail.com> {
 }
 
 Ryan Wamsley		<wamslers [AT] sbcglobal.net> {
-	Connection Configuration Object support in EtherNet/IP   	 
+	Connection Configuration Object support in EtherNet/IP
 }
 
 Dave Butt		<davidbutt [AT] mxtelecom.com> {
 	RTP payload reassembly support
 	H.223-over-RTP support
-}    
+}
 
 Julian Cable		<julian_cable [AT] yahoo.com> {
 	DCP ETSI support
-}    
+}
 
 Joost Yervante Damad <joost [AT] teluna.org> {
 	Erlang Port Mapper Daemon dissection support
-}    
+}
 
 Martin Sustrik <sustrik [AT] imatix.com>  {
 	AMQP support
@@ -2622,6 +2623,10 @@ David Kennedy <sgsguy [AT] gmail.com> {
 
 Matthijs Mekking <matthijs [AT] mlnetlabs.nl> {
 	Shim6 support
+}
+
+Dustin Johnson <dustin.johnson [AT] cacetech.com> {
+	802.11n support
 }
 
 and by:
