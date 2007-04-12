@@ -49,11 +49,15 @@ GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
 PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-atsvc.c \
+	packet-dcerpc-budb.c	\
+	packet-dcerpc-butc.c	\
 	packet-dcerpc-dfs.c \
+	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
 	packet-dcerpc-eventlog.c \
 	packet-dcerpc-initshutdown.c \
+	packet-dcerpc-lsa.c	\
 	packet-dcerpc-nspi.c \
 	packet-dcerpc-srvsvc.c \
 	packet-dcerpc-winreg.c \
@@ -141,164 +145,147 @@ ASN_DISSECTOR_SRC = \
 	packet-x509sat.c 
 
 CLEAN_DISSECTOR_SRC = \
-	packet-2dparityfec.c \
+	packet-2dparityfec.c 	\
 	packet-3com-njack.c	\
 	packet-3com-xns.c	\
-	packet-3g-a11.c	\
-	packet-9p.c	\
-	packet-aarp.c	\
-	packet-acap.c	\
-	packet-acn.c	\
+	packet-3g-a11.c		\
+	packet-9p.c		\
+	packet-aarp.c		\
+	packet-acap.c		\
+	packet-acn.c		\
 	packet-actrace.c	\
-	packet-afs.c	\
-	packet-aim.c	\
+	packet-afp.c		\
+	packet-afs.c		\
+	packet-aim.c		\
 	packet-aim-adverts.c	\
-	packet-aim-admin.c \
-	packet-aim-bos.c \
+	packet-aim-admin.c 	\
+	packet-aim-bos.c 	\
 	packet-aim-buddylist.c	\
 	packet-aim-chat.c	\
-	packet-aim-chatnav.c \
+	packet-aim-chatnav.c 	\
 	packet-aim-directory.c	\
-	packet-aim-email.c \
+	packet-aim-email.c 	\
 	packet-aim-generic.c	\
-	packet-aim-icq.c \
+	packet-aim-icq.c 	\
 	packet-aim-invitation.c \
-	packet-aim-location.c \
-	packet-aim-messaging.c \
-	packet-aim-oft.c \
-	packet-aim-popup.c \
-	packet-aim-signon.c \
-	packet-aim-ssi.c \
-	packet-aim-sst.c \
-	packet-aim-stats.c \
-	packet-aim-translate.c \
+	packet-aim-location.c 	\
+	packet-aim-messaging.c 	\
+	packet-aim-oft.c 	\
+	packet-aim-popup.c 	\
+	packet-aim-signon.c 	\
+	packet-aim-ssi.c 	\
+	packet-aim-sst.c 	\
+	packet-aim-stats.c 	\
+	packet-aim-translate.c 	\
 	packet-aim-userlookup.c \
-	packet-ajp13.c	\
-	packet-alcap.c	\
-	packet-amqp.c	\
-	packet-amr.c	\
-	packet-ans.c	\
+	packet-ajp13.c		\
+	packet-alcap.c		\
+	packet-amqp.c		\
+	packet-amr.c		\
+	packet-ans.c		\
 	packet-ansi_637.c	\
 	packet-ansi_683.c	\
 	packet-ansi_801.c	\
-	packet-ansi_a.c	\
-	packet-aodv.c	\
-	packet-aoe.c	\
-	packet-ap1394.c	\
+	packet-ansi_a.c		\
+	packet-aodv.c		\
+	packet-aoe.c		\
+	packet-ap1394.c		\
 	packet-app-pkix-cert.c	\
-	packet-arcnet.c	\
-	packet-armagetronad.c \
-	packet-arp.c	\
+	packet-arcnet.c		\
+	packet-armagetronad.c 	\
+	packet-arp.c		\
 	packet-aruba-adp.c	\
-	packet-asap.c	\
-	packet-ascend.c	\
-	packet-asf.c	\
-	packet-atalk.c	\
-	packet-atm.c	\
+	packet-asap.c		\
+	packet-ascend.c		\
+	packet-asf.c		\
+	packet-atalk.c		\
+	packet-atm.c		\
 	packet-auto_rp.c	\
-	packet-ax4000.c	\
-	packet-drda.c \
-	packet-isis-clv.c	\
-	packet-isis-hello.c	\
-	packet-isis-lsp.c	\
-	packet-isis-snp.c	\
-	packet-isis.c
-
-
-# the dissector sources (without any helpers)
-DISSECTOR_SRC =	\
-	packet-afp.c	\
-	packet-bacapp.c	\
-	packet-bacnet.c	\
-	packet-bctp.c	\
-	packet-beep.c	\
-	packet-ber.c	\
-	packet-bfd.c	\
-	packet-bgp.c	\
-	packet-bittorrent.c \
-	packet-bofl.c	\
-	packet-bootp.c	\
+	packet-ax4000.c		\
+	packet-bacnet.c		\
+	packet-bctp.c		\
+	packet-beep.c		\
+	packet-bfd.c		\
+	packet-bgp.c		\
+	packet-bittorrent.c 	\
+	packet-bofl.c		\
+	packet-bootp.c		\
 	packet-bootparams.c	\
-	packet-bpdu.c	\
-	packet-brdwlk.c	\
-	packet-bssap.c	\
-	packet-bssgp.c	\
+	packet-bpdu.c		\
+	packet-brdwlk.c		\
+	packet-bssap.c		\
+	packet-bssgp.c		\
 	packet-bthci_acl.c	\
 	packet-bthci_cmd.c	\
 	packet-bthci_evt.c	\
 	packet-bthci_sco.c	\
 	packet-btl2cap.c	\
 	packet-btrfcomm.c	\
-	packet-btsdp.c	\
-	packet-bvlc.c	\
-	packet-calcappprotocol.c	\
-	packet-cast.c	\
-	packet-catapult-dct2000.c	\
-	packet-ccsds.c	\
-	packet-cdp.c	\
-	packet-cgmp.c	\
-	packet-chdlc.c	\
-	packet-cigi.c   \
-	packet-cimd.c	\
-	packet-cip.c	\
-	packet-cisco-wids.c	\
+	packet-btsdp.c		\
+	packet-bvlc.c		\
+	packet-calcappprotocol.c  \
+	packet-cast.c		\
+	packet-catapult-dct2000.c \
+	packet-ccsds.c		\
+	packet-cdp.c		\
+	packet-cgmp.c		\
+	packet-chdlc.c		\
+	packet-cigi.c   	\
+	packet-cimd.c		\
+	packet-cip.c		\
 	packet-cisco-oui.c	\
+	packet-cisco-wids.c	\
 	packet-clearcase.c	\
-	packet-clip.c	\
-	packet-clnp.c	\
-	packet-componentstatus.c	\
-	packet-cops.c \
-	packet-cosine.c	\
-	packet-cpfi.c	\
-	packet-cpha.c	\
+	packet-clip.c		\
+	packet-clnp.c		\
+	packet-componentstatus.c \
+	packet-cops.c 		\
+	packet-cosine.c		\
+	packet-cpfi.c		\
+	packet-cpha.c		\
 	packet-csm-encaps.c	\
-	packet-cups.c	\
-	packet-daap.c	\
-	packet-data.c	\
-	packet-daytime.c \
-	packet-dcp.c	\
-	packet-dccp.c	\
-	packet-dcerpc-afs4int.c	\
-	packet-dcerpc-bossvr.c	\
-	packet-dcerpc-browser.c	\
-	packet-dcerpc-budb.c	\
-	packet-dcerpc-butc.c	\
+	packet-cups.c		\
+	packet-daap.c		\
+	packet-data.c		\
+	packet-daytime.c 	\
+	packet-dccp.c		\
+	packet-dcerpc-afs4int.c		\
+	packet-dcerpc-bossvr.c		\
+	packet-dcerpc-browser.c		\
 	packet-dcerpc-cds_clerkserver.c	\
-	packet-dcerpc-cds_solicit.c	\
-	packet-dcerpc-conv.c	\
-	packet-dcerpc-cprpc_server.c	\
-	packet-dcerpc-dce122.c	\
-	packet-dcerpc-dnsserver.c	\
-	packet-dcerpc-drsuapi.c	\
-	packet-dcerpc-dtsprovider.c	\
-	packet-dcerpc-dtsstime_req.c	\
-	packet-dcerpc-epm.c	\
-	packet-dcerpc-fldb.c	\
-	packet-dcerpc-frsapi.c	\
-	packet-dcerpc-frsrpc.c	\
-	packet-dcerpc-ftserver.c	\
-	packet-dcerpc-icl_rpc.c	\
-	packet-dcerpc-krb5rpc.c	\
-	packet-dcerpc-llb.c	\
-	packet-dcerpc-lsa.c	\
-	packet-dcerpc-mapi.c	\
-	packet-dcerpc-messenger.c	\
-	packet-dcerpc-mgmt.c	\
-	packet-dcerpc-ndr.c	\
-	packet-dcerpc-netlogon.c	\
-	packet-dcerpc-pnp.c	\
-	packet-dcerpc-rdaclif.c	\
-	packet-dcerpc-rep_proc.c	\
-	packet-dcerpc-roverride.c	\
-	packet-dcerpc-rpriv.c	\
-	packet-dcerpc-rras.c	\
-	packet-dcerpc-rs_acct.c	\
-	packet-dcerpc-rs_attr.c	\
-	packet-dcerpc-rs_attr_schema.c	\
-	packet-dcerpc-rs_bind.c	\
-	packet-dcerpc-rs_misc.c	\
-	packet-dcerpc-rs_pgo.c	\
-	packet-dcerpc-rs_plcy.c	\
+	packet-dcerpc-cds_solicit.c 	\
+	packet-dcerpc-conv.c		\
+	packet-dcerpc-cprpc_server.c 	\
+	packet-dcerpc-dce122.c		\
+	packet-dcerpc-dnsserver.c 	\
+	packet-dcerpc-dtsprovider.c 	\
+	packet-dcerpc-dtsstime_req.c 	\
+	packet-dcerpc-epm.c		\
+	packet-dcerpc-fldb.c		\
+	packet-dcerpc-frsapi.c		\
+	packet-dcerpc-frsrpc.c		\
+	packet-dcerpc-ftserver.c 	\
+	packet-dcerpc-icl_rpc.c		\
+	packet-dcerpc-krb5rpc.c		\
+	packet-dcerpc-llb.c		\
+	packet-dcerpc-mapi.c		\
+	packet-dcerpc-messenger.c 	\
+	packet-dcerpc-mgmt.c		\
+	packet-dcerpc-ndr.c		\
+	packet-dcerpc-netlogon.c 	\
+	packet-dcerpc-pnp.c		\
+	packet-dcerpc-rdaclif.c		\
+	packet-dcerpc-rep_proc.c 	\
+	packet-dcerpc-roverride.c 	\
+	packet-dcerpc-rpriv.c		\
+	packet-dcerpc-rras.c		\
+	packet-dcerpc-rs_acct.c		\
+	packet-dcerpc-rs_attr.c		\
+	packet-dcerpc-rs_attr_schema.c 	\
+	packet-dcerpc-rs_bind.c		\
+	packet-dcerpc-rs_misc.c		\
+	packet-dcerpc-rs_pgo.c		\
+	packet-dcerpc-rs_plcy.c		\
 	packet-dcerpc-rs_prop_acct.c	\
 	packet-dcerpc-rs_prop_acl.c	\
 	packet-dcerpc-rs_prop_attr.c	\
@@ -308,446 +295,459 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-rs_repadm.c	\
 	packet-dcerpc-rs_replist.c	\
 	packet-dcerpc-rs_repmgr.c	\
-	packet-dcerpc-rs_unix.c	\
+	packet-dcerpc-rs_unix.c		\
 	packet-dcerpc-rsec_login.c	\
-	packet-dcerpc-samr.c	\
+	packet-dcerpc-samr.c		\
 	packet-dcerpc-secidmap.c	\
-	packet-dcerpc-spoolss.c	\
-	packet-dcerpc-svcctl.c	\
-	packet-dcerpc-tapi.c	\
-	packet-dcerpc-tkn4int.c	\
-	packet-dcerpc-trksvr.c	\
+	packet-dcerpc-spoolss.c		\
+	packet-dcerpc-svcctl.c		\
+	packet-dcerpc-tapi.c		\
+	packet-dcerpc-tkn4int.c		\
+	packet-dcerpc-trksvr.c		\
 	packet-dcerpc-ubikdisk.c	\
 	packet-dcerpc-ubikvote.c	\
-	packet-dcerpc-update.c	\
-	packet-dcerpc.c	\
+	packet-dcerpc-update.c		\
+	packet-dcerpc.c			\
 	packet-dcm.c		\
-	packet-dcom.c \
-	packet-dcom-dispatch.c \
-	packet-dcom-oxid.c \
-	packet-dcom-remact.c \
-	packet-dcom-remunkn.c \
-	packet-dcom-sysact.c \
+	packet-dcom.c 		\
+	packet-dcom-dispatch.c 	\
+	packet-dcom-oxid.c 	\
+	packet-dcom-remact.c 	\
+	packet-dcom-remunkn.c 	\
+	packet-dcom-sysact.c 	\
+	packet-dcp.c		\
 	packet-dcp-etsi.c	\
-	packet-ddtp.c	\
+	packet-ddtp.c		\
 	packet-dec-bpdu.c	\
 	packet-dec-dnart.c	\
 	packet-dhcp-failover.c	\
-	packet-dhcpv6.c	\
-	packet-diameter.c	\
-	packet-dis.c	\
+	packet-dhcpv6.c		\
+	packet-dis.c		\
 	packet-dis-enums.c	\
 	packet-dis-fields.c	\
 	packet-dis-pdus.c	\
 	packet-diffserv-mpls-common.c	\
-	packet-distcc.c	\
-	packet-dlsw.c	\
-	packet-dmp.c	\
-	packet-dnp.c	\
-	packet-dns.c	\
-	packet-dsi.c	\
-	packet-dtls.c	\
-	packet-dtp.c	\
-	packet-dtpt.c	\
-	packet-dua.c	\
-	packet-dvmrp.c	\
-	packet-e164.c	\
-	packet-e212.c	\
-	packet-eap.c	\
-	packet-eapol.c	\
-	packet-echo.c	\
+	packet-distcc.c		\
+	packet-dlsw.c		\
+	packet-dmp.c		\
+	packet-dnp.c		\
+	packet-dns.c		\
+	packet-drda.c 		\
+	packet-dsi.c		\
+	packet-dtls.c		\
+	packet-dtp.c		\
+	packet-dtpt.c		\
+	packet-dua.c		\
+	packet-dvmrp.c		\
+	packet-e164.c		\
+	packet-e212.c		\
+	packet-eap.c		\
+	packet-eapol.c		\
+	packet-echo.c		\
 	packet-edonkey.c	\
-	packet-eigrp.c	\
-	packet-enc.c	\
-	packet-enip.c	\
-	packet-enrp.c	\
-	packet-epl.c	\
-	packet-epl_v1.c	\
-	packet-epmd.c   \
-	packet-esis.c	\
-	packet-eth.c	\
+	packet-eigrp.c		\
+	packet-enc.c		\
+	packet-enip.c		\
+	packet-enrp.c		\
+	packet-epl.c		\
+	packet-epl_v1.c		\
+	packet-epmd.c   	\
+	packet-esis.c		\
+	packet-eth.c		\
 	packet-etheric.c	\
 	packet-etherip.c	\
 	packet-ethertype.c	\
-	packet-exec.c	\
+	packet-exec.c		\
 	packet-extreme.c	\
-	packet-fc.c	\
-	packet-fcct.c	\
-	packet-fcdns.c	\
-	packet-fcels.c	\
-	packet-fcfcs.c	\
-	packet-fcfzs.c	\
-	packet-fcip.c	\
-	packet-fclctl.c	\
-	packet-fcp.c	\
-	packet-fcsb3.c	\
-	packet-fcsp.c	\
+	packet-fc.c		\
+	packet-fcct.c		\
+	packet-fcdns.c		\
+	packet-fcels.c		\
+	packet-fcfcs.c		\
+	packet-fcfzs.c		\
+	packet-fcip.c		\
+	packet-fclctl.c		\
+	packet-fcp.c		\
+	packet-fcsb3.c		\
+	packet-fcsp.c		\
 	packet-fcswils.c	\
-	packet-fddi.c	\
-	packet-fix.c	\
-	packet-fmp.c	\
+	packet-fddi.c		\
+	packet-fix.c		\
+	packet-fmp.c		\
 	packet-fmp_notify.c	\
-	packet-fr.c	\
-	packet-fractalgeneratorprotocol.c	\
-	packet-frame.c	\
-	packet-ftp.c	\
-	packet-fw1.c	\
-	packet-g723.c	\
-	packet-gift.c	\
-	packet-giop.c	\
-	packet-gmrp.c	\
+	packet-fr.c		\
+	packet-fractalgeneratorprotocol.c \
+	packet-frame.c		\
+	packet-ftp.c		\
+	packet-fw1.c		\
+	packet-g723.c		\
+	packet-gift.c		\
+	packet-giop.c		\
+	packet-gmrp.c		\
 	packet-gnutella.c	\
 	packet-gprs-llc.c	\
 	packet-gprs-ns.c	\
-	packet-gre.c	\
-	packet-gsm_a.c	\
+	packet-gre.c		\
+	packet-gsm_a.c		\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
-	packet-gssapi.c	\
-	packet-gtp.c	\
-	packet-gvrp.c	\
-	packet-h1.c	\
+	packet-gssapi.c		\
+	packet-gtp.c		\
+	packet-gvrp.c		\
+	packet-h1.c		\
 	packet-h221_nonstd.c	\
-	packet-h248_3gpp.c \
-	packet-h248_annex_c.c \
-	packet-h248_annex_e.c \
-	packet-h248_7.c \
-	packet-h248_10.c \
+	packet-h248_annex_c.c 	\
+	packet-h248_annex_e.c 	\
+	packet-h248_7.c 	\
+	packet-h248_10.c 	\
 	packet-h248_q1950.c	\
-	packet-h261.c	\
-	packet-h263.c	\
-	packet-hci_h4.c	\
+	packet-h261.c		\
+	packet-hci_h4.c		\
 	packet-hclnfsd.c	\
-	packet-homeplug.c \
-	packet-hpext.c	\
-	packet-hpsw.c	\
-	packet-hsrp.c	\
-	packet-http.c	\
+	packet-hpext.c		\
+	packet-hpsw.c		\
+	packet-hsrp.c		\
+	packet-http.c		\
 	packet-hyperscsi.c	\
-	packet-iapp.c	\
-	packet-iax2.c	\
-	packet-ib.c	\
-	packet-icap.c	\
-	packet-icep.c	\
-	packet-icmpv6.c	\
-	packet-icp.c	\
-	packet-icq.c	\
-	packet-idp.c	\
+	packet-iapp.c		\
+	packet-iax2.c		\
+	packet-ib.c		\
+	packet-icap.c		\
+	packet-icep.c		\
+	packet-icmpv6.c		\
+	packet-icp.c		\
+	packet-icq.c		\
+	packet-idp.c		\
 	packet-ieee80211.c	\
 	packet-ieee8023.c	\
 	packet-ieee802a.c	\
-	packet-ifcp.c	\
-	packet-igap.c	\
-	packet-igmp.c	\
-	packet-igrp.c	\
+	packet-ifcp.c		\
+	packet-igap.c		\
+	packet-igmp.c		\
+	packet-igrp.c		\
 	packet-image-gif.c	\
 	packet-image-jfif.c	\
 	packet-image-png.c	\
-	packet-imap.c	\
-	packet-ip.c	\
-	packet-ipdc.c	\
-	packet-ipfc.c	\
-	packet-ipmi.c	\
-	packet-ipp.c	\
+	packet-imap.c		\
+	packet-ip.c		\
+	packet-ipdc.c		\
+	packet-ipfc.c		\
+	packet-ipmi.c		\
+	packet-ipp.c		\
 	packet-ipsec-tcp.c	\
 	packet-ipsec-udp.c	\
-	packet-ipsec.c	\
-	packet-ipv6.c	\
+	packet-ipsec.c		\
+	packet-ipv6.c		\
 	packet-ipvs-syncd.c	\
-	packet-ipx.c	\
-	packet-ipxwan.c	\
-	packet-irc.c	\
-	packet-isakmp.c	\
-	packet-iscsi.c	\
-	packet-isdn.c	\
-	packet-isl.c	\
-	packet-ismp.c	\
-	packet-isns.c	\
-	packet-isup.c	\
+	packet-ipx.c		\
+	packet-ipxwan.c		\
+	packet-irc.c		\
+	packet-isakmp.c		\
+	packet-iscsi.c		\
+	packet-isdn.c		\
+	packet-isis-clv.c	\
+	packet-isis-hello.c	\
+	packet-isis-lsp.c	\
+	packet-isis-snp.c	\
+	packet-isis.c 		\
+	packet-isl.c		\
+	packet-ismp.c		\
+	packet-isns.c		\
 	packet-isup_thin.c	\
-	packet-iua.c	\
-	packet-iuup.c	\
-	packet-jabber.c	\
-	packet-jpeg.c \
-	packet-juniper.c \
-	packet-jxta.c	\
-	packet-k12.c \
-	packet-kadm5.c	\
+	packet-iua.c		\
+	packet-iuup.c		\
+	packet-jabber.c		\
+	packet-jpeg.c 		\
+	packet-juniper.c 	\
+	packet-jxta.c		\
+	packet-kadm5.c		\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
-	packet-klm.c	\
-	packet-kink.c	\
-	packet-kismet.c	\
+	packet-klm.c		\
+	packet-kink.c		\
+	packet-kismet.c		\
 	packet-kpasswd.c	\
-	packet-l2tp.c	\
-	packet-lapb.c	\
+	packet-l2tp.c		\
+	packet-lapb.c		\
 	packet-lapbether.c	\
-	packet-lapd.c	\
+	packet-lapd.c		\
 	packet-laplink.c	\
-	packet-ldp.c	\
+	packet-ldp.c		\
 	packet-lge_monitor.c	\
-	packet-linx.c	\
-	packet-llc.c	\
-	packet-lldp.c	\
-	packet-llt.c	\
-	packet-lmi.c	\
-	packet-lmp.c	\
-	packet-loop.c	\
-	packet-lpd.c	\
-	packet-lsc.c	\
-	packet-lwapp.c	\
-	packet-m2pa.c	\
-	packet-m2tp.c	\
-	packet-m2ua.c	\
-	packet-m3ua.c	\
+	packet-linx.c		\
+	packet-llc.c		\
+	packet-lldp.c		\
+	packet-llt.c		\
+	packet-lmi.c		\
+	packet-lmp.c		\
+	packet-loop.c		\
+	packet-lpd.c		\
+	packet-lsc.c		\
+	packet-lwapp.c		\
+	packet-m2pa.c		\
+	packet-m2tp.c		\
+	packet-m2ua.c		\
+	packet-m3ua.c		\
 	packet-maccontrol.c	\
 	packet-manolito.c	\
-	packet-mbtcp.c	\
-	packet-mdshdr.c	\
-	packet-media.c	\
-	packet-megaco.c	\
-	packet-mikey.c	\
-	packet-mip.c	\
-	packet-mip6.c	\
-	packet-ms-mms.c	\
-	packet-mmse.c	\
-	packet-mount.c	\
-	packet-mp2t.c	\
-	packet-mpeg1.c	\
-	packet-mpls.c	\
-	packet-mpls-echo.c   \
+	packet-mbtcp.c		\
+	packet-mdshdr.c		\
+	packet-media.c		\
+	packet-megaco.c		\
+	packet-mikey.c		\
+	packet-mip.c		\
+	packet-mip6.c		\
+	packet-ms-mms.c		\
+	packet-mmse.c		\
+	packet-mount.c		\
+	packet-mp2t.c		\
+	packet-mpeg1.c		\
+	packet-mpls.c		\
+	packet-mpls-echo.c   	\
 	packet-mq.c		\
-	packet-mq-pcf.c	\
-	packet-mrdisc.c	\
-	packet-msdp.c	\
-	packet-msnlb.c	\
+	packet-mq-pcf.c		\
+	packet-mrdisc.c		\
+	packet-msdp.c		\
+	packet-msnlb.c		\
 	packet-msn-messenger.c	\
-	packet-msnip.c	\
+	packet-msnip.c		\
 	packet-msproxy.c	\
-	packet-msrp.c	\
-	packet-mtp2.c	\
-	packet-mtp3.c	\
-	packet-mtp3mg.c	\
+	packet-msrp.c		\
+	packet-mtp2.c		\
+	packet-mtp3.c		\
+	packet-mtp3mg.c		\
 	packet-multipart.c	\
-	packet-mysql.c	\
-	packet-nbd.c	\
-	packet-nbipx.c	\
-	packet-nbns.c	\
-	packet-ncp.c	\
+	packet-mysql.c		\
+	packet-nbipx.c		\
+	packet-nbns.c		\
+	packet-ncp.c		\
 	packet-ncp2222.c	\
 	packet-ncp-nmas.c	\
-	packet-ncp-sss.c \
-	packet-ncs.c	\
-	packet-ndmp.c	\
-	packet-ndps.c	\
+	packet-ncp-sss.c 	\
+	packet-ncs.c		\
+	packet-ndmp.c		\
+	packet-ndps.c		\
 	packet-netbios.c	\
 	packet-netflow.c	\
-	packet-netsync.c \
-	packet-nettl.c	\
+	packet-netsync.c 	\
+	packet-nettl.c		\
 	packet-newmail.c	\
-	packet-nfs.c	\
-	packet-nfsacl.c	\
+	packet-nfs.c		\
+	packet-nfsacl.c		\
 	packet-nfsauth.c	\
-	packet-nhrp.c	\
+	packet-nhrp.c		\
 	packet-nisplus.c	\
-	packet-nlm.c	\
-	packet-nlsp.c	\
-	packet-nntp.c	\
-	packet-nsip.c	\
-	packet-nt-oui.c	\
+	packet-nlm.c		\
+	packet-nlsp.c		\
+	packet-nntp.c		\
+	packet-nsip.c		\
+	packet-nt-oui.c		\
 	packet-nt-sonmp.c	\
 	packet-nt-tpcp.c	\
 	packet-ntlmssp.c	\
-	packet-ntp.c	\
-	packet-null.c	\
-	packet-oicq.c	\
-	packet-olsr.c	\
-	packet-omapi.c	\
+	packet-ntp.c		\
+	packet-null.c		\
+	packet-oicq.c		\
+	packet-olsr.c		\
+	packet-omapi.c		\
 	packet-osi-options.c	\
-	packet-osi.c	\
-	packet-ospf.c	\
-	packet-pana.c	\
-	packet-p_mul.c	\
-	packet-pagp.c	\
-	packet-pcnfsd.c	\
-	packet-per.c	\
-	packet-pflog.c	\
-	packet-pgm.c	\
-	packet-pim.c	\
+	packet-osi.c		\
+	packet-ospf.c		\
+	packet-pana.c		\
+	packet-p_mul.c		\
+	packet-pagp.c		\
+	packet-pcnfsd.c		\
+	packet-per.c		\
+	packet-pflog.c		\
+	packet-pgm.c		\
+	packet-pim.c		\
 	packet-pingpongprotocol.c	\
-	packet-pktgen.c	\
-	packet-pktc.c	\
-	packet-pop.c	\
+	packet-pktgen.c		\
+	packet-pktc.c		\
+	packet-pop.c		\
 	packet-portmap.c	\
-	packet-pgsql.c	\
-	packet-ppp.c	\
-	packet-pppoe.c	\
-	packet-pptp.c	\
-	packet-prism.c	\
+	packet-pgsql.c		\
+	packet-ppp.c		\
+	packet-pppoe.c		\
+	packet-pptp.c		\
+	packet-prism.c		\
 	packet-ptp.c		\
-	packet-pvfs2.c	\
-	packet-q2931.c	\
-	packet-q931.c	\
-	packet-q933.c	\
-	packet-qllc.c	\
-	packet-quake.c	\
-	packet-quake2.c	\
-	packet-quake3.c	\
+	packet-pvfs2.c		\
+	packet-q2931.c		\
+	packet-q931.c		\
+	packet-q933.c		\
+	packet-qllc.c		\
+	packet-quake.c		\
+	packet-quake2.c		\
+	packet-quake3.c		\
 	packet-quakeworld.c	\
-	packet-radius.c	\
+	packet-radius.c		\
 	packet-radius_packetcable.c	\
 	packet-radiotap.c	\
-	packet-raw.c	\
-	packet-rdm.c	\
-	packet-rdt.c	\
-	packet-redback.c \
-	packet-retix-bpdu.c \
-	packet-rgmp.c	\
-	packet-rip.c	\
-	packet-ripng.c	\
-	packet-rlogin.c	\
-	packet-rmcp.c	\
-	packet-rmi.c	\
-	packet-rmp.c	\
+	packet-raw.c		\
+	packet-rdm.c		\
+	packet-rdt.c		\
+	packet-redback.c 	\
+	packet-retix-bpdu.c 	\
+	packet-rgmp.c		\
+	packet-rip.c		\
+	packet-ripng.c		\
+	packet-rlogin.c		\
+	packet-rmcp.c		\
+	packet-rmi.c		\
+	packet-rmp.c		\
 	packet-rmt-alc.c	\
 	packet-rmt-common.c	\
 	packet-rmt-fec.c	\
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
-	packet-roofnet.c	\
-	packet-rpc.c	\
-	packet-rpl.c	\
-	packet-rquota.c	\
-	packet-rsh.c	\
-	packet-rstat.c	\
-	packet-rsvp.c	\
-	packet-rsync.c	\
-	packet-rtcp.c	\
+	packet-roofnet.c 	\
+	packet-rpc.c		\
+	packet-rpl.c		\
+	packet-rquota.c		\
+	packet-rsh.c		\
+	packet-rstat.c		\
+	packet-rsvp.c		\
+	packet-rsync.c		\
+	packet-rtcp.c		\
 	packet-rtp-events.c	\
-	packet-rtp.c	\
-	packet-rtps.c	\
-	packet-rtsp.c	\
-	packet-rwall.c	\
+	packet-rtp.c		\
+	packet-rtps.c		\
+	packet-rtsp.c		\
+	packet-rwall.c		\
 	packet-rx.c		\
-	packet-s5066.c	\
+	packet-s5066.c		\
 	packet-sadmind.c	\
-	packet-sap.c	\
-	packet-sccp.c	\
-	packet-sccpmg.c	\
-	packet-scsi.c	\
+	packet-sap.c		\
+	packet-sccpmg.c		\
+	packet-scsi.c		\
 	packet-scsi-mmc.c	\
-	packet-scsi-osd.c	\
 	packet-scsi-sbc.c	\
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
-	packet-sctp.c	\
-	packet-sdlc.c	\
-	packet-sdp.c	\
-	packet-sebek.c	\
-	packet-ses.c	\
-	packet-sflow.c	\
-	packet-sip.c	\
+	packet-sdlc.c		\
+	packet-sdp.c		\
+	packet-sebek.c		\
+	packet-ses.c		\
+	packet-sflow.c		\
+	packet-sip.c		\
 	packet-sigcomp.c	\
 	packet-sipfrag.c	\
-	packet-skinny.c	\
-	packet-slimp3.c	\
-	packet-sll.c	\
+	packet-skinny.c		\
+	packet-slimp3.c		\
+	packet-sll.c		\
 	packet-slowprotocols.c	\
-	packet-slsk.c	\
+	packet-slsk.c		\
 	packet-smb-browse.c	\
 	packet-smb-common.c	\
 	packet-smb-logon.c	\
 	packet-smb-mailslot.c	\
 	packet-smb-pipe.c	\
 	packet-smb-sidsnooping.c	\
-	packet-smb.c	\
-	packet-smb2.c	\
-	packet-smpp.c	\
-	packet-smtp.c	\
-	packet-sna.c	\
-	packet-snaeth.c	\
-	packet-sndcp.c	\
-	packet-socks.c	\
-	packet-spp.c	\
-	packet-spray.c	\
+	packet-smb.c		\
+	packet-smb2.c		\
+	packet-smpp.c		\
+	packet-smtp.c		\
+	packet-sna.c		\
+	packet-snaeth.c		\
+	packet-sndcp.c		\
+	packet-socks.c		\
+	packet-spp.c		\
+	packet-spray.c		\
 	packet-sscf-nni.c	\
-	packet-srvloc.c	\
-	packet-sscop.c	\
-	packet-ssh.c	\
+	packet-srvloc.c		\
+	packet-sscop.c		\
+	packet-ssh.c		\
 	packet-ssl-utils.c	\
-	packet-ssl.c	\
+	packet-ssl.c		\
 	packet-stat-notify.c	\
-	packet-stat.c	\
-	packet-stun.c	\
-	packet-stun2.c	\
-	packet-sua.c	\
+	packet-stat.c		\
+	packet-stun.c		\
+	packet-stun2.c		\
+	packet-sua.c		\
 	packet-symantec.c	\
-	packet-synergy.c \
-	packet-syslog.c	\
-	packet-t38.c	\
-	packet-tacacs.c	\
-	packet-tali.c	\
-	packet-tapa.c	\
-	packet-tcp.c	\
-	packet-tds.c	\
+	packet-synergy.c 	\
+	packet-syslog.c		\
+	packet-t38.c		\
+	packet-tacacs.c		\
+	packet-tali.c		\
+	packet-tapa.c		\
+	packet-tcp.c		\
+	packet-tds.c		\
 	packet-teimanagement.c	\
-	packet-telnet.c	\
-	packet-teredo.c	\
+	packet-telnet.c		\
+	packet-teredo.c		\
 	packet-text-media.c	\
 	packet-telkonet.c	\
-	packet-tftp.c	\
-	packet-time.c	\
-	packet-tipc.c	\
+	packet-tftp.c		\
+	packet-time.c		\
+	packet-tipc.c		\
 	packet-tivoconnect.c	\
-	packet-tns.c	\
-	packet-tpkt.c	\
-	packet-tr.c	\
-	packet-trmac.c	\
-	packet-tsp.c	\
-	packet-tuxedo.c	\
-	packet-tzsp.c	\
-	packet-ucp.c	\
-	packet-udld.c	\
-	packet-uma.c	\
-	packet-udp.c	\
-	packet-usb.c	\
+	packet-tns.c		\
+	packet-tpkt.c		\
+	packet-tr.c		\
+	packet-trmac.c		\
+	packet-tsp.c		\
+	packet-tuxedo.c		\
+	packet-tzsp.c		\
+	packet-ucp.c		\
+	packet-udld.c		\
+	packet-uma.c		\
+	packet-udp.c		\
+	packet-usb.c		\
 	packet-usb-masstorage.c	\
 	packet-umts_fp.c	\
-	packet-user_encap.c	\
-	packet-v120.c	\
-	packet-vines.c	\
-	packet-vj.c	\
-	packet-vlan.c	\
-	packet-vnc.c	\
-	packet-vrrp.c	\
-	packet-vtp.c	\
-	packet-wap.c	\
-	packet-wbxml.c	\
-	packet-wccp.c	\
-	packet-wcp.c	\
+	packet-v120.c		\
+	packet-vines.c		\
+	packet-vj.c		\
+	packet-vlan.c		\
+	packet-vnc.c		\
+	packet-vrrp.c		\
+	packet-vtp.c		\
+	packet-wap.c		\
+	packet-wbxml.c		\
+	packet-wccp.c		\
+	packet-wcp.c		\
 	packet-wfleet-hdlc.c	\
-	packet-who.c	\
+	packet-who.c		\
 	packet-windows-common.c	\
 	packet-winsrepl.c	\
 	packet-wlancap.c	\
-	packet-wlccp.c	\
-	packet-wsp.c	\
-	packet-wtls.c	\
-	packet-wtp.c	\
-	packet-x11.c	\
-	packet-x25.c	\
-	packet-x29.c	\
-	packet-xdmcp.c	\
-	packet-xml.c	\
-	packet-xot.c	\
-	packet-xyplex.c	\
-	packet-yhoo.c	\
-	packet-ymsg.c	\
-	packet-ypbind.c	\
+	packet-wlccp.c		\
+	packet-wsp.c		\
+	packet-wtls.c		\
+	packet-wtp.c		\
+	packet-x11.c		\
+	packet-x25.c		\
+	packet-x29.c		\
+	packet-xdmcp.c		\
+	packet-xml.c		\
+	packet-xot.c		\
+	packet-xyplex.c		\
+	packet-yhoo.c		\
+	packet-ymsg.c		\
+	packet-ypbind.c		\
 	packet-yppasswd.c	\
-	packet-ypserv.c	\
-	packet-ypxfr.c	\
-	packet-zebra.c
+	packet-ypserv.c		\
+	packet-ypxfr.c		\
+	packet-zebra.c 
+
+
+# the dissector sources (without any helpers)
+DISSECTOR_SRC =	\
+	packet-bacapp.c		\
+	packet-ber.c		\
+	packet-diameter.c	\
+	packet-h248_3gpp.c 	\
+	packet-h263.c		\
+	packet-homeplug.c 	\
+	packet-isup.c		\
+	packet-k12.c 		\
+	packet-nbd.c		\
+	packet-sccp.c		\
+	packet-scsi-osd.c	\
+	packet-sctp.c		\
+	packet-user_encap.c
 
 # corresponding headers
 DISSECTOR_INCLUDES =	\
