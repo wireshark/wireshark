@@ -141,7 +141,6 @@ static int hf_homeplug_mme		= -1;
 static gint ett_homeplug		= -1;
 static gint ett_homeplug_mctrl		= -1;
 static gint ett_homeplug_mehdr		= -1;
-static gint ett_homeplug_mme		= -1;
 static gint ett_homeplug_rce		= -1;
 static gint ett_homeplug_cer		= -1;
 static gint ett_homeplug_rps		= -1;
