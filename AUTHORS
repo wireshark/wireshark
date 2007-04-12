@@ -2620,6 +2620,10 @@ David Kennedy <sgsguy [AT] gmail.com> {
 	Symantec SGS v3 support
 }
 
+Matthijs Mekking <matthijs [AT] mlnetlabs.nl> {
+	Shim6 support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

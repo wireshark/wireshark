@@ -150,6 +150,61 @@ struct ip6_frag {
 	guint32 ip6f_ident;		/* identification */
 };
 
+/* SHIM6 control message types */
+#define SHIM6_TYPE_I1 		0x01	/* 0 000 0001 */
+#define SHIM6_TYPE_R1 		0x02	/* 0 000 0010 */
+#define SHIM6_TYPE_I2		0x03	/* 0 000 0011 */
+#define SHIM6_TYPE_R2 		0x04	/* 0 000 0100 */
+#define SHIM6_TYPE_R1BIS	0x05	/* 0 000 0101 */
+#define SHIM6_TYPE_I2BIS	0x06	/* 0 000 0110 */
+#define SHIM6_TYPE_UPD_ACK	0x40	/* 0 100 0000 = 64 */
+#define SHIM6_TYPE_UPD_REQ	0x41	/* 0 100 0001 = 65 */
+#define SHIM6_TYPE_KEEPALIVE	0x42	/* 0 100 0010 = 66 */
+#define SHIM6_TYPE_PROBE 	0x43	/* 0 100 0011 = 67 */
+
+/* SHIM6 Options */
+#define SHIM6_OPT_RESPVAL       0x01    /* 0 000 0001 */
+#define SHIM6_OPT_LOCLIST       0x02    /* 0 000 0010 */
+#define SHIM6_OPT_LOCPREF       0x03    /* 0 000 0011 */
+#define SHIM6_OPT_CGAPDM        0x04    /* 0 000 0100 */
+#define SHIM6_OPT_CGASIG        0x05    /* 0 000 0101 */
+#define SHIM6_OPT_ULIDPAIR      0x06    /* 0 000 0110 */
+#define SHIM6_OPT_FII           0x07    /* 0 000 0111 */
+
+/* SHIM6 Bitmasks */
+#define SHIM6_BITMASK_P		0x80	/* 1 000 0000 */
+#define SHIM6_BITMASK_TYPE	0x7F	/* 0 111 1111 */
+#define SHIM6_BITMASK_PROTOCOL	0x01	/* 0 000 0001 */
+#define SHIM6_BITMASK_SPECIFIC	0xFE	/* 1 111 1110 */
+#define SHIM6_BITMASK_R		0x80	/* 1 000 0000 */
+#define SHIM6_BITMASK_CT	0x7F	/* 0 111 1111 */
+#define SHIM6_BITMASK_OPT_TYPE	0xFFFE	/* 1 111 1111    1 111 1110 */
+#define SHIM6_BITMASK_CRITICAL	0x01	/* 0 000 0001 */
+#define SHIM6_BITMASK_PRECVD	0xF0	/* 1 111 0000 */
+#define SHIM6_BITMASK_PSENT	0x0F	/* 0 000 1111 */
+#define SHIM6_BITMASK_STA	0xC0	/* 1 100 0000 */
+
+/* SHIM6 Verification Methods */
+#define SHIM6_VERIF_HBA		0x01	/* 0 000 0001 */
+#define SHIM6_VERIF_CGA		0x02	/* 0 000 0010 */
+
+/* SHIM6 Flags */
+#define SHIM6_FLAG_BROKEN	0x01	/* 0 000 0001 */
+#define SHIM6_FLAG_TEMPORARY	0x02	/* 0 000 0010 */
+
+/* SHIM6 REAP States */
+#define SHIM6_REAP_OPERATIONAL	0x00	/* 0 000 0000 */
+#define SHIM6_REAP_EXPLORING	0x01	/* 0 000 0001 */
+#define SHIM6_REAP_INBOUNDOK	0x02	/* 0 000 0010 */
+
+/* SHIM6 header */
+struct ip6_shim {
+	guint8  ip6s_nxt;		/* next header */
+	guint8  ip6s_len;		/* header extension length */
+	guint8  ip6s_p;			/* P field and first 7 bits of remainder */
+	/* followed by shim6 specific data*/
+};
+
 #define IP6F_OFF_MASK		0xfff8	/* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK	0x0006	/* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG		0x0001	/* more-fragments flag */

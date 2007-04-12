@@ -107,6 +107,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_ICMPV6,	"ICMPv6" },
     { IP_PROTO_NONE,	"IPv6 no next header" },
     { IP_PROTO_DSTOPTS,	"IPv6 destination option" },
+    { IP_PROTO_SHIM6,	"SHIM6 header" },
     { IP_PROTO_MIPV6_OLD, "Mobile IPv6 (old)" },
     { IP_PROTO_SATEXPAK,"SATNET EXPAK" },
     { IP_PROTO_KRYPTOLAN, "Kryptolan" },

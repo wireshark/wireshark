@@ -96,6 +96,9 @@
 #define IP_PROTO_NONE		59		/* IP6 no next header - RFC1883 */
 #define IP_PROTO_DSTOPTS	60		/* IP6 destination options - RFC1883 */
 /* 61 is reserved by IANA for any host internal protocol */
+/* 61 is used by UCL's SHIM6 implementation as Next Header for SHIM6 */
+#define IP_PROTO_SHIM6		61		/* SHIM6 */
+
 /*
  * The current Protocol Numbers list says that the IP protocol number for
  * mobility headers is 135; it cites draft-ietf-mobileip-ipv6-24, but

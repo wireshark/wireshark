@@ -7,6 +7,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * SHIM6 support added by Matthijs Mekking <matthijs@NLnetLabs.nl>
+ *
  * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +31,7 @@
 #endif
 
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -39,13 +42,16 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
+#include <epan/ipv6-utils.h>
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/nlpid.h>
 #include <epan/arcnet_pids.h>
+#include <epan/in_cksum.h>
 #include <epan/value_string.h>
 #include <epan/expert.h>
+#include <epan/emem.h>
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.
@@ -55,7 +61,6 @@
 
 static int proto_ipv6		  = -1;
 static int hf_ipv6_version	  = -1;
-static int hf_ip_version	  = -1;
 static int hf_ipv6_class	  = -1;
 static int hf_ipv6_flow		  = -1;
 static int hf_ipv6_plen		  = -1;
@@ -94,9 +99,55 @@ static int hf_ipv6_mipv6_type		      = -1;
 static int hf_ipv6_mipv6_length		      = -1;
 static int hf_ipv6_mipv6_home_address	      = -1;
 
-static gint ett_ipv6		= -1;
-static gint ett_ipv6_fragments	= -1;
-static gint ett_ipv6_fragment	= -1;
+static int hf_ipv6_shim6	      = -1;
+static int hf_ipv6_shim6_nxt	      = -1;
+static int hf_ipv6_shim6_len	      = -1;
+static int hf_ipv6_shim6_p	      = -1;
+/* context tag is 49 bits, cannot be used for filter yet */
+static int hf_ipv6_shim6_ct	      = -1;
+static int hf_ipv6_shim6_type	      = -1;
+static int hf_ipv6_shim6_proto	      = -1;
+static int hf_ipv6_shim6_checksum     = -1;
+static int hf_ipv6_shim6_checksum_bad = -1;
+static int hf_ipv6_shim6_checksum_good= -1;
+static int hf_ipv6_shim6_inonce	      = -1; /* also for request nonce */
+static int hf_ipv6_shim6_rnonce	      = -1;
+static int hf_ipv6_shim6_precvd	      = -1;
+static int hf_ipv6_shim6_psent	      = -1;
+static int hf_ipv6_shim6_psrc	      = -1;
+static int hf_ipv6_shim6_pdst	      = -1;
+static int hf_ipv6_shim6_pnonce	      = -1;
+static int hf_ipv6_shim6_pdata	      = -1;
+static int hf_ipv6_shim6_sulid	      = -1;
+static int hf_ipv6_shim6_rulid	      = -1;
+static int hf_ipv6_shim6_reap	      = -1;
+static int hf_ipv6_shim6_opt_type     = -1;
+static int hf_ipv6_shim6_opt_len      = -1;
+static int hf_ipv6_shim6_opt_total_len= -1;
+static int hf_ipv6_shim6_opt_loc_verif_methods = -1;
+static int hf_ipv6_shim6_opt_critical = -1;
+static int hf_ipv6_shim6_opt_loclist  = -1;
+static int hf_ipv6_shim6_locator      = -1;
+static int hf_ipv6_shim6_loc_flag     = -1;
+static int hf_ipv6_shim6_loc_prio     = -1;
+static int hf_ipv6_shim6_loc_weight   = -1;
+static int hf_ipv6_shim6_opt_locnum   = -1;
+static int hf_ipv6_shim6_opt_elemlen  = -1;
+static int hf_ipv6_shim6_opt_fii      = -1;
+
+static gint ett_ipv6			  = -1;
+static gint ett_ipv6_shim6		  = -1;
+static gint ett_ipv6_shim6_option	  = -1;
+static gint ett_ipv6_shim6_locators	  = -1;
+static gint ett_ipv6_shim6_verif_methods  = -1;
+static gint ett_ipv6_shim6_loc_pref	  = -1;
+static gint ett_ipv6_shim6_probes_sent	  = -1;
+static gint ett_ipv6_shim6_probe_sent	  = -1;
+static gint ett_ipv6_shim6_probes_rcvd	  = -1;
+static gint ett_ipv6_shim6_probe_rcvd	  = -1;
+static gint ett_ipv6_shim6_cksum	  = -1;
+static gint ett_ipv6_fragments		  = -1;
+static gint ett_ipv6_fragment		  = -1;
 
 static const fragment_items ipv6_frag_items = {
 	&ett_ipv6_fragment,
@@ -179,6 +230,19 @@ again:
      }
      nxt = pd[offset];
      advance = 8 + ((pd[offset+1] - 1) << 2);
+     if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
+       ld->other++;
+       return;
+     }
+     offset += advance;
+     goto again;
+   case IP_PROTO_SHIM6:
+     if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
+       ld->other++;
+       return;
+     }
+     nxt = pd[offset];
+     advance = (pd[offset+1] + 1) << 3;
      if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
        ld->other++;
        return;
@@ -596,16 +660,570 @@ dissect_dstopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo
     return dissect_opts(tvb, offset, tree, pinfo, hf_ipv6_dst_opt);
 }
 
+/* START SHIM6 PART */
+static guint16 shim_checksum(const guint8 *ptr, int len)
+{
+	vec_t cksum_vec[1];
+
+	cksum_vec[0].ptr = ptr;
+	cksum_vec[0].len = len;
+	return in_cksum(&cksum_vec[0], 1);
+}
+
+static int 
+dissect_shim_hex(tvbuff_t *tvb, int offset, int len, const char *itemname, guint8 bitmask, proto_tree *tree) 
+{
+    proto_item *ti;
+    int count;
+    gint p;
+
+    p = offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, len, itemname); 
+
+    proto_item_append_text(ti, " 0x%02x", tvb_get_guint8(tvb, p) & bitmask);
+    for (count=1; count<len; count++)
+      proto_item_append_text(ti, "%02x", tvb_get_guint8(tvb, p+count));
+
+    return len;
+}
+
+static const value_string shimoptvals[] = {
+    { SHIM6_OPT_RESPVAL,  "Responder Validator Option" },
+    { SHIM6_OPT_LOCLIST,  "Locator List Option" },
+    { SHIM6_OPT_LOCPREF,  "Locator Preferences Option" },
+    { SHIM6_OPT_CGAPDM,	  "CGA Parameter Data Structure Option" },
+    { SHIM6_OPT_CGASIG,	  "CGA Signature Option" },
+    { SHIM6_OPT_ULIDPAIR, "ULID Pair Option" },
+    { SHIM6_OPT_FII,	  "Forked Instance Identifier Option" },
+    { 0, NULL },
+};
+
+static const value_string shimverifmethods[] = {
+    { SHIM6_VERIF_HBA, "HBA" },
+    { SHIM6_VERIF_CGA, "CGA" },
+    { 0, NULL },
+};
+
+static const value_string shimflags[] = {
+    { SHIM6_FLAG_BROKEN,    "BROKEN" },
+    { SHIM6_FLAG_TEMPORARY, "TEMPORARY" },
+    { 0, NULL },
+};
+
+static const value_string shimreapstates[] = {
+    { SHIM6_REAP_OPERATIONAL, "Operational" },
+    { SHIM6_REAP_EXPLORING,   "Exploring" },
+    { SHIM6_REAP_INBOUNDOK,   "InboundOK" },
+    { 0, NULL },
+};
+
+static const true_false_string shim6_critical_opts = {
+    "Yes",
+    "No"
+};
+
+static const value_string shim6_protocol[] = {
+  { 0, "SHIM6" },
+  { 1, "HIP" },
+  { 0, NULL }
+};
+
+static void
+dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
+{
+  proto_item * it;
+  proto_tree * subtree;
+  guint count;
+  guint optlen;
+  int p = *offset;
+
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, FALSE);
+  p += 4;
+
+  optlen = tvb_get_guint8(tvb, p);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_locnum, tvb, p, 1, FALSE);
+  p++;
+
+  /* Verification Methods */
+  it = proto_tree_add_text(opt_tree, tvb, p, optlen, 
+			    "Locator Verification Methods");
+  subtree = proto_item_add_subtree(it, ett_ipv6_shim6_verif_methods);
+
+  for (count=0; count < optlen; count++)
+    proto_tree_add_item(subtree, hf_ipv6_shim6_opt_loc_verif_methods, tvb, 
+			    p+count, 1, FALSE);
+  p += optlen;
+
+  /* Padding, included in length field */
+  if ((7 - optlen % 8) > 0) {
+      proto_tree_add_text(opt_tree, tvb, p, (7 - optlen % 8), "Padding");
+      p += (7 - optlen % 8);
+  }
+
+  /* Locators */
+  it = proto_tree_add_text(opt_tree, tvb, p, 16 * optlen, "Locators");
+  subtree = proto_item_add_subtree(it, ett_ipv6_shim6_locators);
+
+  for (count=0; count < optlen; count++) {
+      proto_tree_add_item(subtree, hf_ipv6_shim6_locator, tvb, p, 16, FALSE);
+      p += 16;
+  }
+  *offset = p;
+}
+
+static void
+dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, gint len)
+{
+  proto_tree * subtree;
+  proto_item * it;
+
+  gint p;
+  gint optlen;
+  gint count;
+
+  p = *offset;
+
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, FALSE);
+  p += 4;
+
+  optlen = tvb_get_guint8(tvb, p);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_elemlen, tvb, p, 1, FALSE);
+  p++;
+
+  /* Locator Preferences */
+  count = 1;
+  while (p < len) {
+    it = proto_tree_add_text(opt_tree, tvb, p, optlen, "Locator Preferences %u", count);
+    subtree = proto_item_add_subtree(it, ett_ipv6_shim6_loc_pref);
+
+    /* Flags */
+    if (optlen >= 1) 
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_flag, tvb, p, 1, FALSE);
+    /* Priority */
+    if (optlen >= 2) 
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_prio, tvb, p+1, 1, FALSE);
+    /* Weight */
+    if (optlen >= 3) 
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_weight, tvb, p+2, 1, FALSE);
+    /*
+     * Shim6 Draft 08 doesn't specify the format when the Element length is
+     * more than three, except that any such formats MUST be defined so that
+     * the first three octets are the same as in the above case, that is, a
+     * of a 1 octet flags field followed by a 1 octet priority field, and a
+     * 1 octet weight field.
+     */
+    p += optlen;
+    count++;
+  }
+  *offset = p;
+}
+
+
+static int
+dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    int len, total_len;
+    gint p;
+    gint padding;
+    proto_tree *opt_tree;
+    proto_item *ti;
+    guint8 tmp[2]; 
+    const gchar *ctype;
+
+
+    p = offset;
+
+    tmp[0] = tvb_get_guint8(tvb, p++);
+    tmp[1] = tvb_get_guint8(tvb, p++);
+    p += 2;
+
+    len = tvb_get_ntohs(tvb, offset+2);
+    padding = 7 - ((len + 3) % 8);
+    total_len = 4 + len + padding;
+
+    if (tree) 
+    {
+	/* Option Type */
+	ctype = val_to_str( (tvb_get_ntohs(tvb, offset) & SHIM6_BITMASK_OPT_TYPE) >> 1, shimoptvals, "Unknown Option Type");
+	ti = proto_tree_add_text(tree, tvb, offset, total_len, "%s", ctype);
+	opt_tree = proto_item_add_subtree(ti, ett_ipv6_shim6_option);
+
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_type, tvb, offset, 2, FALSE);
+
+	/* Critical */
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_critical, tvb, offset+1, 1, FALSE);
+
+	/* Content Length */
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_len, tvb, offset + 2, 2, FALSE);
+	ti = proto_tree_add_uint_format(opt_tree, hf_ipv6_shim6_opt_total_len, tvb, offset+2, 2,
+	    total_len, "Total Length: %u", total_len);
+	PROTO_ITEM_SET_GENERATED(ti);
+
+	/* Option Type Specific */
+	switch (tvb_get_ntohs(tvb, offset) >> 1) 
+	{
+	    case SHIM6_OPT_RESPVAL:
+		p += dissect_shim_hex(tvb, p, len, "Validator:", 0xff, opt_tree);
+		if (total_len-(len+4) > 0)
+		    proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+		break;
+	    case SHIM6_OPT_LOCLIST:
+		dissect_shim6_opt_loclist(opt_tree, tvb, &p);
+		break;
+	    case SHIM6_OPT_LOCPREF:
+		dissect_shim6_opt_loc_pref(opt_tree, tvb, &p, offset+len+4);
+		if (total_len-(len+4) > 0)
+		  proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+		break;
+	    case SHIM6_OPT_CGAPDM:
+		p += dissect_shim_hex(tvb, p, len, "CGA Parameter Data Structure:", 0xff, opt_tree); 
+		if (total_len-(len+4) > 0)
+		    proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+		break;
+	    case SHIM6_OPT_CGASIG:
+		p += dissect_shim_hex(tvb, p, len, "CGA Signature:", 0xff, opt_tree); 
+		if (total_len-(len+4) > 0)
+		    proto_tree_add_text(opt_tree, tvb, p, total_len-(len+4), "Padding");
+		break;
+	    case SHIM6_OPT_ULIDPAIR:
+		proto_tree_add_text(opt_tree, tvb, p, 4, "Reserved");
+		p += 4;
+		proto_tree_add_item(opt_tree, hf_ipv6_shim6_sulid, tvb, p, 16, FALSE);
+		p += 16;
+		proto_tree_add_item(opt_tree, hf_ipv6_shim6_rulid, tvb, p, 16, FALSE);
+		p += 16;
+		break;
+	    case SHIM6_OPT_FII:
+		proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_fii, tvb, p, 4, FALSE);
+		p += 4;
+		break;
+	    default:
+		break;
+	}
+    }
+    return total_len;
+}
+
+static void
+dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offset, guchar * label)
+{
+  guint8 tmp[6];
+  guchar * ct_str;
+
+  tmp[0] = tvb_get_guint8(tvb, offset++);
+  tmp[1] = tvb_get_guint8(tvb, offset++);
+  tmp[2] = tvb_get_guint8(tvb, offset++);
+  tmp[3] = tvb_get_guint8(tvb, offset++);
+  tmp[4] = tvb_get_guint8(tvb, offset++);
+  tmp[5] = tvb_get_guint8(tvb, offset++);
+
+  ct_str = ep_strdup_printf("%s: %02X %02X %02X %02X %02X %02X", label,
+			      tmp[0] & SHIM6_BITMASK_CT, tmp[1], tmp[2], 
+			      tmp[3], tmp[4], tmp[5]
+			    );
+  proto_tree_add_none_format(shim_tree, hf_item, tvb, offset - 6, 6, ct_str);
+}
+
+static void
+dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset, 
+		      guchar * label, guint nbr_probe, gboolean probes_rcvd)
+{
+  proto_tree * probes_tree;
+  proto_tree * probe_tree;
+  proto_item * it;
+  gint ett_probes;
+  gint ett_probe;
+  guint count;
+
+  if (probes_rcvd) {
+    ett_probes = ett_ipv6_shim6_probes_rcvd;
+    ett_probe = ett_ipv6_shim6_probe_rcvd;
+  } else {
+    ett_probes = ett_ipv6_shim6_probes_sent;
+    ett_probe = ett_ipv6_shim6_probe_sent;
+  }
+  it = proto_tree_add_text(shim_tree, tvb, offset, 40 * nbr_probe, label);
+  probes_tree = proto_item_add_subtree(it, ett_probes);
+    
+  for (count=0; count < nbr_probe; count++) {
+    it = proto_tree_add_text(probes_tree, tvb, offset, 40, "Probe %u", count+1);
+    probe_tree = proto_item_add_subtree(it, ett_probe);
+
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_psrc, tvb, offset, 16, FALSE); 
+    offset += 16;
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pdst, tvb, offset, 16, FALSE);
+    offset += 16;
+
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pnonce, tvb, offset, 4, FALSE);
+    offset += 4;
+
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pdata, tvb, offset, 4, FALSE);
+    offset += 4;
+  }
+}
+
+/* Dissect SHIM6 data: control messages */
+static int
+dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
+{
+  gint p;
+  guint8 tmp;
+  const gchar *sta;
+  guint probes_sent;
+  guint probes_rcvd;
+
+    p = offset; 
+
+    switch (type) 
+    {
+	case SHIM6_TYPE_I1:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_R1:
+	    proto_tree_add_text(shim_tree, tvb, p, 2, "Reserved2");
+	    p += 2;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_I2:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    proto_tree_add_text(shim_tree, tvb, p, 4, "Reserved2");
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_R2:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Responder Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_R1BIS:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Packet Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_I2BIS:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    proto_tree_add_text(shim_tree, tvb, p, 6, "Reserved2");
+	    p += 6;
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
+	    p += 6;
+	    break;
+	case SHIM6_TYPE_UPD_REQ:
+	case SHIM6_TYPE_UPD_ACK:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Receiver Context Tag");
+	    p += 6;
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_KEEPALIVE:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Receiver Context Tag");
+	    p += 6;
+	    proto_tree_add_text(shim_tree, tvb, p, 4, "Reserved2");
+	    p += 4;
+	    break;
+	case SHIM6_TYPE_PROBE:
+	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Receiver Context Tag");
+	    p += 6;
+
+	    tmp = tvb_get_guint8(tvb, p);
+	    probes_sent = tmp & SHIM6_BITMASK_PSENT;
+	    probes_rcvd = (tmp & SHIM6_BITMASK_PRECVD) >> 4;
+
+	    proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_psent, tvb,
+					p, 1, probes_sent,
+					"Probes Sent: %u", probes_sent); 
+	    proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_precvd, tvb,
+					p, 1, probes_rcvd, 
+					"Probes Received: %u", probes_rcvd);
+	    p++;
+
+	    sta = val_to_str((tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+					shimreapstates, "Unknown REAP State");
+	    proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_reap, tvb,
+	    	p, 1, (tvb_get_guint8(tvb, p) & SHIM6_BITMASK_STA) >> 6,
+		"REAP State: %s", sta); 
+
+	    proto_tree_add_text(shim_tree, tvb, p, 3, "Reserved2");
+	    p += 3;
+	    
+	    /* Probes Sent */
+	    if (probes_sent) {
+	      dissect_shim6_probes(shim_tree, tvb, p, "Probes Sent",
+							  probes_sent, FALSE);
+	      p += 40 * probes_sent;
+	    }
+
+	   /* Probes Received */
+	    if (probes_rcvd) {
+	      dissect_shim6_probes(shim_tree, tvb, p, "Probes Received", 
+							  probes_rcvd, TRUE);
+	      p += 40 * probes_rcvd;
+	    }
+	   break;
+	default:
+	   break;
+    }
+    return p-offset;
+}
+
+/* Dissect SHIM6 data: payload, common part, options */
+static const value_string shimctrlvals[] = {
+    { SHIM6_TYPE_I1,	    "I1" },
+    { SHIM6_TYPE_R1,	    "R1" },
+    { SHIM6_TYPE_I2,	    "I2" },
+    { SHIM6_TYPE_R2,	    "R2" },
+    { SHIM6_TYPE_R1BIS,	    "R1bis" },
+    { SHIM6_TYPE_I2BIS,	    "I2bis" },
+    { SHIM6_TYPE_UPD_REQ,   "Update Request" },
+    { SHIM6_TYPE_UPD_ACK,   "Update Acknowledgement" },
+    { SHIM6_TYPE_KEEPALIVE, "Keepalive" },
+    { SHIM6_TYPE_PROBE,	    "Probe" },
+    { 0, NULL },
+};
+
+static void ipv6_shim6_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo, 
+    proto_item * it_cksum, int offset, gboolean is_cksum_correct)
+{
+	proto_tree * checksum_tree;
+	proto_item * item;
+
+	checksum_tree = proto_item_add_subtree(it_cksum, ett_ipv6_shim6_cksum);
+        item = proto_tree_add_boolean(checksum_tree, hf_ipv6_shim6_checksum_good, tvb,
+	   offset, 2, is_cksum_correct);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_ipv6_shim6_checksum_bad, tvb,
+	   offset, 2, !is_cksum_correct);
+        PROTO_ITEM_SET_GENERATED(item);
+	if (!is_cksum_correct) {
+	  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+	  if (check_col(pinfo->cinfo, COL_INFO))
+	    col_append_fstr(pinfo->cinfo, COL_INFO, " [Shim6 CHECKSUM INCORRECT]");
+	}
+}
+
+static int
+dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo) 
+{
+    struct ip6_shim shim;		
+    int len;
+    gint p;
+    proto_tree *shim_tree;
+    proto_item *ti;
+    guint8 tmp[5]; 
+
+    tvb_memcpy(tvb, (guint8 *)&shim, offset, sizeof(shim));
+    len = (shim.ip6s_len + 1) << 3;
+
+    if (tree) 
+    {
+    	ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, FALSE);
+	shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
+
+	/* Next Header */
+	proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_nxt, tvb,
+	    offset + offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
+	    "Next header: %s (0x%02x)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt); 
+
+	/* Header Extension Length */
+	proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_len, tvb,
+	    offset + offsetof(struct ip6_shim, ip6s_len), 1, shim.ip6s_len,
+	    "Header Ext Length: %u (%d bytes)", shim.ip6s_len, len); 
+
+	/* P Field */
+	proto_tree_add_item(shim_tree, hf_ipv6_shim6_p, tvb, 
+			      offset + offsetof(struct ip6_shim, ip6s_p), 1, FALSE);
+
+	/* skip the first 2 bytes (nxt hdr, hdr ext len, p+7bits) */
+	p = offset + 3; 
+
+	if (shim.ip6s_p & SHIM6_BITMASK_P) 
+	{ 
+	    tmp[0] = tvb_get_guint8(tvb, p++);
+	    tmp[1] = tvb_get_guint8(tvb, p++);
+	    tmp[2] = tvb_get_guint8(tvb, p++);
+	    tmp[3] = tvb_get_guint8(tvb, p++);
+	    tmp[4] = tvb_get_guint8(tvb, p++);
+
+	    /* Payload Extension Header */
+	    proto_tree_add_none_format(shim_tree, hf_ipv6_shim6_ct, tvb,
+		offset + offsetof(struct ip6_shim, ip6s_p), 6, 
+		"Receiver Context Tag: %02x %02x %02x %02x %02x %02x", 
+		shim.ip6s_p & SHIM6_BITMASK_CT, tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]); 
+	}
+	else 
+        { 
+	    /* Control Message */
+	    guint16 csum;
+	    int advance;
+
+	    /* Message Type */
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_type, tvb, 
+				offset + offsetof(struct ip6_shim, ip6s_p), 1,
+				FALSE
+				);
+
+	    /* Protocol bit (Must be zero for SHIM6) */
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_proto, tvb, p, 1, FALSE);
+	    p++;
+
+	    /* Checksum */ 
+	    csum = shim_checksum(tvb_get_ptr(tvb, offset, len), len);
+
+	    if (csum == 0) {
+		ti = proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
+		    tvb_get_ntohs(tvb, p), "Checksum: 0x%04x [correct]", tvb_get_ntohs(tvb, p));
+		ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, TRUE);
+	    } else {
+		ti = proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
+		    tvb_get_ntohs(tvb, p), "Checksum: 0x%04x [incorrect: should be 0x%04x]", 
+		    tvb_get_ntohs(tvb, p), in_cksum_shouldbe(tvb_get_ntohs(tvb, p), csum));
+		ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, FALSE);
+	    }
+	    p += 2;
+
+	    /* Type specific data */
+	    advance = dissect_shimctrl(tvb, p, shim.ip6s_p & SHIM6_BITMASK_TYPE, shim_tree);
+	    p += advance;
+
+	    /* Options */
+	    while (p < offset+len) {
+	      p += dissect_shimopts(tvb, p, shim_tree);
+	    }
+	}
+    }
+    return len;
+}
+
+/* END SHIM6 PART */
+
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *ipv6_tree = NULL;
   proto_item *ti;
   guint8 nxt;
+  guint8 stype=0;
   int advance;
   int poffset;
   guint16 plen;
-  gboolean hopopts, routing, frag, ah, dstopts;
+  gboolean hopopts, routing, frag, ah, shim6, dstopts;
   guint16 offlg;
   guint32 ident;
   int offset;
@@ -613,6 +1231,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
   gboolean update_col_info = TRUE;
   gboolean save_fragmented;
+  const char *sep = "IPv6 ";
 
   struct ip6_hdr ipv6;
 
@@ -712,13 +1331,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   routing = FALSE;
   frag = FALSE;
   ah = FALSE;
+  shim6 = FALSE;
   dstopts = FALSE;
 
 again:
    switch (nxt) {
    case IP_PROTO_HOPOPTS:
 			hopopts = TRUE;
-			advance = dissect_hopopts(tvb, offset, tree, pinfo);
+			advance = dissect_hopopts(tvb, offset, ipv6_tree, pinfo);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
@@ -726,7 +1346,7 @@ again:
 			goto again;
     case IP_PROTO_ROUTING:
 			routing = TRUE;
-			advance = dissect_routing6(tvb, offset, tree);
+			advance = dissect_routing6(tvb, offset, ipv6_tree);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
@@ -734,7 +1354,7 @@ again:
 			goto again;
     case IP_PROTO_FRAGMENT:
 			frag = TRUE;
-			advance = dissect_frag6(tvb, offset, pinfo, tree,
+			advance = dissect_frag6(tvb, offset, pinfo, ipv6_tree,
 			    &offlg, &ident);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
@@ -745,15 +1365,24 @@ again:
 			ah = TRUE;
 			advance = dissect_ah_header(
 				  tvb_new_subset(tvb, offset, -1, -1),
-				  pinfo, tree, NULL, NULL);
+				  pinfo, ipv6_tree, NULL, NULL);
 			nxt = tvb_get_guint8(tvb, offset);
+			poffset = offset;
+			offset += advance;
+			plen -= advance;
+			goto again;
+    case IP_PROTO_SHIM6:
+			shim6 = TRUE;
+			advance = dissect_shim6(tvb, offset, ipv6_tree, pinfo);
+			nxt = tvb_get_guint8(tvb, offset);
+			stype = tvb_get_guint8(tvb, offset+2); 
 			poffset = offset;
 			offset += advance;
 			plen -= advance;
 			goto again;
     case IP_PROTO_DSTOPTS:
 			dstopts = TRUE;
-			advance = dissect_dstopts(tvb, offset, tree, pinfo);
+			advance = dissect_dstopts(tvb, offset, ipv6_tree, pinfo);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
@@ -830,8 +1459,7 @@ again:
         /* If we had an Authentication Header, the AH dissector already
            put something in the Info column; leave it there. */
       	if (!ah) {
-          if (hopopts || routing || dstopts) {
-            const char *sep = "IPv6 ";
+          if (hopopts || routing || dstopts || shim6) {
             if (hopopts) {
               col_append_fstr(pinfo->cinfo, COL_INFO, "%shop-by-hop options",
                              sep);
@@ -844,6 +1472,15 @@ again:
             if (dstopts) {
               col_append_fstr(pinfo->cinfo, COL_INFO, "%sdestination options",
                               sep);
+            }
+            if (shim6) {
+		if (stype & SHIM6_BITMASK_P) {
+              	  col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (Payload)");
+		}
+		else {
+              	  col_append_fstr(pinfo->cinfo, COL_INFO, "Shim6 (%s)", 
+		    val_to_str(stype & SHIM6_BITMASK_TYPE, shimctrlvals, "Unknown"));
+		}
             }
           } else
             col_set_str(pinfo->cinfo, COL_INFO, "IPv6 no next header");
@@ -1003,6 +1640,183 @@ proto_register_ipv6(void)
 				FT_IPv6, BASE_HEX, NULL, 0x0,
 				"", HFILL }},
 
+    /* SHIM6 */
+    { &hf_ipv6_shim6,
+      { "SHIM6 ",		"ipv6.shim6",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_nxt,
+      { "Next Header",		"ipv6.shim6.nxt",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_len,
+      { "Header Ext Length", 	"ipv6.shim6.len",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_p,
+      { "P Bit", 		"ipv6.shim6.p",
+				FT_BOOLEAN, BASE_NONE, NULL, SHIM6_BITMASK_P,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_ct,
+      { "Context Tag", 		"ipv6.shim6.ct",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_type,
+      { "Message Type", 	"ipv6.shim6.type",
+				FT_UINT8, BASE_DEC, 
+				VALS(shimctrlvals), SHIM6_BITMASK_TYPE,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_proto,
+      { "Protocol", 		"ipv6.shim6.proto",
+				FT_UINT8, BASE_DEC, 
+				VALS(shim6_protocol), SHIM6_BITMASK_PROTOCOL,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_checksum,
+      { "Checksum", 		"ipv6.shim6.checksum",
+				FT_UINT16, BASE_HEX, NULL, 0x0,
+				"Shim6 Checksum", HFILL }},
+    { &hf_ipv6_shim6_checksum_bad,
+      { "Bad Checksum",		"ipv6.shim6.checksum_bad",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Shim6 Bad Checksum", HFILL }},
+
+    { &hf_ipv6_shim6_checksum_good,
+      { "Good Checksum",		"ipv6.shim6.checksum_good",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_inonce,
+      { "Initiator Nonce", 	"ipv6.shim6.inonce",
+				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_rnonce,
+      { "Responder Nonce", 	"ipv6.shim6.rnonce",
+				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_precvd,
+      { "Probes Received", 	"ipv6.shim6.precvd",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_psent,
+      { "Probes Sent", 		"ipv6.shim6.psent",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_psrc,
+      { "Source Address",	"ipv6.shim6.psrc",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Shim6 Probe Source Address", HFILL }},
+
+    { &hf_ipv6_shim6_pdst,
+      { "Destination Address",	"ipv6.shim6.pdst",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Shim6 Probe Destination Address", HFILL }},
+
+    { &hf_ipv6_shim6_pnonce,
+      { "Nonce",		"ipv6.shim6.pnonce",
+				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+				"Shim6 Probe Nonce", HFILL }},
+
+    { &hf_ipv6_shim6_pdata,
+      { "Data",			"ipv6.shim6.pdata",
+				FT_UINT32, BASE_HEX, NULL, 0x0,
+				"Shim6 Probe Data", HFILL }},
+
+    { &hf_ipv6_shim6_sulid,
+      { "Sender ULID",		"ipv6.shim6.sulid",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Shim6 Sender ULID", HFILL }},
+
+    { &hf_ipv6_shim6_rulid,
+      { "Receiver ULID",	"ipv6.shim6.rulid",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Shim6 Receiver ULID", HFILL }},
+
+    { &hf_ipv6_shim6_reap,
+      { "REAP State", 		"ipv6.shim6.reap",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_opt_type,
+      { "Option Type", 		"ipv6.shim6.opt.type",
+				FT_UINT16, BASE_DEC, 
+				VALS(shimoptvals), SHIM6_BITMASK_OPT_TYPE,
+				"Shim6 Option Type", HFILL }},
+
+    { &hf_ipv6_shim6_opt_critical,
+      { "Option Critical Bit", 	"ipv6.shim6.opt.critical",
+				FT_BOOLEAN, BASE_NONE, 
+				TFS(&shim6_critical_opts), 
+				SHIM6_BITMASK_CRITICAL,
+				"TRUE : option is critical, "
+				"FALSE: option is not critical", 
+				HFILL }},
+
+    { &hf_ipv6_shim6_opt_len,
+      { "Content Length",	"ipv6.shim6.opt.len",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Content Length Option", HFILL }},
+
+    { &hf_ipv6_shim6_opt_total_len,
+      { "Total Length",		"ipv6.shim6.opt.total_len",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Total Option Length", HFILL }},
+
+    { &hf_ipv6_shim6_opt_loc_verif_methods,
+      { "Verification Method",	"ipv6.shim6.opt.verif_method",
+				FT_UINT8, BASE_DEC, 
+				VALS(shimverifmethods), 0x0,
+				"Locator Verification Method", HFILL }},
+
+    { &hf_ipv6_shim6_opt_loclist,
+      { "Locator List Generation", "ipv6.shim6.opt.loclist",
+				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+				"", HFILL }},
+
+    { &hf_ipv6_shim6_locator,
+      { "Locator",		"ipv6.shim6.locator",
+				FT_IPv6, BASE_NONE, NULL, 0x0,
+				"Shim6 Locator", HFILL }},
+
+    { &hf_ipv6_shim6_opt_locnum,
+      { "Num Locators",		"ipv6.shim6.opt.locnum",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Number of Locators in Locator List", HFILL }},
+
+    { &hf_ipv6_shim6_opt_elemlen,
+      { "Element Length",	"ipv6.shim6.opt.elemlen",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Length of Elements in Locator Preferences Option", HFILL }},
+    { &hf_ipv6_shim6_loc_flag,
+      { "Flags",		"ipv6.shim6.loc.flags",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Locator Preferences Flags", HFILL }},
+
+    { &hf_ipv6_shim6_loc_prio,
+      { "Priority",		"ipv6.shim6.loc.prio",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Locator Preferences Priority", HFILL }},
+
+    { &hf_ipv6_shim6_loc_weight,
+      { "Weight",		"ipv6.shim6.loc.weight",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Locator Preferences Weight", HFILL }},
+
+    { &hf_ipv6_shim6_opt_fii,
+      { "Forked Instance Identifier", "ipv6.shim6.opt.fii",
+				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+				"", HFILL }},
+
 #ifdef TEST_FINALHDR
     { &hf_ipv6_final,
       { "Final next header",	"ipv6.final",
@@ -1011,6 +1825,16 @@ proto_register_ipv6(void)
   };
   static gint *ett[] = {
     &ett_ipv6,
+    &ett_ipv6_shim6,
+    &ett_ipv6_shim6_option,
+    &ett_ipv6_shim6_locators,
+    &ett_ipv6_shim6_verif_methods,
+    &ett_ipv6_shim6_loc_pref,
+    &ett_ipv6_shim6_probes_sent,
+    &ett_ipv6_shim6_probes_rcvd,
+    &ett_ipv6_shim6_probe_sent,
+    &ett_ipv6_shim6_probe_rcvd,
+    &ett_ipv6_shim6_cksum,
     &ett_ipv6_fragments,
     &ett_ipv6_fragment,
   };
