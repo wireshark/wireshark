@@ -1195,11 +1195,10 @@
 		<avp name="Content-Type" code="826" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="UTF8String"/>
 		</avp>
-		<!-- In 3GPP TS 32.299 version 6.5.0 Release 6 (2005-12)
-			type type-name="UTF8String"
-			but according to 3GPP TS 32.299 version 7.4.0 Release 7(2006-12) it
-			should be:
-		-->
+		<!-- In 3GPP TS 32.299 version 6.5.0 Release 6 (2005-12)					-->
+		<!-- type type-name="UTF8String"											-->
+		<!-- but according to 3GPP TS 32.299 version 7.4.0 Release 7(2006-12) it	-->
+		<!-- should be:																-->
 		<avp name="Content-Length" code="827" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP" >
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -1626,7 +1625,6 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
 -->
 <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
-<!--
 <!--
 1100 Served-User-Identity Groupe
 1101 VASP-ID UTF8Str
