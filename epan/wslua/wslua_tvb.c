@@ -702,6 +702,30 @@ WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
+WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
+	/* get an Little Endian IPv4 Address from a TvbRange. */
+	
+    TvbRange tvbr = checkTvbRange(L,1);
+    Address addr;
+    guint32* ip_addr;
+	
+    if ( !tvbr ) return 0;
+	
+	if (tvbr->len != 4)
+		WSLUA_ERROR(TvbRange_get_ipv4,"The range must be 4 octets long");
+	
+    addr = g_malloc(sizeof(address));
+	
+    ip_addr = g_malloc(sizeof(guint32));
+    *ip_addr = tvb_get_ipv4(tvbr->tvb,tvbr->offset);
+    *((guint32 *)ip_addr) = GUINT32_SWAP_LE_BE(*((guint32 *)ip_addr));
+	
+    SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
+    pushAddress(L,addr);
+	
+	WSLUA_RETURN(1); /* the IPv4 Address */
+}
+
 WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
 	/* get an Ethernet Address from a TvbRange. */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -769,6 +793,7 @@ static const luaL_reg TvbRange_methods[] = {
     {"le_float", TvbRange_get_le_float},
     {"ether", TvbRange_get_ether},
     {"ipv4", TvbRange_get_ipv4},
+	{"le_ipv4", TvbRange_get_le_ipv4},
     {"string", TvbRange_get_string},
     {"bytes", TvbRange_get_bytes},
     {"tvb", Tvb_new_subset},
