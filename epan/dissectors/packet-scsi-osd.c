@@ -2573,8 +2573,8 @@ find_svcaction_dissector(guint16 svcaction)
 
 
 static void
-dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_osd_opcode(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len, scsi_task_data_t *cdata)
 {
 	guint16 svcaction=0;
