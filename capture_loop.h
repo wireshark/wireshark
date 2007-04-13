@@ -153,7 +153,7 @@ typedef enum {
 } initfilter_status_t;
 
 extern initfilter_status_t
-capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter);
+capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, gchar * cfilter);
 
 int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,

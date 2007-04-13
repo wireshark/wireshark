@@ -85,7 +85,7 @@ typedef struct {
 	char	*description;   /* descriptive name from wiretap e.g. "Ethernet", NULL if unknown */
 } data_link_info_t;
 
-GList *get_pcap_linktype_list(const char *devname, char **err_str);
+GList *get_pcap_linktype_list(char *devname, char **err_str);
 void free_pcap_linktype_list(GList *linktype_list);
 
 /* get/set the link type of an interface */

@@ -172,7 +172,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 {
   gchar *entry_text;
   gchar *if_text;
-  const gchar *if_name;
+  gchar *if_name;
   GList *if_list;
   GList *if_entry;
   if_info_t *if_info;
@@ -201,7 +201,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   dl_hdr_menu= lt_menu;
   entry_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
   if_text = g_strstrip(entry_text);
-  if_name = get_if_name(if_text);
+  if_name = g_strdup(get_if_name(if_text));
 
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
@@ -282,6 +282,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     }
   }
   g_free(entry_text);
+  g_free(if_name);
   num_supported_link_types = 0;
   for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
     data_link_info = lt_entry->data;

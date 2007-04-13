@@ -821,7 +821,7 @@ static void capture_loop_close_input(loop_data *ld) {
 
 
 /* init the capture filter */
-initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, const gchar * iface, gchar * cfilter) {
+initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, gchar * cfilter) {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;

@@ -354,7 +354,7 @@ create_data_link_info(int dlt)
 }
 
 GList *
-get_pcap_linktype_list(const char *devname, char **err_str)
+get_pcap_linktype_list(char *devname, char **err_str)
 {
 	GList *linktype_list = NULL;
 	pcap_t *pch;
