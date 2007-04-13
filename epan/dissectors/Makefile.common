@@ -405,6 +405,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-h263.c		\
 	packet-hci_h4.c		\
 	packet-hclnfsd.c	\
+	packet-homeplug.c 	\
 	packet-hpext.c		\
 	packet-hpsw.c		\
 	packet-hsrp.c		\
@@ -740,7 +741,6 @@ DISSECTOR_SRC =	\
 	packet-ber.c		\
 	packet-cops.c 		\
 	packet-diameter.c	\
-	packet-homeplug.c 	\
 	packet-isup.c		\
 	packet-k12.c 		\
 	packet-nbd.c		\
