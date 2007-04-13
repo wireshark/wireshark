@@ -84,17 +84,19 @@ fi
 rm -rf conftest*
 
 AC_ARG_WITH(warnings-as-errors,
-[  --with-warnings-as-errors Treat warnings as errors (if using gcc). [default=no]],
-[  
-  if test "x$GCC" != "x"; then
-    if test "x$withval" != "xno"; then
-      with_warnings_as_errors="yes"
-    fi
-  else
-    with_warnings_as_errors="no"
+  AC_HELP_STRING( [--without-warnings-as-errors], 
+		  [Don't treat warnings as errors (only for gcc). [default=yes]]),
+[
+  without_warnings_as_errors="no"
+  if test "x$GCC" != "x" && test "x$withval" = "xno"; then
+      without_warnings_as_errors="yes"
   fi
-],)
-AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
+],
+  if test "x$GCC" != "x"; then
+    without_warnings_as_errors="no"
+  fi
+)
+AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$without_warnings_as_errors" = "xno")
 
 #
 # Add any platform-specific compiler flags needed.
