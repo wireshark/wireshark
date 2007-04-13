@@ -538,7 +538,7 @@ esp_sa_parse_ipv6addr(const gchar *sa, guint index_start, gchar **pt_ipv6addr, g
   char addr_string[IPSEC_IPV6_ADDR_MAX + 1];
   gboolean done_flag = FALSE;
 
-  if((sa == NULL) || (strcmp(sa, "") == 0))  
+  if((sa == NULL) || (strcmp(sa, "") == 0))
     return FALSE;
 
   /* Get Address */
@@ -554,7 +554,7 @@ esp_sa_parse_ipv6addr(const gchar *sa, guint index_start, gchar **pt_ipv6addr, g
 
       else
 	{
-	  if((cpt >= IPSEC_IPV6_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+	  if((cpt >= IPSEC_IPV6_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR))
 	    return FALSE;
 	  addr_string[cpt] = toupper(sa[cpt + index_start]);
 	  cpt ++;
@@ -607,7 +607,7 @@ esp_sa_parse_ipv4addr(const gchar *sa, guint index_start, gchar **pt_ipv4addr, g
 
       else
 	{
-	  if((cpt == IPSEC_IPV4_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+	  if((cpt == IPSEC_IPV4_ADDR_MAX - 1) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR))
 	    return FALSE;
 	  addr_string[cpt] = toupper(sa[cpt + index_start]);
 	  cpt ++;
@@ -780,7 +780,7 @@ esp_sa_parse_addr_len(const gchar *sa, guint index_start, gint *len, guint *inde
 
 	  else
 	    {
-	      if((cpt == IPSEC_ADDR_LEN_MAX) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR)) 
+	      if((cpt == IPSEC_ADDR_LEN_MAX) && ((cpt  + index_start) < strlen(sa)) && (sa[cpt + index_start + 1] != IPSEC_SA_ADDR_LEN_SEPARATOR) && (sa[cpt + index_start + 1] != IPSEC_SA_SEPARATOR))
 		return FALSE;
 	      len_string[cpt -1] = sa[cpt + index_start];
 	      cpt ++;
@@ -1133,7 +1133,7 @@ filter_spi_match(gchar *spi, gchar *filter)
 /*
    Name : static gint compute_ascii_key(gchar **ascii_key, gchar *key)
    Description : Allocate memory for the key and transform the key if it is hexadecimal
-   Return : Return the key length 
+   Return : Return the key length
    Params:
       - gchar **ascii_key : the resulting ascii key allocated here
       - gchar *key : the key to compute
@@ -1153,44 +1153,44 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	  if(strlen(key) %2  == 0)
 	    {
 	      key_len = (strlen(key) - 2) / 2;
-	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	      for(i = 2; i < (strlen(key) -1) ; i+=2)
 		{
 		  key_char[0] = key[i];
 		  key_char[1] = key[i+1];
 		  key_char[2] = '\0';
-		  sprintf(*ascii_key + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
-		}	  
+		  sprintf(*ascii_key + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));
+		}
 	    }
 
 	  else
-	    /* give a chance to omit the first 0, in order to have a key in 8-bit unit  */ 
+	    /* give a chance to omit the first 0, in order to have a key in 8-bit unit  */
 	    {
 	      key_len = (strlen(key) - 2) / 2 + 1;
-	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	      key_char[0] = '0';
 	      key_char[1] = key[2];
 	      key_char[2] = '\0';
-	      sprintf(*ascii_key, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
+	      sprintf(*ascii_key, "%c", (int)strtoul(key_char,(char **)NULL,16));
 	      for(i = 3; i < (strlen(key) -1) ; i+=2)
 		{
 		  key_char[0] = key[i];
 		  key_char[1] = key[i+1];
 		  key_char[2] = '\0';
-		  sprintf(*ascii_key + 1 + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));			  			  
-		}	  
-	    }	    
+		  sprintf(*ascii_key + 1 + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));
+		}
+	    }
 	}
-      
+
       else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
 	{
 	  return 0;
 	}
-      
+
       else
 	{
 	  key_len = strlen(key);
-	  *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));		       
+	  *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
 	  memcpy(*ascii_key, key, key_len + 1);
 	}
     }
@@ -1206,7 +1206,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	   gint *encryption_algo,
 	   gint *authentication_algo,
 	   gchar **encryption_key,
-	   guint *encryption_key_len, 
+	   guint *encryption_key_len,
 	   gchar **authentication_key,
 	   guint *authentication_key_len
 
@@ -1222,7 +1222,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
       - gint *encryption_algo : the Encryption Algorithm to apply the packet
       - gint *authentication_algo : the Authentication Algorithm to apply to the packet
       - gchar **encryption_key : the Encryption Key to apply to the packet
-      - guint *encryption_key_len : the Encryption Key length to apply to the packet 
+      - guint *encryption_key_len : the Encryption Key length to apply to the packet
       - gchar **authentication_key : the Authentication Key to apply to the packet
       - guint *authentication_key_len : the Authentication Key len to apply to the packet
 
@@ -1233,7 +1233,7 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 	   gint *encryption_algo,
 	   gint *authentication_algo,
 	   gchar **encryption_key,
-	   guint *encryption_key_len, 
+	   guint *encryption_key_len,
 	   gchar **authentication_key,
 	   guint *authentication_key_len
 	   )
@@ -1268,7 +1268,7 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 	      *encryption_algo = sad -> table[i].encryption_algo;
 	      *authentication_algo = sad -> table[i].authentication_algo;
 	      *authentication_key_len = compute_ascii_key(authentication_key, (gchar *)sad -> table[i].authentication_key);
-	      *encryption_key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);	      	      
+	      *encryption_key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);
 
 	      found = TRUE;
 
@@ -1668,14 +1668,14 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    be called every times an ESP Payload is found.
 	  */
 
-	  if((sad_is_present = get_esp_sa(&g_esp_sad, protocol_typ, ip_src, ip_dst, spi, &entry_index, 
-					  &esp_crypt_algo, &esp_auth_algo, 
+	  if((sad_is_present = get_esp_sa(&g_esp_sad, protocol_typ, ip_src, ip_dst, spi, &entry_index,
+					  &esp_crypt_algo, &esp_auth_algo,
 					  &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len)))
 	    {
 
 	      /* Get length of whole ESP packet. */
 	      len = tvb_reported_length(tvb);
-	  
+
 	      switch(esp_auth_algo)
 		{
 
@@ -2266,7 +2266,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      if(tvb_bytes_exist(tvb_decrypted, 0, esp_iv_len))
 			{
 			  if(esp_iv_len > 0)
-			    proto_tree_add_item(esp_tree, hf_esp_iv, 
+			    proto_tree_add_item(esp_tree, hf_esp_iv,
 						tvb_decrypted,
 						0, esp_iv_len,
 						FALSE);
@@ -2346,8 +2346,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      g_free(ip_src);
 	      g_free(ip_dst);
 	      if(esp_auth_key_len != 0) g_free(esp_auth_key);
-	      if(esp_crypt_key_len != 0) g_free(esp_crypt_key);		
-	    
+	      if(esp_crypt_key_len != 0) g_free(esp_crypt_key);
+
 	    }
 	}
     }
@@ -2496,41 +2496,41 @@ proto_register_ipsec(void)
 
   static hf_register_info hf_ah[] = {
     { &hf_ah_spi,
-      { "SPI",		"ah.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      { "AH SPI", "ah.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "IP Authentication Header Security Parameters Index", HFILL }},
     { &hf_ah_iv,
-      { "IV",		"ah.iv",	FT_BYTES,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      { "AH ICV", "ah.icv", FT_BYTES, BASE_HEX, NULL, 0x0,
+        "IP Authentication Header Integrity Check Value", HFILL }},
     { &hf_ah_sequence,
-      { "Sequence",     "ah.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
-      	"", HFILL }}
+      { "AH Sequence", "ah.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "IP Authentication Header Sequence Number", HFILL }}
   };
 
   static hf_register_info hf_esp[] = {
     { &hf_esp_spi,
-      { "SPI",		"esp.spi",	FT_UINT32,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      { "ESP SPI", "esp.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
+        "IP Encapsulating Security Payload Security Parameters Index", HFILL }},
     { &hf_esp_sequence,
-      { "Sequence",     "esp.sequence",	FT_UINT32,	BASE_DEC, NULL, 0x0,
-      	"", HFILL }},
+      { "ESP Sequence", "esp.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
+        "IP Encapsulating Security Payload Sequence Number", HFILL }},
     { &hf_esp_pad_len,
-      { "Pad Length",	"esp.pad_len",	FT_UINT8,	BASE_DEC, NULL, 0x0,
-      	"", HFILL }},
+      { "ESP Pad Length", "esp.pad_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+        "IP Encapsulating Security Payload Pad Length", HFILL }},
     { &hf_esp_protocol,
-      { "Next Header",	"esp.protocol",	FT_UINT8,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      { "ESP Next Header", "esp.protocol", FT_UINT8, BASE_HEX, NULL, 0x0,
+        "IP Encapsulating Security Payload Next Header", HFILL }},
     { &hf_esp_iv,
-      { "IV",		"esp.iv",	FT_BYTES,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }}
+      { "ESP IV", "esp.iv", FT_BYTES, BASE_HEX, NULL, 0x0,
+        "IP Encapsulating Security Payload ", HFILL }}
   };
 
   static hf_register_info hf_ipcomp[] = {
     { &hf_ipcomp_flags,
-      { "Flags",	"ipcomp.flags",	FT_UINT8,	BASE_HEX, NULL, 0x0,
-      	"", HFILL }},
+      { "IPComp Flags", "ipcomp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+        "IP Payload Compression Protocol Flags", HFILL }},
     { &hf_ipcomp_cpi,
-      { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX,
-        VALS(cpi2val),	0x0,      	"", HFILL }},
+      { "IPComp CPI", "ipcomp.cpi", FT_UINT16, BASE_HEX, VALS(cpi2val), 0x0,
+        "IP Payload Compression Protocol Compression Parameter Index", HFILL }},
   };
   static gint *ett[] = {
     &ett_ah,
