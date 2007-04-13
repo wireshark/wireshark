@@ -239,7 +239,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-clip.c		\
 	packet-clnp.c		\
 	packet-componentstatus.c \
-	packet-cops.c 		\
 	packet-cosine.c		\
 	packet-cpfi.c		\
 	packet-cpha.c		\
@@ -737,6 +736,7 @@ CLEAN_DISSECTOR_SRC = \
 DISSECTOR_SRC =	\
 	packet-bacapp.c		\
 	packet-ber.c		\
+	packet-cops.c 		\
 	packet-diameter.c	\
 	packet-h248_3gpp.c 	\
 	packet-h263.c		\

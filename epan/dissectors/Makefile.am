@@ -43,6 +43,7 @@ libdissectors_la_SOURCES = \
 if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
+
 libcleandissectors_la_SOURCES = \
 	$(CLEAN_DISSECTOR_SRC)
 libcleandissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)

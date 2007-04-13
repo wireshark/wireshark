@@ -2036,9 +2036,10 @@ dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 void
-dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint offset, gboolean isreq, gboolean iscdb,
-                      guint32 payload_len, scsi_task_data_t *cdata)
+dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
+		     proto_tree *tree, volatile guint offset, gboolean isreq,
+		     gboolean iscdb, guint32 payload_len,
+		     scsi_task_data_t *cdata)
 {
     guint8 flags, i;
     static const int *peripheal_fields[] = {
@@ -3798,9 +3799,10 @@ proto_tree *tree _U_,
 }
 
 void
-dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                         guint offset, gboolean isreq, gboolean iscdb,
-                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
+dissect_spc_reportluns (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
+			proto_tree *tree, volatile guint offset,
+			gboolean isreq, gboolean iscdb, guint payload_len _U_,
+			scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     gint listlen;

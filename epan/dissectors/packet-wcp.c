@@ -485,7 +485,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	tvbuff_t *volatile tvb = 0;
 	wcp_window_t *buf_ptr = 0;
 	wcp_pdata_t *volatile pdata_ptr;
-	gboolean bounds_error = FALSE;
+	volatile gboolean bounds_error = FALSE;
 	
 	buf_ptr = get_wcp_window_ptr( pinfo);
 

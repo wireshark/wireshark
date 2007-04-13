@@ -246,9 +246,11 @@ static const value_string scsi_feature_val[] = {
 };
 
 static void
-dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
-                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+dissect_mmc4_getconfiguration (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
+			       proto_tree *tree, volatile guint offset,
+			       gboolean isreq, gboolean iscdb,
+			       guint payload_len _U_,
+			       scsi_task_data_t *cdata _U_)
 
 {
     guint8 flags;

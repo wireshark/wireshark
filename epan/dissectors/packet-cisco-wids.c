@@ -75,7 +75,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *wlan_tvb;
 	proto_tree *ti, *cwids_tree;
-	int offset = 0;
+	volatile int offset = 0;
 	guint16 capturelen;
 	guint remain;
 

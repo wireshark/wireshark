@@ -184,7 +184,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   static int		ehdr_num=0;
   proto_tree		*volatile tree;
   proto_item		*addr_item;
-  proto_tree		*addr_tree=NULL;
+  proto_tree		*volatile addr_tree=NULL;
 
   ehdr_num++;
   if(ehdr_num>=4){

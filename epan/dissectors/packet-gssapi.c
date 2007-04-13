@@ -172,13 +172,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	proto_item *item;
 	proto_tree *subtree;
-	int return_offset = 0;
+	volatile int return_offset = 0;
 	gssapi_conv_info_t *volatile gss_info;
 	gssapi_oid_value *oidvalue;
 	dissector_handle_t handle;
 	conversation_t *conversation;
 	tvbuff_t *oid_tvb;
-	int len, offset, start_offset, oid_start_offset;
+	int len, start_offset, oid_start_offset;
+	volatile int offset;
 	gint8 class;
 	gboolean pc, ind_field;
 	gint32 tag;
@@ -186,7 +187,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	const char *oid;
 	fragment_data *fd_head=NULL;
 	gssapi_frag_info_t *fi;
-	tvbuff_t *gss_tvb=NULL;
+	tvbuff_t *volatile gss_tvb=NULL;
 
 	start_offset=0;
 	offset=0;

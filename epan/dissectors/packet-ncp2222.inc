@@ -5825,10 +5825,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree		*temp_tree = NULL;
 	volatile gboolean	run_req_cond = FALSE;
 	volatile gboolean	run_info_str = FALSE;
-    guint32                 length_remaining;
-    guint32                 testvar;
-    unsigned long           except_code;
-    const char              *message;
+    	guint32                 length_remaining;
+   	guint32                 testvar;
+    	volatile unsigned long  except_code;
+	const char              *volatile message;
 
 	func = tvb_get_guint8(tvb, 6);
 
