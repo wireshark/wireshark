@@ -64,6 +64,7 @@ static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
+static dissector_table_t gen_par_dissector_table;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t h245_handle;
@@ -211,6 +212,8 @@ static guint32 rtcp_ipv4_address;
 static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
+static const char *gen_par_prefix;
+static const char *gen_par_str;
 
 /* NonStandardParameter */
 static const char *nsiOID;
@@ -381,6 +384,8 @@ void proto_register_h245(void) {
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+  gen_par_dissector_table = register_dissector_table("h245.gen_par", "H.245 GenericParameter", FT_STRING, BASE_NONE);
+
   h245_tap = register_tap("h245");
   h245dg_tap = register_tap("h245dg");
 

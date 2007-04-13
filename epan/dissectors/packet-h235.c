@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h235.c                                                            */
-/* ../../tools/asn2wrs.py -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
+/* .\packet-h235.c                                                            */
+/* ../../tools/asn2wrs.py -e -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn */
 
 /* Input file: packet-h235-template.c */
 
@@ -50,6 +50,14 @@
 #define PNAME  "H235-SECURITY-MESSAGES"
 #define PSNAME "H.235"
 #define PFNAME "h235"
+
+#define OID_MIKEY         "0.0.8.235.0.3.76"
+#define OID_MIKEY_PS      "0.0.8.235.0.3.72"
+#define OID_MIKEY_DHHMAC  "0.0.8.235.0.3.73"
+#define OID_MIKEY_PK_SIGN "0.0.8.235.0.3.74"
+#define OID_MIKEY_DH_SIGN "0.0.8.235.0.3.75"
+#define OID_TG            "0.0.8.235.0.3.70"
+#define OID_SG            "0.0.8.235.0.3.71"
 
 /* Initialize the protocol and registered fields */
 int proto_h235 = -1;
@@ -140,9 +148,32 @@ static int hf_h235_clearSaltingKey = -1;          /* OCTET_STRING */
 static int hf_h235_paramSsalt = -1;               /* Params */
 static int hf_h235_keyDerivationOID = -1;         /* OBJECT_IDENTIFIER */
 static int hf_h235_genericKeyMaterial = -1;       /* OCTET_STRING */
+static int hf_h235_SrtpCryptoCapability_item = -1;  /* SrtpCryptoInfo */
+static int hf_h235_cryptoSuite = -1;              /* OBJECT_IDENTIFIER */
+static int hf_h235_sessionParams = -1;            /* SrtpSessionParameters */
+static int hf_h235_allowMKI = -1;                 /* BOOLEAN */
+static int hf_h235_SrtpKeys_item = -1;            /* SrtpKeyParameters */
+static int hf_h235_masterKey = -1;                /* OCTET_STRING */
+static int hf_h235_masterSalt = -1;               /* OCTET_STRING */
+static int hf_h235_lifetime = -1;                 /* T_lifetime */
+static int hf_h235_powerOfTwo = -1;               /* INTEGER */
+static int hf_h235_specific = -1;                 /* INTEGER */
+static int hf_h235_mki = -1;                      /* T_mki */
+static int hf_h235_length = -1;                   /* INTEGER_1_128 */
+static int hf_h235_value = -1;                    /* OCTET_STRING */
+static int hf_h235_kdr = -1;                      /* INTEGER_0_24 */
+static int hf_h235_unencryptedSrtp = -1;          /* BOOLEAN */
+static int hf_h235_unencryptedSrtcp = -1;         /* BOOLEAN */
+static int hf_h235_unauthenticatedSrtp = -1;      /* BOOLEAN */
+static int hf_h235_fecOrder = -1;                 /* FecOrder */
+static int hf_h235_windowSizeHint = -1;           /* INTEGER_64_65535 */
+static int hf_h235_newParameter = -1;             /* SEQUENCE_OF_GenericData */
+static int hf_h235_newParameter_item = -1;        /* GenericData */
+static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
+static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 49 "packet-h235-template.c"
+#line 57 "packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -174,9 +205,20 @@ static gint ett_h235_KeySignedMaterial = -1;
 static gint ett_h235_ReturnSig = -1;
 static gint ett_h235_KeySyncMaterial = -1;
 static gint ett_h235_V3KeySyncMaterial = -1;
+static gint ett_h235_SrtpCryptoCapability = -1;
+static gint ett_h235_SrtpCryptoInfo = -1;
+static gint ett_h235_SrtpKeys = -1;
+static gint ett_h235_SrtpKeyParameters = -1;
+static gint ett_h235_T_lifetime = -1;
+static gint ett_h235_T_mki = -1;
+static gint ett_h235_SrtpSessionParameters = -1;
+static gint ett_h235_SEQUENCE_OF_GenericData = -1;
+static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 52 "packet-h235-template.c"
+#line 60 "packet-h235-template.c"
+
+static dissector_handle_t mikey_handle=NULL;
 
 static int
 dissect_xxx_ToBeSigned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
@@ -929,8 +971,182 @@ dissect_h235_EncodedKeySyncMaterial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+
+static int
+dissect_h235_INTEGER_0_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              0U, 24U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t FecOrder_sequence[] = {
+  { &hf_h235_fecBeforeSrtp  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_NULL },
+  { &hf_h235_fecAfterSrtp   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_NULL },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_FecOrder(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h235_FecOrder, FecOrder_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h235_INTEGER_64_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              64U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_OF_GenericData_sequence_of[1] = {
+  { &hf_h235_newParameter_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_GenericData },
+};
+
+static int
+dissect_h235_SEQUENCE_OF_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_h235_SEQUENCE_OF_GenericData, SEQUENCE_OF_GenericData_sequence_of);
+
+  return offset;
+}
+
+
+static const per_sequence_t SrtpSessionParameters_sequence[] = {
+  { &hf_h235_kdr            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_INTEGER_0_24 },
+  { &hf_h235_unencryptedSrtp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_BOOLEAN },
+  { &hf_h235_unencryptedSrtcp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_BOOLEAN },
+  { &hf_h235_unauthenticatedSrtp, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_BOOLEAN },
+  { &hf_h235_fecOrder       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_FecOrder },
+  { &hf_h235_windowSizeHint , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_INTEGER_64_65535 },
+  { &hf_h235_newParameter   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_SEQUENCE_OF_GenericData },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpSessionParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h235_SrtpSessionParameters, SrtpSessionParameters_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SrtpCryptoInfo_sequence[] = {
+  { &hf_h235_cryptoSuite    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_OBJECT_IDENTIFIER },
+  { &hf_h235_sessionParams  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_SrtpSessionParameters },
+  { &hf_h235_allowMKI       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpCryptoInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h235_SrtpCryptoInfo, SrtpCryptoInfo_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SrtpCryptoCapability_sequence_of[1] = {
+  { &hf_h235_SrtpCryptoCapability_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_SrtpCryptoInfo },
+};
+
+int
+dissect_h235_SrtpCryptoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_h235_SrtpCryptoCapability, SrtpCryptoCapability_sequence_of);
+
+  return offset;
+}
+
+
+static const value_string h235_T_lifetime_vals[] = {
+  {   0, "powerOfTwo" },
+  {   1, "specific" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_lifetime_choice[] = {
+  {   0, &hf_h235_powerOfTwo     , ASN1_EXTENSION_ROOT    , dissect_h235_INTEGER },
+  {   1, &hf_h235_specific       , ASN1_EXTENSION_ROOT    , dissect_h235_INTEGER },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_h235_T_lifetime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_h235_T_lifetime, T_lifetime_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h235_INTEGER_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                              1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_mki_sequence[] = {
+  { &hf_h235_length         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_INTEGER_1_128 },
+  { &hf_h235_value          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_OCTET_STRING },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_T_mki(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h235_T_mki, T_mki_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SrtpKeyParameters_sequence[] = {
+  { &hf_h235_masterKey      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_OCTET_STRING },
+  { &hf_h235_masterSalt     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h235_OCTET_STRING },
+  { &hf_h235_lifetime       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_T_lifetime },
+  { &hf_h235_mki            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h235_T_mki },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_h235_SrtpKeyParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_h235_SrtpKeyParameters, SrtpKeyParameters_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SrtpKeys_sequence_of[1] = {
+  { &hf_h235_SrtpKeys_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_SrtpKeyParameters },
+};
+
+int
+dissect_h235_SrtpKeys(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_h235_SrtpKeys, SrtpKeys_sequence_of);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 60 "packet-h235-template.c"
+#line 70 "packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1277,9 +1493,101 @@ void proto_register_h235(void) {
       { "genericKeyMaterial", "h235.genericKeyMaterial",
         FT_BYTES, BASE_HEX, NULL, 0,
         "h235.OCTET_STRING", HFILL }},
+    { &hf_h235_SrtpCryptoCapability_item,
+      { "Item", "h235.SrtpCryptoCapability_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.SrtpCryptoInfo", HFILL }},
+    { &hf_h235_cryptoSuite,
+      { "cryptoSuite", "h235.cryptoSuite",
+        FT_OID, BASE_NONE, NULL, 0,
+        "h235.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_h235_sessionParams,
+      { "sessionParams", "h235.sessionParams",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.SrtpSessionParameters", HFILL }},
+    { &hf_h235_allowMKI,
+      { "allowMKI", "h235.allowMKI",
+        FT_BOOLEAN, 8, NULL, 0,
+        "h235.BOOLEAN", HFILL }},
+    { &hf_h235_SrtpKeys_item,
+      { "Item", "h235.SrtpKeys_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.SrtpKeyParameters", HFILL }},
+    { &hf_h235_masterKey,
+      { "masterKey", "h235.masterKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "h235.OCTET_STRING", HFILL }},
+    { &hf_h235_masterSalt,
+      { "masterSalt", "h235.masterSalt",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "h235.OCTET_STRING", HFILL }},
+    { &hf_h235_lifetime,
+      { "lifetime", "h235.lifetime",
+        FT_UINT32, BASE_DEC, VALS(h235_T_lifetime_vals), 0,
+        "h235.T_lifetime", HFILL }},
+    { &hf_h235_powerOfTwo,
+      { "powerOfTwo", "h235.powerOfTwo",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "h235.INTEGER", HFILL }},
+    { &hf_h235_specific,
+      { "specific", "h235.specific",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "h235.INTEGER", HFILL }},
+    { &hf_h235_mki,
+      { "mki", "h235.mki",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.T_mki", HFILL }},
+    { &hf_h235_length,
+      { "length", "h235.length",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h235.INTEGER_1_128", HFILL }},
+    { &hf_h235_value,
+      { "value", "h235.value",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "h235.OCTET_STRING", HFILL }},
+    { &hf_h235_kdr,
+      { "kdr", "h235.kdr",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h235.INTEGER_0_24", HFILL }},
+    { &hf_h235_unencryptedSrtp,
+      { "unencryptedSrtp", "h235.unencryptedSrtp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "h235.BOOLEAN", HFILL }},
+    { &hf_h235_unencryptedSrtcp,
+      { "unencryptedSrtcp", "h235.unencryptedSrtcp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "h235.BOOLEAN", HFILL }},
+    { &hf_h235_unauthenticatedSrtp,
+      { "unauthenticatedSrtp", "h235.unauthenticatedSrtp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "h235.BOOLEAN", HFILL }},
+    { &hf_h235_fecOrder,
+      { "fecOrder", "h235.fecOrder",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.FecOrder", HFILL }},
+    { &hf_h235_windowSizeHint,
+      { "windowSizeHint", "h235.windowSizeHint",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h235.INTEGER_64_65535", HFILL }},
+    { &hf_h235_newParameter,
+      { "newParameter", "h235.newParameter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "h235.SEQUENCE_OF_GenericData", HFILL }},
+    { &hf_h235_newParameter_item,
+      { "Item", "h235.newParameter_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h225.GenericData", HFILL }},
+    { &hf_h235_fecBeforeSrtp,
+      { "fecBeforeSrtp", "h235.fecBeforeSrtp",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.NULL", HFILL }},
+    { &hf_h235_fecAfterSrtp,
+      { "fecAfterSrtp", "h235.fecAfterSrtp",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "h235.NULL", HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 68 "packet-h235-template.c"
+#line 78 "packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1313,9 +1621,18 @@ void proto_register_h235(void) {
     &ett_h235_ReturnSig,
     &ett_h235_KeySyncMaterial,
     &ett_h235_V3KeySyncMaterial,
+    &ett_h235_SrtpCryptoCapability,
+    &ett_h235_SrtpCryptoInfo,
+    &ett_h235_SrtpKeys,
+    &ett_h235_SrtpKeyParameters,
+    &ett_h235_T_lifetime,
+    &ett_h235_T_mki,
+    &ett_h235_SrtpSessionParameters,
+    &ett_h235_SEQUENCE_OF_GenericData,
+    &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 73 "packet-h235-template.c"
+#line 83 "packet-h235-template.c"
   };
 
   /* Register protocol */
@@ -1328,18 +1645,50 @@ void proto_register_h235(void) {
   /* OID names */
   /* H.235.1, Chapter 15, Table 3 */
     /* A */
-    add_oid_str_name("0.0.8.235.0.1.1","itu-t(0) recommendation(0) h(8) 235 version(0) 1 1 - all fields in RAS/CS");
-    add_oid_str_name("0.0.8.235.0.2.1","itu-t(0) recommendation(0) h(8) 235 version(0) 2 1 - all fields in RAS/CS");
+    add_oid_str_name("0.0.8.235.0.1.1", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 1 - all fields in RAS/CS");
+    add_oid_str_name("0.0.8.235.0.2.1", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 1 - all fields in RAS/CS");
     /* T */
-    add_oid_str_name("0.0.8.235.0.1.5","itu-t(0) recommendation(0) h(8) 235 version(0) 1 5 - ClearToken");
-    add_oid_str_name("0.0.8.235.0.2.5","itu-t(0) recommendation(0) h(8) 235 version(0) 2 5 - ClearToken");
+    add_oid_str_name("0.0.8.235.0.1.5", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 5 - ClearToken");
+    add_oid_str_name("0.0.8.235.0.2.5", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 5 - ClearToken");
     /* U */
-    add_oid_str_name("0.0.8.235.0.1.6","itu-t(0) recommendation(0) h(8) 235 version(0) 1 6 - HMAC-SHA1-96");
-    add_oid_str_name("0.0.8.235.0.2.6","itu-t(0) recommendation(0) h(8) 235 version(0) 2 6 - HMAC-SHA1-96");
+    add_oid_str_name("0.0.8.235.0.1.6", "itu-t(0) recommendation(0) h(8) 235 version(0) 1 6 - HMAC-SHA1-96");
+    add_oid_str_name("0.0.8.235.0.2.6", "itu-t(0) recommendation(0) h(8) 235 version(0) 2 6 - HMAC-SHA1-96");
+  /* H.235.7, Chapter 5, Table 1 */
+    add_oid_str_name(OID_MIKEY,         "itu-t(0) recommendation(0) h(8) 235 version(0) 3 76 - MIKEY");
+    add_oid_str_name(OID_MIKEY_PS,      "itu-t(0) recommendation(0) h(8) 235 version(0) 3 72 - MIKEY-PS");
+    add_oid_str_name(OID_MIKEY_DHHMAC,  "itu-t(0) recommendation(0) h(8) 235 version(0) 3 73 - MIKEY-DHHMAC");
+    add_oid_str_name(OID_MIKEY_PK_SIGN, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 74 - MIKEY-PK-SIGN");
+    add_oid_str_name(OID_MIKEY_DH_SIGN, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 75 - MIKEY-DH-SIGN");
+  /* H.235.7, Chapter 8.5 */
+    add_oid_str_name(OID_TG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 70 - TG");
+  /* H.235.7, Chapter 9.5 */
+    add_oid_str_name(OID_SG, "itu-t(0) recommendation(0) h(8) 235 version(0) 3 71 - SG");
 }
 
 
 /*--- proto_reg_handoff_h235 -------------------------------------------*/
 void proto_reg_handoff_h235(void) {
+
+  mikey_handle = find_dissector("mikey");
+
+  /* H.235.7, Chapter 7.1, MIKEY operation at "session level" */
+  dissector_add_string("h245.gen_par", OID_MIKEY         "-0", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-0", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-0", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-0", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-0", mikey_handle);
+  dissector_add_string("h245.gen_par", "EncryptionSync-0", mikey_handle);
+  /* H.235.7, Chapter 7.2, MIKEY operation at "media level" */
+  dissector_add_string("h245.gen_par", "EncryptionSync-76", mikey_handle);
+  dissector_add_string("h245.gen_par", "EncryptionSync-72", mikey_handle);
+  dissector_add_string("h245.gen_par", "EncryptionSync-73", mikey_handle);
+  dissector_add_string("h245.gen_par", "EncryptionSync-74", mikey_handle);
+  dissector_add_string("h245.gen_par", "EncryptionSync-75", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY         "-76", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_PS      "-72", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_DHHMAC  "-73", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_PK_SIGN "-74", mikey_handle);
+  dissector_add_string("h245.gen_par", OID_MIKEY_DH_SIGN "-75", mikey_handle);
+
 }
 

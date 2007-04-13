@@ -503,8 +503,17 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.FN_PARS CapabilityIdentifier/standard
   FN_VARIANT = _str  VAL_PTR = &standard_oid_str
 #.FN_FTR CapabilityIdentifier/standard
+  gen_par_prefix = ep_strdup(standard_oid_str);
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR GenericCapability
+  gen_par_prefix = "";
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR GenericMessage
+  gen_par_prefix = "";
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR GenericMessage/subMessageIdentifier
@@ -512,6 +521,30 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 #.FN_PARS GenericMessage/subMessageIdentifier
   VAL_PTR = &subMessageIdentifer
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR EncryptionSync
+  gen_par_prefix = "EncryptionSync";
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR GenericParameter
+  gen_par_str = "";
+#.FN_FTR GenericParameter/parameterIdentifier
+  gen_par_str = ep_strdup_printf("%s-%s", gen_par_prefix, gen_par_str);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ParameterIdentifier/standard  VAL_PTR = &value_int
+  gint32 value_int;
+
+%(DEFAULT_BODY)s
+  gen_par_str = ep_strdup_printf("%%d", value_int);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ParameterValue/octetString  VAL_PTR = &value_tvb
+  tvbuff_t *value_tvb;
+
+%(DEFAULT_BODY)s
+  dissector_try_string(gen_par_dissector_table, gen_par_str, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iPAddress/network  VAL_PTR = &value_tvb

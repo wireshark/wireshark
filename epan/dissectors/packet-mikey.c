@@ -1590,6 +1590,7 @@ proto_register_mikey(void)
 /* Register the protocol name and description */
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
 	    "MIKEY", "mikey");
+	register_dissector("mikey", dissect_mikey, proto_mikey);
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));
