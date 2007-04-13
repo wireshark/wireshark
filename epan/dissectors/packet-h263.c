@@ -597,7 +597,7 @@ dissect_h263_macroblock_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 static int
-dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gboolean is_rfc4626)
+dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_rfc4626)
 {
 
 	unsigned int offset_in_bits		= offset << 3;
@@ -1149,7 +1149,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				   */
 				  if ( check_col( pinfo->cinfo, COL_INFO) )
 					  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-				  dissect_h263_group_of_blocks_layer( tvb, pinfo, h263P_data_tree, offset,TRUE);
+				  dissect_h263_group_of_blocks_layer( tvb, h263P_data_tree, offset,TRUE);
 				  break;
 			  }
 		  }else{
@@ -1235,7 +1235,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 */
 				if ( check_col( pinfo->cinfo, COL_INFO) )
 					col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-				offset = dissect_h263_group_of_blocks_layer( tvb, pinfo, h263_payload_tree, offset,FALSE);
+				offset = dissect_h263_group_of_blocks_layer( tvb, h263_payload_tree, offset,FALSE);
 				break;
 			}
 		}else{

@@ -397,10 +397,12 @@ CLEAN_DISSECTOR_SRC = \
 	packet-h221_nonstd.c	\
 	packet-h248_annex_c.c 	\
 	packet-h248_annex_e.c 	\
+	packet-h248_3gpp.c 	\
 	packet-h248_7.c 	\
 	packet-h248_10.c 	\
 	packet-h248_q1950.c	\
 	packet-h261.c		\
+	packet-h263.c		\
 	packet-hci_h4.c		\
 	packet-hclnfsd.c	\
 	packet-hpext.c		\
@@ -738,8 +740,6 @@ DISSECTOR_SRC =	\
 	packet-ber.c		\
 	packet-cops.c 		\
 	packet-diameter.c	\
-	packet-h248_3gpp.c 	\
-	packet-h263.c		\
 	packet-homeplug.c 	\
 	packet-isup.c		\
 	packet-k12.c 		\
