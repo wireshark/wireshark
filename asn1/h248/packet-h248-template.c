@@ -1217,6 +1217,11 @@ static void h248_init(void)  {
 	if ( tcp_port) {
 		dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
 	}
+	
+	if (!h248_term_handle){
+		h248_term_handle = find_dissector("h248term");
+	}
+
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -1365,7 +1370,6 @@ void proto_register_h248(void) {
 void proto_reg_handoff_h248(void) {
 
   h248_handle = find_dissector("h248");
-  h248_term_handle = find_dissector("h248term");
   h248_tpkt_handle = find_dissector("h248.tpkt");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);

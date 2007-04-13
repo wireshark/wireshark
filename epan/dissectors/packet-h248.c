@@ -5816,6 +5816,11 @@ static void h248_init(void)  {
 	if ( tcp_port) {
 		dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
 	}
+	
+	if (!h248_term_handle){
+		h248_term_handle = find_dissector("h248term");
+	}
+
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -7107,7 +7112,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1299 "packet-h248-template.c"
+#line 1304 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7269,7 +7274,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1317 "packet-h248-template.c"
+#line 1322 "packet-h248-template.c"
   };
 
   module_t *h248_module;
@@ -7321,7 +7326,6 @@ void proto_register_h248(void) {
 void proto_reg_handoff_h248(void) {
 
   h248_handle = find_dissector("h248");
-  h248_term_handle = find_dissector("h248term");
   h248_tpkt_handle = find_dissector("h248.tpkt");
 
   dissector_add("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
