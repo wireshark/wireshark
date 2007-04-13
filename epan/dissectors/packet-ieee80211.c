@@ -946,7 +946,6 @@ static int hf_tag_neighbor_report_bssid_info = -1;
 static int hf_tag_neighbor_report_bssid_info_reachability = -1;
 static int hf_tag_neighbor_report_bssid_info_security = -1;
 static int hf_tag_neighbor_report_bssid_info_key_scope = -1;
-static int hf_tag_neighbor_report_bssid_info_capability = -1;
 static int hf_tag_neighbor_report_bssid_info_capability_spec_mng = -1;
 static int hf_tag_neighbor_report_bssid_info_capability_qos = -1;
 static int hf_tag_neighbor_report_bssid_info_capability_apsd = -1;
