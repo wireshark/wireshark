@@ -330,9 +330,9 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 /*
  * COMPOSE_FRAME_TYPE() values for control frames.
  */
-#define CTRL_CONTROL_WRAPPER 0x1D	/* Control Wrapper		    */
+#define CTRL_CONTROL_WRAPPER 0x17	/* Control Wrapper		    */
 #define CTRL_BLOCK_ACK_REQ   0x18	/* Block ack Request		    */
-#define CTRL_BLOCK_ACK	     0x19	/* Block ack			    */
+#define CTRL_BLOCK_ACK	      0x19	/* Block ack			    */
 #define CTRL_PS_POLL         0x1A	/* power-save poll               */
 #define CTRL_RTS             0x1B	/* request to send               */
 #define CTRL_CTS             0x1C	/* clear to send                 */
@@ -356,8 +356,8 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define DATA_QOS_DATA_CF_ACK        0x29	/* QoS Data + CF-Ack	      */
 #define DATA_QOS_DATA_CF_POLL       0x2A	/* QoS Data + CF-Poll		  */
 #define DATA_QOS_DATA_CF_ACK_POLL   0x2B	/* QoS Data + CF-Ack + CF-Poll	  */
-#define DATA_QOS_NULL		    0x2C	/* QoS Null			  */
-#define DATA_QOS_CF_POLL_NOD	    0x2E	/* QoS CF-Poll (No Data)		  */
+#define DATA_QOS_NULL               0x2C	/* QoS Null			  */
+#define DATA_QOS_CF_POLL_NOD        0x2E	/* QoS CF-Poll (No Data)		  */
 #define DATA_QOS_CF_ACK_POLL_NOD    0x2F	/* QoS CF-Ack + CF-Poll (No Data) */
 
 
@@ -395,6 +395,7 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define FIELD_SRC_MAC_ADDR	0X15	/* DLS source MAC address */
 #define FIELD_DLS_TIMEOUT	0X16	/* DLS timeout value */
 #define FIELD_SCHEDULE_INFO	0X17	/* Schedule Info field */
+#define FIELD_ACTION	0X18	/* Action field */
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -434,6 +435,7 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define TAG_ERP_INFO_OLD         0x2F	/* IEEE Std 802.11g/D4.0 */
 #define TAG_RSN_IE               0x30
 #define TAG_EXT_SUPP_RATES       0x32
+#define TAG_NEIGHBOR_REPORT      0x34
 #define TAG_HT_INFO              0x3D	/* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET 0x3E	/* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_EXTENDED_CAPABILITIES    0X7F   /* IEEE Stc 802.11n/D1.10/D2.0 */
@@ -443,6 +445,10 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define TAG_CISCO_UNKNOWN_3	 0x95	/* Cisco Compatible eXtensions */
 #define TAG_VENDOR_SPECIFIC_IE	 0xDD
 #define TAG_SYMBOL_PROPRIETARY	 0xAD
+#if 0 /* Not yet assigned tag numbers by ANA */
+#define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT	 0xFF
+#define TAG_SUPPORTED_REGULATORY_CLASSES	 0xFE
+#endif
 
 #define WPA_OUI	 (const guint8 *) "\x00\x50\xF2"
 #define RSN_OUI (const guint8 *) "\x00\x0F\xAC"
@@ -604,6 +610,7 @@ static int hf_addr_da = -1;	/* Destination address subfield */
 static int hf_addr_sa = -1;	/* Source address subfield */
 static int hf_addr_ra = -1;	/* Receiver address subfield */
 static int hf_addr_ta = -1;	/* Transmitter address subfield */
+static int hf_addr_addr1 = -1;
 static int hf_addr_bssid = -1;	/* address is bssid */
 
 static int hf_addr = -1;	/* Source or destination address subfield */
@@ -746,16 +753,18 @@ static int hf_ccmp_extiv = -1;
 static int hf_wep_key = -1;
 static int hf_wep_icv = -1;
 
-/*** Begin: Block Ack Request  - Dustin Johnson***/
+/*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
 static int hf_block_ack_request_control = -1;
-static int hf_block_ack_request_control_ack_policy = -1;
-static int hf_block_ack_request_control_multi_tid = -1;
-static int hf_block_ack_request_control_compressed_bitmap = -1;
-static int hf_block_ack_request_control_reserved = -1;
+static int hf_block_ack_control_ack_policy = -1;
+static int hf_block_ack_control_multi_tid = -1;
+static int hf_block_ack_control_compressed_bitmap = -1;
+static int hf_block_ack_control_reserved = -1;
 
-static int hf_block_ack_request_control_basic_tid_info = -1;
-static int hf_block_ack_request_control_basic_fragment = -1;
-static int hf_block_ack_request_control_basic_sequence = -1;
+static int hf_block_ack_control_basic_tid_info = -1;
+static int hf_block_ack_control_compressed_tid_info = -1;
+static int hf_block_ack_control_multi_tid_info = -1;
+static int hf_block_ack_control_basic_fragment = -1;
+static int hf_block_ack_control_basic_sequence = -1;
 
 static int hf_tag_measure_request_measurement_mode = -1;
 static int hf_tag_measure_request_bssid = -1;
@@ -766,7 +775,15 @@ static int hf_tag_measure_request_threshold_offset_signed = -1;
 static int hf_tag_measure_request_report_mac = -1;
 
 static int hf_tag_measure_request_group_id = -1;
-/*** End: Block Ack Request  - Dustin Johnson***/
+
+static int hf_block_ack_multi_tid_info = -1;
+static int hf_block_ack_request_type = -1;
+static int hf_block_ack_multi_tid_reserved = -1;
+static int hf_block_ack_multi_tid_value = -1;
+static int hf_block_ack_request_multi_tid_ssc = -1;
+static int hf_block_ack_ssc = -1;
+static int hf_block_ack_type = -1;
+/*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
 static int ht_cap = -1;
 static int ht_ldpc_coding = -1;
@@ -906,11 +923,55 @@ static int hf_tag_measure_rpi_histogram_report_4 = -1;
 static int hf_tag_measure_rpi_histogram_report_5 = -1;
 static int hf_tag_measure_rpi_histogram_report_6 = -1;
 static int hf_tag_measure_rpi_histogram_report_7 = -1;
+
+static int hf_tag_measure_report_regulatory_class = -1;
+static int hf_tag_measure_report_channel_load = -1;
+static int hf_tag_measure_report_frame_info = -1;
+static int hf_tag_measure_report_frame_info_phy_type = -1;
+static int hf_tag_measure_report_frame_info_frame_type = -1;
+static int hf_tag_measure_report_rcpi = -1;
+static int hf_tag_measure_report_rsni = -1;
+static int hf_tag_measure_report_bssid = -1;
+static int hf_tag_measure_report_ant_id = -1;
+static int hf_tag_measure_report_parent_tsf = -1;
 /*** End: Measurement Report Tag  - Dustin Johnson***/
 
-/*** Begin: Extended Capabilities - Dustin Johnson ***/
+/*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
 static int hf_tag_extended_capabilities = -1;
-/*** End: Extended Capabilities - Dustin Johnson ***/
+/*** End: Extended Capabilities Tag - Dustin Johnson ***/
+
+/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
+static int hf_tag_neighbor_report_bssid = -1;
+static int hf_tag_neighbor_report_bssid_info = -1;
+static int hf_tag_neighbor_report_bssid_info_reachability = -1;
+static int hf_tag_neighbor_report_bssid_info_security = -1;
+static int hf_tag_neighbor_report_bssid_info_key_scope = -1;
+static int hf_tag_neighbor_report_bssid_info_capability = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_spec_mng = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_qos = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_apsd = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_radio_msnt = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_dback = -1;
+static int hf_tag_neighbor_report_bssid_info_capability_iback = -1;
+static int hf_tag_neighbor_report_bssid_info_mobility_domain = -1;
+static int hf_tag_neighbor_report_bssid_info_high_throughput = -1;
+static int hf_tag_neighbor_report_bssid_info_reserved = -1;
+static int hf_tag_neighbor_report_reg_class = -1;
+static int hf_tag_neighbor_report_channel_number = -1;
+static int hf_tag_neighbor_report_phy_type = -1;
+/*** End: Neighbor Report Tag - Dustin Johnson ***/
+
+/*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+static int hf_tag_ext_channel_switch_announcement_switch_mode = -1;
+static int hf_tag_ext_channel_switch_announcement_new_reg_class = -1;
+static int hf_tag_ext_channel_switch_announcement_new_chan_number = -1;
+static int hf_tag_ext_channel_switch_announcement_switch_count = -1;
+/*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+
+/*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
+static int hf_tag_supported_reg_classes_current = -1;
+static int hf_tag_supported_reg_classes_alternate = -1;
+/*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
 /* 802.11n 7.3.2.48 */
 static int hta_cap = -1;
@@ -997,6 +1058,7 @@ static int hf_sched_info = -1;
 static int hf_sched_srv_start = -1;
 static int hf_sched_srv_int = -1;
 static int hf_sched_spec_int = -1;
+static int hf_action = -1;
 static int cf_version = -1;
 static int cf_ipv4_src = -1;
 static int cf_ipv4_dst = -1;
@@ -1016,9 +1078,10 @@ static gint ett_80211 = -1;
 static gint ett_proto_flags = -1;
 static gint ett_cap_tree = -1;
 static gint ett_fc_tree = -1;
+static gint ett_cntrl_wrapper_fc = -1;
 static gint ett_fragments = -1;
 static gint ett_fragment = -1;
-static gint ett_block_ack_request = -1;
+static gint ett_block_ack = -1;
 
 
 static gint ett_80211_mgt = -1;
@@ -1050,6 +1113,12 @@ static gint ett_ht_info_delimiter3_tree = -1;
 /*** Start: 802.11n D1.10 - Tag Measure Request IE - Dustin Johnson ***/
 static gint ett_tag_measure_request_tree = -1;
 /*** End: 802.11n D1.10 - Tag Measure Request IE  - Dustin Johnson ***/
+
+/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
+static gint ett_tag_neighbor_report_bssid_info_tree = -1;
+static gint ett_tag_neighbor_report_bssid_info_capability_tree = -1;
+static gint ett_tag_neighbor_report_sub_tag_tree = -1;
+/*** End: Neighbor Report Tag - Dustin Johnson ***/
 
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
@@ -1276,8 +1345,8 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
 /* ************************************************************************* */
 /*              Dissect and add fixed mgmt fields to protocol tree           */
 /* ************************************************************************* */
-static void
-add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
+static guint
+add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 {
   const guint8 *dataptr;
   char out_buff[SHORT_STR];
@@ -1285,6 +1354,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
   proto_item *cap_item;
   static proto_tree *cap_tree;
   double temp_double;
+  guint length = 0;
 
   switch (lfcode)
     {
@@ -1302,6 +1372,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 		dataptr[0]);
 
       proto_tree_add_string (tree, ff_timestamp, tvb, offset, 8, out_buff);
+      length += 8;
       break;
 
     case FIELD_BEACON_INTERVAL:
@@ -1314,6 +1385,7 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       if (check_col (g_pinfo->cinfo, COL_INFO)) {
           col_append_fstr(g_pinfo->cinfo, COL_INFO, ",BI=%d", capability);
       }
+      length += 2;
       break;
 
 
@@ -1357,60 +1429,74 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_imm_blk_ack, tvb, offset, 2,
 			      capability);
+      length += 2;
       break;
 
     case FIELD_AUTH_ALG:
       proto_tree_add_item (tree, ff_auth_alg, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_AUTH_TRANS_SEQ:
       proto_tree_add_item (tree, ff_auth_seq, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_CURRENT_AP_ADDR:
       proto_tree_add_item (tree, ff_current_ap, tvb, offset, 6, FALSE);
+      length += 6;
       break;
 
     case FIELD_LISTEN_IVAL:
       proto_tree_add_item (tree, ff_listen_ival, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_REASON_CODE:
       proto_tree_add_item (tree, ff_reason, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_ASSOC_ID:
       proto_tree_add_uint(tree, ff_assoc_id, tvb, offset, 2,
 			  ASSOC_ID(tvb_get_letohs(tvb,offset)));
       /* proto_tree_add_item (tree, ff_assoc_id, tvb, offset, 2, TRUE); */
+      length += 2;
       break;
 
     case FIELD_STATUS_CODE:
       proto_tree_add_item (tree, ff_status_code, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_CATEGORY_CODE:
       proto_tree_add_item (tree, ff_category_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_ACTION_CODE:
       proto_tree_add_item (tree, ff_action_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_DIALOG_TOKEN:
       proto_tree_add_item (tree, ff_dialog_token, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_WME_ACTION_CODE:
       proto_tree_add_item (tree, ff_wme_action_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_WME_STATUS_CODE:
       proto_tree_add_item (tree, ff_wme_status_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_QOS_ACTION_CODE:
       proto_tree_add_item (tree, ff_qos_action_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_QOS_TS_INFO:
@@ -1450,22 +1536,27 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 	proto_tree_add_uint(tsinfo_tree, hf_tsinfo_sched, tvb,
 			    offset, 3, TSI_SCHED (tsi));
       }
+      length += 3;
       break;
 
     case FIELD_DLS_ACTION_CODE:
       proto_tree_add_item (tree, ff_dls_action_code, tvb, offset, 1, TRUE);
+      length += 1;
       break;
 
     case FIELD_DST_MAC_ADDR:
       proto_tree_add_item (tree, ff_dst_mac_addr, tvb, offset, 6, TRUE);
+      length += 6;
       break;
 
     case FIELD_SRC_MAC_ADDR:
       proto_tree_add_item (tree, ff_src_mac_addr, tvb, offset, 6, TRUE);
+      length += 6;
       break;
 
     case FIELD_DLS_TIMEOUT:
       proto_tree_add_item (tree, ff_dls_timeout, tvb, offset, 2, TRUE);
+      length += 2;
       break;
 
     case FIELD_SCHEDULE_INFO:
@@ -1488,8 +1579,152 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 			      2, (sched & 0x0060) >> 5);
 	}
       }
+      length += 2;
     break;
-    }
+	case FIELD_ACTION:
+	{
+	  proto_item *action_item;
+	  proto_tree *action_tree, *fixed_tree;
+
+	  action_item = proto_tree_add_item(tree, hf_action,
+					                   tvb, offset, 2, TRUE);
+	  action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
+	  switch (tvb_get_guint8(tvb, 0))
+	  {
+	  case CAT_SPECTRUM_MGMT:
+	    switch (tvb_get_guint8(tvb, 1))
+		{
+		case SM_ACTION_MEASUREMENT_REQUEST:
+		case SM_ACTION_MEASUREMENT_REPORT:
+		case SM_ACTION_TPC_REQUEST:
+		case SM_ACTION_TPC_REPORT:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 3);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  length += 3;	/* Size of fixed fields */
+		  break;
+
+		case SM_ACTION_CHAN_SWITCH_ANNC:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 2);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  length += 2;	/* Size of fixed fields */
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 2);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  length += 2;	/* Size of fixed fields */
+		  break;
+		}
+	      break;
+
+	    case CAT_QOS:
+	      switch (tvb_get_guint8(tvb, 1))
+	        {
+		case SM_ACTION_ADDTS_REQUEST:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 3);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  length += 3;
+		  break;
+
+		case SM_ACTION_ADDTS_RESPONSE:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 5);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+		  add_fixed_field(fixed_tree, tvb, 3, FIELD_STATUS_CODE);
+		  length += 5;
+		  break;
+
+		case SM_ACTION_DELTS:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 7);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_QOS_TS_INFO);
+		  add_fixed_field(fixed_tree, tvb, 5, FIELD_REASON_CODE);
+		  length += 7;
+		  break;
+
+		case SM_ACTION_QOS_SCHEDULE:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 2);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
+		  length += 2;
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 2);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  length += 2;	/* Size of fixed fields */
+		  break;
+		}
+	      break;
+
+	    case CAT_DLS:
+	      switch (tvb_get_guint8(tvb, 1))
+	        {
+		case SM_ACTION_DLS_REQUEST:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 18);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
+		  add_fixed_field(fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
+		  add_fixed_field(fixed_tree, tvb, 14, FIELD_CAP_INFO);
+		  add_fixed_field(fixed_tree, tvb, 16, FIELD_DLS_TIMEOUT);
+		  length += 18;
+		  break;
+
+		case SM_ACTION_DLS_RESPONSE:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 16);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+		  add_fixed_field(fixed_tree, tvb, 4, FIELD_DST_MAC_ADDR);
+		  add_fixed_field(fixed_tree, tvb, 10, FIELD_SRC_MAC_ADDR);
+		  length += 16;
+		  if (!ff_status_code)
+		    add_fixed_field(fixed_tree, tvb, 16, FIELD_CAP_INFO);
+		  break;
+
+		case SM_ACTION_DLS_TEARDOWN:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 18);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  add_fixed_field(fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
+		  add_fixed_field(fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
+		  add_fixed_field(fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
+		  add_fixed_field(fixed_tree, tvb, 14, FIELD_REASON_CODE);
+		  length += 16;
+		  break;
+
+		default:
+		  fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 2);
+		  add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+		  length += 2;	/* Size of fixed fields */
+		  break;
+		}
+	      break;
+
+	    case CAT_MGMT_NOTIFICATION:	/* Management notification frame */
+	      fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 4);
+	      add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+	      add_fixed_field(fixed_tree, tvb, 1, FIELD_WME_ACTION_CODE);
+	      add_fixed_field(fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
+	      add_fixed_field(fixed_tree, tvb, 3, FIELD_WME_STATUS_CODE);
+	      length += 4;	/* Size of fixed fields */
+	      break;
+
+	    default:
+	      fixed_tree = get_fixed_parameter_tree (action_tree, tvb, 0, 1);
+	      add_fixed_field(fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
+	      length += 1;	/* Size of fixed fields */
+	      break;
+	    }
+	}
+  }
+  return length;
 }
 
 static const value_string wpa_cipher_vals[] =
@@ -2005,6 +2240,26 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
   }
 }
 
+/*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
+static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
+{
+  if (tag_len != 1)
+  {
+    proto_tree_add_text (tree, tvb, offset, tag_len, "Secondary Channel Offset: Error: Tag length must be at least 1 byte long");
+	return;
+  }
+
+  proto_tree_add_uint(tree, hf_tag_secondary_channel_offset, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+
+  offset++;
+  if ((tag_len - offset) > 0)
+  {
+    proto_tree_add_text (tree, tvb, offset, tag_len - offset, "Unkown Data");
+	return;
+  }
+}
+/*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
+
 static void
 dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 	       guint32 tag_len)
@@ -2366,6 +2621,66 @@ dissect_ht_control(proto_tree *tree, tvbuff_t * tvb, int offset)
 #endif
 
 static void
+dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc,
+                      guint32 offset)
+{
+  guint16 fcf, flags, frame_type_subtype;
+  proto_tree *fc_tree, *flag_tree;
+  proto_item *fc_item, *flag_item;
+
+  fcf = tvb_get_letohs (tvb, offset);
+  if (wlan_broken_fc) {
+    /* Swap bytes */
+    fcf = ((fcf & 0xff) << 8) | (((fcf & 0xff00) >> 8) & 0xff);
+  }
+
+  flags = FCF_FLAGS (fcf);
+  frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
+
+  proto_tree_add_uint (tree, hf_fc_frame_type_subtype,
+			           tvb, wlan_broken_fc?offset+1:offset, 1,
+			           frame_type_subtype);
+
+  fc_item = proto_tree_add_uint_format (tree, hf_fc_field, tvb,
+		      			    offset, 2, fcf, "Frame Control: 0x%04X (%s)",
+					        fcf, wlan_broken_fc?"Swapped":"Normal");
+
+  fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
+
+  proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb, wlan_broken_fc?offset+1:offset, 1,
+			           FCF_PROT_VERSION (fcf));
+
+  proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb, wlan_broken_fc?offset+1:offset, 1,
+			           FCF_FRAME_TYPE (fcf));
+
+  proto_tree_add_uint (fc_tree, hf_fc_frame_subtype, tvb, wlan_broken_fc?offset+1:offset, 1,
+			           FCF_FRAME_SUBTYPE (fcf));
+
+  flag_item = proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb,
+                                          wlan_broken_fc?offset:offset+1, 1,
+				                          flags, "Flags: 0x%X", flags);
+
+  flag_tree = proto_item_add_subtree (flag_item, ett_proto_flags);
+
+  proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb, wlan_broken_fc?offset:+1, 1,
+			           FLAGS_DS_STATUS (flags));
+  proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, offset+1, 1, flags);
+  proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, offset+1, 1, flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb, wlan_broken_fc?offset:offset+1, 1,
+                          flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb, wlan_broken_fc?offset:offset+1, 1,
+                          flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb, wlan_broken_fc?offset:offset+1, 1,
+                          flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb, wlan_broken_fc?offset:offset+1, 1,
+			              flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_protected, tvb, wlan_broken_fc?offset:offset+1, 1,
+                          flags);
+  proto_tree_add_boolean (flag_tree, hf_fc_order, tvb, wlan_broken_fc?offset:offset+1, 1,
+                          flags);
+}
+
+static void
 dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
       gint tag_len = tvb_length_remaining(tag_tvb, 0);
@@ -2434,6 +2749,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_TS_DELAY,		    	"TS Delay"},
 	{ TAG_TCLAS_PROCESS,	    "TCLAS Processing"},
     { TAG_HT_CAPABILITY,		"HT Capabilities (802.11n D1.10)"},
+	{ TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
 	{ TAG_HT_INFO,       		"HT Information (802.11n D1.10)"},
 	{ TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
 	{ TAG_QOS_CAPABILITY,	    "QoS Capability"},
@@ -2448,6 +2764,10 @@ static const value_string tag_num_vals[] = {
 	{ TAG_QUIET,		    	"Quiet"},
 	{ TAG_IBSS_DFS,		    	"IBSS DFS"},
 	{ TAG_EXTENDED_CAPABILITIES,    "Extended Capabilities"},
+	#if 0 /*Not yet assigned tag numbers by ANA */
+	{ TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement"},
+	{ TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes"},
+	#endif
 	{ 0,                        NULL }
 };
 
@@ -2791,7 +3111,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		"TSPEC tag length %u != 55", tag_len);
 	break;
       }
-      add_fixed_field (tree, tvb, offset + 2, FIELD_QOS_TS_INFO);
+      add_fixed_field(tree, tvb, offset + 2, FIELD_QOS_TS_INFO);
       proto_tree_add_item(tree, tspec_nor_msdu, tvb, offset + 5, 2, TRUE);
       proto_tree_add_item(tree, tspec_max_msdu, tvb, offset + 7, 2, TRUE);
       proto_tree_add_item(tree, tspec_min_srv, tvb, offset + 9, 4, TRUE);
@@ -2906,7 +3226,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		"TCLAS_PROCESS element length %u != 14", tag_len);
 	break;
       }
-      add_fixed_field (tree, tvb, offset + 2, FIELD_SCHEDULE_INFO);
+      add_fixed_field(tree, tvb, offset + 2, FIELD_SCHEDULE_INFO);
       proto_tree_add_item(tree, hf_sched_srv_start, tvb, offset + 4, 4, TRUE);
       proto_tree_add_item(tree, hf_sched_srv_int, tvb, offset + 8, 4, TRUE);
       proto_tree_add_item(tree, hf_sched_spec_int, tvb, offset + 12, 2, TRUE);
@@ -3031,19 +3351,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   case TAG_HT_INFO:
     dissect_ht_info_ie_1_1(tree, tvb, offset + 2, tag_len);
     break;
-
+  /*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
   case TAG_SECONDARY_CHANNEL_OFFSET:
-      if (tag_len != 1)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-		"Secondary Channel Offset: Error: Tag length must be 1 byte long");
-	    break;
-      }
-
-      proto_tree_add_uint(tree, hf_tag_secondary_channel_offset, tvb, offset+2,
-	             tag_len, tvb_get_guint8 (tvb, offset+2));
-      break;
-  /* Begin: Measure Request Tag - Dustin Johnson */
+    secondary_channel_offset_ie(tree, tvb, offset + 2, tag_len);
+    break;
+  /*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
+  /*** Begin: Measure Request Tag - Dustin Johnson ***/
   case TAG_MEASURE_REQ:
       if (tag_len < 3)
       {
@@ -3222,6 +3535,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		case 255: /* Measurement Pause Request*/
 		  /* TODO */
 		default: /* unkown */
+		  proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
 		  break;
 		}
 	  }
@@ -3240,13 +3554,16 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		guint64 start_time;
 		proto_item *parent_item;
 		proto_tree *sub_tree;
+		guint tag_offset;
 
 		offset += 2;
+		tag_offset = offset;
 	    info = tvb_get_guint8 (tvb, offset);
 	    proto_tree_add_uint_format(tree, hf_tag_measure_report_measurement_token, tvb,
 		                           offset, 1, info, "Measurement Token: 0x%02X", info);
 
-		info = tvb_get_guint8 (tvb, ++offset);
+		offset++;
+		info = tvb_get_guint8 (tvb, offset);
 	    parent_item = proto_tree_add_uint_format(tree, hf_tag_measure_report_mode, tvb,
 		                    offset, 1, info, "Measurement Report Mode: 0x%02X", info);
 		sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
@@ -3255,16 +3572,21 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		proto_tree_add_boolean(sub_tree, hf_tag_measure_report_mode_refused, tvb, offset, 1, info);
 		proto_tree_add_uint(sub_tree, hf_tag_measure_report_mode_reserved, tvb, offset, 1, info);
 
-        report_type = tvb_get_guint8 (tvb, ++offset);
+		offset++;
+        report_type = tvb_get_guint8 (tvb, offset);
 	    parent_item = proto_tree_add_uint(tree, hf_tag_measure_report_type, tvb, offset, 1, report_type);
 	    sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
 
 		offset++;
 	    switch (report_type){
 		case 0: /* Basic Report */
-		  channel_number = tvb_get_guint8 (tvb, offset);
+		{
+		  proto_tree *sub_tree_map_field;
+
+          channel_number = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
+		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
 		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIx64, start_time);
 
@@ -3276,18 +3598,20 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  info = tvb_get_guint8 (tvb, offset);
 		  parent_item = proto_tree_add_uint_format(tree, hf_tag_measure_basic_map_field, tvb,
 		                    offset, 1, info, "Map Field: 0x%02X", info);
-		  sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
-		  proto_tree_add_boolean(sub_tree, hf_tag_measure_map_field_bss, tvb, offset, 1, info);
-		  proto_tree_add_boolean(sub_tree, hf_tag_measure_map_field_odfm, tvb, offset, 1, info);
-		  proto_tree_add_boolean(sub_tree, hf_tag_measure_map_field_unident_signal, tvb, offset, 1, info);
-		  proto_tree_add_boolean(sub_tree, hf_tag_measure_map_field_radar, tvb, offset, 1, info);
-		  proto_tree_add_boolean(sub_tree, hf_tag_measure_map_field_unmeasured, tvb, offset, 1, info);
-		  proto_tree_add_uint(sub_tree, hf_tag_measure_map_field_reserved, tvb, offset, 1, info);
+		  sub_tree_map_field = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
+		  proto_tree_add_boolean(sub_tree_map_field, hf_tag_measure_map_field_bss, tvb, offset, 1, info);
+		  proto_tree_add_boolean(sub_tree_map_field, hf_tag_measure_map_field_odfm, tvb, offset, 1, info);
+		  proto_tree_add_boolean(sub_tree_map_field, hf_tag_measure_map_field_unident_signal, tvb, offset, 1, info);
+		  proto_tree_add_boolean(sub_tree_map_field, hf_tag_measure_map_field_radar, tvb, offset, 1, info);
+		  proto_tree_add_boolean(sub_tree_map_field, hf_tag_measure_map_field_unmeasured, tvb, offset, 1, info);
+		  proto_tree_add_uint(sub_tree_map_field, hf_tag_measure_map_field_reserved, tvb, offset, 1, info);
 		  break;
+		}
 		case 1: /* Clear channel assessment (CCA) report */
-		  channel_number = tvb_get_guint8 (tvb, offset++);
+		  channel_number = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
+		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
 		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
@@ -3300,9 +3624,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(tree, hf_tag_measure_cca_busy_fraction, tvb, offset, 1, info, "CCA Busy Fraction: 0x%02X", info);
 		  break;
 		case 2: /* Receive power indication (RPI) histogram report */
-		  channel_number = tvb_get_guint8 (tvb, offset++);
+		  channel_number = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
+		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
 		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
@@ -3331,29 +3656,108 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  info = tvb_get_guint8 (tvb, ++offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_7, tvb, offset, 1, info, "RPI 7 Density: 0x%02X", info);
 			break;
-		case 3: /* unkown */
+		case 3: /* Channel Load Report */
+        {
+		  guint8 regulatory_class, channel_load;
 
+          regulatory_class = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
+
+		  offset++;
+		  channel_number = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
+
+		  offset++;
+		  start_time = tvb_get_letoh64 (tvb, offset);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+
+		  offset += 8;
+		  duration = tvb_get_letohs (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
+
+		  offset+=2;
+		  channel_load = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint(tree, hf_tag_measure_report_channel_load, tvb, offset, 1, channel_load);
 		  break;
-		case 4: /* unkown */
-
+		}
+		case 4: /* Noise Histogram Report */
+          /* TODO */
+		  proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
 		  break;
 		case 5: /* Beacon Report */
+        {
+		  guint8 regulatory_class, reported_frame_info, rcpi, rsni, ant_id;
+		  guint32 parent_tsf;
+		  proto_tree *sub_tree_frame_info;
+		  const guint8 *bssid = NULL;
 
-		  break;
-		case 6: /* unkown */
+          regulatory_class = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
 
+		  offset++;
+		  channel_number = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
+
+		  offset++;
+		  start_time = tvb_get_letoh64 (tvb, offset);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+
+		  offset += 8;
+		  duration = tvb_get_letohs (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
+
+		  offset+=2;
+		  reported_frame_info = tvb_get_guint8 (tvb, offset);
+		  parent_item = proto_tree_add_uint(sub_tree, hf_tag_measure_report_frame_info, tvb, offset, 1, reported_frame_info);
+		    sub_tree_frame_info = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
+		    proto_tree_add_uint(sub_tree_frame_info, hf_tag_measure_report_frame_info_phy_type, tvb, offset, 1, reported_frame_info);
+		    proto_tree_add_uint(sub_tree_frame_info, hf_tag_measure_report_frame_info_frame_type, tvb, offset, 1, reported_frame_info);
+
+		  offset++;
+		  rcpi = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_rcpi, tvb, offset, 1, rcpi, "Received Channel Power Indicator (RCPI): 0x%02X dBm", rcpi);
+
+		  offset++;
+		  rsni = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_rsni, tvb, offset, 1, rsni, "Received Signal to Noise Indicator (RSNI): 0x%02X dB", rsni);
+
+		  offset++;
+		  bssid = tvb_get_ptr (tvb, offset, 6);
+		  proto_tree_add_ether(sub_tree, hf_tag_measure_request_bssid, tvb, offset, 6, bssid);
+
+		  offset+=6;
+		  ant_id = tvb_get_guint8 (tvb, offset);
+		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_ant_id, tvb, offset, 1, ant_id);
+
+		  offset++;
+		  parent_tsf = tvb_get_letohl (tvb, offset);
+		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_parent_tsf, tvb, offset, 4, parent_tsf);
+
+		  offset+=4;
+		  /* TODO - Must determine frame type and dissect this */
+		  if (tag_len > (offset - tag_offset))
+          {
+            proto_tree_add_text (sub_tree, tvb, offset, tag_len - (offset - tag_offset), "Reported Frame Body");
+	      }
 		  break;
+		}
+		case 6: /* Frame Report */
+          /* TODO */
 		case 7: /* BSTA Statistics Report */
-
-		  break;
+          /* TODO */
+		case 8: /* Location Configuration Information Report element */
+          /* TODO */
+		case 9: /* Transmit Stream Measurement Report */
+          /* TODO */
 		default: /* unkown */
+		  proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
 		  break;
 		}
 	  }
 
     break;
     /*** End: Measure Report Tag - Dustin Johnson ***/
-	/*** Begin: Extended Capabilities - Dustin Johnson ***/
+	/*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     case TAG_EXTENDED_CAPABILITIES:
 	{
 	  guint tag_offset;
@@ -3362,7 +3766,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	  if (tag_len < 1)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-		"Extendend Capabilitie: Error: Tag length must be at least 1 byte long");
+		"Extendend Capabilities: Error: Tag length must be at least 1 byte long");
 		break;
 	  }
 	  offset+=2;
@@ -3373,12 +3777,204 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 	  if (tag_len > (offset - tag_offset))
       {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len - offset - tag_offset, "Unkown Data");
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
 		break;
 	  }
 	  break;
 	}
-	/*** End: Extended Capabilities - Dustin Johnson ***/
+	/*** End: Extended Capabilities Tag - Dustin Johnson ***/
+	/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
+	case TAG_NEIGHBOR_REPORT:
+	{
+	  #define SUB_TAG_TSF_INFO                 0x01
+	  #define SUB_TAG_MEASUREMENT_PILOT_INFO   0x02
+	  #define SUB_TAG_HT_CAPABILITIES          0x03
+	  #define SUB_TAG_HT_INFO                  0x04
+	  #define SUB_TAG_SEC_CHANNEL_OFFSET       0x05
+	  #define SUB_TAG_VENDOR_SPECIFIC          0xDD
+
+
+	  guint tag_offset;
+	  guint8 sub_tag_id;
+	  guint32 bssid_info, info, sub_tag_length;
+	  const guint8 *bssid = NULL;
+	  proto_item *parent_item;
+	  proto_tree *bssid_info_subtree, *sub_tag_tree;
+	  tvbuff_t *volatile sub_tag_tvb = NULL;
+
+	  if (tag_len < 13)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"Neighbor Report: Error: Tag length must be at least 13 bytes long");
+		break;
+	  }
+	  offset+=2;
+	  tag_offset = offset;
+
+	  bssid = tvb_get_ptr (tvb, offset, 6);
+	  proto_tree_add_ether(tree, hf_tag_neighbor_report_bssid, tvb, offset, 6, bssid);
+
+	  /*** Begin: BSSID Information ***/
+	  offset+=6;
+	  bssid_info = tvb_get_letohl (tvb, offset);
+	  parent_item = proto_tree_add_uint_format(tree, hf_tag_neighbor_report_bssid_info, tvb, offset, 4, bssid_info, "BSSID Information: 0x%08X", bssid_info);
+	  bssid_info_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_tree);
+
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_reachability, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_security, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_key_scope, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_spec_mng, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_apsd, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_radio_msnt, tvb, offset, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_dback, tvb, offset+1, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_capability_iback, tvb, offset+1, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_mobility_domain, tvb, offset+1, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_high_throughput, tvb, offset+1, 1, bssid_info);
+	  proto_tree_add_uint(bssid_info_subtree, hf_tag_neighbor_report_bssid_info_reserved, tvb, offset+1, 3, (bssid_info & 0xfffff000) >> 12);
+      /*** End: BSSID Information ***/
+
+	  offset+=4;
+	  info = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint_format(tree, hf_tag_neighbor_report_reg_class, tvb, offset, 1, info, "Regulatory Class: 0x%02X", info);
+
+	  offset++;
+	  info = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint_format(tree, hf_tag_neighbor_report_channel_number, tvb, offset, 1, info, "Channel Number: 0x%02X", info);
+
+	  offset++;
+	  info = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint_format(tree, hf_tag_neighbor_report_phy_type, tvb, offset, 1, info, "PHY Type: 0x%02X", info);
+
+	  offset++;
+	  sub_tag_id = tvb_get_guint8 (tvb, offset);
+	  offset++;
+	  sub_tag_length = tvb_get_guint8 (tvb, offset);
+
+      offset++;
+	  sub_tag_tvb = tvb_new_subset(tvb, offset, sub_tag_length, -1);
+
+	  switch (sub_tag_id){
+	  case SUB_TAG_TSF_INFO:
+	    /* TODO */
+	    break;
+	  case SUB_TAG_MEASUREMENT_PILOT_INFO:
+	    /* TODO */
+	    break;
+	  case SUB_TAG_HT_CAPABILITIES:
+	    parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Capabilities");
+		sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+	    dissect_ht_capability_ie(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length);
+	    break;
+	  case SUB_TAG_HT_INFO:
+	    parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Information");
+		sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+	    dissect_ht_info_ie_1_1(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length);
+	    break;
+	  case SUB_TAG_SEC_CHANNEL_OFFSET:
+	    parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "Secondary Channel Offset");
+		sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+	    secondary_channel_offset_ie(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length);
+	    break;
+	  case SUB_TAG_VENDOR_SPECIFIC:
+	  default:
+	    break;
+	  }
+
+	  offset += sub_tag_length;
+
+	  if (tag_len > (offset - tag_offset))
+      {
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
+		break;
+	  }
+	  break;
+	}
+	/*** End: Neighbor Report Tag - Dustin Johnson ***/
+	#if 0 /*Not yet assigned tag numbers by ANA */
+	/*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+	case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
+	{
+	  guint tag_offset;
+	  guint8 current_field;
+
+	  if (tag_len != 4)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"Extended Channel Switch Announcement: Error: Tag length must be exactly 4 bytes long");
+		break;
+	  }
+
+	  offset+=2;
+	  tag_offset = offset;
+
+	  current_field = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_switch_mode, tvb, offset, 1, current_field);
+
+	  offset++;
+	  current_field = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_new_reg_class, tvb, offset, 1, current_field);
+
+	  offset++;
+	  current_field = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_new_chan_number, tvb, offset, 1, current_field);
+
+	  offset++;
+	  current_field = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_switch_count, tvb, offset, 1, current_field);
+
+	  offset++;
+	  if (tag_len > (offset - tag_offset))
+      {
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
+		break;
+	  }
+	  break;
+	}
+	/*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+	#endif
+	#if 0 /*Not yet assigned tag numbers by ANA */
+	/*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
+	case TAG_SUPPORTED_REGULATORY_CLASSES:
+	{
+	  guint tag_offset;
+	  guint8 current_field;
+
+	  if (tag_len < 2) {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"Supported Regulatory Classes: Error: Tag length must be at least 2 bytes long");
+		break;
+	  }else if (tag_len > 32) {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+		"Supported Regulatory Classes: Error: Tag length must be no more than 32 bytes long");
+		break;
+	  }
+
+	  offset+=2;
+	  tag_offset = offset;
+
+	  current_field = tvb_get_guint8 (tvb, offset);
+	  proto_tree_add_uint(tree, hf_tag_supported_reg_classes_current, tvb, offset, 1, current_field);
+
+	  offset++;
+	  /* Partially taken from the ssid section */
+	  tag_data_ptr = tvb_get_ptr (tvb, offset, tag_len);
+	  for (i = 0, n = 0; i < tag_len && n < SHORT_STR; i++) {
+        ret = g_snprintf (print_buff + n, SHORT_STR - n, (i == tag_len-1)?"%d":"%d, ", tag_data_ptr[i]);
+        if (ret == -1 || ret >= SHORT_STR - n) {
+          /* Some versions of snprintf return -1 if they'd truncate
+             the output. Others return <buf_size> or greater.  */
+          break;
+        }
+        n += ret;
+      }
+	  print_buff[SHORT_STR-1] = '\0';
+      proto_tree_add_string (tree, hf_tag_supported_reg_classes_alternate, tvb, offset, tag_len, print_buff);
+
+	  break;
+	}
+	/*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
+	#endif
     default:
       tvb_ensure_bytes_exist (tvb, offset + 2, tag_len);
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
@@ -3420,7 +4016,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
       proto_tree *mgt_tree;
       proto_tree *fixed_tree;
       proto_tree *tagged_tree;
-      int offset;
+      int offset = 0;
       int tagged_parameter_tree_len;
 
       g_pinfo = pinfo;
@@ -3435,8 +4031,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_ASSOC_REQ:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
 	  offset = 4;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3450,9 +4046,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_ASSOC_RESP:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
-	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+	  add_fixed_field(fixed_tree, tvb, 4, FIELD_ASSOC_ID);
 	  offset = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3466,9 +4062,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_REASSOC_REQ:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 10);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
-	  add_fixed_field (fixed_tree, tvb, 4, FIELD_CURRENT_AP_ADDR);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 2, FIELD_LISTEN_IVAL);
+	  add_fixed_field(fixed_tree, tvb, 4, FIELD_CURRENT_AP_ADDR);
 	  offset = 10;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3481,9 +4077,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_REASSOC_RESP:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_CAP_INFO);
-	  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
-	  add_fixed_field (fixed_tree, tvb, 4, FIELD_ASSOC_ID);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 2, FIELD_STATUS_CODE);
+	  add_fixed_field(fixed_tree, tvb, 4, FIELD_ASSOC_ID);
 	  offset = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3508,9 +4104,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_PROBE_RESP:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
-	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
-	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_TIMESTAMP);
+	  add_fixed_field(fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
+	  add_fixed_field(fixed_tree, tvb, 10, FIELD_CAP_INFO);
 	  offset = 12;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3524,9 +4120,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
 	case MGT_BEACON:		/* Dissect protocol payload fields  */
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 12);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_TIMESTAMP);
-	  add_fixed_field (fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
-	  add_fixed_field (fixed_tree, tvb, 10, FIELD_CAP_INFO);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_TIMESTAMP);
+	  add_fixed_field(fixed_tree, tvb, 8, FIELD_BEACON_INTERVAL);
+	  add_fixed_field(fixed_tree, tvb, 10, FIELD_CAP_INFO);
 	  offset = 12;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3537,22 +4133,19 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	      tagged_parameter_tree_len);
 	  break;
 
-
 	case MGT_ATIM:
 	  break;
 
-
 	case MGT_DISASS:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_REASON_CODE);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_REASON_CODE);
 	  break;
-
 
 	case MGT_AUTHENTICATION:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 6);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_AUTH_ALG);
-	  add_fixed_field (fixed_tree, tvb, 2, FIELD_AUTH_TRANS_SEQ);
-	  add_fixed_field (fixed_tree, tvb, 4, FIELD_STATUS_CODE);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_AUTH_ALG);
+	  add_fixed_field(fixed_tree, tvb, 2, FIELD_AUTH_TRANS_SEQ);
+	  add_fixed_field(fixed_tree, tvb, 4, FIELD_STATUS_CODE);
 	  offset = 6;	/* Size of fixed fields */
 
 	  tagged_parameter_tree_len =
@@ -3568,151 +4161,19 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	    }
 	  break;
 
-
 	case MGT_DEAUTHENTICATION:
 	  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-	  add_fixed_field (fixed_tree, tvb, 0, FIELD_REASON_CODE);
+	  add_fixed_field(fixed_tree, tvb, 0, FIELD_REASON_CODE);
 	  break;
 
-
 	case MGT_ACTION:
-	  switch (tvb_get_guint8(tvb, 0))
-	    {
+	{
 
-	    case CAT_SPECTRUM_MGMT:
-	      switch (tvb_get_guint8(tvb, 1))
-		{
-		case SM_ACTION_MEASUREMENT_REQUEST:
-		case SM_ACTION_MEASUREMENT_REPORT:
-		case SM_ACTION_TPC_REQUEST:
-		case SM_ACTION_TPC_REPORT:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
-		  offset = 3;	/* Size of fixed fields */
-		  break;
+      fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 56);
+	  proto_tree_add_text(fixed_tree, tvb, 0, 2, "Contained Frame Control");
+      offset += add_fixed_field(fixed_tree, tvb, 0, FIELD_ACTION);
 
-		case SM_ACTION_CHAN_SWITCH_ANNC:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  offset = 2;	/* Size of fixed fields */
-		  break;
-
-		default:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  offset = 2;	/* Size of fixed fields */
-		  break;
-		}
-	      break;
-
-	    case CAT_QOS:
-	      switch (tvb_get_guint8(tvb, 1))
-	        {
-		case SM_ACTION_ADDTS_REQUEST:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 3);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
-		  offset = 3;
-		  break;
-
-		case SM_ACTION_ADDTS_RESPONSE:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 5);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
-		  add_fixed_field (fixed_tree, tvb, 3, FIELD_STATUS_CODE);
-		  offset = 5;
-		  break;
-
-		case SM_ACTION_DELTS:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 7);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_QOS_TS_INFO);
-		  add_fixed_field (fixed_tree, tvb, 5, FIELD_REASON_CODE);
-		  offset = 7;
-		  break;
-
-		case SM_ACTION_QOS_SCHEDULE:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_QOS_ACTION_CODE);
-		  offset = 2;
-		  break;
-
-		default:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  offset = 2;	/* Size of fixed fields */
-		  break;
-		}
-	      break;
-
-	    case CAT_DLS:
-	      switch (tvb_get_guint8(tvb, 1))
-	        {
-		case SM_ACTION_DLS_REQUEST:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 18);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
-		  add_fixed_field (fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
-		  add_fixed_field (fixed_tree, tvb, 14, FIELD_CAP_INFO);
-		  add_fixed_field (fixed_tree, tvb, 16, FIELD_DLS_TIMEOUT);
-		  offset = 18;
-		  break;
-
-		case SM_ACTION_DLS_RESPONSE:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 16);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_STATUS_CODE);
-		  add_fixed_field (fixed_tree, tvb, 4, FIELD_DST_MAC_ADDR);
-		  add_fixed_field (fixed_tree, tvb, 10, FIELD_SRC_MAC_ADDR);
-		  offset = 16;
-		  if (!ff_status_code)
-		    add_fixed_field (fixed_tree, tvb, 16, FIELD_CAP_INFO);
-		  break;
-
-		case SM_ACTION_DLS_TEARDOWN:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 18);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  add_fixed_field (fixed_tree, tvb, 1, FIELD_DLS_ACTION_CODE);
-		  add_fixed_field (fixed_tree, tvb, 2, FIELD_DST_MAC_ADDR);
-		  add_fixed_field (fixed_tree, tvb, 8, FIELD_SRC_MAC_ADDR);
-		  add_fixed_field (fixed_tree, tvb, 14, FIELD_REASON_CODE);
-		  offset = 16;
-		  break;
-
-		default:
-		  fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 2);
-		  add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-		  offset = 2;	/* Size of fixed fields */
-		  break;
-		}
-	      break;
-
-	    case CAT_MGMT_NOTIFICATION:	/* Management notification frame */
-	      fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 4);
-	      add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-	      add_fixed_field (fixed_tree, tvb, 1, FIELD_WME_ACTION_CODE);
-	      add_fixed_field (fixed_tree, tvb, 2, FIELD_DIALOG_TOKEN);
-	      add_fixed_field (fixed_tree, tvb, 3, FIELD_WME_STATUS_CODE);
-	      offset = 4;	/* Size of fixed fields */
-	      break;
-
-	    default:
-	      fixed_tree = get_fixed_parameter_tree (mgt_tree, tvb, 0, 1);
-	      add_fixed_field (fixed_tree, tvb, 0, FIELD_CATEGORY_CODE);
-	      offset = 1;	/* Size of fixed fields */
-	      break;
-	    }
-
-	    tagged_parameter_tree_len =
-	      tvb_reported_length_remaining(tvb, offset);
+	  tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
 	    if (tagged_parameter_tree_len != 0)
 	      {
 		tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
@@ -3720,7 +4181,10 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 		ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
 						  tagged_parameter_tree_len);
 	      }
+
 	  break;
+	    }
+
 	}
 }
 
@@ -3786,12 +4250,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   const guint8 *dst = NULL;
   const guint8 *bssid = NULL;
   proto_item *ti = NULL;
-  proto_item *flag_item;
-  proto_item *fc_item;
   proto_item *fcs_item;
   proto_tree *hdr_tree = NULL;
-  proto_tree *flag_tree;
-  proto_tree *fc_tree;
   proto_tree *fcs_tree;
   guint16 hdr_len, ohdr_len;
   gboolean has_fcs, fcs_good, fcs_bad;
@@ -3878,67 +4338,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				   pinfo->pseudo_header->ieee_802_11.signal_level);
       }
 
-      proto_tree_add_uint (hdr_tree, hf_fc_frame_type_subtype,
-			   tvb,
-	  	    	   wlan_broken_fc?1:0, 1,
-			   frame_type_subtype);
-
-      fc_item = proto_tree_add_uint_format (hdr_tree, hf_fc_field, tvb,
-		      			    0, 2,
-					    fcf,
-					    "Frame Control: 0x%04X (%s)",
-					    fcf, wlan_broken_fc?"Swapped":"Normal");
-
-      fc_tree = proto_item_add_subtree (fc_item, ett_fc_tree);
-
-
-      proto_tree_add_uint (fc_tree, hf_fc_proto_version, tvb,
-		           wlan_broken_fc?1:0, 1,
-			   FCF_PROT_VERSION (fcf));
-
-      proto_tree_add_uint (fc_tree, hf_fc_frame_type, tvb,
-		           wlan_broken_fc?1:0, 1,
-			   FCF_FRAME_TYPE (fcf));
-
-      proto_tree_add_uint (fc_tree, hf_fc_frame_subtype,
-			   tvb,
-			   wlan_broken_fc?1:0, 1,
-			   FCF_FRAME_SUBTYPE (fcf));
-
-      flag_item =
-	proto_tree_add_uint_format (fc_tree, hf_fc_flags, tvb,
-			            wlan_broken_fc?0:1, 1,
-				    flags, "Flags: 0x%X", flags);
-
-      flag_tree = proto_item_add_subtree (flag_item, ett_proto_flags);
-
-      proto_tree_add_uint (flag_tree, hf_fc_data_ds, tvb,
-		           wlan_broken_fc?0:1, 1,
-			   FLAGS_DS_STATUS (flags));
-      proto_tree_add_boolean_hidden (flag_tree, hf_fc_to_ds, tvb, 1, 1,
-				     flags);
-      proto_tree_add_boolean_hidden (flag_tree, hf_fc_from_ds, tvb, 1, 1,
-				     flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_more_frag, tvb,
-		              wlan_broken_fc?0:1, 1,
-			      flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_retry, tvb,
-		              wlan_broken_fc?0:1, 1, flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_pwr_mgt, tvb,
-		              wlan_broken_fc?0:1, 1, flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_more_data, tvb,
-		              wlan_broken_fc?0:1, 1,
-			      flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_protected, tvb,
-		              wlan_broken_fc?0:1, 1, flags);
-
-      proto_tree_add_boolean (flag_tree, hf_fc_order, tvb,
-		              wlan_broken_fc?0:1, 1, flags);
+    dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
@@ -4093,11 +4493,36 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	  if (tree)
 	    {
 	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
 	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
 	    }
 	  break;
+	/*** Begin: Control Wrapper - Dustin Johnson ***/
+	case CTRL_CONTROL_WRAPPER:
+	{
+	  const guint8 *addr1 = NULL;
+	  proto_tree *cntrl_wrap_tree;
+      proto_item *cntrl_wrap_item;
+	  guint32 offset = 4;
 
+      fcs_len = 4;
+
+	  if (tree){
+	    addr1 = tvb_get_ptr (tvb, 4, 6);
+		offset += 6;
+
+		proto_tree_add_ether (hdr_tree, hf_addr_addr1, tvb, 4, 6, addr1);
+	    cntrl_wrap_item = proto_tree_add_text(hdr_tree, tvb, offset, 2, "Contained Frame Control");
+		cntrl_wrap_tree = proto_item_add_subtree (cntrl_wrap_item, ett_cntrl_wrapper_fc);
+	    dissect_frame_control(cntrl_wrap_tree, tvb, FALSE, offset);
+		offset += 2;
+
+	    /*dissect_ht_control(hdr_tree, tvb, offset);*/
+	    /* TODO: Complete this crap - Grrarr asdgadsfgadagdsfg!!!*/
+	  }
+	  break;
+	}
+	/*** End: Control Wrapper - Dustin Johnson ***/
+	/*** Begin: Block Ack Request - Dustin Johnson ***/
 	case CTRL_BLOCK_ACK_REQ:
 	  {
 	    src = tvb_get_ptr (tvb, 10, 6);
@@ -4109,6 +4534,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    if (tree)
 	    {
 		  guint16 bar_control;
+		  guint8 block_ack_type;
 		  gint offset;
 		  proto_item *bar_parent_item;
 		  proto_tree *bar_sub_tree;
@@ -4118,34 +4544,68 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		  offset = 16;
 
 		  bar_control = tvb_get_letohs(tvb, offset);
+		  block_ack_type = (bar_control & 0x0006) >> 1;
+		  proto_tree_add_uint(hdr_tree, hf_block_ack_request_type, tvb, offset, 1, block_ack_type);
 		  bar_parent_item = proto_tree_add_uint_format(hdr_tree, hf_block_ack_request_control, tvb,
-		                    offset, 2, bar_control, "Block Ack Control: 0x%04X", bar_control);
-		  bar_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack_request);
-		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_request_control_ack_policy, tvb, offset, 1, bar_control);
-		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_request_control_multi_tid, tvb, offset, 1, bar_control);
-		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_request_control_compressed_bitmap, tvb, offset, 1, bar_control);
-		  proto_tree_add_uint(bar_sub_tree, hf_block_ack_request_control_reserved, tvb, offset, 2, bar_control);
+		                    offset, 2, bar_control, "Block Ack Request Control: 0x%04X", bar_control);
+		  bar_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_ack_policy, tvb, offset, 1, bar_control);
+		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_multi_tid, tvb, offset, 1, bar_control);
+		  proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_compressed_bitmap, tvb, offset, 1, bar_control);
+		  proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_reserved, tvb, offset, 2, bar_control);
 
-	      switch((bar_control & 0x0003) >> 1){
+	      switch(block_ack_type){
 		  case 0: /*Basic BlockAckReq */
-		  case 1: /* Compressed BlockAckReq */
-		    proto_tree_add_uint(bar_sub_tree, hf_block_ack_request_control_basic_tid_info, tvb, offset+1, 1, bar_control);
+		    proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, bar_control);
+			offset += 2;
+
+			bar_control = tvb_get_letohs(tvb, offset);
+
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_fragment, tvb, offset, 1, bar_control);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_sequence, tvb, offset, 2, bar_control);
+		    break;
+		  case 2: /* Compressed BlockAckReq */
+		    proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control);
 			offset += 2;
 
 		    bar_control = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint(hdr_tree, hf_block_ack_request_control_basic_fragment, tvb, offset, 1, bar_control);
-			proto_tree_add_uint(hdr_tree, hf_block_ack_request_control_basic_sequence, tvb, offset, 2, bar_control);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_fragment, tvb, offset, 1, bar_control);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_sequence, tvb, offset, 2, bar_control);
 		    break;
 		  case 3: /* Multi-TID BlockAckReq */
+          {
+		    guint8 tid_count, i;
+		    proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
 
+			tid_count = ((bar_control & 0xF000) >> 12) + 1;
+            proto_tree_add_uint_format(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control,
+			    decode_numeric_bitfield(bar_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
+			offset += 2;
+
+			bar_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
+			bar_mtid_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+			for(i=1; i<=tid_count; i++){
+			  bar_parent_item = proto_tree_add_uint(bar_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
+			  bar_mtid_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+
+			  bar_control = tvb_get_letohs(tvb, offset);
+			  proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, bar_control);
+			  proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, bar_control);
+			  offset += 2;
+
+			  bar_control = tvb_get_letohs(tvb, offset);
+			  proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_request_multi_tid_ssc, tvb, offset, 2, bar_control);
+			  offset += 2;
+			}
 		    break;
+		  }
 		  }
 
 	    }
-	  /* TODO BAR */
 	  break;
 	  }
-
+    /*** End: Block Ack Request - Dustin Johnson ***/
+	/*** Begin: Block Ack - Dustin Johnson ***/
 	case CTRL_BLOCK_ACK:
 	  {
 	    src = tvb_get_ptr (tvb, 10, 6);
@@ -4156,13 +4616,88 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
 	    if (tree)
 	    {
-	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
+		  guint16 ba_control;
+		  guint8 block_ack_type;
+		  gint offset;
+		  proto_item *ba_parent_item;
+		  proto_tree *ba_sub_tree;
 
+	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
 	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, dst);
+		  offset = 16;
+
+		  ba_control = tvb_get_letohs(tvb, offset);
+		  block_ack_type = (ba_control & 0x0006) >> 1;
+		  proto_tree_add_uint(hdr_tree, hf_block_ack_type, tvb, offset, 1, block_ack_type);
+		  ba_parent_item = proto_tree_add_uint_format(hdr_tree, hf_block_ack_request_control, tvb,
+		                    offset, 2, ba_control, "Block Ack Control: 0x%04X", ba_control);
+		  ba_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_ack_policy, tvb, offset, 1, ba_control);
+		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_multi_tid, tvb, offset, 1, ba_control);
+		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_compressed_bitmap, tvb, offset, 1, ba_control);
+		  proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_reserved, tvb, offset, 2, ba_control);
+
+		  switch(block_ack_type){
+		  case 0: /*Basic BlockAck */
+		    proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
+			offset += 2;
+
+			ba_control = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_fragment, tvb, offset, 1, ba_control);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_sequence, tvb, offset, 2, ba_control);
+			offset += 2;
+
+			proto_tree_add_text(hdr_tree, tvb, offset, 128, "Block Ack Bitmap");
+			offset += 128;
+		    break;
+		  case 2: /* Compressed BlockAck */
+		    proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
+			offset += 2;
+
+			ba_control = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_fragment, tvb, offset, 1, ba_control);
+			proto_tree_add_uint(hdr_tree, hf_block_ack_control_basic_sequence, tvb, offset, 2, ba_control);
+			offset += 2;
+
+			proto_tree_add_text(hdr_tree, tvb, offset, 8, "Block Ack Bitmap");
+			offset += 8;
+		    break;
+		  case 3: /* Multi-TID BlockAck */
+          {
+		    guint8 tid_count, i;
+		    proto_tree *ba_mtid_tree, *ba_mtid_sub_tree;
+
+			tid_count = ((ba_control & 0xF000) >> 12) + 1;
+            proto_tree_add_uint_format(ba_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, ba_control,
+			    decode_numeric_bitfield(ba_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
+			offset += 2;
+
+			ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
+			ba_mtid_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+			for(i=1; i<=tid_count; i++){
+			  ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
+			  ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+
+			  ba_control = tvb_get_letohs(tvb, offset);
+			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, ba_control);
+			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, ba_control);
+			  offset += 2;
+
+			  ba_control = tvb_get_letohs(tvb, offset);
+			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_control_basic_fragment, tvb, offset, 1, ba_control);
+			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_control_basic_sequence, tvb, offset, 2, ba_control);
+			  offset += 2;
+
+			  proto_tree_add_text(ba_mtid_sub_tree, tvb, offset, 8, "Block Ack Bitmap");
+			  offset += 8;
+			}
+		    break;
+		  }
+		  }
 	    }
-	    /* TODO BAR Format */
 	    break;
 	  }
+	  /*** End: Block Ack - Dustin Johnson ***/
 	}
       break;
 
@@ -5473,6 +6008,26 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
+  /*** Begin: Block Ack Request  - Dustin Johnson***/
+  static const value_string hf_block_ack_request_type_flags[] = {
+    {0x00, "Basic Block Ack Request"},
+    {0x01, "Reserved"},
+    {0x02, "Compressed Block Ack Request"},
+    {0x03, "Multi-TID Block Ack Request"},
+    {0x00, NULL}
+  };
+  /*** End: Block Ack Request  - Dustin Johnson***/
+
+  /*** Begin: Block Ack Request  - Dustin Johnson***/
+  static const value_string hf_block_ack_type_flags[] = {
+    {0x00, "Basic Block Ack"},
+    {0x01, "Reserved"},
+    {0x02, "Compressed Block"},
+    {0x03, "Multi-TID Block"},
+    {0x00, NULL}
+  };
+  /*** End: Block Ack - Dustin Johnson***/
+
   static hf_register_info hf[] = {
     {&hf_data_rate,
      {"Data Rate", "wlan.data_rate", FT_UINT8, BASE_DEC, NULL, 0,
@@ -5573,6 +6128,10 @@ proto_register_ieee80211 (void)
     {&hf_addr_ta,
      {"Transmitter address", "wlan.ta", FT_ETHER, BASE_NONE, NULL, 0,
       "Transmitting Station Hardware Address", HFILL }},
+
+    {&hf_addr_addr1,
+     {"First Address of Contained Frame", "wlan.controlwrap.addr1", FT_ETHER, BASE_NONE, NULL, 0,
+      "First Address of Contained Frame", HFILL }},
 
     {&hf_addr_bssid,
      {"BSS Id", "wlan.bssid", FT_ETHER, BASE_NONE, NULL, 0,
@@ -5690,39 +6249,75 @@ proto_register_ieee80211 (void)
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       "WEP ICV", HFILL }},
 
-	/*** Begin: Block Ack Request  - Dustin Johnson***/
+	/*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
 	{&hf_block_ack_request_control,
-     {"Block Ack Request Control", "wlan.bar.control", FT_UINT16, BASE_HEX, NULL, 0,
-      "te", HFILL }},
+     {"Block Ack Request Control", "wlan.bar.control",
+	  FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
 
-	{&hf_block_ack_request_control_ack_policy,
-     {"BAR Ack Policy", "wlan.bar.control.ackpolicy",
+	{&hf_block_ack_control_ack_policy,
+     {"BAR Ack Policy", "wlan.ba.control.ackpolicy",
       FT_BOOLEAN, 16, 0, 0x01, "", HFILL }},
 
-	{&hf_block_ack_request_control_multi_tid,
-     {"Multi-TID", "wlan.bar.control.multitid",
+	{&hf_block_ack_control_multi_tid,
+     {"Multi-TID", "wlan.ba.control.multitid",
       FT_BOOLEAN, 16, 0, 0x02, "", HFILL }},
 
-	{&hf_block_ack_request_control_compressed_bitmap,
-     {"Compressed Bitmap", "wlan.bar.control.cbitmap",
+	{&hf_block_ack_control_compressed_bitmap,
+     {"Compressed Bitmap", "wlan.ba.control.cbitmap",
       FT_BOOLEAN, 16, 0, 0x04, "", HFILL }},
 
-	{&hf_block_ack_request_control_reserved,
-     {"Reserved", "wlan.bar.control.cbitmap",
+	{&hf_block_ack_control_reserved,
+     {"Reserved", "wlan.ba.control.cbitmap",
       FT_UINT16, BASE_HEX, NULL, 0x0ff8, "", HFILL }},
 
-	{&hf_block_ack_request_control_basic_tid_info,
-     {"TID for which a Basic BlockAck frame is requested", "wlan.bar.basic.tidinfo",
+	{&hf_block_ack_control_basic_tid_info,
+     {"TID for which a Basic BlockAck frame is requested", "wlan.ba.basic.tidinfo",
       FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
 
-	{&hf_block_ack_request_control_basic_fragment,
+	{&hf_block_ack_control_compressed_tid_info,
+     {"TID for which a BlockAck frame is requested", "wlan.bar.compressed.tidinfo",
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+
+	{&hf_block_ack_control_multi_tid_info,
+     {"Number of TIDs Present", "wlan.ba.mtid.tidinfo",
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+
+	{&hf_block_ack_control_basic_fragment,
      {"Fragment", "wlan.bar.basic.fragment",
       FT_UINT16, BASE_HEX, 0, 0x0f, "", HFILL }},
 
-	{&hf_block_ack_request_control_basic_sequence,
+	{&hf_block_ack_control_basic_sequence,
      {"Starting Sequence Number", "wlan.bar.basic.sequence",
       FT_UINT16, BASE_HEX, 0, 0xfff0, "", HFILL }},
-	/*** End: Block Ack Request  - Dustin Johnson***/
+
+	{&hf_block_ack_multi_tid_info,
+     {"TID Info", "",
+      FT_UINT8, BASE_DEC, 0, 0, "", HFILL }},
+
+	{&hf_block_ack_multi_tid_reserved,
+     {"Reserved", "wlan.bar.mtid.tidinfo.reserved",
+      FT_UINT16, BASE_HEX, 0, 0x0fff, "", HFILL }},
+
+	{&hf_block_ack_multi_tid_value,
+     {"Starting Sequence Number", "wlan.bar.mtid.tidinfo.value",
+      FT_UINT16, BASE_HEX, 0, 0xf000, "", HFILL }},
+
+	{&hf_block_ack_request_multi_tid_ssc,
+     {"Starting Sequence Control", "wlan.bar.mtid.ssc",
+      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+
+	{&hf_block_ack_request_type,
+     {"Block Ack Request Type", "wlan.bar.type",
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "", HFILL }},
+
+	{&hf_block_ack_ssc,
+     {"Starting Sequence Control", "wlan.ba.ssc",
+      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+
+	{&hf_block_ack_type,
+     {"Block Ack Request Type", "wlan.ba.type",
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "", HFILL }},
+	/*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -6092,26 +6687,36 @@ proto_register_ieee80211 (void)
 
   static const value_string hf_tag_measure_request_type_flags[] = {
     {0x00, "Basic Request"},
-	{0x01, "Clear channel assessment (CCA) request"},
-	{0x02, "Receive power indication (RPI) histogram request"},
-	{0x03, "Unknown"},
-	{0x04, "Unknown"},
+	{0x01, "Clear Channel Assessment (CCA) Request"},
+	{0x02, "Receive Power Indication (RPI) Histogram Request"},
+	{0x03, "Channel Load Request"},
+	{0x04, "Noise Histogram Request"},
 	{0x05, "Beacon Request"},
-	{0x06, "Unknown"},
-	{0x07, "BSTA Statistics Request"},
+	{0x06, "Frame Request"},
+	{0x07, "STA Statistics Request"},
+	{0x08, "Location Configuration Indication (LCI) Request"},
+	{0x09, "Transmit Stream Measurement Request"},
+	{0x0A, "Measurement Pause Request"},
     {0x00, NULL}
   };
 
   static const value_string hf_tag_measure_report_type_flags[] = {
     {0x00, "Basic Report"},
-	{0x01, "Clear channel assessment (CCA) report"},
-	{0x02, "Receive power indication (RPI) histogram report"},
+	{0x01, "Clear Channel Assessment (CCA) Report"},
+	{0x02, "Receive Power Indication (RPI) Histogram Report"},
 	{0x03, "Channel Load Report"},
 	{0x04, "Noise Histogram Report"},
 	{0x05, "Beacon Report"},
-	{0x06, "Unknown"},
-	{0x07, "Unknown"},
+	{0x06, "Frame Report"},
+	{0x07, "STA Statistics Report"},
+	{0x08, "Location Configuration Information (LCI) Report"},
+	{0x09, "Transmit Stream Measurement Report"},
     {0x00, NULL}
+  };
+
+  static const true_false_string hf_tag_measure_report_frame_info_frame_type_flag = {
+      "Measurement Pilot Frame",
+	  "Beacon/Probe Response Frame"
   };
 
   static const true_false_string hf_tag_measure_map_field_bss_flag = {
@@ -6176,6 +6781,14 @@ proto_register_ieee80211 (void)
       "True - HT Information Exchange management frame type supported",
       "False -  HT Information Exchange management frame type not supported"
   };
+
+  /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+  static const value_string hf_tag_ext_channel_switch_announcement_switch_mode_flags[] = {
+    {0x00, "Frames may be transmitted before the channel switch has been completed"},
+	{0x01, "No more frames are to be transmitted until the channel switch has been completed"},
+    {0x00, NULL}
+  };
+  /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
   static hf_register_info ff[] = {
     {&ff_timestamp,
@@ -7012,42 +7625,180 @@ proto_register_ieee80211 (void)
 
 	{&hf_tag_measure_rpi_histogram_report_0,
      {"RPI 0 Density", "wlan_mgt.measure.rep.rpi.rpi0density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_1,
      {"RPI 1 Density", "wlan_mgt.measure.rep.rpi.rpi1density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_2,
      {"RPI 2 Density", "wlan_mgt.measure.rep.rpi.rpi2density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_3,
      {"RPI 3 Density", "wlan_mgt.measure.rep.rpi.rpi3density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_4,
      {"RPI 4 Density", "wlan_mgt.measure.rep.rpi.rpi4density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_5,
      {"RPI 5 Density", "wlan_mgt.measure.rep.rpi.rpi5density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_6,
      {"RPI 6 Density", "wlan_mgt.measure.rep.rpi.rpi6density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
 
 	{&hf_tag_measure_rpi_histogram_report_7,
      {"RPI 7 Density", "wlan_mgt.measure.rep.rpi.rpi7density",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_regulatory_class,
+     {"Regulatory Class", "wlan_mgt.measure.rep.regclass",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_channel_load,
+     {"Channel Load", "wlan_mgt.measure.rep.chanload",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_frame_info,
+     {"Reported Frame Information", "wlan_mgt.measure.rep.frameinfo",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_frame_info_phy_type,
+     {"Condensed PHY", "wlan_mgt.measure.rep.frameinfo.phytype",
+      FT_UINT8, BASE_HEX, NULL, 0x7F, "", HFILL }},
+
+	{&hf_tag_measure_report_frame_info_frame_type,
+     {"Reported Frame Type", "wlan_mgt.measure.rep.frameinfo.frametype",
+      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, "", HFILL }},
+
+	{&hf_tag_measure_report_rcpi,
+     {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_rsni,
+     {"Received Signal to Noise Indicator (RSNI)", "wlan_mgt.measure.rep.rsni",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_bssid,
+     {"BSSID Being Reported", "wlan_mgt.measure.rep.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_ant_id,
+     {"Antenna ID", "wlan_mgt.measure.rep.antid",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_measure_report_parent_tsf,
+     {"Parent TSF", "wlan_mgt.measure.rep.parenttsf",
+      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
 	/*** End: Measurement Report Tag  - Dustin Johnson***/
 
-	/*** Begin: Extended Capabilities - Dustin Johnson ***/
+	/*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
 	{&hf_tag_extended_capabilities,
      {"HT Information Exchange Support", "wlan_mgt.extcap.infoexchange",
       FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0xff, "", HFILL }},
-	/*** End: Extended Capabilities - Dustin Johnson ***/
+	/*** End: Extended Capabilities Tag - Dustin Johnson ***/
+
+	/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
+	{&hf_tag_neighbor_report_bssid,
+     {"BSSID", "wlan_mgt.nreport.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info,
+     {"BSSID Information", "wlan_mgt.nreport.bssid.info",
+      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_reachability,
+     {"Reachability", "wlan_mgt.nreport.bssid.info.reachability",
+      FT_UINT16, BASE_HEX, NULL, 0x0003, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_security,
+     {"Security", "wlan_mgt.nreport.bssid.info.security",
+      FT_UINT16, BASE_HEX, NULL, 0x0004, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_key_scope,
+     {"Key Scope", "wlan_mgt.nreport.bssid.info.keyscope",
+      FT_UINT16, BASE_HEX, NULL, 0x0008, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_spec_mng,
+     {"Capability: Spectrum Management", "wlan_mgt.nreport.bssid.info.capability.specmngt",
+      FT_UINT16, BASE_HEX, NULL, 0x0010, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_qos,
+     {"Capability: QoS", "wlan_mgt.nreport.bssid.info.capability.qos",
+      FT_UINT16, BASE_HEX, NULL, 0x0020, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_apsd,
+     {"Capability: APSD", "wlan_mgt.nreport.bssid.info.capability.apsd",
+      FT_UINT16, BASE_HEX, NULL, 0x0040, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_radio_msnt,
+     {"Capability: Radio Measurement", "wlan_mgt.nreport.bssid.info.capability.radiomsnt",
+      FT_UINT16, BASE_HEX, NULL, 0x0080, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_dback,
+     {"Capability: Delayed Block Ack", "wlan_mgt.nreport.bssid.info.capability.dback",
+      FT_UINT16, BASE_HEX, NULL, 0x0100, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_capability_iback,
+     {"Capability: Immediate Block Ack", "wlan_mgt.nreport.bssid.info.capability.iback",
+      FT_UINT16, BASE_HEX, NULL, 0x0200, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_mobility_domain,
+     {"Mobility Domain", "wlan_mgt.nreport.bssid.info.mobilitydomain",
+      FT_UINT16, BASE_HEX, NULL, 0x0400, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_high_throughput,
+     {"High Throughput", "wlan_mgt.nreport.bssid.info.hthoughput",
+      FT_UINT16, BASE_HEX, NULL, 0x0800, "", HFILL }},
+
+	{&hf_tag_neighbor_report_bssid_info_reserved,
+     {"Reserved", "wlan_mgt.nreport.bssid.info.reserved",
+      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_neighbor_report_reg_class,
+     {"Regulatory Class", "wlan_mgt.nreport.regclass",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_neighbor_report_channel_number,
+     {"Channel Number", "wlan_mgt.nreport.channumber",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_neighbor_report_phy_type,
+     {"PHY Type", "wlan_mgt.nreport.phytype",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	/*** End: Neighbor Report Tag - Dustin Johnson ***/
+
+	/*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+	{&hf_tag_ext_channel_switch_announcement_switch_mode,
+     {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, "", HFILL }},
+
+	{&hf_tag_ext_channel_switch_announcement_new_reg_class,
+     {"New Regulatory Class", "wlan_mgt.extchanswitch.new.regclass",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_ext_channel_switch_announcement_new_chan_number,
+     {"New Channel Number", "wlan_mgt.extchanswitch.new.channumber",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_ext_channel_switch_announcement_switch_count,
+     {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	/*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+
+	/*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
+	{&hf_tag_supported_reg_classes_current,
+     {"Current Regulatory Class", "wlan_mgt.supregclass.current",
+      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+
+	{&hf_tag_supported_reg_classes_alternate,
+     {"Alternate Regulatory Classes", "",
+      FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+	/*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
@@ -7241,6 +7992,10 @@ proto_register_ieee80211 (void)
      {"Specification Interval", "wlan_mgt.sched.spec_int",
       FT_UINT16, BASE_HEX, NULL, 0, "Specification Interval", HFILL }},
 
+    {&hf_action,
+     {"Action", "wlan_mgt.fixed.action",
+      FT_UINT16, BASE_HEX, NULL, 0, "Action", HFILL }},
+
     {&cf_version,
      {"IP Version", "wlan_mgt.tclas.params.version",
       FT_UINT8, BASE_DEC, NULL, 0, "IP Version", HFILL }},
@@ -7350,7 +8105,7 @@ proto_register_ieee80211 (void)
     &ett_proto_flags,
     &ett_fragments,
     &ett_fragment,
-    &ett_block_ack_request,
+    &ett_block_ack,
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
@@ -7360,12 +8115,16 @@ proto_register_ieee80211 (void)
     &ett_cap_tree,
     &ett_rsn_cap_tree,
     &ett_ht_cap_tree,
-	&ett_ht_info_delimiter1_tree,
-	&ett_ht_info_delimiter2_tree,
-	&ett_ht_info_delimiter3_tree,
+    &ett_cntrl_wrapper_fc,
+    &ett_ht_info_delimiter1_tree,
+    &ett_ht_info_delimiter2_tree,
+    &ett_ht_info_delimiter3_tree,
     &ett_tag_measure_request_tree,
+    &ett_tag_neighbor_report_bssid_info_tree,
+    &ett_tag_neighbor_report_bssid_info_capability_tree,
+    &ett_tag_neighbor_report_sub_tag_tree,
     &ett_ampduparam_tree,
-	&ett_mcsset_tree,
+    &ett_mcsset_tree,
     &ett_htex_cap_tree,
     &ett_txbf_tree,
     &ett_hta_cap_tree,
