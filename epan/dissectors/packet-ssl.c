@@ -260,7 +260,10 @@ static StringInfo ssl_decrypted_data = {NULL, 0};
 static gint ssl_decrypted_data_avail = 0;
 
 static gchar* ssl_keys_list = NULL;
+
+#if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
 static gchar* ssl_debug_file_name = NULL;
+#endif
 
 const gchar* ssl_version_short_names[] = {
     "SSL",
