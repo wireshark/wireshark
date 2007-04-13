@@ -1971,8 +1971,9 @@ Hans Viens              <hviens [AT] mediatrix.com> {
 	T.38 Support
 }
 
-Kevin A. Noll           <knoll [AT] poss.com> {
+Kevin A. Noll           <kevin.noll [AT] versatile.com> {
 	RFC 2833 RTP Events support
+	Support for WLCCP version 0xC1
 }
 
 Emanuele Caratti        <wiz [AT] libero.it> {

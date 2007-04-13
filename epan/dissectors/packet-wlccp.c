@@ -3,6 +3,7 @@
  *
  * Copyright 2005, Joerg Mayer (see AUTHORS file)
  * Copyright 2006, Stephen Fisher <stephentfisher@yahoo.com>
+ * Copyright 2007, Kevin A. Noll <kevin.noll@versatile.com>
  *
  * $Id$
  *
@@ -16,12 +17,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -84,6 +85,20 @@ static const value_string wlccp_subtype_vs[] = {
 	{ 2, "Confirm" },
 	{ 3, "Ack"     },
 	{ 0, NULL      }
+};
+
+static const value_string wlccp_msg_type_vs[] = {
+	{ 0x1, "nmAck" 				},
+	{ 0xb, "cmAAA" 				},
+	{ 0xc, "cmPathInit" 			},
+	{ 0xf, "cmWIDS"				},
+	{ 0x10, "nmConfigRequest"		},
+	{ 0x11, "nmConfigReply"			},
+	{ 0x20, "nmApRegistration"		},
+	{ 0x22, "nmScmKeepActive"		},
+	{ 0x30, "nmClientEventReport"		},
+	{ 0x31, "nmAllClientRefreshRequest"	},
+
 };
 
 static const value_string wlccp_node_type_vs[] = {
@@ -182,12 +197,15 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint offset = 0;
 
 	/* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLCCP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if(tvb_get_guint8(tvb, 0) == 0xC1) { /* Get the version number */
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Message subtype: %s",
+
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
+				     val_to_str(tvb_get_guint8(tvb, 6) & 63,
+						wlccp_msg_type_vs, "Unknown"),
 				     val_to_str((tvb_get_guint8(tvb, 6)>>6) & 3,
 						wlccp_subtype_vs, "Unknown"));
 		} else {
@@ -212,7 +230,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wlccp_tree, hf_wlccp_type,
 					    tvb, 2, 2, FALSE);
 			type = tvb_get_ntohs(tvb, 2);
-		
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_dstmac,
 					    tvb, 4, 6, FALSE);
 
@@ -236,11 +254,11 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wlccp_tree, hf_wlccp_destination_node_type,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_length,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			ti = proto_tree_add_item(wlccp_tree, hf_wlccp_type,
 						 tvb, offset, 1, FALSE);
 			wlccp_type_tree = proto_item_add_subtree(ti, ett_wlccp_type);
@@ -250,15 +268,15 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wlccp_type_tree, hf_wlccp_base_message_type,
 					    tvb, offset, 1, FALSE);
 			offset += 1;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_hops,
 					    tvb, offset, 1, FALSE);
 			offset += 1;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_msg_id,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			ti = proto_tree_add_item(wlccp_tree, hf_wlccp_flags,
 						 tvb, offset, 2, FALSE);
 			flags = tvb_get_ntohs(tvb, offset);
@@ -266,7 +284,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(wlccp_flags_tree, hf_wlccp_retry_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_response_request_flag,
 					    tvb, offset, 2, FALSE);
@@ -274,41 +292,41 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_tlv_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_inbound_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_outbound_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_hopwise_routing_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_root_cm_flag,
 					    tvb, offset, 2, FALSE);
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_relay_flag,
 					    tvb, offset, 2, FALSE);
 			relay_flag = (tvb_get_ntohs(tvb, offset)>>8) & 1;
-			
+
 			proto_tree_add_item(wlccp_flags_tree,
 					    hf_wlccp_mic_flag,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_originator_node_type,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_originator,
 					    tvb, offset, 6, FALSE);
 			offset += 6;
-			
+
 			proto_tree_add_item(wlccp_tree, hf_wlccp_responder_node_type,
 					    tvb, offset, 2, FALSE);
 			offset += 2;
@@ -318,7 +336,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 6;
 
 			offset += 6; /* Skip over MAC address of sender again */
-			
+
 			if(relay_flag) {
 				proto_tree_add_item(wlccp_tree, hf_wlccp_relay_node_type,
 						    tvb, offset, 2, FALSE);
@@ -341,7 +359,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(wlccp_tree, hf_wlccp_ipv4_address,
 						    tvb, 76, 4, FALSE);
-				
+
 			}
 		}
 	}
@@ -351,7 +369,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_wlccp(void)
-{                 
+{
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_wlccp_version,
@@ -411,7 +429,7 @@ proto_register_wlccp(void)
 
 		{ &hf_wlccp_base_message_type,
 		  { "Base message type", "wlccp.base_message_type",
-		    FT_UINT8, BASE_HEX_DEC, NULL,
+		    FT_UINT8, BASE_HEX_DEC, VALS(wlccp_msg_type_vs),
 		    MT_BASE_MSG_TYPE, "Base message type", HFILL }
 		},
 
@@ -551,7 +569,7 @@ proto_register_wlccp(void)
 		}
 
 	};
-	
+
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wlccp,
@@ -565,7 +583,7 @@ proto_register_wlccp(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_wlccp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-        
+
 
 }
 
@@ -574,7 +592,7 @@ void
 proto_reg_handoff_wlccp(void)
 {
         static gboolean inited = FALSE;
-        
+
         if( !inited ) {
 
 		dissector_handle_t wlccp_handle;
@@ -601,6 +619,6 @@ proto_register_wlccp_oui(void)
 		    0x0, "", HFILL }
 		}
 	};
-	
+
 	llc_add_oui(OUI_CISCOWL, "llc.wlccp_pid", "Cisco WLCCP OUI PID", hf);
 }
