@@ -17,7 +17,7 @@
 # http://www.pobox.com/~asl2/software/PyZ3950/
 # (ASN.1 to Python compiler functionality is broken but not removed, it could be revived if necessary)
 #
-# It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 1.6)
+# It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 2.3)
 # http://www.dabeaz.com/ply/
 # 
 # 
@@ -436,7 +436,8 @@ class EthCtx:
   def Ber(self): return self.encoding == 'ber'
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
-  def Fld(self): return self.Ber() or self.fld_opt
+  def Fld(self): return self.fld_opt or self.Ber()
+  def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
   def NAPI(self): return False  # disable planned features
 
   def dbg(self, d):
@@ -630,8 +631,10 @@ class EthCtx:
            not self.conform.check_item('TYPE_RENAME', t))):
         if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequnce of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
-        elif t.split('/')[-1] == '_item':  # Sequnce of type at next levels
+        elif t.split('/')[-1] == '_item':  # Sequnce/Set of type at next levels
           nm = 'T_' + self.conform.use_item('FIELD_RENAME', '/'.join(t.split('/')[0:-1]), val_dflt=t.split('/')[-2]) + t.split('/')[-1]
+        elif t.split('/')[-1] == '_untag':  # Untagged type
+          nm = self.type['/'.join(t.split('/')[0:-1])]['ethname'] + '_U'
         else:
           nm = 'T_' + self.conform.use_item('FIELD_RENAME', t, val_dflt=t.split('/')[-1])
         nm = asn2c(nm)
@@ -1944,7 +1947,7 @@ class Type (Node):
     print self.str_depth(1)
     return ('BER_CLASS_unknown', 'TAG_unknown')
 
-  def SetName(self, name) :
+  def SetName(self, name):
     self.name = name
 
   def AddConstraint(self, constr):
@@ -1974,14 +1977,23 @@ class Type (Node):
   def eth_reg_sub(self, ident, ectx):
     pass
 
-  def eth_reg(self, ident, ectx, idx='', parent=None):
+  def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, idx='', parent=None):
+    if (ectx.Tag() and (len(self.tags) > tstrip)):
+      tagged_type = TaggedType(val=self, tstrip=tstrip)
+      tagged_type.AddTag(self.tags[tstrip])
+      if not tagflag:  # 1st tagged level
+        if self.IsNamed():
+          tagged_type.SetName(self.name)
+          #self.SetName(None)
+      tagged_type.eth_reg(ident, ectx, tstrip=1, tagflag=tagflag, idx=idx, parent=parent)
+      return
     nm = ''
-    if ident and self.IsNamed ():
+    if ident and self.IsNamed() and not tagflag:
       nm = ident + '/' + self.name
-    elif self.IsNamed():
-      nm = self.name
     elif ident:
       nm = ident
+    elif self.IsNamed():
+      nm = self.name
     if not ident and ectx.conform.use_item('OMIT_ASSIGNMENT', nm): return # Assignment to omit
     if not ident:  # Assignment
       ectx.eth_reg_assign(nm, self)
@@ -2008,7 +2020,7 @@ class Type (Node):
       ectx.eth_reg_assign(vnm, self, virt=True)
       ectx.eth_reg_type(vnm, self)
       self.eth_reg_sub(vnm, ectx)
-    if ident:
+    if ident and not tagflag:
       if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
         ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
       else:
@@ -2121,6 +2133,14 @@ class Tag (Node):
     elif (self.cls == 'CONTEXT'): tc = 'BER_CLASS_CON'
     elif (self.cls == 'PRIVATE'): tc = 'BER_CLASS_PRI'
     return (tc, self.num)
+
+  def eth_tname(self):
+    n = ''
+    if (self.cls == 'UNIVERSAL'): n = 'U'
+    elif (self.cls == 'APPLICATION'): n = 'A'
+    elif (self.cls == 'CONTEXT'): n = 'C'
+    elif (self.cls == 'PRIVATE'): n = 'P'
+    return n + str(self.num)
  
 #--- Constraint ---------------------------------------------------------------
 class Constraint (Node):
@@ -2341,6 +2361,45 @@ class Type_Ref (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- TaggedType -----------------------------------------------------------------
+class TaggedType (Type):
+  def eth_tname(self):
+    tn = ''
+    for i in range(self.tstrip, len(self.val.tags)):
+      tn += self.val.tags[i].eth_tname()
+      tn += '_'
+    tn += self.val.eth_tname()
+    return tn
+
+  def eth_reg_sub(self, ident, ectx):
+    self.val_name = ident + '/' + '_untag'
+    self.val.eth_reg(self.val_name, ectx, tstrip=self.tstrip+1, tagflag=True, parent=ident)
+
+  def eth_ftype(self, ectx):
+    return self.val.eth_ftype(ectx)
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    t = ectx.type[self.val_name]['ethname']
+    pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
+    pars['TYPE_REF_TNAME'] = t
+    pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+    (pars['TAG_CLS'], pars['TAG_TAG']) = self.GetTag(ectx)
+    if self.HasImplicitTag(ectx):
+      pars['TAG_IMPL'] = 'TRUE'
+    else:
+      pars['TAG_IMPL'] = 'FALSE'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_tagged_type', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                                   ('%(HF_INDEX)s', '%(TAG_CLS)s', '%(TAG_TAG)s', '%(TAG_IMPL)s', '%(TYPE_REF_FN)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 #--- SqType -----------------------------------------------------------
 class SqType (Type):
   def out_item(self, f, val, optional, ext, ectx):
@@ -2434,7 +2493,7 @@ class SequenceOfType (SeqOfType):
     itmnm = ident
     if not self.val.IsNamed ():
       itmnm += '/' + '_item'
-    self.val.eth_reg(itmnm, ectx, idx='[##]', parent=ident)
+    self.val.eth_reg(itmnm, ectx, tstrip=1, idx='[##]', parent=ident)
 
   def eth_tname(self):
     if self.val.type != 'Type_Ref':
@@ -2486,7 +2545,7 @@ class SetOfType (SeqOfType):
     itmnm = ident
     if not self.val.IsNamed ():
       itmnm += '/' + '_item'
-    self.val.eth_reg(itmnm, ectx, idx='(##)', parent=ident)
+    self.val.eth_reg(itmnm, ectx, tstrip=1, idx='(##)', parent=ident)
 
   def eth_tname(self):
     if self.val.type != 'Type_Ref':
@@ -2588,10 +2647,10 @@ class SequenceType (SeqType):
 
   def eth_reg_sub(self, ident, ectx):
       for e in (self.elt_list):
-          e.val.eth_reg(ident, ectx, parent=ident)
+          e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
       if hasattr(self, 'ext_list'):
           for e in (self.ext_list):
-              e.val.eth_reg(ident, ectx, parent=ident)
+              e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_need_tree(self):
     return True
@@ -2621,10 +2680,10 @@ class SequenceType (SeqType):
 class SetType(SeqType):
   def eth_reg_sub(self, ident, ectx):
     for e in (self.elt_list):
-      e.val.eth_reg(ident, ectx, parent=ident)
+      e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
     if hasattr(self, 'ext_list'):
       for e in (self.ext_list):
-        e.val.eth_reg(ident, ectx, parent=ident)
+        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_need_tree(self):
     return True
@@ -2692,10 +2751,10 @@ class ChoiceType (Type):
   def eth_reg_sub(self, ident, ectx):
       #print "eth_reg_sub(ident='%s')" % (ident)
       for e in (self.elt_list):
-          e.eth_reg(ident, ectx, parent=ident)
+          e.eth_reg(ident, ectx, tstrip=1, parent=ident)
       if hasattr(self, 'ext_list'):
           for e in (self.ext_list):
-              e.eth_reg(ident, ectx, parent=ident)
+              e.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_ftype(self, ectx):
     return ('FT_UINT32', 'BASE_DEC')
@@ -3370,6 +3429,7 @@ class IntegerType (Type):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_INTEGER')
 
+
   def eth_ftype(self, ectx):
     if self.HasConstraint():
       if not self.constr.IsNegativ():
@@ -3510,12 +3570,17 @@ def p_valuereference (t):
     'valuereference : LCASE_IDENT'
     t[0] = t[1]
 
+# 11.5 Module references
+def p_modulereference (t):
+    'modulereference : UCASE_IDENT'
+    t[0] = t[1]
+
 
 # 12 Module definition --------------------------------------------------------
 
 # 12.1
 def p_module_def (t):
-    'module_def : module_ident DEFINITIONS TagDefault ASSIGNMENT BEGIN module_body END'
+    'module_def : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT BEGIN module_body END'
     t[0] = Module (ident = t[1], tag_def = t[3], body = t[6])
 
 def p_TagDefault_1 (t):
@@ -3529,11 +3594,17 @@ def p_TagDefault_2 (t):
     # 12.2 The "TagDefault" is taken as EXPLICIT TAGS if it is "empty".
     t[0] = Default_Tags (dfl_tag = 'EXPLICIT') 
 
-def p_module_ident (t):
-    'module_ident : type_ref assigned_ident' # name, oid
-    # XXX coerce type_ref to module_ref
-    t [0] = Node('module_ident', val = t[1].val, ident = t[2])
+def p_ModuleIdentifier_1 (t):
+  'ModuleIdentifier : modulereference DefinitiveIdentifier' # name, oid
+  t [0] = Node('module_ident', val = t[1], ident = t[2])
 
+def p_ModuleIdentifier_2 (t):
+  'ModuleIdentifier : modulereference' # name, oid
+  t [0] = Node('module_ident', val = t[1], ident = None)
+
+def p_DefinitiveIdentifier (t):
+  'DefinitiveIdentifier : ObjectIdentifierValue'
+  t[0] = t[1]
 
 # XXX originally we had both type_ref and module_ref, but that caused
 # a reduce/reduce conflict (because both were UCASE_IDENT).  Presumably
@@ -3615,8 +3686,12 @@ def p_SymbolsFromModuleList_2 (t):
     t[0] = [t[1]]
 
 def p_SymbolsFromModule (t):
-    'SymbolsFromModule : SymbolList FROM module_ident'
+    'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
     t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
+
+def p_GlobalModuleReference (t):
+  'GlobalModuleReference : modulereference assigned_ident'
+  t [0] = Node('module_ident', val = t[1], ident = t[2])
 
 def p_SymbolList_1 (t):
     'SymbolList : Symbol'
@@ -4745,6 +4820,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -p proto      : protocol name (implies -S)
                   default is module-name from input_file (renamed by #.MODULE if present)
   -F            : create 'field functions'
+  -T            : tagged type support (experimental)
   -o name       : output files name core (default is <proto>)
   -O dir        : output directory
   -c conform_file : conformation file
@@ -4768,7 +4844,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 def eth_main():
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:Fo:O:c:eSs:k");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:eSs:k");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -4780,6 +4856,7 @@ def eth_main():
   ectx.encoding = 'per'
   ectx.proto_opt = None
   ectx.fld_opt = False
+  ectx.tag_opt = False
   ectx.outnm_opt = None
   ectx.aligned = True
   ectx.dbgopt = ''
@@ -4798,6 +4875,8 @@ def eth_main():
       ectx.merge_modules = True
     if o in ("-F",):
       ectx.fld_opt = True
+    if o in ("-T",):
+      ectx.tag_opt = True
     if o in ("-c",):
       ectx.conform.read(a)
     if o in ("-u",):
@@ -4824,7 +4903,7 @@ def eth_main():
   if ectx.dbg('y'): yd = 1
   if ectx.dbg('p'): pd = 2
   lexer = lex.lex(debug=ld)
-  yacc.yacc(method='SLR', debug=yd)
+  yacc.yacc(method='LALR', debug=yd)
   ast = []
   for fn in args:
     f = open (fn, "r")
