@@ -256,7 +256,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 flags;
     gint32 len;
     guint old_offset;
-    tvbuff_t *tvb_v = tvb;
+    tvbuff_t *volatile tvb_v = tvb;
     volatile guint offset_v = offset;
 
     if (tree && isreq && iscdb) {
