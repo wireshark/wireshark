@@ -2036,12 +2036,15 @@ dissect_spc_inq_reladrflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 void
-dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
-		     proto_tree *tree, volatile guint offset, gboolean isreq,
+dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
+		     proto_tree *tree, guint offset, gboolean isreq,
 		     gboolean iscdb, guint32 payload_len,
 		     scsi_task_data_t *cdata)
 {
     guint8 flags, i;
+    tvbuff_t *volatile tvb_v = tvb;
+    volatile guint offset_v = offset;
+
     static const int *peripheal_fields[] = {
         &hf_scsi_inq_qualifier,
             &hf_scsi_inq_devtype,
@@ -2061,42 +2064,42 @@ dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
     };
 
     if (!isreq && (cdata == NULL || !(cdata->itlq->flags & 0x3))
-        && (tvb_length_remaining(tvb, offset)>=1) ) {
+        && (tvb_length_remaining(tvb_v, offset_v)>=1) ) {
         /*
         * INQUIRY response with device type information; add device type
         * to list of known devices & their types if not already known.
         */
         if(cdata && cdata->itl){
-            cdata->itl->cmdset=tvb_get_guint8(tvb, offset)&SCSI_DEV_BITS;
+            cdata->itl->cmdset=tvb_get_guint8(tvb_v, offset_v)&SCSI_DEV_BITS;
         }
     }
 
     if (isreq && iscdb) {
-        flags = tvb_get_guint8 (tvb, offset);
+        flags = tvb_get_guint8 (tvb_v, offset_v);
         if (cdata) {
             cdata->itlq->flags = flags;
         }
 
-        proto_tree_add_uint_format (tree, hf_scsi_inquiry_flags, tvb, offset, 1,
+        proto_tree_add_uint_format (tree, hf_scsi_inquiry_flags, tvb_v, offset_v, 1,
             flags, "CMDT = %u, EVPD = %u",
             flags & 0x2, flags & 0x1);
         if (flags & 0x1) {
-            proto_tree_add_item (tree, hf_scsi_inquiry_evpd_page, tvb, offset+1,
+            proto_tree_add_item (tree, hf_scsi_inquiry_evpd_page, tvb_v, offset_v+1,
                 1, 0);
         }
         else if (flags & 0x2) {
-            proto_tree_add_item (tree, hf_scsi_inquiry_cmdt_page, tvb, offset+1,
+            proto_tree_add_item (tree, hf_scsi_inquiry_cmdt_page, tvb_v, offset_v+1,
                 1, 0);
         }
 
-        proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_alloclen, tvb_v, offset_v+3, 1, 0);
         /* we need the alloc_len in the response */
         if(cdata){
-            cdata->itlq->alloc_len=tvb_get_guint8(tvb, offset+3);
+            cdata->itlq->alloc_len=tvb_get_guint8(tvb_v, offset_v+3);
         }
 
-        flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+4, 1,
+        flags = tvb_get_guint8 (tvb_v, offset_v+4);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+4, 1,
             flags,
             "Vendor Unique = %u, NACA = %u, Link = %u",
             flags & 0xC0, flags & 0x4, flags & 0x1);
@@ -2106,74 +2109,74 @@ dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
         }
 
         if (cdata->itlq->flags & 0x1) {
-            dissect_scsi_evpd (tvb, pinfo, tree, offset, payload_len);
+            dissect_scsi_evpd (tvb_v, pinfo, tree, offset_v, payload_len);
             return;
         }
         if (cdata->itlq->flags & 0x2) {
-            dissect_scsi_cmddt (tvb, pinfo, tree, offset, payload_len);
+            dissect_scsi_cmddt (tvb_v, pinfo, tree, offset_v, payload_len);
             return;
         }
 
         /* These pdus are sometimes truncated by SCSI allocation length
         * in the CDB
         */
-        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
+        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
         /* Qualifier and DeviceType */
-        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
-        offset+=1;
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+        offset_v+=1;
 
         /* RMB */
-        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_rmbflags, ett_scsi_inq_rmbflags, rmb_fields, FALSE);
-        offset+=1;
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_rmbflags, ett_scsi_inq_rmbflags, rmb_fields, FALSE);
+        offset_v+=1;
 
         /* Version */
-        proto_tree_add_item (tree, hf_scsi_inq_version, tvb, offset, 1, 0);
-        offset+=1;
+        proto_tree_add_item (tree, hf_scsi_inq_version, tvb_v, offset_v, 1, 0);
+        offset_v+=1;
 
         /* aca flags */
-        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, FALSE);
-        offset+=1;
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, FALSE);
+        offset_v+=1;
 
         /* Additional Length */
-        SET_SCSI_DATA_END(tvb_get_guint8(tvb, offset)+offset);
-        proto_tree_add_item(tree, hf_scsi_inq_add_len, tvb, offset, 1, 0);
-        offset+=1;
+        SET_SCSI_DATA_END(tvb_get_guint8(tvb_v, offset_v)+offset);
+        proto_tree_add_item(tree, hf_scsi_inq_add_len, tvb_v, offset_v, 1, 0);
+        offset_v+=1;
 
         /* sccs flags */
-        offset=dissect_spc_inq_sccsflags(tvb, offset, tree);
+        offset_v=dissect_spc_inq_sccsflags(tvb_v, offset, tree);
 
         /* bque flags */
-        offset=dissect_spc_inq_bqueflags(tvb, offset, tree);
+        offset_v=dissect_spc_inq_bqueflags(tvb_v, offset, tree);
 
         /* reladdr flags */
-        offset=dissect_spc_inq_reladrflags(tvb, offset, tree);
+        offset_v=dissect_spc_inq_reladrflags(tvb_v, offset, tree);
 
         /* vendor id */
-        proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb, offset, 8, 0);
-        offset+=8;
+        proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb_v, offset_v, 8, 0);
+        offset_v+=8;
 
         /* product id */
-        proto_tree_add_item(tree, hf_scsi_inq_product_id, tvb, offset, 16, 0);
-        offset+=16;
+        proto_tree_add_item(tree, hf_scsi_inq_product_id, tvb_v, offset_v, 16, 0);
+        offset_v+=16;
 
         /* product revision level */
-        proto_tree_add_item(tree, hf_scsi_inq_product_rev, tvb, offset, 4, 0);
-        offset+=4;
+        proto_tree_add_item(tree, hf_scsi_inq_product_rev, tvb_v, offset_v, 4, 0);
+        offset_v+=4;
 
         /* vendor specific, 20 bytes */
-        offset+=20;
+        offset_v+=20;
 
         /* clocking, qas, ius */
-        offset++;
+        offset_v++;
 
         /* reserved */
-        offset++;
+        offset_v++;
 
         /* version descriptors */
         for(i=0;i<8;i++){
-            proto_tree_add_item(tree, hf_scsi_inq_version_desc, tvb, offset, 2, 0);
-            offset+=2;
+            proto_tree_add_item(tree, hf_scsi_inq_version_desc, tvb_v, offset_v, 2, 0);
+            offset_v+=2;
         }
 
         END_TRY_SCSI_CDB_ALLOC_LEN;
@@ -2181,8 +2184,8 @@ dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
 }
 
 void
-dissect_spc_extcopy (tvbuff_t *volatile tvb _U_, packet_info *pinfo _U_,
-                     proto_tree *tree _U_, volatile guint offset _U_,
+dissect_spc_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+                     proto_tree *tree _U_, guint offset _U_,
                      gboolean isreq _U_, gboolean iscdb _U_,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -2299,8 +2302,8 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc_logselect (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -2348,8 +2351,8 @@ static const true_false_string scsi_log_sp_tfs = {
 };
 
 void
-dissect_spc_logsense (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-                       volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3178,8 +3181,8 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_spc_modeselect6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3276,8 +3279,8 @@ dissect_spc_modeselect6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree 
 }
 
 void
-dissect_spc_modeselect10 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-                           volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                           guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3432,8 +3435,8 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_spc_modesense6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-                        volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3525,8 +3528,8 @@ dissect_spc_modesense6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *
 }
 
 void
-dissect_spc_modesense10 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3625,8 +3628,8 @@ dissect_spc_modesense10 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree 
 }
 
 void
-dissect_spc_preventallowmediaremoval (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3649,8 +3652,8 @@ dissect_spc_preventallowmediaremoval (tvbuff_t *volatile tvb, packet_info *pinfo
 }
 
 void
-dissect_spc_persistentreservein (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                         volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                         guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
 {
     guint16 flags;
@@ -3713,8 +3716,8 @@ dissect_spc_persistentreservein (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_spc_persistentreserveout (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3740,8 +3743,8 @@ dissect_spc_persistentreserveout (tvbuff_t *volatile tvb, packet_info *pinfo _U_
 }
 
 void
-dissect_spc_release6 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3759,8 +3762,8 @@ dissect_spc_release6 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree
 }
 
 void
-dissect_spc_release10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3790,33 +3793,35 @@ dissect_spc_release10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static void
-dissect_spc_reportdeviceidentifier (tvbuff_t *volatile tvb _U_, packet_info *pinfo _U_,
+dissect_spc_reportdeviceidentifier (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 proto_tree *tree _U_,
-                  volatile guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
+                  guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
                   guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
 
 }
 
 void
-dissect_spc_reportluns (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
-			proto_tree *tree, volatile guint offset,
+dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
+			proto_tree *tree, guint offset,
 			gboolean isreq, gboolean iscdb, guint payload_len _U_,
 			scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
     gint listlen;
+    tvbuff_t *volatile tvb_v = tvb;
+    volatile guint offset_v = offset;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_select_report, tvb, offset+1, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_select_report, tvb_v, offset_v+1, 1, 0);
 
-        proto_tree_add_item (tree, hf_scsi_alloclen32, tvb, offset+5, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_alloclen32, tvb_v, offset_v+5, 4, 0);
         if(cdata){
-            cdata->itlq->alloc_len=tvb_get_ntohl(tvb, offset+5);
+            cdata->itlq->alloc_len=tvb_get_ntohl(tvb_v, offset_v+5);
         }
 
-        flags = tvb_get_guint8 (tvb, offset+10);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+10, 1,
+        flags = tvb_get_guint8 (tvb_v, offset_v+10);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+10, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
@@ -3825,20 +3830,20 @@ dissect_spc_reportluns (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
             return;
         }
 
-        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
-        listlen = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_text (tree, tvb, offset, 4, "LUN List Length: %u",
+        TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
+        listlen = tvb_get_ntohl(tvb_v, offset_v);
+        proto_tree_add_text (tree, tvb_v, offset_v, 4, "LUN List Length: %u",
                              listlen);
-        offset += 8;
+        offset_v += 8;
 
         while(listlen>0){
-            if (!tvb_get_guint8 (tvb, offset))
-                proto_tree_add_item (tree, hf_scsi_rluns_lun, tvb, offset+1, 1,
+            if (!tvb_get_guint8 (tvb_v, offset_v))
+                proto_tree_add_item (tree, hf_scsi_rluns_lun, tvb_v, offset_v+1, 1,
                                      0);
             else
-                proto_tree_add_item (tree, hf_scsi_rluns_multilun, tvb, offset,
+                proto_tree_add_item (tree, hf_scsi_rluns_multilun, tvb_v, offset_v,
                                      8, 0);
-            offset+=8;
+            offset_v+=8;
             listlen-=8;
         }
         END_TRY_SCSI_CDB_ALLOC_LEN;
@@ -3877,8 +3882,8 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 }
 
 void
-dissect_spc_requestsense (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_requestsense (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3900,8 +3905,8 @@ dissect_spc_requestsense (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto
 }
 
 void
-dissect_spc_reserve6 (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_reserve6 (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3919,8 +3924,8 @@ dissect_spc_reserve6 (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tre
 }
 
 void
-dissect_spc_reserve10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3950,8 +3955,8 @@ dissect_spc_reserve10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tre
 }
 
 void
-dissect_spc_testunitready (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_testunitready (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3974,8 +3979,8 @@ dissect_spc_testunitready (tvbuff_t * volatile tvb, packet_info *pinfo _U_, prot
 
 
 void
-dissect_spc_senddiagnostic (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb _U_,
+dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3998,8 +4003,8 @@ dissect_spc_senddiagnostic (tvbuff_t *volatile tvb, packet_info *pinfo _U_, prot
 }
 
 void
-dissect_spc_writebuffer (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          volatile guint offset, gboolean isreq, gboolean iscdb _U_,
+dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -4020,8 +4025,8 @@ dissect_spc_writebuffer (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_t
 }
 
 static void
-dissect_scsi_varlencdb (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (!tree)

@@ -246,8 +246,8 @@ static const value_string scsi_feature_val[] = {
 };
 
 static void
-dissect_mmc4_getconfiguration (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
-			       proto_tree *tree, volatile guint offset,
+dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
+			       proto_tree *tree, guint offset,
 			       gboolean isreq, gboolean iscdb,
 			       guint payload_len _U_,
 			       scsi_task_data_t *cdata _U_)
@@ -256,19 +256,21 @@ dissect_mmc4_getconfiguration (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
     guint8 flags;
     gint32 len;
     guint old_offset;
+    tvbuff_t *tvb_v = tvb;
+    volatile guint offset_v = offset;
 
     if (tree && isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb, offset+0, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_getconf_starting_feature, tvb, offset+1, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_getconf_rt, tvb_v, offset_v+0, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_getconf_starting_feature, tvb_v, offset_v+1, 2, 0);
 
-        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_alloclen16, tvb_v, offset_v+6, 2, 0);
 	/* we need the alloc_len in the response */
 	if(cdata){
-		cdata->itlq->alloc_len=tvb_get_ntohs(tvb, offset+6);
+		cdata->itlq->alloc_len=tvb_get_ntohs(tvb_v, offset_v+6);
 	}
 
-        flags = tvb_get_guint8 (tvb, offset+8);
-        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset+8, 1,
+        flags = tvb_get_guint8 (tvb_v, offset_v+8);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb_v, offset_v+8, 1,
                                     flags,
                                     "Vendor Unique = %u, NACA = %u, Link = %u",
                                     flags & 0xC0, flags & 0x4, flags & 0x1);
@@ -278,53 +280,53 @@ dissect_mmc4_getconfiguration (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
 		return;
 	}
 
-	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, cdata->itlq->alloc_len);
+	TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
-        len=tvb_get_ntohl(tvb, offset+0);
-        proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, offset, 4, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_getconf_current_profile, tvb, offset+6, 2, 0);
-	offset+=8;
+        len=tvb_get_ntohl(tvb_v, offset_v+0);
+        proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb_v, offset_v, 4, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_getconf_current_profile, tvb_v, offset_v+6, 2, 0);
+	offset_v+=8;
         len-=4;
         while(len>0){
                 guint16 feature;
                 guint8 additional_length;
 		guint8 num_linksize;
 
-                feature=tvb_get_ntohs(tvb, offset);
-	        proto_tree_add_item (tree, hf_scsi_mmc_feature, tvb, offset, 2, 0);
-                offset+=2;
-	        proto_tree_add_item (tree, hf_scsi_mmc_feature_version, tvb, offset, 1, 0);
-	        proto_tree_add_item (tree, hf_scsi_mmc_feature_persistent, tvb, offset, 1, 0);
-	        proto_tree_add_item (tree, hf_scsi_mmc_feature_current, tvb, offset, 1, 0);
-                offset+=1;
-                additional_length=tvb_get_guint8(tvb, offset);
-	        proto_tree_add_item (tree, hf_scsi_mmc_feature_additional_length, tvb, offset, 1, 0);
-                offset+=1;
-                old_offset=offset;
+                feature=tvb_get_ntohs(tvb_v, offset_v);
+	        proto_tree_add_item (tree, hf_scsi_mmc_feature, tvb_v, offset_v, 2, 0);
+                offset_v+=2;
+	        proto_tree_add_item (tree, hf_scsi_mmc_feature_version, tvb_v, offset_v, 1, 0);
+	        proto_tree_add_item (tree, hf_scsi_mmc_feature_persistent, tvb_v, offset_v, 1, 0);
+	        proto_tree_add_item (tree, hf_scsi_mmc_feature_current, tvb_v, offset_v, 1, 0);
+                offset_v+=1;
+                additional_length=tvb_get_guint8(tvb_v, offset_v);
+	        proto_tree_add_item (tree, hf_scsi_mmc_feature_additional_length, tvb_v, offset_v, 1, 0);
+                offset_v+=1;
+                old_offset=offset_v;
                 switch(feature){
                 case 0x0000: /* profile list */
-                    while(offset<(old_offset+additional_length)){
+                    while(offset_v<(old_offset+additional_length)){
 			proto_item *it=NULL;
 			proto_tree *tr=NULL;
 			guint16 profile;
 			guint8  cur_profile;
 
 			if(tree){
-				it=proto_tree_add_text(tree, tvb, offset, 4, "Profile:");
+				it=proto_tree_add_text(tree, tvb_v, offset_v, 4, "Profile:");
 				tr=proto_item_add_subtree(it, ett_scsi_mmc_profile);
 			}
 
-			profile=tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, tvb, offset, 2, 0);
+			profile=tvb_get_ntohs(tvb_v, offset_v);
+                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile, tvb_v, offset_v, 2, 0);
 			proto_item_append_text(it, "%s", val_to_str(profile, scsi_getconf_current_profile_val, "Unknown 0x%04x"));
 
-			cur_profile=tvb_get_guint8(tvb, offset+2);
-                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, tvb, offset+2, 1, 0);
+			cur_profile=tvb_get_guint8(tvb_v, offset_v+2);
+                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, tvb_v, offset_v+2, 1, 0);
 			if(cur_profile&0x01){
 				proto_item_append_text(it, "  [CURRENT PROFILE]");
 			}
 
-                        offset+=4;
+                        offset_v+=4;
                     }
                     break;
                 case 0x001d: /* multi-read */
@@ -332,60 +334,60 @@ dissect_mmc4_getconfiguration (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
                     /* no data for this one */
                     break;
                 case 0x001e: /* cd read */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_dap, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_c2flag, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_cdtext, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_dap, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_c2flag, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_cdtext, tvb_v, offset_v, 1, 0);
                     break;
                 case 0x0021: /* incremental streaming writeable */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb, offset, 2, 0);
-                    offset+=2;
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_buf, tvb, offset, 1, 0);
-                    offset+=1;
-                    num_linksize=tvb_get_guint8(tvb, offset);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_num_linksize, tvb, offset, 1, 0);
-                    offset+=1;
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb_v, offset_v, 2, 0);
+                    offset_v+=2;
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_buf, tvb_v, offset_v, 1, 0);
+                    offset_v+=1;
+                    num_linksize=tvb_get_guint8(tvb_v, offset_v);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_num_linksize, tvb_v, offset_v, 1, 0);
+                    offset_v+=1;
                     while(num_linksize--){
-                        proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_linksize, tvb, offset, 1, 0);
-                        offset+=1;
+                        proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_linksize, tvb_v, offset_v, 1, 0);
+                        offset_v+=1;
                     }
                     break;
                 case 0x002a: /* dvd-rw */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_write, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_quickstart, tvb, offset, 2, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_closeonly, tvb, offset, 2, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_write, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_quickstart, tvb_v, offset_v, 2, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_closeonly, tvb_v, offset_v, 2, 0);
                     break;
                 case 0x002b: /* dvd-r */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_write, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_write, tvb_v, offset_v, 1, 0);
                     break;
                 case 0x002d: /* track at once */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_buf, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwraw, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwpack, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_testwrite, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_cdrw, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwsubcode, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb, offset+2, 2, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_buf, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwraw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwpack, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_testwrite, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_cdrw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwsubcode, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb_v, offset_v+2, 2, 0);
                     break;
                 case 0x002e: /* session at once */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_buf, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_sao, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rawms, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_raw, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_testwrite, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_cdrw, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rw, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_mcsl, tvb, offset+1, 3, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_buf, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_sao, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rawms, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_raw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_testwrite, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_cdrw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_mcsl, tvb_v, offset_v+1, 3, 0);
                     break;
                 case 0x002f: /* dvd-r/-rw*/
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_buf, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_testwrite, tvb, offset, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_dvdrw, tvb, offset, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_buf, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_testwrite, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_dvdrw, tvb_v, offset_v, 1, 0);
                     break;
                 case 0x0108: /* logical unit serial number */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_lun_sn, tvb, offset, additional_length, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_lun_sn, tvb_v, offset_v, additional_length, 0);
                     break;
                 default:
-		    proto_tree_add_text (tree, tvb, offset, additional_length,
+		    proto_tree_add_text (tree, tvb_v, offset_v, additional_length,
 			"SCSI/MMC Unknown Feature:0x%04x",feature);
 		    break;
                 }
@@ -421,8 +423,8 @@ static const value_string scsi_q_subchannel_control_val[] = {
 };
 
 static void
-dissect_mmc4_readtocpmaatip (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -537,8 +539,8 @@ static const value_string scsi_disc_info_disc_type_val[] = {
 };
 
 static void
-dissect_mmc4_readdiscinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -582,8 +584,8 @@ dissect_mmc4_readdiscinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U_
 }
 
 static void
-dissect_mmc4_readdiscstructure (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -618,8 +620,8 @@ dissect_mmc4_readdiscstructure (tvbuff_t *volatile tvb, packet_info *pinfo _U_, 
 }
 
 static void
-dissect_mmc4_getperformance (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -654,8 +656,8 @@ dissect_mmc4_getperformance (tvbuff_t *volatile tvb, packet_info *pinfo _U_, pro
 }
 
 static void
-dissect_mmc4_synchronizecache (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -706,8 +708,8 @@ static const value_string scsi_report_key_rpc_scheme_val[] = {
 };
 
 static void
-dissect_mmc4_reportkey (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -771,8 +773,8 @@ static const value_string scsi_rti_address_type_val[] = {
 };
 
 static void
-dissect_mmc4_readtrackinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -832,8 +834,8 @@ dissect_mmc4_readtrackinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U
 }
 
 static void
-dissect_mmc4_geteventstatusnotification (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -862,8 +864,8 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *volatile tvb, packet_info *pi
 
 
 static void
-dissect_mmc4_reservetrack (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -883,8 +885,8 @@ dissect_mmc4_reservetrack (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto
 
 
 static void
-dissect_mmc4_readbuffercapacity (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -930,8 +932,8 @@ static const value_string scsi_setcdspeed_rc_val[] = {
 };
 
 static void
-dissect_mmc4_setcdspeed (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -963,8 +965,8 @@ static const value_string scsi_setstreaming_type_val[] = {
 };
 
 static void
-dissect_mmc4_setstreaming (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {

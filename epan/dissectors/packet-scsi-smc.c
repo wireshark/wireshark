@@ -68,8 +68,8 @@ static gint ett_scsi_range			= -1;
 static gint ett_scsi_move			= -1;
 
 void
-dissect_smc_exchangemedium (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -100,8 +100,8 @@ dissect_smc_exchangemedium (tvbuff_t *volatile tvb, packet_info *pinfo _U_, prot
 }
 
 void
-dissect_smc_position_to_element (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -128,8 +128,8 @@ dissect_smc_position_to_element (tvbuff_t *volatile tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_smc_initialize_element_status (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -147,8 +147,8 @@ dissect_smc_initialize_element_status (tvbuff_t *volatile tvb, packet_info *pinf
 }
 
 void
-dissect_smc_initialize_element_status_with_range (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -177,8 +177,8 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *volatile tvb, packet
 }
 
 void
-dissect_smc_openclose_importexport_element (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -199,8 +199,8 @@ dissect_smc_openclose_importexport_element (tvbuff_t *volatile tvb, packet_info 
     }
 }
 void
-dissect_smc_movemedium (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
-                    volatile guint offset, gboolean isreq, gboolean iscdb,
+dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                    guint offset, gboolean isreq, gboolean iscdb,
                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -494,8 +494,8 @@ dissect_scsi_smc_elements (tvbuff_t *tvb, packet_info *pinfo,
 
 
 void
-dissect_smc_readelementstatus (tvbuff_t *volatile tvb, packet_info *pinfo,
-                         proto_tree *tree, volatile guint offset, gboolean isreq,
+dissect_smc_readelementstatus (tvbuff_t *tvb, packet_info *pinfo,
+                         proto_tree *tree, guint offset, gboolean isreq,
                          gboolean iscdb,
                          guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
