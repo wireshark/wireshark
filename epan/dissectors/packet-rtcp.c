@@ -2436,7 +2436,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     }
 
     /* offset should be total_packet_length by now... */
-    if (offset == (int)total_packet_length)
+    if (offset == total_packet_length)
     {
         ti = proto_tree_add_boolean_format_value(tree, hf_rtcp_length_check, tvb,
                                             0, 0, TRUE, "OK - %u bytes",
