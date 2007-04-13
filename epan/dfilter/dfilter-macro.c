@@ -219,7 +219,7 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error) {
 					}
 					break;
 				} case NAME: {
-					if ( isalnum(c) || c == '_' ) {
+					if ( isalnum((int)c) || c == '_' ) {
 						g_string_append_c(name,c);
 					} else if ( c == ':') {
 						state = ARGS;
@@ -449,7 +449,7 @@ gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, voi
 	guint i;
 	
 	for (i=0; i < name_len; i++) {
-		if (!(in_name[i] == '_' || isalnum(in_name[i]) ) ) {
+		if (!(in_name[i] == '_' || isalnum((int)in_name[i]) ) ) {
 			*error = "invalid char in name";
 			return FALSE;
 		}

@@ -574,7 +574,7 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes) {
 			if (*p == '\0') return FALSE;
 			hex_digit[1] = *p;
 			hex_digit[2] = '\0';
-			if (! isxdigit(hex_digit[0]) || ! isxdigit(hex_digit[1]))
+			if (! isxdigit((int)hex_digit[0]) || ! isxdigit((int)hex_digit[1]))
 				return FALSE;
 			val = (guint8) strtoul(hex_digit, NULL, 16);
 			g_byte_array_append(bytes, &val, 1);
@@ -691,7 +691,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
   p = oid_str;
   dot = NULL;
   while (*p) {
-    if (!isdigit(*p) && (*p != '.')) return FALSE;
+    if (!isdigit((int)*p) && (*p != '.')) return FALSE;
     if (*p == '.') {
       if (p == oid_str) return FALSE;
       if (!*(p+1)) return FALSE;
@@ -707,7 +707,7 @@ oid_str_to_bytes(const char *oid_str, GByteArray *bytes) {
   subid0 = 0;	/* squelch GCC complaints */
   while (*p) {
     subid = 0;
-    while (isdigit(*p)) {
+    while (isdigit((int)*p)) {
       subid *= 10;
       subid += *p - '0';
       p++;

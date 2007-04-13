@@ -285,7 +285,7 @@ CHK_STR_IS_DECL(isxdigit);
 gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
-			if (! what(c)) { \
+			if (! what((int)c)) { \
 				*err = ep_strdup_printf("invalid char pos=%d value=%.2x",i,c); return FALSE;  } } \
 		*err = NULL; return TRUE; }
 
