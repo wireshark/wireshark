@@ -2181,8 +2181,8 @@ dissect_spc_inquiry (tvbuff_t *volatile tvb, packet_info *pinfo,
 }
 
 void
-dissect_spc_extcopy (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                     proto_tree *tree _U_, guint offset _U_,
+dissect_spc_extcopy (tvbuff_t *volatile tvb _U_, packet_info *pinfo _U_,
+                     proto_tree *tree _U_, volatile guint offset _U_,
                      gboolean isreq _U_, gboolean iscdb _U_,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
@@ -2299,8 +2299,8 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_logselect (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -2348,8 +2348,8 @@ static const true_false_string scsi_log_sp_tfs = {
 };
 
 void
-dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_logsense (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                       volatile guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3178,8 +3178,8 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 void
-dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modeselect6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3276,8 +3276,8 @@ dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                           guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modeselect10 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                           volatile guint offset, gboolean isreq, gboolean iscdb,
                            guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3432,8 +3432,8 @@ dissect_scsi_pagecode (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 void
-dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modesense6 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3525,8 +3525,8 @@ dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_modesense10 (tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len, scsi_task_data_t *cdata)
 {
     guint8 flags;
@@ -3625,8 +3625,8 @@ dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 void
-dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_preventallowmediaremoval (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3649,8 +3649,8 @@ dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pro
 }
 
 void
-dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                         guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_persistentreservein (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                         volatile guint offset, gboolean isreq, gboolean iscdb,
                          guint payload_len, scsi_task_data_t *cdata)
 {
     guint16 flags;
@@ -3713,8 +3713,8 @@ dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 void
-dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_persistentreserveout (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3740,8 +3740,8 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 void
-dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_release6 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       volatile guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3759,8 +3759,8 @@ dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_release10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3790,9 +3790,9 @@ dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_spc_reportdeviceidentifier (tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_spc_reportdeviceidentifier (tvbuff_t *volatile tvb _U_, packet_info *pinfo _U_,
 proto_tree *tree _U_,
-                  guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
+                  volatile guint offset _U_, gboolean isreq _U_, gboolean iscdb _U_,
                   guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
 
@@ -3877,8 +3877,8 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 }
 
 void
-dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_requestsense (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       volatile guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3900,8 +3900,8 @@ dissect_spc_requestsense (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 void
-dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                       guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_reserve6 (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                       volatile guint offset, gboolean isreq, gboolean iscdb,
                        guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3919,8 +3919,8 @@ dissect_spc_reserve6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_reserve10 (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3950,8 +3950,8 @@ dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 void
-dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb,
+dissect_spc_testunitready (tvbuff_t * volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3974,8 +3974,8 @@ dissect_spc_testunitready (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 void
-dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb _U_,
+dissect_spc_senddiagnostic (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -3998,8 +3998,8 @@ dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 void
-dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                          guint offset, gboolean isreq, gboolean iscdb _U_,
+dissect_spc_writebuffer (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                          volatile guint offset, gboolean isreq, gboolean iscdb _U_,
                           guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     guint8 flags;
@@ -4020,8 +4020,8 @@ dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-dissect_scsi_varlencdb (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                        guint offset, gboolean isreq, gboolean iscdb,
+dissect_scsi_varlencdb (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                        volatile guint offset, gboolean isreq, gboolean iscdb,
                         guint payload_len _U_, scsi_task_data_t *cdata _U_)
 {
     if (!tree)

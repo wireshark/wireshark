@@ -421,8 +421,8 @@ static const value_string scsi_q_subchannel_control_val[] = {
 };
 
 static void
-dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readtocpmaatip (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -537,8 +537,8 @@ static const value_string scsi_disc_info_disc_type_val[] = {
 };
 
 static void
-dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readdiscinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -582,8 +582,8 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 static void
-dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readdiscstructure (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -618,8 +618,8 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 }
 
 static void
-dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_getperformance (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -654,8 +654,8 @@ dissect_mmc4_getperformance (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 static void
-dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_synchronizecache (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -706,8 +706,8 @@ static const value_string scsi_report_key_rpc_scheme_val[] = {
 };
 
 static void
-dissect_mmc4_reportkey (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_reportkey (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -771,8 +771,8 @@ static const value_string scsi_rti_address_type_val[] = {
 };
 
 static void
-dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readtrackinformation (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -832,8 +832,8 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static void
-dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_geteventstatusnotification (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -862,8 +862,8 @@ dissect_mmc4_geteventstatusnotification (tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 
 static void
-dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_reservetrack (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -883,8 +883,8 @@ dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 static void
-dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_readbuffercapacity (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -930,8 +930,8 @@ static const value_string scsi_setcdspeed_rc_val[] = {
 };
 
 static void
-dissect_mmc4_setcdspeed (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_setcdspeed (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
@@ -963,8 +963,8 @@ static const value_string scsi_setstreaming_type_val[] = {
 };
 
 static void
-dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-                     guint offset, gboolean isreq, gboolean iscdb,
+dissect_mmc4_setstreaming (tvbuff_t *volatile tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     volatile guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
 
 {
