@@ -196,19 +196,18 @@ tvbtest: tvbtest.exe
 
 exntest.exe: exntest.obj except.obj
 	@echo Linking $@
-	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
 		$(GLIB_LIBS) exntest.obj except.obj
 
 tvbtest.exe: tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 	@echo Linking $@
-	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-		$(GLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
+		$(GLIB_LIBS) $(ZLIB_LIBS) tvbtest.obj tvbuff.obj except.obj strutil.obj emem.obj
 
 reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.obj \
                  reassemble.obj
 	@echo Linking $@
-	$(LINK) /OUT:$@ $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                user32.lib wsock32.lib \
+	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
                 $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
                 except.obj strutil.obj emem.obj reassemble.obj
 
