@@ -42,7 +42,6 @@ EXTRA_DIST = \
 	ansi_map/Makefile.nmake	\
 	ansi_map/packet-ansi_map-template.c	\
 	ansi_map/packet-ansi_map-template.h	\
-	ansi_map/README	\
 	camel/camel.asn	\
 	camel/camel.cnf	\
 	camel/Makefile	\
