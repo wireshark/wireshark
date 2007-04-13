@@ -54,8 +54,8 @@ for file in files:
 		filenames.append("%s/%s" % (srcdir, file))
 
 if len(filenames) < 1:
-    print "No files found"
-    sys.exit(1)
+	print "No files found"
+	sys.exit(1)
 
 
 # Look through all files, applying the regex to each line.
@@ -132,8 +132,8 @@ if cache is not None and cache_filename is not None:
 
 # Make sure we actually processed something
 if len(regs['proto_reg']) < 1:
-    print "No protocol registrations found"
-    sys.exit(1)
+	print "No protocol registrations found"
+	sys.exit(1)
 
 # Sort the lists to make them pretty
 regs['proto_reg'].sort()
