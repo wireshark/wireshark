@@ -83,20 +83,28 @@ else
 fi
 rm -rf conftest*
 
+AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_WITH(warnings-as-errors,
-  AC_HELP_STRING( [--without-warnings-as-errors], 
-		  [Don't treat warnings as errors (only for gcc). [default=yes]]),
+  AC_HELP_STRING( [--with-warnings-as-errors],
+                 [Treat warnings as errors (only for gcc). [default=yes]]),
 [
-  without_warnings_as_errors="no"
-  if test "x$GCC" != "x" && test "x$withval" = "xno"; then
-      without_warnings_as_errors="yes"
+  if test "x$GCC" != "x" && test "x$withval" != "xno"; then
+    with_warnings_as_errors="no"
+    AC_MSG_RESULT(no)
+  else
+    with_warnings_as_errors="yes"
+    AC_MSG_RESULT(yes)
   fi
 ],
-  if test "x$GCC" != "x"; then
-    without_warnings_as_errors="no"
+  if test "x$GCC" != "x" && test "x$wireshark_extra_gcc_flags" = "x"; then
+    with_warnings_as_errors="yes"
+    AC_MSG_RESULT(yes)
+  else
+    with_warnings_as_errors="no"
+    AC_MSG_RESULT(no)
   fi
 )
-AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$without_warnings_as_errors" = "xno")
+AM_CONDITIONAL(HAVE_WARNINGS_AS_ERRORS, test "x$with_warnings_as_errors" = "xyes")
 
 #
 # Add any platform-specific compiler flags needed.
