@@ -271,7 +271,7 @@ static const value_string ssl_20_certificate_type[] _U_ = {
     { 0x00, NULL },
 };
 
-static const value_string ssl_31_content_type[] = {
+static const value_string ssl_31_content_type[] _U_ = {
     { 20, "Change Cipher Spec" },
     { 21, "Alert" },
     { 22, "Handshake" },
@@ -279,7 +279,7 @@ static const value_string ssl_31_content_type[] = {
     { 0x00, NULL }
 };
 
-static const value_string ssl_versions[] = {
+static const value_string ssl_versions[] _U_ = {
     { 0x0100, "DTLS 1.0" },
     { 0x0302, "TLS 1.1" },
     { 0x0301, "TLS 1.0" },
@@ -297,13 +297,13 @@ static const value_string ssl_31_change_cipher_spec[] = {
 };
 #endif
 
-static const value_string ssl_31_alert_level[] = {
+static const value_string ssl_31_alert_level[] _U_ = {
     { 1, "Warning" },
     { 2, "Fatal" },
     { 0x00, NULL }
 };
 
-static const value_string ssl_31_alert_description[] = {
+static const value_string ssl_31_alert_description[] _U_ = {
     {  0,  "Close Notify" },
     { 10,  "Unexpected Message" },
     { 20,  "Bad Record MAC" },
@@ -330,7 +330,7 @@ static const value_string ssl_31_alert_description[] = {
     { 0x00, NULL }
 };
 
-static const value_string ssl_31_handshake_type[] = {
+static const value_string ssl_31_handshake_type[] _U_ = {
     { SSL_HND_HELLO_REQUEST,     "Hello Request" },
     { SSL_HND_CLIENT_HELLO,      "Client Hello" },
     { SSL_HND_SERVER_HELLO,      "Server Hello" },
@@ -345,7 +345,7 @@ static const value_string ssl_31_handshake_type[] = {
     { 0x00, NULL }
 };
 
-static const value_string ssl_31_compression_method[] = {
+static const value_string ssl_31_compression_method[] _U_ = {
     { 0, "null" },
     { 1, "DEFLATE" },
     { 64, "LZS" },
@@ -369,7 +369,7 @@ static const value_string ssl_31_signature_algorithm[] = {
 };
 #endif
 
-static const value_string ssl_31_client_certificate_type[] = {
+static const value_string ssl_31_client_certificate_type[] _U_ = {
     { 1, "RSA Sign" },
     { 2, "DSS Sign" },
     { 3, "RSA Fixed DH" },
@@ -387,7 +387,7 @@ static const value_string ssl_31_public_value_encoding[] = {
 };
 #endif
 
-static const value_string ssl_31_ciphersuite[] = {
+static const value_string ssl_31_ciphersuite[] _U_ = {
     { 0x0000, "TLS_NULL_WITH_NULL_NULL" },
     { 0x0001, "TLS_RSA_WITH_NULL_MD5" },
     { 0x0002, "TLS_RSA_WITH_NULL_SHA" },
@@ -532,7 +532,7 @@ static const value_string pct_error_code[] _U_ = {
 };
 
 /* RFC 3546 */
-static const value_string tls_hello_extension_types[] = {
+static const value_string tls_hello_extension_types[] _U_ = {
 	{ 0, "server_name" },
 	{ 1, "max_fragment_length" },
 	{ 2, "client_certificate_url" },
