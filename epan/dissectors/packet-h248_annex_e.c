@@ -51,7 +51,7 @@ static gint ett_h248_pkg_generic_cause_evt = -1;
 static gint ett_h248_pkg_generic = -1;
 static int ett_h248_pkg_generic_sc_evt = -1;
 
-static const value_string h248_pkg_generic_cause_vals[] = {
+static const value_string h248_pkg_generic_cause_vals[] _U_ = {
 	{1, "gencause"},
 	{2, "failurecause"},
 	{ 0, NULL }
@@ -79,7 +79,7 @@ static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
-static const value_string h248_pkg_generic_sc_meth_vals[] = {
+static const value_string h248_pkg_generic_sc_meth_vals[] _U_ = {
 	{0x0001,"SigID"},
 	{0x0002,"Meth"},
 	{0x0003,"SLID"},
@@ -326,7 +326,7 @@ static h248_pkg_evt_t h248_pkg_al_evts[] = {
 };
 
 /* Packet defenitions */
-static const value_string h248_pkg_al_parameters[] = {
+static const value_string h248_pkg_al_parameters[] _U_ = {
 	/* Signals */
 	{   0x0002, "ri (Ring)" },
 	/* Events */
@@ -357,7 +357,7 @@ static int hf_h248_pkg_rtp_stat_ps = -1;
 
 static int ett_h248_pkg_rtp = -1;
 
-static const value_string h248_pkg_rtp_stat_vals[] = {
+static const value_string h248_pkg_rtp_stat_vals[] _U_ = {
 	{ 0x0004, "ps"},
 	{ 0, NULL}
 };

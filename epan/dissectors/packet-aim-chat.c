@@ -55,7 +55,7 @@
 #define AIM_CHAT_TLV_CONTAINS_USER_CLASS	0x066
 #define AIM_CHAT_TLV_CONTAINS_USER_ARRAY	0x067
 
-static const aim_tlv chat_tlvs[] = {
+static const aim_tlv chat_tlvs[] _U_ = {
 	{ AIM_CHAT_TLV_BROWSABLE_TREE, "Browsable tree", dissect_aim_tlv_value_bytes },
 	{ AIM_CHAT_TLV_CLASS_EXCLUSIVE, "Exclusively for class", dissect_aim_tlv_value_userclass },
 	{ AIM_CHAT_TLV_MAX_CONCURRENT_ROOMS, "Max. number of concurrent rooms", dissect_aim_tlv_value_uint8 },

@@ -163,7 +163,7 @@ static const value_string ssh1_msg_vals[] = {
 };
 
 
-static const value_string ssh_opcode_vals[] = {
+static const value_string ssh_opcode_vals[] _U_ = {
   { 0,          NULL }
 };
 

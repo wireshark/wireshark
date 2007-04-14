@@ -102,7 +102,7 @@ static const value_string h248_3GUP_initdir_vals[] = {
 	{0,     NULL}
 };
 
-static const value_string h248_3GUP_parameters[] = {
+static const value_string h248_3GUP_parameters[] _U_ = {
 	{   0x0001, "Mode" },
 	{   0x0002, "UPversions" },
 	{   0x0003, "Delivery of erroneous SDUs" },
@@ -163,7 +163,7 @@ static const value_string h248_3GCSD_properties_vals[] = {
 	{0,     NULL}
 };
 
-static const value_string h248_3GCSD_signals_vals[] = {
+static const value_string h248_3GCSD_signals_vals[] _U_ = {
 	{ 0x0001, "actprot" },
 	{0,     NULL}
 };
@@ -173,7 +173,7 @@ static const value_string h248_3GCSD_signal_actprot_vals[] = {
 	{0,     NULL}
 };
 
-static const value_string h248_3GCSD_events_vals[] = {
+static const value_string h248_3GCSD_events_vals[] _U_ = {
 	{ 0x0001, "protres"},
 	{ 0x0002, "ratechg"},
 	{0,     NULL}

@@ -295,7 +295,7 @@ enum srtp_policy_type_t {
 #define SP_TEXT_AUTH_TAG_LEN "Authentication tag length"
 #define SP_TEXT_SRTP_PREFIX "SRTP prefix length"
 
-static const value_string srtp_policy_type_vals[] = {
+static const value_string srtp_policy_type_vals[] _U_ = {
 	{ SP_ENCR_ALG, SP_TEXT_ENCR_ALG },
 	{ SP_ENCR_LEN, SP_TEXT_ENCR_LEN },
 	{ SP_AUTH_ALG, SP_TEXT_AUTH_ALG },

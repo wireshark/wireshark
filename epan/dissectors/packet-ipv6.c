@@ -705,7 +705,7 @@ static const value_string shimverifmethods[] = {
     { 0, NULL },
 };
 
-static const value_string shimflags[] = {
+static const value_string shimflags[] _U_ = {
     { SHIM6_FLAG_BROKEN,    "BROKEN" },
     { SHIM6_FLAG_TEMPORARY, "TEMPORARY" },
     { 0, NULL },

@@ -595,12 +595,6 @@ static const guint GIOP_MAJOR =  1;
 static const guint GIOP_MINOR =  2;
 
 
-static const int KeyAddr       = 0;
-static const int ProfileAddr   = 1;
-static const int ReferenceAddr = 2;
-
-
-
 static const value_string reply_status_types[] = {
    { NO_EXCEPTION, "No Exception" } ,
    { USER_EXCEPTION, "User Exception" } ,
@@ -716,8 +710,8 @@ static GSList *giop_sub_list = NULL;
  */
 
 static const char  giop_op_resolve[]           = "resolve";
-static const char  giop_op_bind_new_context[]  = "bind_new_context";
-static const char  giop_op_bind[]              = "bind";
+static const char  giop_op_bind_new_context[] _U_ = "bind_new_context";
+static const char  giop_op_bind[]             _U_ = "bind";
 static const char  giop_op_is_a[]              = "_is_a";
 
 /*

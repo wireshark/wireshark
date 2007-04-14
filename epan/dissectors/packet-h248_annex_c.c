@@ -338,7 +338,7 @@ static const value_string h248_annexc_transmission_mode[] = {
     {0,NULL}
 };
 
-static const value_string h248_pkg_annexc_sc[] = {
+static const value_string h248_pkg_annexc_sc[] _U_ = {
     {0,"CBR"},
     {1,"nrt-VBR1"},
     {2,"nrt-VBR2"},
@@ -445,7 +445,7 @@ static const value_string h248_pkg_annexc_nicrx_values[] = {
 };
 
 
-static const value_string h248_pkg_annexc_flowconttx_values[] = {
+static const value_string h248_pkg_annexc_flowconttx_values[] _U_ = {
 	{0,"Not Required"},
 	{1,"Required"},
     {0,NULL}
@@ -608,7 +608,7 @@ static const value_string h248_pkg_annexc_addlayer3prot_values[] = {
     {0,NULL}
 };
 
-static const value_string h248_pkg_annexc_nci_satelite_values[] = {
+static const value_string h248_pkg_annexc_nci_satelite_values[] _U_ = {
 	{0x0,"no satelite circuit"},
 	{0x1,"one satellite circuit"},
 	{0x2,"two satelite circiuts"},
@@ -616,7 +616,7 @@ static const value_string h248_pkg_annexc_nci_satelite_values[] = {
     {0,NULL}
 };
 
-static const value_string h248_pkg_annexc_nci_continuity_values[] = {
+static const value_string h248_pkg_annexc_nci_continuity_values[] _U_ = {
 	{0x0,"continuity check not required"},
 	{0x1,"continuity check required on this circuit"},
 	{0x2,"continuity check performed on a previous circuit"},
@@ -624,7 +624,7 @@ static const value_string h248_pkg_annexc_nci_continuity_values[] = {
     {0,NULL}
 };
 
-static const value_string h248_pkg_annexc_nci_echoctl_values[] = {
+static const value_string h248_pkg_annexc_nci_echoctl_values[] _U_ = {
 	{0x0,"outgoing echo control device not included"},
 	{0x1,"outgoing echo control device included"},
     {0,NULL}

@@ -712,7 +712,6 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static const guint8 mac_broadcast[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 static void

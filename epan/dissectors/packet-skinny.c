@@ -505,7 +505,7 @@ static const value_string keySetNames[] = {
 };
 
 /* Define soft key labels for the Telecaster station */
-static const value_string softKeyLabel[] = {
+static const value_string softKeyLabel[] _U_ = {
   {0   , "undefined"},
   {1   , "Redial"},
   {2   , "NewCall"},

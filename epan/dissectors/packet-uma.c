@@ -444,7 +444,7 @@ static const value_string discovery_reject_cause_vals[] = {
 	{ 0,	NULL }
 };
 /*EC Emergency Call allowed (octet 3)*/
-static const value_string EC_vals[] = {
+static const value_string EC_vals[] _U_ = {
 	{ 0,		"Emergency call allowed in the cell to all MSs"},
 	{ 1,		"Emergency call not allowed in the cell except for the MSs that belong to one of the classes between 11 to 15."},
 	{ 0,	NULL }

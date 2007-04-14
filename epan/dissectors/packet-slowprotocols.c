@@ -604,7 +604,7 @@ static const true_false_string falsetrue = {
     "False"
 };
 
-static const value_string status_vals[] = {
+static const value_string status_vals[] _U_ = {
     { 0x00, "Unsatisfied, can't complete" },
     { 0x01, "Discovery in process" },
     { 0x02, "Satisfied, Discovery complete" },

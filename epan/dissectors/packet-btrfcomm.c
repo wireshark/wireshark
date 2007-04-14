@@ -139,65 +139,6 @@ static const value_string vs_ctl_pn_cl[] = {
 	{0, NULL}
 };
 
-static const value_string vs_ctl_rpn_b[] = {
-	{0, "2400"},
-	{1, "4800"},
-	{2, "7200"},
-	{3, "9600"},
-	{4, "19200"},
-	{5, "38400"},
-	{6, "57600"},
-	{7, "115200"},
-	{8, "230400"},
-	{0, NULL}
-};
-
-
-static const value_string vs_ctl_rpn_d[] = {
-	{0x0, "5"},
-	{0x2, "6"},
-	{0x1, "7"},
-	{0x3, "8"},
-	{0, NULL}
-};
-
-
-static const value_string vs_ctl_rpn_s[] = {
-	{0, "1"},
-	{1, "1.5"},
-	{0, NULL}
-};
-
-
-static const true_false_string tfs_ctl_rpn_p = {
-	"parity", "no parity"
-};
-
-
-static const value_string vs_ctl_rpn_pt[] = {
-	{0, "odd parity"},
-	{1, "even parity"},
-	{2, "mark parity"},
-	{3, "space parity"},
-	{0, NULL}
-};
-
-
-static const value_string vs_ctl_rls_l[] = {
-	/* L1 == 1, masked 0x0e */
-	{0x1, "Overrun error"},
-	{0x2, "Parity error"},
-	{0x4, "Framing error"},
-	{0, NULL}
-};
-
-
-static const value_string vs_rfcomm_addr_d[] = {
-        {1, "Server Device"},
-	{0, "Initiating Device"},
-	{0, NULL}
-};
-
 
 static const value_string vs_frame_type[] = {
 	/* masked 0xef */

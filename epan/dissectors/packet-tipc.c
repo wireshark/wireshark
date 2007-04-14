@@ -295,7 +295,7 @@ static const value_string tipcv2_data_msg_type_defines[] = {
 	{ 3, "DirectMsg"},
 	{ 0, NULL}
 };
-static const value_string tipcv2_data_msg_type_values[] = {
+static const value_string tipcv2_data_msg_type_values[] _U_ = {
 	{ 0, "Sent on connection (CONN_MSG)"},
 	{ 1, "Logical multicast (MCAST_MSG)"},
 	{ 2, "Port name destination address (NAMED_MSG)"},

@@ -1042,7 +1042,7 @@ dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
 	return offset + ie_len;
 
 }
-static const value_string bssap_imsi_det_from_gprs_serv_type_values[] = { 
+static const value_string bssap_imsi_det_from_gprs_serv_type_values[] _U_ = { 
     { 0x00,		"Interpreted as reserved in this version of the protocol" },
     { 0x01,		"Network initiated IMSI detach from GPRS service" }, 
     { 0x02,		"MS initiated IMSI detach from GPRS service" },

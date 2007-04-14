@@ -221,7 +221,7 @@ static const value_string fc_ftype_vals [] = {
     {0, NULL},
 };
 
-static const value_string fc_wka_vals[] = {
+static const value_string fc_wka_vals[] _U_ = {
     {FC_WKA_MULTICAST,    "Multicast Server"},
     {FC_WKA_CLKSYNC,      "Clock Sync Server"},
     {FC_WKA_KEYDIST,      "Key Distribution Server"},

@@ -33,7 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-static const value_string message_types[] = {
+static const value_string message_types[] _U_ = {
       { 0x30, "Heartbeat" },
       { 0x31, "Test Request" },
       { 0x32, "Resend Request" },

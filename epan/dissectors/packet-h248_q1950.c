@@ -43,7 +43,7 @@ static int hf_h248_pkg_BCP_BNCChar = -1;
 
 static int ett_h248_pkg_BCP = -1;
 
-static const value_string h248_pkg_BCP_parameters[] = {
+static const value_string h248_pkg_BCP_parameters[] _U_ = {
 	{   0x0001, "BNCChar (BNC Characteristics)" },
 	{0,     NULL}
 };
@@ -81,7 +81,7 @@ static int hf_h248_pkg_BNCCT_prop = -1;
 
 static int ett_h248_pkg_BNCCT = -1;
 
-static const value_string h248_pkg_BNCCT_parameters[] = {
+static const value_string h248_pkg_BNCCT_parameters[] _U_ = {
 	{   0x0001, "BNC Cut Through Capability" },
 	{ 0, NULL }
 };
@@ -303,14 +303,14 @@ static const value_string h248_pkg_bt_props_vals[] = {
 	{0,NULL}
 };
 
-static const  value_string h248_pkg_bt_tunopt_vals[] = {
+static const  value_string h248_pkg_bt_tunopt_vals[] _U_ = {
 	{1,"1 (In the same message as the command response to the command which generated the bearer control tunnel)"},
 	{2,"2 (Tunnel message at any time)"},
 	{3,"NO"},
 	{0,NULL}
 };
 
-static const h248_pkg_param_t h248_pkg_bt_props[] = {
+static const h248_pkg_param_t h248_pkg_bt_props[] _U_ = {
 	{ 0x0001, &hf_h248_pkg_bt_tunopt, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };

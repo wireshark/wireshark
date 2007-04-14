@@ -1915,7 +1915,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-			        fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %i)\n",
+			        fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %u)\n",
 			                 esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
 			        decrypt_ok = FALSE;
 			      }
@@ -2008,7 +2008,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %i)\n",
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %u)\n",
 				         esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
 				decrypt_ok = FALSE;
 			      }
@@ -2153,7 +2153,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			    if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
 			      {
-				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %i)\n",
+				fprintf (stderr,"<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %u)\n",
 				        esp_crypt_key_len * 8, gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
 				decrypt_ok = FALSE;
 			      }

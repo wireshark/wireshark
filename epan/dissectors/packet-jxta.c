@@ -66,15 +66,11 @@ static const int JXTAMSG1_ELMFLAG_TYPE = 1 << 0;
 static const int JXTAMSG1_ELMFLAG_ENCODING = 1 << 1;
 static const int JXTAMSG1_ELMFLAG_SIGNATURE = 1 << 2;
 
-static const int JXTAMSG2_MSGFLAG_UTF16BE_STRINGS = 1 << 0;
-static const int JXTAMSG2_MSGFLAG_UTF32BE_STRINGS = 1 << 1;
-
 static const int JXTAMSG2_ELMFLAG_UINT64_LENS = 1 << 0;
 static const int JXTAMSG2_ELMFLAG_NAME_LITERAL = 1 << 1;
 static const int JXTAMSG2_ELMFLAG_TYPE = 1 << 2;
 static const int JXTAMSG2_ELMFLAG_SIGNATURE = 1 << 3;
 static const int JXTAMSG2_ELMFLAG_ENCODINGS = 1 << 4;
-static const int JXTAMSG2_ELMFLAG_ENCODED_SIGNED = 1 << 5;
 
 static int proto_jxta = -1;
 static int proto_message_jxta = -1;

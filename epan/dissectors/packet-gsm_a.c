@@ -5221,7 +5221,7 @@ Bit	8 7
 	0 1	group transmit mode
 	Other values are reserved for future use.
 */
-static const value_string gsm_a_rr_target_mode_vals[] = {
+static const value_string gsm_a_rr_target_mode_vals[] _U_ = {
 	{ 0,		"Dedicated mode"},
 	{ 1,		"Group transmit mode"},
 	{ 0,	NULL }
@@ -7990,6 +7990,7 @@ dissect_ROS_Component(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 }
 
 
+#if 0
 static const value_string ROS_ERROR_vals[] = {
   {   0, "localValue" },
   {   1, "globalValue" },
@@ -8002,7 +8003,6 @@ static const ber_choice_t ERROR_choice[] = {
   { 0, 0, 0, 0, NULL }
 };
 
-#if 0
 static int
 dissect_ROS_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,

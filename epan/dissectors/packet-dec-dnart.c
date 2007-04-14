@@ -217,17 +217,6 @@ static const value_string nsp_msg_type_vals[] = {
     { 0,    NULL }
 };
 
-static const value_string rt_iinfo_flags[] = {
-    {0x01,  "Level 2 router"},
-    {0x02,  "Level 1 router"},
-    {0x04,  "Verification required"},
-    {0x08,  "Rejected"},
-    {0x10,  "Verification failed"},
-    {0x20,  "Does not accept multicast"},
-    {0x40,  "Blocking requested"},
-    {0x0,  NULL}
-};
-
 static const value_string rt_tiinfo_vals[] = {
     {0x01,  "Level 2 router"},
     {0x02,  "Level 1 router"},

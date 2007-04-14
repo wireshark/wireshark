@@ -87,7 +87,7 @@ static const value_string addr_str_vals[] = {
 static const gchar* addr_str_cn  = " (Controlled Node)";
 static const gchar* addr_str_res = " (reserved)";
 
-static const value_string addr_str_abbr_vals[] = {
+static const value_string addr_str_abbr_vals[] _U_ = {
     {EPL_INVALID_NODEID,                    " (inv.)"   },
     {EPL_MN_NODEID,                         " (MN)"     },
     {EPL_DIAGNOSTIC_DEVICE_NODEID,          " (diag.)"  },

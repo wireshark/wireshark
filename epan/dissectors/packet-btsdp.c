@@ -69,16 +69,6 @@ static const value_string vs_pduid[] = {
 	{0, NULL}
 };
 
-static const value_string vs_error_code[] = {
-	{0x0001, "Invalid/unsupported SDP version"},
-	{0x0002, "Invalid Service Record Handle"},
-	{0x0003, "Invalid request syntax"},
-	{0x0004, "Invalid PDU size"},
-	{0x0005, "Invalid Continuation State"},
-	{0x0006, "Insufficient Resources to satisfy Request"},
-	{0, NULL}
-};
-
 static const value_string vs_general_attribute_id[] = {
 	{0x0000, "ServiceRecordHandle"},
 	{0x0001, "ServiceClassIDList"},
@@ -96,33 +86,6 @@ static const value_string vs_general_attribute_id[] = {
 	{0x0100, "Service Name"},
 	{0x0101, "Service Description"},
 	{0x0102, "Service Provider"},
-	{0, NULL}
-};
-
-
-static const value_string vs_protocols[] = {
-	{0x0001, "SDP"},
-	{0x0002, "UDP"},
-	{0x0003, "RFCOMM"},
-	{0x0004, "TCP"},
-	{0x0005, "TCS-BIN"},
-	{0x0006, "TCS-AT"},
-	{0x0008, "OBEX"},
-	{0x0009, "IP"},
-	{0x000A, "FTP"},
-	{0x000C, "HTTP"},
-	{0x000E, "WSP"},
-	{0x000F, "BNEP"},
-	{0x0010, "UPNP"},
-	{0x0011, "HIDP"},
-	{0x0012, "HardcopyControlChannel"},
-	{0x0014, "HardcopyDataChannel"},
-	{0x0016, "HardcopyNotification"},
-	{0x0017, "AVCTP"},
-	{0x0019, "AVDTP"},
-	{0x001B, "CMPT"},
-	{0x001D, "UDI_C-Plane"},
-	{0x0100, "L2CAP"},
 	{0, NULL}
 };
 

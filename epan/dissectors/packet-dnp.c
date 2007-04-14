@@ -564,7 +564,7 @@ static const value_string dnp3_ctl_func_sec_vals[] = {
   { 0,  NULL }
 };
 
-static const value_string dnp3_ctl_flags_pri_vals[] = {
+static const value_string dnp3_ctl_flags_pri_vals[] _U_ = {
   { DNP3_CTL_DIR, "DIR" },
   { DNP3_CTL_PRM, "PRM" },
   { DNP3_CTL_FCB, "FCB" },
@@ -572,7 +572,7 @@ static const value_string dnp3_ctl_flags_pri_vals[] = {
   { 0,  NULL }
 };
 
-static const value_string dnp3_ctl_flags_sec_vals[] = {
+static const value_string dnp3_ctl_flags_sec_vals[] _U_ = {
   { DNP3_CTL_DIR, "DIR" },
   { DNP3_CTL_PRM, "PRM" },
   { DNP3_CTL_RES, "RES" },
@@ -580,13 +580,13 @@ static const value_string dnp3_ctl_flags_sec_vals[] = {
   { 0,  NULL }
 };
 
-static const value_string dnp3_tr_flags_vals[] = {
+static const value_string dnp3_tr_flags_vals[] _U_ = {
   { DNP3_TR_FIN,  "FIN" },
   { DNP3_TR_FIR,  "FIR" },
   { 0,  NULL }
 };
 
-static const value_string dnp3_al_flags_vals[] = {
+static const value_string dnp3_al_flags_vals[] _U_ = {
   { DNP3_AL_FIR,  "FIR" },
   { DNP3_AL_FIN,  "FIN" },
   { DNP3_AL_CON,  "CON" },
@@ -625,7 +625,7 @@ static const value_string dnp3_al_func_vals[] = {
 };
 
 /* Application Layer Internal Indication (IIN) bit Values */
-static const value_string dnp3_al_iin_vals[] = {
+static const value_string dnp3_al_iin_vals[] _U_ = {
   { AL_IIN_BMSG,    "Broadcast message Rx'd" },
   { AL_IIN_CLS1D,   "Class 1 Data Available" },
   { AL_IIN_CLS2D,   "Class 2 Data Available" },
@@ -781,7 +781,7 @@ static const value_string dnp3_al_ctl_status_vals[] = {
 };
 
 /* Application Layer Binary Input Quality Flag Values */
-static const value_string dnp3_al_biflag_vals[] = {
+static const value_string dnp3_al_biflag_vals[] _U_ = {
   { AL_OBJ_BI_FLAG0, "Online" },
   { AL_OBJ_BI_FLAG1, "Restart" },
   { AL_OBJ_BI_FLAG2, "Comm Fail" },
@@ -792,7 +792,7 @@ static const value_string dnp3_al_biflag_vals[] = {
 };
 
 /* Application Layer Counter Quality Flag Values */
-static const value_string dnp3_al_ctrflag_vals[] = {
+static const value_string dnp3_al_ctrflag_vals[] _U_ = {
   { AL_OBJ_CTR_FLAG0, "Online" },
   { AL_OBJ_CTR_FLAG1, "Restart" },
   { AL_OBJ_CTR_FLAG2, "Comm Fail" },
@@ -804,7 +804,7 @@ static const value_string dnp3_al_ctrflag_vals[] = {
 };
 
 /* Application Layer Analog Input Quality Flag Values */
-static const value_string dnp3_al_aiflag_vals[] = {
+static const value_string dnp3_al_aiflag_vals[] _U_ = {
   { AL_OBJ_AI_FLAG0, "Online" },
   { AL_OBJ_AI_FLAG1, "Restart" },
   { AL_OBJ_AI_FLAG2, "Comm Fail" },

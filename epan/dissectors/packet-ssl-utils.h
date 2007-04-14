@@ -151,7 +151,7 @@
  * Lookup tables
  *
  */
-static const value_string ssl_20_msg_types[] = {
+static const value_string ssl_20_msg_types[] _U_ = {
     { SSL2_HND_ERROR,               "Error" },
     { SSL2_HND_CLIENT_HELLO,        "Client Hello" },
     { SSL2_HND_CLIENT_MASTER_KEY,   "Client Master Key" },
@@ -164,7 +164,7 @@ static const value_string ssl_20_msg_types[] = {
     { 0x00, NULL },
 };
 
-static const value_string ssl_20_cipher_suites[] = {
+static const value_string ssl_20_cipher_suites[] _U_ = {
     { 0x010080, "SSL2_RC4_128_WITH_MD5" },
     { 0x020080, "SSL2_RC4_128_EXPORT40_WITH_MD5" },
     { 0x030080, "SSL2_RC2_CBC_128_CBC_WITH_MD5" },
@@ -265,7 +265,7 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00, NULL }
 };
 
-static const value_string ssl_20_certificate_type[] = {
+static const value_string ssl_20_certificate_type[] _U_ = {
     { 0x00, "N/A" },
     { 0x01, "X.509 Certificate" },
     { 0x00, NULL },
@@ -466,7 +466,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00, NULL }
 };
 
-static const value_string pct_msg_types[] = {
+static const value_string pct_msg_types[] _U_ = {
     { PCT_MSG_CLIENT_HELLO,         "Client Hello" },
     { PCT_MSG_SERVER_HELLO,         "Server Hello" },
     { PCT_MSG_CLIENT_MASTER_KEY,    "Client Master Key" },
@@ -475,7 +475,7 @@ static const value_string pct_msg_types[] = {
     { 0x00, NULL },
 };
 
-static const value_string pct_cipher_type[] = {
+static const value_string pct_cipher_type[] _U_ = {
 	{ PCT_CIPHER_DES, "DES" },
 	{ PCT_CIPHER_IDEA, "IDEA" },
 	{ PCT_CIPHER_RC2, "RC2" },
@@ -485,7 +485,7 @@ static const value_string pct_cipher_type[] = {
 	{ 0x00, NULL },
 };
 
-static const value_string pct_hash_type[] = {
+static const value_string pct_hash_type[] _U_ = {
 	{ PCT_HASH_MD5, "MD5" },
 	{ PCT_HASH_MD5_TRUNC_64, "MD5_TRUNC_64"},
 	{ PCT_HASH_SHA, "SHA"},
@@ -494,13 +494,13 @@ static const value_string pct_hash_type[] = {
 	{ 0x00, NULL },
 };
 
-static const value_string pct_cert_type[] = {
+static const value_string pct_cert_type[] _U_ = {
 	{ PCT_CERT_NONE, "None" },
 	{ PCT_CERT_X509, "X.509" },
 	{ PCT_CERT_PKCS7, "PKCS #7" },
 	{ 0x00, NULL },
 };
-static const value_string pct_sig_type[]  = {
+static const value_string pct_sig_type[] _U_ = {
 	{ PCT_SIG_NONE, "None" },
 	{ PCT_SIG_RSA_MD5, "MD5" },
 	{ PCT_SIG_RSA_SHA, "RSA SHA" },
@@ -508,7 +508,7 @@ static const value_string pct_sig_type[]  = {
 	{ 0x00, NULL },
 };
 
-static const value_string pct_exch_type[] = {
+static const value_string pct_exch_type[] _U_ = {
 	{ PCT_EXCH_RSA_PKCS1, "RSA PKCS#1" },
 	{ PCT_EXCH_RSA_PKCS1_TOKEN_DES, "RSA PKCS#1 Token DES" },
 	{ PCT_EXCH_RSA_PKCS1_TOKEN_DES3, "RSA PKCS#1 Token 3DES" },	
@@ -521,7 +521,7 @@ static const value_string pct_exch_type[] = {
 	{ 0x00, NULL },
 };
 
-static const value_string pct_error_code[] = {
+static const value_string pct_error_code[] _U_ = {
 	{ PCT_ERR_BAD_CERTIFICATE, "PCT_ERR_BAD_CERTIFICATE" },
 	{ PCT_ERR_CLIENT_AUTH_FAILED, "PCT_ERR_CLIENT_AUTH_FAILE" },
 	{ PCT_ERR_ILLEGAL_MESSAGE, "PCT_ERR_ILLEGAL_MESSAGE" },

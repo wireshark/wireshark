@@ -119,7 +119,7 @@ static const value_string sss_verb_enum[] = {
     { 0,          NULL }
 };
 
-static const value_string sss_subverb_enum[] = {
+static const value_string sss_subverb_enum[] _U_ = {
     { 0, "Fragmented Ping" },
     { 2, "Client Put Data" },
     { 4, "Client Get Data" },
@@ -130,7 +130,7 @@ static const value_string sss_subverb_enum[] = {
     { 0,          NULL }
 };
 
-static const value_string sss_msgverb_enum[] = {
+static const value_string sss_msgverb_enum[] _U_ = {
     { 1, "Echo Data" },
     { 3, "Start Session" },
     { 5, "Client Write Data" },
@@ -139,7 +139,7 @@ static const value_string sss_msgverb_enum[] = {
     { 0,          NULL }
 };
 
-static const value_string sss_attribute_enum[] = {
+static const value_string sss_attribute_enum[] _U_ = {
     { 1, "User Name" },
     { 2, "Tree Name" },
     { 4, "Clearence" },
@@ -147,7 +147,7 @@ static const value_string sss_attribute_enum[] = {
     { 0,          NULL }
 };
 
-static const value_string sss_lsmverb_enum[] = {
+static const value_string sss_lsmverb_enum[] _U_ = {
     { 1, "Put Login Configuration" },
     { 2, "Get Login Configuration" },
     { 4, "Delete Login Configuration" },

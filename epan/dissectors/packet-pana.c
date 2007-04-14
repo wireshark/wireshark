@@ -166,7 +166,7 @@ static const value_string avp_code_names[] = {
        { 0, NULL }
 };
 
-static const value_string avp_resultcode_names[] = {
+static const value_string avp_resultcode_names[] _U_ = {
        { 2001, "PANA_SUCCESS" },
        { 3001, "PANA_MESSAGE_UNSUPPORTED" },
        { 3002, "PANA_UNABLE_TO_DELIVER" },

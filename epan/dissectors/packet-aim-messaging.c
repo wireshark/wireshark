@@ -93,7 +93,7 @@ static const aim_tlv rendezvous_tlvs[] = {
 #define MINITYPING_TEXT_TYPED_SIGN			0x0001
 #define MINITYPING_BEGUN_SIGN				0x0002
 
-static const value_string minityping_type[] = {
+static const value_string minityping_type[] _U_ = {
 	{MINITYPING_FINISHED_SIGN, "Typing finished sign" },
 	{MINITYPING_TEXT_TYPED_SIGN, "Text typed sign" },
 	{MINITYPING_BEGUN_SIGN, "Typing begun sign" },
