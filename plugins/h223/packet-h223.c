@@ -125,7 +125,7 @@ static dissector_handle_t data_handle=NULL;
 static dissector_handle_t srp_handle=NULL;
 static dissector_handle_t h245dg_handle=NULL;
 
-static const fragment_items h223_mux_frag_items = {
+static const fragment_items h223_mux_frag_items _U_ = {
 	&ett_h223_mux_fragment,
 	&ett_h223_mux_fragments,
 	&hf_h223_mux_fragments,

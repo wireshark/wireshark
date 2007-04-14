@@ -136,7 +136,7 @@ static int hf_docsis_tcm_enabled = -1;
 static gint ett_docsis_type29ucd = -1;
 static gint ett_burst_descr = -1;
 
-static const value_string channel_tlv_vals[] = {
+static const value_string channel_tlv_vals[] _U_ = {
      {type29ucd_SYMBOL_RATE, "Symbol Rate"},
      {type29ucd_FREQUENCY, "Frequency"},
      {type29ucd_PREAMBLE, "Preamble Pattern"},

@@ -72,7 +72,7 @@ static gint recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 #define GUI_FIND_WRAP_KEY       "find_wrap"
 #define GUI_USE_PREF_SAVE_KEY   "use_pref_save"
 
-static const enum_val_t scrollbar_placement_vals[] = {
+static const enum_val_t scrollbar_placement_vals[] _U_ = {
 	{ "FALSE", "Left", FALSE },
 	{ "TRUE",  "Right", TRUE },
 	{ NULL,    NULL,    0 }
@@ -101,27 +101,27 @@ static const enum_val_t expander_style_vals[] = {
 	{ NULL,       NULL,       0 }
 };
 #else
-static const enum_val_t altern_colors_vals[] = {
+static const enum_val_t altern_colors_vals[] _U_ = {
 	{ "FALSE", "No",  FALSE },
 	{ "TRUE",  "Yes", TRUE },
 	{ NULL,    NULL,  0 }
 };
 #endif
 
-static const enum_val_t filter_toolbar_placement_vals[] = {
+static const enum_val_t filter_toolbar_placement_vals[] _U_ = {
 	{ "FALSE", "Below the main toolbar", FALSE },
 	{ "TRUE",  "Insert into statusbar",  TRUE },
 	{ NULL,    NULL,                     0 }
 };
 
-static const enum_val_t highlight_style_vals[] = {
+static const enum_val_t highlight_style_vals[] _U_ = {
   	{ "FALSE", "Bold",     FALSE },
   	{ "TRUE",  "Inverse",  TRUE },
 	{ NULL,    NULL,       0 }
 };
 
 
-static const enum_val_t toolbar_style_vals[] = {
+static const enum_val_t toolbar_style_vals[] _U_ = {
   	{ "ICONS", "Icons only",     TB_STYLE_ICONS },
   	{ "TEXT",  "Text only",      TB_STYLE_TEXT },
   	{ "BOTH",  "Icons & Text",   TB_STYLE_BOTH },
