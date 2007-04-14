@@ -440,7 +440,7 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
  * Return the number of decoded bytes
  */
 static int 
-decode_rtp_packet(rtp_packet_t *rp, rtp_channel_info_t *rci, SAMPLE **out_buff)
+decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff)
 {
 	unsigned int  payload_type;
 	SAMPLE *tmp_buff = NULL;
@@ -652,7 +652,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 			seq = rp->info->info_seq_num - 1;
 		}
 
-		decoded_bytes = decode_rtp_packet(rp, rci, &out_buff);
+		decoded_bytes = decode_rtp_packet(rp, &out_buff);
 		if (decoded_bytes == 0) {
 			seq = rp->info->info_seq_num;
 		}
@@ -942,7 +942,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 /* Move and draw the cursor in the graph 
  */
 static gboolean 
-draw_cursors(gpointer data)
+draw_cursors(gpointer data _U_)
 {
 	if (!rtp_channels) return FALSE;
 
@@ -1764,7 +1764,7 @@ rtp_player_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-jitter_spinner_value_changed (GtkSpinButton *spinner, gpointer user_data _U_)
+jitter_spinner_value_changed (GtkSpinButton *spinner _U_, gpointer user_data _U_)
 {
 	/* set the sensitive state of the buttons (decode, play, pause, stop) */
 	bt_state(TRUE, TRUE, FALSE, FALSE);
