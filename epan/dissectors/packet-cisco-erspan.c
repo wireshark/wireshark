@@ -1,4 +1,4 @@
-/* packet-extreme.c
+/* packet-erspan.c
  * Routines for the disassembly of Cisco's ERSPAN protocol
  *
  * $Id$
