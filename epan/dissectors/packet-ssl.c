@@ -1681,8 +1681,18 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     while (offset < record_length)
     {
         msg_type = tvb_get_guint8(tvb, offset);
-        msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
         length   = tvb_get_ntoh24(tvb, offset + 1);
+
+	/* Check the length in the handshake message. Assume it's an
+	 * encrypted handshake message if the message would pass
+	 * the record_length boundary. This is a workaround for the
+	 * situation where the first octet of the encrypted handshake
+	 * message is actually a known handshake message type.
+	 */
+	if ( offset + length <= record_length ) 
+	   msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
+	else
+	   msg_type_str = NULL;
 
         ssl_debug_printf("dissect_ssl3_handshake iteration %d type %d offset %d length %d "
             "bytes, remaining %d \n", first_iteration, msg_type, offset, length, record_length);
