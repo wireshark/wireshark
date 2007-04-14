@@ -233,6 +233,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-cigi.c   	\
 	packet-cimd.c		\
 	packet-cip.c		\
+	packet-cisco-erspan.c	\
 	packet-cisco-oui.c	\
 	packet-cisco-wids.c	\
 	packet-clearcase.c	\

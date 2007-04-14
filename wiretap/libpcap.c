@@ -307,7 +307,11 @@ static const struct {
 
 	/*
 	 * Linux "cooked mode" captures, used by the current CVS version
-	 * of libpcap.
+	 * of libpcap 
+         * OR
+         * it could be a packet in Cisco's ERSPAN encapsulation which uses
+         * this number as well (why can't people stick to protocols when it
+         * comes to allocating/using DLT types).
 	 */
 	{ 113,		WTAP_ENCAP_SLL },	/* Linux cooked capture */
 

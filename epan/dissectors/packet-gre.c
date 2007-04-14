@@ -88,6 +88,7 @@ static const value_string typevals[] = {
 	{ SAP_OSINL5,          "OSI"},
 	{ GRE_WCCP,            "WCCP"},
 	{ GRE_NHRP,            "NHRP"},
+	{ GRE_ERSPAN,          "ERSPAN"},
 	{ ETHERTYPE_IPX,       "IPX"},
 	{ ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
 	{ ETHERTYPE_RAW_FR,    "Frame Relay"},

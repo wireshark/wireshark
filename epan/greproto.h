@@ -33,3 +33,4 @@
 
 #define GRE_NHRP	0x2001
 #define GRE_WCCP	0x883E
+#define GRE_ERSPAN	0x88BE
