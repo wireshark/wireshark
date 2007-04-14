@@ -25,9 +25,6 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 
 INCLUDES= @LUA_INCLUDES@
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
 
 #
 # This is a hideous hack.
