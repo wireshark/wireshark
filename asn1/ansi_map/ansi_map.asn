@@ -475,8 +475,6 @@ FacilitiesDirectiveRes ::= [PRIVATE 18] SET {
 FacilitiesDirective2 ::= [PRIVATE 18] SET {
 	billingID								[1] IMPLICIT BillingID,
 	-- M 6.5.2.16
-	channelData								[5] IMPLICIT ChannelData,
-	-- (Serving) M 6.5.2.47 a
 	electronicSerialNumber					[9] IMPLICIT ElectronicSerialNumber,
 	-- M 6.5.2.63
 	interMSCCircuitID						[6] IMPLICIT InterMSCCircuitID,
@@ -519,6 +517,8 @@ FacilitiesDirective2 ::= [PRIVATE 18] SET {
 	-- O 6.5.2.43 g
 	cdmaTargetMeasurementList				[134] IMPLICIT CDMATargetMeasurementList OPTIONAL,
 	-- O 6.5.2.45 h
+	channelData								[5] IMPLICIT ChannelData OPTIONAL,
+	-- (Serving) O 6.5.2.47 i
 	confidentialityModes					[39] IMPLICIT ConfidentialityModes OPTIONAL,
 	-- (Desired) O 6.5.2.50 b
 	dataKey									[215] IMPLICIT DataKey OPTIONAL,
@@ -553,7 +553,7 @@ FacilitiesDirective2 ::= [PRIVATE 18] SET {
 	-- M 6.5.2.143
 	systemOperatorCode						[206] IMPLICIT SystemOperatorCode OPTIONAL,
 	-- O 6 .5.2.a j b b
-	targetCellID							[3] IMPLICIT TargetCellID,
+	targetCellID							[3] IMPLICIT TargetCellID OPTIONAL,
 	-- O 6.5.2.148 b
 	tdmaBandwidth							[220] IMPLICIT TDMABandwidth OPTIONAL,
 	-- (Desired) O 6.5.2.ay z
