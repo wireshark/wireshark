@@ -603,6 +603,7 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	/* decode the RTP stream */
 	first = TRUE;
 	rtp_time = 0;
+	rtp_time_prev = 0;
 	decoded_bytes = 0;
 	decoded_bytes_prev = 0;
 	silence_frames = 0;
