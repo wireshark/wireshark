@@ -22,10 +22,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
-
 if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
