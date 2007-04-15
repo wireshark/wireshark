@@ -84,50 +84,11 @@ static void
 h225counter_reset(void *phs)
 {
 	h225counter_t *hs=(h225counter_t *)phs;
-	int i;
+	char *save_filter = hs->filter;
 
-	for(i=0;i<=RAS_MSG_TYPES;i++) {
-		hs->ras_msg[i] = 0;
-	}
-	for(i=0;i<=CS_MSG_TYPES;i++) {
-		hs->cs_msg[i] = 0;
-	}
-	for(i=0;i<=GRJ_REASONS;i++) {
-		hs->grj_reason[i] = 0;
-	}
-	for(i=0;i<=RRJ_REASONS;i++) {
-		hs->rrj_reason[i] = 0;
-	}
-	for(i=0;i<=URQ_REASONS;i++) {
-		hs->urq_reason[i] = 0;
-	}
-	for(i=0;i<=URJ_REASONS;i++) {
-		hs->urj_reason[i] = 0;
-	}
-	for(i=0;i<=ARJ_REASONS;i++) {
-		hs->arj_reason[i] = 0;
-	}
-	for(i=0;i<=BRJ_REASONS;i++) {
-		hs->brj_reason[i] = 0;
-	}
-	for(i=0;i<=DRQ_REASONS;i++) {
-		hs->drq_reason[i] = 0;
-	}
-	for(i=0;i<=DRJ_REASONS;i++) {
-		hs->drj_reason[i] = 0;
-	}
-	for(i=0;i<=LRJ_REASONS;i++) {
-		hs->lrj_reason[i] = 0;
-	}
-	for(i=0;i<=IRQNAK_REASONS;i++) {
-		hs->irqnak_reason[i] = 0;
-	}
-	for(i=0;i<=REL_CMP_REASONS;i++) {
-		hs->rel_cmp_reason[i] = 0;
-	}
-	for(i=0;i<=FACILITY_REASONS;i++) {
-		hs->facility_reason[i] = 0;
-	}
+	memset(hs, 0, sizeof(h225counter_t));
+
+	hs->filter = save_filter;
 }
 
 static int
