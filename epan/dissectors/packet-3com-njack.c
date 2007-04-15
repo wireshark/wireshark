@@ -227,6 +227,31 @@ static const value_string njack_dhcpcontrol[] = {
 };
 /* End General settings TAB */
 
+/* Port settings TAB */
+#if 0
+static const true_false_string tfs_port_state = {
+	"Disable",
+	"Enable"
+};
+
+static const true_false_string tfs_port_autoneg = {
+	"Manual",
+	"Auto negotiation"
+};
+
+static const true_false_string tfs_port_speed = {
+	"10Mbps",
+	"100Mbps"
+};
+
+static const true_false_string tfs_port_duplex = {
+	"halfduplex",
+	"duplex"
+};
+
+#endif
+/* End Port settings TAB */
+
 /* Hardware Settings TAB */
 static const value_string njack_scheduling[] = {
 	{ 0,	"Weighted fair" },
@@ -280,6 +305,43 @@ static const value_string njack_snmpwrite[] = {
 
 	{ 0,	NULL }
 };
+
+#if 0
+static const value_string njack_snmptrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_coldstarttrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_linkdowntrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_linkuptrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+
+static const value_string njack_authfailtrap[] = {
+	{ 0,	"Disable" },
+	{ 1,	"Enable" },
+
+	{ 0,	NULL }
+};
+#endif
 /* End SNMP TAB */
 
 static int
