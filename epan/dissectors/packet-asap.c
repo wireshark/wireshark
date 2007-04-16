@@ -102,6 +102,7 @@ dissect_asap_message(tvbuff_t *, packet_info *, proto_tree *);
 
 #define ASAP_UDP_PORT 3863
 #define ASAP_TCP_PORT 3863
+#define ASAP_SCTP_PORT 3863
 
 /* Dissectors for error causes. This is common for ASAP and ENRP. */
 
@@ -822,9 +823,6 @@ proto_reg_handoff_asap(void)
   asap_handle = create_dissector_handle(dissect_asap, proto_asap);
   dissector_add("sctp.ppi",  ASAP_PAYLOAD_PROTOCOL_ID, asap_handle);
   dissector_add("udp.port",  ASAP_UDP_PORT,  asap_handle);
-  /* FIXME */
-  /*
   dissector_add("tcp.port",  ASAP_TCP_PORT,  asap_handle);
   dissector_add("sctp.port", ASAP_SCTP_PORT, asap_handle);
-  */
 }

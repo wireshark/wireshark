@@ -108,9 +108,8 @@ dissect_enrp_message(tvbuff_t *, packet_info *, proto_tree *);
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
-/* These following ports are NOT reserved. */
-#define ENRP_UDP_PORT  3864
-#define ASAP_SCTP_PORT 3864
+#define ENRP_UDP_PORT  9901
+#define ENRP_SCTP_PORT 9901
 
 /* Dissectors for error causes. This is common for ASAP and ENRP. */
 
@@ -995,7 +994,7 @@ proto_reg_handoff_enrp(void)
   dissector_handle_t enrp_handle;
 
   enrp_handle = create_dissector_handle(dissect_enrp, proto_enrp);
-  dissector_add("sctp.ppi", ENRP_PAYLOAD_PROTOCOL_ID, enrp_handle);
-/* The following line will be uncommented AFTER a port number is assinged. */
-/* dissector_add("udp.port", ENRP_UDP_PORT,            enrp_handle);       */
+  dissector_add("sctp.ppi",  ENRP_PAYLOAD_PROTOCOL_ID, enrp_handle);
+  dissector_add("sctp.port", ENRP_SCTP_PORT,           enrp_handle);
+  dissector_add("udp.port",  ENRP_UDP_PORT,            enrp_handle);
 }
