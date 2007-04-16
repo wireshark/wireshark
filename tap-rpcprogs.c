@@ -178,11 +178,7 @@ rpcprogs_packet(void *dummy1 _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 static void
 rpcprogs_draw(void *dummy _U_)
 {
-#ifdef G_HAVE_UINT64
 	guint64 td;
-#else
-	guint32 td;
-#endif
 	rpc_program_t *rp;
 	char str[64];
 
@@ -192,8 +188,7 @@ rpcprogs_draw(void *dummy _U_)
 	printf("Program    Version  Calls   Min SRT   Max SRT   Avg SRT\n");
 	for(rp=prog_list;rp;rp=rp->next){
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rp->tot.secs;
+		td=rp->tot.secs;
 		td=td*100000+(int)rp->tot.nsecs/10000;
 		if(rp->num){
 			td/=rp->num;
@@ -202,7 +197,7 @@ rpcprogs_draw(void *dummy _U_)
 		}
 
 		g_snprintf(str, sizeof(str), "%s(%d)",rpc_prog_name(rp->program),rp->program);
-		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			str,
 			rp->version,
 			rp->num,

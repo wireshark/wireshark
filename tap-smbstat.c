@@ -103,11 +103,7 @@ smbstat_draw(void *pss)
 {
 	smbstat_t *ss=(smbstat_t *)pss;
 	guint32 i;
-#ifdef G_HAVE_UINT64
 	guint64 td;
-#else
-	guint32 td;
-#endif
 	printf("\n");
 	printf("===================================================================\n");
 	printf("SMB RTT Statistics:\n");
@@ -130,8 +126,7 @@ smbstat_draw(void *pss)
 		}
 
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->proc[i].tot.secs;
+		td=ss->proc[i].tot.secs;
 		td=td*100000+(int)ss->proc[i].tot.nsecs/10000;
 		if(ss->proc[i].num){
 			td/=ss->proc[i].num;
@@ -139,7 +134,7 @@ smbstat_draw(void *pss)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			val_to_str(i, smb_cmd_vals, "Unknown (0x%02x)"),
 			ss->proc[i].num,
 			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,
@@ -157,8 +152,7 @@ smbstat_draw(void *pss)
 		}
 
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->trans2[i].tot.secs;
+		td=ss->trans2[i].tot.secs;
 		td=td*100000+(int)ss->trans2[i].tot.nsecs/10000;
 		if(ss->trans2[i].num){
 			td/=ss->trans2[i].num;
@@ -166,7 +160,7 @@ smbstat_draw(void *pss)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			val_to_str(i, trans2_cmd_vals, "Unknown (0x%02x)"),
 			ss->trans2[i].num,
 			(int)ss->trans2[i].min.secs,ss->trans2[i].min.nsecs/10000,
@@ -184,8 +178,7 @@ smbstat_draw(void *pss)
 		}
 
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->nt_trans[i].tot.secs;
+		td=ss->nt_trans[i].tot.secs;
 		td=td*100000+(int)ss->nt_trans[i].tot.nsecs/10000;
 		if(ss->nt_trans[i].num){
 			td/=ss->nt_trans[i].num;
@@ -193,7 +186,7 @@ smbstat_draw(void *pss)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			val_to_str(i, nt_cmd_vals, "Unknown (0x%02x)"),
 			ss->nt_trans[i].num,
 			(int)ss->nt_trans[i].min.secs,ss->nt_trans[i].min.nsecs/10000,

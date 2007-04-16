@@ -79,11 +79,7 @@ afpstat_draw(void *pss)
 {
 	afpstat_t *ss=(afpstat_t *)pss;
 	guint32 i;
-#ifdef G_HAVE_UINT64
 	guint64 td;
-#else
-	guint32 td;
-#endif
 	printf("\n");
 	printf("===================================================================\n");
 	printf("AFP RTT Statistics:\n");
@@ -96,8 +92,7 @@ afpstat_draw(void *pss)
 		}
 
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)ss->proc[i].tot.secs;
+		td=ss->proc[i].tot.secs;
 		td=td*100000+(int)ss->proc[i].tot.nsecs/10000;
 		if(ss->proc[i].num){
 			td/=ss->proc[i].num;
@@ -105,7 +100,7 @@ afpstat_draw(void *pss)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			val_to_str(i, CommandCode_vals, "Unknown (%u)"),
 			ss->proc[i].num,
 			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,

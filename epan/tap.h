@@ -27,6 +27,10 @@
 
 #include "epan/epan.h"
 
+#ifdef INTTYPES_H_DEFINES_FORMATS
+#include <inttypes.h>
+#endif
+
 /* With MSVC and a libwireshark.dll, we need a 
  * special declaration of num_tap_filters.
  */

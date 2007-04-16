@@ -147,11 +147,7 @@ dcerpcstat_draw(void *prs)
 {
 	rpcstat_t *rs=prs;
 	guint32 i;
-#ifdef G_HAVE_UINT64
 	guint64 td;
-#else
-	guint32 td;
-#endif
 	printf("\n");
 	printf("===================================================================\n");
 	printf("%s Major Version %u RTT Statistics:\n", rs->prog, rs->ver);
@@ -159,8 +155,7 @@ dcerpcstat_draw(void *prs)
 	printf("Procedure                  Calls   Min RTT   Max RTT   Avg RTT\n");
 	for(i=0;i<rs->num_procedures;i++){
 		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rs->procedures[i].tot.secs;
+		td=rs->procedures[i].tot.secs;
 		td=td*100000+(int)rs->procedures[i].tot.nsecs/10000;
 		if(rs->procedures[i].num){
 			td/=rs->procedures[i].num;
@@ -168,7 +163,7 @@ dcerpcstat_draw(void *prs)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3d.%05d\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
 			rs->procedures[i].proc,
 			rs->procedures[i].num,
 			(int)rs->procedures[i].min.secs,rs->procedures[i].min.nsecs/10000,
