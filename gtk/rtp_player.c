@@ -1015,10 +1015,9 @@ static int paCallback(   void *inputBuffer, void *outputBuffer,
 static int paCallback( const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
 							 const PaStreamCallbackTimeInfo* outTime,
-							 PaStreamCallbackFlags statusFlags,
+							 PaStreamCallbackFlags statusFlags _U_,
                              void *userData)
 {
-/*	(void) statusFlags;*/
 #endif /* PORTAUDIO_API_1 */
 	rtp_play_channles_t *rpci = (rtp_play_channles_t*)userData;
 	SAMPLE *wptr = (SAMPLE*)outputBuffer;
