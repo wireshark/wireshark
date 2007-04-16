@@ -6763,10 +6763,10 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
 	/* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
 	   recursive message dissector call */
-	if (mtp3_standard == ITU_STANDARD)
-		cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
-	else if (mtp3_standard == ANSI_STANDARD)
+	if (mtp3_standard == ANSI_STANDARD)
 		cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x3FFF; /*since upper 2 bits spare */
+	else /* ITU, China, and Japan; yes, J7's CICs are a different size */
+		cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 
 	pinfo->ctype = CT_ISUP;
 	pinfo->circuit_id = cic;

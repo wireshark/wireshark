@@ -2622,7 +2622,7 @@ static void sccp_users_update_cb(void* r, char** err _U_) {
 	u->handlep = &data_handle;
 }
 
-static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz) {
+static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz _U_) {
 	const sccp_user_t* u = o;
 	sccp_user_t* un = n;
 	
@@ -2631,7 +2631,7 @@ static void* sccp_users_copy_cb(void* n, const void* o, unsigned siz) {
 	un->uses_tcap = u->uses_tcap;
 	un->handlep = u->handlep;
 	if (u->called_pc) un->called_pc = range_copy(u->called_pc);
-	if (u->called_ssn) un->called_ssn= range_copy(u->called_ssn);
+	if (u->called_ssn) un->called_ssn = range_copy(u->called_ssn);
 	
 	return n;
 }
@@ -3117,14 +3117,14 @@ proto_register_sccp(void)
 
 
   prefs_register_bool_preference(sccp_module, "show_more_info",
-								 "Show key parameters in Info Column",
-								 "Show SLR, DLR, and CAUSE Parameters in the Information Column of the Summary",
-								 &show_key_params);
+				 "Show key parameters in Info Column",
+				 "Show SLR, DLR, and CAUSE Parameters in the Information Column of the Summary",
+				 &show_key_params);
 
 
   prefs_register_uat_preference(sccp_module, "users_table", "Users Table",
-								  "A table that enumerates user protocols to be used against specific PCs and SSNs",
-								  users_uat);
+				 "A table that enumerates user protocols to be used against specific PCs and SSNs",
+				 users_uat);
 
   register_init_routine(&init_sccp);
 
