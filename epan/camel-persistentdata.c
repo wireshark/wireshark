@@ -413,7 +413,7 @@ camelsrt_begin_call_matching(packet_info *pinfo,
 
   /* look up the request */
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n Session begin #%d\n", pinfo->fd->num);
+  dbg(10,"\n Session begin #%u\n", pinfo->fd->num);
   dbg(11,"Search key %lu ",camelsrt_call_key.SessionIdKey);
 #endif
   p_camelsrt_call = (struct camelsrt_call_t *)g_hash_table_lookup(srt_calls, &camelsrt_call_key);
@@ -452,7 +452,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%d\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
 #endif
 
   /* look only for matching request, if matching conversation is available. */
@@ -507,7 +507,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
       /* We have not yet seen a request to that call, so this must be the first request
 	 remember its frame number. */
 #ifdef DEBUG_CAMELSRT
-      dbg(5,"Set reqlink #%d ", pinfo->fd->num);
+      dbg(5,"Set reqlink #%u ", pinfo->fd->num);
 #endif
       update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
     } else {
@@ -528,7 +528,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 	  if (pinfo->fd->num > p_camelsrt_call->category[srt_type].req_num) {
 	    p_camelsrt_call->category[srt_type].req_num = pinfo->fd->num;
 #ifdef DEBUG_CAMELSRT
-	    dbg(5,"DISC Set reqlink #%d ", pinfo->fd->num);
+	    dbg(5,"DISC Set reqlink #%u ", pinfo->fd->num);
 #endif
 	    update_camelsrt_call(p_camelsrt_call, pinfo, srt_type);
 	  } /* greater frame */
@@ -571,7 +571,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti;
 
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n %s #%d\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
+  dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
 #endif
   camelsrt_call_key.SessionIdKey = p_camelsrt_info->tcap_session_id;
   /* look only for matching request, if matching conversation is available. */
@@ -610,13 +610,13 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 	/* We have not yet seen a response to that call, so this must be the first response;
 	   remember its frame number only if response comes after request */
 #ifdef DEBUG_CAMELSRT
-	dbg(14,"Set reslink #%d req %d ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+	dbg(14,"Set reslink #%d req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
 	p_camelsrt_call->category[srt_type].rsp_num = pinfo->fd->num;
 
       } else {
 #ifdef DEBUG_CAMELSRT
-	dbg(2,"badreslink #%d req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
+	dbg(2,"badreslink #%u req %u ",pinfo->fd->num, p_camelsrt_call->category[srt_type].req_num);
 #endif
       } /* req_num != 0 */
     } else { /* rsp_num != 0 */
@@ -678,7 +678,7 @@ camelsrt_close_call_matching(packet_info *pinfo,
 
   p_camelsrt_info->bool_msginfo[CAMELSRT_SESSION]=TRUE;
 #ifdef DEBUG_CAMELSRT
-  dbg(10,"\n Session end #%d\n", pinfo->fd->num);
+  dbg(10,"\n Session end #%u\n", pinfo->fd->num);
 #endif
   /* look only for matching request, if matching conversation is available. */
   camelsrt_call_key.SessionIdKey = p_camelsrt_info->tcap_session_id;

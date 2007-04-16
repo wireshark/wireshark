@@ -472,7 +472,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	int ackcount;
 
 #ifdef REMOVED
-printf("analyze_sequence numbers   frame:%d  direction:%s\n",pinfo->fd->num,direction>=0?"FWD":"REW");
+printf("analyze_sequence numbers   frame:%u  direction:%s\n",pinfo->fd->num,direction>=0?"FWD":"REW");
 printf("FWD list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->fwd->lastsegmentflags,tcpd->fwd->base_seq);for(ual=tcpd->fwd->segments;ual;ual=ual->next)printf("Frame:%d Seq:%d Nextseq:%d\n",ual->frame,ual->seq,ual->nextseq);
 printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflags,tcpd->rev->base_seq);for(ual=tcpd->rev->segments;ual;ual=ual->next)printf("Frame:%d Seq:%d Nextseq:%d\n",ual->frame,ual->seq,ual->nextseq);
 #endif

@@ -830,7 +830,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* look up the request */
 #ifdef DEBUG_TCAPSRT
-  dbg(10,"\n Hbegin #%d ", pinfo->fd->num);
+  dbg(10,"\n Hbegin #%u ", pinfo->fd->num);
   dbg(11,"key %lx ",tcaphash_begin_key.hashKey);
   dbg(51,"PC %s %s ",address_to_str(&pinfo->src), address_to_str(&pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
@@ -874,7 +874,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    /* Append new record to the list */
 #ifdef DEBUG_TCAPSRT
 	    dbg(12,"(timeout) Append key %lx ",tcaphash_begin_key.hashKey);
-	    dbg(12,"Frame %d rsp %d ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
+	    dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
 #endif  
 	    tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
 	    p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo); 
@@ -894,7 +894,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  if ( p_tcaphash_begincall->context->closed) {
 #ifdef DEBUG_TCAPSRT
 	    dbg(12,"(closed) Append key %lu ",tcaphash_begin_key.hashKey);
-	    dbg(12,"Frame %d rsp %d ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
+	    dbg(12,"Frame %u rsp %u ",pinfo->fd->num,p_tcaphash_begincall->context->last_frame );
 #endif 
 	    tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
 	    p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo); 
@@ -936,7 +936,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Update key %lx ",tcaphash_begin_key.hashKey);
-    dbg(11,"Frame reqlink #%d ", pinfo->fd->num);
+    dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
     update_tcaphash_begincall(p_tcaphash_begincall, pinfo);
   }
@@ -976,7 +976,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   struct tcaphash_cont_info_key_t tcaphash_cont_key;
 
 #ifdef DEBUG_TCAPSRT
-  dbg(10,"\n Hcont #%d ", pinfo->fd->num);
+  dbg(10,"\n Hcont #%u ", pinfo->fd->num);
 #endif 
 
   /* look only for matching request, if matching conversation is available. */
@@ -1034,7 +1034,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       
 #ifdef DEBUG_TCAPSRT
       dbg(11,"Update Ckey %lx ",tcaphash_begin_key.hashKey);
-      dbg(11,"Frame reqlink #%d ", pinfo->fd->num);
+      dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
       tcaphash_end_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
@@ -1049,7 +1049,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       
 #ifdef DEBUG_TCAPSRT
       dbg(11,"Update Ekey %lx ",tcaphash_end_key.hashKey);
-      dbg(11,"Frame reqlink #%d ", pinfo->fd->num);
+      dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
     } else { /* Begin not found */
 #ifdef DEBUG_TCAPSRT
@@ -1088,7 +1088,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 #ifdef DEBUG_TCAPSRT
-  dbg(10,"\n Hend #%d ", pinfo->fd->num);
+  dbg(10,"\n Hend #%u ", pinfo->fd->num);
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;

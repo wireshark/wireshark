@@ -67,7 +67,7 @@ static gint ett_per_sequence_of_item = -1;
 
 /*
 #define DEBUG_ENTRY(x) \
-printf("#%d  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
+printf("#%u  %s   tvb:0x%08x\n",actx->pinfo->fd->num,x,(int)tvb);
 */
 #define DEBUG_ENTRY(x) \
 	;

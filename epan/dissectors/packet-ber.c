@@ -1797,7 +1797,7 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 				break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, len,"dissect_ber_choice(): Was passed a HF field that was not integer type : %s",hfinfo->abbrev);
-			fprintf(stderr,"dissect_ber_choice(): frame:%d offset:%d Was passed a HF field that was not integer type : %s\n",pinfo->fd->num,offset,hfinfo->abbrev);
+			fprintf(stderr,"dissect_ber_choice(): frame:%u offset:%d Was passed a HF field that was not integer type : %s\n",pinfo->fd->num,offset,hfinfo->abbrev);
 			return end_offset;
 		}
 	}

@@ -383,10 +383,10 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	if(pinfo->fd->flags.visited){
 		return;
 	}
-printf("added key in %d\n",pinfo->fd->num);
+printf("added key in %u\n",pinfo->fd->num);
 
 	new_key=g_malloc(sizeof(enc_key_t));
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %d",origin,pinfo->fd->num);
+	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u",origin,pinfo->fd->num);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->keytype=keytype;
@@ -514,7 +514,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+printf("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			/* return a private g_malloced blob to the caller */
 			user_data=g_malloc(data.length);
@@ -649,7 +649,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		if((ret == 0) && (length>0)){
 			char *user_data;
 
-printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+printf("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(context, crypto);
 			/* return a private g_malloced blob to the caller */
@@ -685,7 +685,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	if(pinfo->fd->flags.visited){
 		return;
 	}
-printf("added key in %d\n",pinfo->fd->num);
+printf("added key in %u\n",pinfo->fd->num);
 
 	new_key = g_malloc(sizeof(service_key_t));
 	new_key->kvno = 0;
@@ -693,7 +693,7 @@ printf("added key in %d\n",pinfo->fd->num);
 	new_key->length = keylength;
 	new_key->contents = g_malloc(keylength);
 	memcpy(new_key->contents, keyvalue, keylength);
-	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %d", origin, pinfo->fd->num);
+	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->fd->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
 
@@ -840,7 +840,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		md5_finish(&md5s, digest);
 
 		if (tvb_memeql (encr_tvb, 8, digest, 16) == 0) {
-g_warning("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 			plaintext = g_malloc(data_len);
 			tvb_memcpy(encr_tvb, plaintext, CONFOUNDER_PLUS_CHECKSUM, data_len);
 			tvb_free(encr_tvb);
