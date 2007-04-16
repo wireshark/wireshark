@@ -2630,6 +2630,10 @@ Dustin Johnson <dustin.johnson [AT] cacetech.com> {
 	802.11n support
 }
 
+Victor Fajardo <vfajardo [AT] tari.toshiba.com> {
+	PANA draft 15a support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

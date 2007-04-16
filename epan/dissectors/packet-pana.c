@@ -50,10 +50,10 @@
 
 #define PANA_FLAG_R 0x8000
 #define PANA_FLAG_S 0x4000
-#define PANA_FLAG_N 0x2000
-#define PANA_FLAG_L 0x1000
-#define PANA_FLAG_RES4 0x0800
-#define PANA_FLAG_RES5 0x0400
+#define PANA_FLAG_C 0x2000
+#define PANA_FLAG_A 0x1000
+#define PANA_FLAG_P 0x0800
+#define PANA_FLAG_E 0x0400
 #define PANA_FLAG_RES6 0x0200
 #define PANA_FLAG_RES7 0x0100
 #define PANA_FLAG_RES8 0x0080
@@ -91,6 +91,7 @@ static int hf_pana_version_type = -1;
 static int hf_pana_reserved_type = -1;
 static int hf_pana_length_type = -1;
 static int hf_pana_msg_type = -1;
+static int hf_pana_session_id = -1;
 static int hf_pana_seqnumber = -1;
 static int hf_pana_response_in = -1;
 static int hf_pana_response_to = -1;
@@ -102,8 +103,10 @@ static dissector_handle_t eap_handle = NULL;
 static int hf_pana_flags = -1;
 static int hf_pana_flag_r = -1;
 static int hf_pana_flag_s = -1;
-static int hf_pana_flag_n = -1;
-static int hf_pana_flag_l = -1;
+static int hf_pana_flag_c = -1;
+static int hf_pana_flag_a = -1;
+static int hf_pana_flag_p = -1;
+static int hf_pana_flag_e = -1;
 static int hf_pana_avp_code = -1;
 static int hf_pana_avp_length = -1;
 static int hf_pana_avp_flags = -1;
@@ -119,21 +122,12 @@ static int hf_pana_avp_data_int32 = -1;
 static int hf_pana_avp_data_bytes = -1;
 static int hf_pana_avp_data_string = -1;
 static int hf_pana_avp_data_enumerated = -1;
-static int hf_pana_avp_data_addrfamily = -1;
-static int hf_pana_avp_data_ipv4 = -1;
-static int hf_pana_avp_data_ipv6 = -1;
 
 static const value_string msg_type_names[] = {
-       { 1, "PANA-PAA-Discover" },
-       { 2, "PANA-Start" },
-       { 3, "PANA-Auth" },
-       { 4, "PANA-Reauth" },
-       { 5, "PANA-Bind" },
-       { 6, "PANA-Ping" },
-       { 7, "PANA-Termination" },
-       { 8, "PANA-Error" },
-       { 9, "PANA-FirstAuth-End" },
-       { 10, "PANA-Update" },
+       { 1, "PANA-Client-Initiation" },
+       { 2, "PANA-Auth" },
+       { 3, "PANA-Termination" },
+       { 4, "PANA-Notification" },
        { 0, NULL }
 };
 
@@ -144,50 +138,36 @@ static const value_string msg_subtype_names[] = {
 };
 
 static const value_string avp_code_names[] = {
-       { 1, "Algorithm AVP" },
-       { 2, "AUTH AVP" },
-       { 3, "Cookie AVP" },
-       { 4, "Device-Id AVP" },
-       { 5, "EAP-Payload AVP" },
-       { 6, "Failed-AVP AVP" },
-       { 7, "ISP-Information AVP" },
-       { 8, "Key-Id AVP" },
-       { 9, "NAP-Information AVP" },
-       { 10, "Nonce AVP" },
-       { 11, "Notification AVP" },
-       { 12, "PPAC AVP" },
-       { 13, "Protection-Capability AVP" },
-       { 14, "Provider-Identifier AVP" },
-       { 15, "Provider-Name AVP" },
-       { 16, "Result-Code" },
-       { 17, "Session-Id" },
-       { 18, "Session-Lifetime" },
-       { 19, "Termination-Cause" },
+       { 3, "EAP-Payload AVP" },
+       { 4, "Failed-AVP AVP" },
+       { 5, "Failed-Message-Header AVP" },
+       { 6, "Key-Id AVP" },
+       { 7, "Nonce AVP" },
+       { 8, "Result-Code" },
+       { 9, "Session-Lifetime" },
+       { 10, "Termination-Cause" },
        { 0, NULL }
 };
 
 static const value_string avp_resultcode_names[] _U_ = {
-       { 2001, "PANA_SUCCESS" },
-       { 3001, "PANA_MESSAGE_UNSUPPORTED" },
-       { 3002, "PANA_UNABLE_TO_DELIVER" },
-       { 3008, "PANA_INVALID_HDR_BITS" },
-       { 3009, "PANA_INVALID_AVP_FLAGS" },
-       { 4001, "PANA_AUTHENTICATION_REJECTED" },
-       { 5001, "PANA_AVP_UNSUPPORTED" },
-       { 5002, "PANA_UNKNOWN_SESSION_ID" },
-       { 5003, "PANA_AUTHORIZATION_REJECTED" },
-       { 5004, "PANA_INVALID_AVP_DATA" },
-       { 5005, "PANA_MISSING_AVP" },
-       { 5006, "PANA_RESOURCES_EXCEEDED" },
-       { 5007, "PANA_CONTRADICTING_AVPS" },
-       { 5008, "PANA_AVP_NOT_ALLOWED" },
-       { 5009, "PANA_AVP_OCCURS_TOO_MANY_TIMES" },
-       { 5011, "PANA_UNSUPPORTED_VERSION" },
-       { 5012, "PANA_UNABLE_TO_COMPLY" },
-       { 5014, "PANA_INVALID_AVP_LENGTH" },
-       { 5015, "PANA_INVALID_MESSAGE_LENGTH" },
-       { 5016, "PANA_PROTECTION_CAPABILITY_UNSUPPORTED" },
-       { 5017, "PANA_PPAC_CAPABILITY_UNSUPPORTED" },
+       { 0, "PANA_SUCCESS" },
+       { 1, "PANA_AUTHENTICATION_REJECTED" },
+       { 2, "PANA_AUTHORIZATION_REJECTED" },
+       { 1001, "PANA_MESSAGE_UNSUPPORTED" },
+       { 1002, "PANA_UNABLE_TO_DELIVER" },
+       { 1003, "PANA_INVALID_HDR_BITS" },
+       { 1004, "PANA_INVALID_AVP_FLAGS" },
+       { 1005, "PANA_AVP_UNSUPPORTED" },
+       { 1006, "PANA_INVALID_AVP_DATA" },
+       { 1007, "PANA_MISSING_AVP" },
+       { 1008, "PANA_RESOURCES_EXCEEDED" },
+       { 1009, "PANA_CONTRADICTING_AVPS" },
+       { 1010, "PANA_AVP_NOT_ALLOWED" },
+       { 1011, "PANA_AVP_OCCURS_TOO_MANY_TIMES" },
+       { 1012, "PANA_UNSUPPORTED_VERSION" },
+       { 1013, "PANA_UNABLE_TO_COMPLY" },
+       { 1014, "PANA_INVALID_AVP_LENGTH" },
+       { 1015, "PANA_INVALID_MESSAGE_LENGTH" },
        { 0, NULL }
 };
 
@@ -203,13 +183,12 @@ typedef enum {
   PANA_GROUPED,
   PANA_ENUMERATED,
   PANA_UTF8STRING,
-  PANA_IP_ADDRESS,
   PANA_EAP,
   PANA_RESULT_CODE
 } pana_avp_types;
 
 static const value_string avp_type_names[]={
-       { PANA_OCTET_STRING,"OctetString" },
+       { PANA_OCTET_STRING,    "OctetString" },
        { PANA_INTEGER32,       "Integer32" },
        { PANA_INTEGER64,       "Integer64" },
        { PANA_UNSIGNED32,      "Unsigned32" },
@@ -220,7 +199,6 @@ static const value_string avp_type_names[]={
        { PANA_GROUPED,         "Grouped" },
        { PANA_ENUMERATED,      "Enumerated" },
        { PANA_UTF8STRING,      "UTF8String" },
-       { PANA_IP_ADDRESS,      "IPAddress" },
        { PANA_EAP,             "OctetString" },
        { PANA_RESULT_CODE,     "Unsigned32" },
        { 0, NULL }
@@ -268,14 +246,19 @@ dissect_pana_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
        proto_tree_add_boolean(flags_tree, hf_pana_flag_s, tvb, offset, 2, flags);
        if (flags & PANA_FLAG_S)
                proto_item_append_text(flags_item, ", S flag set");
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_n, tvb, offset, 2, flags);
-       if (flags & PANA_FLAG_N)
-               proto_item_append_text(flags_item, ", N flag set");
-       proto_tree_add_boolean(flags_tree, hf_pana_flag_l, tvb, offset, 2, flags);
-       if (flags & PANA_FLAG_L)
-               proto_item_append_text(flags_item, ", L flag set");
+       proto_tree_add_boolean(flags_tree, hf_pana_flag_c, tvb, offset, 2, flags);
+       if (flags & PANA_FLAG_C)
+               proto_item_append_text(flags_item, ", C flag set");
+       proto_tree_add_boolean(flags_tree, hf_pana_flag_a, tvb, offset, 2, flags);
+       if (flags & PANA_FLAG_A)
+               proto_item_append_text(flags_item, ", A flag set");
+       proto_tree_add_boolean(flags_tree, hf_pana_flag_p, tvb, offset, 2, flags);
+       if (flags & PANA_FLAG_P)
+               proto_item_append_text(flags_item, ", P flag set");
+       proto_tree_add_boolean(flags_tree, hf_pana_flag_e, tvb, offset, 2, flags);
+       if (flags & PANA_FLAG_E)
+               proto_item_append_text(flags_item, ", E flag set");
 }
-
 
 /*
  * Function for AVP flags dissector.
@@ -312,23 +295,14 @@ pana_avp_get_type(guint16 avp_code, guint32 vendor_id)
                switch(avp_code) {
                        case 1: return PANA_UNSIGNED32;         /* Algorithm AVP */
                        case 2: return PANA_OCTET_STRING;       /* AUTH AVP */
-                       case 3: return PANA_OCTET_STRING;       /* Cookie AVP */
-                       case 4: return PANA_UNSIGNED64;         /* Device-Id AVP, it should be PANA_IP_ADDRESS*/
-                       case 5: return PANA_EAP;                        /* EAP-Payload AVP */
-                       case 6: return PANA_GROUPED;            /* Failed-AVP AVP */
-                       case 7: return PANA_GROUPED;            /* ISP-Information AVP */
-                       case 8: return PANA_INTEGER32;          /* Key-Id AVP */
-                       case 9: return PANA_GROUPED;            /* NAP-Information AVP */
-                       case 10: return PANA_OCTET_STRING;      /* Nonce AVP */
-                       case 11: return PANA_OCTET_STRING;      /* Notification AVP */
-                       case 12: return PANA_UNSIGNED32;        /* Post-PANA-Address-Configuration (PPAC) AVP */
-                       case 13: return PANA_UNSIGNED32;        /* Protection-Capability AVP */
-                       case 14: return PANA_UNSIGNED32;        /* Provider-Identifier AVP */
-                       case 15: return PANA_UTF8STRING;        /* Provider-Name AVP */
-                       case 16: return PANA_RESULT_CODE;       /* Result-Code AVP */
-                       case 17: return PANA_UTF8STRING;        /* Session-Id AVP */
-                       case 18: return PANA_UNSIGNED32;        /* Session-Lifetime AVP */
-                       case 19: return PANA_ENUMERATED;        /* Termination-Cause AVP */
+                       case 3: return PANA_EAP;                /* EAP-Payload AVP */
+                       case 4: return PANA_GROUPED;            /* Failed-AVP AVP */
+                       case 5: return PANA_OCTET_STRING;       /* Failed-Message-Header AVP */
+                       case 6: return PANA_INTEGER32;          /* Key-Id AVP */
+                       case 7: return PANA_OCTET_STRING;       /* Nonce AVP */
+                       case 8: return PANA_RESULT_CODE;        /* Result-Code AVP */
+                       case 9: return PANA_UNSIGNED32;         /* Session-Lifetime AVP */
+                       case 10: return PANA_ENUMERATED;        /* Termination-Cause AVP */
                        default: return PANA_OCTET_STRING;
                }
        } else {
@@ -494,24 +468,6 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                        offset, 4, FALSE);
                                        break;
                                }
-                               case PANA_IP_ADDRESS: {
-                                       proto_tree_add_item(single_avp_tree, hf_pana_avp_data_addrfamily, tvb,
-                                                       offset, 2, FALSE);
-                                       if (tvb_get_ntohs(tvb, offset) == 0x0001) {
-                                               proto_tree_add_item(single_avp_tree, hf_pana_avp_data_ipv4, tvb,
-                                                               offset+2, avp_data_length-2, FALSE);
-                                       } else if (tvb_get_ntohs(tvb, offset) == 0x0002) {
-                                               proto_tree_add_item(single_avp_tree, hf_pana_avp_data_ipv6, tvb,
-                                                               offset+2, avp_data_length-2, FALSE);
-                                       } else {
-                                               proto_tree_add_bytes_format(single_avp_tree, hf_pana_avp_data_bytes, tvb,
-                                                               offset, avp_data_length,
-                                                               tvb_get_ptr(tvb, offset, avp_data_length),
-                                                               "Error! Cannot Parse Address Family %d",
-                                                               tvb_get_ntohs(tvb, offset));
-                                       }
-                                       break;
-                               }
                                case PANA_RESULT_CODE: {
                                        proto_tree_add_text(single_avp_tree, tvb, offset, avp_data_length,
                                                                "Value: %d (%s)",
@@ -532,7 +488,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                }
                        }
                        /* Just check that offset will advance */
-                       DISSECTOR_ASSERT((avp_length+padding)!=0);
+                       g_assert((avp_length+padding)!=0);
 
                        offset += avp_data_length + padding;
                }
@@ -561,6 +517,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint16 msg_type;
        gint16 msg_length;
        gint16 avp_length;
+       guint32 session_id;
        guint32 seq_num;
        conversation_t *conversation;
        pana_conv_info_t *pana_info;
@@ -572,8 +529,9 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        msg_length = tvb_get_ntohs(tvb, 2);
        flags = tvb_get_ntohs(tvb, 4);
        msg_type = tvb_get_ntohs(tvb, 6);
-       seq_num = tvb_get_ntohl(tvb, 8);
-       avp_length = msg_length-12;
+       session_id = tvb_get_ntohl(tvb, 8);
+       seq_num = tvb_get_ntohl(tvb, 12);
+       avp_length = msg_length-16;
 
        /* Make entries in Protocol column and Info column on summary display */
        if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -593,20 +551,20 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        }
 
 
-       /* 
+       /*
         * We need to track some state for this protocol on a per conversation
         * basis so we can do neat things like request/response tracking
         */
        /*
         * Do we have a conversation for this connection?
         */
-       conversation = find_conversation(pinfo->fd->num, 
+       conversation = find_conversation(pinfo->fd->num,
                                    &pinfo->src, &pinfo->dst,
-                                   pinfo->ptype, 
+                                   pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, 0);
        if (conversation == NULL) {
              /* We don't yet have a conversation, so create one. */
-             conversation = conversation_new(pinfo->fd->num, 
+             conversation = conversation_new(pinfo->fd->num,
                                    &pinfo->src, &pinfo->dst,
     	                    	   pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, 0);
@@ -672,7 +630,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                        it=proto_tree_add_time(pana_tree, hf_pana_time, tvb, 0, 0, &ns);
                        PROTO_ITEM_SET_GENERATED(it);
                }
-       }              
+       }
 
 
 
@@ -695,10 +653,15 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        /* Message Type */
        proto_tree_add_uint_format_value(pana_tree, hf_pana_msg_type, tvb,
                            offset, 2, msg_type, "%s-%s (%d)",
-                           val_to_str(msg_type, msg_type_names, "Unknown (%d)"), 
+                           val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
                           match_strval(flags & PANA_FLAG_R, msg_subtype_names), msg_type);
        offset += 2;
 
+       /* Session ID */
+       proto_tree_add_item(pana_tree, hf_pana_session_id, tvb, offset, 4, FALSE);
+       offset += 4;
+
+       /* Sequence Number */
        proto_tree_add_item(pana_tree, hf_pana_seqnumber, tvb, offset, 4, FALSE);
        offset += 4;
 
@@ -771,7 +734,7 @@ dissect_pana(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        }
 
        /* verify that we recognize the message type */
-       if(msg_type>10 || msg_type==0){
+       if(msg_type>4 || msg_type==0){
                return FALSE;
        }
 
@@ -834,24 +797,39 @@ proto_register_pana(void)
                        "", HFILL }
                },
                { &hf_pana_flag_s,
-                       { "Separate", "pana.flags.s",
+                       { "Start", "pana.flags.s",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_S,
                        "", HFILL }
                },
-               { &hf_pana_flag_n,
-                       { "NAP Auth","pana.flags.n",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_N,
+               { &hf_pana_flag_c,
+                       { "Complete","pana.flags.c",
+                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_C,
                        "", HFILL }
                },
-               { &hf_pana_flag_l,
-                       { "Stateless Discovery","pana.flags.l",
-                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_L,
+               { &hf_pana_flag_a,
+                       { "Auth","pana.flags.a",
+                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_A,
+                       "", HFILL }
+               },
+               { &hf_pana_flag_p,
+                       { "Ping","pana.flags.p",
+                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_P,
+                       "", HFILL }
+               },
+               { &hf_pana_flag_e,
+                       { "Ping","pana.flags.e",
+                       FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_E,
                        "", HFILL }
                },
 
                { &hf_pana_msg_type,
                        { "PANA Message Type", "pana.type",
                        FT_UINT16, BASE_DEC, NULL, 0x0,
+                       "", HFILL }
+               },
+               { &hf_pana_session_id,
+                       { "PANA Session ID", "pana.sid",
+                       FT_UINT32, BASE_HEX, NULL, 0x0,
                        "", HFILL }
                },
                { &hf_pana_seqnumber,
@@ -931,21 +909,6 @@ proto_register_pana(void)
                { &hf_pana_avp_data_enumerated,
                        { "Value", "pana.avp.data.enum",
                        FT_INT32, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_data_addrfamily,
-                       { "Address Family", "pana.avp.data.addrfamily",
-                       FT_UINT16, BASE_DEC, NULL, 0x0,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_data_ipv4,
-                       { "IPv4 Address", "pana.avp.data.ipv4",
-                       FT_IPv4, BASE_NONE, NULL, 0x0,
-                       "", HFILL }
-               },
-               { &hf_pana_avp_data_ipv6,
-                       { "IPv6 Address", "pana.avp.data.ipv6",
-                       FT_IPv6, BASE_NONE, NULL, 0x0,
                        "", HFILL }
                },
 
