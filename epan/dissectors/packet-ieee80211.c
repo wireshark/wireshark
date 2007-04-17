@@ -3768,7 +3768,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_request_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_request_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -3979,7 +3979,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -3995,7 +3995,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -4035,7 +4035,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -4066,7 +4066,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);

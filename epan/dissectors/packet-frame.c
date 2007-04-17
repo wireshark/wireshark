@@ -268,7 +268,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  if (show_file_off) {
 		  proto_tree_add_int64_format(fh_tree, hf_frame_file_off, tvb,
 				  0, 0, pinfo->fd->file_off,
-				  "File Offset: %lld (0x%llx)",
+				  "File Offset: %" PRId64 " (0x%" PRIx64 ")",
 				  pinfo->fd->file_off, pinfo->fd->file_off);
 	  }
 

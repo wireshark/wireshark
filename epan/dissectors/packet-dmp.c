@@ -1207,7 +1207,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 			failure = dmp_dec_xbyte_sic (value, sic, length, any);
 			bf = proto_tree_add_string_format (sic_tree, hf_message_sic, tvb,
 							   offset, bytes, sic,
-							   "SIC %d: %s (%d bytes: %llx)%s",
+							   "SIC %d: %s (%d bytes: %" PRIx64 ")%s",
 							   i + 1, sic, bytes, value,
 							   failure ? " (invalid)": "");
 			if (bitmap & (1 << (7 - i))) {
