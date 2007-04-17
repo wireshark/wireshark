@@ -39,6 +39,7 @@
 /* Enable debug logging by defining AM_CFLAGS
  * so that it contains "-DDEBUG_dfilter".
  * Usage: DebugLog(("Error: string=%s\n", str)); */
+
 #ifdef DEBUG_dfilter
 #define DebugLog(x) \
 	printf("%s:%u: ", __FILE__, __LINE__); \
@@ -1071,6 +1072,7 @@ semcheck(stnode_t *st_node)
 gboolean
 dfw_semcheck(dfwork_t *dfw)
 {
+	volatile gboolean ok_filter = TRUE;
 #ifdef DEBUG_dfilter
 	static guint i = 0;
 #endif
@@ -1083,13 +1085,11 @@ dfw_semcheck(dfwork_t *dfw)
 		semcheck(dfw->st_root);
 	}
 	CATCH(TypeError) {
-		DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns FALSE\n",
-					dfw, i++));
-		return FALSE;
+		ok_filter = FALSE;
 	}
 	ENDTRY;
 
-	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns TRUE\n",
-				dfw, i++));
-	return TRUE;
+	DebugLog(("1 dfw_semcheck(dfwork_t *dfw = %p) [%u] - Returns %d\n",
+				dfw, i++,ok_filter));
+	return ok_filter;
 }
