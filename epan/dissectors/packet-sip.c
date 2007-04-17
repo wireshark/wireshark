@@ -1512,6 +1512,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		return -2;
 	}
 	line_type = sip_parse_line(tvb, offset, linelen, &token_1_len);
+
 	if (line_type == OTHER_LINE) {
 		/*
 		 * This is neither a SIP request nor response.
@@ -1527,7 +1528,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 * Just dissect it as a continuation.
 		 */
 	} else if (use_reassembly) {
-
 		/*
 		 * Yes, it's a request or response.
 		 * Do header desegmentation if we've been told to,
@@ -3609,14 +3609,14 @@ proto_reg_handoff_sip(void)
   static gboolean sip_prefs_initialized = FALSE;
 
   if (sip_prefs_initialized) {
-    dissector_delete("tcp.port", saved_sip_tcp_port, sip_handle);
+    dissector_delete("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
     ssl_dissector_delete(saved_sip_tls_port, "sip", TRUE);
   } else {
     sip_prefs_initialized = TRUE;
   }
   /* Set our port number for future use */
   saved_sip_tcp_port = sip_tcp_port;
-  dissector_add("tcp.port", saved_sip_tcp_port, sip_handle);
+  dissector_add("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
   saved_sip_tls_port = sip_tls_port;
   ssl_dissector_add(saved_sip_tls_port, "sip", TRUE);
 
