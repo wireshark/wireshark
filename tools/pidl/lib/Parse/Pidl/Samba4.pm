@@ -18,8 +18,10 @@ $VERSION = '0.01';
 
 sub is_intree()
 {
-	return 4 if (-f "kdc/kdc.c");
-	return 3 if (-f "include/smb.h");
+	my $srcdir = $ENV{srcdir};
+	$srcdir = $srcdir ? "$srcdir/" : "";
+	return 4 if (-f "${srcdir}kdc/kdc.c");
+	return 3 if (-f "${srcdir}include/smb.h");
 	return 0;
 }
 
