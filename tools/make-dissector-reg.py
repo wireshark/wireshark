@@ -15,6 +15,7 @@ import os
 import sys
 import re
 import pickle
+from stat import *
 
 #
 # The first argument is the directory in which the source files live.
@@ -95,7 +96,7 @@ if cache_filename:
 # Grep
 for filename in filenames:
 	file = open(filename)
-	cur_mtime = os.fstat(file.fileno()).st_mtime
+	cur_mtime = os.fstat(file.fileno())[ST_MTIME]
 	if cache and cache.has_key(filename):
 		cdict = cache[filename]
 		if cur_mtime == cdict['mtime']:
