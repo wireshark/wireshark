@@ -5,6 +5,10 @@
 #.PDU
 RNSAP-PDU
 
+#.MAKE_DEFINES NO_TYPE_PREFIX
+ProcedureCode
+ProtocolIE-ID 
+
 #.TYPE_RENAME
 
 #.FIELD_RENAME
