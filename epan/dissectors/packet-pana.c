@@ -42,6 +42,7 @@
 #include <epan/value_string.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #define PANA_UDP_PORT 3001
 #define PANA_VERSION 1
@@ -393,6 +394,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                single_avp_tree = proto_item_add_subtree(single_avp_item, ett_pana_avp_info);
 
                if (single_avp_tree != NULL) {
+		       proto_item *pi;
+
                        /* AVP Code */
                        proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
                                                        offset, 2, avp_code, "%s (%u)",
@@ -402,12 +405,17 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                        /* AVP Flags */
                        dissect_pana_avp_flags(single_avp_tree, tvb, offset, avp_flags);
                        offset += 2;
+
                        /* AVP Length */
-                       proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
+                       pi = proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
+		       if (avp_length == 0)
+			   expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "AVP with length 0");
                        offset += 2;
+
                        /* Reserved */
                        proto_tree_add_item(single_avp_tree, hf_pana_avp_reserved, tvb, offset, 2, FALSE);
                        offset += 2;
+
                        /* Vendor ID */
                        if (avp_flags & PANA_AVP_FLAG_V) {
                                proto_tree_add_item(single_avp_tree, hf_pana_avp_vendorid, tvb, offset, 4, FALSE);
@@ -487,8 +495,10 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                        }
+
                        /* Just check that offset will advance */
-                       DISSECTOR_ASSERT((avp_length+padding)!=0);
+                       if ((avp_length+padding)!=0)
+			   return;
 
                        offset += avp_data_length + padding;
                }
