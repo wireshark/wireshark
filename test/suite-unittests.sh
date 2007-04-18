@@ -37,6 +37,19 @@ unittests_step_test() {
 		return
 	fi
 
+    # if we're on windows, we have to copy the test exe, and its manifest, to the gtk2
+    # dir before we can use them.
+	if [ "$WS_SYSTEM" == "Windows" ] ; then
+		(cd `dirname $DUT` && $MAKE install_`basename $DUT` INSTALL_DIR=`pwd`/wireshark_gtk2) > testout.txt 2>&1
+		if [ $? -ne 0]; then 
+			echo
+			cat ./testout.txt
+			test_step_failed "install $DUT failed"
+			return
+		fi
+		DUT=`pwd`/wireshark_gtk2/`basename $DUT`
+	fi
+
 	$DUT > testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
@@ -71,7 +84,7 @@ unittests_cleanup_step() {
 unittests_suite() {
 	test_step_set_pre unittests_cleanup_step
 	test_step_set_post unittests_cleanup_step
-	#test_step_add "exntest" unittests_step_exntest
+	test_step_add "exntest" unittests_step_exntest
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest
 }

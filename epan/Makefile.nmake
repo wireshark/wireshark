@@ -211,6 +211,21 @@ reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.
                 $(GLIB_LIBS) $(ZLIB_LIBS) reassemble_test.obj tvbuff.obj \
                 except.obj strutil.obj emem.obj reassemble.obj
 
+exntest_install:
+	set copycmd=/y
+	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
+	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
+
+tvbtest_install:
+	set copycmd=/y
+	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
+	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
+
+reassemble_test_install:
+	set copycmd=/y
+	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
+	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
+
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
 # It is a cleaner to compile these sources seperately with this makefile than
