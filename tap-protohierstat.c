@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -50,7 +50,7 @@ typedef struct _phs_t {
 	int protocol;
 	const char *proto_name;
 	guint32 frames;
-	guint32 bytes;
+	guint64 bytes;
 } phs_t;
 
 
@@ -153,7 +153,7 @@ phs_draw(phs_t *rs, int indentation)
 			stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, "  ");
 		}
 		stroff+=g_snprintf(str+stroff, MAXPHSLINE-stroff, rs->proto_name);
-		printf("%-40s frames:%d bytes:%d\n",str, rs->frames, rs->bytes);
+		printf("%-40s frames:%d bytes:%" PRId64 "\n",str, rs->frames, rs->bytes);
 		phs_draw(rs->child, indentation+1);
 	}
 }
@@ -190,7 +190,7 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 			   will be populated. "frame" matches everything so
 			   that one is used instead of no filter.
 			*/
-			filter="frame"; 
+			filter="frame";
 		}
 	} else {
 		fprintf(stderr, "tshark: invalid \"-z io,phs[,<filter>]\" argument\n");

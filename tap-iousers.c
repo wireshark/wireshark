@@ -6,17 +6,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -63,11 +63,11 @@ typedef struct _io_users_item_t {
 	char *name1;
 	char *name2;
 	address addr1;
-	address addr2; 
+	address addr2;
 	guint32 frames1;
 	guint32 frames2;
-	guint32 bytes1;
-	guint32 bytes2;
+	guint64 bytes1;
+	guint64 bytes2;
 } io_users_item_t;
 
 
@@ -142,19 +142,19 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	g_snprintf(s_sport, sizeof s_sport, "%d",sctph->sport);
 	g_snprintf(s_dport, sizeof s_dport, "%d",sctph->dport);
-	
+
 	if(sctph->sport > sctph->dport) {
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
 	} else if(sctph->sport < sctph->dport) {
 		direction=1;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
 	} else {
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);	
-		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);	
+		g_snprintf(name1,256,"%s:%s",address_to_str(&sctph->ip_src),s_sport);
+		g_snprintf(name2,256,"%s:%s",address_to_str(&sctph->ip_dst),s_dport);
 	}
 
 	for(iui=iu->items;iui;iui=iui->next){
@@ -567,7 +567,7 @@ iousers_draw(void *arg)
 			tot_frames=iui->frames1+iui->frames2;
 
 			if(tot_frames==last_frames){
-				printf("%-20s <-> %-20s  %6d %9d  %6d %9d  %6d %9d\n",
+				printf("%-20s <-> %-20s  %6d %9" PRId64 "  %6d %9" PRId64 "  %6d %9" PRId64 "\n",
 					iui->name1, iui->name2,
 					iui->frames1, iui->bytes1,
 					iui->frames2, iui->bytes2,
