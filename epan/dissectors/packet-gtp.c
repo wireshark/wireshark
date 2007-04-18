@@ -4804,7 +4804,12 @@ decode_gtp_imeisv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 	proto_tree_add_item(ext_imeisv, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 
-	/* IMEI(SV) */
+	/* IMEI(SV) 
+	 * The structure of the IMEI and IMEISV are defined in sub-clause 6.2 of 3GPP TS 23.003 [2].
+	 * The 'IMEI(SV)' field shall contain the IMEISV if it is available. If only the IMEI is available,
+	 * then the IMEI shall be placed in the IMEI(SV) field and the last semi-octet of octet 11 shall be
+	 * set to '1111'. Both IMEI and IMEISV are BCD encoded.
+	 */
 	proto_tree_add_item(ext_imeisv, hf_gtp_ext_imeisv, tvb, offset, length, FALSE);
 	
 	return 3 + length;
