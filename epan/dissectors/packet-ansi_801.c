@@ -2168,12 +2168,12 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	{
 	case 0x00: str = "No Regulatory service"; break;
 	case 0x01: str = "Emergency service"; break;
-	default: str = "Reserved"; break;
+	default:   str = "Reserved"; break;
 	}
 
 	other_decode_bitfield_value(bigbuf, value, 0x0030, 16);
 	proto_tree_add_text(tree, tvb, offset, 2,
-	    "%s :  Regulatory Services Indicator, (%u)",
+	    "%s :  Regulatory Services Indicator - %s (%u)",
 	    bigbuf,
 	    str,
 	    (value & 0x0030) >> 4);
@@ -2353,12 +2353,12 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 	{
 	case 0x00: str = "No Regulatory service"; break;
 	case 0x01: str = "Emergency service"; break;
-	default: str = "Reserved"; break;
+	default:   str = "Reserved"; break;
 	}
 
 	other_decode_bitfield_value(bigbuf, value, 0x0030, 16);
 	proto_tree_add_text(tree, tvb, offset, 2,
-	    "%s :  Regulatory Services Indicator, (%u)",
+	    "%s :  Regulatory Services Indicator - %s (%u)",
 	    bigbuf,
 	    str,
 	    (value & 0x0030) >> 4);
