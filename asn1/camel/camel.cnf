@@ -381,24 +381,6 @@ tvbuff_t	*parameter_tvb;
  de_gmm_ms_radio_acc_cap(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
 #.END
 
-#----------------------------------------------------------------------------------------
-#.FN_PARS AccessPointName
-  VAL_PTR = &parameter_tvb
-
-#.FN_BODY AccessPointName 
-
- tvbuff_t	*parameter_tvb;
- proto_item *item;
- proto_tree *subtree;
-
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
- de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
-#.END
 
 #----------------------------------------------------------------------------------------
 #.FN_PARS PDPTypeOrganization
@@ -506,4 +488,5 @@ tvbuff_t	*parameter_tvb;
 CallingPartysCategory TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(isup_calling_partys_category_value)
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = NONE
+AccessPointName	TYPE = FT_STRING DISPLAY = NONE
 #.END

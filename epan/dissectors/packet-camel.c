@@ -1640,22 +1640,8 @@ dissect_camel_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_camel_AccessPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 389 "camel.cnf"
-
- tvbuff_t	*parameter_tvb;
- proto_item *item;
- proto_tree *subtree;
-
   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-
- if (!parameter_tvb)
-	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_AccessPointName);
- de_sm_apn(parameter_tvb, subtree, 0, tvb_length_remaining(parameter_tvb,0), NULL, 0);
-
+                                       NULL);
 
   return offset;
 }
@@ -5461,7 +5447,7 @@ static int dissect_GPRSEventArray_item(packet_info *pinfo _U_, proto_tree *tree 
 
 static int
 dissect_camel_CellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 485 "camel.cnf"
+#line 467 "camel.cnf"
 	proto_item *item;
 	proto_tree *subtree;
 	int start_offset;
@@ -5611,7 +5597,7 @@ static int dissect_attachChangeOfPositionSpecificInformation_impl(packet_info *p
 
 static int
 dissect_camel_PDPTypeOrganization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 408 "camel.cnf"
+#line 390 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
 
@@ -5634,7 +5620,7 @@ static int dissect_pDPTypeOrganization_impl(packet_info *pinfo _U_, proto_tree *
 
 static int
 dissect_camel_PDPTypeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 423 "camel.cnf"
+#line 405 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
  proto_item *item;
@@ -5671,7 +5657,7 @@ static int dissect_pDPTypeNumber_impl(packet_info *pinfo _U_, proto_tree *tree _
 
 static int
 dissect_camel_PDPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 452 "camel.cnf"
+#line 434 "camel.cnf"
 
  tvbuff_t	*parameter_tvb;
  proto_item *item;
@@ -9315,7 +9301,7 @@ void proto_register_camel(void) {
         "camel.T_pdp_ContextchangeOfPositionSpecificInformation", HFILL }},
     { &hf_camel_accessPointName,
       { "accessPointName", "camel.accessPointName",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_STRING, NONE, NULL, 0,
         "camel.AccessPointName", HFILL }},
     { &hf_camel_chargingID,
       { "chargingID", "camel.chargingID",
