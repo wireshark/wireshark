@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ansi_map.c                                                        */
+/* .\packet-ansi_map.c                                                        */
 /* ../../tools/asn2wrs.py -b -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
@@ -6942,7 +6942,6 @@ static int dissect_userZoneData_impl(packet_info *pinfo _U_, proto_tree *tree _U
 
 static const ber_sequence_t FacilitiesDirective2_set[] = {
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_billingID_impl },
-  { BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_channelData_impl },
   { BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
   { BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_interMSCCircuitID_impl },
   { BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_interSwitchCount_impl },
@@ -6964,6 +6963,7 @@ static const ber_sequence_t FacilitiesDirective2_set[] = {
   { BER_CLASS_CON, 177, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaStationClassMark2_impl },
   { BER_CLASS_CON, 136, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMAHOList_impl },
   { BER_CLASS_CON, 134, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_cdmaTargetMeasurementList_impl },
+  { BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_channelData_impl },
   { BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentialityModes_impl },
   { BER_CLASS_CON, 215, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataKey_impl },
   { BER_CLASS_CON, 216, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_dataPrivacyParameters_impl },
@@ -6981,7 +6981,7 @@ static const ber_sequence_t FacilitiesDirective2_set[] = {
   { BER_CLASS_CON, 45, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_signalingMessageEncryptionKey_impl },
   { BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_stationClassMark_impl },
   { BER_CLASS_CON, 206, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemOperatorCode_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
+  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_targetCellID_impl },
   { BER_CLASS_CON, 220, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBandwidth_impl },
   { BER_CLASS_CON, 31, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaBurstIndicator_impl },
   { BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tdmaCallMode_impl },
@@ -11373,6 +11373,7 @@ static const ber_sequence_t SMSDeliveryPointToPointRes_set[] = {
   { BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_electronicSerialNumber_impl },
   { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_mobileStationMSID },
   { BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mscid_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_servingCellID_impl },
   { BER_CLASS_CON, 105, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_BearerData_impl },
   { BER_CLASS_CON, 153, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sms_CauseCode_impl },
   { BER_CLASS_CON, 49, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_systemCapabilities_impl },

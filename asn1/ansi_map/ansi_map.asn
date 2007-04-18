@@ -2497,6 +2497,7 @@ SMSDeliveryForwardRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.125 b
 	}
 
+-- N.S0005-0 v 1.0
 -- 6.4.2.43 SMSDeliveryPointToPoint
 SMSDeliveryPointToPoint ::= [PRIVATE 18] SET {
 	sms-BearerData							[105] IMPLICIT SMS-BearerData,
@@ -2558,6 +2559,8 @@ SMSDeliveryPointToPointRes ::= [PRIVATE 18] SET {
 	-- O 6.5.2.oC e
 	mscid									[21] IMPLICIT MSCID OPTIONAL,
 	-- O 6.5.2.82 f
+	servingCellID							[2]	IMPLICIT ServingCellID OPTIONAL,
+	-- O 6.5.2.117 TIA/EIA/J-STD-036-A
 	sms-BearerData							[105] IMPLICIT SMS-BearerData OPTIONAL,
 	-- O 6.5.2.124 a
 	sms-CauseCode							[153] IMPLICIT SMS-CauseCode OPTIONAL,
