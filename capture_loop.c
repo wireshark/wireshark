@@ -731,7 +731,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	  "The capture session could not be initiated (%s).", open_err_str);
 #ifndef _WIN32
 	g_snprintf(secondary_errmsg, secondary_errmsg_len,
-"Please check to make sure you have sufficient permissions, and that you have\n"
+"Please check to make sure you have sufficient permissions, and that you have "
 "the proper interface or pipe specified.%s", libpcap_warn);
 #else
     g_snprintf(secondary_errmsg, secondary_errmsg_len,
