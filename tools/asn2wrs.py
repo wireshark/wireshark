@@ -421,6 +421,16 @@ class Ctx:
         self.name_ctr += 1
         return "_compiler_generated_name_%d" % (self.name_ctr,)
 
+#--- Flags for EXPORT, USER_DEFINED, NO_EMIT, MAKE_ENUM -------------------------------
+EF_TYPE    = 0x01
+EF_VALS    = 0x02
+EF_ENUM    = 0x04
+EF_WS_VAR  = 0x08
+EF_NO_PROT = 0x10
+EF_NO_TYPE = 0x20
+EF_UCASE   = 0x40
+EF_DEFINE  = 0x80
+
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
   def __init__(self, conform, output, indent = 0):
@@ -515,6 +525,7 @@ class EthCtx:
     else:
       self.type[ident]['tname'] = asn2c(ident)
     self.type[ident]['export'] = self.conform.use_item('EXPORTS', ident)
+    self.type[ident]['enum'] = self.conform.use_item('MAKE_ENUM', ident)
     self.type[ident]['user_def'] = self.conform.use_item('USER_DEFINED', ident)
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
@@ -648,8 +659,8 @@ class EthCtx:
         self.eth_type[nm]['ref'].append(t)
       else:
         self.eth_type_ord.append(nm)
-        self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0,
-                              'user_def' : 0x03, 'no_emit' : 0x03, 
+        self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0, 'enum' : 0,
+                              'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS, 
                               'val' : self.type[t]['val'], 
                               'attr' : {}, 
                               'ref' : [t]}
@@ -658,6 +669,7 @@ class EthCtx:
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
       self.eth_type[nm]['export'] |= self.type[t]['export']
+      self.eth_type[nm]['enum'] |= self.type[t]['enum']
       self.eth_type[nm]['user_def'] &= self.type[t]['user_def']
       self.eth_type[nm]['no_emit'] &= self.type[t]['no_emit']
       if self.type[t]['attr'].get('STRINGS') == '$$':
@@ -693,7 +705,7 @@ class EthCtx:
         d = deparr.pop()
         if not self.value[d]['import']:
           if not self.value[d]['export']:
-            self.value[d]['export'] = 0x01
+            self.value[d]['export'] = EF_TYPE
             deparr.extend(self.value_dep.get(d, []))
 
     #--- values -------------------
@@ -823,7 +835,7 @@ class EthCtx:
   #--- eth_vals_nm ------------------------------------------------------------
   def eth_vals_nm(self, tname):
     out = ""
-    if (not self.eth_type[tname]['export'] & 0x10):
+    if (not self.eth_type[tname]['export'] & EF_NO_PROT):
       out += "%s_" % (self.eproto)
     out += "%s_vals" % (tname)
     return out
@@ -831,12 +843,61 @@ class EthCtx:
   #--- eth_vals ---------------------------------------------------------------
   def eth_vals(self, tname, vals):
     out = ""
-    if (not self.eth_type[tname]['export'] & 0x02):
+    has_enum = self.eth_type[tname]['enum'] & EF_ENUM
+    if (not self.eth_type[tname]['export'] & EF_VALS):
       out += "static "
     out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
     for (val, id) in vals:
-      out += '  { %3s, "%s" },\n' % (val, id)
+      if (has_enum):
+        vval = self.eth_enum_item(tname, id)
+      else:
+        vval = val
+      out += '  { %3s, "%s" },\n' % (vval, id)
     out += "  { 0, NULL }\n};\n"
+    return out
+
+  #--- eth_enum_prefix ------------------------------------------------------------
+  def eth_enum_prefix(self, tname):
+    out = ""
+    if (self.eth_type[tname]['export'] & EF_ENUM):
+      no_prot = self.eth_type[tname]['export'] & EF_NO_PROT
+    else:
+      no_prot = self.eth_type[tname]['enum'] & EF_NO_PROT
+    if (not no_prot):
+      out += self.eproto
+    if (not self.eth_type[tname]['enum'] & EF_NO_TYPE):
+      if (out): out += '_'
+      out += tname
+    if (self.eth_type[tname]['enum'] & EF_UCASE):
+      out = out.upper()
+    return out
+
+  #--- eth_enum_nm ------------------------------------------------------------
+  def eth_enum_nm(self, tname):
+    out = self.eth_enum_prefix(tname)
+    out += "_enum"
+    return out
+
+  #--- eth_enum_item ---------------------------------------------------------------
+  def eth_enum_item(self, tname, ident):
+    out = self.eth_enum_prefix(tname)
+    out += '_' + asn2c(ident)
+    if (self.eth_type[tname]['enum'] & EF_UCASE):
+      out = out.upper()
+    return out
+
+  #--- eth_enum ---------------------------------------------------------------
+  def eth_enum(self, tname, vals):
+    out = ""
+    if (self.eth_type[tname]['enum'] & EF_DEFINE):
+      out += "/* enumerated values for %s */\n" % (tname)
+      for (val, id) in vals:
+        out += '#define %-12s %3s\n' % (self.eth_enum_item(tname, id), val)
+    else:
+      out += "typedef enum _%s {\n" % (self.eth_enum_nm(tname))
+      for (val, id) in vals:
+        out += '  %-12s %3s,\n' % (self.eth_enum_item(tname, id), val)
+      out += "} %s;\n" % (self.eth_enum_nm(tname))
     return out
 
   #--- eth_bits ---------------------------------------------------------------
@@ -852,7 +913,7 @@ class EthCtx:
   #--- eth_type_fn_h ----------------------------------------------------------
   def eth_type_fn_h(self, tname):
     out = ""
-    if (not self.eth_type[tname]['export'] & 0x01):
+    if (not self.eth_type[tname]['export'] & EF_TYPE):
       out += "static "
     out += "int "
     if (self.Ber()):
@@ -882,7 +943,7 @@ class EthCtx:
   #--- eth_type_fn_hdr --------------------------------------------------------
   def eth_type_fn_hdr(self, tname):
     out = '\n'
-    if (not self.eth_type[tname]['export'] & 0x01):
+    if (not self.eth_type[tname]['export'] & EF_TYPE):
       out += "static "
     out += "int\n"
     if (self.Ber()):
@@ -982,14 +1043,16 @@ class EthCtx:
     if (not len(self.eth_export_ord)): return
     fx = self.output.file_open('exp', ext='h')
     for t in self.eth_export_ord:  # vals
-      if (self.eth_type[t]['export'] & 0x02) and self.eth_type[t]['val'].eth_has_vals():
-        if self.eth_type[t]['export'] & 0x08:
+      if (self.eth_type[t]['export'] & EF_ENUM) and self.eth_type[t]['val'].eth_has_enum(t, self):
+        fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
+      if (self.eth_type[t]['export'] & EF_VALS) and self.eth_type[t]['val'].eth_has_vals():
+        if self.eth_type[t]['export'] & EF_WS_VAR:
           fx.write("WS_VAR_IMPORT ")
         else:
           fx.write("extern ")
         fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
     for t in self.eth_export_ord:  # functions
-      if (self.eth_type[t]['export'] & 0x01):
+      if (self.eth_type[t]['export'] & EF_TYPE):
         fx.write(self.eth_type_fn_h(t))
     self.output.file_close(fx)
 
@@ -1006,13 +1069,13 @@ class EthCtx:
     if self.Ber():
       fx.write('#.IMPORT_TAG\n')
       for t in self.eth_export_ord:  # tags
-        if (self.eth_type[t]['export'] & 0x01):
+        if (self.eth_type[t]['export'] & EF_TYPE):
           fx.write('%-24s ' % self.eth_type[t]['ref'][0])
           fx.write('%s %s\n' % self.eth_type[t]['val'].GetTag(self))
       fx.write('#.END\n\n')
     fx.write('#.TYPE_ATTR\n')
     for t in self.eth_export_ord:  # attributes
-      if (self.eth_type[t]['export'] & 0x01):
+      if (self.eth_type[t]['export'] & EF_TYPE):
         fx.write('%-24s ' % self.eth_type[t]['ref'][0])
         attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
@@ -1127,16 +1190,18 @@ class EthCtx:
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
         continue
+      if self.eth_type[t]['val'].eth_has_enum(t, self) and not (self.eth_type[t]['export'] & EF_ENUM):
+        fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
       if self.eth_type[t]['val'].eth_has_vals():
-        if self.eth_type[t]['no_emit'] & 0x02:
+        if self.eth_type[t]['no_emit'] & EF_VALS:
           pass
-        elif self.eth_type[t]['user_def'] & 0x02:
+        elif self.eth_type[t]['user_def'] & EF_VALS:
           fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
         else:
           fx.write(self.eth_type[t]['val'].eth_type_vals(t, self))
-      if self.eth_type[t]['no_emit'] & 0x01:
+      if self.eth_type[t]['no_emit'] & EF_TYPE:
         pass
-      elif self.eth_type[t]['user_def'] & 0x01:
+      elif self.eth_type[t]['user_def'] & EF_TYPE:
         fx.write(self.eth_type_fn_h(t))
       else:
         fx.write(self.eth_type[t]['val'].eth_type_fn(self.eth_type[t]['proto'], t, self))
@@ -1339,8 +1404,10 @@ class EthCnf:
     self.table = {}
     self.order = {}
     self.fn = {}
+    self.suppress_line = False
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['PDU']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['REGISTER']        = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -1410,7 +1477,10 @@ class EthCnf:
     if (not self.fn[name][ctx]):
       return '';
     self.fn[name][ctx]['used'] = True
-    return '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'],self.fn[name][ctx]['fn'],self.fn[name][ctx]['text']);
+    out = self.fn[name][ctx]['text']
+    if (not self.suppress_line): 
+      out = '#line %u "%s"\n%s\n' % (self.fn[name][ctx]['lineno'], self.fn[name][ctx]['fn'], out);
+    return out
 
   def add_pdu(self, par, is_new, fn, lineno):
     #print "add_pdu(par=%s, %s, %d)" % (str(par), fn, lineno)
@@ -1507,6 +1577,7 @@ class EthCnf:
     lineno = 0
     ctx = None
     name = ''
+    default_flags = 0x00
     stack = []
     while 1:
       line = f.readline()
@@ -1522,12 +1593,44 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
-                                    'USER_DEFINED', 'NO_EMIT', 'MODULE', 'MODULE_IMPORT', 
+        if result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
+                                    'MODULE', 'MODULE_IMPORT', 
                                     'OMIT_ASSIGNMENT', 'VIRTUAL_ASSGN', 'SET_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
                                     'TYPE_ATTR', 'ETYPE_ATTR', 'FIELD_ATTR', 'EFIELD_ATTR'):
           ctx = result.group('name')
+        elif result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
+          ctx = result.group('name')
+          default_flags = EF_TYPE|EF_VALS
+          if ctx == 'EXPORTS':
+            par = get_par(line[result.end():], 0, 4, fn=fn, lineno=lineno)
+          else:
+            par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
+          if not par: continue
+          p = 1
+          if (par[0] == 'WITH_VALS'):      default_flags |= EF_TYPE|EF_VALS
+          elif (par[0] == 'WITHOUT_VALS'): default_flags |= EF_TYPE; default_flags &= ~EF_TYPE
+          elif (par[0] == 'ONLY_VALS'):    default_flags &= ~EF_TYPE; default_flags |= EF_VALS
+          elif (ctx == 'EXPORTS'): p = 0
+          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[0]), UserWarning, fn, lineno)
+          for i in range(p, len(par)):
+            if (par[i] == 'ONLY_ENUM'):   default_flags &= ~(EF_TYPE|EF_VALS); default_flags |= EF_ENUM
+            elif (par[i] == 'WITH_ENUM'): default_flags |= EF_ENUM
+            elif (par[i] == 'WS_VAR'):    default_flags |= EF_WS_VAR
+            elif (par[i] == 'NO_PROT_PREFIX'): default_flags |= EF_NO_PROT
+            else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
+        elif result.group('name') in ('MAKE_ENUM', 'MAKE_DEFINES'):
+          ctx = result.group('name')
+          default_flags = EF_ENUM
+          if ctx == 'MAKE_ENUM': default_flags |= EF_NO_PROT
+          if ctx == 'MAKE_DEFINES': default_flags |= EF_DEFINE|EF_UCASE
+          par = get_par(line[result.end():], 0, 3, fn=fn, lineno=lineno)
+          for i in range(0, len(par)):
+            if (par[i] == 'NO_PROT_PREFIX'):   default_flags |= EF_NO_PROT
+            elif (par[i] == 'NO_TYPE_PREFIX'): default_flags |= EF_NO_TYPE
+            elif (par[i] == 'UPPER_CASE'):     default_flags |= EF_UCASE
+            elif (par[i] == 'NO_UPPER_CASE'):  default_flags &= ~EF_UCASE
+            else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         elif result.group('name') in ('FN_HDR', 'FN_FTR'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
@@ -1577,19 +1680,33 @@ class EthCnf:
         else:
           par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
-        flag = 0x03
+        flags = default_flags
         p = 2
         if (len(par)>=2):
-          if (par[1] == 'WITH_VALS'):      flag = 0x03
-          elif (par[1] == 'WITHOUT_VALS'): flag = 0x01
-          elif (par[1] == 'ONLY_VALS'):    flag = 0x02
+          if (par[1] == 'WITH_VALS'):      flags |= EF_TYPE|EF_VALS
+          elif (par[1] == 'WITHOUT_VALS'): flags |= EF_TYPE; flags &= ~EF_TYPE
+          elif (par[1] == 'ONLY_VALS'):    flags &= ~EF_TYPE; flags |= EF_VALS
           elif (ctx == 'EXPORTS'): p = 1
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[1]), UserWarning, fn, lineno)
         for i in range(p, len(par)):
-          if (par[i] == 'WS_VAR'):          flag |= 0x08
-          elif (par[i] == 'NO_PROT_PREFIX'): flag |= 0x10
+          if (par[i] == 'ONLY_ENUM'):        flags &= ~(EF_TYPE|EF_VALS); flags |= EF_ENUM
+          elif (par[i] == 'WITH_ENUM'):      flags |= EF_ENUM
+          elif (par[i] == 'WS_VAR'):         flags |= EF_WS_VAR
+          elif (par[i] == 'NO_PROT_PREFIX'): flags |= EF_NO_PROT
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
-        self.add_item(ctx, par[0], flag=flag, fn=fn, lineno=lineno)
+        self.add_item(ctx, par[0], flag=flags, fn=fn, lineno=lineno)
+      elif ctx in ('MAKE_ENUM', 'MAKE_DEFINES'):
+        if empty.match(line): continue
+        par = get_par(line, 1, 4, fn=fn, lineno=lineno)
+        if not par: continue
+        flags = default_flags
+        for i in range(1, len(par)):
+          if (par[i] == 'NO_PROT_PREFIX'):   flags |= EF_NO_PROT
+          elif (par[i] == 'NO_TYPE_PREFIX'): flags |= EF_NO_TYPE
+          elif (par[i] == 'UPPER_CASE'):     flags |= EF_UCASE
+          elif (par[i] == 'NO_UPPER_CASE'):  flags &= ~EF_UCASE
+          else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
+        self.add_item('MAKE_ENUM', par[0], flag=flags, fn=fn, lineno=lineno)
       elif ctx in ('PDU', 'PDU_NEW'):
         if empty.match(line): continue
         par = get_par(line, 1, 5, fn=fn, lineno=lineno)
@@ -1971,6 +2088,9 @@ class Type (Node):
   def eth_has_vals(self):
     return False
 
+  def eth_has_enum(self, tname, ectx):
+    return self.eth_has_vals() and (ectx.eth_type[tname]['enum'] & EF_ENUM)
+
   def eth_named_bits(self):
     return None
 
@@ -2054,6 +2174,12 @@ class Type (Node):
   def eth_type_vals(self, tname, ectx):
     if self.eth_has_vals():
       print "#Unhandled  eth_type_vals('%s') in %s" % (tname, self.type)
+      print self.str_depth(1)
+    return ''
+
+  def eth_type_enum(self, tname, ectx):
+    if self.eth_has_enum(tname, ectx):
+      print "#Unhandled  eth_type_enum('%s') in %s" % (tname, self.type)
       print self.str_depth(1)
     return ''
 
@@ -2784,8 +2910,7 @@ class ChoiceType (Type):
     #print "Choice IndetermTag()=%s" % (str(not self.HasOwnTag()))
     return not self.HasOwnTag()
 
-  def eth_type_vals(self, tname, ectx):
-    out = '\n'
+  def get_vals(self, ectx):
     tagval = False
     if (ectx.Ber()):
       lst = self.elt_list
@@ -2812,7 +2937,18 @@ class ChoiceType (Type):
         else: val = str(cnt)
         vals.append((val, e.name))
         cnt += 1
+    return vals
+
+  def eth_type_vals(self, tname, ectx):
+    out = '\n'
+    vals = self.get_vals(ectx)
     out += ectx.eth_vals(tname, vals)
+    return out
+
+  def eth_type_enum(self, tname, ectx):
+    out = '\n'
+    vals = self.get_vals(ectx)
+    out += ectx.eth_enum(tname, vals)
     return out
 
   def eth_type_default_pars(self, ectx, tname):
@@ -2822,6 +2958,11 @@ class ChoiceType (Type):
 
   def eth_type_default_table(self, ectx, tname):
     def out_item(val, e, ext, ectx):
+      has_enum = ectx.eth_type[tname]['enum'] & EF_ENUM
+      if (has_enum):
+        vval = ectx.eth_enum_item(tname, e.name)
+      else:
+        vval = val
       f = fname + '/' + e.name
       ef = ectx.field[f]['ethname']
       t = ectx.eth_hf[ef]['ethtype']
@@ -2839,10 +2980,10 @@ class ChoiceType (Type):
       if (ectx.Ber()):
         (tc, tn) = e.GetTag(ectx)
         out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
-              % (val, tc, tn, opt, efd)
+              % (vval, tc, tn, opt, efd)
       elif (ectx.Per()):
         out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
-              % (val, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
+              % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
       else:
         out = ''
       return out   
@@ -2971,6 +3112,12 @@ class EnumeratedType (Type):
     out = '\n'
     vals = self.get_vals_etc(ectx)[0]
     out += ectx.eth_vals(tname, vals)
+    return out
+
+  def eth_type_enum(self, tname, ectx):
+    out = '\n'
+    vals = self.get_vals_etc(ectx)[0]
+    out += ectx.eth_enum(tname, vals)
     return out
 
   def eth_type_default_pars(self, ectx, tname):
@@ -3448,13 +3595,24 @@ class IntegerType (Type):
     else:
       return False
 
-  def eth_type_vals(self, tname, ectx):
-    if not self.eth_has_vals(): return ''
-    out = '\n'
+  def get_vals(self, ectx):
     vals = []
     for e in (self.named_list):
       vals.append((int(e.val), e.ident))
+    return vals
+
+  def eth_type_vals(self, tname, ectx):
+    if not self.eth_has_vals(): return ''
+    out = '\n'
+    vals = self.get_vals(ectx)
     out += ectx.eth_vals(tname, vals)
+    return out
+
+  def eth_type_enum(self, tname, ectx):
+    if not self.eth_has_enum(tname, ectx): return ''
+    out = '\n'
+    vals = self.get_vals(ectx)
+    out += ectx.eth_enum(tname, vals)
     return out
 
   def eth_type_default_pars(self, ectx, tname):
@@ -4828,6 +4986,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -S            : single output for multiple modules
   -s template   : single file output (template is input file without .c/.h extension)
   -k            : keep intermediate files though single file output is used
+  -L            : suppress #line directive from .cnf file
   input_file(s) : input ASN.1 file(s)
 
   -d dbg     : debug output, dbg = [l][y][p][s][a][t][c][o]
@@ -4844,7 +5003,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 def eth_main():
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:eSs:k");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:eSs:kL");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
@@ -4863,6 +5022,7 @@ def eth_main():
   ectx.new = True
   ectx.expcnf = False
   ectx.merge_modules = False
+  ectx.output.suppress_line = False;
   ectx.output.outnm = None
   ectx.output.single_file = None
   for o, a in opts:
@@ -4895,6 +5055,8 @@ def eth_main():
       ectx.output.single_file = a
     if o in ("-k",):
       ectx.output.keep = True
+    if o in ("-L",):
+      ectx.output.suppress_line = True
     if o in ("-X",):
         warnings.warn("Command line option -X is obsolete and can be removed")
 
