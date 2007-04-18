@@ -697,9 +697,10 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* set up for next record in frame, if any */
         first_record_in_frame = FALSE;
     }
-    if (check_col(pinfo->cinfo, COL_INFO)) 
+    if (check_col(pinfo->cinfo, COL_INFO))
 	col_set_fence(pinfo->cinfo, COL_INFO);
-    tap_queue_packet(ssl_tap, pinfo, (gpointer)proto_ssl);
+
+    tap_queue_packet(ssl_tap, pinfo, NULL);
 }
 
 static gint
@@ -944,10 +945,10 @@ again:
 				 */
 				if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
 					/* We want reassembly of at least one
-					 * more segment so set the nxtpdu 
-					 * boundary to one byte into the next 
+					 * more segment so set the nxtpdu
+					 * boundary to one byte into the next
 					 * segment.
-					 * This means that the next segment 
+					 * This means that the next segment
 					 * will complete reassembly even if it
 					 * is only one single byte in length.
 					 */
@@ -1078,11 +1079,11 @@ again:
 			 * but set this msp flag so we can pick it up
 			 * above.
 			 */
-			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
 				deseg_seq, nxtseq+1, flow->multisegment_pdus);
 			msp->flags|=MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
 		} else {
-			msp = pdu_store_sequencenumber_of_next_pdu(pinfo, 
+			msp = pdu_store_sequencenumber_of_next_pdu(pinfo,
 				deseg_seq, nxtseq+pinfo->desegment_len, flow->multisegment_pdus);
 		}
 
@@ -1150,8 +1151,8 @@ again:
 	if(another_pdu_follows){
 		/* there was another pdu following this one. */
 		pinfo->can_desegment=2;
-		/* we also have to prevent the dissector from changing the 
-		 * PROTOCOL and INFO colums since what follows may be an 
+		/* we also have to prevent the dissector from changing the
+		 * PROTOCOL and INFO colums since what follows may be an
 		 * incomplete PDU and we dont want it be changed back from
 		 *  <Protocol>   to <TCP>
 		 * XXX There is no good way to block the PROTOCOL column
@@ -1198,7 +1199,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
   /* create a new TVB structure for desegmented data */
   next_tvb = tvb_new_real_data(appl_data->plain_data.data, appl_data->plain_data.data_len, appl_data->plain_data.data_len);
-  
+
   /* add this tvb as a child to the original one */
   tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
@@ -1268,7 +1269,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     available_bytes = tvb_length_remaining(tvb, offset);
 
     /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
-    if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1) && 
+    if ((*conv_version==SSL_VER_TLS || *conv_version==SSL_VER_TLSv1DOT1) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
       proto_tree_add_text(tree, tvb, offset, available_bytes, "Ignored Unknown Record");
       if (check_col(pinfo->cinfo, COL_INFO))
@@ -1689,7 +1690,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 	 * situation where the first octet of the encrypted handshake
 	 * message is actually a known handshake message type.
 	 */
-	if ( offset + length <= record_length ) 
+	if ( offset + length <= record_length )
 	   msg_type_str = match_strval(msg_type, ssl_31_handshake_type);
 	else
 	   msg_type_str = NULL;
@@ -2588,11 +2589,11 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	    /* Unlike SSLv3, the SSLv2 record layer does not have a
 	     * version field. To make it possible to filter on record
-	     * layer version we create a generated field with ssl 
+	     * layer version we create a generated field with ssl
 	     * record layer version 0x0002
 	     */
-	    ti = proto_tree_add_uint(ssl_record_tree, 
-				     hf_ssl_record_version, tvb, 
+	    ti = proto_tree_add_uint(ssl_record_tree,
+				     hf_ssl_record_version, tvb,
 				     initial_offset, 0, 0x0002);
 	    PROTO_ITEM_SET_GENERATED(ti);
         }
@@ -2623,11 +2624,11 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
 	/* Unlike SSLv3, the SSLv2 record layer does not have a
 	 * version field. To make it possible to filter on record
-	 * layer version we create a generated field with ssl 
+	 * layer version we create a generated field with ssl
 	 * record layer version 0x0002
 	 */
-	ti = proto_tree_add_uint(ssl_record_tree, 
-				 hf_ssl_record_version, tvb, 
+	ti = proto_tree_add_uint(ssl_record_tree,
+				 hf_ssl_record_version, tvb,
 				 initial_offset, 0, 0x0002);
 	PROTO_ITEM_SET_GENERATED(ti);
 
@@ -3404,7 +3405,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
 }
 
 
-void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli, 
+void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli,
                            port_type ptype, guint32 port_srv, guint32 port_cli,
                            guint32 version, gint cipher, const guchar *_master_secret,
                            const guchar *_client_random, const guchar *_server_random,
@@ -3488,7 +3489,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
   /* master secret */
   if (_master_secret) {
     ssl_data_set(&ssl->master_secret, _master_secret, 48);
-    ssl->state |= SSL_MASTER_SECRET;    
+    ssl->state |= SSL_MASTER_SECRET;
     ssl_debug_printf("ssl_set_master_secret set MASTER SECRET -> state 0x%02X\n", ssl->state);
   }
 

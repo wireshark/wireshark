@@ -430,7 +430,8 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* set up for next record in frame, if any */
       first_record_in_frame = FALSE;
     }
-  tap_queue_packet(dtls_tap, pinfo, (gpointer)proto_dtls);
+
+  tap_queue_packet(dtls_tap, pinfo, NULL);
 }
 
 static gint
