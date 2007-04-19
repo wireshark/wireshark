@@ -1100,7 +1100,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
   case JUNIPER_PIC_ATM2:
       tisub = proto_tree_add_uint64(juniper_subtree, hf_juniper_atm2_cookie, tvb, offset, 8, cookie2);
       offset += atm2_header_len;
-      if (cookie2 & 0x7000) /* OAM cell ? */
+      if (cookie2 & 0x70) /* OAM cell ? */
           next_proto = PROTO_OAM;
       break;
   default: /* should not happen */
