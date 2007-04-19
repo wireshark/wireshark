@@ -2499,6 +2499,7 @@ class TaggedType (Type):
 
   def eth_reg_sub(self, ident, ectx):
     self.val_name = ident + '/' + '_untag'
+    ectx.eth_dep_add(ident, self.val_name)
     self.val.eth_reg(self.val_name, ectx, tstrip=self.tstrip+1, tagflag=True, parent=ident)
 
   def eth_ftype(self, ectx):
