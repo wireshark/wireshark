@@ -3610,7 +3610,7 @@ proto_reg_handoff_sip(void)
 
   if (sip_prefs_initialized) {
     dissector_delete("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
-    ssl_dissector_delete(saved_sip_tls_port, "sip", TRUE);
+    ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
   } else {
     sip_prefs_initialized = TRUE;
   }
@@ -3618,7 +3618,7 @@ proto_reg_handoff_sip(void)
   saved_sip_tcp_port = sip_tcp_port;
   dissector_add("tcp.port", saved_sip_tcp_port, sip_tcp_handle);
   saved_sip_tls_port = sip_tls_port;
-  ssl_dissector_add(saved_sip_tls_port, "sip", TRUE);
+  ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
 
 	dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
 	dissector_add_string("media_type", "message/sip", sip_handle);
