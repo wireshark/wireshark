@@ -225,8 +225,12 @@ static int hf_edp_eaps_reserved2 = -1;
 /* ELSM (Extreme Link Status Monitoring) */
 static int hf_edp_elsm = -1;
 static int hf_edp_elsm_unknown = -1;
+/* ELRP (Extreme Loop Recognition Protocol)*/
+static int hf_edp_elrp = -1;
+static int hf_edp_elrp_unknown = -1;
 /* Unknown element */
 static int hf_edp_unknown = -1;
+static int hf_edp_unknown_data = -1;
 /* Null element */
 static int hf_edp_null = -1;
 
@@ -240,6 +244,7 @@ static gint ett_edp_vlan = -1;
 static gint ett_edp_vlan_flags = -1;
 static gint ett_edp_esrp = -1;
 static gint ett_edp_eaps = -1;
+static gint ett_edp_elrp = -1;
 static gint ett_edp_elsm = -1;
 static gint ett_edp_unknown = -1;
 static gint ett_edp_null = -1;
@@ -276,6 +281,7 @@ typedef enum {
 	EDP_TYPE_VLAN = 5,
 	EDP_TYPE_ESRP = 8,
 	EDP_TYPE_EAPS = 0xb,
+	EDP_TYPE_ELRP = 0xd,
 	EDP_TYPE_ELSM = 0xf
 } edp_type_t;
 
@@ -285,6 +291,7 @@ static const value_string edp_type_vals[] = {
 	{ EDP_TYPE_INFO,	"Info"},
 	{ EDP_TYPE_VLAN,	"VL"},
 	{ EDP_TYPE_ESRP,	"ESRP"},
+	{ EDP_TYPE_ELRP,	"ELRP"},
 	{ EDP_TYPE_EAPS,	"EAPS"},
 	{ EDP_TYPE_ELSM,	"ELSM"},
 
@@ -686,7 +693,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 }
 
 static void
-dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*elsm_item;
 	proto_tree	*elsm_tree;
@@ -698,14 +705,34 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, elsm_tree);
 	offset += 4;
+	length -= 4;
 
-	proto_tree_add_item(elsm_tree, hf_edp_elsm_unknown, tvb, offset, 4,
+	proto_tree_add_item(elsm_tree, hf_edp_elsm_unknown, tvb, offset, length,
 		FALSE);
 	offset += 4;
 }
 
 static void
-dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
+dissect_elrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+	proto_item	*elrp_item;
+	proto_tree	*elrp_tree;
+
+	elrp_item = proto_tree_add_protocol_format(tree, hf_edp_elrp,
+		tvb, offset, length, "ELRP");
+
+	elrp_tree = proto_item_add_subtree(elrp_item, ett_edp_elrp);
+
+	dissect_tlv_header(tvb, pinfo, offset, 4, elrp_tree);
+	offset += 4;
+	length -= 4;
+
+	proto_tree_add_item(elrp_tree, hf_edp_elrp_unknown, tvb, offset, length,
+		FALSE);
+}
+
+static void
+dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*unknown_item;
 	proto_tree	*unknown_tree;
@@ -722,8 +749,8 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U
 	offset += 4;
 	length -= 4;
 
-	proto_tree_add_text(unknown_tree, tvb, offset + 0, length,
-		"Unknown data");
+	proto_tree_add_item(unknown_tree, hf_edp_unknown_data, tvb, offset, length,
+		FALSE);
 }
 
 static void
@@ -862,6 +889,9 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case EDP_TYPE_ELSM: /* Extreme Link Status Monitoring */
 				dissect_elsm_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
+			case EDP_TYPE_ELRP: /* Extreme Loop Recognition Protocol */
+				dissect_elrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
+				break;
 			default:
 				dissect_unknown_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 				break;
@@ -930,7 +960,7 @@ proto_register_edp(void)
 	/* Display element */
 		{ &hf_edp_display,
 		{ "Display",	"edp.display", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Display Element", HFILL }},
+			0x0, "Display element", HFILL }},
 
 		{ &hf_edp_display_string,
 		{ "Name",	"edp.display.string", FT_STRING, BASE_NONE, NULL,
@@ -939,7 +969,7 @@ proto_register_edp(void)
 	/* Info element */
 		{ &hf_edp_info,
 		{ "Info",	"edp.info", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Info Element", HFILL }},
+			0x0, "Info element", HFILL }},
 
 		{ &hf_edp_info_slot,
 		{ "Slot",	"edp.info.slot", FT_UINT16, BASE_DEC, NULL,
@@ -984,7 +1014,7 @@ proto_register_edp(void)
 	/* VLAN element */
 		{ &hf_edp_vlan,
 		{ "Vlan",	"edp.vlan", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Vlan Element", HFILL }},
+			0x0, "Vlan element", HFILL }},
 
 		{ &hf_edp_vlan_flags,
 		{ "Flags",	"edp.vlan.flags", FT_UINT8, BASE_HEX, NULL,
@@ -1025,7 +1055,7 @@ proto_register_edp(void)
 	/* ESRP element */
 		{ &hf_edp_esrp,
 		{ "ESRP",	"edp.esrp", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "ESRP Element", HFILL }},
+			0x0, "Extreme Standby Router Protocol element", HFILL }},
 
 		{ &hf_edp_esrp_proto,
 		{ "Protocol",	"edp.esrp.proto", FT_UINT8, BASE_DEC, VALS(esrp_proto_vals),
@@ -1066,7 +1096,7 @@ proto_register_edp(void)
 	/* EAPS element */
 		{ &hf_edp_eaps,
 		{ "EAPS",	"edp.eaps", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "EAPS Element", HFILL }},
+			0x0, "Ethernet Automatic Protection Switching element", HFILL }},
 
 		{ &hf_edp_eaps_ver,
 		{ "Version",	"edp.eaps.ver", FT_UINT8, BASE_DEC, NULL,
@@ -1114,11 +1144,20 @@ proto_register_edp(void)
 
 	/* ELSM element */
 		{ &hf_edp_elsm,
-		{ "ELWM",	"edp.elsm", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "EAPS Element", HFILL }},
+		{ "ELSM",	"edp.elsm", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Extreme Link Status Monitoring element", HFILL }},
 
 		{ &hf_edp_elsm_unknown,
 		{ "Unknown",	"edp.elsm.unknown", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
+	/* ELRP element */
+		{ &hf_edp_elrp,
+		{ "ELRP",	"edp.elrp", FT_PROTOCOL, BASE_NONE, NULL,
+			0x0, "Extreme Loop Recognition Protocol element", HFILL }},
+
+		{ &hf_edp_elrp_unknown,
+		{ "Unknown",	"edp.elrp.unknown", FT_BYTES, BASE_NONE, NULL,
 			0x0, "", HFILL }},
 
 	/* Unknown element */
@@ -1126,10 +1165,14 @@ proto_register_edp(void)
 		{ "Unknown",	"edp.unknown", FT_PROTOCOL, BASE_NONE, NULL,
 			0x0, "Element unknown to Wireshark", HFILL }},
 
+		{ &hf_edp_unknown_data,
+		{ "Unknown",	"edp.unknown.data", FT_BYTES, BASE_NONE, NULL,
+			0x0, "", HFILL }},
+
 	/* Null element */
 		{ &hf_edp_null,
 		{ "End",	"edp.null", FT_PROTOCOL, BASE_NONE, NULL,
-			0x0, "Null Element", HFILL }},
+			0x0, "Last element", HFILL }},
         };
 	static gint *ett[] = {
 		&ett_edp,
@@ -1142,6 +1185,7 @@ proto_register_edp(void)
 		&ett_edp_vlan,
 		&ett_edp_esrp,
 		&ett_edp_eaps,
+		&ett_edp_elrp,
 		&ett_edp_elsm,
 		&ett_edp_unknown,
 		&ett_edp_null,
