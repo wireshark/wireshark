@@ -612,7 +612,7 @@ init_error_table(error_equiv_table *err, guint16 num_procs, GtkWidget *vbox)
                                G_TYPE_STRING,   /* Group              */
                                G_TYPE_STRING,   /* Protocol           */
                                G_TYPE_STRING,   /* Summary            */
-                               G_TYPE_STRING);  /* Count              */
+                               G_TYPE_INT);     /* Count              */
 
     /* Create a view */
     tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
@@ -763,7 +763,7 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 
     /* Update the tree with new count for this event */
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
-    gtk_tree_store_set(store, &err->procedures[row].iter, COUNT_COLUMN, (char *)g_strdup_printf("%d", err->procedures[row].count), -1);
+    gtk_tree_store_set(store, &err->procedures[row].iter, COUNT_COLUMN, err->procedures[row].count, -1);
 #endif
 }
 
