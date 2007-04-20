@@ -137,6 +137,22 @@ static int weak_iv(guchar *iv);
 static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #endif
 
+typedef struct mimo_control
+  {
+    guint8 nc;
+		guint8 nr;
+		gboolean chan_width;
+		guint8 grouping;
+		guint8 coefficient_size;
+		guint8 codebook_info;
+		guint8 remaining_matrix_segment;
+  } mimo_control_t;
+
+mimo_control_t get_mimo_control (tvbuff_t *tvb, int offset);
+int add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl);
+int add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl);
+int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl);
+
 /* ************************************************************************* */
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
@@ -145,6 +161,14 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
+
+/*
+ * Fetch the frame control field and swap it if needed.  "fcf" and "tvb"
+ * must be valid variables.
+ */
+#define FETCH_FCF(off) (wlan_broken_fc ? \
+  BSWAP16(tvb_get_letohs(tvb, off)) : \
+  tvb_get_letohs(tvb, off))
 
 /*
  * Extract the protocol version from the frame control field
@@ -413,6 +437,14 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 #define FIELD_DS_PARAM_SET	0x26
 #define FIELD_CHANNEL_WIDTH	0x27
 #define FIELD_SM_PWR_CNTRL	0x28
+#define FIELD_PCO_PHASE_CNTRL	0x29
+#define FIELD_PSMP_PARAM_SET 0x2A
+#define FIELD_PSMP_STA_INFO 0x2B
+#define FIELD_MIMO_CNTRL 0x2C
+#define FIELD_ANT_SELECTION 0x2D
+#define FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT 0x2E
+#define FIELD_HT_INFORMATION 0x2F
+#define FIELD_HT_ACTION_CODE 0x30
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -484,16 +516,16 @@ static const value_string frame_type_subtype_vals[] = {
 	{MGT_REASSOC_RESP,     "Reassociation Response"},
 	{MGT_PROBE_REQ,        "Probe Request"},
 	{MGT_PROBE_RESP,       "Probe Response"},
-  {MGT_MEASUREMENT_PILOT,"Measurement Pilot"},
+	{MGT_MEASUREMENT_PILOT,"Measurement Pilot"},
 	{MGT_BEACON,           "Beacon frame"},
 	{MGT_ATIM,             "ATIM"},
 	{MGT_DISASS,           "Dissassociate"},
 	{MGT_AUTHENTICATION,   "Authentication"},
 	{MGT_DEAUTHENTICATION, "Deauthentication"},
 	{MGT_ACTION,           "Action"},
-	{MGT_ACTION_NO_ACK,         "Action No Ack"},
+	{MGT_ACTION_NO_ACK,    "Action No Ack"},
 
-	{CTRL_CONTROL_WRAPPER,      "Control Wrapper"},
+	{CTRL_CONTROL_WRAPPER, "Control Wrapper"},
 	{CTRL_BLOCK_ACK_REQ,   "802.11 Block Ack Req"},
 	{CTRL_BLOCK_ACK,       "802.11 Block Ack"},
 	{CTRL_PS_POLL,         "Power-Save poll"},
@@ -573,6 +605,7 @@ static const char *wme_acs[4] = {
 #define SM_ACTION_TPC_REQUEST		2
 #define SM_ACTION_TPC_REPORT		3
 #define SM_ACTION_CHAN_SWITCH_ANNC	4
+#define SM_ACTION_EXT_CHAN_SWITCH_ANNC 5
 
 #define SM_ACTION_ADDTS_REQUEST		0
 #define SM_ACTION_ADDTS_RESPONSE	1
@@ -586,6 +619,16 @@ static const char *wme_acs[4] = {
 #define BA_ADD_BLOCK_ACK_REQUEST		0
 #define BA_ADD_BLOCK_ACK_RESPONSE		1
 #define BA_DELETE_BLOCK_ACK		2
+
+#define HT_ACTION_NOTIFY_CHAN_WIDTH						0
+#define HT_ACTION_SM_PWR_SAVE									1
+#define HT_ACTION_PSMP_ACTION									2
+#define HT_ACTION_SET_PCO_PHASE								3
+#define HT_ACTION_MIMO_CSI										4
+#define HT_ACTION_MIMO_BEAMFORMING		        5
+#define HT_ACTION_MIMO_COMPRESSED_BEAMFORMING	6
+#define HT_ACTION_ANT_SEL_FEEDBACK						7
+#define HT_ACTION_HT_INFO_EXCHANGE						8
 /*** End: Action Fixed Parameter ***/
 
 static int proto_wlan = -1;
@@ -729,6 +772,10 @@ static int ff_dst_mac_addr = -1;	/* DLS destination MAC addressi */
 static int ff_src_mac_addr = -1;	/* DLS source MAC addressi */
 static int ff_dls_timeout = -1;		/* DLS timeout value */
 
+/*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
+static int ff_ba_action = -1;
+/*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
+
 /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
 static int ff_block_ack_params = -1;
 static int ff_block_ack_params_amsdu_premitted = -1;
@@ -809,7 +856,72 @@ static int ff_sm_pwr_save_sm_mode = -1;
 static int ff_sm_pwr_save_reserved = -1;
 /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
+/*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
+static int ff_pco_phase_cntrl = -1;
+/*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
 
+/*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+static int ff_psmp_param_set = -1;
+static int ff_psmp_param_set_n_sta = -1;
+static int ff_psmp_param_set_more_psmp = -1;
+static int ff_psmp_param_set_psmp_sequence_duration = -1;
+/*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+
+/*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
+static int ff_mimo_cntrl_nc_index = -1;
+static int ff_mimo_cntrl_nr_index = -1;
+static int ff_mimo_cntrl_channel_width = -1;
+static int ff_mimo_cntrl_grouping = -1;
+static int ff_mimo_cntrl_coefficient_size = -1;
+static int ff_mimo_cntrl_codebook_info = -1;
+static int ff_mimo_cntrl_remaining_matrix_segment = -1;
+static int ff_mimo_cntrl_reserved = -1;
+static int ff_mimo_cntrl_sounding_timestamp = -1;
+/*** End: MIMO Control Fixed Field - Dustin Johnson ***/
+
+/*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
+static int ff_ant_selection = -1;
+static int ff_ant_selection_0 = -1;
+static int ff_ant_selection_1 = -1;
+static int ff_ant_selection_2 = -1;
+static int ff_ant_selection_3 = -1;
+static int ff_ant_selection_4 = -1;
+static int ff_ant_selection_5 = -1;
+static int ff_ant_selection_6 = -1;
+static int ff_ant_selection_7 = -1;
+/*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
+
+/*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+static int ff_ext_channel_switch_announcement = -1;
+/*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+
+/*** Begin: HT Information Fixed Field - Dustin Johnson ***/
+static int ff_ht_info = -1;
+static int ff_ht_info_information_request = -1;
+static int ff_ht_info_40_mhz_intolerant = -1;
+static int ff_ht_info_sta_chan_width = -1;
+static int ff_ht_info_reserved = -1;
+/*** End: HT Information Fixed Field - Dustin Johnson ***/
+
+/*** Begin: HT Action Fixed Field - Dustin Johnson ***/
+static int ff_ht_action = -1;
+/*** End: HT Action Fixed Field - Dustin Johnson ***/
+
+/*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
+static int ff_psmp_sta_info = -1;
+static int ff_psmp_sta_info_dtt_start_offset = -1;
+static int ff_psmp_sta_info_dtt_duration = -1;
+static int ff_psmp_sta_info_sta_id = -1;
+static int ff_psmp_sta_info_utt_start_offset = -1;
+static int ff_psmp_sta_info_utt_duration = -1;
+static int ff_psmp_sta_info_reserved_small= -1;
+static int ff_psmp_sta_info_reserved_large = -1;
+static int ff_psmp_sta_info_psmp_multicast_id = -1;
+/*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
+
+/*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
+static int ff_mimo_csi_snr = -1;
+/*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
 
 /* ************************************************************************* */
 /*            Flags found in the capability field (fixed field)              */
@@ -1241,6 +1353,34 @@ static gint ett_ff_qos_info = -1;
 static gint ett_ff_sm_pwr_save = -1;
 /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
+/*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+static gint ett_ff_psmp_param_set = -1;
+/*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+
+/*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
+static gint ett_ff_mimo_cntrl = -1;
+/*** End: MIMO Control Fixed Field - Dustin Johnson ***/
+
+/*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
+static gint ett_ff_ant_sel = -1;
+/*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
+
+/*** Begin: MIMO Reports - Dustin Johnson ***/
+static gint ett_mimo_report = -1;
+/*** End: MIMO Reports - Dustin Johnson ***/
+
+/*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+static gint ett_ff_chan_switch_announce = -1;
+/*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+
+/*** Begin: HT Information Fixed Field - Dustin Johnson ***/
+static gint ett_ff_ht_info = -1;
+/*** End: HT Information Fixed Field - Dustin Johnson ***/
+
+/*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
+static gint ett_ff_psmp_sta_info = -1;
+/*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
+
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
 static gint ett_sched_tree = -1;
@@ -1289,9 +1429,10 @@ int airpdcap_ctx;
 /*            Return the length of the current header (in bytes)             */
 /* ************************************************************************* */
 static int
-find_header_length (guint16 fcf)
+find_header_length (guint16 fcf, guint16 ctrl_fcf)
 {
   int len;
+  guint16 cw_fcf;
 
   switch (FCF_FRAME_TYPE (fcf)) {
 
@@ -1299,11 +1440,18 @@ find_header_length (guint16 fcf)
     return MGT_FRAME_HDR_LEN;
 
   case CONTROL_FRAME:
-    switch (COMPOSE_FRAME_TYPE (fcf)) {
+    if (COMPOSE_FRAME_TYPE(fcf) == CTRL_CONTROL_WRAPPER) {
+      len = 6;
+      cw_fcf = ctrl_fcf;
+    } else {
+      len = 0;
+      cw_fcf = fcf;
+    }
+    switch (COMPOSE_FRAME_TYPE (cw_fcf)) {
 
     case CTRL_CTS:
     case CTRL_ACKNOWLEDGEMENT:
-      return 10;
+      return len + 10;
 
     case CTRL_RTS:
     case CTRL_PS_POLL:
@@ -1311,13 +1459,13 @@ find_header_length (guint16 fcf)
     case CTRL_CFP_ENDACK:
     case CTRL_BLOCK_ACK_REQ:
     case CTRL_BLOCK_ACK:
-      return 16;
+      return len + 16;
     }
-    return 4;	/* XXX */
+    return len + 4;	/* XXX */
 
   case DATA_FRAME:
-    len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN :
-						      DATA_SHORT_HDR_LEN;
+    len = (FCF_ADDR_SELECTOR(fcf) ==
+      DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
     if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
       len += 2;
@@ -1330,6 +1478,213 @@ find_header_length (guint16 fcf)
   }
 }
 
+mimo_control_t get_mimo_control (tvbuff_t *tvb, int offset)
+{
+  guint16 mimo;
+  mimo_control_t output;
+
+  mimo = tvb_get_letohs (tvb, offset);
+
+  output.nc = (mimo & 0x0003) + 1;
+  output.nr = ((mimo & 0x000C) >> 2) + 1;
+  output.chan_width = (mimo & 0x0010) >> 4;
+
+  switch ((mimo & 0x0060) >> 5)
+    {
+      case 0:
+	output.grouping = 1;
+	break;
+
+      case 1:
+	output.grouping = 2;
+	  break;
+
+      case 2:
+	output.grouping = 4;
+	break;
+
+      default:
+	output.grouping = 1;
+	break;
+    }
+
+  switch ((mimo & 0x0180) >> 7)
+    {
+      case 0:
+	output.coefficient_size = 4;
+	break;
+
+      case 1:
+	output.coefficient_size = 5;
+	break;
+
+      case 2:
+	output.coefficient_size = 6;
+	break;
+
+      case 3:
+	output.coefficient_size = 8;
+	break;
+    }
+
+  output.codebook_info = (mimo & 0x0600) >> 9;
+  output.remaining_matrix_segment = (mimo & 0x3800) >> 11;
+
+  return output;
+}
+
+int get_mimo_na (guint8 nr, guint8 nc)
+{
+  if (nr == 2 && nc == 1){
+    return 2;
+  }else if (nr == 2 && nc == 2){
+    return 2;
+  }else if (nr == 3 && nc == 1){
+    return 4;
+  }else if (nr == 3 && nc == 2){
+    return 6;
+  }else if (nr == 3 && nc == 3){
+    return 6;
+  }else if (nr == 4 && nc == 1){
+    return 6;
+  }else if (nr == 4 && nc == 2){
+    return 10;
+  }else if (nr == 4 && nc == 3){
+    return 12;
+  }else if (nr == 4 && nc == 4){
+    return 12;
+  }else{
+    return 0;
+  }
+}
+
+int get_mimo_ns (gboolean chan_width, guint8 output_grouping)
+{
+  int ns = 0;
+
+  if (chan_width)
+    {
+      switch (output_grouping)
+	{
+	  case 1:
+	    ns = 114;
+	    break;
+
+	    case 2:
+	      ns = 58;
+	      break;
+
+	    case 4:
+	      ns = 30;
+	      break;
+
+	    default:
+	      ns = 0;
+	}
+    } else {
+	switch (output_grouping)
+	  {
+	    case 1:
+	      ns = 56;
+	      break;
+
+	    case 2:
+	      ns = 30;
+	      break;
+
+	    case 4:
+	      ns = 16;
+	      break;
+
+	    default:
+	      ns = 0;
+	  }
+    }
+
+  return ns;
+}
+
+int add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
+{
+  proto_item *snr_item;
+  proto_tree *snr_tree;
+  int csi_matrix_size, start_offset;
+  int ns, i;
+
+  start_offset = offset;
+  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
+  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  for (i=1; i <= mimo_cntrl.nr; i++)
+  {
+    guint8 snr;
+
+    snr = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Channel %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    offset++;
+  }
+
+  ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
+  csi_matrix_size = ns*(3+(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size));
+  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "CSI Matrices");
+  offset += csi_matrix_size;
+  return offset - start_offset;
+}
+
+int add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
+{
+  proto_item *snr_item;
+  proto_tree *snr_tree;
+  int csi_matrix_size, start_offset;
+  int ns, i;
+
+  start_offset = offset;
+  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
+  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  for (i=1; i <= mimo_cntrl.nc; i++)
+  {
+    guint8 snr;
+
+    snr = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    offset++;
+  }
+
+  ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
+  csi_matrix_size = ns*(2*mimo_cntrl.nc*mimo_cntrl.nr*mimo_cntrl.coefficient_size);
+  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "Beamforming Feedback Matrices");
+  offset += csi_matrix_size;
+  return offset - start_offset;
+}
+
+int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int offset, mimo_control_t mimo_cntrl)
+{
+  proto_item *snr_item;
+  proto_tree *snr_tree;
+  int csi_matrix_size, start_offset;
+  int ns, na, i;
+
+  start_offset = offset;
+  snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
+  snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
+  for (i=1; i <= mimo_cntrl.nc; i++)
+  {
+    guint8 snr;
+
+    snr = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format(snr_tree, ff_mimo_csi_snr, tvb, offset, 1, snr, "Stream %d - Signal to Noise Ratio: 0x%02X", i, snr);
+    offset++;
+  }
+
+  na = get_mimo_na(mimo_cntrl.nr, mimo_cntrl.nc);
+  ns = get_mimo_ns(mimo_cntrl.chan_width, mimo_cntrl.grouping);
+  csi_matrix_size = ns*(na*((mimo_cntrl.codebook_info+1)*2 + 2)/2);
+  csi_matrix_size = roundup2(csi_matrix_size, 8) / 8;
+  proto_tree_add_text(tree, tvb, offset, csi_matrix_size, "Compressed Beamforming Feedback Matrices");
+  offset += csi_matrix_size;
+  return offset - start_offset;
+}
 
 /* ************************************************************************* */
 /*          This is the capture function used to update packet counts        */
@@ -1365,7 +1720,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
       if (fixed_length_header)
         hdr_length = DATA_LONG_HDR_LEN;
       else
-        hdr_length = find_header_length (fcf);
+        hdr_length = find_header_length (fcf, 0);
       if (datapad)
         hdr_length = roundup2(hdr_length, 4);
       /* I guess some bridges take Netware Ethernet_802_3 frames,
@@ -1519,10 +1874,8 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 					     "Capability Information: 0x%04X",
 					     capability);
       cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
-      proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 2,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 2,
-			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 2, capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 2, capability);
       if (ESS_SET (capability) != 0)	/* This is an AP */
 	proto_tree_add_uint (cap_tree, ff_cf_ap_poll, tvb, offset, 2,
 			     capability);
@@ -1620,6 +1973,13 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       length += 1;
       break;
 
+    /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
+    case FIELD_BLOCK_ACK_ACTION_CODE:
+      proto_tree_add_item (tree, ff_ba_action, tvb, offset, 1, TRUE);
+      length += 1;
+      break;
+    /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
+
     /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_PARAM:
       {
@@ -1632,13 +1992,15 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         param_item = proto_tree_add_uint(tree, ff_block_ack_params, tvb, offset, 2, params);
         param_tree = proto_item_add_subtree (param_item, ett_ff_ba_param_tree);
 
-        proto_tree_add_uint(param_tree, ff_block_ack_params_amsdu_premitted, tvb, offset, 2, params);
-        proto_tree_add_uint(param_tree, ff_block_ack_params_policy, tvb, offset, 2, params);
-        proto_tree_add_uint(param_tree, ff_block_ack_params_tid, tvb, offset, 2, params);
+        proto_tree_add_boolean(param_tree, ff_block_ack_params_amsdu_premitted, tvb, offset, 1, params);
+        proto_tree_add_boolean(param_tree, ff_block_ack_params_policy, tvb, offset, 1, params);
+        proto_tree_add_uint(param_tree, ff_block_ack_params_tid, tvb, offset, 1, params);
         proto_tree_add_uint(param_tree, ff_block_ack_params_buffer_size, tvb, offset, 2, params);
+	length += 2;
         break;
       }
     /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
+
     /*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
     case FIELD_BLOCK_ACK_TIMEOUT:
       {
@@ -1646,7 +2008,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         timeout = tvb_get_letohs (tvb, offset);
         proto_tree_add_uint(tree, ff_block_ack_timeout, tvb, offset, 2, timeout);
-        length += 1;
+        length += 2;
         break;
       }
     /*** End: Block Ack Timeout Fixed Field - Dustin Johnson ***/
@@ -1741,8 +2103,8 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         param_tree = proto_item_add_subtree (param_item, ett_ff_ba_param_tree);
 
         proto_tree_add_uint(param_tree, ff_delba_param_reserved, tvb, offset, 2, params);
-        proto_tree_add_uint(param_tree, ff_delba_param_init, tvb, offset, 2, params);
-        proto_tree_add_uint(param_tree, ff_delba_param_tid, tvb, offset, 2, params);
+        proto_tree_add_boolean(param_tree, ff_delba_param_init, tvb, offset+1, 1, params);
+        proto_tree_add_uint(param_tree, ff_delba_param_tid, tvb, offset+1, 1, params);
         length +=2;
         break;
       }
@@ -1815,9 +2177,9 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
         proto_tree_add_uint(info_tree, ff_qos_info_ap_edca_param_set_counter, tvb, offset, 1, info);
         proto_tree_add_uint(info_tree, ff_qos_info_ap_q_ack, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_ap_queue_req, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_ap_txop_request, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_ap_reserved, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_ap_queue_req, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_ap_txop_request, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_ap_reserved, tvb, offset, 1, info);
         length +=1;
         break;
       }
@@ -1835,20 +2197,20 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         info_item = proto_tree_add_uint(tree, ff_qos_info_sta, tvb, offset, 1, info);
         info_tree = proto_item_add_subtree (info_item, ett_ff_qos_info);
 
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_ac_vo, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_ac_vi, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_ac_bk, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_ac_be, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_q_ack, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_ac_vo, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_ac_vi, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_ac_bk, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_ac_be, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_q_ack, tvb, offset, 1, info);
         proto_tree_add_uint(info_tree, ff_qos_info_sta_max_sp_len, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_qos_info_sta_more_data_ack, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_qos_info_sta_more_data_ack, tvb, offset, 1, info);
 
         length +=1;
         break;
       }
     /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
 
-		/*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+    /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
     case FIELD_SM_PWR_CNTRL:
       {
         guint8 info;
@@ -1860,13 +2222,206 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         info_item = proto_tree_add_uint(tree, ff_sm_pwr_save, tvb, offset, 1, info);
         info_tree = proto_item_add_subtree (info_item, ett_ff_sm_pwr_save);
 
-        proto_tree_add_uint(info_tree, ff_sm_pwr_save_enabled, tvb, offset, 1, info);
-        proto_tree_add_uint(info_tree, ff_sm_pwr_save_sm_mode, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_sm_pwr_save_enabled, tvb, offset, 1, info);
+        proto_tree_add_boolean(info_tree, ff_sm_pwr_save_sm_mode, tvb, offset, 1, info);
         proto_tree_add_uint(info_tree, ff_sm_pwr_save_reserved, tvb, offset, 1, info);
         length +=1;
         break;
       }
     /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+
+    /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
+    case FIELD_PCO_PHASE_CNTRL:
+        proto_tree_add_uint(tree, ff_pco_phase_cntrl, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+        length +=1;
+        break;
+    /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+    case FIELD_PSMP_PARAM_SET:
+      {
+        guint16 params;
+        proto_item *param_item;
+        proto_tree *param_tree;
+
+        params = tvb_get_letohs (tvb, offset);
+
+        param_item = proto_tree_add_uint(tree, ff_psmp_param_set, tvb, offset, 2, params);
+        param_tree = proto_item_add_subtree (param_item, ett_ff_psmp_param_set);
+
+        proto_tree_add_uint(param_tree, ff_psmp_param_set_n_sta, tvb, offset, 1, params & 0x000F);
+        proto_tree_add_boolean(param_tree, ff_psmp_param_set_more_psmp, tvb, offset, 1, (params & 0x0010) >> 4);
+        proto_tree_add_uint_format(param_tree, ff_psmp_param_set_psmp_sequence_duration, tvb, offset, 2,
+					(params & 0xFFE0) >> 5, "PSMP Sequence Duration: 0x%04X * 8 us", (params & 0xFFE0) >> 5);
+        length +=2;
+        break;
+      }
+    /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+
+		/*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
+		case FIELD_MIMO_CNTRL:
+      {
+        guint16 mimo;
+				guint32 time;
+        proto_item *mimo_item;
+        proto_tree *mimo_tree;
+
+        mimo = tvb_get_letohs (tvb, offset);
+
+        mimo_item = proto_tree_add_text(tree, tvb, offset, 2, "MIMO Control");
+        mimo_tree = proto_item_add_subtree (mimo_item, ett_ff_mimo_cntrl);
+
+        proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_nc_index, tvb, offset, 1, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_nr_index, tvb, offset, 1, mimo);
+	proto_tree_add_boolean(mimo_tree, ff_mimo_cntrl_channel_width, tvb, offset, 1, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_grouping, tvb, offset, 1, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_coefficient_size, tvb, offset, 2, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_codebook_info, tvb, offset+1, 1, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_remaining_matrix_segment, tvb, offset+1, 1, mimo);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_reserved, tvb, offset+1, 1, mimo);
+
+	offset+=2;
+	time = tvb_get_letohl (tvb, offset);
+	proto_tree_add_uint(mimo_tree, ff_mimo_cntrl_sounding_timestamp, tvb, offset, 4, time);
+        length +=6;
+        break;
+      }
+    /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
+    case FIELD_ANT_SELECTION:
+      {
+        guint8 ant;
+        proto_item *ant_item;
+        proto_tree *ant_tree;
+
+        ant = tvb_get_guint8 (tvb, offset);
+
+        ant_item = proto_tree_add_uint(tree, ff_ant_selection, tvb, offset, 1, ant);
+        ant_tree = proto_item_add_subtree (ant_item, ett_ff_ant_sel);
+
+        proto_tree_add_uint(ant_tree, ff_ant_selection_0, tvb, offset, 1, ant);
+        proto_tree_add_uint(ant_tree, ff_ant_selection_1, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_2, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_3, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_4, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_5, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_6, tvb, offset, 1, ant);
+	proto_tree_add_uint(ant_tree, ff_ant_selection_7, tvb, offset, 1, ant);
+
+        length +=1;
+        break;
+      }
+    /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+    case FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
+      {
+	guint32 ext_chan;
+	proto_item *chan_item;
+        proto_tree *chan_tree;
+
+	ext_chan = tvb_get_letohl (tvb, offset);
+
+        chan_item = proto_tree_add_uint(tree, ff_ext_channel_switch_announcement, tvb, offset, 1, ext_chan);
+        chan_tree = proto_item_add_subtree (chan_item, ett_ff_chan_switch_announce);
+
+	proto_tree_add_uint(chan_tree, hf_tag_ext_channel_switch_announcement_switch_mode, tvb, offset++, 1, (ext_chan & 0x000000FF));
+	proto_tree_add_uint(chan_tree, hf_tag_ext_channel_switch_announcement_new_reg_class, tvb, offset++, 1, (ext_chan & 0x0000FF00) >> 8);
+	proto_tree_add_uint(chan_tree, hf_tag_ext_channel_switch_announcement_new_chan_number, tvb, offset++, 1, (ext_chan & 0x00FF0000) >> 16);
+	proto_tree_add_uint(chan_tree, hf_tag_ext_channel_switch_announcement_switch_count, tvb, offset++, 1, (ext_chan & 0xFF000000) >> 24);
+	length += 4;
+	break;
+      }
+    /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
+    case FIELD_HT_INFORMATION:
+      {
+	guint8 info;
+	proto_item *ht_item;
+        proto_tree *ht_tree;
+
+	info = tvb_get_guint8 (tvb, offset);
+
+        ht_item = proto_tree_add_uint(tree, ff_ht_info, tvb, offset, 1, info);
+        ht_tree = proto_item_add_subtree (ht_item, ett_ff_ht_info);
+
+	proto_tree_add_boolean(ht_tree, ff_ht_info_information_request, tvb, offset, 1, info);
+	proto_tree_add_boolean(ht_tree, ff_ht_info_40_mhz_intolerant, tvb, offset, 1, info);
+	proto_tree_add_boolean(ht_tree, ff_ht_info_sta_chan_width, tvb, offset, 1, info);
+	proto_tree_add_uint(ht_tree, ff_ht_info_reserved, tvb, offset, 1, info);
+	length += 1;
+	break;
+      }
+      /*** End: HT Information Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: HT Action Fixed Field - Dustin Johnson ***/
+    case FIELD_HT_ACTION_CODE:
+	proto_tree_add_uint(tree, ff_ht_action, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+        length +=1;
+        break;
+    /*** End: HT Action Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
+    case FIELD_PSMP_STA_INFO:
+      {
+	#define BROADCAST 0
+	#define MULTICAST 1
+	#define INDIVIDUALLY_ADDRESSED 2
+
+	guint64 info_large;
+	guint32 info_medium;
+	guint16 info_small;
+	guint8 type;
+        proto_item *psmp_item;
+        proto_tree *psmp_tree;
+
+        info_medium = tvb_get_letohl (tvb, offset);
+        type = info_medium & 0x3;
+
+        psmp_item = proto_tree_add_uint(tree, ff_psmp_sta_info, tvb, offset, 8, type);
+        psmp_tree = proto_item_add_subtree (psmp_item, ett_ff_psmp_sta_info);
+
+	switch (type)
+	  {
+	    case BROADCAST:
+	      {
+		proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+		proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+		info_large = tvb_get_letoh64 (tvb, offset);
+		proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & 0xFFFFFFFFFFE00000) >> 21);
+		break;
+	      }
+
+	      case MULTICAST:
+		{
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+		  info_large = tvb_get_letoh64 (tvb, offset);
+		  proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & 0xFFFFFFFFFFE00000) >> 21);
+		  break;
+		}
+
+	      case INDIVIDUALLY_ADDRESSED:
+		{
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
+		  offset+=2;
+		  info_medium = tvb_get_letohl (tvb, offset);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_sta_id, tvb, offset, 3, (info_medium & 0x001FFFE0) >> 5);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_utt_start_offset, tvb, offset+2, 2, (info_medium & 0xFFE00000) >> 21);
+		  offset+=4;
+		  info_small = tvb_get_letohs (tvb, offset);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_utt_duration, tvb, offset, 2, info_small & 0x03FF);
+		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_reserved_small, tvb, offset+1, 1, (info_small & 0xFC00) >> 10);
+		  break;
+		}
+	  }
+	  length +=8;
+	  break;
+    }
+    /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
     case FIELD_SCHEDULE_INFO:
       {
@@ -1891,202 +2446,263 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         length += 2;
         break;
       }
-  	case FIELD_ACTION:
-    	{
-    	  proto_item *action_item;
-    	  proto_tree *action_tree;
+    case FIELD_ACTION:
+      {
+	proto_item *action_item;
+	proto_tree *action_tree;
 
-    	  action_item = proto_tree_add_item(tree, hf_action,
-    					                   tvb, offset, 2, TRUE);
-    	  action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
-    	  switch (tvb_get_guint8(tvb, offset))
-	    	  {
-	      	  case CAT_SPECTRUM_MGMT:
-						  {
-		      	    switch (tvb_get_guint8(tvb, offset+1))
-		        		{
-		          		case SM_ACTION_MEASUREMENT_REQUEST:
-		          		case SM_ACTION_MEASUREMENT_REPORT:
-		          		case SM_ACTION_TPC_REQUEST:
-		          		case SM_ACTION_TPC_REPORT:
-		          		  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-		          		  add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
-		          		  add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
-		          		  length += 3;	/* Size of fixed fields */
-		          		  break;
+	action_item = proto_tree_add_item(tree, hf_action, tvb, offset, 1, TRUE);
+	action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
 
-		          		case SM_ACTION_CHAN_SWITCH_ANNC:
-		          		  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-		          		  length += 2;	/* Size of fixed fields */
-		          		  break;
+	switch (tvb_get_guint8(tvb, offset))
+	  {
+	    case CAT_SPECTRUM_MGMT:
+	      {
+		switch (tvb_get_guint8(tvb, offset+1))
+		  {
+		    case SM_ACTION_MEASUREMENT_REQUEST:
+		    case SM_ACTION_MEASUREMENT_REPORT:
+		    case SM_ACTION_TPC_REQUEST:
+		    case SM_ACTION_TPC_REPORT:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+		      length += 3;	/* Size of fixed fields */
+		      break;
 
-		          		default:
-		          		  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-		          		  length += 2;	/* Size of fixed fields */
-		          		  break;
-		        		}
-		      	    break;
-							}
+		    case SM_ACTION_CHAN_SWITCH_ANNC:
+		    case SM_ACTION_EXT_CHAN_SWITCH_ANNC:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
+		      length += 2;	/* Size of fixed fields */
+		      break;
 
-	          case CAT_QOS:
-	            {
-	              switch (tvb_get_guint8(tvb, offset+1))
-	              {
-	                case SM_ACTION_ADDTS_REQUEST:
-	                  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
-	                  length += 3;
-	                  break;
+		    default:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
+		      length += 2;	/* Size of fixed fields */
+		      break;
+		  }
+		  break;
+	      }
 
-	                case SM_ACTION_ADDTS_RESPONSE:
-	                  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
-	                  add_fixed_field(action_tree, tvb, offset+3, FIELD_STATUS_CODE);
-	                  length += 5;
-	                  break;
+	    case CAT_QOS:
+	      {
+		switch (tvb_get_guint8(tvb, offset+1))
+		  {
+		    case SM_ACTION_ADDTS_REQUEST:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+		      length += 3;
+		      break;
 
-	                case SM_ACTION_DELTS:
-	                  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+2, FIELD_QOS_TS_INFO);
-	                  add_fixed_field(action_tree, tvb, offset+5, FIELD_REASON_CODE);
-	                  length += 7;
-	                  break;
+		    case SM_ACTION_ADDTS_RESPONSE:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+		      add_fixed_field(action_tree, tvb, offset+3, FIELD_STATUS_CODE);
+		      length += 5;
+		      break;
 
-	                case SM_ACTION_QOS_SCHEDULE:
-	                  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                  add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-	                  length += 2;
-	                  break;
+		    case SM_ACTION_DELTS:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_QOS_TS_INFO);
+		      add_fixed_field(action_tree, tvb, offset+5, FIELD_REASON_CODE);
+		      length += 7;
+		      break;
 
-	                default:
-	                  add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                  length += 2;	/* Size of fixed fields */
-	                  break;
-	              }
-	              break;
-	            }
+		    case SM_ACTION_QOS_SCHEDULE:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+		      length += 2;
+		      break;
 
-	          case CAT_DLS:
-	            {
-	              switch (tvb_get_guint8(tvb, offset+1))
-	                {
-	                  case SM_ACTION_DLS_REQUEST:
-	                    add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
-	                    add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
-	                    add_fixed_field(action_tree, tvb, offset+14, FIELD_CAP_INFO);
-	                    add_fixed_field(action_tree, tvb, offset+16, FIELD_DLS_TIMEOUT);
-	                    length += 18;
-	                    break;
+		    default:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      length += 2;	/* Size of fixed fields */
+		      break;
+		  }
+		  break;
+	      }
 
-	                  case SM_ACTION_DLS_RESPONSE:
-	                    add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+2, FIELD_STATUS_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+4, FIELD_DST_MAC_ADDR);
-	                    add_fixed_field(action_tree, tvb, offset+10, FIELD_SRC_MAC_ADDR);
-	                    length += 16;
-	                    if (!ff_status_code)
-	                      add_fixed_field(action_tree, tvb, offset+16, FIELD_CAP_INFO);
-	                    break;
+	    case CAT_DLS:
+	      {
+		switch (tvb_get_guint8(tvb, offset+1))
+		  {
+		    case SM_ACTION_DLS_REQUEST:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
+		      add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
+		      add_fixed_field(action_tree, tvb, offset+14, FIELD_CAP_INFO);
+		      add_fixed_field(action_tree, tvb, offset+16, FIELD_DLS_TIMEOUT);
+		      length += 18;
+		      break;
 
-	                  case SM_ACTION_DLS_TEARDOWN:
-	                    add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-	                    add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
-	                    add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
-	                    add_fixed_field(action_tree, tvb, offset+14, FIELD_REASON_CODE);
-	                    length += 16;
-	                    break;
+		    case SM_ACTION_DLS_RESPONSE:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_STATUS_CODE);
+		      add_fixed_field(action_tree, tvb, offset+4, FIELD_DST_MAC_ADDR);
+		      add_fixed_field(action_tree, tvb, offset+10, FIELD_SRC_MAC_ADDR);
+		      length += 16;
+		      if (!ff_status_code)
+			add_fixed_field(action_tree, tvb, offset+16, FIELD_CAP_INFO);
+		      break;
 
-	                  default:
-	                    add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                    length += 2;	/* Size of fixed fields */
-	                    break;
-	                }
-	              break;
-	            }
+		    case SM_ACTION_DLS_TEARDOWN:
+		      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+		      add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
+		      add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
+		      add_fixed_field(action_tree, tvb, offset+14, FIELD_REASON_CODE);
+		      length += 16;
+		      break;
 
-	          case CAT_BLOCK_ACK:
-	            {
-	              switch (tvb_get_guint8(tvb, offset+1))
-	                {
-	                  case BA_ADD_BLOCK_ACK_REQUEST:
-	                    {
-	                      guint start = 0;
-	                      start = offset;
+		    default:
+			add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+			length += 2;	/* Size of fixed fields */
+			break;
+		    }
+		  break;
+		}
 
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-	                      length = offset - start;	/* Size of fixed fields */
-	                      break;
-	                    }
-	                  case BA_ADD_BLOCK_ACK_RESPONSE:
-	                    {
-	                      guint start = 0;
-	                      start = offset;
+	      case CAT_BLOCK_ACK:
+		{
+		  switch (tvb_get_guint8(tvb, offset+1))
+		    {
+		      case BA_ADD_BLOCK_ACK_REQUEST:
+			{
+			  guint start = 0;
+			  start = offset;
 
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
-	                      length = offset - start;	/* Size of fixed fields */
-	                      break;
-	                    }
-	                  case BA_DELETE_BLOCK_ACK:
-	                    {
-	                      guint start = 0;
-	                      start = offset;
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+			  length = offset - start;	/* Size of fixed fields */
+			  break;
+			}
+		      case BA_ADD_BLOCK_ACK_RESPONSE:
+			{
+			  guint start = 0;
+			  start = offset;
 
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DELBA_PARAM_SET);
-	                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_REASON_CODE);
-	                      length = offset - start;	/* Size of fixed fields */
-	                      break;
-	                    }
-	                }
-	              break;
-	            }
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
+			  length = offset - start;	/* Size of fixed fields */
+			  break;
+			}
+		      case BA_DELETE_BLOCK_ACK:
+			{
+			  guint start = 0;
+			  start = offset;
 
-	          case CAT_MGMT_NOTIFICATION:	/* Management notification frame */
-	            {
-	              guint start = 0;
-	              start = offset;
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_DELBA_PARAM_SET);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_REASON_CODE);
+			  length = offset - start;	/* Size of fixed fields */
+			  break;
+			}
+		    }
+		  break;
+		}
 
-	              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	              offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_ACTION_CODE);
-	              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-	              offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_STATUS_CODE);
-	              length = offset - start;	/* Size of fixed fields */
-	              break;
-	            }
+	      case CAT_MGMT_NOTIFICATION:	/* Management notification frame */
+		{
+		  guint start = 0;
+		  start = offset;
 
-						case CAT_HT:
-						  { /* TODO - All this stuff */
-							  switch (tvb_get_guint8(tvb, offset+1))
-								  {
-									  case 0:
-										break;
-									}
-							  break;
-							}
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_ACTION_CODE);
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_STATUS_CODE);
+		  length = offset - start;	/* Size of fixed fields */
+		  break;
+		}
 
-	          default:
-	            add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-	            length += 1;	/* Size of fixed fields */
-	            break;
-	    	  }
+	      case CAT_HT:
+		{ /* TODO - All this stuff */
+		  guint start = 0;
+		  start = offset;
+
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		  offset += add_fixed_field(action_tree, tvb, offset, FIELD_HT_ACTION_CODE);
+		  switch (tvb_get_guint8(tvb, offset+1))
+		    {
+		      case HT_ACTION_NOTIFY_CHAN_WIDTH:
+			offset += add_fixed_field(action_tree, tvb, offset, FIELD_CHANNEL_WIDTH);
+			break;
+		      case HT_ACTION_SM_PWR_SAVE:
+			offset += add_fixed_field(action_tree, tvb, offset, FIELD_SM_PWR_CNTRL);
+			break;
+		      case HT_ACTION_PSMP_ACTION:
+			{
+			  guint8 n_sta, i;
+
+			  n_sta = tvb_get_guint8(tvb, offset);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_PSMP_PARAM_SET);
+
+			  for (i=0; i< (n_sta & 0x1F); i++){
+			    offset += add_fixed_field(action_tree, tvb, offset, FIELD_PSMP_STA_INFO);
+			  }
+			  break;
+			}
+		      case HT_ACTION_SET_PCO_PHASE:
+			offset += add_fixed_field(action_tree, tvb, offset, FIELD_PCO_PHASE_CNTRL);
+			break;
+		      case HT_ACTION_MIMO_CSI:
+			{
+			  mimo_control_t mimo_cntrl;
+			  mimo_cntrl = get_mimo_control (tvb, offset);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
+			  offset += add_mimo_csi_matrices_report (action_tree, tvb, offset, mimo_cntrl);
+			  break;
+			}
+		      case HT_ACTION_MIMO_BEAMFORMING:
+			{
+			  mimo_control_t mimo_cntrl;
+			  mimo_cntrl = get_mimo_control (tvb, offset);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
+			  offset += add_mimo_beamforming_feedback_report (action_tree, tvb, offset, mimo_cntrl);
+			  break;
+			}
+		      case HT_ACTION_MIMO_COMPRESSED_BEAMFORMING:
+			{
+			  mimo_control_t mimo_cntrl;
+			  mimo_cntrl = get_mimo_control (tvb, offset);
+			  offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
+			  offset += add_mimo_compressed_beamforming_feedback_report (action_tree, tvb, offset, mimo_cntrl);
+			  break;
+			}
+		      case HT_ACTION_ANT_SEL_FEEDBACK:
+			offset += add_fixed_field(action_tree, tvb, offset, FIELD_ANT_SELECTION);
+			break;
+		      case HT_ACTION_HT_INFO_EXCHANGE:
+			offset += add_fixed_field(action_tree, tvb, offset, FIELD_HT_INFORMATION);
+			break;
+		      default:
+			/* Unkown */
+			break;
+		    }
+		  break;
+		  length = offset - start;
+		}
+
+	      default:
+		add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+		length += 1;	/* Size of fixed fields */
+		break;
+	    }
     	}
   }
   return length;
@@ -2223,17 +2839,16 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
 	guint16 ts_info, msdu_size, surplus_bandwidth;
 	const char *direction[] = { "Uplink", "Downlink", "Reserved", "Bi-directional" };
 	const value_string fields[] = {
-	  {13, "Minimum Service Interval"},
-	  {17, "Maximum Service Interval"},
-	  {21, "Inactivity Interval"},
-	  {25, "Suspension Interval"},
-	  {29, "Service Start Time"},
-	  {33, "Minimum Data Rate"},
-	  {37, "Mean Data Rate"},
-	  {41, "Peak Data Rate"},
-	  {45, "Maximum Burst Size"},
-	  {49, "Delay Bound"},
-	  {53, "Minimum PHY Rate"},
+	  {12, "Minimum Service Interval"},
+	  {16, "Maximum Service Interval"},
+	  {20, "Inactivity Interval"},
+	  {24, "Service Start Time"},
+	  {28, "Minimum Data Rate"},
+	  {32, "Mean Data Rate"},
+	  {36, "Maximum Burst Size"},
+	  {40, "Minimum PHY Rate"},
+	  {44, "Peak Data Rate"},
+	  {48, "Delay Bound"},
 	  {0, NULL}
 	};
 	const char *field;
@@ -2253,9 +2868,9 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
 		 byte1, qos_tags[byte1], qos_acs[byte1],
 		 (ts_info & 0x0080) ? "" : "not ",
 		 direction[(ts_info >> 5) & 0x3]);
-	proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 3,
+	proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 2,
 		out_buff);
-	tag_off += 3;
+	tag_off += 2;
 
 	msdu_size = tvb_get_letohs(tag_tvb, tag_off);
 	g_snprintf(out_buff, SHORT_STR,
@@ -2277,7 +2892,7 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
 	  proto_tree_add_string(tree, tag_interpretation, tag_tvb, tag_off, 4,
 		  out_buff);
 	  tag_off += 4;
-	  if (tag_off == 57)
+	  if (tag_off == 52)
 	    break;
 	}
 
@@ -2351,7 +2966,7 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
 	case AIRONET_IE_VERSION:
 		proto_tree_add_item (ietree, hf_aironet_ie_version, tvb, offset, 1, TRUE);
 		proto_item_append_text(aironet_item, ": Aironet CCX version = %d",
-			tvb_get_guint8(tvb, offset));
+		tvb_get_guint8(tvb, offset));
 		dont_change = TRUE;
 		break;
 	case AIRONET_IE_QOS:
@@ -2932,11 +3547,9 @@ dissect_ht_info_ie_1_0(proto_tree * tree, tvbuff_t * tvb, int offset,
  * information from the PHY (which would be monumentally silly)?
  *
  * At any rate, it doesn't look like any equipment we have produces
- * +HTC frames, so the code is #if 0'ed out (and completely untested)
- * for now.
+ * +HTC frames, so the code is completely untested.
  */
 
-#if 0
 static void
 dissect_ht_control(proto_tree *tree, tvbuff_t * tvb, int offset)
 {
@@ -2974,7 +3587,7 @@ dissect_ht_control(proto_tree *tree, tvbuff_t * tvb, int offset)
 	HTC_CAL_POS(htc));
     proto_tree_add_uint(htc_subtree, hf_htc_cal_seq, tvb, offset + 2, 1,
 	HTC_CAL_SEQ(htc));
-    proto_tree_add_uint(htc_subtree, hf_htc_csi_steering, tvb, offset + 2, 1
+    proto_tree_add_uint(htc_subtree, hf_htc_csi_steering, tvb, offset + 2, 1,
 	HTC_CSI_STEERING(htc));
 
     proto_tree_add_boolean(htc_subtree, hf_htc_ndp_announcement, tvb,
@@ -2984,7 +3597,6 @@ dissect_ht_control(proto_tree *tree, tvbuff_t * tvb, int offset)
     proto_tree_add_boolean(htc_subtree, hf_htc_rdg_more_ppdu, tvb,
 	offset + 3, 1, HTC_RDG_MORE_PPDU(htc));
 }
-#endif
 
 static void
 dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc,
@@ -2994,13 +3606,9 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
   proto_tree *fc_tree, *flag_tree;
   proto_item *fc_item, *flag_item;
 
-  fcf = tvb_get_letohs (tvb, offset);
-  if (wlan_broken_fc) {
-    /* Swap bytes */
-    fcf = ((fcf & 0xff) << 8) | (((fcf & 0xff00) >> 8) & 0xff);
-  }
+  fcf = FETCH_FCF(offset);
 
-  flags = FCF_FLAGS (fcf);
+  flags = FCF_FLAGS(fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   proto_tree_add_uint (tree, hf_fc_frame_type_subtype,
@@ -3091,7 +3699,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_FH_PARAMETER,         "FH Parameter set" },
 	{ TAG_DS_PARAMETER,         "DS Parameter set" },
 	{ TAG_CF_PARAMETER,         "CF Parameter set" },
-	{ TAG_TIM,                  "(TIM) Traffic Indication Map" },
+	{ TAG_TIM,                  "Traffic Indication Map (TIM)" },
 	{ TAG_IBSS_PARAMETER,       "IBSS Parameter set" },
 	{ TAG_COUNTRY_INFO,         "Country Information" },
 	{ TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
@@ -3114,7 +3722,7 @@ static const value_string tag_num_vals[] = {
 	{ TAG_SCHEDULE,		    	"Schedule"},
 	{ TAG_TS_DELAY,		    	"TS Delay"},
 	{ TAG_TCLAS_PROCESS,	    "TCLAS Processing"},
-  { TAG_HT_CAPABILITY,		"HT Capabilities (802.11n D1.10)"},
+	{ TAG_HT_CAPABILITY,		"HT Capabilities (802.11n D1.10)"},
 	{ TAG_NEIGHBOR_REPORT,      "Neighbor Report"},
 	{ TAG_HT_INFO,       		"HT Information (802.11n D1.10)"},
 	{ TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)"},
@@ -3768,7 +4376,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_request_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_request_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_request_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -3979,7 +4587,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -3995,7 +4603,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -4021,7 +4629,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_6, tvb, offset, 1, info, "RPI 6 Density: 0x%02X", info);
 		  info = tvb_get_guint8 (tvb, ++offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_7, tvb, offset, 1, info, "RPI 7 Density: 0x%02X", info);
-			break;
+		  break;
 		case 3: /* Channel Load Report */
         {
 		  guint8 regulatory_class, channel_load;
@@ -4035,7 +4643,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -4066,7 +4674,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset++;
 		  start_time = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016" PRIX64, start_time);
+		  proto_tree_add_uint64_format(sub_tree, hf_tag_measure_report_start_time, tvb, offset, 8, start_time, "Measurement Start Time: 0x%016llX", start_time);
 
 		  offset += 8;
 		  duration = tvb_get_letohs (tvb, offset);
@@ -4262,7 +4870,6 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
 	{
 	  guint tag_offset;
-	  guint8 current_field;
 
 	  if (tag_len != 4)
       {
@@ -4274,22 +4881,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 	  offset+=2;
 	  tag_offset = offset;
 
-	  current_field = tvb_get_guint8 (tvb, offset);
-	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_switch_mode, tvb, offset, 1, current_field);
+	  offset+= add_fixed_field(tree, tvb, offset, FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT);
 
-	  offset++;
-	  current_field = tvb_get_guint8 (tvb, offset);
-	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_new_reg_class, tvb, offset, 1, current_field);
-
-	  offset++;
-	  current_field = tvb_get_guint8 (tvb, offset);
-	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_new_chan_number, tvb, offset, 1, current_field);
-
-	  offset++;
-	  current_field = tvb_get_guint8 (tvb, offset);
-	  proto_tree_add_uint(tree, hf_tag_ext_channel_switch_announcement_switch_count, tvb, offset, 1, current_field);
-
-	  offset++;
 	  if (tag_len > (offset - tag_offset))
       {
         proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
@@ -4494,7 +5087,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	    offset += add_fixed_field(fixed_tree, tvb, offset, FIELD_TRANSCEIVER_NOISE_FLOOR);
 	    /* TODO DS Parameter Set ??? */
 
-			tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
+	    tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
 	    tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset, tagged_parameter_tree_len);
 	    ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree, tagged_parameter_tree_len);
       break;
@@ -4509,9 +5102,9 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 	  tagged_parameter_tree_len =
 	      tvb_reported_length_remaining(tvb, offset);
 	  tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
-						   tagged_parameter_tree_len);
+		tagged_parameter_tree_len);
 	  ieee_80211_add_tagged_parameters (tvb, offset, pinfo, tagged_tree,
-	      tagged_parameter_tree_len);
+		tagged_parameter_tree_len);
 	  break;
 
 	case MGT_ATIM:
@@ -4635,16 +5228,26 @@ typedef enum {
     ENCAP_ETHERNET
 } encap_t;
 
+
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
+
+/*
+ * The 802.11n specification makes some fairly significant changes to the
+ * layout of the MAC header.  The first two bits of the MAC header are the
+ * protocol version.  You'd think that the 802.11 committee would have
+ * bumped the version to indicate a different MAC layout, but NOOOO -- we
+ * have to go digging for bits in various locations instead.
+ */
+
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 			  proto_tree * tree, gboolean fixed_length_header,
 			  gboolean has_radio_information, gint fcs_len,
 			  gboolean wlan_broken_fc, gboolean datapad)
 {
-  guint16 fcf, flags, frame_type_subtype;
+  guint16 fcf, flags, frame_type_subtype, ctrl_fcf, ctrl_type_subtype;
   guint16 seq_control;
   guint32 seq_number, frag_number;
   gboolean more_frags;
@@ -4652,9 +5255,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   const guint8 *dst = NULL;
   const guint8 *bssid = NULL;
   proto_item *ti = NULL;
-  proto_item *fcs_item;
+  proto_item *fcs_item = NULL;
+  proto_item *cw_item = NULL;
   proto_tree *hdr_tree = NULL;
-  proto_tree *fcs_tree;
+  proto_tree *fcs_tree = NULL;
+  proto_tree *cw_tree = NULL;
   guint16 hdr_len, ohdr_len;
   gboolean has_fcs, fcs_good, fcs_bad;
   gint len, reported_len, ivlen;
@@ -4667,9 +5272,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char out_buff[SHORT_STR];
   gint is_iv_bad;
   guchar iv_buff[4];
+  char *addr1_str = NULL;
+  int addr1_hf = -1;
+  guint offset;
+
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
-
   whdr= &whdrs[0];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -4691,19 +5299,20 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
   }
 
-  fcf = tvb_get_letohs (tvb, 0);
-  if (wlan_broken_fc) {
-    /* Swap bytes */
-    fcf = ((fcf & 0xff) << 8) | (((fcf & 0xff00) >> 8) & 0xff);
-  }
+  fcf = FETCH_FCF(0);
+  frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
+  if (frame_type_subtype == CTRL_CONTROL_WRAPPER)
+    ctrl_fcf = FETCH_FCF(10);
+  else
+    ctrl_fcf = 0;
+
   if (fixed_length_header)
     hdr_len = DATA_LONG_HDR_LEN;
   else
-    hdr_len = find_header_length (fcf);
+    hdr_len = find_header_length (fcf, ctrl_fcf);
   ohdr_len = hdr_len;
   if (datapad)
     hdr_len = roundup2(hdr_len, 4);
-  frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
   if (check_col (pinfo->cinfo, COL_INFO))
       col_set_str (pinfo->cinfo, COL_INFO,
@@ -4740,7 +5349,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				   pinfo->pseudo_header->ieee_802_11.signal_level);
       }
 
-    dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
+      dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
 	proto_tree_add_uint(hdr_tree, hf_assoc_id,tvb,2,2,
@@ -4759,8 +5368,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   frag_number = 0;
   seq_number = 0;
 
-  switch (FCF_FRAME_TYPE (fcf))
-    {
+  switch (FCF_FRAME_TYPE (fcf)) {
 
     case MGT_FRAME:
       /*
@@ -4814,273 +5422,249 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
       break;
 
+
     case CONTROL_FRAME:
-      switch (frame_type_subtype)
-	{
+      /*
+       * Control Wrapper frames insert themselves between address 1
+       * and address 2 in a normal control frame.  Process address 1
+       * first, then handle the rest of the frame in dissect_control.
+       */
+      if (frame_type_subtype == CTRL_CONTROL_WRAPPER) {
+	offset = 16; /* FC + D/ID + Address 1 + CFC + HTC */
+	ctrl_fcf = FETCH_FCF(10);
+	ctrl_type_subtype = COMPOSE_FRAME_TYPE(ctrl_fcf);
+      } else {
+	offset = 10; /* FC + D/ID + Address 1 */
+	ctrl_fcf = fcf;
+	ctrl_type_subtype = frame_type_subtype;
+      }
+      switch (ctrl_type_subtype) {
+	case CTRL_PS_POLL:
+	  addr1_str = "BSSID";
+	  addr1_hf = hf_addr_bssid;
+	  break;
+	case CTRL_RTS:
+	case CTRL_CTS:
+	case CTRL_ACKNOWLEDGEMENT:
+	case CTRL_CFP_END:
+	case CTRL_CFP_ENDACK:
+	case CTRL_BLOCK_ACK_REQ:
+	case CTRL_BLOCK_ACK:
+	  addr1_str = "RA";
+	  addr1_hf = hf_addr_ra;
+	  break;
+	default:
+	  break;
+      }
+
+      if (!addr1_str) /* XXX - Should we throw some sort of error? */
+        break;
+
+      /* Add address 1 */
+      dst = tvb_get_ptr(tvb, 4, 6);
+      set_dst_addr_cols(pinfo, dst, addr1_str);
+      if (tree) {
+	proto_tree_add_item(hdr_tree, addr1_hf, tvb, 4, 6, FALSE);
+      }
+
+      /*
+       * Start shoving in other fields if needed.
+       */
+      if (frame_type_subtype == CTRL_CONTROL_WRAPPER && tree) {
+	cw_item = proto_tree_add_text(hdr_tree, tvb, offset, 2,
+	  "Contained Frame Control");
+	cw_tree = proto_item_add_subtree (cw_item, ett_cntrl_wrapper_fc);
+	dissect_frame_control(cw_tree, tvb, FALSE, offset);
+	dissect_ht_control(cw_tree, tvb, offset + 2);
+      }
+
+      switch (ctrl_type_subtype) {
 
 	case CTRL_PS_POLL:
-	  src = tvb_get_ptr (tvb, 10, 6);
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
+	case CTRL_CFP_END:
+	case CTRL_CFP_ENDACK:
+	  src = tvb_get_ptr (tvb, offset, 6);
 	  set_src_addr_cols(pinfo, src, "BSSID");
-	  set_dst_addr_cols(pinfo, dst, "BSSID");
-
-	  if (tree)
-	    {
-	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 4, 6, dst);
-
-	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
-	    }
+	  if (tree) {
+	    proto_tree_add_item(hdr_tree, hf_addr_ta, tvb, offset, 6, FALSE);
+	  }
 	  break;
-
 
 	case CTRL_RTS:
-	  src = tvb_get_ptr (tvb, 10, 6);
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
+	  src = tvb_get_ptr (tvb, offset, 6);
 	  set_src_addr_cols(pinfo, src, "TA");
-	  set_dst_addr_cols(pinfo, dst, "RA");
-
-	  if (tree)
-	    {
-	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-
-	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, src);
-	    }
-	  break;
-
-
-	case CTRL_CTS:
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
-	  set_dst_addr_cols(pinfo, dst, "RA");
-
-	  if (tree)
-	    proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	  break;
-
-
-	case CTRL_ACKNOWLEDGEMENT:
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
-	  set_dst_addr_cols(pinfo, dst, "RA");
-
-	  if (tree)
-	    proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	  break;
-
-
-	case CTRL_CFP_END:
-	  src = tvb_get_ptr (tvb, 10, 6);
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
-	  set_src_addr_cols(pinfo, src, "BSSID");
-	  set_dst_addr_cols(pinfo, dst, "RA");
-
-	  if (tree)
-	    {
-	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	    }
-	  break;
-
-
-	case CTRL_CFP_ENDACK:
-	  src = tvb_get_ptr (tvb, 10, 6);
-	  dst = tvb_get_ptr (tvb, 4, 6);
-
-	  set_src_addr_cols(pinfo, src, "BSSID");
-	  set_dst_addr_cols(pinfo, dst, "RA");
-
-	  if (tree)
-	    {
-	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, dst);
-	      proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 10, 6, src);
-	    }
-	  break;
-	/*** Begin: Control Wrapper - Dustin Johnson ***/
-	case CTRL_CONTROL_WRAPPER:
-	{
-	  const guint8 *addr1 = NULL;
-	  proto_tree *cntrl_wrap_tree;
-    proto_item *cntrl_wrap_item;
-	  guint32 offset = 4;
-
-    fcs_len = 4;
-	  if (tree)
-    {
-	    addr1 = tvb_get_ptr (tvb, 4, 6);
-      offset += 6;
-
-      proto_tree_add_ether (hdr_tree, hf_addr_addr1, tvb, 4, 6, addr1);
-	    cntrl_wrap_item = proto_tree_add_text(hdr_tree, tvb, offset, 2, "Contained Frame Control");
-      cntrl_wrap_tree = proto_item_add_subtree (cntrl_wrap_item, ett_cntrl_wrapper_fc);
-	    dissect_frame_control(cntrl_wrap_tree, tvb, FALSE, offset);
-      offset += 2;
-
-	    /*dissect_ht_control(hdr_tree, tvb, offset);*/
-	    /* TODO: Complete this crap - Grrarr asdgadsfgadagdsfg!!!*/
+	  if (tree) {
+	    proto_tree_add_item(hdr_tree, hf_addr_ta, tvb, offset, 6, FALSE);
 	  }
 	  break;
-	}
-	/*** End: Control Wrapper - Dustin Johnson ***/
+
+	case CTRL_CONTROL_WRAPPER:
+	  /* XXX - We shouldn't see this.  Should we throw an error? */
+	  break;
+
 	/*** Begin: Block Ack Request - Dustin Johnson ***/
 	case CTRL_BLOCK_ACK_REQ:
-	{
-    src = tvb_get_ptr (tvb, 10, 6);
-    dst = tvb_get_ptr (tvb, 4, 6);
+	  src = tvb_get_ptr (tvb, offset, 6);
+	  set_src_addr_cols(pinfo, src, "TA");
 
-    set_src_addr_cols(pinfo, src, "TA");
-    set_dst_addr_cols(pinfo, dst, "RA");
+	  if (tree) {
+	    guint16 bar_control;
+	    guint8 block_ack_type;
+	    proto_item *bar_parent_item;
+	    proto_tree *bar_sub_tree;
 
-    if (tree)
-    {
-      guint16 bar_control;
-      guint8 block_ack_type;
-      gint offset;
-      proto_item *bar_parent_item;
-      proto_tree *bar_sub_tree;
+	    proto_tree_add_item(hdr_tree, hf_addr_ra, tvb, offset, 6, FALSE);
+	    offset += 6;
 
-      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
-      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, dst);
-      offset = 16;
+	    bar_control = tvb_get_letohs(tvb, offset);
+	    block_ack_type = (bar_control & 0x0006) >> 1;
+	    proto_tree_add_uint(hdr_tree, hf_block_ack_request_type, tvb,
+	      offset, 1, block_ack_type);
+	    bar_parent_item = proto_tree_add_uint_format(hdr_tree,
+	      hf_block_ack_request_control, tvb, offset, 2, bar_control,
+	      "Block Ack Request Control: 0x%04X", bar_control);
+	    bar_sub_tree = proto_item_add_subtree(bar_parent_item,
+	      ett_block_ack);
+	    proto_tree_add_boolean(bar_sub_tree,
+	      hf_block_ack_control_ack_policy, tvb, offset, 1, bar_control);
+	    proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_multi_tid,
+	      tvb, offset, 1, bar_control);
+	    proto_tree_add_boolean(bar_sub_tree,
+	      hf_block_ack_control_compressed_bitmap, tvb, offset, 1,
+	      bar_control);
+	    proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_reserved,
+	      tvb, offset, 2, bar_control);
 
-      bar_control = tvb_get_letohs(tvb, offset);
-      block_ack_type = (bar_control & 0x0006) >> 1;
-      proto_tree_add_uint(hdr_tree, hf_block_ack_request_type, tvb, offset, 1, block_ack_type);
-      bar_parent_item = proto_tree_add_uint_format(hdr_tree, hf_block_ack_request_control, tvb,
-                        offset, 2, bar_control, "Block Ack Request Control: 0x%04X", bar_control);
-      bar_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
-      proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_ack_policy, tvb, offset, 1, bar_control);
-      proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_multi_tid, tvb, offset, 1, bar_control);
-      proto_tree_add_boolean(bar_sub_tree, hf_block_ack_control_compressed_bitmap, tvb, offset, 1, bar_control);
-      proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_reserved, tvb, offset, 2, bar_control);
+	    switch (block_ack_type) {
+	      case 0: /*Basic BlockAckReq */
+		proto_tree_add_uint(bar_sub_tree,
+		  hf_block_ack_control_basic_tid_info, tvb, offset+1, 1,
+		  bar_control);
+		offset += 2;
 
-      switch(block_ack_type){
-      case 0: /*Basic BlockAckReq */
-        proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, bar_control);
-        offset += 2;
+		offset += add_fixed_field(hdr_tree, tvb, offset,
+		  FIELD_BLOCK_ACK_SSC);
+		break;
+	      case 2: /* Compressed BlockAckReq */
+		proto_tree_add_uint(bar_sub_tree,
+		  hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1,
+		  bar_control);
+		offset += 2;
 
-        offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-        break;
-      case 2: /* Compressed BlockAckReq */
-        proto_tree_add_uint(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control);
-        offset += 2;
+		offset += add_fixed_field(hdr_tree, tvb, offset,
+		  FIELD_BLOCK_ACK_SSC);
+		break;
+	      case 3: {/* Multi-TID BlockAckReq */
+		guint8 tid_count, i;
+		proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
 
-        offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-        break;
-      case 3: /* Multi-TID BlockAckReq */
-      {
-        guint8 tid_count, i;
-        proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
+		tid_count = ((bar_control & 0xF000) >> 12) + 1;
+		proto_tree_add_uint_format(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control,
+		decode_numeric_bitfield(bar_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
+		offset += 2;
 
-        tid_count = ((bar_control & 0xF000) >> 12) + 1;
-        proto_tree_add_uint_format(bar_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, bar_control,
-        decode_numeric_bitfield(bar_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
-        offset += 2;
+		bar_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
+		bar_mtid_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+		for (i = 1; i <= tid_count; i++) {
+		  bar_parent_item = proto_tree_add_uint(bar_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
+		  bar_mtid_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
 
-        bar_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
-        bar_mtid_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
-        for(i=1; i<=tid_count; i++){
-          bar_parent_item = proto_tree_add_uint(bar_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
-          bar_mtid_sub_tree = proto_item_add_subtree(bar_parent_item, ett_block_ack);
+		  bar_control = tvb_get_letohs(tvb, offset);
+		  proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, bar_control);
+		  proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, bar_control);
+		  offset += 2;
 
-          bar_control = tvb_get_letohs(tvb, offset);
-          proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, bar_control);
-          proto_tree_add_uint(bar_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, bar_control);
-          offset += 2;
-
-          offset += add_fixed_field(bar_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-        }
-        break;
-      }
-      }
+		  offset += add_fixed_field(bar_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+		}
+		break;
+	      }
+	    }
 	  }
-    break;
-	}
-  /*** End: Block Ack Request - Dustin Johnson ***/
+	  break;
+	/*** End: Block Ack Request - Dustin Johnson ***/
+
 	/*** Begin: Block Ack - Dustin Johnson ***/
 	case CTRL_BLOCK_ACK:
-	  {
-	    src = tvb_get_ptr (tvb, 10, 6);
-	    dst = tvb_get_ptr (tvb, 4, 6);
+	  src = tvb_get_ptr (tvb, offset, 6);
+	  set_src_addr_cols(pinfo, src, "TA");
 
-	    set_src_addr_cols(pinfo, src, "TA");
-	    set_dst_addr_cols(pinfo, dst, "RA");
+	  if (tree) {
+	    guint16 ba_control;
+	    guint8 block_ack_type;
+	    proto_item *ba_parent_item;
+	    proto_tree *ba_sub_tree;
 
-	    if (tree)
-	    {
-  		  guint16 ba_control;
-  		  guint8 block_ack_type;
-  		  gint offset;
-  		  proto_item *ba_parent_item;
-  		  proto_tree *ba_sub_tree;
+	    proto_tree_add_item(hdr_tree, hf_addr_ta, tvb, offset, 6, FALSE);
+	    offset += 6;
 
-	      proto_tree_add_ether (hdr_tree, hf_addr_ra, tvb, 4, 6, src);
-	      proto_tree_add_ether (hdr_tree, hf_addr_ta, tvb, 10, 6, dst);
-        offset = 16;
+	    ba_control = tvb_get_letohs(tvb, offset);
+	    block_ack_type = (ba_control & 0x0006) >> 1;
+	    proto_tree_add_uint(hdr_tree, hf_block_ack_type, tvb, offset, 1, block_ack_type);
+	    ba_parent_item = proto_tree_add_uint_format(hdr_tree,
+	      hf_block_ack_request_control, tvb, offset, 2, ba_control,
+	      "Block Ack Control: 0x%04X", ba_control);
+	    ba_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+	    proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_ack_policy,
+	      tvb, offset, 1, ba_control);
+	    proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_multi_tid,
+	      tvb, offset, 1, ba_control);
+	    proto_tree_add_boolean(ba_sub_tree,
+	      hf_block_ack_control_compressed_bitmap, tvb, offset, 1,
+	      ba_control);
+	    proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_reserved, tvb,
+	      offset, 2, ba_control);
 
-  		  ba_control = tvb_get_letohs(tvb, offset);
-  		  block_ack_type = (ba_control & 0x0006) >> 1;
-  		  proto_tree_add_uint(hdr_tree, hf_block_ack_type, tvb, offset, 1, block_ack_type);
-  		  ba_parent_item = proto_tree_add_uint_format(hdr_tree, hf_block_ack_request_control, tvb,
-  		                    offset, 2, ba_control, "Block Ack Control: 0x%04X", ba_control);
-  		  ba_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
-  		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_ack_policy, tvb, offset, 1, ba_control);
-  		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_multi_tid, tvb, offset, 1, ba_control);
-  		  proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_compressed_bitmap, tvb, offset, 1, ba_control);
-  		  proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_reserved, tvb, offset, 2, ba_control);
+	    switch (block_ack_type) {
+	      case 0: /*Basic BlockAck */
+		proto_tree_add_uint(ba_sub_tree,
+		  hf_block_ack_control_basic_tid_info, tvb, offset+1, 1,
+		  ba_control);
+		offset += 2;
 
-  		  switch(block_ack_type){
-  		  case 0: /*Basic BlockAck */
-  		    proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
-    			offset += 2;
+		offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+		proto_tree_add_text(hdr_tree, tvb, offset, 128, "Block Ack Bitmap");
+		offset += 128;
+		break;
+	      case 2: /* Compressed BlockAck */
+		proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
+		offset += 2;
 
-    			offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-    			proto_tree_add_text(hdr_tree, tvb, offset, 128, "Block Ack Bitmap");
-    			offset += 128;
-  		    break;
-  		  case 2: /* Compressed BlockAck */
-  		    proto_tree_add_uint(ba_sub_tree, hf_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
-    			offset += 2;
+		offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+		proto_tree_add_text(hdr_tree, tvb, offset, 8, "Block Ack Bitmap");
+		offset += 8;
+		break;
+	      case 3: { /* Multi-TID BlockAck */
+		guint8 tid_count, i;
+		proto_tree *ba_mtid_tree, *ba_mtid_sub_tree;
 
-    			offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-    			proto_tree_add_text(hdr_tree, tvb, offset, 8, "Block Ack Bitmap");
-    			offset += 8;
-  		    break;
-  		  case 3: /* Multi-TID BlockAck */
-        {
-  		    guint8 tid_count, i;
-  		    proto_tree *ba_mtid_tree, *ba_mtid_sub_tree;
+		tid_count = ((ba_control & 0xF000) >> 12) + 1;
+		proto_tree_add_uint_format(ba_sub_tree,
+		  hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1,
+		  ba_control, decode_numeric_bitfield(ba_control, 0xF000,
+		    16,"Number of TIDs Present: 0x%%X"), tid_count);
+		offset += 2;
 
-          tid_count = ((ba_control & 0xF000) >> 12) + 1;
-          proto_tree_add_uint_format(ba_sub_tree, hf_block_ack_control_compressed_tid_info, tvb, offset+1, 1, ba_control,
-  			  decode_numeric_bitfield(ba_control, 0xF000, 16,"Number of TIDs Present: 0x%%X"), tid_count);
-          offset += 2;
+		ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
+		ba_mtid_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+		for (i=1; i<=tid_count; i++) {
+		  ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
+		  ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
 
-    			ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
-    			ba_mtid_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
-    			for(i=1; i<=tid_count; i++){
-    			  ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_block_ack_multi_tid_info, tvb, offset, 4, i);
-    			  ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
+		  ba_control = tvb_get_letohs(tvb, offset);
+		  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, ba_control);
+		  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, ba_control);
+		  offset += 2;
 
-    			  ba_control = tvb_get_letohs(tvb, offset);
-    			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_reserved, tvb, offset, 2, ba_control);
-    			  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, ba_control);
-    			  offset += 2;
-
-    			  offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-    			  proto_tree_add_text(ba_mtid_sub_tree, tvb, offset, 8, "Block Ack Bitmap");
-    			  offset += 8;
-    			}
-  		    break;
-  		  }
-  		  }
-  	  }
+		  offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+		  proto_tree_add_text(ba_mtid_sub_tree, tvb, offset, 8, "Block Ack Bitmap");
+		  offset += 8;
+		}
+		break;
+	      }
+	    }
 	    break;
 	  }
 	  /*** End: Block Ack - Dustin Johnson ***/
-	}
       break;
 
     case DATA_FRAME:
@@ -5221,6 +5805,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
       break;
     }
+  }
 
   len = tvb_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
@@ -5554,7 +6139,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		   tvb_get_guint8(tvb, hdr_len + 2));
 	  proto_tree_add_string(wep_tree, hf_tkip_extiv, tvb, hdr_len,
 				EXTIV_LEN, out_buff);
-				} else if (algorithm==PROTECTION_ALG_CCMP) {
+	} else if (algorithm==PROTECTION_ALG_CCMP) {
 	  g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
 		   tvb_get_letohl(tvb, hdr_len + 4),
 		   tvb_get_guint8(tvb, hdr_len + 1),
@@ -6234,18 +6819,120 @@ proto_register_ieee80211 (void)
   };
   /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
 
-	/*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
-	static const true_false_string ff_sm_pwr_save_enabled_flag = {
+  /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+  static const true_false_string ff_sm_pwr_save_enabled_flag = {
       "Enabled",
       "Disabled"
   };
 
-	static const true_false_string ff_sm_pwr_save_sm_mode_flag = {
+  static const true_false_string ff_sm_pwr_save_sm_mode_flag = {
       "Dynamic SM Power Save mode",
       "Static SM Power Save mode"
   };
-	/*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+  /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
+  /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
+  static const true_false_string ff_pco_phase_cntrl_flag = {
+      "40 MHz Phase",
+      "20 MHz Phase"
+  };
+  /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
+
+  /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+  static const true_false_string ff_psmp_param_set_more_psmp_flag = {
+      "More PSMP Sequences Follow",
+      "No PSMP Sequences Follow"
+  };
+  /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+
+  /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
+  static const value_string ff_mimo_cntrl_nc_index_flags[] = {
+    {0x00, "1 Column"},
+    {0x01, "2 Columns"},
+    {0x02, "3 Columns"},
+    {0x03, "4 Columns"},
+    {0, NULL}
+  };
+
+  static const value_string ff_mimo_cntrl_nr_index_flags[] = {
+    {0x00, "1 Row"},
+    {0x01, "2 Rows"},
+    {0x02, "3 Rows"},
+    {0x03, "4 Rows"},
+    {0, NULL}
+  };
+
+  static const true_false_string ff_mimo_cntrl_channel_width_flag = {
+      "40 MHz",
+      "20 MHz"
+  };
+
+  /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
+  static const true_false_string ff_ht_info_information_request_flag = {
+      "Requesting HT Information Exchange management action frame",
+      "Should not send an HT Information Exchange management action frame"
+  };
+
+  static const true_false_string ff_ht_info_40_mhz_intolerant_flag = {
+      "Transmitting station is intolerant of 40 MHz operation",
+      "Transmitting station permits 40 MHz operation"
+  };
+
+  static const true_false_string ff_ht_info_sta_chan_width_flag = {
+      "40 MHz",
+      "20 MHz"
+  };
+  /*** End: HT Information Fixed Field - Dustin Johnson ***/
+
+  /*** Begin: HT Category Fixed Field - Dustin Johnson ***/
+  static const value_string ff_ht_action_flags[] = {
+    {0x00, "Notify Channel Width"},
+    {0x01, "SM Power Save"},
+    {0x02, "PSMP action frame"},
+		{0x03, "Set PCO Phase"},
+    {0x04, "MIMO CSI Matrices"},
+    {0x05, "MIMO Non-compressed Beamforming"},
+		{0x06, "MIMO Compressed Beamforming"},
+    {0x07, "Antenna Selection Indices Feedback"},
+    {0x08, "HT Information Exchange"},
+    {0x00, NULL}
+  };
+  /*** Begin: HT Category Fixed Field - Dustin Johnson ***/
+
+  static const value_string ff_mimo_cntrl_grouping_flags[] = {
+    {0x00, "No Grouping"},
+    {0x01, "Carrier Groups of 2"},
+    {0x02, "Carrier Groups of 4"},
+    {0x03, "Reserved"},
+    {0, NULL}
+  };
+
+  static const value_string ff_mimo_cntrl_coefficient_size_flags[] = {
+    {0x00, "4 Bits"},
+    {0x01, "5 Bits"},
+    {0x02, "6 Bits"},
+    {0x03, "8 Bits"},
+    {0, NULL}
+  };
+
+  static const value_string ff_mimo_cntrl_codebook_info_flags[] = {
+    {0x00, "1 bit for 'Capital Psi', 3 bits for 'Small Psi'"},
+    {0x01, "2 bit for 'Capital Psi', 4 bits for 'Small Psi'"},
+    {0x02, "3 bit for 'Capital Psi', 5 bits for 'Small Psi'"},
+    {0x03, "4 bit for 'Capital Psi', 6 bits for 'Small Psi'"},
+    {0, NULL}
+  };
+  /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
+
+  /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
+  static const value_string ff_psmp_sta_info_flags[] = {
+    {0x00, "Broadcast"},
+    {0x01, "Multicast"},
+    {0x02, "Individually Addressed"},
+    {0x03, "Unkown"},
+    {0, NULL}
+  };
+  /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
 
   static const value_string reason_codes[] = {
     {0x00, "Reserved"},
@@ -6410,6 +7097,15 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
+  /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
+  static const value_string ba_action_codes[] = {
+    {BA_ADD_BLOCK_ACK_REQUEST, "Add Block Ack Request"},
+    {BA_ADD_BLOCK_ACK_RESPONSE, "Add Block Ack Response"},
+    {BA_DELETE_BLOCK_ACK, "Delete Block Ack"},
+    {0x00, NULL}
+  };
+  /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
+
   static const value_string dls_action_codes[] = {
     {SM_ACTION_DLS_REQUEST, "DLS Request"},
     {SM_ACTION_DLS_RESPONSE, "DLS Response"},
@@ -6496,7 +7192,7 @@ proto_register_ieee80211 (void)
 
     {&hf_signal_strength,
      {"Signal Strength", "wlan.signal_strength", FT_UINT8, BASE_DEC, NULL, 0,
-      "Signal strength (percentage)", HFILL }},
+      "Signal strength (Percentage)", HFILL }},
 
     {&hf_fc_field,
      {"Frame Control Field", "wlan.fc", FT_UINT16, BASE_HEX, NULL, 0,
@@ -6636,7 +7332,7 @@ proto_register_ieee80211 (void)
 
     {&hf_fcs,
      {"Frame check sequence", "wlan.fcs", FT_UINT32, BASE_HEX,
-      NULL, 0, "FCS", HFILL }},
+      NULL, 0, "Frame Check Sequence (FCS)", HFILL }},
 
     {&hf_fcs_good,
      {"Good", "wlan.fcs_good", FT_BOOLEAN, BASE_NONE,
@@ -6706,63 +7402,63 @@ proto_register_ieee80211 (void)
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
       "WEP ICV", HFILL }},
 
-	/*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
-	{&hf_block_ack_request_control,
-     {"Block Ack Request Control", "wlan.bar.control",
-	  FT_UINT16, BASE_HEX, NULL, 0, "", HFILL }},
+    /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
+    {&hf_block_ack_request_control,
+     {"Block Ack Request (BAR) Control", "wlan.bar.control",
+	  FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request Control", HFILL }},
 
-	{&hf_block_ack_control_ack_policy,
+    {&hf_block_ack_control_ack_policy,
      {"BAR Ack Policy", "wlan.ba.control.ackpolicy",
-      FT_BOOLEAN, 16, 0, 0x01, "", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x01, "Block Ack Request (BAR) Ack Policy", HFILL }},
 
-	{&hf_block_ack_control_multi_tid,
+    {&hf_block_ack_control_multi_tid,
      {"Multi-TID", "wlan.ba.control.multitid",
-      FT_BOOLEAN, 16, 0, 0x02, "", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x02, "Multi-Traffic Identifier (TID)", HFILL }},
 
-	{&hf_block_ack_control_compressed_bitmap,
+    {&hf_block_ack_control_compressed_bitmap,
      {"Compressed Bitmap", "wlan.ba.control.cbitmap",
-      FT_BOOLEAN, 16, 0, 0x04, "", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x04, "Compressed Bitmap", HFILL }},
 
-	{&hf_block_ack_control_reserved,
+    {&hf_block_ack_control_reserved,
      {"Reserved", "wlan.ba.control.cbitmap",
-      FT_UINT16, BASE_HEX, NULL, 0x0ff8, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0ff8, "Reserved", HFILL }},
 
-	{&hf_block_ack_control_basic_tid_info,
+    {&hf_block_ack_control_basic_tid_info,
      {"TID for which a Basic BlockAck frame is requested", "wlan.ba.basic.tidinfo",
-      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "Traffic Identifier (TID) for which a Basic BlockAck frame is requested", HFILL }},
 
-	{&hf_block_ack_control_compressed_tid_info,
+    {&hf_block_ack_control_compressed_tid_info,
      {"TID for which a BlockAck frame is requested", "wlan.bar.compressed.tidinfo",
-      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "Traffic Identifier (TID) for which a BlockAck frame is requested", HFILL }},
 
-	{&hf_block_ack_control_multi_tid_info,
+    {&hf_block_ack_control_multi_tid_info,
      {"Number of TIDs Present", "wlan.ba.mtid.tidinfo",
-      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "Number of Traffic Identifiers (TIDs) Present", HFILL }},
 
-	{&hf_block_ack_multi_tid_info,
-     {"TID Info", "",
-      FT_UINT8, BASE_DEC, 0, 0, "", HFILL }},
+    {&hf_block_ack_multi_tid_info,
+     {"Traffic Identifier (TID) Info", "",
+      FT_UINT8, BASE_DEC, 0, 0, "Traffic Identifier (TID) Info", HFILL }},
 
-	{&hf_block_ack_multi_tid_reserved,
+    {&hf_block_ack_multi_tid_reserved,
      {"Reserved", "wlan.bar.mtid.tidinfo.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x0fff, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x0fff, "Reserved", HFILL }},
 
-	{&hf_block_ack_multi_tid_value,
+    {&hf_block_ack_multi_tid_value,
      {"Starting Sequence Number", "wlan.bar.mtid.tidinfo.value",
-      FT_UINT16, BASE_HEX, 0, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0xf000, "Starting Sequence Number", HFILL }},
 
-	{&hf_block_ack_request_type,
+    {&hf_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
 
-	{&hf_block_ack_ssc,
+    {&hf_block_ack_ssc,
      {"Starting Sequence Control", "wlan.ba.ssc",
-      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, "Starting Sequence Control", HFILL }},
 
-	{&hf_block_ack_type,
+    {&hf_block_ack_type,
      {"Block Ack Request Type", "wlan.ba.type",
-      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "", HFILL }},
-	/*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
+      FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }},
+    /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -7238,35 +7934,35 @@ proto_register_ieee80211 (void)
   static hf_register_info ff[] = {
     {&ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
-      NULL, 0, "", HFILL }},
+      NULL, 0, "Timestamp", HFILL }},
 
     {&ff_auth_alg,
      {"Authentication Algorithm", "wlan_mgt.fixed.auth.alg",
-      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, VALS (&auth_alg), 0, "Authentication Algorithm", HFILL }},
 
     {&ff_beacon_interval,
      {"Beacon Interval", "wlan_mgt.fixed.beacon", FT_DOUBLE, BASE_DEC, NULL, 0,
-      "", HFILL }},
+      "Beacon Interval", HFILL }},
 
     {&hf_fixed_parameters,
      {"Fixed parameters", "wlan_mgt.fixed.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "", HFILL }},
+      "Fixed parameters", HFILL }},
 
     {&hf_tagged_parameters,
      {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
-      "", HFILL }},
+      "Tagged parameters", HFILL }},
 
     /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_params,
-      {"Block Ack Params", "wlan_mgt.fixed.baparams",
-      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Params", HFILL }},
+      {"Block Ack Parameters", "wlan_mgt.fixed.baparams",
+      FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Parameters", HFILL }},
 
     {&ff_block_ack_params_amsdu_premitted,
       {"A-MSDUs", "wlan_mgt.fixed.baparams.amsdu",
       FT_BOOLEAN, 16, TFS (&ff_block_ack_params_amsdu_premitted_flag), 0x0001, "A-MSDU Permitted in QoS Data MPDUs", HFILL }},
 
     {&ff_block_ack_params_policy,
-      {"Block Ack Poplicy", "wlan_mgt.fixed.baparams.policy",
+      {"Block Ack Policy", "wlan_mgt.fixed.baparams.policy",
       FT_BOOLEAN, 16, TFS (&ff_block_ack_params_policy_flag), 0x0002, "Block Ack Poplicy", HFILL }},
 
     {&ff_block_ack_params_tid,
@@ -7287,155 +7983,332 @@ proto_register_ieee80211 (void)
     /*** Begin: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_ssc,
      {"Block Ack Starting Sequence Control (SSC)", "wlan.fixed.ssc",
-      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, "Block Ack Starting Sequence Control (SSC)", HFILL }},
 
     {&ff_block_ack_ssc_fragment,
      {"Fragment", "wlan.fixed.fragment",
-      FT_UINT16, BASE_HEX, 0, 0x000f, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x000f, "Fragment", HFILL }},
 
     {&ff_block_ack_ssc_sequence,
      {"Starting Sequence Number", "wlan.fixed.sequence",
-      FT_UINT16, BASE_HEX, 0, 0xfff0, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0xfff0, "Starting Sequence Number", HFILL }},
     /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
     {&ff_delba_param,
      {"Delete Block Ack (DELBA) Parameter Set", "wlan.fixed.delba.param",
-      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, "Delete Block Ack (DELBA) Parameter Set", HFILL }},
 
     {&ff_delba_param_reserved,
      {"Reserved", "wlan.fixed.delba.param.reserved",
-      FT_UINT16, BASE_HEX, 0, 0x07ff, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0x07ff, "Reserved", HFILL }},
 
     {&ff_delba_param_init,
      {"Initiator", "wlan.fixed.delba.param.initiator",
-      FT_BOOLEAN, 16, 0, 0x08000, "", HFILL }},
+      FT_BOOLEAN, 16, 0, 0x08000, "Initiator", HFILL }},
 
     {&ff_delba_param_tid,
      {"TID", "wlan.fixed.delba.param.tid",
-      FT_UINT16, BASE_HEX, 0, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0xf000, "Traffic Identifier (TID)", HFILL }},
     /*** End: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Max Regulation Power Fixed Field - Dustin Johnson ***/
     {&ff_max_reg_pwr,
      {"Maximum Regulation Power", "wlan.fixed.maxregpwr",
-      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+      FT_UINT16, BASE_HEX, 0, 0, "Maximum Regulation Power", HFILL }},
     /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
     {&ff_measurment_pilot_int,
-     {"Measurement Pilot Interval Fixed Field", "wlan.fixed.msmtpilotint",
-      FT_UINT16, BASE_HEX, 0, 0, "", HFILL }},
+     {"Measurement Pilot Interval", "wlan.fixed.msmtpilotint",
+      FT_UINT16, BASE_HEX, 0, 0, "Measurement Pilot Interval Fixed Field", HFILL }},
     /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Country String Fixed Field - Dustin Johnson ***/
     {&ff_country_str,
      {"Country String", "wlan.fixed.country",
-      FT_STRING, BASE_NONE, 0, 0, "", HFILL }},
+      FT_STRING, BASE_NONE, 0, 0, "Country String", HFILL }},
     /*** End: Country String Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     {&ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan.fixed.maxtxpwr",
-      FT_INT8, BASE_HEX, 0, 0, "", HFILL }},
+      FT_INT8, BASE_HEX, 0, 0, "Maximum Transmit Power", HFILL }},
     /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_tx_pwr_used,
      {"Transmit Power Used", "wlan.fixed.txpwr",
-      FT_INT8, BASE_HEX, 0, 0, "", HFILL }},
+      FT_INT8, BASE_HEX, 0, 0, "Transmit Power Used", HFILL }},
     /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan.fixed.tnoisefloor",
-      FT_INT8, BASE_HEX, 0, 0, "", HFILL }},
+      FT_INT8, BASE_HEX, 0, 0, "Transceiver Noise Floor", HFILL }},
     /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     {&ff_channel_width,
      {"Supported Channel Width", "fixed.chanwidth",
-      FT_UINT8, BASE_HEX, TFS (&ff_channel_width_flag), 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, TFS (&ff_channel_width_flag), 0, "Supported Channel Width", HFILL }},
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_ap,
      {"QoS Inforamtion (AP)", "fixed.qosinfo.ap",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (AP)", HFILL }},
 
     {&ff_qos_info_ap_edca_param_set_counter,
      {"EDCA Parameter Set Update Count", "fixed.qosinfo.ap.edcaupdate",
-      FT_UINT8, BASE_HEX, NULL, 0x0F, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x0F, "Enhanced Distributed Channel Access (EDCA) Parameter Set Update Count", HFILL }},
 
     {&ff_qos_info_ap_q_ack,
      {"Q-Ack", "fixed.qosinfo.ap.qack",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_q_ack_flag), 0x10, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_q_ack_flag), 0x10, "QoS Ack", HFILL }},
 
     {&ff_qos_info_ap_queue_req,
      {"Queue Request", "fixed.qosinfo.ap",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_queue_req_flag), 0x20, "Queue Request", HFILL }},
 
     {&ff_qos_info_ap_txop_request,
      {"TXOP Request", "fixed.qosinfo.ap.txopreq",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_txop_request_flag), 0x40, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_ap_txop_request_flag), 0x40, "Transmit Opportunity (TXOP) Request", HFILL }},
 
     {&ff_qos_info_ap_reserved,
      {"Reserved", "fixed.qosinfo.ap.reserved",
-      FT_BOOLEAN, 8, NULL, 0x80, "", HFILL }},
+      FT_BOOLEAN, 8, NULL, 0x80, "Reserved", HFILL }},
     /*** End: QoS Inforamtion AP Fixed Field - Dustin Johnson ***/
 
     /*** Begin: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
     {&ff_qos_info_sta,
      {"QoS Inforamtion (STA)", "fixed.qosinfo.sta",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "QoS Inforamtion (STA)", HFILL }},
 
     {&ff_qos_info_sta_ac_vo,
      {"AC_VO", "fixed.qosinfo.sta.ac.vo",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x01, "AC_VO", HFILL }},
 
     {&ff_qos_info_sta_ac_vi,
      {"AC_VI", "fixed.qosinfo.sta.ac.vi",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x02, "AC_VI", HFILL }},
 
     {&ff_qos_info_sta_ac_bk,
      {"AC_BK", "fixed.qosinfo.sta.ac.bk",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x04, "AC_BK", HFILL }},
 
     {&ff_qos_info_sta_ac_be,
      {"AC_BE", "fixed.qosinfo.sta.ac.be",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_ac_flag), 0x08, "AC_BE", HFILL }},
 
     {&ff_qos_info_sta_q_ack,
      {"Q-Ack", "fixed.qosinfo.sta.qack",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_q_ack_flag), 0x10, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_q_ack_flag), 0x10, "QoS Ack", HFILL }},
 
     {&ff_qos_info_sta_max_sp_len,
-     {"SP Length", "fixed.qosinfo.sta.splen",
-      FT_UINT8, BASE_HEX, VALS (&ff_qos_info_sta_max_sp_len_flags) , 0x60, "", HFILL }},
+     {"Service Period (SP) Length", "fixed.qosinfo.sta.splen",
+      FT_UINT8, BASE_HEX, VALS (&ff_qos_info_sta_max_sp_len_flags) , 0x60, "Service Period (SP) Length", HFILL }},
 
     {&ff_qos_info_sta_more_data_ack,
      {"More Data Ack", "fixed.qosinfo.sta.moredataack",
-      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_qos_info_sta_more_data_ack_flag), 0x80, "More Data Ack", HFILL }},
     /*** End: QoS Inforamtion STA Fixed Field - Dustin Johnson ***/
 
-		/*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
-		{&ff_sm_pwr_save,
+    /*** Begin: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+    {&ff_sm_pwr_save,
      {"Spatial Multiplexing (SM) Power Control", "fixed.sm.powercontrol",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Spatial Multiplexing (SM) Power Control", HFILL }},
 
-		{&ff_sm_pwr_save_enabled,
+    {&ff_sm_pwr_save_enabled,
      {"Spatial Multiplexing (SM)", "fixed.sm.powercontrol.enabled",
-      FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_enabled_flag), 0x01, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_enabled_flag), 0x01, "Spatial Multiplexing (SM)", HFILL }},
 
-	  {&ff_sm_pwr_save_sm_mode,
+    {&ff_sm_pwr_save_sm_mode,
      {"Spatial Multiplexing (SM) Mode", "fixed.sm.powercontrol.mode",
-      FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_sm_mode_flag), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ff_sm_pwr_save_sm_mode_flag), 0x02, "Spatial Multiplexing (SM) Mode", HFILL }},
 
-		{&ff_sm_pwr_save_reserved,
+    {&ff_sm_pwr_save_reserved,
      {"Reserved", "fixed.sm.powercontrol.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xFC, "", HFILL }},
-		/*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
+      FT_UINT8, BASE_HEX, NULL, 0xFC, "Reserved", HFILL }},
+    /*** End: Spatial Multiplexing (SM) Power Control - Dustin Johnson ***/
 
+    /*** Begin: PCO Phase Control Fixed Field - Dustin Johnson ***/
+    {&ff_pco_phase_cntrl,
+     {"Phased Coexistence Operation (PCO) Phase Control", "fixed.pco.phasecntrl",
+      FT_UINT8, BASE_HEX, TFS (&ff_pco_phase_cntrl_flag), 0, "Phased Coexistence Operation (PCO) Phase Control", HFILL }},
+    /*** End: PCO Phase Control Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+    {&ff_psmp_param_set,
+     {"Power Save Multi-Poll (PSMP) Parameter Set", "fixed.psmp.paramset",
+      FT_UINT16, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Parameter Set", HFILL }},
+
+    {&ff_psmp_param_set_n_sta,
+     {"Number of STA Info Fields Present", "fixed.psmp.paramset.nsta",
+      FT_UINT8, BASE_HEX, 0, 0, "Number of STA Info Fields Present", HFILL }},
+
+    {&ff_psmp_param_set_more_psmp,
+     {"More PSMP", "fixed.psmp.paramset.more",
+      FT_BOOLEAN, 0, TFS(&ff_psmp_param_set_more_psmp_flag), 0, "More Power Save Multi-Poll (PSMP)", HFILL }},
+
+    {&ff_psmp_param_set_psmp_sequence_duration,
+     {"PSMP Sequence Duration", "fixed.psmp.paramset.seqduration",
+      FT_UINT16, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Sequence Duration", HFILL }},
+    /*** End: PSMP Parameter Set Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: MIMO Control Fixed Field - Dustin Johnson ***/
+    {&ff_mimo_cntrl_nc_index,
+     {"Nc Index", "fixed.mimo.control.ncindex",
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nc_index_flags), 0x0003, "Number of Columns Less One", HFILL }},
+
+    {&ff_mimo_cntrl_nr_index,
+     {"Nr Index", "fixed.mimo.control.nrindex",
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_nr_index_flags), 0x000C, "Number of Rows Less One", HFILL }},
+
+    {&ff_mimo_cntrl_channel_width,
+     {"Channel Width", "fixed.mimo.control.chanwidth",
+      FT_BOOLEAN, 0, TFS(&ff_mimo_cntrl_channel_width_flag), 0x0010, "Channel Width", HFILL }},
+
+    {&ff_mimo_cntrl_grouping,
+     {"Grouping (Ng)", "fixed.mimo.control.grouping",
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_grouping_flags), 0x0060, "Grouping (Ng)", HFILL }},
+
+    {&ff_mimo_cntrl_coefficient_size,
+     {"Coefficient Size (Nb)", "fixed.mimo.control.cosize",
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_coefficient_size_flags), 0x0180, "Coefficient Size (Nb)", HFILL }},
+
+    {&ff_mimo_cntrl_codebook_info,
+     {"Codebook Information", "fixed.mimo.control.codebookinfo",
+      FT_UINT16, BASE_HEX, VALS (&ff_mimo_cntrl_codebook_info_flags), 0x0600, "Codebook Information", HFILL }},
+
+    {&ff_mimo_cntrl_remaining_matrix_segment,
+     {"Remaining Matrix Segment", "fixed.mimo.control.matrixseg",
+      FT_UINT16, BASE_HEX, 0, 0x3800, "Remaining Matrix Segment", HFILL }},
+
+    {&ff_mimo_cntrl_reserved,
+     {"Reserved", "fixed.mimo.control.reserved",
+      FT_UINT16, BASE_HEX, 0, 0xC000, "Reserved", HFILL }},
+
+    {&ff_mimo_cntrl_sounding_timestamp,
+     {"Sounding Timestamp", "fixed.mimo.control.soundingtime",
+      FT_UINT32, BASE_HEX, 0, 0, "Sounding Timestamp", HFILL }},
+    /*** End: MIMO Control Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
+    {&ff_psmp_sta_info,
+     {"Power Save Multi-Poll (PSMP) Station Information", "fixed.psmp.stainfo",
+      FT_UINT32, BASE_HEX, VALS (&ff_psmp_sta_info_flags), 0, "Power Save Multi-Poll (PSMP) Station Information", HFILL }},
+
+    {&ff_psmp_sta_info_dtt_start_offset,
+     {"DTT Start Offset", "fixed.psmp.stainfo.dttstart",
+      FT_UINT32, BASE_HEX, 0, 0, "DTT Start Offset", HFILL }},
+
+    {&ff_psmp_sta_info_dtt_duration,
+     {"DTT Duration", "fixed.psmp.stainfo.dttduration",
+      FT_UINT32, BASE_HEX, 0, 0, "DTT Duration", HFILL }},
+
+    {&ff_psmp_sta_info_sta_id,
+     {"Target Station ID", "fixed.psmp.stainfo.staid",
+      FT_UINT32, BASE_HEX, 0, 0, "Target Station ID", HFILL }},
+
+    {&ff_psmp_sta_info_utt_start_offset,
+     {"UTT Start Offset", "fixed.psmp.stainfo.uttstart",
+      FT_UINT32, BASE_HEX, 0, 0, "UTT Start Offset", HFILL }},
+
+    {&ff_psmp_sta_info_utt_duration,
+     {"UTT Duration", "fixed.psmp.stainfo.uttduration",
+      FT_UINT16, BASE_HEX, 0, 0, "UTT Duration", HFILL }},
+
+    {&ff_psmp_sta_info_reserved_small,
+     {"Reserved", "fixed.psmp.stainfo.reserved",
+      FT_UINT16, BASE_HEX, 0, 0, "Reserved", HFILL }},
+
+    {&ff_psmp_sta_info_reserved_large,
+     {"Reserved", "fixed.psmp.stainfo.reserved",
+      FT_UINT64, BASE_HEX, 0, 0, "Reserved", HFILL }},
+
+    {&ff_psmp_sta_info_psmp_multicast_id,
+     {"Power Save Multi-Poll (PSMP) Multicast ID", "fixed.psmp.stainfo.multicastid",
+      FT_UINT64, BASE_HEX, 0, 0, "Power Save Multi-Poll (PSMP) Multicast ID", HFILL }},
+    /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: Antenna Selection Fixed Field - Dustin Johnson ***/
+    {&ff_ant_selection,
+     {"Antenna Selection", "fixed.antsel",
+      FT_UINT8, BASE_HEX, 0, 0, "Antenna Selection", HFILL }},
+
+    {&ff_ant_selection_0,
+     {"Antenna 0", "fixed.antsel.ant0",
+      FT_UINT8, BASE_HEX, 0, 0x01, "Antenna 0", HFILL }},
+
+    {&ff_ant_selection_1,
+     {"Antenna 1", "fixed.antsel.ant1",
+      FT_UINT8, BASE_HEX, 0, 0x02, "Antenna 1", HFILL }},
+
+    {&ff_ant_selection_2,
+     {"Antenna 2", "fixed.antsel.ant2",
+      FT_UINT8, BASE_HEX, 0, 0x04, "Antenna 2", HFILL }},
+
+    {&ff_ant_selection_3,
+     {"Antenna 3", "fixed.antsel.ant3",
+      FT_UINT8, BASE_HEX, 0, 0x08, "Antenna 3", HFILL }},
+
+    {&ff_ant_selection_4,
+     {"Antenna 4", "fixed.antsel.ant4",
+      FT_UINT8, BASE_HEX, 0, 0x10, "Antenna 4", HFILL }},
+
+    {&ff_ant_selection_5,
+     {"Antenna 5", "fixed.antsel.ant5",
+      FT_UINT8, BASE_HEX, 0, 0x20, "Antenna 5", HFILL }},
+
+    {&ff_ant_selection_6,
+     {"Antenna 6", "fixed.antsel.ant6",
+      FT_UINT8, BASE_HEX, 0, 0x40, "Antenna 6", HFILL }},
+
+    {&ff_ant_selection_7,
+     {"Antenna 7", "fixed.antsel.ant7",
+      FT_UINT8, BASE_HEX, 0, 0x80, "Antenna 7", HFILL }},
+    /*** End: Antenna Selection Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+    {&ff_ext_channel_switch_announcement,
+     {"Extended Channel Switch Announcement", "fixed.extchansw",
+      FT_UINT32, BASE_HEX, 0, 0, "", HFILL }},
+    /*** End: Extended Channel Switch Announcement Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: HT Information Fixed Field - Dustin Johnson ***/
+    {&ff_ht_info,
+     {"HT Information", "fixed.extchansw",
+      FT_UINT8, BASE_HEX, 0, 0, "HT Information Fixed Field", HFILL }},
+
+    {&ff_ht_info_information_request,
+     {"Information Request", "fixed.mimo.control.chanwidth",
+      FT_BOOLEAN, 0, TFS(&ff_ht_info_information_request_flag), 0x01, "Information Request", HFILL }},
+
+    {&ff_ht_info_40_mhz_intolerant,
+     {"40 MHz Intolerant", "fixed.mimo.control.chanwidth",
+      FT_BOOLEAN, 0, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02, "40 MHz Intolerant", HFILL }},
+
+    {&ff_ht_info_sta_chan_width,
+     {"Station Channel Width", "fixed.mimo.control.chanwidth",
+      FT_BOOLEAN, 0, TFS(&ff_ht_info_sta_chan_width_flag), 0x04, "Station Channel Width", HFILL }},
+
+    {&ff_ht_info_reserved,
+     {"Reserved", "fixed.extchansw",
+      FT_UINT8, BASE_HEX, 0, 0xF8, "Reserved Field", HFILL }},
+    /*** End: HT Information Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: HT Action Fixed Field - Dustin Johnson ***/
+    {&ff_ht_action,
+     {"HT Action", "fixed.htact",
+      FT_UINT8, BASE_HEX, VALS (&ff_ht_action_flags), 0, "HT Action Code", HFILL }},
+    /*** End: HT Action Fixed Field - Dustin Johnson ***/
+
+    /*** Begin: MIMO CSI Matrices Report - Dustin Johnson ***/
+    {&ff_mimo_csi_snr,
+     {"Signal to Noise Ratio (SNR)", "wlan_mgt.mimo.csimatrices.snr",
+      FT_UINT8, BASE_HEX, NULL, 0, "Signal to Noise Ratio (SNR)", HFILL }},
+    /*** End: MIMO CSI Matrices Report - Dustin Johnson ***/
 
     {&ff_capture,
      {"Capabilities", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
@@ -7486,8 +8359,7 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_apsd,
      {"Automatic Power Save Delivery", "wlan_mgt.fixed.capabilities.apsd",
-      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, "Automatic Power Save "
-	"Delivery", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_apsd_flags), 0x0800, "Automatic Power Save Delivery", HFILL }},
 
     {&ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
@@ -7496,17 +8368,15 @@ proto_register_ieee80211 (void)
 
     {&ff_cf_del_blk_ack,
      {"Delayed Block Ack", "wlan_mgt.fixed.capabilities.del_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, "Delayed Block "
-	"Ack", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_del_blk_ack_flags), 0x4000, "Delayed Block Ack", HFILL }},
 
     {&ff_cf_imm_blk_ack,
      {"Immediate Block Ack", "wlan_mgt.fixed.capabilities.imm_blk_ack",
-      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, "Immediate Block "
-	"Ack", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_imm_blk_ack_flags), 0x8000, "Immediate Block Ack", HFILL }},
 
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
-      FT_UINT16, BASE_HEX, NULL, 0, "Authentication sequence number", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "Authentication Sequence Number", HFILL }},
 
     {&ff_assoc_id,
      {"Association ID", "wlan_mgt.fixed.aid",
@@ -7542,7 +8412,7 @@ proto_register_ieee80211 (void)
 
     {&ff_dialog_token,
      {"Dialog token", "wlan_mgt.fixed.dialog_token",
-      FT_UINT16, BASE_HEX, NULL, 0, "Management action dialog token", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Management action dialog token", HFILL }},
 
     {&ff_wme_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
@@ -7558,6 +8428,13 @@ proto_register_ieee80211 (void)
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&qos_action_codes), 0,
       "QoS management action code", HFILL }},
+
+    /*** Begin: Block Ack Action Fixed Field - Dustin Johnson ***/
+    {&ff_ba_action,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT8, BASE_HEX, VALS (&ba_action_codes), 0,
+      "Block Ack action code", HFILL }},
+    /*** End: Block Ack Action Fixed Field - Dustin Johnson ***/
 
     {&ff_dls_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
@@ -7727,20 +8604,20 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (&ampduparam_mpdu_start_spacing_flags) , 0x1c,
       "MPDU Density", HFILL }},
 
-	{&mcsset,
+    {&mcsset,
      {"Supported MCS Set", "wlan_mgt.ht.mcsset",
       FT_STRING, BASE_NONE, NULL, 0, "Supported MCS Set", HFILL }},
 
-	{&mcsset_highest_data_rate,
+    {&mcsset_highest_data_rate,
      {"Highest Supported Data Rate", "wlan_mgt.ht.mcsset.highestdatarate",
       FT_UINT16, BASE_HEX, 0, 0x03ff, "Highest Supported Data Rate", HFILL }},
 
-	{&mcsset_tx_mcs_set_defined,
+    {&mcsset_tx_mcs_set_defined,
      {"Tx Suported MCS Set", "wlan_mgt.ht.mcsset.txsetdefined",
       FT_BOOLEAN, 16, TFS (&mcsset_tx_mcs_set_defined_flag), 0x0001,
       "Tx Suported MCS Set", HFILL }},
 
-	{&mcsset_tx_rx_mcs_set_not_equal,
+    {&mcsset_tx_rx_mcs_set_not_equal,
      {"Tx and Rx MCS Set", "wlan_mgt.ht.mcsset.txrxmcsnotequal",
       FT_BOOLEAN, 16, TFS (&mcsset_tx_rx_mcs_set_not_equal_flag), 0x0002,
       "Tx and Rx MCS Set", HFILL }},
@@ -7750,7 +8627,7 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&mcsset_tx_max_spatial_streams_flags) , 0x001c,
       "Tx Maximum Number of Spatial Streams Supported", HFILL }},
 
-	{&mcsset_tx_unequal_modulation,
+    {&mcsset_tx_unequal_modulation,
      {"Unequal Modulation", "wlan_mgt.ht.mcsset.txunequalmod",
       FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0020,
       "Unequal Modulation", HFILL }},
@@ -7765,9 +8642,9 @@ proto_register_ieee80211 (void)
       "Transmitter supports PCO", HFILL }},
 
     {&htex_transtime,
-     {"Transition Time between 20MHz and 40MHz", "wlan_mgt.htex.capabilities.transtime",
+     {"Time needed to transition between 20MHz and 40MHz", "wlan_mgt.htex.capabilities.transtime",
       FT_UINT16, BASE_HEX, VALS (&htex_transtime_flags), 0x0006,
-      "Transition Time between 20MHz and 40MHz", HFILL }},
+      "Time needed to transition between 20MHz and 40MHz", HFILL }},
 
     {&htex_mcs,
      {"MCS Feedback capability", "wlan_mgt.htex.capabilities.mcs",
@@ -7789,104 +8666,104 @@ proto_register_ieee80211 (void)
       NULL, 0, "TxBF Transmit Beam Forming Capability", HFILL }},
 
     {&txbf_cap,
-     {"TxBF", "wlan_mgt.txbf.txbf",
+     {"Transmit Beamforming", "wlan_mgt.txbf.txbf",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000001,
-      "", HFILL }},
+      "Transmit Beamforming", HFILL }},
 
     {&txbf_rcv_ssc,
      {"Receive Staggered Sounding", "wlan_mgt.txbf.rxss",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000002,
-      "", HFILL }},
+      "Receive Staggered Sounding", HFILL }},
 
     {&txbf_tx_ssc,
      {"Transmit staggered sounding", "wlan_mgt.txbf.txss",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000004,
-      "", HFILL }},
+      "Transmit staggered sounding", HFILL }},
 
     {&txbf_rcv_ndp,
-     {"Receive NDP", "wlan_mgt.txbf.rxndp",
+     {"Receive Null Data packet (NDP)", "wlan_mgt.txbf.rxndp",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000008,
-      "", HFILL }},
+      "Receive Null Data packet (NDP)", HFILL }},
 
     {&txbf_tx_ndp,
-     {"Transmit NDP", "wlan_mgt.txbf.txndp",
+     {"Transmit Null Data packet (NDP)", "wlan_mgt.txbf.txndp",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000010,
-      "", HFILL }},
+      "Transmit Null Data packet (NDP)", HFILL }},
 
     {&txbf_impl_txbf,
      {"Implicit TxBF capable", "wlan_mgt.txbf.impltxbf",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000020,
-      "", HFILL }},
+      "Implicit Transmit Beamforming (TxBF) capable", HFILL }},
 
     {&txbf_calib,
      {"Calibration", "wlan_mgt.txbf.calibration",
       FT_UINT32, BASE_HEX, VALS (&txbf_calib_flag), 0x000000c0,
-      "", HFILL }},
+      "Calibration", HFILL }},
 
     {&txbf_expl_csi,
      {"STA can apply TxBF using CSI explicit feedback", "wlan_mgt.txbf.csi",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000100,
-      "", HFILL }},
+      "Station can apply TxBF using CSI explicit feedback", HFILL }},
 
     {&txbf_expl_uncomp_fm,
      {"STA can apply TxBF using uncompressed beamforming feedback matrix", "wlan_mgt.txbf.fm.uncompressed.tbf",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000200,
-      "", HFILL }},
+      "Station can apply TxBF using uncompressed beamforming feedback matrix", HFILL }},
 
-	{&txbf_expl_comp_fm,
+    {&txbf_expl_comp_fm,
      {"STA can apply TxBF using compressed beamforming feedback matrix", "wlan_mgt.txbf.fm.compressed.tbf",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000400,
-      "", HFILL }},
+      "Station can apply TxBF using compressed beamforming feedback matrix", HFILL }},
 
     {&txbf_expl_bf_csi,
      {"Receiver can return explicit CSI feedback", "wlan_mgt.txbf.rcsi",
       FT_UINT32, BASE_HEX, VALS (&txbf_feedback_flags), 0x00001800,
-      "", HFILL }},
+      "Receiver can return explicit CSI feedback", HFILL }},
 
     {&txbf_expl_uncomp_fm_feed,
      {"Receiver can return explicit uncompressed Beamforming Feedback Matrix", "wlan_mgt.txbf.fm.uncompressed.rbf",
       FT_UINT32, BASE_HEX, VALS (&txbf_feedback_flags), 0x00006000,
-      "", HFILL }},
+      "Receiver can return explicit uncompressed Beamforming Feedback Matrix", HFILL }},
 
     {&txbf_expl_comp_fm_feed,
      {"STA can compress and use compressed Beamforming Feedback Matrix", "wlan_mgt.txbf.fm.compressed.bf",
       FT_UINT32, BASE_HEX, VALS (&txbf_feedback_flags), 0x00018000,
-      "", HFILL }},
+      "Station can compress and use compressed Beamforming Feedback Matrix", HFILL }},
 
-	{&txbf_min_group,
+    {&txbf_min_group,
      {"Minimal grouping used for explicit feedback reports", "wlan_mgt.txbf.mingroup",
       FT_UINT32, BASE_HEX, VALS (&txbf_min_group_flags), 0x00060000,
-      "", HFILL }},
+      "Minimal grouping used for explicit feedback reports", HFILL }},
 
     {&txbf_csi_num_bf_ant,
      {"Max antennae STA can support when CSI feedback required", "wlan_mgt.txbf.csinumant",
       FT_UINT32, BASE_HEX, VALS (&txbf_antenna_flags), 0x00180000,
-      "", HFILL }},
+      "Max antennae station can support when CSI feedback required", HFILL }},
 
     {&txbf_uncomp_sm_bf_ant,
      {"Max antennae STA can support when uncompressed Beamforming feedback required", "wlan_mgt.txbf.fm.uncompressed.maxant",
       FT_UINT32, BASE_HEX, VALS (&txbf_antenna_flags), 0x00600000,
-      "", HFILL }},
+      "Max antennae station can support when uncompressed Beamforming feedback required", HFILL }},
 
     {&txbf_comp_sm_bf_ant,
      {"Max antennae STA can support when compressed Beamforming feedback required", "wlan_mgt.txbf.fm.compressed.maxant",
       FT_UINT32, BASE_HEX, VALS (&txbf_antenna_flags), 0x01800000,
-      "", HFILL }},
+      "Max antennae station can support when compressed Beamforming feedback required", HFILL }},
 
-	{&txbf_csi_max_rows_bf,
+    {&txbf_csi_max_rows_bf,
      {"Maximum number of rows of CSI explicit feeback", "wlan_mgt.txbf.csi.maxrows",
       FT_UINT32, BASE_HEX, VALS (&txbf_csi_max_rows_bf_flags), 0x06000000,
-      "", HFILL }},
+      "Maximum number of rows of CSI explicit feeback", HFILL }},
 
     {&txbf_chan_est,
      {"Maximum number of space time streams for which channel dimensions can be simultaneously estimated", "wlan_mgt.txbf.channelest",
       FT_UINT32, BASE_HEX, VALS (&txbf_chan_est_flags), 0x18000000,
-      "", HFILL }},
+      "Maximum number of space time streams for which channel dimensions can be simultaneously estimated", HFILL }},
 
-	{&txbf_resrv,
+    {&txbf_resrv,
      {"Reserved", "wlan_mgt.txbf.reserved",
       FT_UINT32, BASE_HEX, NULL, 0xe0000000,
-      "", HFILL }},
+      "Reserved", HFILL }},
 
     {&hta_cap,
      {"HT Additional Capabilities", "wlan_mgt.hta.capabilities", FT_UINT16, BASE_HEX,
@@ -7895,632 +8772,628 @@ proto_register_ieee80211 (void)
     {&hta_ext_chan_offset,
      {"Extension Channel Offset", "wlan_mgt.hta.capabilities.extchan",
       FT_UINT16, BASE_HEX, VALS (&hta_ext_chan_offset_flag), 0x0003,
-      "", HFILL }},
+      "Extension Channel Offset", HFILL }},
 
     {&hta_rec_tx_width,
      {"Reccomended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
       FT_BOOLEAN, 16, TFS (&hta_rec_tx_width_flag), 0x0004,
-      "", HFILL }},
+      "Reccomended Transmit Channel Width", HFILL }},
 
     {&hta_rifs_mode,
-     {"RIFS Mode", "wlan_mgt.hta.capabilities.rifsmode",
+     {"Reduced Interframe Spacing (RIFS) Mode", "wlan_mgt.hta.capabilities.rifsmode",
       FT_BOOLEAN, 16, TFS (&hta_rifs_mode_flag), 0x0008,
-      "", HFILL }},
+      "Reduced Interframe Spacing (RIFS) Mode", HFILL }},
 
     {&hta_controlled_access,
      {"Controlled Access Only", "wlan_mgt.hta.capabilities.controlledaccess",
       FT_BOOLEAN, 16, TFS (&hta_controlled_access_flag), 0x0010,
-      "", HFILL }},
+      "Controlled Access Only", HFILL }},
 
     {&hta_service_interval,
      {"Service Interval Granularity", "wlan_mgt.hta.capabilities.serviceinterval",
       FT_UINT16, BASE_HEX, VALS (&hta_service_interval_flag), 0x00E0,
-      "", HFILL }},
+      "Service Interval Granularity", HFILL }},
 
     {&hta_operating_mode,
      {"Operating Mode", "wlan_mgt.hta.capabilities.operatingmode",
       FT_UINT16, BASE_HEX, VALS (&hta_operating_mode_flag), 0x0003,
-      "", HFILL }},
+      "Operating Mode", HFILL }},
 
     {&hta_non_gf_devices,
-     {"Non GF devices Present", "wlan_mgt.hta.capabilities.nongfdevices",
+     {"Non Greenfield (GF) devices Present", "wlan_mgt.hta.capabilities.nongfdevices",
       FT_BOOLEAN, 16, TFS (&hta_non_gf_devices_flag), 0x0004,
-      "", HFILL }},
+      "on Greenfield (GF) devices Present", HFILL }},
 
     {&hta_basic_stbc_mcs,
-     {"Basic STB MCS", "wlan_mgt.hta.capabilities.",
+     {"Basic STB Modulation Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.",
       FT_UINT16, BASE_HEX, NULL , 0x007f,
-      "", HFILL }},
+      "Basic STB Modulation Coding Scheme (MCS)", HFILL }},
 
     {&hta_dual_stbc_protection,
-     {"Dual CTS Protection", "wlan_mgt.hta.capabilities.",
+     {"Dual Clear To Send (CTS) Protection", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_dual_stbc_protection_flag), 0x0080,
-      "", HFILL }},
+      "Dual Clear To Send (CTS) Protection", HFILL }},
 
     {&hta_secondary_beacon,
      {"Secondary Beacon", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_secondary_beacon_flag), 0x0100,
-      "", HFILL }},
+      "Secondary Beacon", HFILL }},
 
     {&hta_lsig_txop_protection,
      {"L-SIG TXOP Protection Support", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_lsig_txop_protection_flag), 0x0200,
-      "", HFILL }},
+      "L-SIG TXOP Protection Support", HFILL }},
 
     {&hta_pco_active,
-     {"PCO Active", "wlan_mgt.hta.capabilities.",
+     {"Phased Coexistence Operation (PCO) Active", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_pco_active_flag), 0x0400,
-      "", HFILL }},
+      "Phased Coexistence Operation (PCO) Active", HFILL }},
 
     {&hta_pco_phase,
-     {"PCO Phase", "wlan_mgt.hta.capabilities.",
+     {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.hta.capabilities.",
       FT_BOOLEAN, 16, TFS (&hta_pco_phase_flag), 0x0800,
-      "", HFILL }},
+      "Phased Coexistence Operation (PCO) Phase", HFILL }},
 
     {&antsel,
      {"Antenna Selection Capability", "wlan_mgt.txbf",
-	  FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+	  FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection Capability", HFILL }},
 
     {&antsel_b0,
      {"Antenna Selection Capable", "wlan_mgt.asel.capable",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x01, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x01, "Antenna Selection Capable", HFILL }},
 
     {&antsel_b1,
      {"Explicit CSI Feedback Based Tx ASEL", "wlan_mgt.asel.txcsi",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x02, "Explicit CSI Feedback Based Tx ASEL", HFILL }},
 
     {&antsel_b2,
      {"Antenna Indices Feedback Based Tx ASEL", "wlan_mgt.asel.txif",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x04, "Antenna Indices Feedback Based Tx ASEL", HFILL }},
 
     {&antsel_b3,
      {"Explicit CSI Feedback", "wlan_mgt.asel.csi",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x08, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x08, "Explicit CSI Feedback", HFILL }},
 
     {&antsel_b4,
      {"Antenna Indices Feedback", "wlan_mgt.asel.if",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x10, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x10, "Antenna Indices Feedback", HFILL }},
 
     {&antsel_b5,
      {"Rx ASEL", "wlan_mgt.asel.rx",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x20, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x20, "Rx ASEL", HFILL }},
 
     {&antsel_b6,
      {"Tx Sounding PPDUs", "wlan_mgt.asel.sppdu",
-      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x40, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_tf_flag), 0x40, "Tx Sounding PPDUs", HFILL }},
 
-	{&antsel_b7,
+    {&antsel_b7,
      {"Reserved", "wlan_mgt.asel.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0x80, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x80, "Reserved", HFILL }},
 
-	{&ht_info_delimiter1,
-     {"HT Information Delimiter 1", "wlan_mgt.ht.info.delim1",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+    {&ht_info_delimiter1,
+     {"HT Information Delimiter #1", "wlan_mgt.ht.info.delim1",
+      FT_UINT8, BASE_HEX, NULL, 0xff, "HT Information Delimiter #1", HFILL }},
 
-	{&ht_info_primary_channel,
-     {"Primary channel", "wlan_mgt.ht.info.primarychannel",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+    {&ht_info_primary_channel,
+     {"Primary Channel", "wlan_mgt.ht.info.primarychannel",
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Primary Channel", HFILL }},
 
-	{&ht_info_secondary_channel_offset,
+    {&ht_info_secondary_channel_offset,
      {"Secondary channel offset", "wlan_mgt.ht.info.secchanoffset",
-      FT_UINT8, BASE_HEX, VALS (&ht_info_secondary_channel_offset_flags), 0x03, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ht_info_secondary_channel_offset_flags), 0x03, "Secondary channel offset", HFILL }},
 
-	{&ht_info_channel_width,
+    {&ht_info_channel_width,
      {"Supported channel width", "wlan_mgt.ht.info.chanwidth",
-      FT_BOOLEAN, 8, TFS (&ht_info_channel_width_flag), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&ht_info_channel_width_flag), 0x04, "Supported channel width", HFILL }},
 
-	{&ht_info_rifs_mode,
-     {"Reduced interframe spacing (RIFS)", "wlan_mgt.ht.info.rifs",
-      FT_BOOLEAN, 8, TFS (&ht_info_rifs_mode_flag), 0x08, "", HFILL }},
+    {&ht_info_rifs_mode,
+     {"Reduced Interframe Spacing (RIFS)", "wlan_mgt.ht.info.rifs",
+      FT_BOOLEAN, 8, TFS (&ht_info_rifs_mode_flag), 0x08, "Reduced Interframe Spacing (RIFS)", HFILL }},
 
-	{&ht_info_psmp_stas_only,
-     {"PSMP stations only", "wlan_mgt.ht.info.psmponly",
-      FT_BOOLEAN, 8, TFS (&ht_info_psmp_stas_only_flag), 0x10, "", HFILL }},
+    {&ht_info_psmp_stas_only,
+     {"Power Save Multi-Poll (PSMP) stations only", "wlan_mgt.ht.info.psmponly",
+      FT_BOOLEAN, 8, TFS (&ht_info_psmp_stas_only_flag), 0x10, "Power Save Multi-Poll (PSMP) stations only", HFILL }},
 
-	{&ht_info_service_interval_granularity,
+    {&ht_info_service_interval_granularity,
      {"Shortest service interval", "wlan_mgt.ht.info.",
-      FT_UINT8, BASE_HEX, VALS (&ht_info_service_interval_granularity_flags), 0xe0, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&ht_info_service_interval_granularity_flags), 0xe0, "Shortest service interval", HFILL }},
 
-	{&ht_info_delimiter2,
+    {&ht_info_delimiter2,
      {"HT Information Delimiter #2", "wlan_mgt.ht.info.delim2",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, "HT Information Delimiter #2", HFILL }},
 
-	{&ht_info_operating_mode,
+    {&ht_info_operating_mode,
      {"Operating mode of BSS", "wlan_mgt.ht.info.operatingmode",
-      FT_UINT16, BASE_HEX, VALS (&ht_info_operating_mode_flags), 0x0003, "", HFILL }},
+      FT_UINT16, BASE_HEX, VALS (&ht_info_operating_mode_flags), 0x0003, "Operating mode of BSS", HFILL }},
 
-	{&ht_info_non_greenfield_sta_present,
+    {&ht_info_non_greenfield_sta_present,
      {"Non-greenfield STAs present", "wlan_mgt.ht.info.greenfield",
-      FT_BOOLEAN, 16, TFS (&ht_info_non_greenfield_sta_present_flag), 0x0004, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_non_greenfield_sta_present_flag), 0x0004, "Non-greenfield STAs present", HFILL }},
 
-	{&ht_info_transmit_burst_limit,
+    {&ht_info_transmit_burst_limit,
      {"Transmit burst limit", "wlan_mgt.ht.info.burstlim",
-      FT_BOOLEAN, 16, TFS (&ht_info_transmit_burst_limit_flag), 0x0008, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_transmit_burst_limit_flag), 0x0008, "Transmit burst limit", HFILL }},
 
-	{&ht_info_obss_non_ht_stas_present,
+    {&ht_info_obss_non_ht_stas_present,
      {"OBSS non-HT STAs present", "wlan_mgt.ht.info.obssnonht",
-      FT_BOOLEAN, 16, TFS (&ht_info_obss_non_ht_stas_present_flag), 0x0010, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_obss_non_ht_stas_present_flag), 0x0010, "OBSS non-HT STAs present", HFILL }},
 
-	{&ht_info_reserved_1,
+    {&ht_info_reserved_1,
      {"Reserved", "wlan_mgt.ht.info.reserved1",
-      FT_UINT16, BASE_HEX, NULL, 0xffe0, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffe0, "Reserved", HFILL }},
 
-	{&ht_info_delimiter3,
+    {&ht_info_delimiter3,
      {"HT Information Delimiter #3", "wlan_mgt.ht.info.delim3",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, "HT Information Delimiter #3", HFILL }},
 
-	{&ht_info_reserved_2,
+    {&ht_info_reserved_2,
      {"Reserved", "wlan_mgt.ht.info.reserved2",
-      FT_UINT16, BASE_HEX, NULL, 0x003f, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x003f, "Reserved", HFILL }},
 
-	{&ht_info_dual_beacon,
+    {&ht_info_dual_beacon,
      {"Dual beacon", "wlan_mgt.ht.info.dualbeacon",
-      FT_BOOLEAN, 16, TFS (&ht_info_dual_beacon_flag), 0x0040, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_dual_beacon_flag), 0x0040, "Dual beacon", HFILL }},
 
-	{&ht_info_dual_cts_protection,
-     {"Dual CTS protection", "wlan_mgt.ht.info.dualcts",
-      FT_BOOLEAN, 16, TFS (&ht_info_dual_cts_protection_flag), 0x0080, "", HFILL }},
+    {&ht_info_dual_cts_protection,
+     {"Dual Clear To Send (CTS) protection", "wlan_mgt.ht.info.dualcts",
+      FT_BOOLEAN, 16, TFS (&ht_info_dual_cts_protection_flag), 0x0080, "Dual Clear To Send (CTS) protection", HFILL }},
 
-	{&ht_info_secondary_beacon,
+    {&ht_info_secondary_beacon,
      {"Beacon ID", "wlan_mgt.ht.info.secondarybeacon",
-      FT_BOOLEAN, 16, TFS (&ht_info_secondary_beacon_flag), 0x0100, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_secondary_beacon_flag), 0x0100, "Beacon ID", HFILL }},
 
-	{&ht_info_lsig_txop_protection_full_support,
+    {&ht_info_lsig_txop_protection_full_support,
      {"L-SIG TXOP Protection Full Support", "wlan_mgt.ht.info.lsigprotsupport",
-      FT_BOOLEAN, 16, TFS (&ht_info_lsig_txop_protection_full_support_flag), 0x0200, "", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ht_info_lsig_txop_protection_full_support_flag), 0x0200, "L-SIG TXOP Protection Full Support", HFILL }},
 
-	{&ht_info_pco_active,
-     {"PCO", "wlan_mgt.ht.info.pco.active",
-      FT_BOOLEAN, 16, TFS (&ht_info_pco_active_flag), 0x0400, "", HFILL }},
+    {&ht_info_pco_active,
+     {"Phased Coexistence Operation (PCO)", "wlan_mgt.ht.info.pco.active",
+      FT_BOOLEAN, 16, TFS (&ht_info_pco_active_flag), 0x0400, "Phased Coexistence Operation (PCO)", HFILL }},
 
-	{&ht_info_pco_phase,
-     {"PCO phase", "wlan_mgt.ht.info.pco.phase",
-      FT_BOOLEAN, 16, TFS (&ht_info_pco_phase_flag), 0x0800, "", HFILL }},
+    {&ht_info_pco_phase,
+     {"Phased Coexistence Operation (PCO) Phase", "wlan_mgt.ht.info.pco.phase",
+      FT_BOOLEAN, 16, TFS (&ht_info_pco_phase_flag), 0x0800, "Phased Coexistence Operation (PCO) Phase", HFILL }},
 
-	{&ht_info_reserved_3,
+    {&ht_info_reserved_3,
      {"Reserved", "wlan_mgt.ht.info.reserved3",
-      FT_UINT16, BASE_HEX, NULL, 0xf000, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xf000, "Reserved", HFILL }},
 
-	{&ht_basic_mcs_set,
-     {"Bitfield", "wlan_mgt.ht.info.basicmcsset",
-      FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+    {&ht_basic_mcs_set,
+     {"Modulation Coding Scheme (MCS) Set Bitfield", "wlan_mgt.ht.info.basicmcsset",
+      FT_STRING, BASE_NONE, NULL, 0, "Modulation Coding Scheme (MCS) Set Bitfield", HFILL }},
 
-	{&hf_tag_secondary_channel_offset,
+    {&hf_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
       FT_UINT8, BASE_HEX, VALS (&hf_tag_secondary_channel_offset_flags), 0,
-      "", HFILL }},
+      "Secondary Channel Offset", HFILL }},
 
-
-	/*** Start: Measurement Request Tag  - Dustin Johnson***/
-	{&hf_tag_measure_request_measurement_token,
+    /*** Start: Measurement Request Tag  - Dustin Johnson***/
+    {&hf_tag_measure_request_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Token", HFILL }},
 
-	{&hf_tag_measure_request_mode,
+    {&hf_tag_measure_request_mode,
      {"Measurement Request Mode", "wlan_mgt.measure.req.reqmode",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Request Mode", HFILL }},
 
-	{&hf_tag_measure_request_mode_reserved1,
+    {&hf_tag_measure_request_mode_reserved1,
      {"Reserved", "wlan_mgt.measure.req.reqmode.reserved1",
-      FT_UINT8, BASE_HEX, NULL, 0x01, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x01, "Reserved", HFILL }},
 
-	{&hf_tag_measure_request_mode_enable,
+    {&hf_tag_measure_request_mode_enable,
      {"Measurement Request Mode Field", "wlan_mgt.measure.req.reqmode.enable",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x02, "Measurement Request Mode Field", HFILL }},
 
-	{&hf_tag_measure_request_mode_request,
+    {&hf_tag_measure_request_mode_request,
      {"Measurement Reports", "wlan_mgt.measure.req.reqmode.request",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "Measurement Reports", HFILL }},
 
-	{&hf_tag_measure_request_mode_report,
+    {&hf_tag_measure_request_mode_report,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.req.reqmode.report",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x08, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x08, "Autonomous Measurement Reports", HFILL }},
 
-	{&hf_tag_measure_request_mode_reserved2,
+    {&hf_tag_measure_request_mode_reserved2,
      {"Reserved", "wlan_mgt.measure.req.reqmode.reserved2",
-      FT_UINT8, BASE_HEX, NULL, 0xf0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xf0, "Reserved", HFILL }},
 
-	{&hf_tag_measure_request_type,
+    {&hf_tag_measure_request_type,
      {"Measurement Request Type", "wlan_mgt.measure.req.reqtype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_request_type_flags), 0x00, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_request_type_flags), 0x00, "Measurement Request Type", HFILL }},
 
-	{&hf_tag_measure_request_channel_number,
+    {&hf_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
 
-	{&hf_tag_measure_request_start_time,
+    {&hf_tag_measure_request_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.req.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "Measurement Start Time", HFILL }},
 
-	{&hf_tag_measure_request_duration,
+    {&hf_tag_measure_request_duration,
      {"Measurement Duration", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, "Measurement Duration", HFILL }},
 
-	{&hf_tag_measure_request_regulatory_class,
+    {&hf_tag_measure_request_regulatory_class,
      {"Measurement Channel Number", "wlan_mgt.measure.req.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
 
-	{&hf_tag_measure_request_randomization_interval,
+    {&hf_tag_measure_request_randomization_interval,
      {"Randomization Interval", "wlan_mgt.measure.req.randint",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, "Randomization Interval", HFILL }},
 
-
-
-	{&hf_tag_measure_request_measurement_mode,
+    {&hf_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0xff, "Measurement Mode", HFILL }},
 
-	{&hf_tag_measure_request_bssid,
+    {&hf_tag_measure_request_bssid,
      {"BSSID", "wlan_mgt.measure.req.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, "BSSID", HFILL }},
 
-	{&hf_tag_measure_request_reporting_condition,
+    {&hf_tag_measure_request_reporting_condition,
      {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0xff, "Reporting Condition", HFILL }},
 
-	{&hf_tag_measure_request_threshold_offset_unsigned,
+    {&hf_tag_measure_request_threshold_offset_unsigned,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0xff, "Threshold/Offset", HFILL }},
 
-	{&hf_tag_measure_request_threshold_offset_signed,
+    {&hf_tag_measure_request_threshold_offset_signed,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_INT8, BASE_HEX, 0, 0xff, "", HFILL }},
+      FT_INT8, BASE_HEX, 0, 0xff, "Threshold/Offset", HFILL }},
 
-	{&hf_tag_measure_request_report_mac,
+    {&hf_tag_measure_request_report_mac,
      {"MAC on wich to gather data", "wlan_mgt.measure.req.reportmac",
-      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, "MAC on wich to gather data", HFILL }},
 
-	{&hf_tag_measure_request_group_id,
+    {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_INT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0xff, "", HFILL }},
-
+      FT_INT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0xff, "Group ID", HFILL }},
     /*** End: Measurement Request Tag  - Dustin Johnson***/
 
     /*** Start: Measurement Report Tag  - Dustin Johnson***/
-	{&hf_tag_measure_report_measurement_token,
+    {&hf_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Token", HFILL }},
 
-	{&hf_tag_measure_report_mode,
+    {&hf_tag_measure_report_mode,
      {"Measurement Report Mode", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Report Mode", HFILL }},
 
-	{&hf_tag_measure_report_mode_late,
+    {&hf_tag_measure_report_mode_late,
      {"Measurement Report Mode Field", "wlan_mgt.measure.rep.repmode.late",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x01, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_enable_flag), 0x01, "Measurement Report Mode Field", HFILL }},
 
-	{&hf_tag_measure_report_mode_incapable,
+    {&hf_tag_measure_report_mode_incapable,
      {"Measurement Reports", "wlan_mgt.measure.rep.repmode.incapable",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x02, "Measurement Reports", HFILL }},
 
-	{&hf_tag_measure_report_mode_refused,
+    {&hf_tag_measure_report_mode_refused,
      {"Autonomous Measurement Reports", "wlan_mgt.measure.rep.repmode.refused",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_acc_not_acc), 0x04, "Autonomous Measurement Reports", HFILL }},
 
-	{&hf_tag_measure_report_mode_reserved,
+    {&hf_tag_measure_report_mode_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xf8, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xf8, "Reserved", HFILL }},
 
-	{&hf_tag_measure_report_type,
+    {&hf_tag_measure_report_type,
      {"Measurement Report Type", "wlan_mgt.measure.rep.reptype",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_report_type_flags), 0x00, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_measure_report_type_flags), 0x00, "Measurement Report Type", HFILL }},
 
-	{&hf_tag_measure_report_channel_number,
+    {&hf_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
 
-	{&hf_tag_measure_report_start_time,
+    {&hf_tag_measure_report_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.rep.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "Measurement Start Time", HFILL }},
 
-	{&hf_tag_measure_report_duration,
+    {&hf_tag_measure_report_duration,
      {"Measurement Duration", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0xffff, "Measurement Duration", HFILL }},
 
-	{&hf_tag_measure_basic_map_field,
+    {&hf_tag_measure_basic_map_field,
      {"Map Field", "wlan_mgt.measure.rep.mapfield",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xff, "Map Field", HFILL }},
 
-	{&hf_tag_measure_map_field_bss,
+    {&hf_tag_measure_map_field_bss,
      {"BSS", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, "BSS", HFILL }},
 
-	{&hf_tag_measure_map_field_odfm,
+    {&hf_tag_measure_map_field_odfm,
      {"Orthogonal Frequencey Division Multiplexing (ODFM) Preamble", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, "Orthogonal Frequencey Division Multiplexing (ODFM) Preamble", HFILL }},
 
-	{&hf_tag_measure_map_field_unident_signal,
+    {&hf_tag_measure_map_field_unident_signal,
      {"Unidentified Signal", "wlan_mgt.measure.rep.repmode.mapfield.unidentsig",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x04, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x04, "Unidentified Signal", HFILL }},
 
-	{&hf_tag_measure_map_field_radar,
+    {&hf_tag_measure_map_field_radar,
      {"Radar", "wlan_mgt.measure.rep.repmode.mapfield.radar",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x08, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x08, "Radar", HFILL }},
 
-	{&hf_tag_measure_map_field_unmeasured,
+    {&hf_tag_measure_map_field_unmeasured,
      {"Unmeasured", "wlan_mgt.measure.rep.repmode.mapfield.unmeasured",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_true_false), 0x10, "", HFILL }},
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_true_false), 0x10, "Unmeasured", HFILL }},
 
-	{&hf_tag_measure_map_field_reserved,
+    {&hf_tag_measure_map_field_reserved,
      {"Reserved", "wlan_mgt.measure.rep.repmode.mapfield.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xe0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xe0, "Reserved", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report,
-     {"RPI Histogram Report", "",
-      FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
+    {&hf_tag_measure_rpi_histogram_report,
+     {"Receive Power Indicator (RPI) Histogram Report", "",
+      FT_STRING, BASE_NONE, NULL, 0, "Receive Power Indicator (RPI) Histogram Report", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_0,
+    {&hf_tag_measure_rpi_histogram_report_0,
      {"RPI 0 Density", "wlan_mgt.measure.rep.rpi.rpi0density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 0 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_1,
+    {&hf_tag_measure_rpi_histogram_report_1,
      {"RPI 1 Density", "wlan_mgt.measure.rep.rpi.rpi1density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 1 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_2,
+    {&hf_tag_measure_rpi_histogram_report_2,
      {"RPI 2 Density", "wlan_mgt.measure.rep.rpi.rpi2density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 2 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_3,
+    {&hf_tag_measure_rpi_histogram_report_3,
      {"RPI 3 Density", "wlan_mgt.measure.rep.rpi.rpi3density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 3 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_4,
+    {&hf_tag_measure_rpi_histogram_report_4,
      {"RPI 4 Density", "wlan_mgt.measure.rep.rpi.rpi4density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 4 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_5,
+    {&hf_tag_measure_rpi_histogram_report_5,
      {"RPI 5 Density", "wlan_mgt.measure.rep.rpi.rpi5density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 5 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_6,
+    {&hf_tag_measure_rpi_histogram_report_6,
      {"RPI 6 Density", "wlan_mgt.measure.rep.rpi.rpi6density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 6 Density", HFILL }},
 
-	{&hf_tag_measure_rpi_histogram_report_7,
+    {&hf_tag_measure_rpi_histogram_report_7,
      {"RPI 7 Density", "wlan_mgt.measure.rep.rpi.rpi7density",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Receive Power Indicator (RPI) 7 Density", HFILL }},
 
-	{&hf_tag_measure_report_regulatory_class,
+    {&hf_tag_measure_report_regulatory_class,
      {"Regulatory Class", "wlan_mgt.measure.rep.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Regulatory Class", HFILL }},
 
-	{&hf_tag_measure_report_channel_load,
+    {&hf_tag_measure_report_channel_load,
      {"Channel Load", "wlan_mgt.measure.rep.chanload",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Channel Load", HFILL }},
 
-	{&hf_tag_measure_report_frame_info,
+    {&hf_tag_measure_report_frame_info,
      {"Reported Frame Information", "wlan_mgt.measure.rep.frameinfo",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Reported Frame Information", HFILL }},
 
-	{&hf_tag_measure_report_frame_info_phy_type,
+    {&hf_tag_measure_report_frame_info_phy_type,
      {"Condensed PHY", "wlan_mgt.measure.rep.frameinfo.phytype",
-      FT_UINT8, BASE_HEX, NULL, 0x7F, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x7F, "Condensed PHY", HFILL }},
 
-	{&hf_tag_measure_report_frame_info_frame_type,
+    {&hf_tag_measure_report_frame_info_frame_type,
      {"Reported Frame Type", "wlan_mgt.measure.rep.frameinfo.frametype",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, "", HFILL }},
+      FT_UINT8, BASE_HEX, TFS(&hf_tag_measure_report_frame_info_frame_type_flag), 0x80, "Reported Frame Type", HFILL }},
 
-	{&hf_tag_measure_report_rcpi,
+    {&hf_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Received Channel Power Indicator (RCPI)", HFILL }},
 
-	{&hf_tag_measure_report_rsni,
+    {&hf_tag_measure_report_rsni,
      {"Received Signal to Noise Indicator (RSNI)", "wlan_mgt.measure.rep.rsni",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Received Signal to Noise Indicator (RSNI)", HFILL }},
 
-	{&hf_tag_measure_report_bssid,
+    {&hf_tag_measure_report_bssid,
      {"BSSID Being Reported", "wlan_mgt.measure.rep.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, "BSSID Being Reported", HFILL }},
 
-	{&hf_tag_measure_report_ant_id,
+    {&hf_tag_measure_report_ant_id,
      {"Antenna ID", "wlan_mgt.measure.rep.antid",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Antenna ID", HFILL }},
 
-	{&hf_tag_measure_report_parent_tsf,
-     {"Parent TSF", "wlan_mgt.measure.rep.parenttsf",
-      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
-	/*** End: Measurement Report Tag  - Dustin Johnson***/
+    {&hf_tag_measure_report_parent_tsf,
+     {"Parent Timing Synchronization Function (TSF)", "wlan_mgt.measure.rep.parenttsf",
+      FT_UINT32, BASE_HEX, NULL, 0, "Parent Timing Synchronization Function (TSF)", HFILL }},
+    /*** End: Measurement Report Tag  - Dustin Johnson***/
 
-	/*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
-	{&hf_tag_extended_capabilities,
+    /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
+    {&hf_tag_extended_capabilities,
      {"HT Information Exchange Support", "wlan_mgt.extcap.infoexchange",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0xff, "", HFILL }},
-	/*** End: Extended Capabilities Tag - Dustin Johnson ***/
+      FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0xff, "HT Information Exchange Support", HFILL }},
+    /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
-	/*** Begin: Neighbor Report Tag - Dustin Johnson ***/
-	{&hf_tag_neighbor_report_bssid,
+    /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
+    {&hf_tag_neighbor_report_bssid,
      {"BSSID", "wlan_mgt.nreport.bssid",
-      FT_ETHER, BASE_NONE, NULL, 0, "", HFILL }},
+      FT_ETHER, BASE_NONE, NULL, 0, "BSSID", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info,
+    {&hf_tag_neighbor_report_bssid_info,
      {"BSSID Information", "wlan_mgt.nreport.bssid.info",
-      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, "BSSID Information", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_reachability,
+    {&hf_tag_neighbor_report_bssid_info_reachability,
      {"Reachability", "wlan_mgt.nreport.bssid.info.reachability",
-      FT_UINT16, BASE_HEX, NULL, 0x0003, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0003, "Reachability", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_security,
+    {&hf_tag_neighbor_report_bssid_info_security,
      {"Security", "wlan_mgt.nreport.bssid.info.security",
-      FT_UINT16, BASE_HEX, NULL, 0x0004, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0004, "Security", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_key_scope,
+    {&hf_tag_neighbor_report_bssid_info_key_scope,
      {"Key Scope", "wlan_mgt.nreport.bssid.info.keyscope",
-      FT_UINT16, BASE_HEX, NULL, 0x0008, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0008, "Key Scope", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_spec_mng,
+    {&hf_tag_neighbor_report_bssid_info_capability_spec_mng,
      {"Capability: Spectrum Management", "wlan_mgt.nreport.bssid.info.capability.specmngt",
-      FT_UINT16, BASE_HEX, NULL, 0x0010, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0010, "Capability: Spectrum Management", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_qos,
+    {&hf_tag_neighbor_report_bssid_info_capability_qos,
      {"Capability: QoS", "wlan_mgt.nreport.bssid.info.capability.qos",
-      FT_UINT16, BASE_HEX, NULL, 0x0020, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0020, "Capability: QoS", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_apsd,
+    {&hf_tag_neighbor_report_bssid_info_capability_apsd,
      {"Capability: APSD", "wlan_mgt.nreport.bssid.info.capability.apsd",
-      FT_UINT16, BASE_HEX, NULL, 0x0040, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0040, "Capability: APSD", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_radio_msnt,
+    {&hf_tag_neighbor_report_bssid_info_capability_radio_msnt,
      {"Capability: Radio Measurement", "wlan_mgt.nreport.bssid.info.capability.radiomsnt",
-      FT_UINT16, BASE_HEX, NULL, 0x0080, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0080, "Capability: Radio Measurement", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_dback,
+    {&hf_tag_neighbor_report_bssid_info_capability_dback,
      {"Capability: Delayed Block Ack", "wlan_mgt.nreport.bssid.info.capability.dback",
-      FT_UINT16, BASE_HEX, NULL, 0x0100, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0100, "Capability: Delayed Block Ack", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_capability_iback,
+    {&hf_tag_neighbor_report_bssid_info_capability_iback,
      {"Capability: Immediate Block Ack", "wlan_mgt.nreport.bssid.info.capability.iback",
-      FT_UINT16, BASE_HEX, NULL, 0x0200, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0200, "Capability: Immediate Block Ack", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_mobility_domain,
+    {&hf_tag_neighbor_report_bssid_info_mobility_domain,
      {"Mobility Domain", "wlan_mgt.nreport.bssid.info.mobilitydomain",
-      FT_UINT16, BASE_HEX, NULL, 0x0400, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0400, "Mobility Domain", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_high_throughput,
+    {&hf_tag_neighbor_report_bssid_info_high_throughput,
      {"High Throughput", "wlan_mgt.nreport.bssid.info.hthoughput",
-      FT_UINT16, BASE_HEX, NULL, 0x0800, "", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0x0800, "High Throughput", HFILL }},
 
-	{&hf_tag_neighbor_report_bssid_info_reserved,
+    {&hf_tag_neighbor_report_bssid_info_reserved,
      {"Reserved", "wlan_mgt.nreport.bssid.info.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, "Reserved", HFILL }},
 
-	{&hf_tag_neighbor_report_reg_class,
+    {&hf_tag_neighbor_report_reg_class,
      {"Regulatory Class", "wlan_mgt.nreport.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Regulatory Class", HFILL }},
 
-	{&hf_tag_neighbor_report_channel_number,
+    {&hf_tag_neighbor_report_channel_number,
      {"Channel Number", "wlan_mgt.nreport.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Channel Number", HFILL }},
 
-	{&hf_tag_neighbor_report_phy_type,
+    {&hf_tag_neighbor_report_phy_type,
      {"PHY Type", "wlan_mgt.nreport.phytype",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	/*** End: Neighbor Report Tag - Dustin Johnson ***/
+      FT_UINT8, BASE_HEX, NULL, 0, "PHY Type", HFILL }},
+    /*** End: Neighbor Report Tag - Dustin Johnson ***/
 
-	/*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
-	{&hf_tag_ext_channel_switch_announcement_switch_mode,
+    /*** Begin: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+    {&hf_tag_ext_channel_switch_announcement_switch_mode,
      {"Channel Switch Mode", "wlan_mgt.extchanswitch.switchmode",
-      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, VALS (&hf_tag_ext_channel_switch_announcement_switch_mode_flags), 0, "Channel Switch Mode", HFILL }},
 
-	{&hf_tag_ext_channel_switch_announcement_new_reg_class,
+    {&hf_tag_ext_channel_switch_announcement_new_reg_class,
      {"New Regulatory Class", "wlan_mgt.extchanswitch.new.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "New Regulatory Class", HFILL }},
 
-	{&hf_tag_ext_channel_switch_announcement_new_chan_number,
+    {&hf_tag_ext_channel_switch_announcement_new_chan_number,
      {"New Channel Number", "wlan_mgt.extchanswitch.new.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "New Channel Number", HFILL }},
 
-	{&hf_tag_ext_channel_switch_announcement_switch_count,
+    {&hf_tag_ext_channel_switch_announcement_switch_count,
      {"Channel Switch Count", "wlan_mgt.extchanswitch.switchcount",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
-	/*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
+      FT_UINT8, BASE_HEX, NULL, 0, "Channel Switch Count", HFILL }},
+    /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
-	/*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
-	{&hf_tag_supported_reg_classes_current,
+    /*** Begin: Supported Regulatory Classes Tag - Dustin Johnson ***/
+    {&hf_tag_supported_reg_classes_current,
      {"Current Regulatory Class", "wlan_mgt.supregclass.current",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Current Regulatory Class", HFILL }},
 
-	{&hf_tag_supported_reg_classes_alternate,
-     {"Alternate Regulatory Classes", "",
-      FT_STRING, BASE_NONE, NULL, 0, "", HFILL }},
-	/*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
+    {&hf_tag_supported_reg_classes_alternate,
+     {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
+      FT_STRING, BASE_NONE, NULL, 0, "Alternate Regulatory Classes", HFILL }},
+    /*** End: Supported Regulatory Classes Tag - Dustin Johnson ***/
 
     {&hf_aironet_ie_type,
      {"Aironet IE type", "wlan_mgt.aironet.type",
-      FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0, "Aironet IE type", HFILL }},
 
     {&hf_aironet_ie_version,
      {"Aironet IE CCX version?", "wlan_mgt.aironet.version",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "Aironet IE CCX version?", HFILL }},
 
     {&hf_aironet_ie_data,
       { "Aironet IE data", "wlan_mgt.aironet.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }},
+        FT_BYTES, BASE_NONE, NULL, 0x0, "Aironet IE data", HFILL }},
 
     {&hf_qbss_version,
      {"QBSS Version", "wlan_mgt.qbss.version",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "QBSS Version", HFILL }},
 
     {&hf_qbss_scount,
      {"Station Count", "wlan_mgt.qbss.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "Station Count", HFILL }},
 
     {&hf_qbss_cu,
      {"Channel Utilization", "wlan_mgt.qbss.cu",
-       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0, "Channel Utilization", HFILL }},
 
     {&hf_qbss_adc,
      {"Available Admission Capabilities", "wlan_mgt.qbss.adc",
-     FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+     FT_UINT8, BASE_DEC, NULL, 0, "Available Admission Capabilities", HFILL }},
 
     {&hf_qbss2_cu,
      {"Channel Utilization", "wlan_mgt.qbss2.cu",
-       FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+       FT_UINT8, BASE_DEC, NULL, 0, "Channel Utilization", HFILL }},
 
     {&hf_qbss2_gl,
      {"G.711 CU Quantum", "wlan_mgt.qbss2.glimit",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "G.711 CU Quantum", HFILL }},
 
     {&hf_qbss2_cal,
      {"Call Admission Limit", "wlan_mgt.qbss2.cal",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "Call Admission Limit", HFILL }},
 
     {&hf_qbss2_scount,
      {"Station Count", "wlan_mgt.qbss2.scount",
-      FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, "Station Count", HFILL }},
 
     {&hf_aironet_ie_qos_unk1,
-     {"Aironet IE QoS unknown1", "wlan_mgt.aironet.qos.unk1",
-      FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }},
+     {"Aironet IE QoS unknown 1", "wlan_mgt.aironet.qos.unk1",
+      FT_UINT8, BASE_HEX, NULL, 0, "Aironet IE QoS unknown 1", HFILL }},
 
     {&hf_aironet_ie_qos_paramset,
      {"Aironet IE QoS paramset", "wlan_mgt.aironet.qos.paramset",
-      FT_UINT8, BASE_DEC, NULL, 0, "", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "Aironet IE QoS paramset", HFILL }},
 
     {&hf_aironet_ie_qos_val,
      {"Aironet IE QoS valueset", "wlan_mgt.aironet.qos.val",
-      FT_BYTES, BASE_NONE, NULL, 0, "", HFILL }},
+      FT_BYTES, BASE_NONE, NULL, 0, "Aironet IE QoS valueset", HFILL }},
 
     {&hf_ts_info,
-     {"TS Info", "wlan_mgt.ts_info",
-      FT_UINT24, BASE_HEX, NULL, 0, "TS Info field", HFILL }},
+     {"Traffic Stream (TS) Info", "wlan_mgt.ts_info",
+      FT_UINT24, BASE_HEX, NULL, 0, "Traffic Stream (TS) Info field", HFILL }},
 
     {&hf_tsinfo_type,
      {"Traffic Type", "wlan_mgt.ts_info.type", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_type), 0, "TS Info Traffic Type", HFILL }},
+      VALS (&tsinfo_type), 0, "Traffic Stream (TS) Info Traffic Type", HFILL }},
 
     {&hf_tsinfo_tsid,
-     {"TSID", "wlan_mgt.ts_info.tsid",
-      FT_UINT8, BASE_DEC, NULL, 0, "TS Info TSID", HFILL }},
+     {"Traffic Stream ID (TSID)", "wlan_mgt.ts_info.tsid",
+      FT_UINT8, BASE_DEC, NULL, 0, "Traffic Stream ID (TSID) Info TSID", HFILL }},
 
     {&hf_tsinfo_dir,
      {"Direction", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_direction), 0, "TS Info Direction", HFILL }},
+      VALS (&tsinfo_direction), 0, "Traffic Stream (TS) Info Direction", HFILL }},
 
     {&hf_tsinfo_access,
      {"Access Policy", "wlan_mgt.ts_info.dir", FT_UINT8, BASE_DEC,
-      VALS (&tsinfo_access), 0, "TS Info Access Policy", HFILL }},
+      VALS (&tsinfo_access), 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
     {&hf_tsinfo_agg,
      {"Aggregation", "wlan_mgt.ts_info.agg", FT_UINT8, BASE_DEC,
-      NULL, 0, "TS Info Access Policy", HFILL }},
+      NULL, 0, "Traffic Stream (TS) Info Access Policy", HFILL }},
 
     {&hf_tsinfo_apsd,
-     {"APSD", "wlan_mgt.ts_info.apsd", FT_UINT8, BASE_DEC,
-      NULL, 0, "TS Info APSD", HFILL }},
+     {"Automatic Power-Save Delivery (APSD)", "wlan_mgt.ts_info.apsd", FT_UINT8, BASE_DEC,
+      NULL, 0, "Traffic Stream (TS) Info Automatic Power-Save Delivery (APSD)", HFILL }},
 
     {&hf_tsinfo_up,
-     {"UP", "wlan_mgt.ts_info.up", FT_UINT8, BASE_DEC,
-      VALS (&qos_up), 0, "TS Info User Priority", HFILL }},
+     {"User Priority", "wlan_mgt.ts_info.up", FT_UINT8, BASE_DEC,
+      VALS (&qos_up), 0, "Traffic Stream (TS) Info User Priority", HFILL }},
 
     {&hf_tsinfo_ack,
      {"Ack Policy", "wlan_mgt.ts_info.ack", FT_UINT8, BASE_DEC,
-      VALS (&ack_policy), 0, "TS Info Ack Policy", HFILL }},
+      VALS (&ack_policy), 0, "Traffic Stream (TS) Info Ack Policy", HFILL }},
 
     {&hf_tsinfo_sched,
      {"Schedule", "wlan_mgt.ts_info.sched", FT_UINT8, BASE_DEC,
-      NULL, 0, "TS Info Schedule", HFILL }},
+      NULL, 0, "Traffic Stream (TS) Info Schedule", HFILL }},
 
     {&tspec_nor_msdu,
      {"Normal MSDU Size", "wlan_mgt.tspec.nor_msdu",
@@ -8583,8 +9456,8 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0, "Medium Time", HFILL }},
 
     {&ts_delay,
-     {"TS Delay", "wlan_mgt.ts_delay",
-      FT_UINT32, BASE_DEC, NULL, 0, "TS Delay", HFILL }},
+     {"Traffic Stream (TS) Delay", "wlan_mgt.ts_delay",
+      FT_UINT32, BASE_DEC, NULL, 0, "Traffic Stream (TS) Delay", HFILL }},
 
     {&hf_class_type,
      {"Classifier Type", "wlan_mgt.tclas.class_type", FT_UINT8, BASE_DEC,
@@ -8595,7 +9468,7 @@ proto_register_ieee80211 (void)
       NULL, 0, "Classifier Mask", HFILL }},
 
     {&hf_ether_type,
-     {"Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
+     {"Ethernet Type", "wlan_mgt.tclas.params.type", FT_UINT8, BASE_DEC,
       NULL, 0, "Classifier Parameters Ethernet Type", HFILL }},
 
     {&hf_tclas_process,
@@ -8620,7 +9493,7 @@ proto_register_ieee80211 (void)
 
     {&hf_action,
      {"Action", "wlan_mgt.fixed.action",
-      FT_UINT16, BASE_HEX, NULL, 0, "Action", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Action", HFILL }},
 
     {&cf_version,
      {"IP Version", "wlan_mgt.tclas.params.version",
@@ -8643,8 +9516,8 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_DEC, NULL, 0, "Destination Port", HFILL }},
 
     {&cf_dscp,
-     {"DSCP", "wlan_mgt.tclas.params.dscp",
-      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 DSCP Field", HFILL }},
+     {"IPv4 DSCP", "wlan_mgt.tclas.params.dscp",
+      FT_UINT8, BASE_HEX, NULL, 0, "IPv4 Differentiated Services Code Point (DSCP) Field", HFILL }},
 
     {&cf_protocol,
      {"Protocol", "wlan_mgt.tclas.params.protocol",
@@ -8743,9 +9616,16 @@ proto_register_ieee80211 (void)
     &ett_ht_cap_tree,
     &ett_ff_ba_param_tree,
     &ett_ff_qos_info,
-		&ett_ff_sm_pwr_save,
+    &ett_ff_sm_pwr_save,
+    &ett_ff_psmp_param_set,
+    &ett_ff_mimo_cntrl,
+    &ett_ff_ant_sel,
+    &ett_ff_chan_switch_announce,
+    &ett_ff_ht_info,
+    &ett_ff_psmp_sta_info,
     &ett_ff_delba_param_tree,
     &ett_ff_ba_ssc_tree,
+    &ett_mimo_report,
     &ett_cntrl_wrapper_fc,
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
