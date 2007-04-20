@@ -55,26 +55,37 @@ typedef int (*ber_type_fn)(gboolean, tvbuff_t*, int, packet_info*, proto_tree*, 
 #define BER_UNI_TAG_NULL				5
 #define BER_UNI_TAG_OID					6	/* OBJECT IDENTIFIER */
 #define BER_UNI_TAG_ObjectDescriptor	7
+#define BER_UNI_TAG_EXTERNAL			8
 #define BER_UNI_TAG_REAL				9
 #define BER_UNI_TAG_ENUMERATED		    10
 #define BER_UNI_TAG_EMBEDDED_PDV	    11
 #define BER_UNI_TAG_UTF8String		    12
 #define BER_UNI_TAG_RELATIVE_OID	    13
+/* UNIVERSAL 14-15	
+ * Reserved for future editions of this
+ * Recommendation | International Standard
+ */
 #define BER_UNI_TAG_SEQUENCE		    16	/* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET					17	/* SET, SET OF */
+/* UNIVERSAL 18-22 Character string types */
 #define BER_UNI_TAG_NumericString	    18
 #define BER_UNI_TAG_PrintableString	    19
 #define BER_UNI_TAG_TeletexString	    20  /* TeletextString, T61String */
 #define BER_UNI_TAG_VideotexString	    21
 #define BER_UNI_TAG_IA5String		    22
+/* UNIVERSAL 23-24 Time types */
 #define BER_UNI_TAG_UTCTime				23
 #define BER_UNI_TAG_GeneralizedTime	    24
+/* UNIVERSAL 25-30 Character string types */
 #define BER_UNI_TAG_GraphicString	    25
 #define BER_UNI_TAG_VisibleString	    26  /* VisibleString, ISO64String */
 #define BER_UNI_TAG_GeneralString	    27
 #define BER_UNI_TAG_UniversalString	    28
 #define BER_UNI_TAG_CHARACTERSTRING	    29
 #define BER_UNI_TAG_BMPString		    30
+/* UNIVERSAL 31- ...
+ * Reserved for addenda to this Recommendation | International Standard
+ */
 
 
 /* this function dissects the identifier octer of the BER TLV.
