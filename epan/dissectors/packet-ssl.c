@@ -761,9 +761,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
 static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-	proto_tree *root_tree, proto_tree *tree, SslAssociation* association,
-	guint32 seq, guint32 nxtseq, gboolean is_ssl_segment,
-	SslFlow *flow);
+		    proto_tree *tree, SslAssociation* association);
 
 static void
 desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -857,8 +855,7 @@ again:
 		   contain a continuation of a higher-level PDU.
 		   Call the normal subdissector.
 		*/
-		process_ssl_payload(tvb, offset, pinfo, root_tree, tree,
-				association, 0, 0, FALSE, flow);
+		process_ssl_payload(tvb, offset, pinfo, tree, association);
 		called_dissector = TRUE;
 
 		/* Did the subdissector ask us to desegment some more data
@@ -916,8 +913,7 @@ again:
 			add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
 
 			/* call subdissector */
-			process_ssl_payload(next_tvb, 0, pinfo, root_tree,
-			    tree, association, 0, 0, FALSE, flow);
+			process_ssl_payload(next_tvb, 0, pinfo, tree, association);
 			called_dissector = TRUE;
 
 			/*
@@ -1168,9 +1164,7 @@ again:
 
 static void
 process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
-	proto_tree *root_tree _U_ , proto_tree *tree, SslAssociation* association,
-	guint32 seq _U_, guint32 nxtseq _U_, gboolean is_ssl_segment _U_,
-	SslFlow *flow _U_)
+		    proto_tree *tree, SslAssociation* association)
 {
   tvbuff_t *next_tvb;
 
@@ -1218,7 +1212,8 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     pinfo->can_desegment = 0;
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    process_ssl_payload(next_tvb, 0, pinfo,	proto_tree_get_root(tree), tree, association, appl_data->seq, appl_data->nxtseq, TRUE, appl_data->flow);
+
+    process_ssl_payload(next_tvb, 0, pinfo, tree, association);
     pinfo->fragmented = save_fragmented;
   }
 }
