@@ -140,12 +140,12 @@ static char *wep_keystr[MAX_ENCRYPTION_KEYS];
 typedef struct mimo_control
   {
     guint8 nc;
-		guint8 nr;
-		gboolean chan_width;
-		guint8 grouping;
-		guint8 coefficient_size;
-		guint8 codebook_info;
-		guint8 remaining_matrix_segment;
+    guint8 nr;
+    gboolean chan_width;
+    guint8 grouping;
+    guint8 coefficient_size;
+    guint8 codebook_info;
+    guint8 remaining_matrix_segment;
   } mimo_control_t;
 
 mimo_control_t get_mimo_control (tvbuff_t *tvb, int offset);
@@ -1488,6 +1488,7 @@ mimo_control_t get_mimo_control (tvbuff_t *tvb, int offset)
   output.nc = (mimo & 0x0003) + 1;
   output.nr = ((mimo & 0x000C) >> 2) + 1;
   output.chan_width = (mimo & 0x0010) >> 4;
+  output.coefficient_size = 4; /* XXX - Is this a good default? */
 
   switch ((mimo & 0x0060) >> 5)
     {
@@ -2390,7 +2391,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 		proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
 		proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
 		info_large = tvb_get_letoh64 (tvb, offset);
-		proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & 0xFFFFFFFFFFE00000) >> 21);
+		proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_reserved_large, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
 		break;
 	      }
 
@@ -2399,7 +2400,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_start_offset, tvb, offset, 2, (info_medium & 0x00001FFC) >> 2);
 		  proto_tree_add_uint(psmp_tree, ff_psmp_sta_info_dtt_duration, tvb, offset+1, 2, (info_medium & 0x001FE000) >> 13);
 		  info_large = tvb_get_letoh64 (tvb, offset);
-		  proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & 0xFFFFFFFFFFE00000) >> 21);
+		  proto_tree_add_uint64(psmp_tree, ff_psmp_sta_info_psmp_multicast_id, tvb, offset, 6, (info_large & G_GINT64_CONSTANT(0xFFFFFFFFFFE00000)) >> 21);
 		  break;
 		}
 
