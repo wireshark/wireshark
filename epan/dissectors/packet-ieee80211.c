@@ -974,6 +974,7 @@ static int hf_wep_icv = -1;
 
 /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
 static int hf_block_ack_request_control = -1;
+static int hf_block_ack_control = -1;
 static int hf_block_ack_control_ack_policy = -1;
 static int hf_block_ack_control_multi_tid = -1;
 static int hf_block_ack_control_compressed_bitmap = -1;
@@ -1089,6 +1090,17 @@ static int ht_basic_mcs_set = -1;
 /*** Begin: 802.11n D1.10 - Secondary Channel Offset Tag  - Dustin Johnson***/
 static int hf_tag_secondary_channel_offset = -1;
 /*** End: 802.11n D1.10 - Secondary Channel Offset Tag  - Dustin Johnson***/
+
+/*** Begin: Power Capability Tag - Dustin Johnson ***/
+static int hf_tag_power_capability_min = -1;
+static int hf_tag_power_capability_max = -1;
+/*** End: Power Capability Tag - Dustin Johnson ***/
+
+/*** Begin: Power Capability Tag - Dustin Johnson ***/
+static int hf_tag_supported_channels = -1;
+static int hf_tag_supported_channels_first = -1;
+static int hf_tag_supported_channels_range = -1;
+/*** End: Power Capability Tag - Dustin Johnson ***/
 
 /*** Begin: Measurement Request Tag  - Dustin Johnson***/
 static int hf_tag_measure_request_measurement_token = -1;
@@ -1329,6 +1341,10 @@ static gint ett_ht_info_delimiter3_tree = -1;
 /*** Start: 802.11n D1.10 - Tag Measure Request IE - Dustin Johnson ***/
 static gint ett_tag_measure_request_tree = -1;
 /*** End: 802.11n D1.10 - Tag Measure Request IE  - Dustin Johnson ***/
+
+/*** Begin: Supported Channels Tag - Dustin Johnson ***/
+static gint ett_tag_supported_channels = -1;
+/*** End: Supported Channels Tag - Dustin Johnson ***/
 
 /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
 static gint ett_tag_neighbor_report_bssid_info_tree = -1;
@@ -4331,6 +4347,52 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
     secondary_channel_offset_ie(tree, tvb, offset + 2, tag_len);
     break;
   /*** End: Secondary Channel Offset Tag - Dustin Johnson ***/
+
+  /*** Begin: Power Capability Tag - Dustin Johnson ***/
+  case TAG_POWER_CAPABILITY:
+    {
+      offset += 2;
+      if (tag_len != 2)
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+          "Power Capability: Error: Tag length must be exactly 2 bytes long");
+      }
+
+      proto_tree_add_item(tree, hf_tag_power_capability_min, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_tag_power_capability_max, tvb, offset+1, 1, TRUE);
+      break;
+    }
+  /*** End: Power Capability Tag - Dustin Johnson ***/
+
+  /*** Begin: Supported Channels Tag - Dustin Johnson ***/
+  case TAG_SUPPORTED_CHANNELS:
+    {
+      proto_item *chan_item;
+      proto_tree *chan_tree;
+      guint8 i;
+
+      offset += 2;
+      if (tag_len > 8) /* XXX Is this a sane limit? */
+      {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+          "Supported Channels: Error: Tag length too long");
+      } else if (tag_len % 2 == 1) {
+        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
+          "Supported Channels: Error: Tag length must be even");
+      }
+
+      for (i=0; i<(tag_len/2); i++)
+      {
+        chan_item = proto_tree_add_uint_format(tree, hf_tag_supported_channels, tvb, offset, 2, i,
+          "Supported Channels Set #%d", i);
+        chan_tree = proto_item_add_subtree(chan_item , ett_tag_supported_channels);
+        proto_tree_add_item(chan_tree, hf_tag_supported_channels_first, tvb, offset++, 1, TRUE);
+        proto_tree_add_item(chan_tree, hf_tag_supported_channels_range, tvb, offset++, 1, TRUE);
+      }
+      break;
+    }
+  /*** End: Supported Channels Tag - Dustin Johnson ***/
+
   /*** Begin: Measure Request Tag - Dustin Johnson ***/
   case TAG_MEASURE_REQ:
       if (tag_len < 3)
@@ -4539,7 +4601,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		offset++;
 		info = tvb_get_guint8 (tvb, offset);
-	    parent_item = proto_tree_add_uint_format(tree, hf_tag_measure_report_mode, tvb,
+		parent_item = proto_tree_add_uint_format(tree, hf_tag_measure_report_mode, tvb,
 		                    offset, 1, info, "Measurement Report Mode: 0x%02X", info);
 		sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
 		proto_tree_add_boolean(sub_tree, hf_tag_measure_report_mode_late, tvb, offset, 1, info);
@@ -4548,9 +4610,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		proto_tree_add_uint(sub_tree, hf_tag_measure_report_mode_reserved, tvb, offset, 1, info);
 
 		offset++;
-        report_type = tvb_get_guint8 (tvb, offset);
-	    parent_item = proto_tree_add_uint(tree, hf_tag_measure_report_type, tvb, offset, 1, report_type);
-	    sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
+		report_type = tvb_get_guint8 (tvb, offset);
+		parent_item = proto_tree_add_uint(tree, hf_tag_measure_report_type, tvb, offset, 1, report_type);
+		sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
 
 		offset++;
 	    switch (report_type){
@@ -4558,7 +4620,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		{
 		  proto_tree *sub_tree_map_field;
 
-          channel_number = tvb_get_guint8 (tvb, offset);
+		  channel_number = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_channel_number, tvb, offset, 1, channel_number, "Measurement Channel Number: 0x%02X", channel_number);
 
 		  offset++;
@@ -4620,7 +4682,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_1, tvb, offset, 1, info, "RPI 1 Density: 0x%02X", info);
 		  info = tvb_get_guint8 (tvb, ++offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_2, tvb, offset, 1, info, "RPI 2 Density: 0x%02X", info);
-	      info = tvb_get_guint8 (tvb, ++offset);
+		  info = tvb_get_guint8 (tvb, ++offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_3, tvb, offset, 1, info, "RPI 3 Density: 0x%02X", info);
 		  info = tvb_get_guint8 (tvb, ++offset);
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_4, tvb, offset, 1, info, "RPI 4 Density: 0x%02X", info);
@@ -4632,10 +4694,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_rpi_histogram_report_7, tvb, offset, 1, info, "RPI 7 Density: 0x%02X", info);
 		  break;
 		case 3: /* Channel Load Report */
-        {
+		{
 		  guint8 regulatory_class, channel_load;
 
-          regulatory_class = tvb_get_guint8 (tvb, offset);
+		  regulatory_class = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
 
 		  offset++;
@@ -4656,17 +4718,17 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  break;
 		}
 		case 4: /* Noise Histogram Report */
-          /* TODO */
+		  /* TODO */
 		  proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
 		  break;
 		case 5: /* Beacon Report */
-        {
+		{
 		  guint8 regulatory_class, reported_frame_info, rcpi, rsni, ant_id;
 		  guint32 parent_tsf;
 		  proto_tree *sub_tree_frame_info;
 		  const guint8 *bssid = NULL;
 
-          regulatory_class = tvb_get_guint8 (tvb, offset);
+		  regulatory_class = tvb_get_guint8 (tvb, offset);
 		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_regulatory_class, tvb, offset, 1, regulatory_class);
 
 		  offset++;
@@ -5523,7 +5585,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	      offset, 1, block_ack_type);
 	    bar_parent_item = proto_tree_add_uint_format(hdr_tree,
 	      hf_block_ack_request_control, tvb, offset, 2, bar_control,
-	      "Block Ack Request Control: 0x%04X", bar_control);
+	      "Block Ack Request (BAR) Control: 0x%04X", bar_control);
 	    bar_sub_tree = proto_item_add_subtree(bar_parent_item,
 	      ett_block_ack);
 	    proto_tree_add_boolean(bar_sub_tree,
@@ -5602,8 +5664,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    block_ack_type = (ba_control & 0x0006) >> 1;
 	    proto_tree_add_uint(hdr_tree, hf_block_ack_type, tvb, offset, 1, block_ack_type);
 	    ba_parent_item = proto_tree_add_uint_format(hdr_tree,
-	      hf_block_ack_request_control, tvb, offset, 2, ba_control,
-	      "Block Ack Control: 0x%04X", ba_control);
+	      hf_block_ack_control, tvb, offset, 2, ba_control,
+	      "Block Ack (BA) Control: 0x%04X", ba_control);
 	    ba_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
 	    proto_tree_add_boolean(ba_sub_tree, hf_block_ack_control_ack_policy,
 	      tvb, offset, 1, ba_control);
@@ -5656,7 +5718,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		  proto_tree_add_uint(ba_mtid_sub_tree, hf_block_ack_multi_tid_value, tvb, offset+1, 1, ba_control);
 		  offset += 2;
 
-		  offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+		  offset += add_fixed_field(ba_mtid_sub_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
 		  proto_tree_add_text(ba_mtid_sub_tree, tvb, offset, 8, "Block Ack Bitmap");
 		  offset += 8;
 		}
@@ -5666,7 +5728,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    break;
 	  }
 	  /*** End: Block Ack - Dustin Johnson ***/
-      break;
+        break;
+      }
 
     case DATA_FRAME:
       addr_type = FCF_ADDR_SELECTOR (fcf);
@@ -5806,7 +5869,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
       break;
     }
-  }
 
   len = tvb_length_remaining(tvb, hdr_len);
   reported_len = tvb_reported_length_remaining(tvb, hdr_len);
@@ -7162,7 +7224,12 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  /*** Begin: Block Ack Request  - Dustin Johnson***/
+  /*** Begin: Block Ack/Block Ack Request  - Dustin Johnson***/
+  static const true_false_string hf_block_ack_control_ack_policy_flag = {
+      "Immediate Acknowledgement Required",
+      "Sender Does Not Require Immediate Acknowledgement"
+  };
+
   static const value_string hf_block_ack_request_type_flags[] = {
     {0x00, "Basic Block Ack Request"},
     {0x01, "Reserved"},
@@ -7170,9 +7237,7 @@ proto_register_ieee80211 (void)
     {0x03, "Multi-TID Block Ack Request"},
     {0x00, NULL}
   };
-  /*** End: Block Ack Request  - Dustin Johnson***/
 
-  /*** Begin: Block Ack Request  - Dustin Johnson***/
   static const value_string hf_block_ack_type_flags[] = {
     {0x00, "Basic Block Ack"},
     {0x01, "Reserved"},
@@ -7180,7 +7245,7 @@ proto_register_ieee80211 (void)
     {0x03, "Multi-TID Block"},
     {0x00, NULL}
   };
-  /*** End: Block Ack - Dustin Johnson***/
+  /*** End: Block Ack/Block Ack Request  - Dustin Johnson***/
 
   static hf_register_info hf[] = {
     {&hf_data_rate,
@@ -7406,11 +7471,15 @@ proto_register_ieee80211 (void)
     /*** Begin: Block Ack Request/Block Ack  - Dustin Johnson***/
     {&hf_block_ack_request_control,
      {"Block Ack Request (BAR) Control", "wlan.bar.control",
-	  FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request Control", HFILL }},
+	    FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request (BAR) Control", HFILL }},
+
+    {&hf_block_ack_control,
+     {"Block Ack Request Control", "wlan.ba.control",
+	    FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Request Control", HFILL }},
 
     {&hf_block_ack_control_ack_policy,
      {"BAR Ack Policy", "wlan.ba.control.ackpolicy",
-      FT_BOOLEAN, 16, 0, 0x01, "Block Ack Request (BAR) Ack Policy", HFILL }},
+      FT_BOOLEAN, 16, TFS (&hf_block_ack_control_ack_policy_flag), 0x01, "Block Ack Request (BAR) Ack Policy", HFILL }},
 
     {&hf_block_ack_control_multi_tid,
      {"Multi-TID", "wlan.ba.control.multitid",
@@ -7445,8 +7514,8 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, 0, 0x0fff, "Reserved", HFILL }},
 
     {&hf_block_ack_multi_tid_value,
-     {"Starting Sequence Number", "wlan.bar.mtid.tidinfo.value",
-      FT_UINT16, BASE_HEX, 0, 0xf000, "Starting Sequence Number", HFILL }},
+     {"Multi-TID Value", "wlan.bar.mtid.tidinfo.value",
+      FT_UINT16, BASE_HEX, 0, 0xf000, "Multi-TID Value", HFILL }},
 
     {&hf_block_ack_request_type,
      {"Block Ack Request Type", "wlan.bar.type",
@@ -8968,6 +9037,30 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (&hf_tag_secondary_channel_offset_flags), 0,
       "Secondary Channel Offset", HFILL }},
 
+    /*** Begin: Power Capability Tag - Dustin Johnson ***/
+    {&hf_tag_power_capability_min,
+     {"Minimum Transmit Power", "wlan_mgt.powercap.min",
+      FT_INT8, BASE_HEX, NULL, 0, "Minimum Transmit Power", HFILL }},
+
+    {&hf_tag_power_capability_max,
+     {"Maximum Transmit Power", "wlan_mgt.powercap.max",
+      FT_INT8, BASE_HEX, NULL, 0, "Maximum Transmit Power", HFILL }},
+    /*** End: Power Capability Tag - Dustin Johnson ***/
+
+    /*** Begin: Supported Channels Tag - Dustin Johnson ***/
+    {&hf_tag_supported_channels,
+     {"Supported Channels Set", "wlan_mgt.supchan",
+      FT_UINT8, BASE_DEC, NULL, 0, "Supported Channels Set", HFILL }},
+
+    {&hf_tag_supported_channels_first,
+     {"First Supported Channel", "wlan_mgt.supchan.first",
+      FT_UINT8, BASE_HEX, NULL, 0, "First Supported Channel", HFILL }},
+
+    {&hf_tag_supported_channels_range,
+     {"Supported Channel Range", "wlan_mgt.supchan.range",
+      FT_UINT8, BASE_HEX, NULL, 0, "Supported Channel Range", HFILL }},
+    /*** End: Supported Channels Tag - Dustin Johnson ***/
+
     /*** Start: Measurement Request Tag  - Dustin Johnson***/
     {&hf_tag_measure_request_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.measuretoken",
@@ -9632,6 +9725,7 @@ proto_register_ieee80211 (void)
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
     &ett_tag_measure_request_tree,
+    &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
     &ett_tag_neighbor_report_bssid_info_capability_tree,
     &ett_tag_neighbor_report_sub_tag_tree,
