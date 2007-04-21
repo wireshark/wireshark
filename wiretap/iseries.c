@@ -475,7 +475,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   gint64 cur_off;
   gboolean isValid, isCurrentPacket, IPread, TCPread, isDATA;
   int num_items_scanned, line, pktline, buflen;
-  int pkt_len, cap_len, pktnum, month, day, year, hr, min, sec, csec;
+  guint32 pkt_len;
+  int cap_len, pktnum, month, day, year, hr, min, sec, csec;
   char direction[2], destmac[13], srcmac[13], type[5], ipheader[41],
     tcpheader[81];
   char hex1[17], hex2[17], hex3[17], hex4[17];
@@ -740,11 +741,18 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     }
 
   /*
-   * Extract the packet length from the actual IP header, this may differ from the capture length
-   * reported by the formatted trace
+   * Extract the packet length from the actual IP header; this may
+   * differ from the capture length reported by the formatted trace.
+   * Note: if the entire Ethernet packet is present, but the IP
+   * packet is less than 46 bytes long, there will be padding, and
+   * the length in the IP header won't include the padding; if
+   * the packet length is less than the captured length, set the
+   * packet length to the captured length.
    */
   num_items_scanned = sscanf (asciibuf + 32, "%4x", &pkt_len);
   wth->phdr.len = pkt_len + 14;
+  if (wth->phdr.caplen > wth->phdr.len)
+    wth->phdr.len = wth->phdr.caplen;
 
   /* Make sure we have enough room for the packet, only create buffer if none supplied */
   if (pd == NULL)
