@@ -79,4 +79,6 @@ extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissect
 
 extern void call_tcap_dissector(dissector_handle_t, tvbuff_t*, packet_info*, proto_tree*);
 
+#include "packet-tcap-exp.h"
+
 #endif  /* PACKET_tcap_H */

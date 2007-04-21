@@ -230,10 +230,8 @@ proto_reg_handoff_tcap(void)
         prefs_initialized = TRUE;
     }
     
-    add_oid_str_name("0.0.17.773.1.1.1",
-                          "itu-t(0) recommendation(0) q(17) 773 as(1) dialogue-as(1) version1(1)");
-
-    data_handle = find_dissector("data");    
+    data_handle = find_dissector("data");
+#include "packet-tcap-dis-tab.c"
 }
 
 static void init_tcap(void);
