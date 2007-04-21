@@ -1,5 +1,5 @@
 # tcap.cnf
-# $Id:$
+# $Id$
 # tcap conformation file
 
 # 
@@ -27,18 +27,29 @@ gint8 class;
 	gint ind_field;
 	
 
-offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
                                     
  
  if (!next_tvb)
 	return offset;
 
-  dissect_tcap_ExternalPDU(TRUE, next_tvb, 2, pinfo, tree, -1);
+  dissect_tcap_ExternalPDU(TRUE, next_tvb, 0, pinfo, tree, -1);
 
 
 return offset+len;
+
+#.FN_BODY ExternalPDU
+gint8 class;
+	gboolean pc;
+	gint tag;
+	guint32 len;
+	gint ind_field;
+	/* Workaround for tagged fields */
+offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
+%(DEFAULT_BODY)s
 
 #.FN_BODY Dialog1
 gint8 class;
@@ -47,9 +58,10 @@ gint8 class;
 	guint32 len;
 	gint ind_field;
 	
-
+/* Calculate the correct length, Tags will be shown in DialoguePDU */
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+
  dissect_tcap_DialoguePDU(TRUE, tvb, 0, pinfo, tree, -1);
 
 return offset+len;
@@ -63,8 +75,8 @@ gint8 class;
 	gint ind_field;
 
 
- offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
- offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+ offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+ offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
 	/* need to strip the EOC off the next_tvb */
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
 
@@ -83,8 +95,8 @@ gint8 class;
 	gint ind_field;
 
 
-offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
+offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
 if (!next_tvb)
 	return offset+len; 
