@@ -533,7 +533,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 }
 
 
-static k12_t* new_k12_file_data() {
+static k12_t* new_k12_file_data(void) {
     k12_t* fd = g_malloc(sizeof(k12_t));
     
     fd->file_len = 0;
