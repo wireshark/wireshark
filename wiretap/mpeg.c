@@ -250,7 +250,7 @@ mpeg_close(wtap *wth)
 /* XXX We probably need more magic to open more types */
 struct _mpeg_magic {
 	size_t len;
-	gchar* match;
+	const gchar* match;
 } magic[] = {
 	{3,"TAG"},
 	{3,"ID3"},
