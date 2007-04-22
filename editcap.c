@@ -18,10 +18,14 @@
 
 /*
  * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2)
+ * (needed for glibc 2.2) but make sure we do this only if not
+ * yet defined.
  */
 
-#define __USE_XOPEN
+#ifndef __USE_XOPEN
+#  define __USE_XOPEN
+#endif
+
 #include <time.h>
 #include <glib.h>
 
