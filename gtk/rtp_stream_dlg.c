@@ -30,8 +30,6 @@
 #endif
 
 #include "rtp_stream_dlg.h"
-#include "rtp_stream.h"
-#include "rtp_analysis.h"
 
 #include "globals.h"
 #include "epan/filesystem.h"
@@ -55,6 +53,8 @@
 #include <locale.h>
 #include <epan/addr_resolv.h>
 
+#include "rtp_stream.h"
+#include "rtp_analysis.h"
 
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with SHIFT + left mouse button";
