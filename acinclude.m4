@@ -295,6 +295,34 @@ AC_DEFUN([AC_WIRESHARK_SOCKET_LIB_CHECK],
 ])
 
 #
+# AC_WIRESHARK_BREAKLOOP_TRY_LINK
+#
+AC_DEFUN([AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK],
+[
+  AC_LINK_IFELSE(
+  [
+      AC_LANG_SOURCE(
+      [[
+#	include <pcap.h>
+	int main(void)
+	{
+	  pcap_t  *pct = NULL;
+	  pcap_breakloop(pct);
+	  return 0;
+	}
+      ]])
+  ],
+  [
+    ws_breakloop_compiled=yes
+  ],
+  [
+    ws_breakloop_compiled=no
+  ])
+])
+
+
+
+#
 # AC_WIRESHARK_PCAP_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
@@ -437,7 +465,44 @@ and did you also install that package?]]))
 	else
 		AC_MSG_RESULT(no)
 	fi
-	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode pcap_breakloop)
+	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
+	#
+	# pcap_breakloop may be present in the library and not declared in the
+	# header file. We are therefore testing whether the function is present
+	# first and then if it is usable. It is usable if it compiles without
+	# an implicit warning. If it is not usable, we output a warning telling
+	# the user to update his pcap header.
+	# 
+	# Ceteris paribus, it should only happen with Mac OS X 10.3[.x] which
+	# can have an up-to-date pcap library without the corresponding pcap
+	# header.
+	#
+	# However, it might also happen on some others OSes with some erroneous
+	# system manipulations where multiple versions of libcap might co-exist	
+	# e.g. hand made symbolic link from libpcap.so -> libpcap.so.0.8 but
+	# having the pcap header version 0.7.
+	#
+	AC_MSG_CHECKING([whether pcap_breakloop is present and usable])
+	ac_CFLAGS_saved="$CFLAGS"
+	AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK
+	if test "x$ws_breakloop_compiled" = "xyes"; then
+	  CFLAGS="$CFLAGS -Werror -Wimplicit"
+	  AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK
+	  if test "x$ws_breakloop_compiled" = "xyes"; then
+	    AC_MSG_RESULT(yes)
+	    AC_DEFINE(HAVE_PCAP_BREAKLOOP, 1, [Define if pcap_breakloop is known])
+	  else
+	    AC_MSG_RESULT(broken)
+	    AC_MSG_WARN([Your pcap library is more recent than your pcap header.])
+	    AC_MSG_WARN([Wireshark won't be able to use functions not declared])
+	    AC_MSG_WARN([in that header. You should install a newer version of])
+	    AC_MSG_WARN([the header file.])
+	  fi
+	  CFLAGS="$ac_CFLAGS_saved"
+	else
+	  AC_MSG_RESULT(function not present)
+	fi
+
 	#
 	# Later versions of Mac OS X 10.3[.x] ship a pcap.h that
 	# doesn't define pcap_if_t but ship an 0.8[.x] libpcap,
