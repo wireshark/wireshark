@@ -30,6 +30,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
   AC_HELP_STRING( [--enable-extra-gcc-checks],
 		  [Do additional -W checks in GCC.  @<:@default=no@:>@]),
 [
+	wiretap_extra_gcc_flags=$enableval
 	if test $enableval != no
 	then
 		AC_WIRETAP_GCC_CFLAGS_CHECK(-pedantic)
@@ -69,7 +70,7 @@ AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
                   [Treat warnings as errors (only for gcc). @<:@default=yes@:>@]),
 [
-  if test "x$GCC" = "xyes" && test "x$enableval" == "xyes"; then
+  if test "x$GCC" = "xyes" -a "x$enableval" == "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
@@ -77,7 +78,7 @@ AC_ARG_ENABLE(warnings-as-errors,
     AC_MSG_RESULT(no)
   fi
 ],
-  if test "x$GCC" = "xyes" && test "x$wireshark_extra_gcc_flags" = "x"; then
+  if test "x$GCC" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else
