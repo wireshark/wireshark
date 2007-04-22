@@ -91,7 +91,7 @@
  * (needed for glibc 2.2) but make sure we do this only if not
  * yet defined.
  */
-#ifndef
+#ifndef __USE_XOPEN
 #  define __USE_XOPEN
 #endif
 
