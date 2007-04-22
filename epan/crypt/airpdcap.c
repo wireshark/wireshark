@@ -1350,8 +1350,11 @@ parse_key_string(gchar* input_string)
 
     gchar **tokens;
     guint n = 0;
-    guint i;
-
+#if GTK_MAJOR_VERSION < 2
+    gint i;
+#else
+    gsize i;
+#endif
     decryption_key_t *dk;
 
     if(input_string == NULL)
