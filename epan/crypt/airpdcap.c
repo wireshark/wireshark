@@ -37,6 +37,7 @@
 #include <epan/strutil.h>
 #include <epan/ws_strsplit.h>
 #include <epan/emem.h>
+#include <epan/pint.h>
 
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
@@ -213,12 +214,12 @@ static INT AirPDcapStoreSa(
         AIRPDCAP_SEC_ASSOCIATION_ID *id)
         ;
 
-static UCHAR * AirPDcapGetStaAddress(
-        PAIRPDCAP_MAC_FRAME frame)
+static const UCHAR * AirPDcapGetStaAddress(
+        const AIRPDCAP_MAC_FRAME *frame)
         ;
 
-static UCHAR * AirPDcapGetBssidAddress(
-        PAIRPDCAP_MAC_FRAME frame)
+static const UCHAR * AirPDcapGetBssidAddress(
+        const AIRPDCAP_MAC_FRAME *frame)
         ;
 
 static void AirPDcapRsnaPrfX(
@@ -255,7 +256,7 @@ INT AirPDcapPacketProcess(
         UINT8 mngDecrypt)
 {
         size_t mac_header_len;
-        UCHAR *address;
+        const UCHAR *address;
         AIRPDCAP_SEC_ASSOCIATION_ID id;
         INT index;
         PAIRPDCAP_SEC_ASSOCIATION sa;
@@ -299,7 +300,7 @@ INT AirPDcapPacketProcess(
         }
 
         /* get BSSID	*/
-        if ( (address=AirPDcapGetBssidAddress((PAIRPDCAP_MAC_FRAME)(data+offset))) != NULL) {
+        if ( (address=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
                 memcpy(id.bssid, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
                 sprintf(msgbuf, "BSSID: %2X.%2X.%2X.%2X.%2X.%2X\t", id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
@@ -311,7 +312,7 @@ INT AirPDcapPacketProcess(
         }
 
         /* get STA address	*/
-        if ( (address=AirPDcapGetStaAddress((PAIRPDCAP_MAC_FRAME)(data+offset))) != NULL) {
+        if ( (address=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME *)(data+offset))) != NULL) {
                 memcpy(id.sta, address, AIRPDCAP_MAC_LEN);
 #ifdef _DEBUG
                 sprintf(msgbuf, "ST_MAC: %2X.%2X.%2X.%2X.%2X.%2X\t", id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
@@ -371,7 +372,7 @@ INT AirPDcapPacketProcess(
 				}
 
 				/* get and check the body length (IEEE 802.1X-2004, pg. 25)	*/
-				bodyLength=ntohs(*(UINT16 *)(data+offset+2));
+				bodyLength=pntohs(data+offset+2);
 				if (((len-offset-4)!=bodyLength && !fcsPresent) || ((len-offset-8)!=bodyLength && fcsPresent)) {
 					AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "EAPOL body not valid (wrong length)", AIRPDCAP_DEBUG_LEVEL_5);
 					return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
@@ -864,7 +865,7 @@ AirPDcapRsna4WHandshake(
                         /* PATCH:	some implementations set secure bit to 0 also in the 4th message		*/
                         /*		to recognize which message is this check if wep_key data lenght is 0		*/
                         /*		in the 4th message								*/
-                        if (*(UINT16 *)(data+offset+92)!=0) {
+                        if (data[offset+92]!=0 || data[offset+93]!=0) {
                                 /* message 2	*/
                                 AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 2", AIRPDCAP_DEBUG_LEVEL_3);
 
@@ -917,7 +918,7 @@ AirPDcapRsna4WHandshake(
 							sa->wpa.ptk);
 
 						/* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK)	*/
-						eapol_len=(USHORT)(ntohs(*(UINT16 *)(data+offset-3))+4);
+						eapol_len=pntohs(data+offset-3)+4;
 						memcpy(eapol, &data[offset-5], (eapol_len<AIRPDCAP_EAPOL_MAX_LEN?eapol_len:AIRPDCAP_EAPOL_MAX_LEN));
 						ret_value=AirPDcapRsnaMicCheck(eapol,						/*	eapol frame (header also)		*/
 							eapol_len,													/*	eapol frame length				*/
@@ -1191,9 +1192,9 @@ AirPDcapStoreSa(
         return ctx->index;
 }
 
-static UCHAR *
+static const UCHAR *
 AirPDcapGetStaAddress(
-        PAIRPDCAP_MAC_FRAME frame)
+        const AIRPDCAP_MAC_FRAME *frame)
 {
         if (AIRPDCAP_TO_DS(frame->fc[1])==0) {
                 if (AIRPDCAP_FROM_DS(frame->fc[1])==0)
@@ -1208,9 +1209,9 @@ AirPDcapGetStaAddress(
         }
 }
 
-static UCHAR *
+static const UCHAR *
 AirPDcapGetBssidAddress(
-        PAIRPDCAP_MAC_FRAME frame)
+        const AIRPDCAP_MAC_FRAME *frame)
 {
         if (AIRPDCAP_TO_DS(frame->fc[1])==0) {
                 if (AIRPDCAP_FROM_DS(frame->fc[1])==0)
