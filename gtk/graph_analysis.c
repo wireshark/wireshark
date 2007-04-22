@@ -32,8 +32,6 @@
 #include "config.h"
 #endif
 
-#include "graph_analysis.h"
-
 #include <epan/epan_dissect.h>
 
 #include "util.h"
@@ -69,6 +67,8 @@
 #endif
 
 #include "simple_dialog.h"
+
+#include "graph_analysis.h"
 
 
 /* XXX FIXME */
@@ -244,7 +244,12 @@ static void enlarge_string(GString *gstr, guint32 length, char pad){
 
 static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 p2){
 
-	guint32 pos, len;
+	guint32 len;
+#if GTK_MAJOR_VERSION < 2
+	gint pos;
+#else
+	gsize pos;
+#endif
 
 	if (p1 == p2)
 		return;
@@ -265,7 +270,8 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 	if (pos > gstr->len)
 		pos = gstr->len;
 
-	if (pos + len > gstr->len)
+	/* ouch this is ugly but gtk1 needs it */
+	if ((guint32)(pos + len) > (guint32)gstr->len)
 		g_string_truncate(gstr, pos);
 	else
 		g_string_erase(gstr, pos, len);
