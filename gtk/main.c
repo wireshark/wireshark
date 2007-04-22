@@ -154,6 +154,7 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
+#if GTK_MAJOR_VERSION >= 2
 #include "../image/wsicon16.xpm"
 #include "../image/wsicon32.xpm"
 #include "../image/wsicon48.xpm"
@@ -161,6 +162,7 @@
 #include "../image/wsiconcap16.xpm"
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
+#endif
 #ifdef SHOW_WELCOME_PAGE
 #include "../image/wssplash.xpm"
 #endif
