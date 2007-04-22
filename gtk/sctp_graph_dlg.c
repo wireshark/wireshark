@@ -90,6 +90,11 @@ struct init_chunk_header {
 	guint32 initial_tsn;
 };
 
+struct gaps {
+	guint16 start;
+	guint16 end;
+};
+
 struct sack_chunk_header {
 	guint8  type;
 	guint8  flags;
@@ -98,12 +103,7 @@ struct sack_chunk_header {
 	guint32 a_rwnd;
 	guint16 nr_of_gaps;
 	guint16 nr_of_dups;
-	struct gaps *gaps;
-};
-
-struct gaps {
-	guint16 start;
-	guint16 end;
+	struct gaps gaps[1];
 };
 
 
@@ -205,7 +205,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				{
 					if (nr>0)
 					{
-						gap = sack_header->gaps;
+						gap = &sack_header->gaps[0];
 						for(i=0;i<nr; i++)
 						{
 							gap_start=ntohs(gap->start);
