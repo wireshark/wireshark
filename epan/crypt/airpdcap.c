@@ -1350,7 +1350,7 @@ parse_key_string(gchar* input_string)
 
     gchar **tokens;
     guint n = 0;
-#if GTK_MAJOR_VERSION < 2
+#if GLIB_MAJOR_VERSION < 2
     gint i;
 #else
     gsize i;
