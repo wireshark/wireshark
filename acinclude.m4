@@ -1503,3 +1503,33 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	AC_SUBST(KRB5_LIBS)
 ])
 
+#
+# AC_WIRESHARK_GCC_CFLAGS_CHECK
+#
+# $1 : cflags to test
+#
+# The macro first determines if the compiler is GCC. Then compile with the
+# defined cflags. The defined flags are added to CFLAGS only if the compilation
+# succeeds.
+#
+AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
+[GCC_OPTION="$1"
+AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
+if test "x$GCC" != "x"; then
+  CFLAGS_saved="$CFLAGS"
+  CFLAGS="$CFLAGS $GCC_OPTION"
+  AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[
+                      int foo;
+                  ]])],
+                  [
+                    AC_MSG_RESULT(yes)
+                  ],
+                  [
+                    AC_MSG_RESULT(no)
+                    CFLAGS="$CFLAGS_saved"
+                  ])
+else
+  AC_MSG_RESULT(no)
+fi
+])
