@@ -2287,7 +2287,7 @@ gint64 get_CDR_long_long(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endi
   val = (stream_is_big_endian) ? tvb_get_ntoh64 (tvb, *offset) :
                                  tvb_get_letoh64 (tvb, *offset);
 
-  *offset += 4;
+  *offset += 8;
   return val;
 }
 
