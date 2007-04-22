@@ -29,9 +29,6 @@
 # include "config.h"
 #endif
 
-#include "rtp_stream.h"
-#include "rtp_stream_dlg.h"
-
 #include "globals.h"
 
 #include <epan/tap.h>
@@ -53,6 +50,9 @@
 
 #include <string.h>
 #include <epan/addr_resolv.h>
+
+#include "rtp_stream.h"
+#include "rtp_stream_dlg.h"
 
 
 /****************************************************************************/
