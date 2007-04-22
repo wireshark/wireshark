@@ -32,18 +32,19 @@ AC_ARG_ENABLE(extra-gcc-checks,
 [
 	if test $enableval != no
 	then
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wcast-qual)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wcast-align)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wbad-function-cast)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-pedantic)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wmissing-declarations)
-	  AC_WIRETAP_GCC_CFLAGS_CHECK(-Wwrite-strings)
+		AC_WIRETAP_GCC_CFLAGS_CHECK(-pedantic)
+		AC_WIRETAP_GCC_CFLAGS_CHECK(-Wno-long-long)
 	fi
 ],)
 AC_WIRETAP_GCC_CFLAGS_CHECK(-Wall -W)
-AC_WIRETAP_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRETAP_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wpointer-arith)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wbad-function-cast)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wcast-qual)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wcast-align)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wwrite-strings)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
+AC_WIRETAP_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 AC_WIRETAP_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 
 #
