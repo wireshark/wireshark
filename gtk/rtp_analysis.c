@@ -40,10 +40,6 @@
 /*do not define this symbol. will be added soon*/
 /*#define USE_CONVERSATION_GRAPH 1*/
 
-#include "rtp_analysis.h"
-#include "rtp_stream.h"
-#include "rtp_stream_dlg.h"
-
 #ifdef USE_CONVERSATION_GRAPH
 #include "../graph/graph.h"
 #endif
@@ -93,6 +89,11 @@
 
 #include "file_util.h"
 #include "tempfile.h"
+
+#include "rtp_analysis.h"
+#include "rtp_stream.h"
+#include "rtp_stream_dlg.h"
+
 
 /****************************************************************************/
 
