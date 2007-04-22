@@ -98,7 +98,7 @@ struct sack_chunk_header {
 	guint32 a_rwnd;
 	guint16 nr_of_gaps;
 	guint16 nr_of_dups;
-	guint8  *tsns;
+	struct gaps *gaps;
 };
 
 struct gaps {
@@ -205,7 +205,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				{
 					if (nr>0)
 					{
-						gap = (struct gaps *)(&(sack_header->tsns));
+						gap = sack_header->gaps;
 						for(i=0;i<nr; i++)
 						{
 							gap_start=ntohs(gap->start);
