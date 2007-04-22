@@ -1350,7 +1350,7 @@ parse_key_string(gchar* input_string)
 
     gchar **tokens;
     guint n = 0;
-    gint i;
+    guint i;
 
     decryption_key_t *dk;
 
