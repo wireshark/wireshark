@@ -183,7 +183,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     GtkWidget	*sw, *tree;
 #if GTK_MAJOR_VERSION < 2
     int		i, height;
-    gchar		*column_titles[NUM_STAT_COLUMNS] = {
+    const gchar		*column_titles[NUM_STAT_COLUMNS] = {
         "Protocol",
         "% Packets",
         "Packets",
