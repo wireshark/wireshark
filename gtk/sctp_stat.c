@@ -150,8 +150,8 @@ static void tsn_free(gpointer data, gpointer user_data _U_)
 	}
 }
 
-static void
-reset(void *arg)
+
+static void reset(void *arg)
 {
 	sctp_allassocs_info_t *tapdata = arg;
 	GList* list;
@@ -317,6 +317,13 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	     (b->verification_tag2 != 0))))
 		return(FORWARD_STREAM);
 
+	/* ABORT, vtag reflected */
+	if ((a->port1 == b->port1) &&
+	    (a->port2 == b->port2) &&
+	    (a->verification_tag2 == b->verification_tag2) &&	
+	    (a->verification_tag1 == 0 && b->verification_tag1 != 0))
+		return(FORWARD_STREAM);
+
 	if ((a->port1 == b->port2) &&
 	    (a->port2 == b->port1) &&
 	    (a->verification_tag1 == b->verification_tag2) &&
@@ -327,6 +334,13 @@ static gint sctp_assoc_vtag_cmp(gconstpointer aa, gconstpointer bb)
 	    (a->port2 == b->port1) &&
 	    (a->verification_tag2 == b->verification_tag1) &&
 	    (a->verification_tag2 != 0))
+		return(BACKWARD_STREAM);
+
+	/* ABORT, vtag reflected */
+	if ((a->port1 == b->port2) &&
+	    (a->port2 == b->port1) &&
+	    (a->verification_tag2 == b->verification_tag1) &&	
+	    (a->verification_tag1 == 0 && b->verification_tag2 != 0))
 		return(BACKWARD_STREAM);
 
 	/*forward stream verifivation tag can be added*/

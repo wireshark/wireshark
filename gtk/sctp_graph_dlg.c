@@ -205,7 +205,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 				{
 					if (nr>0)
 					{
-						gap = (struct gaps *)sack_header->tsns;
+						gap = (struct gaps *)(&(sack_header->tsns));
 						for(i=0;i<nr; i++)
 						{
 							gap_start=ntohs(gap->start);
@@ -363,8 +363,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	}
 	else
 	{
-		u_data->io->min_x=((guint32)(u_data->io->x1_tmp_sec*1000000.0))+u_data->io->x1_tmp_usec;
-		u_data->io->max_x=((guint32)(u_data->io->x2_tmp_sec*1000000.0))+u_data->io->x2_tmp_usec;		
+		u_data->io->min_x=u_data->io->x1_tmp_sec*1000000.0+u_data->io->x1_tmp_usec;
+		u_data->io->max_x=u_data->io->x2_tmp_sec*1000000.0+u_data->io->x2_tmp_usec;		
 		u_data->io->uoff = FALSE;
 	}
 
@@ -946,10 +946,10 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 	{
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->white_gc,
 		                   FALSE,
-		                   (gint) floor(MIN(u_data->io->x_old,u_data->io->x_new)),
-		                   (gint) floor(MIN(u_data->io->y_old,u_data->io->y_new)),
-		                   (gint) floor(abs((long)(u_data->io->x_new-u_data->io->x_old))),
-		                   (gint) floor(abs((long)(u_data->io->y_new-u_data->io->y_old))));
+		                   (gint)floor(MIN(u_data->io->x_old,u_data->io->x_new)),
+		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
+		                   (gint)floor(abs((long)(u_data->io->x_new-u_data->io->x_old))),
+		                   (gint)floor(abs((long)(u_data->io->y_new-u_data->io->y_old))));
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 		if(!ios){
@@ -981,12 +981,17 @@ static gint
 on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
 {
 	sctp_graph_t *ios;
-	guint32 helpx, helpy, x1_tmp, x2_tmp,  y_value;
+	guint32 helpx, helpy, x1_tmp, x2_tmp,  y_value, frame, tmpnum=0, count=0, tsnumber=0;
 	gint label_width, label_height;
-	gdouble x_value, position;
+	gdouble x_value, position, tfirst, s_diff, t_diff;
 	gint lwidth;
 	char label_string[30];
 	GdkGC *text_color;
+	GList *tsnlist=NULL, *tlist=NULL, *sacklist=NULL;
+	tsn_t *tsn, *tmptsn, *tmpsack, *sack;
+	guint8 type;
+	gboolean sack_type = FALSE;
+
 	#if GTK_MAJOR_VERSION < 2
 		GdkFont *font;
 #else
@@ -1014,10 +1019,10 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		event->x = LEFT_BORDER+u_data->io->offset;
 	if (abs((long)(event->x-u_data->io->x_old))>10 || abs((long)(event->y-u_data->io->y_old))>10)
 	{
-		u_data->io->rect_x_min = (gint) floor(MIN(u_data->io->x_old,event->x));
-		u_data->io->rect_x_max = (gint) ceil(MAX(u_data->io->x_old,event->x));
-		u_data->io->rect_y_min = (gint) floor(MIN(u_data->io->y_old,event->y));
-		u_data->io->rect_y_max = (gint) ceil(MAX(u_data->io->y_old,event->y))+POINT_SIZE;
+		u_data->io->rect_x_min = (gint)floor(MIN(u_data->io->x_old,event->x));
+		u_data->io->rect_x_max = (gint)ceil(MAX(u_data->io->x_old,event->x));
+		u_data->io->rect_y_min = (gint)floor(MIN(u_data->io->y_old,event->y));
+		u_data->io->rect_y_max = (gint)ceil(MAX(u_data->io->y_old,event->y))+POINT_SIZE;
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
 		                   FALSE,
 		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
@@ -1037,8 +1042,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		                u_data->io->draw_area->allocation.width,
 		                u_data->io->draw_area->allocation.height);
 
-		x1_tmp=(gint) floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
-		x2_tmp=(gint) floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
+		x1_tmp=(unsigned int)floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
+		x2_tmp=(unsigned int)floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		helpx=MIN(x1_tmp, x2_tmp);
 		if (helpx==x2_tmp)
 		{
@@ -1101,23 +1106,129 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		else
 		{
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
-			y_value = (gint) floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
+			y_value = floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
 			text_color = u_data->io->draw_area->style->black_gc;
-			g_snprintf(label_string, 30, "(%.6f, %u)", x_value, y_value);
+
+			if (u_data->dir == 1)
+			{
+				tsnlist = g_list_last(u_data->assoc->tsn1);
+				sacklist = g_list_last(u_data->assoc->sack1);
+			}
+			else
+			{
+				tsnlist = g_list_last(u_data->assoc->tsn2);
+				sacklist = g_list_last(u_data->assoc->sack2);
+			}
+
+			tsn = (tsn_t*) (tsnlist->data);
+			tmptsn =(tsn_t*)(tsnlist->data);
+			tfirst = tsn->secs + tsn->usecs/1000000.0;
+			frame = tsn->frame_number;
+			
+			while (tsnlist)
+			{
+				tsnlist = g_list_previous(tsnlist);
+				tsn = (tsn_t*) (tsnlist->data);
+				if (tsn->secs+tsn->usecs/1000000.0<x_value)
+				{
+					tfirst = tsn->secs+tsn->usecs/1000000.0;
+					tmptsn =tsn;
+				}
+				else
+				{
+					if ((tfirst+tsn->secs+tsn->usecs/1000000.0)/2.0<x_value)
+					{
+						t_diff = tsn->secs+tsn->usecs/1000000.0 - x_value;
+						tmptsn = tsn;
+					}
+					else
+						t_diff = x_value - tmptsn->secs+tmptsn->usecs/1000000.0;
+					break;
+				}
+			}
+			sack = (tsn_t*) (sacklist->data);
+			tmpsack =(tsn_t*)(sacklist->data);
+			tfirst = sack->secs + sack->usecs/1000000.0;
+			
+			while (sacklist)
+			{
+				sacklist = g_list_previous(sacklist);
+				sack = (tsn_t*) (sacklist->data);
+				if (sack->secs+sack->usecs/1000000.0<x_value)
+				{
+					tfirst = sack->secs+sack->usecs/1000000.0;
+					tmpsack =sack;
+				}
+				else
+				{
+					if ((tfirst+sack->secs+sack->usecs/1000000.0)/2.0<x_value)
+					{
+						s_diff = sack->secs+sack->usecs/1000000.0 - x_value;
+						tmpsack = sack;
+					}
+					else
+						s_diff = x_value - tmpsack->secs+tmpsack->usecs/1000000.0;
+					break;
+				}
+			}
+			if (s_diff < t_diff)
+			{
+				cf_goto_frame(&cfile, tmpsack->frame_number);
+				x_value = tmpsack->secs+tmpsack->usecs/1000000.0;
+				tlist = g_list_first(tmpsack->tsns);
+				sack_type = TRUE;
+			}
+			else
+			{
+				cf_goto_frame(&cfile, tmptsn->frame_number);
+				x_value = tmptsn->secs+tmptsn->usecs/1000000.0;
+				tlist = g_list_first(tmptsn->tsns);
+				sack_type = FALSE;
+			}
+			count++;
+			while (tlist)
+			{
+				type = ((struct chunk_header *)tlist->data)->type;
+				if (type == SCTP_DATA_CHUNK_ID && !sack_type)
+					tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
+				else if (type == SCTP_SACK_CHUNK_ID && sack_type)
+					tsnumber = g_ntohl(((struct sack_chunk_header *)tlist->data)->cum_tsn_ack);
+				if (tsnumber < y_value && g_list_length(tlist)-count>0)
+				{
+					tmpnum = tsnumber;
+				}
+				else
+				{
+					if ((tmpnum+tsnumber)/2 < y_value)
+					{
+						y_value = tsnumber;
+						tmpnum = tsnumber;
+					}
+					else
+					{
+						y_value = tmpnum;
+					}
+					break;
+				}
+				tlist = g_list_next(tlist);
+				count++;
+			}
+			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
 			label_set = TRUE;
 
-			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x-2), (gint)(event->y), (gint)(event->x+2), (gint)(event->y));
-			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x), (gint)(event->y-2), (gint)(event->x), (gint)(event->y+2));
+			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);
+			gdk_draw_line(u_data->io->pixmap,text_color, event->x, event->y-2, event->x, event->y+2);
 			if (event->x+150>=u_data->io->pixmap_width)
 				position = event->x - 150;
 			else
 				position = event->x + 5;
 
+
 #if GTK_MAJOR_VERSION < 2
 			lwidth=gdk_string_width(font, label_string);
 		                            gdk_draw_string(u_data->io->pixmap,font,text_color,
-		                            (gint) (position),
-		                            (gint) (event->y-10),
+		                            position,
+		                            event->y-10,
 		                            label_string);
 #else
 			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
@@ -1125,10 +1236,13 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 			gdk_draw_layout(u_data->io->pixmap,text_color,
-							(gint) (position),
-							(gint) (event->y-10),
+							position,
+							event->y-10,
 							layout);
-#endif
+	#endif
+
+
+
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 			if(!ios){

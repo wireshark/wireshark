@@ -940,12 +940,14 @@ static gint
 on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata *u_data)
 {
 	sctp_graph_t *ios;
-	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value;
+	guint32 helpx, helpy, x1_tmp, x2_tmp, y_value, frame;
 	gint label_width, label_height;
-	gdouble x_value, position;
+	gdouble x_value, position, tfirst;
 	gint lwidth;
 	char label_string[30];
 	GdkGC *text_color;
+	GList *tsnlist=NULL;
+	tsn_t *tsn, *tmptsn;
 	#if GTK_MAJOR_VERSION < 2
 		GdkFont *font;
 #else
@@ -1062,6 +1064,39 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
 			y_value = (guint32) floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
 			text_color = u_data->io->draw_area->style->black_gc;
+
+			if (u_data->dir == 1)
+				tsnlist = g_list_last(u_data->assoc->tsn1);
+			else
+				tsnlist = g_list_last(u_data->assoc->tsn2);
+
+			tsn = (tsn_t*) (tsnlist->data);
+			tmptsn =(tsn_t*)(tsnlist->data);
+			tfirst = tsn->secs + tsn->usecs/1000000.0;
+			frame = tsn->frame_number;
+			
+			while (tsnlist)
+			{
+				tsnlist = g_list_previous(tsnlist);
+				tsn = (tsn_t*) (tsnlist->data);
+				if (tsn->secs+tsn->usecs/1000000.0<x_value)
+				{
+					tfirst = tsn->secs+tsn->usecs/1000000.0;
+					tmptsn =tsn;
+				}
+				else
+				{
+					if ((tfirst+tsn->secs+tsn->usecs/1000000.0)/2.0<x_value)
+					{
+						x_value = tsn->secs+tsn->usecs/1000000.0;
+						tmptsn = tsn;
+					}
+					else
+						x_value = tmptsn->secs+tmptsn->usecs/1000000.0;
+					break;
+				}
+			}
+			cf_goto_frame(&cfile, tmptsn->frame_number);
 			g_snprintf(label_string, 30, "(%.6f, %u)", x_value, y_value);
 			label_set = TRUE;
 
