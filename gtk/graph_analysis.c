@@ -267,7 +267,8 @@ static void overwrite (GString *gstr, char *text_to_insert, guint32 p1, guint32 
 		len = strlen(text_to_insert);
 	}
 
-	if (pos > gstr->len)
+	/* ouch this is ugly but gtk1 needs it */
+	if ((guint32)pos > (guint32)gstr->len)
 		pos = gstr->len;
 
 	/* ouch this is ugly but gtk1 needs it */
