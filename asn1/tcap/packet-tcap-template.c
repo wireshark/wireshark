@@ -183,7 +183,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
-    dissect_tcap_MessageType(FALSE, tvb, 0, pinfo, tree, -1);  
+    dissect_tcap_TCMessage(FALSE, tvb, 0, pinfo, tree, -1);  
 
     if (gtcap_HandleSRT &&
 	!tcap_subdissector_used ) {

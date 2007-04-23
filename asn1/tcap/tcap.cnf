@@ -238,27 +238,31 @@ gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " End ");
-offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                End_sequence, hf_index, ett_tcap_End);
+
+%(DEFAULT_BODY)s
+
 #.FN_BODY Continue
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Continue ");
-offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Continue_sequence, hf_index, ett_tcap_Continue);
+
+%(DEFAULT_BODY)s
+
 #.FN_BODY Abort
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
- offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Abort_sequence, hf_index, ett_tcap_Abort); 
+ 
+ %(DEFAULT_BODY)s
+  
 #.FN_BODY AbortPDU
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
-   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
+
+%(DEFAULT_BODY)s
+
 #.FN_BODY TransactionPDU
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithPerm");		
@@ -275,8 +279,7 @@ if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(pinfo->cinfo, COL
 if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
 				
- offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);  
+%(DEFAULT_BODY)s  
 
 #.FN_BODY TransactionID VAL_PTR = &next_tvb
 
