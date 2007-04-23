@@ -171,7 +171,7 @@ static void ccmp_init_blocks(
 			b0[1] = aad[30];
 			aad[1] = 22 + AIRPDCAP_MAC_LEN + 2;
 		} else {
-			*(UINT16 *)&aad[30] = 0;
+			memset(&aad[30], 0, 2);
 			b0[1] = 0;
 			aad[1] = 22 + AIRPDCAP_MAC_LEN;
 		}
@@ -184,12 +184,11 @@ static void ccmp_init_blocks(
 			b0[1] = aad[24];
 			aad[1] = 22 + 2;
 		} else {
-			*(UINT16 *)&aad[24] = 0;
+			memset(&aad[24], 0, 2);
 			b0[1] = 0;
 			aad[1] = 22;
 		}
-		*(UINT16 *)&aad[26] = 0;
-		*(UINT16 *)&aad[28] = 0;
+		memset(&aad[26], 0, 4);
 	}
 
 	/* Start with the first block and AAD */
@@ -222,12 +221,10 @@ INT AirPDcapCcmpDecrypt(
 	UINT space;
 	INT z=AIRPDCAP_HEADER_LEN(m[1]);
 	rijndael_ctx key;
-	UCHAR PN[6];
-	UINT64 tPN;
+	UINT64 PN;
 	UINT8 *ivp=m+z;
 
-	tPN = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
-	memcpy(PN, &tPN, 6);
+	PN = READ_6(ivp[0], ivp[1], ivp[4], ivp[5], ivp[6], ivp[7]);
 
 	/* freebsd	*/
 	rijndael_set_key(&key, TK1, 128);
@@ -235,7 +232,7 @@ INT AirPDcapCcmpDecrypt(
 	data_len = len - (z + AIRPDCAP_CCMP_HEADER+AIRPDCAP_CCMP_TRAILER);
 	if (data_len < 1)
 	    return 0;
-	ccmp_init_blocks(&key, wh, *(UINT64 *)PN, data_len, b0, aad, a, b);
+	ccmp_init_blocks(&key, wh, PN, data_len, b0, aad, a, b);
 	memcpy(mic, m+len-AIRPDCAP_CCMP_TRAILER, AIRPDCAP_CCMP_TRAILER);
 	XOR_BLOCK(mic, b, AIRPDCAP_CCMP_TRAILER);
 
