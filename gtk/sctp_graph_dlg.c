@@ -363,8 +363,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	}
 	else
 	{
-		u_data->io->min_x=u_data->io->x1_tmp_sec*1000000.0+u_data->io->x1_tmp_usec;
-		u_data->io->max_x=u_data->io->x2_tmp_sec*1000000.0+u_data->io->x2_tmp_usec;		
+		u_data->io->min_x=((guint32)(u_data->io->x1_tmp_sec*1000000.0))+u_data->io->x1_tmp_usec;
+		u_data->io->max_x=((guint32)(u_data->io->x2_tmp_sec*1000000.0))+u_data->io->x2_tmp_usec;		
 		u_data->io->uoff = FALSE;
 	}
 
@@ -1106,7 +1106,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		else
 		{
 			x_value = ((event->x-LEFT_BORDER-u_data->io->offset) * ((u_data->io->x2_tmp_sec+u_data->io->x2_tmp_usec/1000000.0)-(u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0)) / (u_data->io->pixmap_width-LEFT_BORDER-u_data->io->offset))+u_data->io->x1_tmp_sec+u_data->io->x1_tmp_usec/1000000.0;
-			y_value = floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
+			y_value = (gint)floor((u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-event->y) * (max_tsn - min_tsn) / (u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)) + min_tsn;
 			text_color = u_data->io->draw_area->style->black_gc;
 
 			if (u_data->dir == 1)
@@ -1216,8 +1216,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			g_snprintf(label_string, 30, "(%.6lf, %u)", x_value, y_value);
 			label_set = TRUE;
 
-			gdk_draw_line(u_data->io->pixmap,text_color, event->x-2, event->y, event->x+2, event->y);
-			gdk_draw_line(u_data->io->pixmap,text_color, event->x, event->y-2, event->x, event->y+2);
+			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x-2), (gint)(event->y), (gint)(event->x+2), (gint)(event->y));
+			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x), (gint)(event->y-2), (gint)(event->x), (gint)(event->y+2));
 			if (event->x+150>=u_data->io->pixmap_width)
 				position = event->x - 150;
 			else
@@ -1227,8 +1227,8 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 #if GTK_MAJOR_VERSION < 2
 			lwidth=gdk_string_width(font, label_string);
 		                            gdk_draw_string(u_data->io->pixmap,font,text_color,
-		                            position,
-		                            event->y-10,
+					    (gint)position,
+					    (gint)(event->y-10),
 		                            label_string);
 #else
 			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
@@ -1236,9 +1236,9 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 			gdk_draw_layout(u_data->io->pixmap,text_color,
-							position,
-							event->y-10,
-							layout);
+					    (gint)position,
+					    (gint)(event->y-10),
+					    layout);
 	#endif
 
 
