@@ -39,7 +39,7 @@ typedef struct md5_state_s
 {
 	guint32 buf[4];
 	guint32 bits[2];
-	guint8  in[64];
+	guint32 in[16];
 } md5_state_t;
 
 /** Initialize the algorithm. 
