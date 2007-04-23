@@ -236,7 +236,7 @@ register_ber_oid_name(const char *oid, const char *name)
 	add_oid_str_name(oid, name);
 }
 
-static void ber_decode_as_dt(gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)
+static void ber_decode_as_dt(const gchar *table_name _U_, ftenum_t selector_type _U_, gpointer key, gpointer value, gpointer user_data)
 {
   da_data *decode_as_data;
   
