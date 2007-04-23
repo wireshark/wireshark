@@ -57,14 +57,13 @@
 /*
  * Note: this code is harmless on little-endian machines.
  */
-static void byteReverse(unsigned char *buf, unsigned longs)
+static void byteReverse(guint32 *buf, unsigned longs)
 {
     guint32 t;
     do {
-	t = (guint32) ((unsigned) buf[3] << 8 | buf[2]) << 16 |
-	    ((unsigned) buf[1] << 8 | buf[0]);
-	*(guint32 *) buf = t;
-	buf += 4;
+	t = pletohl(buf);
+	*buf = t;
+	buf++;
     } while (--longs);
 }
 #endif
@@ -115,7 +114,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
 	    return;
 	}
 	memcpy(p, buf, t);
-	byteReverse((unsigned char *) ctx->in, 16);
+	byteReverse(ctx->in, 16);
 	MD5Transform(ctx->buf, ctx->in);
 	buf += t;
 	len -= t;
@@ -124,7 +123,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
 
     while (len >= 64) {
 	memcpy(ctx->in, buf, 64);
-	byteReverse((unsigned char *) ctx->in, 16);
+	byteReverse(ctx->in, 16);
 	MD5Transform(ctx->buf, ctx->in);
 	buf += 64;
 	len -= 64;
@@ -159,7 +158,7 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
     if (count < 8) {
 	/* Two lots of padding:  Pad the first block to 64 bytes */
 	memset(p, 0, count);
-	byteReverse((unsigned char *) ctx->in, 16);
+	byteReverse(ctx->in, 16);
 	MD5Transform(ctx->buf, ctx->in);
 
 	/* Now fill the next block with 56 bytes */
@@ -168,14 +167,14 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
 	/* Pad block to 56 bytes */
 	memset(p, 0, count - 8);
     }
-    byteReverse((unsigned char *) ctx->in, 14);
+    byteReverse(ctx->in, 14);
 
     /* Append length in bits and transform */
     ctx->in[14] = ctx->bits[0];
     ctx->in[15] = ctx->bits[1];
 
     MD5Transform(ctx->buf, ctx->in);
-    byteReverse((unsigned char *) ctx->buf, 4);
+    byteReverse(ctx->buf, 4);
     memcpy(digest, ctx->buf, 16);
     memset(ctx, 0, sizeof(ctx));	/* In case it's sensitive */
 }
