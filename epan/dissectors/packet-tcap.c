@@ -1428,8 +1428,11 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
+
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Begin_sequence, hf_index, ett_tcap_Begin);
+                                   Begin_sequence, hf_index, ett_tcap_Begin);
+
+
 
 
   return offset;
@@ -1495,7 +1498,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 237 "tcap.cnf"
+#line 238 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(pinfo->cinfo, COL_INFO))
@@ -1524,7 +1527,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 245 "tcap.cnf"
+#line 246 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
@@ -1598,7 +1601,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 253 "tcap.cnf"
+#line 254 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
@@ -1620,7 +1623,7 @@ static int dissect_abort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbu
 
 static int
 dissect_tcap_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 285 "tcap.cnf"
+#line 286 "tcap.cnf"
 
 tvbuff_t *next_tvb;
 
@@ -2168,7 +2171,7 @@ static const ber_sequence_t TransactionPDU_sequence[] = {
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 267 "tcap.cnf"
+#line 268 "tcap.cnf"
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithPerm");		
 				
@@ -2270,7 +2273,7 @@ static const ber_sequence_t AbortPDU_sequence[] = {
 
 static int
 dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 261 "tcap.cnf"
+#line 262 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
 
@@ -3300,55 +3303,55 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
    * Handle The TCAP Service Response Time
    */
   if ( gtcap_HandleSRT ) {
-    if (!tcap_subdissector_used) {
-      /* Create TCAP context and tree for display */
-      if (gtcap_DisplaySRT && tree) {
-	stat_item = proto_tree_add_text(tcap_stat_tree, tvb, offset, -1, "Stat");
-	PROTO_ITEM_SET_GENERATED(stat_item);
-	stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
-      }
-      p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
-      tcap_subdissector_used=TRUE;
-      gp_tcap_context=p_tcap_context;
-      tcap_private.context=p_tcap_context;
-    } else {
-      /* Take the last TCAP context */
-      p_tcap_context = gp_tcap_context;
-      tcap_private.context=p_tcap_context;
-    }
-  }
-
-  if (p_tcap_context) {
-    if (cur_oid) {
-      if (p_tcap_context->oid_present) {
-	/* We have already an Application Context, check if we have
-	   to fallback to a lower version */
-	if ( strncmp(p_tcap_context->oid,cur_oid, LENGTH_OID)!=0) {
-	  /* ACN, changed, Fallback to lower version */
-	  /* and update the subdissector (purely formal) */
-	  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
-	  if ( (subdissector_handle
-		= dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	    p_tcap_context->subdissector_handle=subdissector_handle;
+	  if (!tcap_subdissector_used) {
+		  /* Create TCAP context and tree for display */
+		  if (gtcap_DisplaySRT && tree) {
+			  stat_item = proto_tree_add_text(tcap_stat_tree, tvb, offset, -1, "Stat");
+			  PROTO_ITEM_SET_GENERATED(stat_item);
+			  stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
+		  }
+		  p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
+		  tcap_subdissector_used=TRUE;
+		  gp_tcap_context=p_tcap_context;
+		  tcap_private.context=p_tcap_context;
+	  }else{
+		  /* Take the last TCAP context */
+		  p_tcap_context = gp_tcap_context;
+		  tcap_private.context=p_tcap_context;
 	  }
-	}
-      } else {
-	/* We do not have the OID in the TCAP context, so store it */
-	strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
-	if ( (subdissector_handle
-	      = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	  p_tcap_context->subdissector_handle=subdissector_handle;
-	  p_tcap_context->oid_present=TRUE;
-	}
-      } /* context OID */
-    } else {
-      /* Copy the OID from the TCAP context to the current oid */
-      if (p_tcap_context->oid_present) {
-	tcap_private.oid= (void*) p_tcap_context->oid;
-	tcap_private.acv=TRUE;
-      }
-    } /* no OID */
+  }
+  if (p_tcap_context) {
+	  if (cur_oid) {
+		  if (p_tcap_context->oid_present) {
+			  /* We have already an Application Context, check if we have
+			     to fallback to a lower version */
+			  if ( strncmp(p_tcap_context->oid,cur_oid, LENGTH_OID)!=0) {
+				  /* ACN, changed, Fallback to lower version 
+				   * and update the subdissector (purely formal) 
+				   */
+				  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+				  if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+					  p_tcap_context->subdissector_handle=subdissector_handle;
+				  }
+			  }
+		  } else {
+			  /* We do not have the OID in the TCAP context, so store it */
+			  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			  if ( (subdissector_handle
+				  = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+				  p_tcap_context->subdissector_handle=subdissector_handle;
+				  p_tcap_context->oid_present=TRUE;
+			  }
+		  } /* context OID */
+	  } else {
+		  /* Copy the OID from the TCAP context to the current oid */
+		  if (p_tcap_context->oid_present) {
+			  tcap_private.oid= (void*) p_tcap_context->oid;
+			  tcap_private.acv=TRUE;
+		  }
+	  } /* no OID */
   } /* no TCAP context */
+
 
   if ( p_tcap_context
        && p_tcap_context->oid_present) {
@@ -3374,32 +3377,32 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
       /* Search if we can find the sub protocol according to the A.C.N */
       if ( (subdissector_handle
 	    = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	/* found */
-	is_subdissector=TRUE;
+		  /* found */
+		  is_subdissector=TRUE;
       } else {
-	/* Search if we can found the sub protocol according to the SSN table */
-	if ( (subdissector_handle
-	      = get_itu_tcap_subdissector(pinfo->match_port))) {
-	  /* Found according to SSN */
-	  is_subdissector=TRUE;
+		  /* Search if we can found the sub protocol according to the SSN table */
+		  if ( (subdissector_handle
+			  = get_itu_tcap_subdissector(pinfo->match_port))) {
+			  /* Found according to SSN */
+			  is_subdissector=TRUE;
+		  } else {
+			  /* Nothing found, take the Data handler */
+			  subdissector_handle = data_handle;
+			  is_subdissector=TRUE;
+		  } /* SSN */
+	  } /* ACN */
 	} else {
-	  /* Nothing found, take the Data handler */
-	  subdissector_handle = data_handle;
-	  is_subdissector=TRUE;
-	} /* SSN */
-      } /* ACN */
-    } else {
-      /* There is no A.C.N for this transaction, so search in the SSN table */
-      if ( (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
-	/* Found according to SSN */
-	is_subdissector=TRUE;
-      } else {
-	subdissector_handle = data_handle;
-	is_subdissector=TRUE;
-      }
-    } /* OID */
+		/* There is no A.C.N for this transaction, so search in the SSN table */
+		if ( (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
+			/* Found according to SSN */
+			is_subdissector=TRUE;
+		} else {
+			subdissector_handle = data_handle;
+			is_subdissector=TRUE;
+		}
+	} /* OID */
   } else {
-    /* We have it already */
+	  /* We have it already */
   }
 
   /* Call the sub dissector if present, and not already called */

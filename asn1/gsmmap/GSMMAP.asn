@@ -2,7 +2,7 @@
 --SIEMENS ASN.1 Compiler       R5.70  (Production_5.70)    
 --            Date: 2003-09-04 Time: 14:14:00            
 -- Updated to version 3GPP TS 29.002 V7.5.0 (2006-09) Release 7
--- $Id:$
+-- $Id$
 
 MAP-Protocol{ 0 identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3) map-Protocol (4) version5 (5) }
 
@@ -20,7 +20,9 @@ Component ::=	CHOICE {
 				invoke				[1] IMPLICIT Invoke,
 				returnResultLast	[2] IMPLICIT ReturnResult,
 				returnError			[3] IMPLICIT ReturnError,
-				reject				[4] IMPLICIT Reject
+				reject				[4] IMPLICIT Reject,
+-- TCAP adds returnResultNotLast to allow for the segmentation of a result.
+				returnResultNotLast	[7] IMPLICIT ReturnResult
 }
 
 Invoke ::=		SEQUENCE {

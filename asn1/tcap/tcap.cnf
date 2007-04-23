@@ -231,8 +231,9 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Begin_sequence, hf_index, ett_tcap_Begin);
+
+%(DEFAULT_BODY)s
+
 #.FN_BODY End
 gp_tcapsrt_info->ope=TC_END;
 

@@ -514,55 +514,55 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
    * Handle The TCAP Service Response Time
    */
   if ( gtcap_HandleSRT ) {
-    if (!tcap_subdissector_used) {
-      /* Create TCAP context and tree for display */
-      if (gtcap_DisplaySRT && tree) {
-	stat_item = proto_tree_add_text(tcap_stat_tree, tvb, offset, -1, "Stat");
-	PROTO_ITEM_SET_GENERATED(stat_item);
-	stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
-      }
-      p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
-      tcap_subdissector_used=TRUE;
-      gp_tcap_context=p_tcap_context;
-      tcap_private.context=p_tcap_context;
-    } else {
-      /* Take the last TCAP context */
-      p_tcap_context = gp_tcap_context;
-      tcap_private.context=p_tcap_context;
-    }
-  }
-
-  if (p_tcap_context) {
-    if (cur_oid) {
-      if (p_tcap_context->oid_present) {
-	/* We have already an Application Context, check if we have
-	   to fallback to a lower version */
-	if ( strncmp(p_tcap_context->oid,cur_oid, LENGTH_OID)!=0) {
-	  /* ACN, changed, Fallback to lower version */
-	  /* and update the subdissector (purely formal) */
-	  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
-	  if ( (subdissector_handle
-		= dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	    p_tcap_context->subdissector_handle=subdissector_handle;
+	  if (!tcap_subdissector_used) {
+		  /* Create TCAP context and tree for display */
+		  if (gtcap_DisplaySRT && tree) {
+			  stat_item = proto_tree_add_text(tcap_stat_tree, tvb, offset, -1, "Stat");
+			  PROTO_ITEM_SET_GENERATED(stat_item);
+			  stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
+		  }
+		  p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
+		  tcap_subdissector_used=TRUE;
+		  gp_tcap_context=p_tcap_context;
+		  tcap_private.context=p_tcap_context;
+	  }else{
+		  /* Take the last TCAP context */
+		  p_tcap_context = gp_tcap_context;
+		  tcap_private.context=p_tcap_context;
 	  }
-	}
-      } else {
-	/* We do not have the OID in the TCAP context, so store it */
-	strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
-	if ( (subdissector_handle
-	      = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	  p_tcap_context->subdissector_handle=subdissector_handle;
-	  p_tcap_context->oid_present=TRUE;
-	}
-      } /* context OID */
-    } else {
-      /* Copy the OID from the TCAP context to the current oid */
-      if (p_tcap_context->oid_present) {
-	tcap_private.oid= (void*) p_tcap_context->oid;
-	tcap_private.acv=TRUE;
-      }
-    } /* no OID */
+  }
+  if (p_tcap_context) {
+	  if (cur_oid) {
+		  if (p_tcap_context->oid_present) {
+			  /* We have already an Application Context, check if we have
+			     to fallback to a lower version */
+			  if ( strncmp(p_tcap_context->oid,cur_oid, LENGTH_OID)!=0) {
+				  /* ACN, changed, Fallback to lower version 
+				   * and update the subdissector (purely formal) 
+				   */
+				  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+				  if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+					  p_tcap_context->subdissector_handle=subdissector_handle;
+				  }
+			  }
+		  } else {
+			  /* We do not have the OID in the TCAP context, so store it */
+			  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			  if ( (subdissector_handle
+				  = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
+				  p_tcap_context->subdissector_handle=subdissector_handle;
+				  p_tcap_context->oid_present=TRUE;
+			  }
+		  } /* context OID */
+	  } else {
+		  /* Copy the OID from the TCAP context to the current oid */
+		  if (p_tcap_context->oid_present) {
+			  tcap_private.oid= (void*) p_tcap_context->oid;
+			  tcap_private.acv=TRUE;
+		  }
+	  } /* no OID */
   } /* no TCAP context */
+
 
   if ( p_tcap_context
        && p_tcap_context->oid_present) {
@@ -588,32 +588,32 @@ dissect_tcap_TheComponent(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
       /* Search if we can find the sub protocol according to the A.C.N */
       if ( (subdissector_handle
 	    = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-	/* found */
-	is_subdissector=TRUE;
+		  /* found */
+		  is_subdissector=TRUE;
       } else {
-	/* Search if we can found the sub protocol according to the SSN table */
-	if ( (subdissector_handle
-	      = get_itu_tcap_subdissector(pinfo->match_port))) {
-	  /* Found according to SSN */
-	  is_subdissector=TRUE;
+		  /* Search if we can found the sub protocol according to the SSN table */
+		  if ( (subdissector_handle
+			  = get_itu_tcap_subdissector(pinfo->match_port))) {
+			  /* Found according to SSN */
+			  is_subdissector=TRUE;
+		  } else {
+			  /* Nothing found, take the Data handler */
+			  subdissector_handle = data_handle;
+			  is_subdissector=TRUE;
+		  } /* SSN */
+	  } /* ACN */
 	} else {
-	  /* Nothing found, take the Data handler */
-	  subdissector_handle = data_handle;
-	  is_subdissector=TRUE;
-	} /* SSN */
-      } /* ACN */
-    } else {
-      /* There is no A.C.N for this transaction, so search in the SSN table */
-      if ( (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
-	/* Found according to SSN */
-	is_subdissector=TRUE;
-      } else {
-	subdissector_handle = data_handle;
-	is_subdissector=TRUE;
-      }
-    } /* OID */
+		/* There is no A.C.N for this transaction, so search in the SSN table */
+		if ( (subdissector_handle = get_itu_tcap_subdissector(pinfo->match_port))) {
+			/* Found according to SSN */
+			is_subdissector=TRUE;
+		} else {
+			subdissector_handle = data_handle;
+			is_subdissector=TRUE;
+		}
+	} /* OID */
   } else {
-    /* We have it already */
+	  /* We have it already */
   }
 
   /* Call the sub dissector if present, and not already called */

@@ -26,6 +26,7 @@
 #ifndef PACKET_GSM_MAP_H
 #define PACKET_GSM_MAP_H
 
+#include "packet-ber.h"
 /* Defines for the GSM MAP taps */
 #define	GSM_MAP_MAX_NUM_OPR_CODES	256
 

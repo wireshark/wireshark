@@ -35,8 +35,11 @@ UserInformation ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
 ExternUserInfo  ::= OCTET STRING					
 				
 Dialog1 ::= OCTET STRING
+
 UserInfoOID ::= OBJECT IDENTIFIER
+
 Applicationcontext ::= OBJECT IDENTIFIER
+
 AARQ-apdu ::= [APPLICATION 0]		IMPLICIT SEQUENCE { 
 	protocol-versionrq				[0] IMPLICIT BIT STRING { version1 (0) }
 											DEFAULT { version1 },
@@ -462,18 +465,18 @@ ComponentSequence ::= [ PRIVATE 8 ] IMPLICIT SEQUENCE OF ComponentPDU
 
 ComponentPDU ::=
 		CHOICE {
-			invokeLastansi [ PRIVATE 9 ] IMPLICIT InvokePDU ,
-			returnResultLastansi [ PRIVATE 10 ] IMPLICIT ReturnResultPDU,
-			returnErroransi [ PRIVATE 11 ] IMPLICIT ReturnErrorPDU ,
-			rejectansi [ PRIVATE 12 ] IMPLICIT RejectPDU ,	
-			invokeNotLastansi [ PRIVATE 13 ] IMPLICIT InvokePDU ,
+			invokeLastansi			[ PRIVATE 9 ] IMPLICIT InvokePDU ,
+			returnResultLastansi	[ PRIVATE 10 ] IMPLICIT ReturnResultPDU,
+			returnErroransi			[ PRIVATE 11 ] IMPLICIT ReturnErrorPDU ,
+			rejectansi				[ PRIVATE 12 ] IMPLICIT RejectPDU ,	
+			invokeNotLastansi		[ PRIVATE 13 ] IMPLICIT InvokePDU ,
 			returnResultNotLastansi [ PRIVATE 14 ] IMPLICIT ReturnResultPDU
 				}
 
 InvokePDU ::= SEQUENCE {
-			componentIDs [ PRIVATE 15 ] IMPLICIT OCTET STRING (SIZE(0..2)) OPTIONAL ,
-			operationCode OperationCode OPTIONAL,
-			parameterinv  ANSIparamch
+	componentIDs	[ PRIVATE 15 ] IMPLICIT OCTET STRING (SIZE(0..2)) OPTIONAL ,
+	operationCode	OperationCode OPTIONAL,
+	parameterinv	ANSIparamch
 				}
 ANSIParameters ::=   ANY
 
