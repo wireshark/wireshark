@@ -35,6 +35,7 @@
 /******************************************************************************/
 /*	File includes																					*/
 /*																										*/
+#include <epan/pint.h>
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
@@ -132,9 +133,7 @@ static const UINT16 Sbox[256] = {
 #define Mk16(hi, lo) \
 	((UINT16)((lo) | (((UINT16) (hi)) << 8)))
 
-/* XXX - does this assume a little-endian processor? */
-/* For that matter, does it assume a processor that handles unaligned loads? */
-#define Mk16_le(v)	((UINT16)*(v))
+#define Mk16_le(v)	((UINT16)pletohs(v))
 
 #define _S_(v) \
 	((UINT16)(Sbox[Lo8(v)] ^ ((Sbox[Hi8(v)] << 8) | (Sbox[Hi8(v)] >> 8))))
