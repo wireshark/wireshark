@@ -672,7 +672,7 @@ AirPDcapRsnaMng(
         if (fcsPresent) {
                 /* calculate FCS	*/
                 crc = crc32_ccitt(decrypt_data, *decrypt_len);
-                *(unsigned long*)(decrypt_data+*decrypt_len)=crc;
+                memcpy(decrypt_data+*decrypt_len, &crc, sizeof crc);
 
                 /* add FCS in packet	*/
                 *decrypt_len+=4;
@@ -788,7 +788,7 @@ AirPDcapWepMng(
         if (fcsPresent) {
                 /* calculate FCS and append it at the end of the decrypted packet	*/
                 crc = crc32_ccitt(decrypt_data, *decrypt_len);
-                *(unsigned long*)(decrypt_data+*decrypt_len)=crc;
+                memcpy(decrypt_data+*decrypt_len, &crc, sizeof crc);
 
                 /* add FCS in packet	*/
                 *decrypt_len += 4;
