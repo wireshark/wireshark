@@ -229,7 +229,7 @@ static gint ett_tcap_Associate_source_diagnostic = -1;
 static gint ett_tcap_UniDialoguePDU = -1;
 static gint ett_tcap_AUDT_apdu = -1;
 static gint ett_tcap_T_protocol_version3 = -1;
-static gint ett_tcap_MessageType = -1;
+static gint ett_tcap_TCMessage = -1;
 static gint ett_tcap_Unidirectional = -1;
 static gint ett_tcap_Begin = -1;
 static gint ett_tcap_End = -1;
@@ -1500,8 +1500,11 @@ gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " End ");
-offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                End_sequence, hf_index, ett_tcap_End);
+
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   End_sequence, hf_index, ett_tcap_End);
+
+
 
 
   return offset;
@@ -1521,13 +1524,16 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "tcap.cnf"
+#line 245 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Continue ");
-offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Continue_sequence, hf_index, ett_tcap_Continue);
+
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Continue_sequence, hf_index, ett_tcap_Continue);
+
+
 
 
   return offset;
@@ -1592,13 +1598,16 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 251 "tcap.cnf"
+#line 253 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
- offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Abort_sequence, hf_index, ett_tcap_Abort); 
+ 
+   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   Abort_sequence, hf_index, ett_tcap_Abort);
+
+  
 
 
   return offset;
@@ -1611,7 +1620,7 @@ static int dissect_abort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbu
 
 static int
 dissect_tcap_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 282 "tcap.cnf"
+#line 285 "tcap.cnf"
 
 tvbuff_t *next_tvb;
 
@@ -2159,7 +2168,7 @@ static const ber_sequence_t TransactionPDU_sequence[] = {
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 263 "tcap.cnf"
+#line 267 "tcap.cnf"
 if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithPerm");		
 				
@@ -2175,8 +2184,9 @@ if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(pinfo->cinfo, COL
 if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
 				col_append_fstr(pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
 				
- offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);  
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);
+  
 
 
 
@@ -2260,11 +2270,14 @@ static const ber_sequence_t AbortPDU_sequence[] = {
 
 static int
 dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 258 "tcap.cnf"
+#line 261 "tcap.cnf"
 if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
-   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
+
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
+
+
 
 
   return offset;
@@ -2274,7 +2287,7 @@ static int dissect_ansiabort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, 
 }
 
 
-static const value_string tcap_MessageType_vals[] = {
+static const value_string tcap_TCMessage_vals[] = {
   {   0, "unidirectional" },
   {   1, "begin" },
   {   2, "end" },
@@ -2290,7 +2303,7 @@ static const value_string tcap_MessageType_vals[] = {
   { 0, NULL }
 };
 
-static const ber_choice_t MessageType_choice[] = {
+static const ber_choice_t TCMessage_choice[] = {
   {   0, BER_CLASS_APP, 1, BER_FLAGS_IMPLTAG, dissect_unidirectional_impl },
   {   1, BER_CLASS_APP, 2, BER_FLAGS_IMPLTAG, dissect_begin_impl },
   {   2, BER_CLASS_APP, 4, BER_FLAGS_IMPLTAG, dissect_end_impl },
@@ -2307,9 +2320,9 @@ static const ber_choice_t MessageType_choice[] = {
 };
 
 static int
-dissect_tcap_MessageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
-                                 MessageType_choice, hf_index, ett_tcap_MessageType,
+                                 TCMessage_choice, hf_index, ett_tcap_TCMessage,
                                  NULL);
 
   return offset;
@@ -2392,7 +2405,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     gp_tcapsrt_info=tcapsrt_razinfo();
     tcap_subdissector_used=FALSE;
     gp_tcap_context=NULL;
-    dissect_tcap_MessageType(FALSE, tvb, 0, pinfo, tree, -1);  
+    dissect_tcap_TCMessage(FALSE, tvb, 0, pinfo, tree, -1);  
 
     if (gtcap_HandleSRT &&
 	!tcap_subdissector_used ) {
@@ -2671,7 +2684,7 @@ proto_register_tcap(void)
         "tcap.Reason", HFILL }},
     { &hf_tcap_p_abortCause,
       { "p-abortCause", "tcap.p_abortCause",
-        FT_INT32, BASE_DEC, VALS(tcap_P_AbortCause_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(tcap_P_AbortCause_vals), 0,
         "tcap.P_AbortCause", HFILL }},
     { &hf_tcap_u_abortCause,
       { "u-abortCause", "tcap.u_abortCause",
@@ -3038,7 +3051,7 @@ proto_register_tcap(void)
     &ett_tcap_UniDialoguePDU,
     &ett_tcap_AUDT_apdu,
     &ett_tcap_T_protocol_version3,
-    &ett_tcap_MessageType,
+    &ett_tcap_TCMessage,
     &ett_tcap_Unidirectional,
     &ett_tcap_Begin,
     &ett_tcap_End,
