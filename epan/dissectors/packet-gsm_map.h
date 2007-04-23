@@ -34,7 +34,6 @@
 #ifndef PACKET_GSM_MAP_H
 #define PACKET_GSM_MAP_H
 
-#include "packet-ber.h"
 /* Defines for the GSM MAP taps */
 #define	GSM_MAP_MAX_NUM_OPR_CODES	256
 
@@ -127,6 +126,6 @@ int dissect_gsm_map_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 int dissect_gsm_map_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 49 "packet-gsm_map-template.h"
+#line 48 "packet-gsm_map-template.h"
 
 #endif  /* PACKET_GSM_MAP_H */
