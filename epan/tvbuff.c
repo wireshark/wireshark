@@ -884,7 +884,8 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 {
 	const guint8	*b;
 	int		i;
-	guint8		item, *needlep, needle;
+	guint8		item, needle;
+	const guint8	*needlep;
 
 	for (b = haystack, i = 0; (guint) i < haystacklen; i++, b++) {
 		item = *b;
