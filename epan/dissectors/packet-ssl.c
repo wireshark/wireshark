@@ -302,9 +302,10 @@ ssl_parse(void)
     ep_stack_t tmp_stack;
     SslAssociation *tmp_assoc;
     FILE *ssl_keys_file;
-	struct stat statb;
-	size_t size;
-	gchar *tmp_buf;
+    struct stat statb;
+    size_t size;
+    gchar *tmp_buf;
+    size_t nbytes;
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -326,22 +327,26 @@ ssl_parse(void)
 
     if (ssl_keys_list && (ssl_keys_list[0] != 0))
     {
-		if (file_exists(ssl_keys_list)) {
-		    if ((ssl_keys_file = fopen(ssl_keys_list, "r"))) {
-				fstat(fileno(ssl_keys_file), &statb);
-				size = statb.st_size;
-				tmp_buf = ep_alloc0(size + 1);
-				fread(tmp_buf, size, 1, ssl_keys_file);
-				tmp_buf[size] = '\0';
-				fclose(ssl_keys_file);
-		        ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
-			} else {
-        		report_open_failure(ssl_keys_list, errno, FALSE);
-		    }
-
-		} else {
-	        ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
-		}
+        if (file_exists(ssl_keys_list)) {
+            if ((ssl_keys_file = fopen(ssl_keys_list, "r"))) {
+                fstat(fileno(ssl_keys_file), &statb);
+                size = statb.st_size;
+                tmp_buf = ep_alloc0(size + 1);
+                nbytes = fread(tmp_buf, size, 1, ssl_keys_file);
+                fclose(ssl_keys_file);
+                if (nbytes != size)
+                    report_failure("can't read whole data from %s expected %d bytes, read %d",
+                                  ssl_keys_list, size, nbytes);
+                else {
+                    tmp_buf[size] = '\0';
+                    ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+                }
+            } else {
+                report_open_failure(ssl_keys_list, errno, FALSE);
+            }
+        } else {
+            ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+        }
     }
 
 }
