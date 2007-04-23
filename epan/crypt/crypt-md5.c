@@ -115,8 +115,8 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
 	    return;
 	}
 	memcpy(p, buf, t);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (guint32 *) ctx->in);
+	byteReverse((unsigned char *) ctx->in, 16);
+	MD5Transform(ctx->buf, ctx->in);
 	buf += t;
 	len -= t;
     }
@@ -124,8 +124,8 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, unsigned len)
 
     while (len >= 64) {
 	memcpy(ctx->in, buf, 64);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (guint32 *) ctx->in);
+	byteReverse((unsigned char *) ctx->in, 16);
+	MD5Transform(ctx->buf, ctx->in);
 	buf += 64;
 	len -= 64;
     }
@@ -149,7 +149,7 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
 
     /* Set the first char of padding to 0x80.  This is safe since there is
        always at least one byte free */
-    p = ctx->in + count;
+    p = (unsigned char *) ctx->in + count;
     *p++ = 0x80;
 
     /* Bytes of padding needed to make 64 bytes */
@@ -159,8 +159,8 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
     if (count < 8) {
 	/* Two lots of padding:  Pad the first block to 64 bytes */
 	memset(p, 0, count);
-	byteReverse(ctx->in, 16);
-	MD5Transform(ctx->buf, (guint32 *) ctx->in);
+	byteReverse((unsigned char *) ctx->in, 16);
+	MD5Transform(ctx->buf, ctx->in);
 
 	/* Now fill the next block with 56 bytes */
 	memset(ctx->in, 0, 56);
@@ -168,13 +168,13 @@ void md5_finish(md5_state_t *ctx, unsigned char digest[16])
 	/* Pad block to 56 bytes */
 	memset(p, 0, count - 8);
     }
-    byteReverse(ctx->in, 14);
+    byteReverse((unsigned char *) ctx->in, 14);
 
     /* Append length in bits and transform */
-    ((guint32 *) ctx->in)[14] = ctx->bits[0];
-    ((guint32 *) ctx->in)[15] = ctx->bits[1];
+    ctx->in[14] = ctx->bits[0];
+    ctx->in[15] = ctx->bits[1];
 
-    MD5Transform(ctx->buf, (guint32 *) ctx->in);
+    MD5Transform(ctx->buf, ctx->in);
     byteReverse((unsigned char *) ctx->buf, 4);
     memcpy(digest, ctx->buf, 16);
     memset(ctx, 0, sizeof(ctx));	/* In case it's sensitive */
