@@ -570,7 +570,7 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *p
 	return offset;
 }
 
-int
+static int
 call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
