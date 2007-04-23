@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <string.h>
 
+#include <epan/pint.h>
 #include <epan/crypt/crypt-md5.h>
 /*
  * This code implements the MD5 message-digest algorithm.
