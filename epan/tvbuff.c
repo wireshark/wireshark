@@ -880,7 +880,7 @@ guint8_find(const guint8* haystack, size_t haystacklen, guint8 needle)
 }
 
 static const guint8*
-guint8_pbrk(const guint8* haystack, size_t haystacklen, guint8 *needles)
+guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 {
 	const guint8	*b;
 	int		i;
