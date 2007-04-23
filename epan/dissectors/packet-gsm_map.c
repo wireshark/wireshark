@@ -142,6 +142,7 @@ static int hf_gsm_map_invoke = -1;                /* Invoke */
 static int hf_gsm_map_returnResultLast = -1;      /* ReturnResult */
 static int hf_gsm_map_returnError = -1;           /* ReturnError */
 static int hf_gsm_map_reject = -1;                /* Reject */
+static int hf_gsm_map_returnResultNotLast = -1;   /* ReturnResult */
 static int hf_gsm_map_invokeID = -1;              /* InvokeIdType */
 static int hf_gsm_map_linkedID = -1;              /* InvokeIdType */
 static int hf_gsm_map_opCode = -1;                /* OPERATION */
@@ -2202,6 +2203,9 @@ dissect_gsm_map_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int dissect_returnResultLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_gsm_map_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResultLast);
 }
+static int dissect_returnResultNotLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  return dissect_gsm_map_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResultNotLast);
+}
 
 
 const value_string gsm_map_GSMMAPLocalErrorcode_vals[] = {
@@ -2887,6 +2891,7 @@ static const value_string gsm_map_Component_vals[] = {
   {   2, "returnResultLast" },
   {   3, "returnError" },
   {   4, "reject" },
+  {   7, "returnResultNotLast" },
   { 0, NULL }
 };
 
@@ -2895,6 +2900,7 @@ static const ber_choice_t Component_choice[] = {
   {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
   {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
   {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
+  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_returnResultNotLast_impl },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -17358,6 +17364,10 @@ void proto_register_gsm_map(void) {
       { "reject", "gsm_map.reject",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.Reject", HFILL }},
+    { &hf_gsm_map_returnResultNotLast,
+      { "returnResultNotLast", "gsm_map.returnResultNotLast",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "gsm_map.ReturnResult", HFILL }},
     { &hf_gsm_map_invokeID,
       { "invokeID", "gsm_map.invokeID",
         FT_INT32, BASE_DEC, NULL, 0,
