@@ -131,7 +131,7 @@ loadLibXML(void)
 		g_warning("Unable to find \"xmlGetProp\"");
 		error=TRUE;
 	}
-	XmlStub.xmlGetProp=(char * (*)(xmlNodePtr, char *))symbol;
+	XmlStub.xmlGetProp=(char * (*)(xmlNodePtr, const char *))symbol;
 
 	if (!g_module_symbol(handle, "xmlKeepBlanksDefault", &symbol)) {
 		g_warning("Unable to find \"xmlKeepBlanksDefault\"");
