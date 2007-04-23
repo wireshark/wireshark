@@ -46,7 +46,7 @@ typedef struct dcom_machine_s {
     GList           *objects;
     gint            first_packet;
 
-    const guint8    ip[4];
+    guint8          ip[4];
 } dcom_machine_t;
 
 typedef struct dcom_object_s {

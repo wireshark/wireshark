@@ -331,7 +331,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uui
     /* create new machine if not found */
     if(dcom_iter == NULL) {
         machine = se_alloc(sizeof(dcom_machine_t));
-        memcpy( (void *) (machine->ip), ip, 4);
+        memcpy(machine->ip, ip, 4);
         machine->objects = NULL;
         machine->first_packet = pinfo->fd->num;
         dcom_machines = g_list_append(dcom_machines, machine);

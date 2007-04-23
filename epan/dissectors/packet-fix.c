@@ -833,7 +833,7 @@ static void dissect_fix_init(void) {
     g_datalist_set_data(&msg_types, "BE", "User Request");
     g_datalist_set_data(&msg_types, "BF", "User Response");
     g_datalist_set_data(&msg_types, "BG", "Collateral Inquiry Ack");
-    g_datalist_set_data(&msg_types, "BH", "Confirmation Request");
+    g_datalist_set_data(&msg_types, "BH", (gpointer)(void *)"Confirmation Request");
 
 }
 

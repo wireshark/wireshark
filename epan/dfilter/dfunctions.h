@@ -42,7 +42,7 @@ typedef void (*DFSemCheckType)(int param_num, stnode_t *st_node);
 /* This is a "function definition" record, holding everything
  * we need to know about a function */
 typedef struct {
-    char            *name;
+    const char      *name;
     DFFuncType      function;
     ftenum_t        retval_ftype;
     guint           min_nargs;

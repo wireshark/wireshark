@@ -157,19 +157,22 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	wireshark_extra_gcc_flags=$enableval
 	if test $enableval != no
 	then
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
-	  AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,

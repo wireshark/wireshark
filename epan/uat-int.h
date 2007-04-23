@@ -46,11 +46,11 @@ typedef struct _fld_data_t {
 } fld_data_t;
 
 struct _uat_t {
-	char* name;	
+	const char* name;	
 	size_t record_size;
-	char* filename;
-	char* help;
-	char* category;
+	const char* filename;
+	const char* help;
+	const char* category;
 	void** user_ptr;
 	guint* nrows_p;
 	uat_copy_cb_t copy_cb;

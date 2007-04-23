@@ -575,7 +575,7 @@ samr_dissect_open_user_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -1107,7 +1107,7 @@ samr_dissect_connect2_rqst(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sn;
+	const char *sn;
 
 	/* ServerName */
 	dcv->private_data=NULL;
@@ -1141,7 +1141,7 @@ samr_dissect_connect3_4_rqst(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sn;
+	const char *sn;
 
 	/* ServerName */
 	dcv->private_data=NULL;
@@ -1190,7 +1190,7 @@ samr_dissect_connect2_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -1228,7 +1228,7 @@ samr_dissect_connect3_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -1266,7 +1266,7 @@ samr_dissect_connect4_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -1434,7 +1434,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sid;
+	const char *sid;
 
         offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_samr_hnd, NULL, NULL, FALSE, FALSE);
@@ -1484,7 +1484,7 @@ samr_dissect_open_domain_reply(tvbuff_t *tvb, int offset,
 				  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -4661,7 +4661,7 @@ samr_dissect_open_group_reply(tvbuff_t *tvb, int offset,
 			hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -4730,7 +4730,7 @@ samr_dissect_open_alias_reply(tvbuff_t *tvb, int offset,
 			hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -4954,7 +4954,7 @@ samr_dissect_connect5_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sn;
+	const char *sn;
 
 	/* ServerName */
 	dcv->private_data=NULL;
@@ -5027,7 +5027,7 @@ samr_dissect_connect5_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                  hf_samr_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(

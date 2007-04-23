@@ -214,7 +214,7 @@ typedef void (*attribute_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 typedef struct _attribute_page_numbers_t {
     guint32	number;
-    char	*name;
+    const char	*name;
     attribute_dissector dissector;
 } attribute_page_numbers_t;
 static const attribute_page_numbers_t user_object_info_attributes[] = {

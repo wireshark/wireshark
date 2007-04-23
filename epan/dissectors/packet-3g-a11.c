@@ -417,7 +417,7 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, size_t ext_len)
     guint8 msid_num_digits = 0;
     guint8 msid_index = 0;
     guint8 msid_digits[A11_MSG_MSID_LEN_MAX+2];
-    guint8* p_msid = 0;
+    const guint8* p_msid = 0;
     gboolean odd_even_ind = 0;
 
     /* Decode Protocol Type */

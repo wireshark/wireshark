@@ -1690,7 +1690,7 @@ fRealTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	guint tag_len;
-	gfloat f_val = 0.0;
+	gfloat f_val;
 	proto_item *ti;
 	proto_tree *subtree;
 
@@ -1710,7 +1710,7 @@ fDoubleTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 	guint tag_len;
-	gdouble d_val = 0.0;
+	gdouble d_val;
 	proto_item *ti;
 	proto_tree *subtree;
 

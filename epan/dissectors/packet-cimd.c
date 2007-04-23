@@ -285,7 +285,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   gint g_offset, g_size;
   gchar token[4];  
   gchar ch;
-  char* mapping[128] = {
+  const char* mapping[128] = {
     "_Oa","_L-", "", "_Y-", "_e`", "_e'", "_u`", "_i`", "_o`","_C,", /*10*/
     "", "_O/", "_o/", "", "_A*", "_a*","_gd", "_--", "_gf", "_gg", "_gl", /*21*/
     "_go", "_gp","_gi", "_gs", "_gt", "_gx", "_XX","_AE","_ae", "_ss","_E'", /*32*/

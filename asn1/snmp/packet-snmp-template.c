@@ -1975,7 +1975,7 @@ static void snmp_users_free_cb(void* p) {
 	if (ue->engine.data) g_free(ue->engine.data);
 }
 
-static void snmp_users_update_cb(void* p _U_, char** err) {
+static void snmp_users_update_cb(void* p _U_, const char** err) {
 	snmp_ue_assoc_t* ue = p;
 	GString* es = g_string_new("");
 

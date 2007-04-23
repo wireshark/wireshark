@@ -117,7 +117,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *mn, *dn;
+	const char *mn, *dn;
 
 	/* MachineName */
 	dcv->private_data=NULL;
@@ -177,7 +177,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -203,7 +203,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *mn, *dn;
+	const char *mn, *dn;
 
 	/* MachineName */
 	dcv->private_data=NULL;
@@ -263,7 +263,7 @@ svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_svcctl_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(

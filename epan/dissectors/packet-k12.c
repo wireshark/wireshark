@@ -286,7 +286,7 @@ static void dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree) {
 	call_dissector(sub_handle, tvb, pinfo, tree);
 }
 
-static void k12_update_cb(void* r, char** err) {
+static void k12_update_cb(void* r, const char** err) {
 	k12_handles_t* h = r;
 	gchar** protos;
 	guint num_protos, i;
@@ -333,7 +333,7 @@ static void k12_free_cb(void* r) {
 }
 
 
-static gboolean protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1 _U_, void* u2 _U_, char** err) {
+static gboolean protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1 _U_, void* u2 _U_, const char** err) {
 	gchar** protos;
 	gchar* line = ep_strndup(p,len);
 	guint num_protos, i;

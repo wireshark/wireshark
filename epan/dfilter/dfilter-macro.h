@@ -41,11 +41,14 @@ typedef struct _dfilter_macro_t {
 typedef void (*dfilter_macro_cb_t)(dfilter_macro_t*, void*);
 void dfilter_macro_foreach(dfilter_macro_cb_t, void*);
 
+/* save dfilter macros to a file */
+void dfilter_macro_save(const gchar*, gchar**);
+
 /* dumps the macros in the list (debug info, not formated as in the macros file) */
 void dfilter_macro_dump(void);
 
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
-gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error);
+gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error);
 
 void dfilter_macro_init(void);
 

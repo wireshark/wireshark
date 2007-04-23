@@ -549,7 +549,7 @@ static void funnel_retap_packets(void) {
 	cf_retap_packets(&cfile, FALSE);
 }
 
-static gboolean funnel_open_file(const char* fname, const char* filter, char** err_str) {
+static gboolean funnel_open_file(const char* fname, const char* filter, const char** err_str) {
 	int err = 0;
 	dfilter_t   *rfcode = NULL;
 	

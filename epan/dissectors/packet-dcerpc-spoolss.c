@@ -2582,7 +2582,7 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -3206,7 +3206,7 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(
@@ -3714,7 +3714,7 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep, hf_rc, &status);
 
 	if( status == 0 ){
-		char *pol_name;
+		const char *pol_name;
 
 		if (dcv->se_data){
 			pol_name = ep_strdup_printf(

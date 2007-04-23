@@ -1516,7 +1516,7 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 needle)
  * in that case, -1 will be returned if the boundary is reached before
  * finding needle. */
 gint
-tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, gint maxlength, guint8 *needles)
+tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, gint maxlength, const guint8 *needles)
 {
 	const guint8	*result;
 	guint		abs_offset, junk_length;
@@ -2114,7 +2114,7 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset,
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8(tvb, offset, len, (guint8 *)"\r\n");
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, (const guint8 *)"\r\n");
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -2243,7 +2243,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 			 * Look either for a CR, an LF, or a '"'.
 			 */
 			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
-			    (guint8 *)"\r\n\"");
+			    (const guint8 *)"\r\n\"");
 		}
 		if (char_offset == -1) {
 			/*

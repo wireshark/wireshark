@@ -188,7 +188,7 @@ typedef struct _emem_tree_node_t {
 typedef struct _emem_tree_t {
 	struct _emem_tree_t *next;
 	int type;
-	char *name;    /* just a string to make debugging easier */
+	const char *name;    /* just a string to make debugging easier */
 	emem_tree_node_t *tree;
 	void *(*malloc)(size_t);
 } emem_tree_t;
@@ -208,7 +208,7 @@ extern emem_tree_t *se_trees;
  *
  * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
  */
-emem_tree_t *se_tree_create(int type, char *name);
+emem_tree_t *se_tree_create(int type, const char *name);
 
 /* This function is similar to the se_tree_create() call but with the
  * difference that when the se memory is release everything including the 
@@ -219,7 +219,7 @@ emem_tree_t *se_tree_create(int type, char *name);
  * another structure that is also se allocated so that when the structure is
  * released, the tree will be completely released as well.
  */
-emem_tree_t *se_tree_create_non_persistent(int type, char *name);
+emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
 
 /* se_tree_insert32 
  * Insert data into the tree and key it by a 32bit integer value

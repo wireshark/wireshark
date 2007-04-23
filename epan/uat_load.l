@@ -59,7 +59,7 @@
 #define ERROR(fmtd) do { error = ep_strdup_printf("%s:%d: %s",uat->filename,linenum,ep_strdup_printf fmtd); yyterminate(); } while(0)
 
 #define SET_FIELD() \
-	{ gchar* err; \
+	{ const gchar* err; \
 	if (uat->fields[colnum].cb.chk) { \
 		if ( ! uat->fields[colnum].cb.chk(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data, &err) ) { \
 			ERROR(("%s",err)); \
@@ -67,7 +67,7 @@
 	}\
 	uat->fields[colnum].cb.set(record, ptr, len, uat->fields[colnum].cbdata.chk, uat->fields[colnum].fld_data);\
 	g_free(ptr);\
-		colnum++; \
+	colnum++; \
 	} while(0)
 
 #ifdef DEBUG_UAT_LOAD
@@ -183,7 +183,7 @@ comment #[^\n]*\n
 
 <END_OF_RECORD>{newline} {
 	void* rec;
-	gchar* err = NULL;
+	const gchar* err = NULL;
 	
 	linenum++;
 

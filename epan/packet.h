@@ -131,11 +131,11 @@ typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 typedef gboolean (*heur_dissector_t)(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree);
 
-typedef void (*DATFunc) (gchar *table_name, ftenum_t selector_type,
+typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
     gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
     gpointer user_data);
-typedef void (*DATFunc_table) (gchar *table_name, const gchar *ui_name,
+typedef void (*DATFunc_table) (const gchar *table_name, const gchar *ui_name,
     gpointer user_data);
 
 /* Opaque structure - provides type checking but no access to components */
@@ -143,9 +143,9 @@ typedef struct dtbl_entry dtbl_entry_t;
 
 extern dissector_handle_t dtbl_entry_get_handle (dtbl_entry_t *dtbl_entry);
 extern dissector_handle_t dtbl_entry_get_initial_handle (dtbl_entry_t * entry);
-extern void dissector_table_foreach_changed (char *name, DATFunc func,
+extern void dissector_table_foreach_changed (const char *name, DATFunc func,
     gpointer user_data);
-extern void dissector_table_foreach (char *name, DATFunc func,
+extern void dissector_table_foreach (const char *name, DATFunc func,
     gpointer user_data);
 extern void dissector_all_tables_foreach_changed (DATFunc func,
     gpointer user_data);

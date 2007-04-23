@@ -82,7 +82,7 @@ typedef struct _funnel_ops_t {
 	void (*retap_packets)(void);
 	void (*copy_to_clipboard)(GString *str);
 	void (*set_filter)(const char*);
-	gboolean (*open_file)(const char* fname, const char* filter, char** error);
+	gboolean (*open_file)(const char* fname, const char* filter, const char** error);
 	void (*reload)(void);
 	void (*apply_filter)(void);
 	gboolean (*browser_open_url)(const gchar *url);

@@ -4375,8 +4375,6 @@ decode_iei_global_cn_id(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 static void
 decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   int org_offset = bi->offset;
-  const char *iename = val_to_str(ie->iei, tab_bssgp_ie_types, "Unknown");
-  gboolean use_default_ie_name = (ie->name == NULL);
 
   if (tvb_length_remaining(bi->tvb, bi->offset) < 1) {
 /* TODO This code does not work well with omitted Optional elements 
@@ -4413,10 +4411,6 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
     break;
   default:
     ;
-  }
-
-  if (use_default_ie_name) {
-    ie->name = g_strdup(iename);
   }
 
   switch (ie->iei) {
@@ -4655,11 +4649,6 @@ decode_ie(bssgp_ie_t *ie, build_info_t *bi) {
   default:
     ;
   }
-  if (use_default_ie_name) {
-    /* Memory has been allocated; free it */
-    g_free( (gpointer) ie->name);
-    ie->name = NULL;
-  }
 }
 
 static void 
@@ -4670,9 +4659,7 @@ decode_pdu_general(bssgp_ie_t *ies, int num_ies, build_info_t *bi) {
   }
 }
 
-static void 
-decode_pdu_dl_unitdata(build_info_t *bi) {
-  bssgp_ie_t ies[] = {
+static bssgp_ie_t ies[] = {
     { BSSGP_IEI_TLLI, "TLLI (current)",
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_V, BSSGP_UNKNOWN, 4 },
 
@@ -4711,7 +4698,10 @@ decode_pdu_dl_unitdata(build_info_t *bi) {
 
     { BSSGP_IEI_LLC_PDU, NULL, 
       BSSGP_IE_PRESENCE_M, BSSGP_IE_FORMAT_TLV, BSSGP_UNKNOWN, BSSGP_UNKNOWN},
-  };
+};
+
+static void 
+decode_pdu_dl_unitdata(build_info_t *bi) {
   bi->dl_data = TRUE;
   bi->ul_data = FALSE;
 
@@ -6030,6 +6020,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_bssgp(void)
 {                 
+  size_t i;
   static hf_register_info hf[] = {
     { &hf_bssgp_pdu_type,
       { "PDU Type", "bssgp.pdu_type",
@@ -6190,6 +6181,13 @@ proto_register_bssgp(void)
     &ett_bssgp_tlli,
     &ett_bssgp_tmsi_ptmsi,
   };
+
+  /* Fill in name field of the the IE table */
+  for (i = 0; i < (sizeof ies / sizeof ies[0]); i++) {
+    if (ies[i].name == NULL)
+      ies[i].name = match_strval(ies[i].iei, tab_bssgp_ie_types);
+      g_assert(ies[i].name != NULL);
+  }
 
   /* Register the protocol name and description */
   proto_bssgp = proto_register_protocol("Base Station Subsystem GPRS Protocol", "BSSGP", "bssgp");

@@ -6896,7 +6896,7 @@ static void msg_stats_tree_init(stats_tree* st) {
 }
 
 static int msg_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan_dissect_t *edt _U_, const void *p ) {
-	const gchar* msg = match_strval(((isup_tap_rec_t*)p)->message_type, isup_message_type_value_acro);
+	const gchar* msg = match_strval(((const isup_tap_rec_t*)p)->message_type, isup_message_type_value_acro);
 	gchar src[MAX_ADDR_STR_LEN];
 	gchar dst[MAX_ADDR_STR_LEN];
 	gchar dir[MAX_ADDR_STR_LEN];

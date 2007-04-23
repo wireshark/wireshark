@@ -1170,7 +1170,7 @@ typedef struct dissector_foreach_info {
   gpointer     caller_data;
   DATFunc      caller_func;
   GHFunc       next_func;
-  gchar       *table_name;
+  const gchar  *table_name;
   ftenum_t     selector_type;
 } dissector_foreach_info_t;
 
@@ -1244,7 +1244,7 @@ dissector_all_tables_foreach (DATFunc func,
  * on each entry.
  */
 void
-dissector_table_foreach (char *name,
+dissector_table_foreach (const char *name,
 			 DATFunc func,
 			 gpointer user_data)
 {
@@ -1321,7 +1321,7 @@ dissector_all_tables_foreach_changed (DATFunc func,
  * any entry that has been changed from its original state.
  */
 void
-dissector_table_foreach_changed (char *name,
+dissector_table_foreach_changed (const char *name,
 				 DATFunc func,
 				 gpointer user_data)
 {

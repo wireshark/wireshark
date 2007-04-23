@@ -391,7 +391,7 @@ extern gint tvb_find_guint8(tvbuff_t*, gint offset, gint maxlength,
  * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
  * the boundary is reached before finding needle. */
 extern gint tvb_pbrk_guint8(tvbuff_t *, gint offset, gint maxlength,
-    guint8 *needles);
+    const guint8 *needles);
 
 /** Find size of stringz (NUL-terminated string) by looking for terminating
  * NUL.  The size of the string includes the terminating NUL.

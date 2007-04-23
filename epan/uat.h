@@ -88,7 +88,7 @@ typedef void (*uat_free_cb_t)(void*);
  * optional, record will be updated always if not given
  * update(record,&error)
  */
-typedef void (*uat_update_cb_t)(void* , char** );
+typedef void (*uat_update_cb_t)(void* , const char** );
 
 
 /*******
@@ -104,7 +104,7 @@ typedef void (*uat_update_cb_t)(void* , char** );
  * optional, if not given any input is considered OK and the set cb will be called
  * chk(record, ptr, len, chk_data, fld_data, &error)
  */
-typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, void*, void*, char**);
+typedef gboolean (*uat_fld_chk_cb_t)(void*, const char*, unsigned, void*, void*, const char**);
 
 /*
  * Set Field CB
@@ -123,7 +123,7 @@ typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, void*, void*);
  * mandatory
  * tostr(record, &out_ptr, &out_len, tostr_data, fld_data)
  */
-typedef void (*uat_fld_tostr_cb_t)(void*, char**, unsigned*, void*, void*);
+typedef void (*uat_fld_tostr_cb_t)(void*, const char**, unsigned*, void*, void*);
 
 /*********** 
  * Text Mode
@@ -194,7 +194,7 @@ typedef struct _uat_field_t {
 	
 	void* fld_data;
 	
-	char* desc;
+	const char* desc;
 	struct _fld_data_t* priv;
 } uat_field_t;
 
@@ -232,11 +232,11 @@ typedef struct _uat_field_t {
  */
 uat_t* uat_new(const char* name,
 			   size_t size,
-			   char* filename,
+			   const char* filename,
 			   void** data_ptr,
 			   guint* num_items,
-			   char* category,
-			   char* help,
+			   const char* category,
+			   const char* help,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
@@ -256,15 +256,15 @@ void* uat_se_dup(uat_t*, guint* len_p);
 /*
  * Some common uat_fld_chk_cbs 
  */
-gboolean uat_fld_chk_str(void*, const char*, unsigned, void*,void*, char** err);
-gboolean uat_fld_chk_proto(void*, const char*, unsigned, void*,void*, char** err);
-gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, void*, void*, char** err);
-gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, void*, void*, char** err);
-gboolean uat_fld_chk_enum(void*, const char*, unsigned, void*, void*, char**);
-gboolean uat_fld_chk_range(void*, const char*, unsigned, void*, void*, char**);
+gboolean uat_fld_chk_str(void*, const char*, unsigned, void*,void*, const char** err);
+gboolean uat_fld_chk_proto(void*, const char*, unsigned, void*,void*, const char** err);
+gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, void*, void*, const char** err);
+gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, void*, void*, const char** err);
+gboolean uat_fld_chk_enum(void*, const char*, unsigned, void*, void*, const char**);
+gboolean uat_fld_chk_range(void*, const char*, unsigned, void*, void*, const char**);
 
 #define CHK_STR_IS_DECL(what) \
-gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, char**)
+gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, const char**)
 
 typedef void (*uat_cb_t)(void* uat,void* user_data);
 void uat_foreach_table(uat_cb_t cb,void* user_data);
@@ -282,7 +282,7 @@ CHK_STR_IS_DECL(isdigit);
 CHK_STR_IS_DECL(isxdigit);
 
 #define CHK_STR_IS_DEF(what) \
-gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) { \
+gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) { \
 	guint i; for (i=0;i<len;i++) { \
 		char c = strptr[i]; \
 			if (! what((int)c)) { \
@@ -304,7 +304,7 @@ gboolean uat_fld_chk_str_ ## what (void* u1 _U_, const char* strptr, unsigned le
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	if ((((rec_t*)rec)->field_name)) g_free((((rec_t*)rec)->field_name)); \
 	(((rec_t*)rec)->field_name) = g_strndup(buf,len); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = (((rec_t*)rec)->field_name); *out_len = strlen((((rec_t*)rec)->field_name)); \
 		} else { \
@@ -326,7 +326,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	if ((((rec_t*)rec)->ptr_element)) g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); }\
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if (((rec_t*)rec)->ptr_element ) { \
 		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
 		*out_len = strlen(*out_ptr); \
@@ -348,7 +348,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 		if ((((rec_t*)rec)->ptr_element) ) g_free((((rec_t*)rec)->ptr_element)); \
 			(((rec_t*)rec)->ptr_element) = len ? g_memdup(buf,len) : NULL; \
 			(((rec_t*)rec)->len_element) = len; } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ((rec_t*)rec)->ptr_element ? ep_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : ""; \
 	*out_len = ((rec_t*)rec)->len_element; }
 
@@ -363,7 +363,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,10); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
@@ -378,7 +378,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
 	((rec_t*)rec)->field_name = strtol(ep_strndup(buf,len),NULL,16); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	*out_ptr = ep_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = strlen(*out_ptr); }
 
@@ -401,7 +401,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	for(i=0; ( cstr = ((value_string*)vs)[i].strptr ) ;i++) { \
 		if (g_str_equal(cstr,str)) { \
 			((rec_t*)rec)->field_name = ((value_string*)vs)[i].value; return; } } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* vs, void* u2 _U_) {\
 	guint i; \
 	*out_ptr = ep_strdup(default_str); *out_len = strlen(default_str);\
 	for(i=0;((value_string*)vs)[i].strptr;i++) { \
@@ -424,9 +424,9 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 		char* name = ep_strndup(buf,len); g_strdown(name); g_strchug(name); \
 		((rec_t*)rec)->field_name = find_dissector(name); \
 	} else { ((rec_t*)rec)->field_name = find_dissector("data"); } } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if ( ((rec_t*)rec)->field_name ) { \
-		*out_ptr = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(*out_ptr); \
+		char *name = ep_strdup(dissector_handle_get_short_name(((rec_t*)rec)->field_name)); g_strdown(name); *out_ptr = name; \
 		*out_len = strlen(*out_ptr); \
 	} else { \
 		*out_ptr = ""; *out_len = 0; } } 
@@ -444,7 +444,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, u
 	char* rng = ep_strndup(buf,len);\
 		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
 	} \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, void* u1 _U_, void* u2 _U_) {\
 	if ( ((rec_t*)rec)->field_name ) { \
 		*out_ptr = range_convert_range(((rec_t*)rec)->field_name);  *out_len = strlen(*out_ptr); \
 	} else { \

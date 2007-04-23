@@ -54,11 +54,11 @@ void uat_init(void) {
 
 uat_t* uat_new(const char* name,
 			   size_t size,
-			   char* filename,
+			   const char* filename,
 			   void** data_ptr,
 			   guint* numitems_ptr,
-			   char* category,
-			   char* help,
+			   const char* category,
+			   const char* help,
 			   uat_copy_cb_t copy_cb,
 			   uat_update_cb_t update_cb,
 			   uat_free_cb_t free_cb,
@@ -172,7 +172,7 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 
 static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 	guint fld_len;
-	char* fld_ptr;
+	const char* fld_ptr;
 	
 	f->cb.tostr(rec,&fld_ptr,&fld_len,f->cbdata.tostr,f->fld_data);
 	
@@ -318,7 +318,7 @@ void uat_load_all(void) {
 }
 
 
-gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, void* u2 _U_, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, void* u2 _U_, void* u3 _U_, const char** err) {
 	if (strptr == NULL) {
 		*err = "NULL pointer";
 		return FALSE;
@@ -328,7 +328,7 @@ gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, voi
 	return TRUE;
 }
 
-gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) {
 	if (len) {
 		char* name = ep_strndup(strptr,len);
 		g_strdown(name);
@@ -347,7 +347,7 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void*
 	}
 }
 
-gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) {
 	char* str = ep_strndup(strptr,len);
 	long i = strtol(str,&str,10);
 	
@@ -360,7 +360,7 @@ gboolean uat_fld_chk_num_dec(void* u1 _U_, const char* strptr, unsigned len, voi
 	return TRUE;
 }
 
-gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) {
 	char* str = ep_strndup(strptr,len);
 	long i = strtol(str,&str,16);
 	
@@ -373,7 +373,7 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, unsigned len, voi
 	return TRUE;
 }
 
-gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3 _U_, char** err) {
+gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* v, void* u3 _U_, const char** err) {
 	char* str = ep_strndup(strptr,len);
 	guint i;
 	value_string* vs = v;
@@ -389,7 +389,7 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, unsigned len, void* 
 	return FALSE;
 }
 
-gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, unsigned len, void* v _U_, void* u3, char** err) {
+gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, unsigned len, void* v _U_, void* u3, const char** err) {
 	char* str = ep_strndup(strptr,len);
 	range_t* r = NULL;
 	convert_ret_t ret = range_convert_str(&r, str,GPOINTER_TO_UINT(u3));

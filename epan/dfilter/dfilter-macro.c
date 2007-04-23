@@ -97,7 +97,7 @@ void dfilter_macro_dump(void) {
 #endif
 }
 
-static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
+static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** error) {
 	GString* text;
 	int argc = 0;
 	dfilter_macro_t* m = NULL;
@@ -148,7 +148,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 }
 
 
-gchar* dfilter_macro_apply(const gchar* text, guint depth, gchar** error) {
+gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -318,7 +318,7 @@ on_error:
 		}
 }
 
-static void macro_update(void* mp, gchar** error) {
+static void macro_update(void* mp, const gchar** error) {
 	dfilter_macro_t* m = mp;
 	GPtrArray* parts;
 	GArray* args_pos;
@@ -445,7 +445,7 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 }
 
 
-gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, char** error) {
+static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, const char** error) {
 	guint i;
 	
 	for (i=0; i < name_len; i++) {

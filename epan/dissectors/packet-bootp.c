@@ -842,7 +842,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		/* PXE protocol 2.1 as described in the intel specs */
 		if (*vendor_class_id_p != NULL &&
-		    strncmp((gchar*)*vendor_class_id_p, "PXEClient", strlen((gchar*)"PXEClient")) == 0) {
+		    strncmp((const gchar*)*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
 			proto_item_append_text(vti, " (PXEClient)");
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
@@ -852,9 +852,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					tvb, optoff, optend);
 			}
 		} else if (*vendor_class_id_p != NULL &&
-			   ((strncmp((gchar*)*vendor_class_id_p, "pktc", strlen((gchar*)"pktc")) == 0) ||
-                            (strncmp((gchar*)*vendor_class_id_p, "docsis", strlen((gchar*)"docsis")) == 0) ||
-                            (strncmp((gchar*)*vendor_class_id_p, "CableHome", strlen((gchar*)"CableHome")) == 0))) {
+			   ((strncmp((const gchar*)*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
+                            (strncmp((const gchar*)*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
+                            (strncmp((const gchar*)*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
 		        /* CableLabs standard - see www.cablelabs.com/projects */
 		        proto_item_append_text(vti, " (CableLabs)");
 
@@ -941,19 +941,19 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		 */
 		proto_item_append_text(vti, " = \"%s\"",
 			tvb_format_stringzpad(tvb, optoff, consumed-2));
-		if ((tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_MTA_CAP10, 
+		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10, 
 				      strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
-		    (tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_MTA_CAP15, 
+		    (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP15, 
 				      strlen(PACKETCABLE_MTA_CAP10)) == 0)) 
 		{
 			dissect_packetcable_mta_cap(v_tree, tvb, optoff, optlen);
 		} 
 		else {
-		  if (tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_CM_CAP11, 
+		  if (tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP11, 
 				      strlen(PACKETCABLE_CM_CAP11)) == 0
 		      ||
-		      tvb_memeql(tvb, optoff, (guint8*)PACKETCABLE_CM_CAP20, 
+		      tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_CM_CAP20, 
 				      strlen(PACKETCABLE_CM_CAP20)) == 0 ) 
 		  {
 			dissect_docsis_cm_cap(v_tree, tvb, optoff, optlen);
@@ -2821,7 +2821,8 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	int max_timer_val = 255, i;
-	char *dns_name, bit_fld[24];
+	const char *dns_name;
+	char bit_fld[24];
 
 	subopt = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
@@ -3135,7 +3136,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* The server host name is optional */
-		if (tvb_get_guint8(tvb, 44) != '\0') {
+		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
 						   SERVER_NAME_OFFSET,
 						   SERVER_NAME_LEN, FALSE);
@@ -3144,12 +3145,12 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
 						   SERVER_NAME_OFFSET,
 						   SERVER_NAME_LEN,
-						   (gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
+						   (const gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
 						   "Server host name not given");
 		}
 
 		/* Boot file */
-		if (tvb_get_guint8(tvb, 108) != '\0') {
+		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
 						   FILE_NAME_OFFSET,
 						   FILE_NAME_LEN, FALSE);
@@ -3158,7 +3159,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
 						   FILE_NAME_OFFSET,
 						   FILE_NAME_LEN,
-						   (gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
+						   (const gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
 						   "Boot file name not given");
 		}
 	}

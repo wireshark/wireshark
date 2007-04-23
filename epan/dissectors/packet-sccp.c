@@ -1509,30 +1509,30 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const mtp3_addr_pc_t* dpc;
     const mtp3_addr_pc_t* opc;
 	
-	if (trace_sccp && assoc && assoc != &no_assoc) {
-		pinfo->sccp_info = assoc->curr_msg;
-	} else {
-		pinfo->sccp_info = NULL;
-	}
+    if (trace_sccp && assoc && assoc != &no_assoc) {
+	pinfo->sccp_info = assoc->curr_msg;
+    } else {
+	pinfo->sccp_info = NULL;
+    }
 
-	switch (pinfo->p2p_dir) {
-		case P2P_DIR_SENT:
-			ssn = assoc->calling_ssn;
-			dpc = (mtp3_addr_pc_t*)pinfo->dst.data;
-			opc = (mtp3_addr_pc_t*)pinfo->src.data;
-			break;
-		case P2P_DIR_RECV:
-			ssn = assoc->called_ssn;
-			dpc = (mtp3_addr_pc_t*)pinfo->src.data;
-			opc = (mtp3_addr_pc_t*)pinfo->dst.data;
-			break;
-		default:
-			ssn = assoc->called_ssn;
-			other_ssn = assoc->calling_ssn;
-			dpc = (mtp3_addr_pc_t*)pinfo->dst.data;
-			opc = (mtp3_addr_pc_t*)pinfo->src.data;
-			break;
-	}
+    switch (pinfo->p2p_dir) {
+	case P2P_DIR_SENT:
+		ssn = assoc->calling_ssn;
+		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+		break;
+	case P2P_DIR_RECV:
+		ssn = assoc->called_ssn;
+		dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
+		opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+		break;
+	default:
+		ssn = assoc->called_ssn;
+		other_ssn = assoc->calling_ssn;
+		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+		break;
+    }
 
     
     if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
@@ -2606,7 +2606,7 @@ static struct _sccp_ul {
 	{0,FALSE,NULL}
 };
 
-static void sccp_users_update_cb(void* r, char** err _U_) {
+static void sccp_users_update_cb(void* r, const char** err _U_) {
 	sccp_user_t* u = r;
 	struct _sccp_ul* c;
 		

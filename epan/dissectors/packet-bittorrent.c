@@ -103,7 +103,7 @@ static const value_string azureus_priorities[] = {
 
 
 struct amp_message {
-  char *name;
+  const char *name;
   guint32 value;
 };
 
@@ -170,7 +170,7 @@ static gboolean decode_client_information = FALSE;
 
 struct client_information {
    char id[4];
-   char *name;
+   const char *name;
 };
 
 static struct client_information peer_id[] = {

@@ -201,7 +201,7 @@ typedef struct dcmTag dcmTag_t;
 
 static GHashTable *dcm_tagTable = NULL;
 
-dcmItem_t * lookupCtx(dcmState_t *dd, guint8 ctx);
+static dcmItem_t * lookupCtx(dcmState_t *dd, guint8 ctx);
 
 static dcmTag_t tagData[] = {
     {  0x1,    DCM_TRET,  "(Ret) Length to End" },
@@ -710,13 +710,12 @@ dissect_dcm_assoc(dcmState_t *dcm_data, proto_item *ti, tvbuff_t *tvb, int offse
     }
 }
 
-dcmItem_t *
+static dcmItem_t *
 lookupCtx(dcmState_t *dd, guint8 ctx)
 {
     dcmItem_t *di = dd->first;
-    static dcmItem_t dunk = { NULL, NULL, 0, -1, 
-	"not found - click on ASSOC Request", 
-	"not found - click on ASSOC Request", DCM_UNK };
+    static char notfound[] = "not found - click on ASSOC Request";
+    static dcmItem_t dunk = { NULL, NULL, 0, -1, notfound, notfound, DCM_UNK };
     while (di) {
 	if (ctx == di->id)
 	    break;
@@ -990,7 +989,8 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dcmState_t *dcm_data;
     proto_tree *dcm_tree;
     conversation_t *conv;
-    char *buf=NULL;
+    char *buf;
+    const char *info_str = NULL;
     int offset = 0;
 
     if (NULL == (conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -1023,6 +1023,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ASSOC Request %s <-- %s",
 	    dcm_data->orig, dcm_data->targ);
+	info_str = buf;
 	offset = 74;
 	break;
     case 2: 				/* ASSOC Accept */
@@ -1030,6 +1031,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	buf = ep_alloc(128);
 	g_snprintf(buf, 128, "DCM ASSOC Accept %s <-- %s (%s)",
 	    dcm_data->orig, dcm_data->targ, dcm_data->resp);
+	info_str = buf;
 	offset = 74; 
 	break;
     case 3:					/* ASSOC Reject */
@@ -1042,18 +1044,19 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    dcm_result2str(dcm_data->result),
 	    dcm_source2str(dcm_data->source),
 	    dcm_reason2str(dcm_data->source, dcm_data->reason));
+	info_str = buf;
 	offset = 10;
 	break;
     case 4:					/* DATA */
 	offset = 6; 
-	buf="DCM Data";
+	info_str="DCM Data";
 	break;
     case 5:					/* RELEASE Request */
-	buf="DCM RELEASE Request";
+	info_str="DCM RELEASE Request";
 	offset = 6; 
 	break;
     case 6:					/* RELEASE Response */
-	buf="DCM RELEASE Response";
+	info_str="DCM RELEASE Response";
 	offset = 6; 
 	break;
     case 7:					/* ABORT */
@@ -1065,14 +1068,15 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    (dcm_data->source == 1) ? "USER" :
 		(dcm_data->source == 2) ? "PROVIDER" : "",
 	    dcm_data->source == 1 ? dcm_abort2str(dcm_data->reason) : "");
+	info_str = buf;
 	break;
     default:
-	buf="DCM Continuation";
+	info_str="DCM Continuation";
 	offset = -1;				/* cannot continue parsing */
 	break;
     }
     if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_set_str(pinfo->cinfo, COL_INFO, buf);
+	col_set_str(pinfo->cinfo, COL_INFO, info_str);
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -1092,11 +1096,11 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 5:					/* RELEASE Request */
     case 6:					/* RELEASE Response */
     case 7:					/* ABORT */
-	tf = proto_tree_add_string(dcm_tree, hf_dcm_pdu_type, tvb, 0, dcm_data->tlen, buf);
+	tf = proto_tree_add_string(dcm_tree, hf_dcm_pdu_type, tvb, 0, dcm_data->tlen, info_str);
 	dissect_dcm_assoc(dcm_data, tf, tvb, offset);
 	break;
     case 4:					/* DATA */
-	tf = proto_tree_add_string(dcm_tree, hf_dcm_pdu_type, tvb, 0, dcm_data->tlen, buf);
+	tf = proto_tree_add_string(dcm_tree, hf_dcm_pdu_type, tvb, 0, dcm_data->tlen, info_str);
 	dissect_dcm_data(dcm_data, tf, tvb);
 	break;
     default:

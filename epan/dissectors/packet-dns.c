@@ -546,7 +546,7 @@ dns_class_name(int class)
  */
 int
 get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
-    char **name)
+    const char **name)
 {
   int start_offset = offset;
   char *np;
@@ -563,8 +563,8 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	 * to put the dissector into a loop.  Instead we throw an exception */
 
   maxname=MAXDNAME;
-  *name=ep_alloc(maxname);
-  np=*name;
+  np=ep_alloc(maxname);
+  *name=np;
 
   maxname--;	/* reserve space for the trailing '\0' */
   for (;;) {
@@ -714,7 +714,7 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 static int
 get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
-    char **name_ret, int *name_len_ret, int *type_ret, int *class_ret)
+    const char **name_ret, int *name_len_ret, int *type_ret, int *class_ret)
 {
   int len;
   int name_len;
@@ -790,7 +790,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   column_info *cinfo, proto_tree *dns_tree, gboolean is_mdns)
 {
   int len;
-  char *name;
+  const char *name;
   char *name_out;
   int name_len;
   int type;
@@ -1000,7 +1000,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   gboolean is_mdns)
 {
   int len;
-  char *name;
+  const char *name;
   char *name_out;
   int name_len;
   int type;
@@ -1097,7 +1097,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_NS:
     {
-      char *ns_name;
+      const char *ns_name;
       int ns_name_len;
 
       ns_name_len = get_dns_name(tvb, cur_offset, dns_data_offset, &ns_name);
@@ -1114,7 +1114,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_CNAME:
     {
-      char *cname;
+      const char *cname;
       int cname_len;
 
       cname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &cname);
@@ -1131,9 +1131,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_SOA:
     {
-      char *mname;
+      const char *mname;
       int mname_len;
-      char *rname;
+      const char *rname;
       int rname_len;
       guint32 serial;
       guint32 refresh;
@@ -1186,7 +1186,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_PTR:
     {
-      char *pname;
+      const char *pname;
       int pname_len;
 
       pname_len = get_dns_name(tvb, cur_offset, dns_data_offset, &pname);
@@ -1318,7 +1318,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   case T_MX:
     {
       guint16 preference = 0;
-      char *mx_name;
+      const char *mx_name;
       int mx_name_len;
 
       preference = tvb_get_ntohs(tvb, cur_offset);
@@ -1361,7 +1361,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int rr_len = data_len;
       guint16 type_covered;
       nstime_t nstime;
-      char *signer_name;
+      const char *signer_name;
       int signer_name_len;
 
       if (dns_tree != NULL) {
@@ -1523,7 +1523,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       int rr_len = data_len;
       guint8 gw_type, algo;
       const guint8 *addr;
-      char *gw;
+      const char *gw;
       int gw_name_len;
       static const value_string gw_algo[] = {
 	  { 1,     "DSA" },
@@ -1616,7 +1616,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       unsigned short pre_len;
       unsigned short suf_len;
       unsigned short suf_octet_count;
-      char *pname;
+      const char *pname;
       int pname_len;
       int a6_offset;
       int suf_offset;
@@ -1675,7 +1675,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_DNAME:
     {
-      char *dname;
+      const char *dname;
       int dname_len;
 
       dname_len = get_dns_name(tvb, cur_offset, dns_data_offset,
@@ -1733,7 +1733,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   case T_NSEC:
     {
       int rr_len = data_len;
-      char *next_domain_name;
+      const char *next_domain_name;
       int next_domain_name_len;
       int rr_type;
       guint8 bits;
@@ -1781,7 +1781,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   case T_NXT:
     {
       int rr_len = data_len;
-      char *next_domain_name;
+      const char *next_domain_name;
       int next_domain_name_len;
       int rr_type;
       guint8 bits;
@@ -1822,7 +1822,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   case T_KX:
     {
       guint16 preference = 0;
-      char *kx_name;
+      const char *kx_name;
       int kx_name_len;
 
       preference = tvb_get_ntohs(tvb, cur_offset);
@@ -1931,7 +1931,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 
   case T_TKEY:
     {
-      char *tkey_algname;
+      const char *tkey_algname;
       int tkey_algname_len;
       guint16 tkey_mode, tkey_error, tkey_keylen, tkey_otherlen;
       int rr_len = data_len;
@@ -2067,7 +2067,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
     {
       guint16 tsig_error, tsig_timehi, tsig_siglen, tsig_otherlen;
       guint32 tsig_timelo;
-      char *tsig_raw_algname, *tsig_algname;
+      const char *tsig_raw_algname;
+      char *tsig_algname;
       int tsig_algname_len;
       nstime_t nstime;
       int rr_len = data_len;
@@ -2228,7 +2229,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint32 local_flag;
       guint32 lookup_timeout;
       guint32 cache_timeout;
-      char *dname;
+      const char *dname;
       int dname_len;
 
       if (rr_len < 4)
@@ -2278,7 +2279,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       guint16 priority = 0;
       guint16 weight = 0;
       guint16 port = 0;
-      char *target;
+      const char *target;
       int target_len;
 
       priority = tvb_get_ntohs(tvb, cur_offset);

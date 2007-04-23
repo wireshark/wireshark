@@ -275,9 +275,10 @@ get_nbns_name(tvbuff_t *tvb, int offset, int nbns_data_offset,
     char *name_ret, int name_ret_len, int *name_type_ret)
 {
 	int name_len;
-	char *name;
+	const char *name;
 	char *nbname;
-	char *pname, cname, cnbname;
+	const char *pname;
+	char cname, cnbname;
 	int name_type;
 	char *pname_ret;
 	size_t index = 0;

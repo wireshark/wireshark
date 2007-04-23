@@ -1974,11 +1974,11 @@ guint
 ssl_hash  (gconstpointer v)
 {    
   guint l,hash;
-  StringInfo* id;
-  guint* cur;
+  const StringInfo* id;
+  const guint* cur;
   hash = 0;
-  id = (StringInfo*) v;
-  cur = (guint*) id->data;
+  id = (const StringInfo*) v;
+  cur = (const guint*) id->data;
 
   for (l=4; (l<id->data_len); l+=4, cur++)
     hash = hash ^ (*cur);
@@ -2006,11 +2006,11 @@ ssl_private_key_hash  (gconstpointer v)
 {    
   const SslService *key;
   guint l, hash, len ;
-  guint* cur;
+  const guint* cur;
   key = (const SslService *)v;
   hash = key->port;
   len = key->addr.len;
-  cur = (guint*) key->addr.data;
+  cur = (const guint*) key->addr.data;
 
   for (l=4; (l<len); l+=4, cur++)
     hash = hash ^ (*cur);

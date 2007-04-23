@@ -1092,7 +1092,7 @@ typedef struct {
 	xmlNodePtr         (*xmlDocGetRootElement)(xmlDocPtr);
 	void             (*xmlFreeDoc)(xmlDocPtr);
 	char            *(*xmlNodeListGetString)(xmlDocPtr, xmlNodePtr, int);
-	char            *(*xmlGetProp)(xmlNodePtr, char *);
+	char            *(*xmlGetProp)(xmlNodePtr, const char *);
 	int              (*xmlKeepBlanksDefault)(int);
 	int              (*xmlSubstituteEntitiesDefault)(int);
 #ifdef WIRESHARK_XML_DO_VALIDITY_CHECKING

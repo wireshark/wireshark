@@ -223,7 +223,7 @@ register_ber_oid_syntax(const char *oid, const char *name, const char *syntax)
 {
 
   if(syntax && *syntax)
-    g_hash_table_insert(syntax_table, (gpointer)oid, (gpointer)syntax);
+    g_hash_table_insert(syntax_table, (const gpointer)oid, (const gpointer)syntax);
 
   if(name && *name)
     register_ber_oid_name(oid, name);
@@ -256,7 +256,7 @@ void ber_decode_as_foreach(GHFunc func, gpointer user_data)
 
 }
 
-void ber_decode_as(gchar *syntax)
+void ber_decode_as(const gchar *syntax)
 {
 
   if(decode_as_syntax) {
@@ -269,7 +269,7 @@ void ber_decode_as(gchar *syntax)
 }
 
 /* Get oid syntax from hash table to get translation in proto dissection(packet-per.c) */
-const gchar *
+static const gchar *
 get_ber_oid_syntax(const char *oid)
 {
 	return g_hash_table_lookup(syntax_table, oid);
@@ -290,7 +290,7 @@ void ber_set_filename(gchar *filename)
 
     if((ptr = strrchr(ber_filename, '.')) != NULL) {
       
-      ber_decode_as((gchar *)get_ber_oid_syntax(ptr));
+      ber_decode_as(get_ber_oid_syntax(ptr));
 
     }
   }
@@ -2434,7 +2434,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	proto_item *cause;
 	proto_tree *tree = NULL;
 	const asn_namedbit *nb;
-	char *sep;
+	const char *sep;
 	gboolean term;
 
 	if(!implicit_tag){
@@ -2546,7 +2546,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	guint32 val;
 	int **bf;
 	header_field_info *hfi;
-	char *sep;
+	const char *sep;
 	gboolean term;
 	unsigned int i, tvb_len;
 

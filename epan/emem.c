@@ -866,7 +866,7 @@ void print_tree(emem_tree_node_t *node){
 emem_tree_t *se_trees=NULL;
 
 emem_tree_t *
-se_tree_create(int type, char *name)
+se_tree_create(int type, const char *name)
 {
 	emem_tree_t *tree_list;
 
@@ -1321,7 +1321,7 @@ static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(
  * never existed including all metadata associated with the tree.
  */
 emem_tree_t *
-se_tree_create_non_persistent(int type, char *name)
+se_tree_create_non_persistent(int type, const char *name)
 {
 	emem_tree_t *tree_list;
 

@@ -624,7 +624,7 @@ static dgt_set_t Dgt1_9_bcd = {
 };
 /* Assumes the rest of the tvb contains the digits to be turned into a string 
  */
-static char*
+static const char*
 unpack_digits(tvbuff_t *tvb, int offset,dgt_set_t *dgt,gboolean skip_first){
 
 	int length;
@@ -959,11 +959,11 @@ dissect_bssap_Gs_cause(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item	*item = NULL;
-    proto_tree	*ie_tree = NULL;
+	proto_item *item = NULL;
+	proto_tree *ie_tree = NULL;
 	guint8 ie_len;
 	tvbuff_t *ie_tvb;
-	char *digit_str;
+	const char *digit_str;
 
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imei_ie, tvb, offset, ie_len+2, FALSE);
@@ -987,11 +987,11 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item	*item = NULL;
-    proto_tree	*ie_tree = NULL;
+	proto_item *item = NULL;
+	proto_tree *ie_tree = NULL;
 	guint8 ie_len;
 	tvbuff_t *ie_tvb;
-	char *digit_str;
+	const char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imesiv_ie, tvb, offset, ie_len+2, FALSE);
@@ -1021,11 +1021,11 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
 static int
 dissect_bssap_imsi(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item	*item = NULL;
-    proto_tree	*ie_tree = NULL;
+	proto_item *item = NULL;
+	proto_tree *ie_tree = NULL;
 	guint8 ie_len;
 	tvbuff_t *ie_tvb;
-	char *digit_str;
+	const char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_imsi_ie, tvb, offset, ie_len+2, FALSE);
@@ -1389,11 +1389,11 @@ static const true_false_string bssap_extension_value = {
 static int
 dissect_bssap_sgsn_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item	*item = NULL;
-    proto_tree	*ie_tree = NULL;
+	proto_item *item = NULL;
+	proto_tree *ie_tree = NULL;
 	guint8 ie_len;
 	tvbuff_t *number_tvb;
-	char *digit_str;
+	const char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_sgsn_nr_ie, tvb, offset, ie_len+2, FALSE);
@@ -1540,11 +1540,11 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
 static int
 dissect_bssap_vlr_number(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    proto_item	*item = NULL;
-    proto_tree	*ie_tree = NULL;
+	proto_item *item = NULL;
+	proto_tree *ie_tree = NULL;
 	guint8 ie_len;
 	tvbuff_t *number_tvb;
-	char *digit_str;
+	const char *digit_str;
 	
 	ie_len = tvb_get_guint8(tvb,offset+1);
 	item = proto_tree_add_item(tree, hf_bssap_vlr_number_ie, tvb, offset, ie_len+2, FALSE);

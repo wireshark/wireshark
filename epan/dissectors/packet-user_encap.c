@@ -123,7 +123,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	}
 }
 
-static void user_update_cb(void* r _U_, char** err _U_) {
+static void user_update_cb(void* r _U_, const char** err _U_) {
 }
 
 UAT_VS_DEF(user_encap, encap, user_encap_t, WTAP_ENCAP_USER0, ENCAP0_STR)

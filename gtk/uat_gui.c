@@ -145,7 +145,7 @@ static void set_buttons(uat_t* uat, gint row) {
 
 static char* fld_tostr(void* rec, uat_field_t* f) {
 	guint len;
-	char* ptr;
+	const char* ptr;
 	char* out;
 	
 	f->cb.tostr(rec,&ptr,&len,f->cbdata.tostr,f->fld_data);
@@ -216,7 +216,7 @@ static void reset_row(uat_t* uat, guint idx) {
 
 }
 
-static guint8* unhexbytes(const char* si, guint len, guint* len_p, char** err) {
+static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** err) {
 	guint8* buf;
 	guint8* p;
 	const guint8* s = (void*)si;
@@ -280,7 +280,7 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 	struct _uat_dlg_data* dd = user_data;
 	guint ncols = dd->uat->ncols;
 	uat_field_t* f = dd->uat->fields;
-	char* err = NULL;
+	const char* err = NULL;
 	guint colnum;
 
 	for ( colnum = 0; colnum < ncols; colnum++ ) {

@@ -1255,9 +1255,9 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int              BadPacket = FALSE;
   guint32          commandCode=0, pktLength=0;
   guint8           version=0, flags=0;
-  gchar            *flagstr="<None>";
+  const gchar     *flagstr="<None>";
   const gchar     *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
-  gchar            *commandString=NULL, *vendorName=NULL, *applicationName=NULL, *commandStringType=NULL;
+  const gchar     *commandString=NULL, *vendorName=NULL, *applicationName=NULL, *commandStringType=NULL;
   gint        i;
   guint      bpos;
   static  int initialized=FALSE;
@@ -1342,23 +1342,25 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Set up our flags */
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
+	char *flagbuf;
 	int fslen;
 
 #define FLAG_STR_LEN 64
-	flagstr=ep_alloc(FLAG_STR_LEN);
-	flagstr[0]=0;
+	flagbuf=ep_alloc(FLAG_STR_LEN);
+	flagbuf[0]=0;
 	fslen=0;
 	for (i = 0; i < 8; i++) {
 	  bpos = 1 << i;
 	  if (flags & bpos) {
-		if (flagstr[0]) {
+		if (flagbuf[0]) {
 		  fslen+=MIN(FLAG_STR_LEN-fslen,
-			     g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
+			     g_snprintf(flagbuf+fslen, FLAG_STR_LEN-fslen, ", "));
 		}
 		fslen+=MIN(FLAG_STR_LEN-fslen,
-			   g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
+			   g_snprintf(flagbuf+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
 	  }
 	}
+	flagstr = flagbuf;
 	if (flagstr[0] == 0) {
 	  flagstr="<None>";
 	}
@@ -1635,7 +1637,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	const gchar *avpNameString;
 	const gchar *valstr;
 	guint32 vendorId=0;
-	gchar    *vendorName;
+	const gchar *vendorName;
 	int hdrLength;
 	int fixAmt;
 	proto_tree *avpi_tree;
@@ -1654,7 +1656,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	gint32 packetLength;
 	size_t avpDataLength;
 	int avpType;
-	gchar *flagstr="<None>";
+	const gchar *flagstr="<None>";
 	const gchar *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Protected", "Mandatory", "Vendor-Specific" };
 	gint       i;
 	guint      bpos;
@@ -1695,23 +1697,25 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	
 		/* Set up our flags string */
 		if (check_col(pinfo->cinfo, COL_INFO) || avp_tree) {
+			char *flagbuf;
 			int fslen;
 
 #define FLAG_STR_LEN 64
-			flagstr=ep_alloc(FLAG_STR_LEN);
-			flagstr[0]=0;
+			flagbuf=ep_alloc(FLAG_STR_LEN);
+			flagbuf[0]=0;
 			fslen=0;
 			for (i = 0; i < 8; i++) {
 				bpos = 1 << i;
 				if (flags & bpos) {
-					if (flagstr[0]) {
+					if (flagbuf[0]) {
 						fslen+=MIN(FLAG_STR_LEN-fslen,
-						           g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, ", "));
+						           g_snprintf(flagbuf+fslen, FLAG_STR_LEN-fslen, ", "));
 					}
 					fslen+=MIN(FLAG_STR_LEN-fslen,
-					               g_snprintf(flagstr+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
+					               g_snprintf(flagbuf+fslen, FLAG_STR_LEN-fslen, "%s", fstr[i]));
 				}
 			}
+			flagstr = flagbuf;
 			if (flagstr[0] == 0) {
 				flagstr="<None>";
 			}

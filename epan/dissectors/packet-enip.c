@@ -226,7 +226,7 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
       tmp2_length = ( length * 2 ) + 1;
    }
 
-   tmp = (char *)tvb_get_ptr( tvb, start, tmp_length );
+   tmp = (const char *)tvb_get_ptr( tvb, start, tmp_length );
    tmp2 = (char *)ep_alloc( tmp2_length );
 
    tmp2start = tmp2;
@@ -549,7 +549,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    int	   packet_type;
    guint16  encap_cmd, encap_data_length;
-   char     *pkt_type_str = "";
+   const char *pkt_type_str = "";
    guint32  ifacehndl;
 
    /* Set up structures needed to add the protocol subtree and manage it */

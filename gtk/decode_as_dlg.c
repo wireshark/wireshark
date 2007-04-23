@@ -186,7 +186,7 @@ GSList *dissector_reset_list = NULL;
  * @param user_data Unused.
  */
 static void
-decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
+decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 			 gpointer key, gpointer value _U_,
 			 gpointer user_data _U_)
 {
@@ -319,7 +319,7 @@ const gchar *current_proto_name)
  * should be stored.
  */
 static void
-decode_build_show_list (gchar *table_name, ftenum_t selector_type,
+decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
 			gpointer key, gpointer value, gpointer user_data)
 {
     dissector_handle_t current, initial;

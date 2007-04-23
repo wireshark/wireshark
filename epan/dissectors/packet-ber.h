@@ -192,7 +192,7 @@ void register_ber_oid_syntax(const char *oid, const char *name, const char *synt
 void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 void ber_decode_as_foreach(GHFunc func, gpointer user_data); /* iterate through known syntaxes */
-void ber_decode_as(gchar *syntax); /* decode the current capture as this syntax */
+void ber_decode_as(const gchar *syntax); /* decode the current capture as this syntax */
 void ber_set_filename(gchar *filename); /* name of current BER-encoded file */
 
 gboolean oid_has_dissector(const char *oid);

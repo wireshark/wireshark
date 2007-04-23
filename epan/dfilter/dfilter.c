@@ -41,7 +41,7 @@
 
 /* Global error message space for dfilter_compile errors */
 static gchar dfilter_error_msg_buf[1024];
-gchar *dfilter_error_msg;	/* NULL when no error resulted */
+const gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
 /* From scanner.c */
 void df_scanner_text(const char *text);
