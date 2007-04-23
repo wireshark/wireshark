@@ -180,15 +180,15 @@ static void AirPDcapTkipMixingPhase2(
 	TTAK[5] = (UINT16)(TTAK[4] + TSC16);
 
 	/* Step 2 - 96-bit bijective mixing using S-box */
-	TTAK[0] = (UINT16)(TTAK[0] + _S_((UINT16)(TTAK[5] ^ Mk16_le((const UINT16 *) &TK[0]))));
-	TTAK[1] = (UINT16)(TTAK[1] + _S_((UINT16)(TTAK[0] ^ Mk16_le((const UINT16 *) &TK[2]))));
-	TTAK[2] = (UINT16)(TTAK[2] + _S_((UINT16)(TTAK[1] ^ Mk16_le((const UINT16 *) &TK[4]))));
-	TTAK[3] = (UINT16)(TTAK[3] + _S_((UINT16)(TTAK[2] ^ Mk16_le((const UINT16 *) &TK[6]))));
-	TTAK[4] = (UINT16)(TTAK[4] + _S_((UINT16)(TTAK[3] ^ Mk16_le((const UINT16 *) &TK[8]))));
-	TTAK[5] = (UINT16)(TTAK[5] + _S_((UINT16)(TTAK[4] ^ Mk16_le((const UINT16 *) &TK[10]))));
+	TTAK[0] = (UINT16)(TTAK[0] + _S_((UINT16)(TTAK[5] ^ Mk16_le(&TK[0]))));
+	TTAK[1] = (UINT16)(TTAK[1] + _S_((UINT16)(TTAK[0] ^ Mk16_le(&TK[2]))));
+	TTAK[2] = (UINT16)(TTAK[2] + _S_((UINT16)(TTAK[1] ^ Mk16_le(&TK[4]))));
+	TTAK[3] = (UINT16)(TTAK[3] + _S_((UINT16)(TTAK[2] ^ Mk16_le(&TK[6]))));
+	TTAK[4] = (UINT16)(TTAK[4] + _S_((UINT16)(TTAK[3] ^ Mk16_le(&TK[8]))));
+	TTAK[5] = (UINT16)(TTAK[5] + _S_((UINT16)(TTAK[4] ^ Mk16_le(&TK[10]))));
 
-	TTAK[0] = (UINT16)(TTAK[0] + RotR1((UINT16)(TTAK[5] ^ Mk16_le((const UINT16 *) &TK[12]))));
-	TTAK[1] = (UINT16)(TTAK[1] + RotR1((UINT16)(TTAK[0] ^ Mk16_le((const UINT16 *) &TK[14]))));
+	TTAK[0] = (UINT16)(TTAK[0] + RotR1((UINT16)(TTAK[5] ^ Mk16_le(&TK[12]))));
+	TTAK[1] = (UINT16)(TTAK[1] + RotR1((UINT16)(TTAK[0] ^ Mk16_le(&TK[14]))));
 	TTAK[2] = (UINT16)(TTAK[2] + RotR1(TTAK[1]));
 	TTAK[3] = (UINT16)(TTAK[3] + RotR1(TTAK[2]));
 	TTAK[4] = (UINT16)(TTAK[4] + RotR1(TTAK[3]));
@@ -199,7 +199,7 @@ static void AirPDcapTkipMixingPhase2(
 	wep_seed[0] = Hi8(TSC16);
 	wep_seed[1] = (UINT8)((Hi8(TSC16) | 0x20) & 0x7F);
 	wep_seed[2] = Lo8(TSC16);
-	wep_seed[3] = Lo8((UINT16)((TTAK[5] ^ Mk16_le((const UINT16 *) &TK[0])) >> 1));
+	wep_seed[3] = Lo8((UINT16)((TTAK[5] ^ Mk16_le(&TK[0])) >> 1));
 
 	for (i = 0; i < 6; i++)
 	{
