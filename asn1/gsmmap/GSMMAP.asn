@@ -3542,6 +3542,16 @@ Mt-forwardSM-Res ::= SEQUENCE {
 -- absentsubscriberSM   localValue : 6}
 -- ::= localValue : 44
 
+--ForwardSM OPERATION
+--   ARGUMENT
+ForwardSM-Arg ::= SEQUENCE {
+         sm-RP-DA             Sm-RP-DA, 
+         sm-RP-OA             Sm-RP-OA, 
+         sm-RP-UI             Sm-RP-UI, 
+         moreMessagesToSend   NULL OPTIONAL, 
+         ... }
+--   RESULT
+
 -- not used
 -- StoredMSISDN ::= ISDN-AddressString
 

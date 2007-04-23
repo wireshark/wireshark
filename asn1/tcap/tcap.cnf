@@ -117,10 +117,12 @@ dissect_tcap_TheComponent(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 	tcap_private.oid= (void*) cur_oid; 
 	tcap_private.acv=TRUE;
 
-#.FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
-%(DEFAULT_BODY)s
-	tcap_private.oid= (void*)tcapext_oid;
-	tcap_private.acv=TRUE;
+# Do not overwrite the ApplicationContext with the UserInfoOID !
+#
+# .FN_BODY UserInfoOID  FN_VARIANT = _str  VAL_PTR = &tcapext_oid
+# %(DEFAULT_BODY)s
+#	tcap_private.oid= (void*)tcapext_oid;
+#	tcap_private.acv=TRUE;
 
 #.FN_BODY ExternUserInfo
 dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);

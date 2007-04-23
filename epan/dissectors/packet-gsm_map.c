@@ -1356,6 +1356,7 @@ static gint ett_gsm_map_Sm_RP_OA = -1;
 static gint ett_gsm_map_Sm_RP_DA = -1;
 static gint ett_gsm_map_Mt_forwardSM_Arg = -1;
 static gint ett_gsm_map_Mt_forwardSM_Res = -1;
+static gint ett_gsm_map_ForwardSM_Arg = -1;
 static gint ett_gsm_map_ReportSM_DeliveryStatusArg = -1;
 static gint ett_gsm_map_ReportSM_DeliveryStatusRes = -1;
 static gint ett_gsm_map_InformServiceCentreArg = -1;
@@ -1554,6 +1555,7 @@ static int gsm_map_tap = -1;
 static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+const gchar* gsm_map_opr_code(guint32 val);
 
 /* Value strings */
 
@@ -2058,7 +2060,7 @@ dissect_gsm_map_GSMMAPOperationLocalvalue(gboolean implicit_tag _U_, tvbuff_t *t
                                   &opcode);
  
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%u)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
   }
 
 
@@ -11927,6 +11929,23 @@ dissect_gsm_map_Mt_forwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
+static const ber_sequence_t ForwardSM_Arg_sequence[] = {
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_DA },
+  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_sm_RP_OA },
+  { BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_sm_RP_UI },
+  { BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_moreMessagesToSend },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_map_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                   ForwardSM_Arg_sequence, hf_index, ett_gsm_map_ForwardSM_Arg);
+
+  return offset;
+}
+
+
 static const value_string gsm_map_Sm_DeliveryOutcome_vals[] = {
   {   0, "memoryCapacityExceeded" },
   {   1, "absentSubscriber" },
@@ -15652,8 +15671,15 @@ static void dissect_Component_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 558 "packet-gsm_map-template.c"
+#line 559 "packet-gsm_map-template.c"
 
+/* Specific translation for MAP V3 */
+const value_string gsm_map_V3_opr_code_strings[] = {
+  {  44, "mt-forwardSM" },
+  {  46, "mo-forwardSM" },
+  { 0, NULL }
+};
+/* Generic translation for MAP operation */
 const value_string gsm_map_opr_code_strings[] = {
   {   2, "updateLocation" },
   {   3, "cancelLocation" },
@@ -15694,9 +15720,9 @@ const value_string gsm_map_opr_code_strings[] = {
   {  41, "processGroupCallSignalling" },
   {  42, "forwardGroupCallSignalling" },
   {  43, "checkIMEI" },
-  {  44, "mt-forwardSM" },
+  {  44, "forwardSM" },
   {  45, "sendRoutingInfoForSM" },
-  {  46, "mo-forwardSM" },
+  {  46, "forwardSM" },
   {  47, "reportSM-DeliveryStatus" },
   {  48, "noteSubscriberPresent" },				/* map-ac mwdMngt (24) version1 (1) */
   {  49, "alertServiceCentreWithoutResult" },	/* map-ac shortMsgAlert (23) version1 (1) */
@@ -15852,6 +15878,24 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
   "Active",
   "not Active"
 };
+
+/*
+ * Translate the MAP operation code value to a text string
+ * Take into account the MAP version for ForwardSM
+ */
+const gchar* gsm_map_opr_code(guint32 val) {
+  switch (val) { 
+  case 44: /*mt-forwardSM*/
+  case 46: /*mo-forwardSM*/
+    if (application_context_version == 3) {
+      return val_to_str(val, gsm_map_V3_opr_code_strings, "Unknown GSM-MAP (%%u)");
+    }
+    /* Else use the default map operation translation */
+  default:
+    return val_to_str(val, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)");
+    break;
+  }
+}
 
 /* Prototype for a decoding function */
 typedef int (* dissect_function_t)( gboolean,
@@ -16059,14 +16103,22 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 			      FALSE, dissect_gsm_map_CheckIMEIArgV3, -1,
 			      TRUE , NULL, -1); /* no [3] SEQUENCE */
     break;
-  case 44: /*mt-forwardSM*/
-    offset=dissect_gsm_map_Mt_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+  case 44: /*mt-forwardSM(v3) or ForwardSM(v1/v2)*/
+    if (application_context_version == 3)
+      offset=dissect_gsm_map_Mt_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    else {
+      offset=dissect_gsm_map_ForwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    }
     break;
   case 45: /*sendRoutingInfoForSM*/
     offset=dissect_gsm_map_RoutingInfoForSMArg(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 46: /*mo-forwardSM*/
-    offset=dissect_gsm_map_Mo_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+  case 46: /*mo-forwardSM(v3) or ForwardSM(v1/v2)*/
+    if (application_context_version == 3)
+      offset=dissect_gsm_map_Mo_forwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    else {
+      offset=dissect_gsm_map_ForwardSM_Arg(FALSE, tvb, offset, pinfo, tree, -1);
+    }
     break;
   case 47: /*reportSM-DeliveryStatus*/
     offset=dissect_gsm_map_ReportSM_DeliveryStatusArg(FALSE, tvb, offset, pinfo, tree, -1);
@@ -16658,9 +16710,6 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-
-
-
 
 static void
 dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -21102,7 +21151,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2247 "packet-gsm_map-template.c"
+#line 2278 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -21381,6 +21430,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_Sm_RP_DA,
     &ett_gsm_map_Mt_forwardSM_Arg,
     &ett_gsm_map_Mt_forwardSM_Res,
+    &ett_gsm_map_ForwardSM_Arg,
     &ett_gsm_map_ReportSM_DeliveryStatusArg,
     &ett_gsm_map_ReportSM_DeliveryStatusRes,
     &ett_gsm_map_InformServiceCentreArg,
@@ -21553,7 +21603,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2269 "packet-gsm_map-template.c"
+#line 2300 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

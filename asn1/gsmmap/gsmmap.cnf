@@ -142,7 +142,7 @@ Component
 
 %(DEFAULT_BODY)s 
   if (check_col(pinfo->cinfo, COL_INFO)){
-    col_append_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, gsm_map_opr_code_strings, "Unknown GSM-MAP (%%u)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
   }
 
 #.FN_PARS  GSMMAPLocalErrorcode
