@@ -399,7 +399,7 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
     OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_DATA_KEY, data);
 }
 
-void simple_dialog_check_set(gpointer dialog, gchar *text) {
+void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
     GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
 
 #if GTK_MAJOR_VERSION >= 2
