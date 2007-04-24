@@ -213,18 +213,18 @@ reassemble_test.exe: reassemble_test.obj tvbuff.obj except.obj strutil.obj emem.
 
 exntest_install:
 	set copycmd=/y
-	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
+	if exist exntest.exe          xcopy exntest.exe          $(INSTALL_DIR) /d
 	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
 
 tvbtest_install:
 	set copycmd=/y
-	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
-	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
+	if exist tvbtest.exe          xcopy tvbtest.exe          $(INSTALL_DIR) /d
+	if exist tvbtest.exe.manifest xcopy tvbtest.exe.manifest $(INSTALL_DIR) /d	
 
 reassemble_test_install:
 	set copycmd=/y
-	if exist exntest.exe xcopy exntest.exe $(INSTALL_DIR) /d
-	if exist exntest.exe.manifest xcopy exntest.exe.manifest $(INSTALL_DIR) /d	
+	if exist reassemble_test.exe          xcopy reassemble_test.exe          $(INSTALL_DIR) /d
+	if exist reassemble_test.exe.manifest xcopy reassemble_test.exe.manifest $(INSTALL_DIR) /d	
 
 
 # (Windows only) Copy some sources from /trunk to /trunk/epan.
