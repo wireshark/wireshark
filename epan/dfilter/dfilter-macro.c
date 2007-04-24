@@ -400,7 +400,7 @@ done:
 	
 	if (m->args_pos) g_free(m->args_pos);
 	
-	m->args_pos = (int*)args_pos->data;
+	m->args_pos = (int*)(void *)args_pos->data;
 
 	g_ptr_array_free(parts,FALSE);
 	g_array_free(args_pos,FALSE);
