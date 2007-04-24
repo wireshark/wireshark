@@ -259,6 +259,9 @@ typedef struct conv_tables {
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
 	emem_tree_t *tid_tree;
+
+	/* track uid to username mappings */
+	emem_tree_t *uid_tree;
 } conv_tables_t;
 
 typedef struct smb_info {
