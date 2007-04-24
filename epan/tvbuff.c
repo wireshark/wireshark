@@ -963,7 +963,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 }
 
 void*
-tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
+tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
 
