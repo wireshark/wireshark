@@ -558,7 +558,7 @@ BEGIN
 		eventParamValue				[1] EventParamValues, 
 -- end
 		-- For use of extraInfos see the comment related to PropertyParm
-		extraInfo CHOICE
+		extraInfo [2] CHOICE
 		{
 			relation		[0] Relation,
 			range			[1] BOOLEAN,
@@ -679,7 +679,7 @@ BEGIN
 		propertyName		[0] PkgdName,
 --		value				[1] SEQUENCE OF OCTET STRING,
 		value				[1] SEQUENCE OF PropertyID,
-		extraInfo			[3] CHOICE
+		extraInfo			[2] CHOICE
 		{
 			relation	[0] Relation,
 			range		[1] BOOLEAN,

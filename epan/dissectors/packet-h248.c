@@ -2358,7 +2358,7 @@ static int dissect_extraInfo1_impl(packet_info *pinfo _U_, proto_tree *tree _U_,
 static const ber_sequence_t PropertyParm_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_propertyName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_propertyParamValue_impl },
-  { BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo1_impl },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo1_impl },
   { 0, 0, 0, NULL }
 };
 
@@ -3697,15 +3697,15 @@ dissect_h248_T_extraInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_extraInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_h248_T_extraInfo(FALSE, tvb, offset, pinfo, tree, hf_h248_extraInfo);
+static int dissect_extraInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  return dissect_h248_T_extraInfo(TRUE, tvb, offset, pinfo, tree, hf_h248_extraInfo);
 }
 
 
 static const ber_sequence_t EventParameter_sequence[] = {
   { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_eventParameterName_impl },
   { BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_eventParamValue_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_extraInfo },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_extraInfo_impl },
   { 0, 0, 0, NULL }
 };
 
