@@ -654,10 +654,13 @@ static int hf_smb_pipe_info_flag = -1;
 static int hf_smb_mode = -1;
 static int hf_smb_attribute = -1;
 static int hf_smb_reparse_tag = -1;
+static int hf_smb_logged_in = -1;
+static int hf_smb_logged_out = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
 static gint ett_smb_tid = -1;
+static gint ett_smb_uid = -1;
 static gint ett_smb_hdr = -1;
 static gint ett_smb_command = -1;
 static gint ett_smb_fileattributes = -1;
@@ -1001,6 +1004,13 @@ static GSList *conv_tables = NULL;
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
+
+typedef struct _smb_uid_t {
+	char *domain;
+	char *account;
+	int logged_in;
+	int logged_out;
+} smb_uid_t;
 
 static void
 smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 mask)
@@ -2575,6 +2585,42 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+dissect_smb_uid(tvbuff_t *tvb, proto_tree *parent_tree, int offset, smb_info_t *si)
+{
+	proto_item *item;
+	proto_tree *tree;
+	smb_uid_t *smb_uid=NULL;
+
+	item=proto_tree_add_uint(parent_tree, hf_smb_uid, tvb, offset, 2, si->uid);
+	tree=proto_item_add_subtree(item, ett_smb_uid);
+
+	smb_uid=se_tree_lookup32(si->ct->uid_tree, si->uid);
+	if(smb_uid){
+		proto_item_append_text(item, "  (%s\\%s)", smb_uid->domain, smb_uid->account);
+
+		if(smb_uid->domain){
+			item=proto_tree_add_string(tree, hf_smb_primary_domain, tvb, 0, 0, smb_uid->domain);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+		if(smb_uid->account){
+			item=proto_tree_add_string(tree, hf_smb_account, tvb, 0, 0, smb_uid->account);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+		if(smb_uid->logged_in>0){
+			item=proto_tree_add_uint(tree, hf_smb_logged_in, tvb, 0, 0, smb_uid->logged_in);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+		if(smb_uid->logged_out>0){
+			item=proto_tree_add_uint(tree, hf_smb_logged_out, tvb, 0, 0, smb_uid->logged_out);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+	}
+	offset += 2;
+
+	return offset;
+}
+
+static int
 dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint16 tid, gboolean is_created, gboolean is_closed)
 {
 	smb_info_t *si = pinfo->private_data;
@@ -2615,6 +2661,8 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 	if(fid_info->opened_in){
 		if(fid_info->filename){
+			proto_item_append_text(it, "  (%s)", fid_info->filename);
+
 			it=proto_tree_add_string(tr, hf_smb_path, tvb, 0, 0, fid_info->filename);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
@@ -6031,6 +6079,21 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	guint16 sbloblen=0, sbloblen_short;
 	guint16 apwlen=0, upwlen=0;
 	gboolean unicodeflag;
+	static int ntlmssp_tap_id = 0;
+	const ntlmssp_header_t *ntlmssph;
+
+	if(!ntlmssp_tap_id){
+		GString *error_string;
+		/* We dont specify any callbacks at all.
+		 * Instead we manually fetch the tapped data after the
+		 * security blob has been fully dissected and before
+		 * we exit from this dissector.
+		 */
+		error_string=register_tap_listener("ntlmssp", NULL, NULL, NULL, NULL, NULL);
+		if(!error_string){
+			ntlmssp_tap_id=find_tap_id("ntlmssp");
+		}
+	}
 
 	DISSECTOR_ASSERT(si);
 
@@ -6178,6 +6241,24 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			else {
 			  call_dissector(gssapi_handle, blob_tvb, 
 					 pinfo, blob_tree);
+			}
+
+			/* If we have found a uid->acct_name mapping, store it */
+			if(!pinfo->fd->flags.visited && si->sip){
+				int idx=0;
+				if((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
+					if(ntlmssph && ntlmssph->type==3){
+						smb_uid_t *smb_uid;
+	
+						smb_uid=se_alloc(sizeof(smb_uid_t));
+						smb_uid->logged_in=-1;
+						smb_uid->logged_out=-1;
+						smb_uid->domain=se_strdup(ntlmssph->domain_name);
+						smb_uid->account=se_strdup(ntlmssph->acct_name);
+
+						si->sip->extra_info=smb_uid;
+					}
+				}
 			}
 
 			COUNT_BYTES(sbloblen);
@@ -6372,6 +6453,14 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
+
+	if(!pinfo->fd->flags.visited && si->sip && si->sip->extra_info){
+		smb_uid_t *smb_uid;
+
+		smb_uid=si->sip->extra_info;
+		smb_uid->logged_in=pinfo->fd->num;
+		se_tree_insert32(si->ct->uid_tree, si->uid, smb_uid);
+	}
 
 	/* next smb command */
 	cmd = tvb_get_guint8(tvb, offset);
@@ -15596,6 +15685,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		
 		si->ct->fid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB fid_tree");
 		si->ct->tid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB tid_tree");
+		si->ct->uid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB uid_tree");
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 
@@ -15995,8 +16085,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	/* UID */
-	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, si->uid);
-	offset += 2;
+	offset=dissect_smb_uid(tvb, htree, offset, si);
 
 	/* MID */
 	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si->mid);
@@ -18297,12 +18386,21 @@ proto_register_smb(void)
 	  { "Pipe Info", "smb.pipe_info_flag", FT_BOOLEAN, 8,
 		TFS(&tfs_pipe_info_flag), 0x01, "", HFILL }},
 
+	{ &hf_smb_logged_in,
+	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_logged_out,
+	  { "Logged Out", "smb.logged_out", FT_FRAMENUM, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
 		&ett_smb,
 		&ett_smb_fid,
 		&ett_smb_tid,
+		&ett_smb_uid,
 		&ett_smb_hdr,
 		&ett_smb_command,
 		&ett_smb_fileattributes,
