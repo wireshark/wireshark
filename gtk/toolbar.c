@@ -225,7 +225,6 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_CAPTURE_RESTART,       capture_restart_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
-qqq
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       capture_details_24_xpm },
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
