@@ -73,7 +73,7 @@ gtk_signal_connect_object(GTK_OBJECT(widget), name, GTK_SIGNAL_FUNC(callback), \
  * @param data 	the user data to search for
  */
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
-gtk_signal_disconnect_by_func(GTK_OBJECT(object), func, data)
+gtk_signal_disconnect_by_func(GTK_OBJECT(object), (GtkSignalFunc)func, data)
 
 /** Each object carries around a table of associations from strings to pointers,
  *  this function lets you set an association. If the object already had an
