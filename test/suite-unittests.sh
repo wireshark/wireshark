@@ -40,7 +40,7 @@ unittests_step_test() {
     # if we're on windows, we have to copy the test exe, and its manifest, to the gtk2
     # dir before we can use them.
 	if [ "$WS_SYSTEM" == "Windows" ] ; then
-		(cd `dirname $DUT` && $MAKE install_`basename $DUT` INSTALL_DIR=`pwd`/../wireshark-gtk2) > testout.txt 2>&1
+		(cd `dirname $DUT` && $MAKE `basename $DUT`_install INSTALL_DIR=`pwd`/../wireshark-gtk2) > testout.txt 2>&1
 		if [ $? -ne 0 ]; then 
 			echo
 			cat ./testout.txt
