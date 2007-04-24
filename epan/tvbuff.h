@@ -343,7 +343,7 @@ extern void tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean li
  * different TVBUFF_REAL_DATA tvbuffs. This function assumes that the
  * target memory is already allocated; it does not allocate or free the
  * target memory. */
-extern guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
+extern void* tvb_memcpy(tvbuff_t*, void* target, gint offset, gint length);
 
 /** It is the user's responsibility to g_free() the memory allocated by
  * tvb_memdup(). Calls tvb_memcpy() */
@@ -353,7 +353,7 @@ extern guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
 * be freed. It will be automatically freed after the packet is dissected.
 * Buffers allocated by this function are NOT persistent.
 */
-extern guint8* ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
+extern void* ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length);
 
 /** WARNING! This function is possibly expensive, temporarily allocating
  * another copy of the packet data. Furthermore, it's dangerous because once

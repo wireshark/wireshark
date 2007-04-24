@@ -904,7 +904,7 @@ guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles)
 
 /************** ACCESSORS **************/
 
-static guint8*
+static void*
 composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_length)
 {
 	guint		i, num_members;
@@ -962,7 +962,7 @@ composite_memcpy(tvbuff_t *tvb, guint8* target, guint abs_offset, guint abs_leng
 	return NULL;
 }
 
-guint8*
+void*
 tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
@@ -971,7 +971,7 @@ tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
 
 	if (tvb->real_data) {
-		return (guint8*) memcpy(target, tvb->real_data + abs_offset, abs_length);
+		return memcpy(target, tvb->real_data + abs_offset, abs_length);
 	}
 
 	switch(tvb->type) {
@@ -1030,11 +1030,11 @@ tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
  * Do not use this function if you want the allocated memory to be persistent
  * after the current packet has been dissected.
  */
-guint8*
+void*
 ep_tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
-	guint8	*duped;
+	void	*duped;
 
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
 
