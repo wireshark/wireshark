@@ -1569,19 +1569,22 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case AT_IPv4 :
 	  {
+	    const guint8 *srcaddr = pinfo -> src.data;
+	    const guint8 *dstaddr = pinfo -> dst.data;
+
 	    ip_src = (gchar *) g_malloc((IPSEC_STRLEN_IPV4 + 1) * sizeof(gchar));
 	    ip_dst = (gchar *) g_malloc((IPSEC_STRLEN_IPV4 + 1) * sizeof(gchar));
 	    protocol_typ = IPSEC_SA_IPV4;
 
 	    for(i = 0 ; i < pinfo -> src.len; i++)
 	      {
-		if(((guint8 *)(pinfo -> src.data))[i] < 16)
+		if(srcaddr[i] < 16)
 		  {
-		    g_snprintf(res,3,"0%X ", (pinfo -> src.data)[i]);
+		    g_snprintf(res,3,"0%X ", srcaddr[i]);
 		  }
 		else
 		  {
-		    g_snprintf(res,3,"%X ", (pinfo -> src.data)[i]);
+		    g_snprintf(res,3,"%X ", srcaddr[i]);
 		  }
 		memcpy(ip_src + i*2, res, 2);
 	      }
@@ -1589,13 +1592,13 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    for(i = 0 ; i < pinfo -> dst.len; i++)
 	      {
-		if(((guint8 *)(pinfo -> dst.data))[i] < 16)
+		if(dstaddr[i] < 16)
 		  {
-		    g_snprintf(res,3,"0%X ", (pinfo -> dst.data)[i]);
+		    g_snprintf(res,3,"0%X ", dstaddr[i]);
 		  }
 		else
 		  {
-		    g_snprintf(res,3,"%X ", (pinfo -> dst.data)[i]);
+		    g_snprintf(res,3,"%X ", dstaddr[i]);
 		  }
 		memcpy(ip_dst + i*2, res, 2);
 	      }
@@ -1607,19 +1610,22 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case AT_IPv6 :
 	  {
+	    const guint8 *srcaddr = pinfo -> src.data;
+	    const guint8 *dstaddr = pinfo -> dst.data;
+
 	    ip_src = (gchar *) g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
 	    ip_dst = (gchar *) g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
 	    protocol_typ = IPSEC_SA_IPV6;
 
 	    for(i = 0 ; i < pinfo -> src.len; i++)
 	      {
-		if(((guint8 *)(pinfo -> src.data))[i] < 16)
+		if(srcaddr[i] < 16)
 		  {
-		    g_snprintf(res,3,"0%X ", (pinfo -> src.data)[i]);
+		    g_snprintf(res,3,"0%X ", srcaddr[i]);
 		  }
 		else
 		  {
-		    g_snprintf(res,3,"%X ", (pinfo -> src.data)[i]);
+		    g_snprintf(res,3,"%X ", srcaddr[i]);
 		  }
 		memcpy(ip_src + i*2, res, 2);
 	      }
@@ -1627,13 +1633,13 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    for(i = 0 ; i < pinfo -> dst.len; i++)
 	      {
-		if(((guint8 *)(pinfo -> dst.data))[i] < 16)
+		if(dstaddr[i] < 16)
 		  {
-		    g_snprintf(res,3,"0%X ", (pinfo -> dst.data)[i]);
+		    g_snprintf(res,3,"0%X ", dstaddr[i]);
 		  }
 		else
 		  {
-		    g_snprintf(res,3,"%X ", (pinfo -> dst.data)[i]);
+		    g_snprintf(res,3,"%X ", dstaddr[i]);
 		  }
 		memcpy(ip_dst + i*2, res, 2);
 	      }
