@@ -248,40 +248,44 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      Yes - we *do* need to check the destination address type;
      on Linux cooked captures, there *is* no destination address,
      so it's AT_NONE. */
-  if (pinfo->dl_dst.type == AT_ETHER &&
-      pinfo->dl_dst.data[0] == 0x01 && pinfo->dl_dst.data[1] == 0x80 &&
-      pinfo->dl_dst.data[2] == 0xC2 && pinfo->dl_dst.data[3] == 0x00 &&
-      pinfo->dl_dst.data[4] == 0x00 && ((pinfo->dl_dst.data[5] & 0xF0) == 0x20)) {
+  if (pinfo->dl_dst.type == AT_ETHER) {
+    const guint8 *dstaddr;
 
-    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
+    dstaddr = pinfo->dl_dst.data;
+    if(dstaddr[0] == 0x01 && dstaddr[1] == 0x80 &&
+       dstaddr[2] == 0xC2 && dstaddr[3] == 0x00 &&
+       dstaddr[4] == 0x00 && ((dstaddr[5] & 0xF0) == 0x20)) {
 
-    switch (pinfo->dl_dst.data[5]) {
+      protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
 
-    case 0x20:
-      /* for GMRP */
-      call_dissector(gmrp_handle, tvb, pinfo, tree);
+      switch (dstaddr[5]) {
+
+      case 0x20:
+        /* for GMRP */
+        call_dissector(gmrp_handle, tvb, pinfo, tree);
+        return;
+
+      case 0x21:
+        /* for GVRP */
+        call_dissector(gvrp_handle, tvb, pinfo, tree);
+        return;
+      }
+
+      pinfo->current_proto = "GARP";
+
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
+        /* Generic Attribute Registration Protocol */
+      }
+
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "Unknown GARP application (0x%02X)",
+                     dstaddr[5]);
+      }
+
       return;
-
-    case 0x21:
-      /* for GVRP */
-      call_dissector(gvrp_handle, tvb, pinfo, tree);
-      return;
     }
-
-    pinfo->current_proto = "GARP";
-
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
-      /* Generic Attribute Registration Protocol */
-    }
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-                   "Unknown GARP application (0x%02X)",
-                   pinfo->dl_dst.data[5]);
-    }
-
-    return;
   }
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
