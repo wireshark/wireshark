@@ -1924,7 +1924,12 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Register conversation in case this is not a response */
     if ((opcode != FC_ELS_LSRJT) && (opcode != FC_ELS_ACC)) {
         if (opcode == FC_ELS_FLOGI) {
-            if (pinfo->src.data[2]) {
+            const guint8 *srcaddr;
+
+            /* Check that the source address is, in fact, an FC address */
+            DISSECTOR_ASSERT(pinfo->src.type == AT_FC);
+            srcaddr = pinfo->src.data;
+            if (srcaddr[2]) {
                 /* If it is a loop port, we'll need to remember the ALPA */
                 options = NO_PORT2;
             }
@@ -1977,8 +1982,14 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* FLOGI has two ways to save state: without the src and using just
              * the port (ALPA) part of the address. Try both.
              */
+            const guint8 *dstaddr;
+
+            /* Check that the source address is, in fact, an FC address */
+            DISSECTOR_ASSERT(pinfo->dst.type == AT_FC);
+            dstaddr = pinfo->dst.data;
+
             addrdata[0] = addrdata[1] = 0;
-            addrdata[2] = pinfo->dst.data[2];
+            addrdata[2] = dstaddr[2];
             SET_ADDRESS (&dstaddr, AT_FC, 3, addrdata);
             conversation = find_conversation (pinfo->fd->num, &dstaddr, &pinfo->src,
                                               pinfo->ptype, pinfo->oxid,
