@@ -422,14 +422,15 @@ class Ctx:
         return "_compiler_generated_name_%d" % (self.name_ctr,)
 
 #--- Flags for EXPORT, USER_DEFINED, NO_EMIT, MAKE_ENUM -------------------------------
-EF_TYPE    = 0x01
-EF_VALS    = 0x02
-EF_ENUM    = 0x04
-EF_WS_VAR  = 0x08
-EF_NO_PROT = 0x10
-EF_NO_TYPE = 0x20
-EF_UCASE   = 0x40
-EF_DEFINE  = 0x80
+EF_TYPE    = 0x0001
+EF_VALS    = 0x0002
+EF_ENUM    = 0x0004
+EF_WS_VAR  = 0x0010
+EF_EXTERN  = 0x0020
+EF_NO_PROT = 0x0040
+EF_NO_TYPE = 0x0080
+EF_UCASE   = 0x0100
+EF_DEFINE  = 0x0800
 
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
@@ -1053,6 +1054,8 @@ class EthCtx:
         fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & EF_TYPE):
+        if self.eth_type[t]['export'] & EF_EXTERN:
+          fx.write("extern ")
         fx.write(self.eth_type_fn_h(t))
     self.output.file_close(fx)
 
@@ -1603,7 +1606,7 @@ class EthCnf:
           ctx = result.group('name')
           default_flags = EF_TYPE|EF_VALS
           if ctx == 'EXPORTS':
-            par = get_par(line[result.end():], 0, 4, fn=fn, lineno=lineno)
+            par = get_par(line[result.end():], 0, 5, fn=fn, lineno=lineno)
           else:
             par = get_par(line[result.end():], 0, 1, fn=fn, lineno=lineno)
           if not par: continue
@@ -1617,6 +1620,7 @@ class EthCnf:
             if (par[i] == 'ONLY_ENUM'):   default_flags &= ~(EF_TYPE|EF_VALS); default_flags |= EF_ENUM
             elif (par[i] == 'WITH_ENUM'): default_flags |= EF_ENUM
             elif (par[i] == 'WS_VAR'):    default_flags |= EF_WS_VAR
+            elif (par[i] == 'EXTERN'):    default_flags |= EF_EXTERN
             elif (par[i] == 'NO_PROT_PREFIX'): default_flags |= EF_NO_PROT
             else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         elif result.group('name') in ('MAKE_ENUM', 'MAKE_DEFINES'):
@@ -1676,7 +1680,7 @@ class EthCnf:
       elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
         if empty.match(line): continue
         if ctx == 'EXPORTS':
-          par = get_par(line, 1, 4, fn=fn, lineno=lineno)
+          par = get_par(line, 1, 6, fn=fn, lineno=lineno)
         else:
           par = get_par(line, 1, 2, fn=fn, lineno=lineno)
         if not par: continue
@@ -1692,6 +1696,7 @@ class EthCnf:
           if (par[i] == 'ONLY_ENUM'):        flags &= ~(EF_TYPE|EF_VALS); flags |= EF_ENUM
           elif (par[i] == 'WITH_ENUM'):      flags |= EF_ENUM
           elif (par[i] == 'WS_VAR'):         flags |= EF_WS_VAR
+          elif (par[i] == 'EXTERN'):         flags |= EF_EXTERN
           elif (par[i] == 'NO_PROT_PREFIX'): flags |= EF_NO_PROT
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
         self.add_item(ctx, par[0], flag=flags, fn=fn, lineno=lineno)
