@@ -44,6 +44,9 @@
  *
  * 10/24/2005 - Add dissection for 802.11e
  * Zhu Yi <yi.zhu@intel.com>
+ *
+ * Dutin Johnson - 802.11n and portions of 802.11k and 802.11ma
+ * dustin@dustinj.us & dustin.johnson@cacetech.com
  */
 
 #ifdef HAVE_CONFIG_H
@@ -55,6 +58,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <math.h>
 #include <epan/bitswap.h>
 #include <epan/proto.h>
 #include <epan/packet.h>
@@ -1021,6 +1025,7 @@ static int ht_l_sig = -1;
 static int ampduparam = -1;
 static int ampduparam_mpdu = -1;
 static int ampduparam_mpdu_start_spacing = -1;
+static int ampduparam_reserved = -1;
 
 static int mcsset = -1;
 static int mcsset_highest_data_rate = -1;
@@ -1396,6 +1401,12 @@ static gint ett_ff_ht_info = -1;
 /*** Begin: PSMP Station Information Fixed Field - Dustin Johnson ***/
 static gint ett_ff_psmp_sta_info = -1;
 /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
+
+/*** Begin: A-MSDU Dissection - Dustin Johnson ***/
+static gint ett_msdu_aggregation_parent_tree = -1;
+static gint ett_msdu_aggregation_subframe_tree = -1;
+static gint ett_msdu_aggregation_msdu_tree = -1;
+/*** End: A-MSDU Dissection - Dustin Johnson ***/
 
 static gint ett_80211_mgt_ie = -1;
 static gint ett_tsinfo_tree = -1;
@@ -3241,18 +3252,21 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
 /*** Begin: Secondary Channel Offset Tag - Dustin Johnson ***/
 static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
+  int tag_offset;
+
   if (tag_len != 1)
   {
     proto_tree_add_text (tree, tvb, offset, tag_len, "Secondary Channel Offset: Error: Tag length must be at least 1 byte long");
 	return;
   }
 
+  tag_offset = offset;
   proto_tree_add_uint(tree, hf_tag_secondary_channel_offset, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
 
   offset++;
-  if ((tag_len - offset) > 0)
+  if ((tag_len - (offset-tag_offset)) > 0)
   {
-    proto_tree_add_text (tree, tvb, offset, tag_len - offset, "Unkown Data");
+    proto_tree_add_text (tree, tvb, offset, tag_len - (offset-tag_offset), "Unkown Data");
 	return;
   }
 }
@@ -3324,18 +3338,18 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
                     offset, 1, capability,
                     "A-MPDU Parameters: 0x%02X", capability);
   cap_tree = proto_item_add_subtree(cap_item, ett_ampduparam_tree);
-  proto_tree_add_uint(cap_tree, ampduparam_mpdu, tvb, offset, 1, capability);
+  proto_tree_add_uint_format(cap_tree, ampduparam_mpdu, tvb, offset, 1, capability, decode_numeric_bitfield(capability, 0x03, 8,"Maximum Rx A-MPDU Length: %%04.0Lf [Bytes]"), pow(2,13+(capability & 0x3))-1);
   proto_tree_add_uint(cap_tree, ampduparam_mpdu_start_spacing, tvb, offset, 1, capability);
-
+  proto_tree_add_uint(cap_tree, ampduparam_reserved, tvb, offset, 1, capability);
   offset += 1;
   tag_val_off += 1;
 
   /* 16 byte Supported MCS set */
   cap_item = proto_tree_add_string(tree, mcsset, tvb, offset,
-                    16, "Supported Modulation Coding Streams (MCS) Set");
+                    16, "MCS Set");
   cap_tree = proto_item_add_subtree(cap_item, ett_mcsset_tree);
   proto_tree_add_string(cap_tree, tag_interpretation, tvb, offset,
-                    10, "Modulation Coding Streams (One bit per modulation)");
+                    10, "Rx Modulation Coding Streams (One bit per modulation)");
   capability = tvb_get_letohs (tvb, offset+10);
   proto_tree_add_uint_format(cap_tree, mcsset_highest_data_rate, tvb, offset + 10, 2,
                     capability, "Highest Supported Data Rate: 0x%04X", capability);
@@ -3375,7 +3389,7 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   /* 4 byte TxBF capabilities */
   txbfcap = tvb_get_letohl (tvb, offset);
   cap_item = proto_tree_add_uint_format(tree, txbf, tvb,
-                    offset, 4, txbfcap, "Transmit Beam Forming (TxBF) Capabilities: 0x%04X", txbfcap);
+                    offset, 4, txbfcap, "Transmit Beam Forming (TxBF) Capabilities: 0x%08X", txbfcap);
   cap_tree = proto_item_add_subtree(cap_item, ett_txbf_tree);
   proto_tree_add_boolean(cap_tree, txbf_cap, tvb, offset, 1,
              txbfcap);
@@ -4658,7 +4672,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset+=2;
 		  info = tvb_get_guint8 (tvb, offset);
-		  proto_tree_add_uint_format(tree, hf_tag_measure_cca_busy_fraction, tvb, offset, 1, info, "CCA Busy Fraction: 0x%02X", info);
+		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_cca_busy_fraction, tvb, offset, 1, info, "CCA Busy Fraction: 0x%02X", info);
 		  break;
 		case 2: /* Receive power indication (RPI) histogram report */
 		  channel_number = tvb_get_guint8 (tvb, offset);
@@ -4673,7 +4687,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 		  proto_tree_add_uint_format(sub_tree, hf_tag_measure_report_duration, tvb, offset, 2, duration, "Measurement Duration in TUs (1TU = 1024 us): 0x%04X", duration);
 
 		  offset+=2;
-		  parent_item = proto_tree_add_string(tree, hf_tag_measure_rpi_histogram_report, tvb,
+		  parent_item = proto_tree_add_string(sub_tree, hf_tag_measure_rpi_histogram_report, tvb,
 		                    offset, 8, "RPI Histogram Report");
 		  sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_request_tree);
 		  info = tvb_get_guint8 (tvb, offset);
@@ -4714,12 +4728,12 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
 		  offset+=2;
 		  channel_load = tvb_get_guint8 (tvb, offset);
-		  proto_tree_add_uint(tree, hf_tag_measure_report_channel_load, tvb, offset, 1, channel_load);
+		  proto_tree_add_uint(sub_tree, hf_tag_measure_report_channel_load, tvb, offset, 1, channel_load);
 		  break;
 		}
 		case 4: /* Noise Histogram Report */
 		  /* TODO */
-		  proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
+		  proto_tree_add_text (sub_tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
 		  break;
 		case 5: /* Beacon Report */
 		{
@@ -5431,7 +5445,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   frag_number = 0;
   seq_number = 0;
 
-  switch (FCF_FRAME_TYPE (fcf)) {
+  switch (FCF_FRAME_TYPE (fcf))
+  {
 
     case MGT_FRAME:
       /*
@@ -5485,7 +5500,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	}
       break;
 
-
     case CONTROL_FRAME:
       /*
        * Control Wrapper frames insert themselves between address 1
@@ -5501,7 +5515,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	ctrl_fcf = fcf;
 	ctrl_type_subtype = frame_type_subtype;
       }
-      switch (ctrl_type_subtype) {
+
+      switch (ctrl_type_subtype)
+      {
 	case CTRL_PS_POLL:
 	  addr1_str = "BSSID";
 	  addr1_hf = hf_addr_bssid;
@@ -5541,8 +5557,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	dissect_ht_control(cw_tree, tvb, offset + 2);
       }
 
-      switch (ctrl_type_subtype) {
-
+      switch (ctrl_type_subtype)
+      {
 	case CTRL_PS_POLL:
 	case CTRL_CFP_END:
 	case CTRL_CFP_ENDACK:
@@ -6007,7 +6023,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	   */
 	  qosoff = ohdr_len - 2;
 	  qos_fields = proto_tree_add_text(hdr_tree, tvb, qosoff, 2,
-	      "QoS parameters");
+	      "QoS Control");
 	  qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
 
 	  qos_control = tvb_get_letohs(tvb, qosoff + 0);
@@ -6039,7 +6055,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    if (DATA_FRAME_IS_CF_POLL(frame_type_subtype)) {
 	      /* txop limit */
 	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-      		  qosoff + 1, 1, qos_field_content, "TXOP Limit: %d ", qos_field_content);
+      		  qosoff + 1, 1, qos_field_content, "Transmit Opportunity (TXOP) Limit: 0x%02X", qos_field_content);
 
 	    } else {
 	      /* qap ps buffer state */
@@ -6079,11 +6095,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		if (qos_eosp) {
 	      /* txop limit requested */
 	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-      	  	qosoff + 1, 1, qos_field_content, "Queue Size: %d ", (qos_field_content * 254));
+      	  	qosoff + 1, 1, qos_field_content, "Queue Size: %d", (qos_field_content * 254));
 	    } else {
 	      /* queue size */
 	      proto_tree_add_uint_format (qos_tree, hf_qos_field_content, tvb,
-		    qosoff + 1, 1, qos_field_content, "TXOP Limit Requested: %d ", qos_field_content);
+		    qosoff + 1, 1, qos_field_content, "Transmit Opportunity (TXOP) Limit Requested: 0x%02X", qos_field_content);
 	    }
 	  }
 
@@ -6491,45 +6507,49 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
 
     case DATA_FRAME:
-	  if (is_amsdu && tvb_reported_length_remaining(next_tvb, 0) > 4){
-	    tvbuff_t *volatile msdu_tvb = NULL;
-		guint32 msdu_offset = 0;
-		guint16 i = 1;
-		const guint8 *src = NULL;
-		const guint8 *dst = NULL;
-		guint16 msdu_length;
-		proto_item *parent_item;
-		proto_tree *mpdu_tree;
-		proto_tree *msdu_tree;
+      if (is_amsdu && tvb_reported_length_remaining(next_tvb, 0) > 4){
+        tvbuff_t *volatile msdu_tvb = NULL;
+        guint32 msdu_offset = 0;
+        guint16 i = 1;
+        const guint8 *src = NULL;
+        const guint8 *dst = NULL;
+        guint16 msdu_length;
+        proto_item *parent_item;
+        proto_tree *mpdu_tree;
+        proto_tree *subrame_tree;
+        proto_tree *msdu_tree;
 
         parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
-		                    tvb_reported_length_remaining(next_tvb, 0), "IEEE 802.11 Agregate MSDU");
-		mpdu_tree = proto_item_add_subtree(parent_item, ett_ht_info_delimiter1_tree);
+                                    tvb_reported_length_remaining(next_tvb, 0), "IEEE 802.11 Aggregate MSDU");
+        mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
 
-		do{
-		  dst = tvb_get_ptr (next_tvb, msdu_offset, 6);
-		  src = tvb_get_ptr (next_tvb, msdu_offset+6, 6);
-		  msdu_length = tvb_get_letohs (next_tvb, msdu_offset+12);
+        do {
+          dst = tvb_get_ptr (next_tvb, msdu_offset, 6);
+          src = tvb_get_ptr (next_tvb, msdu_offset+6, 6);
+          msdu_length = tvb_get_ntohs (next_tvb, msdu_offset+12);
 
-		  parent_item = proto_tree_add_uint_format(mpdu_tree, amsdu_msdu_header_text, next_tvb,
-		                    msdu_offset, roundup2(msdu_offset+14+msdu_length, 4),
-							i, "MAC Service Data Unit (MSDU) %X", i);
-		  i++;
-		  msdu_tree = proto_item_add_subtree(parent_item, ett_ht_info_delimiter1_tree);
+          parent_item = proto_tree_add_uint_format(mpdu_tree, amsdu_msdu_header_text, next_tvb,
+                            msdu_offset, roundup2(msdu_offset+14+msdu_length, 4),
+                            i, "A-MSDU Subframe #%u", i);
+          subrame_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
+          i++;
 
-		  proto_tree_add_ether(msdu_tree, hf_addr_da, next_tvb, msdu_offset, 6, dst);
-		  proto_tree_add_ether(msdu_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, src);
-		  proto_tree_add_uint_format(msdu_tree, mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
-              msdu_length, "MSDU length: 0x%04X", msdu_length);
+          proto_tree_add_ether(subrame_tree, hf_addr_da, next_tvb, msdu_offset, 6, dst);
+          proto_tree_add_ether(subrame_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, src);
+          proto_tree_add_uint_format(subrame_tree, mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
+          msdu_length, "MSDU length: 0x%04X", msdu_length);
 
-		  msdu_offset += 14;
-		  msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
-		  call_dissector(llc_handle, msdu_tvb, pinfo, msdu_tree);
-		  msdu_offset = roundup2(msdu_offset+msdu_length, 4);
-		}while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
+          msdu_offset += 14;
+          parent_item = proto_tree_add_text(subrame_tree, next_tvb, msdu_offset, msdu_length, "Mac Service Data Unit (MSDU)");
+          msdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_msdu_tree);
 
-		break;
-	  }
+          msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
+          call_dissector(llc_handle, msdu_tvb, pinfo, msdu_tree);
+          msdu_offset = roundup2(msdu_offset+msdu_length, 4);
+        } while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
+
+        break;
+      }
       /* I guess some bridges take Netware Ethernet_802_3 frames,
          which are 802.3 frames (with a length field rather than
          a type field, but with no 802.2 header in the payload),
@@ -7614,13 +7634,13 @@ proto_register_ieee80211 (void)
 
   static const value_string ampduparam_mpdu_start_spacing_flags[] = {
     {0x00, "no restriction"},
-    {0x01, "1/4 usec"},
-    {0x02, "1/2 usec"},
-    {0x03, "1 usec"},
-    {0x04, "2 usec"},
-    {0x05, "4 usec"},
-    {0x06, "8 usec"},
-    {0x07, "16 usec"},
+    {0x01, "1/4 [usec]"},
+    {0x02, "1/2 [usec]"},
+    {0x03, "1 [usec]"},
+    {0x04, "2 [usec]"},
+    {0x05, "4 [usec]"},
+    {0x06, "8 [usec]"},
+    {0x07, "16 [usec]"},
     {0x00, NULL}
   };
 
@@ -8665,18 +8685,23 @@ proto_register_ieee80211 (void)
       NULL, 0, "MAC Parameters", HFILL }},
 
     {&ampduparam_mpdu,
-     {"Maximum Rx A-MPDU Length 2^(13+maxLen)-1 Bytes", "wlan_mgt.ht.ampduparam.maxlength",
+     {"Maximum Rx A-MPDU Length", "wlan_mgt.ht.ampduparam.maxlength",
       FT_UINT8, BASE_HEX, 0 , 0x03,
-      "Maximum Rx A-MPDU Length 2^(13+maxLen)-1 Bytes", HFILL }},
+      "Maximum Rx A-MPDU Length", HFILL }},
 
     {&ampduparam_mpdu_start_spacing,
      {"MPDU Density", "wlan_mgt.ht.ampduparam.mpdudensity",
       FT_UINT8, BASE_HEX, VALS (&ampduparam_mpdu_start_spacing_flags) , 0x1c,
       "MPDU Density", HFILL }},
 
+    {&ampduparam_reserved,
+     {"Reserved", "wlan_mgt.ht.ampduparam.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xE0,
+      "Reserved", HFILL }},
+
     {&mcsset,
-     {"Supported MCS Set", "wlan_mgt.ht.mcsset",
-      FT_STRING, BASE_NONE, NULL, 0, "Supported MCS Set", HFILL }},
+     {"Rx Supported Modulation Coding Streams Set", "wlan_mgt.ht.mcsset",
+      FT_STRING, BASE_NONE, NULL, 0, "Rx Supported Modulation Coding Streams Set", HFILL }},
 
     {&mcsset_highest_data_rate,
      {"Highest Supported Data Rate", "wlan_mgt.ht.mcsset.highestdatarate",
@@ -8694,12 +8719,12 @@ proto_register_ieee80211 (void)
 
     {&mcsset_tx_max_spatial_streams,
      {"Tx Maximum Number of Spatial Streams Supported", "wlan_mgt.ht.mcsset.txmaxss",
-      FT_UINT16, BASE_HEX, VALS (&mcsset_tx_max_spatial_streams_flags) , 0x001c,
+      FT_UINT16, BASE_HEX, VALS (&mcsset_tx_max_spatial_streams_flags) , 0x000c,
       "Tx Maximum Number of Spatial Streams Supported", HFILL }},
 
     {&mcsset_tx_unequal_modulation,
      {"Unequal Modulation", "wlan_mgt.ht.mcsset.txunequalmod",
-      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0020,
+      FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0010,
       "Unequal Modulation", HFILL }},
 
     {&htex_cap,
@@ -8746,7 +8771,7 @@ proto_register_ieee80211 (void)
       "Receive Staggered Sounding", HFILL }},
 
     {&txbf_tx_ssc,
-     {"Transmit staggered sounding", "wlan_mgt.txbf.txss",
+     {"Transmit Staggered Sounding", "wlan_mgt.txbf.txss",
       FT_BOOLEAN, 32, TFS (&ht_tf_flag), 0x00000004,
       "Transmit staggered sounding", HFILL }},
 
@@ -9096,27 +9121,27 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
 
     {&hf_tag_measure_request_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.req.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "Measurement Start Time", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0, "Measurement Start Time", HFILL }},
 
     {&hf_tag_measure_request_duration,
      {"Measurement Duration", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "Measurement Duration", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "Measurement Duration", HFILL }},
 
     {&hf_tag_measure_request_regulatory_class,
      {"Measurement Channel Number", "wlan_mgt.measure.req.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
 
     {&hf_tag_measure_request_randomization_interval,
      {"Randomization Interval", "wlan_mgt.measure.req.randint",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "Randomization Interval", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "Randomization Interval", HFILL }},
 
     {&hf_tag_measure_request_measurement_mode,
      {"Measurement Mode", "wlan_mgt.measure.req.measurementmode",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0xff, "Measurement Mode", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_measurement_mode_flags), 0, "Measurement Mode", HFILL }},
 
     {&hf_tag_measure_request_bssid,
      {"BSSID", "wlan_mgt.measure.req.bssid",
@@ -9124,15 +9149,15 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_reporting_condition,
      {"Reporting Condition", "wlan_mgt.measure.req.repcond",
-      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0xff, "Reporting Condition", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_reporting_condition_flags), 0, "Reporting Condition", HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_unsigned,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_UINT8, BASE_HEX, 0, 0xff, "Threshold/Offset", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
 
     {&hf_tag_measure_request_threshold_offset_signed,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_INT8, BASE_HEX, 0, 0xff, "Threshold/Offset", HFILL }},
+      FT_INT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
 
     {&hf_tag_measure_request_report_mac,
      {"MAC on wich to gather data", "wlan_mgt.measure.req.reportmac",
@@ -9140,17 +9165,17 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_INT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0xff, "Group ID", HFILL }},
+      FT_INT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, "Group ID", HFILL }},
     /*** End: Measurement Request Tag  - Dustin Johnson***/
 
     /*** Start: Measurement Report Tag  - Dustin Johnson***/
     {&hf_tag_measure_report_measurement_token,
      {"Measurement Token", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Token", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Token", HFILL }},
 
     {&hf_tag_measure_report_mode,
      {"Measurement Report Mode", "wlan_mgt.measure.req.clr",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Report Mode", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Report Mode", HFILL }},
 
     {&hf_tag_measure_report_mode_late,
      {"Measurement Report Mode Field", "wlan_mgt.measure.rep.repmode.late",
@@ -9174,19 +9199,23 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Measurement Channel Number", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Measurement Channel Number", HFILL }},
 
     {&hf_tag_measure_report_start_time,
      {"Measurement Start Time", "wlan_mgt.measure.rep.starttime",
-      FT_UINT64, BASE_HEX, NULL, 0xffffffff, "Measurement Start Time", HFILL }},
+      FT_UINT64, BASE_HEX, NULL, 0, "Measurement Start Time", HFILL }},
 
     {&hf_tag_measure_report_duration,
      {"Measurement Duration", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT16, BASE_HEX, NULL, 0xffff, "Measurement Duration", HFILL }},
+      FT_UINT16, BASE_HEX, NULL, 0, "Measurement Duration", HFILL }},
+
+    {&hf_tag_measure_cca_busy_fraction,
+     {"CCA Busy Fraction", "wlan_mgt.measure.rep.ccabusy",
+      FT_UINT8, BASE_HEX, NULL, 0, "CCA Busy Fraction", HFILL }},
 
     {&hf_tag_measure_basic_map_field,
      {"Map Field", "wlan_mgt.measure.rep.mapfield",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Map Field", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Map Field", HFILL }},
 
     {&hf_tag_measure_map_field_bss,
      {"BSS", "wlan_mgt.measure.rep.repmode.mapfield.bss",
@@ -9292,7 +9321,7 @@ proto_register_ieee80211 (void)
     /*** Begin: Extended Capabilities Tag - Dustin Johnson ***/
     {&hf_tag_extended_capabilities,
      {"HT Information Exchange Support", "wlan_mgt.extcap.infoexchange",
-      FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0xff, "HT Information Exchange Support", HFILL }},
+      FT_UINT8, BASE_HEX, TFS(&hf_tag_extended_capabilities_flag), 0, "HT Information Exchange Support", HFILL }},
     /*** End: Extended Capabilities Tag - Dustin Johnson ***/
 
     /*** Begin: Neighbor Report Tag - Dustin Johnson ***/
@@ -9685,10 +9714,10 @@ proto_register_ieee80211 (void)
 
   };
 
-  static hf_register_info agregate_fields[] = {
+  static hf_register_info aggregate_fields[] = {
 
 		{ &amsdu_msdu_header_text,
-		{ "MAC Service Data Unit (MSDU)",	"wlan_agregate.msduheader", FT_UINT16, BASE_DEC, 0,
+		{ "MAC Service Data Unit (MSDU)",	"wlan_aggregate.msduheader", FT_UINT16, BASE_DEC, 0,
 			0x0000, "MAC Service Data Unit (MSDU)", HFILL }},
 	};
 
@@ -9724,6 +9753,9 @@ proto_register_ieee80211 (void)
     &ett_ht_info_delimiter1_tree,
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
+    &ett_msdu_aggregation_parent_tree,
+    &ett_msdu_aggregation_subframe_tree,
+    &ett_msdu_aggregation_msdu_tree,
     &ett_tag_measure_request_tree,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
@@ -9746,9 +9778,9 @@ proto_register_ieee80211 (void)
   module_t *wlan_module;
 
 
-  proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN agregate frame",
-	    "IEEE 802.11 Agregate Data", "wlan_agregate");
-  proto_register_field_array(proto_aggregate, agregate_fields, array_length(agregate_fields));
+  proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN aggregate frame",
+	    "IEEE 802.11 Agfregate Data", "wlan_aggregate");
+  proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
 					"IEEE 802.11", "wlan");
   proto_register_field_array (proto_wlan, hf, array_length (hf));
