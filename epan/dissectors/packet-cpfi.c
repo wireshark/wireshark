@@ -190,7 +190,14 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else
   {
-    src_instance = pinfo->src.data[2]-1;
+    if (pinfo->src.type == AT_ETHER) {
+      const guint8 *srcmac = pinfo->src.data;
+
+      src_instance = srcmac[2]-1;
+    } else {
+      /* XXX - what to do here? */
+      src_instance = 0;
+    }
     src_board = tda >> 4;
     src_port = tda & 0x0f;
     src = (1 << 24)  +  (src_instance << 16) + (src_board << 8) + src_port;
@@ -206,7 +213,14 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   else
   {
-    dst_instance = pinfo->dst.data[2]-1;
+    if (pinfo->dst.type == AT_ETHER) {
+      const guint8 *dstmac = pinfo->dst.data;
+
+      dst_instance = dstmac[2]-1;
+    } else {
+      /* XXX - what to do here? */
+      dst_instance = 0;
+    }
     dst_board = tda >> 4;
     dst_port = tda & 0x0f;
     dst = (1 << 24)  +  (dst_instance << 16) + (dst_board << 8) + dst_port;
