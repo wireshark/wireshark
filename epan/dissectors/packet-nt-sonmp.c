@@ -221,8 +221,9 @@ dissect_sonmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		hello_type = "";
 		if (pinfo->dl_dst.type == AT_ETHER) {
+			const guint8 *dstmac = pinfo->dl_dst.data;
 
-			switch (pinfo->dl_dst.data[5]) {
+			switch (dstmac[5]) {
 
 			case 0:
 				hello_type = "Segment ";
