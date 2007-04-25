@@ -5725,11 +5725,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 		break;
 	      }
 	    }
-	    break;
 	  }
+	  break;
 	  /*** End: Block Ack - Dustin Johnson ***/
-        break;
       }
+      break;
 
     case DATA_FRAME:
       addr_type = FCF_ADDR_SELECTOR (fcf);
