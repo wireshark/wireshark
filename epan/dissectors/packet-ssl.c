@@ -332,15 +332,10 @@ ssl_parse(void)
                 fstat(fileno(ssl_keys_file), &statb);
                 size = statb.st_size;
                 tmp_buf = ep_alloc0(size + 1);
-                nbytes = fread(tmp_buf, size, 1, ssl_keys_file);
+                nbytes = fread(tmp_buf, 1, size, ssl_keys_file);
                 fclose(ssl_keys_file);
-                if (nbytes != size)
-                    report_failure("can't read whole data from %s expected %d bytes, read %d",
-                                  ssl_keys_list, size, nbytes);
-                else {
-                    tmp_buf[size] = '\0';
-                    ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
-                }
+                tmp_buf[nbytes] = '\0';
+                ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
             } else {
                 report_open_failure(ssl_keys_list, errno, FALSE);
             }
