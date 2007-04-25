@@ -2098,13 +2098,13 @@ class Type (Node):
     pass
 
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, idx='', parent=None):
+    #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(parent))
     if (ectx.Tag() and (len(self.tags) > tstrip)):
       tagged_type = TaggedType(val=self, tstrip=tstrip)
       tagged_type.AddTag(self.tags[tstrip])
       if not tagflag:  # 1st tagged level
         if self.IsNamed():
           tagged_type.SetName(self.name)
-          #self.SetName(None)
       tagged_type.eth_reg(ident, ectx, tstrip=1, tagflag=tagflag, idx=idx, parent=parent)
       return
     nm = ''
@@ -2135,16 +2135,16 @@ class Type (Node):
         trnm = self.val
     else:
       ectx.eth_reg_type(nm, self)
+      trnm = nm
     if ectx.conform.check_item('VIRTUAL_ASSGN', nm):
       vnm = ectx.conform.use_item('VIRTUAL_ASSGN', nm)
       ectx.eth_reg_assign(vnm, self, virt=True)
       ectx.eth_reg_type(vnm, self)
       self.eth_reg_sub(vnm, ectx)
+    if parent and (ectx.type[parent]['val'].type == 'TaggedType'):
+      ectx.type[parent]['val'].eth_set_val_name(parent, trnm, ectx)
     if ident and not tagflag:
-      if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
-        ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
-      else:
-        ectx.eth_reg_field(nm, nm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
+      ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
     if ectx.conform.check_item('SET_TYPE', nm):
       virtual_tr.eth_reg_sub(nm, ectx)
     else:
@@ -2497,9 +2497,13 @@ class TaggedType (Type):
     tn += self.val.eth_tname()
     return tn
 
+  def eth_set_val_name(self, ident, val_name, ectx):
+    #print "TaggedType::eth_set_val_name(): ident=%s, val_name=%s" % (ident, val_name)
+    self.val_name = val_name
+    ectx.eth_dep_add(ident, self.val_name)
+
   def eth_reg_sub(self, ident, ectx):
     self.val_name = ident + '/' + '_untag'
-    ectx.eth_dep_add(ident, self.val_name)
     self.val.eth_reg(self.val_name, ectx, tstrip=self.tstrip+1, tagflag=True, parent=ident)
 
   def eth_ftype(self, ectx):
