@@ -60,13 +60,13 @@ typedef enum {
 typedef struct _address {
   address_type  type;		/* type of address */
   int           len;		/* length of address, in bytes */
-  const guint8 *data;		/* bytes that constitute address */
+  const void	*data;		/* pointer to address data */
 } address;
 
 #define	SET_ADDRESS(addr, addr_type, addr_len, addr_data) { \
 	(addr)->type = (addr_type); \
 	(addr)->len = (addr_len); \
-	(addr)->data = (const void *)(addr_data); \
+	(addr)->data = (addr_data); \
 	}
 
 /*
