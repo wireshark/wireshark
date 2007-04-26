@@ -153,6 +153,7 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	guint32 start_sec;     /* start of recording (GMT) (seconds) */
 	guint32 start_usec;    /* start of recording (GMT) (microseconds)*/
 	guint32 source;        /* network source (multicast address) */
+	size_t sourcelen;
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
 	
@@ -162,7 +163,12 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 
 	start_sec = g_htonl(strinfo->start_sec);
 	start_usec = g_htonl(strinfo->start_usec);
-	source = *(strinfo->src_addr.data); /* rtpdump only accepts guint32 as source, will be fake for IPv6 */
+	/* rtpdump only accepts guint32 as source, will be fake for IPv6 */
+	memset(&source, 0, sizeof source);
+	sourcelen = strinfo->src_addr.len;
+	if (sourcelen > sizeof source)
+		sourcelen = sizeof source;
+	memcpy(&source, strinfo->src_addr.data, sourcelen);
 	port = g_htons(strinfo->src_port);
 	padding = 0;
 
