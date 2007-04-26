@@ -132,6 +132,7 @@ struct netxray_hdr {
 #define WAN_CAPTYPE_SMDS	10	/* SMDS DXI */
 #define WAN_CAPTYPE_BROUTER4	11	/* Bridge/router captured with pod */
 #define WAN_CAPTYPE_BROUTER5	12	/* Bridge/router captured with pod */
+#define WAN_CAPTYPE_CHDLC 	19	/* Cisco router (CHDLC) captured with pod */
 
 #define CAPTYPE_ATM		15	/* ATM captured with pod */
 
@@ -696,6 +697,13 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				file_encap = WTAP_ENCAP_SDLC;
 				break;
 
+			case WAN_CAPTYPE_CHDLC:
+				/*
+				 *  Cisco router (CHDLC) captured with pod
+				 */
+				file_encap = WTAP_ENCAP_CHDLC_WITH_PHDR;
+				break;
+
 			default:
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
@@ -1245,6 +1253,7 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 
 		case WTAP_ENCAP_PPP_WITH_PHDR:
 		case WTAP_ENCAP_SDLC:
+		case WTAP_ENCAP_CHDLC_WITH_PHDR:
 			pseudo_header->p2p.sent =
 			    (hdr->hdr_2_x.xxx[12] & 0x01) ? TRUE : FALSE;
 			break;
