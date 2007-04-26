@@ -189,10 +189,10 @@ mtp3_stat_draw(
     {
 	row_offset = i * MTP3_NUM_SI_CODE;
 
-	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_opc, str, 256);
+	mtp3_addr_to_str_buf(&(*stat_p)[i].addr_opc, str, 256);
 	dlg.entries[0] = g_strdup(str);
 
-	mtp3_addr_to_str_buf((guint8 *) &(*stat_p)[i].addr_dpc, str, 256);
+	mtp3_addr_to_str_buf(&(*stat_p)[i].addr_dpc, str, 256);
 	dlg.entries[1] = g_strdup(str);
 
 	for (j=0; j < MTP3_NUM_SI_CODE; j++)

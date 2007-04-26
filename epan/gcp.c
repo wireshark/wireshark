@@ -135,8 +135,8 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
 			memcpy((guint8*)&(m->lo_addr),lo_addr->data,4);
 			break;
 		case AT_SS7PC:
-			m->hi_addr = mtp3_pc_hash(hi_addr->data);
-			m->lo_addr = mtp3_pc_hash(lo_addr->data);
+			m->hi_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)hi_addr->data);
+			m->lo_addr = mtp3_pc_hash((const mtp3_addr_pc_t *)lo_addr->data);
 			break;
 		default:
 			/* XXX: heuristic and error prone */

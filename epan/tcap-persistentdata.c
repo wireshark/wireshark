@@ -824,8 +824,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-  tcaphash_begin_key.opc_hash = mtp3_pc_hash( ((address *)(&pinfo->src))->data);
-  tcaphash_begin_key.dpc_hash = mtp3_pc_hash( ((address *)(&pinfo->dst))->data);
+  tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+  tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
   /* look up the request */
@@ -988,8 +988,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* look only for matching request, if matching conversation is available. */
   tcaphash_cont_key.src_tid = p_tcapsrt_info->src_tid;
   tcaphash_cont_key.dst_tid = p_tcapsrt_info->dst_tid;
-  tcaphash_cont_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
-  tcaphash_cont_key.dpc_hash=mtp3_pc_hash( ((address*)(&pinfo->dst))->data);
+  tcaphash_cont_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+  tcaphash_cont_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   tcaphash_cont_key.hashKey=tcaphash_cont_calchash(&tcaphash_cont_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1014,8 +1014,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     struct tcaphash_endcall_t *p_tcaphash_endcall;
 
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    tcaphash_begin_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
-    tcaphash_begin_key.dpc_hash=mtp3_pc_hash( ((address*)(&pinfo->dst))->data);
+    tcaphash_begin_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_begin_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1043,8 +1043,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
 #endif
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
-      tcaphash_end_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
-      tcaphash_end_key.dpc_hash=mtp3_pc_hash( ((address*)(&pinfo->dst))->data);
+      tcaphash_end_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+      tcaphash_end_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1100,8 +1100,8 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;
-  tcaphash_end_key.opc_hash = mtp3_pc_hash( ((address*)(&pinfo->src))->data);
-  tcaphash_end_key.dpc_hash = mtp3_pc_hash( ((address*)(&pinfo->dst))->data);
+  tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+  tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1116,8 +1116,8 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"EnotFound ");
 #endif
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    tcaphash_begin_key.opc_hash=mtp3_pc_hash( ((address*)(&pinfo->src))->data);
-    tcaphash_begin_key.dpc_hash=mtp3_pc_hash( ((address*)(&pinfo->dst))->data);
+    tcaphash_begin_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_begin_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT

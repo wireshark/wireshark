@@ -70,11 +70,11 @@ typedef struct _mtp3_tap_rec_t {
 #define JAPAN_PC_LENGTH   2
 #define JAPAN_PC_MASK     0xffff
 
-extern void     mtp3_addr_to_str_buf(const guint8 *data, gchar *buf, int buf_len);
+extern void     mtp3_addr_to_str_buf(const mtp3_addr_pc_t *addr_pc_p, gchar *buf, int buf_len);
 extern void     mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len);
 extern gchar*   mtp3_pc_to_str(const guint32 pc);
 extern gboolean mtp3_pc_structured(void);
-extern guint32  mtp3_pc_hash(const guint8* data);
+extern guint32  mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p);
 
 #ifdef __PROTO_H__
 /* epan/to_str.c includes this file, but it does not include proto.h so

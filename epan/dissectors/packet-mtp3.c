@@ -298,12 +298,10 @@ mtp3_pc_structured(void)
  
 void
 mtp3_addr_to_str_buf(
-  const guint8          *data,
+  const mtp3_addr_pc_t  *addr_pc_p,
   gchar                 *buf,
   int                   buf_len)
 {
-  const mtp3_addr_pc_t  *addr_pc_p = (const mtp3_addr_pc_t *)data;
-
   switch (mtp3_addr_fmt)
   {
   case MTP3_ADDR_FMT_DEC:
@@ -379,8 +377,7 @@ mtp3_addr_to_str_buf(
   }
 }
 
-guint32 mtp3_pc_hash(const guint8* data) {
-	const mtp3_addr_pc_t  *addr_pc_p = (const mtp3_addr_pc_t *)data;
+guint32 mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
 	guint32 pc;
 	
 	switch (addr_pc_p->type)
