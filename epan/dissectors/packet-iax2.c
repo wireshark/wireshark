@@ -474,7 +474,6 @@ static guint iax_circuit_hash (gconstpointer v)
   const iax_circuit_key *key = (const iax_circuit_key *)v;
   const guint8 *addrdata;
   guint hash_val;
-  int i;
 
   hash_val = 0;
   ADD_ADDRESS_TO_HASH(hash_val, key->addr);
