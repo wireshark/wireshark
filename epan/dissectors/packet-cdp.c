@@ -119,6 +119,7 @@ static const value_string type_vals[] = {
 	{ TYPE_VTP_MGMT_DOMAIN, "VTP Management Domain" },
 	{ TYPE_NATIVE_VLAN,     "Native VLAN" },
 	{ TYPE_DUPLEX,          "Duplex" },
+
 	{ TYPE_VOIP_VLAN_REPLY, "VoIP VLAN Reply" },
 	{ TYPE_VOIP_VLAN_QUERY, "VoIP VLAN Query" },
 	{ TYPE_POWER,           "Power consumption" },
@@ -684,7 +685,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						      tlv_tree);
 		    if (addr_length < 0)
 		      break;
-		      offset += addr_length;
+		    offset += addr_length;
 		    length -= addr_length;
 
 		    naddresses--;
