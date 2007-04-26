@@ -463,7 +463,7 @@ static sctp_assoc_info_t * add_chunk_count(address * vadd, sctp_assoc_info_t * i
 		if (ch->direction == direction)
 		{
 			v = (address *) (ch->addr);
-			if (*(vadd->data)==*(v->data))
+			if (ADDRESSES_EQUAL(vadd, v))
 			{
 				ch->addr_count[type]++;
 				return info;
