@@ -130,7 +130,7 @@ typedef struct _address {
 	int ADD_ADDRESS_TO_HASH_index; \
 	ADD_ADDRESS_TO_HASH_data = (addr).data; \
 	for (ADD_ADDRESS_TO_HASH_index = 0; \
-	     ADD_ADDRESS_TO_HASH_index < (addr).len;
+	     ADD_ADDRESS_TO_HASH_index < (addr).len; \
 	     ADD_ADDRESS_TO_HASH_index++) \
 		hash_val += addrdata[ADD_ADDRESS_TO_HASH_index]; \
 	}
