@@ -56,6 +56,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 ver_and_opcode,version,opcode,update,network;
   gint offset=IGRP_HEADER_LENGTH;
   guint16 as,net1,net2,net3;
+  const guint8 *ipsrc;
   proto_item *ti;
   proto_tree *igrp_tree, *igrp_vektor_tree;
   tvbuff_t   *next_tvb;
@@ -105,7 +106,9 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       net3 = tvb_get_ntohs(tvb,8);
 
       /* this is a ugly hack to find the first byte of the IP source address */
-      network = pinfo->net_src.data[0];
+      DISSECTOR_ASSERT(pinfo->net_src.type == AT_IPv4);
+      ipsrc = pinfo->net_src.data;
+      network = ipsrc[0];
 
       ti = proto_tree_add_text(igrp_tree,  tvb, 4,2,"Interior routes : %d",net1);
 	for( ; net1>0 ; net1-- )
