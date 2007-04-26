@@ -505,34 +505,11 @@ static sctp_assoc_info_t * add_address(address * vadd, sctp_assoc_info_t *info, 
 	while (list)
 	{
 		v = (address *) (list->data);
-		if (v->type == AT_IPv4 && vadd->type == AT_IPv4)
-		{
-			if (*vadd->data!=*v->data)
-			{
-				list = g_list_next(list);
-			}
-			else
-			{
-				g_free(vadd);
-				return info;
-			}
+		if (ADDRESSES_EQUAL(vadd, v)) {
+			g_free(vadd);
+			return info;
 		}
-		else if (v->type == AT_IPv6 && vadd->type == AT_IPv6)
-		{
-			if (strcmp(ip6_to_str((const struct e_in6_addr *)(vadd->data)), ip6_to_str((const struct e_in6_addr *)v->data)))
-			{
-				list = g_list_next(list);
-			}
-			else
-			{
-				g_free(vadd);
-				return info;
-			}
-		}
-		else
-		{
-			list = g_list_next(list);
-		}
+		list = g_list_next(list);
 	}
 
 	if (direction == 1)
