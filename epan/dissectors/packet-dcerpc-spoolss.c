@@ -57,6 +57,15 @@ static int hf_monitorname = -1;
 static int hf_defaultdatatype = -1;
 static int hf_driverinfo_cversion = -1;
 static int hf_dependentfiles = -1;
+static int hf_previousdrivernames = -1;
+static int hf_driverdate = -1;
+static int hf_padding = -1;
+static int hf_driver_version_low = -1;
+static int hf_driver_version_high = -1;
+static int hf_mfgname = -1;
+static int hf_oemurl = -1;
+static int hf_hardwareid= -1;
+static int hf_provider = -1;
 
 /* GetPrinter */
 
@@ -5163,7 +5172,7 @@ static int dissect_DRIVER_INFO_1(tvbuff_t *tvb, int offset,
 }
 
 /*
- * DRIVER_INFO_3
+ * DRIVER_INFO_2
  */
 
 static const value_string driverinfo_cversion_vals[] =
@@ -5173,6 +5182,51 @@ static const value_string driverinfo_cversion_vals[] =
 	{ 3, "Windows 2000/XP" },
 	{ 0, NULL }
 };
+
+static gint ett_DRIVER_INFO_2 = -1;
+
+static int dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
+	 packet_info *pinfo, proto_tree *tree,
+	 guint8 *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+
+	item = proto_tree_add_text(
+			tree, tvb, offset, 0, "Driver info level 2");
+
+	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_2);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+			hf_driverinfo_cversion, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_drivername,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_driverpath,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_datafile,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_configfile,
+			struct_start, NULL);
+
+	return offset;
+}
+
+/*
+ * DRIVER_INFO_3
+ */
 
 static gint ett_DRIVER_INFO_3 = -1;
 
@@ -5231,6 +5285,135 @@ static int dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+/*
+	DRIVER_INFO_6
+*/
+
+static gint ett_DRIVER_INFO_6 = -1;
+
+static int dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+
+	item = proto_tree_add_text(
+			tree, tvb, offset, 0, "Driver info level 6");
+
+	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_6);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+			hf_driverinfo_cversion, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_drivername,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_driverpath,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_datafile,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_configfile,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_helpfile,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstrarray(
+			tvb, offset, pinfo, subtree, drep, hf_dependentfiles,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_monitorname,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_defaultdatatype,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstrarray(
+			tvb, offset, pinfo, subtree, drep, hf_previousdrivernames,
+			struct_start, NULL);
+
+	offset = dissect_ndr_nt_NTTIME (
+			tvb, offset, pinfo, subtree, drep,hf_driverdate);
+
+	offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, subtree, drep, hf_padding,
+			NULL);
+
+	offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, subtree, drep, hf_driver_version_low,
+			NULL);
+
+	offset = dissect_ndr_uint32(
+			tvb, offset, pinfo, subtree, drep, hf_driver_version_high,
+			NULL);
+
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_mfgname,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_oemurl,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_hardwareid,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_provider,
+			struct_start, NULL);	
+
+	return offset;
+}
+
+
+static gint ett_DRIVER_INFO_101 = -1;
+
+static int dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *tree,
+				 guint8 *drep)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int struct_start = offset;
+
+	item = proto_tree_add_text(
+			tree, tvb, offset, 0, "Driver info level 101");
+
+	subtree = proto_item_add_subtree(item, ett_DRIVER_INFO_101);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+			hf_driverinfo_cversion, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_drivername,
+			struct_start, NULL);
+
+	offset = dissect_spoolss_relstr(
+			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			struct_start, NULL);
+
+	proto_tree_add_text(subtree,tvb,offset,0,"Unknown Data Follows");
+
+	return offset;
+}
 /*
  * EnumPrinterDrivers
  */
@@ -5303,11 +5486,27 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 				buffer.tvb, buffer_offset, pinfo,
 				buffer.tree, drep);
 			break;
+		case 2:
+			buffer_offset = dissect_DRIVER_INFO_2(
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
+			break;	
 		case 3:
 			buffer_offset = dissect_DRIVER_INFO_3(
 				buffer.tvb, buffer_offset, pinfo,
 				buffer.tree, drep);
 			break;
+		case 6:
+			buffer_offset = dissect_DRIVER_INFO_6(
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
+			break;
+		case 101:
+			buffer_offset = dissect_DRIVER_INFO_101(
+				buffer.tvb, buffer_offset, pinfo,
+				buffer.tree, drep);
+			/*break;*/
+			goto done; /*Not entirely imeplemented*/
 		default:
 			proto_tree_add_text(
 				buffer.tree, buffer.tvb, buffer_offset, -1,
@@ -5399,8 +5598,20 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 			dissect_DRIVER_INFO_1(
 				buffer.tvb, 0, pinfo, buffer.tree, drep);
 			break;
+		case 2:
+			dissect_DRIVER_INFO_2(
+				buffer.tvb, 0, pinfo, buffer.tree, drep);
+			break;
 		case 3:
 			dissect_DRIVER_INFO_3(
+				buffer.tvb, 0, pinfo, buffer.tree, drep);
+			break;
+		case 6:
+			dissect_DRIVER_INFO_6(
+				buffer.tvb, 0, pinfo, buffer.tree, drep);
+			break;
+		case 101:
+			dissect_DRIVER_INFO_101(
 				buffer.tvb, 0, pinfo, buffer.tree, drep);
 			break;
 		default:
@@ -6676,7 +6887,43 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_printer_status,
 		  { "Status", "spoolss.printer_status", FT_UINT32, BASE_DEC,
-		   VALS(printer_status_vals), 0, "Status", HFILL }},
+		    VALS(printer_status_vals), 0, "Status", HFILL }},
+
+		{ &hf_previousdrivernames,
+		  { "Previous Driver Names", "spoolss.previousdrivernames", FT_STRING, BASE_NONE,
+		    NULL, 0, "Previous Driver Names", HFILL }},		   
+
+		{ &hf_driverdate,
+		  { "Driver Date", "spoolss.driverdate", FT_ABSOLUTE_TIME, BASE_NONE,
+		    NULL, 0, "Date of driver creation", HFILL }},	
+
+		{ &hf_padding,
+		  { "Padding", "spoolss.padding", FT_UINT32, BASE_HEX,
+		    NULL, 0, "Some padding - conveys no semantic information", HFILL }},
+		   
+		{ &hf_driver_version_low,
+		  { "Minor Driver Version", "spoolss.minordriverversion", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Driver Version Low", HFILL }},
+
+		{ &hf_driver_version_high,
+		  { "Major Driver Version", "spoolss.majordriverversion", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Driver Version High", HFILL }},
+		   
+		{ &hf_mfgname,
+		  { "Mfgname", "spoolss.mfgname", FT_STRING, BASE_NONE,
+		    NULL, 0, "Manufacturer Name", HFILL }},
+
+		{ &hf_oemurl,
+		  { "OEM URL", "spoolss.oemrul", FT_STRING, BASE_NONE,
+		    NULL, 0, "OEM URL - Website of Vendor", HFILL }},
+
+		{ &hf_hardwareid,
+		  { "Hardware ID", "spoolss.hardwareid", FT_STRING, BASE_NONE,
+		    NULL, 0, "Hardware Identification Information", HFILL }},
+		   
+	   	{ &hf_provider,
+	   	  { "Provider", "spoolss.provider", FT_STRING, BASE_NONE,
+		    NULL, 0, "Provider of Driver", HFILL }},
 
 		/* Setprinter RPC */
 
@@ -8124,7 +8371,10 @@ proto_register_dcerpc_spoolss(void)
 		&ett_printerdata_data,
 		&ett_writeprinter_buffer,
 		&ett_DRIVER_INFO_1,
+		&ett_DRIVER_INFO_2,		
 		&ett_DRIVER_INFO_3,
+		&ett_DRIVER_INFO_6,
+		&ett_DRIVER_INFO_101,		
 		&ett_rffpcnex_flags,
 		&ett_notify_options_flags,
 		&ett_NOTIFY_INFO_DATA,
