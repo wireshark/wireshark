@@ -2426,7 +2426,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			call_ref[0] &= 0x7F;
 		}
 		/* XXX - Should crv be something besides a guint32? */
-		g_memmove(&(q931_pi->crv), call_ref, call_ref_len > sizeof(q931_pi->crv) ? sizeof(q931_pi->crv) : call_ref_len );
+		memcpy(&(q931_pi->crv), call_ref, call_ref_len > sizeof(q931_pi->crv) ? sizeof(q931_pi->crv) : call_ref_len );
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
