@@ -1840,7 +1840,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 				h245_add->h245_address.type=AT_IPv4;
 				h245_add->h245_address.len=4;
 				h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
-				g_memmove((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
+				memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
 				h245_add->h245_port = pi->h245_port;
 				add_h245_Address(tmp_h323info, h245_add);
 			}
