@@ -198,12 +198,13 @@ typedef struct {
 #define SMB_SIF_TID_IS_IPC	0x0001
 #define SMB_SIF_IS_CONTINUED	0x0002
 typedef enum {
-	SMB_EI_NONE,	/* Unassigned / NULL */
-	SMB_EI_FID,	/* FID */
-	SMB_EI_NTI,	/* smb_nt_transact_info_t * */
-	SMB_EI_TRI,	/* smb_transact_info_t * */
-	SMB_EI_T2I,	/* smb_transact2_info_t * */
-	SMB_EI_FILENAME	/* fid tracking  char * */
+	SMB_EI_NONE,		/* Unassigned / NULL */
+	SMB_EI_FID,		/* FID */
+	SMB_EI_NTI,		/* smb_nt_transact_info_t * */
+	SMB_EI_TRI,		/* smb_transact_info_t * */
+	SMB_EI_T2I,		/* smb_transact2_info_t * */
+	SMB_EI_FILENAME,	/* fid tracking  char * */
+	SMB_EI_UID		/* smb_uid_t */
 } smb_extra_info_t;
 typedef struct {
 	guint32 frame_req, frame_res;

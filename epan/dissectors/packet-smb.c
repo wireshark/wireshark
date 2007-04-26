@@ -2587,7 +2587,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_smb_uid(tvbuff_t *tvb, proto_tree *parent_tree, int offset, smb_info_t *si)
 {
-	proto_item *item;
+	proto_item *item, *subitem;
 	proto_tree *tree;
 	smb_uid_t *smb_uid=NULL;
 
@@ -2596,23 +2596,27 @@ dissect_smb_uid(tvbuff_t *tvb, proto_tree *parent_tree, int offset, smb_info_t *
 
 	smb_uid=se_tree_lookup32(si->ct->uid_tree, si->uid);
 	if(smb_uid){
-		proto_item_append_text(item, "  (%s\\%s)", smb_uid->domain, smb_uid->account);
-
+		if(smb_uid->domain && smb_uid->account)
+			proto_item_append_text(item, "  (");
 		if(smb_uid->domain){
-			item=proto_tree_add_string(tree, hf_smb_primary_domain, tvb, 0, 0, smb_uid->domain);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_append_text(item, "%s", smb_uid->domain);
+			subitem=proto_tree_add_string(tree, hf_smb_primary_domain, tvb, 0, 0, smb_uid->domain);
+			PROTO_ITEM_SET_GENERATED(subitem);
 		}
 		if(smb_uid->account){
-			item=proto_tree_add_string(tree, hf_smb_account, tvb, 0, 0, smb_uid->account);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_append_text(item, "\\%s", smb_uid->account);
+			subitem=proto_tree_add_string(tree, hf_smb_account, tvb, 0, 0, smb_uid->account);
+			PROTO_ITEM_SET_GENERATED(subitem);
 		}
+		if(smb_uid->domain && smb_uid->account)
+			proto_item_append_text(item, ")");
 		if(smb_uid->logged_in>0){
-			item=proto_tree_add_uint(tree, hf_smb_logged_in, tvb, 0, 0, smb_uid->logged_in);
-			PROTO_ITEM_SET_GENERATED(item);
+			subitem=proto_tree_add_uint(tree, hf_smb_logged_in, tvb, 0, 0, smb_uid->logged_in);
+			PROTO_ITEM_SET_GENERATED(subitem);
 		}
 		if(smb_uid->logged_out>0){
-			item=proto_tree_add_uint(tree, hf_smb_logged_out, tvb, 0, 0, smb_uid->logged_out);
-			PROTO_ITEM_SET_GENERATED(item);
+			subitem=proto_tree_add_uint(tree, hf_smb_logged_out, tvb, 0, 0, smb_uid->logged_out);
+			PROTO_ITEM_SET_GENERATED(subitem);
 		}
 	}
 	offset += 2;
@@ -6257,6 +6261,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						smb_uid->account=se_strdup(ntlmssph->acct_name);
 
 						si->sip->extra_info=smb_uid;
+						si->sip->extra_info_type=SMB_EI_UID;
 					}
 				}
 			}
@@ -6454,7 +6459,8 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	WORD_COUNT;
 
-	if(!pinfo->fd->flags.visited && si->sip && si->sip->extra_info){
+	if(!pinfo->fd->flags.visited && si->sip && si->sip->extra_info &&
+	    si->sip->extra_info_type==SMB_EI_UID){
 		smb_uid_t *smb_uid;
 
 		smb_uid=si->sip->extra_info;
