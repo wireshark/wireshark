@@ -47,16 +47,19 @@ sna_fid_to_str(const address *addr)
 void
 sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
+  const guint8 *addrdata;
   struct sna_fid_type_4_addr sna_fid_type_4_addr;
 
   switch (addr->len) {
 
   case 1:
-    g_snprintf(buf, buf_len, "%04X", addr->data[0]);
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%04X", addrdata[0]);
     break;
 
   case 2:
-    g_snprintf(buf, buf_len, "%04X", pntohs(&addr->data[0]));
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%04X", pntohs(&addrdata[0]));
     break;
 
   case SNA_FID_TYPE_4_ADDR_LEN:
