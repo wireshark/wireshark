@@ -132,7 +132,7 @@ typedef struct _address {
 	for (ADD_ADDRESS_TO_HASH_index = 0; \
 	     ADD_ADDRESS_TO_HASH_index < (addr).len; \
 	     ADD_ADDRESS_TO_HASH_index++) \
-		hash_val += addrdata[ADD_ADDRESS_TO_HASH_index]; \
+		hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
 	}
 
 /* Types of port numbers Wireshark knows about. */
