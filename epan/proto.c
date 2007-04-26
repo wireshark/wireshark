@@ -5579,6 +5579,13 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int h
 
 	return item;
 }
+
+proto_item *
+proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
+{
+	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
+
+}
 /* 
  * This function will dissect a sequence of bits that does not need to be byte aligned the bits
  * set vill be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
@@ -5586,7 +5593,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb, int offset, int h
  */
 
 proto_item *
-proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value, gboolean little_endian)
+proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value, gboolean little_endian)
 {
 	gint offset;
 	guint length;
@@ -5790,12 +5797,12 @@ proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offs
 		}
 	}
 	/* 1 - 32 bits field */
-
 	if (hf_field->strings) {
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-                      "%s: %s",
+                      "%s: %s (%u)",
 					  str,
-					  val_to_str(value, cVALS(hf_field->strings), "Unknown"));
+					  val_to_str(value, cVALS(hf_field->strings), "Unknown "),
+					  value);
 	}
 	switch(hf_field->display){
 	case BASE_DEC:
