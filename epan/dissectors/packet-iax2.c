@@ -472,12 +472,14 @@ static gint iax_circuit_equal(gconstpointer v, gconstpointer w)
 static guint iax_circuit_hash (gconstpointer v)
 {
   const iax_circuit_key *key = (const iax_circuit_key *)v;
+  const guint8 *addrdata;
   guint hash_val;
   int i;
 
   hash_val = 0;
+  addrdata = key->addr.data;
   for (i = 0; i < key->addr.len; i++)
-    hash_val += (guint)(key->addr.data[i]);
+    hash_val += (guint)(addrdata[i]);
 
   hash_val += (guint)(key->ptype);
   hash_val += (guint)(key->port);
