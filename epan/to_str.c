@@ -845,6 +845,8 @@ address_to_str(const address *addr)
 void
 address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {
+  const guint8 *addrdata;
+  const char *addrstr;
   struct atalk_ddp_addr ddp_addr;
 
   if (!buf)
@@ -855,7 +857,8 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     g_snprintf(buf, buf_len, "%s", "");
     break;
   case AT_ETHER:
-    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x", addrdata[0], addrdata[1], addrdata[2], addrdata[3], addrdata[4], addrdata[5]);
     break;
   case AT_IPv4:
     ip_to_str_buf(addr->data, buf, buf_len);
@@ -865,7 +868,8 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     	g_snprintf ( buf, buf_len, BUF_TOO_SMALL_ERR );                 /* Let the unexpected value alert user */
     break;
   case AT_IPX:
-    g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addrdata[0], addrdata[1], addrdata[2], addrdata[3], addrdata[4], addrdata[5], addrdata[6], addrdata[7], addrdata[8], addrdata[9]);
     break;
   case AT_SNA:
     sna_fid_to_str_buf(addr, buf, buf_len);
@@ -884,31 +888,35 @@ address_to_str_buf(const address *addr, gchar *buf, int buf_len)
     print_nsap_net_buf(addr->data, addr->len, buf, buf_len);
     break;
   case AT_ARCNET:
-    g_snprintf(buf, buf_len, "0x%02X", addr->data[0]);
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "0x%02X", addrdata[0]);
     break;
   case AT_FC:
-    g_snprintf(buf, buf_len, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
+    addrdata = addr->data;
+    g_snprintf(buf, buf_len, "%02x.%02x.%02x", addrdata[0], addrdata[1], addrdata[2]);
     break;
   case AT_SS7PC:
     mtp3_addr_to_str_buf(addr->data, buf, buf_len);
     break;
   case AT_STRINGZ:
-    g_snprintf(buf, buf_len, "%s", addr->data);
+    addrstr = addr->data;
+    g_snprintf(buf, buf_len, "%s", addrstr);
     break;
   case AT_EUI64:
+    addrdata = addr->data;
     g_snprintf(buf, buf_len, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
-            addr->data[0], addr->data[1], addr->data[2], addr->data[3],
-            addr->data[4], addr->data[5], addr->data[6], addr->data[7]);
+            addrdata[0], addrdata[1], addrdata[2], addrdata[3],
+            addrdata[4], addrdata[5], addrdata[6], addrdata[7]);
     break;
   case AT_URI: {
     int copy_len = addr->len < (buf_len - 1) ? addr->len : (buf_len - 1);
-    memmove(buf, addr->data, copy_len );
+    memcpy(buf, addr->data, copy_len );
     buf[copy_len] = '\0';
     }
     break;
   case AT_TIPC:
-	  tipc_addr_to_str_buf(addr->data, buf, buf_len);
-	  break;
+    tipc_addr_to_str_buf(addr->data, buf, buf_len);
+    break;
   default:
     g_assert_not_reached();
   }
