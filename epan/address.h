@@ -122,6 +122,19 @@ typedef struct _address {
 	(to)->data = SE_COPY_ADDRESS_data; \
 	}
 
+/*
+ * Hash an address into a hash value.
+ */
+#define HASH_ADDRESS(hash_val, addr) { \
+	const guint8 *HASH_ADDRESS_data; \
+	int HASH_ADDRESS_index; \
+	HASH_ADDRESS_data = (addr).data; \
+	for (HASH_ADDRESS_index = 0; \
+	     HASH_ADDRESS_index < (addr).len;
+	     HASH_ADDRESS_index++) \
+		hash_val += addrdata[HASH_ADDRESS_index]; \
+	}
+
 /* Types of port numbers Wireshark knows about. */
 typedef enum {
   PT_NONE,		/* no port number */

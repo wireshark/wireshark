@@ -187,17 +187,11 @@ conversation_hash_exact(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->addr1.len; i++)
-		hash_val += key->addr1.data[i];
-
+	HASH_ADDRESS(hash_val, key->addr1);
 	hash_val += key->port1;
-
-	for (i = 0; i < key->addr2.len; i++)
-		hash_val += key->addr2.data[i];
-
+	HASH_ADDRESS(hash_val, key->addr2);
 	hash_val += key->port2;
 
 	return hash_val;
@@ -264,14 +258,10 @@ conversation_hash_no_addr2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->addr1.len; i++)
-		hash_val += key->addr1.data[i];
-
+	HASH_ADDRESS(hash_val, key->addr1);
 	hash_val += key->port1;
-
 	hash_val += key->port2;
 
 	return hash_val;
@@ -322,16 +312,11 @@ conversation_hash_no_port2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->addr1.len; i++)
-		hash_val += key->addr1.data[i];
-
+	HASH_ADDRESS(hash_val, key->addr1);
 	hash_val += key->port1;
-
-	for (i = 0; i < key->addr2.len; i++)
-		hash_val += key->addr2.data[i];
+	HASH_ADDRESS(hash_val, key->addr2);
 
 	return hash_val;
 }
@@ -381,12 +366,9 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 {
 	const conversation_key *key = (const conversation_key *)v;
 	guint hash_val;
-	int i;
 
 	hash_val = 0;
-	for (i = 0; i < key->addr1.len; i++)
-		hash_val += key->addr1.data[i];
-
+	HASH_ADDRESS(hash_val, key->addr1);
 	hash_val += key->port1;
 
 	return hash_val;
