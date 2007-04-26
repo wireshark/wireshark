@@ -123,16 +123,16 @@ typedef struct _address {
 	}
 
 /*
- * Hash an address into a hash value.
+ * Hash an address into a hash value (which must already have been set).
  */
-#define HASH_ADDRESS(hash_val, addr) { \
-	const guint8 *HASH_ADDRESS_data; \
-	int HASH_ADDRESS_index; \
-	HASH_ADDRESS_data = (addr).data; \
-	for (HASH_ADDRESS_index = 0; \
-	     HASH_ADDRESS_index < (addr).len;
-	     HASH_ADDRESS_index++) \
-		hash_val += addrdata[HASH_ADDRESS_index]; \
+#define ADD_ADDRESS_TO_HASH(hash_val, addr) { \
+	const guint8 *ADD_ADDRESS_TO_HASH_data; \
+	int ADD_ADDRESS_TO_HASH_index; \
+	ADD_ADDRESS_TO_HASH_data = (addr).data; \
+	for (ADD_ADDRESS_TO_HASH_index = 0; \
+	     ADD_ADDRESS_TO_HASH_index < (addr).len;
+	     ADD_ADDRESS_TO_HASH_index++) \
+		hash_val += addrdata[ADD_ADDRESS_TO_HASH_index]; \
 	}
 
 /* Types of port numbers Wireshark knows about. */
