@@ -1525,7 +1525,7 @@ v9_template_add(struct v9_template *template)
 		template->length += template->entries[i].length;
 	}
 
-	memmove(&v9_template_cache[v9_template_hash(template->id, 
+	memcpy(&v9_template_cache[v9_template_hash(template->id, 
 		    &template->source_addr, template->source_id)],
 	    template, sizeof(*template));
 }
