@@ -128,9 +128,9 @@ typedef struct _address {
 #define ADD_ADDRESS_TO_HASH(hash_val, addr) { \
 	const guint8 *ADD_ADDRESS_TO_HASH_data; \
 	int ADD_ADDRESS_TO_HASH_index; \
-	ADD_ADDRESS_TO_HASH_data = (addr).data; \
+	ADD_ADDRESS_TO_HASH_data = (addr)->data; \
 	for (ADD_ADDRESS_TO_HASH_index = 0; \
-	     ADD_ADDRESS_TO_HASH_index < (addr).len; \
+	     ADD_ADDRESS_TO_HASH_index < (addr)->len; \
 	     ADD_ADDRESS_TO_HASH_index++) \
 		hash_val += ADD_ADDRESS_TO_HASH_data[ADD_ADDRESS_TO_HASH_index]; \
 	}

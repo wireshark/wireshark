@@ -189,9 +189,9 @@ conversation_hash_exact(gconstpointer v)
 	guint hash_val;
 
 	hash_val = 0;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr1);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 	hash_val += key->port1;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr2);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
 	hash_val += key->port2;
 
 	return hash_val;
@@ -260,7 +260,7 @@ conversation_hash_no_addr2(gconstpointer v)
 	guint hash_val;
 
 	hash_val = 0;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr1);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 	hash_val += key->port1;
 	hash_val += key->port2;
 
@@ -314,9 +314,9 @@ conversation_hash_no_port2(gconstpointer v)
 	guint hash_val;
 
 	hash_val = 0;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr1);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 	hash_val += key->port1;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr2);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
 
 	return hash_val;
 }
@@ -368,7 +368,7 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 	guint hash_val;
 
 	hash_val = 0;
-	ADD_ADDRESS_TO_HASH(hash_val, key->addr1);
+	ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
 	hash_val += key->port1;
 
 	return hash_val;
