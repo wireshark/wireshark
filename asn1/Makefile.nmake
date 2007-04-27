@@ -41,6 +41,8 @@ ber: \
 	pkixqualified	\
 	pkixtsp	\
 	pres	\
+	q932	\
+	qsig	\
 	ros	\
 	rtse	\
 	s4406	\
@@ -189,6 +191,12 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd q932
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd qsig
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ranap
@@ -455,6 +463,16 @@ pkixtsp::
 
 pres::
 	cd pres
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+q932::
+	cd q932
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+qsig::
+	cd qsig
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

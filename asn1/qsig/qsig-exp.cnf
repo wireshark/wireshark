@@ -1,0 +1,21 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\qsig-exp.cnf
+# ../../tools/asn2wrs.py -b -T -e -p qsig -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn qsig-na.asn qsig-cf.asn
+
+#.MODULE
+Manufacturer-specific-service-extension-class-asn1-97  qsig
+PSS1-generic-parameters-definition-asn1-97             qsig
+Addressing-Data-Elements-asn1-97                       qsig
+Name-Operations-asn1-97                                qsig
+Call-Diversion-Operations-asn1-97                      qsig
+#.END
+
+#.IMPORT_TAG
+Name                     BER_CLASS_ANY/*choice*/ -1/*choice*/
+#.END
+
+#.TYPE_ATTR
+Name                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(qsig_Name_vals)  BITMASK = 0
+#.END
+

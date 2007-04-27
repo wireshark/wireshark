@@ -1,0 +1,187 @@
+
+#.PDU_NEW
+
+RoseAPDU
+
+#.TYPE_RENAME
+
+Invoke/argument             InvokeArgument
+ReturnResult/result/result  ResultArgument
+
+#.FIELD_RENAME
+
+Invoke/linkedId/present     linkedIdPresent
+
+Reject/problem/invoke       invokeProblem
+Reject/problem/returnError  returnErrorProblem
+Reject/problem/returnResult returnResultProblem
+
+ReturnResult/result/result  resultArgument
+
+#--- Code ---
+
+#.FN_HDR Code
+  code_choice = -1;
+  code_local = -1;
+  code_global = "";
+#.FN_PARS
+Code/local   VAL_PTR = &code_local
+Code/global  FN_VARIANT = _str  VAL_PTR = &code_global
+#.FN_FTR Code/local
+  code_choice = 0;
+#.FN_FTR Code/global
+  code_choice = 1;
+#.END
+
+#--- Problem ---
+
+#.FN_PARS
+GeneralProblem       VAL_PTR = &problem_val
+InvokeProblem        VAL_PTR = &problem_val
+ReturnResultProblem  VAL_PTR = &problem_val
+ReturnErrorProblem   VAL_PTR = &problem_val
+#.FN_FTR GeneralProblem
+  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""));
+#.FN_FTR InvokeProblem
+  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""));
+#.FN_FTR ReturnResultProblem
+  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""));
+#.FN_FTR ReturnErrorProblem
+  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""));
+#.END
+
+#--- INVOKE ---
+
+#.FIELD_ATTR
+Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY Invoke/argument
+  gint len;
+
+  len = tvb_length_remaining(tvb, offset);
+  if (len)
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+  arg_next_tvb = tvb_new_subset(tvb, offset, len, len);
+
+  offset += tvb_length_remaining(tvb, offset);
+
+#.FN_HDR Invoke
+  dissector_handle_t arg_handle = NULL;
+
+  arg_next_tvb = NULL;
+#.FN_FTR Invoke
+  if (code_choice == 0) {
+    arg_handle = dissector_get_port_handle(rose_ctx->arg_local_dissector_table, code_local);
+  } else if (code_choice == 1) {
+    arg_handle = dissector_get_string_handle(rose_ctx->arg_global_dissector_table, code_global);
+  } else {
+    arg_handle = NULL;
+  }
+
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  INV:");
+  if (!arg_handle || 
+      !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(arg_handle)))) {
+    if (code_choice == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
+    else if (code_choice == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+  }
+  if (arg_next_tvb) {
+    pinfo->private_data = rose_ctx;
+    call_dissector((arg_handle)?arg_handle:data_handle, arg_next_tvb, pinfo, tree);
+  }
+#.END
+
+
+#--- RETURN RESULT ---
+
+#.FIELD_ATTR
+ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY ReturnResult/result/result
+  gint len;
+
+  len = tvb_length_remaining(tvb, offset);
+  if (len)
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+  res_next_tvb = tvb_new_subset(tvb, offset, len, len);
+
+  offset += tvb_length_remaining(tvb, offset);
+
+#.FN_HDR ReturnResult
+  dissector_handle_t res_handle = NULL;
+
+  res_next_tvb = NULL;
+#.FN_FTR ReturnResult
+  if (code_choice == 0) {
+    res_handle = dissector_get_port_handle(rose_ctx->res_local_dissector_table, code_local);
+  } else if (code_choice == 1) {
+    res_handle = dissector_get_string_handle(rose_ctx->res_global_dissector_table, code_global);
+  } else {
+    res_handle = NULL;
+  }
+
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  RES:");
+  if (!res_handle || 
+      !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(res_handle)))) {
+    if (code_choice == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
+    else if (code_choice == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+  }
+  if (res_next_tvb) {
+    pinfo->private_data = rose_ctx;
+    call_dissector((res_handle)?res_handle:data_handle, res_next_tvb, pinfo, tree); 
+  }
+#.END
+
+#--- RETURN ERROR ---
+
+#.FIELD_ATTR
+ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_HEX
+
+#.FN_BODY ReturnError/parameter
+
+  gint len;
+
+  len = tvb_length_remaining(tvb, offset);
+  if (len)
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+  res_next_tvb = tvb_new_subset(tvb, offset, len, len);
+
+  offset += tvb_length_remaining(tvb, offset);
+
+#.FN_HDR ReturnError
+  dissector_handle_t err_handle = NULL;
+
+  err_next_tvb = NULL;
+#.FN_FTR ReturnError
+  if (code_choice == 0) {
+    /*err_handle = dissector_get_port_handle(rose_ctx->err_local_dissector_table, code_local);*/
+  } else if (code_choice == 1) {
+    /*err_handle = dissector_get_string_handle(rose_ctx->err_global_dissector_table, code_global);*/
+  } else {
+    err_handle = NULL;
+  }
+
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  ERR:");
+  if (!err_handle || 
+      !proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(err_handle)))) {
+    if (code_choice == 0)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %d", code_local);
+    else if (code_choice == 1)
+      proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), " %s", code_global);
+  }
+  if (err_next_tvb) {
+    pinfo->private_data = rose_ctx;
+    call_dissector((err_handle)?err_handle:data_handle, err_next_tvb, pinfo, tree); 
+  }
+#.END
+
+#--- REJECT ---
+
+#.FN_HDR Reject
+  problem_str[0] = '\0';
+#.FN_FTR Reject
+  proto_item_append_text(proto_item_get_parent_nth(proto_tree_get_parent(tree), rose_ctx->apdu_depth), "  REJ: %s", problem_str);
+#.END

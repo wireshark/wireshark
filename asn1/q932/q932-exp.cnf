@@ -1,0 +1,36 @@
+# Do not modify this file.
+# It is created automatically by the ASN.1 to Wireshark dissector compiler
+# .\q932-exp.cnf
+# ../../tools/asn2wrs.py -b -T -e -p q932 -c q932.cnf -s packet-q932-template Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn
+
+#.MODULE
+Addressing-Data-Elements            q932
+Network-Facility-Extension          q932
+Network-Protocol-Profile-component  q932
+Interpretation-component            q932
+#.END
+
+#.IMPORT_TAG
+PresentedAddressScreened BER_CLASS_ANY/*choice*/ -1/*choice*/
+PresentedAddressUnscreened BER_CLASS_ANY/*choice*/ -1/*choice*/
+PresentedNumberScreened  BER_CLASS_ANY/*choice*/ -1/*choice*/
+PresentedNumberUnscreened BER_CLASS_ANY/*choice*/ -1/*choice*/
+Address                  BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
+PartyNumber              BER_CLASS_ANY/*choice*/ -1/*choice*/
+PartySubaddress          BER_CLASS_ANY/*choice*/ -1/*choice*/
+ScreeningIndicator       BER_CLASS_UNI BER_UNI_TAG_ENUMERATED
+PresentationAllowedIndicator BER_CLASS_UNI BER_UNI_TAG_BOOLEAN
+#.END
+
+#.TYPE_ATTR
+PresentedAddressScreened TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PresentedAddressScreened_vals)  BITMASK = 0
+PresentedAddressUnscreened TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PresentedAddressUnscreened_vals)  BITMASK = 0
+PresentedNumberScreened  TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PresentedNumberScreened_vals)  BITMASK = 0
+PresentedNumberUnscreened TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PresentedNumberUnscreened_vals)  BITMASK = 0
+Address                  TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+PartyNumber              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PartyNumber_vals)  BITMASK = 0
+PartySubaddress          TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_PartySubaddress_vals)  BITMASK = 0
+ScreeningIndicator       TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(q932_ScreeningIndicator_vals)  BITMASK = 0
+PresentationAllowedIndicator TYPE = FT_BOOLEAN  DISPLAY = 8          STRINGS = NULL  BITMASK = 0
+#.END
+

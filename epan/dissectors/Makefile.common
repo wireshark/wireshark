@@ -122,6 +122,9 @@ ASN_DISSECTOR_SRC = \
 	packet-pkixqualified.c \
 	packet-pkixtsp.c \
 	packet-pres.c \
+	packet-q932.c \
+	packet-q932-ros.c \
+	packet-qsig.c \
 	packet-ranap.c \
 	packet-rnsap.c \
 	packet-ros.c \
@@ -944,6 +947,9 @@ DISSECTOR_INCLUDES =	\
 	packet-pres.h	\
 	packet-prism.h	\
 	packet-q931.h	\
+	packet-q932.h	\
+	packet-q932-ros.h	\
+	packet-qsig.h	\
 	packet-radiotap.h	\
 	packet-radius.h	\
 	packet-ranap.h	\

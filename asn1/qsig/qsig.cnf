@@ -1,0 +1,66 @@
+# qsig.cnf
+# QSIG conformation file
+# 2007  Tomas Kukosa
+
+# $Id$
+
+#.EXPORTS  EXTERN VALS_WITH_TABLE
+
+Name
+
+#.PDU
+
+#--- ECMA-164 QSIG-NA --------------------------------
+NameArg
+
+#--- ECMA-174 QSIG-CF --------------------------------
+ActivateDivArg
+ActivateDivRes
+DeactivateDivArg
+DeactivateDivRes
+InterrDivArg
+ChkResArg
+ChkResRes
+CallRrArg
+CallRrRes
+DivLegInf1Arg
+DivLegInf2Arg
+DivLegInf3Arg
+DivLegFailArg
+IntResultList
+
+#.END
+
+#.TYPE_RENAME
+ActivateDivArg/extension    ADExtension
+DeactivateDivArg/extension  DDExtension
+InterrDivArg/extension      IDExtension
+ChkResArg/extension         CHRExtension
+CallRrArg/extension         CRRExtension
+DivLegInf1Arg/extension DLI1Extension
+DivLegInf2Arg/extension DLI2Extension
+DivLegInf3Arg/extension DLI3Extension
+IntResult/extension     IRExtension
+#.END
+
+#.FIELD_RENAME
+NameArg/nameSequence/extension extensionNA
+ActivateDivArg/extension       extensionAD
+DeactivateDivArg/extension     extensionDD
+InterrDivArg/extension         extensionID
+ChkResArg/extension            extensionCHR
+CallRrArg/extension            extensionCRR
+DivLegInf1Arg/extension        extensionDLI1
+DivLegInf2Arg/extension        extensionDLI2
+DivLegInf3Arg/extension        extensionDLI3
+IntResult/extension            extensionIR
+#.END
+
+
+#.TYPE_ATTR
+NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
+#.END
+
+#.FN_BODY Extension/extensionArgument
+
+#.END
