@@ -1,6 +1,6 @@
 /* packet-oicq.c
  * Routines for OICQ - IM software,popular in China - packet dissection
- * (c) Copyright DuBingyao <dubingyao@gmail.com>
+ * (c) Copyright Secfire <secfire@gmail.com>
  *
  * $Id$
  *
