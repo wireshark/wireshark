@@ -430,6 +430,7 @@ EF_EXTERN  = 0x0020
 EF_NO_PROT = 0x0040
 EF_NO_TYPE = 0x0080
 EF_UCASE   = 0x0100
+EF_TABLE   = 0x0400
 EF_DEFINE  = 0x0800
 
 #--- EthCtx -------------------------------------------------------------------
@@ -450,6 +451,9 @@ class EthCtx:
   def Fld(self): return self.fld_opt or self.Ber()
   def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
   def NAPI(self): return False  # disable planned features
+
+  def module(self):  # current module name
+    return self.modules[-1][0]
 
   def dbg(self, d):
     if (self.dbgopt.find(d) >= 0):
@@ -489,9 +493,15 @@ class EthCtx:
 
   #--- eth_import_type --------------------------------------------------------
   def eth_import_type(self, ident, mod, proto):
-    #print "eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, prot)
+    #print "eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto)
     if self.type.has_key(ident):
-      raise "Duplicate type for " + ident
+      #print "already defined import=%s, module=%s" % (str(self.type[ident]['import']), self.type[ident]['module'])
+      if not self.type[ident]['import'] and (self.type[ident]['module'] == mod) :
+        return  # OK - already defined
+      elif self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
+        return  # OK - already imported
+      else:
+        raise "Duplicate type for " + ident
     self.type[ident] = {'import'  : mod, 'proto' : proto,
                         'ethname' : '' }
     self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
@@ -519,8 +529,15 @@ class EthCtx:
   def eth_reg_type(self, ident, val):
     #print "eth_reg_type(ident='%s', type='%s')" % (ident, val.type)
     if self.type.has_key(ident):
-      raise "Duplicate type for " + ident
+      if self.type[ident]['import'] and (self.type[ident]['import'] == self.module()) :
+        # replace imported type
+        del self.type[ident]
+        self.type_imp.remove(ident)
+      else:
+        raise "Duplicate type for " + ident
     self.type[ident] = { 'val' : val, 'import' : None }
+    self.type[ident]['module'] = self.module()
+    self.type[ident]['proto'] = self.proto
     if len(ident.split('/')) > 1:
       self.type[ident]['tname'] = val.eth_tname()
     else:
@@ -634,6 +651,7 @@ class EthCtx:
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
                             'proto' : asn2c(self.type[t]['proto']),
                             'attr' : {}, 'ref' : []}
+      self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
       nm = self.type[t]['tname']
@@ -665,7 +683,6 @@ class EthCtx:
                               'val' : self.type[t]['val'], 
                               'attr' : {}, 
                               'ref' : [t]}
-        self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
@@ -675,6 +692,7 @@ class EthCtx:
       self.eth_type[nm]['no_emit'] &= self.type[t]['no_emit']
       if self.type[t]['attr'].get('STRINGS') == '$$':
         self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
+      self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
     for t in self.eth_type_ord:
       bits = self.eth_type[t]['val'].eth_named_bits()
       if (bits):
@@ -846,6 +864,8 @@ class EthCtx:
     out = ""
     has_enum = self.eth_type[tname]['enum'] & EF_ENUM
     if (not self.eth_type[tname]['export'] & EF_VALS):
+      out += "static "
+    if (self.eth_type[tname]['export'] & EF_VALS) and (self.eth_type[tname]['export'] & EF_TABLE):
       out += "static "
     out += "const value_string %s[] = {\n" % (self.eth_vals_nm(tname))
     for (val, id) in vals:
@@ -1047,11 +1067,14 @@ class EthCtx:
       if (self.eth_type[t]['export'] & EF_ENUM) and self.eth_type[t]['val'].eth_has_enum(t, self):
         fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
       if (self.eth_type[t]['export'] & EF_VALS) and self.eth_type[t]['val'].eth_has_vals():
-        if self.eth_type[t]['export'] & EF_WS_VAR:
-          fx.write("WS_VAR_IMPORT ")
+        if not self.eth_type[t]['export'] & EF_TABLE:
+          if self.eth_type[t]['export'] & EF_WS_VAR:
+            fx.write("WS_VAR_IMPORT ")
+          else:
+            fx.write("extern ")
+          fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
         else:
-          fx.write("extern ")
-        fx.write("const value_string %s[];\n" % (self.eth_vals_nm(t)))
+          fx.write(self.eth_type[t]['val'].eth_type_vals(t, self))
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & EF_TYPE):
         if self.eth_type[t]['export'] & EF_EXTERN:
@@ -1137,10 +1160,7 @@ class EthCtx:
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
       is_new = self.eth_hf[f]['pdu']['new']
-      if self.field[self.eth_hf[f]['ref'][0]]['impl']:
-        impl = 'TRUE'
-      else:
-        impl = 'FALSE'
+      impl = 'FALSE'
       out = 'static '
       if (is_new):
         out += 'int'
@@ -1200,6 +1220,8 @@ class EthCtx:
           pass
         elif self.eth_type[t]['user_def'] & EF_VALS:
           fx.write("extern const value_string %s[];\n" % (self.eth_vals_nm(t)))
+        elif (self.eth_type[t]['export'] & EF_VALS) and (self.eth_type[t]['export'] & EF_TABLE):
+          pass
         else:
           fx.write(self.eth_type[t]['val'].eth_type_vals(t, self))
       if self.eth_type[t]['no_emit'] & EF_TYPE:
@@ -1408,6 +1430,7 @@ class EthCnf:
     self.order = {}
     self.fn = {}
     self.suppress_line = False
+    self.include_path = []
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -1619,6 +1642,7 @@ class EthCnf:
           for i in range(p, len(par)):
             if (par[i] == 'ONLY_ENUM'):   default_flags &= ~(EF_TYPE|EF_VALS); default_flags |= EF_ENUM
             elif (par[i] == 'WITH_ENUM'): default_flags |= EF_ENUM
+            elif (par[i] == 'VALS_WITH_TABLE'):  default_flags |= EF_TABLE
             elif (par[i] == 'WS_VAR'):    default_flags |= EF_WS_VAR
             elif (par[i] == 'EXTERN'):    default_flags |= EF_EXTERN
             elif (par[i] == 'NO_PROT_PREFIX'): default_flags |= EF_NO_PROT
@@ -1663,7 +1687,16 @@ class EthCnf:
           if not par: 
             warnings.warn_explicit("INCLUDE requires parameter", UserWarning, fn, lineno)
             continue
-          fname = os.path.join(os.path.split(fn)[0], par[0])
+          fname = par[0]
+          #print "Try include: %s" % (fname)
+          if (not os.path.exists(fname)):
+            fname = os.path.join(os.path.split(fn)[0], par[0])
+          #print "Try include: %s" % (fname)
+          i = 0
+          while not os.path.exists(fname) and (i < len(self.include_path)):
+            fname = os.path.join(self.include_path[i], par[0])
+            #print "Try include: %s" % (fname)
+            i += 1
           if (not os.path.exists(fname)):
             fname = par[0]
           fnew = open(fname, "r")
@@ -1695,6 +1728,7 @@ class EthCnf:
         for i in range(p, len(par)):
           if (par[i] == 'ONLY_ENUM'):        flags &= ~(EF_TYPE|EF_VALS); flags |= EF_ENUM
           elif (par[i] == 'WITH_ENUM'):      flags |= EF_ENUM
+          elif (par[i] == 'VALS_WITH_TABLE'):  flags |= EF_TABLE
           elif (par[i] == 'WS_VAR'):         flags |= EF_WS_VAR
           elif (par[i] == 'EXTERN'):         flags |= EF_EXTERN
           elif (par[i] == 'NO_PROT_PREFIX'): flags |= EF_NO_PROT
@@ -4992,6 +5026,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
   -o name       : output files name core (default is <proto>)
   -O dir        : output directory
   -c conform_file : conformation file
+  -I path       : path for conformance file includes
   -e            : create conformation file for exported types
   -S            : single output for multiple modules
   -s template   : single file output (template is input file without .c/.h extension)
@@ -5013,13 +5048,14 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 def eth_main():
   print "ASN.1 to Wireshark dissector compiler";
   try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:eSs:kL");
+    opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:I:eSs:kL");
   except getopt.GetoptError:
     eth_usage(); sys.exit(2)
   if len(args) < 1:
     eth_usage(); sys.exit(2)
 
   conform = EthCnf()
+  conf_to_read = None
   output = EthOut()
   ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
@@ -5048,7 +5084,9 @@ def eth_main():
     if o in ("-T",):
       ectx.tag_opt = True
     if o in ("-c",):
-      ectx.conform.read(a)
+      conf_to_read = a
+    if o in ("-I",):
+      ectx.conform.include_path.append(a)
     if o in ("-u",):
       ectx.aligned = False
     if o in ("-d",):
@@ -5069,6 +5107,9 @@ def eth_main():
       ectx.output.suppress_line = True
     if o in ("-X",):
         warnings.warn("Command line option -X is obsolete and can be removed")
+
+  if conf_to_read:
+    ectx.conform.read(conf_to_read)
 
   (ld, yd, pd) = (0, 0, 0); 
   if ectx.dbg('l'): ld = 1
