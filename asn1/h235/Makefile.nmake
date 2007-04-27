@@ -8,14 +8,15 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=h235
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+H235_ASN=H235-SECURITY-MESSAGES.asn H235-SRTP.asn
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py H235-SECURITY-MESSAGES.asn H235-SRTP.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(H235_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template H235-SECURITY-MESSAGES.asn H235-SRTP.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(H235_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
