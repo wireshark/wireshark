@@ -294,6 +294,19 @@ EXTRA_DIST = \
 	pres/packet-pres-template.c	\
 	pres/packet-pres-template.h	\
 	pres/pres.cnf	\
+	q932/Addressing-Data-Elements.asn	\
+	q932/Interpretation-component.asn	\
+	q932/Network-Facility-Extension.asn	\
+	q932/Network-Protocol-Profile-component.asn	\
+	q931/q932-ros.asn	\
+	q932/q932.cnf	\
+	q932/q932-ros.cnf	\
+	q932/Makefile	\
+	q932/Makefile.nmake	\
+	q932/packet-q932-ros-template.c	\
+	q932/packet-q932-ros-template.h	\
+	q932/packet-q932-template.c	\
+	q932/packet-q932-template.h	\
 	ranap/Makefile	\
 	ranap/Makefile.nmake	\
 	ranap/packet-ranap-template.c	\
