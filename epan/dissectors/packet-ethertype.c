@@ -110,6 +110,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_3GPP2,                           "CDMA2000 A10 3GPP2 Packet" },
     {ETHERTYPE_LLTD,			"Link Layer Topology Discovery (LLTD)" },
     {ETHERTYPE_COBRANET,		"Cirrus Cobranet Packet" },
+    {ETHERTYPE_NSRP,			"Juniper Netscreen Redundant Protocol" },
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level
      * protocols into PPP frames to hand to the PPP driver, and translates

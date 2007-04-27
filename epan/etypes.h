@@ -170,6 +170,10 @@
 #define ETHERTYPE_VLAN		0x8100	/* 802.1Q Virtual LAN */
 #endif
 
+#ifndef ETHERTYPE_NSRP
+#define ETHERTYPE_NSRP		0x8133
+#endif
+
 #ifndef ETHERTYPE_IPX
 #define ETHERTYPE_IPX		0x8137
 #endif

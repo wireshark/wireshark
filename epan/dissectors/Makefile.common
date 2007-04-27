@@ -543,6 +543,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-nlsp.c		\
 	packet-nntp.c		\
 	packet-nsip.c		\
+	packet-nsrp.c		\
 	packet-nt-oui.c		\
 	packet-nt-sonmp.c	\
 	packet-nt-tpcp.c	\
