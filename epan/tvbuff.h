@@ -349,7 +349,7 @@ extern void* tvb_memcpy(tvbuff_t*, void* target, gint offset, gint length);
 
 /** It is the user's responsibility to g_free() the memory allocated by
  * tvb_memdup(). Calls tvb_memcpy() */
-extern guint8* tvb_memdup(tvbuff_t*, gint offset, gint length);
+extern void* tvb_memdup(tvbuff_t*, gint offset, gint length);
 
 /* Same as above but the buffer returned from this function does not have to
 * be freed. It will be automatically freed after the packet is dissected.

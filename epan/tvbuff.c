@@ -1002,11 +1002,11 @@ tvb_memcpy(tvbuff_t *tvb, void* target, gint offset, gint length)
  * an error; does anything else depend on this routine treating -1 as
  * meaning "to the end of the buffer"?
  */
-guint8*
+void*
 tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {
 	guint	abs_offset, abs_length;
-	guint8	*duped;
+	void	*duped;
 
 	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
 
