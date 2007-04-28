@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-q932.c                                                            */
+/* ./packet-q932.c                                                            */
 /* ../../tools/asn2wrs.py -b -T -e -p q932 -c q932.cnf -s packet-q932-template Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn */
 
 /* Input file: packet-q932-template.c */
@@ -34,6 +34,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <string.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -97,7 +99,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 51 "packet-q932-template.c"
+#line 53 "packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -120,7 +122,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 56 "packet-q932-template.c"
+#line 58 "packet-q932-template.c"
 
 /* Preferences */
 
@@ -738,7 +740,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 129 "packet-q932-template.c"
+#line 131 "packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
@@ -1058,7 +1060,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 296 "packet-q932-template.c"
+#line 298 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -1083,7 +1085,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 303 "packet-q932-template.c"
+#line 305 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */
