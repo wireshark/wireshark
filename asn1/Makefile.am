@@ -298,7 +298,7 @@ EXTRA_DIST = \
 	q932/Interpretation-component.asn	\
 	q932/Network-Facility-Extension.asn	\
 	q932/Network-Protocol-Profile-component.asn	\
-	q931/q932-ros.asn	\
+	q932/q932-ros.asn	\
 	q932/q932.cnf	\
 	q932/q932-ros.cnf	\
 	q932/Makefile	\
@@ -307,6 +307,16 @@ EXTRA_DIST = \
 	q932/packet-q932-ros-template.h	\
 	q932/packet-q932-template.c	\
 	q932/packet-q932-template.h	\
+	qsig/qsig-cf.asn 	\
+	qsig/qsig-gf-ade.asn 	\
+	qsig/qsig-gf-ext.asn 	\
+	qsig/qsig-gf-gp.asn 	\
+	qsig/qsig-na.asn 	\
+	qsig/qsig.cnf	\
+	qsig/Makefile	\
+	qsig/Makefile.nmake	\
+	qsig/packet-qsig-template.c	\
+	qsig/packet-qsig-template.h	\
 	ranap/Makefile	\
 	ranap/Makefile.nmake	\
 	ranap/packet-ranap-template.c	\
