@@ -1492,13 +1492,13 @@ proto_register_radius(void)
 		dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 	}
 
-	radius_vendors = (value_string*) ri.vend_vs->data;
+	radius_vendors = (value_string*)(void *)ri.vend_vs->data;
 
 	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
 	register_dissector("radius", dissect_radius, proto_radius);
 
-	proto_register_field_array(proto_radius,(hf_register_info*)(ri.hf->data),ri.hf->len);
-	proto_register_subtree_array((gint**)(ri.ett->data), ri.ett->len);
+	proto_register_field_array(proto_radius,(hf_register_info*)(void *)(ri.hf->data),ri.hf->len);
+	proto_register_subtree_array((gint**)(void *)(ri.ett->data), ri.ett->len);
 
 	register_init_routine(&radius_init_protocol);
 
