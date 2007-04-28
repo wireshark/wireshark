@@ -1431,24 +1431,29 @@ void
 emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
+	guint32 *aligned;
 	guint32 residual = 0;
-	emem_tree_key_t key[] = {
-		{1,NULL},
-		{0,NULL},
-		{1,NULL},
-		{0,NULL}
-	};
+	emem_tree_key_t key[4];
 
+	aligned = malloc(div * sizeof (guint32));
+	if (aligned == NULL)
+		return;	/* XXX - fail somehow? */
+	memcpy(aligned, k, div * sizeof (guint32));
+
+	key[0].length = 1;
 	key[0].key = &len;
-	key[1].length = div;
-	key[1].key = (guint32*)(&k[0]);
-	key[2].key = &residual;
-
 	if (! div) {
-		key[1].length = key[2].length;
-		key[1].key = key[2].key;
+		key[1].length = 1;
+		key[1].key = &residual;
 		key[2].length = 0;
 		key[2].key = NULL;
+	} else {
+		key[1].length = div;
+		key[1].key = aligned;
+		key[2].length = 1;
+		key[2].key = &residual;
+		key[3].length = 0;
+		key[3].key = NULL;
 	}
 
 	div *= 4;
@@ -1466,30 +1471,37 @@ emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v) {
 	}
 
 	emem_tree_insert32_array(se_tree,key,v);
+	free(aligned);
 }
 
 void *
 emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 	guint32 len = strlen(k);
 	guint32 div = (len-1)/4;
+	guint32 *aligned;
 	guint32 residual = 0;
-	emem_tree_key_t key[] = {
-		{1,NULL},
-		{0,NULL},
-		{1,NULL},
-		{0,NULL}
-	};
+	emem_tree_key_t key[4];
+	void *ret;
 
+	aligned = malloc(div * sizeof (guint32));
+	if (aligned == NULL)
+		return;	/* XXX - fail somehow? */
+	memcpy(aligned, k, div * sizeof (guint32));
+
+	key[0].length = 1;
 	key[0].key = &len;
-	key[1].length = div;
-	key[1].key = (guint32*)(&k[0]);
-	key[2].key = &residual;
-
 	if (! div) {
-		key[1].length = key[2].length;
-		key[1].key = key[2].key;
+		key[1].length = 1;
+		key[1].key = &residual;
 		key[2].length = 0;
 		key[2].key = NULL;
+	} else {
+		key[1].length = div;
+		key[1].key = aligned;
+		key[2].length = 1;
+		key[2].key = &residual;
+		key[3].length = 0;
+		key[3].key = NULL;
 	}
 
 	div *= 4;
@@ -1506,7 +1518,9 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 			break;
 	}
 
-	return emem_tree_lookup32_array(se_tree, key);
+	ret = emem_tree_lookup32_array(se_tree, key);
+	free(aligned);
+	return ret;
 }
 
 

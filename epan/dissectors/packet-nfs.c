@@ -549,18 +549,23 @@ static nfs_fhandle_data_t *
 store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 {
 	guint32 fhlen;
+	guint32 *fhdata;
 	emem_tree_key_t fhkey[3];
 	nfs_fhandle_data_t *new_nfs_fh;
 
 	fhlen=nfs_fh->len/4;
+	/* align the file handle data */
+	fhdata=g_malloc(fhlen*4);
+	memcpy(fhdata, nfs_fh->fh, fhlen*4);
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
-	fhkey[1].key=(guint32 *)nfs_fh->fh;
+	fhkey[1].key=fhdata;
 	fhkey[2].length=0;
 
 	new_nfs_fh=se_tree_lookup32_array(nfs_file_handles, &fhkey[0]);
 	if(new_nfs_fh){
+		g_free(fhdata);
 		return new_nfs_fh;
 	}
 
@@ -573,10 +578,11 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
 	fhkey[1].length=fhlen;
-	fhkey[1].key=(guint32 *)nfs_fh->fh;
+	fhkey[1].key=fhdata;
 	fhkey[2].length=0;
 	se_tree_insert32_array(nfs_file_handles, &fhkey[0], new_nfs_fh);
 
+	g_free(fhdata);
 	return new_nfs_fh;
 }
 
@@ -829,15 +835,20 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		nns=g_hash_table_lookup(nfs_name_snoop_matched, &key);
 		if(nns){
 			guint32 fhlen;
+			guint32 *fhdata;
 			emem_tree_key_t fhkey[3];
 
 			fhlen=nns->fh_length;
+			/* align it */
+			fhdata=g_malloc(fhlen);
+			memcpy(fhdata, nns->fh, fhlen);
 			fhkey[0].length=1;
 			fhkey[0].key=&fhlen;
 			fhkey[1].length=fhlen/4;
-			fhkey[1].key=(guint32 *)nns->fh;
+			fhkey[1].key=fhdata;
 			fhkey[2].length=0;
 			se_tree_insert32_array(nfs_name_snoop_known, &fhkey[0], nns);
+			g_free(fhdata);
 
 			if(nfs_file_name_full_snooping){
 				unsigned char *name=NULL, *pos=NULL;
@@ -855,16 +866,20 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 	/* see if we know this mapping */
 	if(!nns){
 		guint32 fhlen;
+		guint32 *fhdata;
 		emem_tree_key_t fhkey[3];
 
 		fhlen=fh_length;
+		/* align it */
+		fhdata=tvb_memdup(tvb, fh_offset, fh_length);
 		fhkey[0].length=1;
 		fhkey[0].key=&fhlen;
 		fhkey[1].length=fhlen/4;
-		fhkey[1].key=(guint32 *)tvb_get_ptr(tvb, fh_offset, fh_length);
+		fhkey[1].key=fhdata;
 		fhkey[2].length=0;
 
 		nns=se_tree_lookup32_array(nfs_name_snoop_known, &fhkey[0]);
+		g_free(fhdata);
 	}
 
 	/* if we know the mapping, print the filename */

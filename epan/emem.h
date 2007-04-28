@@ -309,6 +309,10 @@ typedef struct _emem_tree_key_t {
  * The data pointer should be allocated by SE allocators so that the
  * data will be released at the same time as the tree itself is destroyed.
  *
+ * Note: all the "key" members of the "key" argument MUST be aligned on
+ * 32-bit boundaries; otherwise, this code will crash on platforms such
+ * as SPARC that require aligned pointers.
+ *
  * If you use ...32_array() calls you MUST make sure that every single node
  * you add to a specific tree always has a key of exactly the same number of 
  * keylen words or things will most likely crash. Or at least that every single
