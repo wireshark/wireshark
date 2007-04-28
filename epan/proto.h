@@ -1597,7 +1597,7 @@ proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offs
  @return the newly created item */
 
 extern proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value, gboolean little_endian);
+proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian);
 
 #ifdef __cplusplus
 }

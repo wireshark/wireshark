@@ -5589,152 +5589,43 @@ proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offs
 /* 
  * This function will dissect a sequence of bits that does not need to be byte aligned the bits
  * set vill be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
- * Offset should be given in bits. Currently only up to 24 unaligned bits can be handled.
+ * Offset should be given in bits from the start of the tvb.
  */
 
 proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint32 *return_value, gboolean little_endian)
+proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint64 *return_value, gboolean little_endian)
 {
-	gint offset;
-	guint length;
-	guint bit_length;
+	gint	offset;
+	guint	length;
+	guint8	tot_no_bits;
+	guint8	remaining_bits;
+	guint64 mask = 0,tmp;
 	char *str;
 	header_field_info *hf_field;
-	guint32 value = 0;
+	guint64 value = 0;
 	int bit;
-	guint32 mask = 0, tmp;
-	gboolean is_bytealigned = FALSE;
-	guint8 mask8	= 0xff;
-	guint16 mask16	= 0xffff;
-	guint32 mask24	= 0xffffff;
-	guint32 mask32	= 0xffffffff;
-	guint8 shift;
 	int i;
-
-	if((bit_offset&0x7)==0)
-		is_bytealigned = TRUE;
 
 	hf_field = proto_registrar_get_nth(hf_index);
 
+	/* Byte align offset */
 	offset = bit_offset>>3;
-	bit_length = ((bit_offset&0x7)+no_of_bits);
-	length = bit_length >>3;
-	if((bit_length&0x7)!=0)
-		length = length +1;
 
-	if (no_of_bits < 2){
-		/* Single bit */
-		mask8 = mask8 >>(bit_offset&0x7);
-		value = tvb_get_guint8(tvb,offset) & mask8;
-		mask = 0x80;
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-	}else if(no_of_bits < 9){
-		/* One or 2 bytes */
-		if(length == 1){
-			/* Spans 1 byte */
-			mask8 = mask8>>(bit_offset&0x7);
-			value = tvb_get_guint8(tvb,offset)&mask8;
-			mask = 0x80;
-		}else{
-			/* Spans 2 bytes */	
-			mask16 = mask16>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letohs(tvb, offset);
-			} else {
-				value=tvb_get_ntohs(tvb, offset);
-			}
-			mask = 0x8000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
-		
-	}else if (no_of_bits < 17){
-		/* 2 or 3 bytes */
-		if(length == 2){
-			/* Spans 2 bytes */
-			mask16 = mask16>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letohs(tvb, offset);
-			} else {
-				value=tvb_get_ntohs(tvb, offset);
-			}
-			mask = 0x8000;
-		}else{
-			/* Spans 3 bytes */	
-			mask24 = mask24>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letoh24(tvb, offset);
-			} else {
-				value=tvb_get_ntoh24(tvb, offset);
-			}
-			mask = 0x800000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
 
-	}else if (no_of_bits < 25){
-		/* 3 or 4 bytes */
-		if(length == 3){
-			/* Spans 3 bytes */
-			mask24 = mask24>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letoh24(tvb, offset);
-			} else {
-				value=tvb_get_ntoh24(tvb, offset);
-			}
-			mask = 0x800000;
-		}else{
-			/* Spans 4 bytes */	
-			mask32 = mask32>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letohl(tvb, offset);
-			} else {
-				value=tvb_get_ntohl(tvb, offset);
-			}
-			mask = 0x80000000;
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
+	/*  
+	 * Calculate the number of octets used to hold the bits
+	 */
+	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
+	length = tot_no_bits>>3;
+	remaining_bits = tot_no_bits % 8;
+	if ((remaining_bits)!=0)
+		length++;
 
-	}else if (no_of_bits < 33){
-		/* 4 or 5 bytes */
-		if(length == 4){
-			/* Spans 4 bytes */	
-			mask32 = mask32>>(bit_offset&0x7);
-			if(little_endian){
-				value=tvb_get_letohl(tvb, offset);
-			} else {
-				value=tvb_get_ntohl(tvb, offset);
-			}
-			mask = 0x80000000;
-		}else{
-			/* Spans 5 bytes
-			 * Does not handle unaligned bits over 24
-			 */
-			DISSECTOR_ASSERT_NOT_REACHED();
-		}
-		shift = 8-((bit_offset + no_of_bits)&0x7);
-		if (shift<8){
-			value = value >> shift;
-			mask = mask >> shift;
-		}
 
-	}else{
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
+	value = tvb_get_bits(tvb, bit_offset, no_of_bits, little_endian);
+
+	mask = 1;
+	mask = mask << (no_of_bits-1);
 
 	/* prepare the string */
 	str=ep_alloc(256);
@@ -5744,7 +5635,6 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 			strcat(str, " ");
 		}
 		strcat(str,".");
-		mask = mask>>1;
 	}
 	/* read the bits for the int */
 	for(i=0;i<no_of_bits;i++){
@@ -5779,48 +5669,80 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	strcat(str," = ");
 	strcat(str,hf_field->name);
 
-	if (hf_field->type == FT_BOOLEAN){
+	switch(hf_field->type){
+	case FT_BOOLEAN:
 		/* Boolean field */
 		if (hf_field->strings) {
 			const true_false_string		*tfstring = &tfs_true_false;
 			tfstring = (const struct true_false_string*) hf_field->strings;
 
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
+			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
 				"%s: %s",
 				str,
-				value ? tfstring->true_string : tfstring->false_string);
+				(guint32)value ? tfstring->true_string : tfstring->false_string);
 		}else{
-			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, value,
+			return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
 				"%s: %u",
 				str,
-				value);
+				(guint32)value);
 		}
-	}
-	/* 1 - 32 bits field */
-	if (hf_field->strings) {
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-                      "%s: %s (%u)",
-					  str,
-					  val_to_str(value, cVALS(hf_field->strings), "Unknown "),
-					  value);
-	}
-	switch(hf_field->display){
-	case BASE_DEC:
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-	                 "%s: %u",
-					  str,
-					  value);
 		break;
-	case BASE_HEX:
-		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-	                 "%s: 0x%x",
-					  str,
-					  value);
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		/* 1 - 32 bits field */
+		if (hf_field->strings) {
+			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
+						  "%s: %s (%u)",
+						  str,
+						  val_to_str((guint32)value, cVALS(hf_field->strings), "Unknown "),
+						  (guint32)value);
+			break;
+		}
+		switch(hf_field->display){
+			case BASE_DEC:
+				return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
+				         "%s: %u",
+						  str,
+						  (guint32)value);
+				break;
+			case BASE_HEX:
+				return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
+			             "%s: 0x%x",
+						  str,
+						  (guint32)value);
+				break;
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				return NULL;
+				break;
+		}
+		break;
+	case FT_UINT64:
+		switch(hf_field->display){
+			case BASE_DEC:
+				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
+				         "%s: %llu",
+						  str,
+						  value);
+				break;
+			case BASE_HEX:
+				return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
+			             "%s: 0x%llx",
+						  str,
+						  value);
+				break;
+			default:
+				DISSECTOR_ASSERT_NOT_REACHED();
+				return NULL;
+				break;
+		}
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
-		;
+		break;
 	}
 
 }

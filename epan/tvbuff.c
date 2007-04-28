@@ -1446,6 +1446,121 @@ tvb_get_guid(tvbuff_t *tvb, gint offset, e_guid_t *guid, gboolean little_endian)
 	}
 }
 
+static const guint8 bit_mask[] = {
+    0xff,
+    0x7f,
+    0x3f,
+    0x1f,
+    0x0f,
+    0x07,
+    0x03,
+    0x01
+};
+
+guint64
+tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_endian)
+{
+
+	gint	offset;
+	guint64	value = 0;
+	guint64	tempval = 0;
+	guint8	tot_no_bits;
+	guint8	num_octs;
+	guint8	shift;
+
+	if (no_of_bits>64)
+		DISSECTOR_ASSERT_NOT_REACHED();
+	if(little_endian){
+		DISSECTOR_ASSERT_NOT_REACHED();
+		/* This part is not implemented yet */
+	}
+
+	/* Byte align offset */
+	offset = bit_offset>>3;
+
+	/* Find out which mask to use for the most significant octet
+	 * by convering bit_offset into the offset into the first
+	 * fetched octet.
+	 */
+	bit_offset = bit_offset & 0x7;
+	/* calculate number of octets to read */
+	tot_no_bits = bit_offset + no_of_bits;
+	num_octs = tot_no_bits>>3;
+	/* Calculate shift value for most significant bits in the first octet */
+	shift = 8 * (num_octs-1);
+
+
+	if ((tot_no_bits&0x7)!=0)
+		num_octs++;
+
+	tempval = tvb_get_guint8(tvb,offset)&bit_mask[bit_offset];
+	tempval = tempval << shift;
+
+	switch(num_octs){
+	case 1:
+		/* Total 8 bits */
+		value = tempval >> (8-no_of_bits);
+		break;
+	case 2:
+		/* Total 8 + 8 = 16*/
+		value = tempval | tvb_get_guint8(tvb,offset+1);
+		value = value >> (16 - tot_no_bits);
+		break;
+	case 3:
+		/* Total 8 + 16 = 24*/
+		value = tempval | tvb_get_ntohs(tvb,offset+1);
+		value = value >> (24 - tot_no_bits);
+		break;
+	case 4:
+		/* Total 8 + 24 = 32*/
+		value = tempval | tvb_get_ntoh24(tvb,offset+1);
+		value = value >> (32 - tot_no_bits);
+		break;
+	case 5:
+		/* total 8 + 32 = 40*/
+		value = tempval | (tvb_get_ntohl(tvb,offset+1));
+		value = value >> (40 - tot_no_bits);
+		break;
+	case 6:
+		/* total 8 + 32 + 8 = 48*/
+		tempval = tvb_get_ntohl(tvb,offset+1);
+		tempval = tempval <<8;
+		value = value | tempval;
+		value = value | tvb_get_guint8(tvb,offset+5);
+		value = value >> (48 - tot_no_bits);
+		break;
+	case 7:
+		/* total 8 + 32 + 16 = 56*/
+		tempval = tvb_get_ntohl(tvb,offset+1);
+		tempval = tempval <<16;
+		value = value | tempval;
+		value = value >> (56 - tot_no_bits);
+		break;
+	case 8:
+		/* total 8 + 32 + 24 = 64*/
+		tempval = tvb_get_ntohl(tvb,offset+1);
+		tempval = tempval <<24;
+		value = value | tempval;
+		value = value | tvb_get_ntoh24(tvb,offset+5);
+		value = value >> (64 - tot_no_bits);
+		break;
+	case 9:
+		/* total 8 +64 = 72
+		 * If bit_offset = 7 and no_of_bits=64 nine bytes is needed.
+		 */
+		value = tempval | tvb_get_ntoh64(tvb,offset+1);
+		value = value >> (72 - tot_no_bits);
+		break;
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+		break;
+	}
+
+	return value;
+
+}
+
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
  * at most maxlength number of bytes; if maxlength is -1, searches to
  * end of tvbuff.
