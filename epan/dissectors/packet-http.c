@@ -76,6 +76,8 @@ static int hf_http_response_code = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
 static int hf_http_proxy_authorization = -1;
+static int hf_http_proxy_connect_host = -1;
+static int hf_http_proxy_connect_port = -1;
 static int hf_http_www_authenticate = -1;
 static int hf_http_content_type = -1;
 static int hf_http_content_length = -1;
@@ -1468,10 +1470,11 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 	/* tree = the main protocol tree that the subdissector would be listed in
 	 * sub_tree = the http protocol tree
 	 */
- 	guint32 *ptr;
+ 	guint32 dissect_as;
 	struct tcpinfo *tcpinfo = pinfo->private_data;
 	struct tcp_analysis *tcpd=NULL;
 	gchar **strings; /* An array for splitting the request URI into hostname and port */
+	proto_item *item;
 
 	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
 	if(conv_data->response_code == 200 &&
@@ -1486,32 +1489,35 @@ http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
 		strings = g_strsplit(conv_data->request_uri, ":", 2);
 
 		if(strings[0] != NULL && strings[1] != NULL) { /* The string was successfuly split in two */
-			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect hostname: %s", strings[0]);
-			proto_tree_add_text(sub_tree, next_tvb, 0, 0, "Proxy connect port: %s", strings[1]);
 
-			/* Replaces the pinfo->destport or srcport with the port the http connect was done to by
-			 * checking to see which is the http port. */
-			if (pinfo->destport == TCP_PORT_HTTP             || pinfo->destport == TCP_PORT_PROXY_HTTP ||
-			    pinfo->destport == TCP_PORT_PROXY_ADMIN_HTTP || pinfo->destport == TCP_ALT_PORT_HTTP   ||
-			    pinfo->destport == TCP_RADAN_HTTP            || pinfo->destport == TCP_PORT_HKP        ||
-			    pinfo->destport == TCP_PORT_DAAP             || pinfo->destport == http_alternate_tcp_port)
-				ptr = &pinfo->destport;
-			else
-				ptr = &pinfo->srcport;
+			item = proto_tree_add_string(sub_tree, hf_http_proxy_connect_host,
+		    	    next_tvb, 0, 0, strings[0]);
+			PROTO_ITEM_SET_GENERATED(item);
 
-			*ptr = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
+			item = proto_tree_add_uint(sub_tree, hf_http_proxy_connect_port, 
+			    next_tvb, 0, 0, strtol(strings[1], NULL, 10) );
+			PROTO_ITEM_SET_GENERATED(item);
 
-			/* We're going to get stuck in a loop if we call let dissect_tcp_payload call
+			/* We're going to get stuck in a loop if we let dissect_tcp_payload call
 			   us, so call the data dissector instead for proxy connections to http ports. */
-			if(*ptr == TCP_PORT_HTTP             || *ptr == TCP_PORT_PROXY_HTTP ||
-			   *ptr == TCP_PORT_PROXY_ADMIN_HTTP || *ptr == TCP_ALT_PORT_HTTP   ||
-			   *ptr == TCP_RADAN_HTTP            || *ptr == TCP_PORT_HKP        ||
-			   *ptr == TCP_PORT_DAAP             || *ptr == http_alternate_tcp_port) {
+			dissect_as = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
+
+			if(dissect_as == TCP_PORT_HTTP             || dissect_as == TCP_PORT_PROXY_HTTP ||
+			   dissect_as == TCP_PORT_PROXY_ADMIN_HTTP || dissect_as == TCP_ALT_PORT_HTTP   ||
+			   dissect_as == TCP_RADAN_HTTP            || dissect_as == TCP_PORT_HKP        ||
+			   dissect_as == TCP_PORT_DAAP             || dissect_as == http_alternate_tcp_port) {
 				call_dissector(data_handle, next_tvb, pinfo, tree);
 			} else {
-				dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
-						    tcpinfo->nxtseq, pinfo->srcport, pinfo->destport,
-						    tree, tree, tcpd);
+
+			   if (pinfo->destport == TCP_PORT_HTTP             || pinfo->destport == TCP_PORT_PROXY_HTTP ||
+			       pinfo->destport == TCP_PORT_PROXY_ADMIN_HTTP || pinfo->destport == TCP_ALT_PORT_HTTP   ||
+			       pinfo->destport == TCP_RADAN_HTTP            || pinfo->destport == TCP_PORT_HKP        ||
+			       pinfo->destport == TCP_PORT_DAAP             || pinfo->destport == http_alternate_tcp_port)
+                                   dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
+                                       tcpinfo->nxtseq, pinfo->srcport, dissect_as, tree, tree, tcpd);
+			   else
+                                   dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
+                                       tcpinfo->nxtseq, dissect_as, pinfo->destport, tree, tree, tcpd);
 			}
 		}
 
@@ -2102,6 +2108,14 @@ proto_register_http(void)
 	      { "Proxy-Authorization",	"http.proxy_authorization",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Proxy-Authorization header", HFILL }},
+	    { &hf_http_proxy_connect_host,
+	      { "Proxy-Connect-Hostname", "http.proxy_connect_host",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Proxy Connect Hostname", HFILL }},
+	    { &hf_http_proxy_connect_port,
+	      { "Proxy-Connect-Port",	"http.proxy_connect_port",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		"HTTP Proxy Connect Port", HFILL }},
 	    { &hf_http_www_authenticate,
 	      { "WWW-Authenticate",	"http.www_authenticate",
 		FT_STRING, BASE_NONE, NULL, 0x0,
