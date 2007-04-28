@@ -37,9 +37,6 @@ SUBDIRS = crypt ftypes dfilter dissectors $(wslua_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir)
 
-# EPAN will eventually be a shared library. While I move source code around,
-# however, it is an archive library.
-
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 lib_LTLIBRARIES = libwireshark.la
