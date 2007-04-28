@@ -21,7 +21,7 @@ IMPORTS
 	AP-title,
 	AP-invocation-identifier,
 	AE-qualifier,
-        AE-invocation-identifier
+    AE-invocation-identifier
 FROM ISO-8650-ACSE-1;
 
 
