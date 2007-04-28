@@ -1485,7 +1485,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 
 	aligned = malloc(div * sizeof (guint32));
 	if (aligned == NULL)
-		return;	/* XXX - fail somehow? */
+		return NULL;	/* XXX - better failure indication? */
 	memcpy(aligned, k, div * sizeof (guint32));
 
 	key[0].length = 1;
