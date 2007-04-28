@@ -561,10 +561,9 @@ h263_proto_tree_add_bits(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 
 	if (hf_field->strings) {
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, value,
-                      "%s: %s (%u)",
+                      "%s: %s",
 					  str,
-					  val_to_str(value, cVALS(hf_field->strings), "Unknown "),
-					  value);
+					  val_to_str(value, cVALS(hf_field->strings), "Unknown"));
 	}
 	switch(hf_field->display){
 	case BASE_DEC:
@@ -605,7 +604,7 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 
 	if(is_rfc4626){
 		/* GBSC 1xxx xxxx */
-		proto_tree_add_bits_ret_val(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, NULL, FALSE);
+		h263_proto_tree_add_bits(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, NULL);
 		offset_in_bits++;
 	}else{
 		/* Group of Block Start Code (GBSC) (17 bits) 
@@ -656,18 +655,18 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
-		proto_tree_add_bits_ret_val(tree, hf_h263_psc, tvb, offset_in_bits+7, 39, NULL, FALSE);
+		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 6, NULL);
 		offset_in_bits = offset_in_bits +6;
 
 	}else{
 	/* Check for PSC, PSC is a word of 22 bits. 
 	 * Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
 	 */
-		proto_tree_add_bits_ret_val(tree, hf_h263_psc, tvb, offset_in_bits+4, 64, NULL, FALSE);
+		h263_proto_tree_add_bits(tree, hf_h263_psc, tvb, offset_in_bits, 22, NULL);
 		offset_in_bits = offset_in_bits +22;
 
 	}
-	proto_tree_add_bits_ret_val(tree, hf_h263_TR, tvb, offset_in_bits, 8, NULL, FALSE);
+	h263_proto_tree_add_bits(tree, hf_h263_TR, tvb, offset_in_bits, 8, NULL);
 	offset_in_bits = offset_in_bits +8;
 	/*
 	 * Bit 1: Always "1", in order to avoid start code emulation. 
@@ -675,7 +674,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	offset_in_bits = offset_in_bits +2;
 	/* Bit 3: Split screen indicator, "0" off, "1" on. */
-	proto_tree_add_bits_ret_val( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, NULL, FALSE);
+	h263_proto_tree_add_bits( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, NULL);
 	offset_in_bits++;
 	/* Bit 4: Document camera indicator, */
 	h263_proto_tree_add_bits( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, NULL);
