@@ -665,6 +665,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-sscop.c		\
 	packet-ssh.c		\
 	packet-ssl.c		\
+	packet-starteam.c	\
 	packet-stat-notify.c	\
 	packet-stat.c		\
 	packet-stun.c		\
