@@ -1553,7 +1553,7 @@ tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_en
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
-		return NULL;
+		return 0;
 		break;
 	}
 
