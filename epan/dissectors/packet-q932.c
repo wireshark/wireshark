@@ -35,8 +35,6 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -99,7 +97,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 53 "packet-q932-template.c"
+#line 51 "packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -122,7 +120,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 58 "packet-q932-template.c"
+#line 56 "packet-q932-template.c"
 
 /* Preferences */
 
@@ -740,7 +738,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 131 "packet-q932-template.c"
+#line 129 "packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 /*static*/ void
@@ -1060,7 +1058,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 298 "packet-q932-template.c"
+#line 296 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -1085,7 +1083,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 305 "packet-q932-template.c"
+#line 303 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */
@@ -1097,10 +1095,10 @@ void proto_register_q932(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector tables */
-  q932_rose_ctx.arg_global_dissector_table = register_dissector_table("q932.ros.global.arg", "Q.932 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
-  q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932.ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
-  q932_rose_ctx.arg_local_dissector_table = register_dissector_table("q932.ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  q932_rose_ctx.res_local_dissector_table = register_dissector_table("q932.ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
+  q932_rose_ctx.arg_global_dissector_table = register_dissector_table("q932-ros.global.arg", "Q.932 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
+  q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932-ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
+  q932_rose_ctx.arg_local_dissector_table = register_dissector_table("q932-ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
+  q932_rose_ctx.res_local_dissector_table = register_dissector_table("q932-ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
 }
 
 /*--- proto_reg_handoff_q932 ------------------------------------------------*/

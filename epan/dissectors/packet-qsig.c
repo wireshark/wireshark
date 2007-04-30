@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-qsig.c                                                            */
+/* ./packet-qsig.c                                                            */
 /* ../../tools/asn2wrs.py -b -T -e -p qsig -c qsig.cnf -s packet-qsig-template qsig-gf-ext.asn qsig-gf-gp.asn qsig-gf-ade.asn qsig-na.asn qsig-cf.asn */
 
 /* Input file: packet-qsig-template.c */
@@ -2912,15 +2912,15 @@ void proto_reg_handoff_qsig(void) {
 
   data_handle = find_dissector("data");
 
-  if (find_dissector_table("q932.ros.local.arg")) {
+  if (find_dissector_table("q932-ros.local.arg")) {
     for (op=0; op<array_length(qsig_tab); op++) {
       if (qsig_tab[op].arg_dissector) {
         qsig_op_handle = create_dissector_handle(qsig_tab[op].arg_dissector, proto_qsig);
-        dissector_add("q932.ros.local.arg", op, qsig_op_handle);
+        dissector_add("q932-ros.local.arg", op, qsig_op_handle);
       }
       if (qsig_tab[op].res_dissector) {
         qsig_op_handle = create_dissector_handle(qsig_tab[op].res_dissector, proto_qsig);
-        dissector_add("q932.ros.local.res", op, qsig_op_handle);
+        dissector_add("q932-ros.local.res", op, qsig_op_handle);
       }
     }
   }

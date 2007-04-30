@@ -27,6 +27,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -36,8 +38,8 @@
 #include "packet-q932-ros.h"
 
 #define PNAME  "Q.932 Operations Service Element"
-#define PSNAME "Q932.ROS"
-#define PFNAME "q932.ros"
+#define PSNAME "Q932-ROS"
+#define PFNAME "q932-ros"
 
 /* Initialize the protocol and registered fields */
 int proto_rose = -1;

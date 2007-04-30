@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-q932-ros.c                                                        */
-/* ../../tools/asn2wrs.py -b -T -p q932.ros -c q932-ros.cnf -o q932-ros -s packet-q932-ros-template q932-ros.asn */
+/* ./packet-q932-ros.c                                                        */
+/* ../../tools/asn2wrs.py -b -T -e -p q932-ros -c q932-ros.cnf -s packet-q932-ros-template q932-ros.asn */
 
 /* Input file: packet-q932-ros-template.c */
 
@@ -35,6 +35,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -44,8 +46,8 @@
 #include "packet-q932-ros.h"
 
 #define PNAME  "Q.932 Operations Service Element"
-#define PSNAME "Q932.ROS"
-#define PFNAME "q932.ros"
+#define PSNAME "Q932-ROS"
+#define PFNAME "q932-ros"
 
 /* Initialize the protocol and registered fields */
 int proto_rose = -1;
@@ -77,7 +79,7 @@ static int hf_q932_ros_returnErrorProblem = -1;   /* ReturnErrorProblem */
 static int hf_q932_ros_present = -1;              /* INTEGER */
 
 /*--- End of included file: packet-q932-ros-hf.c ---*/
-#line 45 "packet-q932-ros-template.c"
+#line 47 "packet-q932-ros-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -95,7 +97,7 @@ static gint ett_q932_ros_T_problem = -1;
 static gint ett_q932_ros_InvokeId = -1;
 
 /*--- End of included file: packet-q932-ros-ett.c ---*/
-#line 48 "packet-q932-ros-template.c"
+#line 50 "packet-q932-ros-template.c"
 
 /* Preferences */
 
@@ -706,7 +708,7 @@ static int dissect_RoseAPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-q932-ros-fn.c ---*/
-#line 66 "packet-q932-ros-template.c"
+#line 68 "packet-q932-ros-template.c"
 
 /*--- dissect_rose_apdu -----------------------------------------------------*/
 int dissect_rose_apdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
@@ -724,100 +726,100 @@ void proto_register_rose(void) {
 /*--- Included file: packet-q932-ros-hfarr.c ---*/
 #line 1 "packet-q932-ros-hfarr.c"
     { &hf_q932_ros_RoseAPDU_PDU,
-      { "RoseAPDU", "q932.ros.RoseAPDU",
+      { "RoseAPDU", "q932-ros.RoseAPDU",
         FT_UINT32, BASE_DEC, VALS(q932_ros_RoseAPDU_vals), 0,
         "q932_ros.RoseAPDU", HFILL }},
     { &hf_q932_ros_local,
-      { "local", "q932.ros.local",
+      { "local", "q932-ros.local",
         FT_INT32, BASE_DEC, NULL, 0,
         "q932_ros.T_local", HFILL }},
     { &hf_q932_ros_global,
-      { "global", "q932.ros.global",
+      { "global", "q932-ros.global",
         FT_OID, BASE_NONE, NULL, 0,
         "q932_ros.T_global", HFILL }},
     { &hf_q932_ros_invoke,
-      { "invoke", "q932.ros.invoke",
+      { "invoke", "q932-ros.invoke",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.Invoke", HFILL }},
     { &hf_q932_ros_returnResult,
-      { "returnResult", "q932.ros.returnResult",
+      { "returnResult", "q932-ros.returnResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.ReturnResult", HFILL }},
     { &hf_q932_ros_returnError,
-      { "returnError", "q932.ros.returnError",
+      { "returnError", "q932-ros.returnError",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.ReturnError", HFILL }},
     { &hf_q932_ros_reject,
-      { "reject", "q932.ros.reject",
+      { "reject", "q932-ros.reject",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.Reject", HFILL }},
     { &hf_q932_ros_invokeId,
-      { "invokeId", "q932.ros.invokeId",
+      { "invokeId", "q932-ros.invokeId",
         FT_UINT32, BASE_DEC, VALS(q932_ros_InvokeId_vals), 0,
         "q932_ros.InvokeId", HFILL }},
     { &hf_q932_ros_linkedId,
-      { "linkedId", "q932.ros.linkedId",
+      { "linkedId", "q932-ros.linkedId",
         FT_UINT32, BASE_DEC, VALS(q932_ros_T_linkedId_vals), 0,
         "q932_ros.T_linkedId", HFILL }},
     { &hf_q932_ros_linkedIdPresent,
-      { "present", "q932.ros.present",
+      { "present", "q932-ros.present",
         FT_UINT32, BASE_DEC, VALS(q932_ros_InvokeId_vals), 0,
         "q932_ros.InvokeId", HFILL }},
     { &hf_q932_ros_absent,
-      { "absent", "q932.ros.absent",
+      { "absent", "q932-ros.absent",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.NULL", HFILL }},
     { &hf_q932_ros_opcode,
-      { "opcode", "q932.ros.opcode",
+      { "opcode", "q932-ros.opcode",
         FT_UINT32, BASE_DEC, VALS(q932_ros_Code_vals), 0,
         "q932_ros.Code", HFILL }},
     { &hf_q932_ros_argument,
-      { "argument", "q932.ros.argument",
+      { "argument", "q932-ros.argument",
         FT_BYTES, BASE_HEX, NULL, 0,
         "q932_ros.InvokeArgument", HFILL }},
     { &hf_q932_ros_result,
-      { "result", "q932.ros.result",
+      { "result", "q932-ros.result",
         FT_NONE, BASE_NONE, NULL, 0,
         "q932_ros.T_result", HFILL }},
     { &hf_q932_ros_resultArgument,
-      { "result", "q932.ros.result",
+      { "result", "q932-ros.result",
         FT_BYTES, BASE_HEX, NULL, 0,
         "q932_ros.ResultArgument", HFILL }},
     { &hf_q932_ros_errcode,
-      { "errcode", "q932.ros.errcode",
+      { "errcode", "q932-ros.errcode",
         FT_UINT32, BASE_DEC, VALS(q932_ros_Code_vals), 0,
         "q932_ros.Code", HFILL }},
     { &hf_q932_ros_parameter,
-      { "parameter", "q932.ros.parameter",
+      { "parameter", "q932-ros.parameter",
         FT_BYTES, BASE_HEX, NULL, 0,
         "q932_ros.T_parameter", HFILL }},
     { &hf_q932_ros_problem,
-      { "problem", "q932.ros.problem",
+      { "problem", "q932-ros.problem",
         FT_UINT32, BASE_DEC, VALS(q932_ros_T_problem_vals), 0,
         "q932_ros.T_problem", HFILL }},
     { &hf_q932_ros_general,
-      { "general", "q932.ros.general",
+      { "general", "q932-ros.general",
         FT_INT32, BASE_DEC, VALS(q932_ros_GeneralProblem_vals), 0,
         "q932_ros.GeneralProblem", HFILL }},
     { &hf_q932_ros_invokeProblem,
-      { "invoke", "q932.ros.invoke",
+      { "invoke", "q932-ros.invoke",
         FT_INT32, BASE_DEC, VALS(q932_ros_InvokeProblem_vals), 0,
         "q932_ros.InvokeProblem", HFILL }},
     { &hf_q932_ros_returnResultProblem,
-      { "returnResult", "q932.ros.returnResult",
+      { "returnResult", "q932-ros.returnResult",
         FT_INT32, BASE_DEC, VALS(q932_ros_ReturnResultProblem_vals), 0,
         "q932_ros.ReturnResultProblem", HFILL }},
     { &hf_q932_ros_returnErrorProblem,
-      { "returnError", "q932.ros.returnError",
+      { "returnError", "q932-ros.returnError",
         FT_INT32, BASE_DEC, VALS(q932_ros_ReturnErrorProblem_vals), 0,
         "q932_ros.ReturnErrorProblem", HFILL }},
     { &hf_q932_ros_present,
-      { "present", "q932.ros.present",
+      { "present", "q932-ros.present",
         FT_INT32, BASE_DEC, NULL, 0,
         "q932_ros.INTEGER", HFILL }},
 
 /*--- End of included file: packet-q932-ros-hfarr.c ---*/
-#line 80 "packet-q932-ros-template.c"
+#line 82 "packet-q932-ros-template.c"
   };
 
   /* List of subtrees */
@@ -837,7 +839,7 @@ void proto_register_rose(void) {
     &ett_q932_ros_InvokeId,
 
 /*--- End of included file: packet-q932-ros-ettarr.c ---*/
-#line 85 "packet-q932-ros-template.c"
+#line 87 "packet-q932-ros-template.c"
   };
 
   /* Register protocol and dissector */
