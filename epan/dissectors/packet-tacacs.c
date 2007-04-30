@@ -352,7 +352,7 @@ tacplus_decrypted_tvb_setup( tvbuff_t *tvb, tvbuff_t **dst_tvb, packet_info *pin
 	/* TODO Check the possibility to use pinfo->decrypted_data */
 /* session_id is in NETWORK Byte Order, and is used as byte array in the md5_xor */
 
-	tvb_memcpy(tvb, (guint8*)session_id, 4,4);
+	tvb_memcpy(tvb, session_id, 4,4);
 
 	buff = tvb_memdup(tvb, TAC_PLUS_HDR_SIZE, len);
 
@@ -1135,7 +1135,7 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 
 
 	mdp = md5_buff;
-	*(guint32*)mdp = *(guint32*)session_id;
+	memcpy(mdp, session_id, 4);
 	mdp += 4 ;
 	memcpy(mdp, key, strlen(key));
 	mdp += strlen(key);
