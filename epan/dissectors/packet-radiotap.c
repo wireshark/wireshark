@@ -65,6 +65,11 @@ struct ieee80211_radiotap_header {
 					 */
 };
 
+#define RADIOTAP_MIN_HEADER_LEN	8	/* minimum header length */
+#define RADIOTAP_VERSION_OFFSET	0	/* offset of version field */
+#define RADIOTAP_LENGTH_OFFSET	2	/* offset of length field */
+#define RADIOTAP_PRESENT_OFFSET	4	/* offset of "present" field */
+
 enum ieee80211_radiotap_type {
     IEEE80211_RADIOTAP_TSFT = 0,
     IEEE80211_RADIOTAP_FLAGS = 1,
@@ -230,17 +235,15 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void
 capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-    const struct ieee80211_radiotap_header *hdr;
     guint16 it_len;
     guint32 present;
     guint8 rflags;
 
-    if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(*hdr))) {
+    if(!BYTES_ARE_IN_FRAME(offset, len, RADIOTAP_MIN_HEADER_LEN)) {
         ld->other ++;
         return;
     }
-    hdr = (const struct ieee80211_radiotap_header *)&pd[offset];
-    it_len = pletohs(&hdr->it_len);
+    it_len = pletohs(&pd[RADIOTAP_LENGTH_OFFSET]);
     if(!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
         ld->other ++;
         return;
@@ -252,15 +255,15 @@ capture_radiotap(const guchar *pd, int offset, int len, packet_counts *ld)
         return;
     }
 
-    if(it_len < sizeof(*hdr)) {
+    if(it_len < RADIOTAP_MIN_HEADER_LEN) {
         /* Header length is shorter than fixed-length portion of header */
         ld->other ++;
         return;
     }
 
-    present = pletohl(&hdr->it_present);
-    offset += sizeof(*hdr);
-    it_len -= sizeof(*hdr);
+    present = pletohl(&pd[RADIOTAP_PRESENT_OFFSET]);
+    offset += RADIOTAP_MIN_HEADER_LEN;
+    it_len -= RADIOTAP_MIN_HEADER_LEN;
 
     rflags = 0;
 
@@ -671,7 +674,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * FIXME: This only works if there is exactly 1 it_present
      *        field in the header
      */
-    if (length_remaining < sizeof(struct ieee80211_radiotap_header)) {
+    if (length_remaining < RADIOTAP_MIN_HEADER_LEN) {
 	/*
 	 * Radiotap header is shorter than the fixed-length portion
 	 * plus one "present" bitset.
@@ -719,8 +722,8 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(present_tree, hf_radiotap_present_ext,
         tvb, 4, 4, TRUE);
     }
-    offset += sizeof(struct ieee80211_radiotap_header);
-    length_remaining -= sizeof(struct ieee80211_radiotap_header);
+    offset += RADIOTAP_MIN_HEADER_LEN;
+    length_remaining -= RADIOTAP_MIN_HEADER_LEN;
 
     rflags = 0;
     for (; present; present = next_present) {
