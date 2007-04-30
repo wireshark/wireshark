@@ -51,7 +51,7 @@ struct _lct
 	guint8 *cci;
 	guint64 tsi;
 	guint64 toi;
-	guint8 *toi_extended;
+	const guint8 *toi_extended;
 	nstime_t sct;
 	nstime_t ert;
 	GArray *ext;

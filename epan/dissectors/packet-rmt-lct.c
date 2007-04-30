@@ -407,7 +407,7 @@ void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tr
 				break;
 		}
 
-		l.lct->toi_extended = (guint8*) tvb_get_ptr(tvb, *offset, l.lct->toi_size);
+		l.lct->toi_extended = tvb_get_ptr(tvb, *offset, l.lct->toi_size);
 
 		if (tree)
 		{
@@ -461,8 +461,27 @@ void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tr
 			lct_ext_tree = NULL;
 
 		/* Add the extensions to the subtree */
-		for (i = 0; i < l.lct->ext->len; i++)
-			lct_ext_decode(&g_array_index(l.lct->ext, struct _ext, i), l.prefs, tvb, lct_ext_tree, l.ett->ext_ext, f);
+		for (i = 0; i < l.lct->ext->len; i++) {
+			/*
+			 * The data member of a GArray isn't a void *, as
+			 * it should be; it's a guint8 *, so GCC will
+			 * warn about attempts to cast it to the type of
+			 * an array member if -Wcast-align is specified.
+			 *
+			 * The code in GLib that allocates the data
+			 * presumably arranges that it's aligned
+			 * strictly enough for any data type (as that's
+			 * how most memory allocators work), so that warning
+			 * is bogus.
+			 *
+			 * We work around this by not using g_array_index(),
+			 * but doing the indexing ourselves, and casting
+			 * to the data pointer to void * first.
+			 */
+			struct _ext *ext_array = (void *)l.lct->ext->data;
+
+			lct_ext_decode(&ext_array[i], l.prefs, tvb, lct_ext_tree, l.ett->ext_ext, f);
+		}
 	}
 }
 
