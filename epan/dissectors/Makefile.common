@@ -674,6 +674,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-symantec.c	\
 	packet-synergy.c 	\
 	packet-syslog.c		\
+	packet-t30.c		\
 	packet-t38.c		\
 	packet-tacacs.c		\
 	packet-tali.c		\
