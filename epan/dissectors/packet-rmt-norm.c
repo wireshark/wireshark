@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/garrayfix.h>
 
 #include "packet-rmt-norm.h"
 #include <math.h>
@@ -227,24 +228,7 @@ static guint dissect_norm_hdrext(struct _norm *norm, struct _fec_ptr *f, proto_t
 
 		/* Add the extensions to the subtree */
 		for (i = 0; i < ext->len; i++) {
-			/*
-			 * The data member of a GArray isn't a void *, as
-			 * it should be; it's a guint8 *, so GCC will
-			 * warn about attempts to cast it to the type of
-			 * an array member if -Wcast-align is specified.
-			 *
-			 * The code in GLib that allocates the data
-			 * presumably arranges that it's aligned
-			 * strictly enough for any data type (as that's
-			 * how most memory allocators work), so that warning
-			 * is bogus.
-			 *
-			 * We work around this by not using g_array_index(),
-			 * but doing the indexing ourselves, and casting
-			 * to the data pointer to void * first.
-			 */
-			struct _ext *ext_array = (void *)ext->data;
-			struct _ext *e = &ext_array[i];
+			struct _ext *e = &g_array_index(ext, struct _ext, i);
 
 			lct_ext_decode(e, &lctp, tvb, ext_tree, ett.hdrext, *f);
 			/* fec_decode_ext_fti(e, tvb, ext_tree, ett.hdrext, *f); */

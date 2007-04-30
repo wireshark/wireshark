@@ -45,6 +45,7 @@
 #include "packet-nfs.h"
 #include <epan/tap.h>
 #include <epan/strutil.h>
+#include <epan/garrayfix.h>
 
 /*
  * See:

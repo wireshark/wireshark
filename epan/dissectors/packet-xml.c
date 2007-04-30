@@ -52,6 +52,7 @@
 #include <epan/report_err.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
+#include <epan/garrayfix.h>
 
 typedef struct _xml_ns_t {
     /* the name of this namespace */
@@ -1050,8 +1051,8 @@ next_attribute:
         add_xml_field(hfs, &root_element->hf_cdata, root_element->name, root_element->fqn);
 
 		root_element->hf_tag = proto_register_protocol(dtd_data->description, dtd_data->proto_name, dtd_data->proto_name);
-		proto_register_field_array(root_element->hf_tag, (hf_register_info*)hfs->data, hfs->len);
-		proto_register_subtree_array((gint**)etts->data, etts->len);
+		proto_register_field_array(root_element->hf_tag, (hf_register_info*)g_array_data(hfs), hfs->len);
+		proto_register_subtree_array((gint**)g_array_data(etts), etts->len);
 
 		if (dtd_data->media_type) {
 			g_hash_table_insert(media_types,dtd_data->media_type,root_element);
@@ -1218,8 +1219,8 @@ proto_register_xml(void) {
 
 	xml_ns.hf_tag = proto_register_protocol("eXtensible Markup Language", "XML", xml_ns.name);
 
-	proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)hf_arr->data, hf_arr->len);
-	proto_register_subtree_array((gint**)ett_arr->data, ett_arr->len);
+	proto_register_field_array(xml_ns.hf_tag, (hf_register_info*)g_array_data(hf_arr), hf_arr->len);
+	proto_register_subtree_array((gint**)g_array_data(ett_arr), ett_arr->len);
 
 	xml_module = prefs_register_protocol(xml_ns.hf_tag,apply_prefs);
     prefs_register_bool_preference(xml_module, "heuristic", "Use Heuristics",

@@ -135,6 +135,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	follow.h		\
 	frame_data.h		\
 	funnel.h		\
+	garrayfix.h		\
 	gcp.h			\
 	gnuc_format_check.h	\
 	greproto.h		\
