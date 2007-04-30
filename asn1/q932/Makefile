@@ -1,16 +1,20 @@
 # $Id$
 
-DISSECTOR_FILES=packet-q932.c packet-q932.h packet-q932-ros.c packet-q932-ros.h
+PROTOCOL_NAME=q932
+Q932_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h 
+Q932_ROS_FILES=packet-$(PROTOCOL_NAME)-ros.c packet-$(PROTOCOL_NAME)-ros.h 
+DISSECTOR_FILES=$(Q932_FILES) $(Q932_ROS_FILES)
+Q932_ASN=Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-packet-q932.c packet-q932.h: ../../tools/asn2wrs.py packet-q932-template.c packet-q932-template.h q932.cnf
-	python ../../tools/asn2wrs.py -b -T -e -p q932 -c q932.cnf -s packet-q932-template Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn
+$(Q932_FILES): ../../tools/asn2wrs.py $(Q932_ASN) packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
+	python ../../tools/asn2wrs.py -b -T -e -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template $(Q932_ASN)
 
-packet-q932-ros.c packet-q932-ros.h: ../../tools/asn2wrs.py packet-q932-ros-template.c packet-q932-ros-template.h q932-ros.cnf
-	python ../../tools/asn2wrs.py -b -T -e -p q932-ros -c q932-ros.cnf -s packet-q932-ros-template q932-ros.asn
+$(Q932_ROS_FILES): ../../tools/asn2wrs.py $(PROTOCOL_NAME)-ros.asn packet-$(PROTOCOL_NAME)-ros-template.c packet-$(PROTOCOL_NAME)-ros-template.h $(PROTOCOL_NAME)-ros.cnf
+	python ../../tools/asn2wrs.py -b -T -e -p $(PROTOCOL_NAME).ros -c $(PROTOCOL_NAME)-ros.cnf -o $(PROTOCOL_NAME)-ros -s packet-$(PROTOCOL_NAME)-ros-template $(PROTOCOL_NAME)-ros.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)

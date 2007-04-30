@@ -311,10 +311,10 @@ void proto_register_q932(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector tables */
-  q932_rose_ctx.arg_global_dissector_table = register_dissector_table("q932-ros.global.arg", "Q.932 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
-  q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932-ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
-  q932_rose_ctx.arg_local_dissector_table = register_dissector_table("q932-ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  q932_rose_ctx.res_local_dissector_table = register_dissector_table("q932-ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
+  q932_rose_ctx.arg_global_dissector_table = register_dissector_table("q932.ros.global.arg", "Q.932 Operation Argument (global opcode)", FT_STRING, BASE_NONE);
+  q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932.ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
+  q932_rose_ctx.arg_local_dissector_table = register_dissector_table("q932.ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
+  q932_rose_ctx.res_local_dissector_table = register_dissector_table("q932.ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
 }
 
 /*--- proto_reg_handoff_q932 ------------------------------------------------*/
