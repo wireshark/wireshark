@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
 #include "packet-h450.h"
 
 #include "packet-ber.h"

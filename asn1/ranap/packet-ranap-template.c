@@ -34,6 +34,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>

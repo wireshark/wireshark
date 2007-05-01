@@ -53,6 +53,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-q931.h"
@@ -1079,7 +1080,7 @@ static int hf_gsm_map_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaint
 static int hf_gsm_map_SupportedGADShapes_ellipsoidArc = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 130 "packet-gsm_map-template.c"
+#line 131 "packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1529,7 +1530,7 @@ static gint ett_gsm_map_SecureTransportErrorParam = -1;
 static gint ett_gsm_map_ExtensionContainer = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 150 "packet-gsm_map-template.c"
+#line 151 "packet-gsm_map-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -15671,7 +15672,7 @@ static void dissect_Component_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 559 "packet-gsm_map-template.c"
+#line 560 "packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V3_opr_code_strings[] = {
@@ -21151,7 +21152,7 @@ void proto_register_gsm_map(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2278 "packet-gsm_map-template.c"
+#line 2279 "packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -21603,7 +21604,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ExtensionContainer,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2300 "packet-gsm_map-template.c"
+#line 2301 "packet-gsm_map-template.c"
   };
 
   /* Register protocol */

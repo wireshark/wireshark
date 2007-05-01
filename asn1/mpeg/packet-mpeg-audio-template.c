@@ -33,6 +33,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/asn1.h>
 
 #include <wiretap/mpeg-audio.h>
 

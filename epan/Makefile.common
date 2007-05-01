@@ -105,6 +105,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	aftypes.h		\
 	arcnet_pids.h		\
 	arptypes.h		\
+	asn1.h			\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\

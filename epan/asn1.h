@@ -1,14 +1,6 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-nbap.h                                                            */
-/* ../../tools/asn2wrs.py -e -F -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
-
-/* Input file: packet-nbap-template.h */
-
-#line 1 "packet-nbap-template.h"
-/* packet-nbap.h
- * Routines for UMTS Node B Application Part(NBAP) packet dissection
- * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
+/* asn1.h
+ * Common data for ASN.1
+ * 2007  Anders Broman
  *
  * $Id$
  *
@@ -31,13 +23,23 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_NBAP_H
-#define PACKET_NBAP_H
+#ifndef __ASN1_H__
+#define __ASN1_H__
 
+typedef enum {
+  ASN1_ENC_BER,  /* X.690 - BER, CER, DER */
+  ASN1_ENC_PER,  /* X.691 - PER */
+  ASN1_ENC_ECN,  /* X.692 - ECN */
+  ASN1_ENC_XER   /* X.693 - XER */
+} asn1_enc_e;
 
+typedef struct _asn1_ctx_t {
+  asn1_enc_e encoding;
+  gboolean aligned;
+  packet_info *pinfo;
+  proto_item *created_item;
+  void *value_ptr;
+  void *private_data;
+} asn1_ctx_t;
 
-/*#include "packet-ros-exp.h" */
-
-#endif  /* PACKET_NBAP_H */
-
-
+#endif  /* __ASN1_H__ */

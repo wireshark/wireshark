@@ -1,7 +1,7 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# ./umts_rrc_ies-exp.cnf
-# ../../tools/asn2wrs.py -X -e -p umts_rrc_ies -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn
+# .\umts_rrc_ies-exp.cnf
+# ../../tools/asn2wrs.py -u -e -p umts_rrc_ies -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn
 
 #.MODULE
 InformationElements  umts_rrc_ies

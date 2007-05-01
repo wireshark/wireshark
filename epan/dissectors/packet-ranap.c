@@ -42,6 +42,7 @@
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -595,7 +596,7 @@ static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
 static int hf_ranap_private_value = -1;           /* RANAP_PRIVATE_IES_Value */
 
 /*--- End of included file: packet-ranap-hf.c ---*/
-#line 70 "packet-ranap-template.c"
+#line 71 "packet-ranap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
@@ -862,7 +863,7 @@ static gint ett_ranap_PrivateIE_Container = -1;
 static gint ett_ranap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-ranap-ett.c ---*/
-#line 75 "packet-ranap-template.c"
+#line 76 "packet-ranap-template.c"
 
 
 /* Global variables */
@@ -9783,7 +9784,7 @@ static int dissect_RANAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-ranap-fn.c ---*/
-#line 89 "packet-ranap-template.c"
+#line 90 "packet-ranap-template.c"
 
 
 
@@ -12933,7 +12934,7 @@ void proto_register_ranap(void) {
         "ranap.RANAP_PRIVATE_IES_Value", HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 1170 "packet-ranap-template.c"
+#line 1171 "packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -13202,7 +13203,7 @@ void proto_register_ranap(void) {
     &ett_ranap_PrivateIE_Field,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 1177 "packet-ranap-template.c"
+#line 1178 "packet-ranap-template.c"
   };
 
   /* Register protocol */

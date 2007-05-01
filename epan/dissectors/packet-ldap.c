@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ldap.c                                                            */
+/* .\packet-ldap.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ldap -c ldap.cnf -s packet-ldap-template Lightweight-Directory-Access-Protocol-V3.asn */
 
 /* Input file: packet-ldap-template.c */
@@ -95,6 +95,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include <epan/asn1.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"
@@ -271,7 +272,7 @@ static int hf_ldap_parentsFirst = -1;             /* INTEGER */
 static int hf_ldap_maxReturnLength = -1;          /* INTEGER */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 149 "packet-ldap-template.c"
+#line 150 "packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -327,7 +328,7 @@ static gint ett_ldap_SortResult = -1;
 static gint ett_ldap_ReplControlValue = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 158 "packet-ldap-template.c"
+#line 159 "packet-ldap-template.c"
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */
@@ -3070,7 +3071,7 @@ static void dissect_ReplControlValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 542 "packet-ldap-template.c"
+#line 543 "packet-ldap-template.c"
 
 static void
 dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
@@ -4593,7 +4594,7 @@ void proto_register_ldap(void) {
         "ldap.INTEGER", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1608 "packet-ldap-template.c"
+#line 1609 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4651,7 +4652,7 @@ void proto_register_ldap(void) {
     &ett_ldap_ReplControlValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1619 "packet-ldap-template.c"
+#line 1620 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4755,7 +4756,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1713 "packet-ldap-template.c"
+#line 1714 "packet-ldap-template.c"
 	
 
 }

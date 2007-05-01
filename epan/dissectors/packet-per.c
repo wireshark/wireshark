@@ -41,6 +41,7 @@ proper helper routines
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 #include "packet-per.h"
 
 

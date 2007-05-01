@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-umts_rrc.h                                                        */
-/* ../../tools/asn2wrs.py -X -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
+/* .\packet-umts_rrc.h                                                        */
+/* ../../tools/asn2wrs.py -u -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
 
 /* Input file: packet-umts_rrc-template.h */
 

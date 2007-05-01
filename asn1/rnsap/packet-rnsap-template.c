@@ -39,6 +39,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
+
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rnsap.h"

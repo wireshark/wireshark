@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -173,7 +174,7 @@ static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
 static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 57 "packet-h235-template.c"
+#line 58 "packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -216,7 +217,7 @@ static gint ett_h235_SEQUENCE_OF_GenericData = -1;
 static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 60 "packet-h235-template.c"
+#line 61 "packet-h235-template.c"
 
 static dissector_handle_t mikey_handle=NULL;
 
@@ -1146,7 +1147,7 @@ dissect_h235_SrtpKeys(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 70 "packet-h235-template.c"
+#line 71 "packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1587,7 +1588,7 @@ void proto_register_h235(void) {
         "h235.NULL", HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 78 "packet-h235-template.c"
+#line 79 "packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1632,7 +1633,7 @@ void proto_register_h235(void) {
     &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 83 "packet-h235-template.c"
+#line 84 "packet-h235-template.c"
   };
 
   /* Register protocol */

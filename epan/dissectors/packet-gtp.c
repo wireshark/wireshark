@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/sminmpec.h>
+#include <epan/asn1.h>
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
 #include "packet-radius.h"

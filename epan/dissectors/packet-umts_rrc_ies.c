@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-umts_rrc_ies.c                                                    */
-/* ../../tools/asn2wrs.py -X -e -p umts_rrc_ies -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn */
+/* .\packet-umts_rrc_ies.c                                                    */
+/* ../../tools/asn2wrs.py -u -e -p umts_rrc_ies -c umts_rrc_ies.cnf -s packet-umts_rrc_ies-template umts_rrc_InformationElements.asn */
 
 /* Input file: packet-umts_rrc_ies-template.c */
 
@@ -42,6 +42,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -165,7 +166,7 @@ static dissector_handle_t umts_rrc_ies_handle=NULL;
 #define maxURNTIGroup                  8
 
 /*--- End of included file: packet-umts_rrc_ies-val.h ---*/
-#line 53 "packet-umts_rrc_ies-template.c"
+#line 54 "packet-umts_rrc_ies-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_umts_rrc_ies = -1;
@@ -3601,7 +3602,7 @@ static int hf_umts_rrc_ies_GSMSecurityCapability_v6xyext_gea1 = -1;
 static int hf_umts_rrc_ies_GSMSecurityCapability_v6xyext_gea2 = -1;
 
 /*--- End of included file: packet-umts_rrc_ies-hf.c ---*/
-#line 59 "packet-umts_rrc_ies-template.c"
+#line 60 "packet-umts_rrc_ies-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_umts_rrc_ies = -1;
@@ -5596,7 +5597,7 @@ static gint ett_umts_rrc_ies_MBMS_UnmodifiedService_r6 = -1;
 static gint ett_umts_rrc_ies_MBMS_UnmodifiedServiceList_r6 = -1;
 
 /*--- End of included file: packet-umts_rrc_ies-ett.c ---*/
-#line 64 "packet-umts_rrc_ies-template.c"
+#line 65 "packet-umts_rrc_ies-template.c"
 
 
 /*--- Included file: packet-umts_rrc_ies-fn.c ---*/
@@ -49827,7 +49828,7 @@ dissect_umts_rrc_ies_MBMS_UnmodifiedServiceList_r6(tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-umts_rrc_ies-fn.c ---*/
-#line 66 "packet-umts_rrc_ies-template.c"
+#line 67 "packet-umts_rrc_ies-template.c"
 
 
 static void
@@ -63545,7 +63546,7 @@ void proto_register_umts_rrc_ies(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-umts_rrc_ies-hfarr.c ---*/
-#line 83 "packet-umts_rrc_ies-template.c"
+#line 84 "packet-umts_rrc_ies-template.c"
   };
 
   /* List of subtrees */
@@ -65541,7 +65542,7 @@ void proto_register_umts_rrc_ies(void) {
     &ett_umts_rrc_ies_MBMS_UnmodifiedServiceList_r6,
 
 /*--- End of included file: packet-umts_rrc_ies-ettarr.c ---*/
-#line 89 "packet-umts_rrc_ies-template.c"
+#line 90 "packet-umts_rrc_ies-template.c"
   };
 
 

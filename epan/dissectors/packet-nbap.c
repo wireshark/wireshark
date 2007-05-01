@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-nbap.c                                                            */
+/* .\packet-nbap.c                                                            */
 /* ../../tools/asn2wrs.py -e -F -p nbap -c nbap.cnf -s packet-nbap-template nbap.asn */
 
 /* Input file: packet-nbap-template.c */
@@ -43,6 +43,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
+#include <epan/asn1.h>
 
 #include "packet-nbap.h"
 #include "packet-ber.h"
@@ -2068,7 +2070,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 58 "packet-nbap-template.c"
+#line 60 "packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -3088,7 +3090,7 @@ static gint ett_nbap_PrivateIE_Container = -1;
 static gint ett_nbap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 67 "packet-nbap-template.c"
+#line 69 "packet-nbap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -34570,7 +34572,7 @@ static void dissect_NBAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 738 "packet-nbap-template.c"
+#line 740 "packet-nbap-template.c"
 
 
 static int dissect_nbap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
@@ -44761,7 +44763,7 @@ void proto_register_nbap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 2924 "packet-nbap-template.c"
+#line 2926 "packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -45782,7 +45784,7 @@ void proto_register_nbap(void) {
     &ett_nbap_PrivateIE_Field,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 2934 "packet-nbap-template.c"
+#line 2936 "packet-nbap-template.c"
   };
 
 

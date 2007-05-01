@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-rrlp.c                                                            */
-/* ../../tools/asn2wrs.py -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
+/* .\packet-rrlp.c                                                            */
+/* ../../tools/asn2wrs.py -u -e -p rrlp -c rrlp.cnf -s packet-rrlp-template rrlp.asn */
 
 /* Input file: packet-rrlp-template.c */
 
@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -54,6 +55,8 @@
 #define PNAME  "Radio Resource LCS Protocol (RRLP)"
 #define PSNAME "RRLP"
 #define PFNAME "rrlp"
+
+
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -333,7 +336,7 @@ static int hf_rrlp_smlc_code = -1;                /* INTEGER_0_63 */
 static int hf_rrlp_transaction_ID = -1;           /* INTEGER_0_262143 */
 
 /*--- End of included file: packet-rrlp-hf.c ---*/
-#line 58 "packet-rrlp-template.c"
+#line 66 "packet-rrlp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rrlp = -1;
@@ -438,7 +441,7 @@ static gint ett_rrlp_Rel5_AssistanceData_Extension = -1;
 static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 
 /*--- End of included file: packet-rrlp-ett.c ---*/
-#line 62 "packet-rrlp-template.c"
+#line 70 "packet-rrlp-template.c"
 
 /* Include constants */
 
@@ -447,7 +450,7 @@ static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
 #define maxGPSAssistanceData           40
 
 /*--- End of included file: packet-rrlp-val.h ---*/
-#line 65 "packet-rrlp-template.c"
+#line 73 "packet-rrlp-template.c"
 
 
 
@@ -3051,13 +3054,13 @@ dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 static void dissect_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   dissect_rrlp_PDU(tvb, 0, &asn1_ctx, tree, hf_rrlp_PDU_PDU);
 }
 
 
 /*--- End of included file: packet-rrlp-fn.c ---*/
-#line 68 "packet-rrlp-template.c"
+#line 76 "packet-rrlp-template.c"
 
 
 /*--- proto_register_rrlp -------------------------------------------*/
@@ -4115,7 +4118,7 @@ void proto_register_rrlp(void) {
         "rrlp.INTEGER_0_262143", HFILL }},
 
 /*--- End of included file: packet-rrlp-hfarr.c ---*/
-#line 77 "packet-rrlp-template.c"
+#line 85 "packet-rrlp-template.c"
   };
 
   /* List of subtrees */
@@ -4222,7 +4225,7 @@ void proto_register_rrlp(void) {
     &ett_rrlp_Rel_5_ProtocolError_Extension,
 
 /*--- End of included file: packet-rrlp-ettarr.c ---*/
-#line 83 "packet-rrlp-template.c"
+#line 91 "packet-rrlp-template.c"
   };
 
 

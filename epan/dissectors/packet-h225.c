@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h225.c                                                            */
+/* .\packet-h225.c                                                            */
 /* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.c */
@@ -54,6 +54,7 @@
 #include <epan/prefs.h>
 #include <epan/oid_resolv.h>
 #include <epan/next_tvb.h>
+#include <epan/asn1.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
@@ -881,7 +882,7 @@ static int hf_h225_stopped = -1;                  /* NULL */
 static int hf_h225_notAvailable = -1;             /* NULL */
 
 /*--- End of included file: packet-h225-hf.c ---*/
-#line 110 "packet-h225-template.c"
+#line 111 "packet-h225-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h225 = -1;
@@ -1127,7 +1128,7 @@ static gint ett_h225_ServiceControlResponse = -1;
 static gint ett_h225_T_result = -1;
 
 /*--- End of included file: packet-h225-ett.c ---*/
-#line 114 "packet-h225-template.c"
+#line 115 "packet-h225-template.c"
 
 /* Preferences */
 static guint h225_tls_port = TLS_PORT_CS;
@@ -7315,7 +7316,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 /*--- End of included file: packet-h225-fn.c ---*/
-#line 140 "packet-h225-template.c"
+#line 141 "packet-h225-template.c"
 
 
 /* Forward declaration we need below */
@@ -10481,7 +10482,7 @@ void proto_register_h225(void) {
         "h225.NULL", HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 253 "packet-h225-template.c"
+#line 254 "packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -10729,7 +10730,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 259 "packet-h225-template.c"
+#line 260 "packet-h225-template.c"
   };
   module_t *h225_module;
 

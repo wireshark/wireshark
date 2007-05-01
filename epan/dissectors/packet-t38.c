@@ -61,6 +61,7 @@
 #include "packet-t38.h"
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
+#include <epan/asn1.h>
 #include "packet-per.h"
 #include "packet-tpkt.h"
 #include <epan/emem.h>

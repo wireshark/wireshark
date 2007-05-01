@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-umts_rrc.c                                                        */
-/* ../../tools/asn2wrs.py -X -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
+/* .\packet-umts_rrc.c                                                        */
+/* ../../tools/asn2wrs.py -u -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template umts_rrc_Class-definitions.asn */
 
 /* Input file: packet-umts_rrc-template.c */
 
@@ -42,6 +42,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -170,7 +171,7 @@ static int hf_umts_rrc_message10 = -1;            /* MSCH_MessageType */
 static int hf_umts_rrc_mbmsSchedulingInformation = -1;  /* MBMSSchedulingInformation */
 
 /*--- End of included file: packet-umts_rrc-hf.c ---*/
-#line 61 "packet-umts_rrc-template.c"
+#line 62 "packet-umts_rrc-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_umts_rrc = -1;
@@ -201,7 +202,7 @@ static gint ett_umts_rrc_MSCH_Message = -1;
 static gint ett_umts_rrc_MSCH_MessageType = -1;
 
 /*--- End of included file: packet-umts_rrc-ett.c ---*/
-#line 66 "packet-umts_rrc-template.c"
+#line 67 "packet-umts_rrc-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -772,13 +773,13 @@ dissect_umts_rrc_MSCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static void dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   dissect_umts_rrc_DL_DCCH_Message(tvb, 0, &asn1_ctx, tree, hf_umts_rrc_DL_DCCH_Message_PDU);
 }
 
 
 /*--- End of included file: packet-umts_rrc-fn.c ---*/
-#line 71 "packet-umts_rrc-template.c"
+#line 72 "packet-umts_rrc-template.c"
 
 
 static void
@@ -1213,7 +1214,7 @@ void proto_register_umts_rrc(void) {
         "umts_rrc_pdu_def.MBMSSchedulingInformation", HFILL }},
 
 /*--- End of included file: packet-umts_rrc-hfarr.c ---*/
-#line 101 "packet-umts_rrc-template.c"
+#line 102 "packet-umts_rrc-template.c"
   };
 
   /* List of subtrees */
@@ -1245,7 +1246,7 @@ void proto_register_umts_rrc(void) {
     &ett_umts_rrc_MSCH_MessageType,
 
 /*--- End of included file: packet-umts_rrc-ettarr.c ---*/
-#line 107 "packet-umts_rrc-template.c"
+#line 108 "packet-umts_rrc-template.c"
   };
 
 

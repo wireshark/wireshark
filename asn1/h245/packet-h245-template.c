@@ -47,6 +47,7 @@
 #include <epan/t35.h>
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"

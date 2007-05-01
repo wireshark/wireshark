@@ -87,6 +87,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-windows-common.h>
 #include <epan/dissectors/packet-dcerpc.h>
+#include <epan/asn1.h>
 
 #include "packet-frame.h"
 #include "packet-ldap.h"

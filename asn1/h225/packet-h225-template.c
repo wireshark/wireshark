@@ -46,6 +46,7 @@
 #include <epan/prefs.h>
 #include <epan/oid_resolv.h>
 #include <epan/next_tvb.h>
+#include <epan/asn1.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"

@@ -55,6 +55,7 @@
 #include <epan/t35.h>
 #include <epan/emem.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 #include "tap.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
@@ -1685,7 +1686,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 282 "packet-h245-template.c"
+#line 283 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -2181,7 +2182,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 285 "packet-h245-template.c"
+#line 286 "packet-h245-template.c"
 
 
 /*--- Included file: packet-h245-fn.c ---*/
@@ -13848,7 +13849,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 287 "packet-h245-template.c"
+#line 288 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -19497,7 +19498,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 355 "packet-h245-template.c"
+#line 356 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -19996,7 +19997,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 361 "packet-h245-template.c"
+#line 362 "packet-h245-template.c"
   };
   module_t *h245_module;
 

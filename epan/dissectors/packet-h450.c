@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-h450.c                                                            */
+/* .\packet-h450.c                                                            */
 /* ../../tools/asn2wrs.py -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn */
 
 /* Input file: packet-h450-template.c */
@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
 #include "packet-h450.h"
 
 #include "packet-ber.h"
@@ -479,7 +480,7 @@ static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
 static int hf_h450_extensionArgument = -1;        /* ExtensionArgument */
 
 /*--- End of included file: packet-h450-hf.c ---*/
-#line 196 "packet-h450-template.c"
+#line 197 "packet-h450-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h4501 = -1;
@@ -620,7 +621,7 @@ static gint ett_h450_Unspecified = -1;
 static gint ett_h450_Extension = -1;
 
 /*--- End of included file: packet-h450-ett.c ---*/
-#line 211 "packet-h450-template.c"
+#line 212 "packet-h450-template.c"
 
 /* Global variables */
 static guint32 localOpcode;
@@ -3542,7 +3543,7 @@ static void dissect_CallReroutingRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-h450-fn.c ---*/
-#line 308 "packet-h450-template.c"
+#line 309 "packet-h450-template.c"
 
 static const value_string InvokeProblem_vals[] = {
    {  0, "duplicateInvocation"},
@@ -5374,7 +5375,7 @@ void proto_register_h450(void) {
         "h450.ExtensionArgument", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 1039 "packet-h450-template.c"
+#line 1040 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -5516,7 +5517,7 @@ void proto_register_h450(void) {
     &ett_h450_Extension,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 1055 "packet-h450-template.c"
+#line 1056 "packet-h450-template.c"
   };
 
 

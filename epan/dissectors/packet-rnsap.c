@@ -47,6 +47,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
+
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rnsap.h"
@@ -1812,7 +1814,7 @@ static int hf_rnsap_privateIEid = -1;             /* PrivateIE_ID */
 static int hf_rnsap_privateIEvalue = -1;          /* PrivateIEvalue */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 85 "packet-rnsap-template.c"
+#line 87 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -2674,7 +2676,7 @@ static gint ett_rnsap_PrivateIE_Container = -1;
 static gint ett_rnsap_PrivateIE_Field = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 94 "packet-rnsap-template.c"
+#line 96 "packet-rnsap-template.c"
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -30329,7 +30331,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 117 "packet-rnsap-template.c"
+#line 119 "packet-rnsap-template.c"
 
 
 static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree){
@@ -38937,7 +38939,7 @@ void proto_register_rnsap(void) {
         "rnsap.PrivateIEvalue", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 1848 "packet-rnsap-template.c"
+#line 1850 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -39800,7 +39802,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_PrivateIE_Field,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 1858 "packet-rnsap-template.c"
+#line 1860 "packet-rnsap-template.c"
   };
 
 

@@ -56,6 +56,7 @@
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/base64.h>
+#include <epan/asn1.h>
 
 #include "tap.h"
 #include "packet-sdp.h"

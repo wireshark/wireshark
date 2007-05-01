@@ -58,6 +58,7 @@
 #include <epan/strutil.h>
 #include <epan/sctpppids.h>
 #include <epan/dissectors/packet-tpkt.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-h245.h>
 #include <epan/dissectors/packet-ip.h>

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ulp.c                                                             */
-/* ../../tools/asn2wrs.py -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
+/* .\packet-ulp.c                                                             */
+/* ../../tools/asn2wrs.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -253,7 +254,7 @@ static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 70 "packet-ulp-template.c"
+#line 71 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -320,7 +321,7 @@ static gint ett_ulp_PosTechnology = -1;
 static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 74 "packet-ulp-template.c"
+#line 75 "packet-ulp-template.c"
 
 /* Include constants */
 
@@ -333,7 +334,7 @@ static gint ett_ulp_PosProtocol = -1;
 #define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 77 "packet-ulp-template.c"
+#line 78 "packet-ulp-template.c"
 
 
 
@@ -2145,13 +2146,13 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   dissect_ulp_ULP_PDU(tvb, 0, &asn1_ctx, tree, hf_ulp_ULP_PDU_PDU);
 }
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 80 "packet-ulp-template.c"
+#line 81 "packet-ulp-template.c"
 
 
 static guint
@@ -2891,7 +2892,7 @@ void proto_register_ulp(void) {
         "ulp.BOOLEAN", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 119 "packet-ulp-template.c"
+#line 120 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2960,7 +2961,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 125 "packet-ulp-template.c"
+#line 126 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;

@@ -26,23 +26,7 @@
 #ifndef __PACKET_PER_H__
 #define __PACKET_PER_H__
 
-/*--- ASN.1 Context, will be moved to common ASN.1 header when created --- */
 
-typedef enum {
-  ASN1_ENC_BER,  /* X.690 - BER, CER, DER */
-  ASN1_ENC_PER,  /* X.691 - PER */
-  ASN1_ENC_ECN,  /* X.692 - ECN */
-  ASN1_ENC_XER   /* X.693 - XER */
-} asn1_enc_e;
-
-typedef struct _asn1_ctx_t {
-  asn1_enc_e encoding;
-  gboolean aligned;
-  packet_info *pinfo;
-  proto_item *created_item;
-  void *value_ptr;
-  void *private_data;
-} asn1_ctx_t;
 
 void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
 
