@@ -561,9 +561,8 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   vj_header_t *hdr_buf;
   guint8       offset;
   guint8      *data_ptr;
-  iphdr_type  *ip;
-  tcphdr_type *thp;
   gint         hdr_len;
+  gint         tot_len;
   gint         buf_len;
   guint8      *pbuf;
 
@@ -585,15 +584,14 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
 
   /* Copy header and form tvb */
   data_ptr = hdr_buf->data;
-  ip = (iphdr_type *)data_ptr;
-  hdr_len  = lo_nibble(ip->ihl_version) * 4;
-  thp = (tcphdr_type *)(data_ptr + hdr_len);
-  hdr_len += TCP_OFFSET(thp) * 4;
+  hdr_len  = lo_nibble(data_ptr[0]) * 4;
+  hdr_len += hi_nibble(data_ptr[hdr_len + 12]) * 4;
   buf_len  = tvb_length(src_tvb) + hdr_len - offset;
   pbuf     = g_malloc(buf_len);
   memcpy(pbuf, data_ptr, hdr_len);
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
-  *dst_tvb = tvb_new_real_data(pbuf, buf_len, g_ntohs(ip->tot_len));
+  memcpy(&tot_len, data_ptr + 2, 2);
+  *dst_tvb = tvb_new_real_data(pbuf, buf_len, g_ntohs(tot_len));
   tvb_set_child_real_data_tvbuff(src_tvb, *dst_tvb);
   add_new_data_source(pinfo, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
