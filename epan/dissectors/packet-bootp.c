@@ -3461,6 +3461,9 @@ proto_register_bootp(void)
   proto_register_subtree_array(ett, array_length(ett));
   bootp_dhcp_tap = register_tap("bootp");
 
+  /* Allow dissector to find be found by name. */
+  register_dissector("bootp", dissect_bootp, proto_bootp);
+  
   bootp_module = prefs_register_protocol(proto_bootp, NULL);
 
   prefs_register_bool_preference(bootp_module, "novellserverstring",

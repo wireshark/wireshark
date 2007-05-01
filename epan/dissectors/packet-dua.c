@@ -753,6 +753,9 @@ proto_register_dua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_dua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Allow other dissectors to find this one by name. */
+  register_dissector("dua", dissect_dua, proto_dua);
 }
 
 void

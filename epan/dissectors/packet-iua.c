@@ -892,6 +892,9 @@ proto_register_iua(void)
   proto_register_field_array(proto_iua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   prefs_register_bool_preference(iua_module, "support_ig", "Support Implementers Guide", "Support Implementers Guide (version 01)", &support_IG);
+
+  /* Allow other dissectors to find this one by name. */
+  register_dissector("iua", dissect_iua, proto_iua);
 }
 
 #define SCTP_PORT_IUA          9900
