@@ -5440,8 +5440,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
               "Unrecognized (Reserved frame)"));
 
   if (is_ht && IS_STRICTLY_ORDERED(fcf) &&
-    (FCF_FRAME_TYPE(fcf) == MGT_FRAME) || (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
-      DATA_FRAME_IS_QOS(frame_type_subtype))) {
+    ((FCF_FRAME_TYPE(fcf) == MGT_FRAME) || (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
+      DATA_FRAME_IS_QOS(frame_type_subtype)))) {
     htc_len = 4;
   }
   flags = FCF_FLAGS (fcf);
