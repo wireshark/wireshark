@@ -156,7 +156,6 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	size_t sourcelen;
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
-	size_t  nchars;
 	
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
 		get_addr_name(&(strinfo->dest_addr)),
@@ -173,11 +172,16 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	port = g_htons(strinfo->src_port);
 	padding = 0;
 
-	nchars=fwrite(&start_sec, 4, 1, file);
-	nchars=fwrite(&start_usec, 4, 1, file);
-	nchars=fwrite(&source, 4, 1, file);
-	nchars=fwrite(&port, 2, 1, file);
-	nchars=fwrite(&padding, 2, 1, file);
+	if (fwrite(&start_sec, 4, 1, file) == 0)
+		return;
+	if (fwrite(&start_usec, 4, 1, file) == 0)
+		return;
+	if (fwrite(&source, 4, 1, file) == 0)
+		return;
+	if (fwrite(&port, 2, 1, file) == 0)
+		return;
+	if (fwrite(&padding, 2, 1, file) == 0)
+		return;
 }
 
 /* utility function for writing a sample to file in rtpdump -F dump format (.rtp)*/
@@ -187,16 +191,19 @@ static void rtp_write_sample(rtp_sample_t* sample, FILE* file)
 	                     be smaller than plen if not whole packet recorded) */
 	guint16 plen;      /* actual header+payload length for RTP, 0 for RTCP */
 	guint32 offset;    /* milliseconds since the start of recording */
-	size_t  nchars;
 
 	length = g_htons(sample->header.frame_length + 8);
 	plen = g_htons(sample->header.frame_length);
 	offset = g_htonl(sample->header.rec_time);
 
-	nchars=fwrite(&length, 2, 1, file);
-	nchars=fwrite(&plen, 2, 1, file);
-	nchars=fwrite(&offset, 4, 1, file);
-	nchars=fwrite(sample->frame, sample->header.frame_length, 1, file);
+	if (fwrite(&length, 2, 1, file) == 0)
+		return;
+	if (fwrite(&plen, 2, 1, file) == 0)
+		return;
+	if (fwrite(&offset, 4, 1, file) == 0)
+		return;
+	if (fwrite(sample->frame, sample->header.frame_length, 1, file) == 0)
+		return;
 }
 
 

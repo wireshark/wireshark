@@ -266,6 +266,37 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* Free the filter string, as we're done with it. */
 	g_free(follow_filter);
 
+	/* Go back to the top of the file and read the first tcp_stream_chunk
+	 * to ensure that the IP addresses and port numbers in the drop-down
+	 * list are tied to the correct lines displayed by follow_read_stream()
+	 * later on (which also reads from this file).  Close the file when
+	 * we're done.
+	 *
+	 * We read the data now, before we pop up a window, in case the
+	 * read fails.  We use the data later.
+	 */
+
+	rewind(data_out_file);
+	nchars=fread(&sc, 1, sizeof(sc), data_out_file);
+	if (nchars != sizeof(sc)) {
+	    if (ferror(data_out_file)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Could not read from temporary file %s: %s",
+			      follow_info->data_out_filename, strerror(errno));
+	    } else {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Short read from temporary file %s: expected %lu, got %lu",
+			      follow_info->data_out_filename,
+			      (unsigned long)sizeof(sc),
+			      (unsigned long)nchars);
+	    }
+	    eth_close(tmp_fd);
+	    unlink(follow_info->data_out_filename);
+	    g_free(follow_info);
+	    return;
+	}
+	fclose(data_out_file);
+
 	/* The data_out_filename file now has all the text that was in the session */
 	streamwindow = dlg_window_new("Follow TCP Stream");
 
@@ -375,17 +406,6 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 	follow_info->show_stream = BOTH_HOSTS;
-
-	/* Go back to the top of the file and read the first tcp_stream_chunk
-	 * to ensure that the IP addresses and port numbers in the drop-down
-	 * list are tied to the correct lines displayed by follow_read_stream()
-	 * later on (which also reads from this file).  Close the file when
-	 * we're done.
-	 */
-
-	rewind(data_out_file);
-	nchars=fread(&sc, 1, sizeof(sc), data_out_file);
-	fclose(data_out_file);
 
 	/* Host 0 --> Host 1 */
 	if(sc.src_port == strtol(port0, NULL, 10)) {
@@ -662,6 +682,16 @@ follow_read_stream(follow_info_t *follow_info,
     }
 
     while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
+    	if (nchars != sizeof(sc)) {
+	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			  "Short read from temporary file %s: expected %lu, got %lu",
+			  follow_info->data_out_filename,
+			  (unsigned long)sizeof(sc),
+			  (unsigned long)nchars);
+	    fclose(data_out_file);
+	    data_out_file = NULL;
+	    return FRS_READ_ERROR;
+	}
 	if (client_port == 0) {
 	    memcpy(client_addr, sc.src_addr, iplen);
 	    client_port = sc.src_port;
@@ -688,6 +718,7 @@ follow_read_stream(follow_info_t *follow_info,
 	    nchars = fread(buffer, 1, bcount, data_out_file);
 	    if (nchars == 0)
 		break;
+	    /* XXX - if we don't get "bcount" bytes, is that an error? */
 	    sc.dlen -= nchars;
 
 	    if (!skip) {
@@ -818,8 +849,8 @@ follow_read_stream(follow_info_t *follow_info,
 	return FRS_READ_ERROR;
     }
 
-	fclose(data_out_file);
-	data_out_file = NULL;
+    fclose(data_out_file);
+    data_out_file = NULL;
     return FRS_OK;
 
 print_error:
