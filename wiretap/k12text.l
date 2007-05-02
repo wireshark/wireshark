@@ -43,6 +43,7 @@
 #include "wtap.h"
 #include "file_wrappers.h"
 #include "buffer.h"
+#include "k12.h"
 
 static guint h;
 static guint m;
@@ -56,7 +57,7 @@ static gboolean is_k12text;
 static gboolean at_eof;
 static guint junk_chars = 0;
 static void finalize_frame(void);
-static gchar* error_str;
+static const gchar* error_str;
 static gint64 cum_offset;
 static gboolean ok_frame;
 static FILE_T yy_fh;
@@ -144,7 +145,7 @@ static gboolean k12text_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *
 			*err_info = NULL;
 			*err = 0;
 		} else {
-			*err_info = error_str;
+			*err_info = (void*)error_str;
 			*err = WTAP_ERR_BAD_RECORD;
 		}
 		return FALSE;
@@ -166,7 +167,7 @@ static gboolean k12text_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *
 	return TRUE;
 }
 
-static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err, gchar **err_info) {
+static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err, gchar **err_info) {
 	gint64 save_offset = cum_offset;
 
 	ok_frame = FALSE;
@@ -183,7 +184,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	yylex();
 
 	if (ok_frame == FALSE) {
-		*err_info = error_str;
+		*err_info = (void*)error_str;
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
@@ -245,7 +246,7 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
                          const guchar *pd, int *err _U_) {
 	char buf[196808];
 	char* p=buf;
-	const char* str_enc;
+	const char* str_enc = "";
 	guint i;
 	guint ns;
 	guint ms;
@@ -276,7 +277,7 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 }
 
 
-static gboolean k12text_dump_close(wtap_dumper *wdh, int *err) {
+static gboolean k12text_dump_close(wtap_dumper *wdh _U_ , int *err _U_) {
 	(void)0;
 	return TRUE;
 }
