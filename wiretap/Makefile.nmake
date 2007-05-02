@@ -46,6 +46,8 @@ ascend-scanner.obj : ascend-scanner.c ascend-grammar.h
 ascend-scanner.c : ascend-scanner.l
 	$(LEX) -Pascend -oascend-scanner.c ascend-scanner.l
 
+k12text.c : k12text.l
+	$(LEX) -PK12Text -ok12text.c k12text.l
 
 config.h	: config.h.win32 ..\config.nmake
 	sed -e s/@VERSION@/$(WTAP_VERSION)/ \

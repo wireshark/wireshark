@@ -63,3 +63,6 @@ ascend-scanner.c : ascend-scanner.l
 		exit 1; \
 	fi
 	$(LEX) -Pascend -oascend-scanner.c $(srcdir)/ascend-scanner.l
+
+k12text.c : k12text.l
+	$(LEX) -ok12text.c $(srcdir)/k12text.l

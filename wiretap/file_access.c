@@ -120,6 +120,7 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	 * to some box.
 	 */
 	erf_open,
+	k12text_open,
 	etherpeek_open,
 	pppdump_open,
 	iseries_open,
@@ -520,7 +521,7 @@ static const struct file_type_info {
 	  NULL, NULL},
 
 	/* WTAP_FILE_K12 */
-	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", FALSE,
+	{ "Tektronix K12xx 32-bit .rf5 format", "rf5", "*.rf5", ".rf5", TRUE,
 		k12_dump_can_write_encap, k12_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
@@ -546,6 +547,10 @@ static const struct file_type_info {
 	/* WTAP_FILE_MPEG */
 	{ "MPEG", "mpeg", "*.mpeg;*.mpg;*.mp3", ".mpeg", FALSE,
 	  NULL, NULL },
+
+	  	/* WTAP_FILE_K12TEXT  */
+	{ "K12 text file", "k12text", "*.txt", ".txt", TRUE,
+	  k12text_dump_can_write_encap, k12text_dump_open },
 };
 
 /* Name that should be somewhat descriptive. */

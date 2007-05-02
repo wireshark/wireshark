@@ -23,3 +23,6 @@
 int k12_open(wtap *wth, int *err, gchar **err_info);
 int k12_dump_can_write_encap(int encap);
 gboolean k12_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
+int k12text_open(wtap *wth, int *err, gchar **err_info _U_);
+int k12text_dump_can_write_encap(int encap);
+gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);

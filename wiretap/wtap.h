@@ -245,8 +245,9 @@ extern "C" {
 #define WTAP_FILE_ETHERPEEK_V7			44
 #define WTAP_FILE_AIROPEEK_V9			45
 #define WTAP_FILE_MPEG				46
+#define WTAP_FILE_K12TEXT			47
 
-#define WTAP_NUM_FILE_TYPES			47
+#define WTAP_NUM_FILE_TYPES			48
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0
