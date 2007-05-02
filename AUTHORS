@@ -2635,6 +2635,10 @@ Victor Fajardo <vfajardo [AT] tari.toshiba.com> {
 	PANA draft 15a support
 }
 
+Tamas Regos <tamas.regos [AT] ericsson.com> {
+	Lua Enhancements
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

@@ -4,6 +4,7 @@
  * Wireshark's interface to the Lua Programming Language
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
+ * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
  *
  * $Id$
  *
@@ -76,7 +77,19 @@ typedef struct _wslua_field_t {
     guint32 mask;
 } wslua_field_t;
 
-typedef enum {PREF_NONE,PREF_BOOL,PREF_UINT,PREF_STRING} pref_type_t;
+/*
+ * PREF_OBSOLETE is used for preferences that a module used to support
+ * but no longer supports; we give different error messages for them.
+ */
+typedef enum {
+	PREF_UINT,
+	PREF_BOOL,
+	PREF_ENUM,
+	PREF_STRING,
+	PREF_RANGE,
+	PREF_STATIC_TEXT,
+	PREF_OBSOLETE
+} pref_type_t;
 
 typedef struct _wslua_pref_t {
     gchar* name;
@@ -87,8 +100,20 @@ typedef struct _wslua_pref_t {
         gboolean b;
         guint u;
         const gchar* s;
-		void* p;
+        gint e;
+	range_t *r;
+	void* p;
     } value;
+    union {
+  	guint32 max_value;		/* maximum value of a range */
+  	struct {
+  	    const enum_val_t *enumvals;	/* list of name & values */
+  	    gboolean radio_buttons;	/* TRUE if it should be shown as
+  					   radio buttons rather than as an
+  					   option menu or combo box in
+  					   the preferences tab */
+  	} enum_info;			/* for PREF_ENUM */
+    } info;			        /* display/text file information */
     
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;
