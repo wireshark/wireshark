@@ -2535,28 +2535,28 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		*pd = (unsigned char)0x64; nchars=eth_write(to_fd, pd, 1);
 		/* header offset == 24 bytes */
 		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x18; nchars=eth_write(to_fd, pd, 1);
 		/* total length, it is permited to set this to 0xffffffff */
 		*pd = (unsigned char)0xff; nchars=eth_write(to_fd, pd, 1); 
-		eth_write(to_fd, pd, 1); 
-		eth_write(to_fd, pd, 1); 
-		eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1); 
+		nchars=eth_write(to_fd, pd, 1); 
+		nchars=eth_write(to_fd, pd, 1);
 		/* encoding format == 8 bit ulaw */
 		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
 		/* sample rate == 8000 Hz */
 		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x1f; nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x40; nchars=eth_write(to_fd, pd, 1);
 		/* channels == 1 */
 		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
-		eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
+		nchars=eth_write(to_fd, pd, 1);
 		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
 	
 	
