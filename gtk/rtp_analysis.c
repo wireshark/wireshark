@@ -892,6 +892,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	guint i;
 	const guint8 *data;
 	guint8 tmp;
+	size_t nchars;
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -946,7 +947,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 				tmp = 0;
 				break;
 			}
-			fwrite(&tmp, 1, 1, saveinfo->fp);
+			nchars=fwrite(&tmp, 1, 1, saveinfo->fp);
 			saveinfo->count++;
 		}
 		fflush(saveinfo->fp);
@@ -970,7 +971,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		* plus the offset of the payload from the beginning
 		* of the RTP data */
 		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		nchars=fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
 		saveinfo->count+=(rtpinfo->info_payload_len - rtpinfo->info_padding_count);
 
 		fflush(saveinfo->fp);

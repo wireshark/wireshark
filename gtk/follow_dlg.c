@@ -185,7 +185,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_tcp_stats_t stats;
 	follow_info_t	*follow_info;
 	tcp_stream_chunk sc;
-	int nread;
+	size_t              nchars;
 
 	/* we got tcp so we can follow */
 	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
@@ -384,7 +384,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	 */
 
 	rewind(data_out_file);
-	nread=fread(&sc, 1, sizeof(sc), data_out_file);
+	nchars=fread(&sc, 1, sizeof(sc), data_out_file);
 	fclose(data_out_file);
 
 	/* Host 0 --> Host 1 */
@@ -661,7 +661,7 @@ follow_read_stream(follow_info_t *follow_info,
 	return FRS_OPEN_ERROR;
     }
 
-    while (fread(&sc, 1, sizeof(sc), data_out_file)) {
+    while ((nchars=fread(&sc, 1, sizeof(sc), data_out_file))) {
 	if (client_port == 0) {
 	    memcpy(client_addr, sc.src_addr, iplen);
 	    client_port = sc.src_port;
