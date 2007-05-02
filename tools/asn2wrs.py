@@ -142,8 +142,28 @@ oid_names = {
 def asn2c(id):
   return id.replace('-', '_').replace('.', '_')
 
-class LexError(Exception): pass
-class ParseError(Exception): pass
+input_file = None
+
+class LexError(Exception):
+  def __init__(self, tok, filename=None):
+    self.tok = tok
+    self.filename = filename
+    self.msg =  "Unexpected character %r" % (self.tok.value[0])
+    Exception.__init__(self, self.msg)
+  def __repr__(self):
+    return "%s:%d: %s" % (self.filename, self.tok.lineno, self.msg)
+  __str__ = __repr__
+
+
+class ParseError(Exception):
+  def __init__(self, tok, filename=None):
+    self.tok = tok
+    self.filename = filename
+    self.msg =  "Unexpected token %r" % (self.tok.value)
+    Exception.__init__(self, self.msg)
+  def __repr__(self):
+    return "%s:%d: %s" % (self.filename, self.tok.lineno, self.msg)
+  __str__ = __repr__
 
 # 11 ASN.1 lexical items
 
@@ -194,7 +214,7 @@ reserved_words = {
     'IMPLICIT': 'IMPLICIT',
     'CHOICE'  : 'CHOICE',
     'ANY'     : 'ANY',
-#    'EXTERNAL' : 'EXTERNAL', # XXX added over base
+    'EXTERNAL' : 'EXTERNAL',
     'OPTIONAL':'OPTIONAL',
     'DEFAULT' : 'DEFAULT',
     'COMPONENTS': 'COMPONENTS',
@@ -285,7 +305,7 @@ for s in StringTypes:
 tokens = static_tokens.values() \
          + reserved_words.values() \
          + ['BSTRING', 'HSTRING', 'QSTRING',
-            'UCASE_IDENT', 'LCASE_IDENT',
+            'UCASE_IDENT', 'LCASE_IDENT', 'CLASS_IDENT',
             'NUMBER', 'PYQUOTE']
 
 
@@ -308,7 +328,8 @@ def t_QSTRING (t):
 
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
-    t.type = reserved_words.get(t.value, "UCASE_IDENT")
+    if (is_class_ident(t.value)): t.type = 'CLASS_IDENT'
+    t.type = reserved_words.get(t.value, t.type)
     return t
 
 def t_LCASE_IDENT (t):
@@ -327,7 +348,7 @@ def t_NUMBER (t):
 pyquote_str = 'PYQUOTE'
 def t_COMMENT(t):
     r"--(-[^\-\n]|[^\-\n])*(--|\n|-\n|$|-$)"
-    if (t.value.find("\n") >= 0) : t.lineno += 1
+    if (t.value.find("\n") >= 0) : t.lexer.lineno += 1
     if t.value[2:2+len (pyquote_str)] == pyquote_str:
         t.value = t.value[2+len(pyquote_str):]
         t.value = t.value.lstrip ()
@@ -339,12 +360,11 @@ t_ignore = " \t\r"
 
 def t_NEWLINE(t):
     r'\n+'
-    t.lineno += t.value.count("\n")
+    t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    print "Error", t.value[:100], t.lineno
-    raise LexError
-
+  global input_file
+  raise LexError(t, input_file)
     
 
 class Ctx:
@@ -1682,6 +1702,15 @@ class EthCnf:
             self.add_item(ctx, name, pars=par[1], fn=fn, lineno=lineno)
             ctx = None
             name = None
+        elif result.group('name') == 'CLASS':
+          par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
+          if not par: continue
+          ctx = result.group('name')
+          name = par[0]
+          add_class_ident(name)
+          if not name.isupper():
+            warnings.warn_explicit("No lower-case letters shall be included in information object class name (%s)" % (name),
+                                    UserWarning, fn, lineno)
         elif result.group('name') == 'INCLUDE':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: 
@@ -1781,7 +1810,7 @@ class EthCnf:
         self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
       elif ctx == 'VIRTUAL_ASSGN':
         if empty.match(line): continue
-        par = get_par(line, 2, -1, fn=fn, lineno=lineno)
+        par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         if (len(par[1].split('/')) > 1) and not self.check_item('SET_TYPE', par[1]):
           self.add_item('SET_TYPE', par[1], type=par[0], fn=fn, lineno=lineno)
@@ -1848,6 +1877,15 @@ class EthCnf:
           self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
+      elif ctx == 'CLASS':
+        if empty.match(line): continue
+        par = get_par(line, 1, 3, fn=fn, lineno=lineno)
+        if not par: continue
+        if (len(par) < 2): par.append('OpenType')
+        if (len(par) < 3): par.append(None)
+        if not set_type_to_class(name, par[0], par[1], par[2]):
+          warnings.warn_explicit("Could not set type of class member %s.&%s to %s" % (name, par[0], par[1]),
+                                  UserWarning, fn, lineno)
 
   def dbg_print(self):
     print "\n# Conformance values"
@@ -3202,6 +3240,27 @@ class EnumeratedType (Type):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- ExternalType -----------------------------------------------------------
+class ExternalType (Type):
+  def eth_tname(self):
+    return 'EXTERNAL'
+
+  def eth_ftype(self, ectx):
+    return ('FT_NONE', 'BASE_NONE')
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['TYPE_REF_FN'] = 'NULL'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
 #--- OpenType -----------------------------------------------------------
 class OpenType (Type):
   def to_python (self, ctx):
@@ -3523,6 +3582,15 @@ class ObjectDescriptor (RestrictedCharacterStringType):
   def eth_tsname(self):
     return 'ObjectDescriptor'
 
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Ber()):
+      body = RestrictedCharacterStringType.eth_type_default_body(self, ectx, tname)
+    elif (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_object_descriptor', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
 
 #--- ObjectIdentifierType -----------------------------------------------------
 class ObjectIdentifierType (Type):
@@ -3984,6 +4052,7 @@ def p_BuiltinType (t):
                  | CharacterStringType
                  | ChoiceType
                  | EnumeratedType
+                 | ExternalType
                  | IntegerType
                  | NullType
                  | ObjectClassFieldType
@@ -4447,6 +4516,13 @@ def p_number_form (t):
     'number_form : NUMBER'
     t [0] = t[1]
 
+# 34 Notation for the external type -------------------------------------------
+
+# 34.1
+def p_ExternalType (t):
+  'ExternalType : EXTERNAL'
+  t[0] = ExternalType()
+
 # 36 Notation for character string types --------------------------------------
 
 # 36.1
@@ -4824,6 +4900,12 @@ def p_number (t):
 
 # 7 ASN.1 lexical items -------------------------------------------------------
 
+# 7.1 Information object class references
+
+def p_objectclassreference (t):
+  'objectclassreference : CLASS_IDENT'
+  t[0] = t[1]
+
 # 7.4 Type field references
 
 def p_typefieldreference (t):
@@ -4840,7 +4922,8 @@ def p_valuefieldreference (t):
 
 # 8.1
 def p_DefinedObjectClass (t):
-  'DefinedObjectClass : UsefulObjectClassReference'
+  '''DefinedObjectClass : objectclassreference
+                        | UsefulObjectClassReference'''
   t[0] = t[1]
 
 # 8.4
@@ -4861,19 +4944,65 @@ def p_FieldName (t):
 
 # 14.1
 def p_ObjectClassFieldType (t):
-  'ObjectClassFieldType : DefinedObjectClass DOT FieldName'''
+  'ObjectClassFieldType : DefinedObjectClass DOT FieldName'
   t[0] = get_type_from_class(t[1], t[3])
 
-object_class_types = {
+class_names = {
+}
+
+useful_object_class_types = {
+  # Annex A
   'TYPE-IDENTIFIER/id'   : lambda : ObjectIdentifierType(),
   'TYPE-IDENTIFIER/Type' : lambda : OpenType(),
+  # Annex B
   'ABSTRACT-SYNTAX/id'       : lambda : ObjectIdentifierType(),
   'ABSTRACT-SYNTAX/Type'     : lambda : OpenType(),
   'ABSTRACT-SYNTAX/property' : lambda : BitStringType(),
 }
 
+object_class_types = {
+}
+
+object_class_typerefs = {
+}
+
+class_types_creator = {
+  'OpenType'     : lambda : OpenType(),
+}
+
+def is_class_ident(name):
+  return class_names.has_key(name)
+
+def add_class_ident(name):
+  class_names[name] = name
+
 def get_type_from_class(cls, fld):
-  return object_class_types.get(cls + '/' + fld, lambda : AnyType())()
+  key = cls + '/' + fld
+
+  if object_class_typerefs.has_key(key):
+    return Type_Ref(val=object_class_typerefs[key])
+
+  creator = lambda : AnyType()
+  creator = useful_object_class_types.get(key, creator)
+  creator = object_class_types.get(key, creator)
+  return creator()
+
+def set_type_to_class(cls, fld, typename, typeref = None):
+  key = cls + '/' + fld
+  if object_class_types.has_key(key): return False
+  if object_class_typerefs.has_key(key): return False
+
+  if (typename == 'TypeReference'):
+    if not typeref: return False
+    object_class_typerefs[key] = typeref
+    return True
+
+  creator = class_types_creator.get(typename)
+  if creator:
+    object_class_types[key] = creator
+    return True
+  else:
+    return False
 
 #--- ITU-T Recommendation X.682 -----------------------------------------------
 
@@ -4979,7 +5108,8 @@ def p_ActualParameter (t):
 
 
 def p_error(t):
-    raise ParseError(str(t))
+  global input_file
+  raise ParseError(t, input_file)
 
 def testlex (s):
     lexer.input (s)
@@ -5046,6 +5176,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 """
 
 def eth_main():
+  global input_file
   print "ASN.1 to Wireshark dissector compiler";
   try:
     opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:I:eSs:kL");
@@ -5068,7 +5199,7 @@ def eth_main():
   ectx.new = True
   ectx.expcnf = False
   ectx.merge_modules = False
-  ectx.output.suppress_line = False;
+  ectx.conform.suppress_line = False;
   ectx.output.outnm = None
   ectx.output.single_file = None
   for o, a in opts:
@@ -5104,7 +5235,7 @@ def eth_main():
     if o in ("-k",):
       ectx.output.keep = True
     if o in ("-L",):
-      ectx.output.suppress_line = True
+      ectx.conform.suppress_line = True
     if o in ("-X",):
         warnings.warn("Command line option -X is obsolete and can be removed")
 
@@ -5119,6 +5250,7 @@ def eth_main():
   yacc.yacc(method='LALR', debug=yd)
   ast = []
   for fn in args:
+    input_file = fn
     f = open (fn, "r")
     ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
     f.close ()
