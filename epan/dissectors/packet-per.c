@@ -1828,6 +1828,7 @@ static const per_sequence_t External_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
+/* this function is no longer called so it has to be commented out so that 
 static int
 dissect_per_External(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1835,7 +1836,7 @@ dissect_per_External(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-/*--- end of generated code ---*/
+*/
 
 
 guint32 
