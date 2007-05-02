@@ -1,4 +1,4 @@
-/*#define DEBUG_BER 1 */
+/*#define DEBUG_BER 1*/
 /* TODO: change #.REGISTER signature to new_dissector_t and
  * update call_ber_oid_callback() accordingly.
  *
@@ -600,8 +600,6 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, int offset, packet_i
 	return offset;
 }
 
-
-
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 
 /* 8.1 General rules for encoding */
@@ -883,7 +881,7 @@ dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1028,7 +1026,7 @@ dissect_ber_integer64(gboolean implicit_tag, packet_info *pinfo, proto_tree *tre
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1204,7 +1202,7 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	s_offset = offset;
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1415,7 +1413,7 @@ ber_sequence_try_again:
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1438,7 +1436,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1511,7 +1509,7 @@ int dissect_ber_set(gboolean implicit_tag, packet_info *pinfo, proto_tree *paren
 	s_offset = offset;
 #ifdef DEBUG_BER
 	{
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1648,7 +1646,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1748,6 +1746,10 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
  * If we did not find a matching choice,  just return offset unchanged
  * in case it was a CHOICE { } OPTIONAL
  */
+#ifdef DEBUG_BER
+#define DEBUG_BER_CHOICE
+#endif
+
 int
 dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *choice, gint hf_id, gint ett_id, gint *branch_taken)
 {
@@ -1765,9 +1767,9 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	tvbuff_t *next_tvb;
 	gboolean first_pass;
 
-#ifdef DEBUG_BER
+#ifdef DEBUG_BER_CHOICE
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1830,8 +1832,8 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	  }
 
 choice_try_again:
-#ifdef DEBUG_BER
-printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",class,ch->class,tag,ch->tag,ch->flags);
+#ifdef DEBUG_BER_CHOICE
+printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n",ch,class,ch->class,tag,ch->tag,ch->flags);
 #endif
 		if( (first_pass && (((ch->class==class)&&(ch->tag==tag))
 		     ||  ((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)))) ||
@@ -1850,7 +1852,6 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 					{
 					length = len;
 					}
-
 			}
 			else
 				length = end_offset- hoffset;
@@ -1882,9 +1883,9 @@ printf("CHOICE testing potential subdissector class:%d:(expected)%d  tag:%d:(exp
 			next_tvb=tvb_new_subset(tvb, hoffset, length_remaining, length);
 
 
-#ifdef DEBUG_BER
+#ifdef DEBUG_BER_CHOICE
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1904,9 +1905,9 @@ printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_le
 				THROW(ReportedBoundsError);
 			}
 			count=ch->func(pinfo, tree, next_tvb, 0);
-#ifdef DEBUG_BER
+#ifdef DEBUG_BER_CHOICE
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -1920,6 +1921,19 @@ printf("CHOICE dissect_ber_choice(%s) subdissector ate %d bytes\n",name,count);
 			if((count==0)&&(((ch->class==class)&&(ch->tag==-1)&&(ch->flags&BER_FLAGS_NOOWNTAG)) || !first_pass)){
 				/* wrong one, break and try again */
 				ch++;
+#ifdef DEBUG_BER_CHOICE
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+printf("CHOICE dissect_ber_choice(%s) trying again\n",name);
+}
+#endif
 				goto choice_try_again;
 			}
 			if(!(ch->flags & BER_FLAGS_NOOWNTAG)){
@@ -2022,7 +2036,7 @@ int dissect_ber_restricted_string(gboolean implicit_tag, gint32 type, packet_inf
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -2097,7 +2111,7 @@ int dissect_ber_object_identifier(gboolean implicit_tag, packet_info *pinfo, pro
 
 #ifdef DEBUG_BER
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
@@ -2172,6 +2186,9 @@ int dissect_ber_object_identifier_str(gboolean implicit_tag, packet_info *pinfo,
   return offset;
 }
 
+#ifdef DEBUG_BER
+#define DEBUG_BER_SQ_OF
+#endif
 
 static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id) {
 	gint8 class;
@@ -2185,9 +2202,9 @@ static int dissect_ber_sq_of(gboolean implicit_tag, gint32 type, packet_info *pi
 	int cnt, hoffset, end_offset;
 	header_field_info *hfi;
 
-#ifdef DEBUG_BER
+#ifdef DEBUG_BER_SQ_OF
 {
-char *name;
+const char *name;
 header_field_info *hfinfo;
 if(hf_id>=0){
 hfinfo = proto_registrar_get_nth(hf_id);
