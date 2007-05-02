@@ -222,7 +222,7 @@ dissect_ctdb_key(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 keylen, gu
 static int
 dissect_ctdb_reply_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int endianess)
 {
-	uint32_t datalen;
+	guint32 datalen;
 
 	/* status */
 	proto_tree_add_item(tree, hf_ctdb_status, tvb, offset, 4, endianess);
@@ -367,7 +367,7 @@ dissect_ctdb_req_dmaster(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 static int
 dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint32 reqid _U_, int endianess)
 {
-	uint32_t datalen;
+	guint32 datalen;
 
 	/* ctrl opcode */
 	proto_tree_add_item(tree, hf_ctdb_ctrl_opcode, tvb, offset, 4, endianess);
