@@ -1035,6 +1035,14 @@ static int ampduparam_mpdu_start_spacing = -1;
 static int ampduparam_reserved = -1;
 
 static int mcsset = -1;
+static int mcsset_rx_bitmask_0to7 = -1;
+static int mcsset_rx_bitmask_8to15 = -1;
+static int mcsset_rx_bitmask_16to23 = -1;
+static int mcsset_rx_bitmask_24to31 = -1;
+static int mcsset_rx_bitmask_32 = -1;
+static int mcsset_rx_bitmask_33to38 = -1;
+static int mcsset_rx_bitmask_39to52 = -1;
+static int mcsset_rx_bitmask_53to76 = -1;
 static int mcsset_highest_data_rate = -1;
 static int mcsset_tx_mcs_set_defined = -1;
 static int mcsset_tx_rx_mcs_set_not_equal = -1;
@@ -1096,7 +1104,6 @@ static int ht_info_lsig_txop_protection_full_support = -1;
 static int ht_info_pco_active = -1;
 static int ht_info_pco_phase = -1;
 static int ht_info_reserved_3 = -1;
-static int ht_basic_mcs_set = -1;
 /*** End: 802.11n D1.10 - HT Information IE  ***/
 
 /*** Begin: 802.11n D1.10 - Secondary Channel Offset Tag  - Dustin Johnson***/
@@ -1337,6 +1344,7 @@ static gint ett_rsn_cap_tree = -1;
 static gint ett_ht_cap_tree = -1;
 static gint ett_ampduparam_tree = -1;
 static gint ett_mcsset_tree = -1;
+static gint ett_mcsbit_tree = -1;
 static gint ett_htex_cap_tree = -1;
 static gint ett_txbf_tree = -1;
 static gint ett_antsel_tree = -1;
@@ -3195,6 +3203,50 @@ done:
         tag_len - tag_off, "Not interpreted");
 }
 
+static void
+dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic) {
+  proto_item *ti;
+  proto_tree *mcs_tree, *bit_tree;
+  guint16 capability;
+
+  /* 16 byte Supported MCS set */
+  ti = proto_tree_add_string(tree, mcsset, tvb, offset, 16,
+      basic ? "Basic MCS Set" : "MCS Set");
+  mcs_tree = proto_item_add_subtree(ti, ett_mcsset_tree);
+
+  /* Rx MCS Bitmask */
+  ti = proto_tree_add_string(mcs_tree, tag_interpretation, tvb, offset,
+      10, "Rx Modulation and Coding Scheme (One bit per modulation)");
+  bit_tree = proto_item_add_subtree(ti, ett_mcsbit_tree);
+
+  /* Bits 0 - 31 */
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_0to7, tvb, offset, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_8to15, tvb, offset + 1, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_16to23, tvb, offset + 2, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_24to31, tvb, offset + 3, 1, TRUE);
+
+  /* Bits 32 - 52 */
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_32, tvb, offset + 4, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_33to38, tvb, offset + 4, 1, TRUE);
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_39to52, tvb, offset + 4, 3, TRUE);
+
+  /* Bits 53 - 76 */
+  proto_tree_add_item(bit_tree, mcsset_rx_bitmask_53to76, tvb, offset + 6, 3, TRUE);
+
+  capability = tvb_get_letohs (tvb, offset+10);
+  proto_tree_add_uint_format(mcs_tree, mcsset_highest_data_rate, tvb, offset + 10, 2,
+      capability, "Highest Supported Data Rate: 0x%04X", capability);
+  capability = tvb_get_letohs (tvb, offset+12);
+  proto_tree_add_boolean(mcs_tree, mcsset_tx_mcs_set_defined, tvb, offset + 12, 1,
+      capability);
+  proto_tree_add_boolean(mcs_tree, mcsset_tx_rx_mcs_set_not_equal, tvb, offset + 12, 1,
+      capability);
+  proto_tree_add_uint(mcs_tree, mcsset_tx_max_spatial_streams, tvb, offset + 12, 1,
+      capability);
+  proto_tree_add_boolean(mcs_tree, mcsset_tx_unequal_modulation, tvb, offset + 12, 1,
+      capability);
+}
+
 /*  802.11n D1.10 - HT Information IE  */
 static void
 dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
@@ -3275,10 +3327,10 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   offset += 2;
   cap_tree = tree;
-  proto_tree_add_string(cap_tree, ht_basic_mcs_set, tvb, offset, 16,
-              "Basic MCS Set");
 
+  dissect_mcs_set(cap_tree, tvb, offset, TRUE);
   offset += 16;
+
   if (tag_val_init_off - offset < tag_len){
     proto_tree_add_string(cap_tree, tag_interpretation, tvb, offset,
        tag_len + tag_val_init_off - offset, "Unparsed Extra Data");
@@ -3380,25 +3432,7 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 1;
   tag_val_off += 1;
 
-  /* 16 byte Supported MCS set */
-  cap_item = proto_tree_add_string(tree, mcsset, tvb, offset,
-                    16, "MCS Set");
-  cap_tree = proto_item_add_subtree(cap_item, ett_mcsset_tree);
-  proto_tree_add_string(cap_tree, tag_interpretation, tvb, offset,
-                    10, "Rx Modulation Coding Streams (One bit per modulation)");
-  capability = tvb_get_letohs (tvb, offset+10);
-  proto_tree_add_uint_format(cap_tree, mcsset_highest_data_rate, tvb, offset + 10, 2,
-                    capability, "Highest Supported Data Rate: 0x%04X", capability);
-  capability = tvb_get_letohs (tvb, offset+12);
-  proto_tree_add_boolean(cap_tree, mcsset_tx_mcs_set_defined, tvb, offset + 12, 1,
-                    capability);
-  proto_tree_add_boolean(cap_tree, mcsset_tx_rx_mcs_set_not_equal, tvb, offset + 12, 1,
-                    capability);
-  proto_tree_add_uint(cap_tree, mcsset_tx_max_spatial_streams, tvb, offset + 12, 1,
-                    capability);
-  proto_tree_add_boolean(cap_tree, mcsset_tx_unequal_modulation, tvb, offset + 12, 1,
-                    capability);
-
+  dissect_mcs_set(cap_tree, tvb, offset, FALSE);
   offset += 16;
   tag_val_off += 16;
 
@@ -3585,8 +3619,7 @@ dissect_ht_info_ie_1_0(proto_tree * tree, tvbuff_t * tvb, int offset,
   tag_val_off += 2;
 
   /* 16 byte Supported MCS set */
-  proto_tree_add_string(tree, tag_interpretation, tvb, offset,
-            16, "Modulation Coding Streams (One bit per modulation)");
+  dissect_mcs_set(tree, tvb, offset, FALSE);
   offset += 16;
   tag_val_off += 16;
 
@@ -8825,8 +8858,40 @@ proto_register_ieee80211 (void)
       "Reserved", HFILL }},
 
     {&mcsset,
-     {"Rx Supported Modulation Coding Streams Set", "wlan_mgt.ht.mcsset",
-      FT_STRING, BASE_NONE, NULL, 0, "Rx Supported Modulation Coding Streams Set", HFILL }},
+     {"Rx Supported Modulation and Coding Scheme Set", "wlan_mgt.ht.mcsset",
+      FT_STRING, BASE_NONE, NULL, 0, "Rx Supported Modulation and Coding Scheme Set", HFILL }},
+
+    {&mcsset_rx_bitmask_0to7,
+     {"Rx Bitmask Bits 0-7", "wlan_mgt.ht.mcsset.rxbitmask.0to7",
+      FT_UINT32, BASE_HEX, 0, 0x000000ff, "Rx Bitmask Bits 0-7", HFILL }},
+
+    {&mcsset_rx_bitmask_8to15,
+     {"Rx Bitmask Bits 8-15", "wlan_mgt.ht.mcsset.rxbitmask.8to15",
+      FT_UINT32, BASE_HEX, 0, 0x0000ff00, "Rx Bitmask Bits 8-15", HFILL }},
+
+    {&mcsset_rx_bitmask_16to23,
+     {"Rx Bitmask Bits 16-23", "wlan_mgt.ht.mcsset.rxbitmask.16to23",
+      FT_UINT32, BASE_HEX, 0, 0x00ff0000, "Rx Bitmask Bits 16-23", HFILL }},
+
+    {&mcsset_rx_bitmask_24to31,
+     {"Rx Bitmask Bits 24-31", "wlan_mgt.ht.mcsset.rxbitmask.24to31",
+      FT_UINT32, BASE_HEX, 0, 0xff000000, "Rx Bitmask Bits 24-31", HFILL }},
+
+    {&mcsset_rx_bitmask_32,
+     {"Rx Bitmask Bit 32", "wlan_mgt.ht.mcsset.rxbitmask.32",
+      FT_UINT32, BASE_HEX, 0, 0x000001, "Rx Bitmask Bit 32", HFILL }},
+
+    {&mcsset_rx_bitmask_33to38,
+     {"Rx Bitmask Bits 33-38", "wlan_mgt.ht.mcsset.rxbitmask.33to38",
+      FT_UINT32, BASE_HEX, 0, 0x00007e, "Rx Bitmask Bits 33-38", HFILL }},
+
+    {&mcsset_rx_bitmask_39to52,
+     {"Rx Bitmask Bits 39-52", "wlan_mgt.ht.mcsset.rxbitmask.39to52",
+      FT_UINT32, BASE_HEX, 0, 0x1fff80, "Rx Bitmask Bits 39-52", HFILL }},
+
+    {&mcsset_rx_bitmask_53to76,
+     {"Rx Bitmask Bits 53-76", "wlan_mgt.ht.mcsset.rxbitmask.53to76",
+      FT_UINT32, BASE_HEX, 0, 0x1fffffe0, "Rx Bitmask Bits 53-76", HFILL }},
 
     {&mcsset_highest_data_rate,
      {"Highest Supported Data Rate", "wlan_mgt.ht.mcsset.highestdatarate",
@@ -9025,9 +9090,9 @@ proto_register_ieee80211 (void)
       "on Greenfield (GF) devices Present", HFILL }},
 
     {&hta_basic_stbc_mcs,
-     {"Basic STB Modulation Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.",
+     {"Basic STB Modulation and Coding Scheme (MCS)", "wlan_mgt.hta.capabilities.",
       FT_UINT16, BASE_HEX, NULL , 0x007f,
-      "Basic STB Modulation Coding Scheme (MCS)", HFILL }},
+      "Basic STB Modulation and Coding Scheme (MCS)", HFILL }},
 
     {&hta_dual_stbc_protection,
      {"Dual Clear To Send (CTS) Protection", "wlan_mgt.hta.capabilities.",
@@ -9096,7 +9161,7 @@ proto_register_ieee80211 (void)
 
     {&ht_info_primary_channel,
      {"Primary Channel", "wlan_mgt.ht.info.primarychannel",
-      FT_UINT8, BASE_HEX, NULL, 0xff, "Primary Channel", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0xff, "Primary Channel", HFILL }},
 
     {&ht_info_secondary_channel_offset,
      {"Secondary channel offset", "wlan_mgt.ht.info.secchanoffset",
@@ -9177,10 +9242,6 @@ proto_register_ieee80211 (void)
     {&ht_info_reserved_3,
      {"Reserved", "wlan_mgt.ht.info.reserved3",
       FT_UINT16, BASE_HEX, NULL, 0xf000, "Reserved", HFILL }},
-
-    {&ht_basic_mcs_set,
-     {"Modulation Coding Scheme (MCS) Set Bitfield", "wlan_mgt.ht.info.basicmcsset",
-      FT_STRING, BASE_NONE, NULL, 0, "Modulation Coding Scheme (MCS) Set Bitfield", HFILL }},
 
     {&hf_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
@@ -9900,6 +9961,7 @@ proto_register_ieee80211 (void)
     &ett_tag_neighbor_report_sub_tag_tree,
     &ett_ampduparam_tree,
     &ett_mcsset_tree,
+    &ett_mcsbit_tree,
     &ett_htex_cap_tree,
     &ett_txbf_tree,
     &ett_hta_cap_tree,
