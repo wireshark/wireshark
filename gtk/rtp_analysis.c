@@ -2503,6 +2503,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	progdlg_t *progbar;
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
+	size_t nchars;
 
 	forw_fd = eth_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (forw_fd < 0) 
@@ -2528,35 +2529,35 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	{
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
-		*pd = (unsigned char)0x2e; eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x73; eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x6e; eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x64; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x2e; nchars=eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x73; nchars=eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x6e; nchars=eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x64; nchars=eth_write(to_fd, pd, 1);
 		/* header offset == 24 bytes */
-		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x18; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x18; nchars=eth_write(to_fd, pd, 1);
 		/* total length, it is permited to set this to 0xffffffff */
-		*pd = (unsigned char)0xff; eth_write(to_fd, pd, 1); 
+		*pd = (unsigned char)0xff; nchars=eth_write(to_fd, pd, 1); 
 		eth_write(to_fd, pd, 1); 
 		eth_write(to_fd, pd, 1); 
 		eth_write(to_fd, pd, 1);
 		/* encoding format == 8 bit ulaw */
-		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
 		/* sample rate == 8000 Hz */
-		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x1f; eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x40; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x1f; nchars=eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x40; nchars=eth_write(to_fd, pd, 1);
 		/* channels == 1 */
-		*pd = (unsigned char)0x00; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
 		eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; eth_write(to_fd, pd, 1);
+		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
 	
 	
 		switch (channels) {
