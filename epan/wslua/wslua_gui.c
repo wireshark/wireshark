@@ -537,7 +537,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a cap
 	
 	const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
 	const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
-	char* error = NULL;
+	const char* error = NULL;
 
 	if (!ops->open_file) {
 		WSLUA_ERROR(wslua_open_capture_file, "does not work on TShark");
@@ -635,5 +635,6 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* open an file in a
 
 	return 0;
 }
+
 
 
