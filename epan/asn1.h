@@ -40,6 +40,24 @@ typedef struct _asn1_ctx_t {
   proto_item *created_item;
   void *value_ptr;
   void *private_data;
+  struct {
+    tvbuff_t *data_value_descriptor;
+    int hf_index;
+    union {
+      struct {
+        void *dummy;
+      } ber;
+      struct {
+        int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
+        tvbuff_t *direct_reference;
+        gint32 indirect_reference;
+        guint32 encoding;
+        tvbuff_t *single_asn1_type;
+        tvbuff_t *octet_aligned;
+        tvbuff_t *arbitrary;
+      } per;
+    };
+  } external;
 } asn1_ctx_t;
 
 #endif  /* __ASN1_H__ */

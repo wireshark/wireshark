@@ -62,8 +62,17 @@ static int hf_per_open_type_length = -1;
 static int hf_per_octet_string_length = -1;
 static int hf_per_bit_string_length = -1;
 static int hf_per_const_int_len = -1;
+static int hf_per_direct_reference = -1;          /* T_direct_reference */
+static int hf_per_indirect_reference = -1;        /* T_indirect_reference */
+static int hf_per_data_value_descriptor = -1;     /* T_data_value_descriptor */
+static int hf_per_encoding = -1;                  /* External_encoding */
+static int hf_per_single_ASN1_type = -1;          /* T_single_ASN1_type */
+static int hf_per_octet_aligned = -1;             /* T_octet_aligned */
+static int hf_per_arbitrary = -1;                 /* T_arbitrary */
 
 static gint ett_per_sequence_of_item = -1;
+static gint ett_per_External = -1;
+static gint ett_per_External_encoding = -1;
 
 
 /*
@@ -108,6 +117,10 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
   actx->private_data = NULL;
 }
 
+void asn1_ctx_clean_external(asn1_ctx_t *actx) {
+  memset(&actx->external, '\0', sizeof(actx->external));
+  actx->external.hf_index = -1;
+}
 
 #define BYTE_ALIGN_OFFSET(offset)		\
 	if(offset&0x07){			\
@@ -118,7 +131,7 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
 
 /* 10.2 Open type fields --------------------------------------------------- */
 guint32 
-dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type)
+dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
 {
 	guint32 type_length, end_offset;
 
@@ -126,8 +139,8 @@ dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	end_offset = offset + type_length * 8;
 
-	if (type) {
-		type(tvb, offset, actx, tree, hf_index);
+	if (type_cb) {
+		type_cb(tvb, offset, actx, tree, hf_index);
 	} else {
 		actx->created_item = proto_tree_add_text(tree, tvb, offset>>3, BLEN(offset, end_offset), "Unknown Open Type");
 	}
@@ -629,6 +642,14 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	proto_tree_add_string(tree, hf_index, tvb, offset>>3, length*2, str);
 
 	offset+=(length<<3)*2;
+
+	return offset;
+}
+
+guint32 
+dissect_per_object_descriptor(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb)
+{
+	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, -1, -1, value_tvb);
 
 	return offset;
 }
@@ -1707,6 +1728,126 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	return offset;
 }
 
+/* 26 Encoding of a value of the external type */
+
+/* code generated from definition in 26.1 */
+static int
+dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, &actx->external.per.direct_reference);
+
+  return offset;
+}
+
+
+
+static int
+dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &actx->external.per.indirect_reference);
+
+  return offset;
+}
+
+
+
+static int
+dissect_per_T_data_value_descriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_object_descriptor(tvb, offset, actx, tree, hf_index, &actx->external.data_value_descriptor);
+
+  return offset;
+}
+
+
+
+static int
+dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_open_type(tvb, offset, actx, tree, actx->external.hf_index, actx->external.per.type_cb);
+
+  return offset;
+}
+
+
+
+static int
+dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, &actx->external.per.octet_aligned);
+
+  if (actx->external.per.type_cb) {
+    actx->external.per.type_cb(actx->external.per.octet_aligned, 0, actx, tree, actx->external.hf_index);
+    } else {
+        actx->created_item = proto_tree_add_text(tree, actx->external.per.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
+    }
+  return offset;
+}
+
+
+
+static int
+dissect_per_T_arbitrary(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     NO_BOUND, NO_BOUND, FALSE, &actx->external.per.arbitrary);
+
+  if (actx->external.per.type_cb) {
+    actx->external.per.type_cb(actx->external.per.arbitrary, 0, actx, tree, actx->external.hf_index);
+    } else {
+        actx->created_item = proto_tree_add_text(tree, actx->external.per.arbitrary, 0, -1, "Unknown EXTERNAL Type");
+    }
+  return offset;
+}
+
+
+static const value_string per_External_encoding_vals[] = {
+  {   0, "single-ASN1-type" },
+  {   1, "octet-aligned" },
+  {   2, "arbitrary" },
+  { 0, NULL }
+};
+
+static const per_choice_t External_encoding_choice[] = {
+  {   0, &hf_per_single_ASN1_type, ASN1_NO_EXTENSIONS     , dissect_per_T_single_ASN1_type },
+  {   1, &hf_per_octet_aligned   , ASN1_NO_EXTENSIONS     , dissect_per_T_octet_aligned },
+  {   2, &hf_per_arbitrary       , ASN1_NO_EXTENSIONS     , dissect_per_T_arbitrary },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_per_External_encoding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_per_External_encoding, External_encoding_choice,
+                                 &actx->external.per.encoding);
+
+  return offset;
+}
+
+
+static const per_sequence_t External_sequence[] = {
+  { &hf_per_direct_reference, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_per_T_direct_reference },
+  { &hf_per_indirect_reference, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_per_T_indirect_reference },
+  { &hf_per_data_value_descriptor, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_per_T_data_value_descriptor },
+  { &hf_per_encoding        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_per_External_encoding },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_per_External(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_per_External, External_sequence);
+
+  return offset;
+}
+/*--- end of generated code ---*/
+
+
+guint32 
+dissect_per_external_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
+{
+  asn1_ctx_clean_external(actx);
+  actx->external.per.type_cb = type_cb;
+  /*offset = dissect_per_External(tvb, offset, actx, tree, hf_index);*/
+
+  asn1_ctx_clean_external(actx);
+  return offset;
+}
 
 
 void
@@ -1762,10 +1903,40 @@ proto_register_per(void)
 	{ &hf_per_const_int_len,
 		{ "Constrained Integer Length", "per._const_int_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Constrained Integer", HFILL }},
+    { &hf_per_direct_reference,
+      { "direct-reference", "per.direct_reference",
+        FT_OID, BASE_NONE, NULL, 0,
+        "per.T_direct_reference", HFILL }},
+    { &hf_per_indirect_reference,
+      { "indirect-reference", "per.indirect_reference",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "per.T_indirect_reference", HFILL }},
+    { &hf_per_data_value_descriptor,
+      { "data-value-descriptor", "per.data_value_descriptor",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "per.T_data_value_descriptor", HFILL }},
+    { &hf_per_encoding,
+      { "encoding", "per.encoding",
+        FT_UINT32, BASE_DEC, VALS(per_External_encoding_vals), 0,
+        "per.External_encoding", HFILL }},
+    { &hf_per_single_ASN1_type,
+      { "single-ASN1-type", "per.single_ASN1_type",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "per.T_single_ASN1_type", HFILL }},
+    { &hf_per_octet_aligned,
+      { "octet-aligned", "per.octet_aligned",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "per.T_octet_aligned", HFILL }},
+    { &hf_per_arbitrary,
+      { "arbitrary", "per.arbitrary",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "per.T_arbitrary", HFILL }},
 	};
 	static gint *ett[] =
 	{
-		&ett_per_sequence_of_item
+		&ett_per_sequence_of_item,
+		&ett_per_External,
+		&ett_per_External_encoding,
 	};
 	module_t *per_module;
 
