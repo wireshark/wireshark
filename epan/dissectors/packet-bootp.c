@@ -1188,21 +1188,25 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			switch (algorithm) {
 
 			case AUTHEN_DELAYED_ALGO_HMAC_MD5:
-				if (optlen < 31) {
-					proto_item_append_text(vti,
-						" length isn't >= 31");
+				if (!strcmp(*dhcp_type_p, val_to_str(1, opt53_text, ""))) {
+					/* Discover has no Secret ID nor HMAC MD5 Hash */
 					break;
+				} else {
+					if (optlen < 31) {
+						proto_item_append_text(vti,
+							" length isn't >= 31");
+						break;
+					}
+					proto_tree_add_text(v_tree, tvb, optoff, 4,
+						"Secret ID: 0x%08x",
+						tvb_get_ntohl(tvb, optoff));
+					optoff += 4;
+					optleft -= 4;
+					proto_tree_add_text(v_tree, tvb, optoff, 16,
+						"HMAC MD5 Hash: %s",
+						tvb_bytes_to_str(tvb, optoff, 16));
+					break; 
 				}
-				proto_tree_add_text(v_tree, tvb, optoff, 4,
-					"Secret ID: 0x%08x",
-					tvb_get_ntohl(tvb, optoff));
-				optoff += 4;
-				optleft -= 4;
-				proto_tree_add_text(v_tree, tvb, optoff, 16,
-					"HMAC MD5 Hash: %s",
-					tvb_bytes_to_str(tvb, optoff, 16));
-				break;
-
 			default:
 				if (optleft == 0)
 					break;
