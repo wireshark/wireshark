@@ -29,10 +29,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include <epan/prefs.h>
 #include <epan/packet.h>
 #include "packet-sll.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
+#include "packet-ppp.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
@@ -77,15 +79,18 @@ static const value_string packet_type_vals[] = {
  */
 #define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
 #define LINUX_SLL_P_802_2	0x0004	/* 802.2 frames (not D/I/X Ethernet) */
+#define LINUX_SLL_P_PPPHDLC	0x0007	/* PPP HDLC frames */
 
 static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_802_3,	"Raw 802.3" },
 	{ LINUX_SLL_P_802_2,	"802.2 LLC" },
+	{ LINUX_SLL_P_PPPHDLC,	"PPP (HDLC)" },
 	{ 0,			NULL }
 };
 
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t ppphdlc_handle;
 static dissector_handle_t data_handle;
 
 void
@@ -118,6 +123,13 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 			 * header.
 			 */
 			capture_ipx(ld);
+			break;
+
+		case LINUX_SLL_P_PPPHDLC:
+			/*
+			 * PPP HDLC.
+			 */
+			capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld);
 			break;
 
 		default:
@@ -229,6 +241,13 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(ipx_handle, next_tvb, pinfo, tree);
 			break;
 
+		case LINUX_SLL_P_PPPHDLC:
+			/*
+			 * PPP HDLC
+			 */
+			call_dissector(ppphdlc_handle, next_tvb, pinfo, tree);
+			break;
+
 		default:
 			call_dissector(data_handle,next_tvb, pinfo, tree);
 			break;
@@ -278,10 +297,10 @@ proto_register_sll(void)
 
                 { &hf_sll_trailer,
 		{ "Trailer", "sll.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
-			"Trailer", HFILL }},
+			"Trailer", HFILL }}
 	};
 	static gint *ett[] = {
-		&ett_sll,
+		&ett_sll
 	};
 
 	proto_sll = proto_register_protocol("Linux cooked-mode capture",
@@ -300,6 +319,7 @@ proto_reg_handoff_sll(void)
 	 */
 	llc_handle = find_dissector("llc");
 	ipx_handle = find_dissector("ipx");
+	ppphdlc_handle = find_dissector("ppp_hdlc");
 	data_handle = find_dissector("data");
 
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
