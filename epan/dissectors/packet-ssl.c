@@ -306,6 +306,7 @@ ssl_parse(void)
     size_t size;
     gchar *tmp_buf;
     size_t nbytes;
+    gboolean read_failed;
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -329,13 +330,19 @@ ssl_parse(void)
     {
         if (file_exists(ssl_keys_list)) {
             if ((ssl_keys_file = fopen(ssl_keys_list, "r"))) {
+                read_failed = FALSE;
                 fstat(fileno(ssl_keys_file), &statb);
                 size = statb.st_size;
                 tmp_buf = ep_alloc0(size + 1);
                 nbytes = fread(tmp_buf, 1, size, ssl_keys_file);
+                if (ferror(ssl_keys_file)) {
+                    report_read_failure(ssl_keys_list, errno);
+                    read_failed = TRUE;
+                }
                 fclose(ssl_keys_file);
                 tmp_buf[nbytes] = '\0';
-                ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
+                if (!read_failed)
+                    ssl_parse_key_list(tmp_buf,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
             } else {
                 report_open_failure(ssl_keys_list, errno, FALSE);
             }
