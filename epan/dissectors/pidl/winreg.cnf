@@ -95,6 +95,15 @@ PARAM_VALUE winreg_dissect_element_OpenKey_handle_ PIDL_POLHND_OPEN
 PARAM_VALUE winreg_dissect_element_CloseKey_handle_ PIDL_POLHND_CLOSE
 
 
+# winreg_String
+#
+# Create a new type to handle winreg_String so that we can get nice and
+# pretty dissection of the strings contained within winreg
+TYPE winreg_String "offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4 
+#
+#
+#
+PARAM_VALUE winreg_dissect_element_OpenKey_keyname		2
 
 #
 # Override the generation of dissectors of the security descriptor and the
@@ -181,6 +190,49 @@ winreg_dissect_struct_initshutdown_String(tvbuff_t *tvb, int offset, packet_info
 {
         #include "packet-dcerpc-initshutdown.h"
 	return initshutdown_dissect_struct_String(tvb, offset, pinfo, parent_tree, drep, hf_index, param);
+}
+
+
+
+
+/* winreg_String :
+ *	typedef [public,noejs] struct {
+ *		[value(strlen_m_term(name)*2)] uint16 name_len;
+ *		[value(strlen_m_term(name)*2)] uint16 name_size;
+ *		[string,charset(UTF16)] uint16 *name;
+ *	} winreg_String;
+ */
+static int
+cnf_dissect_winreg_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	header_field_info *hf_info;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+	hf_info=proto_registrar_get_nth(hfindex);
+
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
+		tree = proto_item_add_subtree(item, ett_winreg_winreg_String);
+	}
+	
+	offset = winreg_dissect_element_String_name_len(tvb, offset, pinfo, tree, drep);
+
+	offset = winreg_dissect_element_String_name_size(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
 }
 
 CODE END
