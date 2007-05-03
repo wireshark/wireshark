@@ -11,7 +11,7 @@ ISO8571-FTAM {iso(1) standard(0) 8571 application-context(1) iso-ftam(1)} DEFINI
 BEGIN
 
 IMPORTS
-  EXTERNAL
+  EXTERNALt
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
 PDU ::= CHOICE {
@@ -760,7 +760,7 @@ FADU-Identity ::= [APPLICATION 15]  CHOICE {
 }
 
 -- As defined in ISO 8571-2.
-Node-Name ::= EXTERNAL
+Node-Name ::= EXTERNALt
 
 -- The type to be used for Node-Name is defined in IS08571-FADU.
 --
@@ -987,7 +987,7 @@ Private-Use-Attribute ::= CHOICE {
   -- This value shall only appear in response PDUs.
   abstract-Syntax-not-supported  [1] IMPLICIT NULL,
   -- Indicates that abstract Syntax is not available.
-  actual-values                  [2] IMPLICIT EXTERNAL
+  actual-values                  [2] IMPLICIT EXTERNALt
 }
 
 Object-Type-Attribute ::= INTEGER {file(0), file-directory(1), reference(2)}
@@ -1594,7 +1594,7 @@ AE-title ::= SEQUENCE {ap  AP-title,
 -- XXX Bug in asn2wrs that can not handle tagged assignements
 -- XXX woraround implemented in teh conformance file
 --
-Shared-ASE-Information ::= [APPLICATION 20] IMPLICIT EXTERNAL
+Shared-ASE-Information ::= [APPLICATION 20] IMPLICIT EXTERNALt
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements

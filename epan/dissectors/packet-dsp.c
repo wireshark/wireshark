@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-dsp.c                                                             */
+/* .\packet-dsp.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p dsp -c dsp.cnf -s packet-dsp-template dsp.asn */
 
 /* Input file: packet-dsp-template.c */
@@ -202,7 +202,7 @@ static int hf_dsp_basicLevels = -1;               /* T_basicLevels */
 static int hf_dsp_level = -1;                     /* T_level */
 static int hf_dsp_localQualifier = -1;            /* INTEGER */
 static int hf_dsp_signed = -1;                    /* BOOLEAN */
-static int hf_dsp_other = -1;                     /* EXTERNAL */
+static int hf_dsp_other = -1;                     /* EXTERNALt */
 
 /*--- End of included file: packet-dsp-hf.c ---*/
 #line 67 "packet-dsp-template.c"
@@ -388,7 +388,7 @@ static int dissect_Exclusions_item(packet_info *pinfo _U_, proto_tree *tree _U_,
   return dissect_x509if_RDNSequence(FALSE, tvb, offset, pinfo, tree, hf_dsp_Exclusions_item);
 }
 static int dissect_other(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_dsp_other);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_dsp_other);
 }
 
 
@@ -2829,7 +2829,7 @@ void proto_register_dsp(void) {
     { &hf_dsp_other,
       { "other", "dsp.other",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
 
 /*--- End of included file: packet-dsp-hfarr.c ---*/
 #line 279 "packet-dsp-template.c"

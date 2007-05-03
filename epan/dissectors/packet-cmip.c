@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-cmip.c                                                            */
+/* .\packet-cmip.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p cmip -c cmip.cnf -s packet-cmip-template CMIP.asn */
 
 /* Input file: packet-cmip-template.c */
@@ -199,10 +199,10 @@ static int hf_cmip_returnResult = -1;             /* ReturnResult */
 static int hf_cmip_returnError = -1;              /* ReturnError */
 static int hf_cmip_reject = -1;                   /* Reject */
 static int hf_cmip_abortSource = -1;              /* CMIPAbortSource */
-static int hf_cmip_userInfo = -1;                 /* EXTERNAL */
+static int hf_cmip_userInfo = -1;                 /* EXTERNALt */
 static int hf_cmip_protocolVersion = -1;          /* ProtocolVersion */
 static int hf_cmip_functionalUnits = -1;          /* FunctionalUnits */
-static int hf_cmip_accessControl1 = -1;           /* EXTERNAL */
+static int hf_cmip_accessControl1 = -1;           /* EXTERNALt */
 /* named bits */
 static int hf_cmip_FunctionalUnits_multipleObjectSelection = -1;
 static int hf_cmip_FunctionalUnits_filter = -1;
@@ -342,10 +342,10 @@ static int dissect_not(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *t
 /*--- Fields for imported types ---*/
 
 static int dissect_userInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_cmip_userInfo);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_cmip_userInfo);
 }
 static int dissect_accessControl1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_cmip_accessControl1);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_cmip_accessControl1);
 }
 
 
@@ -1434,7 +1434,7 @@ static int dissect_setResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, 
 
 static int
 dissect_cmip_AccessControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_acse_EXTERNAL(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_acse_EXTERNALt(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -3500,7 +3500,7 @@ void proto_register_cmip(void) {
     { &hf_cmip_userInfo,
       { "userInfo", "cmip.userInfo",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_cmip_protocolVersion,
       { "protocolVersion", "cmip.protocolVersion",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -3512,7 +3512,7 @@ void proto_register_cmip(void) {
     { &hf_cmip_accessControl1,
       { "accessControl", "cmip.accessControl",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_cmip_FunctionalUnits_multipleObjectSelection,
       { "multipleObjectSelection", "cmip.multipleObjectSelection",
         FT_BOOLEAN, 8, NULL, 0x80,

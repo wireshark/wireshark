@@ -76,7 +76,7 @@ IMPORTS
     --==
     FROM AuthenticationFramework {joint-iso-itu-t ds(5) module(1)
       authenticationFramework(7) 3} 
-  EXTERNAL
+  EXTERNALt
     --==
     FROM ACSE-1;
 
@@ -2919,7 +2919,7 @@ EncryptionKey ::= BIT STRING
 --  IDENTIFIED BY  4
 --}
 
-BindTokenEncryptedData ::= EXTERNAL
+BindTokenEncryptedData ::= EXTERNALt
 
 --	Security Label
 SecurityLabel ::= SET {

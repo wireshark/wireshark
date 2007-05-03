@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x509ce.c                                                          */
+/* .\packet-x509ce.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
@@ -459,7 +459,7 @@ static int dissect_subjectPublicKeyAlgID_impl(packet_info *pinfo _U_, proto_tree
 static int dissect_otherNameForm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_otherNameForm);
 }
-static int dissect_templateID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_templateID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateID);
 }
 
@@ -880,10 +880,10 @@ static int dissect_endingNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U
 static int dissect_modulus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_modulus);
 }
-static int dissect_templateMajorVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_templateMajorVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateMajorVersion);
 }
-static int dissect_templateMinorVersion(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_templateMinorVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509ce_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509ce_templateMinorVersion);
 }
 
@@ -1608,7 +1608,7 @@ static const ber_sequence_t CertificateTemplate_sequence[] = {
 };
 
 static int
-dissect_x509ce_CertificateTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+dissect_x509ce_CertificateTemplate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                    CertificateTemplate_sequence, hf_index, ett_x509ce_CertificateTemplate);
 
@@ -1689,7 +1689,7 @@ static void dissect_IssuingDistPointSyntax_PDU(tvbuff_t *tvb _U_, packet_info *p
 static void dissect_BaseCRLNumber_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   dissect_x509ce_BaseCRLNumber(FALSE, tvb, 0, pinfo, tree, hf_x509ce_BaseCRLNumber_PDU);
 }
-static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static void dissect_CertificateTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   dissect_x509ce_CertificateTemplate(FALSE, tvb, 0, pinfo, tree, hf_x509ce_CertificateTemplate_PDU);
 }
 

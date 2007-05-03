@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ocsp.c                                                            */
+/* .\packet-ocsp.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn */
 
 /* Input file: packet-ocsp-template.c */

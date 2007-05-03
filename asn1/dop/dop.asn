@@ -45,7 +45,7 @@ IMPORTS
   Filter
     FROM DirectoryAbstractService {joint-iso-itu-t ds(5) module(1)
       directoryAbstractService(2) 4}
-  EXTERNAL 
+  EXTERNALt 
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
 -- data types 
@@ -792,7 +792,7 @@ AuthenticationLevel ::= CHOICE {
     SEQUENCE {level           ENUMERATED {none(0), simple(1), strong(2)},
               localQualifier  INTEGER OPTIONAL,
               signed          BOOLEAN DEFAULT FALSE},
-  other        EXTERNAL
+  other        EXTERNALt
 }
 
 GrantsAndDenials ::= BIT STRING {

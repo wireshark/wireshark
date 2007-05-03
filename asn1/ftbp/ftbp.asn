@@ -14,7 +14,7 @@ IMPORTS
     --==
     FROM ISO8571-FTAM {iso standard 8571 application-context(1) iso-ftam(1)}
   -- ACSE definitions of AP-title and AE-qualifier
-  EXTERNAL, 
+  EXTERNALt, 
   AE-qualifier, AP-title
     --==
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0)
@@ -57,7 +57,7 @@ FileTransferParameters ::= SEQUENCE {
   extensions           [5]  ExtensionsField OPTIONAL
 }
 
-FileTransferData ::= SEQUENCE OF EXTERNAL
+FileTransferData ::= SEQUENCE OF EXTERNALt
 
 -- This conveys a sequence of data values representing file contents;
 -- The rules for generating this sequence are implied by the value of the contents-type parameter.

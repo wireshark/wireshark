@@ -22,7 +22,7 @@ IMPORTS
 -- to handle the lack of support for tagged assignments.
 -- remove that workaround once asn2wrs learns how to handle
 -- tagged assignments.
-EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
+EXTERNALt  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
      {
       direct-reference  OBJECT IDENTIFIER OPTIONAL,
       indirect-reference  INTEGER OPTIONAL,
@@ -367,7 +367,7 @@ Associate-source-diagnostic ::= CHOICE {
 
 User-information ::= Association-data
 
-Association-data ::= SEQUENCE OF EXTERNAL
+Association-data ::= SEQUENCE OF EXTERNALt
 
 Simply-encoded-data ::= OCTET STRING
 
@@ -405,7 +405,7 @@ Authentication-value-other ::= SEQUENCE {
 Authentication-value ::= CHOICE {
   charstring  [0] IMPLICIT GraphicString,
   bitstring   [1] IMPLICIT BIT STRING,
-  external    [2] IMPLICIT EXTERNAL,
+  external    [2] IMPLICIT EXTERNALt,
   other
     [3] IMPLICIT Authentication-value-other
 }

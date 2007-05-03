@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pres.c                                                            */
+/* .\packet-pres.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p pres -c pres.cnf -s packet-pres-template ISO8823-PRESENTATION.asn */
 
 /* Input file: packet-pres-template.c */

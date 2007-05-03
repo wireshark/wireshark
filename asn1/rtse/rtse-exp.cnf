@@ -1,6 +1,6 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# ./rtse-exp.cnf
+# .\rtse-exp.cnf
 # ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn
 
 #.MODULE
@@ -12,7 +12,7 @@ RTORQapdu                BER_CLASS_UNI BER_UNI_TAG_SET
 RTOACapdu                BER_CLASS_UNI BER_UNI_TAG_SET
 RTORJapdu                BER_CLASS_UNI BER_UNI_TAG_SET
 RTABapdu                 BER_CLASS_UNI BER_UNI_TAG_SET
-EXTERNAL                 BER_CLASS_UNI 8
+EXTERNALt                BER_CLASS_UNI 8
 #.END
 
 #.TYPE_ATTR
@@ -20,6 +20,6 @@ RTORQapdu                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 RTOACapdu                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RTORJapdu                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 RTABapdu                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-EXTERNAL                 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
+EXTERNALt                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 #.END
 

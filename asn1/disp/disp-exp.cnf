@@ -1,6 +1,6 @@
 # Do not modify this file.
 # It is created automatically by the ASN.1 to Wireshark dissector compiler
-# ./disp-exp.cnf
+# .\disp-exp.cnf
 # ../../tools/asn2wrs.py -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn
 
 #.MODULE

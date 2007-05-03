@@ -3,7 +3,7 @@ RTORQapdu
 RTOACapdu
 RTORJapdu
 RTABapdu
-EXTERNAL
+EXTERNALt
 
 #.FN_BODY RTORJapdu/userDataRJ
 	char *oid = NULL;
@@ -89,11 +89,11 @@ EXTERNAL
 		if(session)
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-		offset = dissect_rtse_EXTERNAL(FALSE, next_tvb, 0, pinfo, tree, -1);
+		offset = dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, pinfo, tree, -1);
 
 	}
 
-#.FN_BODY EXTERNAL
+#.FN_BODY EXTERNALt
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
@@ -109,9 +109,9 @@ EXTERNAL
    }
 
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
-                                EXTERNAL_sequence, hf_index, ett_rtse_EXTERNAL);
+                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
-#.FN_BODY EXTERNAL/indirect-reference
+#.FN_BODY EXTERNALt/indirect-reference
   char *oid;
 
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
@@ -124,7 +124,7 @@ EXTERNAL
   }
 	
 
-#.FN_BODY EXTERNAL/encoding/single-ASN1-type
+#.FN_BODY EXTERNALt/encoding/single-ASN1-type
   offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
 
 

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-gnm.c                                                             */
+/* .\packet-gnm.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p gnm -c gnm.cnf -s packet-gnm-template GNM.asn */
 
 /* Input file: packet-gnm-template.c */
@@ -2009,6 +2009,13 @@ dissect_gnm_ConnectInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   return offset;
 }
 
+
+static const value_string gnm_ConnectorType_vals[] = {
+  {   1, "fcConnectorType" },
+  {   2, "lcConnectorType" },
+  {   3, "scConnectorType" },
+  { 0, NULL }
+};
 
 
 static int

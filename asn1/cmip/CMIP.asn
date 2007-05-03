@@ -7,7 +7,7 @@ BEGIN
 
 	IMPORTS
 
-  EXTERNAL
+  EXTERNALt
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) acse1(1) version1(1)};
 
 
@@ -370,7 +370,7 @@ Scope ::= CHOICE {
 CMISSync ::= ENUMERATED {bestEffort(0), atomic(1)}
 
 -- Supporting type definitions
-AccessControl ::= EXTERNAL
+AccessControl ::= EXTERNALt
 
 
 GetArgument ::= SEQUENCE {
@@ -496,7 +496,7 @@ ROS ::= CHOICE {
 --      Information carried in user-information parameter of A-ABORT
 CMIPAbortInfo ::= SEQUENCE {
   abortSource  [0] IMPLICIT CMIPAbortSource,
-  userInfo     [1]  EXTERNAL OPTIONAL
+  userInfo     [1]  EXTERNALt OPTIONAL
 }
 
 CMIPAbortSource ::= ENUMERATED {cmiseServiceUser(0), cmiseServiceProvider(1)}
@@ -514,8 +514,8 @@ FunctionalUnits ::= BIT STRING {
 CMIPUserInfo ::= SEQUENCE {
   protocolVersion  [0] IMPLICIT ProtocolVersion OPTIONAL,
   functionalUnits  [1] IMPLICIT FunctionalUnits OPTIONAL,
-  accessControl    [2]  EXTERNAL OPTIONAL,
-  userInfo         [3]  EXTERNAL OPTIONAL
+  accessControl    [2]  EXTERNALt OPTIONAL,
+  userInfo         [3]  EXTERNALt OPTIONAL
 }
 
 ProtocolVersion ::= BIT STRING {version1(0), version2(1)}

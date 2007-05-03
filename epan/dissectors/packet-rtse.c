@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-rtse.c                                                            */
+/* .\packet-rtse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
 
 /* Input file: packet-rtse-template.c */
@@ -120,7 +120,7 @@ static gint ett_rtse_RTABapdu = -1;
 static gint ett_rtse_ConnectionData = -1;
 static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
-static gint ett_rtse_EXTERNAL = -1;
+static gint ett_rtse_EXTERNALt = -1;
 static gint ett_rtse_T_encoding = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
@@ -603,7 +603,7 @@ dissect_rtse_RTTRapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		if(session)
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-		offset = dissect_rtse_EXTERNAL(FALSE, next_tvb, 0, pinfo, tree, -1);
+		offset = dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, pinfo, tree, -1);
 
 	}
 
@@ -816,7 +816,7 @@ static int dissect_encoding(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t EXTERNAL_sequence[] = {
+static const ber_sequence_t EXTERNALt_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
@@ -825,7 +825,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
 };
 
 int
-dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_rtse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 97 "rtse.cnf"
   gint8 class;
   gboolean pc, ind_field;
@@ -842,7 +842,7 @@ dissect_rtse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
    }
 
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
-                                EXTERNAL_sequence, hf_index, ett_rtse_EXTERNAL);
+                                EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
 
 
@@ -1055,7 +1055,7 @@ void proto_register_rtse(void) {
     &ett_rtse_ConnectionData,
     &ett_rtse_SessionConnectionIdentifier,
     &ett_rtse_CallingSSuserReference,
-    &ett_rtse_EXTERNAL,
+    &ett_rtse_EXTERNALt,
     &ett_rtse_T_encoding,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/

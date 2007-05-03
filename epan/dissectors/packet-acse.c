@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-acse.c                                                            */
+/* .\packet-acse.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p acse -c acse.cnf -s packet-acse-template acse.asn */
 
 /* Input file: packet-acse-template.c */
@@ -160,7 +160,7 @@ static int hf_acse_concrete_syntax_name = -1;     /* Concrete_syntax_name */
 static int hf_acse_provider_reason = -1;          /* T_provider_reason */
 static int hf_acse_acse_service_user = -1;        /* T_acse_service_user */
 static int hf_acse_acse_service_provider = -1;    /* T_acse_service_provider */
-static int hf_acse_Association_data_item = -1;    /* EXTERNAL */
+static int hf_acse_Association_data_item = -1;    /* EXTERNALt */
 static int hf_acse_simply_encoded_data = -1;      /* Simply_encoded_data */
 static int hf_acse_fully_encoded_data = -1;       /* PDV_list */
 static int hf_acse_presentation_context_identifier = -1;  /* Presentation_context_identifier */
@@ -170,7 +170,7 @@ static int hf_acse_other_mechanism_name = -1;     /* T_other_mechanism_name */
 static int hf_acse_other_mechanism_value = -1;    /* T_other_mechanism_value */
 static int hf_acse_charstring = -1;               /* GraphicString */
 static int hf_acse_bitstring = -1;                /* BIT_STRING */
-static int hf_acse_external = -1;                 /* EXTERNAL */
+static int hf_acse_external = -1;                 /* EXTERNALt */
 static int hf_acse_other = -1;                    /* Authentication_value_other */
 /* named bits */
 static int hf_acse_T_AARQ_protocol_version_version1 = -1;
@@ -188,7 +188,7 @@ static gint ett_acse = -1;
 
 /*--- Included file: packet-acse-ett.c ---*/
 #line 1 "packet-acse-ett.c"
-static gint ett_acse_EXTERNAL = -1;
+static gint ett_acse_EXTERNALt = -1;
 static gint ett_acse_T_encoding = -1;
 static gint ett_acse_ACSE_apdu = -1;
 static gint ett_acse_AARQ_apdu = -1;
@@ -432,7 +432,7 @@ static int dissect_encoding(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff
 }
 
 
-static const ber_sequence_t EXTERNAL_sequence[] = {
+static const ber_sequence_t EXTERNALt_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
   { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
@@ -441,7 +441,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
 };
 
 int
-dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_acse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 41 "acse.cnf"
   gint8 class;
   gboolean pc, ind_field;
@@ -457,17 +457,17 @@ dissect_acse_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
    }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
-                                EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
+                                EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
 
 
 
   return offset;
 }
 static int dissect_Association_data_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_acse_Association_data_item);
 }
 static int dissect_external_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_acse_external);
+  return dissect_acse_EXTERNALt(TRUE, tvb, offset, pinfo, tree, hf_acse_external);
 }
 
 
@@ -2357,7 +2357,7 @@ void proto_register_acse(void) {
     { &hf_acse_Association_data_item,
       { "Item", "acse.Association_data_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_acse_simply_encoded_data,
       { "simply-encoded-data", "acse.simply_encoded_data",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -2397,7 +2397,7 @@ void proto_register_acse(void) {
     { &hf_acse_external,
       { "external", "acse.external",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_acse_other,
       { "other", "acse.other",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2437,7 +2437,7 @@ void proto_register_acse(void) {
 
 /*--- Included file: packet-acse-ettarr.c ---*/
 #line 1 "packet-acse-ettarr.c"
-    &ett_acse_EXTERNAL,
+    &ett_acse_EXTERNALt,
     &ett_acse_T_encoding,
     &ett_acse_ACSE_apdu,
     &ett_acse_AARQ_apdu,

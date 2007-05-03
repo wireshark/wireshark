@@ -610,7 +610,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
-  offset = dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_acse_EXTERNALt(TRUE, tvb, offset, pinfo, tree, hf_index);
 
 #.FN_BODY Attribute-Value-Assertions
  gint8 class;

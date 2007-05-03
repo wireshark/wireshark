@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ftbp.c                                                            */
+/* .\packet-ftbp.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ftbp -c ftbp.cnf -s packet-ftbp-template ftbp.asn */
 
 /* Input file: packet-ftbp-template.c */
@@ -69,7 +69,7 @@ static int hf_ftbp_environment = -1;              /* EnvironmentParameter */
 static int hf_ftbp_compression = -1;              /* CompressionParameter */
 static int hf_ftbp_file_attributes = -1;          /* FileAttributes */
 static int hf_ftbp_extensions = -1;               /* ExtensionsField */
-static int hf_ftbp_FileTransferData_item = -1;    /* EXTERNAL */
+static int hf_ftbp_FileTransferData_item = -1;    /* EXTERNALt */
 static int hf_ftbp_RelatedStoredFile_item = -1;   /* RelatedStoredFile_item */
 static int hf_ftbp_file_identifier = -1;          /* FileIdentifier */
 static int hf_ftbp_relationship = -1;             /* Relationship */
@@ -204,7 +204,7 @@ static int dissect_extensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_,
   return dissect_x420_ExtensionsField(TRUE, tvb, offset, pinfo, tree, hf_ftbp_extensions);
 }
 static int dissect_FileTransferData_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_ftbp_FileTransferData_item);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_ftbp_FileTransferData_item);
 }
 static int dissect_user_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x411_ORName(TRUE, tvb, offset, pinfo, tree, hf_ftbp_user);
@@ -1190,7 +1190,7 @@ void proto_register_ftbp(void) {
     { &hf_ftbp_FileTransferData_item,
       { "Item", "ftbp.FileTransferData_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_ftbp_RelatedStoredFile_item,
       { "Item", "ftbp.RelatedStoredFile_item",
         FT_NONE, BASE_NONE, NULL, 0,

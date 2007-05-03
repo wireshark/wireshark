@@ -94,7 +94,7 @@ IMPORTS
     --==
 --    FROM IPMSObjectIdentifiers {joint-iso-itu-t mhs(6) ipms(1) modules(0)
 --      object-identifiers(0) version-1999(1)} ; --
-    EXTERNAL 
+    EXTERNALt 
     FROM ACSE-1
   CertificateAssertion
     --==
@@ -294,8 +294,8 @@ BodyPart ::= CHOICE {
 
 -- Extended body part
 ExtendedBodyPart --{EXTENDED-BODY-PART-TYPE:IPMBodyPartTable}-- ::= SEQUENCE {
-  parameters  [0]  EXTERNAL, --INSTANCE OF TYPE-IDENTIFIER OPTIONAL,
-  data        EXTERNAL -- INSTANCE OF TYPE-IDENTIFIER
+  parameters  [0]  EXTERNALt, --INSTANCE OF TYPE-IDENTIFIER OPTIONAL,
+  data        EXTERNALt -- INSTANCE OF TYPE-IDENTIFIER
 }
 --(CONSTRAINED BY { - - must correspond to the &parameters field and &data field of a member of --
 --   IPMBodyPartTable})

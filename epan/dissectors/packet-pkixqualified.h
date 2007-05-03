@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkixqualified.h                                                   */
+/* .\packet-pkixqualified.h                                                   */
 /* ../../tools/asn2wrs.py -b -e -p pkixqualified -c pkixqualified.cnf -s packet-pkixqualified-template PKIXqualified.asn */
 
 /* Input file: packet-pkixqualified-template.h */

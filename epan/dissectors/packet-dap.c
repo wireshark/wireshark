@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-dap.c                                                             */
+/* .\packet-dap.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p dap -c dap.cnf -s packet-dap-template dap.asn */
 
 /* Input file: packet-dap-template.c */
@@ -181,7 +181,7 @@ static int hf_dap_credentials = -1;               /* Credentials */
 static int hf_dap_versions = -1;                  /* Versions */
 static int hf_dap_simple = -1;                    /* SimpleCredentials */
 static int hf_dap_strong = -1;                    /* StrongCredentials */
-static int hf_dap_externalProcedure = -1;         /* EXTERNAL */
+static int hf_dap_externalProcedure = -1;         /* EXTERNALt */
 static int hf_dap_spkm = -1;                      /* SpkmCredentials */
 static int hf_dap_validity = -1;                  /* T_validity */
 static int hf_dap_time1 = -1;                     /* T_time1 */
@@ -751,7 +751,7 @@ static int dissect_errorCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuf
   return dissect_ros_Code(FALSE, tvb, offset, pinfo, tree, hf_dap_errorCode);
 }
 static int dissect_externalProcedure(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_dap_externalProcedure);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_dap_externalProcedure);
 }
 static int dissect_algorithmIdentifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_dap_algorithmIdentifier);
@@ -6076,7 +6076,7 @@ void proto_register_dap(void) {
     { &hf_dap_externalProcedure,
       { "externalProcedure", "dap.externalProcedure",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_dap_spkm,
       { "spkm", "dap.spkm",
         FT_UINT32, BASE_DEC, VALS(dap_SpkmCredentials_vals), 0,

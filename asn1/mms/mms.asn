@@ -17,7 +17,7 @@ BEGIN
 EXPORTS MMSpdu;
 
 IMPORTS
-        EXTERNAL,
+        EXTERNALt,
 	AP-title,
 	AP-invocation-identifier,
 	AE-qualifier,
@@ -836,7 +836,7 @@ DownloadSegment-Response ::= SEQUENCE
 	{
 	loadData	CHOICE {
 	   non-coded		[0] IMPLICIT OCTET STRING,
-	   coded		EXTERNAL
+	   coded		EXTERNALt
 	   },
 	moreFollows	[1] IMPLICIT BOOLEAN DEFAULT TRUE
 	}
@@ -869,7 +869,7 @@ UploadSegment-Response ::= SEQUENCE
 	{
 	loadData	CHOICE {
 	   non-coded		[0] IMPLICIT OCTET STRING,
-	   coded		EXTERNAL
+	   coded		EXTERNALt
 	   },
 	moreFollows	[1] IMPLICIT BOOLEAN DEFAULT TRUE
 	}
@@ -995,7 +995,7 @@ Start-Request ::= SEQUENCE
 	programInvocationName 	[0] IMPLICIT Identifier,
 	executionArgument	CHOICE {
 	    simpleString	  [1] IMPLICIT VisibleString,
-	    encodedString	  EXTERNAL
+	    encodedString	  EXTERNALt
 	    } OPTIONAL
 	}
 
@@ -1021,7 +1021,7 @@ Resume-Request ::= SEQUENCE
 	programInvocationName 	[0] IMPLICIT Identifier,
 	executionArgument	CHOICE {
 	    simpleString	  [1] IMPLICIT VisibleString,
-	    encodedString	  EXTERNAL
+	    encodedString	  EXTERNALt
 	    } OPTIONAL
 	}
 
@@ -1063,7 +1063,7 @@ GetProgramInvocationAttributes-Response ::= SEQUENCE
 	startArgument		[5] IMPLICIT VisibleString,
 	executionArgument	CHOICE {
 	    simpleString	  [1] IMPLICIT VisibleString,
-	    encodedString	  EXTERNAL
+	    encodedString	  EXTERNALt
 	    } OPTIONAL
 	}
 

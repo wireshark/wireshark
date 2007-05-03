@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ftam.c                                                            */
+/* .\packet-ftam.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p ftam -c ftam.cnf -s packet-ftam-template ISO8571-FTAM.asn */
 
 /* Input file: packet-ftam-template.c */
@@ -277,7 +277,7 @@ static int hf_ftam_complete_pathname = -1;        /* Pathname */
 static int hf_ftam_actual_values7 = -1;           /* INTEGER */
 static int hf_ftam_actual_values9 = -1;           /* GraphicString */
 static int hf_ftam_abstract_Syntax_not_supported = -1;  /* NULL */
-static int hf_ftam_actual_values4 = -1;           /* EXTERNAL */
+static int hf_ftam_actual_values4 = -1;           /* EXTERNALt */
 static int hf_ftam_actual_values6 = -1;           /* User_Identity */
 static int hf_ftam_Child_Objects_Attribute_item = -1;  /* GraphicString */
 static int hf_ftam_f_Change_prefix_request = -1;  /* F_CHANGE_PREFIX_request */
@@ -668,7 +668,7 @@ static gint ett_ftam_Attribute_Value_Assertions = -1;
 /*--- Fields for imported types ---*/
 
 static int dissect_actual_values4_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_ftam_actual_values4);
+  return dissect_acse_EXTERNALt(TRUE, tvb, offset, pinfo, tree, hf_ftam_actual_values4);
 }
 
 
@@ -887,7 +887,7 @@ static int dissect_attribute_groups(packet_info *pinfo _U_, proto_tree *tree _U_
 
 static int
 dissect_ftam_Shared_ASE_Information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_acse_EXTERNAL(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_acse_EXTERNALt(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -3819,7 +3819,7 @@ static int dissect_begin_end_impl(packet_info *pinfo _U_, proto_tree *tree _U_, 
 
 static int
 dissect_ftam_Node_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_acse_EXTERNAL(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_acse_EXTERNALt(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
@@ -6972,7 +6972,7 @@ void proto_register_ftam(void) {
     { &hf_ftam_actual_values4,
       { "actual-values", "ftam.actual_values",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_ftam_actual_values6,
       { "actual-values", "ftam.actual_values",
         FT_STRING, BASE_NONE, NULL, 0,

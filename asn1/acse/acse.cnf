@@ -6,7 +6,7 @@
 #.INCLUDE ../x509if/x509if-exp.cnf
 
 #.EXPORTS
-EXTERNAL
+EXTERNALt
 AP-title
 AP-invocation-identifier
 AE-qualifier
@@ -37,7 +37,7 @@ AARQ-apdu/aSO-context-name	aARQ_aSO_context_name
 AARE-apdu/aSO-context-name	aARE_aSO_context_name
 ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
 
-#.FN_BODY EXTERNAL
+#.FN_BODY EXTERNALt
   gint8 class;
   gboolean pc, ind_field;
   gint32 tag;
@@ -52,7 +52,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
    }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
-                                EXTERNAL_sequence, hf_index, ett_acse_EXTERNAL);
+                                EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
 
 #.FN_PARS Authentication-value-other/other-mechanism-name  
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
@@ -79,7 +79,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
-#.FN_BODY EXTERNAL/indirect-reference
+#.FN_BODY EXTERNALt/indirect-reference
   char *oid;
   offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
                 hf_acse_indirect_reference,
@@ -93,10 +93,10 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   if(session)
 	session->pres_ctx_id = indir_ref;
 
-#.FN_PARS EXTERNAL/direct-reference
+#.FN_PARS EXTERNALt/direct-reference
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
-#.FN_BODY EXTERNAL/encoding/single-ASN1-type
+#.FN_BODY EXTERNALt/encoding/single-ASN1-type
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
 
 #.FN_PARS Release-request-reason

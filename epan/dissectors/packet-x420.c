@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-x420.c                                                            */
+/* .\packet-x420.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p x420 -c x420.cnf -s packet-x420-template x420.asn */
 
 /* Input file: packet-x420-template.c */
@@ -188,8 +188,8 @@ static int hf_x420_mixed_mode = -1;               /* MixedModeBodyPart */
 static int hf_x420_bilaterally_defined = -1;      /* BilaterallyDefinedBodyPart */
 static int hf_x420_nationally_defined = -1;       /* NationallyDefinedBodyPart */
 static int hf_x420_extended = -1;                 /* ExtendedBodyPart */
-static int hf_x420_extended_parameters = -1;      /* EXTERNAL */
-static int hf_x420_extended_data = -1;            /* EXTERNAL */
+static int hf_x420_extended_parameters = -1;      /* EXTERNALt */
+static int hf_x420_extended_data = -1;            /* EXTERNALt */
 static int hf_x420_ia5text_parameters = -1;       /* IA5TextParameters */
 static int hf_x420_ia5text_data = -1;             /* IA5TextData */
 static int hf_x420_repertoire = -1;               /* Repertoire */
@@ -400,10 +400,10 @@ static int dissect_formal_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvb
   return dissect_x411_ORName(FALSE, tvb, offset, pinfo, tree, hf_x420_formal_name);
 }
 static int dissect_extended_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(TRUE, tvb, offset, pinfo, tree, hf_x420_extended_parameters);
+  return dissect_acse_EXTERNALt(TRUE, tvb, offset, pinfo, tree, hf_x420_extended_parameters);
 }
 static int dissect_extended_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_x420_extended_data);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_x420_extended_data);
 }
 static int dissect_g3facsimile_non_basic_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x411_G3FacsimileNonBasicParameters(TRUE, tvb, offset, pinfo, tree, hf_x420_g3facsimile_non_basic_parameters);
@@ -3325,11 +3325,11 @@ void proto_register_x420(void) {
     { &hf_x420_extended_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_x420_extended_data,
       { "data", "x420.data",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_x420_ia5text_parameters,
       { "parameters", "x420.parameters",
         FT_NONE, BASE_NONE, NULL, 0,

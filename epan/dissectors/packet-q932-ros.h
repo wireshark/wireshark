@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-q932-ros.h                                                        */
-/* ../../tools/asn2wrs.py -b -T -e -p q932.ros -c q932-ros.cnf -o q932-ros -s packet-q932-ros-template q932-ros.asn */
+/* .\packet-q932-ros.h                                                        */
+/* ../../tools/asn2wrs.py -b -T -p q932.ros -c q932-ros.cnf -o q932-ros -s packet-q932-ros-template q932-ros.asn */
 
 /* Input file: packet-q932-ros-template.h */
 

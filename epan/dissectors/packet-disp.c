@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-disp.c                                                            */
+/* .\packet-disp.c                                                            */
 /* ../../tools/asn2wrs.py -b -e -p disp -c disp.cnf -s packet-disp-template disp.asn */
 
 /* Input file: packet-disp-template.c */
@@ -122,7 +122,7 @@ static int hf_disp_agreementID = -1;              /* AgreementID */
 static int hf_disp_lastUpdate = -1;               /* Time */
 static int hf_disp_updateStrategy = -1;           /* T_updateStrategy */
 static int hf_disp_standardUpdate = -1;           /* StandardUpdate */
-static int hf_disp_other = -1;                    /* EXTERNAL */
+static int hf_disp_other = -1;                    /* EXTERNALt */
 static int hf_disp_securityParameters = -1;       /* SecurityParameters */
 static int hf_disp_unsignedCoordinateShadowUpdateArgument = -1;  /* CoordinateShadowUpdateArgumentData */
 static int hf_disp_signedCoordinateShadowUpdateArgument = -1;  /* T_signedCoordinateShadowUpdateArgument */
@@ -154,7 +154,7 @@ static int hf_disp_stop = -1;                     /* Time */
 static int hf_disp_noRefresh = -1;                /* NULL */
 static int hf_disp_total = -1;                    /* TotalRefresh */
 static int hf_disp_incremental = -1;              /* IncrementalRefresh */
-static int hf_disp_otherStrategy = -1;            /* EXTERNAL */
+static int hf_disp_otherStrategy = -1;            /* EXTERNALt */
 static int hf_disp_sDSE = -1;                     /* SDSEContent */
 static int hf_disp_subtree = -1;                  /* SET_OF_Subtree */
 static int hf_disp_subtree_item = -1;             /* Subtree */
@@ -298,7 +298,7 @@ static int dissect_AttributeTypes_item(packet_info *pinfo _U_, proto_tree *tree 
   return dissect_x509if_AttributeType(FALSE, tvb, offset, pinfo, tree, hf_disp_AttributeTypes_item);
 }
 static int dissect_other(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_disp_other);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_disp_other);
 }
 static int dissect_securityParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_dap_SecurityParameters(FALSE, tvb, offset, pinfo, tree, hf_disp_securityParameters);
@@ -316,7 +316,7 @@ static int dissect_notification_item(packet_info *pinfo _U_, proto_tree *tree _U
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_disp_notification_item);
 }
 static int dissect_otherStrategy(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_disp_otherStrategy);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_disp_otherStrategy);
 }
 static int dissect_attributes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_disp_attributes_item);
@@ -2121,7 +2121,7 @@ void proto_register_disp(void) {
     { &hf_disp_other,
       { "other", "disp.other",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_disp_securityParameters,
       { "securityParameters", "disp.securityParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2249,7 +2249,7 @@ void proto_register_disp(void) {
     { &hf_disp_otherStrategy,
       { "otherStrategy", "disp.otherStrategy",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_disp_sDSE,
       { "sDSE", "disp.sDSE",
         FT_NONE, BASE_NONE, NULL, 0,

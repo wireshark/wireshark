@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkinit.c                                                          */
+/* .\packet-pkinit.c                                                          */
 /* ../../tools/asn2wrs.py -e -b -p pkinit -c pkinit.cnf -s packet-pkinit-template PKINIT.asn */
 
 /* Input file: packet-pkinit-template.c */

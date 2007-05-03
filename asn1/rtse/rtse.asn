@@ -143,7 +143,7 @@ AbortReason ::= INTEGER {
 -- to handle the lack of support for tagged assignments.
 -- remove that workaround once asn2wrs learns how to handle
 -- tagged assignments.
-EXTERNAL  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
+EXTERNALt  ::=  [UNIVERSAL 8] IMPLICIT SEQUENCE
      {
       direct-reference  OBJECT IDENTIFIER OPTIONAL,
       indirect-reference  INTEGER OPTIONAL,

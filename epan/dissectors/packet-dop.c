@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-dop.c                                                             */
+/* .\packet-dop.c                                                             */
 /* ../../tools/asn2wrs.py -b -e -p dop -c dop.cnf -s packet-dop-template dop.asn */
 
 /* Input file: packet-dop-template.c */
@@ -222,7 +222,7 @@ static int hf_dop_basicLevels = -1;               /* T_basicLevels */
 static int hf_dop_level = -1;                     /* T_level */
 static int hf_dop_localQualifier = -1;            /* INTEGER */
 static int hf_dop_signed = -1;                    /* BOOLEAN */
-static int hf_dop_other = -1;                     /* EXTERNAL */
+static int hf_dop_other = -1;                     /* EXTERNALt */
 /* named bits */
 static int hf_dop_DSEType_root = -1;
 static int hf_dop_DSEType_glue = -1;
@@ -443,7 +443,7 @@ static int dissect_subtree_item(packet_info *pinfo _U_, proto_tree *tree _U_, tv
   return dissect_x509if_SubtreeSpecification(FALSE, tvb, offset, pinfo, tree, hf_dop_subtree_item);
 }
 static int dissect_other(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_dop_other);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_dop_other);
 }
 
 
@@ -3111,7 +3111,7 @@ void proto_register_dop(void) {
     { &hf_dop_other,
       { "other", "dop.other",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_dop_DSEType_root,
       { "root", "dop.root",
         FT_BOOLEAN, 8, NULL, 0x80,

@@ -337,7 +337,7 @@ static int hf_mms_listOfCapabilities1 = -1;       /* T_listOfCapabilities1 */
 static int hf_mms_sharable = -1;                  /* BOOLEAN */
 static int hf_mms_loadData = -1;                  /* T_loadData */
 static int hf_mms_non_coded = -1;                 /* OCTET_STRING */
-static int hf_mms_coded = -1;                     /* EXTERNAL */
+static int hf_mms_coded = -1;                     /* EXTERNALt */
 static int hf_mms_discard = -1;                   /* ServiceError */
 static int hf_mms_ulsmID = -1;                    /* Integer32 */
 static int hf_mms_listOfCapabilities2 = -1;       /* T_listOfCapabilities2 */
@@ -360,7 +360,7 @@ static int hf_mms_reusable = -1;                  /* BOOLEAN */
 static int hf_mms_monitorType = -1;               /* BOOLEAN */
 static int hf_mms_executionArgument = -1;         /* T_executionArgument */
 static int hf_mms_simpleString = -1;              /* VisibleString */
-static int hf_mms_encodedString = -1;             /* EXTERNAL */
+static int hf_mms_encodedString = -1;             /* EXTERNALt */
 static int hf_mms_executionArgument1 = -1;        /* T_executionArgument1 */
 static int hf_mms_state1 = -1;                    /* ProgramInvocationState */
 static int hf_mms_listOfDomainNames = -1;         /* SEQUENCE_OF_Identifier */
@@ -985,10 +985,10 @@ static int dissect_valueSpecification(packet_info *pinfo _U_, proto_tree *tree _
 /*--- Fields for imported types ---*/
 
 static int dissect_coded(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_mms_coded);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_mms_coded);
 }
 static int dissect_encodedString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
-  return dissect_acse_EXTERNAL(FALSE, tvb, offset, pinfo, tree, hf_mms_encodedString);
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_mms_encodedString);
 }
 
 
@@ -9730,7 +9730,7 @@ void proto_register_mms(void) {
     { &hf_mms_coded,
       { "coded", "mms.coded",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_mms_discard,
       { "discard", "mms.discard",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9822,7 +9822,7 @@ void proto_register_mms(void) {
     { &hf_mms_encodedString,
       { "encodedString", "mms.encodedString",
         FT_NONE, BASE_NONE, NULL, 0,
-        "acse.EXTERNAL", HFILL }},
+        "acse.EXTERNALt", HFILL }},
     { &hf_mms_executionArgument1,
       { "executionArgument", "mms.executionArgument",
         FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument1_vals), 0,

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkixproxy.c                                                       */
+/* .\packet-pkixproxy.c                                                       */
 /* ../../tools/asn2wrs.py -b -e -p pkixproxy -c pkixproxy.cnf -s packet-pkixproxy-template PKIXProxy.asn */
 
 /* Input file: packet-pkixproxy-template.c */
