@@ -200,96 +200,76 @@ static_tokens = {
 
 # all keys in reserved_words must start w/ upper case
 reserved_words = {
-    'TAGS' : 'TAGS',
-    'BOOLEAN' : 'BOOLEAN',
-    'INTEGER' : 'INTEGER',
-    'BIT'     : 'BIT',
-    'CHARACTER' : 'CHARACTER',
-    'STRING'  : 'STRING',
-    'OCTET'   : 'OCTET',
-    'NULL'    : 'NULL',
-    'SEQUENCE': 'SEQUENCE',
-    'OF'      : 'OF',
-    'SET'     : 'SET',
-    'IMPLICIT': 'IMPLICIT',
-    'CHOICE'  : 'CHOICE',
-    'ANY'     : 'ANY',
-    'EXTERNAL' : 'EXTERNAL',
-    'OPTIONAL':'OPTIONAL',
-    'DEFAULT' : 'DEFAULT',
-    'COMPONENTS': 'COMPONENTS',
-    'UNIVERSAL' : 'UNIVERSAL',
-    'APPLICATION' : 'APPLICATION',
-    'PRIVATE'   : 'PRIVATE',
-    'TRUE' : 'TRUE',
-    'FALSE' : 'FALSE',
-    'BEGIN' : 'BEGIN',
-    'END' : 'END',
-    'DEFINITIONS' : 'DEFINITIONS',
-    'EXPLICIT' : 'EXPLICIT',
-    'ENUMERATED' : 'ENUMERATED',
-    'EXPORTS' : 'EXPORTS',
-    'IMPORTS' : 'IMPORTS',
-    'REAL'    : 'REAL',
-    'INCLUDES': 'INCLUDES',
-    'MIN'     : 'MIN',
-    'MAX'     : 'MAX',
-    'SIZE'    : 'SIZE',
-    'FROM'    : 'FROM',
-    'INTERSECTION' : 'INTERSECTION',
-#    'UNION'   : 'UNION',
-    'PATTERN'    : 'PATTERN',
-    'WITH'    : 'WITH',
-    'COMPONENT': 'COMPONENT',
-    'PRESENT'  : 'PRESENT',
-    'ABSENT'   : 'ABSENT',
-#    'DEFINED'  : 'DEFINED',
-    'CONSTRAINED' : 'CONSTRAINED',
-    'BY'       : 'BY',
-    'PLUS-INFINITY'   : 'PLUS_INFINITY',
-    'MINUS-INFINITY'  : 'MINUS_INFINITY',
-    'GeneralizedTime' : 'GeneralizedTime',
-    'UTCTime'         : 'UTCTime',
-    'ObjectDescriptor': 'ObjectDescriptor',
-    'AUTOMATIC': 'AUTOMATIC',
-    'OBJECT': 'OBJECT',
-    'IDENTIFIER': 'IDENTIFIER',
-    'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
-    'ABSTRACT-SYNTAX' : 'ABSTRACT_SYNTAX',
-#      'OPERATION'       : 'OPERATION',
-#      'ARGUMENT'        : 'ARGUMENT',
-#      'RESULT'          : 'RESULT',
-#      'ERRORS'          : 'ERRORS',
-#      'LINKED'          : 'LINKED',
-#      'ERROR'           : 'ERROR',
-#      'PARAMETER'       : 'PARAMETER',
-#      'BIND'            : 'BIND',
-#      'BIND-ERROR'      : 'BIND_ERROR',
-#      'UNBIND'          : 'UNBIND',
-#      'APPLICATION-CONTEXT' : 'AC',
-#      'APPLICATON-SERVICE-ELEMENTS' : 'ASES',
-#      'REMOTE' : 'REMOTE',
-#      'INITIATOR' : 'INITIATOR',
-#      'RESPONDER' : 'RESPONDER',
-#      'APPLICATION-SERVICE-ELEMENT' : 'ASE',
-#      'OPERATIONS' : None,
-#      'EXTENSION-ATTRIBUTE' : 'EXTENSION_ATTRIBUTE',
-#      'EXTENSIONS' : None,
-#      'CHOSEN' : None,
-#      'EXTENSION' : None,
-#      'CRITICAL': None,
-#      'FOR' : None,
-#      'SUBMISSION' : None,
-#      'DELIVERY' : None,
-#      'TRANSFER' : None,
-#      'OBJECT' : None,
-#      'PORTS' : None,
-#      'PORT'  : None,
-#      r'ABSTRACT\s*OPERATIONS' : 'ABSTR_OPS',
-#      'REFINE' : None,
-#      'AS' : None,
-#      'RECURRING' : None
-    }
+  'ABSENT'      : 'ABSENT',
+  'ABSTRACT-SYNTAX' : 'ABSTRACT_SYNTAX',
+#  'ALL'         : 'ALL',
+  'APPLICATION' : 'APPLICATION',
+  'AUTOMATIC'   : 'AUTOMATIC',
+  'BEGIN'       : 'BEGIN',
+  'BIT'         : 'BIT',
+  'BOOLEAN'     : 'BOOLEAN',
+  'BY'          : 'BY',
+  'CHARACTER'   : 'CHARACTER',
+  'CHOICE'      : 'CHOICE',
+#  'CLASS'       : 'CLASS',
+  'COMPONENT'   : 'COMPONENT',
+  'COMPONENTS'  : 'COMPONENTS',
+  'CONSTRAINED' : 'CONSTRAINED',
+#  'CONTAINING'  : 'CONTAINING',
+  'DEFAULT'     : 'DEFAULT',
+  'DEFINITIONS' : 'DEFINITIONS',
+#  'EMBEDDED'    : 'EMBEDDED',
+#  'ENCODED'     : 'ENCODED',
+  'END'         : 'END',
+  'ENUMERATED'  : 'ENUMERATED',
+#  'EXCEPT'      : 'EXCEPT',
+  'EXPLICIT'    : 'EXPLICIT',
+  'EXPORTS'     : 'EXPORTS',
+#  'EXTENSIBILITY' : 'EXTENSIBILITY',
+  'EXTERNAL'    : 'EXTERNAL',
+  'FALSE'       : 'FALSE',
+  'FROM'        : 'FROM',
+  'GeneralizedTime' : 'GeneralizedTime',
+  'IDENTIFIER'  : 'IDENTIFIER',
+  'IMPLICIT'    : 'IMPLICIT',
+#  'IMPLIED'     : 'IMPLIED',
+  'IMPORTS'     : 'IMPORTS',
+  'INCLUDES'    : 'INCLUDES',
+#  'INSTANCE'    : 'INSTANCE',
+  'INTEGER'     : 'INTEGER',
+  'INTERSECTION' : 'INTERSECTION',
+  'MAX'         : 'MAX',
+  'MIN'         : 'MIN',
+  'MINUS-INFINITY' : 'MINUS_INFINITY',
+  'NULL'        : 'NULL',
+  'OBJECT'      : 'OBJECT',
+  'ObjectDescriptor' : 'ObjectDescriptor',
+  'OCTET'       : 'OCTET',
+  'OF'          : 'OF',
+  'OPTIONAL'    : 'OPTIONAL',
+  'PATTERN'     : 'PATTERN',
+#  'PDV'         : 'PDV',
+  'PLUS-INFINITY' : 'PLUS_INFINITY',
+  'PRESENT'     : 'PRESENT',
+  'PRIVATE'     : 'PRIVATE',
+  'REAL'        : 'REAL',
+#  'RELATIVE-OID' : 'RELATIVE-OID',
+  'SEQUENCE'    : 'SEQUENCE',
+  'SET'         : 'SET',
+  'SIZE'        : 'SIZE',
+  'STRING'      : 'STRING',
+#  'SYNTAX'      : 'SYNTAX',
+  'TAGS'        : 'TAGS',
+  'TRUE'        : 'TRUE',
+  'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
+#  'UNION'       : 'UNION',
+#  'UNIQUE'      : 'UNIQUE',
+  'UNIVERSAL'   : 'UNIVERSAL',
+  'UTCTime'     : 'UTCTime',
+  'WITH'        : 'WITH',
+# obsolete but still used
+  'ANY'         : 'ANY',
+}
 
 for k in static_tokens.keys ():
     if static_tokens [k] == None:
@@ -306,7 +286,7 @@ tokens = static_tokens.values() \
          + reserved_words.values() \
          + ['BSTRING', 'HSTRING', 'QSTRING',
             'UCASE_IDENT', 'LCASE_IDENT', 'CLASS_IDENT',
-            'NUMBER', 'PYQUOTE']
+            'REAL_NUMBER', 'NUMBER', 'PYQUOTE']
 
 
 for (k, v) in static_tokens.items ():
@@ -336,13 +316,15 @@ def t_LCASE_IDENT (t):
     r"[a-z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
     return t
 
+# 11.9 Real numbers
+def t_REAL_NUMBER (t):
+    r"[0-9]+\.[0-9]*(?!\.)"
+    return t
+
 # 11.8 Numbers
 def t_NUMBER (t):
     r"0|([1-9][0-9]*)"
     return t
-
-# 11.9 Real numbers
-# not supported yet
 
 # 11.6 Comments
 pyquote_str = 'PYQUOTE'
@@ -540,10 +522,9 @@ class EthCtx:
 
   #--- eth_dep_add ------------------------------------------------------------
   def eth_dep_add(self, type, dep):
-    if self.type_dep.has_key(type):
-      self.type_dep[type].append(dep)
-    else:
-      self.type_dep[type] = [dep]
+    if not self.type_dep.has_key(type): 
+      self.type_dep[type] = []
+    self.type_dep[type].append(dep)
 
   #--- eth_reg_type -----------------------------------------------------------
   def eth_reg_type(self, ident, val):
@@ -664,6 +645,20 @@ class EthCtx:
     if (self.conform.check_item('PDU', nm)):
       self.eth_reg_type('_dummy/'+nm, NullType())
       self.eth_reg_field(nm, '_dummy/'+nm, pdu=self.conform.use_item('PDU', nm))
+
+    #--- values -> named values -------------------
+    v_for_remove = []
+    for v in self.value_ord:
+      if (self.value[v]['type'].type == 'Type_Ref'):
+        tnm = self.value[v]['type'].val
+        if self.type.has_key(tnm) \
+           and not self.type[tnm]['import'] \
+           and (self.type[tnm]['val'].type == 'IntegerType'):
+          self.type[tnm]['val'].add_named_value(v, self.value[v]['value'])
+          v_for_remove.append(v)
+    for v in v_for_remove:
+      self.value_ord.remove(v)
+      del self.value[v]
 
     #--- types -------------------
     for t in self.type_imp:
@@ -1810,7 +1805,7 @@ class EthCnf:
         self.add_item('OMIT_ASSIGNMENT', par[0], omit=True, fn=fn, lineno=lineno)
       elif ctx == 'VIRTUAL_ASSGN':
         if empty.match(line): continue
-        par = get_par(line, 2, 2, fn=fn, lineno=lineno)
+        par = get_par(line, 2, -1, fn=fn, lineno=lineno)
         if not par: continue
         if (len(par[1].split('/')) > 1) and not self.check_item('SET_TYPE', par[1]):
           self.add_item('SET_TYPE', par[1], type=par[0], fn=fn, lineno=lineno)
@@ -3360,8 +3355,22 @@ class RealType (Type):
   def eth_tname(self):
     return 'REAL'
 
+  def GetTTag(self, ectx):
+    return ('BER_CLASS_UNI', 'BER_UNI_TAG_REAL')
+
+  def eth_ftype(self, ectx):
+    return ('FT_DOUBLE', 'BASE_NONE')
+
   def eth_type_default_body(self, ectx, tname):
-    body = '#error Can not decode %s' % (tname)
+    if (ectx.Ber()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_real', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(VAL_PTR)s',),))
+    elif (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_real', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
     return body
 
 #--- BooleanType --------------------------------------------------------------
@@ -3660,7 +3669,7 @@ class ObjectIdentifierValue (Value):
     else:
       return vstr
 
-class NamedNumber (Node):
+class NamedNumber(Node):
     def to_python (self, ctx):
         return "('%s',%s)" % (self.ident, self.val)
 
@@ -3674,6 +3683,12 @@ class IntegerType (Type):
   def to_python (self, ctx):
         return "asn1.INTEGER_class ([%s])" % (",".join (
             map (lambda x: x.to_python (ctx), self.named_list)))
+
+  def add_named_value(self, ident, val):
+    e = NamedNumber(ident = ident, val = val)
+    if not self.named_list: 
+      self.named_list = []
+    self.named_list.append(e)
 
   def eth_tname(self):
     if self.named_list:
@@ -4093,9 +4108,9 @@ def p_Value (t):
 # 16.9
 def p_BuiltinValue (t):
   '''BuiltinValue : BooleanValue
+                  | IntegerValue
                   | ObjectIdentifierValue
-                  | special_real_val
-                  | SignedNumber
+                  | RealValue
                   | SequenceValue
                   | hex_string
                   | binary_string
@@ -4136,7 +4151,7 @@ def p_IntegerType_1 (t):
 
 def p_IntegerType_2 (t):
   'IntegerType : INTEGER LBRACE NamedNumberList RBRACE'
-  t[0] = IntegerType (named_list = t[3])
+  t[0] = IntegerType(named_list = t[3])
 
 def p_NamedNumberList_1 (t):
   'NamedNumberList : NamedNumber'
@@ -4149,7 +4164,7 @@ def p_NamedNumberList_2 (t):
 def p_NamedNumber (t):
   '''NamedNumber : identifier LPAREN SignedNumber RPAREN
                  | identifier LPAREN DefinedValue RPAREN'''
-  t[0] = NamedNumber (ident = t[1], val = t[3])
+  t[0] = NamedNumber(ident = t[1], val = t[3])
 
 def p_SignedNumber_1 (t):
   'SignedNumber : NUMBER'
@@ -4159,6 +4174,10 @@ def p_SignedNumber_2 (t):
   'SignedNumber : MINUS NUMBER'
   t[0] = '-' + t[2]
 
+# 18.9
+def p_IntegerValue (t):
+  'IntegerValue : SignedNumber'
+  t[0] = t [1]
 
 # 19 Notation for the enumerated type -----------------------------------------
 
@@ -4201,8 +4220,20 @@ def p_Identifier (t):
 
 # 20.1
 def p_RealType (t):
-    'RealType : REAL'
-    t[0] = RealType ()
+  'RealType : REAL'
+  t[0] = RealType ()
+
+# 20.6
+def p_RealValue (t):
+  '''RealValue : REAL_NUMBER
+               | SpecialRealValue'''
+  t[0] = t [1]
+
+def p_SpecialRealValue (t):
+  '''SpecialRealValue : PLUS_INFINITY
+                      | MINUS_INFINITY'''
+  t[0] = t[1]
+
 
 # 21 Notation for the bitstring type ------------------------------------------
 
@@ -4499,22 +4530,31 @@ def p_ObjectIdentifierValue (t):
     t[0] = ObjectIdentifierValue (comp_list=t[2])
 
 def p_oid_comp_list_1 (t):
-    'oid_comp_list : oid_comp_list oid_component'
+    'oid_comp_list : oid_comp_list ObjIdComponents'
     t[0] = t[1] + [t[2]]
 
 def p_oid_comp_list_2 (t):
-    'oid_comp_list : oid_component'
+    'oid_comp_list : ObjIdComponents'
     t[0] = [t[1]]
 
-def p_oid_component (t):
-    '''oid_component : number_form
-    | name_form
-    | name_and_number_form'''
-    t[0] = t[1]
+def p_ObjIdComponents (t):
+  '''ObjIdComponents : NameForm
+                     | NumberForm
+                     | NameAndNumberForm'''
+  t[0] = t[1]
 
-def p_number_form (t):
-    'number_form : NUMBER'
-    t [0] = t[1]
+def p_NameForm (t):
+  'NameForm : LCASE_IDENT'
+  t [0] = t[1]
+
+def p_NumberForm (t):
+  '''NumberForm : NUMBER
+                | DefinedValue'''
+  t [0] = t[1]
+
+def p_NameAndNumberForm (t):
+  'NameAndNumberForm : LCASE_IDENT LPAREN NumberForm RPAREN'
+  t[0] = Node('name_and_number', ident = t[1], number = t[3])
 
 # 34 Notation for the external type -------------------------------------------
 
@@ -4849,29 +4889,6 @@ def p_ext_val_ref (t):
     # XXX coerce type_ref to module_ref
     return Node ('ext_val_ref', module = t[1], ident = t[3])
 
-def p_special_real_val (t):
-    '''special_real_val : PLUS_INFINITY
-    | MINUS_INFINITY'''
-    t[0] = t[1]
-
-
-# Note that Z39.50 v3 spec has upper-case here for, e.g., SUTRS.
-# I've hacked the grammar to be liberal about what it accepts.
-# XXX should have -strict command-line flag to only accept lowercase
-# here, since that's what X.208 says.
-def p_name_form (t):
-    '''name_form : type_ref
-    | identifier'''
-    t[0] = t[1]
-
-def p_name_and_number_form_1 (t):
-    '''name_and_number_form : identifier LPAREN number_form RPAREN
-    | type_ref LPAREN number_form RPAREN'''
-    t[0] = Node ('name_and_number', ident = t[1], number = t[3])
-
-def p_name_and_number_form_2 (t):
-    'name_and_number_form : identifier LPAREN DefinedValue RPAREN'
-    t[0] = Node ('name_and_number', ident = t[1], val = t[3])
 
 # see X.208 if you are dubious about lcase only for identifier 
 def p_identifier (t):
