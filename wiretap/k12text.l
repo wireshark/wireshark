@@ -131,7 +131,7 @@ static void finalize_frame(void) {
 	ok_frame = TRUE;
 }
 
-static gboolean k12text_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
+static gboolean k12text_read(wtap *wth, int *err, const gchar ** err_info _U_, gint64 *data_offset) {
 	gint64 start_offset = cum_offset;
 	
 	encap = WTAP_ENCAP_UNKNOWN;
@@ -145,7 +145,7 @@ static gboolean k12text_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *
 			*err_info = NULL;
 			*err = 0;
 		} else {
-			*err_info = (void*)error_str;
+			*err_info = error_str;
 			*err = WTAP_ERR_BAD_RECORD;
 		}
 		return FALSE;
@@ -167,7 +167,7 @@ static gboolean k12text_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *
 	return TRUE;
 }
 
-static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err, gchar **err_info) {
+static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err, const gchar **err_info) {
 	gint64 save_offset = cum_offset;
 
 	ok_frame = FALSE;
@@ -184,7 +184,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	yylex();
 
 	if (ok_frame == FALSE) {
-		*err_info = (void*)error_str;
+		*err_info = error_str;
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
@@ -220,8 +220,8 @@ int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->file_type = WTAP_FILE_K12TEXT;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
-	wth->subtype_read = k12text_read;
-	wth->subtype_seek_read = k12text_seek_read;
+	wth->subtype_read = (void*)k12text_read;
+	wth->subtype_seek_read = (void*)k12text_seek_read;
 	wth->subtype_close = k12text_close;
 	wth->capture.generic  = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;    
