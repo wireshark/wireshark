@@ -116,8 +116,7 @@ IndicationMessage ::= CHOICE {
   multilinkIndication                       MultilinkIndication,
   logicalChannelRateRelease                 LogicalChannelRateRelease,
   flowControlIndication                     FlowControlIndication,
-  mobileMultilinkReconfigurationIndication
-    MobileMultilinkReconfigurationIndication,
+  mobileMultilinkReconfigurationIndication  MobileMultilinkReconfigurationIndication,
   genericIndication                         GenericMessage
 }
 

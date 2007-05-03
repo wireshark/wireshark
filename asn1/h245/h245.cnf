@@ -291,6 +291,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
         col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
     /* Add to packet info */
+	if (h245_pi == NULL)
+		return offset;
 
     /* if it is TCS*/
     if ((codec_type != NULL) && ( value == 2))
@@ -324,9 +326,11 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
 
-    /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
-	g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+	if (h245_pi != NULL){
+		/* Add to packet info */
+		g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+		g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+	}
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -349,8 +353,10 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
-	g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+ 	if (h245_pi  !=NULL){
+		g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+		g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+	}
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -373,8 +379,10 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
-    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
-	g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+	if (h245_pi != NULL){
+	    g_snprintf(h245_pi->frame_label, 50, "%%s %%s ", h245_pi->frame_label, val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+		g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+	}
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -383,7 +391,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_AudioCapability_short_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
+		if (h245_pi != NULL)
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioCapability_short_vals, "ukn"));
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -392,7 +401,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_VideoCapability_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
+		if (h245_pi != NULL) 
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -401,7 +411,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
         codec_type = val_to_str(value, h245_Application_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
+		if (h245_pi != NULL) 
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY AudioMode  VAL_PTR = &value
@@ -409,7 +420,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_AudioMode_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
+		if (h245_pi != NULL) 
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_AudioMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY VideoMode  VAL_PTR = &value
@@ -417,7 +429,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_VideoMode_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
+		if (h245_pi != NULL) 
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_VideoMode_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY DataModeApplication  VAL_PTR = &value
@@ -425,79 +438,94 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 %(DEFAULT_BODY)s
   codec_type = val_to_str(value, h245_DataModeApplication_vals, "<unknown>");
-		if (h245_pi != NULL) g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
+		if (h245_pi != NULL) 
+			g_snprintf(h245_pi->frame_label, 50, "%%s %%s", h245_pi->frame_label, val_to_str(value, h245_DataModeApplication_vals, "ukn"));
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationAck
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationReject
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelReject
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_OpenLogChnRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannel
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_CloseLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR CloseLogicalChannelAck
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_CloseLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelConfirm
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_OpenLogChnCnf;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetAck
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDetermination
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetReject
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetRjc;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR MasterSlaveDeterminationRelease
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetRls;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySet
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSet;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR TerminalCapabilitySetRelease
 
+if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetRls;
 #.END
 #----------------------------------------------------------------------------------------
 # OpenLogicalChannel .FN_BODY is also declared, line 70ish
 #.FN_FTR OpenLogicalChannel
 
-  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
+  if (h245_pi != NULL)
+   h245_pi->msg_type = H245_OpenLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 # OpenLogicalChannelAck .FN_BODY is also declared, line 200ish
 #.FN_FTR OpenLogicalChannelAck
 
-  h245_pi->msg_type = H245_OpenLogChnAck;
+  if (h245_pi != NULL)
+	h245_pi->msg_type = H245_OpenLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_PARS CapabilityIdentifier/standard
@@ -755,6 +783,24 @@ NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerC
     call_dissector((nsp_handle)?nsp_handle:data_handle, next_tvb, %(ACTX)s->pinfo, tree);
   }
 #.END
+
+#.FN_BODY FunctionNotSupported/returnedFunction  VAL_PTR = &next_tvb
+  tvbuff_t *next_tvb = NULL;
+  proto_item *item;
+  proto_tree *subtree;
+  h245_packet_info *saved_h245_pi;
+
+%(DEFAULT_BODY)s
+
+ if (next_tvb && tvb_length(next_tvb)) {
+	saved_h245_pi = h245_pi;
+	h245_pi = NULL;
+	item = proto_tree_add_text(tree, next_tvb, 0, -1,"The returned function");
+	subtree = proto_item_add_subtree(item, ett_h245_returnedFunction);
+	PROTO_ITEM_SET_GENERATED(item);
+	dissect_h245_MultimediaSystemControlMessage(next_tvb, 0, actx, subtree, hf_h245_pdu_type);
+	h245_pi = saved_h245_pi;
+ }
 
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME

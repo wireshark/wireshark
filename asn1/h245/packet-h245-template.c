@@ -79,6 +79,7 @@ static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
 static int ett_h245 = -1;
 static int h245dg_tap = -1;
+static int ett_h245_returnedFunction = -1;
 h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
@@ -284,6 +285,13 @@ int proto_h245 = -1;
 /* Initialize the subtree pointers */
 #include "packet-h245-ett.c"
 
+/* Forward declarations */
+dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static void reset_h245_pi(void *dummy _U_)
+{
+	h245_pi = NULL; /* Make sure we don't leave ep_alloc()ated memory lying around */
+}
+
 #include "packet-h245-fn.c"
 
 static void
@@ -296,10 +304,6 @@ dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
 }
 
-static void reset_h245_pi(void *dummy _U_)
-{
-	h245_pi = NULL; /* Make sure we don't leave ep_alloc()ated memory lying around */
-}
 
 static void
 dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -333,7 +337,8 @@ void
 dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
   dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
-  if (h245_pi != NULL) h245_pi->msg_type = H245_OpenLogChn;
+  if (h245_pi != NULL) 
+	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
         strncpy(codec_str, codec_type, 50);
@@ -358,6 +363,7 @@ void proto_register_h245(void) {
   /* List of subtrees */
   static gint *ett[] = {
 	  &ett_h245,
+	  &ett_h245_returnedFunction,
 #include "packet-h245-ettarr.c"
   };
   module_t *h245_module;
