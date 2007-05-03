@@ -26,8 +26,6 @@
 #ifndef __PACKET_PER_H__
 #define __PACKET_PER_H__
 
-extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
-extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
 
 /* flags */

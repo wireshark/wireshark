@@ -3249,7 +3249,10 @@ class ExternalType (Type):
     return pars
 
   def eth_type_default_body(self, ectx, tname):
-    if (ectx.Per()):
+    if (ectx.Ber()):  
+      body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
+                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+    elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     else:

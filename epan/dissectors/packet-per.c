@@ -111,20 +111,6 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
-void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo) {
-  actx->encoding = encoding;
-  actx->aligned = aligned;
-  actx->pinfo = pinfo;
-  actx->created_item = NULL;
-  actx->value_ptr = NULL;
-  actx->private_data = NULL;
-}
-
-void asn1_ctx_clean_external(asn1_ctx_t *actx) {
-  memset(&actx->external, '\0', sizeof(actx->external));
-  actx->external.hf_index = -1;
-}
-
 double asn1_get_real(const guint8 *real_ptr, gint real_len) {
   guint8 octet;
   const guint8 *p;

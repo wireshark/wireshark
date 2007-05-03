@@ -106,10 +106,19 @@ static gint hf_ber_unknown_GeneralizedTime = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
+static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
+static gint hf_ber_indirect_reference = -1;       /* INTEGER */
+static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
+static gint hf_ber_encoding = -1;                 /* T_encoding */
+static gint hf_ber_single_ASN1_type = -1;         /* T_single_ASN1_type */
+static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
+static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
 
 static gint ett_ber_octet_string = -1;
 static gint ett_ber_unknown = -1;
 static gint ett_ber_SEQUENCE = -1;
+static gint ett_ber_EXTERNAL = -1;
+static gint ett_ber_encoding = -1;
 
 static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
@@ -2610,6 +2619,114 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	return offset;
 }
 
+/* 
+ * EXTERNAL::= [UNIVERSAL 8] IMPLICIT SEQUENCE {
+ *	direct-reference			OBJECT IDENTIFIER OPTIONAL,
+ *	indirect-reference			INTEGER OPTIONAL,
+ *	data-value-descriptor		ObjectDescriptor OPTIONAL,
+ *	encoding				CHOICE {
+ *	single-ASN1-type				[0] ABSTRACT-SYNTAX.&Type,
+ *	octet-aligned					[1] IMPLICIT OCTET STRING,
+ *	arbitrary						[2] IMPLICIT BIT STRING } }
+ */
+/* 
+static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, offset, hf_ber_octet_aligned,
+                                       NULL);
+
+  return offset;
+}
+
+static int dissect_arbitrary_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  offset = dissect_ber_bitstring(TRUE, pinfo, tree, tvb, offset,
+                                    NULL, hf_ber_arbitrary, -1,
+                                    NULL);
+
+  return offset;
+}
+
+static int dissect_indirect_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset, hf_ber_indirect_reference,
+                                  NULL);
+  return offset;
+
+}
+
+static int dissect_direct_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset, hf_ber_direct_reference, &single_ASN1_type_obj_id);
+  return offset;
+}
+
+static int dissect_data_value_descriptor(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+    offset = dissect_ber_restricted_string(FALSE, BER_UNI_TAG_ObjectDescriptor,
+                                            pinfo, tree, tvb, offset, hf_ber_data_value_descriptor,
+                                            NULL);
+
+	return offset;
+}
+*/
+static const value_string ber_T_encoding_vals[] = {
+  {   0, "single-ASN1-type" },
+  {   1, "octet-aligned" },
+  {   2, "arbitrary" },
+  { 0, NULL }
+};
+/*
+static const ber_choice_t ber_T_encoding_choice[] = {
+  {   0, BER_CLASS_CON, 0, 0, dissect_single_ASN1_type },
+  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_octet_aligned_impl },
+  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_arbitrary_impl },
+  { 0, 0, 0, 0, NULL }
+};
+
+static int dissect_encoding(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+                                 ber_T_encoding_choice, hf_ber_encoding, ett_ber_encoding,
+                                 &actx->external.ber.encoding);
+
+  return offset;
+}
+
+static const ber_sequence_t EXTERNAL_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_direct_reference },
+  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_indirect_reference },
+  { BER_CLASS_UNI, BER_UNI_TAG_ObjectDescriptor, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_data_value_descriptor },
+  { BER_CLASS_ANY/choice/, -1/choice/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
+  { 0, 0, 0, NULL }
+};
+
+static int
+dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, packet_info *pinfo, proto_tree *tree, int hf_index)
+{
+	gint8 class;
+	gboolean pc, ind = FALSE;
+	gint32 tag;
+	guint32 len;
+
+	if(!implicit_tag){
+		offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+		offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	}
+
+	offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
+                                   EXTERNAL_sequence, hf_index, ett_ber_EXTERNAL);
+
+	return offset;
+
+}
+
+int
+dissect_ber_external_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,  gint hf_id, ber_callback func){
+
+	asn1_ctx_clean_external(actx);
+	actx->external.ber.type_cb =  func;
+	offset = dissect_ber_external(implicit_tag, tvb, offset, actx, pinfo, parent_tree, hf_id);
+
+	asn1_ctx_clean_external(actx);
+
+	return offset;
+}
+*/
 static void
 dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2728,12 +2845,42 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_ENUMERATED, {
 	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
+    { &hf_ber_direct_reference,
+      { "direct-reference", "ber.direct_reference",
+        FT_OID, BASE_NONE, NULL, 0,
+        "ber.OBJECT_IDENTIFIER", HFILL }},
+    { &hf_ber_indirect_reference,
+      { "indirect-reference", "ber.indirect_reference",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "ber.INTEGER", HFILL }},
+    { &hf_ber_data_value_descriptor,
+      { "data-value-descriptor", "ber.data_value_descriptor",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "ber.ObjectDescriptor", HFILL }},
+    { &hf_ber_encoding,
+      { "encoding", "ber.encoding",
+        FT_UINT32, BASE_DEC, VALS(ber_T_encoding_vals), 0,
+        "ber.T_encoding", HFILL }},
+    { &hf_ber_octet_aligned,
+      { "octet-aligned", "ber.octet_aligned",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ber.OCTET_STRING", HFILL }},
+    { &hf_ber_arbitrary,
+      { "arbitrary", "ber.arbitrary",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ber.BIT_STRING", HFILL }},
+    { &hf_ber_single_ASN1_type,
+      { "single-ASN1-type", "ber.single_ASN1_type",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ber.T_single_ASN1_type", HFILL }},
     };
 
     static gint *ett[] = {
 	&ett_ber_octet_string,
 	&ett_ber_unknown,
 	&ett_ber_SEQUENCE,
+	&ett_ber_EXTERNAL,
+	&ett_ber_encoding,
     };
     module_t *ber_module;
 

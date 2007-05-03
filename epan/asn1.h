@@ -60,4 +60,8 @@ typedef struct _asn1_ctx_t {
   } external;
 } asn1_ctx_t;
 
+extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
+extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
+
+
 #endif  /* __ASN1_H__ */
