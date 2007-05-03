@@ -46,7 +46,7 @@ InterpretationApdu ::= CHOICE {
 ServiceApdus ::= CHOICE {
   rosApdus
     SEQUENCE OF
-      ROS{{InvokeIdSet}, {OperationSet}, {OperationSet}},
+      ROS{x--{InvokeIdSet}, {OperationSet}, {OperationSet}--},
   -- see 8.3; other alternatives may be defined in future versions
   ...
 }
