@@ -5,17 +5,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -44,7 +44,7 @@ static guint num_macros;
 
 void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
 	guint i;
-	
+
 	for (i = 0; i < num_macros; i++) {
 		cb(&(macros[i]),data);
 	}
@@ -53,22 +53,22 @@ void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
 
 static void macro_fprint(dfilter_macro_t* m, void* ud) {
 	FILE* f = ud;
-	
+
 	fprintf(f,"%s\t%s\n",m->name,m->text);
 }
 
 void dfilter_macro_save(const gchar* filename, gchar** error) {
 	FILE* f = fopen(filename,"w");
-	
+
 	if (!f) {
 		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, strerror(errno) );
 		return;
 	}
-	
+
 	dfilter_macro_foreach(macro_fprint, f);
-		
+
 	fclose(f);
-	
+
 	return;
 }
 
@@ -79,10 +79,10 @@ static void macro_dump(dfilter_macro_t* m _U_, void* ud _U_) {
 
 	printf("\n->%s\t%s\t%d [%d]\n\t'%s'\n",
 		   m->name, m->text, m->argc, m->usable, *(part++));
-	
+
 	while (*part) {
 		printf("\t$%d '%s'\n",*args_pos,*part);
-		
+
 		args_pos++;
 		part++;
 	}
@@ -105,7 +105,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 	gchar** parts;
 	gchar* ret;
 	guint i;
-	
+
 	for (i = 0; i < num_macros; i++) {
 		dfilter_macro_t* c = &(macros[i]);
 		if ( c->usable && g_str_equal(c->name,name) ) {
@@ -113,37 +113,39 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 			break;
 		}
 	}
-	
+
 	if (!m) {
 		*error = ep_strdup_printf("macro '%s' does not exist", name);
 		return NULL;
 	}
-	
+
 	if (args) {
 		while(args[argc]) argc++;
 	}
-	
+
 	if (argc != m->argc) {
 		*error = ep_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
 								  name, m->argc, argc);
 		return NULL;
 	}
-	
+
 	arg_pos_p = m->args_pos;
 	parts = m->parts;
-	
+
 	text = g_string_new(*(parts++));
-	
-	while (*parts) {
-		g_string_sprintfa(text,"%s%s",
+
+	if (args) {
+		while (*parts) {
+			g_string_sprintfa(text,"%s%s",
 						  args[*(arg_pos_p++)],
 						  *(parts++));
+		}
 	}
-	
+
 	ret = ep_strdup(text->str);
-	
+
 	g_string_free(text,TRUE);
-	
+
 	return ret;
 }
 
@@ -157,14 +159,14 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 	gchar c;
 	const gchar* r = text;
 	gboolean changed = FALSE;
-	
+
 	if ( depth > 31) {
 		*error = "too much nesting in macros";
 		return NULL;
 	}
-			
+
 #define FGS(n) if (n) g_string_free(n,TRUE); n = NULL
-	
+
 #define FREE_ALL() \
 	do { \
 		FGS(name); \
@@ -173,13 +175,13 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 			while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); if (p) g_free(p); } \
 			g_ptr_array_free(args,TRUE); \
 			args = NULL; } } while(0)
-		
+
 		*error = NULL;
 		out = g_string_sized_new(64);
 
 		while(1) {
 			c = *r++;
-			
+
 			switch(state) {
 				case OUTSIDE: {
 					switch(c) {
@@ -200,20 +202,20 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 							args = g_ptr_array_new();
 							arg = g_string_sized_new(32);
 							name = g_string_sized_new(32);
-							
+
 							state = NAME;
-							
+
 							break;
 						} case '\0': {
 							g_string_append_c(out,'$');
-							
+
 							goto finish;
 						} default: {
 							g_string_append_c(out,'$');
 							g_string_append_c(out,c);
-							
+
 							state = OUTSIDE;
-							
+
 							break;
 						}
 					}
@@ -225,22 +227,22 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 						state = ARGS;
 					} else if ( c == '}') {
 						gchar* resolved;
-						
+
 						g_ptr_array_add(args,NULL);
-						
+
 						resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
 						if (*error) goto on_error;
-						
+
 						changed = TRUE;
-						
+
 						g_string_append(out,resolved);
-						
+
 						FREE_ALL();
-						
+
 						state = OUTSIDE;
 					} else if ( c == '\0') {
 						*error = "end of filter in the middle of a macro expression";
-						goto on_error;					
+						goto on_error;
 					} else {
 						*error = "invalid char in macro name";
 						goto on_error;
@@ -250,11 +252,11 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 					switch(c) {
 						case '\0': {
 							*error = "end of filter in the middle of a macro expression";
-							goto on_error;					
+							goto on_error;
 						} case ';': {
 							g_ptr_array_add(args,arg->str);
 							g_string_free(arg,FALSE);
-							
+
 							arg = g_string_sized_new(32);
 							break;
 						} case '\\': {
@@ -264,7 +266,7 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 								break;
 							} else {
 								*error = "end of filter in the middle of a macro expression";
-								goto on_error;					
+								goto on_error;
 							}
 						} default: {
 							g_string_append_c(arg,c);
@@ -276,16 +278,16 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 
 							g_string_free(arg,FALSE);
 							arg = NULL;
-							
+
 							resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
 							if (*error) goto on_error;
-							
+
 							changed = TRUE;
-							
+
 							g_string_append(out,resolved);
-							
+
 							FREE_ALL();
-							
+
 							state = OUTSIDE;
 							break;
 						}
@@ -294,11 +296,11 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 				}
 			}
 		}
-		
+
 finish:
 		{
 			FREE_ALL();
-			
+
 			if (changed) {
 				gchar* resolved = dfilter_macro_apply(out->str, depth++, error);
 				g_string_free(out,TRUE);
@@ -327,29 +329,29 @@ static void macro_update(void* mp, const gchar** error) {
 	gchar* part;
 	int argc = 0;
 	guint i;
-	
+
 	*error = NULL;
-	
+
 	for (i = 0; i < num_macros; i++) {
 		if (m == &(macros[i])) continue;
-		
+
 		if ( g_str_equal(m->name,macros[i].name) ) {
 			*error = ep_strdup_printf("macro '%s' exists already", m->name);
 			m->usable = FALSE;
 			return;
 		}
 	}
-	
+
 	parts = g_ptr_array_new();
 	args_pos = g_array_new(FALSE,FALSE,sizeof(int));
 
 	m->priv = part = w = g_strdup(m->text);
 	r = m->text;
 	g_ptr_array_add(parts,part);
-	
-	do {
-		
-		switch (*r) { 
+
+	while (r && *r) {
+
+		switch (*r) {
 			default:
 				*(w++) = *(r++);
 				break;
@@ -373,8 +375,8 @@ static void macro_update(void* mp, const gchar** error) {
 					} else {
 						break;
 					}
-				} while(1);
-				
+				} while(*r);
+
 				if (cnt) {
 					*(w++) = '\0';
 					r++;
@@ -388,8 +390,8 @@ static void macro_update(void* mp, const gchar** error) {
 				break;
 			}
 		}
-				
-	} while(1);
+
+	}
 
 done:
 	g_ptr_array_add(parts,NULL);
@@ -397,26 +399,26 @@ done:
 	if (m->parts) g_free(m->parts);
 
 	m->parts = (gchar**)parts->pdata;
-	
+
 	if (m->args_pos) g_free(m->args_pos);
-	
+
 	m->args_pos = (int*)(void *)args_pos->data;
 
 	g_ptr_array_free(parts,FALSE);
 	g_array_free(args_pos,FALSE);
-	
+
 	m->argc = argc;
-	
+
 	m->usable = TRUE;
-	
+
 	macro_dump(m,NULL);
-	
+
 	return;
 }
 
 static void macro_free(void* r) {
 	dfilter_macro_t* m = r;
-		
+
 	g_free(m->name);
 	g_free(m->text);
 	g_free(m->priv);
@@ -434,27 +436,27 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 	d->usable = m->usable;
 
 	if (m->parts) {
-		do nparts++; while (m->parts[nparts]); 
+		do nparts++; while (m->parts[nparts]);
 		d->priv = g_strdup(m->priv);
 		d->parts = g_memdup(m->parts,nparts*sizeof(void*));
 		d->args_pos = g_memdup(m->args_pos,(--nparts)*sizeof(int));
 	}
-	
-	
+
+
 	return d;
 }
 
 
 static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, const char** error) {
 	guint i;
-	
+
 	for (i=0; i < name_len; i++) {
 		if (!(in_name[i] == '_' || isalnum((int)in_name[i]) ) ) {
 			*error = "invalid char in name";
 			return FALSE;
 		}
 	}
-	
+
 	return i > 0 ? TRUE : FALSE;
 }
 
@@ -467,7 +469,7 @@ void dfilter_macro_init(void) {
 		UAT_FLD_CSTRING_ISPRINT(macro,text,"The text this macro resolves to."),
 		UAT_END_FIELDS
 	};
-	
+
 	dfilter_macro_uat = uat_new("Display Filter Macros",
 				    sizeof(dfilter_macro_t),
 				    DFILTER_MACRO_FILENAME,
@@ -484,4 +486,3 @@ void dfilter_macro_init(void) {
 void dfilter_macro_get_uat(void** p) {
 	*p = dfilter_macro_uat;
 }
-
