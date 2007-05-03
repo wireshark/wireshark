@@ -1,5 +1,5 @@
-MMSHeadingExtensions { iso(1) identified-organization(3) NATO(26)
-	STANAGS(0) MMHS(4406) object-identifiers(0) module(0) heading-extensions(6) }
+MMSHeadingExtensions { iso(1) identified-organization(3) nato(26)
+	stanags(0) mmhs(4406) object-identifiers(0) module(0) heading-extensions(6) }
 
 DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
