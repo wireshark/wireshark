@@ -645,7 +645,8 @@ sub process_file($)
 
 	if (defined($opt_ejs)) {
 		require Parse::Pidl::Samba4::EJS;
-		my ($hdr,$prsr) = Parse::Pidl::Samba4::EJS::Parse($ndr, $h_filename);
+		my $generator = new Parse::Pidl::Samba4::EJS(); 
+		my ($hdr,$prsr) = $generator->Parse($ndr, $h_filename);
 		FileSave("$outputdir/ndr_$basename\_ejs.c", $prsr);
 		FileSave("$outputdir/ndr_$basename\_ejs.h", $hdr);
 	}
@@ -659,8 +660,8 @@ sub process_file($)
 	if (defined($opt_ndr_parser)) {
 		my $parser_fname = ($opt_ndr_parser or "$outputdir/ndr_$basename.c");
 		require Parse::Pidl::Samba4::NDR::Parser;
-		my ($header,$parser) = Parse::Pidl::Samba4::NDR::Parser::Parse($ndr, $gen_header, $h_filename);
-
+		my $generator = new Parse::Pidl::Samba4::NDR::Parser();
+		my ($header,$parser) = $generator->Parse($ndr, $gen_header, $h_filename);
 
 		FileSave($parser_fname, $parser);
 		FileSave($h_filename, $header);
@@ -675,7 +676,8 @@ sub process_file($)
 	  my $cnffile = $idl_file;
 	  $cnffile =~ s/\.idl$/\.cnf/;
 
-	  my ($dp, $dh) = Parse::Pidl::Wireshark::NDR::Parse($ndr, $idl_file, $eheader, $cnffile);
+	  my $generator = new Parse::Pidl::Wireshark::NDR();
+	  my ($dp, $dh) = $generator->Parse($ndr, $idl_file, $eheader, $cnffile);
 	  FileSave($eparser, $dp) if defined($dp);
 	  FileSave($eheader, $dh) if defined($dh);
 	}
@@ -685,7 +687,8 @@ sub process_file($)
 		my $tdr_header = $tdr_parser;
 		$tdr_header =~ s/\.c$/\.h/;
 		require Parse::Pidl::Samba4::TDR;
-		my ($hdr,$prsr) = Parse::Pidl::Samba4::TDR::Parser($pidl, $tdr_header, $gen_header);
+		my $generator = new Parse::Pidl::Samba4::TDR();
+		my ($hdr,$prsr) = $generator->Parser($pidl, $tdr_header, $gen_header);
 		FileSave($tdr_parser, $prsr);
 		FileSave($tdr_header, $hdr);
 	}
@@ -699,7 +702,8 @@ sub process_file($)
 		my $client = ($opt_samba3_ndr_client or "$outputdir/cli_$basename.c");
 		my $header = $client; $header =~ s/\.c$/\.h/;
 		require Parse::Pidl::Samba3::ClientNDR;
-		my ($c_code,$h_code) = Parse::Pidl::Samba3::ClientNDR::Parse($ndr, $header, $h_filename);
+		my $generator = new Parse::Pidl::Samba3::ClientNDR();
+		my ($c_code,$h_code) = $generator->Parse($ndr, $header, $h_filename);
 		FileSave($client, $c_code);
 		FileSave($header, $h_code);
 	}

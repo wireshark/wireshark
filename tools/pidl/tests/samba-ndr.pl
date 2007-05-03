@@ -8,10 +8,11 @@ use Test::More tests => 41;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
+use strict;
 use Parse::Pidl::Util qw(MyDumper);
 use Parse::Pidl::Samba4::NDR::Parser qw(check_null_pointer 
 	GenerateFunctionInEnv GenerateFunctionOutEnv GenerateStructEnv 
-	EnvSubstituteValue NeededFunction NeededElement NeededType $res
+	EnvSubstituteValue NeededFunction NeededElement NeededType
 	NeededInterface TypeFunctionName ParseElementPrint); 
 
 my $output;
@@ -260,21 +261,21 @@ is_deeply($needed, { ndr_pull_bla => 1, ndr_push_bla => 1, ndr_print_bla => 1,
 	                 ndr_pull_bar => 1, ndr_push_bar => 1, 
 				     ndr_bar_to_rep => 1, ndr_rep_to_bar => 1});
 	
-$res = "";
-Parse::Pidl::Samba4::NDR::Parser::ParseStructPush({
+my $generator = new Parse::Pidl::Samba4::NDR::Parser();
+$generator->ParseStructPush({
 			NAME => "mystruct",
 			TYPE => "STRUCT",
 			PROPERTIES => {},
 			ALIGN => 4,
 			ELEMENTS => [ ]}, "x");
-is($res, "if (ndr_flags & NDR_SCALARS) {
+is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_align(ndr, 4));
 }
 if (ndr_flags & NDR_BUFFERS) {
 }
 ");
 
-$res = "";
+$generator = new Parse::Pidl::Samba4::NDR::Parser();
 my $e = { 
 	NAME => "el1", 
 	TYPE => "mytype",
@@ -283,14 +284,14 @@ my $e = {
 	LEVELS => [ 
 		{ LEVEL_INDEX => 0, TYPE => "DATA", DATA_TYPE => "mytype" } 
 ] };
-Parse::Pidl::Samba4::NDR::Parser::ParseStructPush({
+$generator->ParseStructPush({
 			NAME => "mystruct",
 			TYPE => "STRUCT",
 			PROPERTIES => {},
 			ALIGN => 4,
 			SURROUNDING_ELEMENT => $e,
 			ELEMENTS => [ $e ]}, "x");
-is($res, "if (ndr_flags & NDR_SCALARS) {
+is($generator->{res}, "if (ndr_flags & NDR_SCALARS) {
 	NDR_CHECK(ndr_push_uint32(ndr, NDR_SCALARS, ndr_string_array_size(ndr, x->el1)));
 	NDR_CHECK(ndr_push_align(ndr, 4));
 	NDR_CHECK(ndr_push_mytype(ndr, NDR_SCALARS, &x->el1));
@@ -305,21 +306,21 @@ is(TypeFunctionName("ndr_pull", {TYPE => "TYPEDEF", NAME => "bar", DATA => undef
 is(TypeFunctionName("ndr_push", {TYPE => "STRUCT", NAME => "bar"}), "ndr_push_STRUCT_bar");
 
 # check noprint works
-$res = "";
-ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
+$generator = new Parse::Pidl::Samba4::NDR::Parser();
+$generator->ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
 				    PROPERTIES => { noprint => 1},
 				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt"} ]}, "var", { "x" => "r->foobar" } );
-is($res, "");
+is($generator->{res}, "");
 
-$res = "";
-ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
+$generator = new Parse::Pidl::Samba4::NDR::Parser();
+$generator->ParseElementPrint({ NAME => "x", TYPE => "rt", REPRESENTATION_TYPE => "rt", 
 				    PROPERTIES => {},
 				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "rt" }]}, "var", { "x" => "r->foobar" } );
-is($res, "ndr_print_rt(ndr, \"x\", &var);\n");
+is($generator->{res}, "ndr_print_rt(ndr, \"x\", &var);\n");
 
 # make sure that a print function for an element with value() set works
-$res = "";
-ParseElementPrint({ NAME => "x", TYPE => "uint32", REPRESENTATION_TYPE => "uint32", 
+$generator = new Parse::Pidl::Samba4::NDR::Parser();
+$generator->ParseElementPrint({ NAME => "x", TYPE => "uint32", REPRESENTATION_TYPE => "uint32", 
 				    PROPERTIES => { value => "23" },
 				    LEVELS => [ { TYPE => "DATA", DATA_TYPE => "uint32"} ]}, "var", { "x" => "r->foobar" } );
-is($res, "ndr_print_uint32(ndr, \"x\", (ndr->flags & LIBNDR_PRINT_SET_VALUES)?23:var);\n");
+is($generator->{res}, "ndr_print_uint32(ndr, \"x\", (ndr->flags & LIBNDR_PRINT_SET_VALUES)?23:var);\n");

@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 45;
+use Test::More tests => 47;
 use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
@@ -61,11 +61,11 @@ is_deeply(parse_conf("CODE START\ndata\nmore data\nCODE END\n"), { override => "
 test_warnings("nofile:1: Unknown command `CODE'\n",
 	sub { parse_conf("CODE END\n"); } );
 
-is_deeply(parse_conf("TYPE winreg_String dissect_myminregstring FT_STRING BASE_DEC 0 0 2\n"), { types => { winreg_String => { 
+is_deeply(parse_conf("TYPE winreg_String dissect_myminregstring(); FT_STRING BASE_DEC 0 0 2\n"), { types => { winreg_String => { 
 				NAME => "winreg_String",
 				POS => { FILE => "nofile", LINE => 1 },
 				USED => 0,
-				DISSECTOR_NAME => "dissect_myminregstring",
+				DISSECTOR_NAME => "dissect_myminregstring();",
 				FT_TYPE => "FT_STRING",
 				BASE_TYPE => "BASE_DEC",
 				MASK => 0,
@@ -87,13 +87,13 @@ test_errors("nofile:1: incomplete TYPE command\n",
 	sub { parse_conf("TYPE mytype dissector\n"); });
 
 test_warnings("nofile:1: dissector name does not contain `dissect'\n",
-	sub { parse_conf("TYPE winreg_String myminregstring FT_STRING BASE_DEC 0 0 2\n"); });
+	sub { parse_conf("TYPE winreg_String myminregstring; FT_STRING BASE_DEC 0 0 2\n"); });
 
 test_warnings("nofile:1: invalid FT_TYPE `BLA'\n",
-	sub { parse_conf("TYPE winreg_String dissect_myminregstring BLA BASE_DEC 0 0 2\n"); });
+	sub { parse_conf("TYPE winreg_String dissect_myminregstring; BLA BASE_DEC 0 0 2\n"); });
 
 test_warnings("nofile:1: invalid BASE_TYPE `BLOE'\n",
-	sub { parse_conf("TYPE winreg_String dissect_myminregstring FT_UINT32 BLOE 0 0 2\n"); });
+	sub { parse_conf("TYPE winreg_String dissect_myminregstring; FT_UINT32 BLOE 0 0 2\n"); });
 
 is_deeply(parse_conf("TFS hf_bla \"True string\" \"False String\"\n"),
 		{ tfs => { hf_bla => {
@@ -163,3 +163,38 @@ test_errors("nofile:1: no dissectorname specified\n",
 
 test_errors("nofile:1: incomplete HF_FIELD command\n",
 	sub { parse_conf("HF_FIELD hf_idx\n"); });
+
+is_deeply(parse_conf("TYPE winreg_String dissect_myminregstring(); FT_STRING BASE_DEC 0 0 0 2\n"), {
+		types => {
+			winreg_String => {
+				NAME => "winreg_String",
+				POS => { FILE => "nofile", LINE => 1 },
+				USED => 0,
+				DISSECTOR_NAME => "dissect_myminregstring();",
+				FT_TYPE => "FT_STRING",
+				BASE_TYPE => "BASE_DEC",
+				MASK => 0,
+				VALSSTRING => 0,
+				ALIGNMENT => 0
+			}
+		}
+	}
+);
+
+
+is_deeply(parse_conf("TYPE winreg_String \"offset = dissect_myminregstring(\@HF\@);\" FT_STRING BASE_DEC 0 0 0 2\n"), {
+		types => {
+			winreg_String => {
+				NAME => "winreg_String",
+				POS => { FILE => "nofile", LINE => 1 },
+				USED => 0,
+				DISSECTOR_NAME => "offset = dissect_myminregstring(\@HF\@);",
+				FT_TYPE => "FT_STRING",
+				BASE_TYPE => "BASE_DEC",
+				MASK => 0,
+				VALSSTRING => 0,
+				ALIGNMENT => 0
+			}
+		}
+	}
+);

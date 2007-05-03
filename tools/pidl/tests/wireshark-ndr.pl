@@ -10,44 +10,44 @@ use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::Wireshark::NDR qw(field2name %res PrintIdl StripPrefixes %hf_used RegisterInterfaceHandoff $conformance register_hf_field CheckUsed ProcessImport ProcessInclude find_type DumpEttList DumpEttDeclaration DumpHfList DumpHfDeclaration DumpFunctionTable register_type @ett register_ett);
+use strict;
+use Parse::Pidl::Wireshark::NDR qw(field2name %res PrintIdl StripPrefixes RegisterInterfaceHandoff register_hf_field ProcessImport ProcessInclude find_type DumpEttList DumpEttDeclaration DumpHfList DumpHfDeclaration DumpFunctionTable register_type register_ett);
 
 is("Access Mask", field2name("access_mask"));
 is("Accessmask", field2name("AccessMask"));
 
-$res{code} = "";
-PrintIdl("foo\nbar\n");
+my $x = new Parse::Pidl::Wireshark::NDR();
+$x->PrintIdl("foo\nbar\n");
 is("/* IDL: foo */
 /* IDL: bar */
 
-", $res{code});
+", $x->{res}->{code});
 
 is("bla_foo", StripPrefixes("bla_foo", []));
 is("foo", StripPrefixes("bla_foo", ["bla"]));
 is("foo_bla", StripPrefixes("foo_bla", ["bla"]));
 
-%hf_used = ();
-$res{code} = "";
-RegisterInterfaceHandoff({});
-is($res{code}, "");
-ok(not defined($hf_used{hf_bla_opnum}));
+$x = new Parse::Pidl::Wireshark::NDR();
+$x->RegisterInterfaceHandoff({});
+is($x->{res}->{code}, "");
+ok(not defined($x->{hf_used}->{hf_bla_opnum}));
 
-%hf_used = ();
-$res{code} = "";
-RegisterInterfaceHandoff({UUID => "uuid", NAME => "bla"});
-is($res{code}, 'void proto_reg_handoff_dcerpc_bla(void)
+$x = new Parse::Pidl::Wireshark::NDR();
+$x->{res}->{code} = "";
+$x->RegisterInterfaceHandoff({UUID => "uuid", NAME => "bla"});
+is($x->{res}->{code}, 'void proto_reg_handoff_dcerpc_bla(void)
 {
 	dcerpc_init_uuid(proto_dcerpc_bla, ett_dcerpc_bla,
 		&uuid_dcerpc_bla, ver_dcerpc_bla,
 		bla_dissectors, hf_bla_opnum);
 }
 ');
-is($hf_used{hf_bla_opnum}, 1);
+is($x->{hf_used}->{hf_bla_opnum}, 1);
 
-$conformance = {};
+$x->{conformance} = {};
 is("hf_bla_idx", 
-	register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef));
-is_deeply($conformance, {
+	$x->register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef));
+is_deeply($x->{conformance}, {
 		header_fields => {
 			"hf_bla_idx" => {
 				INDEX => "hf_bla_idx",
@@ -64,10 +64,10 @@ is_deeply($conformance, {
 		fielddescription => {}
 });
 
-$conformance = { fielddescription => { hf_bla_idx => { DESCRIPTION => "Some Description" }}};
+$x->{conformance} = { fielddescription => { hf_bla_idx => { DESCRIPTION => "Some Description" }}};
 is("hf_bla_idx",
-	register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef));
-is_deeply($conformance, {
+	$x->register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef));
+is_deeply($x->{conformance}, {
 		fielddescription => { 
 			hf_bla_idx => {
 				DESCRIPTION => "Some Description",
@@ -89,11 +89,11 @@ is_deeply($conformance, {
 		hf_renames => {},
 });
 
-$conformance = { fielddescription => { hf_bla_idx => { DESCRIPTION => "Some Description" }}};
+$x->{conformance} = { fielddescription => { hf_bla_idx => { DESCRIPTION => "Some Description" }}};
 is("hf_bla_idx",
-	register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, 
+	$x->register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, 
 		"Actual Description"));
-is_deeply($conformance, {
+is_deeply($x->{conformance}, {
 		fielddescription => { 
 			hf_bla_idx => { DESCRIPTION => "Some Description" }
 		},
@@ -114,21 +114,21 @@ is_deeply($conformance, {
 
 
 
-$conformance = { hf_renames => { "hf_bla_idx" => { NEWNAME => "hf_bloe_idx" } } };
-register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef);
-is_deeply($conformance, {
+$x->{conformance} = { hf_renames => { "hf_bla_idx" => { NEWNAME => "hf_bloe_idx" } } };
+$x->register_hf_field("hf_bla_idx", "bla", "my.filter", "FT_UINT32", "BASE_HEX", "NULL", 0xF, undef);
+is_deeply($x->{conformance}, {
 		hf_renames => { hf_bla_idx => { USED => 1, NEWNAME => "hf_bloe_idx" } } });
 
-%hf_used = ( hf_bla => 1 );
+$x->{hf_used} = { hf_bla => 1 };
 test_warnings("", sub { 
-		CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
+		$x->CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
 
-%hf_used = ( );
+$x->{hf_used} = { };
 test_warnings("hf field `hf_bla' not used\n", sub { 
-		CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
+		$x->CheckUsed({ header_fields => { foo => { INDEX => "hf_bla" }}})});
 
 test_warnings("hf field `hf_id' not used\n", 
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	hf_renames => {
 		hf_id => {
 			OLDNAME => "hf_id",
@@ -139,7 +139,7 @@ test_warnings("hf field `hf_id' not used\n",
 }); } );
 
 test_warnings("dissector param never used\n",
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	dissectorparams => {
 		dissect_foo => {
 			PARAM => 42,
@@ -149,7 +149,7 @@ test_warnings("dissector param never used\n",
 }); } );
 
 test_warnings("description never used\n",
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	fielddescription => {
 		hf_bla => {
 			USED => 0
@@ -158,7 +158,7 @@ test_warnings("description never used\n",
 }); } );
 
 test_warnings("import never used\n",
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	imports => {
 		bla => {
 			USED => 0
@@ -167,7 +167,7 @@ test_warnings("import never used\n",
 }); } );
 
 test_warnings("nofile:1: type never used\n",
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	types => {
 		bla => {
 			USED => 0,
@@ -177,7 +177,7 @@ test_warnings("nofile:1: type never used\n",
 }); } );
 
 test_warnings("True/False description never used\n",
-	sub { CheckUsed({
+	sub { $x->CheckUsed({
 	tfs => {
 		hf_bloe => {
 			USED => 0
@@ -185,34 +185,34 @@ test_warnings("True/False description never used\n",
 	}
 }); } );
 
-$res{hdr} = "";
-ProcessImport("security", "bla");
-is($res{hdr}, "#include \"packet-dcerpc-bla.h\"\n\n");
+$x = new Parse::Pidl::Wireshark::NDR();
+$x->ProcessImport("security", "bla");
+is($x->{res}->{hdr}, "#include \"packet-dcerpc-bla.h\"\n\n");
 
-$res{hdr} = "";
-ProcessImport("\"bla.idl\"", "\"foo.idl\"");
-is($res{hdr}, "#include \"packet-dcerpc-bla.h\"\n" . 
+$x = new Parse::Pidl::Wireshark::NDR();
+$x->ProcessImport("\"bla.idl\"", "\"foo.idl\"");
+is($x->{res}->{hdr}, "#include \"packet-dcerpc-bla.h\"\n" . 
               "#include \"packet-dcerpc-foo.h\"\n\n");
 
-$res{hdr} = "";
-ProcessInclude("foo.h", "bla.h", "bar.h");
-is($res{hdr}, "#include \"foo.h\"\n" . 
+$x = new Parse::Pidl::Wireshark::NDR();
+$x->ProcessInclude("foo.h", "bla.h", "bar.h");
+is($x->{res}->{hdr}, "#include \"foo.h\"\n" . 
 	          "#include \"bla.h\"\n" . 
 			  "#include \"bar.h\"\n\n");
 	
-$conformance = {types => { bla => "brainslug" } };
-is("brainslug", find_type("bla"));
+$x->{conformance} = {types => { bla => "brainslug" } };
+is("brainslug", $x->find_type("bla"));
 
-is(DumpEttList("ett_t1", "ett_bla"), 
+is(DumpEttList(["ett_t1", "ett_bla"]), 
 	"\tstatic gint *ett[] = {\n" . 
 	"\t\t&ett_t1,\n" .
 	"\t\t&ett_bla,\n" .
 	"\t};\n");
 
 is(DumpEttList(), "\tstatic gint *ett[] = {\n\t};\n");
-is(DumpEttList("bla"), "\tstatic gint *ett[] = {\n\t\t&bla,\n\t};\n");
+is(DumpEttList(["bla"]), "\tstatic gint *ett[] = {\n\t\t&bla,\n\t};\n");
 
-is(DumpEttDeclaration("void", "zoid"), 
+is(DumpEttDeclaration(["void", "zoid"]), 
 	"\n/* Ett declarations */\n" . 
 	"static gint void = -1;\n" .
 	"static gint zoid = -1;\n" .
@@ -220,19 +220,19 @@ is(DumpEttDeclaration("void", "zoid"),
 
 is(DumpEttDeclaration(), "\n/* Ett declarations */\n\n");
 
-$conformance = {
+$x->{conformance} = {
 	header_fields => {
 		hf_bla => { INDEX => "hf_bla", NAME => "Bla", FILTER => "bla.field", FT_TYPE => "FT_UINT32", BASE_TYPE => "BASE_DEC", VALSSTRING => "NULL", MASK => 0xFF, BLURB => "NULL" } 
 	} 
 };
 
-is(DumpHfList(), "\tstatic hf_register_info hf[] = {
+is($x->DumpHfList(), "\tstatic hf_register_info hf[] = {
 	{ &hf_bla, 
 	  { \"Bla\", \"bla.field\", FT_UINT32, BASE_DEC, NULL, 255, \"NULL\", HFILL }},
 	};
 ");
 
-is(DumpHfDeclaration(), "
+is($x->DumpHfDeclaration(), "
 /* Header field declarations */
 static gint hf_bla = -1;
 
@@ -250,9 +250,9 @@ is(DumpFunctionTable({
 };
 ');
 
-$conformance = {};
-register_type("bla_type", "dissect_bla", "FT_UINT32", "BASE_HEX", 0xFF, "NULL", 4);
-is_deeply($conformance, {
+$x->{conformance} = {};
+$x->register_type("bla_type", "dissect_bla", "FT_UINT32", "BASE_HEX", 0xFF, "NULL", 4);
+is_deeply($x->{conformance}, {
 		types => {
 			bla_type => {
 				NAME => "bla_type",
@@ -267,8 +267,8 @@ is_deeply($conformance, {
 	}
 );
 
-@ett = ();
-register_ett("name");
-is_deeply(\@ett, ["name"]);
-register_ett("leela");
-is_deeply(\@ett, ["name", "leela"]);
+$x->{ett} = [];
+$x->register_ett("name");
+is_deeply($x->{ett}, ["name"]);
+$x->register_ett("leela");
+is_deeply($x->{ett}, ["name", "leela"]);

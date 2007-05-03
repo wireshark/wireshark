@@ -281,6 +281,8 @@ sub can_contain_deferred($)
 
 	my $type = getType($e->{TYPE});
 
+	return 1 if ($type->{TYPE} eq "DECLARE"); # assume the worst
+
 	foreach my $x (@{$type->{DATA}->{ELEMENTS}}) {
 		return 1 if ($x->{POINTERS});
 		return 1 if (can_contain_deferred ($x));

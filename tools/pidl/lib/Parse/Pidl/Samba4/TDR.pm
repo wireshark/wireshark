@@ -17,14 +17,16 @@ $VERSION = '0.01';
 
 use strict;
 
-our $ret;
-our $ret_hdr;
-my $tabs = "";
+sub new($) {
+	my ($class) = shift;
+	my $self = { ret => "", ret_hdr => "", tabs => "" };
+	bless($self, $class);
+}
 
-sub indent() { $tabs.="\t"; }
-sub deindent() { $tabs = substr($tabs, 1); }
-sub pidl($) { $ret .= $tabs.(shift)."\n"; }
-sub pidl_hdr($) { $ret_hdr .= (shift)."\n"; }
+sub indent($) { my $self = shift; $self->{tabs}.="\t"; }
+sub deindent($) { my $self = shift; $self->{tabs} = substr($self->{tabs}, 1); }
+sub pidl($$) { my $self = shift; $self->{ret} .= $self->{tabs}.(shift)."\n"; }
+sub pidl_hdr($$) { my $self = shift; $self->{ret_hdr} .= (shift)."\n"; }
 sub typearg($) { 
 	my $t = shift; 
 	return(", const char *name") if ($t eq "print");
@@ -32,10 +34,14 @@ sub typearg($) {
 	return("");
 }
 
-sub fn_declare($$)
+sub fn_declare($$$)
 {
-	my ($p, $d) = @_;
-	if ($p) { pidl $d; pidl_hdr "$d;"; } else { pidl "static $d"; }
+	my ($self, $p, $d) = @_;
+	if ($p) { 
+		$self->pidl($d); $self->pidl_hdr("$d;"); 
+	} else { 
+		$self->pidl("static $d"); 
+	}
 }
 
 sub ContainsArray($)
@@ -50,9 +56,9 @@ sub ContainsArray($)
 	return 0;
 }
 
-sub ParserElement($$$)
+sub ParserElement($$$$)
 {
-	my ($e,$t,$env) = @_;
+	my ($self, $e,$t,$env) = @_;
 	my $switch = "";
 	my $array = "";
 	my $name = "";
@@ -67,10 +73,10 @@ sub ParserElement($$$)
 	}
 
 	if (has_property($e, "flag")) {
-		pidl "{";
-		indent;
-		pidl "uint32_t saved_flags = tdr->flags;";
-		pidl "tdr->flags |= $e->{PROPERTIES}->{flag};";
+		$self->pidl("{");
+		$self->indent;
+		$self->pidl("uint32_t saved_flags = tdr->flags;");
+		$self->pidl("tdr->flags |= $e->{PROPERTIES}->{flag};");
 	}
 
 	if (has_property($e, "charset")) {
@@ -79,7 +85,7 @@ sub ParserElement($$$)
 		my $len = ParseExpr(@{$e->{ARRAY_LEN}}[0], $env, $e);
 		if ($len eq "*") { $len = "-1"; }
 		$name = ", mem_ctx" if ($t eq "pull");
-		pidl "TDR_CHECK(tdr_$t\_charset(tdr$name, &v->$e->{NAME}, $len, sizeof($e->{TYPE}_t), CH_$e->{PROPERTIES}->{charset}));";
+		$self->pidl("TDR_CHECK(tdr_$t\_charset(tdr$name, &v->$e->{NAME}, $len, sizeof($e->{TYPE}_t), CH_$e->{PROPERTIES}->{charset}));");
 		return;
 	}
 
@@ -91,12 +97,12 @@ sub ParserElement($$$)
 		my $len = ParseExpr($e->{ARRAY_LEN}[0], $env, $e);
 
 		if ($t eq "pull" and not is_constant($len)) {
-			pidl "TDR_ALLOC(mem_ctx, v->$e->{NAME}, $len);";
+			$self->pidl("TDR_ALLOC(mem_ctx, v->$e->{NAME}, $len);");
 			$mem_ctx = "v->$e->{NAME}";
 		}
 
-		pidl "for (i = 0; i < $len; i++) {";
-		indent;
+		$self->pidl("for (i = 0; i < $len; i++) {");
+		$self->indent;
 		$array = "[i]";
 	}
 
@@ -105,116 +111,116 @@ sub ParserElement($$$)
 	}
 
 	if (has_property($e, "value") && $t eq "push") {
-		pidl "v->$e->{NAME} = ".ParseExpr($e->{PROPERTIES}->{value}, $env, $e).";";
+		$self->pidl("v->$e->{NAME} = ".ParseExpr($e->{PROPERTIES}->{value}, $env, $e).";");
 	}
 
-	pidl "TDR_CHECK(tdr_$t\_$e->{TYPE}(tdr$name$switch, &v->$e->{NAME}$array));";
+	$self->pidl("TDR_CHECK(tdr_$t\_$e->{TYPE}(tdr$name$switch, &v->$e->{NAME}$array));");
 
-	if ($array) { deindent; pidl "}"; }
+	if ($array) { $self->deindent; $self->pidl("}"); }
 
 	if (has_property($e, "flag")) {
-		pidl "tdr->flags = saved_flags;";
-		deindent;
-		pidl "}";
+		$self->pidl("tdr->flags = saved_flags;");
+		$self->deindent;
+		$self->pidl("}");
 	}
 }
 
-sub ParserStruct($$$$)
+sub ParserStruct($$$$$)
 {
-	my ($e,$t,$p) = @_;
+	my ($self, $e,$t,$p) = @_;
 
-	fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", struct $e->{NAME} *v)");
-	pidl "{"; indent;
-	pidl "int i;" if (ContainsArray($e));
+	$self->fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", struct $e->{NAME} *v)");
+	$self->pidl("{"); $self->indent;
+	$self->pidl("int i;") if (ContainsArray($e));
 
 	if ($t eq "print") {
-		pidl "tdr->print(tdr, \"\%-25s: struct $e->{NAME}\", name);";
-		pidl "tdr->level++;";
+		$self->pidl("tdr->print(tdr, \"\%-25s: struct $e->{NAME}\", name);");
+		$self->pidl("tdr->level++;");
 	}
 
 	my %env = map { $_->{NAME} => "v->$_->{NAME}" } @{$e->{ELEMENTS}};
 	$env{"this"} = "v";
-	ParserElement($_, $t, \%env) foreach (@{$e->{ELEMENTS}});
+	$self->ParserElement($_, $t, \%env) foreach (@{$e->{ELEMENTS}});
 	
 	if ($t eq "print") {
-		pidl "tdr->level--;";
+		$self->pidl("tdr->level--;");
 	}
 
-	pidl "return NT_STATUS_OK;";
+	$self->pidl("return NT_STATUS_OK;");
 
-	deindent; pidl "}";
+	$self->deindent; $self->pidl("}");
 }
 
-sub ParserUnion($$$)
+sub ParserUnion($$$$)
 {
-	my ($e,$t,$p) = @_;
+	my ($self, $e,$t,$p) = @_;
 
-	fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME}(struct tdr_$t *tdr".typearg($t).", int level, union $e->{NAME} *v)");
-	pidl "{"; indent;
-	pidl "int i;" if (ContainsArray($e));
+	$self->fn_declare($p,"NTSTATUS tdr_$t\_$e->{NAME}(struct tdr_$t *tdr".typearg($t).", int level, union $e->{NAME} *v)");
+	$self->pidl("{"); $self->indent;
+	$self->pidl("int i;") if (ContainsArray($e));
 
 	if ($t eq "print") {
-		pidl "tdr->print(tdr, \"\%-25s: union $e->{NAME}\", name);";
-		pidl "tdr->level++;";
+		$self->pidl("tdr->print(tdr, \"\%-25s: union $e->{NAME}\", name);");
+		$self->pidl("tdr->level++;");
 	}
 	
-	pidl "switch (level) {"; indent;
+	$self->pidl("switch (level) {"); $self->indent;
 	foreach (@{$e->{ELEMENTS}}) {
 		if (has_property($_, "case")) {
-			pidl "case " . $_->{PROPERTIES}->{case} . ":";
+			$self->pidl("case " . $_->{PROPERTIES}->{case} . ":");
 		} elsif (has_property($_, "default")) {
-			pidl "default:";
+			$self->pidl("default:");
 		}
-		indent; ParserElement($_, $t, {}); deindent;
-		pidl "break;";
+		$self->indent; $self->ParserElement($_, $t, {}); $self->deindent;
+		$self->pidl("break;");
 	}
-	deindent; pidl "}";
+	$self->deindent; $self->pidl("}");
 
 	if ($t eq "print") {
-		pidl "tdr->level--;";
+		$self->pidl("tdr->level--;");
 	}
 	
-	pidl "return NT_STATUS_OK;\n";
-	deindent; pidl "}";
+	$self->pidl("return NT_STATUS_OK;\n");
+	$self->deindent; $self->pidl("}");
 }
 
-sub ParserBitmap($$$)
+sub ParserBitmap($$$$)
 {
-	my ($e,$t,$p) = @_;
+	my ($self,$e,$t,$p) = @_;
 	return if ($p);
-	pidl "#define tdr_$t\_$e->{NAME} tdr_$t\_" . Parse::Pidl::Typelist::bitmap_type_fn($e);
+	$self->pidl("#define tdr_$t\_$e->{NAME} tdr_$t\_" . Parse::Pidl::Typelist::bitmap_type_fn($e));
 }
 
-sub ParserEnum($$$)
+sub ParserEnum($$$$)
 {
-	my ($e,$t,$p) = @_;
+	my ($self,$e,$t,$p) = @_;
 	my $bt = ($e->{PROPERTIES}->{base_type} or "uint8");
 	
-	fn_declare($p, "NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", enum $e->{NAME} *v)");
-	pidl "{";
+	$self->fn_declare($p, "NTSTATUS tdr_$t\_$e->{NAME} (struct tdr_$t *tdr".typearg($t).", enum $e->{NAME} *v)");
+	$self->pidl("{");
 	if ($t eq "pull") {
-		pidl "\t$bt\_t r;";
-		pidl "\tTDR_CHECK(tdr_$t\_$bt(tdr, mem_ctx, \&r));";
-		pidl "\t*v = r;";
+		$self->pidl("\t$bt\_t r;");
+		$self->pidl("\tTDR_CHECK(tdr_$t\_$bt(tdr, mem_ctx, \&r));");
+		$self->pidl("\t*v = r;");
 	} elsif ($t eq "push") {
-		pidl "\tTDR_CHECK(tdr_$t\_$bt(tdr, ($bt\_t *)v));";
+		$self->pidl("\tTDR_CHECK(tdr_$t\_$bt(tdr, ($bt\_t *)v));");
 	} elsif ($t eq "print") {
-		pidl "\t/* FIXME */";
+		$self->pidl("\t/* FIXME */");
 	}
-	pidl "\treturn NT_STATUS_OK;";
-	pidl "}";
+	$self->pidl("\treturn NT_STATUS_OK;");
+	$self->pidl("}");
 }
 
-sub ParserTypedef($$$)
+sub ParserTypedef($$$$)
 {
-	my ($e,$t,$p) = @_;
+	my ($self, $e,$t,$p) = @_;
 
-	ParserType($e->{DATA},$t);
+	$self->ParserType($e->{DATA},$t);
 }
 
-sub ParserType($$)
+sub ParserType($$$)
 {
-	my ($e,$t) = @_;
+	my ($self, $e,$t) = @_;
 
 	return if (has_property($e, "no$t"));
 
@@ -224,53 +230,52 @@ sub ParserType($$)
 		TYPEDEF => \&ParserTypedef
 	};
 	
-	$handlers->{$e->{TYPE}}->($e, $t, has_property($e, "public")) 
+	$handlers->{$e->{TYPE}}->($self, $e, $t, has_property($e, "public")) 
 		if (defined($handlers->{$e->{TYPE}}));
 
-	pidl "";
+	$self->pidl("");
 }
 
-sub ParserInterface($)
+sub ParserInterface($$)
 {
-	my $x = shift;
+	my ($self,$x) = @_;
 	
-	pidl_hdr "#ifndef __TDR_$x->{NAME}_HEADER__";
-	pidl_hdr "#define __TDR_$x->{NAME}_HEADER__";
+	$self->pidl_hdr("#ifndef __TDR_$x->{NAME}_HEADER__");
+	$self->pidl_hdr("#define __TDR_$x->{NAME}_HEADER__");
 
 	foreach (@{$x->{DATA}}) {
-		ParserType($_, "pull");
-		ParserType($_, "push");
-		ParserType($_, "print");
+		$self->ParserType($_, "pull");
+		$self->ParserType($_, "push");
+		$self->ParserType($_, "print");
 	}
 
-	pidl_hdr "#endif /* __TDR_$x->{NAME}_HEADER__ */";
+	$self->pidl_hdr("#endif /* __TDR_$x->{NAME}_HEADER__ */");
 }
 
-sub Parser($$$)
+sub Parser($$$$)
 {
-	my ($idl,$hdrname,$baseheader) = @_;
-	$ret = ""; $ret_hdr = "";
-	pidl "/* autogenerated by pidl */";
+	my ($self,$idl,$hdrname,$baseheader) = @_;
+	$self->pidl("/* autogenerated by pidl */");
 	if (is_intree()) {
-		pidl "#include \"includes.h\"";
+		$self->pidl("#include \"includes.h\"");
 	} else {
-		pidl "#include <stdio.h>";
-		pidl "#include <stdbool.h>";
-		pidl "#include <stdlib.h>";
-		pidl "#include <stdint.h>";
-		pidl "#include <stdarg.h>";
-		pidl "#include <string.h>";
-		pidl "#include <core/nterr.h>";
+		$self->pidl("#include <stdio.h>");
+		$self->pidl("#include <stdbool.h>");
+		$self->pidl("#include <stdlib.h>");
+		$self->pidl("#include <stdint.h>");
+		$self->pidl("#include <stdarg.h>");
+		$self->pidl("#include <string.h>");
+		$self->pidl("#include <core/nterr.h>");
 	}
-	pidl "#include \"$hdrname\"";
-	pidl "";
-	pidl_hdr "/* autogenerated by pidl */";
-	pidl_hdr "#include \"$baseheader\"";
-	pidl_hdr choose_header("tdr/tdr.h", "tdr.h");
-	pidl_hdr "";
+	$self->pidl("#include \"$hdrname\"");
+	$self->pidl("");
+	$self->pidl_hdr("/* autogenerated by pidl */");
+	$self->pidl_hdr("#include \"$baseheader\"");
+	$self->pidl_hdr(choose_header("tdr/tdr.h", "tdr.h"));
+	$self->pidl_hdr("");
 
-	foreach (@$idl) { ParserInterface($_) if ($_->{TYPE} eq "INTERFACE"); }	
-	return ($ret_hdr, $ret);
+	foreach (@$idl) { $self->ParserInterface($_) if ($_->{TYPE} eq "INTERFACE"); }	
+	return ($self->{ret_hdr}, $self->{ret});
 }
 
 1;

@@ -20,14 +20,18 @@ use Parse::Pidl::Samba4 qw(DeclLong);
 use vars qw($VERSION);
 $VERSION = '0.01';
 
-our $res;
-our $res_hdr;
-my $tabs = "";
-sub indent() { $tabs.="\t"; }
-sub deindent() { $tabs = substr($tabs, 1); }
-sub pidl($) { $res .= $tabs.(shift)."\n"; }
-sub pidl_hdr($) { $res_hdr .= (shift)."\n"; }
-sub fn_declare($) { my ($n) = @_; pidl $n; pidl_hdr "$n;"; }
+sub indent($) { my ($self) = @_; $self->{tabs}.="\t"; }
+sub deindent($) { my ($self) = @_; $self->{tabs} = substr($self->{tabs}, 1); }
+sub pidl($$) { my ($self,$txt) = @_; $self->{res} .= "$self->{tabs}$txt\n"; }
+sub pidl_hdr($$) { my ($self, $txt) = @_; $self->{res_hdr} .= "$txt\n"; } 
+sub fn_declare($$) { my ($self,$n) = @_; $self->pidl($n); $self->pidl_hdr("$n;"); }
+
+sub new($)
+{
+	my ($class) = shift;
+	my $self = { res => "", res_hdr => "", tabs => "" };
+	bless($self, $class);
+}
 
 sub GenerateFunctionInEnv($)
 {
@@ -43,9 +47,9 @@ sub GenerateFunctionInEnv($)
 	return \%env;
 }
 
-sub ParseFunction($$)
+sub ParseFunction($$$)
 {
-	my ($uif, $fn) = @_;
+	my ($self, $uif, $fn) = @_;
 
 	my $inargs = "";
 	my $defargs = "";
@@ -54,42 +58,42 @@ sub ParseFunction($$)
 	foreach (@{$fn->{ELEMENTS}}) {
 		$defargs .= ", " . DeclLong($_);
 	}
-	fn_declare "NTSTATUS rpccli_$fn->{NAME}(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx$defargs)";
-	pidl "{";
-	indent;
-	pidl "struct $fn->{NAME} r;";
-	pidl "NTSTATUS status;";
-	pidl "";
-	pidl "/* In parameters */";
+	$self->fn_declare("NTSTATUS rpccli_$fn->{NAME}(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx$defargs)");
+	$self->pidl("{");
+	$self->indent;
+	$self->pidl("struct $fn->{NAME} r;");
+	$self->pidl("NTSTATUS status;");
+	$self->pidl("");
+	$self->pidl("/* In parameters */");
 
 	foreach (@{$fn->{ELEMENTS}}) {
 		if (grep(/in/, @{$_->{DIRECTION}})) {
-			pidl "r.in.$_->{NAME} = $_->{NAME};";
+			$self->pidl("r.in.$_->{NAME} = $_->{NAME};");
 		} 
 	}
 
-	pidl "";
-	pidl "if (DEBUGLEVEL >= 10)";
-	pidl "\tNDR_PRINT_IN_DEBUG($fn->{NAME}, &r);";
-	pidl "";
-	pidl "status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, $ufn, &r, (ndr_pull_flags_fn_t)ndr_pull_$fn->{NAME}, (ndr_push_flags_fn_t)ndr_push_$fn->{NAME});";
-	pidl "";
+	$self->pidl("");
+	$self->pidl("if (DEBUGLEVEL >= 10)");
+	$self->pidl("\tNDR_PRINT_IN_DEBUG($fn->{NAME}, &r);");
+	$self->pidl("");
+	$self->pidl("status = cli_do_rpc_ndr(cli, mem_ctx, PI_$uif, $ufn, &r, (ndr_pull_flags_fn_t)ndr_pull_$fn->{NAME}, (ndr_push_flags_fn_t)ndr_push_$fn->{NAME});");
+	$self->pidl("");
 
-	pidl "if (!NT_STATUS_IS_OK(status)) {";
-	indent;
-	pidl "return status;";
-	deindent;
-	pidl "}";
+	$self->pidl("if (!NT_STATUS_IS_OK(status)) {");
+	$self->indent;
+	$self->pidl("return status;");
+	$self->deindent;
+	$self->pidl("}");
 
-	pidl "";
-	pidl "if (DEBUGLEVEL >= 10)";
-	pidl "\tNDR_PRINT_OUT_DEBUG($fn->{NAME}, &r);";
-	pidl "";
-	pidl "if (NT_STATUS_IS_ERR(status)) {";
-	pidl "\treturn status;";
-	pidl "}";
-	pidl "";
-	pidl "/* Return variables */";
+	$self->pidl("");
+	$self->pidl("if (DEBUGLEVEL >= 10)");
+	$self->pidl("\tNDR_PRINT_OUT_DEBUG($fn->{NAME}, &r);");
+	$self->pidl("");
+	$self->pidl("if (NT_STATUS_IS_ERR(status)) {");
+	$self->pidl("\treturn status;");
+	$self->pidl("}");
+	$self->pidl("");
+	$self->pidl("/* Return variables */");
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 
@@ -97,8 +101,8 @@ sub ParseFunction($$)
 
 		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
 			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
-			pidl "if ( $e->{NAME} ) {";
-			indent;
+			$self->pidl("if ( $e->{NAME} ) {");
+			$self->indent;
 		}
 
 		if ($e->{LEVELS}[0]->{TYPE} eq "ARRAY") {
@@ -108,70 +112,67 @@ sub ParseFunction($$)
 			# to allocate a structure of the right size.
 			my $env = GenerateFunctionInEnv($fn);
 			my $size_is = ParseExpr($e->{LEVELS}[0]->{SIZE_IS}, $env, $e);
-			pidl "memcpy($e->{NAME}, r.out.$e->{NAME}, $size_is);";
+			$self->pidl("memcpy($e->{NAME}, r.out.$e->{NAME}, $size_is);");
 		} else {
-			pidl "*$e->{NAME} = *r.out.$e->{NAME};";
+			$self->pidl("*$e->{NAME} = *r.out.$e->{NAME};");
 		}
 
 		if ( ($e->{LEVELS}[0]->{TYPE} eq "POINTER") and
 			 ($e->{LEVELS}[0]->{POINTER_TYPE} ne "ref") ) {
-			deindent;
-			pidl "}";
+			$self->deindent;
+			$self->pidl("}");
 		}
 	}
 
-	pidl"";
-	pidl "/* Return result */";
+	$self->pidl("");
+	$self->pidl("/* Return result */");
 	if (not $fn->{RETURN_TYPE}) {
-		pidl "return NT_STATUS_OK;";
+		$self->pidl("return NT_STATUS_OK;");
 	} elsif ($fn->{RETURN_TYPE} eq "NTSTATUS") {
-		pidl "return r.out.result;";
+		$self->pidl("return r.out.result;");
 	} elsif ($fn->{RETURN_TYPE} eq "WERROR") {
-		pidl "return werror_to_ntstatus(r.out.result);";
+		$self->pidl("return werror_to_ntstatus(r.out.result);");
 	} else {
 		warning($fn->{ORIGINAL}, "Unable to convert $fn->{RETURN_TYPE} to NTSTATUS");
-		pidl "return NT_STATUS_OK;";
+		$self->pidl("return NT_STATUS_OK;");
 	}
 
-	deindent;
-	pidl "}";
-	pidl "";
+	$self->deindent;
+	$self->pidl("}");
+	$self->pidl("");
 }
 
-sub ParseInterface($)
+sub ParseInterface($$)
 {
-	my $if = shift;
+	my ($self, $if) = @_;
 
 	my $uif = uc($if->{NAME});
 
-	pidl_hdr "#ifndef __CLI_$uif\__";
-	pidl_hdr "#define __CLI_$uif\__";
-	ParseFunction(uc($if->{NAME}), $_) foreach (@{$if->{FUNCTIONS}});
-	pidl_hdr "#endif /* __CLI_$uif\__ */";
+	$self->pidl_hdr("#ifndef __CLI_$uif\__");
+	$self->pidl_hdr("#define __CLI_$uif\__");
+	$self->ParseFunction(uc($if->{NAME}), $_) foreach (@{$if->{FUNCTIONS}});
+	$self->pidl_hdr("#endif /* __CLI_$uif\__ */");
 }
 
-sub Parse($$$)
+sub Parse($$$$)
 {
-	my($ndr,$header,$ndr_header) = @_;
+	my($self,$ndr,$header,$ndr_header) = @_;
 
-	$res = "";
-	$res_hdr = "";
-
-	pidl "/*";
-	pidl " * Unix SMB/CIFS implementation.";
-	pidl " * client auto-generated by pidl. DO NOT MODIFY!";
-	pidl " */";
-	pidl "";
-	pidl "#include \"includes.h\"";
-	pidl "#include \"$header\"";
-	pidl_hdr "#include \"$ndr_header\"";
-	pidl "";
+	$self->pidl("/*");
+	$self->pidl(" * Unix SMB/CIFS implementation.");
+	$self->pidl(" * client auto-generated by pidl. DO NOT MODIFY!");
+	$self->pidl(" */");
+	$self->pidl("");
+	$self->pidl("#include \"includes.h\"");
+	$self->pidl("#include \"$header\"");
+	$self->pidl_hdr("#include \"$ndr_header\"");
+	$self->pidl("");
 	
 	foreach (@$ndr) {
-		ParseInterface($_) if ($_->{TYPE} eq "INTERFACE");
+		$self->ParseInterface($_) if ($_->{TYPE} eq "INTERFACE");
 	}
 
-	return ($res, $res_hdr);
+	return ($self->{res}, $self->{res_hdr});
 }
 
 1;

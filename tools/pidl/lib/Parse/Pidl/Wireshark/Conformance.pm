@@ -124,6 +124,12 @@ sub handle_type($$$$$$$$$$)
 		warning($pos, "invalid BASE_TYPE `$base_type'");
 	}
 
+	$dissectorname =~ s/^\"(.*)\"$/$1/g;
+
+	if (not ($dissectorname =~ /;$/)) {
+		warning($pos, "missing semicolon");
+	}
+
 	$data->{types}->{$name} = {
 		NAME => $name,
 		POS => $pos,

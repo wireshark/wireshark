@@ -9,8 +9,7 @@ use FindBin qw($RealBin);
 use lib "$RealBin";
 use Util;
 use Parse::Pidl::Util qw(MyDumper);
-use Parse::Pidl::Samba3::ClientNDR qw(GenerateFunctionInEnv ParseFunction $res 
-    $res_hdr);
+use Parse::Pidl::Samba3::ClientNDR qw(GenerateFunctionInEnv ParseFunction);
 
 # Make sure GenerateFunctionInEnv and GenerateFunctionOutEnv work
 my $fn = { ELEMENTS => [ { DIRECTION => ["in"], NAME => "foo" } ] };
@@ -22,9 +21,11 @@ is_deeply({ "foo" => "r.in.foo" }, GenerateFunctionInEnv($fn));
 $fn = { ELEMENTS => [ { DIRECTION => ["out"], NAME => "foo" } ] };
 is_deeply({ }, GenerateFunctionInEnv($fn));
 
+my $x = new Parse::Pidl::Samba3::ClientNDR();
+
 $fn = { NAME => "bar", ELEMENTS => [ ] };
-ParseFunction("foo", $fn);
-is($res, "NTSTATUS rpccli_bar(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx)
+$x->ParseFunction("foo", $fn);
+is($x->{res}, "NTSTATUS rpccli_bar(struct rpc_pipe_client *cli, TALLOC_CTX *mem_ctx)
 {
 \tstruct bar r;
 \tNTSTATUS status;

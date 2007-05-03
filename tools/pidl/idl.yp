@@ -122,12 +122,11 @@ function: property_list type identifier '(' element_list2 ')' ';'
 	  }}
 ;
 
-declare: 'declare' property_list decl_type identifier';' 
+declare: 'declare' decl_type identifier';' 
         {{
 	             "TYPE" => "DECLARE", 
-                     "PROPERTIES" => $_[2],
-		     "NAME" => $_[4],
-		     "DATA" => $_[3],
+		     "NAME" => $_[3],
+		     "DATA" => $_[2],
 		     "FILE" => $_[0]->YYData->{FILE},
 		     "LINE" => $_[0]->YYData->{LINE},
         }}
@@ -136,21 +135,24 @@ declare: 'declare' property_list decl_type identifier';'
 decl_type: decl_enum | decl_bitmap | decl_union
 ;
 
-decl_enum: 'enum' 
+decl_enum: property_list 'enum' 
         {{
-                     "TYPE" => "ENUM"
+                     "TYPE" => "ENUM",
+                     "PROPERTIES" => $_[1]
         }}
 ;
 
-decl_bitmap: 'bitmap' 
+decl_bitmap: property_list 'bitmap' 
         {{
-                     "TYPE" => "BITMAP"
+                     "TYPE" => "BITMAP",
+                     "PROPERTIES" => $_[1]
         }}
 ;
 
-decl_union: 'union' 
+decl_union: property_list 'union' 
         {{
-                     "TYPE" => "UNION"
+                     "TYPE" => "UNION",
+                     "PROPERTIES" => $_[1]
         }}
 ;
 
