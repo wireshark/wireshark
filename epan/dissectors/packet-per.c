@@ -36,7 +36,9 @@ proper helper routines
 #include <epan/packet.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <epan/to_str.h>
 #include <epan/prefs.h>
@@ -59,6 +61,7 @@ static int hf_per_optional_field_bit = -1;
 static int hf_per_sequence_of_length = -1;
 static int hf_per_object_identifier_length = -1;
 static int hf_per_open_type_length = -1;
+static int hf_per_real_length = -1;
 static int hf_per_octet_string_length = -1;
 static int hf_per_bit_string_length = -1;
 static int hf_per_const_int_len = -1;
@@ -122,10 +125,58 @@ void asn1_ctx_clean_external(asn1_ctx_t *actx) {
   actx->external.hf_index = -1;
 }
 
-#define BYTE_ALIGN_OFFSET(offset)		\
-	if(offset&0x07){			\
-		offset=(offset&0xfffffff8)+8;	\
-	}
+double asn1_get_real(const guint8 *real_ptr, gint real_len) {
+  guint8 octet;
+  const guint8 *p;
+  guint8 *buf;
+  double val = 0;
+
+  if (real_len < 1) return val;
+  octet = real_ptr[0];
+  p = real_ptr + 1;
+  real_len -= 1;
+  if (octet & 0x80) {  /* binary encoding */
+  } else if (octet & 0x40) {  /* SpecialRealValue */
+    switch (octet & 0x3F) {
+      case 0x00: val = HUGE_VAL; break;
+      case 0x01: val = -HUGE_VAL; break;
+    }
+  } else {  /* decimal encoding */
+    buf = ep_alloc0(real_len + 1);
+    memcpy(buf, p, real_len);
+    val = atof(buf);
+  }
+
+  return val;
+}
+
+
+#define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
+
+static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32 length)
+{
+  tvbuff_t *sub_tvb = NULL;
+  guint32 boffset = offset >> 3;
+  unsigned int i, shift0, shift1;
+  guint8 octet0, octet1, *buf;
+
+  if (offset & 0x07) {  /* unaligned */
+    shift1 = offset & 0x07;
+    shift0 = 8 - shift1;
+    buf = ep_alloc(length);
+    octet0 = tvb_get_guint8(tvb, boffset);
+    for (i=0; i<length; i++) {
+      octet1 = octet0;
+      octet0 = tvb_get_guint8(tvb, boffset + i + 1);
+      buf[i] = (octet1 << shift1) | (octet0 >> shift0);
+    }
+    sub_tvb = tvb_new_real_data(buf, length, length);
+    tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+  } else {  /* aligned */
+    sub_tvb = tvb_new_subset(tvb, boffset, length, length);
+  }
+  return sub_tvb;
+}
 
 /* 10 Encoding procedures -------------------------------------------------- */
 
@@ -739,25 +790,27 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U
 {
   guint length;
   char *str;
+  tvbuff_t *val_tvb = NULL;
   proto_item *item = NULL;
   header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
 
   offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
+  if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+  val_tvb = new_octet_aligned_subset(tvb, offset, length);
 	
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
-    item = proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
+    item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
   } else if (IS_FT_STRING(hfi->type)) {
-    str = oid_to_str(tvb_get_ptr(tvb, offset>>3, length), length);
-    item = proto_tree_add_string(tree, hf_index, tvb, offset>>3, length, str);
+    str = oid_to_str(tvb_get_ptr(val_tvb, 0, length), length);
+    item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
   }
 
-  if (value_tvb)
-    *value_tvb = tvb_new_subset(tvb, offset>>3, length, length);
+  if (value_tvb) *value_tvb = val_tvb;
 
   offset += 8 * length;
 
@@ -1101,7 +1154,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	if (value) *value = val;
 	return offset;}
 
-/* 13 Enemerated */
+/* 13 Encoding the enumerated type */
 guint32
 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map)
 {
@@ -1153,6 +1206,27 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	actx->created_item = it;
 	if (value) *value = val;
 	return offset;
+}
+
+/* 14 Encoding the real type */
+guint32 
+dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value)
+{
+	guint32 val_length, end_offset;
+	tvbuff_t *val_tvb;
+	double val = 0;
+
+	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length);
+	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
+    val_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+	end_offset = offset + val_length * 8;
+
+	val = asn1_get_real(tvb_get_ptr(val_tvb, 0, val_length), val_length);
+	actx->created_item = proto_tree_add_double(tree, hf_index, val_tvb, 0, val_length, val);
+
+	if (value) *value = val;
+
+	return end_offset;
 }
 
 /* 22 Encoding the choice type */
@@ -1887,11 +1961,14 @@ proto_register_per(void)
 		{ "Sequence-Of Length", "per.sequence_of_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of items in the Sequence Of", HFILL }},
 	{ &hf_per_object_identifier_length,
-		{ "Object Length", "per.object_length", FT_UINT32, BASE_DEC,
+		{ "Object Identifier Length", "per.object_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of the object identifier", HFILL }},
 	{ &hf_per_open_type_length,
 		{ "Open Type Length", "per.open_type_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of an open type encoding", HFILL }},
+	{ &hf_per_real_length,
+		{ "Raal Length", "per.real_length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of an real encoding", HFILL }},
 	{ &hf_per_octet_string_length,
 		{ "Octet String Length", "per.octet_string_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes in the Octet String", HFILL }},

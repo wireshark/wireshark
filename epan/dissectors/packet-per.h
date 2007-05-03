@@ -26,10 +26,9 @@
 #ifndef __PACKET_PER_H__
 #define __PACKET_PER_H__
 
-
-
-void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
-void asn1_ctx_clean_external(asn1_ctx_t *actx);
+extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
+extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
+extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
 
 /* flags */
 #define ASN1_EXT_ROOT 0x01
@@ -117,6 +116,8 @@ extern guint32 dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *ac
 extern guint32 dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
 
 extern guint32 dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 min, guint32 max, guint32 *value, gboolean has_extension);
+
+extern guint32 dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, double *value);
 
 extern guint32 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, guint32 *value);
 
