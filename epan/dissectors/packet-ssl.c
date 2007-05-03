@@ -115,6 +115,7 @@
 #include <epan/tap.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
+#include <epan/expert.h>
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 
@@ -390,7 +391,7 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
 
-static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
+static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession* ssl);
@@ -1777,7 +1778,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_HELLO:
-                dissect_ssl3_hnd_cli_hello(tvb, ssl_hand_tree, offset, length, ssl);
+                dissect_ssl3_hnd_cli_hello(tvb, pinfo, ssl_hand_tree, offset, length, ssl);
             break;
 
             case SSL_HND_SERVER_HELLO:
@@ -2016,7 +2017,7 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
 }
 
 static void
-dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
+dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
        proto_tree *tree, guint32 offset, guint32 length,
        SslDecryptSession*ssl)
 {
@@ -2032,10 +2033,11 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
      */
     proto_tree *ti;
     proto_tree *cs_tree;
-    guint16 cipher_suite_length;
+    gint cipher_suite_length;
     guint8  compression_methods_length;
     guint8  compression_method;
     guint16 start_offset;
+
     cipher_suite_length = 0;
     compression_methods_length = 0;
     start_offset = offset;
@@ -2065,9 +2067,17 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
             ti = proto_tree_add_none_format(tree,
                                             hf_ssl_handshake_cipher_suites,
                                             tvb, offset, cipher_suite_length,
-                                            "Cipher Suites (%u suite%s)",
+                                            "Cipher Suites (%d suite%s)",
                                             cipher_suite_length / 2,
                                             plurality(cipher_suite_length/2, "", "s"));
+            if (cipher_suite_length % 2) {
+                proto_tree_add_text(tree, tvb, offset, 2,
+                    "Invalid cipher suite length: %d", cipher_suite_length);
+                expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR,
+                    "Cipher suite length (%d) must be a multiple of 2",
+                    cipher_suite_length);
+                return;
+            }
 
             /* make this a subtree */
             cs_tree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);

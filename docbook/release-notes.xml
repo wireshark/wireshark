@@ -74,6 +74,32 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            Defining a display filter macro with no arguments would make
+            Wireshark crash.
+            <!-- Fixed in r21664 -->
+            <!-- CID 232 -->
+          </para>
+          <para>Versions affected: 0.99.5</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark could loop excessively while reading a malformed SSL
+            packet.
+            <!-- Fixed in r? -->
+            (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1582">1582</ulink>)
+          </para>
+          <para>Versions affected: ?</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -100,6 +126,12 @@ Wireshark Info
     <para>
       The following features are new (or have been significantly updated)
       since the last release:
+
+      <!--
+      - HTTP object export
+      - Delta times
+      - Code cleanup
+      -->
 
     </para>
     </section>
