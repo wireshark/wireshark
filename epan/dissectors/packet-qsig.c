@@ -445,6 +445,7 @@ typedef struct _qsig_op {
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } qsig_op;
+#define NO_SRV ((guint32)-1)
 #define FNA(x) dissect_qsig_arg##x
 #define FNR(x) dissect_qsig_res##x
 
@@ -563,7 +564,7 @@ static int hf_qsig_remoteEnabled = -1;            /* BOOLEAN */
 static int hf_qsig_extensionIR = -1;              /* IRExtension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 455 "packet-qsig-template.c"
+#line 456 "packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -629,7 +630,7 @@ static gint ett_qsig_IntResult = -1;
 static gint ett_qsig_IRExtension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 471 "packet-qsig-template.c"
+#line 472 "packet-qsig-template.c"
 
 /* Preferences */
 
@@ -2102,54 +2103,69 @@ dissect_qsig_IntResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 /*--- PDUs ---*/
 
 static void dissect_NameArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_NameArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_NameArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_NameArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_NameArg_PDU);
 }
 static void dissect_ActivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_ActivateDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_ActivateDivArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_ActivateDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_ActivateDivArg_PDU);
 }
 static void dissect_ActivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_ActivateDivRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_ActivateDivRes_PDU);
+  int offset = 0;
+  offset = dissect_qsig_ActivateDivRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_ActivateDivRes_PDU);
 }
 static void dissect_DeactivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DeactivateDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DeactivateDivArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DeactivateDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DeactivateDivArg_PDU);
 }
 static void dissect_DeactivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DeactivateDivRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_DeactivateDivRes_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DeactivateDivRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_DeactivateDivRes_PDU);
 }
 static void dissect_InterrDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_InterrDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_InterrDivArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_InterrDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_InterrDivArg_PDU);
 }
 static void dissect_ChkResArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_ChkResArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_ChkResArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_ChkResArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_ChkResArg_PDU);
 }
 static void dissect_ChkResRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_ChkResRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_ChkResRes_PDU);
+  int offset = 0;
+  offset = dissect_qsig_ChkResRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_ChkResRes_PDU);
 }
 static void dissect_CallRrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_CallRrArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_CallRrArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_CallRrArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_CallRrArg_PDU);
 }
 static void dissect_CallRrRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_CallRrRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_CallRrRes_PDU);
+  int offset = 0;
+  offset = dissect_qsig_CallRrRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_CallRrRes_PDU);
 }
 static void dissect_DivLegInf1Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DivLegInf1Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf1Arg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DivLegInf1Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf1Arg_PDU);
 }
 static void dissect_DivLegInf2Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DivLegInf2Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf2Arg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DivLegInf2Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf2Arg_PDU);
 }
 static void dissect_DivLegInf3Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DivLegInf3Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf3Arg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DivLegInf3Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf3Arg_PDU);
 }
 static void dissect_DivLegFailArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_DivLegFailArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegFailArg_PDU);
+  int offset = 0;
+  offset = dissect_qsig_DivLegFailArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegFailArg_PDU);
 }
 static void dissect_IntResultList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_qsig_IntResultList(FALSE, tvb, 0, pinfo, tree, hf_qsig_IntResultList_PDU);
+  int offset = 0;
+  offset = dissect_qsig_IntResultList(FALSE, tvb, offset, pinfo, tree, hf_qsig_IntResultList_PDU);
 }
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 481 "packet-qsig-template.c"
+#line 482 "packet-qsig-template.c"
 
 
 static qsig_op qsig_tab[] = {
@@ -2177,9 +2193,9 @@ static qsig_op qsig_tab[] = {
   /*  21 */ { 13873, FNA( 21), FNR( 21), dissect_DivLegInf2Arg_PDU, NULL },
   /*  22 */ { 13873, FNA( 22), FNR( 22), dissect_DivLegInf3Arg_PDU, NULL },
   /*  23 */ { 13873, FNA( 23), FNR( 23), dissect_DivLegFailArg_PDU, NULL },
-  /*  24 */ {    -1,     NULL,     NULL, NULL, NULL },
-  /*  25 */ {    -1,     NULL,     NULL, NULL, NULL },
-  /*  26 */ {    -1,     NULL,     NULL, NULL, NULL },
+  /*  24 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
+  /*  25 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
+  /*  26 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  27 */ { 13870, FNA( 27), FNR( 27), NULL, NULL },
   /*  28 */ { 13870, FNA( 28), FNR( 28), NULL, NULL },
   /*  29 */ { 13870, FNA( 29), FNR( 29), NULL, NULL },
@@ -2236,7 +2252,7 @@ static qsig_op qsig_tab[] = {
   /*  80 */ { 90002, FNA( 80), FNR( 80), NULL, NULL },
   /*  81 */ { 90002, FNA( 81), FNR( 81), NULL, NULL },
   /*  82 */ { 90002, FNA( 82), FNR( 82), NULL, NULL },
-  /*  83 */ {    -1,     NULL,     NULL, NULL, NULL },
+  /*  83 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  84 */ { 15772, FNA( 84), FNR( 84), NULL, NULL },
   /*  85 */ { 15772, FNA( 85), FNR( 85), NULL, NULL },
   /*  86 */ { 13874, FNA( 86), FNR( 86), NULL, NULL },
@@ -2295,7 +2311,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
     proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
   }
   if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != -1) {
+  if (qsig_tab[operation].service != NO_SRV) {
     ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
     p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
     if (p) proto_item_append_text(ti_tmp, " - %s", p);
@@ -2326,7 +2342,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
     proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
   }
   if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != -1) {
+  if (qsig_tab[operation].service != NO_SRV) {
     ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
     p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
     if (p) proto_item_append_text(ti_tmp, " - %s", p);
@@ -2340,14 +2356,14 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
 
 /*--- dissect_qsig_transit_counter_ie ---------------------------------------*/
 static int
-dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length  _U_) {
   proto_tree_add_item(tree, hf_qsig_tc, tvb, offset, 1, FALSE);
   offset++;
   return offset;
 }
 /*--- dissect_qsig_party_category_ie ----------------------------------------*/
 static int 
-dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U_, proto_tree *tree, int length  _U_) {
   proto_tree_add_item(tree, hf_qsig_pc, tvb, offset, 1, FALSE);
   offset++;
   return offset;
@@ -2834,7 +2850,7 @@ void proto_register_qsig(void) {
         "qsig.IRExtension", HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 765 "packet-qsig-template.c"
+#line 766 "packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -2891,7 +2907,7 @@ void proto_register_qsig(void) {
     &ett_qsig_IRExtension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 772 "packet-qsig-template.c"
+#line 773 "packet-qsig-template.c"
   };
 
   /* Register protocol and dissector */

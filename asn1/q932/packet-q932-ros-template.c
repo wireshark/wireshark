@@ -67,7 +67,7 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 #include "packet-q932-ros-fn.c" 
 
 /*--- dissect_rose_apdu -----------------------------------------------------*/
-int dissect_rose_apdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
+int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
   if (rctx)
     rose_ctx = rctx;
   return dissect_RoseAPDU_PDU(tvb, pinfo, tree);

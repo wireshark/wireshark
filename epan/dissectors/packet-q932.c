@@ -727,13 +727,16 @@ dissect_q932_InterpretationComponent(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 /*--- PDUs ---*/
 
 static void dissect_NetworkFacilityExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_q932_NetworkFacilityExtension(FALSE, tvb, 0, pinfo, tree, hf_q932_NetworkFacilityExtension_PDU);
+  int offset = 0;
+  offset = dissect_q932_NetworkFacilityExtension(FALSE, tvb, offset, pinfo, tree, hf_q932_NetworkFacilityExtension_PDU);
 }
 static void dissect_NetworkProtocolProfile_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_q932_NetworkProtocolProfile(FALSE, tvb, 0, pinfo, tree, hf_q932_NetworkProtocolProfile_PDU);
+  int offset = 0;
+  offset = dissect_q932_NetworkProtocolProfile(FALSE, tvb, offset, pinfo, tree, hf_q932_NetworkProtocolProfile_PDU);
 }
 static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_q932_InterpretationComponent(FALSE, tvb, 0, pinfo, tree, hf_q932_InterpretationComponent_PDU);
+  int offset = 0;
+  offset = dissect_q932_InterpretationComponent(FALSE, tvb, offset, pinfo, tree, hf_q932_InterpretationComponent_PDU);
 }
 
 
@@ -778,7 +781,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
           case  3 :  /* returnError */
           case  4 :  /* reject */
             q932_rose_ctx.apdu_depth = 1;
-            dissect_rose_apdu(next_tvb, hoffset, pinfo, tree, &q932_rose_ctx);
+            dissect_rose_apdu(next_tvb, pinfo, tree, &q932_rose_ctx);
             break;
           /* DSE APDU */
           case 12 :  /* begin */
@@ -882,7 +885,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*--- dissect_q932_apdu -----------------------------------------------------*/
 static void
 dissect_q932_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  dissect_rose_apdu(tvb, 0, pinfo, tree, pinfo->private_data);
+  dissect_rose_apdu(tvb, pinfo, tree, pinfo->private_data);
 }
 
 /*--- proto_register_q932 ---------------------------------------------------*/

@@ -703,7 +703,9 @@ dissect_q932_ros_RejectProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 /*--- PDUs ---*/
 
 static int dissect_RoseAPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  return dissect_q932_ros_RoseAPDU(FALSE, tvb, 0, pinfo, tree, hf_q932_ros_RoseAPDU_PDU);
+  int offset = 0;
+  offset = dissect_q932_ros_RoseAPDU(FALSE, tvb, offset, pinfo, tree, hf_q932_ros_RoseAPDU_PDU);
+  return offset;
 }
 
 
@@ -711,7 +713,7 @@ static int dissect_RoseAPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 #line 68 "packet-q932-ros-template.c"
 
 /*--- dissect_rose_apdu -----------------------------------------------------*/
-int dissect_rose_apdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
+int dissect_rose_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rose_context *rctx) {
   if (rctx)
     rose_ctx = rctx;
   return dissect_RoseAPDU_PDU(tvb, pinfo, tree);

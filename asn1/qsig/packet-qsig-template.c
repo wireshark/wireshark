@@ -437,6 +437,7 @@ typedef struct _qsig_op {
   dissector_t arg_pdu;
   dissector_t res_pdu;
 } qsig_op;
+#define NO_SRV ((guint32)-1)
 #define FNA(x) dissect_qsig_arg##x
 #define FNR(x) dissect_qsig_res##x
 
@@ -505,9 +506,9 @@ static qsig_op qsig_tab[] = {
   /*  21 */ { 13873, FNA( 21), FNR( 21), dissect_DivLegInf2Arg_PDU, NULL },
   /*  22 */ { 13873, FNA( 22), FNR( 22), dissect_DivLegInf3Arg_PDU, NULL },
   /*  23 */ { 13873, FNA( 23), FNR( 23), dissect_DivLegFailArg_PDU, NULL },
-  /*  24 */ {    -1,     NULL,     NULL, NULL, NULL },
-  /*  25 */ {    -1,     NULL,     NULL, NULL, NULL },
-  /*  26 */ {    -1,     NULL,     NULL, NULL, NULL },
+  /*  24 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
+  /*  25 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
+  /*  26 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  27 */ { 13870, FNA( 27), FNR( 27), NULL, NULL },
   /*  28 */ { 13870, FNA( 28), FNR( 28), NULL, NULL },
   /*  29 */ { 13870, FNA( 29), FNR( 29), NULL, NULL },
@@ -564,7 +565,7 @@ static qsig_op qsig_tab[] = {
   /*  80 */ { 90002, FNA( 80), FNR( 80), NULL, NULL },
   /*  81 */ { 90002, FNA( 81), FNR( 81), NULL, NULL },
   /*  82 */ { 90002, FNA( 82), FNR( 82), NULL, NULL },
-  /*  83 */ {    -1,     NULL,     NULL, NULL, NULL },
+  /*  83 */ { NO_SRV,     NULL,     NULL, NULL, NULL },
   /*  84 */ { 15772, FNA( 84), FNR( 84), NULL, NULL },
   /*  85 */ { 15772, FNA( 85), FNR( 85), NULL, NULL },
   /*  86 */ { 13874, FNA( 86), FNR( 86), NULL, NULL },
@@ -623,7 +624,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
     proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
   }
   if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != -1) {
+  if (qsig_tab[operation].service != NO_SRV) {
     ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
     p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
     if (p) proto_item_append_text(ti_tmp, " - %s", p);
@@ -654,7 +655,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
     proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), " %s", p);
   }
   if (operation >= array_length(qsig_tab)) return;
-  if (qsig_tab[operation].service != -1) {
+  if (qsig_tab[operation].service != NO_SRV) {
     ti_tmp = proto_tree_add_uint(qsig_tree, hf_qsig_service, tvb, 0, 0, qsig_tab[operation].service);
     p = match_strval(qsig_tab[operation].service, VALS(qsig_str_service_name));
     if (p) proto_item_append_text(ti_tmp, " - %s", p);
@@ -668,14 +669,14 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 op
 
 /*--- dissect_qsig_transit_counter_ie ---------------------------------------*/
 static int
-dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length  _U_) {
   proto_tree_add_item(tree, hf_qsig_tc, tvb, offset, 1, FALSE);
   offset++;
   return offset;
 }
 /*--- dissect_qsig_party_category_ie ----------------------------------------*/
 static int 
-dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U_, proto_tree *tree, int length  _U_) {
   proto_tree_add_item(tree, hf_qsig_pc, tvb, offset, 1, FALSE);
   offset++;
   return offset;
