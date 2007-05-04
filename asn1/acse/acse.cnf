@@ -48,8 +48,8 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
      * time being  just remove this tag manually inside the EXTERNAL
      * dissector.
      */
-     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+	offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset = dissect_ber_length(pinfo, tree, tvb, offset, &len1, &ind_field);
    }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
@@ -123,6 +123,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
    col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Response (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
 
 
-
+#.FIELD_ATTR
+Association-data/_item NAME = "Association-data"
 
 #.END

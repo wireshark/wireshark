@@ -2620,14 +2620,20 @@ int dissect_ber_bitstring32(gboolean implicit_tag, packet_info *pinfo, proto_tre
 }
 
 /* 
- * EXTERNAL::= [UNIVERSAL 8] IMPLICIT SEQUENCE {
- *	direct-reference			OBJECT IDENTIFIER OPTIONAL,
- *	indirect-reference			INTEGER OPTIONAL,
- *	data-value-descriptor		ObjectDescriptor OPTIONAL,
- *	encoding				CHOICE {
- *	single-ASN1-type				[0] ABSTRACT-SYNTAX.&Type,
- *	octet-aligned					[1] IMPLICIT OCTET STRING,
- *	arbitrary						[2] IMPLICIT BIT STRING } }
+ *	8.18	Encoding of a value of the external type
+ *	8.18.1	The encoding of a value of the external type shall be the BER encoding of the following
+ *			sequence type, assumed to be defined in an environment of EXPLICIT TAGS, 
+ *			with a value as specified in the subclauses below:
+ *	
+ *	[UNIVERSAL 8] IMPLICIT SEQUENCE {
+ *		direct-reference			OBJECT IDENTIFIER OPTIONAL,
+ *		indirect-reference		INTEGER OPTIONAL,
+ *		data-value-descriptor		ObjectDescriptor OPTIONAL,
+ *		encoding				CHOICE {
+ *		single-ASN1-type				[0] ABSTRACT-SYNTAX.&Type,
+ *		octet-aligned					[1] IMPLICIT OCTET STRING,
+ *		arbitrary						[2] IMPLICIT BIT STRING } }
+ *	
  */
 /* 
 static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {

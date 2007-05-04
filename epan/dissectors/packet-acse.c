@@ -51,6 +51,7 @@
 #include <epan/emem.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -181,7 +182,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 65 "packet-acse-template.c"
+#line 66 "packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -225,7 +226,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 69 "packet-acse-template.c"
+#line 70 "packet-acse-template.c"
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
@@ -453,8 +454,8 @@ dissect_acse_EXTERNALt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
      * time being  just remove this tag manually inside the EXTERNAL
      * dissector.
      */
-     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
-     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
+	offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset = dissect_ber_length(pinfo, tree, tvb, offset, &len1, &ind_field);
    }
    offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
@@ -1494,8 +1495,6 @@ dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 
-
-
   return offset;
 }
 static int dissect_rLRE_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
@@ -1895,7 +1894,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 145 "packet-acse-template.c"
+#line 146 "packet-acse-template.c"
 
 
 /*
@@ -2355,7 +2354,7 @@ void proto_register_acse(void) {
         FT_UINT32, BASE_DEC, VALS(acse_T_acse_service_provider_vals), 0,
         "acse.T_acse_service_provider", HFILL }},
     { &hf_acse_Association_data_item,
-      { "Item", "acse.Association_data_item",
+      { "EXTERNAL", "acse.Association_data_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "acse.EXTERNALt", HFILL }},
     { &hf_acse_simply_encoded_data,
@@ -2428,7 +2427,7 @@ void proto_register_acse(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 249 "packet-acse-template.c"
+#line 250 "packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2474,7 +2473,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 255 "packet-acse-template.c"
+#line 256 "packet-acse-template.c"
   };
 
   /* Register protocol */
