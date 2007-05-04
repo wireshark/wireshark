@@ -59,6 +59,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtp-events.h>
 #include <epan/dissectors/packet-t38.h>
+#include <epan/dissectors/packet-t30.h>
 #include <epan/dissectors/packet-h248.h>
 #include <epan/dissectors/packet-sccp.h>
 #include <epan/conversation.h>
@@ -761,8 +762,8 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 	/* add the item to the graph list */
 	if (pi->type_msg == 0) { /* 0=t30-indicator */
-		frame_label = g_strdup(val_to_str(pi->t30ind_value, t30_indicator_vals, "Ukn (0x%02X)") );
-		comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(pi->t30ind_value, t30_indicator_vals, "Ukn (0x%02X)") );
+		frame_label = g_strdup(val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
+		comment = g_strdup_printf("t38:t30 Ind:%s",val_to_str(pi->t30ind_value, t38_T30_indicator_vals, "Ukn (0x%02X)") );
 		line_style = 1;
 	} else if (pi->type_msg == 1) {	/* 1=data */
 		switch(pi->Data_Field_field_type_value){
@@ -771,17 +772,17 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 			case 2: /* hdlc-fcs-OK */
 			case 4: /* hdlc-fcs-OK-sig-end */
 					frame_label = g_strdup_printf("%s %s", val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals_short, "Ukn (0x%02X)"), pi->desc);
-					comment = g_strdup_printf("t38:%s:HDLC:%s",val_to_str(pi->data_value, t30_data_vals, "Ukn (0x%02X)"), val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals, "Ukn (0x%02X)"));
+					comment = g_strdup_printf("t38:%s:HDLC:%s",val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)"), val_to_str(pi->t30_Facsimile_Control & 0x7F, t30_facsimile_control_field_vals, "Ukn (0x%02X)"));
 				break;
 			case 3: /* hdlc-fcs-BAD */
 			case 5: /* hdlc-fcs-BAD-sig-end */
 				frame_label = g_strdup(pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
-				comment = g_strdup_printf("WARNING: received t38:%s:HDLC:%s", val_to_str(pi->data_value, t30_data_vals, "Ukn (0x%02X)"), pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
+				comment = g_strdup_printf("WARNING: received t38:%s:HDLC:%s", val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)"), pi->Data_Field_field_type_value == 3 ? "fcs-BAD" : "fcs-BAD-sig-end");
 				break;
 			case 7: /* t4-non-ecm-sig-end */
 				duration = nstime_to_sec(&pinfo->fd->rel_ts) - pi->time_first_t4_data;
-				frame_label = g_strdup_printf("t4-non-ecm-data:%s",val_to_str(pi->data_value, t30_data_vals, "Ukn (0x%02X)") );
-				comment = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",val_to_str(pi->data_value, t30_data_vals, "Ukn (0x%02X)"), duration, pi->desc_comment );
+				frame_label = g_strdup_printf("t4-non-ecm-data:%s",val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)") );
+				comment = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",val_to_str(pi->data_value, t38_T30_data_vals, "Ukn (0x%02X)"), duration, pi->desc_comment );
 				insert_to_graph(tapinfo, pinfo, frame_label, comment, (guint16)conv_num, &(pinfo->src), &(pinfo->dst), line_style, pi->time_first_t4_data, pi->frame_num_first_t4_data);
 				break;
 		}

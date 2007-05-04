@@ -37,6 +37,8 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
+#include "packet-t30.h"
+
 /* T30 */
 static int proto_t30 = -1;
 static int hf_t30_Address = -1;

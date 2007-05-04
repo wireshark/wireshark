@@ -67,6 +67,7 @@ per: \
 	ranap	\
 	rnsap	\
 	rrlp	\
+	t38	\
 	ulp		\
 	umts_rrc	\
 	umts_rrc_ies	\
@@ -224,6 +225,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd t38
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd tcap
@@ -518,6 +522,11 @@ snmp::
 
 spnego::
 	cd spnego
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+t38::
+	cd t38
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

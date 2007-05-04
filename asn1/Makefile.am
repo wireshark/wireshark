@@ -376,6 +376,12 @@ EXTRA_DIST = \
 	spnego/packet-spnego-template.h	\
 	spnego/spnego.asn	\
 	spnego/spnego.cnf	\
+	t38/t38.cnf	\
+	t38/T38(2002).asn 	\
+	t38/Makefile	\
+	t38/Makefile.nmake	\
+	t38/packet-t38-template.c	\
+	t38/packet-t38-template.h	\
 	tcap/Makefile	\
 	tcap/Makefile.nmake	\
 	tcap/packet-tcap-template.c	\

@@ -1,11 +1,3 @@
-/* Do not modify this file.                                                   */
-/* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* .\packet-t38.h                                                             */
-/* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38(2002).asn */
-
-/* Input file: packet-t38-template.h */
-
-#line 1 "packet-t38-template.h"
 /* packet-t38.h
  *
  * Routines for T38 dissection
@@ -82,14 +74,7 @@ void t38_add_address(packet_info *pinfo,
                      const gchar *setup_method, guint32 setup_frame_number);
 
 
-
-/*--- Included file: packet-t38-exp.h ---*/
-#line 1 "packet-t38-exp.h"
-WS_VAR_IMPORT const value_string t38_T30_indicator_vals[];
-WS_VAR_IMPORT const value_string t38_T30_data_vals[];
-
-/*--- End of included file: packet-t38-exp.h ---*/
-#line 78 "packet-t38-template.h"
+#include "packet-t38-exp.h"
 
 
 

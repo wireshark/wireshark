@@ -742,10 +742,10 @@ stream_process_reassembled
 string_to_name_resolve
 sua_co_class_type_acro_values	DATA
 swaptab
-t30_data_vals                   DATA
 t30_facsimile_control_field_vals        DATA
 t30_facsimile_control_field_vals_short  DATA
-t30_indicator_vals		DATA
+t38_T30_data_vals                   DATA
+t38_T30_indicator_vals		DATA
 T_h323_message_body_vals	DATA
 tap_push_tapped_queue
 tap_queue_init
