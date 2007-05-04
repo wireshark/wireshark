@@ -274,14 +274,20 @@ packet_list_click_column_cb(EthCList *clist, gint column, gpointer data)
 /* What to do when a list item is selected/unselected */
 static void
 packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_) {
+  frame_data *fdata;
 
-/* Remove the hex display tabbed pages */
+  /* Remove the hex display tabbed pages */
   while( (gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), 0)))
     gtk_notebook_remove_page( GTK_NOTEBOOK(byte_nb_ptr), 0);
 
   cf_select_packet(&cfile, row);
   gtk_widget_grab_focus(packet_list);
-  packet_history_add(row);
+
+  /* Lookup the frame number that corresponds to the list row number */
+  fdata = (frame_data *)packet_list_get_row_data(row);
+  if (fdata != NULL) {
+    packet_history_add(fdata->num);
+  }
 }
 
 static void

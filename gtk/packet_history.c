@@ -93,6 +93,11 @@ static void clear_list(GList *current) {
 /* add an entry to the history list */
 void packet_history_add(gint row) {
 
+    if(row < 1) {
+        /* Not a valid row number */
+        return;
+    }
+
     if(ignore_jump) {
         /* we jumping back and forward in history, so don't change list */
         return;
@@ -142,7 +147,7 @@ static void packet_history_back(void) {
 
             /* goto that packet but don't change history */
             ignore_jump = TRUE;
-            cf_goto_frame(&cfile, GPOINTER_TO_INT(previous->data) +1);
+            cf_goto_frame(&cfile, GPOINTER_TO_INT(previous->data));
             ignore_jump = FALSE;
         }
     }
@@ -163,7 +168,7 @@ static void packet_history_forward(void) {
 
             /* goto that packet but don't change history */
             ignore_jump = TRUE;
-            cf_goto_frame(&cfile, GPOINTER_TO_INT(next->data) +1);
+            cf_goto_frame(&cfile, GPOINTER_TO_INT(next->data));
             ignore_jump = FALSE;
         }
     }
