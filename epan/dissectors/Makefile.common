@@ -208,6 +208,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-bacnet.c		\
 	packet-bctp.c		\
 	packet-beep.c		\
+	packet-ber.c		\
 	packet-bfd.c		\
 	packet-bgp.c		\
 	packet-bittorrent.c 	\
@@ -743,7 +744,6 @@ CLEAN_DISSECTOR_SRC = \
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
 	packet-bacapp.c		\
-	packet-ber.c		\
 	packet-cops.c 		\
 	packet-diameter.c	\
 	packet-ipsec.c		\

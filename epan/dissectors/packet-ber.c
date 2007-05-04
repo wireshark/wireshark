@@ -319,8 +319,8 @@ int dissect_ber_tagged_type(gboolean implicit_tag, packet_info *pinfo, proto_tre
 	return offset;
  }
 
- offset = offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &tmp_cls, NULL, &tmp_tag);
- offset = offset=dissect_ber_length(pinfo, tree, tvb, offset, &tmp_len, NULL);
+ offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &tmp_cls, NULL, &tmp_tag);
+ offset = dissect_ber_length(pinfo, tree, tvb, offset, &tmp_len, NULL);
 
  if ((tmp_cls != tag_cls) || (tmp_tag != tag_tag)) {
    cause = proto_tree_add_text(tree, tvb, offset, tmp_len,
