@@ -211,7 +211,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 /*--- dissect_q932_ni_ie -------------------------------------------------------*/
 static void
-dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length) {
   int remain = length;
   guint8 octet = 0;
   guint32 value = 0;

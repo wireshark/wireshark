@@ -727,16 +727,13 @@ dissect_q932_InterpretationComponent(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 /*--- PDUs ---*/
 
 static void dissect_NetworkFacilityExtension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_q932_NetworkFacilityExtension(FALSE, tvb, offset, pinfo, tree, hf_q932_NetworkFacilityExtension_PDU);
+  dissect_q932_NetworkFacilityExtension(FALSE, tvb, 0, pinfo, tree, hf_q932_NetworkFacilityExtension_PDU);
 }
 static void dissect_NetworkProtocolProfile_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_q932_NetworkProtocolProfile(FALSE, tvb, offset, pinfo, tree, hf_q932_NetworkProtocolProfile_PDU);
+  dissect_q932_NetworkProtocolProfile(FALSE, tvb, 0, pinfo, tree, hf_q932_NetworkProtocolProfile_PDU);
 }
 static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_q932_InterpretationComponent(FALSE, tvb, offset, pinfo, tree, hf_q932_InterpretationComponent_PDU);
+  dissect_q932_InterpretationComponent(FALSE, tvb, 0, pinfo, tree, hf_q932_InterpretationComponent_PDU);
 }
 
 
@@ -827,7 +824,7 @@ dissect_q932_facility_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 /*--- dissect_q932_ni_ie -------------------------------------------------------*/
 static void
-dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length) {
+dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length) {
   int remain = length;
   guint8 octet = 0;
   guint32 value = 0;

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-rnsap.c                                                           */
-/* ../../tools/asn2wrs.py -e -F -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
+/* ../../tools/asn2wrs.py -e -p rnsap -c rnsap.cnf -s packet-rnsap-template rnsap.asn */
 
 /* Input file: packet-rnsap-template.c */
 
@@ -2702,9 +2702,6 @@ static int dissect_rnsap_ProtocolIEValueValue(tvbuff_t *tvb, int offset, asn1_ct
 
 /*--- Included file: packet-rnsap-fn.c ---*/
 #line 1 "packet-rnsap-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 /* enumerated values for ProcedureCode */
 #define RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION   0
@@ -2814,16 +2811,13 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 255U, &ProcedureCode, FALSE);
 
-#line 22 "rnsap.cnf"
+#line 29 "rnsap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
                               "unknown message"));
 
   return offset;
-}
-static int dissect_procedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProcedureCode(tvb, offset, actx, tree, hf_rnsap_procedureCode);
 }
 
 
@@ -2842,9 +2836,6 @@ dissect_rnsap_T_ddMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_ddMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_ddMode(tvb, offset, actx, tree, hf_rnsap_ddMode);
-}
 
 
 static const per_sequence_t ProcedureID_sequence[] = {
@@ -2859,9 +2850,6 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
   return offset;
-}
-static int dissect_procedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProcedureID(tvb, offset, actx, tree, hf_rnsap_procedureID);
 }
 
 
@@ -2880,21 +2868,6 @@ dissect_rnsap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Criticality(tvb, offset, actx, tree, hf_rnsap_criticality);
-}
-static int dissect_procedureCriticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Criticality(tvb, offset, actx, tree, hf_rnsap_procedureCriticality);
-}
-static int dissect_iECriticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Criticality(tvb, offset, actx, tree, hf_rnsap_iECriticality);
-}
-static int dissect_firstCriticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Criticality(tvb, offset, actx, tree, hf_rnsap_firstCriticality);
-}
-static int dissect_secondCriticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Criticality(tvb, offset, actx, tree, hf_rnsap_secondCriticality);
-}
 
 
 
@@ -2905,30 +2878,6 @@ dissect_rnsap_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_uncertaintyRadius(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_uncertaintyRadius);
-}
-static int dissect_confidence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_confidence);
-}
-static int dissect_uncertaintyAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_uncertaintyAltitude);
-}
-static int dissect_uncertaintySemi_major(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_uncertaintySemi_major);
-}
-static int dissect_uncertaintySemi_minor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_uncertaintySemi_minor);
-}
-static int dissect_uncertaintyCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_uncertaintyCode);
-}
-static int dissect_code_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_code_Number);
-}
-static int dissect_shortTransActionId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_127(tvb, offset, actx, tree, hf_rnsap_shortTransActionId);
-}
 
 
 
@@ -2938,12 +2887,6 @@ dissect_rnsap_INTEGER_0_32767(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               0U, 32767U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_altitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_32767(tvb, offset, actx, tree, hf_rnsap_altitude);
-}
-static int dissect_longTransActionId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_32767(tvb, offset, actx, tree, hf_rnsap_longTransActionId);
 }
 
 
@@ -2967,24 +2910,18 @@ dissect_rnsap_TransactionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_transactionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransactionID(tvb, offset, actx, tree, hf_rnsap_transactionID);
-}
 
 
 
 static int
 dissect_rnsap_InitiatingMessageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "rnsap.cnf"
+#line 46 "rnsap.cnf"
 
 	offset = dissect_rnsap_InitiatingMessageValueValue(tvb, offset, actx, tree);
 
 
 
   return offset;
-}
-static int dissect_initiatingMessageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InitiatingMessageValue(tvb, offset, actx, tree, hf_rnsap_initiatingMessageValue);
 }
 
 
@@ -3003,24 +2940,18 @@ dissect_rnsap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_initiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InitiatingMessage(tvb, offset, actx, tree, hf_rnsap_initiatingMessage);
-}
 
 
 
 static int
 dissect_rnsap_SuccessfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "rnsap.cnf"
+#line 50 "rnsap.cnf"
 
 	offset = dissect_rnsap_SuccessfulOutcomeValueValue(tvb, offset, actx, tree);
 
 
 
   return offset;
-}
-static int dissect_successfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SuccessfulOutcomeValue(tvb, offset, actx, tree, hf_rnsap_successfulOutcomeValue);
 }
 
 
@@ -3039,24 +2970,18 @@ dissect_rnsap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_successfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SuccessfulOutcome(tvb, offset, actx, tree, hf_rnsap_successfulOutcome);
-}
 
 
 
 static int
 dissect_rnsap_UnsuccessfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "rnsap.cnf"
+#line 62 "rnsap.cnf"
 
 	offset = dissect_rnsap_UnsuccessfulOutcomeValueValue(tvb, offset, actx, tree);
 
 
 
   return offset;
-}
-static int dissect_unsuccessfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UnsuccessfulOutcomeValue(tvb, offset, actx, tree, hf_rnsap_unsuccessfulOutcomeValue);
 }
 
 
@@ -3075,15 +3000,12 @@ dissect_rnsap_UnsuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_unsuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UnsuccessfulOutcome(tvb, offset, actx, tree, hf_rnsap_unsuccessfulOutcome);
-}
 
 
 
 static int
 dissect_rnsap_OutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "rnsap.cnf"
+#line 54 "rnsap.cnf"
 	/* FIX ME */
 	guint length;
 
@@ -3094,9 +3016,6 @@ dissect_rnsap_OutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
   return offset;
-}
-static int dissect_outcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_OutcomeValue(tvb, offset, actx, tree, hf_rnsap_outcomeValue);
 }
 
 
@@ -3114,9 +3033,6 @@ dissect_rnsap_Outcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                    ett_rnsap_Outcome, Outcome_sequence);
 
   return offset;
-}
-static int dissect_outcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Outcome(tvb, offset, actx, tree, hf_rnsap_outcome);
 }
 
 
@@ -4054,27 +3970,18 @@ dissect_rnsap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_iE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_ID(tvb, offset, actx, tree, hf_rnsap_iE_ID);
-}
-static int dissect_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_ID(tvb, offset, actx, tree, hf_rnsap_id);
-}
 
 
 
 static int
 dissect_rnsap_ProtocolIEValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "rnsap.cnf"
+#line 66 "rnsap.cnf"
 
 	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, actx, tree);
 
 
 
   return offset;
-}
-static int dissect_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIEValue(tvb, offset, actx, tree, hf_rnsap_value);
 }
 
 
@@ -4092,9 +3999,6 @@ dissect_rnsap_ProtocolIE_Field(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_ProtocolIE_Container_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Field(tvb, offset, actx, tree, hf_rnsap_ProtocolIE_Container_item);
-}
 
 
 static const per_sequence_t ProtocolIE_Container_sequence_of[1] = {
@@ -4109,27 +4013,18 @@ dissect_rnsap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_protocolIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Container(tvb, offset, actx, tree, hf_rnsap_protocolIEs);
-}
-static int dissect_ProtocolIE_ContainerList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Container(tvb, offset, actx, tree, hf_rnsap_ProtocolIE_ContainerList_item);
-}
 
 
 
 static int
 dissect_rnsap_Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 35 "rnsap.cnf"
+#line 42 "rnsap.cnf"
 
 	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, actx, tree);
 
 
 
   return offset;
-}
-static int dissect_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension(tvb, offset, actx, tree, hf_rnsap_extensionValue);
 }
 
 
@@ -4147,9 +4042,6 @@ dissect_rnsap_ProtocolExtensionField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_ProtocolExtensionContainer_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolExtensionField(tvb, offset, actx, tree, hf_rnsap_ProtocolExtensionContainer_item);
-}
 
 
 static const per_sequence_t ProtocolExtensionContainer_sequence_of[1] = {
@@ -4163,15 +4055,6 @@ dissect_rnsap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
                                                   1, 65535);
 
   return offset;
-}
-static int dissect_protocolExtensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolExtensionContainer(tvb, offset, actx, tree, hf_rnsap_protocolExtensions);
-}
-static int dissect_iE_Extensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolExtensionContainer(tvb, offset, actx, tree, hf_rnsap_iE_Extensions);
-}
-static int dissect_iEe_Extensions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolExtensionContainer(tvb, offset, actx, tree, hf_rnsap_iEe_Extensions);
 }
 
 
@@ -4417,15 +4300,6 @@ dissect_rnsap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_innerRadius(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_65535(tvb, offset, actx, tree, hf_rnsap_innerRadius);
-}
-static int dissect_ctfc16bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_65535(tvb, offset, actx, tree, hf_rnsap_ctfc16bit);
-}
-static int dissect_local(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_65535(tvb, offset, actx, tree, hf_rnsap_local);
-}
 
 
 
@@ -4434,9 +4308,6 @@ dissect_rnsap_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
 
   return offset;
-}
-static int dissect_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_OBJECT_IDENTIFIER(tvb, offset, actx, tree, hf_rnsap_global);
 }
 
 
@@ -4460,15 +4331,12 @@ dissect_rnsap_PrivateIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_privateIEid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrivateIE_ID(tvb, offset, actx, tree, hf_rnsap_privateIEid);
-}
 
 
 
 static int
 dissect_rnsap_PrivateIEvalue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "rnsap.cnf"
+#line 87 "rnsap.cnf"
 	/* FIX ME */
 	guint length;
 
@@ -4479,9 +4347,6 @@ dissect_rnsap_PrivateIEvalue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
   return offset;
-}
-static int dissect_privateIEvalue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrivateIEvalue(tvb, offset, actx, tree, hf_rnsap_privateIEvalue);
 }
 
 
@@ -4499,9 +4364,6 @@ dissect_rnsap_PrivateIE_Field(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_PrivateIE_Container_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrivateIE_Field(tvb, offset, actx, tree, hf_rnsap_PrivateIE_Container_item);
-}
 
 
 static const per_sequence_t PrivateIE_Container_sequence_of[1] = {
@@ -4515,9 +4377,6 @@ dissect_rnsap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                                   1, 65535);
 
   return offset;
-}
-static int dissect_privateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrivateIE_Container(tvb, offset, actx, tree, hf_rnsap_privateIEs);
 }
 
 
@@ -6013,12 +5872,6 @@ dissect_rnsap_Allowed_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_allowed_UL_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Allowed_Rate(tvb, offset, actx, tree, hf_rnsap_allowed_UL_Rate);
-}
-static int dissect_allowed_DL_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Allowed_Rate(tvb, offset, actx, tree, hf_rnsap_allowed_DL_Rate);
-}
 
 
 static const per_sequence_t Allowed_Rate_Information_sequence[] = {
@@ -6037,9 +5890,6 @@ dissect_rnsap_Allowed_Rate_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 static int dissect_id_Allowed_Rate_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_Allowed_Rate_Information(tvb, offset, actx, tree, hf_rnsap_id_Allowed_Rate_Information);
-}
-static int dissect_allowed_Rate_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Allowed_Rate_Information(tvb, offset, actx, tree, hf_rnsap_allowed_Rate_Information);
 }
 
 
@@ -6072,9 +5922,6 @@ dissect_rnsap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int dissect_id_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_BindingID(tvb, offset, actx, tree, hf_rnsap_id_BindingID);
 }
-static int dissect_bindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BindingID(tvb, offset, actx, tree, hf_rnsap_bindingID);
-}
 
 
 
@@ -6087,12 +5934,6 @@ dissect_rnsap_C_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 }
 static int dissect_id_C_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_C_ID(tvb, offset, actx, tree, hf_rnsap_id_C_ID);
-}
-static int dissect_c_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_C_ID(tvb, offset, actx, tree, hf_rnsap_c_ID);
-}
-static int dissect_CorrespondingCells_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_C_ID(tvb, offset, actx, tree, hf_rnsap_CorrespondingCells_item);
 }
 
 
@@ -6116,12 +5957,6 @@ dissect_rnsap_INTEGER_1_100_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                               1U, 100U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_uplinkCellCapacityClassValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_100_(tvb, offset, actx, tree, hf_rnsap_uplinkCellCapacityClassValue);
-}
-static int dissect_downlinkCellCapacityClassValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_100_(tvb, offset, actx, tree, hf_rnsap_downlinkCellCapacityClassValue);
 }
 
 
@@ -6154,21 +5989,6 @@ dissect_rnsap_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 static int dissect_id_CFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_id_CFN);
 }
-static int dissect_cFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_cFN);
-}
-static int dissect_cMConfigurationChangeCFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_cMConfigurationChangeCFN);
-}
-static int dissect_cfn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_cfn);
-}
-static int dissect_synchronised(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_synchronised);
-}
-static int dissect_tGCFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CFN(tvb, offset, actx, tree, hf_rnsap_tGCFN);
-}
 
 
 
@@ -6179,12 +5999,6 @@ dissect_rnsap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_pLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PLMN_Identity(tvb, offset, actx, tree, hf_rnsap_pLMN_Identity);
-}
-static int dissect_plmn_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PLMN_Identity(tvb, offset, actx, tree, hf_rnsap_plmn_id);
-}
 
 
 
@@ -6194,9 +6008,6 @@ dissect_rnsap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                        2, 2, NULL);
 
   return offset;
-}
-static int dissect_lAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_LAC(tvb, offset, actx, tree, hf_rnsap_lAC);
 }
 
 
@@ -6217,9 +6028,6 @@ dissect_rnsap_CN_CS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int dissect_id_CN_CS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_CN_CS_DomainIdentifier(tvb, offset, actx, tree, hf_rnsap_id_CN_CS_DomainIdentifier);
 }
-static int dissect_cN_CS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CN_CS_DomainIdentifier(tvb, offset, actx, tree, hf_rnsap_cN_CS_DomainIdentifier);
-}
 
 
 
@@ -6229,9 +6037,6 @@ dissect_rnsap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                        1, 1, NULL);
 
   return offset;
-}
-static int dissect_rAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RAC(tvb, offset, actx, tree, hf_rnsap_rAC);
 }
 
 
@@ -6252,9 +6057,6 @@ dissect_rnsap_CN_PS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 static int dissect_id_CN_PS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_CN_PS_DomainIdentifier(tvb, offset, actx, tree, hf_rnsap_id_CN_PS_DomainIdentifier);
-}
-static int dissect_cN_PS_DomainIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CN_PS_DomainIdentifier(tvb, offset, actx, tree, hf_rnsap_cN_PS_DomainIdentifier);
 }
 
 
@@ -6309,9 +6111,6 @@ dissect_rnsap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_radioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CauseRadioNetwork(tvb, offset, actx, tree, hf_rnsap_radioNetwork);
-}
 
 
 static const value_string rnsap_CauseTransport_vals[] = {
@@ -6327,9 +6126,6 @@ dissect_rnsap_CauseTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                      2, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_transport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CauseTransport(tvb, offset, actx, tree, hf_rnsap_transport);
 }
 
 
@@ -6352,9 +6148,6 @@ dissect_rnsap_CauseProtocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_protocol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CauseProtocol(tvb, offset, actx, tree, hf_rnsap_protocol);
-}
 
 
 static const value_string rnsap_CauseMisc_vals[] = {
@@ -6373,9 +6166,6 @@ dissect_rnsap_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                      5, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_misc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CauseMisc(tvb, offset, actx, tree, hf_rnsap_misc);
 }
 
 
@@ -6405,12 +6195,6 @@ dissect_rnsap_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 }
 static int dissect_id_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_Cause(tvb, offset, actx, tree, hf_rnsap_id_Cause);
-}
-static int dissect_cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cause(tvb, offset, actx, tree, hf_rnsap_cause);
-}
-static int dissect_individualcause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cause(tvb, offset, actx, tree, hf_rnsap_individualcause);
 }
 
 
@@ -6450,9 +6234,6 @@ dissect_rnsap_TriggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_triggeringMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TriggeringMessage(tvb, offset, actx, tree, hf_rnsap_triggeringMessage);
-}
 
 
 
@@ -6462,9 +6243,6 @@ dissect_rnsap_RepetitionNumber0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_repetitionNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RepetitionNumber0(tvb, offset, actx, tree, hf_rnsap_repetitionNumber);
 }
 
 
@@ -6483,9 +6261,6 @@ dissect_rnsap_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CriticalityDiagnostics_IE_List_item(tvb, offset, actx, tree, hf_rnsap_CriticalityDiagnostics_IE_List_item);
-}
 
 
 static const per_sequence_t CriticalityDiagnostics_IE_List_sequence_of[1] = {
@@ -6499,9 +6274,6 @@ dissect_rnsap_CriticalityDiagnostics_IE_List(tvbuff_t *tvb _U_, int offset _U_, 
                                                   1, 256);
 
   return offset;
-}
-static int dissect_iEsCriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CriticalityDiagnostics_IE_List(tvb, offset, actx, tree, hf_rnsap_iEsCriticalityDiagnostics);
 }
 
 
@@ -6538,12 +6310,6 @@ dissect_rnsap_S_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int dissect_id_S_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_S_RNTI(tvb, offset, actx, tree, hf_rnsap_id_S_RNTI);
 }
-static int dissect_sRNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_S_RNTI(tvb, offset, actx, tree, hf_rnsap_sRNTI);
-}
-static int dissect_AffectedUEInformationForMBMS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_S_RNTI(tvb, offset, actx, tree, hf_rnsap_AffectedUEInformationForMBMS_item);
-}
 
 
 
@@ -6556,12 +6322,6 @@ dissect_rnsap_D_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 static int dissect_id_D_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_D_RNTI(tvb, offset, actx, tree, hf_rnsap_id_D_RNTI);
-}
-static int dissect_dRNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_D_RNTI(tvb, offset, actx, tree, hf_rnsap_dRNTI);
-}
-static int dissect_d_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_D_RNTI(tvb, offset, actx, tree, hf_rnsap_d_RNTI);
 }
 
 
@@ -6584,9 +6344,6 @@ dissect_rnsap_ContextType_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                  NULL);
 
   return offset;
-}
-static int dissect_contextType_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ContextType_Reset(tvb, offset, actx, tree, hf_rnsap_contextType_Reset);
 }
 
 
@@ -6639,9 +6396,6 @@ dissect_rnsap_T_sRNTI_BitMaskIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_sRNTI_BitMaskIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_sRNTI_BitMaskIndex(tvb, offset, actx, tree, hf_rnsap_sRNTI_BitMaskIndex);
-}
 
 
 static const per_sequence_t S_RNTI_Group_sequence[] = {
@@ -6656,9 +6410,6 @@ dissect_rnsap_S_RNTI_Group(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                    ett_rnsap_S_RNTI_Group, S_RNTI_Group_sequence);
 
   return offset;
-}
-static int dissect_s_RNTI_Group(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_S_RNTI_Group(tvb, offset, actx, tree, hf_rnsap_s_RNTI_Group);
 }
 
 
@@ -6713,9 +6464,6 @@ dissect_rnsap_PayloadCRC_PresenceIndicator(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_payloadCRC_PresenceIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PayloadCRC_PresenceIndicator(tvb, offset, actx, tree, hf_rnsap_payloadCRC_PresenceIndicator);
-}
 
 
 static const value_string rnsap_UL_FP_Mode_vals[] = {
@@ -6732,9 +6480,6 @@ dissect_rnsap_UL_FP_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_ul_FP_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_FP_Mode(tvb, offset, actx, tree, hf_rnsap_ul_FP_Mode);
-}
 
 
 
@@ -6744,9 +6489,6 @@ dissect_rnsap_ToAWS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
                                               0U, 1279U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_toAWS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ToAWS(tvb, offset, actx, tree, hf_rnsap_toAWS);
 }
 
 
@@ -6758,9 +6500,6 @@ dissect_rnsap_ToAWE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_toAWE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ToAWE(tvb, offset, actx, tree, hf_rnsap_toAWE);
-}
 
 
 
@@ -6770,12 +6509,6 @@ dissect_rnsap_DCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_dCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_ID(tvb, offset, actx, tree, hf_rnsap_dCH_ID);
-}
-static int dissect_dCH_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_ID(tvb, offset, actx, tree, hf_rnsap_dCH_id);
 }
 
 
@@ -6794,12 +6527,6 @@ dissect_rnsap_TrCH_SrcStatisticsDescr(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_trChSourceStatisticsDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TrCH_SrcStatisticsDescr(tvb, offset, actx, tree, hf_rnsap_trChSourceStatisticsDescriptor);
-}
-static int dissect_trCH_SrcStatisticsDescr(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TrCH_SrcStatisticsDescr(tvb, offset, actx, tree, hf_rnsap_trCH_SrcStatisticsDescr);
-}
 
 
 
@@ -6810,9 +6537,6 @@ dissect_rnsap_NrOfTransportBlocks(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_nrOfTransportBlocks(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NrOfTransportBlocks(tvb, offset, actx, tree, hf_rnsap_nrOfTransportBlocks);
-}
 
 
 
@@ -6822,9 +6546,6 @@ dissect_rnsap_TransportBlockSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                               0U, 5000U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_transportBlockSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportBlockSize(tvb, offset, actx, tree, hf_rnsap_transportBlockSize);
 }
 
 
@@ -6844,9 +6565,6 @@ dissect_rnsap_TransmissionTimeIntervalDynamic(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_transmissionTimeInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmissionTimeIntervalDynamic(tvb, offset, actx, tree, hf_rnsap_transmissionTimeInterval);
-}
 
 
 static const per_sequence_t TransmissionTimeIntervalInformation_item_sequence[] = {
@@ -6862,9 +6580,6 @@ dissect_rnsap_TransmissionTimeIntervalInformation_item(tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_TransmissionTimeIntervalInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmissionTimeIntervalInformation_item(tvb, offset, actx, tree, hf_rnsap_TransmissionTimeIntervalInformation_item);
-}
 
 
 static const per_sequence_t TransmissionTimeIntervalInformation_sequence_of[1] = {
@@ -6878,9 +6593,6 @@ dissect_rnsap_TransmissionTimeIntervalInformation(tvbuff_t *tvb _U_, int offset 
                                                   1, 4);
 
   return offset;
-}
-static int dissect_transmissionTimeIntervalInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmissionTimeIntervalInformation(tvb, offset, actx, tree, hf_rnsap_transmissionTimeIntervalInformation);
 }
 
 
@@ -6897,9 +6609,6 @@ dissect_rnsap_TDD_TransportFormatSet_ModeDP(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_tdd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_TransportFormatSet_ModeDP(tvb, offset, actx, tree, hf_rnsap_tdd);
-}
 
 
 
@@ -6908,81 +6617,6 @@ dissect_rnsap_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_not_Used_sSDT_CellIdLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_sSDT_CellIdLength);
-}
-static int dissect_not_Used_s_FieldLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_s_FieldLength);
-}
-static int dissect_not_Used_sSDT_CellID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_sSDT_CellID);
-}
-static int dissect_not_Used_secondary_CCPCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_secondary_CCPCH_Info);
-}
-static int dissect_not_Used_dSCHInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_dSCHInformationResponse);
-}
-static int dissect_not_Used_dSCH_InformationResponse_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_dSCH_InformationResponse_RL_SetupFailureFDD);
-}
-static int dissect_not_Used_sSDT_CellIDLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_sSDT_CellIDLength);
-}
-static int dissect_not_Used_sSDT_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_sSDT_Indication);
-}
-static int dissect_not_Used_sSDT_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_sSDT_CellIdentity);
-}
-static int dissect_not_Used_dSCHsToBeAddedOrModified(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_dSCHsToBeAddedOrModified);
-}
-static int dissect_all_contexts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_all_contexts);
-}
-static int dissect_measurementnotAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_measurementnotAvailable);
-}
-static int dissect_separate_indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_separate_indication);
-}
-static int dissect_unsynchronised(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_unsynchronised);
-}
-static int dissect_e_DCH_Scheduled_Transmission_Grant(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_e_DCH_Scheduled_Transmission_Grant);
-}
-static int dissect_e_DCH_Serving_RL_not_in_this_DRNS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_e_DCH_Serving_RL_not_in_this_DRNS);
-}
-static int dissect_not_Used_dRACControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_dRACControl);
-}
-static int dissect_noBadSatellite(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_noBadSatellite);
-}
-static int dissect_onDemand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_onDemand);
-}
-static int dissect_defaultMidamble(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_defaultMidamble);
-}
-static int dissect_commonMidamble(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_commonMidamble);
-}
-static int dissect_not_used_closedLoopMode2_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_used_closedLoopMode2_SupportIndicator);
-}
-static int dissect_secondary_CPICH_shall_not_be_used(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_secondary_CPICH_shall_not_be_used);
-}
-static int dissect_not_Used_split_in_TFCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_not_Used_split_in_TFCI);
-}
-static int dissect_notApplicable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NULL(tvb, offset, actx, tree, hf_rnsap_notApplicable);
 }
 
 
@@ -7006,9 +6640,6 @@ dissect_rnsap_TransportFormatSet_ModeDP(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet_ModeDP(tvb, offset, actx, tree, hf_rnsap_mode);
-}
 
 
 static const per_sequence_t TransportFormatSet_DynamicPartList_item_sequence[] = {
@@ -7026,9 +6657,6 @@ dissect_rnsap_TransportFormatSet_DynamicPartList_item(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_TransportFormatSet_DynamicPartList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet_DynamicPartList_item(tvb, offset, actx, tree, hf_rnsap_TransportFormatSet_DynamicPartList_item);
-}
 
 
 static const per_sequence_t TransportFormatSet_DynamicPartList_sequence_of[1] = {
@@ -7042,9 +6670,6 @@ dissect_rnsap_TransportFormatSet_DynamicPartList(tvbuff_t *tvb _U_, int offset _
                                                   1, 32);
 
   return offset;
-}
-static int dissect_dynamicParts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet_DynamicPartList(tvb, offset, actx, tree, hf_rnsap_dynamicParts);
 }
 
 
@@ -7065,9 +6690,6 @@ dissect_rnsap_TransmissionTimeIntervalSemiStatic(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_transmissionTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmissionTimeIntervalSemiStatic(tvb, offset, actx, tree, hf_rnsap_transmissionTime);
-}
 
 
 static const value_string rnsap_ChannelCodingType_vals[] = {
@@ -7085,9 +6707,6 @@ dissect_rnsap_ChannelCodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_channelCoding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ChannelCodingType(tvb, offset, actx, tree, hf_rnsap_channelCoding);
-}
 
 
 static const value_string rnsap_CodingRate_vals[] = {
@@ -7104,9 +6723,6 @@ dissect_rnsap_CodingRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_codingRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CodingRate(tvb, offset, actx, tree, hf_rnsap_codingRate);
-}
 
 
 
@@ -7116,9 +6732,6 @@ dissect_rnsap_RateMatchingAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               1U, 256U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_rateMatcingAttribute(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RateMatchingAttribute(tvb, offset, actx, tree, hf_rnsap_rateMatcingAttribute);
 }
 
 
@@ -7139,9 +6752,6 @@ dissect_rnsap_CRC_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_cRC_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CRC_Size(tvb, offset, actx, tree, hf_rnsap_cRC_Size);
-}
 
 
 static const value_string rnsap_SecondInterleavingMode_vals[] = {
@@ -7157,9 +6767,6 @@ dissect_rnsap_SecondInterleavingMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                      2, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_tdd1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SecondInterleavingMode(tvb, offset, actx, tree, hf_rnsap_tdd1);
 }
 
 
@@ -7183,9 +6790,6 @@ dissect_rnsap_TransportFormatSet_ModeSSP(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_mode1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet_ModeSSP(tvb, offset, actx, tree, hf_rnsap_mode1);
-}
 
 
 static const per_sequence_t TransportFormatSet_Semi_staticPart_sequence[] = {
@@ -7206,9 +6810,6 @@ dissect_rnsap_TransportFormatSet_Semi_staticPart(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_semi_staticPart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet_Semi_staticPart(tvb, offset, actx, tree, hf_rnsap_semi_staticPart);
-}
 
 
 static const per_sequence_t TransportFormatSet_sequence[] = {
@@ -7225,21 +6826,6 @@ dissect_rnsap_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_transportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet(tvb, offset, actx, tree, hf_rnsap_transportFormatSet);
-}
-static int dissect_ul_transportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet(tvb, offset, actx, tree, hf_rnsap_ul_transportFormatSet);
-}
-static int dissect_dl_transportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet(tvb, offset, actx, tree, hf_rnsap_dl_transportFormatSet);
-}
-static int dissect_ul_TransportformatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet(tvb, offset, actx, tree, hf_rnsap_ul_TransportformatSet);
-}
-static int dissect_dl_TransportformatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatSet(tvb, offset, actx, tree, hf_rnsap_dl_TransportformatSet);
-}
 
 
 
@@ -7250,15 +6836,6 @@ dissect_rnsap_BLER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_bLER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BLER(tvb, offset, actx, tree, hf_rnsap_bLER);
-}
-static int dissect_ul_BLER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BLER(tvb, offset, actx, tree, hf_rnsap_ul_BLER);
-}
-static int dissect_dl_BLER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BLER(tvb, offset, actx, tree, hf_rnsap_dl_BLER);
-}
 
 
 
@@ -7268,9 +6845,6 @@ dissect_rnsap_PriorityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_priorityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityLevel(tvb, offset, actx, tree, hf_rnsap_priorityLevel);
 }
 
 
@@ -7288,9 +6862,6 @@ dissect_rnsap_Pre_emptionCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_pre_emptionCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Pre_emptionCapability(tvb, offset, actx, tree, hf_rnsap_pre_emptionCapability);
-}
 
 
 static const value_string rnsap_Pre_emptionVulnerability_vals[] = {
@@ -7306,9 +6877,6 @@ dissect_rnsap_Pre_emptionVulnerability(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_pre_emptionVulnerability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Pre_emptionVulnerability(tvb, offset, actx, tree, hf_rnsap_pre_emptionVulnerability);
 }
 
 
@@ -7327,9 +6895,6 @@ dissect_rnsap_AllocationRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_allocationRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AllocationRetentionPriority(tvb, offset, actx, tree, hf_rnsap_allocationRetentionPriority);
-}
 
 
 static const value_string rnsap_FrameHandlingPriority_vals[] = {
@@ -7345,9 +6910,6 @@ dissect_rnsap_FrameHandlingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_frameHandlingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FrameHandlingPriority(tvb, offset, actx, tree, hf_rnsap_frameHandlingPriority);
 }
 
 
@@ -7365,9 +6927,6 @@ dissect_rnsap_QE_Selector(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_qE_Selector(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_QE_Selector(tvb, offset, actx, tree, hf_rnsap_qE_Selector);
-}
 
 
 static const value_string rnsap_DRACControl_vals[] = {
@@ -7383,9 +6942,6 @@ dissect_rnsap_DRACControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_dRACControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DRACControl(tvb, offset, actx, tree, hf_rnsap_dRACControl);
 }
 
 
@@ -7411,9 +6967,6 @@ dissect_rnsap_DCH_Specific_FDD_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_DCH_Specific_FDD_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Specific_FDD_Item(tvb, offset, actx, tree, hf_rnsap_DCH_Specific_FDD_InformationList_item);
-}
 
 
 static const per_sequence_t DCH_Specific_FDD_InformationList_sequence_of[1] = {
@@ -7427,9 +6980,6 @@ dissect_rnsap_DCH_Specific_FDD_InformationList(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 128);
 
   return offset;
-}
-static int dissect_dCH_SpecificInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Specific_FDD_InformationList(tvb, offset, actx, tree, hf_rnsap_dCH_SpecificInformationList);
 }
 
 
@@ -7449,9 +6999,6 @@ dissect_rnsap_DCH_FDD_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                    ett_rnsap_DCH_FDD_InformationItem, DCH_FDD_InformationItem_sequence);
 
   return offset;
-}
-static int dissect_DCH_FDD_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_FDD_InformationItem(tvb, offset, actx, tree, hf_rnsap_DCH_FDD_Information_item);
 }
 
 
@@ -7483,27 +7030,6 @@ dissect_rnsap_CCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_cCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_cCTrCH_ID);
-}
-static int dissect_dl_ccTrCHID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_dl_ccTrCHID);
-}
-static int dissect_ul_ccTrCHID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_ul_ccTrCHID);
-}
-static int dissect_ul_cCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_ul_cCTrCH_ID);
-}
-static int dissect_dl_cCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_dl_cCTrCH_ID);
-}
-static int dissect_ul_CCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCH_ID);
-}
-static int dissect_dl_CCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_ID(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCH_ID);
-}
 
 
 static const per_sequence_t DCH_Specific_TDD_Item_sequence[] = {
@@ -7529,9 +7055,6 @@ dissect_rnsap_DCH_Specific_TDD_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_DCH_Specific_TDD_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Specific_TDD_Item(tvb, offset, actx, tree, hf_rnsap_DCH_Specific_TDD_InformationList_item);
-}
 
 
 static const per_sequence_t DCH_Specific_TDD_InformationList_sequence_of[1] = {
@@ -7545,9 +7068,6 @@ dissect_rnsap_DCH_Specific_TDD_InformationList(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 128);
 
   return offset;
-}
-static int dissect_dCH_SpecificInformationList1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Specific_TDD_InformationList(tvb, offset, actx, tree, hf_rnsap_dCH_SpecificInformationList1);
 }
 
 
@@ -7567,9 +7087,6 @@ dissect_rnsap_DCH_TDD_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                    ett_rnsap_DCH_TDD_InformationItem, DCH_TDD_InformationItem_sequence);
 
   return offset;
-}
-static int dissect_DCH_TDD_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_TDD_InformationItem(tvb, offset, actx, tree, hf_rnsap_DCH_TDD_Information_item);
 }
 
 
@@ -7606,9 +7123,6 @@ dissect_rnsap_DCH_DeleteItem_RL_ReconfPrepFDD(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_DCH_DeleteList_RL_ReconfPrepFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_DeleteItem_RL_ReconfPrepFDD(tvb, offset, actx, tree, hf_rnsap_DCH_DeleteList_RL_ReconfPrepFDD_item);
-}
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfPrepFDD_sequence_of[1] = {
@@ -7640,9 +7154,6 @@ dissect_rnsap_DCH_DeleteItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_,
                                    ett_rnsap_DCH_DeleteItem_RL_ReconfPrepTDD, DCH_DeleteItem_RL_ReconfPrepTDD_sequence);
 
   return offset;
-}
-static int dissect_DCH_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_DeleteItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_DCH_DeleteList_RL_ReconfPrepTDD_item);
 }
 
 
@@ -7676,9 +7187,6 @@ dissect_rnsap_DCH_DeleteItem_RL_ReconfRqstFDD(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_DCH_DeleteList_RL_ReconfRqstFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_DeleteItem_RL_ReconfRqstFDD(tvb, offset, actx, tree, hf_rnsap_DCH_DeleteList_RL_ReconfRqstFDD_item);
-}
 
 
 static const per_sequence_t DCH_DeleteList_RL_ReconfRqstFDD_sequence_of[1] = {
@@ -7710,9 +7218,6 @@ dissect_rnsap_DCH_DeleteItem_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_,
                                    ett_rnsap_DCH_DeleteItem_RL_ReconfRqstTDD, DCH_DeleteItem_RL_ReconfRqstTDD_sequence);
 
   return offset;
-}
-static int dissect_DCH_DeleteList_RL_ReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_DeleteItem_RL_ReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_DCH_DeleteList_RL_ReconfRqstTDD_item);
 }
 
 
@@ -7750,9 +7255,6 @@ dissect_rnsap_TransportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_,
 static int dissect_id_TransportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TransportBearerRequestIndicator(tvb, offset, actx, tree, hf_rnsap_id_TransportBearerRequestIndicator);
 }
-static int dissect_transportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportBearerRequestIndicator(tvb, offset, actx, tree, hf_rnsap_transportBearerRequestIndicator);
-}
 
 
 static const per_sequence_t FDD_DCHs_to_ModifySpecificItem_sequence[] = {
@@ -7773,9 +7275,6 @@ dissect_rnsap_FDD_DCHs_to_ModifySpecificItem(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_FDD_DCHs_to_ModifySpecificInformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DCHs_to_ModifySpecificItem(tvb, offset, actx, tree, hf_rnsap_FDD_DCHs_to_ModifySpecificInformationList_item);
-}
 
 
 static const per_sequence_t FDD_DCHs_to_ModifySpecificInformationList_sequence_of[1] = {
@@ -7789,9 +7288,6 @@ dissect_rnsap_FDD_DCHs_to_ModifySpecificInformationList(tvbuff_t *tvb _U_, int o
                                                   1, 128);
 
   return offset;
-}
-static int dissect_dCH_SpecificInformationList2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DCHs_to_ModifySpecificInformationList(tvb, offset, actx, tree, hf_rnsap_dCH_SpecificInformationList2);
 }
 
 
@@ -7811,9 +7307,6 @@ dissect_rnsap_FDD_DCHs_to_ModifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                    ett_rnsap_FDD_DCHs_to_ModifyItem, FDD_DCHs_to_ModifyItem_sequence);
 
   return offset;
-}
-static int dissect_FDD_DCHs_to_Modify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DCHs_to_ModifyItem(tvb, offset, actx, tree, hf_rnsap_FDD_DCHs_to_Modify_item);
 }
 
 
@@ -7853,9 +7346,6 @@ dissect_rnsap_TDD_DCHs_to_ModifySpecificItem(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_TDD_DCHs_to_ModifySpecificInformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DCHs_to_ModifySpecificItem(tvb, offset, actx, tree, hf_rnsap_TDD_DCHs_to_ModifySpecificInformationList_item);
-}
 
 
 static const per_sequence_t TDD_DCHs_to_ModifySpecificInformationList_sequence_of[1] = {
@@ -7869,9 +7359,6 @@ dissect_rnsap_TDD_DCHs_to_ModifySpecificInformationList(tvbuff_t *tvb _U_, int o
                                                   1, 128);
 
   return offset;
-}
-static int dissect_dCH_SpecificInformationList3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DCHs_to_ModifySpecificInformationList(tvb, offset, actx, tree, hf_rnsap_dCH_SpecificInformationList3);
 }
 
 
@@ -7891,9 +7378,6 @@ dissect_rnsap_TDD_DCHs_to_ModifyItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                    ett_rnsap_TDD_DCHs_to_ModifyItem, TDD_DCHs_to_ModifyItem_sequence);
 
   return offset;
-}
-static int dissect_TDD_DCHs_to_Modify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DCHs_to_ModifyItem(tvb, offset, actx, tree, hf_rnsap_TDD_DCHs_to_Modify_item);
 }
 
 
@@ -7925,9 +7409,6 @@ dissect_rnsap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int dissect_id_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TransportLayerAddress(tvb, offset, actx, tree, hf_rnsap_id_TransportLayerAddress);
 }
-static int dissect_transportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportLayerAddress(tvb, offset, actx, tree, hf_rnsap_transportLayerAddress);
-}
 
 
 static const per_sequence_t DCH_InformationResponseItem_sequence[] = {
@@ -7945,9 +7426,6 @@ dissect_rnsap_DCH_InformationResponseItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_DCH_InformationResponse_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseItem(tvb, offset, actx, tree, hf_rnsap_DCH_InformationResponse_item);
-}
 
 
 static const per_sequence_t DCH_InformationResponse_sequence_of[1] = {
@@ -7964,9 +7442,6 @@ dissect_rnsap_DCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 static int dissect_id_DCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_DCH_InformationResponse(tvb, offset, actx, tree, hf_rnsap_id_DCH_InformationResponse);
-}
-static int dissect_dCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponse(tvb, offset, actx, tree, hf_rnsap_dCH_InformationResponse);
 }
 
 
@@ -7997,15 +7472,6 @@ dissect_rnsap_INTEGER_0_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_uplinkNRTLoadInformationValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_3(tvb, offset, actx, tree, hf_rnsap_uplinkNRTLoadInformationValue);
-}
-static int dissect_downlinkNRTLoadInformationValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_3(tvb, offset, actx, tree, hf_rnsap_downlinkNRTLoadInformationValue);
-}
-static int dissect_ctfc2bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_3(tvb, offset, actx, tree, hf_rnsap_ctfc2bit);
-}
 
 
 
@@ -8015,12 +7481,6 @@ dissect_rnsap_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_burstStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_15(tvb, offset, actx, tree, hf_rnsap_burstStart);
-}
-static int dissect_ctfc4bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_15(tvb, offset, actx, tree, hf_rnsap_ctfc4bit);
 }
 
 
@@ -8032,12 +7492,6 @@ dissect_rnsap_INTEGER_0_63(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_noinitialOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_63(tvb, offset, actx, tree, hf_rnsap_noinitialOffset);
-}
-static int dissect_ctfc6bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_63(tvb, offset, actx, tree, hf_rnsap_ctfc6bit);
-}
 
 
 
@@ -8047,15 +7501,6 @@ dissect_rnsap_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_t_RLFAILURE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_255(tvb, offset, actx, tree, hf_rnsap_t_RLFAILURE);
-}
-static int dissect_initialOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_255(tvb, offset, actx, tree, hf_rnsap_initialOffset);
-}
-static int dissect_ctfc8bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_255(tvb, offset, actx, tree, hf_rnsap_ctfc8bit);
 }
 
 
@@ -8067,9 +7512,6 @@ dissect_rnsap_INTEGER_0_4095(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_ctfc12bit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_4095(tvb, offset, actx, tree, hf_rnsap_ctfc12bit);
-}
 
 
 
@@ -8079,9 +7521,6 @@ dissect_rnsap_INTEGER_0_16777215(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                               0U, 16777215U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ctfcmaxbit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_16777215(tvb, offset, actx, tree, hf_rnsap_ctfcmaxbit);
 }
 
 
@@ -8115,9 +7554,6 @@ dissect_rnsap_TFCS_CTFC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_cTFC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS_CTFC(tvb, offset, actx, tree, hf_rnsap_cTFC);
-}
 
 
 
@@ -8128,12 +7564,6 @@ dissect_rnsap_BetaCD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_betaC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BetaCD(tvb, offset, actx, tree, hf_rnsap_betaC);
-}
-static int dissect_betaD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BetaCD(tvb, offset, actx, tree, hf_rnsap_betaD);
-}
 
 
 
@@ -8143,9 +7573,6 @@ dissect_rnsap_RefTFCNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_refTFCNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RefTFCNumber(tvb, offset, actx, tree, hf_rnsap_refTFCNumber);
 }
 
 
@@ -8163,9 +7590,6 @@ dissect_rnsap_T_signalledGainFactors(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                    ett_rnsap_T_signalledGainFactors, T_signalledGainFactors_sequence);
 
   return offset;
-}
-static int dissect_signalledGainFactors(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_signalledGainFactors(tvb, offset, actx, tree, hf_rnsap_signalledGainFactors);
 }
 
 
@@ -8189,9 +7613,6 @@ dissect_rnsap_TransportFormatCombination_Beta(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_tFC_Beta(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatCombination_Beta(tvb, offset, actx, tree, hf_rnsap_tFC_Beta);
-}
 
 
 static const per_sequence_t TFCS_TFCSList_item_sequence[] = {
@@ -8208,9 +7629,6 @@ dissect_rnsap_TFCS_TFCSList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_TFCS_TFCSList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS_TFCSList_item(tvb, offset, actx, tree, hf_rnsap_TFCS_TFCSList_item);
-}
 
 
 static const per_sequence_t TFCS_TFCSList_sequence_of[1] = {
@@ -8224,9 +7642,6 @@ dissect_rnsap_TFCS_TFCSList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                   1, 1024);
 
   return offset;
-}
-static int dissect_no_Split_in_TFCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS_TFCSList(tvb, offset, actx, tree, hf_rnsap_no_Split_in_TFCI);
 }
 
 
@@ -8250,9 +7665,6 @@ dissect_rnsap_T_tFCSvalues(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_tFCSvalues(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_tFCSvalues(tvb, offset, actx, tree, hf_rnsap_tFCSvalues);
-}
 
 
 static const per_sequence_t TFCS_sequence[] = {
@@ -8267,15 +7679,6 @@ dissect_rnsap_TFCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
                                    ett_rnsap_TFCS, TFCS_sequence);
 
   return offset;
-}
-static int dissect_ul_TFCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS(tvb, offset, actx, tree, hf_rnsap_ul_TFCS);
-}
-static int dissect_tFCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS(tvb, offset, actx, tree, hf_rnsap_tFCS);
-}
-static int dissect_dl_TFCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCS(tvb, offset, actx, tree, hf_rnsap_dl_TFCS);
 }
 
 
@@ -8295,9 +7698,6 @@ dissect_rnsap_TFCI_Coding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_tFCI_Coding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCI_Coding(tvb, offset, actx, tree, hf_rnsap_tFCI_Coding);
-}
 
 
 
@@ -8307,15 +7707,6 @@ dissect_rnsap_PunctureLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ul_PunctureLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PunctureLimit(tvb, offset, actx, tree, hf_rnsap_ul_PunctureLimit);
-}
-static int dissect_dl_PunctureLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PunctureLimit(tvb, offset, actx, tree, hf_rnsap_dl_PunctureLimit);
-}
-static int dissect_punctureLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PunctureLimit(tvb, offset, actx, tree, hf_rnsap_punctureLimit);
 }
 
 
@@ -8332,9 +7723,6 @@ dissect_rnsap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t CCTrCH_TPCAddList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -8348,9 +7736,6 @@ dissect_rnsap_CCTrCH_TPCAddList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _
                                                   1, 16);
 
   return offset;
-}
-static int dissect_cCTrCH_TPCList1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCAddList_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_cCTrCH_TPCList1);
 }
 
 
@@ -8383,186 +7768,6 @@ dissect_rnsap_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_RL_InformationList_RL_SetupRqstFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_SetupRqstFDD_item);
-}
-static int dissect_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item);
-}
-static int dissect_RL_InformationResponseList_RL_SetupRspFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationResponseList_RL_SetupRspFDD_item);
-}
-static int dissect_UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD_item);
-}
-static int dissect_SuccessfulRL_InformationResponseList_RL_SetupFailureFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_SuccessfulRL_InformationResponseList_RL_SetupFailureFDD_item);
-}
-static int dissect_RL_InformationList_RL_AdditionRqstFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_AdditionRqstFDD_item);
-}
-static int dissect_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item);
-}
-static int dissect_RL_InformationResponseList_RL_AdditionRspFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationResponseList_RL_AdditionRspFDD_item);
-}
-static int dissect_UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_item);
-}
-static int dissect_SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_item);
-}
-static int dissect_RL_InformationList_RL_DeletionRqst_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_DeletionRqst_item);
-}
-static int dissect_RL_InformationList_RL_ReconfPrepFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_ReconfPrepFDD_item);
-}
-static int dissect_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item);
-}
-static int dissect_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item);
-}
-static int dissect_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item);
-}
-static int dissect_RL_InformationResponseList_RL_ReconfReadyFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationResponseList_RL_ReconfReadyFDD_item);
-}
-static int dissect_RL_ReconfigurationFailureList_RL_ReconfFailure_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_ReconfigurationFailureList_RL_ReconfFailure_item);
-}
-static int dissect_RL_ReconfigurationRequestFDD_RL_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_ReconfigurationRequestFDD_RL_InformationList_item);
-}
-static int dissect_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item);
-}
-static int dissect_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item);
-}
-static int dissect_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item);
-}
-static int dissect_RL_InformationResponseList_RL_ReconfRspFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationResponseList_RL_ReconfRspFDD_item);
-}
-static int dissect_RL_InformationList_RL_FailureInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_FailureInd_item);
-}
-static int dissect_RL_Set_InformationList_RL_FailureInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_InformationList_RL_FailureInd_item);
-}
-static int dissect_CCTrCH_InformationList_RL_FailureInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_CCTrCH_InformationList_RL_FailureInd_item);
-}
-static int dissect_RL_InformationList_RL_PreemptRequiredInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_PreemptRequiredInd_item);
-}
-static int dissect_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd_item);
-}
-static int dissect_EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd_item);
-}
-static int dissect_RL_InformationList_RL_RestoreInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_RestoreInd_item);
-}
-static int dissect_RL_Set_InformationList_RL_RestoreInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_InformationList_RL_RestoreInd_item);
-}
-static int dissect_CCTrCH_InformationList_RL_RestoreInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_CCTrCH_InformationList_RL_RestoreInd_item);
-}
-static int dissect_DL_ReferencePowerInformationList_DL_PC_Rqst_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DL_ReferencePowerInformationList_DL_PC_Rqst_item);
-}
-static int dissect_RL_InformationList_RL_CongestInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_RL_CongestInd_item);
-}
-static int dissect_DCH_Rate_Information_RL_CongestInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DCH_Rate_Information_RL_CongestInd_item);
-}
-static int dissect_EDCH_MacdFlowSpecificInformationList_RL_CongestInd_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_EDCH_MacdFlowSpecificInformationList_RL_CongestInd_item);
-}
-static int dissect_RL_InformationList_DM_Rqst_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_DM_Rqst_item);
-}
-static int dissect_RL_Set_InformationList_DM_Rqst_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_InformationList_DM_Rqst_item);
-}
-static int dissect_RL_InformationList_DM_Rsp_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_DM_Rsp_item);
-}
-static int dissect_RL_Set_InformationList_DM_Rsp_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_InformationList_DM_Rsp_item);
-}
-static int dissect_RL_Unsuccessful_InformationRespList_DM_Fail_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail_item);
-}
-static int dissect_RL_Successful_InformationRespList_DM_Fail_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Successful_InformationRespList_DM_Fail_item);
-}
-static int dissect_RL_Set_Unsuccessful_InformationRespList_DM_Fail_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail_item);
-}
-static int dissect_RL_Set_Successful_InformationRespList_DM_Fail_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_Successful_InformationRespList_DM_Fail_item);
-}
-static int dissect_RL_InformationList_DM_Rprt_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_InformationList_DM_Rprt_item);
-}
-static int dissect_RL_Set_InformationList_DM_Rprt_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_InformationList_DM_Rprt_item);
-}
-static int dissect_RL_Unsuccessful_InformationRespList_DM_Fail_Ind_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail_Ind_item);
-}
-static int dissect_RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind_item);
-}
-static int dissect_ContextInfoList_Reset_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_ContextInfoList_Reset_item);
-}
-static int dissect_ContextGroupInfoList_Reset_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_ContextGroupInfoList_Reset_item);
-}
-static int dissect_DelayedActivationInformationList_RL_ActivationCmdFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdFDD_item);
-}
-static int dissect_DelayedActivationInformationList_RL_ActivationCmdTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdTDD_item);
-}
-static int dissect_RL_ParameterUpdateIndicationFDD_RL_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_RL_ParameterUpdateIndicationFDD_RL_InformationList_item);
-}
-static int dissect_ListOfInterfacesToTrace_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_ListOfInterfacesToTrace_item);
-}
-static int dissect_Neighbouring_UMTS_CellInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_rnsap_Neighbouring_UMTS_CellInformation_item);
-}
 
 
 
@@ -8571,9 +7776,6 @@ dissect_rnsap_DL_DPCH_InformationAddList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, in
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_DPCH_AddInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationAddList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_AddInformation);
 }
 
 
@@ -8584,9 +7786,6 @@ dissect_rnsap_DL_DPCH_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_dl_DPCH_ModifyInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_ModifyInformation);
-}
 
 
 
@@ -8595,9 +7794,6 @@ dissect_rnsap_DL_DPCH_InformationDeleteList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_DPCH_DeleteInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationDeleteList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_DeleteInformation);
 }
 
 
@@ -8616,9 +7812,6 @@ dissect_rnsap_DL_CCTrCH_InformationItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int
                                    ett_rnsap_DL_CCTrCH_InformationItem_RL_ReconfReadyTDD, DL_CCTrCH_InformationItem_RL_ReconfReadyTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCHInformationListIE_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_InformationItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCHInformationListIE_RL_ReconfReadyTDD_item);
 }
 
 
@@ -8678,12 +7871,6 @@ static int dissect_id_TDD_TPC_DownlinkStepSize_InformationAdd_RL_ReconfPrepTDD(t
 static int dissect_id_TDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TDD_TPC_DownlinkStepSize(tvb, offset, actx, tree, hf_rnsap_id_TDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD);
 }
-static int dissect_tdd_TPC_DownlinkStepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_TPC_DownlinkStepSize(tvb, offset, actx, tree, hf_rnsap_tdd_TPC_DownlinkStepSize);
-}
-static int dissect_downlinkStepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_TPC_DownlinkStepSize(tvb, offset, actx, tree, hf_rnsap_downlinkStepSize);
-}
 
 
 static const per_sequence_t CCTrCH_TPCItem_RL_SetupRqstTDD_sequence[] = {
@@ -8699,9 +7886,6 @@ dissect_rnsap_CCTrCH_TPCItem_RL_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_CCTrCH_TPCList_RL_SetupRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCItem_RL_SetupRqstTDD(tvb, offset, actx, tree, hf_rnsap_CCTrCH_TPCList_RL_SetupRqstTDD_item);
-}
 
 
 static const per_sequence_t CCTrCH_TPCList_RL_SetupRqstTDD_sequence_of[1] = {
@@ -8715,9 +7899,6 @@ dissect_rnsap_CCTrCH_TPCList_RL_SetupRqstTDD(tvbuff_t *tvb _U_, int offset _U_, 
                                                   1, 16);
 
   return offset;
-}
-static int dissect_cCTrCH_TPCList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCList_RL_SetupRqstTDD(tvb, offset, actx, tree, hf_rnsap_cCTrCH_TPCList);
 }
 
 
@@ -8754,9 +7935,6 @@ dissect_rnsap_DL_DPCH_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_dl_DPCH_Information2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_Information2);
-}
 
 
 static const per_sequence_t DL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequence[] = {
@@ -8772,9 +7950,6 @@ dissect_rnsap_DL_CCTrCH_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, in
                                    ett_rnsap_DL_CCTrCH_InformationItem_PhyChReconfRqstTDD, DL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCH_InformationListIE_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationListIE_PhyChReconfRqstTDD_item);
 }
 
 
@@ -8802,9 +7977,6 @@ dissect_rnsap_DL_DPCH_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_dl_DPCH_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_Information1);
-}
 
 
 static const per_sequence_t DL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence[] = {
@@ -8820,9 +7992,6 @@ dissect_rnsap_DL_CCTrCHInformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
                                    ett_rnsap_DL_CCTrCHInformationItem_RL_AdditionRspTDD, DL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCHInformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCHInformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCHInformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -8902,15 +8071,6 @@ dissect_rnsap_DL_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_eAGCH_ERGCH_EHICH_FDD_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ScramblingCode(tvb, offset, actx, tree, hf_rnsap_eAGCH_ERGCH_EHICH_FDD_ScramblingCode);
-}
-static int dissect_dl_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ScramblingCode(tvb, offset, actx, tree, hf_rnsap_dl_ScramblingCode);
-}
-static int dissect_hSPDSCH_and_HSSCCH_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ScramblingCode(tvb, offset, actx, tree, hf_rnsap_hSPDSCH_and_HSSCCH_ScramblingCode);
-}
 
 
 
@@ -8920,15 +8080,6 @@ dissect_rnsap_FDD_DL_ChannelisationCodeNumber(tvbuff_t *tvb _U_, int offset _U_,
                                               0U, 511U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_eAGCH_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DL_ChannelisationCodeNumber(tvb, offset, actx, tree, hf_rnsap_eAGCH_ChannelisationCode);
-}
-static int dissect_eRGCH_EHICH_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DL_ChannelisationCodeNumber(tvb, offset, actx, tree, hf_rnsap_eRGCH_EHICH_ChannelisationCode);
-}
-static int dissect_fDD_DL_ChannelisationCodeNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DL_ChannelisationCodeNumber(tvb, offset, actx, tree, hf_rnsap_fDD_DL_ChannelisationCodeNumber);
 }
 
 
@@ -8945,9 +8096,6 @@ dissect_rnsap_Transmission_Gap_Pattern_Sequence_ScramblingCode_Information(tvbuf
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_transmission_Gap_Pattern_Sequence_ScramblingCode_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmission_Gap_Pattern_Sequence_ScramblingCode_Information(tvb, offset, actx, tree, hf_rnsap_transmission_Gap_Pattern_Sequence_ScramblingCode_Information);
 }
 
 
@@ -8966,9 +8114,6 @@ dissect_rnsap_FDD_DL_CodeInformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_FDD_DL_CodeInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DL_CodeInformationItem(tvb, offset, actx, tree, hf_rnsap_FDD_DL_CodeInformation_item);
-}
 
 
 static const per_sequence_t FDD_DL_CodeInformation_sequence_of[1] = {
@@ -8986,9 +8131,6 @@ dissect_rnsap_FDD_DL_CodeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int dissect_id_FDD_DL_CodeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_FDD_DL_CodeInformation(tvb, offset, actx, tree, hf_rnsap_id_FDD_DL_CodeInformation);
 }
-static int dissect_dl_CodeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_DL_CodeInformation(tvb, offset, actx, tree, hf_rnsap_dl_CodeInformation);
-}
 
 
 
@@ -8999,9 +8141,6 @@ dissect_rnsap_DL_DPCH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_dl_DPCH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_SlotFormat(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_SlotFormat);
-}
 
 
 
@@ -9011,9 +8150,6 @@ dissect_rnsap_NrOfDLchannelisationcodes(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                               1U, 8U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_nrOfDLchannelisationcodes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NrOfDLchannelisationcodes(tvb, offset, actx, tree, hf_rnsap_nrOfDLchannelisationcodes);
 }
 
 
@@ -9031,9 +8167,6 @@ dissect_rnsap_TFCI_SignallingMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_tFCI_SignallingMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCI_SignallingMode(tvb, offset, actx, tree, hf_rnsap_tFCI_SignallingMode);
-}
 
 
 static const value_string rnsap_TFCI_Presence_vals[] = {
@@ -9049,9 +8182,6 @@ dissect_rnsap_TFCI_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_tFCI_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TFCI_Presence(tvb, offset, actx, tree, hf_rnsap_tFCI_Presence);
 }
 
 
@@ -9069,9 +8199,6 @@ dissect_rnsap_MultiplexingPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_multiplexingPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MultiplexingPosition(tvb, offset, actx, tree, hf_rnsap_multiplexingPosition);
-}
 
 
 static const value_string rnsap_LimitedPowerIncrease_vals[] = {
@@ -9087,9 +8214,6 @@ dissect_rnsap_LimitedPowerIncrease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_limitedPowerIncrease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_LimitedPowerIncrease(tvb, offset, actx, tree, hf_rnsap_limitedPowerIncrease);
 }
 
 
@@ -9125,24 +8249,6 @@ dissect_rnsap_PowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_po1_ForTFCI_Bits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_po1_ForTFCI_Bits);
-}
-static int dissect_po2_ForTPC_Bits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_po2_ForTPC_Bits);
-}
-static int dissect_po3_ForPilotBits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_po3_ForPilotBits);
-}
-static int dissect_pO1_ForTFCI_Bits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_pO1_ForTFCI_Bits);
-}
-static int dissect_pO2_ForTPC_Bits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_pO2_ForTPC_Bits);
-}
-static int dissect_pO3_ForPilotBits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffset(tvb, offset, actx, tree, hf_rnsap_pO3_ForPilotBits);
-}
 
 
 static const per_sequence_t PowerOffsetInformation_RL_SetupRqstFDD_sequence[] = {
@@ -9159,9 +8265,6 @@ dissect_rnsap_PowerOffsetInformation_RL_SetupRqstFDD(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_PowerOffsetInformation_RL_SetupRqstFDD, PowerOffsetInformation_RL_SetupRqstFDD_sequence);
 
   return offset;
-}
-static int dissect_powerOffsetInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffsetInformation_RL_SetupRqstFDD(tvb, offset, actx, tree, hf_rnsap_powerOffsetInformation);
 }
 
 
@@ -9181,12 +8284,6 @@ dissect_rnsap_FDD_TPC_DownlinkStepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_fdd_dl_TPC_DownlinkStepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_TPC_DownlinkStepSize(tvb, offset, actx, tree, hf_rnsap_fdd_dl_TPC_DownlinkStepSize);
-}
-static int dissect_fdd_TPC_DownlinkStepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FDD_TPC_DownlinkStepSize(tvb, offset, actx, tree, hf_rnsap_fdd_TPC_DownlinkStepSize);
-}
 
 
 static const value_string rnsap_InnerLoopDLPCStatus_vals[] = {
@@ -9205,9 +8302,6 @@ dissect_rnsap_InnerLoopDLPCStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 static int dissect_id_InnerLoopDLPCStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_InnerLoopDLPCStatus(tvb, offset, actx, tree, hf_rnsap_id_InnerLoopDLPCStatus);
-}
-static int dissect_innerLoopDLPCStatus(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InnerLoopDLPCStatus(tvb, offset, actx, tree, hf_rnsap_innerLoopDLPCStatus);
 }
 
 
@@ -9277,9 +8371,6 @@ dissect_rnsap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_repetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RepetitionPeriod(tvb, offset, actx, tree, hf_rnsap_repetitionPeriod);
-}
 
 
 
@@ -9289,9 +8380,6 @@ dissect_rnsap_RepetitionLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                               1U, 63U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_repetitionLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RepetitionLength(tvb, offset, actx, tree, hf_rnsap_repetitionLength);
 }
 
 
@@ -9315,9 +8403,6 @@ dissect_rnsap_TDD_DPCHOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_tDD_DPCHOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DPCHOffset(tvb, offset, actx, tree, hf_rnsap_tDD_DPCHOffset);
-}
 
 
 
@@ -9330,12 +8415,6 @@ dissect_rnsap_TimeSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 static int dissect_id_TimeSlot_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TimeSlot(tvb, offset, actx, tree, hf_rnsap_id_TimeSlot_RL_SetupRspTDD);
-}
-static int dissect_timeSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimeSlot(tvb, offset, actx, tree, hf_rnsap_timeSlot);
-}
-static int dissect_timeslot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimeSlot(tvb, offset, actx, tree, hf_rnsap_timeslot);
 }
 
 
@@ -9354,9 +8433,6 @@ dissect_rnsap_MidambleConfigurationBurstType1And3(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_midambleConfigurationBurstType1And3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleConfigurationBurstType1And3(tvb, offset, actx, tree, hf_rnsap_midambleConfigurationBurstType1And3);
-}
 
 
 
@@ -9366,12 +8442,6 @@ dissect_rnsap_MidambleShiftLong(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ueSpecificMidamble(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleShiftLong(tvb, offset, actx, tree, hf_rnsap_ueSpecificMidamble);
-}
-static int dissect_midambleShift(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleShiftLong(tvb, offset, actx, tree, hf_rnsap_midambleShift);
 }
 
 
@@ -9397,9 +8467,6 @@ dissect_rnsap_T_midambleAllocationMode(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_midambleAllocationMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_midambleAllocationMode(tvb, offset, actx, tree, hf_rnsap_midambleAllocationMode);
-}
 
 
 static const per_sequence_t T_type1_sequence[] = {
@@ -9414,9 +8481,6 @@ dissect_rnsap_T_type1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                    ett_rnsap_T_type1, T_type1_sequence);
 
   return offset;
-}
-static int dissect_type1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_type1(tvb, offset, actx, tree, hf_rnsap_type1);
 }
 
 
@@ -9434,9 +8498,6 @@ dissect_rnsap_MidambleConfigurationBurstType2(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_midambleConfigurationBurstType2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleConfigurationBurstType2(tvb, offset, actx, tree, hf_rnsap_midambleConfigurationBurstType2);
-}
 
 
 
@@ -9446,9 +8507,6 @@ dissect_rnsap_MidambleShiftShort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                               0U, 5U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ueSpecificMidamble1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleShiftShort(tvb, offset, actx, tree, hf_rnsap_ueSpecificMidamble1);
 }
 
 
@@ -9474,9 +8532,6 @@ dissect_rnsap_T_midambleAllocationMode1(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_midambleAllocationMode1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_midambleAllocationMode1(tvb, offset, actx, tree, hf_rnsap_midambleAllocationMode1);
-}
 
 
 static const per_sequence_t T_type2_sequence[] = {
@@ -9491,9 +8546,6 @@ dissect_rnsap_T_type2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                    ett_rnsap_T_type2, T_type2_sequence);
 
   return offset;
-}
-static int dissect_type2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_type2(tvb, offset, actx, tree, hf_rnsap_type2);
 }
 
 
@@ -9517,9 +8569,6 @@ dissect_rnsap_T_midambleAllocationMode2(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_midambleAllocationMode2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_midambleAllocationMode2(tvb, offset, actx, tree, hf_rnsap_midambleAllocationMode2);
-}
 
 
 static const per_sequence_t T_type3_sequence[] = {
@@ -9534,9 +8583,6 @@ dissect_rnsap_T_type3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                    ett_rnsap_T_type3, T_type3_sequence);
 
   return offset;
-}
-static int dissect_type3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_type3(tvb, offset, actx, tree, hf_rnsap_type3);
 }
 
 
@@ -9562,9 +8608,6 @@ dissect_rnsap_MidambleShiftAndBurstType(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_midambleShiftAndBurstType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleShiftAndBurstType(tvb, offset, actx, tree, hf_rnsap_midambleShiftAndBurstType);
-}
 
 
 
@@ -9574,9 +8617,6 @@ dissect_rnsap_DPCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                               0U, 239U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_dPCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DPCH_ID(tvb, offset, actx, tree, hf_rnsap_dPCH_ID);
 }
 
 
@@ -9623,15 +8663,6 @@ dissect_rnsap_TDD_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_tDD_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_ChannelisationCode(tvb, offset, actx, tree, hf_rnsap_tDD_ChannelisationCode);
-}
-static int dissect_first_TDD_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_ChannelisationCode(tvb, offset, actx, tree, hf_rnsap_first_TDD_ChannelisationCode);
-}
-static int dissect_second_TDD_ChannelisationCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_ChannelisationCode(tvb, offset, actx, tree, hf_rnsap_second_TDD_ChannelisationCode);
-}
 
 
 static const per_sequence_t TDD_DL_Code_InformationItem_sequence[] = {
@@ -9648,9 +8679,6 @@ dissect_rnsap_TDD_DL_Code_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_TDD_DL_Code_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_InformationItem(tvb, offset, actx, tree, hf_rnsap_TDD_DL_Code_Information_item);
-}
 
 
 static const per_sequence_t TDD_DL_Code_Information_sequence_of[1] = {
@@ -9664,9 +8692,6 @@ dissect_rnsap_TDD_DL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                                   1, 240);
 
   return offset;
-}
-static int dissect_dL_Code_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_Information(tvb, offset, actx, tree, hf_rnsap_dL_Code_Information1);
 }
 
 
@@ -9686,9 +8711,6 @@ dissect_rnsap_DL_Timeslot_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_DL_Timeslot_InformationList_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_DL_Timeslot_InformationList_PhyChReconfRqstTDD_item);
-}
 
 
 static const per_sequence_t DL_Timeslot_InformationList_PhyChReconfRqstTDD_sequence_of[1] = {
@@ -9702,9 +8724,6 @@ dissect_rnsap_DL_Timeslot_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, 
                                                   1, 15);
 
   return offset;
-}
-static int dissect_dL_Timeslot_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_InformationList_PhyChReconfRqstTDD);
 }
 
 
@@ -9745,9 +8764,6 @@ dissect_rnsap_DL_Timeslot_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_DL_Timeslot_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_InformationItem(tvb, offset, actx, tree, hf_rnsap_DL_Timeslot_Information_item);
-}
 
 
 static const per_sequence_t DL_Timeslot_Information_sequence_of[1] = {
@@ -9761,9 +8777,6 @@ dissect_rnsap_DL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                                   1, 15);
 
   return offset;
-}
-static int dissect_dL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_Information(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_Information);
 }
 
 
@@ -9872,39 +8885,6 @@ static int dissect_id_Maximum_DL_Power_TimeslotLCR_InformationItem(tvbuff_t *tvb
 static int dissect_id_Minimum_DL_Power_TimeslotLCR_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_id_Minimum_DL_Power_TimeslotLCR_InformationItem);
 }
-static int dissect_dl_InitialTX_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_dl_InitialTX_Power);
-}
-static int dissect_maximumDLTxPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_maximumDLTxPower);
-}
-static int dissect_minimumDLTxPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_minimumDLTxPower);
-}
-static int dissect_cCTrCH_Maximum_DL_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_cCTrCH_Maximum_DL_Power);
-}
-static int dissect_cCTrCH_Minimum_DL_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_cCTrCH_Minimum_DL_Power);
-}
-static int dissect_maxPowerLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_maxPowerLCR);
-}
-static int dissect_minPowerLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_minPowerLCR);
-}
-static int dissect_dl_Reference_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_dl_Reference_Power);
-}
-static int dissect_initial_dl_tx_power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_initial_dl_tx_power);
-}
-static int dissect_dLReferencePower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_dLReferencePower);
-}
-static int dissect_common_DL_ReferencePowerInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Power(tvb, offset, actx, tree, hf_rnsap_common_DL_ReferencePowerInformation);
-}
 
 
 static const per_sequence_t DL_ReferencePowerInformationList_DL_PC_Rqst_sequence_of[1] = {
@@ -9937,12 +8917,6 @@ static int dissect_id_HSPDSCH_RL_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 static int dissect_id_PDSCH_RL_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_ID(tvb, offset, actx, tree, hf_rnsap_id_PDSCH_RL_ID);
-}
-static int dissect_rL_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_ID(tvb, offset, actx, tree, hf_rnsap_rL_ID);
-}
-static int dissect_e_DCH_Serving_RL_Id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_ID(tvb, offset, actx, tree, hf_rnsap_e_DCH_Serving_RL_Id);
 }
 
 
@@ -10009,9 +8983,6 @@ dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_rL_unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_rL_unsuccessful_InformationRespList_DM_Fail_Ind);
-}
 
 
 static const per_sequence_t RL_DM_Fail_Ind_sequence[] = {
@@ -10027,12 +8998,6 @@ dissect_rnsap_RL_DM_Fail_Ind(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_rL4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_rL4);
-}
-static int dissect_allRL4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_allRL4);
-}
 
 
 static const per_sequence_t RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind_sequence_of[1] = {
@@ -10046,9 +9011,6 @@ dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t *tvb 
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_unsuccessful_InformationRespList_DM_Fail_Ind(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_rL_Set_unsuccessful_InformationRespList_DM_Fail_Ind);
 }
 
 
@@ -10064,12 +9026,6 @@ dissect_rnsap_RL_Set_DM_Fail_Ind(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                    ett_rnsap_RL_Set_DM_Fail_Ind, RL_Set_DM_Fail_Ind_sequence);
 
   return offset;
-}
-static int dissect_rLS4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_rLS4);
-}
-static int dissect_allRLS4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Fail_Ind(tvb, offset, actx, tree, hf_rnsap_allRLS4);
 }
 
 
@@ -10114,9 +9070,6 @@ dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_rL_unsuccessful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Unsuccessful_InformationRespList_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rL_unsuccessful_InformationRespList_DM_Fail);
-}
 
 
 static const per_sequence_t RL_Successful_InformationRespList_DM_Fail_sequence_of[1] = {
@@ -10130,9 +9083,6 @@ dissect_rnsap_RL_Successful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int o
                                                   1, 15);
 
   return offset;
-}
-static int dissect_rL_successful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Successful_InformationRespList_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rL_successful_InformationRespList_DM_Fail);
 }
 
 
@@ -10150,12 +9100,6 @@ dissect_rnsap_RL_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_rL3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rL3);
-}
-static int dissect_allRL2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Fail(tvb, offset, actx, tree, hf_rnsap_allRL2);
-}
 
 
 static const per_sequence_t RL_Set_Unsuccessful_InformationRespList_DM_Fail_sequence_of[1] = {
@@ -10170,9 +9114,6 @@ dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_rL_Set_unsuccessful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_Unsuccessful_InformationRespList_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rL_Set_unsuccessful_InformationRespList_DM_Fail);
-}
 
 
 static const per_sequence_t RL_Set_Successful_InformationRespList_DM_Fail_sequence_of[1] = {
@@ -10186,9 +9127,6 @@ dissect_rnsap_RL_Set_Successful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, i
                                                   1, 15);
 
   return offset;
-}
-static int dissect_rL_Set_successful_InformationRespList_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_Successful_InformationRespList_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rL_Set_successful_InformationRespList_DM_Fail);
 }
 
 
@@ -10205,12 +9143,6 @@ dissect_rnsap_RL_Set_DM_Fail(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_rnsap_RL_Set_DM_Fail, RL_Set_DM_Fail_sequence);
 
   return offset;
-}
-static int dissect_rLS2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Fail(tvb, offset, actx, tree, hf_rnsap_rLS2);
-}
-static int dissect_allRLS2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Fail(tvb, offset, actx, tree, hf_rnsap_allRLS2);
 }
 
 
@@ -10255,9 +9187,6 @@ dissect_rnsap_RL_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_rL_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationList_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_rL_InformationList_DM_Rprt);
-}
 
 
 static const per_sequence_t RL_DM_Rprt_sequence[] = {
@@ -10273,12 +9202,6 @@ dissect_rnsap_RL_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_rLs1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_rLs1);
-}
-static int dissect_allRL3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_allRL3);
-}
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rprt_sequence_of[1] = {
@@ -10292,9 +9215,6 @@ dissect_rnsap_RL_Set_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, 
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_InformationList_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_InformationList_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_rL_Set_InformationList_DM_Rprt);
 }
 
 
@@ -10310,12 +9230,6 @@ dissect_rnsap_RL_Set_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_rnsap_RL_Set_DM_Rprt, RL_Set_DM_Rprt_sequence);
 
   return offset;
-}
-static int dissect_rLS3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_rLS3);
-}
-static int dissect_allRLS3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Rprt(tvb, offset, actx, tree, hf_rnsap_allRLS3);
 }
 
 
@@ -10360,9 +9274,6 @@ dissect_rnsap_RL_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_rL_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationList_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_rL_InformationList_DM_Rqst);
-}
 
 
 static const per_sequence_t RL_DM_Rqst_sequence[] = {
@@ -10378,9 +9289,6 @@ dissect_rnsap_RL_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_rL2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_rL2);
-}
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rqst_sequence_of[1] = {
@@ -10394,9 +9302,6 @@ dissect_rnsap_RL_Set_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, 
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_InformationList_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_InformationList_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_rL_Set_InformationList_DM_Rqst);
 }
 
 
@@ -10413,9 +9318,6 @@ dissect_rnsap_RL_Set_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_rLS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_rLS);
-}
 
 
 
@@ -10425,9 +9327,6 @@ dissect_rnsap_All_RL_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_allRL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_All_RL_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_allRL);
-}
 
 
 
@@ -10436,9 +9335,6 @@ dissect_rnsap_All_RL_Set_DM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_allRLS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_All_RL_Set_DM_Rqst(tvb, offset, actx, tree, hf_rnsap_allRLS);
 }
 
 
@@ -10483,9 +9379,6 @@ dissect_rnsap_RL_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_rL_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationList_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_rL_InformationList_DM_Rsp);
-}
 
 
 static const per_sequence_t RL_DM_Rsp_sequence[] = {
@@ -10501,12 +9394,6 @@ dissect_rnsap_RL_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_rLs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_rLs);
-}
-static int dissect_allRL1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_allRL1);
-}
 
 
 static const per_sequence_t RL_Set_InformationList_DM_Rsp_sequence_of[1] = {
@@ -10520,9 +9407,6 @@ dissect_rnsap_RL_Set_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, a
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_InformationList_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_InformationList_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_rL_Set_InformationList_DM_Rsp);
 }
 
 
@@ -10538,12 +9422,6 @@ dissect_rnsap_RL_Set_DM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                    ett_rnsap_RL_Set_DM_Rsp, RL_Set_DM_Rsp_sequence);
 
   return offset;
-}
-static int dissect_rLS1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_rLS1);
-}
-static int dissect_allRLS1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_allRLS1);
 }
 
 
@@ -10609,9 +9487,6 @@ dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspFDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_fACH_FlowControlInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspFDD(tvb, offset, actx, tree, hf_rnsap_fACH_FlowControlInformation);
-}
 
 
 static const per_sequence_t FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_sequence[] = {
@@ -10638,9 +9513,6 @@ dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspTDD(tvbuff_t *tvb _U_,
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_fACH_FlowControlInformation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_FlowControlInformation_CTCH_ResourceRspTDD(tvb, offset, actx, tree, hf_rnsap_fACH_FlowControlInformation1);
 }
 
 
@@ -10669,12 +9541,6 @@ dissect_rnsap_Guaranteed_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               1U, 32U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_guaranteed_UL_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Guaranteed_Rate(tvb, offset, actx, tree, hf_rnsap_guaranteed_UL_Rate);
-}
-static int dissect_guaranteed_DL_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Guaranteed_Rate(tvb, offset, actx, tree, hf_rnsap_guaranteed_DL_Rate);
 }
 
 
@@ -10708,9 +9574,6 @@ dissect_rnsap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int dissect_id_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_IMSI(tvb, offset, actx, tree, hf_rnsap_id_IMSI);
 }
-static int dissect_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IMSI(tvb, offset, actx, tree, hf_rnsap_imsi);
-}
 
 
 
@@ -10729,7 +9592,7 @@ static int dissect_id_HCS_Prio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "rnsap.cnf"
+#line 95 "rnsap.cnf"
 
 	tvbuff_t *parameter_tvb;
 
@@ -10772,9 +9635,6 @@ dissect_rnsap_AdjustmentPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int dissect_id_AdjustmentPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_AdjustmentPeriod(tvb, offset, actx, tree, hf_rnsap_id_AdjustmentPeriod);
 }
-static int dissect_adjustmentPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AdjustmentPeriod(tvb, offset, actx, tree, hf_rnsap_adjustmentPeriod);
-}
 
 
 
@@ -10787,9 +9647,6 @@ dissect_rnsap_MaxAdjustmentStep(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 static int dissect_id_MaxAdjustmentStep(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_MaxAdjustmentStep(tvb, offset, actx, tree, hf_rnsap_id_MaxAdjustmentStep);
-}
-static int dissect_maxAdjustmentStep(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxAdjustmentStep(tvb, offset, actx, tree, hf_rnsap_maxAdjustmentStep);
 }
 
 
@@ -10833,9 +9690,6 @@ dissect_rnsap_RepetitionNumber1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_repetitionNumber1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RepetitionNumber1(tvb, offset, actx, tree, hf_rnsap_repetitionNumber1);
-}
 
 
 static const per_sequence_t MessageStructure_item_sequence[] = {
@@ -10851,9 +9705,6 @@ dissect_rnsap_MessageStructure_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                    ett_rnsap_MessageStructure_item, MessageStructure_item_sequence);
 
   return offset;
-}
-static int dissect_MessageStructure_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MessageStructure_item(tvb, offset, actx, tree, hf_rnsap_MessageStructure_item);
 }
 
 
@@ -10897,9 +9748,6 @@ dissect_rnsap_Neighbouring_GSM_CellInformation(tvbuff_t *tvb _U_, int offset _U_
 static int dissect_id_Neighbouring_GSM_CellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_Neighbouring_GSM_CellInformation(tvb, offset, actx, tree, hf_rnsap_id_Neighbouring_GSM_CellInformation);
 }
-static int dissect_neighbouring_GSM_CellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_GSM_CellInformation(tvb, offset, actx, tree, hf_rnsap_neighbouring_GSM_CellInformation);
-}
 
 
 
@@ -10916,12 +9764,6 @@ static int dissect_id_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int dissect_id_SRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RNC_ID(tvb, offset, actx, tree, hf_rnsap_id_SRNC_ID);
 }
-static int dissect_rNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RNC_ID(tvb, offset, actx, tree, hf_rnsap_rNC_ID);
-}
-static int dissect_srnc_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RNC_ID(tvb, offset, actx, tree, hf_rnsap_srnc_id);
-}
 
 
 
@@ -10931,30 +9773,6 @@ dissect_rnsap_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                               0U, 16383U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_uL_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_uL_UARFCN);
-}
-static int dissect_dL_UARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_dL_UARFCN);
-}
-static int dissect_uARFCNforNt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_uARFCNforNt);
-}
-static int dissect_preferredFrequencyLayer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_preferredFrequencyLayer);
-}
-static int dissect_uARFCNforNu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_uARFCNforNu);
-}
-static int dissect_uARFCNforNd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_uARFCNforNd);
-}
-static int dissect_uARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_uARFCN);
-}
-static int dissect_defaultPreferredFrequency(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UARFCN(tvb, offset, actx, tree, hf_rnsap_defaultPreferredFrequency);
 }
 
 
@@ -10966,9 +9784,6 @@ dissect_rnsap_FrameOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_frameOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FrameOffset(tvb, offset, actx, tree, hf_rnsap_frameOffset);
-}
 
 
 
@@ -10978,9 +9793,6 @@ dissect_rnsap_PrimaryScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               0U, 511U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_primaryScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrimaryScramblingCode(tvb, offset, actx, tree, hf_rnsap_primaryScramblingCode);
 }
 
 
@@ -10992,9 +9804,6 @@ dissect_rnsap_PrimaryCPICH_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_primaryCPICH_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrimaryCPICH_Power(tvb, offset, actx, tree, hf_rnsap_primaryCPICH_Power);
-}
 
 
 
@@ -11004,9 +9813,6 @@ dissect_rnsap_CellIndividualOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                               -20, 20U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_cellIndividualOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CellIndividualOffset(tvb, offset, actx, tree, hf_rnsap_cellIndividualOffset);
 }
 
 
@@ -11023,9 +9829,6 @@ dissect_rnsap_TxDiversityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_txDiversityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TxDiversityIndicator(tvb, offset, actx, tree, hf_rnsap_txDiversityIndicator);
 }
 
 
@@ -11046,9 +9849,6 @@ dissect_rnsap_STTD_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int dissect_id_STTD_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_STTD_SupportIndicator(tvb, offset, actx, tree, hf_rnsap_id_STTD_SupportIndicator);
 }
-static int dissect_sTTD_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_STTD_SupportIndicator(tvb, offset, actx, tree, hf_rnsap_sTTD_SupportIndicator);
-}
 
 
 static const value_string rnsap_ClosedLoopMode1_SupportIndicator_vals[] = {
@@ -11067,9 +9867,6 @@ dissect_rnsap_ClosedLoopMode1_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_
 }
 static int dissect_id_ClosedLoopMode1_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_ClosedLoopMode1_SupportIndicator(tvb, offset, actx, tree, hf_rnsap_id_ClosedLoopMode1_SupportIndicator);
-}
-static int dissect_closedLoopMode1_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ClosedLoopMode1_SupportIndicator(tvb, offset, actx, tree, hf_rnsap_closedLoopMode1_SupportIndicator);
 }
 
 
@@ -11096,9 +9893,6 @@ dissect_rnsap_Neighbouring_FDD_CellInformationItem(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_Neighbouring_FDD_CellInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_FDD_CellInformationItem(tvb, offset, actx, tree, hf_rnsap_Neighbouring_FDD_CellInformation_item);
-}
 
 
 static const per_sequence_t Neighbouring_FDD_CellInformation_sequence_of[1] = {
@@ -11113,9 +9907,6 @@ dissect_rnsap_Neighbouring_FDD_CellInformation(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_neighbouring_FDD_CellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_FDD_CellInformation(tvb, offset, actx, tree, hf_rnsap_neighbouring_FDD_CellInformation);
-}
 
 
 
@@ -11125,9 +9916,6 @@ dissect_rnsap_CellParameterID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               0U, 127U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_cellParameterID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CellParameterID(tvb, offset, actx, tree, hf_rnsap_cellParameterID);
 }
 
 
@@ -11139,9 +9927,6 @@ dissect_rnsap_SyncCase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_syncCase(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SyncCase(tvb, offset, actx, tree, hf_rnsap_syncCase);
-}
 
 
 
@@ -11151,9 +9936,6 @@ dissect_rnsap_SCH_TimeSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               0U, 6U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sCH_TimeSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SCH_TimeSlot(tvb, offset, actx, tree, hf_rnsap_sCH_TimeSlot);
 }
 
 
@@ -11171,9 +9953,6 @@ dissect_rnsap_SCTD_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_sCTD_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SCTD_Indicator(tvb, offset, actx, tree, hf_rnsap_sCTD_Indicator);
-}
 
 
 
@@ -11184,9 +9963,6 @@ dissect_rnsap_DPCHConstantValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_dPCHConstantValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DPCHConstantValue(tvb, offset, actx, tree, hf_rnsap_dPCHConstantValue);
-}
 
 
 
@@ -11196,9 +9972,6 @@ dissect_rnsap_PCCPCH_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               -150, 400U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_pCCPCH_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PCCPCH_Power(tvb, offset, actx, tree, hf_rnsap_pCCPCH_Power);
 }
 
 
@@ -11225,9 +9998,6 @@ dissect_rnsap_Neighbouring_TDD_CellInformationItem(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_Neighbouring_TDD_CellInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_TDD_CellInformationItem(tvb, offset, actx, tree, hf_rnsap_Neighbouring_TDD_CellInformation_item);
-}
 
 
 static const per_sequence_t Neighbouring_TDD_CellInformation_sequence_of[1] = {
@@ -11241,9 +10011,6 @@ dissect_rnsap_Neighbouring_TDD_CellInformation(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 256);
 
   return offset;
-}
-static int dissect_neighbouring_TDD_CellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_TDD_CellInformation(tvb, offset, actx, tree, hf_rnsap_neighbouring_TDD_CellInformation);
 }
 
 
@@ -11309,12 +10076,6 @@ static int dissect_id_Old_URA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int dissect_id_URA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_URA_ID(tvb, offset, actx, tree, hf_rnsap_id_URA_ID);
 }
-static int dissect_uRA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_URA_ID(tvb, offset, actx, tree, hf_rnsap_uRA_ID);
-}
-static int dissect_ura_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_URA_ID(tvb, offset, actx, tree, hf_rnsap_ura_id);
-}
 
 
 static const per_sequence_t URA_PagingRqst_sequence[] = {
@@ -11330,9 +10091,6 @@ dissect_rnsap_URA_PagingRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_uRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_URA_PagingRqst(tvb, offset, actx, tree, hf_rnsap_uRA);
-}
 
 
 static const per_sequence_t Cell_PagingRqst_sequence[] = {
@@ -11347,9 +10105,6 @@ dissect_rnsap_Cell_PagingRqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                    ett_rnsap_Cell_PagingRqst, Cell_PagingRqst_sequence);
 
   return offset;
-}
-static int dissect_cell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_PagingRqst(tvb, offset, actx, tree, hf_rnsap_cell);
 }
 
 
@@ -11392,15 +10147,6 @@ dissect_rnsap_SchedulingPriorityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_schedulingPriorityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SchedulingPriorityIndicator(tvb, offset, actx, tree, hf_rnsap_schedulingPriorityIndicator);
-}
-static int dissect_dSCH_SchedulingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SchedulingPriorityIndicator(tvb, offset, actx, tree, hf_rnsap_dSCH_SchedulingPriority);
-}
-static int dissect_fACH_SchedulingPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SchedulingPriorityIndicator(tvb, offset, actx, tree, hf_rnsap_fACH_SchedulingPriority);
-}
 
 
 
@@ -11410,9 +10156,6 @@ dissect_rnsap_MAC_c_sh_SDU_Length(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                               1U, 5000U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_MAC_c_sh_SDU_LengthList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MAC_c_sh_SDU_Length(tvb, offset, actx, tree, hf_rnsap_MAC_c_sh_SDU_LengthList_item);
 }
 
 
@@ -11428,9 +10171,6 @@ dissect_rnsap_MAC_c_sh_SDU_LengthList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_mAC_c_sh_SDU_Lengths(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MAC_c_sh_SDU_LengthList(tvb, offset, actx, tree, hf_rnsap_mAC_c_sh_SDU_Lengths);
-}
 
 
 static const value_string rnsap_FACH_InitialWindowSize_vals[] = {
@@ -11445,9 +10185,6 @@ dissect_rnsap_FACH_InitialWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_fACH_InitialWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_InitialWindowSize(tvb, offset, actx, tree, hf_rnsap_fACH_InitialWindowSize);
 }
 
 
@@ -11465,9 +10202,6 @@ dissect_rnsap_FACH_FlowControlInformationItem(tvbuff_t *tvb _U_, int offset _U_,
                                    ett_rnsap_FACH_FlowControlInformationItem, FACH_FlowControlInformationItem_sequence);
 
   return offset;
-}
-static int dissect_FACH_FlowControlInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_FlowControlInformationItem(tvb, offset, actx, tree, hf_rnsap_FACH_FlowControlInformation_item);
 }
 
 
@@ -11547,9 +10281,6 @@ dissect_rnsap_PowerAdjustmentType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int dissect_id_PowerAdjustmentType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_PowerAdjustmentType(tvb, offset, actx, tree, hf_rnsap_id_PowerAdjustmentType);
 }
-static int dissect_powerAdjustmentType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerAdjustmentType(tvb, offset, actx, tree, hf_rnsap_powerAdjustmentType);
-}
 
 
 
@@ -11571,9 +10302,6 @@ dissect_rnsap_DL_CodeInformationList_PhyChReconfRqstFDD(tvbuff_t *tvb _U_, int o
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CodeInformation3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CodeInformationList_PhyChReconfRqstFDD(tvb, offset, actx, tree, hf_rnsap_dl_CodeInformation3);
 }
 
 
@@ -11603,9 +10331,6 @@ dissect_rnsap_UL_CCTrCH_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_ul_CCTrCH_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCH_Information1);
-}
 
 
 
@@ -11614,9 +10339,6 @@ dissect_rnsap_DL_CCTrCH_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, in
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CCTrCH_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCH_Information1);
 }
 
 
@@ -11648,9 +10370,6 @@ dissect_rnsap_ChipOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_chipOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ChipOffset(tvb, offset, actx, tree, hf_rnsap_chipOffset);
-}
 
 
 static const value_string rnsap_DiversityControlField_vals[] = {
@@ -11668,9 +10387,6 @@ dissect_rnsap_DiversityControlField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_diversityControlField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityControlField(tvb, offset, actx, tree, hf_rnsap_diversityControlField);
-}
 
 
 
@@ -11680,9 +10396,6 @@ dissect_rnsap_PrimaryCPICH_EcNo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               -30, 30U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_primaryCPICH_EcNo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrimaryCPICH_EcNo(tvb, offset, actx, tree, hf_rnsap_primaryCPICH_EcNo);
 }
 
 
@@ -11699,9 +10412,6 @@ dissect_rnsap_TransmitDiversityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_transmitDiversityIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmitDiversityIndicator(tvb, offset, actx, tree, hf_rnsap_transmitDiversityIndicator);
 }
 
 
@@ -11744,9 +10454,6 @@ static int dissect_id_PrimaryCCPCH_RSCP_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int 
 static int dissect_id_PrimCCPCH_RSCP_DL_PC_RqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_PrimaryCCPCH_RSCP(tvb, offset, actx, tree, hf_rnsap_id_PrimCCPCH_RSCP_DL_PC_RqstTDD);
 }
-static int dissect_primaryCCPCH_RSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrimaryCCPCH_RSCP(tvb, offset, actx, tree, hf_rnsap_primaryCCPCH_RSCP);
-}
 
 
 
@@ -11756,9 +10463,6 @@ dissect_rnsap_DL_TimeslotISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               0U, 91U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_dL_TimeslotISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotISCP(tvb, offset, actx, tree, hf_rnsap_dL_TimeslotISCP);
 }
 
 
@@ -11775,9 +10479,6 @@ dissect_rnsap_DL_TimeSlot_ISCP_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                    ett_rnsap_DL_TimeSlot_ISCP_InfoItem, DL_TimeSlot_ISCP_InfoItem_sequence);
 
   return offset;
-}
-static int dissect_DL_TimeSlot_ISCP_Info_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeSlot_ISCP_InfoItem(tvb, offset, actx, tree, hf_rnsap_DL_TimeSlot_ISCP_Info_item);
 }
 
 
@@ -11798,12 +10499,6 @@ static int dissect_id_timeSlot_ISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 static int dissect_id_DL_TimeSlot_ISCP_Info_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_DL_TimeSlot_ISCP_Info(tvb, offset, actx, tree, hf_rnsap_id_DL_TimeSlot_ISCP_Info_RL_ReconfPrepTDD);
-}
-static int dissect_dL_TimeSlot_ISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeSlot_ISCP_Info(tvb, offset, actx, tree, hf_rnsap_dL_TimeSlot_ISCP);
-}
-static int dissect_dL_TimeSlot_ISCP_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeSlot_ISCP_Info(tvb, offset, actx, tree, hf_rnsap_dL_TimeSlot_ISCP_Info);
 }
 
 
@@ -11931,9 +10626,6 @@ dissect_rnsap_SpecialBurstScheduling(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_specialBurstScheduling(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SpecialBurstScheduling(tvb, offset, actx, tree, hf_rnsap_specialBurstScheduling);
-}
 
 
 static const per_sequence_t RL_Information_RL_SetupRqstTDD_sequence[] = {
@@ -11971,9 +10663,6 @@ dissect_rnsap_DCH_Rate_Information_RL_CongestInd(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_dCH_Rate_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Rate_Information_RL_CongestInd(tvb, offset, actx, tree, hf_rnsap_dCH_Rate_Information);
-}
 
 
 static const per_sequence_t RL_InformationItem_RL_CongestInd_sequence[] = {
@@ -12003,12 +10692,6 @@ dissect_rnsap_SIR_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_sIR_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Value(tvb, offset, actx, tree, hf_rnsap_sIR_Value);
-}
-static int dissect_sir1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Value(tvb, offset, actx, tree, hf_rnsap_sir1);
-}
 
 
 
@@ -12018,12 +10701,6 @@ dissect_rnsap_SIR_Error_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               0U, 125U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sIR_ErrorValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Error_Value(tvb, offset, actx, tree, hf_rnsap_sIR_ErrorValue);
-}
-static int dissect_sir_error1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Error_Value(tvb, offset, actx, tree, hf_rnsap_sir_error1);
 }
 
 
@@ -12035,12 +10712,6 @@ dissect_rnsap_Transmitted_Code_Power_Value(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_transmittedCodePowerValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmitted_Code_Power_Value(tvb, offset, actx, tree, hf_rnsap_transmittedCodePowerValue);
-}
-static int dissect_transmitted_code_power1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmitted_Code_Power_Value(tvb, offset, actx, tree, hf_rnsap_transmitted_code_power1);
-}
 
 
 
@@ -12050,12 +10721,6 @@ dissect_rnsap_RSCP_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                               0U, 127U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_rSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RSCP_Value(tvb, offset, actx, tree, hf_rnsap_rSCP);
-}
-static int dissect_rscp1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RSCP_Value(tvb, offset, actx, tree, hf_rnsap_rscp1);
 }
 
 
@@ -12067,12 +10732,6 @@ dissect_rnsap_Rx_Timing_Deviation_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_rxTimingDeviationValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Rx_Timing_Deviation_Value(tvb, offset, actx, tree, hf_rnsap_rxTimingDeviationValue);
-}
-static int dissect_rx_timing_deviation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Rx_Timing_Deviation_Value(tvb, offset, actx, tree, hf_rnsap_rx_timing_deviation);
-}
 
 
 
@@ -12083,12 +10742,6 @@ dissect_rnsap_Round_Trip_Time_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_roundTripTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Round_Trip_Time_Value(tvb, offset, actx, tree, hf_rnsap_roundTripTime);
-}
-static int dissect_round_trip_time1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Round_Trip_Time_Value(tvb, offset, actx, tree, hf_rnsap_round_trip_time1);
-}
 
 
 
@@ -12097,9 +10750,6 @@ dissect_rnsap_Extension_DedicatedMeasurementValue(tvbuff_t *tvb _U_, int offset 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_DedicatedMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_DedicatedMeasurementValue(tvb, offset, actx, tree, hf_rnsap_extension_DedicatedMeasurementValue);
 }
 
 
@@ -12133,12 +10783,6 @@ dissect_rnsap_DedicatedMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_dedicatedMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementValue(tvb, offset, actx, tree, hf_rnsap_dedicatedMeasurementValue);
-}
-static int dissect_dedicatedmeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementValue(tvb, offset, actx, tree, hf_rnsap_dedicatedmeasurementValue);
-}
 
 
 static const per_sequence_t DedicatedMeasurementAvailable_sequence[] = {
@@ -12155,9 +10799,6 @@ dissect_rnsap_DedicatedMeasurementAvailable(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_measurementAvailable1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementAvailable(tvb, offset, actx, tree, hf_rnsap_measurementAvailable1);
-}
 
 
 
@@ -12166,9 +10807,6 @@ dissect_rnsap_DedicatedMeasurementnotAvailable(tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_measurementnotAvailable1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementnotAvailable(tvb, offset, actx, tree, hf_rnsap_measurementnotAvailable1);
 }
 
 
@@ -12191,9 +10829,6 @@ dissect_rnsap_DedicatedMeasurementValueInformation(tvbuff_t *tvb _U_, int offset
                                  NULL);
 
   return offset;
-}
-static int dissect_dedicatedMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementValueInformation(tvb, offset, actx, tree, hf_rnsap_dedicatedMeasurementValueInformation);
 }
 
 
@@ -12289,12 +10924,6 @@ dissect_rnsap_FirstRLS_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_firstRLS_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FirstRLS_Indicator(tvb, offset, actx, tree, hf_rnsap_firstRLS_indicator);
-}
-static int dissect_firstRLS_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FirstRLS_Indicator(tvb, offset, actx, tree, hf_rnsap_firstRLS_Indicator);
-}
 
 
 
@@ -12307,12 +10936,6 @@ dissect_rnsap_PropagationDelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 static int dissect_id_PropagationDelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_PropagationDelay(tvb, offset, actx, tree, hf_rnsap_id_PropagationDelay);
-}
-static int dissect_propagationDelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PropagationDelay(tvb, offset, actx, tree, hf_rnsap_propagationDelay);
-}
-static int dissect_propagation_delay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PropagationDelay(tvb, offset, actx, tree, hf_rnsap_propagation_delay);
 }
 
 
@@ -12443,9 +11066,6 @@ dissect_rnsap_MultipleURAsIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_multipleURAsIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MultipleURAsIndicator(tvb, offset, actx, tree, hf_rnsap_multipleURAsIndicator);
-}
 
 
 static const per_sequence_t RNCsWithCellsInTheAccessedURA_Item_sequence[] = {
@@ -12461,9 +11081,6 @@ dissect_rnsap_RNCsWithCellsInTheAccessedURA_Item(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_RNCsWithCellsInTheAccessedURA_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RNCsWithCellsInTheAccessedURA_Item(tvb, offset, actx, tree, hf_rnsap_RNCsWithCellsInTheAccessedURA_List_item);
-}
 
 
 static const per_sequence_t RNCsWithCellsInTheAccessedURA_List_sequence_of[1] = {
@@ -12477,9 +11094,6 @@ dissect_rnsap_RNCsWithCellsInTheAccessedURA_List(tvbuff_t *tvb _U_, int offset _
                                                   1, 15);
 
   return offset;
-}
-static int dissect_rNCsWithCellsInTheAccessedURA_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RNCsWithCellsInTheAccessedURA_List(tvb, offset, actx, tree, hf_rnsap_rNCsWithCellsInTheAccessedURA_List);
 }
 
 
@@ -12501,9 +11115,6 @@ dissect_rnsap_URA_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int dissect_id_URA_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_URA_Information(tvb, offset, actx, tree, hf_rnsap_id_URA_Information);
 }
-static int dissect_uRA_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_URA_Information(tvb, offset, actx, tree, hf_rnsap_uRA_Information);
-}
 
 
 
@@ -12513,9 +11124,6 @@ dissect_rnsap_SAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                        2, 2, NULL);
 
   return offset;
-}
-static int dissect_sAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SAC(tvb, offset, actx, tree, hf_rnsap_sAC);
 }
 
 
@@ -12537,9 +11145,6 @@ dissect_rnsap_SAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 static int dissect_id_SAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_SAI(tvb, offset, actx, tree, hf_rnsap_id_SAI);
 }
-static int dissect_sAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SAI(tvb, offset, actx, tree, hf_rnsap_sAI);
-}
 
 
 static const value_string rnsap_T_latitudeSign_vals[] = {
@@ -12556,9 +11161,6 @@ dissect_rnsap_T_latitudeSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_latitudeSign(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_latitudeSign(tvb, offset, actx, tree, hf_rnsap_latitudeSign);
-}
 
 
 
@@ -12569,9 +11171,6 @@ dissect_rnsap_INTEGER_0_8388607(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_8388607(tvb, offset, actx, tree, hf_rnsap_latitude);
-}
 
 
 
@@ -12581,9 +11180,6 @@ dissect_rnsap_INTEGER_M8388608_8388607(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                               -8388608, 8388607U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_M8388608_8388607(tvb, offset, actx, tree, hf_rnsap_longitude);
 }
 
 
@@ -12602,15 +11198,6 @@ dissect_rnsap_GeographicalCoordinate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_cell_GAIgeographicalCoordinate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeographicalCoordinate(tvb, offset, actx, tree, hf_rnsap_cell_GAIgeographicalCoordinate);
-}
-static int dissect_geographicalCoordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeographicalCoordinate(tvb, offset, actx, tree, hf_rnsap_geographicalCoordinates);
-}
-static int dissect_geographicalCoordinate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeographicalCoordinate(tvb, offset, actx, tree, hf_rnsap_geographicalCoordinate);
-}
 
 
 static const per_sequence_t GA_Cell_item_sequence[] = {
@@ -12625,9 +11212,6 @@ dissect_rnsap_GA_Cell_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                    ett_rnsap_GA_Cell_item, GA_Cell_item_sequence);
 
   return offset;
-}
-static int dissect_GA_Cell_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_Cell_item(tvb, offset, actx, tree, hf_rnsap_GA_Cell_item);
 }
 
 
@@ -12646,9 +11230,6 @@ dissect_rnsap_GA_Cell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int dissect_id_GA_Cell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_GA_Cell(tvb, offset, actx, tree, hf_rnsap_id_GA_Cell);
 }
-static int dissect_gA_Cell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_Cell(tvb, offset, actx, tree, hf_rnsap_gA_Cell);
-}
 
 
 static const per_sequence_t GA_AccessPointPosition_sequence[] = {
@@ -12664,9 +11245,6 @@ dissect_rnsap_GA_AccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_gA_AccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_AccessPointPosition(tvb, offset, actx, tree, hf_rnsap_gA_AccessPointPosition);
-}
 
 
 
@@ -12676,12 +11254,6 @@ dissect_rnsap_UL_TimeslotISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                               0U, 127U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_uplinkTimeslotISCPValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotISCP(tvb, offset, actx, tree, hf_rnsap_uplinkTimeslotISCPValue);
-}
-static int dissect_uL_TimeslotISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotISCP(tvb, offset, actx, tree, hf_rnsap_uL_TimeslotISCP);
 }
 
 
@@ -12699,9 +11271,6 @@ dissect_rnsap_UL_TimeSlot_ISCP_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_UL_TimeSlot_ISCP_Info_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeSlot_ISCP_InfoItem(tvb, offset, actx, tree, hf_rnsap_UL_TimeSlot_ISCP_Info_item);
-}
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_Info_sequence_of[1] = {
@@ -12715,9 +11284,6 @@ dissect_rnsap_UL_TimeSlot_ISCP_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                                   1, 15);
 
   return offset;
-}
-static int dissect_ul_TimeSlot_ISCP_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeSlot_ISCP_Info(tvb, offset, actx, tree, hf_rnsap_ul_TimeSlot_ISCP_Info);
 }
 
 
@@ -12738,21 +11304,6 @@ static int dissect_id_UL_SIR_Target_CCTrCH_InformationItem_RL_SetupRspTDD(tvbuff
 static int dissect_id_UL_SIR_Target_CCTrCH_LCR_InformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_id_UL_SIR_Target_CCTrCH_LCR_InformationItem_RL_SetupRspTDD);
 }
-static int dissect_ul_SIRTarget(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_ul_SIRTarget);
-}
-static int dissect_maxUL_SIR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_maxUL_SIR);
-}
-static int dissect_minUL_SIR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_minUL_SIR);
-}
-static int dissect_max_UL_SIR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_max_UL_SIR);
-}
-static int dissect_min_UL_SIR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_SIR(tvb, offset, actx, tree, hf_rnsap_min_UL_SIR);
-}
 
 
 
@@ -12762,9 +11313,6 @@ dissect_rnsap_MaximumAllowedULTxPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                               -50, 33U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_maximumAllowedULTxPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaximumAllowedULTxPower(tvb, offset, actx, tree, hf_rnsap_maximumAllowedULTxPower);
 }
 
 
@@ -12782,9 +11330,6 @@ dissect_rnsap_TimingAdvanceApplied(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_timingAdvanceApplied(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimingAdvanceApplied(tvb, offset, actx, tree, hf_rnsap_timingAdvanceApplied);
-}
 
 
 
@@ -12794,9 +11339,6 @@ dissect_rnsap_AlphaValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                               0U, 8U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_alphaValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AlphaValue(tvb, offset, actx, tree, hf_rnsap_alphaValue);
 }
 
 
@@ -12814,9 +11356,6 @@ dissect_rnsap_UL_PhysCH_SF_Variation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_ul_PhysCH_SF_Variation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_PhysCH_SF_Variation(tvb, offset, actx, tree, hf_rnsap_ul_PhysCH_SF_Variation);
-}
 
 
 
@@ -12826,12 +11365,6 @@ dissect_rnsap_INTEGER_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               1U, 256U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_n_INSYNC_IND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_256(tvb, offset, actx, tree, hf_rnsap_n_INSYNC_IND);
-}
-static int dissect_n_OUTSYNC_IND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_256(tvb, offset, actx, tree, hf_rnsap_n_OUTSYNC_IND);
 }
 
 
@@ -12850,9 +11383,6 @@ dissect_rnsap_SynchronisationConfiguration(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_synchronisationConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SynchronisationConfiguration(tvb, offset, actx, tree, hf_rnsap_synchronisationConfiguration);
-}
 
 
 static const per_sequence_t Secondary_CCPCH_TDD_Code_InformationItem_sequence[] = {
@@ -12868,9 +11398,6 @@ dissect_rnsap_Secondary_CCPCH_TDD_Code_InformationItem(tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_Secondary_CCPCH_TDD_Code_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CCPCH_TDD_Code_InformationItem(tvb, offset, actx, tree, hf_rnsap_Secondary_CCPCH_TDD_Code_Information_item);
-}
 
 
 static const per_sequence_t Secondary_CCPCH_TDD_Code_Information_sequence_of[1] = {
@@ -12885,9 +11412,6 @@ dissect_rnsap_Secondary_CCPCH_TDD_Code_Information(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_secondary_CCPCH_TDD_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CCPCH_TDD_Code_Information(tvb, offset, actx, tree, hf_rnsap_secondary_CCPCH_TDD_Code_Information);
-}
 
 
 
@@ -12897,9 +11421,6 @@ dissect_rnsap_TDD_PhysicalChannelOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                               0U, 63U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tDD_PhysicalChannelOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_PhysicalChannelOffset(tvb, offset, actx, tree, hf_rnsap_tDD_PhysicalChannelOffset);
 }
 
 
@@ -12922,9 +11443,6 @@ dissect_rnsap_Secondary_CCPCH_TDD_InformationItem(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_Secondary_CCPCH_TDD_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CCPCH_TDD_InformationItem(tvb, offset, actx, tree, hf_rnsap_Secondary_CCPCH_TDD_InformationList_item);
-}
 
 
 static const per_sequence_t Secondary_CCPCH_TDD_InformationList_sequence_of[1] = {
@@ -12938,9 +11456,6 @@ dissect_rnsap_Secondary_CCPCH_TDD_InformationList(tvbuff_t *tvb _U_, int offset 
                                                   0, 8);
 
   return offset;
-}
-static int dissect_secondary_CCPCH_TDD_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CCPCH_TDD_InformationList(tvb, offset, actx, tree, hf_rnsap_secondary_CCPCH_TDD_InformationList);
 }
 
 
@@ -12957,9 +11472,6 @@ dissect_rnsap_FACH_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_FACH_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_InformationItem(tvb, offset, actx, tree, hf_rnsap_FACH_InformationList_item);
-}
 
 
 static const per_sequence_t FACH_InformationList_sequence_of[1] = {
@@ -12973,9 +11485,6 @@ dissect_rnsap_FACH_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                                   0, 8);
 
   return offset;
-}
-static int dissect_fACH_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_InformationList(tvb, offset, actx, tree, hf_rnsap_fACH_InformationList);
 }
 
 
@@ -12992,9 +11501,6 @@ dissect_rnsap_PCH_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_PCH_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PCH_InformationItem(tvb, offset, actx, tree, hf_rnsap_PCH_InformationList_item);
-}
 
 
 static const per_sequence_t PCH_InformationList_sequence_of[1] = {
@@ -13008,9 +11514,6 @@ dissect_rnsap_PCH_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                                   0, 1);
 
   return offset;
-}
-static int dissect_pCH_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PCH_InformationList(tvb, offset, actx, tree, hf_rnsap_pCH_InformationList);
 }
 
 
@@ -13031,9 +11534,6 @@ dissect_rnsap_Secondary_CCPCH_Info_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_secondary_CCPCH_Info_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CCPCH_Info_TDD(tvb, offset, actx, tree, hf_rnsap_secondary_CCPCH_Info_TDD);
-}
 
 
 
@@ -13043,9 +11543,6 @@ dissect_rnsap_UL_CCTrCHInformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ul_CCTrCHInformation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCHInformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCHInformation1);
-}
 
 
 
@@ -13054,9 +11551,6 @@ dissect_rnsap_DL_CCTrCHInformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CCTrCHInformation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCHInformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCHInformation1);
 }
 
 
@@ -13073,9 +11567,6 @@ dissect_rnsap_Combining_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_combining3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Combining_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_combining3);
-}
 
 
 static const per_sequence_t NonCombining_RL_AdditionRspTDD_sequence[] = {
@@ -13090,9 +11581,6 @@ dissect_rnsap_NonCombining_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_NonCombining_RL_AdditionRspTDD, NonCombining_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_nonCombining1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NonCombining_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_nonCombining1);
 }
 
 
@@ -13116,9 +11604,6 @@ dissect_rnsap_DiversityIndication_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_diversityIndication3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_diversityIndication3);
-}
 
 
 static const per_sequence_t DCH_Information_RL_AdditionRspTDD_sequence[] = {
@@ -13134,9 +11619,6 @@ dissect_rnsap_DCH_Information_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_dCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_Information_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dCH_Information);
-}
 
 
 
@@ -13146,9 +11628,6 @@ dissect_rnsap_DSCH_InformationResponse_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_dSCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_InformationResponse_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dSCH_InformationResponse);
-}
 
 
 
@@ -13157,9 +11636,6 @@ dissect_rnsap_USCH_InformationResponse_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_uSCH_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_InformationResponse_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_uSCH_InformationResponse);
 }
 
 
@@ -13174,9 +11650,6 @@ dissect_rnsap_Neighbouring_UMTS_CellInformation(tvbuff_t *tvb _U_, int offset _U
                                                   1, 10);
 
   return offset;
-}
-static int dissect_neighbouring_UMTS_CellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_UMTS_CellInformation(tvb, offset, actx, tree, hf_rnsap_neighbouring_UMTS_CellInformation);
 }
 
 
@@ -13228,9 +11701,6 @@ dissect_rnsap_UL_CCTrCH_InformationList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ul_CCTrCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_InformationList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCH_Information);
-}
 
 
 
@@ -13239,9 +11709,6 @@ dissect_rnsap_DL_CCTrCH_InformationList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CCTrCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_InformationList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCH_Information);
 }
 
 
@@ -13252,9 +11719,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_dCHInformationResponse1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dCHInformationResponse1);
-}
 
 
 
@@ -13264,9 +11728,6 @@ dissect_rnsap_DSCHToBeAddedOrModified_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_dSCHsToBeAddedOrModified(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCHToBeAddedOrModified_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dSCHsToBeAddedOrModified);
-}
 
 
 
@@ -13275,9 +11736,6 @@ dissect_rnsap_USCHToBeAddedOrModified_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int o
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_uSCHsToBeAddedOrModified(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCHToBeAddedOrModified_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_uSCHsToBeAddedOrModified);
 }
 
 
@@ -13307,9 +11765,6 @@ dissect_rnsap_RL_InformationResponse_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int of
 static int dissect_id_RL_InformationResponse_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_InformationResponse_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_id_RL_InformationResponse_RL_ReconfReadyTDD);
 }
-static int dissect_Multiple_RL_InformationResponse_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationResponse_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_Multiple_RL_InformationResponse_RL_ReconfReadyTDD_item);
-}
 
 
 
@@ -13318,9 +11773,6 @@ dissect_rnsap_UL_CCTrCHInformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ul_CCTrCHInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCHInformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCHInformation);
 }
 
 
@@ -13331,9 +11783,6 @@ dissect_rnsap_DL_CCTrCHInformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_dl_CCTrCHInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCHInformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCHInformation);
-}
 
 
 
@@ -13342,9 +11791,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dCH_InformationResponse1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dCH_InformationResponse1);
 }
 
 
@@ -13355,9 +11801,6 @@ dissect_rnsap_DSCH_InformationResponse_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_dsch_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_InformationResponse_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dsch_InformationResponse);
-}
 
 
 
@@ -13366,9 +11809,6 @@ dissect_rnsap_USCH_InformationResponse_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_usch_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_InformationResponse_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_usch_InformationResponse);
 }
 
 
@@ -13429,9 +11869,6 @@ dissect_rnsap_RL_Set_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int dissect_id_EDCH_RLSet_Id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_Set_ID(tvb, offset, actx, tree, hf_rnsap_id_EDCH_RLSet_Id);
 }
-static int dissect_rL_Set_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_ID(tvb, offset, actx, tree, hf_rnsap_rL_Set_ID);
-}
 
 
 
@@ -13442,9 +11879,6 @@ dissect_rnsap_Received_total_wide_band_power(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_received_total_wide_band_power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Received_total_wide_band_power(tvb, offset, actx, tree, hf_rnsap_received_total_wide_band_power);
-}
 
 
 
@@ -13453,9 +11887,6 @@ dissect_rnsap_DL_CodeInformationList_RL_AdditionRspFDD(tvbuff_t *tvb _U_, int of
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CodeInformation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CodeInformationList_RL_AdditionRspFDD(tvb, offset, actx, tree, hf_rnsap_dl_CodeInformation1);
 }
 
 
@@ -13472,9 +11903,6 @@ dissect_rnsap_Combining_RL_AdditionRspFDD(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_combining2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Combining_RL_AdditionRspFDD(tvb, offset, actx, tree, hf_rnsap_combining2);
-}
 
 
 static const per_sequence_t NonCombining_RL_AdditionRspFDD_sequence[] = {
@@ -13489,9 +11917,6 @@ dissect_rnsap_NonCombining_RL_AdditionRspFDD(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_NonCombining_RL_AdditionRspFDD, NonCombining_RL_AdditionRspFDD_sequence);
 
   return offset;
-}
-static int dissect_nonCombining(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NonCombining_RL_AdditionRspFDD(tvb, offset, actx, tree, hf_rnsap_nonCombining);
 }
 
 
@@ -13515,9 +11940,6 @@ dissect_rnsap_DiversityIndication_RL_AdditionRspFDD(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_diversityIndication2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_AdditionRspFDD(tvb, offset, actx, tree, hf_rnsap_diversityIndication2);
-}
 
 
 static const value_string rnsap_SSDT_SupportIndicator_vals[] = {
@@ -13533,9 +11955,6 @@ dissect_rnsap_SSDT_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_sSDT_SupportIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SSDT_SupportIndicator(tvb, offset, actx, tree, hf_rnsap_sSDT_SupportIndicator);
 }
 
 
@@ -13553,9 +11972,6 @@ dissect_rnsap_Closedlooptimingadjustmentmode(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_closedlooptimingadjustmentmode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Closedlooptimingadjustmentmode(tvb, offset, actx, tree, hf_rnsap_closedlooptimingadjustmentmode);
-}
 
 
 
@@ -13566,9 +11982,6 @@ dissect_rnsap_PC_Preamble(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_pC_Preamble(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PC_Preamble(tvb, offset, actx, tree, hf_rnsap_pC_Preamble);
-}
 
 
 
@@ -13578,9 +11991,6 @@ dissect_rnsap_SRB_Delay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                               0U, 7U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_sRB_Delay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SRB_Delay(tvb, offset, actx, tree, hf_rnsap_sRB_Delay);
 }
 
 
@@ -13630,9 +12040,6 @@ dissect_rnsap_DL_CodeInformationList_RL_ReconfReadyFDD(tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_dl_CodeInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CodeInformationList_RL_ReconfReadyFDD(tvb, offset, actx, tree, hf_rnsap_dl_CodeInformationList);
-}
 
 
 
@@ -13641,9 +12048,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_ReconfReadyFDD(tvbuff_t *tvb _U_, i
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dCHInformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_ReconfReadyFDD(tvb, offset, actx, tree, hf_rnsap_dCHInformationResponse);
 }
 
 
@@ -13680,9 +12084,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspFDD(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dCHsInformationResponseList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspFDD(tvb, offset, actx, tree, hf_rnsap_dCHsInformationResponseList);
-}
 
 
 
@@ -13691,9 +12092,6 @@ dissect_rnsap_DL_CodeInformationList_RL_ReconfRspFDD(tvbuff_t *tvb _U_, int offs
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dL_CodeInformationList_RL_ReconfResp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CodeInformationList_RL_ReconfRspFDD(tvb, offset, actx, tree, hf_rnsap_dL_CodeInformationList_RL_ReconfResp);
 }
 
 
@@ -13735,9 +12133,6 @@ dissect_rnsap_Combining_RL_SetupRspFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_combining(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Combining_RL_SetupRspFDD(tvb, offset, actx, tree, hf_rnsap_combining);
-}
 
 
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupRspFDD_sequence[] = {
@@ -13752,9 +12147,6 @@ dissect_rnsap_NonCombiningOrFirstRL_RL_SetupRspFDD(tvbuff_t *tvb _U_, int offset
                                    ett_rnsap_NonCombiningOrFirstRL_RL_SetupRspFDD, NonCombiningOrFirstRL_RL_SetupRspFDD_sequence);
 
   return offset;
-}
-static int dissect_nonCombiningOrFirstRL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NonCombiningOrFirstRL_RL_SetupRspFDD(tvb, offset, actx, tree, hf_rnsap_nonCombiningOrFirstRL);
 }
 
 
@@ -13777,9 +12169,6 @@ dissect_rnsap_DiversityIndication_RL_SetupRspFDD(tvbuff_t *tvb _U_, int offset _
                                  NULL);
 
   return offset;
-}
-static int dissect_diversityIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_SetupRspFDD(tvb, offset, actx, tree, hf_rnsap_diversityIndication);
 }
 
 
@@ -13884,9 +12273,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspTDD(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dCHsInformationResponseList1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_dCHsInformationResponseList1);
-}
 
 
 static const per_sequence_t RL_InformationResponse_RL_ReconfRspTDD_sequence[] = {
@@ -13909,9 +12295,6 @@ dissect_rnsap_RL_InformationResponse_RL_ReconfRspTDD(tvbuff_t *tvb _U_, int offs
 }
 static int dissect_id_RL_InformationResponse_RL_ReconfRspTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_InformationResponse_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_id_RL_InformationResponse_RL_ReconfRspTDD);
-}
-static int dissect_Multiple_RL_InformationResponse_RL_ReconfRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationResponse_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_Multiple_RL_InformationResponse_RL_ReconfRspTDD_item);
 }
 
 
@@ -14170,9 +12553,6 @@ dissect_rnsap_INTEGER_1_6000_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_ten_msec(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_6000_(tvb, offset, actx, tree, hf_rnsap_ten_msec);
-}
 
 
 
@@ -14182,9 +12562,6 @@ dissect_rnsap_INTEGER_1_60_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               1U, 60U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_min(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_60_(tvb, offset, actx, tree, hf_rnsap_min);
 }
 
 
@@ -14208,9 +12585,6 @@ dissect_rnsap_ReportPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_reportPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ReportPeriodicity(tvb, offset, actx, tree, hf_rnsap_reportPeriodicity);
-}
 
 
 static const per_sequence_t Periodic_sequence[] = {
@@ -14226,9 +12600,6 @@ dissect_rnsap_Periodic(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_periodic1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Periodic(tvb, offset, actx, tree, hf_rnsap_periodic1);
-}
 
 
 
@@ -14237,9 +12608,6 @@ dissect_rnsap_Extension_MeasurementThreshold(tvbuff_t *tvb _U_, int offset _U_, 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_MeasurementThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_MeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_extension_MeasurementThreshold);
 }
 
 
@@ -14273,18 +12641,6 @@ dissect_rnsap_MeasurementThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_measurementTreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_measurementTreshold);
-}
-static int dissect_measurementThreshold1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_measurementThreshold1);
-}
-static int dissect_measurementThreshold2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_measurementThreshold2);
-}
-static int dissect_measurementThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_measurementThreshold);
-}
 
 
 
@@ -14294,9 +12650,6 @@ dissect_rnsap_MeasurementHysteresisTime(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                               1U, 6000U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_measurementHysteresisTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementHysteresisTime(tvb, offset, actx, tree, hf_rnsap_measurementHysteresisTime);
 }
 
 
@@ -14314,9 +12667,6 @@ dissect_rnsap_EventA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_eventA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventA(tvb, offset, actx, tree, hf_rnsap_eventA);
-}
 
 
 static const per_sequence_t EventB_sequence[] = {
@@ -14333,9 +12683,6 @@ dissect_rnsap_EventB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_eventB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventB(tvb, offset, actx, tree, hf_rnsap_eventB);
-}
 
 
 
@@ -14345,9 +12692,6 @@ dissect_rnsap_SIR_Value_IncrDecrThres(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                               0U, 62U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sir(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Value_IncrDecrThres(tvb, offset, actx, tree, hf_rnsap_sir);
 }
 
 
@@ -14359,9 +12703,6 @@ dissect_rnsap_SIR_Error_Value_IncrDecrThres(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_sir_error(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SIR_Error_Value_IncrDecrThres(tvb, offset, actx, tree, hf_rnsap_sir_error);
-}
 
 
 
@@ -14371,9 +12712,6 @@ dissect_rnsap_Transmitted_Code_Power_Value_IncrDecrThres(tvbuff_t *tvb _U_, int 
                                               0U, 112U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_transmitted_code_power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmitted_Code_Power_Value_IncrDecrThres(tvb, offset, actx, tree, hf_rnsap_transmitted_code_power);
 }
 
 
@@ -14385,9 +12723,6 @@ dissect_rnsap_RSCP_Value_IncrDecrThres(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_rscp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RSCP_Value_IncrDecrThres(tvb, offset, actx, tree, hf_rnsap_rscp);
-}
 
 
 
@@ -14398,9 +12733,6 @@ dissect_rnsap_Round_Trip_Time_IncrDecrThres(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_round_trip_time(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Round_Trip_Time_IncrDecrThres(tvb, offset, actx, tree, hf_rnsap_round_trip_time);
-}
 
 
 
@@ -14409,9 +12741,6 @@ dissect_rnsap_Extension_MeasurementIncreaseDecreaseThreshold(tvbuff_t *tvb _U_, 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_MeasurementIncreaseDecreaseThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_MeasurementIncreaseDecreaseThreshold(tvb, offset, actx, tree, hf_rnsap_extension_MeasurementIncreaseDecreaseThreshold);
 }
 
 
@@ -14443,9 +12772,6 @@ dissect_rnsap_MeasurementIncreaseDecreaseThreshold(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_measurementIncreaseDecreaseThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementIncreaseDecreaseThreshold(tvb, offset, actx, tree, hf_rnsap_measurementIncreaseDecreaseThreshold);
-}
 
 
 
@@ -14455,9 +12781,6 @@ dissect_rnsap_MeasurementChangeTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               1U, 6000U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_measurementChangeTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MeasurementChangeTime(tvb, offset, actx, tree, hf_rnsap_measurementChangeTime);
 }
 
 
@@ -14475,9 +12798,6 @@ dissect_rnsap_EventC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_eventC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventC(tvb, offset, actx, tree, hf_rnsap_eventC);
-}
 
 
 static const per_sequence_t EventD_sequence[] = {
@@ -14493,9 +12813,6 @@ dissect_rnsap_EventD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                    ett_rnsap_EventD, EventD_sequence);
 
   return offset;
-}
-static int dissect_eventD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventD(tvb, offset, actx, tree, hf_rnsap_eventD);
 }
 
 
@@ -14515,9 +12832,6 @@ dissect_rnsap_EventE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_eventE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventE(tvb, offset, actx, tree, hf_rnsap_eventE);
-}
 
 
 static const per_sequence_t EventF_sequence[] = {
@@ -14536,9 +12850,6 @@ dissect_rnsap_EventF(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_eventF(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EventF(tvb, offset, actx, tree, hf_rnsap_eventF);
-}
 
 
 
@@ -14547,9 +12858,6 @@ dissect_rnsap_Extension_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_ReportCharacteristics(tvb, offset, actx, tree, hf_rnsap_extension_ReportCharacteristics);
 }
 
 
@@ -14604,9 +12912,6 @@ dissect_rnsap_RL_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_rL_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationList_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_rL_InformationList_RL_FailureInd);
-}
 
 
 static const per_sequence_t RL_RL_FailureInd_sequence[] = {
@@ -14622,9 +12927,6 @@ dissect_rnsap_RL_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_rL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_rL);
-}
 
 
 static const per_sequence_t RL_Set_InformationList_RL_FailureInd_sequence_of[1] = {
@@ -14638,9 +12940,6 @@ dissect_rnsap_RL_Set_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_InformationList_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_rL_Set_InformationList_RL_FailureInd);
 }
 
 
@@ -14657,9 +12956,6 @@ dissect_rnsap_RL_Set_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_rL_Set(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_rL_Set);
-}
 
 
 static const per_sequence_t CCTrCH_InformationList_RL_FailureInd_sequence_of[1] = {
@@ -14673,9 +12969,6 @@ dissect_rnsap_CCTrCH_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset
                                                   1, 16);
 
   return offset;
-}
-static int dissect_cCTrCH_InformationList_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_InformationList_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_cCTrCH_InformationList_RL_FailureInd);
 }
 
 
@@ -14692,9 +12985,6 @@ dissect_rnsap_CCTrCH_RL_FailureInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                    ett_rnsap_CCTrCH_RL_FailureInd, CCTrCH_RL_FailureInd_sequence);
 
   return offset;
-}
-static int dissect_cCTrCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_RL_FailureInd(tvb, offset, actx, tree, hf_rnsap_cCTrCH);
 }
 
 
@@ -14737,9 +13027,6 @@ dissect_rnsap_RL_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_rL_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationList_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_rL_InformationList_RL_RestoreInd);
-}
 
 
 static const per_sequence_t RL_RL_RestoreInd_sequence[] = {
@@ -14755,9 +13042,6 @@ dissect_rnsap_RL_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_rL1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_rL1);
-}
 
 
 static const per_sequence_t RL_Set_InformationList_RL_RestoreInd_sequence_of[1] = {
@@ -14771,9 +13055,6 @@ dissect_rnsap_RL_Set_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset
                                                   1, 16);
 
   return offset;
-}
-static int dissect_rL_Set_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_InformationList_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_rL_Set_InformationList_RL_RestoreInd);
 }
 
 
@@ -14790,9 +13071,6 @@ dissect_rnsap_RL_Set_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_rL_Set1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Set_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_rL_Set1);
-}
 
 
 static const per_sequence_t CCTrCH_InformationList_RL_RestoreInd_sequence_of[1] = {
@@ -14806,9 +13084,6 @@ dissect_rnsap_CCTrCH_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset
                                                   1, 16);
 
   return offset;
-}
-static int dissect_cCTrCH_InformationList_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_InformationList_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_cCTrCH_InformationList_RL_RestoreInd);
 }
 
 
@@ -14825,9 +13100,6 @@ dissect_rnsap_CCTrCH_RL_RestoreInd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                    ett_rnsap_CCTrCH_RL_RestoreInd, CCTrCH_RL_RestoreInd_sequence);
 
   return offset;
-}
-static int dissect_cCTrCH1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_RL_RestoreInd(tvb, offset, actx, tree, hf_rnsap_cCTrCH1);
 }
 
 
@@ -14896,9 +13168,6 @@ dissect_rnsap_ContextInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_contextInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ContextInfoList_Reset(tvb, offset, actx, tree, hf_rnsap_contextInfoList_Reset);
-}
 
 
 static const per_sequence_t ContextList_Reset_sequence[] = {
@@ -14914,9 +13183,6 @@ dissect_rnsap_ContextList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ContextList_Reset(tvb, offset, actx, tree, hf_rnsap_context);
-}
 
 
 static const per_sequence_t ContextGroupInfoList_Reset_sequence_of[1] = {
@@ -14930,9 +13196,6 @@ dissect_rnsap_ContextGroupInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1
                                                   1, 32);
 
   return offset;
-}
-static int dissect_contextGroupInfoList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ContextGroupInfoList_Reset(tvb, offset, actx, tree, hf_rnsap_contextGroupInfoList_Reset);
 }
 
 
@@ -14948,9 +13211,6 @@ dissect_rnsap_ContextGroupList_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                    ett_rnsap_ContextGroupList_Reset, ContextGroupList_Reset_sequence);
 
   return offset;
-}
-static int dissect_contextGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ContextGroupList_Reset(tvb, offset, actx, tree, hf_rnsap_contextGroup);
 }
 
 
@@ -14988,9 +13248,6 @@ dissect_rnsap_DL_CodeInformationList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_dl_CodeInformation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CodeInformationList_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_dl_CodeInformation2);
-}
 
 
 static const per_sequence_t Combining_RL_AdditionFailureFDD_sequence[] = {
@@ -15006,9 +13263,6 @@ dissect_rnsap_Combining_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_combining4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Combining_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_combining4);
-}
 
 
 static const per_sequence_t NonCombining_RL_AdditionFailureFDD_sequence[] = {
@@ -15023,9 +13277,6 @@ dissect_rnsap_NonCombining_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_NonCombining_RL_AdditionFailureFDD, NonCombining_RL_AdditionFailureFDD_sequence);
 
   return offset;
-}
-static int dissect_nonCombining2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NonCombining_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_nonCombining2);
 }
 
 
@@ -15048,9 +13299,6 @@ dissect_rnsap_DiversityIndication_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int o
                                  NULL);
 
   return offset;
-}
-static int dissect_diversityIndication5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_diversityIndication5);
 }
 
 
@@ -15106,9 +13354,6 @@ dissect_rnsap_Combining_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_combining1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Combining_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_combining1);
-}
 
 
 static const per_sequence_t NonCombiningOrFirstRL_RL_SetupFailureFDD_sequence[] = {
@@ -15123,9 +13368,6 @@ dissect_rnsap_NonCombiningOrFirstRL_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int of
                                    ett_rnsap_NonCombiningOrFirstRL_RL_SetupFailureFDD, NonCombiningOrFirstRL_RL_SetupFailureFDD_sequence);
 
   return offset;
-}
-static int dissect_nonCombiningOrFirstRL1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NonCombiningOrFirstRL_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_nonCombiningOrFirstRL1);
 }
 
 
@@ -15148,9 +13390,6 @@ dissect_rnsap_DiversityIndication_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offs
                                  NULL);
 
   return offset;
-}
-static int dissect_diversityIndication1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_diversityIndication1);
 }
 
 
@@ -15246,9 +13485,6 @@ dissect_rnsap_UC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int dissect_id_UC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_UC_ID(tvb, offset, actx, tree, hf_rnsap_id_UC_ID);
 }
-static int dissect_uC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UC_ID(tvb, offset, actx, tree, hf_rnsap_uC_ID);
-}
 
 
 static const per_sequence_t UL_CCTrCH_AddInformation_RL_ReconfPrepTDD_sequence[] = {
@@ -15334,9 +13570,6 @@ dissect_rnsap_UL_DPCH_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ul_DPCH_Information2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_Information2);
-}
 
 
 static const per_sequence_t UL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequence[] = {
@@ -15352,9 +13585,6 @@ dissect_rnsap_UL_CCTrCH_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, in
                                    ett_rnsap_UL_CCTrCH_InformationItem_PhyChReconfRqstTDD, UL_CCTrCH_InformationItem_PhyChReconfRqstTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD_item);
 }
 
 
@@ -15382,9 +13612,6 @@ dissect_rnsap_UL_DPCH_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_ul_DPCH_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_Information1);
-}
 
 
 static const per_sequence_t UL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence[] = {
@@ -15400,9 +13627,6 @@ dissect_rnsap_UL_CCTrCHInformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
                                    ett_rnsap_UL_CCTrCHInformationItem_RL_AdditionRspTDD, UL_CCTrCHInformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_CCTrCHInformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCHInformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCHInformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -15430,9 +13654,6 @@ dissect_rnsap_UL_DPCH_InformationAddList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_ul_DPCH_AddInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationAddList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_AddInformation);
-}
 
 
 
@@ -15442,9 +13663,6 @@ dissect_rnsap_UL_DPCH_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ul_DPCH_ModifyInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_ModifyInformation);
-}
 
 
 
@@ -15453,9 +13671,6 @@ dissect_rnsap_UL_DPCH_InformationDeleteList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ul_DPCH_DeleteInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationDeleteList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_DeleteInformation);
 }
 
 
@@ -15474,9 +13689,6 @@ dissect_rnsap_UL_CCTrCH_InformationItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int
                                    ett_rnsap_UL_CCTrCH_InformationItem_RL_ReconfReadyTDD, UL_CCTrCH_InformationItem_RL_ReconfReadyTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_CCTrCHInformationListIE_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_InformationItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCHInformationListIE_RL_ReconfReadyTDD_item);
 }
 
 
@@ -15504,9 +13716,6 @@ dissect_rnsap_UL_DPCH_InformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_ul_DPCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_Information);
-}
 
 
 static const per_sequence_t UL_CCTrCHInformationItem_RL_SetupRspTDD_sequence[] = {
@@ -15522,9 +13731,6 @@ dissect_rnsap_UL_CCTrCHInformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
                                    ett_rnsap_UL_CCTrCHInformationItem_RL_SetupRspTDD, UL_CCTrCHInformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_CCTrCHInformationListIE_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCHInformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCHInformationListIE_RL_SetupRspTDD_item);
 }
 
 
@@ -15553,9 +13759,6 @@ dissect_rnsap_UL_ScramblingCodeNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_ul_ScramblingCodeNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_ScramblingCodeNumber(tvb, offset, actx, tree, hf_rnsap_ul_ScramblingCodeNumber);
-}
 
 
 static const value_string rnsap_UL_ScramblingCodeLength_vals[] = {
@@ -15572,9 +13775,6 @@ dissect_rnsap_UL_ScramblingCodeLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_ul_ScramblingCodeLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_ScramblingCodeLength(tvb, offset, actx, tree, hf_rnsap_ul_ScramblingCodeLength);
-}
 
 
 static const per_sequence_t UL_ScramblingCode_sequence[] = {
@@ -15590,9 +13790,6 @@ dissect_rnsap_UL_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                    ett_rnsap_UL_ScramblingCode, UL_ScramblingCode_sequence);
 
   return offset;
-}
-static int dissect_ul_ScramblingCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_ScramblingCode(tvb, offset, actx, tree, hf_rnsap_ul_ScramblingCode);
 }
 
 
@@ -15615,9 +13812,6 @@ dissect_rnsap_MinUL_ChannelisationCodeLength(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_minUL_ChannelisationCodeLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MinUL_ChannelisationCodeLength(tvb, offset, actx, tree, hf_rnsap_minUL_ChannelisationCodeLength);
-}
 
 
 
@@ -15628,12 +13822,6 @@ dissect_rnsap_MaxNrOfUL_DPCHs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_maxNrOfUL_DPCHs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrOfUL_DPCHs(tvb, offset, actx, tree, hf_rnsap_maxNrOfUL_DPCHs);
-}
-static int dissect_maxNrOfUL_DPDCHs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrOfUL_DPCHs(tvb, offset, actx, tree, hf_rnsap_maxNrOfUL_DPDCHs);
-}
 
 
 
@@ -15643,9 +13831,6 @@ dissect_rnsap_UL_DPCCH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                               0U, 5U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_ul_DPCCH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCCH_SlotFormat(tvb, offset, actx, tree, hf_rnsap_ul_DPCCH_SlotFormat);
 }
 
 
@@ -15664,9 +13849,6 @@ dissect_rnsap_DiversityMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                      4, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_diversityMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityMode(tvb, offset, actx, tree, hf_rnsap_diversityMode);
 }
 
 
@@ -15756,9 +13938,6 @@ dissect_rnsap_TDD_UL_Code_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_TDD_UL_Code_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_InformationItem(tvb, offset, actx, tree, hf_rnsap_TDD_UL_Code_Information_item);
-}
 
 
 static const per_sequence_t TDD_UL_Code_Information_sequence_of[1] = {
@@ -15772,9 +13951,6 @@ dissect_rnsap_TDD_UL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                                   1, 240);
 
   return offset;
-}
-static int dissect_uL_Code_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_Information(tvb, offset, actx, tree, hf_rnsap_uL_Code_Information1);
 }
 
 
@@ -15794,9 +13970,6 @@ dissect_rnsap_UL_Timeslot_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_UL_Timeslot_InformationList_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_UL_Timeslot_InformationList_PhyChReconfRqstTDD_item);
-}
 
 
 static const per_sequence_t UL_Timeslot_InformationList_PhyChReconfRqstTDD_sequence_of[1] = {
@@ -15810,9 +13983,6 @@ dissect_rnsap_UL_Timeslot_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, 
                                                   1, 15);
 
   return offset;
-}
-static int dissect_uL_Timeslot_InformationList_PhyChReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_InformationList_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_uL_Timeslot_InformationList_PhyChReconfRqstTDD);
 }
 
 
@@ -15853,9 +14023,6 @@ dissect_rnsap_UL_Timeslot_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_UL_Timeslot_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_InformationItem(tvb, offset, actx, tree, hf_rnsap_UL_Timeslot_Information_item);
-}
 
 
 static const per_sequence_t UL_Timeslot_Information_sequence_of[1] = {
@@ -15869,9 +14036,6 @@ dissect_rnsap_UL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                                   1, 15);
 
   return offset;
-}
-static int dissect_uL_Timeslot_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_Information(tvb, offset, actx, tree, hf_rnsap_uL_Timeslot_Information);
 }
 
 
@@ -15927,9 +14091,6 @@ dissect_rnsap_RxTimingDeviationForTA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 static int dissect_id_RxTimingDeviationForTA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RxTimingDeviationForTA(tvb, offset, actx, tree, hf_rnsap_id_RxTimingDeviationForTA);
-}
-static int dissect_rxTimingDeviationForTA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RxTimingDeviationForTA(tvb, offset, actx, tree, hf_rnsap_rxTimingDeviationForTA);
 }
 
 
@@ -16020,9 +14181,6 @@ dissect_rnsap_TGPSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_tGPSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TGPSID(tvb, offset, actx, tree, hf_rnsap_tGPSID);
-}
 
 
 
@@ -16032,9 +14190,6 @@ dissect_rnsap_TGPRC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
                                               0U, 511U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tGPRC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TGPRC(tvb, offset, actx, tree, hf_rnsap_tGPRC);
 }
 
 
@@ -16053,9 +14208,6 @@ dissect_rnsap_Transmission_Gap_Pattern_Sequence_Status_List_item(tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_Transmission_Gap_Pattern_Sequence_Status_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmission_Gap_Pattern_Sequence_Status_List_item(tvb, offset, actx, tree, hf_rnsap_Transmission_Gap_Pattern_Sequence_Status_List_item);
-}
 
 
 static const per_sequence_t Transmission_Gap_Pattern_Sequence_Status_List_sequence_of[1] = {
@@ -16069,9 +14221,6 @@ dissect_rnsap_Transmission_Gap_Pattern_Sequence_Status_List(tvbuff_t *tvb _U_, i
                                                   0, 6);
 
   return offset;
-}
-static int dissect_transmission_Gap_Pattern_Sequence_Status(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmission_Gap_Pattern_Sequence_Status_List(tvb, offset, actx, tree, hf_rnsap_transmission_Gap_Pattern_Sequence_Status);
 }
 
 
@@ -16105,9 +14254,6 @@ dissect_rnsap_ScaledAdjustmentRatio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int dissect_id_AdjustmentRatio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_ScaledAdjustmentRatio(tvb, offset, actx, tree, hf_rnsap_id_AdjustmentRatio);
 }
-static int dissect_adjustmentRatio(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ScaledAdjustmentRatio(tvb, offset, actx, tree, hf_rnsap_adjustmentRatio);
-}
 
 
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureFDD_sequence[] = {
@@ -16123,9 +14269,6 @@ dissect_rnsap_GeneralCauseList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_generalCause2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeneralCauseList_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_generalCause2);
-}
 
 
 static const per_sequence_t UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_sequence_of[1] = {
@@ -16140,9 +14283,6 @@ dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD(tvbuf
 
   return offset;
 }
-static int dissect_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD);
-}
 
 
 static const per_sequence_t SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD_sequence_of[1] = {
@@ -16156,9 +14296,6 @@ dissect_rnsap_SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD(tvbuff_
                                                   0, 14);
 
   return offset;
-}
-static int dissect_successful_RL_InformationRespList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SuccessfulRL_InformationResponseList_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_successful_RL_InformationRespList_RL_AdditionFailureFDD);
 }
 
 
@@ -16175,9 +14312,6 @@ dissect_rnsap_RLSpecificCauseList_RL_AdditionFailureFDD(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_RLSpecificCauseList_RL_AdditionFailureFDD, RLSpecificCauseList_RL_AdditionFailureFDD_sequence);
 
   return offset;
-}
-static int dissect_rLSpecificCause2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLSpecificCauseList_RL_AdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_rLSpecificCause2);
 }
 
 
@@ -16219,9 +14353,6 @@ dissect_rnsap_GeneralCauseList_RL_AdditionFailureTDD(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_generalCause3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeneralCauseList_RL_AdditionFailureTDD(tvb, offset, actx, tree, hf_rnsap_generalCause3);
-}
 
 
 
@@ -16230,9 +14361,6 @@ dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD(tvbuff_t
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD(tvb, offset, actx, tree, hf_rnsap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD);
 }
 
 
@@ -16248,9 +14376,6 @@ dissect_rnsap_RLSpecificCauseList_RL_AdditionFailureTDD(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_RLSpecificCauseList_RL_AdditionFailureTDD, RLSpecificCauseList_RL_AdditionFailureTDD_sequence);
 
   return offset;
-}
-static int dissect_rLSpecificCause3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLSpecificCauseList_RL_AdditionFailureTDD(tvb, offset, actx, tree, hf_rnsap_rLSpecificCause3);
 }
 
 
@@ -16292,9 +14417,6 @@ dissect_rnsap_GeneralCauseList_RL_ReconfFailure(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_generalCause4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeneralCauseList_RL_ReconfFailure(tvb, offset, actx, tree, hf_rnsap_generalCause4);
-}
 
 
 static const per_sequence_t RL_ReconfigurationFailureList_RL_ReconfFailure_sequence_of[1] = {
@@ -16308,9 +14430,6 @@ dissect_rnsap_RL_ReconfigurationFailureList_RL_ReconfFailure(tvbuff_t *tvb _U_, 
                                                   0, 16);
 
   return offset;
-}
-static int dissect_rL_ReconfigurationFailureList_RL_ReconfFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_ReconfigurationFailureList_RL_ReconfFailure(tvb, offset, actx, tree, hf_rnsap_rL_ReconfigurationFailureList_RL_ReconfFailure);
 }
 
 
@@ -16326,9 +14445,6 @@ dissect_rnsap_RLSpecificCauseList_RL_ReconfFailure(tvbuff_t *tvb _U_, int offset
                                    ett_rnsap_RLSpecificCauseList_RL_ReconfFailure, RLSpecificCauseList_RL_ReconfFailure_sequence);
 
   return offset;
-}
-static int dissect_rLSpecificCause4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLSpecificCauseList_RL_ReconfFailure(tvb, offset, actx, tree, hf_rnsap_rLSpecificCause4);
 }
 
 
@@ -16370,9 +14486,6 @@ dissect_rnsap_GeneralCauseList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_generalCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeneralCauseList_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_generalCause);
-}
 
 
 static const per_sequence_t UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD_sequence_of[1] = {
@@ -16387,9 +14500,6 @@ dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD(tvbuff_t
 
   return offset;
 }
-static int dissect_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UnsuccessfulRL_InformationResponseList_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD);
-}
 
 
 static const per_sequence_t SuccessfulRL_InformationResponseList_RL_SetupFailureFDD_sequence_of[1] = {
@@ -16403,9 +14513,6 @@ dissect_rnsap_SuccessfulRL_InformationResponseList_RL_SetupFailureFDD(tvbuff_t *
                                                   0, 15);
 
   return offset;
-}
-static int dissect_successful_RL_InformationRespList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SuccessfulRL_InformationResponseList_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_successful_RL_InformationRespList_RL_SetupFailureFDD);
 }
 
 
@@ -16422,9 +14529,6 @@ dissect_rnsap_RLSpecificCauseList_RL_SetupFailureFDD(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_RLSpecificCauseList_RL_SetupFailureFDD, RLSpecificCauseList_RL_SetupFailureFDD_sequence);
 
   return offset;
-}
-static int dissect_rLSpecificCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLSpecificCauseList_RL_SetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_rLSpecificCause);
 }
 
 
@@ -16466,9 +14570,6 @@ dissect_rnsap_GeneralCauseList_RL_SetupFailureTDD(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_generalCause1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GeneralCauseList_RL_SetupFailureTDD(tvb, offset, actx, tree, hf_rnsap_generalCause1);
-}
 
 
 
@@ -16477,9 +14578,6 @@ dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD(tvbuff_t *t
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD(tvb, offset, actx, tree, hf_rnsap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD);
 }
 
 
@@ -16495,9 +14593,6 @@ dissect_rnsap_RLSpecificCauseList_RL_SetupFailureTDD(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_RLSpecificCauseList_RL_SetupFailureTDD, RLSpecificCauseList_RL_SetupFailureTDD_sequence);
 
   return offset;
-}
-static int dissect_rLSpecificCause1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLSpecificCauseList_RL_SetupFailureTDD(tvb, offset, actx, tree, hf_rnsap_rLSpecificCause1);
 }
 
 
@@ -16557,9 +14652,6 @@ dissect_rnsap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t CCTrCH_TPCModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -16573,9 +14665,6 @@ dissect_rnsap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offse
                                                   1, 16);
 
   return offset;
-}
-static int dissect_cCTrCH_TPCList2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_cCTrCH_TPCList2);
 }
 
 
@@ -16705,9 +14794,6 @@ dissect_rnsap_DL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_DL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_DL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t DL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -16741,9 +14827,6 @@ dissect_rnsap_TDD_DL_Code_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -16757,9 +14840,6 @@ dissect_rnsap_TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb 
                                                   1, 240);
 
   return offset;
-}
-static int dissect_dL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dL_Code_Information);
 }
 
 
@@ -16779,9 +14859,6 @@ dissect_rnsap_DL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -16795,9 +14872,6 @@ dissect_rnsap_DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb 
                                                   1, 15);
 
   return offset;
-}
-static int dissect_dL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_InformationModifyList_RL_ReconfReadyTDD);
 }
 
 
@@ -16830,12 +14904,6 @@ dissect_rnsap_DSCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_dsch_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_ID(tvb, offset, actx, tree, hf_rnsap_dsch_ID);
-}
-static int dissect_dSCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_ID(tvb, offset, actx, tree, hf_rnsap_dSCH_ID);
-}
 
 
 static const per_sequence_t DSCH_TDD_InformationItem_sequence[] = {
@@ -16856,9 +14924,6 @@ dissect_rnsap_DSCH_TDD_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                    ett_rnsap_DSCH_TDD_InformationItem, DSCH_TDD_InformationItem_sequence);
 
   return offset;
-}
-static int dissect_DSCH_TDD_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_TDD_InformationItem(tvb, offset, actx, tree, hf_rnsap_DSCH_TDD_Information_item);
 }
 
 
@@ -16895,9 +14960,6 @@ dissect_rnsap_DSCH_DeleteItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_DSCH_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_DeleteItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_DeleteList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t DSCH_DeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -16931,9 +14993,6 @@ dissect_rnsap_TransportFormatManagement(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_transportFormatManagement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransportFormatManagement(tvb, offset, actx, tree, hf_rnsap_transportFormatManagement);
-}
 
 
 static const per_sequence_t DSCH_FlowControlItem_sequence[] = {
@@ -16950,9 +15009,6 @@ dissect_rnsap_DSCH_FlowControlItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_DSCH_FlowControlInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_FlowControlItem(tvb, offset, actx, tree, hf_rnsap_DSCH_FlowControlInformation_item);
-}
 
 
 static const per_sequence_t DSCH_FlowControlInformation_sequence_of[1] = {
@@ -16966,9 +15022,6 @@ dissect_rnsap_DSCH_FlowControlInformation(tvbuff_t *tvb _U_, int offset _U_, asn
                                                   1, 16);
 
   return offset;
-}
-static int dissect_dSCH_FlowControlInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_FlowControlInformation(tvb, offset, actx, tree, hf_rnsap_dSCH_FlowControlInformation);
 }
 
 
@@ -16985,9 +15038,6 @@ dissect_rnsap_DiversityIndication_RL_AdditionRspTDD2(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_DiversityIndication_RL_AdditionRspTDD2, DiversityIndication_RL_AdditionRspTDD2_sequence);
 
   return offset;
-}
-static int dissect_diversityIndication4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiversityIndication_RL_AdditionRspTDD2(tvb, offset, actx, tree, hf_rnsap_diversityIndication4);
 }
 
 
@@ -17006,9 +15056,6 @@ dissect_rnsap_DSCHInformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_DSCHInformationItem_RL_AdditionRspTDD, DSCHInformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DSCH_InformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCHInformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_InformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -17045,9 +15092,6 @@ dissect_rnsap_DSCHInformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_DSCHInformationItem_RL_SetupRspTDD, DSCHInformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DSCH_InformationListIEs_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCHInformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_InformationListIEs_RL_SetupRspTDD_item);
 }
 
 
@@ -17088,9 +15132,6 @@ dissect_rnsap_DSCH_ModifyItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_DSCH_ModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_ModifyItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_ModifyList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t DSCH_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -17127,9 +15168,6 @@ dissect_rnsap_DSCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -17163,9 +15201,6 @@ dissect_rnsap_GA_PointWithUnCertainty(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_pointWithUncertainty(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_PointWithUnCertainty(tvb, offset, actx, tree, hf_rnsap_pointWithUncertainty);
-}
 
 
 
@@ -17175,15 +15210,6 @@ dissect_rnsap_INTEGER_0_179(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 179U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_offsetAngle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_179(tvb, offset, actx, tree, hf_rnsap_offsetAngle);
-}
-static int dissect_includedAngle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_179(tvb, offset, actx, tree, hf_rnsap_includedAngle);
-}
-static int dissect_orientationOfMajorAxis(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_179(tvb, offset, actx, tree, hf_rnsap_orientationOfMajorAxis);
 }
 
 
@@ -17200,9 +15226,6 @@ dissect_rnsap_GA_UncertaintyEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                    ett_rnsap_GA_UncertaintyEllipse, GA_UncertaintyEllipse_sequence);
 
   return offset;
-}
-static int dissect_uncertaintyEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_UncertaintyEllipse(tvb, offset, actx, tree, hf_rnsap_uncertaintyEllipse);
 }
 
 
@@ -17221,9 +15244,6 @@ dissect_rnsap_GA_PointWithUnCertaintyEllipse(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_pointWithUncertaintyEllipse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_PointWithUnCertaintyEllipse(tvb, offset, actx, tree, hf_rnsap_pointWithUncertaintyEllipse);
-}
 
 
 static const value_string rnsap_T_directionOfAltitude_vals[] = {
@@ -17240,9 +15260,6 @@ dissect_rnsap_T_directionOfAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_directionOfAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_directionOfAltitude(tvb, offset, actx, tree, hf_rnsap_directionOfAltitude);
-}
 
 
 static const per_sequence_t GA_AltitudeAndDirection_sequence[] = {
@@ -17257,9 +15274,6 @@ dissect_rnsap_GA_AltitudeAndDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                    ett_rnsap_GA_AltitudeAndDirection, GA_AltitudeAndDirection_sequence);
 
   return offset;
-}
-static int dissect_altitudeAndDirection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_AltitudeAndDirection(tvb, offset, actx, tree, hf_rnsap_altitudeAndDirection);
 }
 
 
@@ -17276,9 +15290,6 @@ dissect_rnsap_GA_PointWithAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                    ett_rnsap_GA_PointWithAltitude, GA_PointWithAltitude_sequence);
 
   return offset;
-}
-static int dissect_pointWithAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_PointWithAltitude(tvb, offset, actx, tree, hf_rnsap_pointWithAltitude);
 }
 
 
@@ -17299,9 +15310,6 @@ dissect_rnsap_GA_PointWithAltitudeAndUncertaintyEllipsoid(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_pointWithAltitudeAndUncertaintyEllipsoid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_PointWithAltitudeAndUncertaintyEllipsoid(tvb, offset, actx, tree, hf_rnsap_pointWithAltitudeAndUncertaintyEllipsoid);
-}
 
 
 static const per_sequence_t GA_EllipsoidArc_sequence[] = {
@@ -17321,9 +15329,6 @@ dissect_rnsap_GA_EllipsoidArc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                    ett_rnsap_GA_EllipsoidArc, GA_EllipsoidArc_sequence);
 
   return offset;
-}
-static int dissect_ellipsoidArc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_EllipsoidArc(tvb, offset, actx, tree, hf_rnsap_ellipsoidArc);
 }
 
 
@@ -17366,9 +15371,6 @@ dissect_rnsap_TGSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_tGSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TGSN(tvb, offset, actx, tree, hf_rnsap_tGSN);
-}
 
 
 
@@ -17378,12 +15380,6 @@ dissect_rnsap_GapLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                               1U, 14U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tGL1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GapLength(tvb, offset, actx, tree, hf_rnsap_tGL1);
-}
-static int dissect_tGL2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GapLength(tvb, offset, actx, tree, hf_rnsap_tGL2);
 }
 
 
@@ -17395,9 +15391,6 @@ dissect_rnsap_TGD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_tGD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TGD(tvb, offset, actx, tree, hf_rnsap_tGD);
-}
 
 
 
@@ -17407,12 +15400,6 @@ dissect_rnsap_GapDuration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                               1U, 144U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_tGPL1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GapDuration(tvb, offset, actx, tree, hf_rnsap_tGPL1);
-}
-static int dissect_not_to_be_used_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GapDuration(tvb, offset, actx, tree, hf_rnsap_not_to_be_used_1);
 }
 
 
@@ -17431,9 +15418,6 @@ dissect_rnsap_UL_DL_mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_uL_DL_mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DL_mode(tvb, offset, actx, tree, hf_rnsap_uL_DL_mode);
-}
 
 
 static const value_string rnsap_Downlink_Compressed_Mode_Method_vals[] = {
@@ -17451,9 +15435,6 @@ dissect_rnsap_Downlink_Compressed_Mode_Method(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_downlink_Compressed_Mode_Method(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Downlink_Compressed_Mode_Method(tvb, offset, actx, tree, hf_rnsap_downlink_Compressed_Mode_Method);
-}
 
 
 static const value_string rnsap_Uplink_Compressed_Mode_Method_vals[] = {
@@ -17469,9 +15450,6 @@ dissect_rnsap_Uplink_Compressed_Mode_Method(tvbuff_t *tvb _U_, int offset _U_, a
                                      2, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_uplink_Compressed_Mode_Method(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Uplink_Compressed_Mode_Method(tvb, offset, actx, tree, hf_rnsap_uplink_Compressed_Mode_Method);
 }
 
 
@@ -17489,9 +15467,6 @@ dissect_rnsap_DL_FrameType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_dL_FrameType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_FrameType(tvb, offset, actx, tree, hf_rnsap_dL_FrameType);
-}
 
 
 
@@ -17501,18 +15476,6 @@ dissect_rnsap_DeltaSIR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                               0U, 30U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_delta_SIR1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DeltaSIR(tvb, offset, actx, tree, hf_rnsap_delta_SIR1);
-}
-static int dissect_delta_SIR_after1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DeltaSIR(tvb, offset, actx, tree, hf_rnsap_delta_SIR_after1);
-}
-static int dissect_delta_SIR2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DeltaSIR(tvb, offset, actx, tree, hf_rnsap_delta_SIR2);
-}
-static int dissect_delta_SIR_after2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DeltaSIR(tvb, offset, actx, tree, hf_rnsap_delta_SIR_after2);
 }
 
 
@@ -17542,9 +15505,6 @@ dissect_rnsap_Transmission_Gap_Pattern_Sequence_Information_item(tvbuff_t *tvb _
                                    ett_rnsap_Transmission_Gap_Pattern_Sequence_Information_item, Transmission_Gap_Pattern_Sequence_Information_item_sequence);
 
   return offset;
-}
-static int dissect_Transmission_Gap_Pattern_Sequence_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Transmission_Gap_Pattern_Sequence_Information_item(tvb, offset, actx, tree, hf_rnsap_Transmission_Gap_Pattern_Sequence_Information_item);
 }
 
 
@@ -17722,9 +15682,6 @@ dissect_rnsap_UL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_UL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_InformationDeleteItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_UL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t UL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -17758,9 +15715,6 @@ dissect_rnsap_TDD_UL_Code_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -17774,9 +15728,6 @@ dissect_rnsap_TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb 
                                                   1, 240);
 
   return offset;
-}
-static int dissect_uL_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_uL_Code_Information);
 }
 
 
@@ -17796,9 +15747,6 @@ dissect_rnsap_UL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -17812,9 +15760,6 @@ dissect_rnsap_UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb 
                                                   1, 15);
 
   return offset;
-}
-static int dissect_uL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_uL_Timeslot_InformationModifyList_RL_ReconfReadyTDD);
 }
 
 
@@ -17866,12 +15811,6 @@ dissect_rnsap_USCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_usch_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_ID(tvb, offset, actx, tree, hf_rnsap_usch_ID);
-}
-static int dissect_uSCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_ID(tvb, offset, actx, tree, hf_rnsap_uSCH_ID);
-}
 
 
 
@@ -17881,9 +15820,6 @@ dissect_rnsap_RB_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                               0U, 31U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_RB_Info_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RB_Identity(tvb, offset, actx, tree, hf_rnsap_RB_Info_item);
 }
 
 
@@ -17898,9 +15834,6 @@ dissect_rnsap_RB_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
                                                   1, 32);
 
   return offset;
-}
-static int dissect_rb_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RB_Info(tvb, offset, actx, tree, hf_rnsap_rb_Info);
 }
 
 
@@ -17922,9 +15855,6 @@ dissect_rnsap_USCH_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                    ett_rnsap_USCH_InformationItem, USCH_InformationItem_sequence);
 
   return offset;
-}
-static int dissect_USCH_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_InformationItem(tvb, offset, actx, tree, hf_rnsap_USCH_Information_item);
 }
 
 
@@ -17961,9 +15891,6 @@ dissect_rnsap_USCH_DeleteItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_USCH_DeleteList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_DeleteItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_USCH_DeleteList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t USCH_DeleteList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -17997,9 +15924,6 @@ dissect_rnsap_USCHInformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_USCHInformationItem_RL_AdditionRspTDD, USCHInformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_USCH_InformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCHInformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_USCH_InformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -18035,9 +15959,6 @@ dissect_rnsap_USCHInformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_USCHInformationItem_RL_SetupRspTDD, USCHInformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_USCH_InformationListIEs_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCHInformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_USCH_InformationListIEs_RL_SetupRspTDD_item);
 }
 
 
@@ -18079,9 +16000,6 @@ dissect_rnsap_USCH_ModifyItem_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_USCH_ModifyList_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_ModifyItem_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_USCH_ModifyList_RL_ReconfPrepTDD_item);
-}
 
 
 static const per_sequence_t USCH_ModifyList_RL_ReconfPrepTDD_sequence_of[1] = {
@@ -18117,9 +16035,6 @@ dissect_rnsap_USCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCHToBeAddedOrModifiedItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -18147,12 +16062,6 @@ dissect_rnsap_MaxNrTimeslots(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_maxNrTimeslots_UL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrTimeslots(tvb, offset, actx, tree, hf_rnsap_maxNrTimeslots_UL);
-}
-static int dissect_maxNrTimeslots_DL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrTimeslots(tvb, offset, actx, tree, hf_rnsap_maxNrTimeslots_DL);
-}
 
 
 
@@ -18163,12 +16072,6 @@ dissect_rnsap_MinimumSpreadingFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_minimumSpreadingFactor_UL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MinimumSpreadingFactor(tvb, offset, actx, tree, hf_rnsap_minimumSpreadingFactor_UL);
-}
-static int dissect_minimumSpreadingFactor_DL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MinimumSpreadingFactor(tvb, offset, actx, tree, hf_rnsap_minimumSpreadingFactor_DL);
-}
 
 
 
@@ -18178,9 +16081,6 @@ dissect_rnsap_MaxNrDLPhysicalchannels(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                               1U, 224U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_maxNrDLPhysicalchannels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrDLPhysicalchannels(tvb, offset, actx, tree, hf_rnsap_maxNrDLPhysicalchannels);
 }
 
 
@@ -18211,9 +16111,6 @@ dissect_rnsap_MaxNrULPhysicalchannels(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                               1U, 2U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_maxNrULPhysicalchannels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNrULPhysicalchannels(tvb, offset, actx, tree, hf_rnsap_maxNrULPhysicalchannels);
 }
 
 
@@ -18278,9 +16175,6 @@ dissect_rnsap_PagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_pagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PagingCause(tvb, offset, actx, tree, hf_rnsap_pagingCause);
-}
 
 
 static const value_string rnsap_CNDomainType_vals[] = {
@@ -18297,9 +16191,6 @@ dissect_rnsap_CNDomainType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                      3, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_cNDomainType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CNDomainType(tvb, offset, actx, tree, hf_rnsap_cNDomainType);
 }
 
 
@@ -18319,9 +16210,6 @@ dissect_rnsap_PagingRecordType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                      5, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_pagingRecordType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PagingRecordType(tvb, offset, actx, tree, hf_rnsap_pagingRecordType);
 }
 
 
@@ -18397,9 +16285,6 @@ dissect_rnsap_TUTRANGPSAccuracyClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_tUTRANGPSMeasurementAccuracyClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSAccuracyClass(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSMeasurementAccuracyClass);
-}
 
 
 static const value_string rnsap_CommonMeasurementAccuracy_vals[] = {
@@ -18433,9 +16318,6 @@ dissect_rnsap_INTEGER_0_16383(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_ms_part(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_16383(tvb, offset, actx, tree, hf_rnsap_ms_part);
-}
 
 
 
@@ -18445,9 +16327,6 @@ dissect_rnsap_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                               0U, 4294967295U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_ls_part(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_4294967295(tvb, offset, actx, tree, hf_rnsap_ls_part);
 }
 
 
@@ -18464,9 +16343,6 @@ dissect_rnsap_TUTRANGPS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_tUTRANGPS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPS(tvb, offset, actx, tree, hf_rnsap_tUTRANGPS);
-}
 
 
 
@@ -18476,9 +16352,6 @@ dissect_rnsap_TUTRANGPSQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tUTRANGPSQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSQuality(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSQuality);
 }
 
 
@@ -18490,9 +16363,6 @@ dissect_rnsap_TUTRANGPSDriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_tUTRANGPSDriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSDriftRate(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSDriftRate);
-}
 
 
 
@@ -18502,9 +16372,6 @@ dissect_rnsap_TUTRANGPSDriftRateQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                               0U, 50U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tUTRANGPSDriftRateQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSDriftRateQuality(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSDriftRateQuality);
 }
 
 
@@ -18524,9 +16391,6 @@ dissect_rnsap_TUTRANGPSMeasurementValueInformation(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_tUTRANGPSMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSMeasurementValueInformation(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSMeasurementValueInformation);
-}
 
 
 
@@ -18537,9 +16401,6 @@ dissect_rnsap_SFNSFN_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_sFNSFN_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFN_FDD(tvb, offset, actx, tree, hf_rnsap_sFNSFN_FDD);
-}
 
 
 
@@ -18549,9 +16410,6 @@ dissect_rnsap_SFNSFN_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                               0U, 40961U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sFNSFN_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFN_TDD(tvb, offset, actx, tree, hf_rnsap_sFNSFN_TDD);
 }
 
 
@@ -18575,9 +16433,6 @@ dissect_rnsap_SFNSFNValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_sFNSFNValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNValue(tvb, offset, actx, tree, hf_rnsap_sFNSFNValue);
-}
 
 
 
@@ -18587,9 +16442,6 @@ dissect_rnsap_SFNSFNQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sFNSFNQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNQuality(tvb, offset, actx, tree, hf_rnsap_sFNSFNQuality);
 }
 
 
@@ -18601,9 +16453,6 @@ dissect_rnsap_SFNSFNDriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_sFNSFNDriftRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNDriftRate(tvb, offset, actx, tree, hf_rnsap_sFNSFNDriftRate);
-}
 
 
 
@@ -18613,9 +16462,6 @@ dissect_rnsap_SFNSFNDriftRateQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                               0U, 100U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_sFNSFNDriftRateQuality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNDriftRateQuality(tvb, offset, actx, tree, hf_rnsap_sFNSFNDriftRateQuality);
 }
 
 
@@ -18629,12 +16475,6 @@ dissect_rnsap_SFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 }
 static int dissect_id_SFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_SFN(tvb, offset, actx, tree, hf_rnsap_id_SFN);
-}
-static int dissect_sFNSFNTimeStamp_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFN(tvb, offset, actx, tree, hf_rnsap_sFNSFNTimeStamp_FDD);
-}
-static int dissect_sFN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFN(tvb, offset, actx, tree, hf_rnsap_sFN);
 }
 
 
@@ -18651,9 +16491,6 @@ dissect_rnsap_SFNSFNTimeStamp_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                    ett_rnsap_SFNSFNTimeStamp_TDD, SFNSFNTimeStamp_TDD_sequence);
 
   return offset;
-}
-static int dissect_sFNSFNTimeStamp_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNTimeStamp_TDD(tvb, offset, actx, tree, hf_rnsap_sFNSFNTimeStamp_TDD);
 }
 
 
@@ -18677,9 +16514,6 @@ dissect_rnsap_SFNSFNTimeStampInformation(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_sFNSFNTimeStampInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNTimeStampInformation(tvb, offset, actx, tree, hf_rnsap_sFNSFNTimeStampInformation);
-}
 
 
 static const per_sequence_t T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item_sequence[] = {
@@ -18700,9 +16534,6 @@ dissect_rnsap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasureme
 
   return offset;
 }
-static int dissect_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item(tvb, offset, actx, tree, hf_rnsap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item);
-}
 
 
 static const per_sequence_t T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of[1] = {
@@ -18716,9 +16547,6 @@ dissect_rnsap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasureme
                                                   1, 96);
 
   return offset;
-}
-static int dissect_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvb, offset, actx, tree, hf_rnsap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation);
 }
 
 
@@ -18735,9 +16563,6 @@ dissect_rnsap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasure
 
   return offset;
 }
-static int dissect_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item(tvb, offset, actx, tree, hf_rnsap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item);
-}
 
 
 static const per_sequence_t T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_sequence_of[1] = {
@@ -18751,9 +16576,6 @@ dissect_rnsap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasure
                                                   0, 95);
 
   return offset;
-}
-static int dissect_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation(tvb, offset, actx, tree, hf_rnsap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation);
 }
 
 
@@ -18771,9 +16593,6 @@ dissect_rnsap_SFNSFNMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_sFNSFNMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNMeasurementValueInformation(tvb, offset, actx, tree, hf_rnsap_sFNSFNMeasurementValueInformation);
-}
 
 
 
@@ -18783,21 +16602,6 @@ dissect_rnsap_INTEGER_0_100(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 100U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_transmittedCarrierPowerValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_100(tvb, offset, actx, tree, hf_rnsap_transmittedCarrierPowerValue);
-}
-static int dissect_uplinkLoadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_100(tvb, offset, actx, tree, hf_rnsap_uplinkLoadValue);
-}
-static int dissect_downlinkLoadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_100(tvb, offset, actx, tree, hf_rnsap_downlinkLoadValue);
-}
-static int dissect_uplinkRTLoadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_100(tvb, offset, actx, tree, hf_rnsap_uplinkRTLoadValue);
-}
-static int dissect_downlinkRTLoadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_100(tvb, offset, actx, tree, hf_rnsap_downlinkRTLoadValue);
 }
 
 
@@ -18814,9 +16618,6 @@ dissect_rnsap_LoadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
   return offset;
 }
-static int dissect_loadValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_LoadValue(tvb, offset, actx, tree, hf_rnsap_loadValue);
-}
 
 
 
@@ -18827,9 +16628,6 @@ dissect_rnsap_INTEGER_0_621(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_receivedTotalWideBandPowerValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_621(tvb, offset, actx, tree, hf_rnsap_receivedTotalWideBandPowerValue);
-}
 
 
 
@@ -18838,9 +16636,6 @@ dissect_rnsap_Extension_CommonMeasurementValue(tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_CommonMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_CommonMeasurementValue(tvb, offset, actx, tree, hf_rnsap_extension_CommonMeasurementValue);
 }
 
 
@@ -18874,9 +16669,6 @@ dissect_rnsap_CommonMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_commonMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementValue(tvb, offset, actx, tree, hf_rnsap_commonMeasurementValue);
-}
 
 
 static const per_sequence_t CommonMeasurementAvailable_sequence[] = {
@@ -18891,9 +16683,6 @@ dissect_rnsap_CommonMeasurementAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_CommonMeasurementAvailable, CommonMeasurementAvailable_sequence);
 
   return offset;
-}
-static int dissect_measurementAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementAvailable(tvb, offset, actx, tree, hf_rnsap_measurementAvailable);
 }
 
 
@@ -18917,9 +16706,6 @@ dissect_rnsap_CommonMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_commonMeasurementValueInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementValueInformation(tvb, offset, actx, tree, hf_rnsap_commonMeasurementValueInformation);
-}
 
 
 static const per_sequence_t Cell_CM_Rprt_sequence[] = {
@@ -18934,9 +16720,6 @@ dissect_rnsap_Cell_CM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                    ett_rnsap_Cell_CM_Rprt, Cell_CM_Rprt_sequence);
 
   return offset;
-}
-static int dissect_cell3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_CM_Rprt(tvb, offset, actx, tree, hf_rnsap_cell3);
 }
 
 
@@ -18971,15 +16754,6 @@ dissect_rnsap_TimeSlotLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_timeSlotLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimeSlotLCR(tvb, offset, actx, tree, hf_rnsap_timeSlotLCR);
-}
-static int dissect_timeslotLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimeSlotLCR(tvb, offset, actx, tree, hf_rnsap_timeslotLCR);
-}
-static int dissect_timeSlot1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TimeSlotLCR(tvb, offset, actx, tree, hf_rnsap_timeSlot1);
-}
 
 
 static const per_sequence_t NeighbouringFDDCellMeasurementInformation_sequence[] = {
@@ -18996,9 +16770,6 @@ dissect_rnsap_NeighbouringFDDCellMeasurementInformation(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_NeighbouringFDDCellMeasurementInformation, NeighbouringFDDCellMeasurementInformation_sequence);
 
   return offset;
-}
-static int dissect_neighbouringFDDCellMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NeighbouringFDDCellMeasurementInformation(tvb, offset, actx, tree, hf_rnsap_neighbouringFDDCellMeasurementInformation);
 }
 
 
@@ -19019,9 +16790,6 @@ dissect_rnsap_NeighbouringTDDCellMeasurementInformation(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_neighbouringTDDCellMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NeighbouringTDDCellMeasurementInformation(tvb, offset, actx, tree, hf_rnsap_neighbouringTDDCellMeasurementInformation);
-}
 
 
 
@@ -19030,9 +16798,6 @@ dissect_rnsap_Extension_neighbouringCellMeasurementInformation(tvbuff_t *tvb _U_
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_neighbouringCellMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_neighbouringCellMeasurementInformation(tvb, offset, actx, tree, hf_rnsap_extension_neighbouringCellMeasurementInformation);
 }
 
 
@@ -19058,9 +16823,6 @@ dissect_rnsap_NeighbouringCellMeasurementInfo_item(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_NeighbouringCellMeasurementInfo_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NeighbouringCellMeasurementInfo_item(tvb, offset, actx, tree, hf_rnsap_NeighbouringCellMeasurementInfo_item);
-}
 
 
 static const per_sequence_t NeighbouringCellMeasurementInfo_sequence_of[1] = {
@@ -19074,9 +16836,6 @@ dissect_rnsap_NeighbouringCellMeasurementInfo(tvbuff_t *tvb _U_, int offset _U_,
                                                   1, 96);
 
   return offset;
-}
-static int dissect_neighbouringCellMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NeighbouringCellMeasurementInfo(tvb, offset, actx, tree, hf_rnsap_neighbouringCellMeasurementInformation);
 }
 
 
@@ -19095,9 +16854,6 @@ dissect_rnsap_Cell_CM_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                    ett_rnsap_Cell_CM_Rqst, Cell_CM_Rqst_sequence);
 
   return offset;
-}
-static int dissect_cell1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_CM_Rqst(tvb, offset, actx, tree, hf_rnsap_cell1);
 }
 
 
@@ -19136,9 +16892,6 @@ dissect_rnsap_Cell_CM_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                    ett_rnsap_Cell_CM_Rsp, Cell_CM_Rsp_sequence);
 
   return offset;
-}
-static int dissect_cell2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_CM_Rsp(tvb, offset, actx, tree, hf_rnsap_cell2);
 }
 
 
@@ -19237,12 +16990,6 @@ dissect_rnsap_GA_AccessPointPositionwithOptionalAltitude(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_gA_AccessPointPositionwithAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_AccessPointPositionwithOptionalAltitude(tvb, offset, actx, tree, hf_rnsap_gA_AccessPointPositionwithAltitude);
-}
-static int dissect_sFNSFN_GA_AccessPointPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GA_AccessPointPositionwithOptionalAltitude(tvb, offset, actx, tree, hf_rnsap_sFNSFN_GA_AccessPointPosition);
-}
 
 
 static const value_string rnsap_IPSpacingFDD_vals[] = {
@@ -19265,9 +17012,6 @@ dissect_rnsap_IPSpacingFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_iPSpacingFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPSpacingFDD(tvb, offset, actx, tree, hf_rnsap_iPSpacingFDD);
-}
 
 
 static const value_string rnsap_IPLength_vals[] = {
@@ -19284,9 +17028,6 @@ dissect_rnsap_IPLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
   return offset;
 }
-static int dissect_iPLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPLength(tvb, offset, actx, tree, hf_rnsap_iPLength);
-}
 
 
 
@@ -19296,9 +17037,6 @@ dissect_rnsap_IPOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                               0U, 9U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_iPOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPOffset(tvb, offset, actx, tree, hf_rnsap_iPOffset);
 }
 
 
@@ -19310,9 +17048,6 @@ dissect_rnsap_Seed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_seed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Seed(tvb, offset, actx, tree, hf_rnsap_seed);
-}
 
 
 
@@ -19323,9 +17058,6 @@ dissect_rnsap_INTEGER_10_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_burstLength(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_10_25(tvb, offset, actx, tree, hf_rnsap_burstLength);
-}
 
 
 
@@ -19335,9 +17067,6 @@ dissect_rnsap_INTEGER_1_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               1U, 16U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_burstFreq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_16(tvb, offset, actx, tree, hf_rnsap_burstFreq);
 }
 
 
@@ -19355,9 +17084,6 @@ dissect_rnsap_BurstModeParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                    ett_rnsap_BurstModeParameters, BurstModeParameters_sequence);
 
   return offset;
-}
-static int dissect_burstModeParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BurstModeParameters(tvb, offset, actx, tree, hf_rnsap_burstModeParameters);
 }
 
 
@@ -19378,9 +17104,6 @@ dissect_rnsap_IPDL_FDD_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_iPDL_FDD_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPDL_FDD_Parameters(tvb, offset, actx, tree, hf_rnsap_iPDL_FDD_Parameters);
-}
 
 
 static const value_string rnsap_IPSpacingTDD_vals[] = {
@@ -19400,9 +17123,6 @@ dissect_rnsap_IPSpacingTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_iPSpacingTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPSpacingTDD(tvb, offset, actx, tree, hf_rnsap_iPSpacingTDD);
-}
 
 
 
@@ -19413,9 +17133,6 @@ dissect_rnsap_IPStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_iPStart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPStart(tvb, offset, actx, tree, hf_rnsap_iPStart);
-}
 
 
 
@@ -19425,9 +17142,6 @@ dissect_rnsap_IPSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                               0U, 14U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_iPSlot(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPSlot(tvb, offset, actx, tree, hf_rnsap_iPSlot);
 }
 
 
@@ -19444,9 +17158,6 @@ dissect_rnsap_IP_P_CCPCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_iP_P_CCPCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IP_P_CCPCH(tvb, offset, actx, tree, hf_rnsap_iP_P_CCPCH);
 }
 
 
@@ -19467,9 +17178,6 @@ dissect_rnsap_IPDL_TDD_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_iPDL_TDD_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPDL_TDD_Parameters(tvb, offset, actx, tree, hf_rnsap_iPDL_TDD_Parameters);
-}
 
 
 
@@ -19478,9 +17186,6 @@ dissect_rnsap_Extension_IPDLParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_IPDLParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_IPDLParameters(tvb, offset, actx, tree, hf_rnsap_extension_IPDLParameters);
 }
 
 
@@ -19506,9 +17211,6 @@ dissect_rnsap_IPDLParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_iPDLParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPDLParameters(tvb, offset, actx, tree, hf_rnsap_iPDLParameters);
-}
 
 
 
@@ -19518,9 +17220,6 @@ dissect_rnsap_GPSTOW(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                               0U, 604799U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_gPSTOW(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPSTOW(tvb, offset, actx, tree, hf_rnsap_gPSTOW);
 }
 
 
@@ -19543,9 +17242,6 @@ dissect_rnsap_GPS_Status_Health(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_gPS_Status_Health(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_Status_Health(tvb, offset, actx, tree, hf_rnsap_gPS_Status_Health);
-}
 
 
 
@@ -19556,12 +17252,6 @@ dissect_rnsap_SAT_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_badSAT_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SAT_ID(tvb, offset, actx, tree, hf_rnsap_badSAT_ID);
-}
-static int dissect_sAT_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SAT_ID(tvb, offset, actx, tree, hf_rnsap_sAT_ID);
-}
 
 
 
@@ -19571,69 +17261,6 @@ dissect_rnsap_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                      8, 8, FALSE, NULL);
 
   return offset;
-}
-static int dissect_iode_dgps(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_iode_dgps);
-}
-static int dissect_wna_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_wna_alm);
-}
-static int dissect_gps_toa_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_gps_toa_alm);
-}
-static int dissect_svhealth_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_svhealth_alm);
-}
-static int dissect_alpha_zero_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_alpha_zero_ionos);
-}
-static int dissect_alpha_one_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_alpha_one_ionos);
-}
-static int dissect_alpha_two_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_alpha_two_ionos);
-}
-static int dissect_alpha_three_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_alpha_three_ionos);
-}
-static int dissect_beta_zero_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_beta_zero_ionos);
-}
-static int dissect_beta_one_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_beta_one_ionos);
-}
-static int dissect_beta_two_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_beta_two_ionos);
-}
-static int dissect_beta_three_ionos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_beta_three_ionos);
-}
-static int dissect_t_gd_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_t_gd_nav);
-}
-static int dissect_a_f_2_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_a_f_2_nav);
-}
-static int dissect_t_ot_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_t_ot_utc);
-}
-static int dissect_delta_t_ls_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_delta_t_ls_utc);
-}
-static int dissect_w_n_t_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_w_n_t_utc);
-}
-static int dissect_w_n_lsf_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_w_n_lsf_utc);
-}
-static int dissect_dn_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_dn_utc);
-}
-static int dissect_delta_t_lsf_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_delta_t_lsf_utc);
-}
-static int dissect_sync_UL_codes_bitmap(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_8(tvb, offset, actx, tree, hf_rnsap_sync_UL_codes_bitmap);
 }
 
 
@@ -19653,9 +17280,6 @@ dissect_rnsap_UDRE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_uDRE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UDRE(tvb, offset, actx, tree, hf_rnsap_uDRE);
-}
 
 
 
@@ -19666,9 +17290,6 @@ dissect_rnsap_PRC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_pRC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PRC(tvb, offset, actx, tree, hf_rnsap_pRC);
-}
 
 
 
@@ -19678,9 +17299,6 @@ dissect_rnsap_Range_Correction_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               -127, 127U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_range_Correction_Rate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Range_Correction_Rate(tvb, offset, actx, tree, hf_rnsap_range_Correction_Rate);
 }
 
 
@@ -19701,9 +17319,6 @@ dissect_rnsap_T_satellite_DGPSCorrections_Information_item(tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_satellite_DGPSCorrections_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_satellite_DGPSCorrections_Information_item(tvb, offset, actx, tree, hf_rnsap_satellite_DGPSCorrections_Information_item);
-}
 
 
 static const per_sequence_t T_satellite_DGPSCorrections_Information_sequence_of[1] = {
@@ -19717,9 +17332,6 @@ dissect_rnsap_T_satellite_DGPSCorrections_Information(tvbuff_t *tvb _U_, int off
                                                   1, 16);
 
   return offset;
-}
-static int dissect_satellite_DGPSCorrections_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_satellite_DGPSCorrections_Information(tvb, offset, actx, tree, hf_rnsap_satellite_DGPSCorrections_Information);
 }
 
 
@@ -19738,9 +17350,6 @@ dissect_rnsap_DGPSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_dGPSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DGPSCorrections(tvb, offset, actx, tree, hf_rnsap_dGPSCorrections);
-}
 
 
 
@@ -19750,9 +17359,6 @@ dissect_rnsap_INTEGER_0_1048575(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               0U, 1048575U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tx_tow_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_1048575(tvb, offset, actx, tree, hf_rnsap_tx_tow_nav);
 }
 
 
@@ -19764,12 +17370,6 @@ dissect_rnsap_BIT_STRING_SIZE_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_tlm_message_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_14(tvb, offset, actx, tree, hf_rnsap_tlm_message_nav);
-}
-static int dissect_idot_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_14(tvb, offset, actx, tree, hf_rnsap_idot_nav);
-}
 
 
 
@@ -19779,12 +17379,6 @@ dissect_rnsap_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                      2, 2, FALSE, NULL);
 
   return offset;
-}
-static int dissect_tlm_revd_c_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_2(tvb, offset, actx, tree, hf_rnsap_tlm_revd_c_nav);
-}
-static int dissect_ca_or_p_on_l2_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_2(tvb, offset, actx, tree, hf_rnsap_ca_or_p_on_l2_nav);
 }
 
 
@@ -19796,12 +17390,6 @@ dissect_rnsap_BIT_STRING_SIZE_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_ho_word_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_22(tvb, offset, actx, tree, hf_rnsap_ho_word_nav);
-}
-static int dissect_a_f_zero_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_22(tvb, offset, actx, tree, hf_rnsap_a_f_zero_nav);
-}
 
 
 
@@ -19811,12 +17399,6 @@ dissect_rnsap_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      10, 10, FALSE, NULL);
 
   return offset;
-}
-static int dissect_w_n_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_10(tvb, offset, actx, tree, hf_rnsap_w_n_nav);
-}
-static int dissect_iodc_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_10(tvb, offset, actx, tree, hf_rnsap_iodc_nav);
 }
 
 
@@ -19828,9 +17410,6 @@ dissect_rnsap_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_user_range_accuracy_index_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_4(tvb, offset, actx, tree, hf_rnsap_user_range_accuracy_index_nav);
-}
 
 
 
@@ -19840,9 +17419,6 @@ dissect_rnsap_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                      6, 6, FALSE, NULL);
 
   return offset;
-}
-static int dissect_sv_health_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_6(tvb, offset, actx, tree, hf_rnsap_sv_health_nav);
 }
 
 
@@ -19854,12 +17430,6 @@ dissect_rnsap_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_l2_p_dataflag_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_1(tvb, offset, actx, tree, hf_rnsap_l2_p_dataflag_nav);
-}
-static int dissect_fit_interval_flag_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_1(tvb, offset, actx, tree, hf_rnsap_fit_interval_flag_nav);
-}
 
 
 
@@ -19869,9 +17439,6 @@ dissect_rnsap_BIT_STRING_SIZE_87(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      87, 87, FALSE, NULL);
 
   return offset;
-}
-static int dissect_sf1_reserved_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_87(tvb, offset, actx, tree, hf_rnsap_sf1_reserved_nav);
 }
 
 
@@ -19883,45 +17450,6 @@ dissect_rnsap_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_gps_e_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_gps_e_alm);
-}
-static int dissect_gps_delta_I_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_gps_delta_I_alm);
-}
-static int dissect_omegadot_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_omegadot_alm);
-}
-static int dissect_t_oc_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_t_oc_nav);
-}
-static int dissect_a_f_1_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_a_f_1_nav);
-}
-static int dissect_c_rs_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_rs_nav);
-}
-static int dissect_delta_n_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_delta_n_nav);
-}
-static int dissect_c_uc_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_uc_nav);
-}
-static int dissect_c_us_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_us_nav);
-}
-static int dissect_t_oe_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_t_oe_nav);
-}
-static int dissect_c_ic_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_ic_nav);
-}
-static int dissect_c_is_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_is_nav);
-}
-static int dissect_c_rc_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_16(tvb, offset, actx, tree, hf_rnsap_c_rc_nav);
-}
 
 
 
@@ -19931,27 +17459,6 @@ dissect_rnsap_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      32, 32, FALSE, NULL);
 
   return offset;
-}
-static int dissect_m_zero_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_m_zero_nav);
-}
-static int dissect_gps_e_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_gps_e_nav);
-}
-static int dissect_a_sqrt_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_a_sqrt_nav);
-}
-static int dissect_omega_zero_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_omega_zero_nav);
-}
-static int dissect_i_zero_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_i_zero_nav);
-}
-static int dissect_gps_omega_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_gps_omega_nav);
-}
-static int dissect_a_zero_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_32(tvb, offset, actx, tree, hf_rnsap_a_zero_utc);
 }
 
 
@@ -19963,9 +17470,6 @@ dissect_rnsap_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_aodo_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_5(tvb, offset, actx, tree, hf_rnsap_aodo_nav);
-}
 
 
 
@@ -19976,24 +17480,6 @@ dissect_rnsap_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_gps_a_sqrt_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_gps_a_sqrt_alm);
-}
-static int dissect_omegazero_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_omegazero_alm);
-}
-static int dissect_m_zero_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_m_zero_alm);
-}
-static int dissect_gps_omega_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_gps_omega_alm);
-}
-static int dissect_omegadot_nav(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_omegadot_nav);
-}
-static int dissect_a_one_utc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_24(tvb, offset, actx, tree, hf_rnsap_a_one_utc);
-}
 
 
 
@@ -20003,9 +17489,6 @@ dissect_rnsap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      20, 20, FALSE, NULL);
 
   return offset;
-}
-static int dissect_spare_zero_fill(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_20(tvb, offset, actx, tree, hf_rnsap_spare_zero_fill);
 }
 
 
@@ -20057,9 +17540,6 @@ dissect_rnsap_GPS_NavigationModel_and_TimeRecovery_item(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_GPS_NavigationModel_and_TimeRecovery_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_NavigationModel_and_TimeRecovery_item(tvb, offset, actx, tree, hf_rnsap_GPS_NavigationModel_and_TimeRecovery_item);
-}
 
 
 static const per_sequence_t GPS_NavigationModel_and_TimeRecovery_sequence_of[1] = {
@@ -20073,9 +17553,6 @@ dissect_rnsap_GPS_NavigationModel_and_TimeRecovery(tvbuff_t *tvb _U_, int offset
                                                   1, 16);
 
   return offset;
-}
-static int dissect_gPS_NavigationModel_and_TimeRecovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_NavigationModel_and_TimeRecovery(tvb, offset, actx, tree, hf_rnsap_gPS_NavigationModel_and_TimeRecovery);
 }
 
 
@@ -20099,9 +17576,6 @@ dissect_rnsap_GPS_Ionospheric_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_gPS_Ionospheric_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_Ionospheric_Model(tvb, offset, actx, tree, hf_rnsap_gPS_Ionospheric_Model);
-}
 
 
 static const per_sequence_t GPS_UTC_Model_sequence[] = {
@@ -20124,9 +17598,6 @@ dissect_rnsap_GPS_UTC_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_gPS_UTC_Model(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_UTC_Model(tvb, offset, actx, tree, hf_rnsap_gPS_UTC_Model);
-}
 
 
 
@@ -20137,9 +17608,6 @@ dissect_rnsap_DATA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_dATA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DATA_ID(tvb, offset, actx, tree, hf_rnsap_dATA_ID);
-}
 
 
 
@@ -20149,12 +17617,6 @@ dissect_rnsap_BIT_STRING_SIZE_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                      11, 11, FALSE, NULL);
 
   return offset;
-}
-static int dissect_gps_af_zero_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_11(tvb, offset, actx, tree, hf_rnsap_gps_af_zero_alm);
-}
-static int dissect_gps_af_one_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_11(tvb, offset, actx, tree, hf_rnsap_gps_af_one_alm);
 }
 
 
@@ -20183,9 +17645,6 @@ dissect_rnsap_T_satellite_Almanac_Information_item(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_satellite_Almanac_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_satellite_Almanac_Information_item(tvb, offset, actx, tree, hf_rnsap_satellite_Almanac_Information_item);
-}
 
 
 static const per_sequence_t T_satellite_Almanac_Information_sequence_of[1] = {
@@ -20200,9 +17659,6 @@ dissect_rnsap_T_satellite_Almanac_Information(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_satellite_Almanac_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_satellite_Almanac_Information(tvb, offset, actx, tree, hf_rnsap_satellite_Almanac_Information);
-}
 
 
 
@@ -20212,9 +17668,6 @@ dissect_rnsap_BIT_STRING_SIZE_364(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                      364, 364, FALSE, NULL);
 
   return offset;
-}
-static int dissect_sVGlobalHealth_alm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BIT_STRING_SIZE_364(tvb, offset, actx, tree, hf_rnsap_sVGlobalHealth_alm);
 }
 
 
@@ -20233,9 +17686,6 @@ dissect_rnsap_GPS_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_gPS_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_Almanac(tvb, offset, actx, tree, hf_rnsap_gPS_Almanac);
-}
 
 
 static const per_sequence_t T_badSatelliteInformation_item_sequence[] = {
@@ -20251,9 +17701,6 @@ dissect_rnsap_T_badSatelliteInformation_item(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_badSatelliteInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_badSatelliteInformation_item(tvb, offset, actx, tree, hf_rnsap_badSatelliteInformation_item);
-}
 
 
 static const per_sequence_t T_badSatelliteInformation_sequence_of[1] = {
@@ -20267,9 +17714,6 @@ dissect_rnsap_T_badSatelliteInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                                   1, 16);
 
   return offset;
-}
-static int dissect_badSatelliteInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_badSatelliteInformation(tvb, offset, actx, tree, hf_rnsap_badSatelliteInformation);
 }
 
 
@@ -20285,9 +17729,6 @@ dissect_rnsap_BadSatellites(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                    ett_rnsap_BadSatellites, BadSatellites_sequence);
 
   return offset;
-}
-static int dissect_badSatellites(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BadSatellites(tvb, offset, actx, tree, hf_rnsap_badSatellites);
 }
 
 
@@ -20311,9 +17752,6 @@ dissect_rnsap_GPS_RealTime_Integrity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_gPS_RealTime_Integrity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_RealTime_Integrity(tvb, offset, actx, tree, hf_rnsap_gPS_RealTime_Integrity);
-}
 
 
 static const per_sequence_t GPS_RX_POS_sequence[] = {
@@ -20329,9 +17767,6 @@ dissect_rnsap_GPS_RX_POS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                    ett_rnsap_GPS_RX_POS, GPS_RX_POS_sequence);
 
   return offset;
-}
-static int dissect_gPS_RX_POS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPS_RX_POS(tvb, offset, actx, tree, hf_rnsap_gPS_RX_POS);
 }
 
 
@@ -20357,9 +17792,6 @@ dissect_rnsap_RequestedDataValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_requestedDataValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RequestedDataValue(tvb, offset, actx, tree, hf_rnsap_requestedDataValue);
-}
 
 
 static const per_sequence_t InformationAvailable_sequence[] = {
@@ -20375,9 +17807,6 @@ dissect_rnsap_InformationAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_informationAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationAvailable(tvb, offset, actx, tree, hf_rnsap_informationAvailable);
-}
 
 
 
@@ -20386,9 +17815,6 @@ dissect_rnsap_InformationNotAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_informationNotAvailable(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationNotAvailable(tvb, offset, actx, tree, hf_rnsap_informationNotAvailable);
 }
 
 
@@ -20412,9 +17838,6 @@ dissect_rnsap_RequestedDataValueInformation(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_requestedDataValueInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RequestedDataValueInformation(tvb, offset, actx, tree, hf_rnsap_requestedDataValueInformation);
-}
 
 
 static const per_sequence_t Cell_InfEx_Rprt_sequence[] = {
@@ -20429,9 +17852,6 @@ dissect_rnsap_Cell_InfEx_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                    ett_rnsap_Cell_InfEx_Rprt, Cell_InfEx_Rprt_sequence);
 
   return offset;
-}
-static int dissect_cell6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_InfEx_Rprt(tvb, offset, actx, tree, hf_rnsap_cell6);
 }
 
 
@@ -20471,9 +17891,6 @@ dissect_rnsap_Cell_InfEx_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_cell4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_InfEx_Rqst(tvb, offset, actx, tree, hf_rnsap_cell4);
-}
 
 
 
@@ -20482,9 +17899,6 @@ dissect_rnsap_Extension_InformationExchangeObjectType_InfEx_Rqst(tvbuff_t *tvb _
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_InformationExchangeObjectType_InfEx_Rqst(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_InformationExchangeObjectType_InfEx_Rqst(tvb, offset, actx, tree, hf_rnsap_extension_InformationExchangeObjectType_InfEx_Rqst);
 }
 
 
@@ -20521,9 +17935,6 @@ dissect_rnsap_INTEGER_1_24_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_hour(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_24_(tvb, offset, actx, tree, hf_rnsap_hour);
-}
 
 
 static const value_string rnsap_InformationReportPeriodicity_vals[] = {
@@ -20546,9 +17957,6 @@ dissect_rnsap_InformationReportPeriodicity(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_informationReportPeriodicity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationReportPeriodicity(tvb, offset, actx, tree, hf_rnsap_informationReportPeriodicity);
-}
 
 
 static const per_sequence_t PeriodicInformation_sequence[] = {
@@ -20563,9 +17971,6 @@ dissect_rnsap_PeriodicInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                    ett_rnsap_PeriodicInformation, PeriodicInformation_sequence);
 
   return offset;
-}
-static int dissect_periodic(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PeriodicInformation(tvb, offset, actx, tree, hf_rnsap_periodic);
 }
 
 
@@ -20585,9 +17990,6 @@ dissect_rnsap_PRCDeviation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_pRCDeviation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PRCDeviation(tvb, offset, actx, tree, hf_rnsap_pRCDeviation);
-}
 
 
 static const per_sequence_t DGPSThreshold_sequence[] = {
@@ -20602,9 +18004,6 @@ dissect_rnsap_DGPSThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                    ett_rnsap_DGPSThreshold, DGPSThreshold_sequence);
 
   return offset;
-}
-static int dissect_dGPSThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DGPSThreshold(tvb, offset, actx, tree, hf_rnsap_dGPSThreshold);
 }
 
 
@@ -20626,9 +18025,6 @@ dissect_rnsap_InformationThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_informationThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationThreshold(tvb, offset, actx, tree, hf_rnsap_informationThreshold);
-}
 
 
 static const per_sequence_t OnModificationInformation_sequence[] = {
@@ -20643,9 +18039,6 @@ dissect_rnsap_OnModificationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                    ett_rnsap_OnModificationInformation, OnModificationInformation_sequence);
 
   return offset;
-}
-static int dissect_onModification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_OnModificationInformation(tvb, offset, actx, tree, hf_rnsap_onModification);
 }
 
 
@@ -20701,9 +18094,6 @@ dissect_rnsap_T_informationTypeItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_informationTypeItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_informationTypeItem(tvb, offset, actx, tree, hf_rnsap_informationTypeItem);
-}
 
 
 static const value_string rnsap_T_gPSInformationItem_vals[] = {
@@ -20723,9 +18113,6 @@ dissect_rnsap_T_gPSInformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_gPSInformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_gPSInformationItem(tvb, offset, actx, tree, hf_rnsap_gPSInformationItem);
-}
 
 
 static const per_sequence_t GPSInformation_item_sequence[] = {
@@ -20741,9 +18128,6 @@ dissect_rnsap_GPSInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_GPSInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPSInformation_item(tvb, offset, actx, tree, hf_rnsap_GPSInformation_item);
-}
 
 
 static const per_sequence_t GPSInformation_sequence_of[1] = {
@@ -20757,9 +18141,6 @@ dissect_rnsap_GPSInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                                   1, 8);
 
   return offset;
-}
-static int dissect_gPSInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GPSInformation(tvb, offset, actx, tree, hf_rnsap_gPSInformation);
 }
 
 
@@ -20799,9 +18180,6 @@ dissect_rnsap_RestrictionStateIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int dissect_id_RestrictionStateIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RestrictionStateIndicator(tvb, offset, actx, tree, hf_rnsap_id_RestrictionStateIndicator);
 }
-static int dissect_restrictionStateIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RestrictionStateIndicator(tvb, offset, actx, tree, hf_rnsap_restrictionStateIndicator);
-}
 
 
 static const per_sequence_t Neighbouring_LCR_TDD_CellInformationItem_sequence[] = {
@@ -20824,9 +18202,6 @@ dissect_rnsap_Neighbouring_LCR_TDD_CellInformationItem(tvbuff_t *tvb _U_, int of
                                    ett_rnsap_Neighbouring_LCR_TDD_CellInformationItem, Neighbouring_LCR_TDD_CellInformationItem_sequence);
 
   return offset;
-}
-static int dissect_Neighbouring_LCR_TDD_CellInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_LCR_TDD_CellInformationItem(tvb, offset, actx, tree, hf_rnsap_Neighbouring_LCR_TDD_CellInformation_item);
 }
 
 
@@ -20860,9 +18235,6 @@ dissect_rnsap_DL_TimeSlot_ISCP_LCR_InfoItem(tvbuff_t *tvb _U_, int offset _U_, a
                                    ett_rnsap_DL_TimeSlot_ISCP_LCR_InfoItem, DL_TimeSlot_ISCP_LCR_InfoItem_sequence);
 
   return offset;
-}
-static int dissect_DL_TimeSlot_ISCP_LCR_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeSlot_ISCP_LCR_InfoItem(tvb, offset, actx, tree, hf_rnsap_DL_TimeSlot_ISCP_LCR_Information_item);
 }
 
 
@@ -20905,9 +18277,6 @@ static int dissect_id_TUTRANGPSMeasurementThresholdInformation(tvbuff_t *tvb _U_
 static int dissect_id_UL_Timeslot_ISCP_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_UL_Timeslot_ISCP_Value(tvb, offset, actx, tree, hf_rnsap_id_UL_Timeslot_ISCP_Value);
 }
-static int dissect_iSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Timeslot_ISCP_Value(tvb, offset, actx, tree, hf_rnsap_iSCP);
-}
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_LCR_InfoItem_sequence[] = {
@@ -20924,9 +18293,6 @@ dissect_rnsap_UL_TimeSlot_ISCP_LCR_InfoItem(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_UL_TimeSlot_ISCP_LCR_Info_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeSlot_ISCP_LCR_InfoItem(tvb, offset, actx, tree, hf_rnsap_UL_TimeSlot_ISCP_LCR_Info_item);
-}
 
 
 static const per_sequence_t UL_TimeSlot_ISCP_LCR_Info_sequence_of[1] = {
@@ -20940,9 +18306,6 @@ dissect_rnsap_UL_TimeSlot_ISCP_LCR_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                                   1, 6);
 
   return offset;
-}
-static int dissect_ul_TimeSlot_ISCP_LCR_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeSlot_ISCP_LCR_Info(tvb, offset, actx, tree, hf_rnsap_ul_TimeSlot_ISCP_LCR_Info);
 }
 
 
@@ -20960,9 +18323,6 @@ dissect_rnsap_MidambleAllocationMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                      3, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_midambleAllocationMode3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleAllocationMode(tvb, offset, actx, tree, hf_rnsap_midambleAllocationMode3);
 }
 
 
@@ -20986,9 +18346,6 @@ dissect_rnsap_MidambleConfigurationLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_midambleConfigurationLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleConfigurationLCR(tvb, offset, actx, tree, hf_rnsap_midambleConfigurationLCR);
-}
 
 
 static const per_sequence_t MidambleShiftLCR_sequence[] = {
@@ -21006,9 +18363,6 @@ dissect_rnsap_MidambleShiftLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_midambleShiftLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MidambleShiftLCR(tvb, offset, actx, tree, hf_rnsap_midambleShiftLCR);
-}
 
 
 static const value_string rnsap_Modulation_vals[] = {
@@ -21025,9 +18379,6 @@ dissect_rnsap_Modulation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_modulation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Modulation(tvb, offset, actx, tree, hf_rnsap_modulation);
-}
 
 
 static const per_sequence_t TDD_ChannelisationCodeLCR_sequence[] = {
@@ -21043,12 +18394,6 @@ dissect_rnsap_TDD_ChannelisationCodeLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_tDD_ChannelisationCodeLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_ChannelisationCodeLCR(tvb, offset, actx, tree, hf_rnsap_tDD_ChannelisationCodeLCR);
-}
-static int dissect_tdd_ChannelisationCodeLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_ChannelisationCodeLCR(tvb, offset, actx, tree, hf_rnsap_tdd_ChannelisationCodeLCR);
-}
 
 
 
@@ -21059,9 +18404,6 @@ dissect_rnsap_QPSK_DL_DPCH_TimeSlotFormatTDD_LCR(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_qPSK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_QPSK_DL_DPCH_TimeSlotFormatTDD_LCR(tvb, offset, actx, tree, hf_rnsap_qPSK);
-}
 
 
 
@@ -21071,9 +18413,6 @@ dissect_rnsap_EightPSK_DL_DPCH_TimeSlotFormatTDD_LCR(tvbuff_t *tvb _U_, int offs
                                               0U, 24U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_eightPSK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EightPSK_DL_DPCH_TimeSlotFormatTDD_LCR(tvb, offset, actx, tree, hf_rnsap_eightPSK);
 }
 
 
@@ -21100,12 +18439,6 @@ dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb _U_, int offset _U_, 
 static int dissect_id_TDD_DL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR(tvb, offset, actx, tree, hf_rnsap_id_TDD_DL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD);
 }
-static int dissect_s_CCPCH_TimeSlotFormat_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR(tvb, offset, actx, tree, hf_rnsap_s_CCPCH_TimeSlotFormat_LCR);
-}
-static int dissect_tdd_DL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_DPCH_TimeSlotFormat_LCR(tvb, offset, actx, tree, hf_rnsap_tdd_DL_DPCH_TimeSlotFormat_LCR);
-}
 
 
 static const per_sequence_t Secondary_LCR_CCPCH_TDD_Code_InformationItem_sequence[] = {
@@ -21122,9 +18455,6 @@ dissect_rnsap_Secondary_LCR_CCPCH_TDD_Code_InformationItem(tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_Secondary_LCR_CCPCH_TDD_Code_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_LCR_CCPCH_TDD_Code_InformationItem(tvb, offset, actx, tree, hf_rnsap_Secondary_LCR_CCPCH_TDD_Code_Information_item);
-}
 
 
 static const per_sequence_t Secondary_LCR_CCPCH_TDD_Code_Information_sequence_of[1] = {
@@ -21138,9 +18468,6 @@ dissect_rnsap_Secondary_LCR_CCPCH_TDD_Code_Information(tvbuff_t *tvb _U_, int of
                                                   1, 8);
 
   return offset;
-}
-static int dissect_secondary_LCR_CCPCH_TDD_Code_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_LCR_CCPCH_TDD_Code_Information(tvb, offset, actx, tree, hf_rnsap_secondary_LCR_CCPCH_TDD_Code_Information);
 }
 
 
@@ -21163,9 +18490,6 @@ dissect_rnsap_Secondary_LCR_CCPCH_TDD_InformationItem(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_Secondary_LCR_CCPCH_TDD_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_LCR_CCPCH_TDD_InformationItem(tvb, offset, actx, tree, hf_rnsap_Secondary_LCR_CCPCH_TDD_InformationList_item);
-}
 
 
 static const per_sequence_t Secondary_LCR_CCPCH_TDD_InformationList_sequence_of[1] = {
@@ -21179,9 +18503,6 @@ dissect_rnsap_Secondary_LCR_CCPCH_TDD_InformationList(tvbuff_t *tvb _U_, int off
                                                   0, 8);
 
   return offset;
-}
-static int dissect_secondary_LCR_CCPCH_TDD_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_LCR_CCPCH_TDD_InformationList(tvb, offset, actx, tree, hf_rnsap_secondary_LCR_CCPCH_TDD_InformationList);
 }
 
 
@@ -21202,9 +18523,6 @@ dissect_rnsap_Secondary_LCR_CCPCH_Info_TDD(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_secondary_LCR_CCPCH_Info_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_LCR_CCPCH_Info_TDD(tvb, offset, actx, tree, hf_rnsap_secondary_LCR_CCPCH_Info_TDD);
-}
 
 
 
@@ -21213,9 +18531,6 @@ dissect_rnsap_UL_LCR_CCTrCHInformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ul_LCR_CCTrCHInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_LCR_CCTrCHInformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_LCR_CCTrCHInformation);
 }
 
 
@@ -21226,9 +18541,6 @@ dissect_rnsap_DL_LCR_CCTrCHInformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dl_LCR_CCTrCHInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_LCR_CCTrCHInformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_LCR_CCTrCHInformation);
-}
 
 
 
@@ -21238,9 +18550,6 @@ dissect_rnsap_DSCH_LCR_InformationResponse_RL_SetupRspTDD(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dsch_LCR_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_LCR_InformationResponse_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dsch_LCR_InformationResponse);
-}
 
 
 
@@ -21249,9 +18558,6 @@ dissect_rnsap_USCH_LCR_InformationResponse_RL_SetupRspTDD(tvbuff_t *tvb _U_, int
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_usch_LCR_InformationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_LCR_InformationResponse_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_usch_LCR_InformationResponse);
 }
 
 
@@ -21305,9 +18611,6 @@ dissect_rnsap_UL_DPCH_LCR_InformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ul_DPCH_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_LCR_InformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_LCR_Information);
-}
 
 
 static const per_sequence_t UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD_sequence[] = {
@@ -21323,9 +18626,6 @@ dissect_rnsap_UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int
                                    ett_rnsap_UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD, UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_LCR_CCTrCHInformationListIE_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_LCR_CCTrCHInformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_UL_LCR_CCTrCHInformationListIE_RL_SetupRspTDD_item);
 }
 
 
@@ -21354,9 +18654,6 @@ dissect_rnsap_QPSK_UL_DPCH_TimeSlotFormatTDD_LCR(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_qPSK1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_QPSK_UL_DPCH_TimeSlotFormatTDD_LCR(tvb, offset, actx, tree, hf_rnsap_qPSK1);
-}
 
 
 
@@ -21366,9 +18663,6 @@ dissect_rnsap_EightPSK_UL_DPCH_TimeSlotFormatTDD_LCR(tvbuff_t *tvb _U_, int offs
                                               0U, 24U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_eightPSK1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EightPSK_UL_DPCH_TimeSlotFormatTDD_LCR(tvb, offset, actx, tree, hf_rnsap_eightPSK1);
 }
 
 
@@ -21395,9 +18689,6 @@ dissect_rnsap_TDD_UL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb _U_, int offset _U_, 
 static int dissect_id_TDD_UL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TDD_UL_DPCH_TimeSlotFormat_LCR(tvb, offset, actx, tree, hf_rnsap_id_TDD_UL_DPCH_TimeSlotFormatModifyItem_LCR_RL_ReconfReadyTDD);
 }
-static int dissect_tdd_UL_DPCH_TimeSlotFormat_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_DPCH_TimeSlotFormat_LCR(tvb, offset, actx, tree, hf_rnsap_tdd_UL_DPCH_TimeSlotFormat_LCR);
-}
 
 
 static const per_sequence_t TDD_UL_Code_LCR_InformationItem_sequence[] = {
@@ -21415,9 +18706,6 @@ dissect_rnsap_TDD_UL_Code_LCR_InformationItem(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_TDD_UL_Code_LCR_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_LCR_InformationItem(tvb, offset, actx, tree, hf_rnsap_TDD_UL_Code_LCR_Information_item);
-}
 
 
 static const per_sequence_t TDD_UL_Code_LCR_Information_sequence_of[1] = {
@@ -21431,12 +18719,6 @@ dissect_rnsap_TDD_UL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn
                                                   1, 240);
 
   return offset;
-}
-static int dissect_uL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_LCR_Information(tvb, offset, actx, tree, hf_rnsap_uL_Code_LCR_Information);
-}
-static int dissect_uL_Code_LCR_InformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_LCR_Information(tvb, offset, actx, tree, hf_rnsap_uL_Code_LCR_InformationList);
 }
 
 
@@ -21456,9 +18738,6 @@ dissect_rnsap_UL_TimeslotLCR_InformationItem(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_UL_TimeslotLCR_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotLCR_InformationItem(tvb, offset, actx, tree, hf_rnsap_UL_TimeslotLCR_Information_item);
-}
 
 
 static const per_sequence_t UL_TimeslotLCR_Information_sequence_of[1] = {
@@ -21472,12 +18751,6 @@ dissect_rnsap_UL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1
                                                   1, 6);
 
   return offset;
-}
-static int dissect_uL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotLCR_Information(tvb, offset, actx, tree, hf_rnsap_uL_TimeslotLCR_Information);
-}
-static int dissect_uL_TimeslotLCR_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotLCR_Information(tvb, offset, actx, tree, hf_rnsap_uL_TimeslotLCR_Info);
 }
 
 
@@ -21509,9 +18782,6 @@ dissect_rnsap_DL_DPCH_LCR_InformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_dl_DPCH_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_LCR_InformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_LCR_Information);
-}
 
 
 static const per_sequence_t DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD_sequence[] = {
@@ -21527,9 +18797,6 @@ dissect_rnsap_DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, in
                                    ett_rnsap_DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD, DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCH_LCR_InformationListIE_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_LCR_InformationListIE_RL_SetupRspTDD_item);
 }
 
 
@@ -21565,9 +18832,6 @@ dissect_rnsap_TDD_DL_Code_LCR_InformationItem(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_TDD_DL_Code_LCR_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_LCR_InformationItem(tvb, offset, actx, tree, hf_rnsap_TDD_DL_Code_LCR_Information_item);
-}
 
 
 static const per_sequence_t TDD_DL_Code_LCR_Information_sequence_of[1] = {
@@ -21581,9 +18845,6 @@ dissect_rnsap_TDD_DL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn
                                                   1, 240);
 
   return offset;
-}
-static int dissect_dL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_LCR_Information(tvb, offset, actx, tree, hf_rnsap_dL_Code_LCR_Information);
 }
 
 
@@ -21603,9 +18864,6 @@ dissect_rnsap_DL_TimeslotLCR_InformationItem(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_DL_TimeslotLCR_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_InformationItem(tvb, offset, actx, tree, hf_rnsap_DL_TimeslotLCR_Information_item);
-}
 
 
 static const per_sequence_t DL_TimeslotLCR_Information_sequence_of[1] = {
@@ -21619,15 +18877,6 @@ dissect_rnsap_DL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1
                                                   1, 6);
 
   return offset;
-}
-static int dissect_dL_Timeslot_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_Information(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_LCR_Information);
-}
-static int dissect_dL_TimeslotLCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_Information(tvb, offset, actx, tree, hf_rnsap_dL_TimeslotLCR_Information);
-}
-static int dissect_dL_TimeslotLCR_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_Information(tvb, offset, actx, tree, hf_rnsap_dL_TimeslotLCR_Info);
 }
 
 
@@ -21644,9 +18893,6 @@ dissect_rnsap_TSTD_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                      2, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_tSTD_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TSTD_Indicator(tvb, offset, actx, tree, hf_rnsap_tSTD_Indicator);
 }
 
 
@@ -21689,9 +18935,6 @@ dissect_rnsap_DSCH_LCR_InformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_DSCH_LCR_InformationListIEs_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_LCR_InformationListIEs_RL_SetupRspTDD_item);
-}
 
 
 static const per_sequence_t DSCH_LCR_InformationListIEs_RL_SetupRspTDD_sequence_of[1] = {
@@ -21727,9 +18970,6 @@ dissect_rnsap_USCH_LCR_InformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_USCH_LCR_InformationListIEs_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_LCR_InformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_USCH_LCR_InformationListIEs_RL_SetupRspTDD_item);
-}
 
 
 static const per_sequence_t USCH_LCR_InformationListIEs_RL_SetupRspTDD_sequence_of[1] = {
@@ -21756,9 +18996,6 @@ dissect_rnsap_UL_CCTrCH_LCR_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ul_CCTrCH_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_LCR_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_CCTrCH_LCR_Information);
-}
 
 
 
@@ -21767,9 +19004,6 @@ dissect_rnsap_DL_CCTrCH_LCR_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_,
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_dl_CCTrCH_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_LCR_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_CCTrCH_LCR_Information);
 }
 
 
@@ -21780,9 +19014,6 @@ dissect_rnsap_DCH_InformationResponseList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_dCH_InformationResponse2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DCH_InformationResponseList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dCH_InformationResponse2);
-}
 
 
 
@@ -21792,9 +19023,6 @@ dissect_rnsap_DSCH_LCR_InformationResponse_RL_AdditionRspTDD(tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_dsch_LCR_InformationResponse1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_LCR_InformationResponse_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dsch_LCR_InformationResponse1);
-}
 
 
 
@@ -21803,9 +19031,6 @@ dissect_rnsap_USCH_LCR_InformationResponse_RL_AdditionRspTDD(tvbuff_t *tvb _U_, 
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_usch_LCR_InformationResponse1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_LCR_InformationResponse_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_usch_LCR_InformationResponse1);
 }
 
 
@@ -21856,9 +19081,6 @@ dissect_rnsap_UL_DPCH_LCR_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_ul_DPCH_LCR_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_DPCH_LCR_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_ul_DPCH_LCR_Information1);
-}
 
 
 static const per_sequence_t UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequence[] = {
@@ -21874,9 +19096,6 @@ dissect_rnsap_UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_,
                                    ett_rnsap_UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD, UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_UL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -21925,9 +19144,6 @@ dissect_rnsap_DL_DPCH_LCR_InformationList_RL_AdditionRspTDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_dl_DPCH_LCR_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_LCR_InformationList_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_LCR_Information1);
-}
 
 
 static const per_sequence_t DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequence[] = {
@@ -21943,9 +19159,6 @@ dissect_rnsap_DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_,
                                    ett_rnsap_DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD, DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_LCR_InformationListIE_RL_AdditionRspTDD_item);
 }
 
 
@@ -22005,9 +19218,6 @@ dissect_rnsap_DSCH_LCR_InformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_DSCH_LCR_InformationListIEs_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DSCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_DSCH_LCR_InformationListIEs_RL_AdditionRspTDD_item);
-}
 
 
 static const per_sequence_t DSCH_LCR_InformationListIEs_RL_AdditionRspTDD_sequence_of[1] = {
@@ -22041,9 +19251,6 @@ dissect_rnsap_USCH_LCR_InformationItem_RL_AdditionRspTDD(tvbuff_t *tvb _U_, int 
                                    ett_rnsap_USCH_LCR_InformationItem_RL_AdditionRspTDD, USCH_LCR_InformationItem_RL_AdditionRspTDD_sequence);
 
   return offset;
-}
-static int dissect_USCH_LCR_InformationListIEs_RL_AdditionRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_USCH_LCR_InformationItem_RL_AdditionRspTDD(tvb, offset, actx, tree, hf_rnsap_USCH_LCR_InformationListIEs_RL_AdditionRspTDD_item);
 }
 
 
@@ -22099,9 +19306,6 @@ dissect_rnsap_TDD_UL_Code_LCR_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *
 
   return offset;
 }
-static int dissect_TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_LCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -22115,9 +19319,6 @@ dissect_rnsap_TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *
                                                   1, 240);
 
   return offset;
-}
-static int dissect_tDD_uL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_UL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_tDD_uL_Code_LCR_Information);
 }
 
 
@@ -22136,9 +19337,6 @@ dissect_rnsap_UL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *t
                                    ett_rnsap_UL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD, UL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD_sequence);
 
   return offset;
-}
-static int dissect_UL_TimeslotLCR_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_UL_TimeslotLCR_InformationModifyList_RL_ReconfReadyTDD_item);
 }
 
 
@@ -22194,9 +19392,6 @@ dissect_rnsap_TDD_DL_Code_LCR_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *
 
   return offset;
 }
-static int dissect_TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_LCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_item);
-}
 
 
 static const per_sequence_t TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD_sequence_of[1] = {
@@ -22210,9 +19405,6 @@ dissect_rnsap_TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD(tvbuff_t *
                                                   1, 240);
 
   return offset;
-}
-static int dissect_tDD_dL_Code_LCR_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_DL_Code_LCR_InformationModifyList_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_tDD_dL_Code_LCR_Information);
 }
 
 
@@ -22231,9 +19423,6 @@ dissect_rnsap_DL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvbuff_t *t
                                    ett_rnsap_DL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD, DL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_TimeslotLCR_InformationModifyList_RL_ReconfReadyTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_InformationModifyItem_RL_ReconfReadyTDD(tvb, offset, actx, tree, hf_rnsap_DL_TimeslotLCR_InformationModifyList_RL_ReconfReadyTDD_item);
 }
 
 
@@ -22270,9 +19459,6 @@ dissect_rnsap_UL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_UL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_UL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_item);
-}
 
 
 static const per_sequence_t UL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_sequence_of[1] = {
@@ -22307,9 +19493,6 @@ dissect_rnsap_DL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb _U
                                    ett_rnsap_DL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD, DL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_TimeslotLCR_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_DL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_item);
 }
 
 
@@ -22413,9 +19596,6 @@ dissect_rnsap_SFNSFNChangeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_sFNSFNChangeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SFNSFNChangeLimit(tvb, offset, actx, tree, hf_rnsap_sFNSFNChangeLimit);
-}
 
 
 
@@ -22425,9 +19605,6 @@ dissect_rnsap_PredictedSFNSFNDeviationLimit(tvbuff_t *tvb _U_, int offset _U_, a
                                               1U, 256U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_predictedSFNSFNDeviationLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PredictedSFNSFNDeviationLimit(tvb, offset, actx, tree, hf_rnsap_predictedSFNSFNDeviationLimit);
 }
 
 
@@ -22550,9 +19727,6 @@ dissect_rnsap_DL_ReferencePowerInformationItem(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_DL_ReferencePowerInformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ReferencePowerInformationItem(tvb, offset, actx, tree, hf_rnsap_DL_ReferencePowerInformationList_item);
-}
 
 
 static const per_sequence_t DL_ReferencePowerInformationList_sequence_of[1] = {
@@ -22566,12 +19740,6 @@ dissect_rnsap_DL_ReferencePowerInformationList(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 16);
 
   return offset;
-}
-static int dissect_dLReferencePowerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ReferencePowerInformationList(tvb, offset, actx, tree, hf_rnsap_dLReferencePowerList);
-}
-static int dissect_individual_DL_ReferencePowerInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_ReferencePowerInformationList(tvb, offset, actx, tree, hf_rnsap_individual_DL_ReferencePowerInformation);
 }
 
 
@@ -22681,9 +19849,6 @@ dissect_rnsap_IPSub(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_iPSub(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPSub(tvb, offset, actx, tree, hf_rnsap_iPSub);
-}
 
 
 static const per_sequence_t IPDL_TDD_ParametersLCR_sequence[] = {
@@ -22761,9 +19926,6 @@ dissect_rnsap_RL_Specific_DCH_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_RL_Specific_DCH_Info_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Specific_DCH_Info_Item(tvb, offset, actx, tree, hf_rnsap_RL_Specific_DCH_Info_item);
-}
 
 
 static const per_sequence_t RL_Specific_DCH_Info_sequence_of[1] = {
@@ -22780,9 +19942,6 @@ dissect_rnsap_RL_Specific_DCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 static int dissect_id_RL_Specific_DCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_Specific_DCH_Info(tvb, offset, actx, tree, hf_rnsap_id_RL_Specific_DCH_Info);
-}
-static int dissect_rL_Specific_DCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Specific_DCH_Info(tvb, offset, actx, tree, hf_rnsap_rL_Specific_DCH_Info);
 }
 
 
@@ -22838,9 +19997,6 @@ dissect_rnsap_RL_ReconfigurationRequestTDD_RL_Information(tvbuff_t *tvb _U_, int
 }
 static int dissect_id_RL_ReconfigurationRequestTDD_RL_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_RL_ReconfigurationRequestTDD_RL_Information(tvb, offset, actx, tree, hf_rnsap_id_RL_ReconfigurationRequestTDD_RL_Information);
-}
-static int dissect_Multiple_RL_ReconfigurationRequestTDD_RL_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_ReconfigurationRequestTDD_RL_Information(tvb, offset, actx, tree, hf_rnsap_Multiple_RL_ReconfigurationRequestTDD_RL_Information_item);
 }
 
 
@@ -22924,12 +20080,6 @@ dissect_rnsap_Execution_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_activation_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Execution_Type(tvb, offset, actx, tree, hf_rnsap_activation_type);
-}
-static int dissect_deactivation_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Execution_Type(tvb, offset, actx, tree, hf_rnsap_deactivation_type);
-}
 
 
 static const per_sequence_t Activate_Info_sequence[] = {
@@ -22948,9 +20098,6 @@ dissect_rnsap_Activate_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_activate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Activate_Info(tvb, offset, actx, tree, hf_rnsap_activate);
-}
 
 
 static const per_sequence_t Deactivate_Info_sequence[] = {
@@ -22965,9 +20112,6 @@ dissect_rnsap_Deactivate_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
                                    ett_rnsap_Deactivate_Info, Deactivate_Info_sequence);
 
   return offset;
-}
-static int dissect_deactivate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Deactivate_Info(tvb, offset, actx, tree, hf_rnsap_deactivate);
 }
 
 
@@ -22990,9 +20134,6 @@ dissect_rnsap_DelayedActivationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                  NULL);
 
   return offset;
-}
-static int dissect_delayed_activation_update(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DelayedActivationUpdate(tvb, offset, actx, tree, hf_rnsap_delayed_activation_update);
 }
 
 
@@ -23081,15 +20222,6 @@ dissect_rnsap_HSDSCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_hSDSCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_ID(tvb, offset, actx, tree, hf_rnsap_hSDSCH_MACdFlow_ID);
-}
-static int dissect_hsDSCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_ID(tvb, offset, actx, tree, hf_rnsap_hsDSCH_MACdFlow_ID);
-}
-static int dissect_associatedHSDSCH_MACdFlow(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_ID(tvb, offset, actx, tree, hf_rnsap_associatedHSDSCH_MACdFlow);
-}
 
 
 static const value_string rnsap_TrafficClass_vals[] = {
@@ -23111,9 +20243,6 @@ dissect_rnsap_TrafficClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int dissect_id_TrafficClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TrafficClass(tvb, offset, actx, tree, hf_rnsap_id_TrafficClass);
 }
-static int dissect_trafficClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TrafficClass(tvb, offset, actx, tree, hf_rnsap_trafficClass);
-}
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoItem_sequence[] = {
@@ -23133,9 +20262,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_HSDSCH_MACdFlow_Specific_InfoList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem(tvb, offset, actx, tree, hf_rnsap_HSDSCH_MACdFlow_Specific_InfoList_item);
-}
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoList_sequence_of[1] = {
@@ -23150,9 +20276,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_hSDSCH_MACdFlow_Specific_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList(tvb, offset, actx, tree, hf_rnsap_hSDSCH_MACdFlow_Specific_Info);
-}
 
 
 
@@ -23162,15 +20285,6 @@ dissect_rnsap_PriorityQueue_Id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                               0U, 7U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_deletePriorityQueue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_Id(tvb, offset, actx, tree, hf_rnsap_deletePriorityQueue);
-}
-static int dissect_priorityQueue_Id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_Id(tvb, offset, actx, tree, hf_rnsap_priorityQueue_Id);
-}
-static int dissect_priorityQueueId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_Id(tvb, offset, actx, tree, hf_rnsap_priorityQueueId);
 }
 
 
@@ -23201,9 +20315,6 @@ dissect_rnsap_T1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
                                      16, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_t1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T1(tvb, offset, actx, tree, hf_rnsap_t1);
 }
 
 
@@ -23246,9 +20357,6 @@ dissect_rnsap_DiscardTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   return offset;
 }
-static int dissect_discardTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DiscardTimer(tvb, offset, actx, tree, hf_rnsap_discardTimer);
-}
 
 
 static const value_string rnsap_MAC_hsWindowSize_vals[] = {
@@ -23270,9 +20378,6 @@ dissect_rnsap_MAC_hsWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_mAC_hsWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MAC_hsWindowSize(tvb, offset, actx, tree, hf_rnsap_mAC_hsWindowSize);
-}
 
 
 
@@ -23282,9 +20387,6 @@ dissect_rnsap_MAChsGuaranteedBitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                               0U, 16777215U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_mAChsGuaranteedBitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MAChsGuaranteedBitRate(tvb, offset, actx, tree, hf_rnsap_mAChsGuaranteedBitRate);
 }
 
 
@@ -23296,9 +20398,6 @@ dissect_rnsap_SID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
   return offset;
 }
-static int dissect_sID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SID(tvb, offset, actx, tree, hf_rnsap_sID);
-}
 
 
 
@@ -23308,12 +20407,6 @@ dissect_rnsap_MACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               1U, 5000U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_mACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size(tvb, offset, actx, tree, hf_rnsap_mACdPDU_Size);
-}
-static int dissect_maximum_MACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size(tvb, offset, actx, tree, hf_rnsap_maximum_MACdPDU_Size);
 }
 
 
@@ -23331,9 +20424,6 @@ dissect_rnsap_MACdPDU_Size_IndexItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_MACdPDU_Size_IndexList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size_IndexItem(tvb, offset, actx, tree, hf_rnsap_MACdPDU_Size_IndexList_item);
-}
 
 
 static const per_sequence_t MACdPDU_Size_IndexList_sequence_of[1] = {
@@ -23347,9 +20437,6 @@ dissect_rnsap_MACdPDU_Size_IndexList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                                   1, 8);
 
   return offset;
-}
-static int dissect_mACdPDU_Size_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size_IndexList(tvb, offset, actx, tree, hf_rnsap_mACdPDU_Size_Index);
 }
 
 
@@ -23366,9 +20453,6 @@ dissect_rnsap_RLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                      2, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_rLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RLC_Mode(tvb, offset, actx, tree, hf_rnsap_rLC_Mode);
 }
 
 
@@ -23393,9 +20477,6 @@ dissect_rnsap_PriorityQueue_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_PriorityQueue_InfoList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoItem(tvb, offset, actx, tree, hf_rnsap_PriorityQueue_InfoList_item);
-}
 
 
 static const per_sequence_t PriorityQueue_InfoList_sequence_of[1] = {
@@ -23409,9 +20490,6 @@ dissect_rnsap_PriorityQueue_InfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                                   1, 8);
 
   return offset;
-}
-static int dissect_priorityQueue_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoList(tvb, offset, actx, tree, hf_rnsap_priorityQueue_Info);
 }
 
 
@@ -23432,9 +20510,6 @@ dissect_rnsap_HSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, as
 static int dissect_id_HSDSCH_MACdFlows_to_Add(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_HSDSCH_MACdFlows_Information(tvb, offset, actx, tree, hf_rnsap_id_HSDSCH_MACdFlows_to_Add);
 }
-static int dissect_hSDSCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlows_Information(tvb, offset, actx, tree, hf_rnsap_hSDSCH_MACdFlows_Information);
-}
 
 
 
@@ -23444,9 +20519,6 @@ dissect_rnsap_INTEGER_1_64_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               1U, 64U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_64_(tvb, offset, actx, tree, hf_rnsap_hSDSCH_Physical_Layer_Category);
 }
 
 
@@ -23463,9 +20535,6 @@ dissect_rnsap_UE_Capabilities_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_uE_Capabilities_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UE_Capabilities_Info(tvb, offset, actx, tree, hf_rnsap_uE_Capabilities_Info);
-}
 
 
 
@@ -23475,9 +20544,6 @@ dissect_rnsap_MAChsReorderingBufferSize_for_RLC_UM(tvbuff_t *tvb _U_, int offset
                                               0U, 300U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_mAChs_Reordering_Buffer_Size_for_RLC_UM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MAChsReorderingBufferSize_for_RLC_UM(tvb, offset, actx, tree, hf_rnsap_mAChs_Reordering_Buffer_Size_for_RLC_UM);
 }
 
 
@@ -23502,9 +20568,6 @@ dissect_rnsap_CQI_Feedback_Cycle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_cqiFeedback_CycleK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CQI_Feedback_Cycle(tvb, offset, actx, tree, hf_rnsap_cqiFeedback_CycleK);
-}
 
 
 
@@ -23514,9 +20577,6 @@ dissect_rnsap_CQI_RepetitionFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                               1U, 4U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_cqiRepetitionFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CQI_RepetitionFactor(tvb, offset, actx, tree, hf_rnsap_cqiRepetitionFactor);
 }
 
 
@@ -23528,9 +20588,6 @@ dissect_rnsap_AckNack_RepetitionFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_ackNackRepetitionFactor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AckNack_RepetitionFactor(tvb, offset, actx, tree, hf_rnsap_ackNackRepetitionFactor);
-}
 
 
 
@@ -23540,9 +20597,6 @@ dissect_rnsap_CQI_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                               0U, 8U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_cqiPowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CQI_Power_Offset(tvb, offset, actx, tree, hf_rnsap_cqiPowerOffset);
 }
 
 
@@ -23554,9 +20608,6 @@ dissect_rnsap_Ack_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_ackPowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Ack_Power_Offset(tvb, offset, actx, tree, hf_rnsap_ackPowerOffset);
-}
 
 
 
@@ -23567,9 +20618,6 @@ dissect_rnsap_Nack_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_nackPowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Nack_Power_Offset(tvb, offset, actx, tree, hf_rnsap_nackPowerOffset);
-}
 
 
 
@@ -23579,9 +20627,6 @@ dissect_rnsap_HSSCCH_PowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                               0U, 255U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_hsscch_PowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_PowerOffset(tvb, offset, actx, tree, hf_rnsap_hsscch_PowerOffset);
 }
 
 
@@ -23620,9 +20665,6 @@ dissect_rnsap_HSDSCH_InitialWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_hSDSCH_InitialWindowSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_InitialWindowSize(tvb, offset, actx, tree, hf_rnsap_hSDSCH_InitialWindowSize);
-}
 
 
 static const per_sequence_t HSDSCH_Initial_Capacity_AllocationItem_sequence[] = {
@@ -23640,9 +20682,6 @@ dissect_rnsap_HSDSCH_Initial_Capacity_AllocationItem(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_HSDSCH_Initial_Capacity_Allocation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_Initial_Capacity_AllocationItem(tvb, offset, actx, tree, hf_rnsap_HSDSCH_Initial_Capacity_Allocation_item);
-}
 
 
 static const per_sequence_t HSDSCH_Initial_Capacity_Allocation_sequence_of[1] = {
@@ -23656,9 +20695,6 @@ dissect_rnsap_HSDSCH_Initial_Capacity_Allocation(tvbuff_t *tvb _U_, int offset _
                                                   1, 8);
 
   return offset;
-}
-static int dissect_hSDSCH_Initial_Capacity_Allocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_Initial_Capacity_Allocation(tvb, offset, actx, tree, hf_rnsap_hSDSCH_Initial_Capacity_Allocation);
 }
 
 
@@ -23678,9 +20714,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem_Response(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_HSDSCH_MACdFlow_Specific_InfoList_Response_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem_Response(tvb, offset, actx, tree, hf_rnsap_HSDSCH_MACdFlow_Specific_InfoList_Response_item);
-}
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoList_Response_sequence_of[1] = {
@@ -23694,9 +20727,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList_Response(tvbuff_t *tvb _U_, int 
                                                   0, 8);
 
   return offset;
-}
-static int dissect_hSDSCH_MACdFlow_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList_Response(tvb, offset, actx, tree, hf_rnsap_hSDSCH_MACdFlow_Specific_InfoList_Response);
 }
 
 
@@ -23713,9 +20743,6 @@ dissect_rnsap_HSSCCH_FDD_Specific_InfoItem_Response(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_HSSCCH_FDD_Specific_InfoList_Response_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_FDD_Specific_InfoItem_Response(tvb, offset, actx, tree, hf_rnsap_HSSCCH_FDD_Specific_InfoList_Response_item);
-}
 
 
 static const per_sequence_t HSSCCH_FDD_Specific_InfoList_Response_sequence_of[1] = {
@@ -23730,9 +20757,6 @@ dissect_rnsap_HSSCCH_FDD_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_hSSCCH_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_FDD_Specific_InfoList_Response(tvb, offset, actx, tree, hf_rnsap_hSSCCH_Specific_InfoList_Response);
-}
 
 
 
@@ -23743,9 +20767,6 @@ dissect_rnsap_Measurement_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_measurement_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Measurement_Power_Offset(tvb, offset, actx, tree, hf_rnsap_measurement_Power_Offset);
-}
 
 
 
@@ -23755,9 +20776,6 @@ dissect_rnsap_INTEGER_1_8_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               1U, 8U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_number_of_Processes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_8_(tvb, offset, actx, tree, hf_rnsap_number_of_Processes);
 }
 
 
@@ -23773,9 +20791,6 @@ dissect_rnsap_HARQ_MemoryPartitioning_Implicit(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_HARQ_MemoryPartitioning_Implicit, HARQ_MemoryPartitioning_Implicit_sequence);
 
   return offset;
-}
-static int dissect_implicit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_MemoryPartitioning_Implicit(tvb, offset, actx, tree, hf_rnsap_implicit);
 }
 
 
@@ -23852,9 +20867,6 @@ dissect_rnsap_T_process_Memory_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_process_Memory_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_process_Memory_Size(tvb, offset, actx, tree, hf_rnsap_process_Memory_Size);
-}
 
 
 static const per_sequence_t HARQ_MemoryPartitioningItem_sequence[] = {
@@ -23870,9 +20882,6 @@ dissect_rnsap_HARQ_MemoryPartitioningItem(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_HARQ_MemoryPartitioningList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_MemoryPartitioningItem(tvb, offset, actx, tree, hf_rnsap_HARQ_MemoryPartitioningList_item);
-}
 
 
 static const per_sequence_t HARQ_MemoryPartitioningList_sequence_of[1] = {
@@ -23886,9 +20895,6 @@ dissect_rnsap_HARQ_MemoryPartitioningList(tvbuff_t *tvb _U_, int offset _U_, asn
                                                   1, 8);
 
   return offset;
-}
-static int dissect_hARQ_MemoryPartitioningList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_MemoryPartitioningList(tvb, offset, actx, tree, hf_rnsap_hARQ_MemoryPartitioningList);
 }
 
 
@@ -23904,9 +20910,6 @@ dissect_rnsap_HARQ_MemoryPartitioning_Explicit(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_HARQ_MemoryPartitioning_Explicit, HARQ_MemoryPartitioning_Explicit_sequence);
 
   return offset;
-}
-static int dissect_explicit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_MemoryPartitioning_Explicit(tvb, offset, actx, tree, hf_rnsap_explicit);
 }
 
 
@@ -23929,9 +20932,6 @@ dissect_rnsap_HARQ_MemoryPartitioning(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                  NULL);
 
   return offset;
-}
-static int dissect_hARQ_MemoryPartitioning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_MemoryPartitioning(tvb, offset, actx, tree, hf_rnsap_hARQ_MemoryPartitioning);
 }
 
 
@@ -23969,9 +20969,6 @@ dissect_rnsap_HSSCCH_CodeChangeIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1
                                      1, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_hsSCCHCodeChangeIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_CodeChangeIndicator(tvb, offset, actx, tree, hf_rnsap_hsSCCHCodeChangeIndicator);
 }
 
 
@@ -24017,9 +21014,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify(tvb, offset, actx, tree, hf_rnsap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item);
-}
 
 
 static const per_sequence_t HSDSCH_MACdFlow_Specific_InfoList_to_Modify_sequence_of[1] = {
@@ -24033,9 +21027,6 @@ dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify(tvbuff_t *tvb _U_, int
                                                   1, 8);
 
   return offset;
-}
-static int dissect_hSDSCH_MACdFlow_Specific_InfoList_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify(tvb, offset, actx, tree, hf_rnsap_hSDSCH_MACdFlow_Specific_InfoList_to_Modify);
 }
 
 
@@ -24060,9 +21051,6 @@ dissect_rnsap_PriorityQueue_InfoItem_to_Add(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_addPriorityQueue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoItem_to_Add(tvb, offset, actx, tree, hf_rnsap_addPriorityQueue);
-}
 
 
 static const per_sequence_t MACdPDU_Size_IndexItem_to_Modify_sequence[] = {
@@ -24079,9 +21067,6 @@ dissect_rnsap_MACdPDU_Size_IndexItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_MACdPDU_Size_IndexList_to_Modify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size_IndexItem_to_Modify(tvb, offset, actx, tree, hf_rnsap_MACdPDU_Size_IndexList_to_Modify_item);
-}
 
 
 static const per_sequence_t MACdPDU_Size_IndexList_to_Modify_sequence_of[1] = {
@@ -24095,9 +21080,6 @@ dissect_rnsap_MACdPDU_Size_IndexList_to_Modify(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 8);
 
   return offset;
-}
-static int dissect_mACdPDU_Size_Index_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACdPDU_Size_IndexList_to_Modify(tvb, offset, actx, tree, hf_rnsap_mACdPDU_Size_Index_to_Modify);
 }
 
 
@@ -24119,9 +21101,6 @@ dissect_rnsap_PriorityQueue_InfoItem_to_Modify(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_PriorityQueue_InfoItem_to_Modify, PriorityQueue_InfoItem_to_Modify_sequence);
 
   return offset;
-}
-static int dissect_modifyPriorityQueue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoItem_to_Modify(tvb, offset, actx, tree, hf_rnsap_modifyPriorityQueue);
 }
 
 
@@ -24147,9 +21126,6 @@ dissect_rnsap_ModifyPriorityQueue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_PriorityQueue_InfoList_to_Modify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ModifyPriorityQueue(tvb, offset, actx, tree, hf_rnsap_PriorityQueue_InfoList_to_Modify_item);
-}
 
 
 static const per_sequence_t PriorityQueue_InfoList_to_Modify_sequence_of[1] = {
@@ -24163,9 +21139,6 @@ dissect_rnsap_PriorityQueue_InfoList_to_Modify(tvbuff_t *tvb _U_, int offset _U_
                                                   1, 8);
 
   return offset;
-}
-static int dissect_priorityQueue_Info_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoList_to_Modify(tvb, offset, actx, tree, hf_rnsap_priorityQueue_Info_to_Modify);
 }
 
 
@@ -24182,9 +21155,6 @@ dissect_rnsap_HSSCCH_Code_Change_Grant(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_hSSCCH_CodeChangeGrant(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_Code_Change_Grant(tvb, offset, actx, tree, hf_rnsap_hSSCCH_CodeChangeGrant);
-}
 
 
 
@@ -24194,12 +21164,6 @@ dissect_rnsap_TDD_AckNack_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                               -7, 8U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_tDDAckNackPowerOffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_AckNack_Power_Offset(tvb, offset, actx, tree, hf_rnsap_tDDAckNackPowerOffset);
-}
-static int dissect_tDD_AckNack_Power_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_AckNack_Power_Offset(tvb, offset, actx, tree, hf_rnsap_tDD_AckNack_Power_Offset);
 }
 
 
@@ -24315,12 +21279,6 @@ static int dissect_id_HSSICH_Info_DM_Rprt(tvbuff_t *tvb _U_, int offset _U_, asn
 static int dissect_id_HSSICH_Info_DM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_HS_SICH_ID(tvb, offset, actx, tree, hf_rnsap_id_HSSICH_Info_DM);
 }
-static int dissect_HSSICH_Info_DM_Rqst_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HS_SICH_ID(tvb, offset, actx, tree, hf_rnsap_HSSICH_Info_DM_Rqst_item);
-}
-static int dissect_hsSICH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HS_SICH_ID(tvb, offset, actx, tree, hf_rnsap_hsSICH_ID);
-}
 
 
 static const per_sequence_t HSSICH_Info_sequence[] = {
@@ -24338,9 +21296,6 @@ dissect_rnsap_HSSICH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                    ett_rnsap_HSSICH_Info, HSSICH_Info_sequence);
 
   return offset;
-}
-static int dissect_hSSICH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSICH_Info(tvb, offset, actx, tree, hf_rnsap_hSSICH_Info);
 }
 
 
@@ -24360,9 +21315,6 @@ dissect_rnsap_HSSCCH_TDD_Specific_InfoItem_Response(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_HSSCCH_TDD_Specific_InfoList_Response_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_TDD_Specific_InfoItem_Response(tvb, offset, actx, tree, hf_rnsap_HSSCCH_TDD_Specific_InfoList_Response_item);
-}
 
 
 static const per_sequence_t HSSCCH_TDD_Specific_InfoList_Response_sequence_of[1] = {
@@ -24376,9 +21328,6 @@ dissect_rnsap_HSSCCH_TDD_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offse
                                                   0, 4);
 
   return offset;
-}
-static int dissect_hSSCCH_TDD_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_TDD_Specific_InfoList_Response(tvb, offset, actx, tree, hf_rnsap_hSSCCH_TDD_Specific_InfoList_Response);
 }
 
 
@@ -24397,9 +21346,6 @@ dissect_rnsap_HSSICH_InfoLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_rnsap_HSSICH_InfoLCR, HSSICH_InfoLCR_sequence);
 
   return offset;
-}
-static int dissect_hSSICH_InfoLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSICH_InfoLCR(tvb, offset, actx, tree, hf_rnsap_hSSICH_InfoLCR);
 }
 
 
@@ -24420,9 +21366,6 @@ dissect_rnsap_HSSCCH_TDD_Specific_InfoItem_Response_LCR(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_HSSCCH_TDD_Specific_InfoList_Response_LCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_TDD_Specific_InfoItem_Response_LCR(tvb, offset, actx, tree, hf_rnsap_HSSCCH_TDD_Specific_InfoList_Response_LCR_item);
-}
 
 
 static const per_sequence_t HSSCCH_TDD_Specific_InfoList_Response_LCR_sequence_of[1] = {
@@ -24436,9 +21379,6 @@ dissect_rnsap_HSSCCH_TDD_Specific_InfoList_Response_LCR(tvbuff_t *tvb _U_, int o
                                                   0, 4);
 
   return offset;
-}
-static int dissect_hSSCCH_TDD_Specific_InfoList_Response_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSSCCH_TDD_Specific_InfoList_Response_LCR(tvb, offset, actx, tree, hf_rnsap_hSSCCH_TDD_Specific_InfoList_Response_LCR);
 }
 
 
@@ -24456,9 +21396,6 @@ dissect_rnsap_HSPDSCH_TDD_Specific_InfoItem_Response(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_HSPDSCH_TDD_Specific_InfoList_Response_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_TDD_Specific_InfoItem_Response(tvb, offset, actx, tree, hf_rnsap_HSPDSCH_TDD_Specific_InfoList_Response_item);
-}
 
 
 static const per_sequence_t HSPDSCH_TDD_Specific_InfoList_Response_sequence_of[1] = {
@@ -24472,9 +21409,6 @@ dissect_rnsap_HSPDSCH_TDD_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offs
                                                   0, 15);
 
   return offset;
-}
-static int dissect_hSPDSCH_TDD_Specific_InfoList_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_TDD_Specific_InfoList_Response(tvb, offset, actx, tree, hf_rnsap_hSPDSCH_TDD_Specific_InfoList_Response);
 }
 
 
@@ -24492,9 +21426,6 @@ dissect_rnsap_HSPDSCH_TDD_Specific_InfoItem_Response_LCR(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_HSPDSCH_TDD_Specific_InfoList_Response_LCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_TDD_Specific_InfoItem_Response_LCR(tvb, offset, actx, tree, hf_rnsap_HSPDSCH_TDD_Specific_InfoList_Response_LCR_item);
-}
 
 
 static const per_sequence_t HSPDSCH_TDD_Specific_InfoList_Response_LCR_sequence_of[1] = {
@@ -24508,9 +21439,6 @@ dissect_rnsap_HSPDSCH_TDD_Specific_InfoList_Response_LCR(tvbuff_t *tvb _U_, int 
                                                   1, 6);
 
   return offset;
-}
-static int dissect_hSPDSCH_TDD_Specific_InfoList_Response_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_TDD_Specific_InfoList_Response_LCR(tvb, offset, actx, tree, hf_rnsap_hSPDSCH_TDD_Specific_InfoList_Response_LCR);
 }
 
 
@@ -24569,9 +21497,6 @@ dissect_rnsap_HSDSCH_MACdFlows_to_Delete_Item(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_HSDSCH_MACdFlows_to_Delete_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSDSCH_MACdFlows_to_Delete_Item(tvb, offset, actx, tree, hf_rnsap_HSDSCH_MACdFlows_to_Delete_item);
-}
 
 
 static const per_sequence_t HSDSCH_MACdFlows_to_Delete_sequence_of[1] = {
@@ -24599,9 +21524,6 @@ dissect_rnsap_AOA_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_aOA_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AOA_LCR(tvb, offset, actx, tree, hf_rnsap_aOA_LCR);
-}
 
 
 static const value_string rnsap_AOA_LCR_Accuracy_Class_vals[] = {
@@ -24623,9 +21545,6 @@ dissect_rnsap_AOA_LCR_Accuracy_Class(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                      8, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_aOA_LCR_Accuracy_Class(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AOA_LCR_Accuracy_Class(tvb, offset, actx, tree, hf_rnsap_aOA_LCR_Accuracy_Class);
 }
 
 
@@ -24695,9 +21614,6 @@ dissect_rnsap_UL_Synchronisation_StepSize(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_uL_Synchronisation_StepSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Synchronisation_StepSize(tvb, offset, actx, tree, hf_rnsap_uL_Synchronisation_StepSize);
-}
 
 
 
@@ -24707,9 +21623,6 @@ dissect_rnsap_UL_Synchronisation_Frequency(tvbuff_t *tvb _U_, int offset _U_, as
                                               1U, 8U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_uL_Synchronisation_Frequency(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UL_Synchronisation_Frequency(tvb, offset, actx, tree, hf_rnsap_uL_Synchronisation_Frequency);
 }
 
 
@@ -24740,9 +21653,6 @@ dissect_rnsap_SNACode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_ListOfSNAs_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SNACode(tvb, offset, actx, tree, hf_rnsap_ListOfSNAs_item);
-}
 
 
 static const per_sequence_t ListOfSNAs_sequence_of[1] = {
@@ -24756,9 +21666,6 @@ dissect_rnsap_ListOfSNAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                                   1, 65536);
 
   return offset;
-}
-static int dissect_listOfSNAs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ListOfSNAs(tvb, offset, actx, tree, hf_rnsap_listOfSNAs);
 }
 
 
@@ -24822,9 +21729,6 @@ static int dissect_id_TDD_TPC_UplinkStepSize_InformationAdd_LCR_RL_ReconfPrepTDD
 }
 static int dissect_id_TDD_TPC_UplinkStepSize_InformationModify_LCR_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TDD_TPC_UplinkStepSize_LCR(tvb, offset, actx, tree, hf_rnsap_id_TDD_TPC_UplinkStepSize_InformationModify_LCR_RL_ReconfPrepTDD);
-}
-static int dissect_uplinkStepSizeLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TDD_TPC_UplinkStepSize_LCR(tvb, offset, actx, tree, hf_rnsap_uplinkStepSizeLCR);
 }
 
 
@@ -24908,9 +21812,6 @@ dissect_rnsap_INTEGER_1_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_wT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_4(tvb, offset, actx, tree, hf_rnsap_wT);
-}
 
 
 static const per_sequence_t FPACH_Information_sequence[] = {
@@ -24928,9 +21829,6 @@ dissect_rnsap_FPACH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_fPACH_info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FPACH_Information(tvb, offset, actx, tree, hf_rnsap_fPACH_info);
-}
 
 
 
@@ -24940,9 +21838,6 @@ dissect_rnsap_INTEGER_M120_M58_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               -120, -58, NULL, TRUE);
 
   return offset;
-}
-static int dissect_prxUpPCHdes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_M120_M58_(tvb, offset, actx, tree, hf_rnsap_prxUpPCHdes);
 }
 
 
@@ -24962,9 +21857,6 @@ dissect_rnsap_T_maxSYNC_UL_transmissions(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_maxSYNC_UL_transmissions(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_maxSYNC_UL_transmissions(tvb, offset, actx, tree, hf_rnsap_maxSYNC_UL_transmissions);
-}
 
 
 
@@ -24974,9 +21866,6 @@ dissect_rnsap_INTEGER_0_3_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               0U, 3U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_powerRampStep(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_3_(tvb, offset, actx, tree, hf_rnsap_powerRampStep);
 }
 
 
@@ -24993,9 +21882,6 @@ dissect_rnsap_SYNC_UL_ProcParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_syncUL_procParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SYNC_UL_ProcParameters(tvb, offset, actx, tree, hf_rnsap_syncUL_procParameter);
-}
 
 
 
@@ -25005,9 +21891,6 @@ dissect_rnsap_INTEGER_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                               1U, 32U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_mMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_1_32(tvb, offset, actx, tree, hf_rnsap_mMax);
 }
 
 
@@ -25046,9 +21929,6 @@ dissect_rnsap_HSPDSCH_Timeslot_InformationItem_PhyChReconfRqstTDD(tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_Timeslot_InformationItem_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD_item);
-}
 
 
 static const per_sequence_t HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD_sequence_of[1] = {
@@ -25082,9 +21962,6 @@ dissect_rnsap_HSPDSCH_Timeslot_InformationItemLCR_PhyChReconfRqstTDD(tvbuff_t *t
 
   return offset;
 }
-static int dissect_HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HSPDSCH_Timeslot_InformationItemLCR_PhyChReconfRqstTDD(tvb, offset, actx, tree, hf_rnsap_HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD_item);
-}
 
 
 static const per_sequence_t HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD_sequence_of[1] = {
@@ -25112,9 +21989,6 @@ dissect_rnsap_HS_SICH_failed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_failed_HS_SICH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HS_SICH_failed(tvb, offset, actx, tree, hf_rnsap_failed_HS_SICH);
-}
 
 
 
@@ -25125,9 +21999,6 @@ dissect_rnsap_HS_SICH_missed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_missed_HS_SICH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HS_SICH_missed(tvb, offset, actx, tree, hf_rnsap_missed_HS_SICH);
-}
 
 
 
@@ -25137,9 +22008,6 @@ dissect_rnsap_HS_SICH_total(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                               0U, 20U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_total_HS_SICH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HS_SICH_total(tvb, offset, actx, tree, hf_rnsap_total_HS_SICH);
 }
 
 
@@ -25200,9 +22068,6 @@ dissect_rnsap_DL_DPCH_InformationModifyList_LCR_RL_ReconfRspTDD(tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_dl_DPCH_ModifyInformation_LCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationModifyList_LCR_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_ModifyInformation_LCR);
-}
 
 
 static const per_sequence_t DL_CCTrCH_InformationItem_RL_ReconfRspTDD_sequence[] = {
@@ -25220,9 +22085,6 @@ dissect_rnsap_DL_CCTrCH_InformationItem_RL_ReconfRspTDD(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_DL_CCTrCH_InformationItem_RL_ReconfRspTDD, DL_CCTrCH_InformationItem_RL_ReconfRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCH_InformationList_RL_ReconfRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCH_InformationItem_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCH_InformationList_RL_ReconfRspTDD_item);
 }
 
 
@@ -25258,9 +22120,6 @@ dissect_rnsap_DL_Timeslot_LCR_InformationModifyItem_RL_ReconfRspTDD(tvbuff_t *tv
 
   return offset;
 }
-static int dissect_DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_LCR_InformationModifyItem_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD_item);
-}
 
 
 static const per_sequence_t DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD_sequence_of[1] = {
@@ -25274,9 +22133,6 @@ dissect_rnsap_DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD(tvbuff_t *tv
                                                   1, 6);
 
   return offset;
-}
-static int dissect_dL_Timeslot_LCR_InformationModifyList_RL_ReconfRqstTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_Timeslot_LCR_InformationModifyList_RL_ReconfRspTDD(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_LCR_InformationModifyList_RL_ReconfRqstTDD);
 }
 
 
@@ -25395,9 +22251,6 @@ dissect_rnsap_Secondary_CPICH_Information(tvbuff_t *tvb _U_, int offset _U_, asn
 static int dissect_id_Secondary_CPICH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_Secondary_CPICH_Information(tvb, offset, actx, tree, hf_rnsap_id_Secondary_CPICH_Information);
 }
-static int dissect_new_secondary_CPICH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Secondary_CPICH_Information(tvb, offset, actx, tree, hf_rnsap_new_secondary_CPICH);
-}
 
 
 static const value_string rnsap_Secondary_CPICH_Information_Change_vals[] = {
@@ -25440,9 +22293,6 @@ dissect_rnsap_Phase_Reference_Update_Indicator(tvbuff_t *tvb _U_, int offset _U_
 }
 static int dissect_id_Phase_Reference_Update_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_Phase_Reference_Update_Indicator(tvb, offset, actx, tree, hf_rnsap_id_Phase_Reference_Update_Indicator);
-}
-static int dissect_phase_Reference_Update_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Phase_Reference_Update_Indicator(tvb, offset, actx, tree, hf_rnsap_phase_Reference_Update_Indicator);
 }
 
 
@@ -25497,9 +22347,6 @@ dissect_rnsap_RL_InformationIE_RL_ReconfPrepTDD(tvbuff_t *tvb _U_, int offset _U
                                    ett_rnsap_RL_InformationIE_RL_ReconfPrepTDD, RL_InformationIE_RL_ReconfPrepTDD_sequence);
 
   return offset;
-}
-static int dissect_RL_Information_RL_ReconfPrepTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_InformationIE_RL_ReconfPrepTDD(tvb, offset, actx, tree, hf_rnsap_RL_Information_RL_ReconfPrepTDD_item);
 }
 
 
@@ -25579,9 +22426,6 @@ dissect_rnsap_Satellite_Almanac_Information_ExtItem_item(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_Satellite_Almanac_Information_ExtItem_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Satellite_Almanac_Information_ExtItem_item(tvb, offset, actx, tree, hf_rnsap_Satellite_Almanac_Information_ExtItem_item);
-}
 
 
 static const per_sequence_t Satellite_Almanac_Information_ExtItem_sequence_of[1] = {
@@ -25617,9 +22461,6 @@ dissect_rnsap_PriorityQueue_InfoItem_to_Modify_Unsynchronised(tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_PriorityQueue_InfoList_to_Modify_Unsynchronised_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoItem_to_Modify_Unsynchronised(tvb, offset, actx, tree, hf_rnsap_PriorityQueue_InfoList_to_Modify_Unsynchronised_item);
-}
 
 
 static const per_sequence_t PriorityQueue_InfoList_to_Modify_Unsynchronised_sequence_of[1] = {
@@ -25633,9 +22474,6 @@ dissect_rnsap_PriorityQueue_InfoList_to_Modify_Unsynchronised(tvbuff_t *tvb _U_,
                                                   0, 8);
 
   return offset;
-}
-static int dissect_priorityQueueInfotoModifyUnsynchronised(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PriorityQueue_InfoList_to_Modify_Unsynchronised(tvb, offset, actx, tree, hf_rnsap_priorityQueueInfotoModifyUnsynchronised);
 }
 
 
@@ -25671,9 +22509,6 @@ dissect_rnsap_DsField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   return offset;
 }
-static int dissect_dsField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DsField(tvb, offset, actx, tree, hf_rnsap_dsField);
-}
 
 
 
@@ -25683,9 +22518,6 @@ dissect_rnsap_GenericTrafficCategory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                      8, 8, FALSE, NULL);
 
   return offset;
-}
-static int dissect_genericTrafficCategory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GenericTrafficCategory(tvb, offset, actx, tree, hf_rnsap_genericTrafficCategory);
 }
 
 
@@ -25711,9 +22543,6 @@ dissect_rnsap_TnlQos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 }
 static int dissect_id_TnlQos(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_TnlQos(tvb, offset, actx, tree, hf_rnsap_id_TnlQos);
-}
-static int dissect_tnlQoS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TnlQos(tvb, offset, actx, tree, hf_rnsap_tnlQoS);
 }
 
 
@@ -25790,9 +22619,6 @@ dissect_rnsap_PrimaryCCPCH_RSCP_Delta(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int dissect_id_PrimaryCCPCH_RSCP_Delta(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_PrimaryCCPCH_RSCP_Delta(tvb, offset, actx, tree, hf_rnsap_id_PrimaryCCPCH_RSCP_Delta);
 }
-static int dissect_primaryCCPCH_RSCP_Delta(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrimaryCCPCH_RSCP_Delta(tvb, offset, actx, tree, hf_rnsap_primaryCCPCH_RSCP_Delta);
-}
 
 
 static const value_string rnsap_UEMeasurementType_vals[] = {
@@ -25830,9 +22656,6 @@ dissect_rnsap_UEMeasurementTimeslotInfoHCRBurstType(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_burstType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementTimeslotInfoHCRBurstType(tvb, offset, actx, tree, hf_rnsap_burstType);
-}
 
 
 static const per_sequence_t UEMeasurementTimeslotInfoHCR_IEs_sequence[] = {
@@ -25848,9 +22671,6 @@ dissect_rnsap_UEMeasurementTimeslotInfoHCR_IEs(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_UEMeasurementTimeslotInfoHCR_IEs, UEMeasurementTimeslotInfoHCR_IEs_sequence);
 
   return offset;
-}
-static int dissect_UEMeasurementTimeslotInfoHCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementTimeslotInfoHCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementTimeslotInfoHCR_item);
 }
 
 
@@ -25883,9 +22703,6 @@ dissect_rnsap_UEMeasurementTimeslotInfoLCR_IEs(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_UEMeasurementTimeslotInfoLCR_IEs, UEMeasurementTimeslotInfoLCR_IEs_sequence);
 
   return offset;
-}
-static int dissect_UEMeasurementTimeslotInfoLCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementTimeslotInfoLCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementTimeslotInfoLCR_item);
 }
 
 
@@ -25926,9 +22743,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicAmountofReporting(tvbuff
 
   return offset;
 }
-static int dissect_amountofReporting(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicAmountofReporting(tvb, offset, actx, tree, hf_rnsap_amountofReporting);
-}
 
 
 static const value_string rnsap_UEMeasurementReportCharacteristicsPeriodicReportingInterval_vals[] = {
@@ -25958,9 +22772,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicReportingInterval(tvbuff
 
   return offset;
 }
-static int dissect_reportingInterval(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsPeriodicReportingInterval(tvb, offset, actx, tree, hf_rnsap_reportingInterval);
-}
 
 
 static const per_sequence_t UEMeasurementReportCharacteristicsPeriodic_sequence[] = {
@@ -25977,9 +22788,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsPeriodic(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_periodic2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsPeriodic(tvb, offset, actx, tree, hf_rnsap_periodic2);
-}
 
 
 
@@ -25989,9 +22797,6 @@ dissect_rnsap_UEMeasurementThresholdDLTimeslotISCP(tvbuff_t *tvb _U_, int offset
                                               -115, -25, NULL, FALSE);
 
   return offset;
-}
-static int dissect_timeslotISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementThresholdDLTimeslotISCP(tvb, offset, actx, tree, hf_rnsap_timeslotISCP);
 }
 
 
@@ -26003,9 +22808,6 @@ dissect_rnsap_UEMeasurementThresholdUETransmitPower(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_uETransmitPower(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementThresholdUETransmitPower(tvb, offset, actx, tree, hf_rnsap_uETransmitPower);
-}
 
 
 
@@ -26014,9 +22816,6 @@ dissect_rnsap_UEMeasurementThreshold_Extension(tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_UEMeasurementThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementThreshold_Extension(tvb, offset, actx, tree, hf_rnsap_extension_UEMeasurementThreshold);
 }
 
 
@@ -26041,9 +22840,6 @@ dissect_rnsap_UEMeasurementThreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                  NULL);
 
   return offset;
-}
-static int dissect_uEMeasurementTreshold(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementThreshold(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTreshold);
 }
 
 
@@ -26075,9 +22871,6 @@ dissect_rnsap_UEMeasurementTimeToTrigger(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_uEMeasurementTimeToTrigger(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementTimeToTrigger(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTimeToTrigger);
-}
 
 
 
@@ -26087,9 +22880,6 @@ dissect_rnsap_UEMeasurementHysteresisTime(tvbuff_t *tvb _U_, int offset _U_, asn
                                               0U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_uEMeasurementHysteresisTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementHysteresisTime(tvb, offset, actx, tree, hf_rnsap_uEMeasurementHysteresisTime);
 }
 
 
@@ -26108,9 +22898,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent1h(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_event1h(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent1h(tvb, offset, actx, tree, hf_rnsap_event1h);
-}
 
 
 static const per_sequence_t UEMeasurementReportCharacteristicsEvent1i_sequence[] = {
@@ -26128,9 +22915,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent1i(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_event1i(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent1i(tvb, offset, actx, tree, hf_rnsap_event1i);
-}
 
 
 static const per_sequence_t UEMeasurementReportCharacteristicsEvent6a_sequence[] = {
@@ -26146,9 +22930,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent6a(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_UEMeasurementReportCharacteristicsEvent6a, UEMeasurementReportCharacteristicsEvent6a_sequence);
 
   return offset;
-}
-static int dissect_event6a(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent6a(tvb, offset, actx, tree, hf_rnsap_event6a);
 }
 
 
@@ -26166,9 +22947,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent6b(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_event6b(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent6b(tvb, offset, actx, tree, hf_rnsap_event6b);
-}
 
 
 static const per_sequence_t UEMeasurementReportCharacteristicsEvent6c_sequence[] = {
@@ -26183,9 +22961,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent6c(tvbuff_t *tvb _U_, int o
                                    ett_rnsap_UEMeasurementReportCharacteristicsEvent6c, UEMeasurementReportCharacteristicsEvent6c_sequence);
 
   return offset;
-}
-static int dissect_event6c(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent6c(tvb, offset, actx, tree, hf_rnsap_event6c);
 }
 
 
@@ -26202,9 +22977,6 @@ dissect_rnsap_UEMeasurementReportCharacteristicsEvent6d(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_event6d(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristicsEvent6d(tvb, offset, actx, tree, hf_rnsap_event6d);
-}
 
 
 
@@ -26213,9 +22985,6 @@ dissect_rnsap_UEMeasurementReportCharacteristics_Extension(tvbuff_t *tvb _U_, in
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_ReportCharacteristics1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReportCharacteristics_Extension(tvb, offset, actx, tree, hf_rnsap_extension_ReportCharacteristics1);
 }
 
 
@@ -26282,9 +23051,6 @@ dissect_rnsap_INTEGER_0_104(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_uETransmitPower1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_INTEGER_0_104(tvb, offset, actx, tree, hf_rnsap_uETransmitPower1);
-}
 
 
 static const per_sequence_t UEMeasurementValueTransmittedPowerListHCR_IEs_sequence[] = {
@@ -26301,9 +23067,6 @@ dissect_rnsap_UEMeasurementValueTransmittedPowerListHCR_IEs(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_UEMeasurementValueTransmittedPowerListHCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTransmittedPowerListHCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementValueTransmittedPowerListHCR_item);
-}
 
 
 static const per_sequence_t UEMeasurementValueTransmittedPowerListHCR_sequence_of[1] = {
@@ -26317,9 +23080,6 @@ dissect_rnsap_UEMeasurementValueTransmittedPowerListHCR(tvbuff_t *tvb _U_, int o
                                                   1, 15);
 
   return offset;
-}
-static int dissect_uEMeasurementTransmittedPowerListHCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTransmittedPowerListHCR(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTransmittedPowerListHCR);
 }
 
 
@@ -26337,9 +23097,6 @@ dissect_rnsap_UEMeasurementValueTransmittedPowerListLCR_IEs(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_UEMeasurementValueTransmittedPowerListLCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTransmittedPowerListLCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementValueTransmittedPowerListLCR_item);
-}
 
 
 static const per_sequence_t UEMeasurementValueTransmittedPowerListLCR_sequence_of[1] = {
@@ -26353,9 +23110,6 @@ dissect_rnsap_UEMeasurementValueTransmittedPowerListLCR(tvbuff_t *tvb _U_, int o
                                                   1, 6);
 
   return offset;
-}
-static int dissect_uEMeasurementTransmittedPowerListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTransmittedPowerListLCR(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTransmittedPowerListLCR);
 }
 
 
@@ -26373,9 +23127,6 @@ dissect_rnsap_UE_MeasurementValue_UE_Transmitted_Power(tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_uE_Transmitted_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UE_MeasurementValue_UE_Transmitted_Power(tvb, offset, actx, tree, hf_rnsap_uE_Transmitted_Power);
-}
 
 
 static const per_sequence_t UE_MeasurementValue_Primary_CCPCH_RSCP_sequence[] = {
@@ -26391,9 +23142,6 @@ dissect_rnsap_UE_MeasurementValue_Primary_CCPCH_RSCP(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_UE_MeasurementValue_Primary_CCPCH_RSCP, UE_MeasurementValue_Primary_CCPCH_RSCP_sequence);
 
   return offset;
-}
-static int dissect_primary_CCPCH_RSCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UE_MeasurementValue_Primary_CCPCH_RSCP(tvb, offset, actx, tree, hf_rnsap_primary_CCPCH_RSCP);
 }
 
 
@@ -26411,9 +23159,6 @@ dissect_rnsap_UEMeasurementValueTimeslotISCPListHCR_IEs(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_UEMeasurementValueTimeslotISCPListHCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTimeslotISCPListHCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementValueTimeslotISCPListHCR_item);
-}
 
 
 static const per_sequence_t UEMeasurementValueTimeslotISCPListHCR_sequence_of[1] = {
@@ -26427,9 +23172,6 @@ dissect_rnsap_UEMeasurementValueTimeslotISCPListHCR(tvbuff_t *tvb _U_, int offse
                                                   1, 15);
 
   return offset;
-}
-static int dissect_uEMeasurementTimeslotISCPListHCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTimeslotISCPListHCR(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTimeslotISCPListHCR);
 }
 
 
@@ -26447,9 +23189,6 @@ dissect_rnsap_UEMeasurementValueTimeslotISCPListLCR_IEs(tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_UEMeasurementValueTimeslotISCPListLCR_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTimeslotISCPListLCR_IEs(tvb, offset, actx, tree, hf_rnsap_UEMeasurementValueTimeslotISCPListLCR_item);
-}
 
 
 static const per_sequence_t UEMeasurementValueTimeslotISCPListLCR_sequence_of[1] = {
@@ -26463,9 +23202,6 @@ dissect_rnsap_UEMeasurementValueTimeslotISCPListLCR(tvbuff_t *tvb _U_, int offse
                                                   1, 6);
 
   return offset;
-}
-static int dissect_uEMeasurementTimeslotISCPListLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueTimeslotISCPListLCR(tvb, offset, actx, tree, hf_rnsap_uEMeasurementTimeslotISCPListLCR);
 }
 
 
@@ -26483,9 +23219,6 @@ dissect_rnsap_UE_MeasurementValue_DL_Timeslot_ISCP(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_dL_Timeslot_ISCP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UE_MeasurementValue_DL_Timeslot_ISCP(tvb, offset, actx, tree, hf_rnsap_dL_Timeslot_ISCP);
-}
 
 
 
@@ -26494,9 +23227,6 @@ dissect_rnsap_UEMeasurementValue_Extension(tvbuff_t *tvb _U_, int offset _U_, as
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_UEMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValue_Extension(tvb, offset, actx, tree, hf_rnsap_extension_UEMeasurementValue);
 }
 
 
@@ -26524,9 +23254,6 @@ dissect_rnsap_UEMeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_uEmeasurementValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValue(tvb, offset, actx, tree, hf_rnsap_uEmeasurementValue);
-}
 
 
 static const per_sequence_t UEMeasurementValueInformationAvailable_sequence[] = {
@@ -26542,9 +23269,6 @@ dissect_rnsap_UEMeasurementValueInformationAvailable(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_measurementAvailable2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueInformationAvailable(tvb, offset, actx, tree, hf_rnsap_measurementAvailable2);
-}
 
 
 
@@ -26553,9 +23277,6 @@ dissect_rnsap_UEMeasurementValueInformationnotAvailable(tvbuff_t *tvb _U_, int o
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_measurementnotAvailable2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementValueInformationnotAvailable(tvb, offset, actx, tree, hf_rnsap_measurementnotAvailable2);
 }
 
 
@@ -26597,9 +23318,6 @@ dissect_rnsap_T_interface(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                      2, NULL, TRUE, 0, NULL);
 
   return offset;
-}
-static int dissect_interface(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_interface(tvb, offset, actx, tree, hf_rnsap_interface);
 }
 
 
@@ -26692,9 +23410,6 @@ dissect_rnsap_IMEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_imei(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IMEI(tvb, offset, actx, tree, hf_rnsap_imei);
-}
 
 
 
@@ -26704,9 +23419,6 @@ dissect_rnsap_IMEISV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                        8, 8, NULL);
 
   return offset;
-}
-static int dissect_imeisv(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IMEISV(tvb, offset, actx, tree, hf_rnsap_imeisv);
 }
 
 
@@ -26745,9 +23457,6 @@ dissect_rnsap_OCTET_STRING_SIZE_1_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_gERAN_SI_block(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_OCTET_STRING_SIZE_1_23(tvb, offset, actx, tree, hf_rnsap_gERAN_SI_block);
-}
 
 
 static const per_sequence_t GERAN_SystemInfo_item_sequence[] = {
@@ -26763,9 +23472,6 @@ dissect_rnsap_GERAN_SystemInfo_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_GERAN_SystemInfo_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GERAN_SystemInfo_item(tvb, offset, actx, tree, hf_rnsap_GERAN_SystemInfo_item);
-}
 
 
 static const per_sequence_t GERAN_SystemInfo_sequence_of[1] = {
@@ -26779,12 +23485,6 @@ dissect_rnsap_GERAN_SystemInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                                   1, 8);
 
   return offset;
-}
-static int dissect_sI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GERAN_SystemInfo(tvb, offset, actx, tree, hf_rnsap_sI);
-}
-static int dissect_pSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GERAN_SystemInfo(tvb, offset, actx, tree, hf_rnsap_pSI);
 }
 
 
@@ -26807,9 +23507,6 @@ dissect_rnsap_GERAN_SI_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                  NULL);
 
   return offset;
-}
-static int dissect_gERAN_SI_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GERAN_SI_Type(tvb, offset, actx, tree, hf_rnsap_gERAN_SI_Type);
 }
 
 
@@ -26845,9 +23542,6 @@ dissect_rnsap_T_lAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_lAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_T_lAI(tvb, offset, actx, tree, hf_rnsap_lAI);
-}
 
 
 
@@ -26857,9 +23551,6 @@ dissect_rnsap_CI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
                                        2, 2, NULL);
 
   return offset;
-}
-static int dissect_cI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CI(tvb, offset, actx, tree, hf_rnsap_cI);
 }
 
 
@@ -26876,9 +23567,6 @@ dissect_rnsap_CGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                    ett_rnsap_CGI, CGI_sequence);
 
   return offset;
-}
-static int dissect_cGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CGI(tvb, offset, actx, tree, hf_rnsap_cGI);
 }
 
 
@@ -26951,9 +23639,6 @@ dissect_rnsap_PowerOffsetInformation_RL_ReconfPrepFDD(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_powerOffsetInformation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffsetInformation_RL_ReconfPrepFDD(tvb, offset, actx, tree, hf_rnsap_powerOffsetInformation2);
-}
 
 
 static const per_sequence_t DL_DPCH_Power_Information_RL_ReconfPrepFDD_sequence[] = {
@@ -26988,9 +23673,6 @@ dissect_rnsap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD(tvbuff_t *tvb _U_, 
                                    ett_rnsap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD, PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD_sequence);
 
   return offset;
-}
-static int dissect_powerOffsetInformation3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD(tvb, offset, actx, tree, hf_rnsap_powerOffsetInformation3);
 }
 
 
@@ -27028,9 +23710,6 @@ dissect_rnsap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_powerOffsetInformation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD(tvb, offset, actx, tree, hf_rnsap_powerOffsetInformation1);
-}
 
 
 static const per_sequence_t F_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
@@ -27062,9 +23741,6 @@ dissect_rnsap_Service_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_service_id(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Service_ID(tvb, offset, actx, tree, hf_rnsap_service_id);
-}
 
 
 static const per_sequence_t TMGI_sequence[] = {
@@ -27080,15 +23756,6 @@ dissect_rnsap_TMGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
                                    ett_rnsap_TMGI, TMGI_sequence);
 
   return offset;
-}
-static int dissect_tmgi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TMGI(tvb, offset, actx, tree, hf_rnsap_tmgi);
-}
-static int dissect_MBMS_Bearer_Service_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TMGI(tvb, offset, actx, tree, hf_rnsap_MBMS_Bearer_Service_List_item);
-}
-static int dissect_tMGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TMGI(tvb, offset, actx, tree, hf_rnsap_tMGI);
 }
 
 
@@ -27122,9 +23789,6 @@ dissect_rnsap_MBMS_Bearer_ServiceItemIEs_InfEx_Rsp(tvbuff_t *tvb _U_, int offset
                                    ett_rnsap_MBMS_Bearer_ServiceItemIEs_InfEx_Rsp, MBMS_Bearer_ServiceItemIEs_InfEx_Rsp_sequence);
 
   return offset;
-}
-static int dissect_MBMS_Bearer_Service_List_InfEx_Rsp_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMS_Bearer_ServiceItemIEs_InfEx_Rsp(tvb, offset, actx, tree, hf_rnsap_MBMS_Bearer_Service_List_InfEx_Rsp_item);
 }
 
 
@@ -27160,9 +23824,6 @@ dissect_rnsap_TransmissionMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_transmissionMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TransmissionMode(tvb, offset, actx, tree, hf_rnsap_transmissionMode);
-}
 
 
 static const per_sequence_t MBMS_Bearer_ServiceItemFDD_sequence[] = {
@@ -27178,9 +23839,6 @@ dissect_rnsap_MBMS_Bearer_ServiceItemFDD(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_MBMS_Bearer_ServiceItemFDD, MBMS_Bearer_ServiceItemFDD_sequence);
 
   return offset;
-}
-static int dissect_Active_MBMS_Bearer_Service_ListFDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMS_Bearer_ServiceItemFDD(tvb, offset, actx, tree, hf_rnsap_Active_MBMS_Bearer_Service_ListFDD_item);
 }
 
 
@@ -27215,9 +23873,6 @@ dissect_rnsap_MBMS_Bearer_ServiceItemTDD(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_Active_MBMS_Bearer_Service_ListTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMS_Bearer_ServiceItemTDD(tvb, offset, actx, tree, hf_rnsap_Active_MBMS_Bearer_Service_ListTDD_item);
-}
 
 
 static const per_sequence_t Active_MBMS_Bearer_Service_ListTDD_sequence_of[1] = {
@@ -27250,9 +23905,6 @@ dissect_rnsap_Cell_Fach_Pch_State(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_cell_fach_pch(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_Fach_Pch_State(tvb, offset, actx, tree, hf_rnsap_cell_fach_pch);
-}
 
 
 static const per_sequence_t Ura_Pch_State_sequence[] = {
@@ -27268,9 +23920,6 @@ dissect_rnsap_Ura_Pch_State(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                    ett_rnsap_Ura_Pch_State, Ura_Pch_State_sequence);
 
   return offset;
-}
-static int dissect_ura_pch(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Ura_Pch_State(tvb, offset, actx, tree, hf_rnsap_ura_pch);
 }
 
 
@@ -27375,9 +24024,6 @@ dissect_rnsap_Max_Set_E_DPDCHs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_maxSet_E_DPDCHs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Max_Set_E_DPDCHs(tvb, offset, actx, tree, hf_rnsap_maxSet_E_DPDCHs);
-}
 
 
 
@@ -27387,9 +24033,6 @@ dissect_rnsap_E_DCH_TFCI_Table_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                               0U, 1U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_e_DCH_TFCI_Table_Index(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_TFCI_Table_Index(tvb, offset, actx, tree, hf_rnsap_e_DCH_TFCI_Table_Index);
 }
 
 
@@ -27401,12 +24044,6 @@ dissect_rnsap_E_TFCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_e_DCH_Min_Set_E_TFCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_TFCI(tvb, offset, actx, tree, hf_rnsap_e_DCH_Min_Set_E_TFCI);
-}
-static int dissect_reference_E_TFCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_TFCI(tvb, offset, actx, tree, hf_rnsap_reference_E_TFCI);
-}
 
 
 
@@ -27416,9 +24053,6 @@ dissect_rnsap_Reference_E_TFCI_PO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                               0U, 29U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_reference_E_TFCI_PO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Reference_E_TFCI_PO(tvb, offset, actx, tree, hf_rnsap_reference_E_TFCI_PO);
 }
 
 
@@ -27436,9 +24070,6 @@ dissect_rnsap_Reference_E_TFCI_Information_Item(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_Reference_E_TFCI_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Reference_E_TFCI_Information_Item(tvb, offset, actx, tree, hf_rnsap_Reference_E_TFCI_Information_item);
-}
 
 
 static const per_sequence_t Reference_E_TFCI_Information_sequence_of[1] = {
@@ -27452,9 +24083,6 @@ dissect_rnsap_Reference_E_TFCI_Information(tvbuff_t *tvb _U_, int offset _U_, as
                                                   1, 8);
 
   return offset;
-}
-static int dissect_reference_E_TFCI_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Reference_E_TFCI_Information(tvb, offset, actx, tree, hf_rnsap_reference_E_TFCI_Information);
 }
 
 
@@ -27473,9 +24101,6 @@ dissect_rnsap_E_TFCS_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_e_TFCS_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_TFCS_Information(tvb, offset, actx, tree, hf_rnsap_e_TFCS_Information);
-}
 
 
 static const value_string rnsap_E_TTI_vals[] = {
@@ -27492,9 +24117,6 @@ dissect_rnsap_E_TTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   return offset;
 }
-static int dissect_e_TTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_TTI(tvb, offset, actx, tree, hf_rnsap_e_TTI);
-}
 
 
 
@@ -27504,9 +24126,6 @@ dissect_rnsap_E_DPCCH_PO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                               0U, 8U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_e_DPCCH_PO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DPCCH_PO(tvb, offset, actx, tree, hf_rnsap_e_DPCCH_PO);
 }
 
 
@@ -27540,12 +24159,6 @@ dissect_rnsap_EDCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_eDCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_ID(tvb, offset, actx, tree, hf_rnsap_eDCH_MACdFlow_ID);
-}
-static int dissect_eDSCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_ID(tvb, offset, actx, tree, hf_rnsap_eDSCH_MACdFlow_ID);
-}
 
 
 static const per_sequence_t RL_Specific_EDCH_InfoItem_sequence[] = {
@@ -27562,9 +24175,6 @@ dissect_rnsap_RL_Specific_EDCH_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                    ett_rnsap_RL_Specific_EDCH_InfoItem, RL_Specific_EDCH_InfoItem_sequence);
 
   return offset;
-}
-static int dissect_RL_Specific_EDCH_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RL_Specific_EDCH_InfoItem(tvb, offset, actx, tree, hf_rnsap_RL_Specific_EDCH_Information_item);
 }
 
 
@@ -27615,9 +24225,6 @@ dissect_rnsap_MaxNr_Retransmissions_EDCH(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_maxNr_Retransmissions_EDCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MaxNr_Retransmissions_EDCH(tvb, offset, actx, tree, hf_rnsap_maxNr_Retransmissions_EDCH);
-}
 
 
 
@@ -27627,9 +24234,6 @@ dissect_rnsap_E_DCH_HARQ_PO_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                               0U, 6U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_eDCH_HARQ_PO_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_HARQ_PO_FDD(tvb, offset, actx, tree, hf_rnsap_eDCH_HARQ_PO_FDD);
 }
 
 
@@ -27641,9 +24245,6 @@ dissect_rnsap_E_DCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_eDCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_MACdFlow_Multiplexing_List(tvb, offset, actx, tree, hf_rnsap_eDCH_MACdFlow_Multiplexing_List);
-}
 
 
 
@@ -27654,9 +24255,6 @@ dissect_rnsap_Max_Bits_MACe_PDU_non_scheduled(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_maxBits_MACe_PDU_non_scheduled(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Max_Bits_MACe_PDU_non_scheduled(tvb, offset, actx, tree, hf_rnsap_maxBits_MACe_PDU_non_scheduled);
-}
 
 
 
@@ -27666,9 +24264,6 @@ dissect_rnsap_HARQ_Process_Allocation_2ms_EDCH(tvbuff_t *tvb _U_, int offset _U_
                                      8, 8, FALSE, NULL);
 
   return offset;
-}
-static int dissect_hARQ_Process_Allocation_2ms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_HARQ_Process_Allocation_2ms_EDCH(tvb, offset, actx, tree, hf_rnsap_hARQ_Process_Allocation_2ms);
 }
 
 
@@ -27685,9 +24280,6 @@ dissect_rnsap_E_DCH_Non_Scheduled_Transmission_Grant_Items(tvbuff_t *tvb _U_, in
                                    ett_rnsap_E_DCH_Non_Scheduled_Transmission_Grant_Items, E_DCH_Non_Scheduled_Transmission_Grant_Items_sequence);
 
   return offset;
-}
-static int dissect_e_DCH_Non_Scheduled_Transmission_Grant(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_Non_Scheduled_Transmission_Grant_Items(tvb, offset, actx, tree, hf_rnsap_e_DCH_Non_Scheduled_Transmission_Grant);
 }
 
 
@@ -27711,9 +24303,6 @@ dissect_rnsap_E_DCH_Grant_Type_Information(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_eDCH_Grant_Type_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_Grant_Type_Information(tvb, offset, actx, tree, hf_rnsap_eDCH_Grant_Type_Information);
-}
 
 
 static const value_string rnsap_BundlingModeIndicator_vals[] = {
@@ -27730,9 +24319,6 @@ dissect_rnsap_BundlingModeIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
   return offset;
 }
-static int dissect_bundlingModeIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BundlingModeIndicator(tvb, offset, actx, tree, hf_rnsap_bundlingModeIndicator);
-}
 
 
 
@@ -27742,9 +24328,6 @@ dissect_rnsap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                               1U, 15U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_logicalChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_LogicalChannelID(tvb, offset, actx, tree, hf_rnsap_logicalChannelId);
 }
 
 
@@ -27756,9 +24339,6 @@ dissect_rnsap_MACes_Guaranteed_Bitrate(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_mACes_GuaranteedBitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MACes_Guaranteed_Bitrate(tvb, offset, actx, tree, hf_rnsap_mACes_GuaranteedBitRate);
-}
 
 
 
@@ -27768,9 +24348,6 @@ dissect_rnsap_EDCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                               0U, 63U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_eDCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_DDI_Value(tvb, offset, actx, tree, hf_rnsap_eDCH_DDI_Value);
 }
 
 
@@ -27787,12 +24364,6 @@ dissect_rnsap_E_DCH_MACdPDU_SizeListItem(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_E_DCH_MACdPDU_SizeList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_MACdPDU_SizeListItem(tvb, offset, actx, tree, hf_rnsap_E_DCH_MACdPDU_SizeList_item);
-}
-static int dissect_E_DCH_MACdPDU_SizeToModifyList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_MACdPDU_SizeListItem(tvb, offset, actx, tree, hf_rnsap_E_DCH_MACdPDU_SizeToModifyList_item);
-}
 
 
 static const per_sequence_t E_DCH_MACdPDU_SizeList_sequence_of[1] = {
@@ -27806,9 +24377,6 @@ dissect_rnsap_E_DCH_MACdPDU_SizeList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
                                                   1, 64);
 
   return offset;
-}
-static int dissect_mACd_PDU_Size_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_MACdPDU_SizeList(tvb, offset, actx, tree, hf_rnsap_mACd_PDU_Size_List);
 }
 
 
@@ -27829,9 +24397,6 @@ dissect_rnsap_E_DCH_LogicalChannelInformationItem(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_E_DCH_LogicalChannelInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelInformationItem(tvb, offset, actx, tree, hf_rnsap_E_DCH_LogicalChannelInformation_item);
-}
 
 
 static const per_sequence_t E_DCH_LogicalChannelInformation_sequence_of[1] = {
@@ -27845,12 +24410,6 @@ dissect_rnsap_E_DCH_LogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_,
                                                   1, 16);
 
   return offset;
-}
-static int dissect_eDCHLogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelInformation(tvb, offset, actx, tree, hf_rnsap_eDCHLogicalChannelInformation);
-}
-static int dissect_eDCH_LogicalChannelToAdd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelInformation(tvb, offset, actx, tree, hf_rnsap_eDCH_LogicalChannelToAdd);
 }
 
 
@@ -27877,9 +24436,6 @@ dissect_rnsap_EDCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_EDCH_MACdFlow_Specific_InfoList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_Specific_InfoItem(tvb, offset, actx, tree, hf_rnsap_EDCH_MACdFlow_Specific_InfoList_item);
-}
 
 
 static const per_sequence_t EDCH_MACdFlow_Specific_InfoList_sequence_of[1] = {
@@ -27893,9 +24449,6 @@ dissect_rnsap_EDCH_MACdFlow_Specific_InfoList(tvbuff_t *tvb _U_, int offset _U_,
                                                   1, 8);
 
   return offset;
-}
-static int dissect_eDCH_MACdFlow_Specific_Information1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_Specific_InfoList(tvb, offset, actx, tree, hf_rnsap_eDCH_MACdFlow_Specific_Information1);
 }
 
 
@@ -27911,9 +24464,6 @@ dissect_rnsap_EDCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_EDCH_MACdFlows_Information, EDCH_MACdFlows_Information_sequence);
 
   return offset;
-}
-static int dissect_eDCH_MACdFlows_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlows_Information(tvb, offset, actx, tree, hf_rnsap_eDCH_MACdFlows_Information);
 }
 
 
@@ -27947,9 +24497,6 @@ dissect_rnsap_EDCH_Serving_RL_in_this_DRNS(tvbuff_t *tvb _U_, int offset _U_, as
                                    ett_rnsap_EDCH_Serving_RL_in_this_DRNS, EDCH_Serving_RL_in_this_DRNS_sequence);
 
   return offset;
-}
-static int dissect_e_DCH_Serving_RL_in_this_DRNS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_Serving_RL_in_this_DRNS(tvb, offset, actx, tree, hf_rnsap_e_DCH_Serving_RL_in_this_DRNS);
 }
 
 
@@ -27986,12 +24533,6 @@ dissect_rnsap_E_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   return offset;
 }
-static int dissect_primary_e_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_RNTI(tvb, offset, actx, tree, hf_rnsap_primary_e_RNTI);
-}
-static int dissect_secondary_e_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_RNTI(tvb, offset, actx, tree, hf_rnsap_secondary_e_RNTI);
-}
 
 
 
@@ -28001,9 +24542,6 @@ dissect_rnsap_ERGCH_SignatureSequence(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                               0U, 39U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_eRGCH_SignatureSequence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ERGCH_SignatureSequence(tvb, offset, actx, tree, hf_rnsap_eRGCH_SignatureSequence);
 }
 
 
@@ -28015,9 +24553,6 @@ dissect_rnsap_EHICH_SignatureSequence(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_eHICH_SignatureSequence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EHICH_SignatureSequence(tvb, offset, actx, tree, hf_rnsap_eHICH_SignatureSequence);
-}
 
 
 
@@ -28027,9 +24562,6 @@ dissect_rnsap_E_Serving_Grant_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                               0U, 31U, NULL, TRUE);
 
   return offset;
-}
-static int dissect_serving_Grant_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_Serving_Grant_Value(tvb, offset, actx, tree, hf_rnsap_serving_Grant_Value);
 }
 
 
@@ -28047,9 +24579,6 @@ dissect_rnsap_E_Primary_Secondary_Grant_Selector(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_primary_Secondary_Grant_Selector(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_Primary_Secondary_Grant_Selector(tvb, offset, actx, tree, hf_rnsap_primary_Secondary_Grant_Selector);
-}
 
 
 static const value_string rnsap_E_RGCH_Release_Indicator_vals[] = {
@@ -28064,9 +24593,6 @@ dissect_rnsap_E_RGCH_Release_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                      1, NULL, FALSE, 0, NULL);
 
   return offset;
-}
-static int dissect_e_RGCH_Release_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_RGCH_Release_Indicator(tvb, offset, actx, tree, hf_rnsap_e_RGCH_Release_Indicator);
 }
 
 
@@ -28095,9 +24621,6 @@ dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation(tvbuff_t *tvb _U_, int offse
 static int dissect_id_EDCH_FDD_DL_ControlChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
   return dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation(tvb, offset, actx, tree, hf_rnsap_id_EDCH_FDD_DL_ControlChannelInformation);
 }
-static int dissect_eDCH_FDD_DL_ControlChannelInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_FDD_DL_ControlChannelInformation(tvb, offset, actx, tree, hf_rnsap_eDCH_FDD_DL_ControlChannelInformation);
-}
 
 
 static const per_sequence_t EDCH_FDD_InformationResponseItem_sequence[] = {
@@ -28114,9 +24637,6 @@ dissect_rnsap_EDCH_FDD_InformationResponseItem(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_EDCH_FDD_InformationResponseItem, EDCH_FDD_InformationResponseItem_sequence);
 
   return offset;
-}
-static int dissect_EDCH_FDD_InformationResponse_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_FDD_InformationResponseItem(tvb, offset, actx, tree, hf_rnsap_EDCH_FDD_InformationResponse_item);
 }
 
 
@@ -28149,9 +24669,6 @@ dissect_rnsap_E_DCH_MACdPDU_SizeToModifyList(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_mACd_PDU_Size_List1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_MACdPDU_SizeToModifyList(tvb, offset, actx, tree, hf_rnsap_mACd_PDU_Size_List1);
-}
 
 
 static const per_sequence_t E_DCH_LogicalChannelToModifyItem_sequence[] = {
@@ -28171,9 +24688,6 @@ dissect_rnsap_E_DCH_LogicalChannelToModifyItem(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_E_DCH_LogicalChannelToModify_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelToModifyItem(tvb, offset, actx, tree, hf_rnsap_E_DCH_LogicalChannelToModify_item);
-}
 
 
 static const per_sequence_t E_DCH_LogicalChannelToModify_sequence_of[1] = {
@@ -28187,9 +24701,6 @@ dissect_rnsap_E_DCH_LogicalChannelToModify(tvbuff_t *tvb _U_, int offset _U_, as
                                                   1, 16);
 
   return offset;
-}
-static int dissect_eDCH_LogicalChannelToModify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelToModify(tvb, offset, actx, tree, hf_rnsap_eDCH_LogicalChannelToModify);
 }
 
 
@@ -28206,9 +24717,6 @@ dissect_rnsap_E_DCH_LogicalChannelToDeleteItem(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_E_DCH_LogicalChannelToDelete_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelToDeleteItem(tvb, offset, actx, tree, hf_rnsap_E_DCH_LogicalChannelToDelete_item);
-}
 
 
 static const per_sequence_t E_DCH_LogicalChannelToDelete_sequence_of[1] = {
@@ -28222,9 +24730,6 @@ dissect_rnsap_E_DCH_LogicalChannelToDelete(tvbuff_t *tvb _U_, int offset _U_, as
                                                   1, 16);
 
   return offset;
-}
-static int dissect_eDCH_LogicalChannelToDelete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_E_DCH_LogicalChannelToDelete(tvb, offset, actx, tree, hf_rnsap_eDCH_LogicalChannelToDelete);
 }
 
 
@@ -28253,9 +24758,6 @@ dissect_rnsap_EDCH_MACdFlow_Specific_InfoToModifyItem(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_EDCH_MACdFlow_Specific_InfoToModifyList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_Specific_InfoToModifyItem(tvb, offset, actx, tree, hf_rnsap_EDCH_MACdFlow_Specific_InfoToModifyList_item);
-}
 
 
 static const per_sequence_t EDCH_MACdFlow_Specific_InfoToModifyList_sequence_of[1] = {
@@ -28269,9 +24771,6 @@ dissect_rnsap_EDCH_MACdFlow_Specific_InfoToModifyList(tvbuff_t *tvb _U_, int off
                                                   1, 8);
 
   return offset;
-}
-static int dissect_eDCH_MACdFlow_Specific_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlow_Specific_InfoToModifyList(tvb, offset, actx, tree, hf_rnsap_eDCH_MACdFlow_Specific_Information);
 }
 
 
@@ -28305,9 +24804,6 @@ dissect_rnsap_EDCH_MACdFlows_To_Delete_Item(tvbuff_t *tvb _U_, int offset _U_, a
                                    ett_rnsap_EDCH_MACdFlows_To_Delete_Item, EDCH_MACdFlows_To_Delete_Item_sequence);
 
   return offset;
-}
-static int dissect_EDCH_MACdFlows_To_Delete_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_MACdFlows_To_Delete_Item(tvb, offset, actx, tree, hf_rnsap_EDCH_MACdFlows_To_Delete_item);
 }
 
 
@@ -28425,9 +24921,6 @@ dissect_rnsap_AccessPointName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_accessPointName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AccessPointName(tvb, offset, actx, tree, hf_rnsap_accessPointName);
-}
 
 
 
@@ -28437,9 +24930,6 @@ dissect_rnsap_IPMulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                        4, 16, NULL);
 
   return offset;
-}
-static int dissect_iPMulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IPMulticastAddress(tvb, offset, actx, tree, hf_rnsap_iPMulticastAddress);
 }
 
 
@@ -28530,9 +25020,6 @@ dissect_rnsap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp(tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item);
-}
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_sequence_of[1] = {
@@ -28566,9 +25053,6 @@ dissect_rnsap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp(tvbuff_t *tv
 
   return offset;
 }
-static int dissect_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp(tvb, offset, actx, tree, hf_rnsap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item);
-}
 
 
 static const per_sequence_t Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_sequence_of[1] = {
@@ -28600,9 +25084,6 @@ dissect_rnsap_AffectedUEInformationForMBMS(tvbuff_t *tvb _U_, int offset _U_, as
 
   return offset;
 }
-static int dissect_affectedUEInformationForMBMS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AffectedUEInformationForMBMS(tvb, offset, actx, tree, hf_rnsap_affectedUEInformationForMBMS);
-}
 
 
 static const per_sequence_t MBMSChannelTypeCellList_sequence[] = {
@@ -28619,15 +25100,6 @@ dissect_rnsap_MBMSChannelTypeCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
   return offset;
 }
-static int dissect_NotProvidedCellList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSChannelTypeCellList(tvb, offset, actx, tree, hf_rnsap_NotProvidedCellList_item);
-}
-static int dissect_PTMCellList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSChannelTypeCellList(tvb, offset, actx, tree, hf_rnsap_PTMCellList_item);
-}
-static int dissect_PTPCellList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSChannelTypeCellList(tvb, offset, actx, tree, hf_rnsap_PTPCellList_item);
-}
 
 
 static const per_sequence_t PTMCellList_sequence_of[1] = {
@@ -28641,9 +25113,6 @@ dissect_rnsap_PTMCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                                   1, 65536);
 
   return offset;
-}
-static int dissect_pTM_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PTMCellList(tvb, offset, actx, tree, hf_rnsap_pTM_Cell_List);
 }
 
 
@@ -28659,9 +25128,6 @@ dissect_rnsap_PTPCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   return offset;
 }
-static int dissect_pTP_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PTPCellList(tvb, offset, actx, tree, hf_rnsap_pTP_Cell_List);
-}
 
 
 static const per_sequence_t NotProvidedCellList_sequence_of[1] = {
@@ -28675,9 +25141,6 @@ dissect_rnsap_NotProvidedCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
                                                   1, 65536);
 
   return offset;
-}
-static int dissect_not_Provided_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NotProvidedCellList(tvb, offset, actx, tree, hf_rnsap_not_Provided_Cell_List);
 }
 
 
@@ -28697,9 +25160,6 @@ dissect_rnsap_MBMSChannelTypeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_mBMSChannelTypeInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSChannelTypeInfo(tvb, offset, actx, tree, hf_rnsap_mBMSChannelTypeInfo);
-}
 
 
 static const per_sequence_t CorrespondingCells_sequence_of[1] = {
@@ -28713,9 +25173,6 @@ dissect_rnsap_CorrespondingCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
                                                   1, 65536);
 
   return offset;
-}
-static int dissect_correspondingCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CorrespondingCells(tvb, offset, actx, tree, hf_rnsap_correspondingCells);
 }
 
 
@@ -28733,9 +25190,6 @@ dissect_rnsap_AdditionalPreferredFrequencyItem(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_AdditionalPreferredFrequency_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AdditionalPreferredFrequencyItem(tvb, offset, actx, tree, hf_rnsap_AdditionalPreferredFrequency_item);
-}
 
 
 static const per_sequence_t AdditionalPreferredFrequency_sequence_of[1] = {
@@ -28749,9 +25203,6 @@ dissect_rnsap_AdditionalPreferredFrequency(tvbuff_t *tvb _U_, int offset _U_, as
                                                   1, 8);
 
   return offset;
-}
-static int dissect_additionalPreferredFrequency(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_AdditionalPreferredFrequency(tvb, offset, actx, tree, hf_rnsap_additionalPreferredFrequency);
 }
 
 
@@ -28769,9 +25220,6 @@ dissect_rnsap_PreferredFrequencyLayerInfo(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_preferredFrequencyLayerInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PreferredFrequencyLayerInfo(tvb, offset, actx, tree, hf_rnsap_preferredFrequencyLayerInfo);
-}
 
 
 static const per_sequence_t MBMSPreferredFreqLayerInfo_sequence[] = {
@@ -28787,9 +25235,6 @@ dissect_rnsap_MBMSPreferredFreqLayerInfo(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_MBMSPreferredFreqLayerInfo, MBMSPreferredFreqLayerInfo_sequence);
 
   return offset;
-}
-static int dissect_mBMSPreferredFreqLayerInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSPreferredFreqLayerInfo(tvb, offset, actx, tree, hf_rnsap_mBMSPreferredFreqLayerInfo);
 }
 
 
@@ -28826,9 +25271,6 @@ dissect_rnsap_MBMS_Bearer_ServiceItemTDD_PFL(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_MBMS_Bearer_ServiceItemTDD_PFL, MBMS_Bearer_ServiceItemTDD_PFL_sequence);
 
   return offset;
-}
-static int dissect_Active_MBMS_Bearer_Service_ListTDD_PFL_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMS_Bearer_ServiceItemTDD_PFL(tvb, offset, actx, tree, hf_rnsap_Active_MBMS_Bearer_Service_ListTDD_PFL_item);
 }
 
 
@@ -29774,9 +26216,6 @@ dissect_rnsap_DL_DPCH_InformationList_RL_SetupRspTDD(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_dl_DPCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_DPCH_InformationList_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_dl_DPCH_Information);
-}
 
 
 static const per_sequence_t DL_CCTrCHInformationItem_RL_SetupRspTDD_sequence[] = {
@@ -29792,9 +26231,6 @@ dissect_rnsap_DL_CCTrCHInformationItem_RL_SetupRspTDD(tvbuff_t *tvb _U_, int off
                                    ett_rnsap_DL_CCTrCHInformationItem_RL_SetupRspTDD, DL_CCTrCHInformationItem_RL_SetupRspTDD_sequence);
 
   return offset;
-}
-static int dissect_DL_CCTrCHInformationListIE_RL_SetupRspTDD_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_CCTrCHInformationItem_RL_SetupRspTDD(tvb, offset, actx, tree, hf_rnsap_DL_CCTrCHInformationListIE_RL_SetupRspTDD_item);
 }
 
 
@@ -29869,9 +26305,6 @@ dissect_rnsap_Cell_InfEx_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_cell5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Cell_InfEx_Rsp(tvb, offset, actx, tree, hf_rnsap_cell5);
-}
 
 
 
@@ -29880,9 +26313,6 @@ dissect_rnsap_Extension_InformationExchangeObjectType_InfEx_Rsp(tvbuff_t *tvb _U
   offset = dissect_rnsap_ProtocolIE_Single_Container(tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_extension_InformationExchangeObjectType_InfEx_Rsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Extension_InformationExchangeObjectType_InfEx_Rsp(tvb, offset, actx, tree, hf_rnsap_extension_InformationExchangeObjectType_InfEx_Rsp);
 }
 
 
@@ -29923,9 +26353,6 @@ dissect_rnsap_MBMS_Bearer_ServiceItemFDD_PFL(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_Active_MBMS_Bearer_Service_ListFDD_PFL_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMS_Bearer_ServiceItemFDD_PFL(tvb, offset, actx, tree, hf_rnsap_Active_MBMS_Bearer_Service_ListFDD_PFL_item);
-}
 
 
 static const per_sequence_t Active_MBMS_Bearer_Service_ListFDD_PFL_sequence_of[1] = {
@@ -29956,9 +26383,6 @@ dissect_rnsap_Band_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_band_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Band_Indicator(tvb, offset, actx, tree, hf_rnsap_band_Indicator);
-}
 
 
 
@@ -29968,9 +26392,6 @@ dissect_rnsap_BCC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                      3, 3, FALSE, NULL);
 
   return offset;
-}
-static int dissect_bCC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BCC(tvb, offset, actx, tree, hf_rnsap_bCC);
 }
 
 
@@ -29982,9 +26403,6 @@ dissect_rnsap_BCCH_ARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
-static int dissect_bCCH_ARFCN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BCCH_ARFCN(tvb, offset, actx, tree, hf_rnsap_bCCH_ARFCN);
-}
 
 
 
@@ -29994,9 +26412,6 @@ dissect_rnsap_NCC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
                                      3, 3, FALSE, NULL);
 
   return offset;
-}
-static int dissect_nCC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_NCC(tvb, offset, actx, tree, hf_rnsap_nCC);
 }
 
 
@@ -30013,9 +26428,6 @@ dissect_rnsap_BSIC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
   return offset;
 }
-static int dissect_bSIC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_BSIC(tvb, offset, actx, tree, hf_rnsap_bSIC);
-}
 
 
 static const per_sequence_t EDCH_FDD_Update_InfoItem_sequence[] = {
@@ -30030,9 +26442,6 @@ dissect_rnsap_EDCH_FDD_Update_InfoItem(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                    ett_rnsap_EDCH_FDD_Update_InfoItem, EDCH_FDD_Update_InfoItem_sequence);
 
   return offset;
-}
-static int dissect_EDCH_FDD_Update_Information_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_EDCH_FDD_Update_InfoItem(tvb, offset, actx, tree, hf_rnsap_EDCH_FDD_Update_Information_item);
 }
 
 
@@ -30091,9 +26500,6 @@ dissect_rnsap_FACH_PCH_InformationItem(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_FACH_PCH_InformationList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FACH_PCH_InformationItem(tvb, offset, actx, tree, hf_rnsap_FACH_PCH_InformationList_item);
-}
 
 
 static const per_sequence_t FACH_PCH_InformationList_sequence_of[1] = {
@@ -30127,9 +26533,6 @@ dissect_rnsap_Neighbouring_GSM_CellInformationItem(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_Neighbouring_GSM_CellInformationIEs_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_Neighbouring_GSM_CellInformationItem(tvb, offset, actx, tree, hf_rnsap_Neighbouring_GSM_CellInformationIEs_item);
-}
 
 
 static const per_sequence_t Neighbouring_GSM_CellInformationIEs_sequence_of[1] = {
@@ -30154,9 +26557,6 @@ dissect_rnsap_PredictedTUTRANGPSDeviationLimit(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_predictedTUTRANGPSDeviationLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PredictedTUTRANGPSDeviationLimit(tvb, offset, actx, tree, hf_rnsap_predictedTUTRANGPSDeviationLimit);
-}
 
 
 
@@ -30176,9 +26576,6 @@ dissect_rnsap_TUTRANGPSChangeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
                                               1U, 256U, NULL, FALSE);
 
   return offset;
-}
-static int dissect_tUTRANGPSChangeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_TUTRANGPSChangeLimit(tvb, offset, actx, tree, hf_rnsap_tUTRANGPSChangeLimit);
 }
 
 
@@ -30218,7 +26615,7 @@ dissect_rnsap_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_rnsap_FirstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "rnsap.cnf"
+#line 70 "rnsap.cnf"
 	/* FIX ME */
 	guint length;
 
@@ -30229,16 +26626,13 @@ dissect_rnsap_FirstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
   return offset;
-}
-static int dissect_firstValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_FirstValue(tvb, offset, actx, tree, hf_rnsap_firstValue);
 }
 
 
 
 static int
 dissect_rnsap_SecondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "rnsap.cnf"
+#line 78 "rnsap.cnf"
 	/* FIX ME */
 	guint length;
 
@@ -30250,9 +26644,6 @@ dissect_rnsap_SecondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
   return offset;
-}
-static int dissect_secondValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_SecondValue(tvb, offset, actx, tree, hf_rnsap_secondValue);
 }
 
 
@@ -30272,9 +26663,6 @@ dissect_rnsap_ProtocolIE_FieldPair(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   return offset;
 }
-static int dissect_ProtocolIE_ContainerPair_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_FieldPair(tvb, offset, actx, tree, hf_rnsap_ProtocolIE_ContainerPair_item);
-}
 
 
 static const per_sequence_t ProtocolIE_ContainerPair_sequence_of[1] = {
@@ -30288,9 +26676,6 @@ dissect_rnsap_ProtocolIE_ContainerPair(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                                   0, 65535);
 
   return offset;
-}
-static int dissect_ProtocolIE_ContainerPairList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ProtocolIE_ContainerPair(tvb, offset, actx, tree, hf_rnsap_ProtocolIE_ContainerPairList_item);
 }
 
 

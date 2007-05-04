@@ -2,6 +2,13 @@
 # rnsap conformation file
 # Copyright 2005 Anders Broman 
 # $Id$
+
+#.OPT
+CREATE_FIELDS DummyInitiatingValue
+CREATE_FIELDS DummySuccessfulOutcomeValue
+CREATE_FIELDS DummyUnSuccessfulOutcomeValue
+CREATE_FIELDS DummyProtocolIE
+
 #.PDU
 RNSAP-PDU
 

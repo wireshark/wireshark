@@ -2103,64 +2103,49 @@ dissect_qsig_IntResultList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 /*--- PDUs ---*/
 
 static void dissect_NameArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_NameArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_NameArg_PDU);
+  dissect_qsig_NameArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_NameArg_PDU);
 }
 static void dissect_ActivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_ActivateDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_ActivateDivArg_PDU);
+  dissect_qsig_ActivateDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_ActivateDivArg_PDU);
 }
 static void dissect_ActivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_ActivateDivRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_ActivateDivRes_PDU);
+  dissect_qsig_ActivateDivRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_ActivateDivRes_PDU);
 }
 static void dissect_DeactivateDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DeactivateDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DeactivateDivArg_PDU);
+  dissect_qsig_DeactivateDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DeactivateDivArg_PDU);
 }
 static void dissect_DeactivateDivRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DeactivateDivRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_DeactivateDivRes_PDU);
+  dissect_qsig_DeactivateDivRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_DeactivateDivRes_PDU);
 }
 static void dissect_InterrDivArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_InterrDivArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_InterrDivArg_PDU);
+  dissect_qsig_InterrDivArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_InterrDivArg_PDU);
 }
 static void dissect_ChkResArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_ChkResArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_ChkResArg_PDU);
+  dissect_qsig_ChkResArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_ChkResArg_PDU);
 }
 static void dissect_ChkResRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_ChkResRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_ChkResRes_PDU);
+  dissect_qsig_ChkResRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_ChkResRes_PDU);
 }
 static void dissect_CallRrArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_CallRrArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_CallRrArg_PDU);
+  dissect_qsig_CallRrArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_CallRrArg_PDU);
 }
 static void dissect_CallRrRes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_CallRrRes(FALSE, tvb, offset, pinfo, tree, hf_qsig_CallRrRes_PDU);
+  dissect_qsig_CallRrRes(FALSE, tvb, 0, pinfo, tree, hf_qsig_CallRrRes_PDU);
 }
 static void dissect_DivLegInf1Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DivLegInf1Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf1Arg_PDU);
+  dissect_qsig_DivLegInf1Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf1Arg_PDU);
 }
 static void dissect_DivLegInf2Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DivLegInf2Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf2Arg_PDU);
+  dissect_qsig_DivLegInf2Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf2Arg_PDU);
 }
 static void dissect_DivLegInf3Arg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DivLegInf3Arg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegInf3Arg_PDU);
+  dissect_qsig_DivLegInf3Arg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegInf3Arg_PDU);
 }
 static void dissect_DivLegFailArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_DivLegFailArg(FALSE, tvb, offset, pinfo, tree, hf_qsig_DivLegFailArg_PDU);
+  dissect_qsig_DivLegFailArg(FALSE, tvb, 0, pinfo, tree, hf_qsig_DivLegFailArg_PDU);
 }
 static void dissect_IntResultList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  offset = dissect_qsig_IntResultList(FALSE, tvb, offset, pinfo, tree, hf_qsig_IntResultList_PDU);
+  dissect_qsig_IntResultList(FALSE, tvb, 0, pinfo, tree, hf_qsig_IntResultList_PDU);
 }
 
 
