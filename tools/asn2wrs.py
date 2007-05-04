@@ -440,6 +440,8 @@ class EthCtx:
   def __init__(self, conform, output, indent = 0):
     self.conform = conform
     self.output = output
+    self.conform.ectx = self
+    self.output.ectx = self
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -450,7 +452,7 @@ class EthCtx:
   def Ber(self): return self.encoding == 'ber'
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
-  def Fld(self): return self.fld_opt or self.Ber()
+  def Fld(self, tnm='*'): return self.fld_opt.get('*', False) or self.fld_opt.get(tnm, False) or self.Ber()
   def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
   def NAPI(self): return False  # disable planned features
 
@@ -575,7 +577,7 @@ class EthCtx:
     if self.field.has_key(ident):
       raise "Duplicate field for " + ident
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
-                         'modified' : '', 'attr' : {} }
+                         'modified' : '', 'attr' : {} , 'create_field' : False }
     name = ident.split('/')[-1]
     if len(ident.split('/')) > 1 and name == '_item':  # Sequnce/Set of type
       self.field[ident]['attr']['NAME'] = '"Item"'
@@ -590,7 +592,9 @@ class EthCtx:
       self.pdu_ord.append(ident)
     else:
       self.field_ord.append(ident)
-    if parent: self.eth_dep_add(parent, type)
+    if parent:
+      self.field[ident]['create_field'] = self.Fld(parent)
+      self.eth_dep_add(parent, type)
 
   #--- eth_clean --------------------------------------------------------------
   def eth_clean(self):
@@ -665,7 +669,7 @@ class EthCtx:
       nm = asn2c(t)
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
                             'proto' : asn2c(self.type[t]['proto']),
-                            'attr' : {}, 'ref' : []}
+                            'attr' : {}, 'create_field' : False, 'ref' : []}
       self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
@@ -697,7 +701,7 @@ class EthCtx:
                               'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS, 
                               'val' : self.type[t]['val'], 
                               'attr' : {}, 
-                              'ref' : [t]}
+                              'create_field' : False, 'ref' : [t]}
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
@@ -781,15 +785,17 @@ class EthCtx:
                         'ethname' : t }
         self.type[t]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
                                  'STRINGS' : 'NULL', 'BITMASK' : '0' }
-        self.eth_type[t] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'ref' : []}
+        self.eth_type[t] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'create_field' : False, 'ref' : []}
         ethtype = t
       ethtypemod = ethtype + self.field[f]['modified']
       if self.eth_hf.has_key(nm):
         if self.eth_hf_dupl.has_key(nm):
           if self.eth_hf_dupl[nm].has_key(ethtypemod):
             nm = self.eth_hf_dupl[nm][ethtypemod]
+            self.eth_hf[nm]['create_field'] = self.eth_hf[nm]['create_field'] or self.field[f]['create_field']
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
+            self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
             nmx = nm + str(len(self.eth_hf_dupl[nm]))
@@ -797,8 +803,10 @@ class EthCtx:
             nm = nmx
         else:
           if (self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified']) == ethtypemod:
+            self.eth_hf[nm]['create_field'] = self.eth_hf[nm]['create_field'] or self.field[f]['create_field']
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
+            self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
             self.eth_hf_dupl[nm] = {self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified'] : nm, \
@@ -816,8 +824,11 @@ class EthCtx:
       attr.update(self.conform.use_item('EFIELD_ATTR', nm))
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
-                         'attr' : attr.copy(), 'ref' : [f]}
+                         'attr' : attr.copy(), 
+                         'create_field' : self.field[f]['create_field'],
+                         'ref' : [f]}
       self.field[f]['ethname'] = nm
+      self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
     #--- type dependencies -------------------
     x = {}  # already emitted
     #print '# Dependency computation'
@@ -1182,7 +1193,13 @@ class EthCtx:
       else:
         out += 'void'
       out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
-      out += '  int offset = 0;\n'
+      if (is_new):
+        out += '  int offset = 0;\n'
+        off_par = 'offset'
+        ret_par = 'offset'
+      else:
+        off_par = '0'
+        ret_par = None
       if (self.Per()):
         if (self.Aligned()):
           aligned = 'TRUE'
@@ -1191,13 +1208,13 @@ class EthCtx:
         out += "  asn1_ctx_t asn1_ctx;\n"
         out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
       if (self.Ber()):
-        par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+        par=((impl, 'tvb', off_par, 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       elif (self.Per()):
-        par=(('tvb', 'offset', '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
+        par=(('tvb', off_par, '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=((),)
-      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='offset', par=par)
-      if (self.Per()):
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret=ret_par, par=par)
+      if (self.Per() and is_new):
         out += '  offset += 7; offset >>= 3;\n'
       if (is_new):
         out += '  return offset;\n'
@@ -1214,10 +1231,10 @@ class EthCtx:
         if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
         fx.write(''.join(map(lambda i: '/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]), self.dep_cycle_eth_type[t])))
         fx.write(self.eth_type_fn_h(t))
-        if (self.Fld()):
+        if (self.Fld() or self.eth_type[t]['create_field']):
           fx.write('\n')
           for f in self.eth_hf_ord:
-            if (self.eth_hf[f]['ethtype'] == t):
+            if ((self.eth_hf[f]['ethtype'] == t) and (self.Fld() or self.eth_hf[f]['create_field'])):
               fx.write(out_field(f))
         fx.write('\n')
         i += 1
@@ -1248,9 +1265,9 @@ class EthCtx:
         fx.write(self.eth_type_fn_h(t))
       else:
         fx.write(self.eth_type[t]['val'].eth_type_fn(self.eth_type[t]['proto'], t, self))
-      if (self.Fld() and not self.dep_cycle_eth_type.has_key(t)):
+      if ((self.Fld() or self.eth_type[t]['create_field']) and not self.dep_cycle_eth_type.has_key(t)):
         for f in self.eth_hf_ord:
-          if (self.eth_hf[f]['ethtype'] == t):
+          if ((self.eth_hf[f]['ethtype'] == t) and (self.Fld() or self.eth_hf[f]['create_field'])):
             fx.write(out_field(f))
       fx.write('\n')
     if (len(self.eth_hfpdu_ord)):
@@ -1443,6 +1460,7 @@ class EthCtx:
 #--- EthCnf -------------------------------------------------------------------
 class EthCnf:
   def __init__(self):
+    self.ectx = None
     self.tblcfg = {}
     self.table = {}
     self.order = {}
@@ -1565,22 +1583,26 @@ class EthCnf:
       rkey = '/'.join([rtype, attr['roid']])
     self.add_item('REGISTER', rkey, attr=attr, fn=fn, lineno=lineno)
 
+  def check_par(self, par, pmin, pmax, fn, lineno):
+    for i in range(len(par)):
+      if par[i] == '-':
+        par[i] = None
+        continue
+      if par[i][0] == '#':
+        par[i:] = []
+        break
+    if len(par) < pmin:
+      warnings.warn_explicit("Too few parameters. At least %d parameters are required" % (pmin), UserWarning, fn, lineno)
+      return None
+    if (pmax >= 0) and (len(par) > pmax):
+      warnings.warn_explicit("Too many parameters. Only %d parameters are allowed" % (pmax), UserWarning, fn, lineno)
+      return par[0:pmax]
+    return par
+
   def read(self, fn):
     def get_par(line, pmin, pmax, fn, lineno):
       par = line.split(None, pmax)
-      for i in range(len(par)):
-        if par[i] == '-':
-          par[i] = None
-          continue
-        if par[i][0] == '#':
-          par[i:] = []
-          break
-      if len(par) < pmin:
-        warnings.warn_explicit("Too few parameters. At least %d parameters are required" % (pmin), UserWarning, fn, lineno)
-        return None
-      if (pmax >= 0) and (len(par) > pmax):
-        warnings.warn_explicit("Too many parameters. Only %d parameters are allowed" % (pmax), UserWarning, fn, lineno)
-        return par[0:pmax]
+      par = self.check_par(par, pmin, pmax, fn, lineno)
       return par
 
     def get_par_nm(line, pmin, pmax, fn, lineno):
@@ -1643,7 +1665,13 @@ class EthCnf:
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
+        if result.group('name') == 'OPT':
+          ctx = result.group('name')
+          par = get_par(line[result.end():], 0, -1, fn=fn, lineno=lineno)
+          if not par: continue
+          self.set_opt(par[0], par[1:], fn, lineno)
+          ctx = None
+        elif result.group('name') in ('PDU', 'PDU_NEW', 'REGISTER', 'REGISTER_NEW', 
                                     'MODULE', 'MODULE_IMPORT', 
                                     'OMIT_ASSIGNMENT', 'VIRTUAL_ASSGN', 'SET_TYPE',
                                     'TYPE_RENAME', 'FIELD_RENAME', 'TF_RENAME', 'IMPORT_TAG',
@@ -1743,6 +1771,11 @@ class EthCnf:
       if not ctx:
         if not empty.match(line):
           warnings.warn_explicit("Non-empty line in empty context", UserWarning, fn, lineno)
+      elif ctx == 'OPT':
+        if empty.match(line): continue
+        par = get_par(line, 1, -1, fn=fn, lineno=lineno)
+        if not par: continue
+        self.set_opt(par[0], par[1:], fn, lineno)
       elif ctx in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT'):
         if empty.match(line): continue
         if ctx == 'EXPORTS':
@@ -1891,6 +1924,69 @@ class EthCnf:
           warnings.warn_explicit("Could not set type of class member %s.&%s to %s" % (name, par[0], par[1]),
                                   UserWarning, fn, lineno)
 
+  def set_opt(self, opt, par, fn, lineno):
+    #print "set_opt: %s, %s" % (opt, par)
+    if opt in ("-I",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.include_path.append(par[0])
+    elif opt in ("-b", "BER", "CER", "DER"):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.encoding = 'ber'
+    elif opt in ("PER",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.encoding = 'per'
+    elif opt in ("-p", "PROTO"):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.proto_opt = par[0]
+      self.ectx.merge_modules = True
+    elif opt in ("-F", "CREATE_FIELDS"):
+      par = self.check_par(par, 0, 1, fn, lineno)
+      tnm = '*'
+      if (len(par) > 0): tnm = par[0]
+      self.ectx.fld_opt[tnm] = True
+    elif opt in ("-T",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.tag_opt = True
+    elif opt in ("ALIGNED",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.aligned = True
+    elif opt in ("-u", "UNALIGNED"):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.aligned = False
+    elif opt in ("-d",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.dbgopt = par[0]
+    elif opt in ("-e",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.expcnf = True
+    elif opt in ("-S",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.merge_modules = True
+    elif opt in ("-o",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.outnm_opt = par[0]
+    elif opt in ("-O",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.output.outdir = par[0]
+    elif opt in ("-s",):
+      par = self.check_par(par, 1, 1, fn, lineno)
+      if not par: return
+      self.ectx.output.single_file = par[0]
+    elif opt in ("-k",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.output.keep = True
+    elif opt in ("-L",):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.suppress_line = True
+    else:
+      warnings.warn_explicit("Unknown option %s" % (opt),
+                             UserWarning, fn, lineno)
+
   def dbg_print(self):
     print "\n# Conformance values"
     print "%-15s %-4s %-15s %-20s %s" % ("File", "Line", "Table", "Key", "Value")
@@ -1929,6 +2025,7 @@ class EthCnf:
 #--- EthOut -------------------------------------------------------------------
 class EthOut:
   def __init__(self):
+    self.ectx = None
     self.outnm = None
     self.outdir = '.'
     self.single_file = None
@@ -5220,7 +5317,7 @@ def eth_main():
   ectx = EthCtx(conform, output)
   ectx.encoding = 'per'
   ectx.proto_opt = None
-  ectx.fld_opt = False
+  ectx.fld_opt = {}
   ectx.tag_opt = False
   ectx.outnm_opt = None
   ectx.aligned = True
@@ -5234,42 +5331,23 @@ def eth_main():
   for o, a in opts:
     if o in ("-h", "-?"):
       eth_usage(); sys.exit(2)
-    if o in ("-b",):
-      ectx.encoding = 'ber'
-    if o in ("-p",):
-      ectx.proto_opt = a
-      ectx.merge_modules = True
-    if o in ("-F",):
-      ectx.fld_opt = True
-    if o in ("-T",):
-      ectx.tag_opt = True
     if o in ("-c",):
       conf_to_read = a
     if o in ("-I",):
       ectx.conform.include_path.append(a)
-    if o in ("-u",):
-      ectx.aligned = False
-    if o in ("-d",):
-      ectx.dbgopt = a
-    if o in ("-e",):
-      ectx.expcnf = True
-    if o in ("-S",):
-      ectx.merge_modules = True
-    if o in ("-o",):
-      ectx.outnm_opt = a
-    if o in ("-O",):
-      ectx.output.outdir = a
-    if o in ("-s",):
-      ectx.output.single_file = a
-    if o in ("-k",):
-      ectx.output.keep = True
-    if o in ("-L",):
-      ectx.conform.suppress_line = True
     if o in ("-X",):
         warnings.warn("Command line option -X is obsolete and can be removed")
 
   if conf_to_read:
     ectx.conform.read(conf_to_read)
+
+  for o, a in opts:
+    if o in ("-h", "-?", "-c", "-I", "-X"):
+      pass  # already processed
+    else:
+      par = []
+      if a: par.append(a)
+      ectx.conform.set_opt(o, par, "commandline", 0)
 
   (ld, yd, pd) = (0, 0, 0); 
   if ectx.dbg('l'): ld = 1
