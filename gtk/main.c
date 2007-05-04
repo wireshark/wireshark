@@ -603,15 +603,15 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
   char      *s;
   cf_status_t cf_status;
 
-  /* we'll crash later on if dftext is NULL */
-  g_assert(dftext != NULL);
-
   s = g_strdup(dftext);
+
+  cf_status = cf_filter_packets(cf, s, force);
+  if (!s)
+    return (cf_status == CF_OK);
 
   /* GtkCombos don't let us get at their list contents easily, so we maintain
      our own filter list, and feed it to gtk_combo_set_popdown_strings when
      a new filter is added. */
-  cf_status = cf_filter_packets(cf, s, force);
   if (cf_status == CF_OK) {
     li = g_list_first(dfilter_list);
     while (li) {
@@ -661,7 +661,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
   if ((filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
-  main_filter_packets(&cfile, "", FALSE);
+  main_filter_packets(&cfile, NULL, FALSE);
 }
 
 /* mark as reference time frame */
