@@ -74,6 +74,8 @@
 #include "catapult_dct2000.h"
 #include "mpeg.h"
 
+
+
 /* The open_file_* routines should return:
  *
  *	-1 on an I/O error;
@@ -91,7 +93,8 @@
  * should be discovered as a libpcap file, not a toshiba file.
  */
 
-static int (*const open_routines[])(wtap *, int *, char **) = {
+
+static wtap_open_routine_t open_routines_base[] = {
 	/* Files that have magic bytes in fixed locations. These
 	 * are easy to identify.
 	 */
@@ -134,7 +137,36 @@ static int (*const open_routines[])(wtap *, int *, char **) = {
 	hcidump_open,
 };
 
-#define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
+#define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])
+
+static wtap_open_routine_t* open_routines = NULL;
+
+static GArray* open_routines_arr = NULL;
+
+
+/* initialize the open routines array if it has not being initialized yet */
+static void init_open_routines(void) {
+	
+	if (open_routines_arr) return;
+
+	open_routines_arr = g_array_new(FALSE,TRUE,sizeof(wtap_open_routine_t));
+	
+	g_array_append_vals(open_routines_arr,open_routines_base,N_FILE_TYPES);
+	
+	open_routines = (void*)open_routines_arr->data;
+}
+
+void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_magic) {
+	init_open_routines();
+
+	if (has_magic)
+		g_array_prepend_val(open_routines_arr,open_routine);
+	else
+		g_array_append_val(open_routines_arr,open_routine);
+	
+	open_routines = (void*)open_routines_arr->data;
+	wtap_num_file_types++;
+}
 
 /*
  * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't
@@ -277,9 +309,11 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-
+	
+	init_open_routines();
+	
 	/* Try all file types */
-	for (i = 0; i < N_FILE_TYPES; i++) {
+	for (i = 0; i < open_routines_arr->len; i++) {
 		/* Seek back to the beginning of the file; the open routine
 		   for the previous file type may have left the file
 		   position somewhere other than the beginning, and the
@@ -332,34 +366,7 @@ success:
 }
 
 /* Table of the file types we know about. */
-static const struct file_type_info {
-    /* the file type name */
-    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
-	const char *name;
-
-    /* the file type short name, used as a shortcut for the command line tools */
-    /* should be NULL for all "pseudo" types that are are only internally used and not read/writeable */
-	const char *short_name;
-    
-    /* the common file extensions for this type (seperated by semicolon) */
-    /* should be *.* if no common extension is applicable */
-    const char *file_extensions;
-    
-    /* the default file extension, used to save this type */
-    /* should be NULL if no default extension is known */
-    const char *file_extension_default;
-    
-    /* can this type be compressed with gzip? */
-	gboolean	can_compress;
-    
-    /* can this type write this encapsulation format? */
-    /* should be NULL is this file type don't have write support */
-	int	(*can_write_encap)(int);
-    
-    /* the function to open the capture file for writing */
-    /* should be NULL is this file type don't have write support */
-	int	(*dump_open)(wtap_dumper *, gboolean, int *);
-} dump_open_table[WTAP_NUM_FILE_TYPES] = {
+static const struct file_type_info dump_open_table[] = {
 	/* WTAP_FILE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL, FALSE,
 	  NULL, NULL },
@@ -552,6 +559,8 @@ static const struct file_type_info {
 	{ "K12 text file", "k12text", "*.txt", ".txt", TRUE,
 	  k12text_dump_can_write_encap, k12text_dump_open },
 };
+
+gint wtap_num_file_types = sizeof(dump_open_table) / sizeof(struct file_type_info);
 
 /* Name that should be somewhat descriptive. */
 const char *wtap_file_type_string(int filetype)

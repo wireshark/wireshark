@@ -64,6 +64,7 @@ NONGENERATED_C_FILES = \
 	toshiba.c		\
 	visual.c		\
 	vms.c			\
+	wtap-plugins.c			\
 	wtap.c
 
 # Header files that are not generated from other files

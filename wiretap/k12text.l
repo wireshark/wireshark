@@ -278,7 +278,6 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 
 
 static gboolean k12text_dump_close(wtap_dumper *wdh _U_ , int *err _U_) {
-	(void)0;
 	return TRUE;
 }
 

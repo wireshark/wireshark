@@ -192,8 +192,7 @@ extern "C" {
 #define WTAP_ENCAP_USB_LINUX                    95
 #define WTAP_ENCAP_MPEG                         96
 
-/* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			97
+#define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
 
 /* File types that can be read by wiretap.
    We support writing some many of these file types, too, so we
@@ -247,7 +246,8 @@ extern "C" {
 #define WTAP_FILE_MPEG				46
 #define WTAP_FILE_K12TEXT			47
 
-#define WTAP_NUM_FILE_TYPES			48
+#define WTAP_NUM_FILE_TYPES			wtap_num_file_types
+extern gint wtap_num_file_types;
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0
@@ -639,6 +639,39 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
+struct file_type_info {
+    /* the file type name */
+    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
+	const char *name;
+	
+    /* the file type short name, used as a shortcut for the command line tools */
+    /* should be NULL for all "pseudo" types that are are only internally used and not read/writeable */
+	const char *short_name;
+    
+    /* the common file extensions for this type (seperated by semicolon) */
+    /* should be *.* if no common extension is applicable */
+    const char *file_extensions;
+    
+    /* the default file extension, used to save this type */
+    /* should be NULL if no default extension is known */
+    const char *file_extension_default;
+    
+    /* can this type be compressed with gzip? */
+	gboolean	can_compress;
+    
+    /* can this type write this encapsulation format? */
+    /* should be NULL is this file type don't have write support */
+	int	(*can_write_encap)(int);
+    
+    /* the function to open the capture file for writing */
+    /* should be NULL is this file type don't have write support */
+	int	(*dump_open)(wtap_dumper *, gboolean, int *);
+};
+
+
+typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
+
+
 /*
  * On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
@@ -703,7 +736,11 @@ void wtap_dump_flush(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
-
+int wtap_get_num_encap_types(void);
+void wtap_register_open_routine(wtap_open_routine_t,gboolean);
+int wtap_register_encap_type(char* name, char* short_name);
+void wtap_register_file_type(const struct file_type_info*);
+void wtap_load_plugins(char*);
 /*
  * Wiretap error codes.
  */

@@ -1,4 +1,5 @@
 EXPORTS
+
 wtap_buf_ptr
 wtap_close
 wtap_dump
@@ -20,6 +21,7 @@ wtap_file_type
 wtap_file_type_short_string
 wtap_file_type_string
 wtap_get_bytes_dumped
+wtap_get_num_encap_types
 wtap_set_bytes_dumped
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap
@@ -28,6 +30,8 @@ wtap_process_pcap_packet
 wtap_pseudoheader
 wtap_read
 wtap_read_so_far
+wtap_register_open_routine
+wtap_register_open_routine
 wtap_seek_read
 wtap_sequential_close
 wtap_short_string_to_encap
