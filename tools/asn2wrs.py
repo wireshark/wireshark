@@ -1182,6 +1182,7 @@ class EthCtx:
       else:
         out += 'void'
       out += ' dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {\n'
+      out += '  int offset = 0;\n'
       if (self.Per()):
         if (self.Aligned()):
           aligned = 'TRUE'
@@ -1190,14 +1191,16 @@ class EthCtx:
         out += "  asn1_ctx_t asn1_ctx;\n"
         out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
       if (self.Ber()):
-        par=((impl, 'tvb', '0', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+        par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
       elif (self.Per()):
-        par=(('tvb', '0', '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
+        par=(('tvb', 'offset', '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
       else:
         par=((),)
-      ret = None
-      if (is_new): ret = 'return'
-      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret=ret, par=par)
+      out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='offset', par=par)
+      if (self.Per()):
+        out += '  offset += 7; offset >>= 3;\n'
+      if (is_new):
+        out += '  return offset;\n'
       out += '}\n'
       return out
     #end out_pdu()
@@ -1481,6 +1484,12 @@ class EthCnf:
     self.table[table][key].update(kw)
     self.order[table].append(key)
 
+  def update_item(self, table, key, fn, lineno, **kw):
+    if not self.table[table].has_key(key):
+      self.table[table][key] = {'fn' : fn, 'lineno' : lineno, 'used' : False}
+      self.order[table].append(key)
+    self.table[table][key][self.tblcfg[table]['val_nm']].update(kw[self.tblcfg[table]['val_nm']])
+
   def get_order(self, table):
     return self.order[table]
 
@@ -1691,12 +1700,12 @@ class EthCnf:
           ctx = result.group('name')
           if not par:
             name = None
-          else:
+          elif len(par) == 1:
             name = par[0]
-          if len(par) > 1:
-            self.add_item(ctx, name, pars=par[1], fn=fn, lineno=lineno)
+            self.add_item(ctx, name, pars={}, fn=fn, lineno=lineno)
+          elif len(par) > 1:
+            self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
             ctx = None
-            name = None
         elif result.group('name') == 'CLASS':
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
@@ -1867,7 +1876,7 @@ class EthCnf:
           par = get_par_nm(line, 1, 1, fn=fn, lineno=lineno)
         if not par: continue
         if name:
-          self.add_item(ctx, name, pars=par[0], fn=fn, lineno=lineno)
+          self.update_item(ctx, name, pars=par[0], fn=fn, lineno=lineno)
         else:
           self.add_item(ctx, par[0], pars=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
