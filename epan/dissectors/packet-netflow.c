@@ -154,6 +154,8 @@ struct v9_template {
 	guint32 source_id;
 	address	source_addr;
 	guint16 option_template; /* 0=data template, 1=option template */
+	guint16 count_scopes;
+	struct  v9_template_entry *scopes;
 	struct v9_template_entry *entries;
 };
 
@@ -215,6 +217,12 @@ static int	hf_cflow_option_length = -1;
 static int	hf_cflow_template_scope_field_type = -1;
 static int	hf_cflow_template_scope_field_length = -1;
 
+static int	hf_cflow_scope_system = -1;
+static int	hf_cflow_scope_interface = -1;
+static int	hf_cflow_scope_linecard = -1;
+static int	hf_cflow_scope_cache = -1;
+static int	hf_cflow_scope_template = -1;
+static int	hf_cflow_scope_unknown = -1;
 
 /*
  * pdu storage
@@ -237,6 +245,8 @@ static int      hf_cflow_packets64 = -1;
 static int      hf_cflow_packetsout = -1;
 static int      hf_cflow_octets = -1;
 static int      hf_cflow_octets64 = -1;
+static int      hf_cflow_length_min = -1;
+static int      hf_cflow_length_max = -1;
 static int      hf_cflow_timestart = -1;
 static int      hf_cflow_timeend = -1;
 static int      hf_cflow_srcport = -1;
@@ -253,14 +263,54 @@ static int      hf_cflow_routersc = -1;
 static int      hf_cflow_mulpackets = -1;
 static int      hf_cflow_muloctets = -1;
 static int      hf_cflow_octets_exp = -1;
+static int      hf_cflow_octets_exp64 = -1;
 static int      hf_cflow_packets_exp = -1;
+static int      hf_cflow_packets_exp64 = -1;
 static int      hf_cflow_flows_exp = -1;
+static int      hf_cflow_flows_exp64 = -1;
+static int      hf_cflow_srcprefix = -1;
+static int      hf_cflow_dstprefix = -1;
+static int      hf_cflow_flow_class = -1;
+static int      hf_cflow_ttl_minimum = -1;
+static int      hf_cflow_ttl_maximum = -1;
+static int      hf_cflow_ipv4_id = -1;
+static int      hf_cflow_ip_version = -1;
+static int      hf_cflow_icmp_type = -1;
+static int      hf_cflow_igmp_type = -1;
 static int      hf_cflow_sampling_interval = -1;
 static int      hf_cflow_sampling_algorithm = -1;
 static int      hf_cflow_flow_active_timeout = -1;
 static int      hf_cflow_flow_inactive_timeout = -1;
 static int      hf_cflow_mpls_top_label_type = -1;
 static int      hf_cflow_mpls_pe_addr = -1;
+static int      hf_cflow_sampler_mode = -1;
+static int      hf_cflow_sampler_random_interval = -1;
+static int      hf_cflow_direction = -1;
+static int      hf_cflow_if_name = -1;
+static int      hf_cflow_if_descr = -1;
+static int      hf_cflow_sampler_name = -1;
+static int      hf_cflow_forwarding_status = -1;
+static int      hf_cflow_forwarding_code = -1;
+static int      hf_cflow_peer_srcas = -1;
+static int      hf_cflow_peer_dstas = -1;
+static int      hf_cflow_flow_exporter = -1;
+static int      hf_cflow_icmp_ipv4_type = -1;
+static int      hf_cflow_icmp_ipv4_code = -1;
+static int      hf_cflow_icmp_ipv6_type = -1;
+static int      hf_cflow_icmp_ipv6_code = -1;
+static int      hf_cflow_tcp_window_size = -1;
+static int      hf_cflow_ip_total_length = -1;
+static int      hf_cflow_ip_ttl = -1;
+static int      hf_cflow_ip_tos = -1;
+static int      hf_cflow_ip_dscp = -1;
+static int      hf_cflow_octets_squared64 = -1;
+static int      hf_cflow_udp_length = -1;
+static int      hf_cflow_is_multicast = -1;
+static int      hf_cflow_ip_header_words = -1;
+static int      hf_cflow_option_map = -1;
+static int      hf_cflow_section_header = -1;
+static int      hf_cflow_section_payload = -1;
+
 const value_string special_mpls_top_label_type[] = {
 	{0,	"Unknown"},
 	{1,	"TE-MIDPT"},
@@ -322,6 +372,7 @@ static int	v9_template_hash(guint16 id, const address * net_src,
 static void	v9_template_add(struct v9_template * template);
 static struct v9_template *v9_template_get(guint16 id, address  * net_src,
 					   guint32 src_id);
+static const char *   decode_v9_template_types(int type);
 
 static gchar   *getprefix(const guint32 * address, int prefix);
 static void     dissect_netflow(tvbuff_t * tvb, packet_info * pinfo,
@@ -405,8 +456,6 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	offset += 2;
 
 	pdus = tvb_get_ntohs(tvb, offset);
-	if (pdus <= 0)
-		return;
 	if (tree) {
 		if(ver == 10) {
 			proto_tree_add_uint(netflow_tree, hf_cflow_len, tvb,
@@ -574,6 +623,12 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset += 2;
 	}
 
+	if (pdus <= 0) { /* no payload to decode - in theory */
+		/* This is absurd, but does happens in practice.  */
+		proto_tree_add_text(netflow_tree, tvb, offset, tvb_length_remaining(tvb, offset), 
+					"FlowSets impossibles - PDU Count is %d", pdus);
+		return;
+	}
 	/*
 	 * everything below here should be payload 
 	 */
@@ -996,9 +1051,8 @@ dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 	template = v9_template_get(id, &hdrinfo->net_src, hdrinfo->src_id);
 	if (template != NULL && template->length != 0) {
-		int count;
+		int count = 1;
 
-		count = 1;
 		while (length >= template->length) {
 			data_item = proto_tree_add_text(pdutree, tvb,
 							offset, template->length, "Flow %d", count++);
@@ -1030,6 +1084,52 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 {
 	int i;
 
+	if( (template->count_scopes > 0) && (template->scopes != NULL)) {
+		for(i = 0; i < template->count_scopes; i++) {
+			guint16 type = template->scopes[i].type;
+	    		guint16 length = template->scopes[i].length;
+	   		switch( type ) {
+	   		case 1: /* system */
+				if( length <= 4) {
+				 	 proto_tree_add_item(pdutree, hf_cflow_scope_system, 
+						tvb, offset, length, FALSE);
+				} else {
+				 	 proto_tree_add_text(pdutree,
+						tvb, offset, length, 
+						"ScopeSystem: invalid size %d", length );
+				}
+				break;
+	   		case 2: /* interface */
+				if( length <= 4) {
+				 	 proto_tree_add_item(pdutree, hf_cflow_scope_interface, 
+						tvb, offset, length, FALSE);
+				} else {
+				 	 proto_tree_add_text(pdutree,
+						tvb, offset, length, 
+						"ScopeInterface: invalid size %d", length );
+				}
+				break;
+	   		case 3: /* linecard */
+				proto_tree_add_item(pdutree, hf_cflow_scope_linecard, 
+						tvb, offset, length, FALSE);
+				break;
+	   		case 4: /* netflow cache */
+				proto_tree_add_item(pdutree, hf_cflow_scope_cache, 
+						tvb, offset, length, FALSE);
+				break;
+	   		case 5: /* template */
+				proto_tree_add_item(pdutree, hf_cflow_scope_template, 
+						tvb, offset, length, FALSE);
+				break;
+	   		default: /* unknown */
+				proto_tree_add_item(pdutree, hf_cflow_scope_unknown, 
+						tvb, offset, length, FALSE);
+				break;
+			}
+			offset += length;
+ 		}
+	}
+
 	for (i = 0; i < template->count; i++) {
 		guint16 type, length;
 		nstime_t ts;
@@ -1039,6 +1139,8 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		length = template->entries[i].length;
 
 		switch (type) {
+
+		case 85: /* BYTES_PERMANENT */
 		case 1: /* bytes */
 			if (length == 4) {
 				proto_tree_add_item(pdutree, hf_cflow_octets,
@@ -1053,6 +1155,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			}
 		  break;
 
+		case 86: /* PACKETS_PERMANENT */
 		case 2: /* packets */
 			if (length == 4) {
 				proto_tree_add_item(pdutree, hf_cflow_packets,
@@ -1215,6 +1318,26 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			    tvb, offset, length, &ts);
 			break;
 
+		case 25: /* length_min */
+		  proto_tree_add_item(pdutree, hf_cflow_length_min,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 26: /* length_max */
+		  proto_tree_add_item(pdutree, hf_cflow_length_max,
+				      tvb, offset, length, FALSE);
+		  break;
+
+		case 32: /* ICMP_TYPE */
+			proto_tree_add_item(pdutree, hf_cflow_icmp_type,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 33: /* IGMP_TYPE */
+			proto_tree_add_item(pdutree, hf_cflow_igmp_type,
+			    tvb, offset, length, FALSE);
+			break;
+
 		case 34: /* sampling interval */
 		  proto_tree_add_item(pdutree, hf_cflow_sampling_interval,
 				      tvb, offset, length, FALSE);
@@ -1236,43 +1359,252 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 		  break;
 
 		case 40: /* bytes exported */
-			proto_tree_add_item(pdutree, hf_cflow_octets_exp,
-			    tvb, offset, length, FALSE);
+			if( length == 8 ) {
+				proto_tree_add_item(pdutree, hf_cflow_octets_exp64,
+					      tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_item(pdutree, hf_cflow_octets_exp,
+					      tvb, offset, length, FALSE);
+			}
 			break;
 
 		case 41: /* packets exported */
-			proto_tree_add_item(pdutree, hf_cflow_packets_exp,
-			    tvb, offset, length, FALSE);
+			if( length == 8 ) {
+				proto_tree_add_item(pdutree, hf_cflow_packets_exp64,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_item(pdutree, hf_cflow_packets_exp,
+				    tvb, offset, length, FALSE);
+			}
 			break;
 
 		case 42: /* flows exported */
-			proto_tree_add_item(pdutree, hf_cflow_flows_exp,
-			    tvb, offset, length, FALSE);
+			if( length == 8 ) {
+				proto_tree_add_item(pdutree, hf_cflow_flows_exp64,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_item(pdutree, hf_cflow_flows_exp,
+				    tvb, offset, length, FALSE);
+			}
+			break;
+
+		case 44: /* IP source prefix */
+			if (length == 4) {
+				proto_tree_add_item(pdutree, hf_cflow_srcprefix,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "SrcPrefix: length %u", length);
+			}
+			break;
+
+		case 45: /* IP destination prefix */
+			if (length == 4) {
+				proto_tree_add_item(pdutree, hf_cflow_dstprefix,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "DstPrefix: length %u", length);
+			}
 			break;
 
 		case 46: /* top MPLS label type*/ 
 			proto_tree_add_item(pdutree, hf_cflow_mpls_top_label_type,
 			    tvb, offset, length, FALSE);
 			break;
+
 		case 47: /* top MPLS label PE address*/ 
 			proto_tree_add_item(pdutree, hf_cflow_mpls_pe_addr,
 			    tvb, offset, length, FALSE);
 			break;
+
+		case 48: /* Flow Sampler ID */ 
+			proto_tree_add_text(pdutree, tvb, offset, length,
+			    "FlowSamplerID: %d", tvb_get_guint8(tvb, offset));
+			break;
+
+		case 49: /* FLOW_SAMPLER_MODE  */ 
+			proto_tree_add_item(pdutree, hf_cflow_sampler_mode,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 50: /* FLOW_SAMPLER_RANDOM_INTERVAL  */ 
+			proto_tree_add_item(pdutree, hf_cflow_sampler_random_interval,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 51: /*  FLOW_CLASS */ 
+			proto_tree_add_item(pdutree, hf_cflow_flow_class,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 52: /*  TTL_MINIMUM */
+			proto_tree_add_item(pdutree, hf_cflow_ttl_minimum,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 53: /*  TTL_MAXIMUM */ 
+			proto_tree_add_item(pdutree, hf_cflow_ttl_maximum,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 54: /* IPV4_ID  */ 
+			proto_tree_add_item(pdutree, hf_cflow_ipv4_id,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 60: /* IP_VERSION */
+			proto_tree_add_item(pdutree, hf_cflow_ip_version,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 61: /* DIRECTION   */ 
+			proto_tree_add_item(pdutree, hf_cflow_direction,
+			    tvb, offset, length, FALSE);
+			break;
+
 		case 70: /* MPLS label1*/ 
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 1);
 			break;
+
 		case 71: /* MPLS label2*/ 
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 2);
 			break;
+
 		case 72: /* MPLS label3*/ 
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 3);
 			break;
+
 		case 73: /* MPLS label4*/ 
 			proto_tree_add_mpls_label(pdutree, tvb, offset, length, 4);
 			break;
+
+		case 82: /* IF_NAME  */ 
+			proto_tree_add_item(pdutree, hf_cflow_if_name,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 83: /* IF_DESCR  */ 
+			proto_tree_add_item(pdutree, hf_cflow_if_descr,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 84: /* SAMPLER_NAME  */ 
+			proto_tree_add_item(pdutree, hf_cflow_sampler_name,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 89: /* FORWARDING_STATUS */ 
+			proto_tree_add_item(pdutree, hf_cflow_forwarding_status,
+			    tvb, offset, length, FALSE);
+			proto_tree_add_item(pdutree, hf_cflow_forwarding_code,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 128: /* source AS Peer */
+			proto_tree_add_item(pdutree, hf_cflow_peer_srcas,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 129: /* dest AS Peer*/
+			proto_tree_add_item(pdutree, hf_cflow_peer_dstas,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 144: /* FLOW EXPORTER */
+			proto_tree_add_item(pdutree, hf_cflow_flow_exporter,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 176: /* ICMP_IPv4_TYPE */
+			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_type,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 177: /* ICMP_IPv4_CODE */
+			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv4_code,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 178: /* ICMP_IPv6_TYPE */
+			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 179: /* ICMP_IPv6_CODE */
+			proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 186: /* TCP_WINDOWS_SIZE */
+			proto_tree_add_item(pdutree, hf_cflow_tcp_window_size,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 190: /* IP_TOTAL_LENGTH */
+			proto_tree_add_item(pdutree, hf_cflow_ip_total_length,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 192: /* IP_TTL */
+			proto_tree_add_item(pdutree, hf_cflow_ip_ttl,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 194: /* IP_TOS */
+			proto_tree_add_item(pdutree, hf_cflow_ip_tos,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 195: /* IP_DSCP */
+			proto_tree_add_item(pdutree, hf_cflow_ip_dscp,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 198: /* BYTES_SQUARED */
+		case 199: /* BYTES_SQUARED_PERMANENT */
+			if( length == 8 ) {
+				proto_tree_add_item(pdutree, hf_cflow_octets_squared64,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "Bytes Squared: length %u", length);			  
+			}
+			break;
+
+		case 205: /* UDP_LENGTH */
+			proto_tree_add_item(pdutree, hf_cflow_udp_length,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 206: /* IS_MULTICAST */
+			proto_tree_add_item(pdutree, hf_cflow_is_multicast,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 207: /* IP_HEADER_WORDS */
+			proto_tree_add_item(pdutree, hf_cflow_ip_header_words,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 208: /* OPTION_MAP */
+			proto_tree_add_item(pdutree, hf_cflow_option_map,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 313: /* SECTION_HEADER */
+			proto_tree_add_item(pdutree, hf_cflow_section_header,
+					    tvb, offset, length, FALSE);
+			break;
+
+		case 314: /* SECTION_PAYLOAD */ 
+			proto_tree_add_item(pdutree, hf_cflow_section_payload,
+					    tvb, offset, length, FALSE);
+			break;
+
 		default:
 			proto_tree_add_text(pdutree, tvb, offset, length,
-			    "Type %u", type);
+			    "Type %u %s", type, decode_v9_template_types(type));
 			break;
 		}
 
@@ -1286,6 +1618,7 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
   guint16 length, option_scope_len, option_len, i, id, size;
   struct v9_template template;
   int template_offset;
+  int scopes_offset;
 
   id = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
@@ -1301,6 +1634,8 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
   proto_tree_add_item(pdutree, hf_cflow_option_length, tvb,
 		      offset, 2, FALSE);
   offset += 2;
+
+  scopes_offset = offset;
 
   for(i=0; i<option_scope_len; i++) {
     length = tvb_get_ntohs(tvb, offset);
@@ -1334,6 +1669,12 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t *
   template.count = option_len/4;
   COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
   template.source_id = hdrinfo->src_id;
+  /* Option scopes */
+  template.count_scopes = option_scope_len/4;
+  size = template.count_scopes * sizeof(struct v9_template_entry);
+  template.scopes      = g_malloc( size );
+  tvb_memcpy(tvb, (guint8 *)template.scopes, scopes_offset, size);
+
   template.option_template = 1; /* Option template */
   size = template.count * sizeof(struct v9_template_entry);
   template.entries = g_malloc(size);
@@ -1380,6 +1721,8 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset, int len, h
 		template.count = count;
 		COPY_ADDRESS(&template.source_addr, &hdrinfo->net_src);
 		template.source_id = hdrinfo->src_id;
+		template.count_scopes = 0;
+		template.scopes = NULL;
 		template.option_template = 0;   /* Data template */
 		template.entries = g_malloc(count * sizeof(struct v9_template_entry));
 		tvb_memcpy(tvb, (guint8 *)template.entries, offset,
@@ -1414,8 +1757,8 @@ static value_string v9_template_types[] = {
 	{ 1, "BYTES" },
 	{ 2, "PKTS" },
 	{ 3, "FLOWS" },
-	{ 4, "PROT" },
-	{ 5, "TOS" },
+	{ 4, "PROTOCOL" },
+	{ 5, "IP_TOS" },
 	{ 6, "TCP_FLAGS" },
 	{ 7, "L4_SRC_PORT" },
 	{ 8, "IP_SRC_ADDR" },
@@ -1435,6 +1778,8 @@ static value_string v9_template_types[] = {
 	{ 22, "FIRST_SWITCHED" },
 	{ 23, "OUT_BYTES" },
 	{ 24, "OUT_PKTS" },
+	{ 25, "IP LENGTH MINIMUM" },
+	{ 26, "IP LENGTH MAXIMUM" },
 	{ 27, "IPV6_SRC_ADDR" },
 	{ 28, "IPV6_DST_ADDR" },
 	{ 29, "IPV6_SRC_MASK" },
@@ -1451,11 +1796,17 @@ static value_string v9_template_types[] = {
 	{ 40, "TOTAL_BYTES_EXP" },
 	{ 41, "TOTAL_PKTS_EXP" },
 	{ 42, "TOTAL_FLOWS_EXP" },
+	{ 44, "IP_SRC_PREFIX" },
+	{ 45, "IP_DST_PREFIX" },
 	{ 46, "MPLS_TOP_LABEL_TYPE" },
 	{ 47, "MPLS_TOP_LABEL_ADDR" },
 	{ 48, "FLOW_SAMPLER_ID" },
 	{ 49, "FLOW_SAMPLER_MODE" },
 	{ 50, "FLOW_SAMPLER_RANDOM_INTERVAL" },
+	{ 51, "FLOW_CLASS" },
+	{ 52, "IP TTL MINIMUM" },
+	{ 53, "IP TTL MAXIMUM" },
+	{ 54, "IPv4 ID" },
 	{ 55, "DST_TOS" },
 	{ 56, "SRC_MAC" },
 	{ 57, "DST_MAC" },
@@ -1476,6 +1827,60 @@ static value_string v9_template_types[] = {
 	{ 77, "MPLS_LABEL_8" },
 	{ 78, "MPLS_LABEL_9" },
 	{ 79, "MPLS_LABEL_10" },
+	{ 80, "DESTINATION_MAC" },
+	{ 81, "SOURCE_MAC" },
+	{ 82, "IF_NAME" },
+	{ 83, "IF_DESC" },
+	{ 84, "SAMPLER_NAME" },
+	{ 85, "BYTES_TOTAL" },
+	{ 86, "PACKETS_TOTAL" },
+	{ 88, "FRAGMENT_OFFSET" },
+	{ 89, "FORWARDING_STATUS" },
+	{ 90, "VPN_ROUTE_DISTINGUISHER" },
+	{ 92, "SRC_TRAFFIC_INDEX" },
+	{ 93, "DST_TRAFFIC_INDEX" },
+	{ 128, "SRC_AS_PEER" },
+	{ 129, "DST_AS_PEER" },
+	{ 130, "DROPPED_BYTES" },
+	{ 131, "DROPPED_PACKETS" },
+	{ 132, "DROPPED_BYTES_TOTAL" },
+	{ 133, "DROPPED_PACKETS_TOTAL" },
+	{ 140, "MPLS_TOP_LABEL_IPv6_ADDRESS" },
+	{ 144, "FLOW_EXPORTER" },
+	{ 176, "ICMP_IPv4_TYPE" },
+	{ 177, "ICMP_IPv4_CODE" },
+	{ 178, "ICMP_IPv6_TYPE" },
+	{ 179, "ICMP_IPv6_CODE" },
+	{ 180, "UDP_SRC_PORT" },
+	{ 181, "UDP_DST_PORT" },
+	{ 182, "TCP_SRC_PORT" },
+	{ 183, "TCP_DST_PORT" },
+	{ 184, "TCP_SEQ_NUM" },
+	{ 184, "TCP_ACK_NUM" },
+	{ 186, "TCP_WINDOW_SIZE" },
+	{ 187, "TCP_URGENT_PTR" },
+	{ 188, "TCP_HEADER_LEN" },
+	{ 189, "IP_HEADER_LEN" },
+	{ 190, "IP_TOTAL_LEN" },
+	{ 192, "IP_TTL" },
+	{ 194, "IP_TOS" },
+	{ 195, "IP_DSCP" },
+	{ 196, "IP_PRECEDENCE" },
+	{ 196, "IP_FRAGMENT_FLAGS" },
+	{ 198, "BYTES_SQUARED" },
+	{ 199, "BYTES_SQUARED_PERMANENT" },
+	{ 200, "MPLS_TOP_LABEL_TTL" },
+	{ 201, "MPLS_LABEL_STACK_OCTETS" },
+	{ 202, "MPLS_LABEL_STACK_DEPTH" },
+	{ 203, "MPLS_TOP_LABEL_EXP" },
+	{ 204, "IP_PAYLOAD_LENGTH" },
+	{ 205, "UDP_LENGTH" },
+	{ 206, "IS_MULTICAST" },
+	{ 207, "IP_HEADER_WORDS" },
+	{ 208, "IP_OPTION_MAP" },
+	{ 208, "TPC_OPTION_MAP" },
+	{ 313, "IP_SECTION HEADER" },
+	{ 314, "IP_SECTION PAYLOAD" },
 	{ 0, NULL },
 };
 
@@ -1485,6 +1890,31 @@ static value_string v9_scope_field_types[] = {
 	{ 3, "Line Card" },
 	{ 4, "NetFlow Cache" },
 	{ 5, "Template" },
+	{ 0, NULL },
+};
+
+static const char *
+decode_v9_template_types(int type) {
+	const char *v = match_strval(type, v9_template_types);
+	return ((v==NULL)?"Unknown" : v);
+}
+
+static value_string v9_sampler_mode[] = {
+	{ 0, "Determinist" },
+	{ 1, "Unknown" },
+	{ 2, "Random" },
+	{ 0, NULL },
+};
+static value_string v9_direction[] = {
+	{ 0, "Ingress" },
+	{ 1, "Egress" },
+	{ 0, NULL },
+};
+static value_string v9_forwarding_status[] = {
+	{ 0, "Unknown"},  /* Observed on IOS-XR 3.2 */
+        { 1, "Forward"}, /* Observed on 7200 12.4(9)T */
+	{ 2, "Drop"},     /* Observed on 7200 12.4(9)T */
+	{ 3, "Consume"},  /* Observed on 7200 12.4(9)T */
 	{ 0, NULL },
 };
 
@@ -1519,6 +1949,13 @@ v9_template_add(struct v9_template *template)
 
 	/* Add up the actual length of the data and store in proper byte order */
 	template->length = 0;
+	/* Options scope */
+	for(i = 0; i < template->count_scopes; i++) {
+		template->scopes[i].type   = g_ntohs(template->scopes[i].type);
+		template->scopes[i].length = g_ntohs(template->scopes[i].length);
+		template->length += template->scopes[i].length;
+	}
+
 	for (i = 0; i < template->count; i++) {
 		template->entries[i].type = g_ntohs(template->entries[i].type);
 		template->entries[i].length = g_ntohs(template->entries[i].length);
@@ -1856,6 +2293,16 @@ proto_register_netflow(void)
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Scope field length", HFILL}
 		 },
+		{&hf_cflow_icmp_type,
+		 {"ICMP Type", "cflow.icmp_type",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "ICMP type", HFILL}
+		},
+		{&hf_cflow_igmp_type,
+		 {"IGMP Type", "cflow.igmp_type",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IGMP type", HFILL}
+		},
 		{&hf_cflow_sampling_interval,
 		 {"Sampling interval", "cflow.sampling_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1970,6 +2417,16 @@ proto_register_netflow(void)
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Count of bytes", HFILL}
 		 },
+		{&hf_cflow_length_min,
+		 {"MinLength", "cflow.length_min",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Packet Length Min", HFILL}
+		 },
+		{&hf_cflow_length_max,
+		 {"MaxLength", "cflow.length_max",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Packet Length Max", HFILL}
+		 },
 		{&hf_cflow_timestart,
 		 {"StartTime", "cflow.timestart",
 		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -2050,10 +2507,40 @@ proto_register_netflow(void)
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Octets exported", HFILL}
 		 },
+		{&hf_cflow_octets_exp64,
+		 {"OctetsExp ", "cflow.octetsexp",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Octets exported", HFILL}
+		 },
 		{&hf_cflow_packets_exp,
 		 {"PacketsExp", "cflow.packetsexp",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Packets exported", HFILL}
+		 },
+		{&hf_cflow_packets_exp64,
+		 {"PacketsExp", "cflow.packetsexp",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Packets exported", HFILL}
+		 },
+		{&hf_cflow_flows_exp,
+		 {"FlowsExp  ", "cflow.flowsexp",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Flows exported", HFILL}
+		},
+		{&hf_cflow_flows_exp64,
+		 {"FlowsExp  ", "cflow.flowsexp",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Flows exported", HFILL}
+		},
+		{&hf_cflow_srcprefix,
+		 {"SrcPrefix", "cflow.srcprefix",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "Flow Source Prefix", HFILL}
+		 },
+		{&hf_cflow_dstprefix,
+		 {"DstPrefix", "cflow.dstprefix",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "Flow Destination Prefix", HFILL}
 		 },
 		{&hf_cflow_mpls_top_label_type, 
 		 {"TopLabelType", "cflow.toplabeltype",
@@ -2065,14 +2552,199 @@ proto_register_netflow(void)
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Top MPLS label PE address", HFILL}
 		 },
-		{&hf_cflow_flows_exp,
-		 {"FlowsExp", "cflow.flowsexp",
+		{&hf_cflow_sampler_mode ,
+		 {"SamplerMode", "cflow.sampler_mode",
+		  FT_UINT8, BASE_DEC, VALS(v9_sampler_mode), 0x0,
+		  "Flow Sampler Mode", HFILL}
+		 },		
+		{&hf_cflow_sampler_random_interval ,
+		 {"SamplerRandomInterval", "cflow.sampler_random_interval",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Flows exported", HFILL}
-		 }
+		  "Flow Sampler Random Interval", HFILL}
+		 },		
+		{&hf_cflow_flow_class ,
+		 {"FlowClass", "cflow.flow_class",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Flow Class", HFILL}
+		 },		
+		{&hf_cflow_ttl_minimum ,
+		 {"MinTTL", "cflow.ttl_min",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "TTL minimum", HFILL}
+		 },		
+		{&hf_cflow_ttl_maximum ,
+		 {"MaxTTL", "cflow.ttl_max",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "TTL maximum", HFILL}
+		 },		
+		{&hf_cflow_ipv4_id ,
+		 {"IPv4Ident", "cflow.ipv4_ident",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "IPv4 Identifier", HFILL}
+		 },		
+		{&hf_cflow_ip_version ,
+		 {"IPVersion", "cflow.ip_version",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "IP Version", HFILL}
+		 },		
+		{&hf_cflow_direction ,
+		 {"Direction", "cflow.direction",
+		  FT_UINT8, BASE_DEC, VALS(v9_direction), 0x0,
+		  "Direction", HFILL}
+		 },		
+		{&hf_cflow_if_name ,
+		 {"IfName", "cflow.if_name",
+		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  "SNMP Interface Name", HFILL}
+		 },		
+		{&hf_cflow_if_descr ,
+		 {"IfDescr", "cflow.if_descr",
+		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  "SNMP Interface Description", HFILL}
+		 },		
+		{&hf_cflow_sampler_name ,
+		 {"SamplerName", "cflow.sampler_name",
+		  FT_STRINGZ/*FT_BYTES*/, BASE_HEX, NULL, 0x0,
+		  "Sampler Name", HFILL}
+		 },		
+		{&hf_cflow_forwarding_status ,
+		 {"ForwdStat", "cflow.forwarding_status",
+		  FT_UINT8, BASE_DEC, VALS(v9_forwarding_status), 0xC0,
+		  "Forwarding Status", HFILL}
+		 },		
+		{&hf_cflow_forwarding_code ,
+		 {"ForwdCode", "cflow.forwarding_code",
+		  FT_UINT8, BASE_DEC, NULL, 0x3F,
+		  "Forwarding Code", HFILL}
+		 },		
+		{&hf_cflow_peer_srcas,
+		 {"PeerSrcAS", "cflow.peer_srcas",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Peer Source AS", HFILL}
+		 },
+		{&hf_cflow_peer_dstas,
+		 {"PeerDstAS", "cflow.peer_dstas",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "Peer Destination AS", HFILL}
+		 },
+		{&hf_cflow_flow_exporter, 
+		 {"FlowExporter", "cflow.flow_exporter",
+		  FT_BYTES/*FT_IPv4*/, BASE_HEX, NULL, 0x0,
+		  "Flow Exporter", HFILL}
+		 },
+		{&hf_cflow_icmp_ipv4_type,
+		 {"IPv4 ICMP Type", "cflow.icmp_ipv4_type",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv4 ICMP type", HFILL}
+		},
+		{&hf_cflow_icmp_ipv4_code,
+		 {"IPv4 ICMP Code", "cflow.icmp_ipv4_code",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv4 ICMP code", HFILL}
+		},
+		{&hf_cflow_icmp_ipv6_type,
+		 {"IPv6 ICMP Type", "cflow.icmp_ipv6_type",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv6 ICMP type", HFILL}
+		},
+		{&hf_cflow_icmp_ipv6_code,
+		 {"IPv6 ICMP Code", "cflow.icmp_ipv6_code",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPv6 ICMP code", HFILL}
+		},
+		{&hf_cflow_tcp_window_size,
+		 {"TCP Windows Size", "cflow.tcp_windows_size",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "TCP Windows size", HFILL}
+		 },
+		{&hf_cflow_ip_total_length,
+		 {"IP Total Length", "cflow.ip_total_length",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IP total length", HFILL}
+		},
+		{&hf_cflow_ip_ttl,
+		 {"IP TTL", "cflow.ip_ttl",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IP time to live", HFILL}
+		},
+		{&hf_cflow_ip_tos,
+		 {"IP TOS", "cflow.ip_tos",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IP type of service", HFILL}
+		},
+		{&hf_cflow_ip_dscp,
+		 {"DSCP", "cflow.ip_dscp",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IP DSCP", HFILL}
+		},
+		{&hf_cflow_octets_squared64,
+		 {"OctetsSquared  ", "cflow.octets_squared",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Octets Squared", HFILL}
+		},
+		{&hf_cflow_udp_length,
+		 {"UDP Length", "cflow.udp_length",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "UDP length", HFILL}
+		},
+		{&hf_cflow_is_multicast,
+		 {"IsMulticast", "cflow.is_multicast",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "Is Multicast", HFILL}
+		},
+		{&hf_cflow_ip_header_words,
+		 {"IPHeaderLen", "cflow.ip_header_words",
+		  FT_UINT8, BASE_DEC, NULL, 0x0,
+		  "IPHeaderLen", HFILL}
+		},
+		{&hf_cflow_option_map,
+		 {"OptionMap", "cflow.option_map",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Option Map", HFILL}
+		},
+		{&hf_cflow_section_header ,
+		 {"SectionHeader", "cflow.section_header",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Header of Packet", HFILL}
+		 },		
+		{&hf_cflow_section_payload ,
+		 {"SectionPayload", "cflow.section_payload",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Payload of Packet", HFILL}
+		 },
 		/*
 		 * end pdu content storage 
 		 */
+		{&hf_cflow_scope_system ,
+		 {"ScopeSystem", "cflow.scope_system",
+		  FT_IPv4, BASE_HEX, NULL, 0x0,
+		  "Option Scope System", HFILL}
+		 },
+		{&hf_cflow_scope_interface ,
+		 {"ScopeInterface", "cflow.scope_interface",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Option Scope Interface", HFILL}
+		 },
+		{&hf_cflow_scope_linecard ,
+		 {"ScopeLinecard", "cflow.scope_linecard",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Option Scope Linecard", HFILL}
+		 },
+		{&hf_cflow_scope_cache ,
+		 {"ScopeCache", "cflow.scope_cache",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Option Scope Cache", HFILL}
+		 },
+		{&hf_cflow_scope_template ,
+		 {"ScopeTemplate", "cflow.scope_template",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Option Scope Template", HFILL}
+		 },
+		{&hf_cflow_scope_unknown ,
+		 {"Scope Unknown", "cflow.scope",
+		  FT_BYTES, BASE_HEX, NULL, 0x0,
+		  "Option Scope Unknown", HFILL}
+		 },
 	};
 
 	static gint    *ett[] = {
@@ -2134,3 +2806,4 @@ proto_reg_handoff_netflow(void)
 	dissector_add("tcp.port", ipfix_port,  netflow_handle);
 	dissector_add("sctp.port", ipfix_port, netflow_handle);
 }
+
