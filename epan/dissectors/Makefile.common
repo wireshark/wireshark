@@ -1007,6 +1007,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ssl-utils.h	\
 	packet-stat-notify.h	\
 	packet-stat.h	\
+	packet-t30.h	\
 	packet-t38.h	\
 	packet-tacacs.h	\
 	packet-tcap.h	\
