@@ -1277,6 +1277,8 @@ print_usage(gboolean print_ver) {
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                       display this help and exit\n");
   fprintf(output, "  -v                       display version info and exit\n");
+  fprintf(output, "  -P <key>:<path>          persconf:path - personal configuration files\n");
+  fprintf(output, "                           persdata:path - personal data files\n");
   fprintf(output, "  -o <name>:<value> ...    override preference or recent setting\n");
 #ifndef _WIN32
   fprintf(output, "  --display=DISPLAY        X display to use\n");
