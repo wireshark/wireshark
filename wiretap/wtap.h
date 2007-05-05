@@ -246,8 +246,7 @@ extern "C" {
 #define WTAP_FILE_MPEG				46
 #define WTAP_FILE_K12TEXT			47
 
-#define WTAP_NUM_FILE_TYPES			wtap_num_file_types
-extern gint wtap_num_file_types;
+#define WTAP_NUM_FILE_TYPES			wtap_get_num_file_types()
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_FILE_TSPREC_SEC		0
@@ -737,6 +736,7 @@ gboolean wtap_dump_close(wtap_dumper *, int *);
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 int wtap_get_num_encap_types(void);
+int wtap_get_num_file_types(void);
 void wtap_register_open_routine(wtap_open_routine_t,gboolean);
 int wtap_register_encap_type(char* name, char* short_name);
 void wtap_register_file_type(const struct file_type_info*);

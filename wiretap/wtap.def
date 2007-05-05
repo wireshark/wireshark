@@ -22,6 +22,7 @@ wtap_file_type_short_string
 wtap_file_type_string
 wtap_get_bytes_dumped
 wtap_get_num_encap_types
+wtap_get_num_file_types
 wtap_set_bytes_dumped
 wtap_open_offline
 wtap_pcap_encap_to_wtap_encap

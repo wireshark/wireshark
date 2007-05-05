@@ -277,6 +277,8 @@ struct wtap_dumper {
 extern size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize);
 extern int wtap_dump_file_ferror(wtap_dumper *wdh);
 
+extern gint wtap_num_file_types;
+
 /* Macros to byte-swap 32-bit and 16-bit quantities. */
 #define	BSWAP32(x) \
 	((((x)&0xFF000000)>>24) | \

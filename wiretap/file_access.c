@@ -562,6 +562,11 @@ static const struct file_type_info dump_open_table[] = {
 
 gint wtap_num_file_types = sizeof(dump_open_table) / sizeof(struct file_type_info);
 
+int wtap_get_num_file_types(void)
+{
+	return wtap_num_file_types;
+}
+
 /* Name that should be somewhat descriptive. */
 const char *wtap_file_type_string(int filetype)
 {
