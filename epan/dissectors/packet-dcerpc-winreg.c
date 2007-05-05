@@ -13,6 +13,10 @@
 #include "config.h"
 #endif
 
+#ifdef _MSC_VER 	 
+	 #pragma warning(disable:4005)
+#endif
+
 #include <glib.h>
 #include <string.h>
 #include <epan/packet.h>
