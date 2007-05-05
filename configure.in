@@ -444,8 +444,8 @@ fi
 
 AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
-                  [build GTK+-based wireshark.  @<:@default=yes@:>@]),
-    enable_wireshark=$enableval,enable_wireshark=yes)
+                  [build GTK+-based wireshark.  @<:@default=yes, if GTK+ available@:>@]),
+    enable_wireshark=$enableval,enable_wireshark=ifgtkavailable)
 
 AC_ARG_ENABLE(gtk2,
   AC_HELP_STRING( [--disable-gtk2],
@@ -493,10 +493,12 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GTK+.
 #
-if test "x$enable_gtk2" = "xyes" -a "x$enable_wireshark" = "xyes" ; then
+if test "x$enable_gtk2" = "xyes" -a \
+    "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
 	GTK_OK=two
 	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
-elif test "x$enable_gtk2" != "xyes" -a "x$enable_wireshark" = "xyes" ; then
+elif test "x$enable_gtk2" != "xyes" \
+    "(" "x$enable_wireshark" = "xyes" -o "x$enable_wireshark" = "xifgtkavailable" ")"; then
 	GTK_OK=one
 	AM_PATH_GTK(1.2.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no )
 else
@@ -514,6 +516,15 @@ fi
 # programs to be built with GLib.
 #
 if test "$GTK_OK" = "no" ; then
+	#
+	# We don't have GTK+.
+	# If they explicitly said "--enable-wireshark", fail (so that if
+	# they insist on building Wireshark, we don't drive on and build
+	# only TShark, we stop so they can fix the GTK+ problem).
+	#
+	if test "x$enable_wireshark" = "xyes"; then
+		AC_MSG_ERROR([GTK+ isn't available, so Wireshark can't be compiled])
+	fi
 	enable_wireshark="no"
 	wireshark_bin=""
 	wireshark_man=""
