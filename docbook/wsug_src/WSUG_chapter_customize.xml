@@ -50,24 +50,65 @@
 	<example id="ChCustEx1">
 	  <title>Help information available from Wireshark</title>
 	  <programlisting>
-Version 0.99.0
-Copyright 1998-2006 Gerald Combs &lt;gerald@wireshark.org> and contributors.
+Wireshark 0.99.6
+Interactively dump and analyze network traffic.
+See http://www.wireshark.org for more information.
 
-Compiled with GTK+ 2.6.9, with GLib 2.6.6, with WinPcap (version unknown),
-with libz 1.2.3, with libpcre 6.4, with Net-SNMP 5.2.2, with ADNS, with Lua 5.1.
+Copyright 1998-2007 Gerald Combs &lt;gerald@wireshark.org> and contributors.
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Running with WinPcap version 3.1 (packet.dll version 3, 1, 0, 27), based on
-libpcap version 0.9[.x] on Windows XP Service Pack 2, build 2600.
+Usage: wireshark [options] ... [ &lt;infile> ]
 
-wireshark [ -vh ] [ -DklLnpQS ] [ -a &lt;capture autostop condition> ] ...
-        [ -b &lt;capture ring buffer option> ] ...
-        [ -B &lt;capture buffer size> ]
-        [ -c &lt;capture packet count> ] [ -f &lt;capture filter> ]
-        [ -g &lt;packet number> ] [ -i &lt;capture interface> ] [ -m &lt;font> ]
-        [ -N &lt;name resolving flags> ] [ -o &lt;preference/recent setting> ] ...
-        [ -r &lt;infile> ] [ -R &lt;read (display) filter> ] [ -s &lt;capture snaplen> ]
-        [ -t &lt;time stamp format> ] [ -w &lt;savefile> ] [ -y &lt;capture link type> ]
-        [ -X &lt;eXtension option> ] [ -z &lt;statistics> ] [ &lt;infile> ]	  </programlisting>
+Capture interface:
+  -i &lt;interface>           name or idx of interface (def: first non-loopback)
+  -f &lt;capture filter>      packet filter in libpcap filter syntax
+  -s &lt;snaplen>             packet snapshot length (def: 65535)
+  -p                       don't capture in promiscuous mode
+  -k                       start capturing immediately (def: do nothing)
+  -Q                       quit Wireshark after capturing
+  -S                       update packet display when new packets are captured
+  -l                       turn on automatic scrolling while -S is in use
+  -B &lt;buffer size>         size of kernel buffer (def: 1MB)
+  -y &lt;link type>           link layer type (def: first appropriate)
+  -D                       print list of interfaces and exit
+  -L                       print list of link-layer types of iface and exit
+
+Capture stop conditions:
+  -c &lt;packet count>        stop after n packets (def: infinite)
+  -a &lt;autostop cond.> ...  duration:NUM - stop after NUM seconds
+                           filesize:NUM - stop this file after NUM KB
+                              files:NUM - stop after NUM files
+Capture output:
+  -b &lt;ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
+                           filesize:NUM - switch to next file after NUM KB
+                              files:NUM - ringbuffer: replace after NUM files
+Input file:
+  -r &lt;infile>              set the filename to read from (no pipes or stdin!)
+
+Processing:
+  -R &lt;read filter>         packet filter in Wireshark display filter syntax
+  -n                       disable all name resolutions (def: all enabled)
+  -N &lt;name resolve flags>  enable specific name resolution(s): "mntC"
+
+User interface:
+  -g &lt;packet number>       go to specified packet number after "-r"
+  -m &lt;font>                set the font name used for most text
+  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
+  -X &lt;key>:&lt;value>         eXtension options, see man page for details
+  -z &lt;statistics>          show various statistics, see man page for details
+
+Output:
+  -w &lt;outfile|->           set the output filename (or '-' for stdout)
+
+Miscellaneous:
+  -h                       display this help and exit
+  -v                       display version info and exit
+  -P &lt;key:path>            persconf:path - personal configuration files
+                           persdata:path - personal data files
+  -o &lt;name>:&lt;value> ...    override preference or recent setting
+
+</programlisting>
 	</example>
 
 	We will examine each of the command line options in turn.
@@ -352,6 +393,32 @@ standard libpcap format.
 	      machine on which Wireshark is running, broadcast traffic, and
 	      multicast traffic to addresses received by that machine.
 	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term><command>-P &lt;path setting></command></term>
+	  <listitem>
+		<para>
+		Special path settings usually detected automatically. This is used 
+		for special cases, e.g. starting Wireshark from a known location on 
+		an USB stick. 
+		</para>
+		<para>
+		The criterion is of the form key:path, where key is one of:
+		<variablelist>
+		<varlistentry><term><command>persconf</command>:path</term>
+			<listitem><para>
+			path of personal configuration files, like the preferences files.
+			</para></listitem>
+		</varlistentry>
+		<varlistentry><term><command>persdata</command>:path</term>
+			<listitem><para>
+			path of personal data files, it's the folder initially opened. 
+			After the initilization, the recent file will keep the folder 
+			last used.
+			</para></listitem>
+		</varlistentry>
+		</variablelist>
+		</para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>-Q</command></term>
