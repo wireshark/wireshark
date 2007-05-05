@@ -25,7 +25,7 @@ S<[ B<-n> ]>
 S<[ B<-N> E<lt>name resolving flagsE<gt> ] >
 S<[ B<-o> E<lt>preference/recent settingE<gt> ] ...>
 S<[ B<-p> ]>
-S<[ B<-P> E<lt>Path settingE<gt>]>
+S<[ B<-P> E<lt>path settingE<gt>]>
 S<[ B<-Q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
@@ -362,18 +362,18 @@ traffic sent to or from the machine on which B<Wireshark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
-=item -P E<lt>Path SettingE<gt>
+=item -P E<lt>path settingE<gt>
 
 Special path settings usually detected automatically. This is used for 
 special cases, e.g. starting Wireshark from a known location on an USB stick.
 
-The criterion is of the form I<test>P<:>I<value>, where I<test> is one of:
+The criterion is of the form I<key>B<:>I<path>, where I<key> is one of:
 
-B<persconf>:pathI<value> path of personal configuration filesI<value> like the 
+B<persconf>:I<path> path of personal configuration files, like the 
 preferences files.
 
-B<persdata>:path<value> path of personal data files I<value>, it's the folder 
-initially opened. After the initilization, the recent file will keep the 
+B<persdata>:I<path> path of personal data files, it's the folder initially 
+opened. After the very first initilization, the recent file will keep the 
 folder last used.
 
 =item -Q
