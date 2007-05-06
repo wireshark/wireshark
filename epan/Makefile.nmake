@@ -83,6 +83,10 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt fty
 		$(libwireshark_LIBS) ..\image\libwireshark.res \
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "libwireshark.dll.manifest" -outputresource:libwireshark.dll;1
+!ENDIF
+
 
 libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WSLUA_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
                   crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib $(WSLUA_LIB) dissectors\dissectors.lib

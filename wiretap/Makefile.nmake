@@ -35,6 +35,9 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 		/IMPLIB:wiretap-$(WTAP_VERSION).lib \
 		..\image\wiretap.res \
 		$(OBJECTS) $(wiretap_LIBS)
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "wiretap-$(WTAP_VERSION).dll.manifest" -outputresource:wiretap-$(WTAP_VERSION).dll;1
+!ENDIF
 
 $(OBJECTS): config.h
 

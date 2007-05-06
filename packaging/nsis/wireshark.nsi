@@ -348,23 +348,6 @@ File "..\..\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 File "..\..\example_snmp_users_file"
 
-; manifest files needed for MSVC2005 / MSVC2005EE / DOTNET20
-!if ${MSVC_VARIANT} == "MSVC2005"
-File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
-File "..\..\*.manifest"
-File "${ZLIB_DIR}\zlib1.dll.manifest"
-!endif
-!if ${MSVC_VARIANT} == "MSVC2005EE"
-File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
-File "..\..\*.manifest"
-File "${ZLIB_DIR}\zlib1.dll.manifest"
-!endif
-!if ${MSVC_VARIANT} == "DOTNET20"
-File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll.manifest"
-File "..\..\*.manifest"
-File "${ZLIB_DIR}\zlib1.dll.manifest"
-!endif
-
 ; C-runtime redistributable
 !ifdef VCREDIST_EXE
 ; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer

@@ -187,6 +187,9 @@ wireshark.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codecs epa
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
+!ENDIF
 !ENDIF
 
 !IFNDEF GTK2_DIR
@@ -197,6 +200,9 @@ wireshark-gtk2.exe	: config.h svnversion.h $(wireshark_OBJECTS) getopt.obj codec
 	$(LINK) @<<
 		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "wireshark-gtk2.exe.manifest" -outputresource:wireshark-gtk2.exe;1
+!ENDIF
 !ENDIF
 
 tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
@@ -204,48 +210,72 @@ tshark.exe	: config.h svnversion.h $(tshark_OBJECTS) getopt.obj epan image\tshar
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj image\tshark.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
+!ENDIF
 
 capinfos.exe	: config.h capinfos.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj $(capinfos_LIBS) image\capinfos.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
+!ENDIF
 
 editcap.exe	: config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj $(editcap_LIBS) image\editcap.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
+!ENDIF
 
 mergecap.exe	: config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
+!ENDIF
 
 text2pcap.exe	: config.h text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj strptime.obj image\text2pcap.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
+!ENDIF
 
 dftest.exe	: $(dftest_OBJECTS) epan
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
+!ENDIF
 
 randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:randpkt.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(randpkt_LIBS) $(randpkt_OBJECTS) getopt.obj
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
+!ENDIF
 
 dumpcap.exe	: config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res 
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj mkstemp.obj image\dumpcap.res
 <<
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "dumpcap.exe.manifest" -outputresource:dumpcap.exe;1
+!ENDIF
 
 
 config.h	: config.h.win32 config.nmake
@@ -448,8 +478,10 @@ $(ZLIB_DIR)\zlib1.dll:
 	if not exist $(ZLIB_DIR) mkdir $(ZLIB_DIR)
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
+	mt.exe -nologo -manifest "zlib1.dll.manifest" -outputresource:zlib1.dll;1
+!ENDIF
 	copy zlib1.dll $(ZLIB_DIR)
-	if exist zlib1.dll.manifest copy zlib1.dll.manifest $(ZLIB_DIR)
 	copy zdll.lib $(ZLIB_DIR)\lib
 	copy zconf.h $(ZLIB_DIR)\include
 	copy zlib.h $(ZLIB_DIR)\include
@@ -792,7 +824,6 @@ install-files1:
 	set INSTALL_DIR=$(INSTALL1_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	xcopy wireshark.exe $(INSTALL1_DIR) /d
-	if exist wireshark.exe.manifest xcopy wireshark.exe.manifest $(INSTALL1_DIR) /d
 	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL1_DIR) /d
 !ENDIF
 
@@ -802,7 +833,6 @@ install-files2:
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
 	copy wireshark-gtk2.exe $(INSTALL2_DIR)\wireshark.exe
-	if exist wireshark-gtk2.exe.manifest copy wireshark-gtk2.exe.manifest $(INSTALL2_DIR)\wireshark.exe.manifest
 	if exist wireshark-gtk2.pdb copy wireshark-gtk2.pdb $(INSTALL2_DIR)\wireshark.pdb
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
 !ENDIF
@@ -814,28 +844,20 @@ install-common-files:
 	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d
 !ENDIF
 	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
-	if exist ".\wiretap\wiretap-$(WTAP_VERSION).dll.manifest" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll.manifest" $(INSTALL_DIR) /d	
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d	
 	xcopy ".\epan\libwireshark.dll" $(INSTALL_DIR) /d
-	if exist ".\epan\libwireshark.dll.manifest" xcopy ".\epan\libwireshark.dll.manifest" $(INSTALL_DIR) /d	
 	if exist ".\epan\libwireshark.pdb" xcopy ".\epan\libwireshark.pdb" $(INSTALL_DIR) /d	
 	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
-	if exist tshark.exe.manifest xcopy tshark.exe.manifest $(INSTALL_DIR) /d	
 	if exist tshark.pdb xcopy tshark.pdb $(INSTALL_DIR) /d	
 	if exist dumpcap.exe xcopy dumpcap.exe $(INSTALL_DIR) /d
-	if exist dumpcap.exe.manifest xcopy dumpcap.exe.manifest $(INSTALL_DIR) /d	
 	if exist dumpcap.pdb xcopy dumpcap.pdb $(INSTALL_DIR) /d	
 	if exist mergecap.exe xcopy mergecap.exe $(INSTALL_DIR) /d
-	if exist mergecap.exe.manifest xcopy mergecap.exe.manifest $(INSTALL_DIR) /d	
 	if exist mergecap.pdb xcopy mergecap.pdb $(INSTALL_DIR) /d	
 	if exist text2pcap.exe xcopy text2pcap.exe $(INSTALL_DIR) /d
-	if exist text2pcap.exe.manifest xcopy text2pcap.exe.manifest $(INSTALL_DIR) /d	
 	if exist text2pcap.pdb xcopy text2pcap.pdb $(INSTALL_DIR) /d	
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
-	if exist capinfos.exe.manifest xcopy capinfos.exe.manifest $(INSTALL_DIR) /d	
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d	
 	if exist editcap.exe xcopy editcap.exe $(INSTALL_DIR) /d
-	if exist editcap.exe.manifest xcopy editcap.exe.manifest $(INSTALL_DIR) /d	
 	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d	
 	xcopy ".\AUTHORS-SHORT" $(INSTALL_DIR) /d
 	xcopy ".\manuf" $(INSTALL_DIR) /d
