@@ -164,8 +164,8 @@ MTABindResult ::= CHOICE {
 -- taken from X.419
 MTS-APDU ::= CHOICE {
 message	[0] Message,
-probe [2] Probe,
-report [1] Report
+report [1] Report,
+probe [2] Probe
 }
 
 Message ::= SEQUENCE {envelope  MessageTransferEnvelope,

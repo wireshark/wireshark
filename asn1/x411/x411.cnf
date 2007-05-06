@@ -566,8 +566,13 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	%(DEFAULT_BODY)s
 
-	if(*oraddress)
+	if(*oraddress) {
 		proto_item_append_text(address_item, " (%%s/", oraddress);
+
+		if(doing_subjectid  && check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s/", oraddress);
+		}
+	}
 
 
 #.FN_PARS LocalIdentifier
@@ -578,16 +583,28 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	
 	%(DEFAULT_BODY)s
 	
-	if(doing_address && id)
-	  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+	if(id) {
+	  if(doing_address) 
+		  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+
+          if(doing_subjectid  && check_col(pinfo->cinfo, COL_INFO)) 
+		col_append_fstr(pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+	}
 
 #.FN_BODY MTSIdentifier
 
 	doing_address = TRUE;
 
+	if(hf_index == hf_x411_subject_identifier)
+		doing_subjectid = TRUE;
+
 	%(DEFAULT_BODY)s
 
 	doing_address = FALSE;
+
+	if(hf_index == hf_x411_subject_identifier)
+		doing_subjectid = FALSE;
+
 
 #.FN_BODY MTANameAndOptionalGDI
 
@@ -707,5 +724,29 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	tree = proto_item_add_subtree(item, ett_x411_bilateral_information);
 
 	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+
+#.FN_PARS MTS-APDU
+	VAL_PTR = &apdu
+
+#.FN_BODY MTS-APDU
+	int apdu = -1;
+
+  	%(DEFAULT_BODY)s
 	
+	if(check_col(pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(apdu, x411_MTS_APDU_vals, "MTS-APDU(%%d)"));
+	}
+
+#.FN_PARS ReportType
+	VAL_PTR = &report
+
+#.FN_BODY ReportType
+	int report = -1;
+
+  	%(DEFAULT_BODY)s
+	
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(report, x411_ReportType_vals, "report-type(%%d)"));
+	}
+
 #.END
