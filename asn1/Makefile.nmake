@@ -29,6 +29,7 @@ ber: \
 	logotype-cert-extn	\
 	MAP_Dialogue	\
 	mms	\
+	mpeg	\
 	ns-cert-exts	\
 	ocsp	\
 	pkcs1	\
@@ -153,6 +154,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd mms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd mpeg
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd nbap
@@ -402,6 +406,11 @@ MAP_Dialogue::
 
 mms::
 	cd mms
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+mpeg::
+	cd mpeg
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
