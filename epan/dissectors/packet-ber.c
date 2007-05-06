@@ -106,6 +106,7 @@ static gint hf_ber_unknown_GeneralizedTime = -1;
 static gint hf_ber_unknown_INTEGER = -1;
 static gint hf_ber_unknown_BITSTRING = -1;
 static gint hf_ber_unknown_ENUMERATED = -1;
+static gint hf_ber_constructed_OCTETSTRING = -1;
 static gint hf_ber_direct_reference = -1;         /* OBJECT_IDENTIFIER */
 static gint hf_ber_indirect_reference = -1;       /* INTEGER */
 static gint hf_ber_data_value_descriptor = -1;    /* ObjectDescriptor */
@@ -813,7 +814,7 @@ reassemble_octet_string(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 
   while(!fd_head) {
 
-    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ber_unknown_OCTETSTRING, &next_tvb);
+    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_ber_constructed_OCTETSTRING, &next_tvb);
 
     if (next_tvb == NULL) {
       /* Assume that we have a malformed packet. */
@@ -2851,6 +2852,9 @@ proto_register_ber(void)
 	{ &hf_ber_unknown_ENUMERATED, {
 	    "ENUMERATED", "ber.unknown.ENUMERATED", FT_UINT32, BASE_DEC,
 	    NULL, 0, "This is an unknown ENUMERATED", HFILL }},
+	{ &hf_ber_constructed_OCTETSTRING, {
+	    "OCTETSTRING", "ber.constructed.OCTETSTRING", FT_BYTES, BASE_HEX,
+	    NULL, 0, "This is a component of an constructed OCTETSTRING", HFILL }},
     { &hf_ber_direct_reference,
       { "direct-reference", "ber.direct_reference",
         FT_OID, BASE_NONE, NULL, 0,
