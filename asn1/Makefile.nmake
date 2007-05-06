@@ -33,6 +33,7 @@ ber: \
 	ns-cert-exts	\
 	ocsp	\
 	pkcs1	\
+	pkcs12	\
 	pkinit	\
 	pkix1explicit	\
 	pkix1implicit	\
@@ -169,6 +170,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkcs1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd pkcs12
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkinit
@@ -431,6 +435,11 @@ ocsp::
 
 pkcs1::
 	cd pkcs1
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+pkcs12::
+	cd pkcs12
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
