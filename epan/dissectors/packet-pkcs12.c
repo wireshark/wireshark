@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-pkcs12.c                                                          */
+/* .\packet-pkcs12.c                                                          */
 /* ../../tools/asn2wrs.py -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.c */
@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -120,7 +121,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 58 "packet-pkcs12-template.c"
+#line 59 "packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -148,47 +149,47 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 61 "packet-pkcs12-template.c"
+#line 62 "packet-pkcs12-template.c"
 
 
 /*--- Included file: packet-pkcs12-fn.c ---*/
 #line 1 "packet-pkcs12-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_authSafe(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_authSafe(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_authSafe);
 }
-static int dissect_digestAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_digestAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cms_DigestAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_digestAlgorithm);
 }
-static int dissect_digest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_digest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cms_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_digest);
 }
-static int dissect_AuthenticatedSafe_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_AuthenticatedSafe_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cms_ContentInfo(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_AuthenticatedSafe_item);
 }
-static int dissect_privateKeyAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateKeyAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_privateKeyAlgorithm);
 }
-static int dissect_Attributes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Attributes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509if_Attribute(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_Attributes_item);
 }
-static int dissect_encryptionAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptionAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_encryptionAlgorithm);
 }
-static int dissect_otherSource(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_otherSource(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_otherSource);
 }
-static int dissect_prf(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_prf(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_prf);
 }
-static int dissect_keyDerivationFunc(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_keyDerivationFunc(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_keyDerivationFunc);
 }
-static int dissect_encryptionScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptionScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_encryptionScheme);
 }
-static int dissect_messageAuthScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_messageAuthScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_messageAuthScheme);
 }
 
@@ -206,7 +207,7 @@ dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_version(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_version);
 }
 
@@ -224,7 +225,7 @@ dissect_pkcs12_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_mac(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mac(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_DigestInfo(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_mac);
 }
 
@@ -237,13 +238,13 @@ dissect_pkcs12_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_macSalt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_macSalt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_macSalt);
 }
-static int dissect_salt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_salt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_salt);
 }
-static int dissect_specified(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_specified(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_specified);
 }
 
@@ -256,10 +257,10 @@ dissect_pkcs12_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_iterations(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iterations(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_iterations);
 }
-static int dissect_iterationCount(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iterationCount(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_iterationCount);
 }
 
@@ -278,7 +279,7 @@ dissect_pkcs12_MacData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_macData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_macData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_MacData(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_macData);
 }
 
@@ -355,19 +356,19 @@ dissect_pkcs12_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_bagId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bagId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_bagId);
 }
-static int dissect_certId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_certId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_certId);
 }
-static int dissect_crlId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_crlId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_crlId);
 }
-static int dissect_secretTypeId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_secretTypeId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_secretTypeId);
 }
-static int dissect_attrId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_attrId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_attrId);
 }
 
@@ -383,7 +384,7 @@ dissect_pkcs12_T_bagValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_bagValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bagValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_bagValue(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_bagValue);
 }
 
@@ -399,7 +400,7 @@ dissect_pkcs12_T_attrValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_attrValues_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_attrValues_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_attrValues_item(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_attrValues_item);
 }
 
@@ -415,7 +416,7 @@ dissect_pkcs12_T_attrValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_attrValues(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_attrValues(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_attrValues(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_attrValues);
 }
 
@@ -433,7 +434,7 @@ dissect_pkcs12_PKCS12Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_bagAttributes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bagAttributes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_PKCS12Attribute(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_bagAttributes_item);
 }
 
@@ -449,7 +450,7 @@ dissect_pkcs12_SET_OF_PKCS12Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_bagAttributes(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bagAttributes(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_SET_OF_PKCS12Attribute(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_bagAttributes);
 }
 
@@ -468,7 +469,7 @@ dissect_pkcs12_SafeBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_SafeContents_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SafeContents_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_SafeBag(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_SafeContents_item);
 }
 
@@ -499,7 +500,7 @@ dissect_pkcs12_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_privateKeyVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateKeyVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_privateKeyVersion);
 }
 
@@ -512,7 +513,7 @@ dissect_pkcs12_PrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_privateKey(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateKey(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_PrivateKey(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_privateKey);
 }
 
@@ -528,7 +529,7 @@ dissect_pkcs12_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_attributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_attributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_Attributes(TRUE, tvb, offset, pinfo, tree, hf_pkcs12_attributes);
 }
 
@@ -567,7 +568,7 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_encryptedData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptedData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_EncryptedData(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_encryptedData);
 }
 
@@ -607,7 +608,7 @@ dissect_pkcs12_T_certValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_certValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_certValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_certValue(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_certValue);
 }
 
@@ -638,7 +639,7 @@ dissect_pkcs12_T_crlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_crlValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_crlValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_crlValue(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_crlValue);
 }
 
@@ -669,7 +670,7 @@ dissect_pkcs12_T_secretValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_secretValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_secretValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_secretValue(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_secretValue);
 }
 
@@ -724,7 +725,7 @@ dissect_pkcs12_T_saltChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_saltChoice(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_saltChoice(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_T_saltChoice(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_saltChoice);
 }
 
@@ -737,7 +738,7 @@ dissect_pkcs12_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_keyLength(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_keyLength(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs12_INTEGER_1_MAX(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_keyLength);
 }
 
@@ -832,7 +833,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 63 "packet-pkcs12-template.c"
+#line 64 "packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb, proto_tree *tree) 
 {
@@ -1119,7 +1120,7 @@ void proto_register_pkcs12(void) {
         "x509af.AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 133 "packet-pkcs12-template.c"
+#line 134 "packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1149,7 +1150,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 138 "packet-pkcs12-template.c"
+#line 139 "packet-pkcs12-template.c"
   };
 
   /* Register protocol */
@@ -1196,7 +1197,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 156 "packet-pkcs12-template.c"
+#line 157 "packet-pkcs12-template.c"
 
 }
 

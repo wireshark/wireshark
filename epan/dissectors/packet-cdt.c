@@ -119,7 +119,7 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_algorithmID_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_algorithmID_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_AlgorithmID_ShortForm(TRUE, tvb, offset, pinfo, tree, hf_cdt_algorithmID_ShortForm);
 }
 
@@ -149,10 +149,10 @@ dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_algorithmID_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_algorithmID_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_cdt_algorithmID_OID);
 }
-static int dissect_contentType_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contentType_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_cdt_contentType_OID);
 }
 
@@ -177,7 +177,7 @@ dissect_cdt_CompressionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_compressionAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_compressionAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_CompressionAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressionAlgorithm);
 }
 
@@ -213,7 +213,7 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_contentType_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contentType_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_ContentType_ShortForm(TRUE, tvb, offset, pinfo, tree, hf_cdt_contentType_ShortForm);
 }
 
@@ -238,7 +238,7 @@ dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_contentType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contentType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_T_contentType(FALSE, tvb, offset, pinfo, tree, hf_cdt_contentType);
 }
 
@@ -287,7 +287,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_compressedContent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_compressedContent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_CompressedContent(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressedContent);
 }
 
@@ -305,7 +305,7 @@ dissect_cdt_CompressedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_compressedContentInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_compressedContentInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_cdt_CompressedContentInfo(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressedContentInfo);
 }
 

@@ -28,6 +28,7 @@
 
 #include <epan/proto.h>
 #include <epan/to_str.h>
+#include <epan/asn1.h>
 
 #define BER_NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
@@ -37,7 +38,7 @@ if (check_col(pinfo->cinfo, COL_INFO)){ \
 } \
 tvb_get_guint8(tvb, 9999);
 
-typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 typedef int (*ber_type_fn)(gboolean, tvbuff_t*, int, packet_info*, proto_tree*, int);
 
 

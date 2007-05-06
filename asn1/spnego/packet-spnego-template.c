@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"

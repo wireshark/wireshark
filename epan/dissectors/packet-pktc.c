@@ -35,6 +35,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/asn1.h>
 #include "packet-pktc.h"
 #include "packet-kerberos.h"
 #include "packet-snmp.h"

@@ -980,12 +980,14 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 int dissect_ber_octet_string_wcb(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func)
 {
 	tvbuff_t *out_tvb = NULL;
+	/* NOTE MUST BE CAHNGED */
+	asn1_ctx_t *actx=NULL;
 
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
 	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
 		if (hf_id >= 0)
 			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
-		func(pinfo, tree, out_tvb, 0);
+		func(pinfo, tree, out_tvb, 0, actx);
 	}
 	return offset;
 }
@@ -1444,7 +1446,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) calling subdissector\n",name);
 			/* Assume that we have a malformed packet. */
 			THROW(ReportedBoundsError);
 		}
-		count=seq->func(pinfo, tree, next_tvb, 0);
+		count=seq->func(pinfo, tree, next_tvb, 0, NULL /* actx */);
 
 #ifdef DEBUG_BER
 {
@@ -1677,7 +1679,7 @@ printf("SET dissect_ber_set(%s) calling subdissector\n",name);
 				/* Assume that we have a malformed packet. */
 				THROW(ReportedBoundsError);
 			}
-			count=cset->func(pinfo, tree, next_tvb, 0);
+			count=cset->func(pinfo, tree, next_tvb, 0, NULL /* actx */);
 
 			/* if we consumed some bytes, 
 			   or we knew the length was zero (during the first pass only) */
@@ -1916,7 +1918,7 @@ printf("CHOICE dissect_ber_choice(%s) calling subdissector len:%d\n",name,tvb_le
 				/* Assume that we have a malformed packet. */
 				THROW(ReportedBoundsError);
 			}
-			count=ch->func(pinfo, tree, next_tvb, 0);
+			count=ch->func(pinfo, tree, next_tvb, 0, NULL /* actx */);
 #ifdef DEBUG_BER_CHOICE
 {
 const char *name;
@@ -2375,7 +2377,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		}
 
 		/* call the dissector for this field */
-		count=seq->func(pinfo, tree, tvb, hoffset)-hoffset;
+		count=seq->func(pinfo, tree, tvb, hoffset, NULL/* actx */)-hoffset;
 				/* hold on if we are implicit and the result is zero, i.e. the item in the sequence of
 				doesnt match the next item, thus this implicit sequence is over, return the number of bytes
 				we have eaten to allow the possible upper sequence continue... */
@@ -2701,7 +2703,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
   { BER_CLASS_ANY/choice/, -1/choice/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_encoding },
   { 0, 0, 0, NULL }
 };
-
+*/
 static int
 dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, packet_info *pinfo, proto_tree *tree, int hf_index)
 {
@@ -2714,10 +2716,10 @@ dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_
 		offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
 		offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
 	}
-
+/*
 	offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
                                    EXTERNAL_sequence, hf_index, ett_ber_EXTERNAL);
-
+*/
 	return offset;
 
 }
@@ -2726,14 +2728,15 @@ int
 dissect_ber_external_type(gboolean implicit_tag, packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,  gint hf_id, ber_callback func){
 
 	asn1_ctx_clean_external(actx);
-	actx->external.ber.type_cb =  func;
+	actx->external.ber.ber_callback =  func;
+
 	offset = dissect_ber_external(implicit_tag, tvb, offset, actx, pinfo, parent_tree, hf_id);
 
 	asn1_ctx_clean_external(actx);
 
 	return offset;
 }
-*/
+
 static void
 dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {

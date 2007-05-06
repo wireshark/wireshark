@@ -132,7 +132,7 @@ static gint ett_logotypecertextn_HashAlgAndValue = -1;
 #line 1 "packet-logotypecertextn-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_hashAlg(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_hashAlg(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509af_AlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_hashAlg);
 }
 
@@ -152,16 +152,16 @@ dissect_logotypecertextn_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_mediaType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mediaType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_mediaType);
 }
-static int dissect_logotypeURI_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_logotypeURI_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeURI_item);
 }
-static int dissect_language_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_language_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_language);
 }
-static int dissect_refStructURI_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_refStructURI_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_IA5String(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_refStructURI_item);
 }
 
@@ -174,7 +174,7 @@ dissect_logotypecertextn_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_hashValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_hashValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_hashValue);
 }
 
@@ -192,10 +192,10 @@ dissect_logotypecertextn_HashAlgAndValue(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_logotypeHash_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_logotypeHash_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_HashAlgAndValue(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeHash_item);
 }
-static int dissect_refStructHash_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_refStructHash_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_HashAlgAndValue(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_refStructHash_item);
 }
 
@@ -211,10 +211,10 @@ dissect_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue(gboolean implici
 
   return offset;
 }
-static int dissect_logotypeHash(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_logotypeHash(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeHash);
 }
-static int dissect_refStructHash(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_refStructHash(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_refStructHash);
 }
 
@@ -230,7 +230,7 @@ dissect_logotypecertextn_T_logotypeURI(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_logotypeURI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_logotypeURI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_T_logotypeURI(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeURI);
 }
 
@@ -249,10 +249,10 @@ dissect_logotypecertextn_LogotypeDetails(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_imageDetails(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imageDetails(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeDetails(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_imageDetails);
 }
-static int dissect_audioDetails(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_audioDetails(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeDetails(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_audioDetails);
 }
 
@@ -271,7 +271,7 @@ dissect_logotypecertextn_LogotypeImageType(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeImageType(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_type);
 }
 
@@ -284,28 +284,28 @@ dissect_logotypecertextn_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_fileSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_fileSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_fileSize);
 }
-static int dissect_xSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_xSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_xSize);
 }
-static int dissect_ySize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ySize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_ySize);
 }
-static int dissect_numBits_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_numBits_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_numBits);
 }
-static int dissect_tableSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tableSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_tableSize);
 }
-static int dissect_playTime(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_playTime(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_playTime);
 }
-static int dissect_channels(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_channels(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_channels);
 }
-static int dissect_sampleRate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sampleRate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_sampleRate);
 }
 
@@ -330,7 +330,7 @@ dissect_logotypecertextn_LogotypeImageResolution(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_resolution(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_resolution(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeImageResolution(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_resolution);
 }
 
@@ -352,7 +352,7 @@ dissect_logotypecertextn_LogotypeImageInfo(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_imageInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imageInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeImageInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_imageInfo);
 }
 
@@ -370,7 +370,7 @@ dissect_logotypecertextn_LogotypeImage(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_image_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_image_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeImage(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_image_item);
 }
 
@@ -386,7 +386,7 @@ dissect_logotypecertextn_SEQUENCE_OF_LogotypeImage(gboolean implicit_tag _U_, tv
 
   return offset;
 }
-static int dissect_image(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_image(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_OF_LogotypeImage(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_image);
 }
 
@@ -407,7 +407,7 @@ dissect_logotypecertextn_LogotypeAudioInfo(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_audioInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_audioInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeAudioInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_audioInfo);
 }
 
@@ -425,7 +425,7 @@ dissect_logotypecertextn_LogotypeAudio(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_audio_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_audio_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeAudio(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_audio_item);
 }
 
@@ -441,7 +441,7 @@ dissect_logotypecertextn_SEQUENCE_OF_LogotypeAudio(gboolean implicit_tag _U_, tv
 
   return offset;
 }
-static int dissect_audio_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_audio_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_OF_LogotypeAudio(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_audio);
 }
 
@@ -459,7 +459,7 @@ dissect_logotypecertextn_LogotypeData(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_direct_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_direct_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeData(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_direct);
 }
 
@@ -475,7 +475,7 @@ dissect_logotypecertextn_T_refStructURI(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_refStructURI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_refStructURI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_T_refStructURI(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_refStructURI);
 }
 
@@ -493,7 +493,7 @@ dissect_logotypecertextn_LogotypeReference(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_indirect_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_indirect_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeReference(TRUE, tvb, offset, pinfo, tree, hf_logotypecertextn_indirect);
 }
 
@@ -518,16 +518,16 @@ dissect_logotypecertextn_LogotypeInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_communityLogos_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_communityLogos_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_communityLogos_item);
 }
-static int dissect_issuerLogo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_issuerLogo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_issuerLogo);
 }
-static int dissect_subjectLogo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subjectLogo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_subjectLogo);
 }
-static int dissect_info(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_info(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_LogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_info);
 }
 
@@ -543,7 +543,7 @@ dissect_logotypecertextn_SEQUENCE_OF_LogotypeInfo(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_communityLogos(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_communityLogos(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_OF_LogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_communityLogos);
 }
 
@@ -555,7 +555,7 @@ dissect_logotypecertextn_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_logotypeType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_logotypeType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_logotypeType);
 }
 
@@ -573,7 +573,7 @@ dissect_logotypecertextn_OtherLogotypeInfo(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_otherLogos_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_otherLogos_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_OtherLogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_otherLogos_item);
 }
 
@@ -589,7 +589,7 @@ dissect_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_otherLogos(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_otherLogos(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo(FALSE, tvb, offset, pinfo, tree, hf_logotypecertextn_otherLogos);
 }
 

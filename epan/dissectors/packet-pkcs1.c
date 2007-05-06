@@ -96,28 +96,28 @@ dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_modulus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modulus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_modulus);
 }
-static int dissect_publicExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_publicExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_publicExponent);
 }
-static int dissect_privateExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_privateExponent);
 }
-static int dissect_prime1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_prime1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_prime1);
 }
-static int dissect_prime2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_prime2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_prime2);
 }
-static int dissect_exponent1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_exponent1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_exponent1);
 }
-static int dissect_exponent2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_exponent2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_exponent2);
 }
-static int dissect_coefficient(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_coefficient(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_coefficient);
 }
 
@@ -145,7 +145,7 @@ dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_version);
 }
 
@@ -179,7 +179,7 @@ dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_digestAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_digestAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_DigestAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digestAlgorithm);
 }
 
@@ -192,7 +192,7 @@ dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_digest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_digest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkcs1_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digest);
 }
 

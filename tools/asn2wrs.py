@@ -1173,7 +1173,7 @@ class EthCtx:
         if (self.Ber()):
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
-          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {\n'
+          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {\n'
           par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
         else:
           out += 'static int dissect_'+f+'(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {\n'

@@ -45,7 +45,13 @@ typedef struct _asn1_ctx_t {
     int hf_index;
     union {
       struct {
-        void *dummy;
+		int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, struct _asn1_ctx_t*);
+        tvbuff_t *direct_reference;
+        gint32 indirect_reference;
+        guint32 encoding;
+        tvbuff_t *single_asn1_type;
+        tvbuff_t *octet_aligned;
+        tvbuff_t *arbitrary;
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);

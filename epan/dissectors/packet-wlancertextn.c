@@ -88,7 +88,7 @@ dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_SSIDList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SSIDList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_wlancertextn_SSID(FALSE, tvb, offset, pinfo, tree, hf_wlancertextn_SSIDList_item);
 }
 

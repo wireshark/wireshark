@@ -1647,10 +1647,10 @@ dissect_snmp_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_name);
 }
-static int dissect_subtree(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subtree(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ObjectName(FALSE, tvb, offset, pinfo, tree, hf_snmp_subtree);
 }
 
@@ -1669,7 +1669,7 @@ dissect_snmp_Integer_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Integer_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_integer_value);
 }
 
@@ -1687,7 +1687,7 @@ dissect_snmp_String_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_string_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_string_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_String_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_string_value);
 }
 
@@ -1705,7 +1705,7 @@ dissect_snmp_ObjectID_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_objectID_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_objectID_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ObjectID_value(FALSE, tvb, offset, pinfo, tree, hf_snmp_objectID_value);
 }
 
@@ -1723,7 +1723,7 @@ dissect_snmp_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_empty(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_empty(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Empty(FALSE, tvb, offset, pinfo, tree, hf_snmp_empty);
 }
 
@@ -1752,7 +1752,7 @@ dissect_snmp_SimpleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_SimpleSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_simple);
 }
 
@@ -1765,7 +1765,7 @@ dissect_snmp_IpAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_ipAddress_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ipAddress_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_ipAddress_value);
 }
 
@@ -1778,7 +1778,7 @@ dissect_snmp_Counter32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Counter32(FALSE, tvb, offset, pinfo, tree, hf_snmp_counter_value);
 }
 
@@ -1791,10 +1791,10 @@ dissect_snmp_TimeTicks(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_timeticks_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_timeticks_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_timeticks_value);
 }
-static int dissect_time_stamp(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_time_stamp(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_TimeTicks(FALSE, tvb, offset, pinfo, tree, hf_snmp_time_stamp);
 }
 
@@ -1807,7 +1807,7 @@ dissect_snmp_Opaque(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_arbitrary_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_arbitrary_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Opaque(FALSE, tvb, offset, pinfo, tree, hf_snmp_arbitrary_value);
 }
 
@@ -1820,7 +1820,7 @@ dissect_snmp_Counter64(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_big_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_big_counter_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Counter64(FALSE, tvb, offset, pinfo, tree, hf_snmp_big_counter_value);
 }
 
@@ -1833,7 +1833,7 @@ dissect_snmp_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_unsigned_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unsigned_integer_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Unsigned32(FALSE, tvb, offset, pinfo, tree, hf_snmp_unsigned_integer_value);
 }
 
@@ -1866,7 +1866,7 @@ dissect_snmp_ApplicationSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_application_wide(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_application_wide(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ApplicationSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_application_wide);
 }
 
@@ -1891,7 +1891,7 @@ dissect_snmp_ObjectSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_value(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ObjectSyntax(FALSE, tvb, offset, pinfo, tree, hf_snmp_value);
 }
 
@@ -1904,7 +1904,7 @@ dissect_snmp_Integer32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_bulkPDU_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bulkPDU_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Integer32(FALSE, tvb, offset, pinfo, tree, hf_snmp_bulkPDU_request_id);
 }
 
@@ -1948,7 +1948,7 @@ dissect_snmp_T_internet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_internet(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_internet(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_internet(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet);
 }
 
@@ -1971,7 +1971,7 @@ dissect_snmp_NetworkAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_agent_addr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_agent_addr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_NetworkAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_agent_addr);
 }
 
@@ -2013,10 +2013,10 @@ dissect_snmp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_version);
 }
-static int dissect_msgVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgVersion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_Version(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgVersion);
 }
 
@@ -2029,22 +2029,22 @@ dissect_snmp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_community(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_community(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_community);
 }
-static int dissect_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_parameters);
 }
-static int dissect_encrypted(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encrypted(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_encrypted);
 }
-static int dissect_contextEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contextEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextEngineID);
 }
-static int dissect_contextName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contextName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_contextName);
 }
-static int dissect_password(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_password(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_snmp_password);
 }
 
@@ -2057,13 +2057,13 @@ dissect_snmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_request_id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_request_id);
 }
-static int dissect_error_index(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_error_index(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_index);
 }
-static int dissect_specific_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_specific_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_snmp_specific_trap);
 }
 
@@ -2099,7 +2099,7 @@ dissect_snmp_T_error_status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_error_status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_error_status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_error_status(FALSE, tvb, offset, pinfo, tree, hf_snmp_error_status);
 }
 
@@ -2111,16 +2111,16 @@ dissect_snmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_unSpecified(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unSpecified(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_NULL(FALSE, tvb, offset, pinfo, tree, hf_snmp_unSpecified);
 }
-static int dissect_noSuchObject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noSuchObject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchObject);
 }
-static int dissect_noSuchInstance_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noSuchInstance_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_noSuchInstance);
 }
-static int dissect_endOfMibView_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_endOfMibView_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_NULL(TRUE, tvb, offset, pinfo, tree, hf_snmp_endOfMibView);
 }
 
@@ -2151,7 +2151,7 @@ dissect_snmp_ValueType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_valueType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_valueType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ValueType(FALSE, tvb, offset, pinfo, tree, hf_snmp_valueType);
 }
 
@@ -2180,7 +2180,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_VarBindList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_VarBindList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_VarBind(FALSE, tvb, offset, pinfo, tree, hf_snmp_VarBindList_item);
 }
 
@@ -2196,7 +2196,7 @@ dissect_snmp_VarBindList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_variable_bindings(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_variable_bindings(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_VarBindList(FALSE, tvb, offset, pinfo, tree, hf_snmp_variable_bindings);
 }
 
@@ -2241,7 +2241,7 @@ dissect_snmp_T_get_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_get_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_get_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_get_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_request);
 }
 
@@ -2269,7 +2269,7 @@ dissect_snmp_T_get_next_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_get_next_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_get_next_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_get_next_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_next_request);
 }
 
@@ -2297,7 +2297,7 @@ dissect_snmp_T_get_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_get_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_get_response(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_get_response(FALSE, tvb, offset, pinfo, tree, hf_snmp_get_response);
 }
 
@@ -2326,7 +2326,7 @@ dissect_snmp_T_set_request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_set_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_set_request(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_set_request(FALSE, tvb, offset, pinfo, tree, hf_snmp_set_request);
 }
 
@@ -2338,10 +2338,10 @@ dissect_snmp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_enterprise(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_enterprise(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_enterprise);
 }
-static int dissect_identity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_identity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_snmp_identity);
 }
 
@@ -2365,7 +2365,7 @@ dissect_snmp_T_generic_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_generic_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_generic_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_generic_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_generic_trap);
 }
 
@@ -2411,7 +2411,7 @@ dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_trap);
 }
 
@@ -2424,13 +2424,13 @@ dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_msgID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgID);
 }
-static int dissect_non_repeaters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_non_repeaters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_non_repeaters);
 }
-static int dissect_max_repetitions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_max_repetitions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER_0_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_max_repetitions);
 }
 
@@ -2483,7 +2483,7 @@ dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_getBulkRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_getBulkRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_getBulkRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_getBulkRequest);
 }
 
@@ -2519,7 +2519,7 @@ dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_informRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_informRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_informRequest(FALSE, tvb, offset, pinfo, tree, hf_snmp_informRequest);
 }
 
@@ -2555,7 +2555,7 @@ dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_sNMPv2_Trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sNMPv2_Trap(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_sNMPv2_Trap(FALSE, tvb, offset, pinfo, tree, hf_snmp_sNMPv2_Trap);
 }
 
@@ -2591,7 +2591,7 @@ dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_report(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_report(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_report(FALSE, tvb, offset, pinfo, tree, hf_snmp_report);
 }
 
@@ -2638,13 +2638,13 @@ gint pdu_type;
 
   return offset;
 }
-static int dissect_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_data);
 }
-static int dissect_v2u_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_v2u_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_v2u_plaintext);
 }
-static int dissect_pDUs(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pDUs(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_PDUs(FALSE, tvb, offset, pinfo, tree, hf_snmp_pDUs);
 }
 
@@ -2685,7 +2685,7 @@ dissect_snmp_T_datav2u(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_datav2u(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_datav2u(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_datav2u(FALSE, tvb, offset, pinfo, tree, hf_snmp_datav2u);
 }
 
@@ -2724,7 +2724,7 @@ dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgAuthoritativeEngineID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineID(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineID);
 }
 
@@ -2737,7 +2737,7 @@ dissect_snmp_T_msgAuthoritativeEngineBoots(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineBoots(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgAuthoritativeEngineBoots(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineBoots(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineBoots);
 }
 
@@ -2750,7 +2750,7 @@ dissect_snmp_T_msgAuthoritativeEngineTime(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_msgAuthoritativeEngineTime(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgAuthoritativeEngineTime(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgAuthoritativeEngineTime(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthoritativeEngineTime);
 }
 
@@ -2763,7 +2763,7 @@ dissect_snmp_T_msgUserName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_msgUserName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgUserName(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgUserName(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgUserName);
 }
 
@@ -2781,7 +2781,7 @@ dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_msgAuthenticationParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgAuthenticationParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgAuthenticationParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgAuthenticationParameters);
 }
 
@@ -2794,7 +2794,7 @@ dissect_snmp_T_msgPrivacyParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_msgPrivacyParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgPrivacyParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgPrivacyParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgPrivacyParameters);
 }
 
@@ -2826,7 +2826,7 @@ dissect_snmp_INTEGER_484_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_msgMaxSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgMaxSize(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER_484_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgMaxSize);
 }
 
@@ -2856,7 +2856,7 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_msgFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgFlags(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgFlags);
 }
 
@@ -2869,7 +2869,7 @@ dissect_snmp_T_msgSecurityModel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_msgSecurityModel(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgSecurityModel(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgSecurityModel(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityModel);
 }
 
@@ -2889,7 +2889,7 @@ dissect_snmp_HeaderData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_msgGlobalData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgGlobalData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_HeaderData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgGlobalData);
 }
 
@@ -2918,7 +2918,7 @@ dissect_snmp_T_msgSecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_msgSecurityParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgSecurityParameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_msgSecurityParameters(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgSecurityParameters);
 }
 
@@ -2937,7 +2937,7 @@ dissect_snmp_ScopedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_plaintext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ScopedPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_plaintext);
 }
 
@@ -2992,7 +2992,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_encryptedPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptedPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_encryptedPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_encryptedPDU);
 }
 
@@ -3017,7 +3017,7 @@ dissect_snmp_ScopedPduData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_msgData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msgData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ScopedPduData(FALSE, tvb, offset, pinfo, tree, hf_snmp_msgData);
 }
 
@@ -3091,7 +3091,7 @@ dissect_snmp_T_smux_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_smux_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_smux_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_smux_version(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_version);
 }
 
@@ -3104,7 +3104,7 @@ dissect_snmp_DisplayString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_description(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_description(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_DisplayString(FALSE, tvb, offset, pinfo, tree, hf_snmp_description);
 }
 
@@ -3124,7 +3124,7 @@ dissect_snmp_SimpleOpen(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_smux_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_smux_simple(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_SimpleOpen(FALSE, tvb, offset, pinfo, tree, hf_snmp_smux_simple);
 }
 
@@ -3147,7 +3147,7 @@ dissect_snmp_OpenPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_open(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_open(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_OpenPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_open);
 }
 
@@ -3170,7 +3170,7 @@ dissect_snmp_ClosePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_close(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_close(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_ClosePDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_close);
 }
 
@@ -3183,7 +3183,7 @@ dissect_snmp_INTEGER_M1_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_priority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_priority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_INTEGER_M1_2147483647(FALSE, tvb, offset, pinfo, tree, hf_snmp_priority);
 }
 
@@ -3203,7 +3203,7 @@ dissect_snmp_T_operation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_operation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_T_operation(FALSE, tvb, offset, pinfo, tree, hf_snmp_operation);
 }
 
@@ -3222,7 +3222,7 @@ dissect_snmp_RReqPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_registerRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_registerRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_RReqPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerRequest);
 }
 
@@ -3240,7 +3240,7 @@ dissect_snmp_RRspPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_rRspPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rRspPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_RRspPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_rRspPDU);
 }
 
@@ -3265,7 +3265,7 @@ dissect_snmp_RegisterResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_registerResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_registerResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_RegisterResponse(FALSE, tvb, offset, pinfo, tree, hf_snmp_registerResponse);
 }
 
@@ -3284,7 +3284,7 @@ dissect_snmp_SOutPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_commitOrRollback(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_commitOrRollback(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_snmp_SOutPDU(FALSE, tvb, offset, pinfo, tree, hf_snmp_commitOrRollback);
 }
 

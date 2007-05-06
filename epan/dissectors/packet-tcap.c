@@ -352,7 +352,7 @@ dissect_tcap_T_protocol_versionrq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_protocol_versionrq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocol_versionrq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_protocol_versionrq(TRUE, tvb, offset, pinfo, tree, hf_tcap_protocol_versionrq);
 }
 
@@ -371,7 +371,7 @@ dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_application_context_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_application_context_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Applicationcontext(FALSE, tvb, offset, pinfo, tree, hf_tcap_application_context_name);
 }
 
@@ -401,7 +401,7 @@ return offset+len;
 
   return offset;
 }
-static int dissect_user_information_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_user_information_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_User_information(TRUE, tvb, offset, pinfo, tree, hf_tcap_user_information);
 }
 
@@ -420,7 +420,7 @@ dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_dialogueRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogueRequest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_AARQ_apdu(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialogueRequest);
 }
 
@@ -438,7 +438,7 @@ dissect_tcap_T_protocol_versionre(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_protocol_versionre_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocol_versionre_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_protocol_versionre(TRUE, tvb, offset, pinfo, tree, hf_tcap_protocol_versionre);
 }
 
@@ -457,7 +457,7 @@ dissect_tcap_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_result(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_result(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Associate_result(FALSE, tvb, offset, pinfo, tree, hf_tcap_result);
 }
 
@@ -477,7 +477,7 @@ dissect_tcap_T_dialogue_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_dialogue_service_user(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogue_service_user(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_dialogue_service_user(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialogue_service_user);
 }
 
@@ -497,7 +497,7 @@ dissect_tcap_T_dialogue_service_provider(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_dialogue_service_provider(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogue_service_provider(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_dialogue_service_provider(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialogue_service_provider);
 }
 
@@ -522,7 +522,7 @@ dissect_tcap_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_result_source_diagnostic(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_result_source_diagnostic(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Associate_source_diagnostic(FALSE, tvb, offset, pinfo, tree, hf_tcap_result_source_diagnostic);
 }
 
@@ -543,7 +543,7 @@ dissect_tcap_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_dialogueResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogueResponse(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_AARE_apdu(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialogueResponse);
 }
 
@@ -562,7 +562,7 @@ dissect_tcap_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_abort_source_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abort_source_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ABRT_source(TRUE, tvb, offset, pinfo, tree, hf_tcap_abort_source);
 }
 
@@ -580,7 +580,7 @@ dissect_tcap_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_dialogueAbort(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogueAbort(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ABRT_apdu(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialogueAbort);
 }
 
@@ -616,16 +616,16 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_oid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_oid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_tcap_oid);
 }
-static int dissect_globalValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_globalValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_tcap_globalValue);
 }
-static int dissect_objectSecurityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_objectSecurityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_tcap_objectSecurityId);
 }
-static int dissect_objectConfidentialityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_objectConfidentialityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_tcap_objectConfidentialityId);
 }
 
@@ -652,7 +652,7 @@ return offset+len;
 
   return offset;
 }
-static int dissect_dialog_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialog_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Dialog1(TRUE, tvb, offset, pinfo, tree, hf_tcap_dialog);
 }
 
@@ -691,7 +691,7 @@ dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_useroid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_useroid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_UserInfoOID(FALSE, tvb, offset, pinfo, tree, hf_tcap_useroid);
 }
 
@@ -706,7 +706,7 @@ dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index)
 
   return offset;
 }
-static int dissect_externuserinfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_externuserinfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ExternUserInfo(TRUE, tvb, offset, pinfo, tree, hf_tcap_externuserinfo);
 }
 
@@ -724,7 +724,7 @@ dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_userInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_userInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_UserInformation(FALSE, tvb, offset, pinfo, tree, hf_tcap_userInformation);
 }
 
@@ -744,7 +744,7 @@ dissect_tcap_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_reasonrq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reasonrq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Release_request_reason(TRUE, tvb, offset, pinfo, tree, hf_tcap_reasonrq);
 }
 
@@ -779,7 +779,7 @@ dissect_tcap_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_reasonre_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reasonre_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Release_response_reason(TRUE, tvb, offset, pinfo, tree, hf_tcap_reasonre);
 }
 
@@ -812,7 +812,7 @@ dissect_tcap_T_protocol_version3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_protocol_version3_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocol_version3_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_protocol_version3(TRUE, tvb, offset, pinfo, tree, hf_tcap_protocol_version3);
 }
 
@@ -831,7 +831,7 @@ dissect_tcap_AUDT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_unidialoguePDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unidialoguePDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_AUDT_apdu(FALSE, tvb, offset, pinfo, tree, hf_tcap_unidialoguePDU);
 }
 
@@ -894,10 +894,10 @@ dissect_tcap_DialoguePortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_dialoguePortion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialoguePortion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_DialoguePortion(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialoguePortion);
 }
-static int dissect_u_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_u_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_DialoguePortion(FALSE, tvb, offset, pinfo, tree, hf_tcap_u_abortCause);
 }
 
@@ -910,13 +910,13 @@ dissect_tcap_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_invokeID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_tcap_invokeID);
 }
-static int dissect_linkedID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_linkedID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokeIdType(TRUE, tvb, offset, pinfo, tree, hf_tcap_linkedID);
 }
-static int dissect_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_tcap_derivable);
 }
 
@@ -929,19 +929,19 @@ dissect_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_localValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_localValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_tcap_localValue);
 }
-static int dissect_integerSecurityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integerSecurityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_tcap_integerSecurityId);
 }
-static int dissect_integerConfidentialityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integerConfidentialityId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_tcap_integerConfidentialityId);
 }
-static int dissect_private_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_private_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_tcap_private);
 }
-static int dissect_privateer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_tcap_privateer);
 }
 
@@ -966,7 +966,7 @@ dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_opCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_opCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OPERATION(FALSE, tvb, offset, pinfo, tree, hf_tcap_opCode);
 }
 
@@ -998,7 +998,7 @@ if (!next_tvb)
 
   return offset;
 }
-static int dissect_parameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Parameter(FALSE, tvb, offset, pinfo, tree, hf_tcap_parameter);
 }
 
@@ -1018,7 +1018,7 @@ dissect_tcap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_invoke_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invoke_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Invoke(TRUE, tvb, offset, pinfo, tree, hf_tcap_invoke);
 }
 
@@ -1036,7 +1036,7 @@ dissect_tcap_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_resultretres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_resultretres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_resultretres(FALSE, tvb, offset, pinfo, tree, hf_tcap_resultretres);
 }
 
@@ -1054,10 +1054,10 @@ dissect_tcap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_returnResultLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnResultLast);
 }
-static int dissect_returnResultNotLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultNotLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnResultNotLast);
 }
 
@@ -1070,10 +1070,10 @@ dissect_tcap_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_national_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_national_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER_M32768_32767(TRUE, tvb, offset, pinfo, tree, hf_tcap_national);
 }
-static int dissect_nationaler_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nationaler_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_INTEGER_M32768_32767(TRUE, tvb, offset, pinfo, tree, hf_tcap_nationaler);
 }
 
@@ -1098,7 +1098,7 @@ dissect_tcap_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_errorCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_errorCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ErrorCode(FALSE, tvb, offset, pinfo, tree, hf_tcap_errorCode);
 }
 
@@ -1117,7 +1117,7 @@ dissect_tcap_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_returnError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnError(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnError);
 }
 
@@ -1129,7 +1129,7 @@ dissect_tcap_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_not_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_not_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_NULL(FALSE, tvb, offset, pinfo, tree, hf_tcap_not_derivable);
 }
 
@@ -1154,7 +1154,7 @@ dissect_tcap_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_invokeIDRej(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeIDRej(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_invokeIDRej(FALSE, tvb, offset, pinfo, tree, hf_tcap_invokeIDRej);
 }
 
@@ -1174,7 +1174,7 @@ dissect_tcap_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_generalProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_generalProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_GeneralProblem(TRUE, tvb, offset, pinfo, tree, hf_tcap_generalProblem);
 }
 
@@ -1199,7 +1199,7 @@ dissect_tcap_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_invokeProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokeProblem(TRUE, tvb, offset, pinfo, tree, hf_tcap_invokeProblem);
 }
 
@@ -1219,7 +1219,7 @@ dissect_tcap_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_returnResultProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnResultProblem(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnResultProblem);
 }
 
@@ -1241,7 +1241,7 @@ dissect_tcap_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_returnErrorProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnErrorProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnErrorProblem(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnErrorProblem);
 }
 
@@ -1270,7 +1270,7 @@ dissect_tcap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_problem(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_problem(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_problem(FALSE, tvb, offset, pinfo, tree, hf_tcap_problem);
 }
 
@@ -1288,7 +1288,7 @@ dissect_tcap_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_reject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Reject(TRUE, tvb, offset, pinfo, tree, hf_tcap_reject);
 }
 
@@ -1320,7 +1320,7 @@ dissect_tcap_TheComponent(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
 }
-static int dissect_ComponentPortion_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ComponentPortion_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Component(FALSE, tvb, offset, pinfo, tree, hf_tcap_ComponentPortion_item);
 }
 
@@ -1336,7 +1336,7 @@ dissect_tcap_ComponentPortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_components(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_components(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ComponentPortion(FALSE, tvb, offset, pinfo, tree, hf_tcap_components);
 }
 
@@ -1354,7 +1354,7 @@ dissect_tcap_Unidirectional(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_unidirectional_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unidirectional_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Unidirectional(TRUE, tvb, offset, pinfo, tree, hf_tcap_unidirectional);
 }
 
@@ -1404,7 +1404,7 @@ if (parameter_tvb){
 
   return offset;
 }
-static int dissect_otid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_otid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OrigTransactionID(FALSE, tvb, offset, pinfo, tree, hf_tcap_otid);
 }
 
@@ -1432,7 +1432,7 @@ if (check_col(pinfo->cinfo, COL_INFO))
 
   return offset;
 }
-static int dissect_begin_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_begin_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Begin(TRUE, tvb, offset, pinfo, tree, hf_tcap_begin);
 }
 
@@ -1479,7 +1479,7 @@ if (parameter_tvb){
 
   return offset;
 }
-static int dissect_dtid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dtid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_DestTransactionID(FALSE, tvb, offset, pinfo, tree, hf_tcap_dtid);
 }
 
@@ -1507,7 +1507,7 @@ if (check_col(pinfo->cinfo, COL_INFO))
 
   return offset;
 }
-static int dissect_end_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_end_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_End(TRUE, tvb, offset, pinfo, tree, hf_tcap_end);
 }
 
@@ -1536,7 +1536,7 @@ if (check_col(pinfo->cinfo, COL_INFO))
 
   return offset;
 }
-static int dissect_continue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_continue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Continue(TRUE, tvb, offset, pinfo, tree, hf_tcap_continue);
 }
 
@@ -1558,7 +1558,7 @@ dissect_tcap_P_AbortCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_p_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_p_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_P_AbortCause(FALSE, tvb, offset, pinfo, tree, hf_tcap_p_abortCause);
 }
 
@@ -1583,7 +1583,7 @@ dissect_tcap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_reason(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reason(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Reason(FALSE, tvb, offset, pinfo, tree, hf_tcap_reason);
 }
 
@@ -1610,7 +1610,7 @@ if (check_col(pinfo->cinfo, COL_INFO))
 
   return offset;
 }
-static int dissect_abort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Abort(TRUE, tvb, offset, pinfo, tree, hf_tcap_abort);
 }
 
@@ -1633,7 +1633,7 @@ if(next_tvb)
 
   return offset;
 }
-static int dissect_identifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_identifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionID(FALSE, tvb, offset, pinfo, tree, hf_tcap_identifier);
 }
 
@@ -1646,7 +1646,7 @@ dissect_tcap_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ProtocolVersion(FALSE, tvb, offset, pinfo, tree, hf_tcap_version);
 }
 
@@ -1659,7 +1659,7 @@ dissect_tcap_IntegerApplicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_integerApplicationId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integerApplicationId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_IntegerApplicationContext(FALSE, tvb, offset, pinfo, tree, hf_tcap_integerApplicationId);
 }
 
@@ -1671,7 +1671,7 @@ dissect_tcap_ObjectIDApplicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_objectApplicationId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_objectApplicationId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ObjectIDApplicationContext(FALSE, tvb, offset, pinfo, tree, hf_tcap_objectApplicationId);
 }
 
@@ -1696,7 +1696,7 @@ dissect_tcap_T_applicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_applicationContext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_applicationContext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_applicationContext(FALSE, tvb, offset, pinfo, tree, hf_tcap_applicationContext);
 }
 
@@ -1721,7 +1721,7 @@ dissect_tcap_T_securityContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_securityContext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_securityContext(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_securityContext(FALSE, tvb, offset, pinfo, tree, hf_tcap_securityContext);
 }
 
@@ -1746,7 +1746,7 @@ dissect_tcap_T_confidentialityId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_confidentialityId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_confidentialityId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_confidentialityId(FALSE, tvb, offset, pinfo, tree, hf_tcap_confidentialityId);
 }
 
@@ -1763,7 +1763,7 @@ dissect_tcap_Confidentiality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_confidentiality_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_confidentiality_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_Confidentiality(TRUE, tvb, offset, pinfo, tree, hf_tcap_confidentiality);
 }
 
@@ -1784,7 +1784,7 @@ dissect_tcap_DialoguePortionANSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_dialoguePortionansi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialoguePortionansi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_DialoguePortionANSI(FALSE, tvb, offset, pinfo, tree, hf_tcap_dialoguePortionansi);
 }
 
@@ -1797,7 +1797,7 @@ dissect_tcap_OCTET_STRING_SIZE_0_2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_componentIDs_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_componentIDs_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OCTET_STRING_SIZE_0_2(TRUE, tvb, offset, pinfo, tree, hf_tcap_componentIDs);
 }
 
@@ -1822,7 +1822,7 @@ dissect_tcap_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_operationCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operationCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_OperationCode(FALSE, tvb, offset, pinfo, tree, hf_tcap_operationCode);
 }
 
@@ -1845,70 +1845,70 @@ offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
 
   return offset;
 }
-static int dissect_ansiparams(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams);
 }
-static int dissect_ansiparams1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams1);
 }
-static int dissect_ansiparams2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams2);
 }
-static int dissect_ansiparams3(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams3(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams3);
 }
-static int dissect_ansiparams4(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams4(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams4);
 }
-static int dissect_ansiparams5(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams5(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams5);
 }
-static int dissect_ansiparams6(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams6(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams6);
 }
-static int dissect_ansiparams7(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams7(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams7);
 }
-static int dissect_ansiparams8(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams8(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams8);
 }
-static int dissect_ansiparams9(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams9(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams9);
 }
-static int dissect_ansiparams10(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams10(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams10);
 }
-static int dissect_ansiparams11(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams11(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams11);
 }
-static int dissect_ansiparams12(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams12(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams12);
 }
-static int dissect_ansiparams13(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams13(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams13);
 }
-static int dissect_ansiparams14(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams14(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams14);
 }
-static int dissect_ansiparams15(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams15(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams15);
 }
-static int dissect_ansiparams16(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams16(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams16);
 }
-static int dissect_ansiparams17(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams17(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams17);
 }
-static int dissect_ansiparams18(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams18(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams18);
 }
-static int dissect_ansiparams19(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams19(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams19);
 }
-static int dissect_ansiparams20(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams20(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams20);
 }
-static int dissect_ansiparams21(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiparams21(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIParameters(FALSE, tvb, offset, pinfo, tree, hf_tcap_ansiparams21);
 }
 
@@ -1946,16 +1946,16 @@ dissect_tcap_ANSIparamch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_parameterinv(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameterinv(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIparamch(FALSE, tvb, offset, pinfo, tree, hf_tcap_parameterinv);
 }
-static int dissect_parameterrr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameterrr(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIparamch(FALSE, tvb, offset, pinfo, tree, hf_tcap_parameterrr);
 }
-static int dissect_parameterre(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameterre(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIparamch(FALSE, tvb, offset, pinfo, tree, hf_tcap_parameterre);
 }
-static int dissect_parameterrj(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameterrj(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ANSIparamch(FALSE, tvb, offset, pinfo, tree, hf_tcap_parameterrj);
 }
 
@@ -1974,10 +1974,10 @@ dissect_tcap_InvokePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_invokeLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_invokeLastansi);
 }
-static int dissect_invokeNotLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeNotLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_InvokePDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_invokeNotLastansi);
 }
 
@@ -1990,7 +1990,7 @@ dissect_tcap_ComponentID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_componentID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_componentID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ComponentID(FALSE, tvb, offset, pinfo, tree, hf_tcap_componentID);
 }
 
@@ -2008,10 +2008,10 @@ dissect_tcap_ReturnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_returnResultLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnResultLastansi);
 }
-static int dissect_returnResultNotLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultNotLastansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnResultPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnResultNotLastansi);
 }
 
@@ -2030,7 +2030,7 @@ dissect_tcap_ReturnErrorPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_returnErroransi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnErroransi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ReturnErrorPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_returnErroransi);
 }
 
@@ -2050,7 +2050,7 @@ dissect_tcap_ProblemPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_rejectProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rejectProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ProblemPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_rejectProblem);
 }
 
@@ -2069,7 +2069,7 @@ dissect_tcap_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rejectansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rejectansi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_RejectPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_rejectansi);
 }
 
@@ -2117,7 +2117,7 @@ offset = dissect_ber_choice(pinfo, tree, tvb, offset,
 
   return offset;
 }
-static int dissect_ComponentSequence_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ComponentSequence_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ComponentPDU(FALSE, tvb, offset, pinfo, tree, hf_tcap_ComponentSequence_item);
 }
 
@@ -2133,7 +2133,7 @@ dissect_tcap_ComponentSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_componentPortion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_componentPortion(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_ComponentSequence(FALSE, tvb, offset, pinfo, tree, hf_tcap_componentPortion);
 }
 
@@ -2152,7 +2152,7 @@ dissect_tcap_UniTransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ansiunidirectional_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiunidirectional_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_UniTransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiunidirectional);
 }
 
@@ -2190,19 +2190,19 @@ if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, 
 
   return offset;
 }
-static int dissect_ansiqueryWithPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiqueryWithPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiqueryWithPerm);
 }
-static int dissect_ansiqueryWithoutPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiqueryWithoutPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiqueryWithoutPerm);
 }
-static int dissect_ansiresponse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiresponse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiresponse);
 }
-static int dissect_ansiconversationWithPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiconversationWithPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiconversationWithPerm);
 }
-static int dissect_ansiconversationWithoutPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiconversationWithoutPerm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_TransactionPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiconversationWithoutPerm);
 }
 
@@ -2229,7 +2229,7 @@ dissect_tcap_P_Abort_cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abortCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_P_Abort_cause(FALSE, tvb, offset, pinfo, tree, hf_tcap_abortCause);
 }
 
@@ -2254,7 +2254,7 @@ dissect_tcap_T_causeInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_causeInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_causeInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_T_causeInformation(FALSE, tvb, offset, pinfo, tree, hf_tcap_causeInformation);
 }
 
@@ -2280,7 +2280,7 @@ if (check_col(pinfo->cinfo, COL_INFO))
 
   return offset;
 }
-static int dissect_ansiabort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ansiabort_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_tcap_AbortPDU(TRUE, tvb, offset, pinfo, tree, hf_tcap_ansiabort);
 }
 

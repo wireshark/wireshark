@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 #include "packet-tcp.h"
 #include "packet-kerberos.h"
 #include "packet-ber.h"
@@ -82,7 +83,7 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 }
 
 
-static int dissect_kpasswd_newpassword(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_kpasswd_newpassword(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
 

@@ -281,16 +281,16 @@ find_oid_by_pres_ctx_id(packet_info *pinfo _U_, guint32 idx)
 #line 1 "packet-pres-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_x410_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_x410_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTORQapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_x410_mode_parameters);
 }
-static int dissect_cPR_PPDU_x400_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cPR_PPDU_x400_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_x400_mode_parameters);
 }
-static int dissect_cPU_PPDU_x400_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cPU_PPDU_x400_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTORJapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_x400_mode_parameters);
 }
-static int dissect_aRU_PPDU_x400_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_aRU_PPDU_x400_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTABapdu(FALSE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_x400_mode_parameters);
 }
 
@@ -309,7 +309,7 @@ dissect_pres_T_mode_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_mode_value_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mode_value_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_mode_value(TRUE, tvb, offset, pinfo, tree, hf_pres_mode_value);
 }
 
@@ -326,7 +326,7 @@ dissect_pres_Mode_selector(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_mode_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mode_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Mode_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_mode_selector);
 }
 
@@ -344,7 +344,7 @@ dissect_pres_Protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_protocol_version_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocol_version_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Protocol_version(TRUE, tvb, offset, pinfo, tree, hf_pres_protocol_version);
 }
 
@@ -366,7 +366,7 @@ dissect_pres_Calling_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_calling_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_calling_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Calling_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_calling_presentation_selector);
 }
 
@@ -378,7 +378,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_called_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_called_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Called_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_called_presentation_selector);
 }
 
@@ -399,16 +399,16 @@ dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_initiators_nominated_context(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_initiators_nominated_context(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_initiators_nominated_context);
 }
-static int dissect_responders_nominated_context(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_responders_nominated_context(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_responders_nominated_context);
 }
-static int dissect_presentation_context_identifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_identifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_presentation_context_identifier);
 }
-static int dissect_Presentation_context_deletion_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Presentation_context_deletion_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_deletion_list_item);
 }
 
@@ -420,10 +420,10 @@ dissect_pres_Abstract_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_abstract_syntax_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abstract_syntax_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Abstract_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_abstract_syntax_name);
 }
-static int dissect_abstract_syntax_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abstract_syntax_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Abstract_syntax_name(TRUE, tvb, offset, pinfo, tree, hf_pres_abstract_syntax_name);
 }
 
@@ -435,13 +435,13 @@ dissect_pres_Transfer_syntax_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_transfer_syntax_name_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_transfer_syntax_name_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name_list_item);
 }
-static int dissect_transfer_syntax_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_transfer_syntax_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name);
 }
-static int dissect_transfer_syntax_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_transfer_syntax_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Transfer_syntax_name(TRUE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name);
 }
 
@@ -457,7 +457,7 @@ dissect_pres_SEQUENCE_OF_Transfer_syntax_name(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_transfer_syntax_name_list(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_transfer_syntax_name_list(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_SEQUENCE_OF_Transfer_syntax_name(FALSE, tvb, offset, pinfo, tree, hf_pres_transfer_syntax_name_list);
 }
 
@@ -482,7 +482,7 @@ dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_Context_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Context_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Context_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Context_list_item);
 }
 
@@ -507,7 +507,7 @@ dissect_pres_Presentation_context_definition_list(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_presentation_context_definition_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_definition_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_definition_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_definition_list);
 }
 
@@ -525,7 +525,7 @@ dissect_pres_Default_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_default_context_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_default_context_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Default_context_name(TRUE, tvb, offset, pinfo, tree, hf_pres_default_context_name);
 }
 
@@ -544,7 +544,7 @@ dissect_pres_Presentation_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_presentation_requirements_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_requirements_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_requirements(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_requirements);
 }
 
@@ -574,7 +574,7 @@ dissect_pres_User_session_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_user_session_requirements_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_user_session_requirements_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_User_session_requirements(TRUE, tvb, offset, pinfo, tree, hf_pres_user_session_requirements);
 }
 
@@ -594,7 +594,7 @@ dissect_pres_Protocol_options(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_protocol_options(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocol_options(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Protocol_options(FALSE, tvb, offset, pinfo, tree, hf_pres_protocol_options);
 }
 
@@ -610,7 +610,7 @@ dissect_pres_T_extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_extensions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extensions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_extensions(FALSE, tvb, offset, pinfo, tree, hf_pres_extensions);
 }
 
@@ -623,7 +623,7 @@ dissect_pres_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_simply_encoded_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_simply_encoded_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Simply_encoded_data(TRUE, tvb, offset, pinfo, tree, hf_pres_simply_encoded_data);
 }
 
@@ -650,7 +650,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_single_ASN1_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_single_ASN1_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_single_ASN1_type(TRUE, tvb, offset, pinfo, tree, hf_pres_single_ASN1_type);
 }
 
@@ -679,7 +679,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_octet_aligned(TRUE, tvb, offset, pinfo, tree, hf_pres_octet_aligned);
 }
 
@@ -693,7 +693,7 @@ dissect_pres_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_arbitrary_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_arbitrary_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_pres_arbitrary);
 }
 
@@ -720,7 +720,7 @@ dissect_pres_T_presentation_data_values(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_presentation_data_values(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_data_values(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_presentation_data_values(FALSE, tvb, offset, pinfo, tree, hf_pres_presentation_data_values);
 }
 
@@ -739,7 +739,7 @@ dissect_pres_PDV_list(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_Fully_encoded_data_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Fully_encoded_data_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_PDV_list(FALSE, tvb, offset, pinfo, tree, hf_pres_Fully_encoded_data_item);
 }
 
@@ -755,7 +755,7 @@ dissect_pres_Fully_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_fully_encoded_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_fully_encoded_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Fully_encoded_data(TRUE, tvb, offset, pinfo, tree, hf_pres_fully_encoded_data);
 }
 
@@ -780,10 +780,10 @@ dissect_pres_User_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_user_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_user_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_User_data(FALSE, tvb, offset, pinfo, tree, hf_pres_user_data);
 }
-static int dissect_ttdPPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ttdPPDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_User_data(FALSE, tvb, offset, pinfo, tree, hf_pres_ttdPPDU);
 }
 
@@ -810,7 +810,7 @@ dissect_pres_T_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_normal_mode_parameters);
 }
 
@@ -847,7 +847,7 @@ dissect_pres_Responding_presentation_selector(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_responding_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_responding_presentation_selector_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Responding_presentation_selector(TRUE, tvb, offset, pinfo, tree, hf_pres_responding_presentation_selector);
 }
 
@@ -867,7 +867,7 @@ dissect_pres_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_result_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_result_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Result(TRUE, tvb, offset, pinfo, tree, hf_pres_result);
 }
 
@@ -888,7 +888,7 @@ dissect_pres_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_provider_reason);
 }
 
@@ -907,7 +907,7 @@ dissect_pres_Result_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_Result_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Result_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Result_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Result_list_item);
 }
 
@@ -932,7 +932,7 @@ dissect_pres_Presentation_context_definition_result_list(gboolean implicit_tag _
 
   return offset;
 }
-static int dissect_presentation_context_definition_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_definition_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_definition_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_definition_result_list);
 }
 
@@ -956,7 +956,7 @@ dissect_pres_T_CPA_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_cPU_PPDU_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cPU_PPDU_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_CPA_PPDU_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_cPU_PPDU_normal_mode_parameters);
 }
 
@@ -984,7 +984,7 @@ dissect_pres_Default_context_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_default_context_result_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_default_context_result_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Default_context_result(TRUE, tvb, offset, pinfo, tree, hf_pres_default_context_result);
 }
 
@@ -1009,7 +1009,7 @@ dissect_pres_Provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_cPR_PPDU__provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cPR_PPDU__provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Provider_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU__provider_reason);
 }
 
@@ -1031,7 +1031,7 @@ dissect_pres_T_CPR_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_cPR_PPDU_normal_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cPR_PPDU_normal_mode_parameters(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_CPR_PPDU_normal_mode_parameters(FALSE, tvb, offset, pinfo, tree, hf_pres_cPR_PPDU_normal_mode_parameters);
 }
 
@@ -1071,7 +1071,7 @@ dissect_pres_Presentation_context_identifier_list_item(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_Presentation_context_identifier_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Presentation_context_identifier_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_identifier_list_item);
 }
 
@@ -1087,7 +1087,7 @@ dissect_pres_Presentation_context_identifier_list(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_presentation_context_identifier_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_identifier_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_identifier_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_identifier_list);
 }
 
@@ -1105,7 +1105,7 @@ dissect_pres_T_ARU_PPDU_normal_mode_parameters(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_aRU_PPDU_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_aRU_PPDU_normal_mode_parameters_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_T_ARU_PPDU_normal_mode_parameters(TRUE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_normal_mode_parameters);
 }
 
@@ -1130,7 +1130,7 @@ dissect_pres_ARU_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_aru_ppdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_aru_ppdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_ARU_PPDU(FALSE, tvb, offset, pinfo, tree, hf_pres_aru_ppdu);
 }
 
@@ -1154,7 +1154,7 @@ dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_aRU_PPDU_provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_aRU_PPDU_provider_reason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Abort_reason(TRUE, tvb, offset, pinfo, tree, hf_pres_aRU_PPDU_provider_reason);
 }
 
@@ -1204,7 +1204,7 @@ dissect_pres_Event_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_event_identifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_event_identifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Event_identifier(TRUE, tvb, offset, pinfo, tree, hf_pres_event_identifier);
 }
 
@@ -1222,7 +1222,7 @@ dissect_pres_ARP_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_arp_ppdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_arp_ppdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_ARP_PPDU(FALSE, tvb, offset, pinfo, tree, hf_pres_arp_ppdu);
 }
 
@@ -1256,7 +1256,7 @@ dissect_pres_Presentation_context_addition_list(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_presentation_context_addition_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_addition_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_addition_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_addition_list);
 }
 
@@ -1272,7 +1272,7 @@ dissect_pres_Presentation_context_deletion_list(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_presentation_context_deletion_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_deletion_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_deletion_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_deletion_list);
 }
 
@@ -1291,7 +1291,7 @@ dissect_pres_AC_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_acPPDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_acPPDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_AC_PPDU(TRUE, tvb, offset, pinfo, tree, hf_pres_acPPDU);
 }
 
@@ -1303,7 +1303,7 @@ dissect_pres_Presentation_context_addition_result_list(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_presentation_context_addition_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_addition_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_addition_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_addition_result_list);
 }
 
@@ -1322,7 +1322,7 @@ dissect_pres_Presentation_context_deletion_result_list_item(gboolean implicit_ta
 
   return offset;
 }
-static int dissect_Presentation_context_deletion_result_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Presentation_context_deletion_result_list_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_deletion_result_list_item(FALSE, tvb, offset, pinfo, tree, hf_pres_Presentation_context_deletion_result_list_item);
 }
 
@@ -1338,7 +1338,7 @@ dissect_pres_Presentation_context_deletion_result_list(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_presentation_context_deletion_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_presentation_context_deletion_result_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_Presentation_context_deletion_result_list(TRUE, tvb, offset, pinfo, tree, hf_pres_presentation_context_deletion_result_list);
 }
 
@@ -1357,7 +1357,7 @@ dissect_pres_ACA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_acaPPDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_acaPPDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pres_ACA_PPDU(TRUE, tvb, offset, pinfo, tree, hf_pres_acaPPDU);
 }
 

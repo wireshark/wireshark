@@ -7611,13 +7611,13 @@ dissect_ROS_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
   return offset;
 }
-static int dissect_invokeID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_invokeID(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_ROS_invokeID);
 }
-static int dissect_linkedID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_linkedID_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_InvokeIdType(TRUE, tvb, offset, pinfo, tree, hf_ROS_linkedID);
 }
-static int dissect_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_ROS_derivable);
 }
 
@@ -7630,10 +7630,10 @@ dissect_ROS_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet
 
   return offset;
 }
-static int dissect_localValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_localValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_ROS_localValue);
 }
-static int dissect_privateer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_privateer_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_ROS_privateer);
 }
 
@@ -7646,7 +7646,7 @@ dissect_ROS_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 
   return offset;
 }
-static int dissect_globalValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_globalValue(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_ROS_globalValue);
 }
 
@@ -7670,7 +7670,7 @@ dissect_ROS_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_opCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_opCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_OPERATION(FALSE, tvb, offset, pinfo, tree, hf_ROS_opCode);
 }
 
@@ -7682,7 +7682,7 @@ dissect_ROS_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 	
   return offset;
 }
-static int dissect_parameter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_parameter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_Parameter(FALSE, tvb, offset, pinfo, tree, hf_ROS_parameter);
 }
 
@@ -7701,7 +7701,7 @@ dissect_ROS_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
   return offset;
 }
-static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_invoke_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_Invoke(TRUE, tvb, offset, pinfo, tree, hf_ROS_invoke);
 }
 
@@ -7718,7 +7718,7 @@ dissect_ROS_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_resultretres(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_resultretres(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_T_resultretres(FALSE, tvb, offset, pinfo, tree, hf_ROS_resultretres);
 }
 
@@ -7735,7 +7735,7 @@ dissect_ROS_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
   return offset;
 }
-static int dissect_returnResultLast_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnResultLast_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnResultLast);
 }
 
@@ -7748,7 +7748,7 @@ dissect_ROS_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 
   return offset;
 }
-static int dissect_nationaler_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_nationaler_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_INTEGER_M32768_32767(TRUE, tvb, offset, pinfo, tree, hf_ROS_nationaler);
 }
 
@@ -7772,7 +7772,7 @@ dissect_ROS_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_errorCode(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_ErrorCode(FALSE, tvb, offset, pinfo, tree, hf_ROS_errorCode);
 }
 
@@ -7790,7 +7790,7 @@ dissect_ROS_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pa
 
   return offset;
 }
-static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnError_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_ReturnError(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnError);
 }
 
@@ -7802,7 +7802,7 @@ dissect_ROS_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_in
 
   return offset;
 }
-static int dissect_not_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_not_derivable(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_NULL(FALSE, tvb, offset, pinfo, tree, hf_ROS_not_derivable);
 }
 
@@ -7826,7 +7826,7 @@ dissect_ROS_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_invokeIDRej(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_invokeIDRej(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_T_invokeIDRej(FALSE, tvb, offset, pinfo, tree, hf_ROS_invokeIDRej);
 }
 
@@ -7846,7 +7846,7 @@ dissect_ROS_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
   return offset;
 }
-static int dissect_generalProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_generalProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_GeneralProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_generalProblem);
 }
 
@@ -7871,7 +7871,7 @@ dissect_ROS_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
 
   return offset;
 }
-static int dissect_invokeProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_invokeProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_InvokeProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_invokeProblem);
 }
 
@@ -7891,7 +7891,7 @@ dissect_ROS_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int of
 
   return offset;
 }
-static int dissect_returnResultProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnResultProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_ReturnResultProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnResultProblem);
 }
 
@@ -7913,7 +7913,7 @@ dissect_ROS_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb, int off
 
   return offset;
 }
-static int dissect_returnErrorProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnErrorProblem_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_ReturnErrorProblem(TRUE, tvb, offset, pinfo, tree, hf_ROS_returnErrorProblem);
 }
 
@@ -7941,7 +7941,7 @@ dissect_ROS_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pack
 
   return offset;
 }
-static int dissect_problem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_problem(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_T_problem(FALSE, tvb, offset, pinfo, tree, hf_ROS_problem);
 }
 
@@ -7958,7 +7958,7 @@ dissect_ROS_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_
 
   return offset;
 }
-static int dissect_reject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_reject_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   return dissect_ROS_Reject(TRUE, tvb, offset, pinfo, tree, hf_ROS_reject);
 }
 

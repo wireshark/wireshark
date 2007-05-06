@@ -57,26 +57,26 @@ static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t 
 #include "packet-pkinit-fn.c"
 
 int
-dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+dissect_pkinit_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   offset = dissect_pkinit_PaPkAsReq(FALSE, tvb, offset, pinfo, tree, -1);
   return offset;
 }
 
 int
-dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+dissect_pkinit_PA_PK_AS_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   offset = dissect_pkinit_PaPkAsRep(FALSE, tvb, offset, pinfo, tree, -1);
   return offset;
 }
 
 static int
 dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_krb5_ctime(pinfo, tree, tvb, offset);
+  offset = dissect_krb5_ctime(pinfo, tree, tvb, offset, NULL /* actx */);
   return offset;
 }
 
 static int
 dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_krb5_Checksum(pinfo, tree, tvb, offset);
+  offset = dissect_krb5_Checksum(pinfo, tree, tvb, offset, NULL /* actx */);
   return offset;
 }
 

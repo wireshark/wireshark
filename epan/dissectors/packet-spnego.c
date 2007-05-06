@@ -45,6 +45,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/asn1.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
@@ -105,7 +106,7 @@ static int hf_spnego_ContextFlags_confFlag = -1;
 static int hf_spnego_ContextFlags_integFlag = -1;
 
 /*--- End of included file: packet-spnego-hf.c ---*/
-#line 74 "packet-spnego-template.c"
+#line 75 "packet-spnego-template.c"
 
 /* Global variables */
 static const char *MechType_oid;
@@ -130,7 +131,7 @@ static gint ett_spnego_NegTokenTarg = -1;
 static gint ett_spnego_InitialContextToken = -1;
 
 /*--- End of included file: packet-spnego-ett.c ---*/
-#line 87 "packet-spnego-template.c"
+#line 88 "packet-spnego-template.c"
 
 static dissector_handle_t data_handle;
 
@@ -183,10 +184,10 @@ dissect_spnego_MechType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_MechTypeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_MechTypeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_MechTypeList_item);
 }
-static int dissect_thisMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_thisMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_MechType(FALSE, tvb, offset, pinfo, tree, hf_spnego_thisMech);
 }
 
@@ -229,7 +230,7 @@ dissect_spnego_MechTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_mechTypes(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mechTypes(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_MechTypeList(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechTypes);
 }
 
@@ -253,7 +254,7 @@ dissect_spnego_ContextFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_reqFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reqFlags(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_ContextFlags(FALSE, tvb, offset, pinfo, tree, hf_spnego_reqFlags);
 }
 
@@ -281,7 +282,7 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_mechToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mechToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_mechToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechToken);
 }
 
@@ -331,7 +332,7 @@ dissect_spnego_T_NegTokenInit_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_negTokenInit_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_negTokenInit_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_NegTokenInit_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenInit_mechListMIC);
 }
 
@@ -351,7 +352,7 @@ dissect_spnego_NegTokenInit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_negTokenInit(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_negTokenInit(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_NegTokenInit(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenInit);
 }
 
@@ -371,7 +372,7 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_negResult(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_negResult(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_negResult(FALSE, tvb, offset, pinfo, tree, hf_spnego_negResult);
 }
 
@@ -412,7 +413,7 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_supportedMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedMech(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_supportedMech(FALSE, tvb, offset, pinfo, tree, hf_spnego_supportedMech);
 }
 
@@ -449,7 +450,7 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_responseToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_responseToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_responseToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_responseToken);
 }
 
@@ -484,7 +485,7 @@ dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mechListMIC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_T_mechListMIC(FALSE, tvb, offset, pinfo, tree, hf_spnego_mechListMIC);
 }
 
@@ -504,7 +505,7 @@ dissect_spnego_NegTokenTarg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_negTokenTarg(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_negTokenTarg(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_NegTokenTarg(FALSE, tvb, offset, pinfo, tree, hf_spnego_negTokenTarg);
 }
 
@@ -540,7 +541,7 @@ dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_principal(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_principal(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_GeneralString(FALSE, tvb, offset, pinfo, tree, hf_spnego_principal);
 }
 
@@ -609,7 +610,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_innerContextToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_innerContextToken(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_spnego_InnerContextToken(FALSE, tvb, offset, pinfo, tree, hf_spnego_innerContextToken);
 }
 
@@ -630,7 +631,7 @@ dissect_spnego_InitialContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 /*--- End of included file: packet-spnego-fn.c ---*/
-#line 100 "packet-spnego-template.c"
+#line 101 "packet-spnego-template.c"
 /*
  * This is the SPNEGO KRB5 dissector. It is not true KRB5, but some ASN.1
  * wrapped blob with an OID, USHORT token ID, and a Ticket, that is also
@@ -1634,7 +1635,7 @@ void proto_register_spnego(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1015 "packet-spnego-template.c"
+#line 1016 "packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1655,7 +1656,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1024 "packet-spnego-template.c"
+#line 1025 "packet-spnego-template.c"
 	};
 
 	/* Register protocol */

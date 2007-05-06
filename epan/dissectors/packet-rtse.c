@@ -195,10 +195,10 @@ dissect_rtse_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_checkpointSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_checkpointSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_rtse_checkpointSize);
 }
-static int dissect_windowSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_windowSize_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_rtse_windowSize);
 }
 
@@ -217,7 +217,7 @@ dissect_rtse_T_dialogueMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_dialogueMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialogueMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_dialogueMode(TRUE, tvb, offset, pinfo, tree, hf_rtse_dialogueMode);
 }
 
@@ -256,7 +256,7 @@ dissect_rtse_T_open(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_open(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_open(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_open(FALSE, tvb, offset, pinfo, tree, hf_rtse_open);
 }
 
@@ -277,7 +277,7 @@ dissect_rtse_T61String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_t61String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t61String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T61String(FALSE, tvb, offset, pinfo, tree, hf_rtse_t61String);
 }
 
@@ -297,10 +297,10 @@ dissect_rtse_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_octetString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_octetString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_rtse_octetString);
 }
-static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_octet_aligned_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_rtse_octet_aligned);
 }
 
@@ -325,7 +325,7 @@ dissect_rtse_CallingSSuserReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_callingSSuserReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callingSSuserReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_CallingSSuserReference(FALSE, tvb, offset, pinfo, tree, hf_rtse_callingSSuserReference);
 }
 
@@ -346,7 +346,7 @@ dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_commonReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_commonReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_CommonReference(FALSE, tvb, offset, pinfo, tree, hf_rtse_commonReference);
 }
 
@@ -360,7 +360,7 @@ dissect_rtse_AdditionalReferenceInformation(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_additionalReferenceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalReferenceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_AdditionalReferenceInformation(TRUE, tvb, offset, pinfo, tree, hf_rtse_additionalReferenceInformation);
 }
 
@@ -385,7 +385,7 @@ dissect_rtse_SessionConnectionIdentifier(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_recover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_recover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_SessionConnectionIdentifier(TRUE, tvb, offset, pinfo, tree, hf_rtse_recover);
 }
 
@@ -410,10 +410,10 @@ dissect_rtse_ConnectionData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_connectionDataRQ(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_connectionDataRQ(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_rtse_connectionDataRQ);
 }
-static int dissect_connectionDataAC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_connectionDataAC(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_ConnectionData(FALSE, tvb, offset, pinfo, tree, hf_rtse_connectionDataAC);
 }
 
@@ -435,7 +435,7 @@ dissect_rtse_T_applicationProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_applicationProtocol_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_applicationProtocol_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_applicationProtocol(TRUE, tvb, offset, pinfo, tree, hf_rtse_applicationProtocol);
 }
 
@@ -465,7 +465,7 @@ dissect_rtse_RTORQapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rtorq_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rtorq_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTORQapdu(TRUE, tvb, offset, pinfo, tree, hf_rtse_rtorq_apdu);
 }
 
@@ -492,7 +492,7 @@ dissect_rtse_RTOACapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rtoac_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rtoac_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTOACapdu(TRUE, tvb, offset, pinfo, tree, hf_rtse_rtoac_apdu);
 }
 
@@ -513,7 +513,7 @@ dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_refuseReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_refuseReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RefuseReason(TRUE, tvb, offset, pinfo, tree, hf_rtse_refuseReason);
 }
 
@@ -551,7 +551,7 @@ dissect_rtse_T_userDataRJ(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_userDataRJ(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_userDataRJ(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_userDataRJ(FALSE, tvb, offset, pinfo, tree, hf_rtse_userDataRJ);
 }
 
@@ -569,7 +569,7 @@ dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rtorj_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rtorj_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTORJapdu(TRUE, tvb, offset, pinfo, tree, hf_rtse_rtorj_apdu);
 }
 
@@ -582,7 +582,7 @@ dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_rttp_apdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rttp_apdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTTPapdu(FALSE, tvb, offset, pinfo, tree, hf_rtse_rttp_apdu);
 }
 
@@ -611,7 +611,7 @@ dissect_rtse_RTTRapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_rttr_apdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rttr_apdu(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTTRapdu(FALSE, tvb, offset, pinfo, tree, hf_rtse_rttr_apdu);
 }
 
@@ -636,7 +636,7 @@ dissect_rtse_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_abortReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_abortReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_AbortReason(TRUE, tvb, offset, pinfo, tree, hf_rtse_abortReason);
 }
 
@@ -650,10 +650,10 @@ dissect_rtse_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_reflectedParameter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reflectedParameter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_rtse_reflectedParameter);
 }
-static int dissect_arbitrary_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_arbitrary_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_BIT_STRING(TRUE, tvb, offset, pinfo, tree, hf_rtse_arbitrary);
 }
 
@@ -668,7 +668,7 @@ dissect_rtse_T_userdataAB(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_userdataAB(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_userdataAB(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_userdataAB(FALSE, tvb, offset, pinfo, tree, hf_rtse_userdataAB);
 }
 
@@ -687,7 +687,7 @@ dissect_rtse_RTABapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_rtab_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rtab_apdu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_RTABapdu(TRUE, tvb, offset, pinfo, tree, hf_rtse_rtab_apdu);
 }
 
@@ -729,7 +729,7 @@ dissect_rtse_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_direct_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_direct_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_rtse_direct_reference);
 }
 
@@ -754,7 +754,7 @@ dissect_rtse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_indirect_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_indirect_reference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_indirect_reference(FALSE, tvb, offset, pinfo, tree, hf_rtse_indirect_reference);
 }
 
@@ -768,7 +768,7 @@ dissect_rtse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_data_value_descriptor(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_data_value_descriptor(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_ObjectDescriptor(FALSE, tvb, offset, pinfo, tree, hf_rtse_data_value_descriptor);
 }
 
@@ -784,7 +784,7 @@ dissect_rtse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_single_ASN1_type(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_single_ASN1_type(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_single_ASN1_type(FALSE, tvb, offset, pinfo, tree, hf_rtse_single_ASN1_type);
 }
 
@@ -811,7 +811,7 @@ dissect_rtse_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_encoding(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encoding(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_rtse_T_encoding(FALSE, tvb, offset, pinfo, tree, hf_rtse_encoding);
 }
 

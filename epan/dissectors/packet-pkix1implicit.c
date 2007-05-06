@@ -108,13 +108,13 @@ dissect_pkix1implicit_GeneralName(gboolean implicit_tag _U_, tvbuff_t *tvb, int 
 #line 1 "packet-pkix1implicit-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_nameAssigner_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nameAssigner_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_nameAssigner);
 }
-static int dissect_partyName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_partyName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1explicit_DirectoryString(TRUE, tvb, offset, pinfo, tree, hf_pkix1implicit_partyName);
 }
-static int dissect_accessLocation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accessLocation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_x509ce_GeneralName(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessLocation);
 }
 
@@ -150,7 +150,7 @@ dissect_pkix1implicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_accessMethod(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accessMethod(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_accessMethod);
 }
 
@@ -168,7 +168,7 @@ dissect_pkix1implicit_AccessDescription(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_AuthorityInfoAccessSyntax_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_AuthorityInfoAccessSyntax_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_AccessDescription(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_AuthorityInfoAccessSyntax_item);
 }
 
@@ -195,7 +195,7 @@ dissect_pkix1implicit_VisibleString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_visibleString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_visibleString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_VisibleString(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_visibleString);
 }
 
@@ -209,7 +209,7 @@ dissect_pkix1implicit_BMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_bmpString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bmpString(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_BMPString(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_bmpString);
 }
 
@@ -223,7 +223,7 @@ dissect_pkix1implicit_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_utf8String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_utf8String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_UTF8String(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_utf8String);
 }
 
@@ -250,10 +250,10 @@ dissect_pkix1implicit_DisplayText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_explicitText(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_explicitText(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_DisplayText(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_explicitText);
 }
-static int dissect_organization(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_organization(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_DisplayText(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_organization);
 }
 
@@ -266,7 +266,7 @@ dissect_pkix1implicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_noticeNumbers_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noticeNumbers_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers_item);
 }
 
@@ -282,7 +282,7 @@ dissect_pkix1implicit_T_noticeNumbers(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_noticeNumbers(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noticeNumbers(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_T_noticeNumbers(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeNumbers);
 }
 
@@ -300,7 +300,7 @@ dissect_pkix1implicit_NoticeReference(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_noticeRef(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noticeRef(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_pkix1implicit_NoticeReference(FALSE, tvb, offset, pinfo, tree, hf_pkix1implicit_noticeRef);
 }
 

@@ -1954,13 +1954,13 @@ dissect_gsm_map_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_invokeID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_invokeID);
 }
-static int dissect_linkedID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_linkedID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InvokeIdType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_linkedID);
 }
-static int dissect_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InvokeIdType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_derivable);
 }
 
@@ -2077,7 +2077,7 @@ dissect_gsm_map_OperationLocalvalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_operationLocalvalue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operationLocalvalue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OperationLocalvalue(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_operationLocalvalue);
 }
 
@@ -2089,10 +2089,10 @@ dissect_gsm_map_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_globalValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_globalValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_globalValue);
 }
-static int dissect_extId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OBJECT_IDENTIFIER(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extId);
 }
 
@@ -2117,7 +2117,7 @@ dissect_gsm_map_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_opCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_opCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OPERATION(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_opCode);
 }
 
@@ -2132,7 +2132,7 @@ dissect_gsm_map_InvokeParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_invokeparameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeparameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InvokeParameter(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_invokeparameter);
 }
 
@@ -2152,7 +2152,7 @@ dissect_gsm_map_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_invoke_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invoke_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Invoke(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_invoke);
 }
 
@@ -2167,7 +2167,7 @@ dissect_gsm_map_ReturnResultParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_returnparameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnparameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnResultParameter(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_returnparameter);
 }
 
@@ -2185,7 +2185,7 @@ dissect_gsm_map_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_resultretres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_resultretres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_resultretres(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_resultretres);
 }
 
@@ -2203,10 +2203,10 @@ dissect_gsm_map_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_returnResultLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResultLast);
 }
-static int dissect_returnResultNotLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultNotLast_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnResult(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResultNotLast);
 }
 
@@ -2288,7 +2288,7 @@ dissect_gsm_map_LocalErrorcode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_localErrorcode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_localErrorcode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocalErrorcode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_localErrorcode);
 }
 
@@ -2313,7 +2313,7 @@ dissect_gsm_map_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_returnErrorCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnErrorCode(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ERROR(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_returnErrorCode);
 }
 
@@ -2328,7 +2328,7 @@ dissect_gsm_map_ReturnErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_parameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_parameter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnErrorParameter(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_parameter);
 }
 
@@ -2347,7 +2347,7 @@ dissect_gsm_map_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_returnError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnError(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnError);
 }
 
@@ -2359,373 +2359,373 @@ dissect_gsm_map_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_not_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_not_derivable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_not_derivable);
 }
-static int dissect_informPreviousNetworkEntity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_informPreviousNetworkEntity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_informPreviousNetworkEntity);
 }
-static int dissect_cs_LCS_NotSupportedByUE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cs_LCS_NotSupportedByUE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cs_LCS_NotSupportedByUE);
 }
-static int dissect_add_Capability(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_add_Capability(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_add_Capability);
 }
-static int dissect_solsaSupportIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_solsaSupportIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_solsaSupportIndicator);
 }
-static int dissect_solsaSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_solsaSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_solsaSupportIndicator);
 }
-static int dissect_longFTN_Supported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_longFTN_Supported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_longFTN_Supported);
 }
-static int dissect_sendSubscriberData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sendSubscriberData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sendSubscriberData);
 }
-static int dissect_skipSubscriberDataUpdate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_skipSubscriberDataUpdate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_skipSubscriberDataUpdate);
 }
-static int dissect_na_ESRK_Request_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_na_ESRK_Request_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_na_ESRK_Request);
 }
-static int dissect_freezeTMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_freezeTMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_freezeTMSI);
 }
-static int dissect_freezeP_TMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_freezeP_TMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_freezeP_TMSI);
 }
-static int dissect_segmentationProhibited(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_segmentationProhibited(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_segmentationProhibited);
 }
-static int dissect_ho_NumberNotRequired(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ho_NumberNotRequired(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ho_NumberNotRequired);
 }
-static int dissect_multipleBearerRequested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_multipleBearerRequested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_multipleBearerRequested);
 }
-static int dissect_rab_ConfigurationIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rab_ConfigurationIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rab_ConfigurationIndicator);
 }
-static int dissect_multipleBearerNotSupported(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_multipleBearerNotSupported(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_multipleBearerNotSupported);
 }
-static int dissect_immediateResponsePreferred_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_immediateResponsePreferred_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_immediateResponsePreferred);
 }
-static int dissect_notificationToCSE(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_notificationToCSE(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_notificationToCSE);
 }
-static int dissect_notificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_notificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_notificationToCSE);
 }
-static int dissect_csiActive_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_csiActive_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_csiActive);
 }
-static int dissect_roamingRestrictionDueToUnsupportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_roamingRestrictionDueToUnsupportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_roamingRestrictionDueToUnsupportedFeature);
 }
-static int dissect_roamingRestrictedInSgsnDueToUnsupportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_roamingRestrictedInSgsnDueToUnsupportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_roamingRestrictedInSgsnDueToUnsupportedFeature);
 }
-static int dissect_lmu_Indicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lmu_Indicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lmu_Indicator);
 }
-static int dissect_vplmnAddressAllowed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vplmnAddressAllowed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vplmnAddressAllowed);
 }
-static int dissect_completeDataListIncluded(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_completeDataListIncluded(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_completeDataListIncluded);
 }
-static int dissect_csi_Active_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_csi_Active_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_csi_Active);
 }
-static int dissect_lsaActiveModeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaActiveModeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaActiveModeIndicator);
 }
-static int dissect_vbsGroupIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vbsGroupIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vbsGroupIndication);
 }
-static int dissect_vgcsGroupIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vgcsGroupIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vgcsGroupIndication);
 }
-static int dissect_camelSubscriptionInfoWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camelSubscriptionInfoWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelSubscriptionInfoWithdraw);
 }
-static int dissect_roamingRestrictedInSgsnDueToUnsuppportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_roamingRestrictedInSgsnDueToUnsuppportedFeature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_roamingRestrictedInSgsnDueToUnsuppportedFeature);
 }
-static int dissect_gmlc_ListWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmlc_ListWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmlc_ListWithdraw);
 }
-static int dissect_istInformationWithdraw(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_istInformationWithdraw(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_istInformationWithdraw);
 }
-static int dissect_istInformationWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_istInformationWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_istInformationWithdraw);
 }
-static int dissect_chargingCharacteristicsWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chargingCharacteristicsWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chargingCharacteristicsWithdraw);
 }
-static int dissect_allGPRSData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allGPRSData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_allGPRSData);
 }
-static int dissect_allLSAData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allLSAData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_allLSAData);
 }
-static int dissect_tif_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tif_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tif_CSI);
 }
-static int dissect_msNotReachable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msNotReachable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msNotReachable);
 }
-static int dissect_broadcastInitEntitlement(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_broadcastInitEntitlement(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_broadcastInitEntitlement);
 }
-static int dissect_traceSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceSupportIndicator);
 }
-static int dissect_or_Interrogation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_or_Interrogation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_or_Interrogation);
 }
-static int dissect_ccbs_Call_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Call_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Call);
 }
-static int dissect_pre_pagingSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pre_pagingSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pre_pagingSupported);
 }
-static int dissect_suppress_VT_CSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_suppress_VT_CSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_suppress_VT_CSI);
 }
-static int dissect_suppress_VT_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_suppress_VT_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_suppress_VT_CSI);
 }
-static int dissect_suppressIncomingCallBarring(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_suppressIncomingCallBarring(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_suppressIncomingCallBarring);
 }
-static int dissect_gsmSCF_InitiatedCall(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gsmSCF_InitiatedCall(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gsmSCF_InitiatedCall);
 }
-static int dissect_cugSubscriptionFlag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cugSubscriptionFlag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cugSubscriptionFlag);
 }
-static int dissect_forwardingInterrogationRequired_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingInterrogationRequired_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingInterrogationRequired);
 }
-static int dissect_releaseResourcesSupported(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_releaseResourcesSupported(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_releaseResourcesSupported);
 }
-static int dissect_releaseResourcesSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_releaseResourcesSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_releaseResourcesSupported);
 }
-static int dissect_suppress_T_CSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_suppress_T_CSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_suppress_T_CSI);
 }
-static int dissect_ccbs_Possible_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Possible_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Possible);
 }
-static int dissect_keepCCBS_CallIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_keepCCBS_CallIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_keepCCBS_CallIndicator);
 }
-static int dissect_currentLocationRetrieved(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_currentLocationRetrieved(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_currentLocationRetrieved);
 }
-static int dissect_currentLocationRetrieved_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_currentLocationRetrieved_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_currentLocationRetrieved);
 }
-static int dissect_sai_Present(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sai_Present(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sai_Present);
 }
-static int dissect_sai_Present_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sai_Present_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sai_Present);
 }
-static int dissect_assumedIdle_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_assumedIdle_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_assumedIdle);
 }
-static int dissect_camelBusy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camelBusy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelBusy);
 }
-static int dissect_notProvidedFromVLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_notProvidedFromVLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_notProvidedFromVLR);
 }
-static int dissect_notProvidedFromSGSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_notProvidedFromSGSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_notProvidedFromSGSN);
 }
-static int dissect_ps_Detached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_Detached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_Detached);
 }
-static int dissect_ps_AttachedNotReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_AttachedNotReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_AttachedNotReachableForPaging);
 }
-static int dissect_ps_AttachedReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_AttachedReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_AttachedReachableForPaging);
 }
-static int dissect_pdp_ContextActive_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_ContextActive_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_ContextActive);
 }
-static int dissect_cug_OutgoingAccess(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_OutgoingAccess(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_OutgoingAccess);
 }
-static int dissect_orNotSupportedInGMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_orNotSupportedInGMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_orNotSupportedInGMSC);
 }
-static int dissect_allInformationSent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allInformationSent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_allInformationSent);
 }
-static int dissect_allInformationSent_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allInformationSent_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_allInformationSent);
 }
-static int dissect_uusCFInteraction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uusCFInteraction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uusCFInteraction);
 }
-static int dissect_replaceB_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_replaceB_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_replaceB_Number);
 }
-static int dissect_gprsSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsSupportIndicator);
 }
-static int dissect_gprsNodeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsNodeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsNodeIndicator);
 }
-static int dissect_noSM_RP_OA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noSM_RP_OA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noSM_RP_OA);
 }
-static int dissect_noSM_RP_DA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noSM_RP_DA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noSM_RP_DA);
 }
-static int dissect_moreMessagesToSend(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_moreMessagesToSend(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_moreMessagesToSend);
 }
-static int dissect_deliveryOutcomeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_deliveryOutcomeIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_deliveryOutcomeIndicator);
 }
-static int dissect_alertReasonIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_alertReasonIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_alertReasonIndicator);
 }
-static int dissect_ongoingCall(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ongoingCall(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ongoingCall);
 }
-static int dissect_locationInformation_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationInformation_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationInformation_flg);
 }
-static int dissect_subscriberState_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberState_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberState_flg);
 }
-static int dissect_currentLocation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_currentLocation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_currentLocation);
 }
-static int dissect_imei_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imei_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imei_flg);
 }
-static int dissect_ms_classmark_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ms_classmark_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ms_classmark);
 }
-static int dissect_mnpRequestedInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mnpRequestedInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mnpRequestedInfo);
 }
-static int dissect_odb_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb);
 }
-static int dissect_supportedVLR_CAMEL_Phases_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedVLR_CAMEL_Phases_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedVLR_CAMEL_Phases_flg);
 }
-static int dissect_supportedSGSN_CAMEL_Phases_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedSGSN_CAMEL_Phases_flg_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedSGSN_CAMEL_Phases_flg);
 }
-static int dissect_msisdn_BS_List_flag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msisdn_BS_List_flag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn_BS_List_flag);
 }
-static int dissect_tif_CSI_NotificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tif_CSI_NotificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tif_CSI_NotificationToCSE);
 }
-static int dissect_uplinkFree_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkFree_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkFree);
 }
-static int dissect_uplinkRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkRequest);
 }
-static int dissect_uplinkReleaseIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkReleaseIndication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkReleaseIndication);
 }
-static int dissect_releaseGroupCall_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_releaseGroupCall_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_releaseGroupCall);
 }
-static int dissect_emergencyModeResetCommandFlag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_emergencyModeResetCommandFlag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_emergencyModeResetCommandFlag);
 }
-static int dissect_downlinkAttached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_downlinkAttached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_downlinkAttached);
 }
-static int dissect_uplinkAttached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkAttached_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkAttached);
 }
-static int dissect_dualCommunication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dualCommunication_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dualCommunication);
 }
-static int dissect_callOriginator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callOriginator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callOriginator);
 }
-static int dissect_uplinkRequestAck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkRequestAck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkRequestAck);
 }
-static int dissect_uplinkRejectCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkRejectCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkRejectCommand);
 }
-static int dissect_uplinkSeizedCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkSeizedCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkSeizedCommand);
 }
-static int dissect_uplinkReleaseCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uplinkReleaseCommand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uplinkReleaseCommand);
 }
-static int dissect_ps_LCS_NotSupportedByUE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_LCS_NotSupportedByUE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_LCS_NotSupportedByUE);
 }
-static int dissect_gprsEnhancementsSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsEnhancementsSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsEnhancementsSupportIndicator);
 }
-static int dissect_smsCallBarringSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_smsCallBarringSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_smsCallBarringSupportIndicator);
 }
-static int dissect_privacyOverride_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privacyOverride_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_privacyOverride);
 }
-static int dissect_mo_lrShortCircuitIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mo_lrShortCircuitIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mo_lrShortCircuitIndicator);
 }
-static int dissect_verticalCoordinateRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_verticalCoordinateRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_verticalCoordinateRequest);
 }
-static int dissect_velocityRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_velocityRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_velocityRequest);
 }
-static int dissect_plmn_ListPrioritized_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_plmn_ListPrioritized_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_plmn_ListPrioritized);
 }
-static int dissect_ran_PeriodicLocationSupport_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ran_PeriodicLocationSupport_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ran_PeriodicLocationSupport);
 }
-static int dissect_deferredmt_lrResponseIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_deferredmt_lrResponseIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_deferredmt_lrResponseIndicator);
 }
-static int dissect_pseudonymIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pseudonymIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pseudonymIndicator);
 }
-static int dissect_userInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_userInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_userInfo);
 }
-static int dissect_shapeOfLocationEstimateNotSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_shapeOfLocationEstimateNotSupported_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_shapeOfLocationEstimateNotSupported);
 }
-static int dissect_neededLcsCapabilityNotSupportedInServingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_neededLcsCapabilityNotSupportedInServingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_neededLcsCapabilityNotSupportedInServingNode);
 }
-static int dissect_ccbs_Busy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Busy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Busy);
 }
-static int dissect_gprsConnectionSuspended(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsConnectionSuspended(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gprsConnectionSuspended);
 }
-static int dissect_unauthorisedMessageOriginator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unauthorisedMessageOriginator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NULL(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_unauthorisedMessageOriginator);
 }
 
@@ -2750,7 +2750,7 @@ dissect_gsm_map_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_invokeIDRej(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeIDRej(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_invokeIDRej(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_invokeIDRej);
 }
 
@@ -2770,7 +2770,7 @@ dissect_gsm_map_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_generalProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_generalProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GeneralProblem(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_generalProblem);
 }
 
@@ -2795,7 +2795,7 @@ dissect_gsm_map_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_invokeProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_invokeProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InvokeProblem(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_invokeProblem);
 }
 
@@ -2815,7 +2815,7 @@ dissect_gsm_map_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_returnResultProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnResultProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnResultProblem(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnResultProblem);
 }
 
@@ -2837,7 +2837,7 @@ dissect_gsm_map_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_returnErrorProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_returnErrorProblem_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReturnErrorProblem(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_returnErrorProblem);
 }
 
@@ -2866,7 +2866,7 @@ dissect_gsm_map_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_problem(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_problem(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_problem(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_problem);
 }
 
@@ -2884,7 +2884,7 @@ dissect_gsm_map_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_reject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reject_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Reject(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_reject);
 }
 
@@ -2933,7 +2933,7 @@ dissect_gsm_map_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_protocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ProtocolId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_protocolId);
 }
 
@@ -2986,10 +2986,10 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_signalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_signalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_signalInfo);
 }
-static int dissect_diagnosticInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_diagnosticInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_diagnosticInfo);
 }
 
@@ -3013,7 +3013,7 @@ dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_extType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_extType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extType);
 }
 
@@ -3031,7 +3031,7 @@ dissect_gsm_map_PrivateExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_PrivateExtensionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_PrivateExtensionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PrivateExtension(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_PrivateExtensionList_item);
 }
 
@@ -3047,7 +3047,7 @@ dissect_gsm_map_PrivateExtensionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_privateExtensionList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_privateExtensionList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PrivateExtensionList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_privateExtensionList);
 }
 
@@ -3063,7 +3063,7 @@ dissect_gsm_map_PcsExtensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_pcsExtensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pcsExtensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PcsExtensions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pcsExtensions);
 }
 
@@ -3081,10 +3081,10 @@ dissect_gsm_map_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_extensionContainer(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extensionContainer(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtensionContainer(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extensionContainer);
 }
-static int dissect_extensionContainer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extensionContainer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtensionContainer(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_extensionContainer);
 }
 
@@ -3103,7 +3103,7 @@ dissect_gsm_map_Bss_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_bss_APDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bss_APDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Bss_APDU(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bss_APDU);
 }
 
@@ -3124,25 +3124,25 @@ dissect_gsm_map_SupportedCamelPhases(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_supportedCamelPhases(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCamelPhases(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCamelPhases);
 }
-static int dissect_supportedCamelPhases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCamelPhases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCamelPhases);
 }
-static int dissect_supportedCamelPhasesInVMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCamelPhasesInVMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCamelPhasesInVMSC);
 }
-static int dissect_supportedCamelPhasesInInterrogatingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCamelPhasesInInterrogatingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCamelPhasesInInterrogatingNode);
 }
-static int dissect_supportedVLR_CAMEL_Phases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedVLR_CAMEL_Phases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedVLR_CAMEL_Phases);
 }
-static int dissect_supportedSGSN_CAMEL_Phases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedSGSN_CAMEL_Phases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedSGSN_CAMEL_Phases);
 }
-static int dissect_supportedCAMELPhases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCAMELPhases_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCamelPhases(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCAMELPhases);
 }
 
@@ -3172,10 +3172,10 @@ dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_imsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
 }
-static int dissect_imsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imsi);
 }
 
@@ -3224,130 +3224,130 @@ dissect_gsm_map_ISDN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_msc_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msc_Number);
 }
-static int dissect_msc_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_Number);
 }
-static int dissect_vlr_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vlr_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_vlr_Number);
 }
-static int dissect_vlr_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vlr_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlr_Number);
 }
-static int dissect_hlr_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_hlr_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_hlr_Number);
 }
-static int dissect_sgsn_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Number);
 }
-static int dissect_sgsn_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Number);
 }
-static int dissect_handoverNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_handoverNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_handoverNumber);
 }
-static int dissect_handoverNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_handoverNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_handoverNumber);
 }
-static int dissect_targetMSC_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetMSC_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_targetMSC_Number);
 }
-static int dissect_targetMSC_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetMSC_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_targetMSC_Number);
 }
-static int dissect_gsmSCF_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gsmSCF_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_gsmSCF_Address);
 }
-static int dissect_gsmSCF_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gsmSCF_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gsmSCF_Address);
 }
-static int dissect_msisdn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msisdn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
 }
-static int dissect_msisdn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msisdn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn);
 }
-static int dissect_GMLC_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_GMLC_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_GMLC_List_item);
 }
-static int dissect_dialledNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dialledNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_dialledNumber);
 }
-static int dissect_forwardedToNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardedToNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardedToNumber);
 }
-static int dissect_DestinationNumberList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_DestinationNumberList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_DestinationNumberList_item);
 }
-static int dissect_gmsc_OrGsmSCF_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmsc_OrGsmSCF_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmsc_OrGsmSCF_Address);
 }
-static int dissect_vmsc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vmsc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vmsc_Address);
 }
-static int dissect_externalAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_externalAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_externalAddress);
 }
-static int dissect_roamingNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_roamingNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_roamingNumber);
 }
-static int dissect_vlr_number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vlr_number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlr_number);
 }
-static int dissect_gmsc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmsc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmsc_Address);
 }
-static int dissect_b_Subscriber_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_b_Subscriber_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_b_Subscriber_Address);
 }
-static int dissect_sIWFSNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sIWFSNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sIWFSNumber);
 }
-static int dissect_msrn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msrn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_msrn);
 }
-static int dissect_translatedB_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_translatedB_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_translatedB_Number);
 }
-static int dissect_translatedB_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_translatedB_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_translatedB_Number);
 }
-static int dissect_networkNode_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkNode_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_networkNode_Number);
 }
-static int dissect_networkNode_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkNode_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_networkNode_Number);
 }
-static int dissect_storedMSISDN(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_storedMSISDN(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_storedMSISDN);
 }
-static int dissect_DispatcherList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_DispatcherList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_DispatcherList_item);
 }
-static int dissect_b_subscriberNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_b_subscriberNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_b_subscriberNumber);
 }
-static int dissect_groupCallNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupCallNumber(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_groupCallNumber);
 }
-static int dissect_anchorMSC_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_anchorMSC_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_anchorMSC_Address);
 }
-static int dissect_ggsn_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ggsn_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_Number);
 }
-static int dissect_mlc_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mlc_Number(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_mlc_Number);
 }
-static int dissect_mlcNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mlcNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mlcNumber);
 }
-static int dissect_na_ESRD_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_na_ESRD_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_na_ESRD);
 }
-static int dissect_na_ESRK_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_na_ESRK_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_na_ESRK);
 }
 
@@ -3360,10 +3360,10 @@ dissect_gsm_map_LMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_lmsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lmsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LMSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lmsi);
 }
-static int dissect_lmsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lmsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LMSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lmsi);
 }
 
@@ -3382,7 +3382,7 @@ dissect_gsm_map_IST_SupportIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_istSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_istSupportIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IST_SupportIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_istSupportIndicator);
 }
 
@@ -3395,10 +3395,10 @@ dissect_gsm_map_AgeIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_subscriberDataStored_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberDataStored_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AgeIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberDataStored);
 }
-static int dissect_superChargerSupportedInHLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_superChargerSupportedInHLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AgeIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_superChargerSupportedInHLR);
 }
 
@@ -3423,10 +3423,10 @@ dissect_gsm_map_SuperChargerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_superChargerSupportedInServingNetworkEntity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_superChargerSupportedInServingNetworkEntity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SuperChargerInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_superChargerSupportedInServingNetworkEntity);
 }
-static int dissect_superChargerSupportedInServingNetworkEntity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_superChargerSupportedInServingNetworkEntity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SuperChargerInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_superChargerSupportedInServingNetworkEntity);
 }
 
@@ -3447,10 +3447,10 @@ dissect_gsm_map_SupportedLCS_CapabilitySets(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_supportedLCS_CapabilitySets_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedLCS_CapabilitySets_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedLCS_CapabilitySets(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedLCS_CapabilitySets);
 }
-static int dissect_additional_LCS_CapabilitySets_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additional_LCS_CapabilitySets_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedLCS_CapabilitySets(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additional_LCS_CapabilitySets);
 }
 
@@ -3474,19 +3474,19 @@ dissect_gsm_map_OfferedCamel4CSIs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_offeredCamel4CSIs_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4CSIs_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4CSIs(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4CSIs);
 }
-static int dissect_offeredCamel4CSIsInVMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4CSIsInVMSC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4CSIs(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4CSIsInVMSC);
 }
-static int dissect_offeredCamel4CSIsInInterrogatingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4CSIsInInterrogatingNode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4CSIs(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4CSIsInInterrogatingNode);
 }
-static int dissect_offeredCamel4CSIsInVLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4CSIsInVLR_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4CSIs(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4CSIsInVLR);
 }
-static int dissect_offeredCamel4CSIsInSGSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4CSIsInSGSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4CSIs(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4CSIsInSGSN);
 }
 
@@ -3505,7 +3505,7 @@ dissect_gsm_map_SupportedRAT_Types(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_supportedRAT_TypesIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedRAT_TypesIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedRAT_Types(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedRAT_TypesIndicator);
 }
 
@@ -3530,7 +3530,7 @@ dissect_gsm_map_VLR_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_vlr_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vlr_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VLR_Capability(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlr_Capability);
 }
 
@@ -3570,34 +3570,34 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_v_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_v_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_v_gmlc_Address);
 }
-static int dissect_v_gmlc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_v_gmlc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_v_gmlc_Address);
 }
-static int dissect_ggsn_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ggsn_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_Address);
 }
-static int dissect_rnc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rnc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rnc_Address);
 }
-static int dissect_sgsn_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Address);
 }
-static int dissect_sgsn_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Address);
 }
-static int dissect_h_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_h_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_h_gmlc_Address);
 }
-static int dissect_h_gmlc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_h_gmlc_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_h_gmlc_Address);
 }
-static int dissect_ppr_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ppr_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ppr_Address);
 }
-static int dissect_additional_v_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additional_v_gmlc_Address(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSN_Address(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_additional_v_gmlc_Address);
 }
 
@@ -3619,13 +3619,13 @@ dissect_gsm_map_IMEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_imeisv_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imeisv_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMEI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imeisv);
 }
-static int dissect_imei(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imei(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMEI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 }
-static int dissect_imei_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imei_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMEI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_imei);
 }
 
@@ -3643,7 +3643,7 @@ dissect_gsm_map_ADD_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_add_info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_add_info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ADD_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_add_info);
 }
 
@@ -3699,7 +3699,7 @@ dissect_gsm_map_SLR_Arg_PCS_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_slr_Arg_PCS_Extensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_slr_Arg_PCS_Extensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SLR_Arg_PCS_Extensions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_slr_Arg_PCS_Extensions);
 }
 
@@ -3717,7 +3717,7 @@ dissect_gsm_map_SLR_ArgExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_slr_ArgExtensionContainer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_slr_ArgExtensionContainer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SLR_ArgExtensionContainer(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_slr_ArgExtensionContainer);
 }
 
@@ -3735,7 +3735,7 @@ dissect_gsm_map_IMSI_WithLMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_imsi_WithLMSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_imsi_WithLMSI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IMSI_WithLMSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_imsi_WithLMSI);
 }
 
@@ -3760,7 +3760,7 @@ dissect_gsm_map_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_identity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_identity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Identity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_identity);
 }
 
@@ -3779,7 +3779,7 @@ dissect_gsm_map_CancellationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_cancellationType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cancellationType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CancellationType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cancellationType);
 }
 
@@ -3892,10 +3892,10 @@ dissect_gsm_map_TMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_tmsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tmsi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TMSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_tmsi);
 }
-static int dissect_tmsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tmsi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TMSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tmsi);
 }
 
@@ -3908,7 +3908,7 @@ dissect_gsm_map_NumberOfRequestedVectors(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_numberOfRequestedVectors(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_numberOfRequestedVectors(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NumberOfRequestedVectors(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_numberOfRequestedVectors);
 }
 
@@ -3936,10 +3936,10 @@ dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_previous_LAI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_previous_LAI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_previous_LAI);
 }
-static int dissect_laiFixedLength_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_laiFixedLength_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LAIFixedLength(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_laiFixedLength);
 }
 
@@ -3952,7 +3952,7 @@ dissect_gsm_map_HopCounter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_hopCounter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_hopCounter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_HopCounter(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_hopCounter);
 }
 
@@ -3985,7 +3985,7 @@ dissect_gsm_map_RAND(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_rand(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rand(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAND(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_rand);
 }
 
@@ -3998,7 +3998,7 @@ dissect_gsm_map_SRES(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_sres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SRES(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sres);
 }
 
@@ -4011,13 +4011,13 @@ dissect_gsm_map_Kc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_kc(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_kc(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Kc(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_kc);
 }
-static int dissect_kc_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_kc_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Kc(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_kc);
 }
-static int dissect_groupKey_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupKey_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Kc(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_groupKey);
 }
 
@@ -4036,7 +4036,7 @@ dissect_gsm_map_AuthenticationTriplet(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_TripletList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_TripletList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AuthenticationTriplet(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_TripletList_item);
 }
 
@@ -4052,10 +4052,10 @@ dissect_gsm_map_TripletList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_tripletList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tripletList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TripletList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_tripletList);
 }
-static int dissect_tripletList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tripletList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TripletList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tripletList);
 }
 
@@ -4068,7 +4068,7 @@ dissect_gsm_map_XRES(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_xres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_xres(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_XRES(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_xres);
 }
 
@@ -4081,7 +4081,7 @@ dissect_gsm_map_CK(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_ck(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ck(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CK(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ck);
 }
 
@@ -4094,7 +4094,7 @@ dissect_gsm_map_IK(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_ik(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ik(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IK(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ik);
 }
 
@@ -4107,7 +4107,7 @@ dissect_gsm_map_AUTN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_autn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_autn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AUTN(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_autn);
 }
 
@@ -4128,7 +4128,7 @@ dissect_gsm_map_AuthenticationQuintuplet(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_QuintupletList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_QuintupletList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AuthenticationQuintuplet(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_QuintupletList_item);
 }
 
@@ -4144,7 +4144,7 @@ dissect_gsm_map_QuintupletList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_quintupletList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_quintupletList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_QuintupletList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_quintupletList);
 }
 
@@ -4169,7 +4169,7 @@ dissect_gsm_map_AuthenticationSetList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_authenticationSetList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_authenticationSetList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AuthenticationSetList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_authenticationSetList);
 }
 
@@ -4182,10 +4182,10 @@ dissect_gsm_map_Cksn(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_cksn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cksn(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Cksn(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cksn);
 }
-static int dissect_cksn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cksn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Cksn(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cksn);
 }
 
@@ -4203,7 +4203,7 @@ dissect_gsm_map_GSM_SecurityContextData(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_gsm_SecurityContextData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gsm_SecurityContextData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GSM_SecurityContextData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gsm_SecurityContextData);
 }
 
@@ -4216,7 +4216,7 @@ dissect_gsm_map_KSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_ksi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ksi(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_KSI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ksi);
 }
 
@@ -4235,7 +4235,7 @@ dissect_gsm_map_UMTS_SecurityContextData(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_umts_SecurityContextData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_umts_SecurityContextData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UMTS_SecurityContextData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_umts_SecurityContextData);
 }
 
@@ -4260,7 +4260,7 @@ dissect_gsm_map_CurrentSecurityContext(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_currentSecurityContext_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_currentSecurityContext_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CurrentSecurityContext(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_currentSecurityContext);
 }
 
@@ -4305,7 +4305,7 @@ dissect_gsm_map_AUTS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_auts(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_auts(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AUTS(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_auts);
 }
 
@@ -4318,13 +4318,13 @@ dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_targetCellId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetCellId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GlobalCellId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_targetCellId);
 }
-static int dissect_targetCellId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetCellId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GlobalCellId(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_targetCellId);
 }
-static int dissect_cellId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cellId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GlobalCellId(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cellId);
 }
 
@@ -4353,7 +4353,7 @@ dissect_gsm_map_RNCId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_targetRNCId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetRNCId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RNCId(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_targetRNCId);
 }
 
@@ -4372,7 +4372,7 @@ dissect_gsm_map_AccessNetworkProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_accessNetworkProtocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accessNetworkProtocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccessNetworkProtocolId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_accessNetworkProtocolId);
 }
 
@@ -4424,7 +4424,7 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_longsignalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_longsignalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LongSignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_longsignalInfo);
 }
 
@@ -4443,10 +4443,10 @@ dissect_gsm_map_AccessNetworkSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_an_APDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_an_APDU(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccessNetworkSignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_an_APDU);
 }
-static int dissect_an_APDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_an_APDU_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccessNetworkSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_an_APDU);
 }
 
@@ -4472,7 +4472,7 @@ dissect_gsm_map_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_integrityProtectionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integrityProtectionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IntegrityProtectionInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_integrityProtectionInfo);
 }
 
@@ -4498,7 +4498,7 @@ dissect_gsm_map_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_encryptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EncryptionInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_encryptionInfo);
 }
 
@@ -4526,13 +4526,13 @@ dissect_gsm_map_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_radioResourceInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_radioResourceInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RadioResourceInformation(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_radioResourceInformation);
 }
-static int dissect_radioResourceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_radioResourceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RadioResourceInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_radioResourceInformation);
 }
-static int dissect_alternativeChannelType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_alternativeChannelType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RadioResourceInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_alternativeChannelType);
 }
 
@@ -4545,7 +4545,7 @@ dissect_gsm_map_AllowedGSM_Algorithms(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_allowedGSM_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allowedGSM_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AllowedGSM_Algorithms(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_allowedGSM_Algorithms);
 }
 
@@ -4558,7 +4558,7 @@ dissect_gsm_map_PermittedIntegrityProtectionAlgorithms(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_integrityProtectionAlgorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integrityProtectionAlgorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PermittedIntegrityProtectionAlgorithms(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_integrityProtectionAlgorithms);
 }
 
@@ -4571,7 +4571,7 @@ dissect_gsm_map_PermittedEncryptionAlgorithms(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_encryptionAlgorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptionAlgorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PermittedEncryptionAlgorithms(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_encryptionAlgorithms);
 }
 
@@ -4590,7 +4590,7 @@ dissect_gsm_map_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_allowedUMTS_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allowedUMTS_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AllowedUMTS_Algorithms(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_allowedUMTS_Algorithms);
 }
 
@@ -4603,13 +4603,13 @@ dissect_gsm_map_RAB_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_rab_Id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rab_Id(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAB_Id(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_rab_Id);
 }
-static int dissect_rab_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rab_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAB_Id(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rab_Id);
 }
-static int dissect_selectedRab_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_selectedRab_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAB_Id(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_selectedRab_Id);
 }
 
@@ -4627,7 +4627,7 @@ dissect_gsm_map_RadioResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_RadioResourceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_RadioResourceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RadioResource(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_RadioResourceList_item);
 }
 
@@ -4643,7 +4643,7 @@ dissect_gsm_map_RadioResourceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_radioResourceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_radioResourceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RadioResourceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_radioResourceList);
 }
 
@@ -4656,10 +4656,10 @@ dissect_gsm_map_BSSMAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_bssmap_ServiceHandover(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bssmap_ServiceHandover(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BSSMAP_ServiceHandover(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bssmap_ServiceHandover);
 }
-static int dissect_bssmap_ServiceHandover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bssmap_ServiceHandover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BSSMAP_ServiceHandover(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bssmap_ServiceHandover);
 }
 
@@ -4685,7 +4685,7 @@ dissect_gsm_map_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ranap_ServiceHandover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ranap_ServiceHandover_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RANAP_ServiceHandover(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ranap_ServiceHandover);
 }
 
@@ -4703,7 +4703,7 @@ dissect_gsm_map_BSSMAP_ServiceHandoverInfo(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_BSSMAP_ServiceHandoverList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_BSSMAP_ServiceHandoverList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BSSMAP_ServiceHandoverInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BSSMAP_ServiceHandoverList_item);
 }
 
@@ -4719,7 +4719,7 @@ dissect_gsm_map_BSSMAP_ServiceHandoverList(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_bssmap_ServiceHandoverList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bssmap_ServiceHandoverList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BSSMAP_ServiceHandoverList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bssmap_ServiceHandoverList);
 }
 
@@ -4731,10 +4731,10 @@ dissect_gsm_map_ASCI_CallReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_asciCallReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_asciCallReference(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ASCI_CallReference(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_asciCallReference);
 }
-static int dissect_asciCallReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_asciCallReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ASCI_CallReference(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_asciCallReference);
 }
 
@@ -4747,7 +4747,7 @@ dissect_gsm_map_GERAN_Classmark(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_geran_classmark_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geran_classmark_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GERAN_Classmark(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_geran_classmark);
 }
 
@@ -4760,43 +4760,43 @@ dissect_gsm_map_Codec(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_iuCurrentlyUsedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuCurrentlyUsedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_iuCurrentlyUsedCodec);
 }
-static int dissect_iuSelectedCodec(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuSelectedCodec(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_iuSelectedCodec);
 }
-static int dissect_iuSelectedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuSelectedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_iuSelectedCodec);
 }
-static int dissect_iUSelectedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iUSelectedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_iUSelectedCodec);
 }
-static int dissect_codec1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec1);
 }
-static int dissect_codec2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec2);
 }
-static int dissect_codec3_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec3_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec3);
 }
-static int dissect_codec4_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec4_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec4);
 }
-static int dissect_codec5_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec5_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec5);
 }
-static int dissect_codec6_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec6_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec6);
 }
-static int dissect_codec7_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec7_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec7);
 }
-static int dissect_codec8_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec8_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_codec8);
 }
-static int dissect_currentlyUsedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_currentlyUsedCodec_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Codec(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_currentlyUsedCodec);
 }
 
@@ -4821,16 +4821,16 @@ dissect_gsm_map_CodecList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_iuAvailableCodecsList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuAvailableCodecsList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CodecList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_iuAvailableCodecsList);
 }
-static int dissect_iuAvailableCodecsList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuAvailableCodecsList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CodecList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_iuAvailableCodecsList);
 }
-static int dissect_utranCodecList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_utranCodecList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CodecList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_utranCodecList);
 }
-static int dissect_geranCodecList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geranCodecList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CodecList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_geranCodecList);
 }
 
@@ -4849,7 +4849,7 @@ dissect_gsm_map_SupportedCodecsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_iuSupportedCodecsList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_iuSupportedCodecsList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCodecsList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_iuSupportedCodecsList);
 }
 
@@ -4863,7 +4863,7 @@ dissect_gsm_map_UESBI_IuA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_uesbi_IuA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uesbi_IuA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UESBI_IuA(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uesbi_IuA);
 }
 
@@ -4877,7 +4877,7 @@ dissect_gsm_map_UESBI_IuB(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_uesbi_IuB_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uesbi_IuB_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UESBI_IuB(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uesbi_IuB);
 }
 
@@ -4895,10 +4895,10 @@ dissect_gsm_map_UESBI_Iu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_uesbi_Iu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uesbi_Iu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UESBI_Iu(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uesbi_Iu);
 }
-static int dissect_bmuef(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bmuef(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UESBI_Iu(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_bmuef);
 }
 
@@ -4911,7 +4911,7 @@ dissect_gsm_map_TraceReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_traceReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceReference(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceReference);
 }
 
@@ -4924,7 +4924,7 @@ dissect_gsm_map_TraceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_traceType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceType);
 }
 
@@ -4937,7 +4937,7 @@ dissect_gsm_map_TraceReference2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_traceReference2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceReference2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceReference2(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceReference2);
 }
 
@@ -4950,7 +4950,7 @@ dissect_gsm_map_TraceRecordingSessionReference(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_traceRecordingSessionReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceRecordingSessionReference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceRecordingSessionReference(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceRecordingSessionReference);
 }
 
@@ -4970,22 +4970,22 @@ dissect_gsm_map_TraceDepth(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_msc_s_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_s_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_s_TraceDepth);
 }
-static int dissect_mgw_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mgw_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mgw_TraceDepth);
 }
-static int dissect_sgsn_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_TraceDepth);
 }
-static int dissect_ggsn_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ggsn_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_TraceDepth);
 }
-static int dissect_rnc_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rnc_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rnc_TraceDepth);
 }
-static int dissect_bmsc_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bmsc_TraceDepth_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepth(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bmsc_TraceDepth);
 }
 
@@ -5006,10 +5006,10 @@ dissect_gsm_map_RNC_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_rnc_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rnc_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RNC_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rnc_IList);
 }
-static int dissect_rnc_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_rnc_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RNC_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_rnc_InterfaceList);
 }
 
@@ -5036,10 +5036,10 @@ dissect_gsm_map_MSC_S_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_msc_s_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_s_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSC_S_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_s_IList);
 }
-static int dissect_msc_s_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_s_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSC_S_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_s_InterfaceList);
 }
 
@@ -5061,10 +5061,10 @@ dissect_gsm_map_MSC_S_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_msc_s_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_s_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSC_S_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_s_EList);
 }
-static int dissect_msc_s_EventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msc_s_EventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSC_S_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msc_s_EventList);
 }
 
@@ -5084,10 +5084,10 @@ dissect_gsm_map_MGW_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_mgw_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mgw_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MGW_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mgw_IList);
 }
-static int dissect_mgw_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mgw_InterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MGW_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mgw_InterfaceList);
 }
 
@@ -5105,10 +5105,10 @@ dissect_gsm_map_MGW_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_mgw_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mgw_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MGW_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mgw_EList);
 }
-static int dissect_mgw_EventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mgw_EventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MGW_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mgw_EventList);
 }
 
@@ -5136,7 +5136,7 @@ dissect_gsm_map_TracePropagationList(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_tracePropagationList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tracePropagationList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TracePropagationList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tracePropagationList);
 }
 
@@ -5208,7 +5208,7 @@ dissect_gsm_map_RelocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_RelocationNumberList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_RelocationNumberList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RelocationNumber(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_RelocationNumberList_item);
 }
 
@@ -5224,7 +5224,7 @@ dissect_gsm_map_RelocationNumberList(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_relocationNumberList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_relocationNumberList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RelocationNumberList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_relocationNumberList);
 }
 
@@ -5237,7 +5237,7 @@ dissect_gsm_map_MulticallBearerInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_multicallBearerInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_multicallBearerInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MulticallBearerInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_multicallBearerInfo);
 }
 
@@ -5250,7 +5250,7 @@ dissect_gsm_map_ChosenIntegrityProtectionAlgorithm(gboolean implicit_tag _U_, tv
 
   return offset;
 }
-static int dissect_integrityProtectionAlgorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_integrityProtectionAlgorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChosenIntegrityProtectionAlgorithm(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_integrityProtectionAlgorithm);
 }
 
@@ -5263,7 +5263,7 @@ dissect_gsm_map_ChosenEncryptionAlgorithm(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_encryptionAlgorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_encryptionAlgorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChosenEncryptionAlgorithm(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_encryptionAlgorithm);
 }
 
@@ -5282,7 +5282,7 @@ dissect_gsm_map_SelectedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_selectedUMTS_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_selectedUMTS_Algorithms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SelectedUMTS_Algorithms(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_selectedUMTS_Algorithms);
 }
 
@@ -5295,7 +5295,7 @@ dissect_gsm_map_ChosenChannelInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_chosenChannelInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chosenChannelInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChosenChannelInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chosenChannelInfo);
 }
 
@@ -5308,7 +5308,7 @@ dissect_gsm_map_ChosenSpeechVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_chosenSpeechVersion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chosenSpeechVersion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChosenSpeechVersion(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chosenSpeechVersion);
 }
 
@@ -5326,7 +5326,7 @@ dissect_gsm_map_ChosenRadioResourceInformation(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_chosenRadioResourceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chosenRadioResourceInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChosenRadioResourceInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chosenRadioResourceInformation);
 }
 
@@ -5391,7 +5391,7 @@ dissect_gsm_map_SelectedGSM_Algorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_selectedGSM_Algorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_selectedGSM_Algorithm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SelectedGSM_Algorithm(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_selectedGSM_Algorithm);
 }
 
@@ -5431,7 +5431,7 @@ dissect_gsm_map_KeyStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_keyStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_keyStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_KeyStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_keyStatus);
 }
 
@@ -5541,7 +5541,7 @@ dissect_gsm_map_Re_synchronisationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_re_synchronisationInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_re_synchronisationInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Re_synchronisationInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_re_synchronisationInfo);
 }
 
@@ -5564,7 +5564,7 @@ dissect_gsm_map_RequestingNodeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_requestingNodeType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestingNodeType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestingNodeType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestingNodeType);
 }
 
@@ -5577,10 +5577,10 @@ dissect_gsm_map_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_requestingPLMN_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestingPLMN_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PLMN_Id(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestingPLMN_Id);
 }
-static int dissect_plmn_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_plmn_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PLMN_Id(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_plmn_Id);
 }
 
@@ -5620,7 +5620,7 @@ dissect_gsm_map_SendAuthenticationInfoRes_item(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_SendAuthenticationInfoRes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SendAuthenticationInfoRes_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SendAuthenticationInfoRes_item(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SendAuthenticationInfoRes_item);
 }
 
@@ -5667,7 +5667,7 @@ dissect_gsm_map_RequestedEquipmentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_requestedEquipmentInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedEquipmentInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestedEquipmentInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_requestedEquipmentInfo);
 }
 
@@ -5703,7 +5703,7 @@ dissect_gsm_map_EquipmentStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_equipmentStatus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_equipmentStatus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EquipmentStatus(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_equipmentStatus);
 }
 
@@ -5738,7 +5738,7 @@ dissect_gsm_map_OverrideCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_overrideCategory_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_overrideCategory_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OverrideCategory(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_overrideCategory);
 }
 
@@ -5751,7 +5751,7 @@ dissect_gsm_map_BearerServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_bearerService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bearerService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BearerServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerService);
 }
 
@@ -5764,7 +5764,7 @@ dissect_gsm_map_TeleserviceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_teleservice_code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_teleservice_code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TeleserviceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_teleservice_code);
 }
 
@@ -5789,13 +5789,13 @@ dissect_gsm_map_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_BasicServiceGroupList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_BasicServiceGroupList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BasicServiceGroupList_item);
 }
-static int dissect_basicService(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicService(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicService);
 }
-static int dissect_basicServiceGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicServiceGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceGroup);
 }
 
@@ -5811,10 +5811,10 @@ dissect_gsm_map_BasicServiceGroupList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ext_basicServiceGroupList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicServiceGroupList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceGroupList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicServiceGroupList);
 }
-static int dissect_ext_basicServiceGroupList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicServiceGroupList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceGroupList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicServiceGroupList);
 }
 
@@ -5860,10 +5860,10 @@ dissect_gsm_map_ODB_GeneralData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_odb_GeneralData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_GeneralData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_GeneralData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_odb_GeneralData);
 }
-static int dissect_odb_GeneralData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_GeneralData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_GeneralData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb_GeneralData);
 }
 
@@ -5884,7 +5884,7 @@ dissect_gsm_map_ODB_HPLMN_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_odb_HPLMN_Data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_HPLMN_Data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_HPLMN_Data(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_odb_HPLMN_Data);
 }
 
@@ -5903,7 +5903,7 @@ dissect_gsm_map_SubscriberStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_subscriberStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberStatus);
 }
 
@@ -5916,10 +5916,10 @@ dissect_gsm_map_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_serviceKey(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceKey(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceKey(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_serviceKey);
 }
-static int dissect_serviceKey_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceKey_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceKey(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceKey);
 }
 
@@ -5938,7 +5938,7 @@ dissect_gsm_map_O_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_o_BcsmTriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_BcsmTriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmTriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmTriggerDetectionPoint);
 }
 
@@ -5957,10 +5957,10 @@ dissect_gsm_map_DefaultCallHandling(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_defaultCallHandling(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultCallHandling(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DefaultCallHandling(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_defaultCallHandling);
 }
-static int dissect_defaultCallHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultCallHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DefaultCallHandling(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_defaultCallHandling);
 }
 
@@ -5981,7 +5981,7 @@ dissect_gsm_map_O_BcsmCamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_O_BcsmCamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_O_BcsmCamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDPData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_O_BcsmCamelTDPDataList_item);
 }
 
@@ -5997,7 +5997,7 @@ dissect_gsm_map_O_BcsmCamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_o_BcsmCamelTDPDataList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_BcsmCamelTDPDataList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDPDataList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDPDataList);
 }
 
@@ -6010,7 +6010,7 @@ dissect_gsm_map_CamelCapabilityHandling(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_camelCapabilityHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camelCapabilityHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CamelCapabilityHandling(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelCapabilityHandling);
 }
 
@@ -6031,10 +6031,10 @@ dissect_gsm_map_O_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_o_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_CSI);
 }
-static int dissect_o_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_IM_CSI);
 }
 
@@ -6047,7 +6047,7 @@ dissect_gsm_map_Category(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_category_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_category_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Category(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_category);
 }
 
@@ -6060,10 +6060,10 @@ dissect_gsm_map_Ext_BearerServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_BearerServiceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_BearerServiceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BearerServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BearerServiceList_item);
 }
-static int dissect_ext_BearerService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_BearerService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BearerServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_BearerService);
 }
 
@@ -6079,10 +6079,10 @@ dissect_gsm_map_BearerServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_bearerserviceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bearerserviceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BearerServiceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerserviceList);
 }
-static int dissect_bearerServiceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bearerServiceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BearerServiceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bearerServiceList);
 }
 
@@ -6095,13 +6095,13 @@ dissect_gsm_map_Ext_TeleserviceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_TeleserviceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_TeleserviceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_TeleserviceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_TeleserviceList_item);
 }
-static int dissect_ext_Teleservice_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_Teleservice_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_TeleserviceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_Teleservice);
 }
-static int dissect_ext_teleservice(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_teleservice(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_TeleserviceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_teleservice);
 }
 
@@ -6117,7 +6117,7 @@ dissect_gsm_map_TeleserviceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_teleserviceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_teleserviceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TeleserviceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_teleserviceList);
 }
 
@@ -6130,19 +6130,19 @@ dissect_gsm_map_SS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_ss_Code(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Code(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
 }
-static int dissect_ss_Code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Code(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Code);
 }
-static int dissect_SS_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SS_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SS_List_item);
 }
-static int dissect_SS_EventList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SS_EventList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SS_EventList_item);
 }
-static int dissect_ss_Event_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Event_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Code(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Event);
 }
 
@@ -6167,31 +6167,31 @@ dissect_gsm_map_Ext_BasicServiceCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_BasicServiceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_BasicServiceList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BasicServiceList_item);
 }
-static int dissect_ext_basicService(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicService(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicService);
 }
-static int dissect_ext_basicService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicService_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicService);
 }
-static int dissect_Ext_BasicServiceGroupList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Ext_BasicServiceGroupList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_Ext_BasicServiceGroupList_item);
 }
-static int dissect_ext_basicServiceGroup(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicServiceGroup(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicServiceGroup);
 }
-static int dissect_ext_basicServiceGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_basicServiceGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_basicServiceGroup);
 }
-static int dissect_basicServiceGroup2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicServiceGroup2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceGroup2);
 }
-static int dissect_basicService2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicService2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicService2);
 }
-static int dissect_BasicServiceCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_BasicServiceCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_BasicServiceCriteria_item);
 }
 
@@ -6227,10 +6227,10 @@ dissect_gsm_map_Ext_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ext_ss_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_ss_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_Status(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_ss_Status);
 }
-static int dissect_ext_ss_Status_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_ss_Status_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_Status(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_ss_Status);
 }
 
@@ -6243,10 +6243,10 @@ dissect_gsm_map_ISDN_SubaddressString(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_forwardedToSubaddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardedToSubaddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_SubaddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardedToSubaddress);
 }
-static int dissect_b_subscriberSubaddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_b_subscriberSubaddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ISDN_SubaddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_b_subscriberSubaddress);
 }
 
@@ -6276,7 +6276,7 @@ dissect_gsm_map_T_ext_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_ext_forwardingOptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_forwardingOptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_ext_forwardingOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingOptions);
 }
 
@@ -6289,7 +6289,7 @@ dissect_gsm_map_Ext_NoRepCondTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_noReplyConditionTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_NoRepCondTime(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_noReplyConditionTime);
 }
 
@@ -6335,16 +6335,16 @@ dissect_gsm_map_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_omc_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_omc_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_omc_Id);
 }
-static int dissect_forwardedToNumber_addr_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardedToNumber_addr_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardedToNumber_addr);
 }
-static int dissect_SS_EventSpecification_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SS_EventSpecification_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AddressString(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SS_EventSpecification_item);
 }
-static int dissect_lcsClientDialedByMS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsClientDialedByMS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientDialedByMS);
 }
 
@@ -6356,7 +6356,7 @@ dissect_gsm_map_FTN_AddressString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_longForwardedToNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_longForwardedToNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_FTN_AddressString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_longForwardedToNumber);
 }
 
@@ -6380,7 +6380,7 @@ dissect_gsm_map_Ext_ForwFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_Ext_ForwFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Ext_ForwFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ForwFeature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_Ext_ForwFeatureList_item);
 }
 
@@ -6396,10 +6396,10 @@ dissect_gsm_map_Ext_ForwFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_ext_forwardingFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_forwardingFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ForwFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingFeatureList);
 }
-static int dissect_ext_forwardingFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_forwardingFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ForwFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingFeatureList);
 }
 
@@ -6418,7 +6418,7 @@ dissect_gsm_map_Ext_ForwInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_ext_forwardingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_forwardingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ForwInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_forwardingInfo);
 }
 
@@ -6437,7 +6437,7 @@ dissect_gsm_map_Ext_CallBarringFeature(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_Ext_CallBarFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Ext_CallBarFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_CallBarringFeature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_Ext_CallBarFeatureList_item);
 }
 
@@ -6453,10 +6453,10 @@ dissect_gsm_map_Ext_CallBarFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_ext_callBarringFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_callBarringFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_CallBarFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_callBarringFeatureList);
 }
-static int dissect_ext_callBarringFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_callBarringFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_CallBarFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_callBarringFeatureList);
 }
 
@@ -6475,7 +6475,7 @@ dissect_gsm_map_Ext_CallBarInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_ext_callBarringInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_callBarringInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_CallBarInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_callBarringInfo);
 }
 
@@ -6488,10 +6488,10 @@ dissect_gsm_map_CUG_Index(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_cug_Index(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_Index(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Index(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_Index);
 }
-static int dissect_preferentialCUG_Indicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_preferentialCUG_Indicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Index(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_preferentialCUG_Indicator);
 }
 
@@ -6504,7 +6504,7 @@ dissect_gsm_map_CUG_Interlock(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_cug_Interlock(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_Interlock(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Interlock(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_Interlock);
 }
 
@@ -6524,7 +6524,7 @@ dissect_gsm_map_IntraCUG_Options(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_intraCUG_Options(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_intraCUG_Options(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IntraCUG_Options(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_intraCUG_Options);
 }
 
@@ -6540,7 +6540,7 @@ dissect_gsm_map_Ext_BasicServiceGroupList(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_basicServiceGroupList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicServiceGroupList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_BasicServiceGroupList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceGroupList);
 }
 
@@ -6561,7 +6561,7 @@ dissect_gsm_map_CUG_Subscription(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_CUG_SubscriptionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_CUG_SubscriptionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Subscription(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CUG_SubscriptionList_item);
 }
 
@@ -6577,7 +6577,7 @@ dissect_gsm_map_CUG_SubscriptionList(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_cug_SubscriptionList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_SubscriptionList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_SubscriptionList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_SubscriptionList);
 }
 
@@ -6590,7 +6590,7 @@ dissect_gsm_map_InterCUG_Restrictions(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_interCUG_Restrictions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_interCUG_Restrictions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InterCUG_Restrictions(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_interCUG_Restrictions);
 }
 
@@ -6610,7 +6610,7 @@ dissect_gsm_map_CUG_Feature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_CUG_FeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_CUG_FeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Feature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CUG_FeatureList_item);
 }
 
@@ -6626,7 +6626,7 @@ dissect_gsm_map_CUG_FeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_cug_FeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_FeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_FeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_FeatureList);
 }
 
@@ -6645,7 +6645,7 @@ dissect_gsm_map_CUG_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_cug_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cug_Info);
 }
 
@@ -6665,10 +6665,10 @@ dissect_gsm_map_CliRestrictionOption(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_cliRestrictionOption(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cliRestrictionOption(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CliRestrictionOption(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cliRestrictionOption);
 }
-static int dissect_cliRestrictionOption_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cliRestrictionOption_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CliRestrictionOption(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cliRestrictionOption);
 }
 
@@ -6693,7 +6693,7 @@ dissect_gsm_map_SS_SubscriptionOption(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ss_SubscriptionOption(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_SubscriptionOption(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_SubscriptionOption(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_SubscriptionOption);
 }
 
@@ -6714,7 +6714,7 @@ dissect_gsm_map_Ext_SS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_ext_ss_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_ss_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_ss_Data);
 }
 
@@ -6727,19 +6727,19 @@ dissect_gsm_map_EMLPP_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_maximumentitledPriority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_maximumentitledPriority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Priority(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_maximumentitledPriority);
 }
-static int dissect_defaultPriority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultPriority(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Priority(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_defaultPriority);
 }
-static int dissect_defaultPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Priority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_defaultPriority);
 }
-static int dissect_maximumEntitledPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_maximumEntitledPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Priority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_maximumEntitledPriority);
 }
-static int dissect_priority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_priority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Priority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_priority);
 }
 
@@ -6758,7 +6758,7 @@ dissect_gsm_map_EMLPP_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_emlpp_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_emlpp_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EMLPP_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_emlpp_Info);
 }
 
@@ -6789,7 +6789,7 @@ dissect_gsm_map_Ext_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_Ext_SS_InfoList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Ext_SS_InfoList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_Info(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_Ext_SS_InfoList_item);
 }
 
@@ -6805,7 +6805,7 @@ dissect_gsm_map_Ext_SS_InfoList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_provisionedSS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_provisionedSS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_InfoList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_provisionedSS);
 }
 
@@ -6824,13 +6824,13 @@ dissect_gsm_map_ODB_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_odb_Data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_Data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_Data(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_odb_Data);
 }
-static int dissect_odb_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb_Data);
 }
-static int dissect_odb_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb_data);
 }
 
@@ -6843,10 +6843,10 @@ dissect_gsm_map_ZoneCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_regionalSubscriptionIdentifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_regionalSubscriptionIdentifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ZoneCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionIdentifier);
 }
-static int dissect_ZoneCodeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ZoneCodeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ZoneCode(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ZoneCodeList_item);
 }
 
@@ -6862,7 +6862,7 @@ dissect_gsm_map_ZoneCodeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_regionalSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_regionalSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ZoneCodeList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionData);
 }
 
@@ -6874,10 +6874,10 @@ dissect_gsm_map_GroupId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_groupId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GroupId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_groupId);
 }
-static int dissect_groupid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupid(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GroupId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_groupid);
 }
 
@@ -6897,10 +6897,10 @@ dissect_gsm_map_AdditionalSubscriptions(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_additionalSubscriptions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalSubscriptions(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalSubscriptions(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSubscriptions);
 }
-static int dissect_additionalSubscriptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalSubscriptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalSubscriptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSubscriptions);
 }
 
@@ -6914,7 +6914,7 @@ dissect_gsm_map_AdditionalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_additionalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalInfo);
 }
 
@@ -6935,7 +6935,7 @@ dissect_gsm_map_VoiceBroadcastData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_VBSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_VBSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VoiceBroadcastData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_VBSDataList_item);
 }
 
@@ -6951,7 +6951,7 @@ dissect_gsm_map_VBSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_vbsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vbsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VBSDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vbsSubscriptionData);
 }
 
@@ -6969,7 +6969,7 @@ dissect_gsm_map_VoiceGroupCallData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_VGCSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_VGCSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VoiceGroupCallData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_VGCSDataList_item);
 }
 
@@ -6985,7 +6985,7 @@ dissect_gsm_map_VGCSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_vgcsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vgcsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VGCSDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vgcsSubscriptionData);
 }
 
@@ -7001,7 +7001,7 @@ dissect_gsm_map_SS_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_ss_EventList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_EventList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_EventList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_EventList);
 }
 
@@ -7020,7 +7020,7 @@ dissect_gsm_map_SS_CamelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_ss_CamelData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_CamelData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_CamelData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CamelData);
 }
 
@@ -7040,7 +7040,7 @@ dissect_gsm_map_SS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_ss_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_CSI);
 }
 
@@ -7059,7 +7059,7 @@ dissect_gsm_map_MatchType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_matchType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_matchType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MatchType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_matchType);
 }
 
@@ -7075,7 +7075,7 @@ dissect_gsm_map_DestinationNumberList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_destinationNumberList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_destinationNumberList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DestinationNumberList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberList);
 }
 
@@ -7088,7 +7088,7 @@ dissect_gsm_map_INTEGER_1_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_DestinationNumberLengthList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_DestinationNumberLengthList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_INTEGER_1_15(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_DestinationNumberLengthList_item);
 }
 
@@ -7104,7 +7104,7 @@ dissect_gsm_map_DestinationNumberLengthList(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_destinationNumberLengthList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_destinationNumberLengthList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DestinationNumberLengthList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberLengthList);
 }
 
@@ -7123,7 +7123,7 @@ dissect_gsm_map_DestinationNumberCriteria(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_destinationNumberCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_destinationNumberCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DestinationNumberCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_destinationNumberCriteria);
 }
 
@@ -7139,7 +7139,7 @@ dissect_gsm_map_BasicServiceCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_basicServiceCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicServiceCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceCriteria);
 }
 
@@ -7158,7 +7158,7 @@ dissect_gsm_map_CallTypeCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_callTypeCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callTypeCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallTypeCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callTypeCriteria);
 }
 
@@ -7171,10 +7171,10 @@ dissect_gsm_map_CauseValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_T_CauseValueCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_T_CauseValueCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CauseValue(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_T_CauseValueCriteria_item);
 }
-static int dissect_O_CauseValueCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_O_CauseValueCriteria_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CauseValue(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_O_CauseValueCriteria_item);
 }
 
@@ -7190,7 +7190,7 @@ dissect_gsm_map_O_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_o_CauseValueCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_CauseValueCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_CauseValueCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_CauseValueCriteria);
 }
 
@@ -7212,7 +7212,7 @@ dissect_gsm_map_O_BcsmCamelTDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_O_BcsmCamelTDPCriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_O_BcsmCamelTDPCriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDP_Criteria(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_O_BcsmCamelTDPCriteriaList_item);
 }
 
@@ -7228,13 +7228,13 @@ dissect_gsm_map_O_BcsmCamelTDPCriteriaList(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_o_BcsmCamelTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_BcsmCamelTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDPCriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDP_CriteriaList);
 }
-static int dissect_o_BcsmCamelTDPCriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_BcsmCamelTDPCriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDPCriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_BcsmCamelTDPCriteriaList);
 }
-static int dissect_o_IM_BcsmCamelTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_o_IM_BcsmCamelTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_O_BcsmCamelTDPCriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_o_IM_BcsmCamelTDP_CriteriaList);
 }
 
@@ -7247,10 +7247,10 @@ dissect_gsm_map_MM_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_eventMet_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_eventMet_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MM_Code(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_eventMet);
 }
-static int dissect_MobilityTriggers_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_MobilityTriggers_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MM_Code(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_MobilityTriggers_item);
 }
 
@@ -7266,7 +7266,7 @@ dissect_gsm_map_MobilityTriggers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_mobilityTriggers(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mobilityTriggers(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MobilityTriggers(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_mobilityTriggers);
 }
 
@@ -7288,7 +7288,7 @@ dissect_gsm_map_M_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_m_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_m_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_M_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_m_CSI);
 }
 
@@ -7307,10 +7307,10 @@ dissect_gsm_map_SMS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_sms_TriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sms_TriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_TriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint);
 }
-static int dissect_sms_TriggerDetectionPoint_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sms_TriggerDetectionPoint_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_TriggerDetectionPoint(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sms_TriggerDetectionPoint);
 }
 
@@ -7329,7 +7329,7 @@ dissect_gsm_map_DefaultSMS_Handling(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_defaultSMS_Handling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultSMS_Handling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DefaultSMS_Handling(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_defaultSMS_Handling);
 }
 
@@ -7350,7 +7350,7 @@ dissect_gsm_map_SMS_CAMEL_TDP_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_SMS_CAMEL_TDP_DataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_SMS_CAMEL_TDP_DataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_CAMEL_TDP_Data(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_SMS_CAMEL_TDP_DataList_item);
 }
 
@@ -7366,7 +7366,7 @@ dissect_gsm_map_SMS_CAMEL_TDP_DataList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_sms_CAMEL_TDP_DataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sms_CAMEL_TDP_DataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_CAMEL_TDP_DataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sms_CAMEL_TDP_DataList);
 }
 
@@ -7387,10 +7387,10 @@ dissect_gsm_map_SMS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_mo_sms_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mo_sms_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mo_sms_CSI);
 }
-static int dissect_mt_sms_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mt_sms_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SMS_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mt_sms_CSI);
 }
 
@@ -7410,10 +7410,10 @@ dissect_gsm_map_T_BcsmTriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_t_BCSM_TriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_BCSM_TriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BcsmTriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_TriggerDetectionPoint);
 }
-static int dissect_t_BcsmTriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_BcsmTriggerDetectionPoint(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BcsmTriggerDetectionPoint(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BcsmTriggerDetectionPoint);
 }
 
@@ -7434,7 +7434,7 @@ dissect_gsm_map_T_BcsmCamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_T_BcsmCamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_T_BcsmCamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BcsmCamelTDPData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_T_BcsmCamelTDPDataList_item);
 }
 
@@ -7450,7 +7450,7 @@ dissect_gsm_map_T_BcsmCamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_t_BcsmCamelTDPDataList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_BcsmCamelTDPDataList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BcsmCamelTDPDataList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_t_BcsmCamelTDPDataList);
 }
 
@@ -7471,13 +7471,13 @@ dissect_gsm_map_T_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_vt_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vt_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_CSI);
 }
-static int dissect_t_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CSI);
 }
-static int dissect_vt_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vt_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_IM_CSI);
 }
 
@@ -7493,7 +7493,7 @@ dissect_gsm_map_T_CauseValueCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_t_CauseValueCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_CauseValueCriteria_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_CauseValueCriteria(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_CauseValueCriteria);
 }
 
@@ -7512,7 +7512,7 @@ dissect_gsm_map_T_BCSM_CAMEL_TDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_T_BCSM_CAMEL_TDP_CriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_T_BCSM_CAMEL_TDP_CriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BCSM_CAMEL_TDP_Criteria(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList_item);
 }
 
@@ -7528,13 +7528,13 @@ dissect_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList(gboolean implicit_tag _U_, tvbuff_
 
   return offset;
 }
-static int dissect_t_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_t_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_t_BCSM_CAMEL_TDP_CriteriaList);
 }
-static int dissect_vt_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vt_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_BCSM_CAMEL_TDP_CriteriaList);
 }
-static int dissect_vt_IM_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vt_IM_BCSM_CAMEL_TDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_BCSM_CAMEL_TDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vt_IM_BCSM_CAMEL_TDP_CriteriaList);
 }
 
@@ -7555,7 +7555,7 @@ dissect_gsm_map_DP_AnalysedInfoCriterium(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_DP_AnalysedInfoCriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_DP_AnalysedInfoCriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DP_AnalysedInfoCriterium(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_DP_AnalysedInfoCriteriaList_item);
 }
 
@@ -7571,7 +7571,7 @@ dissect_gsm_map_DP_AnalysedInfoCriteriaList(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_dp_AnalysedInfoCriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dp_AnalysedInfoCriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DP_AnalysedInfoCriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dp_AnalysedInfoCriteriaList);
 }
 
@@ -7592,13 +7592,13 @@ dissect_gsm_map_D_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_d_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_d_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_D_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_d_CSI);
 }
-static int dissect_d_csi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_d_csi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_D_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_d_csi);
 }
-static int dissect_d_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_d_IM_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_D_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_d_IM_CSI);
 }
 
@@ -7618,7 +7618,7 @@ dissect_gsm_map_MT_SMS_TPDU_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_TPDU_TypeCriterion_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_TPDU_TypeCriterion_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MT_SMS_TPDU_Type(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_TPDU_TypeCriterion_item);
 }
 
@@ -7634,7 +7634,7 @@ dissect_gsm_map_TPDU_TypeCriterion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_tpdu_TypeCriterion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_tpdu_TypeCriterion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TPDU_TypeCriterion(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_tpdu_TypeCriterion);
 }
 
@@ -7652,7 +7652,7 @@ dissect_gsm_map_MT_smsCAMELTDP_Criteria(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_MT_smsCAMELTDP_CriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_MT_smsCAMELTDP_CriteriaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MT_smsCAMELTDP_Criteria(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_MT_smsCAMELTDP_CriteriaList_item);
 }
 
@@ -7668,7 +7668,7 @@ dissect_gsm_map_MT_smsCAMELTDP_CriteriaList(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_mt_smsCAMELTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mt_smsCAMELTDP_CriteriaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MT_smsCAMELTDP_CriteriaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mt_smsCAMELTDP_CriteriaList);
 }
 
@@ -7696,7 +7696,7 @@ dissect_gsm_map_VlrCamelSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_vlrCamelSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vlrCamelSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VlrCamelSubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vlrCamelSubscriptionInfo);
 }
 
@@ -7709,7 +7709,7 @@ dissect_gsm_map_NAEA_CIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_naea_PreferredCIC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_naea_PreferredCIC_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NAEA_CIC(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_naea_PreferredCIC);
 }
 
@@ -7727,7 +7727,7 @@ dissect_gsm_map_NAEA_PreferredCI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_naea_PreferredCI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_naea_PreferredCI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NAEA_PreferredCI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_naea_PreferredCI);
 }
 
@@ -7740,13 +7740,13 @@ dissect_gsm_map_ContextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_pdp_ContextId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_ContextId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ContextId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_ContextId);
 }
-static int dissect_ContextIdList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ContextIdList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ContextId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ContextIdList_item);
 }
-static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_ContextIdentifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ContextId(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_ContextIdentifier);
 }
 
@@ -7782,7 +7782,7 @@ dissect_gsm_map_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_pdp_Type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_Type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_Type(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_Type);
 }
 
@@ -7795,7 +7795,7 @@ dissect_gsm_map_PDP_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_pdp_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_Address(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_Address);
 }
 
@@ -7819,7 +7819,7 @@ dissect_gsm_map_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_qos_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos_Subscribed);
 }
 
@@ -7832,16 +7832,16 @@ dissect_gsm_map_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_apn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_apn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_APN(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_apn);
 }
-static int dissect_apn_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_apn_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_APN(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_apn_Subscribed);
 }
-static int dissect_apn_InUse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_apn_InUse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_APN(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_apn_InUse);
 }
-static int dissect_lcsAPN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsAPN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_APN(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsAPN);
 }
 
@@ -7865,16 +7865,16 @@ dissect_gsm_map_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ext_QoS_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_QoS_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_QoS_Subscribed);
 }
-static int dissect_ext_qos_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_qos_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_qos_Subscribed);
 }
-static int dissect_qos_Requested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos_Requested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos_Requested);
 }
-static int dissect_qos_Negotiated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos_Negotiated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos_Negotiated);
 }
 
@@ -7887,10 +7887,10 @@ dissect_gsm_map_ChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_chargingCharacteristics_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chargingCharacteristics_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chargingCharacteristics);
 }
-static int dissect_pdp_ChargingCharacteristics_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_pdp_ChargingCharacteristics_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_pdp_ChargingCharacteristics);
 }
 
@@ -7903,16 +7903,16 @@ dissect_gsm_map_Ext2_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_ext2_QoS_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext2_QoS_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext2_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext2_QoS_Subscribed);
 }
-static int dissect_qos2_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos2_Subscribed_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext2_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos2_Subscribed);
 }
-static int dissect_qos2_Requested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos2_Requested_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext2_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos2_Requested);
 }
-static int dissect_qos2_Negotiated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_qos2_Negotiated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext2_QoS_Subscribed(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_qos2_Negotiated);
 }
 
@@ -7938,7 +7938,7 @@ dissect_gsm_map_PDP_Context(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_GPRSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_GPRSDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_Context(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_GPRSDataList_item);
 }
 
@@ -7954,7 +7954,7 @@ dissect_gsm_map_GPRSDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_gprsDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRSDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsDataList);
 }
 
@@ -7973,7 +7973,7 @@ dissect_gsm_map_GPRSSubscriptionData(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_gprsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsSubscriptionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRSSubscriptionData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsSubscriptionData);
 }
 
@@ -7993,7 +7993,7 @@ dissect_gsm_map_NetworkAccessMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_networkAccessMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkAccessMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NetworkAccessMode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_networkAccessMode);
 }
 
@@ -8012,7 +8012,7 @@ dissect_gsm_map_LSAOnlyAccessIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_lsaOnlyAccessIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaOnlyAccessIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAOnlyAccessIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaOnlyAccessIndicator);
 }
 
@@ -8025,16 +8025,16 @@ dissect_gsm_map_LSAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_lsaIdentity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaIdentity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAIdentity(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaIdentity);
 }
-static int dissect_LSAIdentityList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_LSAIdentityList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_LSAIdentityList_item);
 }
-static int dissect_selectedLSA_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_selectedLSA_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAIdentity(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_selectedLSA_Id);
 }
-static int dissect_selectedLSAIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_selectedLSAIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_selectedLSAIdentity);
 }
 
@@ -8047,7 +8047,7 @@ dissect_gsm_map_LSAAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_lsaAttributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaAttributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAAttributes(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaAttributes);
 }
 
@@ -8067,7 +8067,7 @@ dissect_gsm_map_LSAData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_LSADataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_LSADataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_LSADataList_item);
 }
 
@@ -8083,7 +8083,7 @@ dissect_gsm_map_LSADataList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_lsaDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSADataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaDataList);
 }
 
@@ -8103,7 +8103,7 @@ dissect_gsm_map_LSAInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_lsaInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaInformation);
 }
 
@@ -8119,7 +8119,7 @@ dissect_gsm_map_GMLC_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_gmlc_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmlc_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GMLC_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmlc_List);
 }
 
@@ -8140,7 +8140,7 @@ dissect_gsm_map_NotificationToMSUser(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_notificationToMSUser_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_notificationToMSUser_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NotificationToMSUser(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_notificationToMSUser);
 }
 
@@ -8158,10 +8158,10 @@ dissect_gsm_map_LCSClientExternalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_clientIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_clientIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientExternalID(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_clientIdentity);
 }
-static int dissect_lcsClientExternalID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsClientExternalID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientExternalID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientExternalID);
 }
 
@@ -8180,7 +8180,7 @@ dissect_gsm_map_GMLC_Restriction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_gmlc_Restriction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmlc_Restriction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GMLC_Restriction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmlc_Restriction);
 }
 
@@ -8200,10 +8200,10 @@ dissect_gsm_map_ExternalClient(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ExternalClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ExternalClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalClient(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ExternalClientList_item);
 }
-static int dissect_Ext_ExternalClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_Ext_ExternalClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalClient(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_Ext_ExternalClientList_item);
 }
 
@@ -8219,7 +8219,7 @@ dissect_gsm_map_ExternalClientList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_externalClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_externalClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalClientList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_externalClientList);
 }
 
@@ -8241,10 +8241,10 @@ dissect_gsm_map_LCSClientInternalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_PLMNClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_PLMNClientList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientInternalID(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_PLMNClientList_item);
 }
-static int dissect_lcsClientInternalID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsClientInternalID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientInternalID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientInternalID);
 }
 
@@ -8260,7 +8260,7 @@ dissect_gsm_map_PLMNClientList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_plmnClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_plmnClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PLMNClientList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_plmnClientList);
 }
 
@@ -8276,7 +8276,7 @@ dissect_gsm_map_Ext_ExternalClientList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_ext_externalClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_externalClientList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ExternalClientList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ext_externalClientList);
 }
 
@@ -8289,10 +8289,10 @@ dissect_gsm_map_LCSServiceTypeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_serviceTypeIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceTypeIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSServiceTypeID(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_serviceTypeIdentity);
 }
-static int dissect_lcsServiceTypeID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsServiceTypeID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSServiceTypeID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsServiceTypeID);
 }
 
@@ -8312,7 +8312,7 @@ dissect_gsm_map_ServiceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_ServiceTypeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ServiceTypeList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ServiceTypeList_item);
 }
 
@@ -8328,7 +8328,7 @@ dissect_gsm_map_ServiceTypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_serviceTypeList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceTypeList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceTypeList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceTypeList);
 }
 
@@ -8352,7 +8352,7 @@ dissect_gsm_map_LCS_PrivacyClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_LCS_PrivacyExceptionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_LCS_PrivacyExceptionList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_PrivacyClass(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_LCS_PrivacyExceptionList_item);
 }
 
@@ -8368,10 +8368,10 @@ dissect_gsm_map_LCS_PrivacyExceptionList(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_lcs_PrivacyExceptionList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_PrivacyExceptionList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_PrivacyExceptionList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_PrivacyExceptionList);
 }
-static int dissect_add_lcs_PrivacyExceptionList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_add_lcs_PrivacyExceptionList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_PrivacyExceptionList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_add_lcs_PrivacyExceptionList);
 }
 
@@ -8390,7 +8390,7 @@ dissect_gsm_map_MOLR_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_MOLR_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_MOLR_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MOLR_Class(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_MOLR_List_item);
 }
 
@@ -8406,7 +8406,7 @@ dissect_gsm_map_MOLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_molr_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_molr_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MOLR_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_molr_List);
 }
 
@@ -8426,7 +8426,7 @@ dissect_gsm_map_LCSInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_lcsInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsInformation);
 }
 
@@ -8439,7 +8439,7 @@ dissect_gsm_map_IST_AlertTimerValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_istAlertTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_istAlertTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IST_AlertTimerValue(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_istAlertTimer);
 }
 
@@ -8452,7 +8452,7 @@ dissect_gsm_map_MaxMC_Bearers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_nbrSB_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nbrSB_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MaxMC_Bearers(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nbrSB);
 }
 
@@ -8465,10 +8465,10 @@ dissect_gsm_map_MC_Bearers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_nbrUser_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nbrUser_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MC_Bearers(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nbrUser);
 }
-static int dissect_nbrSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nbrSN_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MC_Bearers(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nbrSN);
 }
 
@@ -8489,7 +8489,7 @@ dissect_gsm_map_MC_SS_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_mc_SS_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mc_SS_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MC_SS_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mc_SS_Info);
 }
 
@@ -8502,7 +8502,7 @@ dissect_gsm_map_CS_AllocationRetentionPriority(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_cs_AllocationRetentionPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cs_AllocationRetentionPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CS_AllocationRetentionPriority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cs_AllocationRetentionPriority);
 }
 
@@ -8524,7 +8524,7 @@ dissect_gsm_map_GPRS_TriggerDetectionPoint(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_gprs_TriggerDetectionPoint_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprs_TriggerDetectionPoint_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRS_TriggerDetectionPoint(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprs_TriggerDetectionPoint);
 }
 
@@ -8543,7 +8543,7 @@ dissect_gsm_map_DefaultGPRS_Handling(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_defaultSessionHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_defaultSessionHandling_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DefaultGPRS_Handling(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_defaultSessionHandling);
 }
 
@@ -8564,7 +8564,7 @@ dissect_gsm_map_GPRS_CamelTDPData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_GPRS_CamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_GPRS_CamelTDPDataList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRS_CamelTDPData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_GPRS_CamelTDPDataList_item);
 }
 
@@ -8580,7 +8580,7 @@ dissect_gsm_map_GPRS_CamelTDPDataList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_gprs_CamelTDPDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprs_CamelTDPDataList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRS_CamelTDPDataList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprs_CamelTDPDataList);
 }
 
@@ -8601,7 +8601,7 @@ dissect_gsm_map_GPRS_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_gprs_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprs_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRS_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprs_CSI);
 }
 
@@ -8623,7 +8623,7 @@ dissect_gsm_map_MG_CSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_mg_csi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mg_csi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MG_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mg_csi);
 }
 
@@ -8645,7 +8645,7 @@ dissect_gsm_map_SGSN_CAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_sgsn_CAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_CAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SGSN_CAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_CAMEL_SubscriptionInfo);
 }
 
@@ -8664,7 +8664,7 @@ dissect_gsm_map_AccessRestrictionData(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_accessRestrictionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accessRestrictionData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccessRestrictionData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_accessRestrictionData);
 }
 
@@ -8721,10 +8721,10 @@ dissect_gsm_map_SS_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_ss_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_List);
 }
-static int dissect_ss_List2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_List2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_List2);
 }
 
@@ -8745,7 +8745,7 @@ dissect_gsm_map_RegionalSubscriptionResponse(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_regionalSubscriptionResponse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_regionalSubscriptionResponse_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RegionalSubscriptionResponse(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_regionalSubscriptionResponse);
 }
 
@@ -8782,7 +8782,7 @@ dissect_gsm_map_BasicServiceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_basicServiceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_basicServiceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BasicServiceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_basicServiceList);
 }
 
@@ -8798,7 +8798,7 @@ dissect_gsm_map_ContextIdList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_contextIdList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_contextIdList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ContextIdList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_contextIdList);
 }
 
@@ -8823,7 +8823,7 @@ dissect_gsm_map_GPRSSubscriptionDataWithdraw(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_gprsSubscriptionDataWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprsSubscriptionDataWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRSSubscriptionDataWithdraw(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprsSubscriptionDataWithdraw);
 }
 
@@ -8839,7 +8839,7 @@ dissect_gsm_map_LSAIdentityList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_lsaIdentityList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaIdentityList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAIdentityList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lsaIdentityList);
 }
 
@@ -8864,7 +8864,7 @@ dissect_gsm_map_LSAInformationWithdraw(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_lsaInformationWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lsaInformationWithdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LSAInformationWithdraw(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lsaInformationWithdraw);
 }
 
@@ -8895,10 +8895,10 @@ dissect_gsm_map_SpecificCSI_Withdraw(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_specificCSI_Withdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_specificCSI_Withdraw_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SpecificCSI_Withdraw(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_specificCSI_Withdraw);
 }
-static int dissect_specificCSIDeletedList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_specificCSIDeletedList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SpecificCSI_Withdraw(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_specificCSIDeletedList);
 }
 
@@ -8977,10 +8977,10 @@ dissect_gsm_map_SS_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_ss_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Status(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Status);
 }
-static int dissect_ss_Status_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Status_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Status(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Status);
 }
 
@@ -8998,7 +8998,7 @@ dissect_gsm_map_CallBarringFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_CallBarringFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_CallBarringFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallBarringFeature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CallBarringFeatureList_item);
 }
 
@@ -9014,7 +9014,7 @@ dissect_gsm_map_CallBarringFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_callBarringFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callBarringFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallBarringFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringFeatureList);
 }
 
@@ -9034,7 +9034,7 @@ dissect_gsm_map_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_forwardingOptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingOptions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingOptions(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingOptions);
 }
 
@@ -9047,7 +9047,7 @@ dissect_gsm_map_NoReplyConditionTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_noReplyConditionTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_noReplyConditionTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NoReplyConditionTime(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_noReplyConditionTime);
 }
 
@@ -9070,7 +9070,7 @@ dissect_gsm_map_ForwardingFeature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_ForwardingFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ForwardingFeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingFeature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ForwardingFeatureList_item);
 }
 
@@ -9086,10 +9086,10 @@ dissect_gsm_map_ForwardingFeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_forwardingFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingFeatureList(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingFeatureList(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList);
 }
-static int dissect_forwardingFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingFeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingFeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingFeatureList);
 }
 
@@ -9107,7 +9107,7 @@ dissect_gsm_map_ForwardingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_forwardingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingInfo);
 }
 
@@ -9125,7 +9125,7 @@ dissect_gsm_map_CallBarringInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_callBarringInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callBarringInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallBarringInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringInfo);
 }
 
@@ -9137,7 +9137,7 @@ dissect_gsm_map_HLR_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_HLR_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_HLR_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_HLR_Id(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_HLR_List_item);
 }
 
@@ -9153,7 +9153,7 @@ dissect_gsm_map_HLR_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_hlr_List(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_hlr_List(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_HLR_List(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_hlr_List);
 }
 
@@ -9223,7 +9223,7 @@ dissect_gsm_map_TraceDepthList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_traceDepthList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceDepthList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceDepthList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceDepthList);
 }
 
@@ -9246,7 +9246,7 @@ dissect_gsm_map_TraceNE_TypeList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_traceNE_TypeList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceNE_TypeList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceNE_TypeList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceNE_TypeList);
 }
 
@@ -9271,7 +9271,7 @@ dissect_gsm_map_SGSN_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_sgsn_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SGSN_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_IList);
 }
 
@@ -9291,7 +9291,7 @@ dissect_gsm_map_GGSN_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ggsn_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ggsn_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GGSN_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_IList);
 }
 
@@ -9309,7 +9309,7 @@ dissect_gsm_map_BMSC_InterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_bmsc_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bmsc_IList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BMSC_InterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bmsc_IList);
 }
 
@@ -9331,7 +9331,7 @@ dissect_gsm_map_TraceInterfaceList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_traceInterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceInterfaceList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceInterfaceList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceInterfaceList);
 }
 
@@ -9352,7 +9352,7 @@ dissect_gsm_map_SGSN_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_sgsn_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SGSN_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_EList);
 }
 
@@ -9371,7 +9371,7 @@ dissect_gsm_map_GGSN_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ggsn_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ggsn_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GGSN_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ggsn_EList);
 }
 
@@ -9389,7 +9389,7 @@ dissect_gsm_map_BMSC_EventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_bmsc_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_bmsc_EList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BMSC_EventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_bmsc_EList);
 }
 
@@ -9410,7 +9410,7 @@ dissect_gsm_map_TraceEventList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_traceEventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_traceEventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TraceEventList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_traceEventList);
 }
 
@@ -9498,7 +9498,7 @@ dissect_gsm_map_CUG_CheckInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_cug_CheckInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_CheckInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_CheckInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cug_CheckInfo);
 }
 
@@ -9511,7 +9511,7 @@ dissect_gsm_map_NumberOfForwarding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_numberOfForwarding_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_numberOfForwarding_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NumberOfForwarding(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_numberOfForwarding);
 }
 
@@ -9530,7 +9530,7 @@ dissect_gsm_map_InterrogationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_interrogationType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_interrogationType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InterrogationType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_interrogationType);
 }
 
@@ -9543,7 +9543,7 @@ dissect_gsm_map_OR_Phase(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_or_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_or_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OR_Phase(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_or_Capability);
 }
 
@@ -9556,7 +9556,7 @@ dissect_gsm_map_CallReferenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_callReferenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callReferenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallReferenceNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callReferenceNumber);
 }
 
@@ -9576,7 +9576,7 @@ dissect_gsm_map_ForwardingReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_forwardingReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingReason(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingReason);
 }
 
@@ -9595,37 +9595,37 @@ dissect_gsm_map_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_networkSignalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkSignalInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_networkSignalInfo);
 }
-static int dissect_networkSignalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkSignalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_networkSignalInfo);
 }
-static int dissect_networkSignalInfo2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkSignalInfo2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_networkSignalInfo2);
 }
-static int dissect_gsm_BearerCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gsm_BearerCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gsm_BearerCapability);
 }
-static int dissect_isdn_BearerCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_isdn_BearerCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_isdn_BearerCapability);
 }
-static int dissect_chosenChannel_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chosenChannel_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chosenChannel);
 }
-static int dissect_lowerLayerCompatibility_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lowerLayerCompatibility_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lowerLayerCompatibility);
 }
-static int dissect_highLayerCompatibility_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_highLayerCompatibility_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_highLayerCompatibility);
 }
-static int dissect_channelType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_channelType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_channelType);
 }
-static int dissect_callInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callInfo);
 }
-static int dissect_callInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callInfo);
 }
 
@@ -9645,7 +9645,7 @@ dissect_gsm_map_CamelInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_camelInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camelInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CamelInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelInfo);
 }
 
@@ -9657,7 +9657,7 @@ dissect_gsm_map_SuppressionOfAnnouncement(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_suppressionOfAnnouncement_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_suppressionOfAnnouncement_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SuppressionOfAnnouncement(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_suppressionOfAnnouncement);
 }
 
@@ -9670,10 +9670,10 @@ dissect_gsm_map_AlertingPattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_alertingPattern(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_alertingPattern(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AlertingPattern(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_alertingPattern);
 }
-static int dissect_alertingPattern_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_alertingPattern_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AlertingPattern(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_alertingPattern);
 }
 
@@ -9686,7 +9686,7 @@ dissect_gsm_map_SupportedCCBS_Phase(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_supportedCCBS_Phase_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedCCBS_Phase_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedCCBS_Phase(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedCCBS_Phase);
 }
 
@@ -9704,7 +9704,7 @@ dissect_gsm_map_Ext_ProtocolId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ext_ProtocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ext_ProtocolId(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ProtocolId(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ext_ProtocolId);
 }
 
@@ -9723,7 +9723,7 @@ dissect_gsm_map_Ext_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_additionalSignalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalSignalInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ExternalSignalInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSignalInfo);
 }
 
@@ -9736,7 +9736,7 @@ dissect_gsm_map_CallDiversionTreatmentIndicator(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_callDiversionTreatmentIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callDiversionTreatmentIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallDiversionTreatmentIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callDiversionTreatmentIndicator);
 }
 
@@ -9797,10 +9797,10 @@ dissect_gsm_map_ForwardingData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_forwardingData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingData(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingData(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingData);
 }
-static int dissect_forwardingData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ForwardingData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingData);
 }
 
@@ -9825,10 +9825,10 @@ dissect_gsm_map_RoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_routingInfo2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_routingInfo2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RoutingInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_routingInfo2);
 }
-static int dissect_routingInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_routingInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RoutingInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_routingInfo);
 }
 
@@ -9850,7 +9850,7 @@ dissect_gsm_map_GmscCamelSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_gmscCamelSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gmscCamelSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GmscCamelSubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gmscCamelSubscriptionInfo);
 }
 
@@ -9869,7 +9869,7 @@ dissect_gsm_map_CamelRoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_camelRoutingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camelRoutingInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CamelRoutingInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camelRoutingInfo);
 }
 
@@ -9894,7 +9894,7 @@ dissect_gsm_map_ExtendedRoutingInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_extendedRoutingInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extendedRoutingInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtendedRoutingInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extendedRoutingInfo);
 }
 
@@ -9907,10 +9907,10 @@ dissect_gsm_map_AgeOfLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_ageOfLocationInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ageOfLocationInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AgeOfLocationInformation(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ageOfLocationInformation);
 }
-static int dissect_ageOfLocationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ageOfLocationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AgeOfLocationInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ageOfLocationEstimate);
 }
 
@@ -9923,10 +9923,10 @@ dissect_gsm_map_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_geographicalInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geographicalInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GeographicalInformation(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_geographicalInformation);
 }
-static int dissect_geographicalInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geographicalInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GeographicalInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_geographicalInformation);
 }
 
@@ -9939,7 +9939,7 @@ dissect_gsm_map_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_locationNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationNumber);
 }
 
@@ -9952,7 +9952,7 @@ dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag _U_
 
   return offset;
 }
-static int dissect_cellGlobalIdOrServiceAreaIdFixedLength_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cellGlobalIdOrServiceAreaIdFixedLength_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cellGlobalIdOrServiceAreaIdFixedLength);
 }
 
@@ -9977,13 +9977,13 @@ dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_cellGlobalIdOrServiceAreaIdOrLAI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cellGlobalIdOrServiceAreaIdOrLAI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cellGlobalIdOrServiceAreaIdOrLAI);
 }
-static int dissect_cellGlobalIdOrServiceAreaIdOrLAI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cellGlobalIdOrServiceAreaIdOrLAI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cellGlobalIdOrServiceAreaIdOrLAI);
 }
-static int dissect_cellIdOrSai_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cellIdOrSai_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_cellIdOrSai);
 }
 
@@ -9996,10 +9996,10 @@ dissect_gsm_map_GeodeticInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_geodeticInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geodeticInformation(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GeodeticInformation(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_geodeticInformation);
 }
-static int dissect_geodeticInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geodeticInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GeodeticInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_geodeticInformation);
 }
 
@@ -10026,7 +10026,7 @@ dissect_gsm_map_LocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_locationInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationInformation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationInformation);
 }
 
@@ -10047,7 +10047,7 @@ dissect_gsm_map_NotReachableReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_netDetNotReachable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_netDetNotReachable(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NotReachableReason(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_netDetNotReachable);
 }
 
@@ -10076,7 +10076,7 @@ dissect_gsm_map_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_subscriberState(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberState(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberState(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberState);
 }
 
@@ -10104,7 +10104,7 @@ dissect_gsm_map_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_routeingAreaIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_routeingAreaIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_routeingAreaIdentity);
 }
 
@@ -10130,10 +10130,10 @@ dissect_gsm_map_LocationInformationGPRS(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_locationInformationGPRS(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationInformationGPRS(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationInformationGPRS(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_locationInformationGPRS);
 }
-static int dissect_locationInformationGPRS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationInformationGPRS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationInformationGPRS(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationInformationGPRS);
 }
 
@@ -10146,7 +10146,7 @@ dissect_gsm_map_NSAPI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_nsapi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nsapi_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NSAPI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nsapi);
 }
 
@@ -10159,7 +10159,7 @@ dissect_gsm_map_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_transactionId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_transactionId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_transactionId);
 }
 
@@ -10172,10 +10172,10 @@ dissect_gsm_map_TEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_teid_ForGnAndGp_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_teid_ForGnAndGp_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TEID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_teid_ForGnAndGp);
 }
-static int dissect_teid_ForIu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_teid_ForIu_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TEID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_teid_ForIu);
 }
 
@@ -10188,7 +10188,7 @@ dissect_gsm_map_GPRSChargingID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_chargingId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_chargingId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRSChargingID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_chargingId);
 }
 
@@ -10225,7 +10225,7 @@ dissect_gsm_map_PDP_ContextInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_PDP_ContextInfoList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_PDP_ContextInfoList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_ContextInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_PDP_ContextInfoList_item);
 }
 
@@ -10241,10 +10241,10 @@ dissect_gsm_map_PDP_ContextInfoList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_ps_PDP_ActiveNotReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_PDP_ActiveNotReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_ContextInfoList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_PDP_ActiveNotReachableForPaging);
 }
-static int dissect_ps_PDP_ActiveReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_PDP_ActiveReachableForPaging_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PDP_ContextInfoList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_PDP_ActiveReachableForPaging);
 }
 
@@ -10279,7 +10279,7 @@ dissect_gsm_map_PS_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ps_SubscriberState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ps_SubscriberState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PS_SubscriberState(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ps_SubscriberState);
 }
 
@@ -10292,7 +10292,7 @@ dissect_gsm_map_MS_Classmark2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_ms_Classmark2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ms_Classmark2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MS_Classmark2(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ms_Classmark2);
 }
 
@@ -10305,7 +10305,7 @@ dissect_gsm_map_MSNetworkCapability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_mSNetworkCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mSNetworkCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSNetworkCapability(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mSNetworkCapability);
 }
 
@@ -10318,7 +10318,7 @@ dissect_gsm_map_MSRadioAccessCapability(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_mSRadioAccessCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mSRadioAccessCapability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSRadioAccessCapability(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mSRadioAccessCapability);
 }
 
@@ -10336,7 +10336,7 @@ dissect_gsm_map_GPRSMSClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_gprs_MS_Class_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_gprs_MS_Class_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GPRSMSClass(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_gprs_MS_Class);
 }
 
@@ -10348,7 +10348,7 @@ dissect_gsm_map_RouteingNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_routeingNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_routeingNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RouteingNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_routeingNumber);
 }
 
@@ -10370,7 +10370,7 @@ dissect_gsm_map_NumberPortabilityStatus(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_numberPortabilityStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_numberPortabilityStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NumberPortabilityStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_numberPortabilityStatus);
 }
 
@@ -10391,7 +10391,7 @@ dissect_gsm_map_MNPInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_mnpInfoRes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mnpInfoRes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MNPInfoRes(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mnpInfoRes);
 }
 
@@ -10416,10 +10416,10 @@ dissect_gsm_map_SubscriberInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_subscriberInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberInfo);
 }
-static int dissect_subscriberInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberInfo);
 }
 
@@ -10438,7 +10438,7 @@ dissect_gsm_map_CCBS_Indicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_ccbs_Indicators_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Indicators_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Indicators(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Indicators);
 }
 
@@ -10457,7 +10457,7 @@ dissect_gsm_map_AllowedServices(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_allowedServices_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_allowedServices_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AllowedServices(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_allowedServices);
 }
 
@@ -10480,7 +10480,7 @@ dissect_gsm_map_UnavailabilityCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_unavailabilityCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unavailabilityCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UnavailabilityCause(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_unavailabilityCause);
 }
 
@@ -10542,16 +10542,16 @@ dissect_gsm_map_SubscriberIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_subscriberIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberIdentity(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberIdentity);
 }
-static int dissect_subscriberIdentity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_subscriberIdentity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberIdentity(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_subscriberIdentity);
 }
-static int dissect_targetMS(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetMS(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberIdentity(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_targetMS);
 }
-static int dissect_targetMS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_targetMS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SubscriberIdentity(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_targetMS);
 }
 
@@ -10613,7 +10613,7 @@ dissect_gsm_map_UUIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_uuIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uuIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UUIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uuIndicator);
 }
 
@@ -10626,7 +10626,7 @@ dissect_gsm_map_UUI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_uui_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uui_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UUI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uui);
 }
 
@@ -10646,7 +10646,7 @@ dissect_gsm_map_UU_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_uu_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_uu_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UU_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_uu_Data);
 }
 
@@ -10700,7 +10700,7 @@ dissect_gsm_map_CallDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_call_Direction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_call_Direction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallDirection(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_call_Direction);
 }
 
@@ -10786,7 +10786,7 @@ dissect_gsm_map_ReportingState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ccbs_Monitoring(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Monitoring(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReportingState(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Monitoring);
 }
 
@@ -10823,7 +10823,7 @@ dissect_gsm_map_CCBS_SubscriberStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ccbs_SubscriberStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_SubscriberStatus_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_SubscriberStatus(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_SubscriberStatus);
 }
 
@@ -10856,7 +10856,7 @@ dissect_gsm_map_EventReportData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_eventReportData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_eventReportData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_EventReportData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_eventReportData);
 }
 
@@ -10875,7 +10875,7 @@ dissect_gsm_map_MonitoringMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_monitoringMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_monitoringMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MonitoringMode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_monitoringMode);
 }
 
@@ -10895,7 +10895,7 @@ dissect_gsm_map_CallOutcome(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_callOutcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callOutcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallOutcome(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callOutcome);
 }
 
@@ -10914,7 +10914,7 @@ dissect_gsm_map_CallReportData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_callReportdata_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callReportdata_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallReportData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callReportdata);
 }
 
@@ -10968,7 +10968,7 @@ dissect_gsm_map_Ruf_Outcome(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_ruf_Outcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ruf_Outcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ruf_Outcome(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ruf_Outcome);
 }
 
@@ -11002,7 +11002,7 @@ dissect_gsm_map_CallTerminationIndicator(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_callTerminationIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callTerminationIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallTerminationIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callTerminationIndicator);
 }
 
@@ -11090,7 +11090,7 @@ dissect_gsm_map_CCBS_Index(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_ccbs_Index_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Index_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Index(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Index);
 }
 
@@ -11110,13 +11110,13 @@ dissect_gsm_map_CCBS_Feature(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_ccbs_Feature(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Feature(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Feature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Feature);
 }
-static int dissect_ccbs_Feature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Feature_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Feature(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Feature);
 }
-static int dissect_CCBS_FeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_CCBS_FeatureList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Feature(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_CCBS_FeatureList_item);
 }
 
@@ -11173,7 +11173,7 @@ dissect_gsm_map_SS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_ss_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_Data);
 }
 
@@ -11234,7 +11234,7 @@ dissect_gsm_map_CCBS_FeatureList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_ccbs_FeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_FeatureList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_FeatureList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_FeatureList);
 }
 
@@ -11258,7 +11258,7 @@ dissect_gsm_map_GenericServiceInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_genericServiceInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_genericServiceInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GenericServiceInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_genericServiceInfo);
 }
 
@@ -11311,10 +11311,10 @@ dissect_gsm_map_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ussd_DataCodingScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ussd_DataCodingScheme(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_USSD_DataCodingScheme(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ussd_DataCodingScheme);
 }
-static int dissect_dataCodingScheme_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dataCodingScheme_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_USSD_DataCodingScheme(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dataCodingScheme);
 }
 
@@ -11356,7 +11356,7 @@ dissect_gsm_map_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_ussd_String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ussd_String(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_USSD_String(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_ussd_String);
 }
 
@@ -11407,7 +11407,7 @@ dissect_gsm_map_FailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_failureCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_failureCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_FailureCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_failureCause);
 }
 
@@ -11419,10 +11419,10 @@ dissect_gsm_map_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_re_attempt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_re_attempt(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BOOLEAN(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_re_attempt);
 }
-static int dissect_sm_RP_PRI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_PRI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_PRI);
 }
 
@@ -11450,7 +11450,7 @@ dissect_gsm_map_AccessType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_accessType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accessType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccessType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_accessType);
 }
 
@@ -11543,7 +11543,7 @@ dissect_gsm_map_ServiceIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_serviceIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceIndicator(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceIndicator(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_serviceIndicator);
 }
 
@@ -11564,7 +11564,7 @@ dissect_gsm_map_CCBS_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_ccbs_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_Data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_Data(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_Data);
 }
 
@@ -11656,16 +11656,16 @@ dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_serviceCentreAddress(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceCentreAddress(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceCentreAddress(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_serviceCentreAddress);
 }
-static int dissect_serviceCentreAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceCentreAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceCentreAddress(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceCentreAddress);
 }
-static int dissect_serviceCentreAddressOA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceCentreAddressOA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceCentreAddress(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceCentreAddressOA);
 }
-static int dissect_serviceCentreAddressDA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_serviceCentreAddressDA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ServiceCentreAddress(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_serviceCentreAddressDA);
 }
 
@@ -11678,7 +11678,7 @@ dissect_gsm_map_SM_RP_MTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_sm_RP_MTI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_MTI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SM_RP_MTI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_MTI);
 }
 
@@ -11691,7 +11691,7 @@ dissect_gsm_map_SM_RP_SMEA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_sm_RP_SMEA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_SMEA_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SM_RP_SMEA(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_SMEA);
 }
 
@@ -11736,7 +11736,7 @@ dissect_gsm_map_Additional_Number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_additional_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additional_Number_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Additional_Number(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additional_Number);
 }
 
@@ -11757,7 +11757,7 @@ dissect_gsm_map_LocationInfoWithLMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_locationInfoWithLMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationInfoWithLMSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationInfoWithLMSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationInfoWithLMSI);
 }
 
@@ -11802,7 +11802,7 @@ dissect_gsm_map_Sm_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_sm_RP_DA(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_DA(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_RP_DA(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_DA);
 }
 
@@ -11829,7 +11829,7 @@ dissect_gsm_map_Sm_RP_OA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_sm_RP_OA(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_OA(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_RP_OA(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_OA);
 }
 
@@ -11856,10 +11856,10 @@ dissect_gsm_map_Sm_RP_UI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_sm_RP_UI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_UI(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_RP_UI(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_UI);
 }
-static int dissect_sm_RP_UI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_RP_UI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_RP_UI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sm_RP_UI);
 }
 
@@ -11962,10 +11962,10 @@ dissect_gsm_map_Sm_DeliveryOutcome(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_sm_DeliveryOutcome(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_DeliveryOutcome(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_DeliveryOutcome(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_DeliveryOutcome);
 }
-static int dissect_additionalSM_DeliveryOutcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalSM_DeliveryOutcome_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Sm_DeliveryOutcome(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalSM_DeliveryOutcome);
 }
 
@@ -11978,16 +11978,16 @@ dissect_gsm_map_AbsentSubscriberDiagnosticSM(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_absentSubscriberDiagnosticSM(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_absentSubscriberDiagnosticSM(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AbsentSubscriberDiagnosticSM(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_absentSubscriberDiagnosticSM);
 }
-static int dissect_absentSubscriberDiagnosticSM_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_absentSubscriberDiagnosticSM_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AbsentSubscriberDiagnosticSM(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_absentSubscriberDiagnosticSM);
 }
-static int dissect_additionalAbsentSubscriberDiagnosticSM_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalAbsentSubscriberDiagnosticSM_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AbsentSubscriberDiagnosticSM(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalAbsentSubscriberDiagnosticSM);
 }
-static int dissect_mobileNotReachableReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mobileNotReachableReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AbsentSubscriberDiagnosticSM(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_mobileNotReachableReason);
 }
 
@@ -12045,7 +12045,7 @@ dissect_gsm_map_MW_Status(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_mw_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_mw_Status(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MW_Status(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_mw_Status);
 }
 
@@ -12097,7 +12097,7 @@ dissect_gsm_map_AlertReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_alertReason(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_alertReason(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AlertReason(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_alertReason);
 }
 
@@ -12161,7 +12161,7 @@ dissect_gsm_map_DispatcherList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_dispatcherList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_dispatcherList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DispatcherList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_dispatcherList);
 }
 
@@ -12197,7 +12197,7 @@ dissect_gsm_map_DomainType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_requestedDomain_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedDomain_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DomainType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedDomain);
 }
 
@@ -12221,7 +12221,7 @@ dissect_gsm_map_RequestedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_requestedInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestedInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedInfo);
 }
 
@@ -12304,7 +12304,7 @@ dissect_gsm_map_SS_ForBS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_requestedSS_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedSS_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_ForBS_Code(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedSS_Info);
 }
 
@@ -12330,10 +12330,10 @@ dissect_gsm_map_RequestedCAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_requestedCAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedCAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestedCAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedCAMEL_SubscriptionInfo);
 }
-static int dissect_requestedCamel_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedCamel_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestedCAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedCamel_SubscriptionInfo);
 }
 
@@ -12355,10 +12355,10 @@ dissect_gsm_map_AdditionalRequestedCAMEL_SubscriptionInfo(gboolean implicit_tag 
 
   return offset;
 }
-static int dissect_additionalRequestedCAMEL_SubscriptionInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalRequestedCAMEL_SubscriptionInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalRequestedCAMEL_SubscriptionInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_additionalRequestedCAMEL_SubscriptionInfo);
 }
-static int dissect_additionalRequestedCAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalRequestedCAMEL_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalRequestedCAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalRequestedCAMEL_SubscriptionInfo);
 }
 
@@ -12382,7 +12382,7 @@ dissect_gsm_map_RequestedSubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_requestedSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestedSubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestedSubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestedSubscriptionInfo);
 }
 
@@ -12419,7 +12419,7 @@ dissect_gsm_map_CallForwardingData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_callForwardingData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callForwardingData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallForwardingData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callForwardingData);
 }
 
@@ -12433,10 +12433,10 @@ dissect_gsm_map_Password(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_password(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_password(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Password(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_password);
 }
-static int dissect_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Password(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_password);
 }
 
@@ -12449,10 +12449,10 @@ dissect_gsm_map_WrongPasswordAttemptsCounter(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_wrongPasswordAttemptsCounter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_wrongPasswordAttemptsCounter(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_WrongPasswordAttemptsCounter(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_wrongPasswordAttemptsCounter);
 }
-static int dissect_wrongPasswordAttemptsCounter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_wrongPasswordAttemptsCounter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_WrongPasswordAttemptsCounter(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_wrongPasswordAttemptsCounter);
 }
 
@@ -12473,7 +12473,7 @@ dissect_gsm_map_CallBarringData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_callBarringData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callBarringData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallBarringData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringData);
 }
 
@@ -12492,7 +12492,7 @@ dissect_gsm_map_ODB_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_odb_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_odb_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ODB_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_odb_Info);
 }
 
@@ -12531,7 +12531,7 @@ dissect_gsm_map_CAMEL_SubscriptionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_camel_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_camel_SubscriptionInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CAMEL_SubscriptionInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_camel_SubscriptionInfo);
 }
 
@@ -12550,7 +12550,7 @@ dissect_gsm_map_MSISDN_BS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_MSISDN_BS_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_MSISDN_BS_List_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSISDN_BS(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_MSISDN_BS_List_item);
 }
 
@@ -12566,7 +12566,7 @@ dissect_gsm_map_MSISDN_BS_List(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_msisdn_BS_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_msisdn_BS_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_MSISDN_BS_List(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_msisdn_BS_List);
 }
 
@@ -12643,7 +12643,7 @@ dissect_gsm_map_OfferedCamel4Functionalities(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_offeredCamel4Functionalities(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_offeredCamel4Functionalities(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OfferedCamel4Functionalities(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_offeredCamel4Functionalities);
 }
 
@@ -12662,10 +12662,10 @@ dissect_gsm_map_ModificationInstruction(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_modifyNotificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modifyNotificationToCSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationInstruction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modifyNotificationToCSE);
 }
-static int dissect_modifyCSI_State_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modifyCSI_State_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationInstruction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modifyCSI_State);
 }
 
@@ -12689,7 +12689,7 @@ dissect_gsm_map_ModificationRequestFor_CF_Info(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_modificationRequestFor_CF_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modificationRequestFor_CF_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationRequestFor_CF_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modificationRequestFor_CF_Info);
 }
 
@@ -12712,7 +12712,7 @@ dissect_gsm_map_ModificationRequestFor_CB_Info(gboolean implicit_tag _U_, tvbuff
 
   return offset;
 }
-static int dissect_modificationRequestFor_CB_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modificationRequestFor_CB_Info_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationRequestFor_CB_Info(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modificationRequestFor_CB_Info);
 }
 
@@ -12733,7 +12733,7 @@ dissect_gsm_map_ModificationRequestFor_CSI(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_modificationRequestFor_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modificationRequestFor_CSI_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationRequestFor_CSI(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_modificationRequestFor_CSI);
 }
 
@@ -12752,7 +12752,7 @@ dissect_gsm_map_ModificationRequestFor_ODB_data(gboolean implicit_tag _U_, tvbuf
 
   return offset;
 }
-static int dissect_modificationRequestFor_ODB_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_modificationRequestFor_ODB_data(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ModificationRequestFor_ODB_data(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_modificationRequestFor_ODB_data);
 }
 
@@ -12793,7 +12793,7 @@ dissect_gsm_map_Ext_ForwardingInfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_forwardingInfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_forwardingInfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_ForwardingInfoFor_CSE(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_forwardingInfoFor_CSE);
 }
 
@@ -12815,7 +12815,7 @@ dissect_gsm_map_Ext_CallBarringInfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_callBarringInfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callBarringInfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_CallBarringInfoFor_CSE(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringInfoFor_CSE);
 }
 
@@ -12840,7 +12840,7 @@ dissect_gsm_map_Ext_SS_InfoFor_CSE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_ss_InfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_InfoFor_CSE_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_SS_InfoFor_CSE(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_InfoFor_CSE);
 }
 
@@ -12944,7 +12944,7 @@ dissect_gsm_map_SS_EventSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
   return offset;
 }
-static int dissect_ss_EventSpecification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ss_EventSpecification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SS_EventSpecification(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ss_EventSpecification);
 }
 
@@ -12968,7 +12968,7 @@ dissect_gsm_map_CCBS_RequestState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_ccbs_RequestState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ccbs_RequestState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CCBS_RequestState(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ccbs_RequestState);
 }
 
@@ -13015,7 +13015,7 @@ dissect_gsm_map_CODEC_Info(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_codec_Info(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_codec_Info(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CODEC_Info(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_codec_Info);
 }
 
@@ -13028,7 +13028,7 @@ dissect_gsm_map_CipheringAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_cipheringAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cipheringAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CipheringAlgorithm(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cipheringAlgorithm);
 }
 
@@ -13041,7 +13041,7 @@ dissect_gsm_map_GroupKeyNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_groupKeyNumber_Vk_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupKeyNumber_Vk_Id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GroupKeyNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_groupKeyNumber_Vk_Id);
 }
 
@@ -13054,7 +13054,7 @@ dissect_gsm_map_VSTK(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_vstk_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vstk_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VSTK(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vstk);
 }
 
@@ -13067,7 +13067,7 @@ dissect_gsm_map_VSTK_RAND(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_vstk_rand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vstk_rand_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VSTK_RAND(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vstk_rand);
 }
 
@@ -13126,7 +13126,7 @@ dissect_gsm_map_TalkerPriority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_talkerPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_talkerPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TalkerPriority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_talkerPriority);
 }
 
@@ -13197,7 +13197,7 @@ dissect_gsm_map_StateAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_stateAttributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_stateAttributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_StateAttributes(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_stateAttributes);
 }
 
@@ -13216,7 +13216,7 @@ dissect_gsm_map_GroupRequestedInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_groupRequestedInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_groupRequestedInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_GroupRequestedInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_groupRequestedInfo);
 }
 
@@ -13308,7 +13308,7 @@ dissect_gsm_map_SGSN_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_sgsn_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sgsn_Capability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SGSN_Capability(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sgsn_Capability);
 }
 
@@ -13466,7 +13466,7 @@ dissect_gsm_map_LocationEstimateType(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_locationEstimateType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationEstimateType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationEstimateType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimateType);
 }
 
@@ -13488,10 +13488,10 @@ dissect_gsm_map_DeferredLocationEventType(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_deferredLocationEventType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_deferredLocationEventType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DeferredLocationEventType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_deferredLocationEventType);
 }
-static int dissect_deferredLocationEventType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_deferredLocationEventType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_DeferredLocationEventType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_deferredLocationEventType);
 }
 
@@ -13509,7 +13509,7 @@ dissect_gsm_map_LocationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_locationType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LocationType(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_locationType);
 }
 
@@ -13530,7 +13530,7 @@ dissect_gsm_map_LCSClientType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_lcsClientType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsClientType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientType);
 }
 
@@ -13542,7 +13542,7 @@ dissect_gsm_map_NameString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_nameString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_nameString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NameString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_nameString);
 }
 
@@ -13564,7 +13564,7 @@ dissect_gsm_map_LCS_FormatIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_lcs_FormatIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_FormatIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_FormatIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_FormatIndicator);
 }
 
@@ -13583,7 +13583,7 @@ dissect_gsm_map_LCSClientName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_lcsClientName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsClientName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSClientName(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsClientName);
 }
 
@@ -13595,7 +13595,7 @@ dissect_gsm_map_RequestorIDString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_requestorIDString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_requestorIDString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RequestorIDString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_requestorIDString);
 }
 
@@ -13614,7 +13614,7 @@ dissect_gsm_map_LCSRequestorID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_lcsRequestorID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsRequestorID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSRequestorID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsRequestorID);
 }
 
@@ -13637,10 +13637,10 @@ dissect_gsm_map_LCS_ClientID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_lcs_ClientID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_ClientID(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_ClientID(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_ClientID);
 }
-static int dissect_lcs_ClientID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_ClientID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_ClientID(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_ClientID);
 }
 
@@ -13653,7 +13653,7 @@ dissect_gsm_map_LCS_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_lcs_Priority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_Priority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_Priority(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_Priority);
 }
 
@@ -13666,7 +13666,7 @@ dissect_gsm_map_Horizontal_Accuracy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_horizontal_accuracy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_horizontal_accuracy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Horizontal_Accuracy(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_horizontal_accuracy);
 }
 
@@ -13679,7 +13679,7 @@ dissect_gsm_map_Vertical_Accuracy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_vertical_accuracy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_vertical_accuracy_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Vertical_Accuracy(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_vertical_accuracy);
 }
 
@@ -13698,7 +13698,7 @@ dissect_gsm_map_ResponseTimeCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_responseTimeCategory(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_responseTimeCategory(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ResponseTimeCategory(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_responseTimeCategory);
 }
 
@@ -13715,7 +13715,7 @@ dissect_gsm_map_ResponseTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_responseTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_responseTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ResponseTime(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_responseTime);
 }
 
@@ -13737,7 +13737,7 @@ dissect_gsm_map_LCS_QoS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_lcs_QoS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_QoS_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_QoS(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_QoS);
 }
 
@@ -13761,7 +13761,7 @@ dissect_gsm_map_SupportedGADShapes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_supportedGADShapes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_supportedGADShapes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SupportedGADShapes(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_supportedGADShapes);
 }
 
@@ -13774,7 +13774,7 @@ dissect_gsm_map_LCS_ReferenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_lcs_ReferenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_ReferenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_ReferenceNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_ReferenceNumber);
 }
 
@@ -13786,7 +13786,7 @@ dissect_gsm_map_LCSCodewordString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_lcsCodewordString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsCodewordString_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSCodewordString(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsCodewordString);
 }
 
@@ -13804,7 +13804,7 @@ dissect_gsm_map_LCSCodeword(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
   return offset;
 }
-static int dissect_lcsCodeword_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsCodeword_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSCodeword(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsCodeword);
 }
 
@@ -13826,10 +13826,10 @@ dissect_gsm_map_PrivacyCheckRelatedAction(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_callSessionUnrelated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callSessionUnrelated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PrivacyCheckRelatedAction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callSessionUnrelated);
 }
-static int dissect_callSessionRelated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callSessionRelated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PrivacyCheckRelatedAction(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_callSessionRelated);
 }
 
@@ -13847,7 +13847,7 @@ dissect_gsm_map_LCS_PrivacyCheck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_lcs_PrivacyCheck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_PrivacyCheck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_PrivacyCheck(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_PrivacyCheck);
 }
 
@@ -13870,7 +13870,7 @@ dissect_gsm_map_AreaType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_areaType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_areaType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AreaType(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_areaType);
 }
 
@@ -13883,7 +13883,7 @@ dissect_gsm_map_AreaIdentification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_areaIdentification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_areaIdentification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AreaIdentification(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_areaIdentification);
 }
 
@@ -13901,7 +13901,7 @@ dissect_gsm_map_Area(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_AreaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_AreaList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Area(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_AreaList_item);
 }
 
@@ -13917,7 +13917,7 @@ dissect_gsm_map_AreaList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_areaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_areaList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AreaList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_areaList);
 }
 
@@ -13934,7 +13934,7 @@ dissect_gsm_map_AreaDefinition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_areaDefinition_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_areaDefinition_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AreaDefinition(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_areaDefinition);
 }
 
@@ -13953,7 +13953,7 @@ dissect_gsm_map_OccurrenceInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_occurrenceInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_occurrenceInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OccurrenceInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_occurrenceInfo);
 }
 
@@ -13966,7 +13966,7 @@ dissect_gsm_map_IntervalTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_intervalTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_intervalTime_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_IntervalTime(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_intervalTime);
 }
 
@@ -13985,7 +13985,7 @@ dissect_gsm_map_AreaEventInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_areaEventInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_areaEventInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AreaEventInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_areaEventInfo);
 }
 
@@ -13998,7 +13998,7 @@ dissect_gsm_map_ReportingAmount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_reportingAmount(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reportingAmount(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReportingAmount(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_reportingAmount);
 }
 
@@ -14011,7 +14011,7 @@ dissect_gsm_map_ReportingInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_reportingInterval(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reportingInterval(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReportingInterval(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_reportingInterval);
 }
 
@@ -14029,7 +14029,7 @@ dissect_gsm_map_PeriodicLDRInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_periodicLDRInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_periodicLDRInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PeriodicLDRInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_periodicLDRInfo);
 }
 
@@ -14048,7 +14048,7 @@ dissect_gsm_map_RAN_Technology(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_ran_Technology_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_ran_Technology_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RAN_Technology(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_ran_Technology);
 }
 
@@ -14067,7 +14067,7 @@ dissect_gsm_map_ReportingPLMN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_PLMNList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_PLMNList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReportingPLMN(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_PLMNList_item);
 }
 
@@ -14083,7 +14083,7 @@ dissect_gsm_map_PLMNList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_plmn_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_plmn_List_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PLMNList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_plmn_List);
 }
 
@@ -14101,7 +14101,7 @@ dissect_gsm_map_ReportingPLMNList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_reportingPLMNList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_reportingPLMNList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ReportingPLMNList(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_reportingPLMNList);
 }
 
@@ -14148,10 +14148,10 @@ dissect_gsm_map_Ext_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_locationEstimate(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationEstimate(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_GeographicalInformation(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimate);
 }
-static int dissect_locationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_locationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Ext_GeographicalInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_locationEstimate);
 }
 
@@ -14164,7 +14164,7 @@ dissect_gsm_map_Add_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_add_LocationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_add_LocationEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Add_GeographicalInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_add_LocationEstimate);
 }
 
@@ -14177,7 +14177,7 @@ dissect_gsm_map_PositioningDataInformation(gboolean implicit_tag _U_, tvbuff_t *
 
   return offset;
 }
-static int dissect_geranPositioningData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_geranPositioningData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PositioningDataInformation(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_geranPositioningData);
 }
 
@@ -14190,7 +14190,7 @@ dissect_gsm_map_UtranPositioningDataInfo(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_utranPositioningData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_utranPositioningData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UtranPositioningDataInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_utranPositioningData);
 }
 
@@ -14209,7 +14209,7 @@ dissect_gsm_map_AccuracyFulfilmentIndicator(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_accuracyFulfilmentIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_accuracyFulfilmentIndicator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AccuracyFulfilmentIndicator(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_accuracyFulfilmentIndicator);
 }
 
@@ -14222,7 +14222,7 @@ dissect_gsm_map_VelocityEstimate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_velocityEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_velocityEstimate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_VelocityEstimate(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_velocityEstimate);
 }
 
@@ -14286,10 +14286,10 @@ dissect_gsm_map_LCSLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_lcsLocationInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsLocationInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSLocationInfo(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lcsLocationInfo);
 }
-static int dissect_lcsLocationInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcsLocationInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCSLocationInfo(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_lcsLocationInfo);
 }
 
@@ -14331,7 +14331,7 @@ dissect_gsm_map_LCS_Event(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_lcs_Event(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_lcs_Event(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_LCS_Event(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_lcs_Event);
 }
 
@@ -14358,7 +14358,7 @@ dissect_gsm_map_TerminationCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_terminationCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_terminationCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_TerminationCause(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_terminationCause);
 }
 
@@ -14377,7 +14377,7 @@ dissect_gsm_map_Deferredmt_lrData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_deferredmt_lrData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_deferredmt_lrData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_Deferredmt_lrData(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_deferredmt_lrData);
 }
 
@@ -14390,7 +14390,7 @@ dissect_gsm_map_SequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_sequenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sequenceNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SequenceNumber(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_sequenceNumber);
 }
 
@@ -14462,7 +14462,7 @@ dissect_gsm_map_SecurityParametersIndex(gboolean implicit_tag _U_, tvbuff_t *tvb
 
   return offset;
 }
-static int dissect_securityParametersIndex(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_securityParametersIndex(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SecurityParametersIndex(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_securityParametersIndex);
 }
 
@@ -14475,7 +14475,7 @@ dissect_gsm_map_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_localValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_localValue(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_localValue);
 }
 
@@ -14500,7 +14500,7 @@ dissect_gsm_map_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_operationCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operationCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OperationCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_operationCode);
 }
 
@@ -14525,7 +14525,7 @@ dissect_gsm_map_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_errorCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_errorCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ErrorCode(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_errorCode);
 }
 
@@ -14552,7 +14552,7 @@ dissect_gsm_map_OriginalComponentIdentifier(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_originalComponentIdentifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_originalComponentIdentifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OriginalComponentIdentifier(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_originalComponentIdentifier);
 }
 
@@ -14565,7 +14565,7 @@ dissect_gsm_map_InitialisationVector(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_initialisationVector(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_initialisationVector(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_InitialisationVector(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_initialisationVector);
 }
 
@@ -14584,7 +14584,7 @@ dissect_gsm_map_SecurityHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
   return offset;
 }
-static int dissect_securityHeader(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_securityHeader(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SecurityHeader(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_securityHeader);
 }
 
@@ -14597,7 +14597,7 @@ dissect_gsm_map_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_protectedPayload(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_protectedPayload(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ProtectedPayload(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_protectedPayload);
 }
 
@@ -14652,7 +14652,7 @@ dissect_gsm_map_NetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_networkResource(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_networkResource(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_NetworkResource(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_networkResource);
 }
 
@@ -14675,7 +14675,7 @@ dissect_gsm_map_AdditionalNetworkResource(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_additionalNetworkResource_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalNetworkResource_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalNetworkResource(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalNetworkResource);
 }
 
@@ -14688,7 +14688,7 @@ dissect_gsm_map_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_operatorSS_Code_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operatorSS_Code_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_OCTET_STRING_SIZE_1(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_operatorSS_Code_item);
 }
 
@@ -14704,7 +14704,7 @@ dissect_gsm_map_T_operatorSS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_operatorSS_Code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_operatorSS_Code_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_T_operatorSS_Code(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_operatorSS_Code);
 }
 
@@ -14740,7 +14740,7 @@ dissect_gsm_map_ExtensibleSystemFailureParam(gboolean implicit_tag _U_, tvbuff_t
 
   return offset;
 }
-static int dissect_extensibleSystemFailureParam(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extensibleSystemFailureParam(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtensibleSystemFailureParam(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extensibleSystemFailureParam);
 }
 
@@ -14854,7 +14854,7 @@ dissect_gsm_map_UnknownSubscriberDiagnostic(gboolean implicit_tag _U_, tvbuff_t 
 
   return offset;
 }
-static int dissect_unknownSubscriberDiagnostic(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unknownSubscriberDiagnostic(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UnknownSubscriberDiagnostic(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_unknownSubscriberDiagnostic);
 }
 
@@ -14916,7 +14916,7 @@ dissect_gsm_map_RoamingNotAllowedCause(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_roamingNotAllowedCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_roamingNotAllowedCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_RoamingNotAllowedCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_roamingNotAllowedCause);
 }
 
@@ -14934,7 +14934,7 @@ dissect_gsm_map_AdditionalRoamingNotAllowedCause(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_additionalRoamingNotAllowedCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_additionalRoamingNotAllowedCause_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AdditionalRoamingNotAllowedCause(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_additionalRoamingNotAllowedCause);
 }
 
@@ -15055,7 +15055,7 @@ dissect_gsm_map_AbsentSubscriberReason(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
   return offset;
 }
-static int dissect_absentSubscriberReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_absentSubscriberReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_AbsentSubscriberReason(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_absentSubscriberReason);
 }
 
@@ -15260,7 +15260,7 @@ dissect_gsm_map_CallBarringCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_callBarringCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_callBarringCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CallBarringCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_callBarringCause);
 }
 
@@ -15279,7 +15279,7 @@ dissect_gsm_map_ExtensibleCallBarredParam(gboolean implicit_tag _U_, tvbuff_t *t
 
   return offset;
 }
-static int dissect_extensibleCallBarredParam(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_extensibleCallBarredParam(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_ExtensibleCallBarredParam(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_extensibleCallBarredParam);
 }
 
@@ -15322,7 +15322,7 @@ dissect_gsm_map_CUG_RejectCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_cug_RejectCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_cug_RejectCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_CUG_RejectCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_cug_RejectCause);
 }
 
@@ -15448,7 +15448,7 @@ dissect_gsm_map_SM_EnumeratedDeliveryFailureCause(gboolean implicit_tag _U_, tvb
 
   return offset;
 }
-static int dissect_sm_EnumeratedDeliveryFailureCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_sm_EnumeratedDeliveryFailureCause(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_SM_EnumeratedDeliveryFailureCause(FALSE, tvb, offset, pinfo, tree, hf_gsm_map_sm_EnumeratedDeliveryFailureCause);
 }
 
@@ -15533,7 +15533,7 @@ dissect_gsm_map_UnauthorizedLCSClient_Diagnostic(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_unauthorizedLCSClient_Diagnostic_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_unauthorizedLCSClient_Diagnostic_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_UnauthorizedLCSClient_Diagnostic(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_unauthorizedLCSClient_Diagnostic);
 }
 
@@ -15574,7 +15574,7 @@ dissect_gsm_map_PositionMethodFailure_Diagnostic(gboolean implicit_tag _U_, tvbu
 
   return offset;
 }
-static int dissect_positionMethodFailure_Diagnostic_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_) {
+static int dissect_positionMethodFailure_Diagnostic_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
   return dissect_gsm_map_PositionMethodFailure_Diagnostic(TRUE, tvb, offset, pinfo, tree, hf_gsm_map_positionMethodFailure_Diagnostic);
 }
 
