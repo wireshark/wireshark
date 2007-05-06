@@ -144,20 +144,19 @@ plugin_reg_handoff(void){
 	</para>
 	   <example><title>Plugin Initialisation.</title>
    <programlisting>
-   <![CDATA[
-void
+<![CDATA[void
 proto_register_foo(void)
 {
 	module_t *foo_module;
 
 	if (proto_foo == -1) {
 		proto_foo = proto_register_protocol (
-			"FOO Protocol",		/* name */
+			"FOO Protocol",	/* name */
 			"FOO",		/* short name */
 			"foo"		/* abbrev */
 			);
 	}
-	foo_module	= prefs_register_protocol(proto_foo, proto_reg_handoff_foo);
+	foo_module = prefs_register_protocol(proto_foo, proto_reg_handoff_foo);
 }]]>	
    </programlisting></example>
 	<para>
@@ -174,8 +173,7 @@ proto_register_foo(void)
 	</para>
 	   <example><title>Plugin Handoff.</title>
    <programlisting>
-   <![CDATA[
-void
+<![CDATA[void
 proto_reg_handoff_foo(void)
 {
 	static int Initialized=FALSE;
@@ -200,15 +198,14 @@ proto_reg_handoff_foo(void)
 	</para>
 	   <example><title>Plugin Dissection.</title>
    <programlisting>
-   <![CDATA[
-static void
+<![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
 	/* Clear out stuff in the info column */
-	if(check_col(pinfo->cinfo,COL_INFO)){
+	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 }]]>	
@@ -241,7 +238,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	   <example><title>Makefile.nmake for Windows.</title>
    <programlisting>
-   <![CDATA[
+<![CDATA[
 include ..\..\config.nmake
 
 ############### no need to modify below this line #########
@@ -272,7 +269,7 @@ maintainer-clean: distclean]]>
    </programlisting></example>
    <example><title>Makefile.am for unix/linux.</title>
    <programlisting>
-   <![CDATA[
+<![CDATA[
 INCLUDES = -I$(top_srcdir)
 
 plugindir = @plugindir@
@@ -316,7 +313,7 @@ EXTRA_DIST = \
 	   </para>
 	   <example><title>Plugin Packet Dissection.</title>
    <programlisting>
-   <![CDATA[
+<![CDATA[
 static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -360,33 +357,27 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	</para>
 	   <example><title>Plugin Registering data structures.</title>
    <programlisting>
-   <![CDATA[
-static hf_register_info hf[] = {
+<![CDATA[static hf_register_info hf[] = {
 	{ &hf_foo_pdu_type,
-	{ "FOO PDU Type",           "foo.type",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
-	"", HFILL }
-	},
-
+		{ "FOO PDU Type", "foo.type",
+		FT_UINT8, BASE_DEC,
+		NULL, 0x0,
+		NULL, HFILL }
+	}
 };
-
 
 /* Setup protocol subtree array */
 static gint *ett[] = {
-	&ett_foo,
-};
-]]>	
+	&ett_foo
+};]]>
    </programlisting></example>
    	<para>
    	Then, after the registration code, we register these arrays.
    	</para>
 	   <example><title>Plugin Registering data structures.</title>
    <programlisting>
-   <![CDATA[
-
-	proto_register_field_array(proto_foo, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-]]>	
+<![CDATA[proto_register_field_array(proto_foo, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));]]>	
    </programlisting></example>
    	<para>
    	The variables hf_foo_pdu_type and ett_foo also need to be declared
@@ -476,30 +467,32 @@ static int hf_foo_sequenceno = -1;
 static int hf_foo_initialip = -1;
 ...
 	{ &hf_foo_flags,
-	{ "FOO PDU Flags",           "foo.flags",
-	FT_UINT8, BASE_HEX, NULL, 0x0,
-	"", HFILL }
+		{ "FOO PDU Flags", "foo.flags",
+		FT_UINT8, BASE_HEX,
+		NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_foo_sequenceno,
-	{ "FOO PDU Sequence Number",           "foo.seqn",
-	FT_UINT16, BASE_DEC, NULL, 0x0,
-	"", HFILL }
+		{ "FOO PDU Sequence Number", "foo.seqn",
+		FT_UINT16, BASE_DEC,
+		NULL, 0x0,
+		NULL, HFILL }
 	},
 	{ &hf_foo_initialip,
-	{ "FOO PDU Initial IP",           "foo.initialip",
-	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"", HFILL }
+		{ "FOO PDU Initial IP", "foo.initialip",
+		FT_IPv4, BASE_NONE,
+		NULL, 0x0,
+		NULL, HFILL }
 	},
-...
-		gint offset = 0;
 
-		ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
-		foo_tree = proto_item_add_subtree(ti, ett_foo);
-		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
-		proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
-		proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
-		proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;
+	gint offset = 0;
 
+	ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+	foo_tree = proto_item_add_subtree(ti, ett_foo);
+	proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
+	proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
+	proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;
 ]]>	
    </programlisting></example>
    <para>
@@ -540,7 +533,7 @@ static const value_string packettypenames[] = {
 		FT_UINT8, BASE_DEC,
 		VALS(packettypenames), 0x0,
 		NULL, HFILL }
-	},
+	}
 ]]>	
    </programlisting></example>
     <para>
@@ -605,8 +598,7 @@ static int hf_foo_priorityflag = -1;
    </para>
 	   <example><title>Enhancing the display.</title>
    <programlisting>
-   <![CDATA[
-static void
+<![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 packet_type = tvb_get_guint8(tvb, 0);
@@ -614,7 +606,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
 	/* Clear out stuff in the info column */
-	if(check_col(pinfo->cinfo,COL_INFO)){
+	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -631,7 +623,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti, ", Type %s",
 			val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
 		foo_tree = proto_item_add_subtree(ti, ett_foo);
-		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
+		proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); 
+		offset += 1;
 ...
 ]]>
    </programlisting></example>
@@ -671,12 +664,14 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   <example><title>Decompressing data packets for dissection.</title>
    <programlisting>
    <![CDATA[
-   	guint8 flags = tvb_get_guint8(tvb, offset); offset ++;
+	guint8 flags = tvb_get_guint8(tvb, offset);
+	offset ++;
 	if (flags & FLAG_COMPRESSED) { /* the remainder of the packet is compressed */
-	 	guint16 orig_size = tvb_get_ntohs(tvb, offset); offset += 2;
-		guchar *decompressed_buffer; /* Buffers for decompression */
-		decompressed_buffer = (guchar*) g_malloc (orig_size);
-		decompress_packet (tvb_get_ptr(tvb, offset, -1), tvb_length_remaining(tvb, offset),
+		guint16 orig_size = tvb_get_ntohs(tvb, offset); 
+		guchar *decompressed_buffer = (guchar*)g_malloc(orig_size);
+		offset += 2;
+		decompress_packet(tvb_get_ptr(tvb, offset, -1), 
+				tvb_length_remaining(tvb, offset),
 				decompressed_buffer, orig_size);
 		/* Now re-setup the tvb buffer to have the new data */
 		next_tvb = tvb_new_real_data(decompressed_buffer, orig_size, orig_size);
@@ -861,7 +856,7 @@ else { /* Not fragmented */
 
 .....
 pinfo->fragmented = save_fragmented;
-	]]>
+]]>
    </programlisting></example>
 	   <para>
 	   Having passed the fragment data to the reassembly handler, we can
@@ -1213,7 +1208,7 @@ static int st_node_packet_types = -1;
 
 static void foo_stats_tree_init(stats_tree* st) {
 	st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);	
-		st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
+	st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 ]]>
    </programlisting></example>
@@ -1225,7 +1220,8 @@ static void foo_stats_tree_init(stats_tree* st) {
 	   <example><title>Generating the stats</title>
 	   <programlisting>
 	   <![CDATA[
-static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo , epan_dissect_t* edt , const void* p) {
+static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo,
+epan_dissect_t* edt, const void* p) {
 	struct FooTap *pi = (struct FooTap *)p;
 	tick_stat_node(st, st_str_packets, 0, FALSE);
 	stats_tree_tick_pivot(st, st_node_packet_types, 
