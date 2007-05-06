@@ -117,9 +117,10 @@
     </section>
     <section id="ChSetupPython">
       <title>Install Python</title>
-      <para>Get the python installer from: 
+      <para>Get the python 2.4 installer from: 
       <ulink url="http://python.org/download/" />and install python
-      into the default location (currently: C:/Python25).</para>
+      into the default location (currently: C:/Python24).</para>
+	  <para>Beware: python 2.5 won't work without modifications.</para>
       <para>Why this is recommended: Cygwin's python package
       doesn't work on some machines, so the Win32 native package is
       recommended.</para>
