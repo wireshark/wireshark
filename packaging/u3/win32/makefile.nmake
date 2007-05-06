@@ -16,6 +16,7 @@ MANIFEST= manifest
 DATA	= data
 
 TOPDIR	= ..\..\..
+TOOLSDIR= ..\tools
 COPY	= xcopy
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y
@@ -24,8 +25,16 @@ U3_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
 
 all:	package
 
-manifest.u3i:	manifest.tmpl $(TOPDIR)\config.nmake
-	sed -e 's/$$(U3_VERSION)/$(U3_VERSION)/g' -e 's/$$(VERSION)/$(VERSION)/g' < manifest.tmpl > manifest.u3i
+uuid.sed: $(TOPDIR)\config.nmake
+	cd $(TOOLSDIR)
+	nmake -f makefile.nmake
+	cd ..\win32
+	$(TOOLSDIR)\utest.exe "$(VERSION)" > $@
+
+manifest.u3i:	manifest.tmpl uuid.sed
+	sed -e 's/$$(U3_VERSION)/$(U3_VERSION)/g' \
+            -e 's/$$(VERSION)/$(VERSION)/g' \
+            -f  uuid.sed < manifest.tmpl > manifest.u3i
 
 host-dirs:
 	if not exist $(HOST) $(MKDIR) $(HOST)
@@ -308,6 +317,7 @@ u3util.exe:	u3util.obj
 
 clean:
 	rm -rf manifest.u3i
+	rm -rf uuid.sed
 	rm -rf $(HOST)
 	rm -rf $(DEVICE)
 	rm -rf $(DATA)
