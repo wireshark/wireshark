@@ -20,16 +20,26 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#include "../config.h"
 #endif
 
 #include <glib.h>
 #include <gmodule.h>
 
+/* Why do we check for these symbols here?   we do not include any real
+   config.h   so these symbols will never be true.
+*/
 #ifdef HAVE_DIRENT_H
 #include <dirent.h>
+#endif
+
+/* Since config.h is broken */
+#if GLIB_MAJOR_VERSION < 2
+#ifndef DIR
+#include <dirent.h>
+#endif
 #endif
 
 #ifdef HAVE_DIRECT_H
@@ -54,6 +64,7 @@ static gboolean plugins_loaded = FALSE;
 void wtap_load_plugins(char* dirname) {
 
 #define FILENAME_LEN	1024
+
 		ETH_DIR       *dir;             /* scanned directory */
 		ETH_DIRENT    *file;            /* current file */
 		const char    *name;
