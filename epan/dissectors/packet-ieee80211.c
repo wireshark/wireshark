@@ -1009,7 +1009,6 @@ static int hf_block_ack_multi_tid_info = -1;
 static int hf_block_ack_request_type = -1;
 static int hf_block_ack_multi_tid_reserved = -1;
 static int hf_block_ack_multi_tid_value = -1;
-static int hf_block_ack_ssc = -1;
 static int hf_block_ack_type = -1;
 /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
@@ -1480,7 +1479,7 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
   switch (FCF_FRAME_TYPE (fcf)) {
 
   case MGT_FRAME:
-    if (is_ht && IS_STRICTLY_ORDERED(fcf))
+    if (is_ht && IS_STRICTLY_ORDERED(FCF_FLAGS(fcf)))
       return MGT_FRAME_HDR_LEN + 4;
 
     return MGT_FRAME_HDR_LEN;
@@ -1515,7 +1514,7 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
 
     if (DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
       len += 2;
-      if (is_ht && IS_STRICTLY_ORDERED(fcf)) {
+      if (is_ht && IS_STRICTLY_ORDERED(FCF_FLAGS(fcf))) {
         len += 4;
       }
     }
@@ -2221,7 +2220,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
     case FIELD_CHANNEL_WIDTH:
-      proto_tree_add_uint(tree, ff_channel_width, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, ff_channel_width, tvb, offset, 1, TRUE);
       length +=1;
       break;
     /*** End: Channel Width Fixed Field - Dustin Johnson ***/
@@ -3267,8 +3266,7 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
   }
 
   info = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_uint_format(cap_tree, ht_info_primary_channel, tvb, offset, 1,
-             info, "Primary channel: 0x%02X", info);
+  proto_tree_add_item(cap_tree, ht_info_primary_channel, tvb, offset, 1, TRUE);
 
   info = tvb_get_guint8 (tvb, ++offset);
   cap_item = proto_tree_add_uint_format(tree, ht_info_delimiter1, tvb,
@@ -5412,7 +5410,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *hdr_tree = NULL;
   proto_tree *fcs_tree = NULL;
   proto_tree *cw_tree = NULL;
-  guint16 hdr_len, ohdr_len;
+  guint16 hdr_len, ohdr_len, htc_len = 0;
   gboolean has_fcs, fcs_good, fcs_bad;
   gint len, reported_len, ivlen;
   gboolean is_amsdu = 0;
@@ -5427,7 +5425,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char *addr1_str = NULL;
   int addr1_hf = -1;
   guint offset;
-  gboolean htc_len = TRUE;
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
@@ -5472,14 +5469,14 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           val_to_str(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)"));
 
-  if (is_ht && IS_STRICTLY_ORDERED(fcf) &&
+  flags = FCF_FLAGS (fcf);
+  more_frags = HAVE_FRAGMENTS (flags);
+
+  if (is_ht && IS_STRICTLY_ORDERED(flags) &&
     ((FCF_FRAME_TYPE(fcf) == MGT_FRAME) || (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
       DATA_FRAME_IS_QOS(frame_type_subtype)))) {
     htc_len = 4;
   }
-  flags = FCF_FLAGS (fcf);
-  more_frags = HAVE_FRAGMENTS (flags);
-
 
   /* Add the radio information, if present, and the FC to the current tree */
   if (tree)
@@ -7666,10 +7663,6 @@ proto_register_ieee80211 (void)
      {"Block Ack Request Type", "wlan.bar.type",
       FT_UINT8, BASE_HEX, VALS(&hf_block_ack_request_type_flags), 0, "Block Ack Request (BAR) Type", HFILL }},
 
-    {&hf_block_ack_ssc,
-     {"Starting Sequence Control", "wlan.ba.ssc",
-      FT_UINT16, BASE_HEX, 0, 0, "Starting Sequence Control", HFILL }},
-
     {&hf_block_ack_type,
      {"Block Ack Request Type", "wlan.ba.type",
       FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }},
@@ -8215,11 +8208,11 @@ proto_register_ieee80211 (void)
 
     {&ff_block_ack_params_tid,
       {"Traffic Identifier", "wlan_mgt.fixed.baparams.tid",
-      FT_UINT16, BASE_HEX, NULL, 0x003C, "Traffic Identifier", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x003C, "Traffic Identifier", HFILL }},
 
     {&ff_block_ack_params_buffer_size,
       {"Number of Buffers (1 Buffer = 2304 Bytes)", "wlan_mgt.fixed.baparams.buffersize",
-      FT_UINT16, BASE_HEX, NULL, 0xFFC0, "Number of Buffers", HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0xFFC0, "Number of Buffers", HFILL }},
     /*** End: Block Ack Params Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Block Ack Timeout Fixed Field - Dustin Johnson ***/
@@ -8235,11 +8228,11 @@ proto_register_ieee80211 (void)
 
     {&ff_block_ack_ssc_fragment,
      {"Fragment", "wlan.fixed.fragment",
-      FT_UINT16, BASE_HEX, 0, 0x000f, "Fragment", HFILL }},
+      FT_UINT16, BASE_DEC, 0, 0x000f, "Fragment", HFILL }},
 
     {&ff_block_ack_ssc_sequence,
      {"Starting Sequence Number", "wlan.fixed.sequence",
-      FT_UINT16, BASE_HEX, 0, 0xfff0, "Starting Sequence Number", HFILL }},
+      FT_UINT16, BASE_DEC, 0, 0xfff0, "Starting Sequence Number", HFILL }},
     /*** End: Block Ack Starting Sequence Control Fixed Field - Dustin Johnson ***/
 
     /*** Begin: DELBA Parameter Set Fixed Field - Dustin Johnson ***/
@@ -9060,9 +9053,9 @@ proto_register_ieee80211 (void)
       "Extension Channel Offset", HFILL }},
 
     {&hta_rec_tx_width,
-     {"Reccomended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
+     {"Recommended Tx Channel Width", "wlan_mgt.hta.capabilities.rectxwidth",
       FT_BOOLEAN, 16, TFS (&hta_rec_tx_width_flag), 0x0004,
-      "Reccomended Transmit Channel Width", HFILL }},
+      "Recommended Transmit Channel Width", HFILL }},
 
     {&hta_rifs_mode,
      {"Reduced Interframe Spacing (RIFS) Mode", "wlan_mgt.hta.capabilities.rifsmode",
@@ -9161,7 +9154,7 @@ proto_register_ieee80211 (void)
 
     {&ht_info_primary_channel,
      {"Primary Channel", "wlan_mgt.ht.info.primarychannel",
-      FT_UINT8, BASE_DEC, NULL, 0xff, "Primary Channel", HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0, "Primary Channel", HFILL }},
 
     {&ht_info_secondary_channel_offset,
      {"Secondary channel offset", "wlan_mgt.ht.info.secchanoffset",
