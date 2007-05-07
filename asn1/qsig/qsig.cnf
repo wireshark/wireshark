@@ -4,6 +4,11 @@
 
 # $Id$
 
+# imported classes
+#.CLASS OPERATION
+#.CLASS ERROR
+
+
 #.EXPORTS  EXTERN VALS_WITH_TABLE
 
 Name
@@ -29,6 +34,11 @@ DivLegInf3Arg
 DivLegFailArg
 IntResultList
 
+#.END
+
+#.CLASS EXTENSION
+ArgumentType 
+extensionId ObjectIdentifierType
 #.END
 
 #.TYPE_RENAME

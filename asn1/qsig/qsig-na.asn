@@ -19,35 +19,35 @@ IMPORTS
       pss1-generic-procedures(11582) msi-class-asn1-97(11)}
  ;
 
---Name-Operations OPERATION ::= {callingName | calledName | connectedName | busyName}
+Name-Operations OPERATION ::= {callingName | calledName | connectedName | busyName}
 
---callingName OPERATION ::= {
---  ARGUMENT         NameArg
---  RETURN RESULT    FALSE
---  ALWAYS RESPONDS  FALSE
---  CODE             local:0
---}
+callingName OPERATION ::= {
+  ARGUMENT         NameArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:0
+}
 
---calledName OPERATION ::= {
---  ARGUMENT         NameArg
---  RETURN RESULT    FALSE
---  ALWAYS RESPONDS  FALSE
---  CODE             local:1
---}
+calledName OPERATION ::= {
+  ARGUMENT         NameArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:1
+}
 
---connectedName OPERATION ::= {
---  ARGUMENT         NameArg
---  RETURN RESULT    FALSE
---  ALWAYS RESPONDS  FALSE
---  CODE             local:2
---}
+connectedName OPERATION ::= {
+  ARGUMENT         NameArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:2
+}
 
---busyName OPERATION ::= {
---  ARGUMENT         NameArg
---  RETURN RESULT    FALSE
---  ALWAYS RESPONDS  FALSE
---  CODE             local:3
---}
+busyName OPERATION ::= {
+  ARGUMENT         NameArg
+  RETURN RESULT    FALSE
+  ALWAYS RESPONDS  FALSE
+  CODE             local:3
+}
 
 NameArg ::= CHOICE {
   name          Name,
@@ -62,7 +62,7 @@ NameExtension ::= CHOICE {
   multiple  [6] IMPLICIT SEQUENCE OF Extension --{{NameExtensionSet}}--
 }
 
---NameExtensionSet EXTENSION ::= {...}
+NameExtensionSet EXTENSION ::= {...}
 
 Name ::= CHOICE {
   namePresentationAllowed     NamePresentationAllowed,

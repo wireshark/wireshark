@@ -8,9 +8,9 @@
 
 #.EXPORTS
 
-SIGNEDxxx
-ENCRYPTEDxxx
-HASHEDxxx
+SIGNED
+ENCRYPTED
+HASHED
 TimeStamp
 ClearToken
 CryptoToken
@@ -27,7 +27,7 @@ H235CertificateSignature
 #.FIELD_RENAME
 
 TypedCertificate/certificate           certificatedata
-SIGNEDxxx/signature                    signaturedata
+SIGNED/signature                       signaturedata
 CryptoToken/cryptoHashedToken/token    hashedToken
 CryptoToken/cryptoSignedToken/token    signedToken
 CryptoToken/cryptoEncryptedToken/token encryptedToken
@@ -42,13 +42,13 @@ TimeStamp  TYPE = FT_ABSOLUTE_TIME  DISPLAY = BASE_NONE
 NonStandardParameter/data  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 #.END
 
-#.FN_HDR SIGNEDxxx
+#.FN_HDR SIGNED
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 #.END
-#.FN_HDR ENCRYPTEDxxx
+#.FN_HDR ENCRYPTED
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 #.END
-#.FN_HDR HASHEDxxx
+#.FN_HDR HASHED
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 #.END
 

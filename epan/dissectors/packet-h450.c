@@ -230,8 +230,8 @@ static int hf_h450_anyEntity = -1;                /* NULL */
 static int hf_h450_discardAnyUnrecognizedInvokePdu = -1;  /* NULL */
 static int hf_h450_clearCallIfAnyInvokePduNotRecognized = -1;  /* NULL */
 static int hf_h450_rejectAnyUnrecognizedInvokePdu = -1;  /* NULL */
-static int hf_h450_rosApdus = -1;                 /* SEQUENCE_OF_ROSxxx */
-static int hf_h450_rosApdus_item = -1;            /* ROSxxx */
+static int hf_h450_rosApdus = -1;                 /* SEQUENCE_OF_ROS */
+static int hf_h450_rosApdus_item = -1;            /* ROS */
 static int hf_h450_addressScreened_presentationAllowedAddress = -1;  /* AddressScreened */
 static int hf_h450_presentationRestricted = -1;   /* NULL */
 static int hf_h450_numberNotAvailableDueToInterworking = -1;  /* NULL */
@@ -503,7 +503,7 @@ static gint ett_h450_NetworkFacilityExtension = -1;
 static gint ett_h450_EntityType = -1;
 static gint ett_h450_InterpretationApdu = -1;
 static gint ett_h450_ServiceApdus = -1;
-static gint ett_h450_SEQUENCE_OF_ROSxxx = -1;
+static gint ett_h450_SEQUENCE_OF_ROS = -1;
 static gint ett_h450_PresentedAddressScreened = -1;
 static gint ett_h450_PresentedAddressUnscreened = -1;
 static gint ett_h450_PresentedNumberScreened = -1;
@@ -714,7 +714,7 @@ static const value_string localOpcode_vals[] = {
 };
 
 static int dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
+static int dissect_ros_ROS(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
 
 
 
@@ -803,14 +803,14 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const per_sequence_t SEQUENCE_OF_ROSxxx_sequence_of[1] = {
-  { &hf_h450_rosApdus_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ros_ROSxxx },
+static const per_sequence_t SEQUENCE_OF_ROS_sequence_of[1] = {
+  { &hf_h450_rosApdus_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ros_ROS },
 };
 
 static int
-dissect_h450_SEQUENCE_OF_ROSxxx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h450_SEQUENCE_OF_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
-                                      ett_h450_SEQUENCE_OF_ROSxxx, SEQUENCE_OF_ROSxxx_sequence_of);
+                                      ett_h450_SEQUENCE_OF_ROS, SEQUENCE_OF_ROS_sequence_of);
 
   return offset;
 }
@@ -822,7 +822,7 @@ static const value_string h450_ServiceApdus_vals[] = {
 };
 
 static const per_choice_t ServiceApdus_choice[] = {
-  {   0, &hf_h450_rosApdus       , ASN1_EXTENSION_ROOT    , dissect_h450_SEQUENCE_OF_ROSxxx },
+  {   0, &hf_h450_rosApdus       , ASN1_EXTENSION_ROOT    , dissect_h450_SEQUENCE_OF_ROS },
   { 0, NULL, 0, NULL }
 };
 
@@ -4091,7 +4091,7 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
    return offset;
 }
 static int 
-dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_){
+dissect_ros_ROS(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_){
 
 	offset = dissect_h4501_ROS(tvb, offset, actx, tree);
 	return offset;
@@ -4384,11 +4384,11 @@ void proto_register_h450(void) {
     { &hf_h450_rosApdus,
       { "rosApdus", "h450.rosApdus",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "h450.SEQUENCE_OF_ROSxxx", HFILL }},
+        "h450.SEQUENCE_OF_ROS", HFILL }},
     { &hf_h450_rosApdus_item,
       { "Item", "h450.rosApdus_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ros.ROSxxx", HFILL }},
+        "ros.ROS", HFILL }},
     { &hf_h450_addressScreened_presentationAllowedAddress,
       { "presentationAllowedAddress", "h450.presentationAllowedAddress",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5399,7 +5399,7 @@ void proto_register_h450(void) {
     &ett_h450_EntityType,
     &ett_h450_InterpretationApdu,
     &ett_h450_ServiceApdus,
-    &ett_h450_SEQUENCE_OF_ROSxxx,
+    &ett_h450_SEQUENCE_OF_ROS,
     &ett_h450_PresentedAddressScreened,
     &ett_h450_PresentedAddressUnscreened,
     &ett_h450_PresentedNumberScreened,

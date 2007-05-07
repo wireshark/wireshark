@@ -125,21 +125,21 @@ static int hf_h235_iv16 = -1;                     /* IV16 */
 static int hf_h235_iv = -1;                       /* OCTET_STRING */
 static int hf_h235_clearSalt = -1;                /* OCTET_STRING */
 static int hf_h235_cryptoEncryptedToken = -1;     /* T_cryptoEncryptedToken */
-static int hf_h235_encryptedToken = -1;           /* ENCRYPTEDxxx */
+static int hf_h235_encryptedToken = -1;           /* ENCRYPTED */
 static int hf_h235_cryptoSignedToken = -1;        /* T_cryptoSignedToken */
-static int hf_h235_signedToken = -1;              /* SIGNEDxxx */
+static int hf_h235_signedToken = -1;              /* SIGNED */
 static int hf_h235_cryptoHashedToken = -1;        /* T_cryptoHashedToken */
 static int hf_h235_hashedVals = -1;               /* ClearToken */
-static int hf_h235_hashedToken = -1;              /* HASHEDxxx */
-static int hf_h235_cryptoPwdEncr = -1;            /* ENCRYPTEDxxx */
+static int hf_h235_hashedToken = -1;              /* HASHED */
+static int hf_h235_cryptoPwdEncr = -1;            /* ENCRYPTED */
 static int hf_h235_secureChannel = -1;            /* KeyMaterial */
-static int hf_h235_sharedSecret = -1;             /* ENCRYPTEDxxx */
-static int hf_h235_certProtectedKey = -1;         /* SIGNEDxxx */
+static int hf_h235_sharedSecret = -1;             /* ENCRYPTED */
+static int hf_h235_certProtectedKey = -1;         /* SIGNED */
 static int hf_h235_secureSharedSecret = -1;       /* V3KeySyncMaterial */
 static int hf_h235_generalId = -1;                /* Identifier */
 static int hf_h235_mrandom = -1;                  /* RandomVal */
 static int hf_h235_srandom = -1;                  /* RandomVal */
-static int hf_h235_encrptval = -1;                /* ENCRYPTEDxxx */
+static int hf_h235_encrptval = -1;                /* ENCRYPTED */
 static int hf_h235_responseRandom = -1;           /* RandomVal */
 static int hf_h235_requestRandom = -1;            /* RandomVal */
 static int hf_h235_keyMaterial = -1;              /* KeyMaterial */
@@ -193,9 +193,9 @@ static gint ett_h235_ClearToken = -1;
 static gint ett_h235_SEQUENCE_OF_ProfileElement = -1;
 static gint ett_h235_ProfileElement = -1;
 static gint ett_h235_Element = -1;
-static gint ett_h235_SIGNEDxxx = -1;
-static gint ett_h235_ENCRYPTEDxxx = -1;
-static gint ett_h235_HASHEDxxx = -1;
+static gint ett_h235_SIGNED = -1;
+static gint ett_h235_ENCRYPTED = -1;
+static gint ett_h235_HASHED = -1;
 static gint ett_h235_Params = -1;
 static gint ett_h235_CryptoToken = -1;
 static gint ett_h235_T_cryptoEncryptedToken = -1;
@@ -562,7 +562,7 @@ dissect_h235_Params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 }
 
 
-static const per_sequence_t ENCRYPTEDxxx_sequence[] = {
+static const per_sequence_t ENCRYPTED_sequence[] = {
   { &hf_h235_algorithmOID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
   { &hf_h235_paramS         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_Params },
   { &hf_h235_encryptedData  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OCTET_STRING },
@@ -570,12 +570,12 @@ static const per_sequence_t ENCRYPTEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_ENCRYPTEDxxx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 49 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h235_ENCRYPTEDxxx, ENCRYPTEDxxx_sequence);
+                                   ett_h235_ENCRYPTED, ENCRYPTED_sequence);
 
   return offset;
 }
@@ -591,7 +591,7 @@ dissect_h235_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t SIGNEDxxx_sequence[] = {
+static const per_sequence_t SIGNED_sequence[] = {
   { &hf_h235_toBeSigned     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xxx_ToBeSigned },
   { &hf_h235_algorithmOID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
   { &hf_h235_paramS         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_Params },
@@ -600,12 +600,12 @@ static const per_sequence_t SIGNEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_SIGNEDxxx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 46 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h235_SIGNEDxxx, SIGNEDxxx_sequence);
+                                   ett_h235_SIGNED, SIGNED_sequence);
 
   return offset;
 }
@@ -643,8 +643,8 @@ static const value_string h235_H235Key_vals[] = {
 
 static const per_choice_t H235Key_choice[] = {
   {   0, &hf_h235_secureChannel  , ASN1_EXTENSION_ROOT    , dissect_h235_KeyMaterial },
-  {   1, &hf_h235_sharedSecret   , ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTEDxxx },
-  {   2, &hf_h235_certProtectedKey, ASN1_EXTENSION_ROOT    , dissect_h235_SIGNEDxxx },
+  {   1, &hf_h235_sharedSecret   , ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTED },
+  {   2, &hf_h235_certProtectedKey, ASN1_EXTENSION_ROOT    , dissect_h235_SIGNED },
   {   3, &hf_h235_secureSharedSecret, ASN1_NOT_EXTENSION_ROOT, dissect_h235_V3KeySyncMaterial },
   { 0, NULL, 0, NULL }
 };
@@ -774,7 +774,7 @@ dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t HASHEDxxx_sequence[] = {
+static const per_sequence_t HASHED_sequence[] = {
   { &hf_h235_algorithmOID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
   { &hf_h235_paramS         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_Params },
   { &hf_h235_hash           , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_BIT_STRING },
@@ -782,12 +782,12 @@ static const per_sequence_t HASHEDxxx_sequence[] = {
 };
 
 int
-dissect_h235_HASHEDxxx(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 52 "h235.cnf"
   proto_tree_add_item_hidden(tree, proto_h235, tvb, offset, 0, FALSE);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_h235_HASHEDxxx, HASHEDxxx_sequence);
+                                   ett_h235_HASHED, HASHED_sequence);
 
   return offset;
 }
@@ -822,7 +822,7 @@ dissect_h235_EncodedPwdCertToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static const per_sequence_t T_cryptoEncryptedToken_sequence[] = {
   { &hf_h235_tokenOID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
-  { &hf_h235_encryptedToken , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ENCRYPTEDxxx },
+  { &hf_h235_encryptedToken , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ENCRYPTED },
   { NULL, 0, 0, NULL }
 };
 
@@ -837,7 +837,7 @@ dissect_h235_T_cryptoEncryptedToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static const per_sequence_t T_cryptoSignedToken_sequence[] = {
   { &hf_h235_tokenOID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
-  { &hf_h235_signedToken    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_SIGNEDxxx },
+  { &hf_h235_signedToken    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_SIGNED },
   { NULL, 0, 0, NULL }
 };
 
@@ -853,7 +853,7 @@ dissect_h235_T_cryptoSignedToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static const per_sequence_t T_cryptoHashedToken_sequence[] = {
   { &hf_h235_tokenOID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
   { &hf_h235_hashedVals     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ClearToken },
-  { &hf_h235_hashedToken    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHEDxxx },
+  { &hf_h235_hashedToken    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHED },
   { NULL, 0, 0, NULL }
 };
 
@@ -878,7 +878,7 @@ static const per_choice_t CryptoToken_choice[] = {
   {   0, &hf_h235_cryptoEncryptedToken, ASN1_EXTENSION_ROOT    , dissect_h235_T_cryptoEncryptedToken },
   {   1, &hf_h235_cryptoSignedToken, ASN1_EXTENSION_ROOT    , dissect_h235_T_cryptoSignedToken },
   {   2, &hf_h235_cryptoHashedToken, ASN1_EXTENSION_ROOT    , dissect_h235_T_cryptoHashedToken },
-  {   3, &hf_h235_cryptoPwdEncr  , ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTEDxxx },
+  {   3, &hf_h235_cryptoPwdEncr  , ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTED },
   { 0, NULL, 0, NULL }
 };
 
@@ -900,7 +900,7 @@ static const per_sequence_t KeySignedMaterial_sequence[] = {
   { &hf_h235_mrandom        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_RandomVal },
   { &hf_h235_srandom        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h235_RandomVal },
   { &hf_h235_timeStamp      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_h235_TimeStamp },
-  { &hf_h235_encrptval      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ENCRYPTEDxxx },
+  { &hf_h235_encrptval      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ENCRYPTED },
   { NULL, 0, 0, NULL }
 };
 
@@ -1401,7 +1401,7 @@ void proto_register_h235(void) {
     { &hf_h235_encryptedToken,
       { "token", "h235.token",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h235_cryptoSignedToken,
       { "cryptoSignedToken", "h235.cryptoSignedToken",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1409,7 +1409,7 @@ void proto_register_h235(void) {
     { &hf_h235_signedToken,
       { "token", "h235.token",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.SIGNEDxxx", HFILL }},
+        "h235.SIGNED", HFILL }},
     { &hf_h235_cryptoHashedToken,
       { "cryptoHashedToken", "h235.cryptoHashedToken",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1421,11 +1421,11 @@ void proto_register_h235(void) {
     { &hf_h235_hashedToken,
       { "token", "h235.token",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.HASHEDxxx", HFILL }},
+        "h235.HASHED", HFILL }},
     { &hf_h235_cryptoPwdEncr,
       { "cryptoPwdEncr", "h235.cryptoPwdEncr",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h235_secureChannel,
       { "secureChannel", "h235.secureChannel",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -1433,11 +1433,11 @@ void proto_register_h235(void) {
     { &hf_h235_sharedSecret,
       { "sharedSecret", "h235.sharedSecret",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h235_certProtectedKey,
       { "certProtectedKey", "h235.certProtectedKey",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.SIGNEDxxx", HFILL }},
+        "h235.SIGNED", HFILL }},
     { &hf_h235_secureSharedSecret,
       { "secureSharedSecret", "h235.secureSharedSecret",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1457,7 +1457,7 @@ void proto_register_h235(void) {
     { &hf_h235_encrptval,
       { "encrptval", "h235.encrptval",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h235_responseRandom,
       { "responseRandom", "h235.responseRandom",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -1609,9 +1609,9 @@ void proto_register_h235(void) {
     &ett_h235_SEQUENCE_OF_ProfileElement,
     &ett_h235_ProfileElement,
     &ett_h235_Element,
-    &ett_h235_SIGNEDxxx,
-    &ett_h235_ENCRYPTEDxxx,
-    &ett_h235_HASHEDxxx,
+    &ett_h235_SIGNED,
+    &ett_h235_ENCRYPTED,
+    &ett_h235_HASHED,
     &ett_h235_Params,
     &ett_h235_CryptoToken,
     &ett_h235_T_cryptoEncryptedToken,

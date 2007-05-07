@@ -143,6 +143,7 @@ def asn2c(id):
   return id.replace('-', '_').replace('.', '_')
 
 input_file = None
+lexer = None
 
 class LexError(Exception):
   def __init__(self, tok, filename=None):
@@ -159,11 +160,16 @@ class ParseError(Exception):
   def __init__(self, tok, filename=None):
     self.tok = tok
     self.filename = filename
-    self.msg =  "Unexpected token %r" % (self.tok.value)
+    self.msg =  "Unexpected token %s(%r)" % (self.tok.type, self.tok.value)
     Exception.__init__(self, self.msg)
   def __repr__(self):
     return "%s:%d: %s" % (self.filename, self.tok.lineno, self.msg)
   __str__ = __repr__
+
+
+states = (
+  ('braceignore','exclusive'),
+)
 
 # 11 ASN.1 lexical items
 
@@ -185,12 +191,12 @@ static_tokens = {
   r'\[' : 'LBRACK',
   r'\]' : 'RBRACK',
   r'-'  : 'MINUS',
-  r':'  : 'COLON',
+#  r':'  : 'COLON',
   #r'='  : 'EQ',
   #r'"'  : 'QUOTATION',
   #r"'"  : 'APOSTROPHE',
   r';'  : 'SEMICOLON',
-  #r'@'  : 'AT',
+  r'@'  : 'AT',
   #r'\!' : 'EXCLAMATION',
   r'\^' : 'CIRCUMFLEX',
   r'\&' : 'AMPERSAND'
@@ -211,7 +217,7 @@ reserved_words = {
   'BY'          : 'BY',
   'CHARACTER'   : 'CHARACTER',
   'CHOICE'      : 'CHOICE',
-#  'CLASS'       : 'CLASS',
+  'CLASS'       : 'CLASS',
   'COMPONENT'   : 'COMPONENT',
   'COMPONENTS'  : 'COMPONENTS',
   'CONSTRAINED' : 'CONSTRAINED',
@@ -258,7 +264,7 @@ reserved_words = {
   'SET'         : 'SET',
   'SIZE'        : 'SIZE',
   'STRING'      : 'STRING',
-#  'SYNTAX'      : 'SYNTAX',
+  'SYNTAX'      : 'SYNTAX',
   'TAGS'        : 'TAGS',
   'TRUE'        : 'TRUE',
   'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
@@ -304,7 +310,7 @@ def t_HSTRING (t):
 
 def t_QSTRING (t):
     r'"([^"]|"")*"'
-    return t # XXX might want to un-""
+    return t 
 
 def t_UCASE_IDENT (t):
     r"[A-Z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
@@ -347,7 +353,39 @@ def t_NEWLINE(t):
 def t_error(t):
   global input_file
   raise LexError(t, input_file)
-    
+
+# state 'braceignore'
+
+def t_braceignore_lbrace(t):     
+  r'\{'
+  t.lexer.level +=1                
+
+def t_braceignore_rbrace(t):
+  r'\}'
+  t.lexer.level -=1
+  # If closing brace, return token
+  if t.lexer.level == 0:
+    t.type = 'RBRACE'
+    return t
+
+def t_braceignore_QSTRING (t):
+  r'"([^"]|"")*"'
+
+def t_braceignore_COMMENT(t):
+  r"--(-[^\-\n]|[^\-\n])*(--|\n|-\n|$|-$)"
+  if (t.value.find("\n") >= 0) : t.lexer.lineno += 1
+
+def t_braceignore_nonspace(t):
+   r'[^\s\{\}\"-]+|-(?!-)'
+
+t_braceignore_ignore = " \t\r"
+
+def t_braceignore_NEWLINE(t):
+  r'\n+'
+  t.lexer.lineno += t.value.count("\n")
+
+def t_braceignore_error(t):
+  t.lexer.skip(1)
 
 class Ctx:
     def __init__ (self, defined_dict, indent = 0):
@@ -513,6 +551,21 @@ class EthCtx:
     self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_imp.append(ident)
 
+  #--- eth_import_class --------------------------------------------------------
+  def eth_import_class(self, ident, mod, proto):
+    #print "eth_import_class(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto)
+    if self.objectclass.has_key(ident):
+      #print "already defined import=%s, module=%s" % (str(self.objectclass[ident]['import']), self.objectclass[ident]['module'])
+      if not self.objectclass[ident]['import'] and (self.objectclass[ident]['module'] == mod) :
+        return  # OK - already defined
+      elif self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == mod) :
+        return  # OK - already imported
+      else:
+        raise "Duplicate object class for " + ident
+    self.objectclass[ident] = {'import'  : mod, 'proto' : proto,
+                        'ethname' : '' }
+    self.objectclass_imp.append(ident)
+
   #--- eth_import_value -------------------------------------------------------
   def eth_import_value(self, ident, mod, proto):
     #print "eth_import_value(ident='%s', mod='%s', prot='%s')" % (ident, mod, prot)
@@ -614,6 +667,9 @@ class EthCtx:
     self.value = {}
     self.value_ord = []
     self.value_imp = []
+    self.objectclass = {}
+    self.objectclass_ord = []
+    self.objectclass_imp = []
     #--- Modules ------------
     self.modules = []
     #--- types -------------------
@@ -1389,6 +1445,11 @@ class EthCtx:
       print "-" * 100
       for t in self.value_imp:
         print "%-40s %-24s %-24s" % (t, self.value[t]['import'], self.value[t]['proto'])
+      print "\n# Imported Object Classes"
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "-" * 100
+      for t in self.objectclass_imp:
+        print "%-40s %-24s %-24s" % (t, self.objectclass[t]['import'], self.objectclass[t]['proto'])
       print "\n# Exported Types"
       print "%-31s %s" % ("Wireshark type", "Export Flag")
       print "-" * 100
@@ -2420,6 +2481,16 @@ class Value (Node):
   def get_dep(self):
     return None
 
+#--- ObjectClass ---------------------------------------------------------------------
+class ObjectClass (Node):
+  def __init__(self,*args, **kw) :
+    self.name = None
+    Node.__init__ (self,*args, **kw)
+
+  def SetName(self, name):
+    self.name = name
+    add_class_ident(self.name)
+
 #--- Tag ---------------------------------------------------------------
 class Tag (Node):
   def to_python (self, ctx):
@@ -2566,6 +2637,8 @@ class Module_Body (Node):
           for s in i.symbol_list:
             if isinstance(s, Type_Ref):
               ectx.eth_import_type(s.val, mod, proto)
+            elif isinstance(s, Class_Ref):
+              ectx.eth_import_class(s.val, mod, proto)
             else:
               ectx.eth_import_value(s, mod, proto)
         for a in self.assign_list:
@@ -2616,6 +2689,14 @@ class Type_Assign (Node):
 class PyQuote (Node):
     def to_python (self, ctx):
         return ctx.register_pyquote (self.val)
+
+#--- Class_Ref -----------------------------------------------------------------
+class Class_Ref (Type):
+  def to_python (self, ctx):
+    return self.val
+
+  def eth_tname(self):
+    return asn2c(self.val)
 
 #--- Type_Ref -----------------------------------------------------------------
 class Type_Ref (Type):
@@ -3956,18 +4037,23 @@ def p_module_list_2 (t):
 
 # 11.2 Type references
 def p_type_ref (t):
-    'type_ref : UCASE_IDENT'
-    t[0] = Type_Ref(val=t[1])
+  'type_ref : UCASE_IDENT'
+  t[0] = Type_Ref(val=t[1])
+
+# 11.3 Identifiers
+def p_identifier (t):
+  'identifier : LCASE_IDENT'
+  t[0] = t[1]
 
 # 11.4 Value references
 def p_valuereference (t):
-    'valuereference : LCASE_IDENT'
-    t[0] = t[1]
+  'valuereference : LCASE_IDENT'
+  t[0] = t[1]
 
 # 11.5 Module references
 def p_modulereference (t):
-    'modulereference : UCASE_IDENT'
-    t[0] = t[1]
+  'modulereference : UCASE_IDENT'
+  t[0] = t[1]
 
 
 # 12 Module definition --------------------------------------------------------
@@ -3978,15 +4064,15 @@ def p_module_def (t):
     t[0] = Module (ident = t[1], tag_def = t[3], body = t[6])
 
 def p_TagDefault_1 (t):
-    '''TagDefault : EXPLICIT TAGS
-    | IMPLICIT TAGS
-    | AUTOMATIC TAGS'''
-    t[0] = Default_Tags (dfl_tag = t[1])
+  '''TagDefault : EXPLICIT TAGS
+  | IMPLICIT TAGS
+  | AUTOMATIC TAGS'''
+  t[0] = Default_Tags (dfl_tag = t[1])
 
 def p_TagDefault_2 (t):
-    'TagDefault : '
-    # 12.2 The "TagDefault" is taken as EXPLICIT TAGS if it is "empty".
-    t[0] = Default_Tags (dfl_tag = 'EXPLICIT') 
+  'TagDefault : '
+  # 12.2 The "TagDefault" is taken as EXPLICIT TAGS if it is "empty".
+  t[0] = Default_Tags (dfl_tag = 'EXPLICIT') 
 
 def p_ModuleIdentifier_1 (t):
   'ModuleIdentifier : modulereference DefinitiveIdentifier' # name, oid
@@ -4056,78 +4142,77 @@ def p_exp_sym_list_2 (t):
     
 
 def p_Imports_1(t):
-    'Imports : IMPORTS SymbolsImported SEMICOLON'
-    t[0] = t[2]
+  'Imports : IMPORTS SymbolsImported SEMICOLON'
+  t[0] = t[2]
 
 def p_Imports_2 (t):
-    'Imports : '
-    t[0] = []
+  'Imports : '
+  t[0] = []
 
 def p_SymbolsImported_1(t):
-    'SymbolsImported : '
-    t[0] = []
+  'SymbolsImported : '
+  t[0] = []
 
 def p_SymbolsImported_2 (t):
-    'SymbolsImported : SymbolsFromModuleList'
-    t[0] = t[1]
+  'SymbolsImported : SymbolsFromModuleList'
+  t[0] = t[1]
 
 def p_SymbolsFromModuleList_1 (t):
-    'SymbolsFromModuleList : SymbolsFromModuleList SymbolsFromModule'
-    t[0] = t[1] + [t[2]]
+   'SymbolsFromModuleList : SymbolsFromModuleList SymbolsFromModule'
+   t[0] = t[1] + [t[2]]
 
 def p_SymbolsFromModuleList_2 (t):
-    'SymbolsFromModuleList : SymbolsFromModule'
-    t[0] = [t[1]]
+   'SymbolsFromModuleList : SymbolsFromModule'
+   t[0] = [t[1]]
 
 def p_SymbolsFromModule (t):
-    'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
-    t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
+  'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
+  t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
 
 def p_GlobalModuleReference (t):
   'GlobalModuleReference : modulereference assigned_ident'
   t [0] = Node('module_ident', val = t[1], ident = t[2])
 
 def p_SymbolList_1 (t):
-    'SymbolList : Symbol'
-    t[0] = [t[1]]
+  'SymbolList : Symbol'
+  t[0] = [t[1]]
 
 def p_SymbolList_2 (t):
-    'SymbolList : SymbolList COMMA Symbol'
-    t[0] = t[1] + [t[3]]
+  'SymbolList : SymbolList COMMA Symbol'
+  t[0] = t[1] + [t[3]]
 
 def p_Symbol (t):
-    '''Symbol : type_ref
-              | ParameterizedReference
-              | identifier''' # XXX omit DefinedMacroName
-    t[0] = t[1]
+  '''Symbol : Reference
+            | ParameterizedReference'''
+  t[0] = t[1]
 
 def p_Reference (t):
-    '''Reference : type_ref
-                 | valuereference'''
-    t[0] = t[1]
+  '''Reference : type_ref
+               | valuereference
+               | objectclassreference'''
+  t[0] = t[1]
 
 def p_AssignmentList_1 (t):
-    'AssignmentList : AssignmentList Assignment'
-    t[0] = t[1] + [t[2]]
+  'AssignmentList : AssignmentList Assignment'
+  t[0] = t[1] + [t[2]]
 
 def p_AssignmentList_2 (t):
-    'AssignmentList : Assignment SEMICOLON'
-    t[0] = [t[1]]
+  'AssignmentList : Assignment SEMICOLON'
+  t[0] = [t[1]]
 
 def p_AssignmentList_3 (t):
-    'AssignmentList : Assignment'
-    t[0] = [t[1]]
+  'AssignmentList : Assignment'
+  t[0] = [t[1]]
 
 def p_Assignment (t):
-    '''Assignment : TypeAssignment
-                  | ValueAssignment
-                  | pyquote
-                  | ParameterizedTypeAssignment'''
-    t[0] = t[1]
-
-def p_pyquote (t):
-    '''pyquote : PYQUOTE'''
-    t[0] = PyQuote (val = t[1])
+  '''Assignment : TypeAssignment
+                | ValueAssignment
+                | ObjectClassAssignment
+                | ObjectAssignment
+                | ObjectSetAssignment
+                | ParameterizedTypeAssignment
+                | pyquote'''
+  t[0] = t[1]
 
 
 # 13 Referencing type and value definitions -----------------------------------
@@ -4155,7 +4240,7 @@ def p_TypeAssignment (t):
 
 # 15.2
 def p_ValueAssignment (t):
-  'ValueAssignment : identifier Type ASSIGNMENT Value'
+  'ValueAssignment : valuereference Type ASSIGNMENT Value'
   t[0] = value_assign (ident = t[1], typ = t[2], val = t[4])
 
 
@@ -4621,10 +4706,6 @@ def p_AnyType (t):
     'AnyType : ANY'
     t[0] = AnyType ()
 
-#def p_any_type_2 (t):
-#    'any_type : ANY DEFINED BY identifier'
-#    t[0] = Literal (val='asn1.ANY_constr(def_by="%s")' % t[4]) # XXX
-
 
 # 31 Notation for the object identifier type ----------------------------------
 
@@ -4657,8 +4738,8 @@ def p_NameForm (t):
   t [0] = t[1]
 
 def p_NumberForm (t):
-  '''NumberForm : NUMBER
-                | DefinedValue'''
+  '''NumberForm : NUMBER'''
+#                | DefinedValue'''
   t [0] = t[1]
 
 def p_NameAndNumberForm (t):
@@ -5000,10 +5081,6 @@ def p_ext_val_ref (t):
 
 
 # see X.208 if you are dubious about lcase only for identifier 
-def p_identifier (t):
-    'identifier : LCASE_IDENT'
-    t[0] = t[1]
-
 
 def p_binary_string (t):
     'binary_string : BSTRING'
@@ -5030,6 +5107,18 @@ def p_number (t):
 
 def p_objectclassreference (t):
   'objectclassreference : CLASS_IDENT'
+  t[0] = Class_Ref(val=t[1])
+
+# 7.2 Information object references
+
+#def p_objectreference (t):
+#  'objectreference : LCASE_IDENT'
+#  t[0] = t[1]
+
+# 7.3 Information object set references
+
+def p_objectsetreference (t):
+  'objectsetreference : UCASE_IDENT'
   t[0] = t[1]
 
 # 7.4 Type field references
@@ -5060,11 +5149,57 @@ def p_UsefulObjectClassReference (t):
 
 # 9 Information object class definition and assignment
 
+# 9.1
+def p_ObjectClassAssignment (t):
+  '''ObjectClassAssignment : CLASS_IDENT ASSIGNMENT ObjectClass
+                           | UCASE_IDENT ASSIGNMENT ObjectClass'''
+  t[0] = t[3]
+  t[0].SetName(t[1])
+
+# 9.2
+def p_ObjectClass (t):
+  '''ObjectClass : ObjectClassDefn'''
+  t[0] = t[1]
+
+# 9.3
+def p_ObjectClassDefn (t):
+  '''ObjectClassDefn : CLASS lbraceignore rbraceignore
+                     | CLASS lbraceignore rbraceignore WithSyntaxSpec'''
+  t[0] = ObjectClass()
+
+def p_WithSyntaxSpec (t):
+  'WithSyntaxSpec : WITH SYNTAX lbraceignore rbraceignore'
+  t[0] = None
+
 # 9.14
 def p_FieldName (t):
   '''FieldName : typefieldreference
                | valuefieldreference'''
   t[0] = t[1]
+
+# 11 Information object definition and assignment
+
+# 11.1
+def p_ObjectAssignment (t):
+  'ObjectAssignment : valuereference CLASS_IDENT ASSIGNMENT Object'
+  t[0] = Node('ObjectAssignment', name=t[1], cls=t[2], val=t[4])
+
+# 11.4
+def p_Object (t):
+  'Object : lbraceignore rbraceignore'
+  t[0] = None
+
+# 12 Information object set definition and assignment
+
+# 12.1
+def p_ObjectSetAssignment (t):
+  'ObjectSetAssignment : objectsetreference CLASS_IDENT ASSIGNMENT ObjectSet'
+  t[0] = Node('ObjectSetAssignment', name=t[1], cls=t[2], val=t[4])
+
+# 12.3
+def p_ObjectSet (t):
+  'ObjectSet : lbraceignore rbraceignore'
+  t[0] = None
 
 # 14 Notation for the object class field type ---------------------------------
 
@@ -5093,7 +5228,8 @@ object_class_typerefs = {
 }
 
 class_types_creator = {
-  'OpenType'     : lambda : OpenType(),
+  'ObjectIdentifierType' : lambda : ObjectIdentifierType(),
+  'OpenType'             : lambda : OpenType(),
 }
 
 def is_class_ident(name):
@@ -5103,7 +5239,10 @@ def add_class_ident(name):
   class_names[name] = name
 
 def get_type_from_class(cls, fld):
-  key = cls + '/' + fld
+  if (isinstance(cls, Class_Ref)):
+    key = cls.val + '/' + fld
+  else:
+    key = cls + '/' + fld
 
   if object_class_typerefs.has_key(key):
     return Type_Ref(val=object_class_typerefs[key])
@@ -5136,8 +5275,8 @@ def set_type_to_class(cls, fld, typename, typeref = None):
 
 # 8.1
 def p_GeneralConstraint (t):
-  '''GeneralConstraint : UserDefinedConstraint'''
-#                         | TableConstraint
+  '''GeneralConstraint : UserDefinedConstraint
+                       | TableConstraint'''
 #                         | ContentsConstraint''
   t[0] = t[1]
 
@@ -5165,6 +5304,22 @@ def p_UserDefinedConstraintParameter (t):
   'UserDefinedConstraintParameter : type_ref'
   t[0] = t[1]
 
+# 10 Table constraints, including component relation constraints
+
+# 10.3
+def p_TableConstraint (t):
+  '''TableConstraint : SimpleTableConstraint
+                     | ComponentRelationConstraint'''
+  t[0] = Constraint(type = 'Table', subtype = t[1]) 
+
+def p_SimpleTableConstraint (t):
+  'SimpleTableConstraint : LBRACE UCASE_IDENT RBRACE'
+  t[0] = t[2]
+
+# 10.7
+def p_ComponentRelationConstraint (t):
+  'ComponentRelationConstraint : LBRACE UCASE_IDENT RBRACE LBRACE AT LCASE_IDENT RBRACE'
+  t[0] = t[2] + '@' + t[6]
 
 #--- ITU-T Recommendation X.683 -----------------------------------------------
 
@@ -5176,28 +5331,31 @@ def p_UserDefinedConstraintParameter (t):
 def p_ParameterizedTypeAssignment (t):
   'ParameterizedTypeAssignment : UCASE_IDENT ParameterList ASSIGNMENT Type'
   t[0] = t[4]
-  t[0].SetName(t[1] + 'xxx')
+  t[0].SetName(t[1])  # t[0].SetName(t[1] + 'xxx')
 
 # 8.3
 def p_ParameterList (t):
-    'ParameterList : LBRACE Parameters RBRACE'
-    t[0] = t[2]
+  'ParameterList : lbraceignore rbraceignore'
 
-def p_Parameters_1 (t):
-  'Parameters : Parameter'
-  t[0] = [t[1]]
+#def p_ParameterList (t):
+#  'ParameterList : LBRACE Parameters RBRACE'
+#  t[0] = t[2]
 
-def p_Parameters_2 (t):
-  'Parameters : Parameters COMMA Parameter'
-  t[0] = t[1] + [t[3]]
+#def p_Parameters_1 (t):
+#  'Parameters : Parameter'
+#  t[0] = [t[1]]
 
-def p_Parameter_1 (t):
-  'Parameter : Type COLON Reference'
-  t[0] = [t[1], t[3]]
+#def p_Parameters_2 (t):
+#  'Parameters : Parameters COMMA Parameter'
+#  t[0] = t[1] + [t[3]]
 
-def p_Parameter_2 (t):
-  'Parameter : Reference'
-  t[0] = t[1]
+#def p_Parameter_1 (t):
+#  'Parameter : Type COLON Reference'
+#  t[0] = [t[1], t[3]]
+
+#def p_Parameter_2 (t):
+#  'Parameter : Reference'
+#  t[0] = t[1]
 
 
 # 9 Referencing parameterized definitions -------------------------------------
@@ -5206,36 +5364,64 @@ def p_Parameter_2 (t):
 def p_ParameterizedReference (t):
   'ParameterizedReference : type_ref LBRACE RBRACE'
   t[0] = t[1]
-  t[0].val += 'xxx'
+  #t[0].val += 'xxx'
 
 # 9.2
 def p_ParameterizedType (t):
   'ParameterizedType : type_ref ActualParameterList'
   t[0] = t[1]
-  t[0].val += 'xxx'
+  #t[0].val += 'xxx'
 
 # 9.5
 def p_ActualParameterList (t):
-    'ActualParameterList : LBRACE ActualParameters RBRACE'
-    t[0] = t[2]
+  'ActualParameterList : lbraceignore rbraceignore'
 
-def p_ActualParameters_1 (t):
-  'ActualParameters : ActualParameter'
-  t[0] = [t[1]]
+#def p_ActualParameterList (t):
+#  'ActualParameterList : LBRACE ActualParameters RBRACE'
+#  t[0] = t[2]
 
-def p_ActualParameters_2 (t):
-  'ActualParameters : ActualParameters COMMA ActualParameter'
-  t[0] = t[1] + [t[3]]
+#def p_ActualParameters_1 (t):
+#  'ActualParameters : ActualParameter'
+#  t[0] = [t[1]]
 
-def p_ActualParameter (t):
-  '''ActualParameter : Type
-                     | Value'''
+#def p_ActualParameters_2 (t):
+#  'ActualParameters : ActualParameters COMMA ActualParameter'
+#  t[0] = t[1] + [t[3]]
+
+#def p_ActualParameter (t):
+#  '''ActualParameter : Type
+#                     | Value'''
+#  t[0] = t[1]
+
+
+#  {...} block to be ignored
+def p_lbraceignore(t):
+  'lbraceignore : braceignorebegin LBRACE'
   t[0] = t[1]
 
+def p_braceignorebegin(t):
+  'braceignorebegin : '
+  global lexer
+  lexer.level = 1
+  lexer.begin('braceignore')
+
+def p_rbraceignore(t):
+  'rbraceignore : braceignoreend RBRACE'
+  t[0] = t[2]
+
+def p_braceignoreend(t):
+  'braceignoreend : '
+  global lexer
+  lexer.begin('INITIAL')
 
 def p_error(t):
   global input_file
   raise ParseError(t, input_file)
+
+def p_pyquote (t):
+    '''pyquote : PYQUOTE'''
+    t[0] = PyQuote (val = t[1])
+
 
 def testlex (s):
     lexer.input (s)
@@ -5303,6 +5489,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c conform_file] [-e] input_file(s) ...
 
 def eth_main():
   global input_file
+  global lexer
   print "ASN.1 to Wireshark dissector compiler";
   try:
     opts, args = getopt.getopt(sys.argv[1:], "h?d:buXp:FTo:O:c:I:eSs:kL");

@@ -10,24 +10,20 @@ Manufacturer-specific-service-extension-class-asn1-97 {iso(1) standard(0)
   pss1-generic-procedures(11582) msi-class-asn1-97(11)} DEFINITIONS ::=
 BEGIN
 
---EXTENSION ::= CLASS {
---  &ArgumentType  ,
---  &extensionId   OBJECT IDENTIFIER
---} WITH SYNTAX {
---  ARGUMENT &ArgumentType
---  IDENTIFIER &extensionId
---}
-
---Extension{EXTENSION:ExtensionSet} ::= SEQUENCE {
---  extensionId        EXTENSION.&extensionId({Extensionset}),
---  extensionArgument  EXTENSION.&ArgumentType({ExtensionSet}{@extensionId})
---}
-Extension ::= SEQUENCE {
-  extensionId        OBJECT IDENTIFIER,
-  extensionArgument  ANY
+EXTENSION ::= CLASS {
+  &ArgumentType  ,
+  &extensionId   OBJECT IDENTIFIER
+} WITH SYNTAX {
+  ARGUMENT &ArgumentType
+  IDENTIFIER &extensionId
 }
 
---Extensionset EXTENSION ::= {...}
+Extension{EXTENSION:ExtensionSet} ::= SEQUENCE {
+  extensionId        EXTENSION.&extensionId({Extensionset}),
+  extensionArgument  EXTENSION.&ArgumentType({ExtensionSet}{@extensionId})
+}
+
+Extensionset EXTENSION ::= {...}
 
 -- ExtensionSet is a set of objects of class EXTENSION. Element extensionId is constrained to be 
 -- the identifier of an object from that set, and element extensionArgument is constrained to be the 

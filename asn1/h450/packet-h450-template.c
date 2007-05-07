@@ -301,7 +301,7 @@ static const value_string localOpcode_vals[] = {
 };
 
 static int dissect_h4501_Argument(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
+static int dissect_ros_ROS(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_);
 
 
 
@@ -853,7 +853,7 @@ PER_NOT_DECODED_YET("Unrecognized H.450.x operation");
    return offset;
 }
 static int 
-dissect_ros_ROSxxx(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_){
+dissect_ros_ROS(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_ind _U_){
 
 	offset = dissect_h4501_ROS(tvb, offset, actx, tree);
 	return offset;

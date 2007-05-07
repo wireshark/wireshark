@@ -502,14 +502,14 @@ static int hf_h225_icv = -1;                      /* BIT_STRING */
 static int hf_h225_cryptoEPPwdHash = -1;          /* T_cryptoEPPwdHash */
 static int hf_h225_alias = -1;                    /* AliasAddress */
 static int hf_h225_timeStamp = -1;                /* TimeStamp */
-static int hf_h225_token = -1;                    /* HASHEDxxx */
+static int hf_h225_token = -1;                    /* HASHED */
 static int hf_h225_cryptoGKPwdHash = -1;          /* T_cryptoGKPwdHash */
 static int hf_h225_gatekeeperId = -1;             /* GatekeeperIdentifier */
-static int hf_h225_cryptoEPPwdEncr = -1;          /* ENCRYPTEDxxx */
-static int hf_h225_cryptoGKPwdEncr = -1;          /* ENCRYPTEDxxx */
-static int hf_h225_cryptoEPCert = -1;             /* SIGNEDxxx */
-static int hf_h225_cryptoGKCert = -1;             /* SIGNEDxxx */
-static int hf_h225_cryptoFastStart = -1;          /* SIGNEDxxx */
+static int hf_h225_cryptoEPPwdEncr = -1;          /* ENCRYPTED */
+static int hf_h225_cryptoGKPwdEncr = -1;          /* ENCRYPTED */
+static int hf_h225_cryptoEPCert = -1;             /* SIGNED */
+static int hf_h225_cryptoGKCert = -1;             /* SIGNED */
+static int hf_h225_cryptoFastStart = -1;          /* SIGNED */
 static int hf_h225_nestedcryptoToken = -1;        /* CryptoToken */
 static int hf_h225_channelRate = -1;              /* BandWidth */
 static int hf_h225_channelMultiplier = -1;        /* INTEGER_1_256 */
@@ -2951,7 +2951,7 @@ dissect_h225_SEQUENCE_OF_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static const per_sequence_t T_cryptoEPPwdHash_sequence[] = {
   { &hf_h225_alias          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_AliasAddress },
   { &hf_h225_timeStamp      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_TimeStamp },
-  { &hf_h225_token          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHEDxxx },
+  { &hf_h225_token          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHED },
   { NULL, 0, 0, NULL }
 };
 
@@ -2977,7 +2977,7 @@ dissect_h225_GatekeeperIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static const per_sequence_t T_cryptoGKPwdHash_sequence[] = {
   { &hf_h225_gatekeeperId   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h225_GatekeeperIdentifier },
   { &hf_h225_timeStamp      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_TimeStamp },
-  { &hf_h225_token          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHEDxxx },
+  { &hf_h225_token          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_HASHED },
   { NULL, 0, 0, NULL }
 };
 
@@ -3005,11 +3005,11 @@ static const value_string h225_CryptoH323Token_vals[] = {
 static const per_choice_t CryptoH323Token_choice[] = {
   {   0, &hf_h225_cryptoEPPwdHash, ASN1_EXTENSION_ROOT    , dissect_h225_T_cryptoEPPwdHash },
   {   1, &hf_h225_cryptoGKPwdHash, ASN1_EXTENSION_ROOT    , dissect_h225_T_cryptoGKPwdHash },
-  {   2, &hf_h225_cryptoEPPwdEncr, ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTEDxxx },
-  {   3, &hf_h225_cryptoGKPwdEncr, ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTEDxxx },
-  {   4, &hf_h225_cryptoEPCert   , ASN1_EXTENSION_ROOT    , dissect_h235_SIGNEDxxx },
-  {   5, &hf_h225_cryptoGKCert   , ASN1_EXTENSION_ROOT    , dissect_h235_SIGNEDxxx },
-  {   6, &hf_h225_cryptoFastStart, ASN1_EXTENSION_ROOT    , dissect_h235_SIGNEDxxx },
+  {   2, &hf_h225_cryptoEPPwdEncr, ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTED },
+  {   3, &hf_h225_cryptoGKPwdEncr, ASN1_EXTENSION_ROOT    , dissect_h235_ENCRYPTED },
+  {   4, &hf_h225_cryptoEPCert   , ASN1_EXTENSION_ROOT    , dissect_h235_SIGNED },
+  {   5, &hf_h225_cryptoGKCert   , ASN1_EXTENSION_ROOT    , dissect_h235_SIGNED },
+  {   6, &hf_h225_cryptoFastStart, ASN1_EXTENSION_ROOT    , dissect_h235_SIGNED },
   {   7, &hf_h225_nestedcryptoToken, ASN1_EXTENSION_ROOT    , dissect_h235_CryptoToken },
   { 0, NULL, 0, NULL }
 };
@@ -8971,7 +8971,7 @@ void proto_register_h225(void) {
     { &hf_h225_token,
       { "token", "h225.token",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.HASHEDxxx", HFILL }},
+        "h235.HASHED", HFILL }},
     { &hf_h225_cryptoGKPwdHash,
       { "cryptoGKPwdHash", "h225.cryptoGKPwdHash",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8983,23 +8983,23 @@ void proto_register_h225(void) {
     { &hf_h225_cryptoEPPwdEncr,
       { "cryptoEPPwdEncr", "h225.cryptoEPPwdEncr",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h225_cryptoGKPwdEncr,
       { "cryptoGKPwdEncr", "h225.cryptoGKPwdEncr",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.ENCRYPTEDxxx", HFILL }},
+        "h235.ENCRYPTED", HFILL }},
     { &hf_h225_cryptoEPCert,
       { "cryptoEPCert", "h225.cryptoEPCert",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.SIGNEDxxx", HFILL }},
+        "h235.SIGNED", HFILL }},
     { &hf_h225_cryptoGKCert,
       { "cryptoGKCert", "h225.cryptoGKCert",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.SIGNEDxxx", HFILL }},
+        "h235.SIGNED", HFILL }},
     { &hf_h225_cryptoFastStart,
       { "cryptoFastStart", "h225.cryptoFastStart",
         FT_NONE, BASE_NONE, NULL, 0,
-        "h235.SIGNEDxxx", HFILL }},
+        "h235.SIGNED", HFILL }},
     { &hf_h225_nestedcryptoToken,
       { "nestedcryptoToken", "h225.nestedcryptoToken",
         FT_UINT32, BASE_DEC, VALS(h235_CryptoToken_vals), 0,
