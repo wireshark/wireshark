@@ -13,8 +13,11 @@
 #include "config.h"
 #endif
 
-#ifdef _MSC_VER 	 
-	 #pragma warning(disable:4005)
+#ifdef _MSC_VER
+#pragma warning(disable:4005)
+#pragma warning(disable:4013)
+#pragma warning(disable:4018)
+#pragma warning(disable:4101)
 #endif
 
 #include <glib.h>
@@ -1437,7 +1440,7 @@ winreg_dissect_element_CreateKey_handle_(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 winreg_dissect_element_CreateKey_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 0, hf_winreg_winreg_CreateKey_name);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_CreateKey_name);
 
 	return offset;
 }
@@ -1585,7 +1588,7 @@ winreg_dissect_element_DeleteKey_handle_(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 winreg_dissect_element_DeleteKey_key(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 0, hf_winreg_winreg_DeleteKey_key);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_DeleteKey_key);
 
 	return offset;
 }
@@ -2294,7 +2297,7 @@ winreg_dissect_element_OpenKey_parent_handle_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 winreg_dissect_element_OpenKey_keyname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 0, hf_winreg_winreg_OpenKey_keyname);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_OpenKey_keyname);
 
 	return offset;
 }
@@ -2615,7 +2618,7 @@ winreg_dissect_element_QueryValue_handle_(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 winreg_dissect_element_QueryValue_value_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 0, hf_winreg_winreg_QueryValue_value_name);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_QueryValue_value_name);
 
 	return offset;
 }
@@ -3017,7 +3020,7 @@ winreg_dissect_element_SetValue_handle_(tvbuff_t *tvb _U_, int offset _U_, packe
 static int
 winreg_dissect_element_SetValue_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 0, hf_winreg_winreg_SetValue_name);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_SetValue_name);
 
 	return offset;
 }
