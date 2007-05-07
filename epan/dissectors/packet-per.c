@@ -1791,9 +1791,23 @@ DEBUG_ENTRY("dissect_per_octet_string");
 /* 26 Encoding of a value of the external type */
 
 /* code generated from definition in 26.1 */
+/*
+[UNIVERSAL 8] IMPLICIT SEQUENCE {
+  direct-reference OBJECT IDENTIFIER OPTIONAL,
+  indirect-reference INTEGER OPTIONAL,
+  data-value-descriptor ObjectDescriptor OPTIONAL,
+    encoding CHOICE {
+    single-ASN1-type [0] ABSTRACT-SYNTAX.&Type,
+    octet-aligned [1] IMPLICIT OCTET STRING,
+    arbitrary [2] IMPLICIT BIT STRING 
+  } 
+}
+*/
+/* NOTE – This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
+
 static int
 dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, &actx->external.per.direct_reference);
+  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
 
   return offset;
 }
@@ -1802,7 +1816,7 @@ dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &actx->external.per.indirect_reference);
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &actx->external.indirect_reference);
 
   return offset;
 }
@@ -1830,12 +1844,12 @@ dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, &actx->external.per.octet_aligned);
+                                       NO_BOUND, NO_BOUND, &actx->external.octet_aligned);
 
   if (actx->external.per.type_cb) {
-    actx->external.per.type_cb(actx->external.per.octet_aligned, 0, actx, tree, actx->external.hf_index);
+    actx->external.per.type_cb(actx->external.octet_aligned, 0, actx, tree, actx->external.hf_index);
     } else {
-        actx->created_item = proto_tree_add_text(tree, actx->external.per.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
+        actx->created_item = proto_tree_add_text(tree, actx->external.octet_aligned, 0, -1, "Unknown EXTERNAL Type");
     }
   return offset;
 }
@@ -1845,12 +1859,12 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_per_T_arbitrary(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, &actx->external.per.arbitrary);
+                                     NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary);
 
   if (actx->external.per.type_cb) {
-    actx->external.per.type_cb(actx->external.per.arbitrary, 0, actx, tree, actx->external.hf_index);
+    actx->external.per.type_cb(actx->external.arbitrary, 0, actx, tree, actx->external.hf_index);
     } else {
-        actx->created_item = proto_tree_add_text(tree, actx->external.per.arbitrary, 0, -1, "Unknown EXTERNAL Type");
+        actx->created_item = proto_tree_add_text(tree, actx->external.arbitrary, 0, -1, "Unknown EXTERNAL Type");
     }
   return offset;
 }
@@ -1874,7 +1888,7 @@ static int
 dissect_per_External_encoding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_per_External_encoding, External_encoding_choice,
-                                 &actx->external.per.encoding);
+                                 &actx->external.encoding);
 
   return offset;
 }
