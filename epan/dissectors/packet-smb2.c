@@ -829,7 +829,7 @@ static const value_string smb2_ioctl_method_vals[] = {
 
 /* this is called from both smb and smb2. */
 int
-dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *s2i)
+dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 *ioctlfunc)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -841,9 +841,7 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 	}
 
 	ioctl_function=tvb_get_letohl(tvb, offset);
-	if(s2i){
-		s2i->ioctl_function=ioctl_function;
-	}
+	*ioctlfunc=ioctl_function;
 	if(ioctl_function){
 		/* device */
 		proto_tree_add_item(tree, hf_smb2_ioctl_function_device, tvb, offset, 4, TRUE);
@@ -2691,7 +2689,7 @@ dissect_smb2_IOCTL_DO_DCERPC(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static void
-dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 	guint32 num_volumes, num_labels;
 
@@ -2767,7 +2765,7 @@ dissect_smb2_FILE_OBJECTID_BUFFER(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 }
 
 static void
-dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
 	/* There is no in data */
@@ -2782,7 +2780,7 @@ dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_
 }
 
 static void
-dissect_smb2_FSCTL_GET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_GET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
 	/* There is no in data */
@@ -2797,7 +2795,7 @@ dissect_smb2_FSCTL_GET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	return;
 }
 static void
-dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
 	/* There is no out data */
@@ -2813,7 +2811,7 @@ dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static void
-dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
 	/* There is no out data */
@@ -2828,7 +2826,7 @@ dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_, gboolean data_in)
+dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
 	/* There is no out data */
@@ -2854,30 +2852,36 @@ dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
-dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si, gboolean data_in)
+dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *s2i, gboolean data_in)
 {
-	switch(si->ioctl_function){
+	guint32 ioctl_function=0;
+
+	if(s2i){
+		ioctl_function=s2i->ioctl_function;
+	}
+
+	switch(ioctl_function){
 	case 0x0011c017:
-		dissect_smb2_IOCTL_DO_DCERPC(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_IOCTL_DO_DCERPC(tvb, pinfo, tree, 0, s2i, data_in);
 		break;
 	case 0x00144064: /* FSCTL_GET_SHADOW_COPY_DATA */
-		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_GET_SHADOW_COPY_DATA(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009009C: /* FSCTL_GET_OBJECT_ID */
 	case 0x000900c0: /* FSCTL_CREATE_OR_GET_OBJECT_ID */
-		dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_CREATE_OR_GET_OBJECT_ID(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x00098098: /* FSCTL_SET_OBJECT_ID */
-		dissect_smb2_FSCTL_SET_OBJECT_ID(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_SET_OBJECT_ID(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x000980BC: /* FSCTL_SET_OBJECT_ID_EXTENDED */
-		dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_SET_OBJECT_ID_EXTENDED(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009003C: /* FSCTL_GET_COMPRESSION */
-		dissect_smb2_FSCTL_GET_COMPRESSION(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_GET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
 		break;
 	case 0x0009C040: /* FSCTL_SET_COMPRESSION */
-		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, si, data_in);
+		dissect_smb2_FSCTL_SET_COMPRESSION(tvb, pinfo, tree, 0, data_in);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
@@ -2912,7 +2916,7 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* ioctl function */
-	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, si);
+	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &si->ioctl_function);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -2972,7 +2976,7 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 
 	/* ioctl function */
-	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, si);
+	offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &si->ioctl_function);
 
 	/* If there was an error, the response will be just 8 bytes */
 	if((len==8)&&(si->status)){

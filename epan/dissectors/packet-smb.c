@@ -7240,6 +7240,7 @@ typedef struct _nt_trans_data {
 	int subcmd;
 	guint32 sd_len;
 	guint32 ea_len;
+	guint32 ioctl_function;
 } nt_trans_data;
 
 
@@ -8038,7 +8039,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		guint16 fid;
 
 		/* function code */
-		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, NULL);
+		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &ntd->ioctl_function);
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
