@@ -2705,7 +2705,7 @@ static const ber_sequence_t EXTERNAL_sequence[] = {
 };
 */
 static int
-dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, packet_info *pinfo, proto_tree *tree, int hf_index)
+dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_ , packet_info *pinfo, proto_tree *tree, int hf_index _U_)
 {
 	gint8 class;
 	gboolean pc, ind = FALSE;
