@@ -380,7 +380,6 @@ static int hf_smb_setup_count = -1;
 static int hf_smb_nt_trans_subcmd = -1;
 static int hf_smb_nt_ioctl_isfsctl = -1;
 static int hf_smb_nt_ioctl_flags_root_handle = -1;
-static int hf_smb_nt_ioctl_data = -1;
 #ifdef SMB_UNUSED_HANDLES
 static int hf_smb_nt_security_information = -1;
 #endif
@@ -7240,7 +7239,6 @@ typedef struct _nt_trans_data {
 	int subcmd;
 	guint32 sd_len;
 	guint32 ea_len;
-	guint32 ioctl_function;
 } nt_trans_data;
 
 
@@ -7776,6 +7774,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	int old_offset = offset;
 	guint16 bcp=bc; /* XXX fixme */
 	struct access_mask_info *ami=NULL;
+	tvbuff_t *ioctl_tvb;
 
 	si = (smb_info_t *)pinfo->private_data;
 
@@ -7807,7 +7806,10 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, bc, TRUE);
+		ioctl_tvb=tvb_new_subset(tvb, offset, MIN((int)bc, tvb_length_remaining(tvb, offset)), bc);
+		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree, nti->ioctl_function, TRUE);
+
+
 		offset += bc;
 
 		break;
@@ -8017,12 +8019,18 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-	smb_info_t *si;
 	int old_offset = offset;
+	smb_info_t *si;
+	smb_nt_transact_info_t *nti;
+	smb_saved_info_t *sip;
+
 
 	si = (smb_info_t *)pinfo->private_data;
-
 	DISSECTOR_ASSERT(si);
+	sip = si->sip;
+	DISSECTOR_ASSERT(sip);
+	nti=sip->extra_info;
+
 
 	if(parent_tree){
 		tvb_ensure_bytes_exist(tvb, offset, len);
@@ -8039,7 +8047,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		guint16 fid;
 
 		/* function code */
-		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &ntd->ioctl_function);
+		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, &nti->ioctl_function);
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
@@ -8307,6 +8315,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 	smb_info_t *si;
 	guint16 bcp;
 	struct access_mask_info *ami=NULL;
+	tvbuff_t *ioctl_tvb;
 
 	si = (smb_info_t *)pinfo->private_data;
 	DISSECTOR_ASSERT(si);
@@ -8337,7 +8346,9 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case NT_TRANS_IOCTL:
 		/* ioctl data */
-		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, len, TRUE);
+		ioctl_tvb=tvb_new_subset(tvb, offset, MIN((int)len, tvb_length_remaining(tvb, offset)), len);
+		dissect_smb2_ioctl_data(ioctl_tvb, pinfo, tree, top_tree, nti->ioctl_function, FALSE);
+
 		offset += len;
 
 		break;
@@ -17150,10 +17161,6 @@ proto_register_smb(void)
 	{ &hf_smb_nt_ioctl_flags_root_handle,
 		{ "Root Handle", "smb.nt.ioctl.flags.root_handle", FT_BOOLEAN, 8,
 		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root Dfs share", HFILL }},
-
-	{ &hf_smb_nt_ioctl_data,
-		{ "IOCTL Data", "smb.nt.ioctl.data", FT_BYTES, BASE_HEX,
-		NULL, 0, "Data for the IOCTL call", HFILL }},
 
 	{ &hf_smb_nt_notify_action,
 		{ "Action", "smb.nt.notify.action", FT_UINT32, BASE_DEC,
