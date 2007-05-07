@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <string.h>
 
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
