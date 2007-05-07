@@ -2386,16 +2386,17 @@ main(int argc, char *argv[])
     g_free(init_progfile_dir_error);
   }
 
-  splash_update(splash_win, "Init dissectors ...");
+  splash_update(RA_DISSECTORS, NULL, (gpointer)splash_win);
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(register_all_protocols,register_all_protocol_handoffs,
+  epan_init(register_all_protocols,register_all_protocol_handoffs, 
+	    splash_update, (gpointer) splash_win,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
-  splash_update(splash_win, "Init tap listeners ...");
+  splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -2410,7 +2411,7 @@ main(int argc, char *argv[])
 
   register_all_tap_listeners();
 
-  splash_update(splash_win, "Loading module preferences ...");
+  splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */
@@ -2434,7 +2435,7 @@ main(int argc, char *argv[])
   gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);
 #endif
 
-  splash_update(splash_win, "Loading configuration files ...");
+  splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 
   /* Read the preference files. */
   prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
@@ -2879,7 +2880,7 @@ main(int argc, char *argv[])
   font_init();
 
   /* close the splash screen, as we are going to open the main window now */
-  splash_destroy(splash_win);
+  splash_destroy(splash_win); 
 
   /************************************************************************/
   /* Everything is prepared now, preferences and command line was read in */

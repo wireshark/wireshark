@@ -292,8 +292,10 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(void (register_all_protocols)(void),
-	   void (register_all_protocol_handoffs)(void))
+proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
+	   void (register_all_protocol_handoffs)(register_cb cb, gpointer client_data),
+	   register_cb cb,
+	   gpointer client_data)
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
@@ -330,11 +332,13 @@ proto_init(void (register_all_protocols)(void),
 	   dissector tables, and dissectors to be called through a
 	   handle, and do whatever one-time initialization it needs to
 	   do. */
-	register_all_protocols();
+	register_all_protocols(cb, client_data);
 
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
 	   their register routines to do the stuff described above. */
+	if(cb) 
+	  (*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	init_plugins();
 #endif
 
@@ -342,10 +346,12 @@ proto_init(void (register_all_protocols)(void),
 	   dissectors; those routines register the dissector in other
 	   dissectors' handoff tables, and fetch any dissector handles
 	   they need. */
-	register_all_protocol_handoffs();
+	register_all_protocol_handoffs(cb, client_data);
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
+	if(cb) 
+	  (*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	register_all_plugin_handoffs();
 #endif
 

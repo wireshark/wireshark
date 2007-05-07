@@ -25,7 +25,24 @@
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
 
-extern void register_all_protocols(void);
-extern void register_all_protocol_handoffs(void);
+#include <glib.h>
+
+typedef enum {
+  RA_NONE,              /* for initialization */
+  RA_DISSECTORS,        /* Initializing dissectors */
+  RA_LISTENERS,         /* Tap listeners */
+  RA_REGISTER,          /* register */
+  RA_PLUGIN_REGISTER,   /* plugin register */
+  RA_HANDOFF,           /* handoff */
+  RA_PLUGIN_HANDOFF,    /* plugin handoff */
+  RA_PREFERENCES,       /* module preferences */
+  RA_CONFIGURATION      /* configuration files */
+} register_action_e;
+
+typedef void (*register_cb)(register_action_e action, char *message, gpointer client_data);
+
+extern void register_all_protocols(register_cb cb, gpointer client_data);
+extern void register_all_protocol_handoffs(register_cb cb, gpointer client_data);
 extern void register_all_tap_listeners(void);
+extern gulong register_count(void);
 #endif /* __REGISTER_H__ */

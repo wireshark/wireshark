@@ -169,12 +169,15 @@ else:
 	reg_code.write("""
 #include "register.h"
 void
-register_all_protocols(void)
+register_all_protocols(register_cb cb, gpointer client_data)
 {
 """);
 
 for symbol in regs['proto_reg']:
-	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+	if registertype == "plugin":
+		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+	else:
+		line = "  {extern void %s (void); if(cb) (*cb)(RA_REGISTER, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 	reg_code.write(line)
 
 reg_code.write("}\n")
@@ -190,18 +193,34 @@ plugin_reg_handoff(void)
 else:
 	reg_code.write("""
 void
-register_all_protocol_handoffs(void)
+register_all_protocol_handoffs(register_cb cb, gpointer client_data)
 {
 """);
 
 for symbol in regs['handoff_reg']:
-	line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+	if registertype == "plugin":
+		line = "  {extern void %s (void); %s ();}\n" % (symbol, symbol)
+	else:
+		line = "  {extern void %s (void); if(cb) (*cb)(RA_HANDOFF, \"%s\", client_data); %s ();}\n" % (symbol, symbol, symbol)
 	reg_code.write(line)
 
 reg_code.write("}\n")
 
 if registertype == "plugin":
 	reg_code.write("#endif\n");
+else:
+	reg_code.write("""
+gulong register_count(void)
+{
+""");
+
+	line = "  return %d + %d;\n" % (len(regs['proto_reg']), len(regs['handoff_reg']))
+	reg_code.write(line)
+
+	reg_code.write("""
+}
+""");
+
 
 # Close the file
 reg_code.close()

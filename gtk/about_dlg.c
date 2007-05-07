@@ -79,6 +79,20 @@ about_wireshark(GtkWidget *parent, GtkWidget *main_vb, const char *title)
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
 }
 
+static void
+splash_update_label(GtkWidget *win, char *message)
+{
+    GtkWidget *main_lb;
+
+    if (win == NULL) return;
+
+    main_lb = OBJECT_GET_DATA(win, "splash_label");
+    gtk_label_set_text(GTK_LABEL(main_lb), message);
+
+    /* Process all pending GUI events before continuing, so that
+       the splash screen window gets updated. */
+    while (gtk_events_pending()) gtk_main_iteration();
+}
 
 GtkWidget*
 splash_new(char *message)
@@ -87,6 +101,9 @@ splash_new(char *message)
     GtkWidget *main_lb;
 
     GtkWidget *main_vb;
+    GtkWidget *percentage_hb;
+    GtkWidget *prog_bar;
+    GtkWidget *percentage_lb;
 
     win = splash_window_new();
 
@@ -106,26 +123,128 @@ splash_new(char *message)
     gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
     OBJECT_SET_DATA(win, "splash_label", main_lb);
 
+    main_lb = gtk_label_new("");
+    gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
+    OBJECT_SET_DATA(win, "protocol_label", main_lb);
+
+    percentage_hb = gtk_hbox_new(FALSE, 1);
+    gtk_box_pack_start(GTK_BOX(main_vb), percentage_hb, FALSE, TRUE, 3);
+
+    prog_bar = gtk_progress_bar_new();
+#if GTK_MAJOR_VERSION < 2
+    gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
+#endif
+    gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, FALSE, TRUE, 3);
+    OBJECT_SET_DATA(win, "progress_bar", prog_bar);
+
+    percentage_lb = gtk_label_new("  0%");
+    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
+    OBJECT_SET_DATA(win, "percentage_label", percentage_lb);    
+
     gtk_widget_show_all(win);
 
-    splash_update(win, message);
+    splash_update_label(win, message);
 
     return win;
 }
 
 void
-splash_update(GtkWidget *win, char *message)
+splash_update(register_action_e action, char *message, gpointer client_data)
 {
+    GtkWidget *win;
     GtkWidget *main_lb;
+    GtkWidget *prog_bar;
+    GtkWidget *percentage_lb;
+    gfloat    percentage;
+    gulong    ul_percentage;
+    gchar     tmp[100];
+    char      *action_msg;
+
+    static gulong ul_sofar = 0;
+    static gulong ul_count = 0;
+
+    static register_action_e last_action = RA_NONE;
+
+    win = (GtkWidget *)client_data;
 
     if (win == NULL) return;
 
-    main_lb = OBJECT_GET_DATA(win, "splash_label");
-    gtk_label_set_text(GTK_LABEL(main_lb), message);
+    if(last_action != action) {
+      /* the action has changed */
+      switch(action) {
+      case RA_DISSECTORS:
+	action_msg = "Initializing dissectors ...";
+	break;
+      case RA_LISTENERS:
+	action_msg = "Initializing tap listeners ...";
+	break;
+      case RA_REGISTER:
+	action_msg = "Registering dissector ...";
+	break;
+      case RA_PLUGIN_REGISTER:
+	action_msg = "Registering plugins ...";
+	break;
+      case RA_HANDOFF:
+	action_msg = "Handing off dissector ...";
+	break;
+      case RA_PLUGIN_HANDOFF:
+	action_msg = "Handing off plugins ...";
+	break;
+      case RA_PREFERENCES:
+	action_msg = "Loading module preferences ...";
+	break;
+      case RA_CONFIGURATION:
+	action_msg = "Loading configuration files ...";
+	break;
+      default:
+	action_msg = "(Unknown action)";;
+	break;
+      }
+      splash_update_label(win, action_msg);
+      last_action = action;
+    }
+
+    if(ul_count == 0) /* get the count of dissectors */
+      ul_count = register_count() + 6; /* additional 6 for:
+					  dissectors, listeners, 
+					  registering plugins, handingoff plugins,
+					  preferences and configuration */
+					 
+    main_lb = OBJECT_GET_DATA(win, "protocol_label");
+    /* make_dissector_reg.py changed - 
+       so we need to strip off the leading elements to get back to the protocol */
+    if(message) {
+      if(!strncmp(message, "proto_register_", 15))
+	message += 15;
+      else if(!strncmp(message, "proto_reg_handoff_", 18))
+	message += 18;
+    }
+    gtk_label_set_text(GTK_LABEL(main_lb), message ? message : "");
+
+    ul_sofar++;
+
+    g_assert (ul_sofar <= ul_count);
+
+    percentage = (gfloat)ul_sofar/(gfloat)ul_count;
+    ul_percentage = (gulong)(percentage * 100);
+
+    /* update progress bar */
+    prog_bar = OBJECT_GET_DATA(win, "progress_bar");
+#if GTK_MAJOR_VERSION < 2
+    gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), percentage);
+#else
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
+#endif
+
+    percentage_lb = OBJECT_GET_DATA(win, "percentage_label");
+    g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
+    gtk_label_set_text((GtkLabel*)percentage_lb, tmp);
 
     /* Process all pending GUI events before continuing, so that
        the splash screen window gets updated. */
     while (gtk_events_pending()) gtk_main_iteration();
+
 }
 
 guint

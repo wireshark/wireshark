@@ -50,6 +50,7 @@
 #include "nstime.h"
 #include "tvbuff.h"
 #include "ftypes/ftypes.h"
+#include "register.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -327,8 +328,10 @@ extern void proto_tree_children_foreach(proto_tree *tree,
 #define PTREE_DATA(proto_tree)   ((proto_tree)->tree_data)
 
 /** Sets up memory used by proto routines. Called at program startup */
-extern void proto_init(void (register_all_protocols)(void),
-    void (register_all_handoffs)(void));
+extern void proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data), 
+		       void (register_all_handoffs)(register_cb cb, gpointer client_data), 
+		       register_cb cb, void *client_data);
+
 
 /** Frees memory used by proto routines. Called at program shutdown */
 extern void proto_cleanup(void);

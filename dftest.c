@@ -88,7 +88,7 @@ main(int argc, char **argv)
 	   by the dissectors, and we must do it before we read the preferences,
 	   in case any dissectors register preferences. */
 	epan_init(register_all_protocols,
-		  register_all_protocol_handoffs,
+		  register_all_protocol_handoffs, NULL, NULL,
 		  failure_message, open_failure_message, read_failure_message);
 
 	/* now register the preferences for any non-dissector modules.
