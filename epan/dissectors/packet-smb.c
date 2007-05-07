@@ -378,7 +378,6 @@ static int hf_smb_data_count32 = -1;
 static int hf_smb_data_offset32 = -1;
 static int hf_smb_setup_count = -1;
 static int hf_smb_nt_trans_subcmd = -1;
-static int hf_smb_nt_ioctl_function_code = -1;
 static int hf_smb_nt_ioctl_isfsctl = -1;
 static int hf_smb_nt_ioctl_flags_root_handle = -1;
 static int hf_smb_nt_ioctl_data = -1;
@@ -6938,72 +6937,6 @@ const value_string nt_cmd_vals[] = {
 	{0, NULL}
 };
 
-/* These IOCTL function values come from Visual 6.0 winioctl.h, and
-   are described in MSDN.
-   They are only FSCTLs (they all start with 0x0009). If we were
-   pedantic, we could check if ioctl_isfsctl boolean is set, but
-   this is redundant.
-*/
-static const value_string nt_ioctl_function_vals[] = {
-       {0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
-	{0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
-	{0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
-	{0x0009000C, "FSCTL_OPLOCK_BREAK_ACKNOWLEDGE"},
-	{0x00090010, "FSCTL_OPBATCH_ACK_CLOSE_PENDING"},
-	{0x00090014, "FSCTL_OPLOCK_BREAK_NOTIFY"},
-	{0x00090018, "FSCTL_LOCK_VOLUME"},
-	{0x0009001C, "FSCTL_UNLOCK_VOLUME"},
-	{0x00090020, "FSCTL_DISMOUNT_VOLUME"},
-	{0x00090028, "FSCTL_IS_VOLUME_MOUNTED"},
-	{0x0009002C, "FSCTL_IS_PATHNAME_VALID"},
-	{0x00090030, "FSCTL_MARK_VOLUME_DIRTY"},
-	{0x0009003B, "FSCTL_QUERY_RETRIEVAL_POINTERS"},
-	{0x0009003C, "FSCTL_GET_COMPRESSION"},
-	{0x0009C040, "FSCTL_SET_COMPRESSION"},
-	{0x0009004F, "FSCTL_MARK_AS_SYSTEM_HIVE"},
-	{0x00090050, "FSCTL_OPLOCK_BREAK_ACK_NO_2"},
-	{0x00090054, "FSCTL_INVALIDATE_VOLUMES"},
-	{0x00090058, "FSCTL_QUERY_FAT_BPB"},
-	{0x0009005C, "FSCTL_REQUEST_FILTER_OPLOCK"},
-	{0x00090060, "FSCTL_FILESYSTEM_GET_STATISTICS"},
-	{0x00090064, "FSCTL_GET_NTFS_VOLUME_DATA"},
-	{0x00090068, "FSCTL_GET_NTFS_FILE_RECORD"},
-	{0x0009006F, "FSCTL_GET_VOLUME_BITMAP"},
-	{0x00090073, "FSCTL_GET_RETRIEVAL_POINTERS"},
-	{0x00090074, "FSCTL_MOVE_FILE"},
-	{0x00090078, "FSCTL_IS_VOLUME_DIRTY"},
-	{0x0009007C, "FSCTL_GET_HFS_INFORMATION"},
-	{0x00090083, "FSCTL_ALLOW_EXTENDED_DASD_IO"},
-	{0x00090087, "FSCTL_READ_PROPERTY_DATA"},
-	{0x0009008B, "FSCTL_WRITE_PROPERTY_DATA"},
-	{0x0009008F, "FSCTL_FIND_FILES_BY_SID"},
-	{0x00090097, "FSCTL_DUMP_PROPERTY_DATA"},
-	{0x00098098, "FSCTL_SET_OBJECT_ID"},
-	{0x0009009C, "FSCTL_GET_OBJECT_ID"},
-	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"},
-	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
-	{0x000900A8, "FSCTL_GET_REPARSE_POINT"},
-	{0x000980AC, "FSCTL_DELETE_REPARSE_POINT"},
-	{0x000940B3, "FSCTL_ENUM_USN_DATA"},
-	{0x000940B7, "FSCTL_SECURITY_ID_CHECK"},
-	{0x000940BB, "FSCTL_READ_USN_JOURNAL"},
-	{0x000980BC, "FSCTL_SET_OBJECT_ID_EXTENDED"},
-	{0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},
-	{0x000980C4, "FSCTL_SET_SPARSE"},
-	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
-	{0x000940CF, "FSCTL_QUERY_ALLOCATED_RANGES"},
-	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
-	{0x000900D4, "FSCTL_SET_ENCRYPTION"},
-	{0x000900DB, "FSCTL_ENCRYPTION_FSCTL_IO"},
-	{0x000900DF, "FSCTL_WRITE_RAW_ENCRYPTED"},
-	{0x000900E3, "FSCTL_READ_RAW_ENCRYPTED"},
-	{0x000940E7, "FSCTL_CREATE_USN_JOURNAL"},
-	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
-	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
-	{0x000900F0, "FSCTL_EXTEND_VOLUME"},
-	{0, NULL}
-};
-
 static const value_string nt_ioctl_isfsctl_vals[] = {
 	{0,	"Device IOCTL"},
 	{1,	"FS control : FSCTL"},
@@ -8105,8 +8038,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		guint16 fid;
 
 		/* function code */
-		proto_tree_add_item(tree, hf_smb_nt_ioctl_function_code, tvb, offset, 4, TRUE);
-		offset += 4;
+		offset = dissect_smb2_ioctl_function(tvb, pinfo, tree, offset, NULL);
 
 		/* fid */
 		fid = tvb_get_letohs(tvb, offset);
@@ -17209,10 +17141,6 @@ proto_register_smb(void)
 	{ &hf_smb_setup_count,
 		{ "Setup Count", "smb.sc", FT_UINT8, BASE_DEC,
 		NULL, 0, "Number of setup words in this buffer", HFILL }},
-
-	{ &hf_smb_nt_ioctl_function_code,
-		{ "Function", "smb.nt.ioctl.function", FT_UINT32, BASE_HEX,
-		VALS(nt_ioctl_function_vals), 0, "NT IOCTL function code", HFILL }},
 
 	{ &hf_smb_nt_ioctl_isfsctl,
 		{ "IsFSctl", "smb.nt.ioctl.isfsctl", FT_UINT8, BASE_DEC,
