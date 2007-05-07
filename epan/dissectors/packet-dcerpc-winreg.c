@@ -2297,7 +2297,7 @@ winreg_dissect_element_OpenKey_parent_handle_(tvbuff_t *tvb _U_, int offset _U_,
 static int
 winreg_dissect_element_OpenKey_keyname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO, hf_winreg_winreg_OpenKey_keyname);
+	offset=cnf_dissect_winreg_String(tvb, offset, pinfo, tree, drep, 2|PIDL_SET_COL_INFO|PIDL_STR_SAVE, hf_winreg_winreg_OpenKey_keyname);
 
 	return offset;
 }
