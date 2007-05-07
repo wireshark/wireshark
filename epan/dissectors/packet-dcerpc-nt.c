@@ -963,10 +963,17 @@ PIDL_dissect_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	if((param&PIDL_POLHND_OPEN)
 	&& !pinfo->fd->flags.visited
 	&& !di->conformant_run){
+		char *pol_string=NULL;
 		char *pol_name=NULL;
+		dcerpc_call_value *dcv;
 
-		pol_name=ep_strdup_printf("%s(<...>)", pinfo->dcerpc_procedure_name);
-		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_name);
+		dcv = (dcerpc_call_value *)di->call_data;
+		pol_name = dcv->private_data;
+		if(!pol_name){
+			pol_name="<...>";
+		}
+		pol_string=ep_strdup_printf("%s(%s)", pinfo->dcerpc_procedure_name, pol_name);
+		dcerpc_smb_store_pol_name(&policy_hnd, pinfo, pol_string);
 	}
 
 	return offset;
@@ -1121,11 +1128,9 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	}
 
 	/* Save string to dcv->private_data */
-
 	if (options & CB_STR_SAVE) {
 		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-
 		dcv->private_data = s;
 	}
 }
