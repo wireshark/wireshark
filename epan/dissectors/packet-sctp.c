@@ -584,7 +584,7 @@ typedef struct _sctp_tsn_t {
 
 
 static emem_tree_key_t*
-make_address_key(guint32 spt, guint32 dpt, address *addr) 
+make_address_key(guint32 spt, guint32 dpt, address *addr)
 {
 	emem_tree_key_t *k = ep_alloc(sizeof(emem_tree_key_t)*6);
 
@@ -791,7 +791,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 	if ( (! pinfo->fd->flags.visited ) && t->first_transmit.framenum != framenum  ) {
 		struct _retransmit_t **r;
 		int i;
-		
+
 		t->retransmit_count++;
 		r = &t->retransmit;
 		i = 0;
@@ -814,7 +814,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
 			(*r)->ts.nsecs = pinfo->fd->abs_ts.nsecs;
 		}
 	}
-	
+
 	tsn_tree(t, tsn_item, pinfo, tvb, framenum);
 }
 
@@ -2542,7 +2542,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     for (beginend = msg->begins;
          beginend && beginend->next != begin;
          beginend = beginend->next);
-    if (beginend->next == begin)
+    if (beginend && beginend->next == begin)
       beginend->next = begin->next;
   }
   g_free(begin);
@@ -2553,7 +2553,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
     for (beginend = msg->ends;
          beginend && beginend->next != end;
          beginend = beginend->next);
-    if (beginend->next == end)
+    if (beginend && beginend->next == end)
       beginend->next = end->next;
   }
    g_free(end);
