@@ -615,8 +615,13 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         return;
     }
 
-    /* DCH CRC present */
+    /* DCH CRC present... */
     p_fp_info->dch_crc_present = outhdr_values[i++];
+    /* ... but don't trust for edch */
+    if (p_fp_info->channel == CHANNEL_EDCH)
+    {
+        p_fp_info->dch_crc_present = 2; /* unknown */
+    }
 
     /* How many paging indications (if PCH data) */
     p_fp_info->paging_indications = outhdr_values[i++];
