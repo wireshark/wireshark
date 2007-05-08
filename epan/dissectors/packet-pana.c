@@ -827,7 +827,7 @@ proto_register_pana(void)
                        "", HFILL }
                },
                { &hf_pana_flag_e,
-                       { "Ping","pana.flags.e",
+                       { "Error","pana.flags.e",
                        FT_BOOLEAN, 16, TFS(&flags_set_truth), PANA_FLAG_E,
                        "", HFILL }
                },
