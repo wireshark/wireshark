@@ -919,6 +919,14 @@ sub Parse($$$$$)
 	$self->{res}->{headers} .= "#ifdef HAVE_CONFIG_H\n";
 	$self->{res}->{headers} .= "#include \"config.h\"\n";
 	$self->{res}->{headers} .= "#endif\n\n";
+
+	$self->{res}->{headers} .= "#ifdef _MSC_VER\n";
+	$self->{res}->{headers} .= "#pragma warning(disable:4005)\n";
+	$self->{res}->{headers} .= "#pragma warning(disable:4013)\n";
+	$self->{res}->{headers} .= "#pragma warning(disable:4018)\n";
+	$self->{res}->{headers} .= "#pragma warning(disable:4101)\n";
+	$self->{res}->{headers} .= "#endif\n\n";
+
 	$self->{res}->{headers} .= "#include <glib.h>\n";
 	$self->{res}->{headers} .= "#include <string.h>\n";
 	$self->{res}->{headers} .= "#include <epan/packet.h>\n\n";
