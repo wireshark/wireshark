@@ -1486,6 +1486,11 @@ tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_en
 	/* calculate number of octets to read */
 	tot_no_bits = bit_offset + no_of_bits;
 	num_octs = tot_no_bits>>3;
+	/* We need at least one */
+	if (num_octs == 0){
+		num_octs = 1;
+	}
+
 	/* Calculate shift value for most significant bits in the first octet */
 	shift = 8 * (num_octs-1);
 
@@ -1493,32 +1498,32 @@ tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_en
 	if ((tot_no_bits&0x7)!=0)
 		num_octs++;
 
-	tempval = tvb_get_guint8(tvb,offset)&bit_mask[bit_offset];
+	tempval = tvb_get_guint8(tvb,offset) & bit_mask[bit_offset];
 	tempval = tempval << shift;
 
 	switch(num_octs){
 	case 1:
 		/* Total 8 bits */
-		value = tempval >> (8-no_of_bits);
+		value = tempval;
 		break;
 	case 2:
 		/* Total 8 + 8 = 16*/
-		value = tempval | tvb_get_guint8(tvb,offset+1);
+		value = (tempval << 8) | tvb_get_guint8(tvb,offset+1);
 		value = value >> (16 - tot_no_bits);
 		break;
 	case 3:
 		/* Total 8 + 16 = 24*/
-		value = tempval | tvb_get_ntohs(tvb,offset+1);
+		value = (tempval << 16) | tvb_get_ntohs(tvb,offset+1);
 		value = value >> (24 - tot_no_bits);
 		break;
 	case 4:
 		/* Total 8 + 24 = 32*/
-		value = tempval | tvb_get_ntoh24(tvb,offset+1);
+		value = (tempval << 24) | tvb_get_ntoh24(tvb,offset+1);
 		value = value >> (32 - tot_no_bits);
 		break;
 	case 5:
 		/* total 8 + 32 = 40*/
-		value = tempval | (tvb_get_ntohl(tvb,offset+1));
+		value = (tempval << 32) | (tvb_get_ntohl(tvb,offset+1));
 		value = value >> (40 - tot_no_bits);
 		break;
 	case 6:
