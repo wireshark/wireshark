@@ -17,10 +17,24 @@ TFS hf_wkssvc_wkssvc_joinflags_WKSSVC_JOIN_FLAGS_JOIN_TYPE "Join the computer to
 
 HF_FIELD hf_wkssvc_platform_id "Platform Id" "wkssvc.platform_id" FT_UINT32 BASE_DEC VALS(srvsvc_srvsvc_PlatformId_vals) 0 "" "" ""
 
+#
+#
+# Prettifications
+PARAM_VALUE wkssvc_dissect_element_NetWkstaGetInfo_server_name_ 1|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaGetInfo_level PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo100_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo100_domain_name_ 5
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo101_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo101_domain_name_ 5
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_server_name_ 5|PIDL_SET_COL_INFO
+PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_domain_name_ 5
+
+
+
 CODE START
 /* Bug in pidl.  Can not handle these dependencies properly yet */
 static int
-srvsvc_dissect_struct_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
+wkssvc_dissect_struct_srvsvc_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
 {
 	offset = srvsvc_dissect_enum_PlatformId(tvb,offset,pinfo,tree,drep,hf_wkssvc_platform_id,0);
 
