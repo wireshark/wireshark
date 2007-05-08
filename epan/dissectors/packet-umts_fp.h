@@ -57,7 +57,7 @@ typedef struct fp_info
     guint8  release_month;               /* e.g. 12 for December */
     gboolean is_uplink;
     gint channel;                       /* see definitions above */
-    gboolean dch_crc_present;
+    guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
     gint paging_indications;
     gint num_chans;
 #define MAX_FP_CHANS  64

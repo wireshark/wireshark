@@ -86,6 +86,7 @@ static const value_string  k12_port_types[] = {
 };
 
 static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
+	guint adj = 0;
 			/* 0x11=control frame 0x30=data frame */
 	guint info_type = pntohs(extra_info);
 			/* 1=FDD, 2=TDD 3.84, 3=TDD 1.28 */
@@ -95,6 +96,11 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 
 	if (!p_fp_info || length < 22)
 		return;
+
+			/* Format used by K15, later fields are
+			   shifted by 8 bytes. */
+	if (pntohs(extra_info+2) == 5)
+		adj = 8;
 
 	p_fp_info->iface_type = IuB_Interface;
 
@@ -109,9 +115,10 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 		p_fp_info->is_uplink = 0;
 
 	if (info_type == 0x11) /* control frame */
-		channel_type = extra_info[21];
+		channel_type = extra_info[21 + adj];
 	else if (info_type == 0x30) /* data frame */
-		channel_type = extra_info[22];
+		channel_type = extra_info[22 + adj];
+    
 	switch (channel_type) {
 		case 1:
 			p_fp_info->channel = CHANNEL_BCH;
@@ -154,14 +161,14 @@ static void fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length) {
 			break;
 	}
 
-	p_fp_info->dch_crc_present = 1; /* dummy */
+	p_fp_info->dch_crc_present = 2; /* information not available */
 
 	if (info_type == 0x30) { /* data frame */
-		p_fp_info->num_chans = extra_info[23];
-		for (i = 0; i < (guint)p_fp_info->num_chans && (36+i*104) <= length; ++i) {
-			p_fp_info->chan_tf_size[i] = pntohl(extra_info+28+i*104);
+		p_fp_info->num_chans = extra_info[23 + adj];
+		for (i = 0; i < (guint)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
+			p_fp_info->chan_tf_size[i] = pntohl(extra_info+28+i*104+adj);
 			if (p_fp_info->chan_tf_size[i])
-				p_fp_info->chan_num_tbs[i] = pntohl(extra_info+32+i*104)
+				p_fp_info->chan_num_tbs[i] = pntohl(extra_info+32+i*104+adj)
 							     / p_fp_info->chan_tf_size[i];
 		}
 	}

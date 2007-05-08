@@ -35,7 +35,6 @@
 /* TODO:
    - IUR interface-specific formats
    - verify header & payload CRCs
-   - look for (and report as expert info) possible spare extension bytes
    - R7?
 */
 
@@ -122,6 +121,7 @@ static int hf_fp_tpc_po = -1;
 static int hf_fp_multiple_rl_set_indicator = -1;
 static int hf_fp_max_ue_tx_pow = -1;
 static int hf_fp_congestion_status = -1;
+static int hf_fp_spare_extension = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -274,30 +274,33 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                  int offset, guint16 length, guint8 number_of_pdus);
 static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              int num_tbs, int offset);
+static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
+                                            proto_tree *tree, guint8 dch_crc_present,
+                                            int offset);
 
 /* Dissect common control messages */
-static void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                                             int offset, struct fp_info *p_fp_info);
-static void dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
-                                                   tvbuff_t *tvb, int offset);
-static void dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
-                                                   tvbuff_t *tvb, int offset);
-static void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
-                                             tvbuff_t *tvb, int offset,
-                                             struct fp_info *p_fp_info);
-static void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
-                                             tvbuff_t *tvb, int offset,
-                                             struct fp_info *p_fp_info);
-static void dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree,
+static int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                            int offset, struct fp_info *p_fp_info);
+static int dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                                  tvbuff_t *tvb, int offset);
+static int dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                                  tvbuff_t *tvb, int offset);
+static int dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                            tvbuff_t *tvb, int offset,
+                                            struct fp_info *p_fp_info);
+static int dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                            tvbuff_t *tvb, int offset,
+                                            struct fp_info *p_fp_info);
+static int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree,
+                                         tvbuff_t *tvb, int offset);
+static int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
                                           tvbuff_t *tvb, int offset);
-static void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
-                                           tvbuff_t *tvb, int offset);
-static void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
-                                              tvbuff_t *tvb, int offset);
+static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
+                                             tvbuff_t *tvb, int offset);
 static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    int offset, struct fp_info *p_fp_info);
-static void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
-                                                    tvbuff_t *tvb, int offset);
+static int dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
+                                                   tvbuff_t *tvb, int offset);
 
 /* Dissect common channel types */
 static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -319,25 +322,25 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
 
 /* Dissect DCH control messages */
-static void dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo,
+static int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo,
+                                         tvbuff_t *tvb, int offset);
+static int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
                                           tvbuff_t *tvb, int offset);
-static void dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset);
-static void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
-                                           tvbuff_t *tvb, int offset);
-static void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo,
-                                           tvbuff_t *tvb, int offset);
-static void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo,
+static int dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                          tvbuff_t *tvb, int offset);
+static int dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo,
+                                                tvbuff_t *tvb, int offset);
+static int dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                               tvbuff_t *tvb, int offset);
+static int dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo,
+                                               tvbuff_t *tvb, int offset);
+static int dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo,
+                                                        tvbuff_t *tvb, int offset);
+static int dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
+                                      tvbuff_t *tvb, int offset);
+static int dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo,
                                                  tvbuff_t *tvb, int offset);
-static void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo,
-                                                tvbuff_t *tvb, int offset);
-static void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo,
-                                                tvbuff_t *tvb, int offset);
-static void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo,
-                                                         tvbuff_t *tvb, int offset);
-static void dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
-                                       tvbuff_t *tvb, int offset);
-static void dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo,
-                                                  tvbuff_t *tvb, int offset);
 
 
 static void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
@@ -350,7 +353,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Dissect dedicated channels */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                int offset, struct fp_info *p_fp_info);
+                                       int offset, struct fp_info *p_fp_info);
 
 /* Main dissection function */
 static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -563,12 +566,45 @@ int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
+void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree, guint8 dch_crc_present,
+                                     int offset)
+{
+    int crc_size = 0;
+    int remain = tvb_length_remaining(tvb, offset);
+    proto_item *ti = NULL;
+
+    /* Payload CRC (optional) */
+    if (dch_crc_present == 1 || (dch_crc_present == 2 && remain >= 2))
+    {
+        crc_size = 2;
+    }
+
+    if (remain > crc_size)
+    {
+        ti = proto_tree_add_item(tree, hf_fp_spare_extension, tvb,
+                                 offset, remain-crc_size, FALSE);
+        proto_item_append_text(ti, " (%u octets)", remain-crc_size);
+        expert_add_info_format(pinfo, ti,
+                               PI_UNDECODED, PI_WARN,
+                               "Spare Extension present");
+        offset += remain-crc_size;
+    }
+
+    if (crc_size)
+    {
+        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size, 
+                            FALSE);
+    }
+}
+
+
 
 /***********************************************************/
 /* Common control message types                            */
 
-void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
-                                      int offset, struct fp_info *p_fp_info)
+int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                     int offset, struct fp_info *p_fp_info)
 {
     if (p_fp_info->channel != CHANNEL_PCH)
     {
@@ -583,7 +619,7 @@ void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbu
         /* ToA */
         toa = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
-        offset++;
+        offset += 2;
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
@@ -605,29 +641,34 @@ void dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbu
         /* 20 bits of ToA (followed by 4 padding bits) */
         toa = ((int)(tvb_get_ntoh24(tvb, offset) << 8)) / 4096;
         proto_tree_add_int(tree, hf_fp_pch_toa, tvb, offset, 3, toa);
+        offset += 3;
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
         }
     }
+    return offset;
 }
 
-void dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
-                                            tvbuff_t *tvb, int offset)
+int dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                           tvbuff_t *tvb, int offset)
 {
     /* T1 */
     guint32 t1 = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, FALSE);
+    offset += 3;
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u", t1);
     }
+
+    return offset;
 }
 
-void dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
-                                            tvbuff_t *tvb, int offset)
+int dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree,
+                                           tvbuff_t *tvb, int offset)
 {
     guint32 t1, t2, t3;
 
@@ -651,10 +692,12 @@ void dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree *tree
         col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u T2=%u, T3=%u",
                         t1, t2, t3);
     }
+
+    return offset;
 }
 
-void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
-                                      tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
+int dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                     tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
     guint16 cfn;
 
@@ -663,6 +706,7 @@ void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
         /* CFN control */
         cfn = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+        offset++;
     }
     else
     {
@@ -671,21 +715,24 @@ void dissect_common_dl_syncronisation(packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
 
         /* 4 bits of padding follow... */
+        offset += 2;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u", cfn);
     }
+
+    return offset;
 }
 
-void dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
-                                      tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
+int dissect_common_ul_syncronisation(packet_info *pinfo, proto_tree *tree,
+                                     tvbuff_t *tvb, int offset, struct fp_info *p_fp_info)
 {
-    dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
+    return dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
 }
 
-void dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     guint8 cfn;
     guint8 timing_advance;
@@ -705,10 +752,12 @@ void dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_
         col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u, TA = %u",
                         cfn, timing_advance);
     }
+
+    return offset;
 }
 
-void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
-                                    tvbuff_t *tvb, int offset)
+int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
+                                   tvbuff_t *tvb, int offset)
 {
     guint8 priority;
     guint16 user_buffer_size;
@@ -729,11 +778,11 @@ void dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
                         priority, user_buffer_size);
     }
 
-    /* TODO: Spare extension may follow */
+    return offset;
 }
 
-void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
-                                       tvbuff_t *tvb, int offset)
+int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
+                                      tvbuff_t *tvb, int offset)
 {
     proto_item *ti;
     proto_item *rate_ti;
@@ -801,8 +850,6 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
         }
     }
 
-
-
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -810,12 +857,12 @@ void dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
                         max_pdu_length, credits, interval, repetition_period);
     }
 
-    /* TODO: Spare extension may follow */
+    return offset;
 }
 
 
-void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
-                                             tvbuff_t *tvb, int offset)
+int dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
+                                            tvbuff_t *tvb, int offset)
 {
     guint8 pusch_set_id;
     guint8 activation_cfn;
@@ -834,6 +881,7 @@ void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tre
     /* Duration */
     duration = tvb_get_guint8(tvb, offset) * 10;
     proto_tree_add_uint(tree, hf_fp_duration, tvb, offset, 1, duration);
+    offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
@@ -841,6 +889,8 @@ void dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tre
                         "   PUSCH Set Id=%u  Activation CFN=%u  Duration=%u",
                         pusch_set_id, activation_cfn, duration);
     }
+
+    return offset;
 }
 
 
@@ -868,36 +918,39 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case COMMON_OUTER_LOOP_POWER_CONTROL:
             break;
         case COMMON_TIMING_ADJUSTMENT:
-            dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
+            offset = dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_SYNCHRONISATION:
-            dissect_common_dl_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
+            offset = dissect_common_dl_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_UL_SYNCHRONISATION:
-            dissect_common_ul_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
+            offset = dissect_common_ul_syncronisation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_DL_NODE_SYNCHRONISATION:
-            dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
+            offset = dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
             break;
         case COMMON_UL_NODE_SYNCHRONISATION:
-            dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
+            offset = dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
             break;
         case COMMON_DYNAMIC_PUSCH_ASSIGNMENT:
-            dissect_common_dynamic_pusch_assignment(pinfo, tree, tvb, offset);
+            offset = dissect_common_dynamic_pusch_assignment(pinfo, tree, tvb, offset);
             break;
         case COMMON_TIMING_ADVANCE:
-            dissect_common_timing_advance(pinfo, tree, tvb, offset);
+            offset = dissect_common_timing_advance(pinfo, tree, tvb, offset);
             break;
         case COMMON_HS_DSCH_Capacity_Request:
-            dissect_hsdpa_capacity_request(pinfo, tree, tvb, offset);
+            offset = dissect_hsdpa_capacity_request(pinfo, tree, tvb, offset);
             break;
         case COMMON_HS_DSCH_Capacity_Allocation:
-            dissect_hsdpa_capacity_allocation(pinfo, tree, tvb, offset);
+            offset = dissect_hsdpa_capacity_allocation(pinfo, tree, tvb, offset);
             break;
 
         default:
             break;
     }
+
+    /* Spare Extension */
+    dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset);
 }
 
 
@@ -1019,9 +1072,8 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             offset++;
         }
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1079,9 +1131,8 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1172,9 +1223,8 @@ void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1238,9 +1288,8 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* CRCIs */
         offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1312,9 +1361,8 @@ void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1375,9 +1423,8 @@ void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* CRCIs */
         offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
 
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        offset += 2;
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -1417,7 +1464,7 @@ void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 /************************/
 /* DCH control messages */
 
-void dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     guint8 control_cfn;
     gint16 toa;
@@ -1437,9 +1484,11 @@ void dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_
         col_append_fstr(pinfo->cinfo, COL_INFO,
                         " CFN = %u, ToA = %d", control_cfn, toa);
     }
+
+    return offset;
 }
 
-void dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset)
+int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     /* CFN control */
     proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
@@ -1448,9 +1497,11 @@ void dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset
     /* Rx Timing Deviation */
     proto_tree_add_item(tree, hf_fp_dch_rx_timing_deviation, tvb, offset, 1, FALSE);
     offset++;
+
+    return offset;
 }
 
-void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* CFN control */
     guint cfn = tvb_get_guint8(tvb, offset);
@@ -1461,9 +1512,11 @@ void dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u", cfn);
     }
+
+    return offset;
 }
 
-void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     guint8 cfn;
     gint16 toa;
@@ -1483,31 +1536,36 @@ void dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff
         col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u, ToA = %d",
                         cfn, toa);
     }
+
+    return offset;
 }
 
-void dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_outer_loop_power_control(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     /* SIR target */
     float target = (float)-8.2 + ((float)0.1 * (float)(int)(tvb_get_guint8(tvb, offset)));
     proto_tree_add_float(tree, hf_fp_ul_sir_target, tvb, offset, 1, target);
+    offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "SIR Target = %f", target);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " SIR Target = %f", target);
     }
+
+    return offset;
 }
 
-void dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_dl_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
+    return dissect_common_dl_node_synchronisation(pinfo, tree, tvb, offset);
 }
 
-void dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_ul_node_synchronisation(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
+    return dissect_common_ul_node_synchronisation(pinfo, tree, tvb, offset);
 }
 
-void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+int dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     int n;
     guint8 cfn;
@@ -1539,27 +1597,31 @@ void dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet_info 
     /* MAX_UE_TX_POW */
     value = (tvb_get_guint8(tvb, offset) & 0x7f);
     proto_tree_add_int(tree, hf_fp_max_ue_tx_pow, tvb, offset, 1, -55 + value);
+    offset++;
 
-    /* TODO: spare extension */
+    return offset;
 }
 
-void dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    dissect_common_timing_advance(pinfo, tree, tvb, offset);
+    return dissect_common_timing_advance(pinfo, tree, tvb, offset);
 }
 
-void dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
+int dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     guint8 status = (tvb_get_guint8(tvb, offset) & 0x03);
 
     /* Congestion status */
     proto_tree_add_int(tree, hf_fp_congestion_status, tvb, offset, 1, FALSE);
+    offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " status = %s",
                         val_to_str(status, congestion_status_vals, "unknown"));
     }
+
+    return offset;
 }
 
 
@@ -1583,36 +1645,39 @@ void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *t
     switch (control_frame_type)
     {
         case DCH_TIMING_ADJUSTMENT:
-            dissect_dch_timing_adjustment(tree, pinfo, tvb, offset);
+            offset = dissect_dch_timing_adjustment(tree, pinfo, tvb, offset);
             break;
         case DCH_RX_TIMING_DEVIATION:
-            dissect_dch_rx_timing_deviation(tree, tvb, offset);
+            offset = dissect_dch_rx_timing_deviation(tree, tvb, offset);
             break;
         case DCH_DL_SYNCHRONISATION:
-            dissect_dch_dl_synchronisation(tree, pinfo, tvb, offset);
+            offset = dissect_dch_dl_synchronisation(tree, pinfo, tvb, offset);
             break;
         case DCH_UL_SYNCHRONISATION:
-            dissect_dch_ul_synchronisation(tree, pinfo, tvb, offset);
+            offset = dissect_dch_ul_synchronisation(tree, pinfo, tvb, offset);
             break;
         case DCH_OUTER_LOOP_POWER_CONTROL:
-            dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
+            offset = dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
             break;
         case DCH_DL_NODE_SYNCHRONISATION:
-            dissect_dch_dl_node_synchronisation(tree, pinfo, tvb, offset);
+            offset = dissect_dch_dl_node_synchronisation(tree, pinfo, tvb, offset);
             break;
         case DCH_UL_NODE_SYNCHRONISATION:
-            dissect_dch_ul_node_synchronisation(tree, pinfo, tvb, offset);
+            offset = dissect_dch_ul_node_synchronisation(tree, pinfo, tvb, offset);
             break;
         case DCH_RADIO_INTERFACE_PARAMETER_UPDATE:
-            dissect_dch_radio_interface_parameter_update(tree, pinfo, tvb, offset);
+            offset = dissect_dch_radio_interface_parameter_update(tree, pinfo, tvb, offset);
             break;
         case DCH_TIMING_ADVANCE:
-            dissect_dch_timing_advance(tree, pinfo, tvb, offset);
+            offset = dissect_dch_timing_advance(tree, pinfo, tvb, offset);
             break;
         case DCH_TNL_CONGESTION_INDICATION:
-            dissect_dch_tnl_congestion_indication(tree, pinfo, tvb, offset);
+            offset = dissect_dch_tnl_congestion_indication(tree, pinfo, tvb, offset);
             break;
     }
+
+    /* Spare Extension */
+    dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset);
 }
 
 /*******************************/
@@ -1684,11 +1749,9 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
         }
 
-        /* Payload CRC (optional) */
-        if (p_fp_info->dch_crc_present)
-        {
-            proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        }
+        /* Spare extension and payload CRC (optional) */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree,
+					p_fp_info->dch_crc_present, offset);
     }
 }
 
@@ -1796,61 +1859,25 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             /* Details of each MAC-es PDU */
             for (i=0; i < subframes[n].number_of_mac_es_pdus; i++)
             {
-                guint8 ddi;
-                int    ddi_offset;
-                guint8 n_pdus;
-                int    n_pdus_offset;
+                guint64 ddi;
+                int     ddi_offset;
+                guint64 n_pdus;
+                int     n_pdus_offset;
 
                 /* DDI (6 bits) */
                 ddi_offset = offset + (bit_offset / 8);
 
-                switch (bit_offset%8)
-                {
-                    case 0:
-                        ddi = (tvb_get_guint8(tvb, ddi_offset) >> 2);
-                        break;
-                    case 2:
-                        ddi = (tvb_get_guint8(tvb, ddi_offset) & 0x3f);
-                        break;
-                    case 4:
-                        ddi = (tvb_get_ntohs(tvb, ddi_offset) >> 6) & 0x003f;
-                        break;
-                    case 6:
-                        ddi = (tvb_get_ntohs(tvb, ddi_offset) >> 4) & 0x003f;
-                        break;
-                    default:
-                        /* Can't get here, but avoid warning */
-                        return;
-                }
-
-                proto_tree_add_uint(subframe_header_tree, hf_fp_edch_ddi, tvb, ddi_offset,
-                                    ((bit_offset%8) <= 2) ? 1 : 2, ddi);
+                proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
+                                            offset*8 + bit_offset, 6, &ddi, FALSE);
 
                 subframes[n].ddi[i] = ddi;
                 bit_offset += 6;
 
                 /* Number of MAC-d PDUs (6 bits) */
                 n_pdus_offset = offset + (bit_offset / 8);
-                switch (bit_offset%8)
-                {
-                    case 0:
-                        n_pdus = (tvb_get_guint8(tvb, n_pdus_offset) >> 2);
-                        break;
-                    case 2:
-                        n_pdus = (tvb_get_guint8(tvb, n_pdus_offset) & 0x3f);
-                        break;
-                    case 4:
-                        n_pdus = (tvb_get_ntohs(tvb, n_pdus_offset) >> 6) & 0x003f;
-                        break;
-                    case 6:
-                        n_pdus = (tvb_get_ntohs(tvb, n_pdus_offset) >> 4) & 0x003f;
-                        break;
-                    default:
-                        /* Can't get here, but avoid warning */
-                        return;
-                }
-                proto_tree_add_uint(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb, n_pdus_offset,
-                                    ((bit_offset%8) <= 2) ? 1 : 2, n_pdus);
+
+                proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb,
+                                            offset*8 + bit_offset, 6, &n_pdus, FALSE);
 
                 subframes[n].number_of_mac_d_pdus[i] = n_pdus;
                 bit_offset += 6;
@@ -1965,13 +1992,9 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                             cfn, total_bits, total_pdus, number_of_subframes);
         }
 
-        /* Payload CRC (optional) */
-        /* TODO: is this test correct...? */
-        /* if (p_fp_info->dch_crc_present) */
-        if (tvb_length_remaining(tvb, offset) == 2)
-        {
-            proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
-        }
+        /* Spare extension and payload CRC (optional) */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree,
+                                        p_fp_info->dch_crc_present, offset);
     }
 }
 
@@ -2087,10 +2110,8 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             }
         }
 
-        /* TODO: may be spare extension to skip */
-
-        /* Payload CRC */
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, 2, FALSE);
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
 }
 
@@ -2839,6 +2860,12 @@ void proto_register_fp(void)
             { "Congestion Status",
               "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x03,
               "Congestion Status", HFILL
+            }
+        },
+        { &hf_fp_spare_extension,
+            { "Spare Extension",
+              "fp.spare-extension", FT_NONE, BASE_NONE, NULL, 0x0,
+              "Spare Extension", HFILL
             }
         },
 
