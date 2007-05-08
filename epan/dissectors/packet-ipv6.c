@@ -302,7 +302,7 @@ static const value_string routing_header_type[] = {
 };
 
 static int
-dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
+dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo) {
     struct ip6_rthdr rt;
     guint len;
     proto_tree *rthdr_tree;
@@ -355,6 +355,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree) {
 	if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
 	  proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb, 
 			      offset + 8, 16, FALSE);
+	  SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
 	}
     }
 
@@ -416,7 +417,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
+dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset, packet_info *pinfo)
 {
     int len = 0;
 
@@ -434,6 +435,7 @@ dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
 
     proto_tree_add_ipv6(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
 	offset + len, 16, tvb_get_ptr(tvb, offset + len, 16));
+    SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + len, 16));
     len += 16;
     return len;
 }
@@ -441,7 +443,7 @@ dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset)
 static const value_string rtalertvals[] = {
     { IP6OPT_RTALERT_MLD, "MLD" },
     { IP6OPT_RTALERT_RSVP, "RSVP" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 /* Like "dissect_ip_tcp_options()", but assumes the length of an option
@@ -633,7 +635,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 		break;
 	      }
 	    case IP6OPT_HOME_ADDRESS:
-		delta = dissect_mipv6_hoa(tvb, dstopt_tree, mip_offset);
+		delta = dissect_mipv6_hoa(tvb, dstopt_tree, mip_offset, pinfo);
 		p += delta;
 		mip_offset += delta;
 		break;
@@ -696,26 +698,26 @@ static const value_string shimoptvals[] = {
     { SHIM6_OPT_CGASIG,	  "CGA Signature Option" },
     { SHIM6_OPT_ULIDPAIR, "ULID Pair Option" },
     { SHIM6_OPT_FII,	  "Forked Instance Identifier Option" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string shimverifmethods[] = {
     { SHIM6_VERIF_HBA, "HBA" },
     { SHIM6_VERIF_CGA, "CGA" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string shimflags[] _U_ = {
     { SHIM6_FLAG_BROKEN,    "BROKEN" },
     { SHIM6_FLAG_TEMPORARY, "TEMPORARY" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string shimreapstates[] = {
     { SHIM6_REAP_OPERATIONAL, "Operational" },
     { SHIM6_REAP_EXPLORING,   "Exploring" },
     { SHIM6_REAP_INBOUNDOK,   "InboundOK" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const true_false_string shim6_critical_opts = {
@@ -1095,7 +1097,7 @@ static const value_string shimctrlvals[] = {
     { SHIM6_TYPE_UPD_ACK,   "Update Acknowledgement" },
     { SHIM6_TYPE_KEEPALIVE, "Keepalive" },
     { SHIM6_TYPE_PROBE,	    "Probe" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static void ipv6_shim6_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo, 
@@ -1346,7 +1348,7 @@ again:
 			goto again;
     case IP_PROTO_ROUTING:
 			routing = TRUE;
-			advance = dissect_routing6(tvb, offset, ipv6_tree);
+			advance = dissect_routing6(tvb, offset, ipv6_tree, pinfo);
 			nxt = tvb_get_guint8(tvb, offset);
 			poffset = offset;
 			offset += advance;
@@ -1836,7 +1838,7 @@ proto_register_ipv6(void)
     &ett_ipv6_shim6_probe_rcvd,
     &ett_ipv6_shim6_cksum,
     &ett_ipv6_fragments,
-    &ett_ipv6_fragment,
+    &ett_ipv6_fragment
   };
   module_t *ipv6_module;
 
