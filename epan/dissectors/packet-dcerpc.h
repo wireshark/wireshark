@@ -233,7 +233,7 @@ int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                            proto_tree *tree, guint8 *drep);
 int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                             proto_tree *tree, guint8 *drep);
-int PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param);
+int PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int chsize, int hfindex, guint32 param);
 
 int dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			 proto_tree *tree, guint8 *drep, int size_is,

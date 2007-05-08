@@ -1455,18 +1455,50 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * unicode string.
  */
 int 
-PIDL_dissect_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex, guint32 param)
+PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int chsize, int hfindex, guint32 param)
 {
-        header_field_info *hf_info;
+	dcerpc_info *di;
+	char *s = NULL;
+	gint levels = CB_STR_ITEM_LEVELS(param);
 
-        hf_info=proto_registrar_get_nth(hfindex);
+	di=pinfo->private_data;
 
-	offset = dissect_ndr_pointer_cb(
-		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
-		hf_info->name, hfindex, cb_wstr_postprocess,
-		GINT_TO_POINTER(param));
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
+				chsize, hfindex,
+				FALSE, &s);
 
+	if(!di->conformant_run){
+		/* Append string to COL_INFO */
+		if (param & PIDL_SET_COL_INFO) {
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+		}
+		/* Save string to dcv->private_data */
+		if((param & PIDL_STR_SAVE)
+		&& (!pinfo->fd->flags.visited)){
+			dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+			dcv->private_data = se_strdup(s);
+		}
+		/* Append string to upper-level proto_items */
+		if (levels > 0 && tree && s && s[0]) {
+			proto_item_append_text(tree, ": %s", s);
+			tree = tree->parent;
+			levels--;
+			if (levels > 0) {
+				proto_item_append_text(tree, ": %s", s);
+				tree = tree->parent;
+				levels--;
+				while (levels > 0) {
+					proto_item_append_text(tree, " %s", s);
+					tree = tree->parent;
+					levels--;
+				}
+			}
+		}
+
+	}
+
+	g_free(s);
 	return offset;
 }
 
