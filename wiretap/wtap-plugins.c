@@ -1,6 +1,6 @@
 /* wtap.h
 *
-* $Id: wtap.h 21651 2007-05-02 20:09:42Z lego $
+* $Id$
 *
 * Wiretap Library
 * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
