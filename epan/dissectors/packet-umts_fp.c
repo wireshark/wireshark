@@ -593,7 +593,7 @@ void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
 
     if (crc_size)
     {
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size, 
+        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
                             FALSE);
     }
 }
@@ -1870,7 +1870,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
                                             offset*8 + bit_offset, 6, &ddi, FALSE);
 
-                subframes[n].ddi[i] = ddi;
+                subframes[n].ddi[i] = (guint8)ddi;
                 bit_offset += 6;
 
                 /* Number of MAC-d PDUs (6 bits) */
@@ -1879,7 +1879,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                 proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb,
                                             offset*8 + bit_offset, 6, &n_pdus, FALSE);
 
-                subframes[n].number_of_mac_d_pdus[i] = n_pdus;
+                subframes[n].number_of_mac_d_pdus[i] = (guint8)n_pdus;
                 bit_offset += 6;
             }
 
