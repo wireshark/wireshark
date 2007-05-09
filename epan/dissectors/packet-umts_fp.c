@@ -1766,7 +1766,7 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8   number_of_subframes;
     guint8   cfn;
     int      n;
-    struct   subframe_info subframes[8];
+    struct   subframe_info subframes[16];
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_edch_header_crc, tvb, offset, 2, FALSE);
