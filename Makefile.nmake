@@ -479,7 +479,7 @@ $(ZLIB_DIR)\zlib1.dll:
 	if not exist $(ZLIB_DIR)\lib mkdir $(ZLIB_DIR)\lib
 	if not exist $(ZLIB_DIR)\include mkdir $(ZLIB_DIR)\include
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
-	mt.exe -nologo -manifest "zlib1.dll.manifest" -outputresource:zlib1.dll;1
+	mt.exe -nologo -manifest "zlib1.dll.manifest" -outputresource:zlib1.dll;2
 !ENDIF
 	copy zlib1.dll $(ZLIB_DIR)
 	copy zdll.lib $(ZLIB_DIR)\lib
