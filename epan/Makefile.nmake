@@ -84,7 +84,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt fty
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" 
-	mt.exe -nologo -manifest "libwireshark.dll.manifest" -outputresource:libwireshark.dll;1
+	mt.exe -nologo -manifest "libwireshark.dll.manifest" -outputresource:libwireshark.dll;2
 !ENDIF
 
 
