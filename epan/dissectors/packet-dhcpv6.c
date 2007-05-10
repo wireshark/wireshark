@@ -970,6 +970,10 @@ proto_register_dhcpv6(void)
   proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
   proto_register_field_array(proto_dhcpv6, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Allow other dissectors to find this one by name.
+     Just choose upstream version for now as they are identical. */
+  register_dissector("dhcpv6", dissect_dhcpv6_upstream, proto_dhcpv6);
 }
 
 void
