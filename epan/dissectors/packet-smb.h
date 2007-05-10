@@ -269,6 +269,7 @@ typedef struct conv_tables {
 typedef struct smb_info {
   guint8 cmd;
   int tid, pid, uid, mid;
+  guint32 nt_status;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
   gboolean unidir;
@@ -302,7 +303,7 @@ typedef struct _smb_fid_into_t {
  * Dissect an smb FID
  */
 extern smb_fid_info_t *dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed);
+    int offset, int len, guint16 fid, gboolean is_created, gboolean is_closed, gboolean is_generated);
 
 /*
  * Dissect named pipe state information.
