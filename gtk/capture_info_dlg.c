@@ -100,6 +100,9 @@ capture_info_ui_update_cb(gpointer data)
   capture_info *cinfo = data;
   capture_info_ui_t *info = cinfo->ui;
 
+  if (!info) /* ...which might happen on slow displays? */
+      return 1;
+
   cinfo->running_time = time(NULL) - info->start_time;
   capture_info_ui_update(cinfo);
   return 1;   /* call the timer again */
@@ -154,7 +157,7 @@ const gchar     *iface)
    *
    * If we have a descriptive name for the interface, show that,
    * rather than its raw name.  On NT 5.x (2K/XP/Server2K3), the
-   * interface name is something like "\Device\NPF_{242423..." 
+   * interface name is something like "\Device\NPF_{242423..."
    * which is pretty useless to the normal user.  On other platforms,
    * it might be less cryptic, but if a more descriptive name is
    * available, we should still use that.
@@ -293,8 +296,11 @@ capture_info    *cinfo)
   capture_info_ui_t *info = cinfo->ui;
 
 
+  if (!info) /* ...which might happen on slow displays? */
+    return;
+
   /* display running time */
-  g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld", 
+  g_snprintf(label_str, sizeof(label_str), "%02ld:%02ld:%02ld",
            (long)(cinfo->running_time/3600), (long)((cinfo->running_time%3600)/60),
            (long)(cinfo->running_time%60));
   gtk_label_set(GTK_LABEL(info->running_time_lb), label_str);
@@ -328,12 +334,16 @@ capture_info    *cinfo)
 {
   capture_info_ui_t *info = cinfo->ui;
 
+  if (!info) /* ...which probably shouldn't happen */
+      return;
+
   gtk_timeout_remove(info->timer_id);
 
   /* called from capture engine, so it's ok to destroy the dialog here */
   gtk_grab_remove(GTK_WIDGET(info->cap_w));
   window_destroy(GTK_WIDGET(info->cap_w));
   g_free(info);
+  cinfo->ui = NULL;
 }
 
 
