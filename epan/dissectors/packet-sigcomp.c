@@ -57,6 +57,8 @@ static int hf_sigcomp_returned_feedback_item_len	= -1;
 static int hf_sigcomp_code_len						= -1;
 static int hf_sigcomp_destination					= -1;
 static int hf_sigcomp_partial_state					= -1;
+static int hf_sigcomp_remaining_message_bytes		= -1;
+static int hf_sigcomp_compression_ratio				= -1;
 static int hf_sigcomp_udvm_instr					= -1;
 static int hf_udvm_multitype_bytecode				= -1;
 static int hf_udvm_reference_bytecode				= -1;
@@ -682,8 +684,12 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		offset = offset + partial_state_len;
 		msg_len = tvb_reported_length_remaining(tvb, offset);
 
-		if(msg_len>0)
-			proto_tree_add_text(sigcomp_tree, tvb, offset, -1, "Remaining SigComp message %u bytes", msg_len);
+		if(msg_len>0){
+			proto_item *ti;
+			ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_remaining_message_bytes, tvb,
+			                         offset, 0, msg_len);
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
 
 		if ( decompress ) {
 			msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
@@ -727,8 +733,10 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 /* end partial state-id change cco@iptel.org */				
 			if ( result_code != 0 ){
-				proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
-					    val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+				proto_item *ti;
+				ti = proto_tree_add_text(sigcomp_tree, tvb, 0, -1,"Failed to Access state Wireshark UDVM diagnostic: %s.",
+				                         val_to_str(result_code, result_code_vals,"Unknown (%u)"));
+				PROTO_ITEM_SET_GENERATED(ti);
 				g_free(buff);
 				return tvb_length(tvb);
 			}
@@ -758,7 +766,16 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		
 
 			if ( decomp_tvb ){
+				proto_item *ti;
+				guint32 compression_ratio = 
+					(guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+
+				/* Celebrate success and show compression ratio achieved */
 				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+				ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
+				                         0, 0, compression_ratio);
+				PROTO_ITEM_SET_GENERATED(ti);
+
 				if ( display_raw_txt )
 					tvb_raw_text_add(decomp_tvb, top_tree);
 				if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -795,19 +812,29 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 		}
 		len = tvb_get_ntohs(tvb, offset) >> 4;
 		if (len == 0){
-			offset++;
 			/* NACK MESSAGE */
+			guint8 opcode;
+			offset++;
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_ver, tvb, offset, 1, FALSE);
 			offset++;
 			octet = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_reason_code, tvb, offset, 1, FALSE);
 			offset++;
+			opcode = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_failed_op_code, tvb, offset, 1, FALSE);
 			offset++;
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, FALSE);
 			offset = offset +2;
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, FALSE);
 			offset = offset +20;
+
+			/* Add NACK info to info column */
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK reason=%s, opcode=%s",
+				                val_to_str(octet, sigcomp_nack_reason_code_vals, "Unknown"),
+				                val_to_str(opcode, udvm_instruction_code_vals, "Unknown"));
+			}
+
 			switch ( octet){
 			case SIGCOMP_NACK_STATE_NOT_FOUND:
 			case SIGCOMP_NACK_ID_NOT_UNIQUE:
@@ -862,7 +889,16 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 						   udvm_print_detail_level, hf_sigcomp_partial_state,
 						   offset, 0, 0, destination);
 				if ( decomp_tvb ){
+					proto_item *ti;
+					guint32 compression_ratio = 
+						(guint32)(((float)tvb_length(decomp_tvb) / (float)tvb_length(tvb)) * 100);
+
+					/* Celebrate success and show compression ratio achieved */
 					proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
+					ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
+											 0, 0, compression_ratio);
+					PROTO_ITEM_SET_GENERATED(ti);
+
 					if ( display_raw_txt )
 						tvb_raw_text_add(decomp_tvb, top_tree);
 					if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -2268,6 +2304,16 @@ proto_register_sigcomp(void)
 			FT_STRING, BASE_NONE, NULL, 0x0,          
 			"Partial state identifier", HFILL }
 		},
+		{ &hf_sigcomp_remaining_message_bytes,
+			{ "Remaining SigComp message bytes", "sigcomp.remaining-bytes",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Number of bytes remaining in message", HFILL }
+		},
+		{ &hf_sigcomp_compression_ratio,
+			{ "Compression ratio (%)", "sigcomp.compression-ratio",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Compression ratio (decompressed / compressed) %", HFILL }
+		},
 		{ &hf_sigcomp_returned_feedback_item_len,
 			{ "Returned feedback item length", "sigcomp.returned.feedback.item.len",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
@@ -2447,17 +2493,17 @@ proto_register_sigcomp(void)
 		{ &hf_udvm_min_acc_len,
 			{ " %Minimum access length", "sigcomp.min.acc.len",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length", HFILL }
+			"Minimum access length", HFILL }
 		},
 		{ &hf_udvm_state_ret_pri,
 			{ " %State retention priority", "sigcomp.udvm.state.ret.pri",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length", HFILL }
+			"State retention priority", HFILL }
 		},
 		{ &hf_udvm_ret_param_loc,
 			{ " %Returned parameters location", "sigcomp.ret.param.loc",
 			FT_UINT16, BASE_DEC, NULL, 0x0,          
-			"Output length", HFILL }
+			"Returned parameters location", HFILL }
 		},
 		{ &hf_udvm_position,
 			{ " %Position", "sigcomp.udvm.position",
@@ -2530,7 +2576,7 @@ proto_register_sigcomp(void)
 			"NACK SHA-1 Hash of failed message", HFILL }
 		},
 		{ &hf_sigcomp_nack_state_id,
-			{ "State ID (6 - 20 bytes)", "sigcomp.nack.tate_id",
+			{ "State ID (6 - 20 bytes)", "sigcomp.nack.state_id",
 			FT_BYTES, BASE_HEX, NULL, 0x0,          
 			"NACK State ID (6 - 20 bytes)", HFILL }
 		},
