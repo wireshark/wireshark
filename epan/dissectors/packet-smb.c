@@ -1599,13 +1599,10 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 
 /* 3.11 */
 static int
-dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint32 mask)
 {
-	guint32 mask;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
-
-	mask = tvb_get_letohl(tvb, offset);
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
@@ -1654,6 +1651,19 @@ dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		tvb, offset, 4, mask);
 
 	offset += 4;
+
+	return offset;
+}
+
+/* 3.11 */
+static int
+dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	offset = dissect_file_ext_attr_bits(tvb, parent_tree, offset, mask);
 
 	return offset;
 }
@@ -2628,7 +2638,7 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	smb_info_t *si = pinfo->private_data;
 	proto_item *it;
 	proto_tree *tr;
-	smb_fid_info_t *fid_info=NULL;
+	smb_tid_info_t *tid_info=NULL;
 
 	DISSECTOR_ASSERT(si);
 
@@ -2638,42 +2648,42 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	offset += 2;
 
 	if((!pinfo->fd->flags.visited) && is_created){
-		fid_info=se_alloc(sizeof(smb_fid_info_t));
-		fid_info->opened_in=pinfo->fd->num;
-		fid_info->closed_in=0;
-		fid_info->type=SMB_FID_TYPE_UNKNOWN;
-		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILENAME)){
-			fid_info->filename=si->sip->extra_info;
+		tid_info=se_alloc(sizeof(smb_tid_info_t));
+		tid_info->opened_in=pinfo->fd->num;
+		tid_info->closed_in=0;
+		tid_info->type=SMB_FID_TYPE_UNKNOWN;
+		if(si->sip && (si->sip->extra_info_type==SMB_EI_TIDNAME)){
+			tid_info->filename=si->sip->extra_info;
 		} else {
-			fid_info->filename=NULL;
+			tid_info->filename=NULL;
 		}
-		se_tree_insert32(si->ct->tid_tree, tid, fid_info);
+		se_tree_insert32(si->ct->tid_tree, tid, tid_info);
 	}
 
-	if(!fid_info){
-		fid_info=se_tree_lookup32_le(si->ct->tid_tree, tid);
+	if(!tid_info){
+		tid_info=se_tree_lookup32_le(si->ct->tid_tree, tid);
 	}
-	if(!fid_info){
+	if(!tid_info){
 		return offset;
 	}
 
 	if((!pinfo->fd->flags.visited) && is_closed){
-		fid_info->closed_in=pinfo->fd->num;
+		tid_info->closed_in=pinfo->fd->num;
 	}
 
-	if(fid_info->opened_in){
-		if(fid_info->filename){
-			proto_item_append_text(it, "  (%s)", fid_info->filename);
+	if(tid_info->opened_in){
+		if(tid_info->filename){
+			proto_item_append_text(it, "  (%s)", tid_info->filename);
 
-			it=proto_tree_add_string(tr, hf_smb_path, tvb, 0, 0, fid_info->filename);
+			it=proto_tree_add_string(tr, hf_smb_path, tvb, 0, 0, tid_info->filename);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
 
-		it=proto_tree_add_uint(tr, hf_smb_mapped_in, tvb, 0, 0, fid_info->opened_in);
+		it=proto_tree_add_uint(tr, hf_smb_mapped_in, tvb, 0, 0, tid_info->opened_in);
 		PROTO_ITEM_SET_GENERATED(it);
 	}		
-	if(fid_info->closed_in){
-		it=proto_tree_add_uint(tr, hf_smb_unmapped_in, tvb, 0, 0, fid_info->closed_in);
+	if(tid_info->closed_in){
+		it=proto_tree_add_uint(tr, hf_smb_unmapped_in, tvb, 0, 0, tid_info->closed_in);
 		PROTO_ITEM_SET_GENERATED(it);
 	}		
 
@@ -3047,6 +3057,254 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	return offset;
 }
 
+
+
+static int
+dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint32 mask)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Create Flags: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
+	}
+
+	/*
+	 * XXX - it's 0x00000016 in at least one capture, but
+	 * Network Monitor doesn't say what the 0x00000010 bit is.
+	 * Does the Win32 API documentation, or NT Native API book,
+	 * suggest anything?
+	 *
+	 * That is the extended response desired bit ... RJS, from Samba
+	 * Well, maybe. Samba thinks it is, and uses it to encode
+	 * OpLock granted as the high order bit of the Action field
+	 * in the response. However, Windows does not do that. Or at least
+	 * Win2K doesn't.
+	 */
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_ext_resp,
+			       tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_oplock,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+/* FIXME: need to call dissect_nt_access_mask() instead */
+static int
+dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint32 mask)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Access Mask: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
+	}
+
+	/*
+	 * Some of these bits come from
+	 *
+	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+	 *
+	 * and others come from the section on ZwOpenFile in "Windows(R)
+	 * NT(R)/2000 Native API Reference".
+	 */
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+int
+dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	offset = dissect_smb_access_mask_bits(tvb, parent_tree, offset, mask);
+
+	return offset;
+}
+
+
+#define SHARE_ACCESS_DELETE	0x00000004
+#define SHARE_ACCESS_WRITE	0x00000002
+#define SHARE_ACCESS_READ	0x00000001
+
+static int
+dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint32 mask)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Share Access: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
+		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_DELETE){
+		proto_item_append_text(item, " SHARE_DELETE");
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
+		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_WRITE){
+		proto_item_append_text(item, " SHARE_WRITE");
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
+		tvb, offset, 4, mask);
+	if(mask&SHARE_ACCESS_READ){
+		proto_item_append_text(item, " SHARE_READ");
+	}
+
+	offset += 4;
+
+	return offset;
+}
+
+int
+dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	offset = dissect_nt_share_access_bits(tvb, parent_tree, offset, mask);
+
+	return offset;
+}
+
+
+static int
+dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint32 mask)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Create Options: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
+	}
+
+	/*
+	 * From
+	 *
+	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+	 */
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_directory_file,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_intermediate_buffering,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_create_tree_connection,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_complete_if_oplocked,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_eight_dot_three_only,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_compression,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_reserve_opfilter,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_reparse_point,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_no_recall,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_for_free_space_query,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+int
+dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	offset = dissect_nt_create_options_bits(tvb, parent_tree, offset, mask);
+
+	return offset;
+}
+
+
 /* fids are scoped by tcp session */
 smb_fid_info_t *
 dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
@@ -3072,10 +3330,10 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		fid_info->opened_in=pinfo->fd->num;
 		fid_info->closed_in=0;
 		fid_info->type=SMB_FID_TYPE_UNKNOWN;
-		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILENAME)){
-			fid_info->filename=si->sip->extra_info;
+		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILEDATA)){
+			fid_info->fsi=si->sip->extra_info;
 		} else {
-			fid_info->filename=NULL;
+			fid_info->fsi=NULL;
 		}
 
 		se_tree_insert32(si->ct->fid_tree, fid, fid_info);
@@ -3093,18 +3351,27 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	}
 
 	if(fid_info->opened_in){
-		if(fid_info->filename){
-			it=proto_tree_add_string(tr, hf_smb_file_name, tvb, 0, 0, fid_info->filename);
-			PROTO_ITEM_SET_GENERATED(it);
-			proto_item_append_text(tr, " (%s)", fid_info->filename);
-		}
-
 		it=proto_tree_add_uint(tr, hf_smb_opened_in, tvb, 0, 0, fid_info->opened_in);
 		PROTO_ITEM_SET_GENERATED(it);
-	}		
+	}
+
 	if(fid_info->closed_in){
 		it=proto_tree_add_uint(tr, hf_smb_closed_in, tvb, 0, 0, fid_info->closed_in);
 		PROTO_ITEM_SET_GENERATED(it);
+	}
+		
+
+	if(fid_info->opened_in){
+		if(fid_info->fsi && fid_info->fsi->filename){
+			it=proto_tree_add_string(tr, hf_smb_file_name, tvb, 0, 0, fid_info->fsi->filename);
+			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_append_text(tr, " (%s)", fid_info->fsi->filename);
+			dissect_nt_create_bits(tvb, tr, 0, fid_info->fsi->create_flags);
+			dissect_smb_access_mask_bits(tvb, tr, 0,fid_info->fsi->access_mask);
+			dissect_file_ext_attr_bits(tvb, tr, 0, fid_info->fsi->file_attributes);
+			dissect_nt_share_access_bits(tvb, tr, 0, fid_info->fsi->share_access);
+			dissect_nt_create_options_bits(tvb, tr, 0, fid_info->fsi->create_options);
+		}
 	}		
 
 	return fid_info;
@@ -6747,7 +7014,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	 * dissect_smb_tid()   called from the response.
 	 */
 	if((!pinfo->fd->flags.visited) && si->sip && an){
-		si->sip->extra_info_type=SMB_EI_FILENAME;
+		si->sip->extra_info_type=SMB_EI_TIDNAME;
 		si->sip->extra_info=se_strdup(an);
 	}
 
@@ -7272,160 +7539,6 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	return offset;
 }
 
-#define SHARE_ACCESS_DELETE	0x00000004
-#define SHARE_ACCESS_WRITE	0x00000002
-#define SHARE_ACCESS_READ	0x00000001
-
-int
-dissect_nt_share_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
-{
-	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	mask = tvb_get_letohl(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Share Access: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
-		tvb, offset, 4, mask);
-	if(mask&SHARE_ACCESS_DELETE){
-		proto_item_append_text(item, " SHARE_DELETE");
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
-		tvb, offset, 4, mask);
-	if(mask&SHARE_ACCESS_WRITE){
-		proto_item_append_text(item, " SHARE_WRITE");
-	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
-		tvb, offset, 4, mask);
-	if(mask&SHARE_ACCESS_READ){
-		proto_item_append_text(item, " SHARE_READ");
-	}
-
-	offset += 4;
-
-	return offset;
-}
-
-/* FIXME: need to call dissect_nt_access_mask() instead */
-
-int
-dissect_smb_access_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
-{
-	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	mask = tvb_get_letohl(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Access Mask: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
-	}
-
-	/*
-	 * Some of these bits come from
-	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
-	 *
-	 * and others come from the section on ZwOpenFile in "Windows(R)
-	 * NT(R)/2000 Native API Reference".
-	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
-		tvb, offset, 4, mask);
-
-	offset += 4;
-
-	return offset;
-}
-
-static int
-dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
-{
-	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	mask = tvb_get_letohl(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Create Flags: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
-	}
-
-	/*
-	 * XXX - it's 0x00000016 in at least one capture, but
-	 * Network Monitor doesn't say what the 0x00000010 bit is.
-	 * Does the Win32 API documentation, or NT Native API book,
-	 * suggest anything?
-	 *
-	 * That is the extended response desired bit ... RJS, from Samba
-	 * Well, maybe. Samba thinks it is, and uses it to encode
-	 * OpLock granted as the high order bit of the Action field
-	 * in the response. However, Windows does not do that. Or at least
-	 * Win2K doesn't.
-	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_ext_resp,
-			       tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_oplock,
-		tvb, offset, 4, mask);
-
-	offset += 4;
-
-	return offset;
-}
-
 /*
  * XXX - there are some more flags in the description of "ZwOpenFile()"
  * in "Windows(R) NT(R)/2000 Native API Reference"; do those go over
@@ -7523,72 +7636,6 @@ static const true_false_string tfs_nt_create_options_open_for_free_space_query =
 	"This is an OPEN FOR FREE SPACE QUERY",
 	"This is NOT an open for free space query"
 };
-
-int
-dissect_nt_create_options(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
-{
-	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-
-	mask = tvb_get_letohl(tvb, offset);
-
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Create Options: 0x%08x", mask);
-		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
-	}
-
-	/*
-	 * From
-	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
-	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_directory_file,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_intermediate_buffering,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_create_tree_connection,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_complete_if_oplocked,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_eight_dot_three_only,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_compression,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_reserve_opfilter,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_reparse_point,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_no_recall,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_for_free_space_query,
-		tvb, offset, 4, mask);
-
-	offset += 4;
-
-	return offset;
-}
 
 int
 dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
@@ -7872,7 +7919,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	guint32 fn_len;
+	guint32 fn_len, create_flags, access_mask, file_attributes, share_access, create_options;
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -7889,7 +7936,8 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
 		/* Create flags */
-		offset = dissect_nt_create_bits(tvb, tree, offset);
+		create_flags=tvb_get_letohl(tvb, offset);
+		offset = dissect_nt_create_bits(tvb, tree, offset, create_flags);
 		bc -= 4;
 
 		/* root directory fid */
@@ -7897,7 +7945,8 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		COUNT_BYTES(4);
 
 		/* nt access mask */
-		offset = dissect_smb_access_mask(tvb, tree, offset);
+		access_mask=tvb_get_letohl(tvb, offset);
+		offset = dissect_smb_access_mask_bits(tvb, tree, offset, access_mask);
 		bc -= 4;
 
 		/* allocation size */
@@ -7905,11 +7954,13 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		COUNT_BYTES(8);
 
 		/* Extended File Attributes */
-		offset = dissect_file_ext_attr(tvb, tree, offset);
+		file_attributes=tvb_get_letohl(tvb, offset);
+		offset = dissect_file_ext_attr_bits(tvb, tree, offset, file_attributes);
 		bc -= 4;
 
 		/* share access */
-		offset = dissect_nt_share_access(tvb, tree, offset);
+		share_access=tvb_get_letohl(tvb, offset);
+		offset = dissect_nt_share_access_bits(tvb, tree, offset, share_access);
 		bc -= 4;
 
 		/* create disposition */
@@ -7917,7 +7968,8 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		COUNT_BYTES(4);
 
 		/* create options */
-		offset = dissect_nt_create_options(tvb, tree, offset);
+		create_options=tvb_get_letohl(tvb, offset);
+		offset = dissect_nt_create_options_bits(tvb, tree, offset, create_options);
 		bc -= 4;
 
 		/* sd length */
@@ -9307,6 +9359,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	smb_info_t *si = pinfo->private_data;
 	int fn_len;
 	const char *fn;
+	guint32 create_flags=0, access_mask=0, file_attributes=0, share_access=0, create_options=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -9340,31 +9393,36 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 2;
 
 	/* Create flags */
-	offset = dissect_nt_create_bits(tvb, tree, offset);
+	create_flags=tvb_get_letohl(tvb, offset);
+	offset = dissect_nt_create_bits(tvb, tree, offset, create_flags);
 
 	/* root directory fid */
 	proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* nt access mask */
-	offset = dissect_smb_access_mask(tvb, tree, offset);
+	access_mask=tvb_get_letohl(tvb, offset);
+	offset = dissect_smb_access_mask_bits(tvb, tree, offset, access_mask);
 
 	/* allocation size */
 	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
 	offset += 8;
 
 	/* Extended File Attributes */
-	offset = dissect_file_ext_attr(tvb, tree, offset);
+	file_attributes=tvb_get_letohl(tvb, offset);
+	offset = dissect_file_ext_attr_bits(tvb, tree, offset, file_attributes);
 
 	/* share access */
-	offset = dissect_nt_share_access(tvb, tree, offset);
+	share_access=tvb_get_letohl(tvb, offset);
+	offset = dissect_nt_share_access_bits(tvb, tree, offset, share_access);
 
 	/* create disposition */
 	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* create options */
-	offset = dissect_nt_create_options(tvb, tree, offset);
+	create_options=tvb_get_letohl(tvb, offset);
+	offset = dissect_nt_create_options_bits(tvb, tree, offset, create_options);
 
 	/* impersonation level */
 	proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
@@ -9387,8 +9445,18 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	 * dissect_smb_fid()   called from the response.
 	 */
 	if((!pinfo->fd->flags.visited) && si->sip && fn){
-		si->sip->extra_info_type=SMB_EI_FILENAME;
-		si->sip->extra_info=se_strdup(fn);
+		smb_fid_saved_info_t *fsi;
+
+		fsi=se_alloc(sizeof(smb_fid_saved_info_t));
+		fsi->filename=se_strdup(fn);
+		fsi->create_flags=create_flags;
+		fsi->access_mask=access_mask;
+		fsi->file_attributes=file_attributes;
+		fsi->share_access=share_access;
+		fsi->create_options=create_options;
+
+		si->sip->extra_info_type=SMB_EI_FILEDATA;
+		si->sip->extra_info=fsi;
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {

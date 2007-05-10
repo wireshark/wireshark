@@ -204,7 +204,8 @@ typedef enum {
 	SMB_EI_NTI,		/* smb_nt_transact_info_t * */
 	SMB_EI_TRI,		/* smb_transact_info_t * */
 	SMB_EI_T2I,		/* smb_transact2_info_t * */
-	SMB_EI_FILENAME,	/* fid tracking  char * */
+	SMB_EI_TIDNAME,	/* tid tracking char * */
+	SMB_EI_FILEDATA,	/* fid tracking */
 	SMB_EI_UID		/* smb_uid_t */
 } smb_extra_info_t;
 typedef struct {
@@ -290,13 +291,30 @@ extern int dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 #define SMB_FID_TYPE_FILE	1
 #define SMB_FID_TYPE_DIR	2
 #define SMB_FID_TYPE_PIPE	3
+
 /* used for tracking fid/tid to filename/sharename openedframe closedframe */
+typedef struct _smb_fid_saved_info_t {
+	char *filename;
+	guint32 create_flags;
+	guint32 access_mask;
+	guint32 file_attributes;
+	guint32 share_access;
+	guint32 create_options;
+} smb_fid_saved_info_t;
 typedef struct _smb_fid_into_t {
+	int opened_in;
+	int closed_in;
+	int type;
+	smb_fid_saved_info_t *fsi;
+} smb_fid_info_t;
+
+/* used for tracking tid to sharename openedframe closedframe */
+typedef struct _smb_tid_into_t {
 	int opened_in;
 	int closed_in;
 	char *filename;
 	int type;
-} smb_fid_info_t;
+} smb_tid_info_t;
 
 
 /*
