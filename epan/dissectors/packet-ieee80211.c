@@ -1013,6 +1013,7 @@ static int hf_block_ack_type = -1;
 /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
 
 static int ht_cap = -1;
+static int ht_vs_cap = -1;
 static int ht_ldpc_coding = -1;
 static int ht_chan_width = -1;
 static int ht_sm_pwsave = -1;
@@ -1029,11 +1030,13 @@ static int ht_40_mhz_intolerant = -1;
 static int ht_l_sig = -1;
 
 static int ampduparam = -1;
+static int ampduparam_vs = -1;
 static int ampduparam_mpdu = -1;
 static int ampduparam_mpdu_start_spacing = -1;
 static int ampduparam_reserved = -1;
 
 static int mcsset = -1;
+static int mcsset_vs = -1;
 static int mcsset_rx_bitmask_0to7 = -1;
 static int mcsset_rx_bitmask_8to15 = -1;
 static int mcsset_rx_bitmask_16to23 = -1;
@@ -1049,6 +1052,7 @@ static int mcsset_tx_max_spatial_streams = -1;
 static int mcsset_tx_unequal_modulation = -1;
 
 static int htex_cap = -1;
+static int htex_vs_cap = -1;
 static int htex_pco = -1;
 static int htex_transtime = -1;
 static int htex_mcs = -1;
@@ -1056,6 +1060,7 @@ static int htex_htc_support = -1;
 static int htex_rd_responder = -1;
 
 static int txbf = -1;
+static int txbf_vs = -1;
 static int txbf_cap = -1;
 static int txbf_rcv_ssc = -1;
 static int txbf_tx_ssc = -1;
@@ -1237,6 +1242,7 @@ static int hta_pco_phase = -1;
 
 
 static int antsel = -1;
+static int antsel_vs = -1;
 static int antsel_b0 = -1;
 static int antsel_b1 = -1;
 static int antsel_b2 = -1;
@@ -3203,13 +3209,13 @@ done:
 }
 
 static void
-dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic) {
+dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gboolean vs) {
   proto_item *ti;
   proto_tree *mcs_tree, *bit_tree;
   guint16 capability;
 
   /* 16 byte Supported MCS set */
-  ti = proto_tree_add_string(tree, mcsset, tvb, offset, 16,
+  ti = proto_tree_add_string(tree, vs ? mcsset_vs : mcsset, tvb, offset, 16,
       basic ? "Basic MCS Set" : "MCS Set");
   mcs_tree = proto_item_add_subtree(ti, ett_mcsset_tree);
 
@@ -3326,7 +3332,7 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 2;
   cap_tree = tree;
 
-  dissect_mcs_set(cap_tree, tvb, offset, TRUE);
+  dissect_mcs_set(cap_tree, tvb, offset, TRUE, FALSE);
   offset += 16;
 
   if (tag_val_init_off - offset < tag_len){
@@ -3360,7 +3366,7 @@ static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int o
 
 static void
 dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
-         guint32 tag_len)
+         guint32 tag_len, gboolean vs)
 {
   proto_item *cap_item;
   proto_tree *cap_tree;
@@ -3382,9 +3388,8 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 2 byte HT Capabilities  Info*/
   capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, ht_cap, tvb,
-                    offset, 2, capability,
-                    "HT Capabilities Info: 0x%04X", capability);
+  cap_item = proto_tree_add_item(tree, vs ? ht_vs_cap : ht_cap, tvb,
+                    offset, 2, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_ht_cap_tree);
   proto_tree_add_boolean(cap_tree, ht_ldpc_coding, tvb, offset, 1,
              capability);
@@ -3420,9 +3425,8 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 1 byte A-MPDU Parameters */
   capability = tvb_get_guint8 (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, ampduparam, tvb,
-                    offset, 1, capability,
-                    "A-MPDU Parameters: 0x%02X", capability);
+  cap_item = proto_tree_add_item(tree, vs ? ampduparam_vs : ampduparam, tvb,
+                    offset, 1, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_ampduparam_tree);
   proto_tree_add_uint_format(cap_tree, ampduparam_mpdu, tvb, offset, 1, capability, decode_numeric_bitfield(capability, 0x03, 8,"Maximum Rx A-MPDU Length: %%04.0Lf [Bytes]"), pow(2,13+(capability & 0x3))-1);
   proto_tree_add_uint(cap_tree, ampduparam_mpdu_start_spacing, tvb, offset, 1, capability);
@@ -3430,15 +3434,14 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   offset += 1;
   tag_val_off += 1;
 
-  dissect_mcs_set(cap_tree, tvb, offset, FALSE);
+  dissect_mcs_set(cap_tree, tvb, offset, FALSE, vs);
   offset += 16;
   tag_val_off += 16;
 
   /* 2 byte HT Extended Capabilities */
   capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, htex_cap, tvb,
-                    offset, 2, capability,
-                    "HT Extended Capabilities: 0x%04X", capability);
+  cap_item = proto_tree_add_item(tree, vs ? htex_vs_cap : htex_cap, tvb,
+                    offset, 2, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_htex_cap_tree);
   proto_tree_add_boolean(cap_tree, htex_pco, tvb, offset, 1,
              capability);
@@ -3456,8 +3459,8 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 4 byte TxBF capabilities */
   txbfcap = tvb_get_letohl (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, txbf, tvb,
-                    offset, 4, txbfcap, "Transmit Beam Forming (TxBF) Capabilities: 0x%08X", txbfcap);
+  cap_item = proto_tree_add_item(tree, vs ? txbf_vs : txbf, tvb,
+                    offset, 4, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_txbf_tree);
   proto_tree_add_boolean(cap_tree, txbf_cap, tvb, offset, 1,
              txbfcap);
@@ -3505,9 +3508,8 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 
   /* 1 byte Antenna Selection (ASEL) capabilities */
   capability = tvb_get_guint8 (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, antsel, tvb,
-                    offset, 1, capability,
-                    "Antenna Selection (ASEL) Capabilties: 0x%02X", capability);
+  cap_item = proto_tree_add_item(tree, vs ? antsel_vs : antsel, tvb,
+                    offset, 1, TRUE);
   cap_tree = proto_item_add_subtree(cap_item, ett_antsel_tree);
   proto_tree_add_boolean(cap_tree, antsel_b0, tvb, offset, 1,
              capability);
@@ -3617,7 +3619,7 @@ dissect_ht_info_ie_1_0(proto_tree * tree, tvbuff_t * tvb, int offset,
   tag_val_off += 2;
 
   /* 16 byte Supported MCS set */
-  dissect_mcs_set(tree, tvb, offset, FALSE);
+  dissect_mcs_set(tree, tvb, offset, FALSE, TRUE);
   offset += 16;
   tag_val_off += 16;
 
@@ -3770,7 +3772,7 @@ dissect_vendor_ie_ht(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
     g_snprintf(out_buff, SHORT_STR, "802.11n (Pre) HT information");
     proto_tree_add_string(tree, tag_interpretation, tag_tvb, 3, 1, out_buff);
 
-    dissect_ht_capability_ie(tree, tag_tvb, 4, tag_len - 4);
+    dissect_ht_capability_ie(tree, tag_tvb, 4, tag_len - 4, TRUE);
     proto_item_append_text(ietree, ": HT Capabilities (802.11n D1.10)");
   }
   else {
@@ -4421,7 +4423,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       break;
 
     case TAG_HT_CAPABILITY:
-      dissect_ht_capability_ie(tree, tvb, offset + 2, tag_len);
+      dissect_ht_capability_ie(tree, tvb, offset + 2, tag_len, FALSE);
       break;
 
     case TAG_HT_INFO:
@@ -4987,7 +4989,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         case SUB_TAG_HT_CAPABILITIES:
           parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Capabilities");
           sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
-          dissect_ht_capability_ie(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length);
+          dissect_ht_capability_ie(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length, FALSE);
           break;
         case SUB_TAG_HT_INFO:
           parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Information");
@@ -8758,8 +8760,12 @@ proto_register_ieee80211 (void)
       "RSN GTKSA Replay Counter capabilities", HFILL }},
 
     {&ht_cap,
-     {"HT Capabilities", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
+     {"HT Capabilities Info", "wlan_mgt.ht.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "HT Capability information", HFILL }},
+
+    {&ht_vs_cap,
+     {"HT Capabilities Info (VS)", "wlan_mgt.vs.ht.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "Vendor Specific HT Capability information", HFILL }},
 
     {&ht_ldpc_coding,
      {"HT LDPC coding capability", "wlan_mgt.ht.capabilities.ldpccoding",
@@ -8832,8 +8838,12 @@ proto_register_ieee80211 (void)
       "HT L-SIG TXOP Protection support", HFILL }},
 
     {&ampduparam,
-     {"MAC Parameters", "wlan_mgt.ht.ampduparam", FT_UINT16, BASE_HEX,
-      NULL, 0, "MAC Parameters", HFILL }},
+     {"A-MPDU Parameters", "wlan_mgt.ht.ampduparam", FT_UINT16, BASE_HEX,
+      NULL, 0, "A-MPDU Parameters", HFILL }},
+
+    {&ampduparam_vs,
+     {"A-MPDU Parameters (VS)", "wlan_mgt.vs.ht.ampduparam", FT_UINT16, BASE_HEX,
+      NULL, 0, "Vendor Specific A-MPDU Parameters", HFILL }},
 
     {&ampduparam_mpdu,
      {"Maximum Rx A-MPDU Length", "wlan_mgt.ht.ampduparam.maxlength",
@@ -8853,6 +8863,10 @@ proto_register_ieee80211 (void)
     {&mcsset,
      {"Rx Supported Modulation and Coding Scheme Set", "wlan_mgt.ht.mcsset",
       FT_STRING, BASE_NONE, NULL, 0, "Rx Supported Modulation and Coding Scheme Set", HFILL }},
+
+    {&mcsset_vs,
+     {"Rx Supported Modulation and Coding Scheme Set (VS)", "wlan_mgt.vs.ht.mcsset",
+      FT_STRING, BASE_NONE, NULL, 0, "Vendor Specific Rx Supported Modulation and Coding Scheme Set", HFILL }},
 
     {&mcsset_rx_bitmask_0to7,
      {"Rx Bitmask Bits 0-7", "wlan_mgt.ht.mcsset.rxbitmask.0to7",
@@ -8914,6 +8928,10 @@ proto_register_ieee80211 (void)
      {"HT Extended Capabilities", "wlan_mgt.htex.capabilities", FT_UINT16, BASE_HEX,
       NULL, 0, "HT Extended Capability information", HFILL }},
 
+    {&htex_vs_cap,
+     {"HT Extended Capabilities (VS)", "wlan_mgt.vs.htex.capabilities", FT_UINT16, BASE_HEX,
+      NULL, 0, "Vendor Specific HT Extended Capability information", HFILL }},
+
     {&htex_pco,
      {"Transmitter supports PCO", "wlan_mgt.htex.capabilities.pco",
       FT_BOOLEAN, 16, TFS (&ht_tf_flag), 0x0001,
@@ -8940,8 +8958,12 @@ proto_register_ieee80211 (void)
       "Reverse Direction Responder", HFILL }},
 
     {&txbf,
-     {"TxBF Transmit Beam Forming Capability", "wlan_mgt.txbf", FT_UINT16, BASE_HEX,
-      NULL, 0, "TxBF Transmit Beam Forming Capability", HFILL }},
+     {"Transmit Beam Forming (TxBF) Capabilities", "wlan_mgt.txbf", FT_UINT16, BASE_HEX,
+      NULL, 0, "Transmit Beam Forming (TxBF) Capabilities", HFILL }},
+
+    {&txbf_vs,
+     {"Transmit Beam Forming (TxBF) Capabilities (VS)", "wlan_mgt.vs.txbf", FT_UINT16, BASE_HEX,
+      NULL, 0, "Vendor Specific Transmit Beam Forming (TxBF) Capabilities", HFILL }},
 
     {&txbf_cap,
      {"Transmit Beamforming", "wlan_mgt.txbf.txbf",
@@ -9113,8 +9135,12 @@ proto_register_ieee80211 (void)
       "Phased Coexistence Operation (PCO) Phase", HFILL }},
 
     {&antsel,
-     {"Antenna Selection Capability", "wlan_mgt.txbf",
-      FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection Capability", HFILL }},
+     {"Antenna Selection (ASEL) Capabilties", "wlan_mgt.asel",
+      FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection (ASEL) Capabilties", HFILL }},
+
+    {&antsel_vs,
+     {"Antenna Selection (ASEL) Capabilties (VS)", "wlan_mgt.vs.asel",
+      FT_UINT8, BASE_HEX, NULL, 0, "Vendor Specific Antenna Selection (ASEL) Capabilties", HFILL }},
 
     {&antsel_b0,
      {"Antenna Selection Capable", "wlan_mgt.asel.capable",
