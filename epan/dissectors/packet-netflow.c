@@ -169,6 +169,7 @@ static int      proto_netflow = -1;
 static int      ett_netflow = -1;
 static int      ett_unixtime = -1;
 static int      ett_flow = -1;
+static int      ett_flowtime = -1;
 static int      ett_template = -1;
 static int      ett_field = -1;
 static int      ett_dataflowset = -1;
@@ -247,6 +248,7 @@ static int      hf_cflow_octets = -1;
 static int      hf_cflow_octets64 = -1;
 static int      hf_cflow_length_min = -1;
 static int      hf_cflow_length_max = -1;
+static int      hf_cflow_timedelta = -1;
 static int      hf_cflow_timestart = -1;
 static int      hf_cflow_timeend = -1;
 static int      hf_cflow_srcport = -1;
@@ -701,20 +703,40 @@ flow_process_ports(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 static int
 flow_process_timeperiod(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 {
-	nstime_t        ts;
-	guint32         msec;
+	nstime_t        ts_start, ts_end;
+	int		offset_s, offset_e;
+	nstime_t	ts_delta;
+	guint32         msec_start, msec_end;
+	guint32         msec_delta;
+	proto_tree *	timetree = 0;
+	proto_item *    timeitem = 0;
 
-	msec = tvb_get_ntohl(tvb, offset);
-	ts.secs = msec / 1000;
-	ts.nsecs = (msec % 1000) * 1000000;
-	proto_tree_add_time(pdutree, hf_cflow_timestart, tvb, offset, 4, &ts);
+
+	msec_start = tvb_get_ntohl(tvb, offset);
+	ts_start.secs = msec_start / 1000;
+	ts_start.nsecs = (msec_start % 1000) * 1000000;
+	offset_s = offset;
 	offset += 4;
 
-	msec = tvb_get_ntohl(tvb, offset);
-	ts.secs = msec / 1000;
-	ts.nsecs = (msec % 1000) * 1000000;
-	proto_tree_add_time(pdutree, hf_cflow_timeend, tvb, offset, 4, &ts);
+	msec_end = tvb_get_ntohl(tvb, offset);
+	ts_end.secs = msec_end / 1000;
+	ts_end.nsecs = (msec_end % 1000) * 1000000;
+	offset_e = offset;
 	offset += 4;
+
+	msec_delta = msec_end - msec_start;
+	ts_delta.secs = msec_delta / 1000;
+	ts_delta.nsecs = (msec_delta % 1000) * 1000000;
+
+
+	timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb, 
+				       offset_s, 8, &ts_delta);
+	timetree = proto_item_add_subtree(timeitem, ett_flowtime);
+
+	proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4, 
+			    &ts_start);
+	proto_tree_add_time(timetree, hf_cflow_timeend, tvb, offset_e, 4, 
+			    &ts_end);
 
 	return offset;
 }
@@ -1083,6 +1105,13 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
     struct v9_template * template)
 {
 	int i;
+	nstime_t        ts_start, ts_end;
+	int		offset_s = 0, offset_e = 0;
+	nstime_t	ts_delta;
+	guint32         msec_start = 0, msec_end = 0;
+	guint32         msec_delta;
+	proto_tree *	timetree = 0;
+	proto_item *    timeitem = 0;
 
 	if( (template->count_scopes > 0) && (template->scopes != NULL)) {
 		for(i = 0; i < template->count_scopes; i++) {
@@ -1132,8 +1161,6 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 	for (i = 0; i < template->count; i++) {
 		guint16 type, length;
-		nstime_t ts;
-		guint32 msec;
 
 		type = template->entries[i].type;
 		length = template->entries[i].length;
@@ -1302,20 +1329,34 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			    tvb, offset, length, FALSE);
 			break;
 
-		case 21: /* last switched */
-		        msec = tvb_get_ntohl(tvb, offset);
-			ts.secs = msec / 1000;
-			ts.nsecs = (msec % 1000) * 1000000;
-			proto_tree_add_time(pdutree, hf_cflow_timeend,
-			    tvb, offset, length, &ts);
-			break;
-
 		case 22: /* first switched */
-		        msec = tvb_get_ntohl(tvb, offset);
-			ts.secs = msec / 1000;
-			ts.nsecs = (msec % 1000) * 1000000;
-			proto_tree_add_time(pdutree, hf_cflow_timestart,
-			    tvb, offset, length, &ts);
+		case 21: /* last switched */
+			if(type == 22) {
+				offset_s = offset;
+			        msec_start = tvb_get_ntohl(tvb, offset);
+				ts_start.secs = msec_start / 1000;
+				ts_start.nsecs = (msec_start % 1000) * 1000000;
+			} else {
+				offset_e = offset;
+			        msec_end = tvb_get_ntohl(tvb, offset);
+				ts_end.secs = msec_end / 1000;
+				ts_end.nsecs = (msec_end % 1000) * 1000000;
+			}
+			if(offset_s && offset_e) {
+				msec_delta = msec_end - msec_start;
+				ts_delta.secs = msec_delta / 1000;
+				ts_delta.nsecs = (msec_delta % 1000) * 1000000;
+			
+				timeitem = 
+				  proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb, 
+						      offset_s, 0, &ts_delta);
+				timetree = proto_item_add_subtree(timeitem, ett_flowtime);
+			
+				proto_tree_add_time(timetree, hf_cflow_timestart, tvb,
+						    offset_s, 4, &ts_start);
+				proto_tree_add_time(timetree, hf_cflow_timeend, tvb, 
+						    offset_e, 4, &ts_end);
+			}
 			break;
 
 		case 25: /* length_min */
@@ -1610,6 +1651,17 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		offset += length;
 	}
+	if (!(offset_s && offset_e)) {
+		if (offset_s) {
+			proto_tree_add_time(pdutree, hf_cflow_timestart, tvb,
+					    offset_s, 4, &ts_start);
+		} 
+		if (offset_e) {
+			proto_tree_add_time(pdutree, hf_cflow_timeend, tvb, 
+					    offset_e, 4, &ts_end);
+		}
+	}
+
 }
 
 static int
@@ -2427,6 +2479,11 @@ proto_register_netflow(void)
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
 		  "Packet Length Max", HFILL}
 		 },
+		{&hf_cflow_timedelta,
+		 {"Duration", "cflow.timedelta",
+		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		  "Duration of flow sample (end - start)", HFILL}
+		 },
 		{&hf_cflow_timestart,
 		 {"StartTime", "cflow.timestart",
 		  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
@@ -2751,6 +2808,7 @@ proto_register_netflow(void)
 		&ett_netflow,
 		&ett_unixtime,
 		&ett_flow,
+		&ett_flowtime,
 		&ett_template,
 		&ett_field,
 		&ett_dataflowset
