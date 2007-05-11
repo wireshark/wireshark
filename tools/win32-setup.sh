@@ -1,4 +1,6 @@
 #!/bin/sh
+#
+# $Id$
 
 # This MUST be in the form
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
@@ -64,6 +66,7 @@ case "$1" in
 		use_proxy="-Y on"
 		if [ -z "$http_proxy" ] ; then
 			echo "HTTP proxy ($HTTP_PROXY) has been specified and will be used."
+			export http_proxy=$HTTP_PROXY
 		else
 			echo "HTTP proxy ($http_proxy) has been specified and will be used."
 		fi
