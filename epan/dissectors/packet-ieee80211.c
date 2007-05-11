@@ -6909,12 +6909,12 @@ proto_register_ieee80211 (void)
 
   static const true_false_string cf_del_blk_ack_flags = {
     "delayed block ack implemented",
-    "delayed block ack not implented",
+    "delayed block ack not implemented",
   };
 
   static const true_false_string cf_imm_blk_ack_flags = {
     "immediate block ack implemented",
-    "immediate block ack not implented",
+    "immediate block ack not implemented",
   };
   static const true_false_string cf_ibss_flags = {
     "Transmitter belongs to an IBSS",
