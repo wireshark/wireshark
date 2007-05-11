@@ -117,6 +117,10 @@ static int hf_smb_nt_status = -1;
 static int hf_smb_error_class = -1;
 static int hf_smb_error_code = -1;
 static int hf_smb_reserved = -1;
+static int hf_smb_create_flags = -1;
+static int hf_smb_create_options = -1;
+static int hf_smb_share_access = -1;
+static int hf_smb_access_mask = -1;
 static int hf_smb_flags_lock = -1;
 static int hf_smb_flags_receive_buffer = -1;
 static int hf_smb_flags_caseless = -1;
@@ -3066,8 +3070,8 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset, guint
 	proto_tree *tree = NULL;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Create Flags: 0x%08x", mask);
+		item = proto_tree_add_uint(parent_tree, hf_smb_create_flags, tvb, offset, 4, mask);
+
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
 	}
 
@@ -3105,8 +3109,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	proto_tree *tree = NULL;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Access Mask: 0x%08x", mask);
+		item = proto_tree_add_uint(parent_tree, hf_smb_access_mask, tvb, offset, 4, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
 	}
 
@@ -3188,8 +3191,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	proto_tree *tree = NULL;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Share Access: 0x%08x", mask);
+		item = proto_tree_add_uint(parent_tree, hf_smb_share_access, tvb, offset, 4, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
 	}
 
@@ -3236,8 +3238,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 	proto_tree *tree = NULL;
 
 	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
-			"Create Options: 0x%08x", mask);
+		item = proto_tree_add_uint(parent_tree, hf_smb_create_options, tvb, offset, 4, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
 	}
 
@@ -18385,6 +18386,22 @@ proto_register_smb(void)
 
         { &hf_smb_network_unknown,
           { "Unknown field", "smb.unknown", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_create_flags,
+          { "Create Flags", "smb.create_flags", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_create_options,
+          { "Create Options", "smb.create_options", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_share_access,
+          { "Share Access", "smb.share_access", FT_UINT32, BASE_HEX,
+            NULL, 0, "", HFILL }},
+
+        { &hf_smb_access_mask,
+          { "Access Mask", "smb.access_mask", FT_UINT32, BASE_HEX,
             NULL, 0, "", HFILL }},
 
         { &hf_smb_mode,
