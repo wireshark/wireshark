@@ -340,13 +340,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	ENDTRY;
 
-	if (tree) {
+	if (tree && pinfo->layer_names) {
 		proto_item_append_string(ti, pinfo->layer_names->str);
 		g_string_free(pinfo->layer_names, TRUE);
 		pinfo->layer_names = NULL;
 	}
 
-    call_all_postdissectors(tvb,pinfo,parent_tree);
+	call_all_postdissectors(tvb, pinfo, parent_tree);
 
 	tap_queue_packet(frame_tap, pinfo, NULL);
 
@@ -464,7 +464,7 @@ proto_register_frame(void)
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0x0,
 			"Absolute time when this frame was captured", HFILL }},
 
-        { &hf_frame_time_invalid,
+		{ &hf_frame_time_invalid,
 		{ "Arrival Timestamp invalid",		"frame.time_invalid", FT_NONE, BASE_NONE, NULL, 0x0,
 			"The timestamp from the capture is out of the valid range", HFILL }},
 
@@ -529,10 +529,10 @@ proto_register_frame(void)
 			"The frame matched the coloring rule with this name", HFILL }},
 		{ &hf_frame_color_filter_text,
 		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, 0, NULL, 0x0,
-			"The frame matched this coloring rule string", HFILL }},
+			"The frame matched this coloring rule string", HFILL }}
     };
 	static gint *ett[] = {
-		&ett_frame,
+		&ett_frame
 	};
 	module_t *frame_module;
 
