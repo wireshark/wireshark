@@ -789,7 +789,7 @@ static int ff_ba_action = -1;
 
 /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
 static int ff_block_ack_params = -1;
-static int ff_block_ack_params_amsdu_premitted = -1;
+static int ff_block_ack_params_amsdu_permitted = -1;
 static int ff_block_ack_params_policy = -1;
 static int ff_block_ack_params_tid = -1;
 static int ff_block_ack_params_buffer_size = -1;
@@ -817,7 +817,7 @@ static int ff_max_reg_pwr = -1;
 /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
 /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
-static int ff_measurment_pilot_int = -1;
+static int ff_measurement_pilot_int = -1;
 /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
 
 /*** Begin: Country String Fixed Field - Dustin Johnson ***/
@@ -2060,7 +2060,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         param_item = proto_tree_add_uint(tree, ff_block_ack_params, tvb, offset, 2, params);
         param_tree = proto_item_add_subtree (param_item, ett_ff_ba_param_tree);
 
-        proto_tree_add_boolean(param_tree, ff_block_ack_params_amsdu_premitted, tvb, offset, 1, params);
+        proto_tree_add_boolean(param_tree, ff_block_ack_params_amsdu_permitted, tvb, offset, 1, params);
         proto_tree_add_boolean(param_tree, ff_block_ack_params_policy, tvb, offset, 1, params);
         proto_tree_add_uint(param_tree, ff_block_ack_params_tid, tvb, offset, 1, params);
         proto_tree_add_uint(param_tree, ff_block_ack_params_buffer_size, tvb, offset, 2, params);
@@ -2187,7 +2187,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
     case FIELD_MEASUREMENT_PILOT_INT:
-      proto_tree_add_uint(tree, ff_measurment_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
+      proto_tree_add_uint(tree, ff_measurement_pilot_int, tvb, offset, 2, tvb_get_letohs (tvb, offset));
       length +=2;
       break;
     /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
@@ -2769,7 +2769,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       break;
 
                     default:
-                      /* Unkown */
+                      /* Unknown */
                       break;
                   }
                 length = offset - start;
@@ -3358,7 +3358,7 @@ static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int o
   offset++;
   if ((tag_len - (offset-tag_offset)) > 0)
   {
-    proto_tree_add_text (tree, tvb, offset, tag_len - (offset-tag_offset), "Unkown Data");
+    proto_tree_add_text (tree, tvb, offset, tag_len - (offset-tag_offset), "Unknown Data");
     return;
   }
 }
@@ -4659,7 +4659,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             /* TODO */
           case 255: /* Measurement Pause Request*/
             /* TODO */
-          default: /* unkown */
+          default: /* unknown */
             proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
             break;
         }
@@ -4874,7 +4874,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
             /* TODO */
           case 9: /* Transmit Stream Measurement Report */
             /* TODO */
-          default: /* unkown */
+          default: /* unknown */
             proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Undissected Data");
             break;
         }
@@ -4891,7 +4891,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       if (tag_len < 1)
       {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Extendend Capabilities: Error: Tag length must be at least 1 byte long");
+            "Extended Capabilities: Error: Tag length must be at least 1 byte long");
         break;
       }
       offset+=2;
@@ -4902,7 +4902,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       if (tag_len > (offset - tag_offset))
       {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
         break;
       }
       break;
@@ -5010,7 +5010,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       if (tag_len > (offset - tag_offset))
       {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
         break;
       }
       break;
@@ -5036,7 +5036,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
 
       if (tag_len > (offset - tag_offset))
       {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unkown Data");
+        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
         break;
       }
       break;
@@ -6625,7 +6625,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         guint16 msdu_length;
         proto_item *parent_item;
         proto_tree *mpdu_tree;
-        proto_tree *subrame_tree;
+        proto_tree *subframe_tree;
         proto_tree *msdu_tree;
 
         parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
@@ -6640,16 +6640,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           parent_item = proto_tree_add_uint_format(mpdu_tree, amsdu_msdu_header_text, next_tvb,
                             msdu_offset, roundup2(msdu_offset+14+msdu_length, 4),
                             i, "A-MSDU Subframe #%u", i);
-          subrame_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
+          subframe_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_subframe_tree);
           i++;
 
-          proto_tree_add_ether(subrame_tree, hf_addr_da, next_tvb, msdu_offset, 6, dst);
-          proto_tree_add_ether(subrame_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, src);
-          proto_tree_add_uint_format(subrame_tree, mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
+          proto_tree_add_ether(subframe_tree, hf_addr_da, next_tvb, msdu_offset, 6, dst);
+          proto_tree_add_ether(subframe_tree, hf_addr_sa, next_tvb, msdu_offset+6, 6, src);
+          proto_tree_add_uint_format(subframe_tree, mcsset_highest_data_rate, next_tvb, msdu_offset+12, 2,
           msdu_length, "MSDU length: 0x%04X", msdu_length);
 
           msdu_offset += 14;
-          parent_item = proto_tree_add_text(subrame_tree, next_tvb, msdu_offset, msdu_length, "Mac Service Data Unit (MSDU)");
+          parent_item = proto_tree_add_text(subframe_tree, next_tvb, msdu_offset, msdu_length, "Mac Service Data Unit (MSDU)");
           msdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_msdu_tree);
 
           msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
@@ -6963,7 +6963,7 @@ proto_register_ieee80211 (void)
   };
 
   /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
-  static const true_false_string ff_block_ack_params_amsdu_premitted_flag = {
+  static const true_false_string ff_block_ack_params_amsdu_permitted_flag = {
     "Permitted in QoS Data MPDUs",
     "Not Permitted"
   };
@@ -7133,7 +7133,7 @@ proto_register_ieee80211 (void)
     {0x00, "Broadcast"},
     {0x01, "Multicast"},
     {0x02, "Individually Addressed"},
-    {0x03, "Unkown"},
+    {0x03, "Unknown"},
     {0, NULL}
   };
   /*** End: PSMP Station Information Fixed Field - Dustin Johnson ***/
@@ -7748,8 +7748,8 @@ proto_register_ieee80211 (void)
   };
 
   static const true_false_string ht_40_mhz_intolerant_flag = {
-    "Use of 40 Mhz transmissions restricted/disallowed",
-    "Use of 40 Mhz transmissions unrestricted/allowed"
+    "Use of 40 MHz transmissions restricted/disallowed",
+    "Use of 40 MHz transmissions unrestricted/allowed"
   };
 
   static const value_string ampduparam_mpdu_start_spacing_flags[] = {
@@ -7955,7 +7955,7 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string ht_info_operating_mode_flags[] = {
-    {0x00, "All STAs are - 20/40 MHz HT or in a 20/40 MHz BSS or are 20 MHz HT in a 20 Mhz BSS"},
+    {0x00, "All STAs are - 20/40 MHz HT or in a 20/40 MHz BSS or are 20 MHz HT in a 20 MHz BSS"},
     {0x01, "HT non-member protection mode"},
     {0x02, "Only HT STAs in the BSS, however, there exists at least one 20 MHz STA"},
     {0x03, "HT mixed mode"},
@@ -8104,8 +8104,8 @@ proto_register_ieee80211 (void)
   };
 
   static const true_false_string hf_tag_measure_map_field_bss_flag = {
-    "At least one MPDU was recieved by another BSS or IBSS in the measurement period.",
-    "No MPDUs were recieved from another BSS or IBSS in the measurement period."
+    "At least one MPDU was received by another BSS or IBSS in the measurement period.",
+    "No MPDUs were received from another BSS or IBSS in the measurement period."
   };
 
   static const true_false_string hf_tag_measure_detected_not_detected = {
@@ -8200,13 +8200,13 @@ proto_register_ieee80211 (void)
       {"Block Ack Parameters", "wlan_mgt.fixed.baparams",
       FT_UINT16, BASE_HEX, NULL, 0, "Block Ack Parameters", HFILL }},
 
-    {&ff_block_ack_params_amsdu_premitted,
+    {&ff_block_ack_params_amsdu_permitted,
       {"A-MSDUs", "wlan_mgt.fixed.baparams.amsdu",
-      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_amsdu_premitted_flag), 0x0001, "A-MSDU Permitted in QoS Data MPDUs", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_amsdu_permitted_flag), 0x0001, "A-MSDU Permitted in QoS Data MPDUs", HFILL }},
 
     {&ff_block_ack_params_policy,
       {"Block Ack Policy", "wlan_mgt.fixed.baparams.policy",
-      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_policy_flag), 0x0002, "Block Ack Poplicy", HFILL }},
+      FT_BOOLEAN, 16, TFS (&ff_block_ack_params_policy_flag), 0x0002, "Block Ack Policy", HFILL }},
 
     {&ff_block_ack_params_tid,
       {"Traffic Identifier", "wlan_mgt.fixed.baparams.tid",
@@ -8262,7 +8262,7 @@ proto_register_ieee80211 (void)
     /*** End: Max Regulation Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
-    {&ff_measurment_pilot_int,
+    {&ff_measurement_pilot_int,
      {"Measurement Pilot Interval", "wlan.fixed.msmtpilotint",
       FT_UINT16, BASE_HEX, 0, 0, "Measurement Pilot Interval Fixed Field", HFILL }},
     /*** End: Measurement Pilot Interval Fixed Field - Dustin Johnson ***/
@@ -9135,12 +9135,12 @@ proto_register_ieee80211 (void)
       "Phased Coexistence Operation (PCO) Phase", HFILL }},
 
     {&antsel,
-     {"Antenna Selection (ASEL) Capabilties", "wlan_mgt.asel",
-      FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection (ASEL) Capabilties", HFILL }},
+     {"Antenna Selection (ASEL) Capabilities", "wlan_mgt.asel",
+      FT_UINT8, BASE_HEX, NULL, 0, "Antenna Selection (ASEL) Capabilities", HFILL }},
 
     {&antsel_vs,
-     {"Antenna Selection (ASEL) Capabilties (VS)", "wlan_mgt.vs.asel",
-      FT_UINT8, BASE_HEX, NULL, 0, "Vendor Specific Antenna Selection (ASEL) Capabilties", HFILL }},
+     {"Antenna Selection (ASEL) Capabilities (VS)", "wlan_mgt.vs.asel",
+      FT_UINT8, BASE_HEX, NULL, 0, "Vendor Specific Antenna Selection (ASEL) Capabilities", HFILL }},
 
     {&antsel_b0,
      {"Antenna Selection Capable", "wlan_mgt.asel.capable",
@@ -9427,8 +9427,8 @@ proto_register_ieee80211 (void)
       FT_BOOLEAN, 8, TFS (&hf_tag_measure_map_field_bss_flag), 0x01, "BSS", HFILL }},
 
     {&hf_tag_measure_map_field_odfm,
-     {"Orthogonal Frequencey Division Multiplexing (ODFM) Preamble", "wlan_mgt.measure.rep.repmode.mapfield.bss",
-      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, "Orthogonal Frequencey Division Multiplexing (ODFM) Preamble", HFILL }},
+     {"Orthogonal Frequency Division Multiplexing (ODFM) Preamble", "wlan_mgt.measure.rep.repmode.mapfield.bss",
+      FT_BOOLEAN, 8, TFS (&hf_tag_measure_detected_not_detected), 0x02, "Orthogonal Frequency Division Multiplexing (ODFM) Preamble", HFILL }},
 
     {&hf_tag_measure_map_field_unident_signal,
      {"Unidentified Signal", "wlan_mgt.measure.rep.repmode.mapfield.unidentsig",
@@ -9801,7 +9801,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tclas_process,
      {"Processing", "wlan_mgt.tclas_proc.processing", FT_UINT8, BASE_DEC,
-      VALS (tclas_process), 0, "TCLAS Porcessing", HFILL }},
+      VALS (tclas_process), 0, "TCLAS Processing", HFILL }},
 
     {&hf_sched_info,
      {"Schedule Info", "wlan_mgt.sched.sched_info",
@@ -9997,7 +9997,7 @@ proto_register_ieee80211 (void)
 
 
   proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN aggregate frame",
-      "IEEE 802.11 Agfregate Data", "wlan_aggregate");
+      "IEEE 802.11 Aggregate Data", "wlan_aggregate");
   proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
   proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
       "IEEE 802.11", "wlan");
