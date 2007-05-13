@@ -38,6 +38,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
 
 #include "packet-cdt.h"
 

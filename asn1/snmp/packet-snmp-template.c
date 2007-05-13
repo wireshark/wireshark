@@ -62,6 +62,7 @@
 #include <epan/emem.h>
 #include <epan/next_tvb.h>
 #include <epan/uat.h>
+#include <epan/asn1.h>
 #include "packet-ipx.h"
 #include "packet-hpext.h"
 
@@ -247,8 +248,8 @@ static gint ett_internet = -1;
 #include "packet-snmp-ett.c"
 
 
-static int dissect_snmp_IpAddressIpv6(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
-static int dissect_snmp_IpAddressOther(gboolean, tvbuff_t* ,int , packet_info*, proto_tree*, int);
+static int dissect_snmp_IpAddressIpv6(gboolean, tvbuff_t* ,int , asn1_ctx_t* , proto_tree*, int);
+static int dissect_snmp_IpAddressOther(gboolean, tvbuff_t* ,int , asn1_ctx_t* , proto_tree*, int);
 
 static const true_false_string auth_flags = {
 	"OK",
@@ -1527,6 +1528,9 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_tree *snmp_tree = NULL;
 	proto_item *item = NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
 
 	usm_p.msg_tvb = tvb;
 	usm_p.start_offset = offset_from_real_beginning(tvb,0) ;
@@ -1641,14 +1645,14 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (version){
 	case 0: /* v1 */
 	case 1: /* v2c */
-		offset = dissect_snmp_Message(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
+		offset = dissect_snmp_Message(FALSE , tvb, start_offset, &asn1_ctx, snmp_tree, -1);
 		break;
 	case 2: /* v2u */
-		offset = dissect_snmp_Messagev2u(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
+		offset = dissect_snmp_Messagev2u(FALSE , tvb, start_offset, &asn1_ctx, snmp_tree, -1);
 		break;
 			/* v3 */
 	case 3:
-		offset = dissect_snmp_SNMPv3Message(FALSE , tvb, start_offset, pinfo, snmp_tree, -1);
+		offset = dissect_snmp_SNMPv3Message(FALSE , tvb, start_offset, &asn1_ctx, snmp_tree, -1);
 		break;
 	default:
 		/*

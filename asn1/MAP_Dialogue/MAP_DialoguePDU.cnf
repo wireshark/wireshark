@@ -13,6 +13,7 @@ MAP-ST-DataTypes gsm_map
 #.EXPORTS
 
 #.PDU
+MAP-DialoguePDU
 
 #.NO_EMIT
 

@@ -25,25 +25,25 @@ OriginationRequestRes
   OperationCode = OperationCode&0x00ff;
 
   ansi_map_is_invoke = TRUE;	
-  if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_set_str(pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	  col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
   }
   /* No Data */
   if(tvb_length_remaining(tvb, offset)<=0){
-		update_saved_invokedata(pinfo, tree, tvb);
+		update_saved_invokedata(actx->pinfo, tree, tvb);
 	  return offset;
 
   }
 
-	offset = dissect_invokeData(pinfo, tree, tvb, offset);
-	update_saved_invokedata(pinfo, tree, tvb);
+	offset = dissect_invokeData(tree, tvb, offset, actx);
+	update_saved_invokedata(actx->pinfo, tree, tvb);
 
 #.FN_BODY ReturnParameters
   struct amsi_map_invokedata_t *ansi_map_saved_invokedata;
   struct tcap_private_t *p_private_tcap;
   proto_item *item;
-  address* src = &(pinfo->src);
-  address* dst = &(pinfo->dst);
+  address* src = &(actx->pinfo->src);
+  address* dst = &(actx->pinfo->dst);
   guint8 *src_str;
   guint8 *dst_str;
   char *buf;
@@ -53,8 +53,8 @@ OriginationRequestRes
   dst_str = address_to_str(dst);
 
   /* Data from the TCAP dissector */
-  if (pinfo->private_data != NULL){
-	  p_private_tcap=pinfo->private_data;
+  if (actx->pinfo->private_data != NULL){
+	  p_private_tcap=actx->pinfo->private_data;
 	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  src_str = address_to_str(src);
 	  dst_str = address_to_str(dst);
@@ -73,9 +73,9 @@ OriginationRequestRes
   }else{
 	  OperationCode = OperationCode & 0x00ff;
   }
-  if (check_col(pinfo->cinfo, COL_INFO)){
-	  col_clear(pinfo->cinfo, COL_INFO);
-	  col_add_fstr(pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+	  col_clear(actx->pinfo->cinfo, COL_INFO);
+	  col_add_fstr(actx->pinfo->cinfo, COL_INFO,"%s Response", val_to_str(OperationCode, ansi_map_opr_code_strings, "Unknown ANSI-MAP PDU (%u)"));
   }
   /* No Data */
   if(tvb_length_remaining(tvb, offset)<=0){
@@ -86,7 +86,7 @@ OriginationRequestRes
   PROTO_ITEM_SET_GENERATED(item);
 
   ansi_map_is_invoke = FALSE;
-  offset = dissect_returnData(pinfo, tree, tvb, offset);
+  offset = dissect_returnData(tree, tvb, offset, actx);
 
 #.FN_BODY ErrorParameters
 
@@ -101,21 +101,21 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_min_type(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_min_type(parameter_tvb,actx->pinfo,tree);
 	}
 
 #.FN_BODY DigitsType VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_digits_type(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_digits_type(parameter_tvb,actx->pinfo,tree);
 	}
 
 #.FN_BODY Subaddress VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_subaddress(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_subaddress(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.3 AlertCode
@@ -123,7 +123,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_alertcode(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_alertcode(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.5 AnnouncementCode
@@ -131,7 +131,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_announcementcode(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_announcementcode(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.14 AuthorizationPeriod
@@ -139,7 +139,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_authorizationperiod(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_authorizationperiod(parameter_tvb,actx->pinfo,tree);
 	}
 
 
@@ -148,7 +148,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_billingid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_billingid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.20 CallingFeaturesIndicator
@@ -156,21 +156,21 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_callingfeaturesindicator(parameter_tvb,actx->pinfo,tree);
 	}
 # 6.5.2.29 CDMACallMode
 #.FN_BODY CDMACallMode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_cdmacallmode(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_cdmacallmode(parameter_tvb,actx->pinfo,tree);
 	}
 # 6.5.2.30 CDMAChannelData
 #.FN_BODY CDMAChannelData VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_cdmachanneldata(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_cdmachanneldata(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.41 CDMAStationClassMark
@@ -178,7 +178,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_cdmastationclassmark(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_cdmastationclassmark(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.47 ChannelData
@@ -186,7 +186,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_channeldata(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_channeldata(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.50 ConfidentialityModes
@@ -194,14 +194,14 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_confidentialitymodes(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_confidentialitymodes(parameter_tvb,actx->pinfo,tree);
 	}
 # 6.5.2.51 ControlChannelData
 #.FN_BODY ControlChannelData VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_controlchanneldata(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_controlchanneldata(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.53 DeniedAuthorizationPeriod
@@ -209,7 +209,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_deniedauthorizationperiod(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_deniedauthorizationperiod(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.64 ExtendedMSCID
@@ -217,7 +217,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_extendedmscid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_extendedmscid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.65 ExtendedSystemMyTypeCode
@@ -225,14 +225,14 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_extendedsystemmytypecode(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_extendedsystemmytypecode(parameter_tvb, actx->pinfo, tree, actx);
 	}
 #6.5.2.71 HandoffState
 #.FN_BODY HandoffState VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_handoffstate(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_handoffstate(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.72 InterMSCCircuitID
@@ -240,7 +240,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_intermsccircuitid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_intermsccircuitid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.78 MessageWaitingNotificationCount 
@@ -248,7 +248,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_messagewaitingnotificationcount(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_messagewaitingnotificationcount(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.79 MessageWaitingNotificationType
@@ -256,7 +256,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_messagewaitingnotificationtype(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_messagewaitingnotificationtype(parameter_tvb,actx->pinfo,tree);
 	}
 
 
@@ -265,7 +265,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_mscid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.84 MSLocation
@@ -273,7 +273,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_mscid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_mscid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.85 NAMPSCallMode
@@ -281,7 +281,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_nampscallmode(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_nampscallmode(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.86 NAMPSChannelData
@@ -289,7 +289,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_nampschanneldata(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_nampschanneldata(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.88 OneTimeFeatureIndicator
@@ -297,7 +297,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_onetimefeatureindicator(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_onetimefeatureindicator(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.90 OriginationTriggers
@@ -305,7 +305,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_originationtriggers(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_originationtriggers(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.91 PACAIndicator
@@ -313,7 +313,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_pacaindicator(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_pacaindicator(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.93 PC_SSN
@@ -321,7 +321,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_pc_ssn(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_pc_ssn(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.94 PilotBillingID
@@ -330,7 +330,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_pilotbillingid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_pilotbillingid(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.124
@@ -371,7 +371,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_sms_originationrestrictions(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.137
@@ -407,7 +407,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_systemcapabilities(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_systemcapabilities(parameter_tvb,actx->pinfo,tree);
 	}
 
 
@@ -416,7 +416,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_terminationtriggers(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_terminationtriggers(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.160 TransactionCapability
@@ -424,7 +424,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_transactioncapability(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_transactioncapability(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.f (TSB76) CDMAServiceOption N.S0010-0 v 1.0
@@ -432,7 +432,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_cdmaserviceoption(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_cdmaserviceoption(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.aj SecondInterMSCCircuitID
@@ -443,7 +443,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_callingpartyname(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_callingpartyname(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.df TriggerCapability
@@ -451,7 +451,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_triggercapability(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_triggercapability(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.dj WINOperationsCapability
@@ -459,7 +459,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_winoperationscapability(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_winoperationscapability(parameter_tvb,actx->pinfo,tree);
 	}
 
 # 6.5.2.ek ControlNetworkID
@@ -467,7 +467,7 @@ OriginationRequestRes
 	tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
 	if (parameter_tvb){
-		dissect_ansi_map_controlnetworkid(parameter_tvb,pinfo,tree);
+		dissect_ansi_map_controlnetworkid(parameter_tvb,actx->pinfo,tree);
 	}
 
 #6.5.2.gm CDMA2000HandoffInvokeIOSData
@@ -480,7 +480,7 @@ OriginationRequestRes
 	if (parameter_tvb){
 		item = get_ber_last_created_item();
 		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffInvokeIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 #6.5.2.gn CDMA2000HandoffResponseIOSData
@@ -493,7 +493,7 @@ OriginationRequestRes
 	if (parameter_tvb){
 		item = get_ber_last_created_item();
 		subtree = proto_item_add_subtree(item, ett_CDMA2000HandoffResponseIOSData);
-		dissect_cdma2000_a1_elements(parameter_tvb, pinfo, subtree, 
+		dissect_cdma2000_a1_elements(parameter_tvb, actx->pinfo, subtree, 
 			0, tvb_length_remaining(parameter_tvb,0));
 	}
 #6.5.2.wB ServiceIndicator N.S0011-0 v 1.0

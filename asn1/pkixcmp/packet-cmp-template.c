@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-cmp.h"
 #include "packet-crmf.h"
@@ -73,9 +74,9 @@ static const char *object_identifier_id;
 #include "packet-cmp-fn.c"
 
 static int
-dissect_cmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
 {
-	return dissect_cmp_PKIMessage(FALSE, tvb, 0, pinfo, tree, -1);
+	return dissect_cmp_PKIMessage(FALSE, tvb, 0, actx,tree, -1);
 }
 
 #define CMP_TYPE_PKIMSG		0
@@ -102,9 +103,11 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	guint32 pdu_len;
 	guint8 pdu_type;
 	nstime_t	ts;
-
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
@@ -134,7 +137,7 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	switch(pdu_type){
 	case CMP_TYPE_PKIMSG:
 		next_tvb = tvb_new_subset(tvb, 5, tvb_length_remaining(tvb, 5), pdu_len);
-		dissect_cmp_pdu(next_tvb, pinfo, tree);
+		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
 		break;
 	case CMP_TYPE_POLLREP:
 		proto_tree_add_item(tree, hf_cmp_poll_ref, tvb, 0, 4, FALSE);
@@ -156,11 +159,11 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 		proto_tree_add_time(tree, hf_cmp_ttcb, tvb, 4, 4, &ts);
 
 		next_tvb = tvb_new_subset(tvb, 13, tvb_length_remaining(tvb, 13), pdu_len);
-		dissect_cmp_pdu(next_tvb, pinfo, tree);
+		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
 		break;
 	case CMP_TYPE_FINALMSGREP:
 		next_tvb = tvb_new_subset(tvb, 5, tvb_length_remaining(tvb, 5), pdu_len);
-		dissect_cmp_pdu(next_tvb, pinfo, tree);
+		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
 		break;
 	case CMP_TYPE_ERRORMSGREP:
 		/*XXX to be added*/
@@ -227,6 +230,9 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
@@ -243,7 +249,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 
-	return dissect_cmp_pdu(tvb, pinfo, tree);
+	return dissect_cmp_pdu(tvb, tree, &asn1_ctx);
 }
 
 

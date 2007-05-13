@@ -44,6 +44,7 @@
 #include <epan/crypt/crypt-rc4.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -94,7 +95,7 @@ static dissector_handle_t data_handle;
  * definition.
  */
 static int dissect_spnego_PrincipalSeq(gboolean implicit_tag, tvbuff_t *tvb,
-                                       int offset, packet_info *pinfo,
+                                       int offset, asn1_ctx_t *actx _U_,
                                        proto_tree *tree, int hf_index);
 
 #include "packet-spnego-fn.c"
@@ -877,8 +878,10 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
-
 	int offset = 0;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
 
 
 	/*
@@ -900,7 +903,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * ASN1 code addet to spnego.asn to handle this.
 	 */
 
-	offset = dissect_spnego_InitialContextToken(FALSE, tvb, offset, pinfo , subtree, -1);
+	offset = dissect_spnego_InitialContextToken(FALSE, tvb, offset, &asn1_ctx , subtree, -1);
 
 	return offset;
 }
@@ -913,6 +916,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *subtree;
 	int offset = 0;
 	conversation_t *conversation;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -971,7 +976,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * as well. Naughty, naughty.
 	 *
 	 */
-	offset = dissect_spnego_NegotiationToken(FALSE, tvb, offset, pinfo, subtree, -1);
+	offset = dissect_spnego_NegotiationToken(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
 
 }
 

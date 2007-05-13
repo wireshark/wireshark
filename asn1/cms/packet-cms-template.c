@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +56,7 @@ static int hf_cms_ci_contentType = -1;
 /* Initialize the subtree pointers */
 #include "packet-cms-ett.c"
 
-static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
+static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
 
 static const char *object_identifier_id;

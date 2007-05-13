@@ -31,6 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 
 #include "packet-ber.h"
 #include "packet-q932-ros.h"

@@ -30,8 +30,8 @@ BulkPDU/request-id bulkPDU_request-id
 gint pdu_type;
 
 %(DEFAULT_BODY)s
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%%u)"));
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%%u)"));
 
 #.FN_BODY PDUs/get-request
  gint8 class;
@@ -46,7 +46,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/get-next-request
  gint8 class;
@@ -61,7 +61,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/get-response
  gint8 class;
@@ -76,7 +76,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/set-request
  gint8 class;
@@ -91,7 +91,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 
 #.FN_BODY PDUs/trap
@@ -107,7 +107,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/getBulkRequest
  gint8 class;
@@ -122,7 +122,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/informRequest
  gint8 class;
@@ -137,7 +137,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/sNMPv2-Trap
  gint8 class;
@@ -152,7 +152,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/report
  gint8 class;
@@ -167,7 +167,7 @@ gint pdu_type;
     offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
     offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
  }
- offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, pinfo, tree, hf_index);
+ offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
 #.FN_PARS HeaderData/msgSecurityModel
 
@@ -184,7 +184,7 @@ gint pdu_type;
 #.FN_BODY UsmSecurityParameters/msgAuthoritativeEngineID
 	tvbuff_t *parameter_tvb = NULL;
 
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
 	 if (parameter_tvb) {
 		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
@@ -195,7 +195,7 @@ gint pdu_type;
 	VAL_PTR = &usm_p.user_tvb
 	
 #.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
-	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
 		usm_p.auth_item = get_ber_last_created_item();
 		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
@@ -205,7 +205,7 @@ gint pdu_type;
 
 #.FN_BODY ScopedPduData/encryptedPDU
 	tvbuff_t* crypt_tvb;
-	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_snmp_encryptedPDU, &crypt_tvb);
 
 	if( usm_p.encrypted && crypt_tvb
 		&& usm_p.user_assoc
@@ -219,7 +219,7 @@ gint pdu_type;
 			proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 				"Failed to decrypt encryptedPDU: %%s", error);
 			
-			expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN,
+			expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 				"Failed to decrypt encryptedPDU: %%s", error);
 				
 			return offset;
@@ -231,18 +231,18 @@ gint pdu_type;
 				proto_item* cause = proto_tree_add_text(encryptedpdu_tree, cleartext_tvb, 0, -1,
 											"Decrypted data not formated as expected, wrong key?");
 				
-				expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN,
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN,
 									   "Decrypted data not formated as expected");
 				
 				return offset;
 			}
 
-            add_new_data_source(pinfo, cleartext_tvb, "Decrypted ScopedPDU");
+            add_new_data_source(actx->pinfo, cleartext_tvb, "Decrypted ScopedPDU");
 			tvb_set_child_real_data_tvbuff(tvb, cleartext_tvb);
 			
 			decrypted_item = proto_tree_add_item(encryptedpdu_tree, hf_snmp_decryptedPDU,cleartext_tvb,0,-1,FALSE);
 			decrypted_tree = proto_item_add_subtree(decrypted_item,ett_decrypted);
-			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, pinfo, decrypted_tree, -1);
+			dissect_snmp_ScopedPDU(FALSE, cleartext_tvb, 0, actx, decrypted_tree, -1);
 		 }
 	}
 
@@ -250,7 +250,7 @@ gint pdu_type;
 
 	switch(MsgSecurityModel){
 		case SNMP_SEC_USM:	/* 3 */		
-			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, pinfo, tree, -1);
+			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset+2, actx, tree, -1);
 			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
@@ -277,7 +277,7 @@ gint pdu_type;
 		if (error) {
 			authen_item = proto_tree_add_text(authen_tree,tvb,0,0,"Error while verifying Messsage authenticity: %s", error);
 			PROTO_ITEM_SET_GENERATED(authen_item);
-			expert_add_info_format( pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
+			expert_add_info_format( actx->pinfo, authen_item, PI_MALFORMED, PI_ERROR, "Error while verifying Messsage authenticity: %s", error );
 		} else {
 			int severity;
 			gchar* fmt;			
@@ -295,7 +295,7 @@ gint pdu_type;
 				severity = PI_WARN;
 			}
 
-			expert_add_info_format( pinfo, authen_item, PI_CHECKSUM, severity, fmt );
+			expert_add_info_format( actx->pinfo, authen_item, PI_CHECKSUM, severity, fmt );
 		}
 	}
 
@@ -336,25 +336,25 @@ gint pdu_type;
 #.FN_BODY String-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, &value_tvb);
+	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, &value_tvb);
 	offset = offset + length;
 
 #.FN_BODY Integer-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY ObjectID-value
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY Empty
 	guint length;
 	
-	snmp_variable_decode(tvb, tree, pinfo, oid_tvb, offset, &length, NULL);
+	snmp_variable_decode(tvb, tree, actx->pinfo, oid_tvb, offset, &length, NULL);
 	offset = offset + length;
 
 #.FN_BODY NetworkAddress/internet
@@ -366,9 +366,9 @@ gint pdu_type;
   get_ber_length(NULL, tvb, cur_offset, &len, NULL);
 
   switch (len) {
-	  case 4:  offset = dissect_snmp_IpAddress(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet); break;
-	  case 16: offset = dissect_snmp_IpAddressIpv6(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_ipv6); break;
-	  default: offset = dissect_snmp_IpAddressOther(FALSE, tvb, offset, pinfo, tree, hf_snmp_internet_other); break;
+	  case 4:  offset = dissect_snmp_IpAddress(FALSE, tvb, offset, actx, tree, hf_snmp_internet); break;
+	  case 16: offset = dissect_snmp_IpAddressIpv6(FALSE, tvb, offset, actx, tree, hf_snmp_internet_ipv6); break;
+	  default: offset = dissect_snmp_IpAddressOther(FALSE, tvb, offset, actx, tree, hf_snmp_internet_other); break;
   }
   
   if (len != 4) {
@@ -384,7 +384,7 @@ gint pdu_type;
 		"The host that generated this packet is violating"
 		"the SNMP protocol definition and sends corrupt and invalid packets");
 	PROTO_ITEM_SET_GENERATED(pi);
-	expert_add_info_format( pinfo, pi, PI_MALFORMED, PI_ERROR,
+	expert_add_info_format( actx->pinfo, pi, PI_MALFORMED, PI_ERROR,
 		"Corrupt and Invalid packet" );
   }
   

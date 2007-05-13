@@ -54,6 +54,7 @@
 #include "filter_dlg.h"
 #include "compat_macros.h"
 
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
 #include "gsm_map_stat.h"
 

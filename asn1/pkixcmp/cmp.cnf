@@ -63,7 +63,7 @@ RevReqContent
   FN_VARIANT = _str  HF_INDEX = hf_cmp_type_oid  VAL_PTR = &object_identifier_id
 
 #.FN_BODY InfoTypeAndValue/infoValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.END
 

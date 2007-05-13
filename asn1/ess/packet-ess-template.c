@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>

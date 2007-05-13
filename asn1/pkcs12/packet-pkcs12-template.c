@@ -88,17 +88,21 @@ static int strip_octet_string(tvbuff_t *tvb, proto_tree *tree)
 
 static void dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   if((offset = strip_octet_string(tvb, tree)) > 0)
-    dissect_pkcs12_AuthenticatedSafe(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_AuthenticatedSafe_PDU);
+    dissect_pkcs12_AuthenticatedSafe(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_AuthenticatedSafe_PDU);
 }
 
 static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
 {
   int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   if((offset = strip_octet_string(tvb, tree)) > 0)
-    dissect_pkcs12_SafeContents(FALSE, tvb, offset, pinfo, tree, hf_pkcs12_SafeContents_PDU);
+    dissect_pkcs12_SafeContents(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_SafeContents_PDU);
 }
 
 #if 0 

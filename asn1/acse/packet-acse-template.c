@@ -155,6 +155,8 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item    *item=NULL;
 	proto_tree    *tree=NULL;
 	char *oid;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 
 	/* first, try to check length   */
@@ -230,7 +232,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  postpone it before dissector will have more information */
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		int old_offset=offset;
-		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, pinfo, tree, -1);
+		offset = dissect_acse_ACSE_apdu(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset ){
 			proto_tree_add_text(tree, tvb, offset, -1,"Malformed packet");
 			offset = tvb_length(tvb);

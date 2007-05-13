@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -71,6 +72,8 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKIX-CRL");
@@ -87,7 +90,7 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_pkix_crl);
 	}
 
-	return dissect_x509af_CertificateList(FALSE, tvb, 0, pinfo, tree, -1);
+	return dissect_x509af_CertificateList(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 /*--- proto_register_x509af ----------------------------------------------*/

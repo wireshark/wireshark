@@ -21,7 +21,7 @@
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+ offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
  if (parameter_tvb) {
    digit_str = unpack_digits(parameter_tvb, 1);
@@ -36,7 +36,7 @@
  tvbuff_t	*parameter_tvb;
  char		*digit_str;
 
- offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+ offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                     &parameter_tvb);
  if (parameter_tvb) {
    digit_str = unpack_digits(parameter_tvb, 1);

@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -81,6 +82,8 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint8 reserved, tag;
 	guint16 length;
 	int offset=0;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	reserved=tvb_get_guint8(tvb, 0);
 	length=tvb_get_ntohs(tvb,1);
@@ -111,31 +114,31 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset=4;
 		break;
 	case 3:
-		offset=dissect_smrse_SMR_Bind(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_SMR_Bind(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 4:
-		offset=dissect_smrse_SMR_Bind_Confirm(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_SMR_Bind_Confirm(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 5:
-		offset=dissect_smrse_SMR_Bind_Failure(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_SMR_Bind_Failure(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 6:
-		offset=dissect_smrse_SMR_Unbind(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_SMR_Unbind(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 7:
-		offset=dissect_smrse_RPDataMT(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_RPDataMT(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 8:
-		offset=dissect_smrse_RPDataMO(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_RPDataMO(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 9:
-		offset=dissect_smrse_RPAck(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_RPAck(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 10:
-		offset=dissect_smrse_RPError(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_RPError(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	case 11:
-		offset=dissect_smrse_RPAlertSC(FALSE, tvb, 4, pinfo, tree, -1);
+		offset=dissect_smrse_RPAlertSC(FALSE, tvb, 4, &asn1_ctx, tree, -1);
 		break;
 	}
 

@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -53,7 +54,7 @@ int proto_ftam = -1;
 
 static const char *object_identifier_id;
 /* Declare the function to avoid a compiler warning */
-static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_);
+static int dissect_ftam_OR_Set(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 #include "packet-ftam-hf.c"
 
@@ -73,6 +74,9 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_ftam, tvb, 0, -1, FALSE);
@@ -85,7 +89,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=dissect_ftam_PDU(FALSE, tvb, offset, pinfo , tree, -1);
+		offset=dissect_ftam_PDU(FALSE, tvb, offset, &asn1_ctx, tree, -1);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte FTAM PDU");
 			offset = tvb_length(tvb);

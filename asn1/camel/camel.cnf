@@ -24,15 +24,15 @@ MAP-CH-DataTypes gsm_map
 Component 
 #----------------------------------------------------------------------------------------
 #.FN_BODY InvokeParameter
-	offset = dissect_invokeData(pinfo, tree, tvb, offset);
+	offset = dissect_invokeData(tree, tvb, offset, actx);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReturnResultParameter
-	offset = dissect_returnResultData(pinfo, tree, tvb, offset);
+	offset = dissect_returnResultData(tree, tvb, offset, actx);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY ReturnErrorParameter
-	offset = dissect_returnErrorData(pinfo, tree, tvb, offset);
+	offset = dissect_returnErrorData(tree, tvb, offset, actx);
 
 #----------------------------------------------------------------------------------------
 #.FN_PARS  CAMELOperationLocalvalue
@@ -42,11 +42,11 @@ Component
 #.FN_BODY  CAMELOperationLocalvalue
 
 %(DEFAULT_BODY)s 
-  if (check_col(pinfo->cinfo, COL_INFO)){
-    col_append_fstr(pinfo->cinfo, COL_INFO, 
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, 
        val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%%u)"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
-    col_set_fence(pinfo->cinfo, COL_INFO);
+    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
   }
   gp_camelsrt_info->opcode=opcode;
 
@@ -123,7 +123,7 @@ tvbuff_t	*parameter_tvb;
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, pinfo, tree, -1);
+ dissect_camel_CAMEL_CallResult(implicit_tag, parameter_tvb, 0, actx, tree, -1);
  
 #.END
 
@@ -475,13 +475,12 @@ tvbuff_t	*parameter_tvb;
  subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
 
  if (tvb_reported_length_remaining(tvb,start_offset) == 7){
-	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
+	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
  }else{
-	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, pinfo, subtree, hf_camel_locationAreaId);
+	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_locationAreaId);
  }			
 #.END
 
-#----------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------
 
 #.TYPE_ATTR

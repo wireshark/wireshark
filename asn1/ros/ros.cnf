@@ -22,14 +22,14 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "invoke argument");
 
-  ros_match_call_response(tvb, pinfo, tree, invokeid, TRUE);
+  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, TRUE);
 	
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 #.FN_BODY OperationResult
@@ -37,14 +37,14 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
 
-  ros_match_call_response(tvb, pinfo, tree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
 	
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
 	/* now add the opcode */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 #.FN_BODY T_parameter
@@ -52,14 +52,14 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "return result");
 
-  ros_match_call_response(tvb, pinfo, tree, invokeid, FALSE);
+  ros_match_call_response(tvb, actx->pinfo, tree, invokeid, FALSE);
 	
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
 	/* now add the opcode  (really the errode) */
 	session->ros_op |= opcode;
-	offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 
@@ -68,10 +68,10 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-invoke");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 #.FN_BODY T_bind_result
@@ -79,10 +79,10 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-result");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 #.FN_BODY T_bind_error
@@ -90,10 +90,10 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "bind-error");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 
@@ -102,10 +102,10 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-invoke");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ARGUMENT);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 
@@ -114,10 +114,10 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-result");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_RESULT);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 
 #.FN_BODY T_unbind_error
@@ -125,9 +125,9 @@ Reject/problem/returnResult	rejectResult
   /* not sure what the length should be - -1 for now */
   proto_tree_add_text(tree, tvb, offset,-1, "unbind-error");
 
-  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id))) {
+  if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
     /* this should be ROS! */
     session->ros_op = (ROS_OP_UNBIND | ROS_OP_ERROR);
-    offset = call_ros_oid_callback(oid, tvb, offset, pinfo, top_tree);
+    offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
 #.END

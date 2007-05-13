@@ -49,6 +49,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/tfs.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include "packet-ntp.h"
 
@@ -876,6 +877,8 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 	guint16 length;
 	tvbuff_t *subtvb;
 	proto_item* parent = NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	tvb_ensure_bytes_exist(tvb, offset+0, 4);
 	type = tvb_get_guint8(tvb, offset+1);
@@ -892,7 +895,7 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 	}
 
 	subtvb = tvb_new_subset(tvb, offset+4, length, length);
-	dissect_x509af_Certificate(FALSE, subtvb, 0, pinfo, tree, hf_mikey[POS_CERTIFICATE]);
+	dissect_x509af_Certificate(FALSE, subtvb, 0, &asn1_ctx, tree, hf_mikey[POS_CERTIFICATE]);
 
 	return 4 + length;
 }

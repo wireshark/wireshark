@@ -60,6 +60,7 @@
 
 #include <epan/packet.h>
 #include <epan/ipproto.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-x509if.h>
 #include <epan/dissectors/packet-isakmp.h>
 #include <epan/prefs.h>
@@ -1565,6 +1566,8 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint8		id_type;
   guint8		protocol_id;
   guint16		port;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   id_type = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tree, hf_isakmp_id_type, tvb, offset, 1, FALSE);
@@ -1631,7 +1634,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			  ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+16, 16)));
       break;
     case IKE_ID_DER_ASN1_DN:
-      dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree,
+      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree,
 			  hf_ike_certificate_authority);
       break;
     default:
@@ -1661,6 +1664,8 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo, int isakmp_version, int unused _U_)
 {
   guint8		cert_type;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   cert_type = tvb_get_guint8(tvb, offset);
   proto_tree_add_uint_format(tree, hf_isakmp_certreq_type, tvb, offset, 1,
@@ -1671,7 +1676,7 @@ dissect_certreq_v1(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   if (length) {
     if (cert_type == 4){
-      dissect_x509if_Name(FALSE, tvb, offset, pinfo, tree, hf_ike_certificate_authority);
+      dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_ike_certificate_authority);
     } else {
       proto_tree_add_text(tree, tvb, offset, length, "Certificate Authority");
     }

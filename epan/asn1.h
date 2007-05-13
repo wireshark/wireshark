@@ -51,7 +51,7 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *arbitrary;
     union {
       struct {
-		int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, struct _asn1_ctx_t*);
+		int (*ber_callback)(proto_tree *tree, tvbuff_t *tvb, int offset, struct _asn1_ctx_t*);
         tvbuff_t *direct_reference;
         gint32 indirect_reference;
         guint32 encoding;

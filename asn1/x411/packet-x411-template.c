@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -107,6 +108,8 @@ dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
@@ -121,7 +124,7 @@ dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
   	if (check_col(pinfo->cinfo, COL_INFO))
   		col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
-	dissect_x411_MTS_APDU (FALSE, tvb, 0, pinfo, tree, hf_x411_MTS_APDU_PDU);
+	dissect_x411_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_x411_MTS_APDU_PDU);
 }
 
 /*
@@ -134,9 +137,11 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) = NULL;
+	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	char *x411_op_name;
 	int hf_x411_index;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
@@ -192,7 +197,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=(*x411_dissector)(FALSE, tvb, offset, pinfo , tree, hf_x411_index);
+		offset=(*x411_dissector)(FALSE, tvb, offset, &asn1_ctx , tree, hf_x411_index);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte X411 PDU");
 			offset = tvb_length(tvb);

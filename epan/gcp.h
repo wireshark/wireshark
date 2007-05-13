@@ -36,6 +36,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>

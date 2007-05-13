@@ -52,6 +52,7 @@
 #include "gtk/compat_macros.h"
 #include "gtk/service_response_time_table.h"
 
+#include "epan/asn1.h"
 #include "epan/camel-persistentdata.h"
 
 /* used to keep track of the statistics for an entire program interface */

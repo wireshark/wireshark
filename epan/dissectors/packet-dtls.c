@@ -62,6 +62,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/inet_v6defs.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
@@ -1551,6 +1552,8 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
   guint32 certificate_list_length;
   proto_tree *ti;
   proto_tree *subtree;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   if (tree)
     {
@@ -1588,7 +1591,7 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
 				  tvb, offset, 3, FALSE);
 	      offset += 3;
 
-	      dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, subtree, hf_dtls_handshake_certificate);
+	      dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
 	      offset += cert_length;
             }
         }

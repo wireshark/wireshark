@@ -29,6 +29,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -49,11 +50,6 @@ int proto_MAP_DialoguePDU = -1;
 
 #include "packet-MAP_DialoguePDU-fn.c"
 
-static void
-dissect_MAP_Dialogue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-  dissect_MAP_DialoguePDU_MAP_DialoguePDU(FALSE, tvb, 0, pinfo, parent_tree, -1);
-}
 
 /*--- proto_register_MAP_DialoguePDU -------------------------------------------*/
 void proto_register_MAP_DialoguePDU(void) {
@@ -70,7 +66,7 @@ void proto_register_MAP_DialoguePDU(void) {
 
   /* Register protocol */
   proto_MAP_DialoguePDU = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("MAP_DialoguePDU", dissect_MAP_Dialogue, proto_MAP_DialoguePDU);
+  register_dissector("MAP_DialoguePDU", dissect_MAP_DialoguePDU_PDU, proto_MAP_DialoguePDU);
   /* Register fields and subtrees */
   proto_register_field_array(proto_MAP_DialoguePDU, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -80,7 +76,7 @@ void proto_register_MAP_DialoguePDU(void) {
 
 /*--- proto_reg_handoff_MAP_DialoguePDU ---------------------------------------*/
 void proto_reg_handoff_MAP_DialoguePDU(void) {
-	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_MAP_Dialogue, proto_MAP_DialoguePDU, 
+	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_MAP_DialoguePDU_PDU, proto_MAP_DialoguePDU, 
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) map-DialoguePDU(1) version1(1)");
 
 }

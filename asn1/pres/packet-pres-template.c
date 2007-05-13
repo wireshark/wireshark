@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <epan/asn1.h>
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"
@@ -158,7 +159,10 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *pres_tree = NULL;
   guint s_type;
-/* do we have spdu type from the session dissector?  */
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+  /* do we have spdu type from the session dissector?  */
 	if( !pinfo->private_data ){
 		if(tree){
 			proto_tree_add_text(tree, tvb, offset, -1,
@@ -189,32 +193,32 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
 	switch(session->spdu_type){
 		case SES_CONNECTION_REQUEST:
-			offset = dissect_pres_CP_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CP_type);
+			offset = dissect_pres_CP_type(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_CP_type);
 			break;
 		case SES_CONNECTION_ACCEPT:
-			offset = dissect_pres_CPA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CPA_PPDU);
+			offset = dissect_pres_CPA_PPDU(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_CPA_PPDU);
 			break;
 		case SES_ABORT:
 		case SES_ABORT_ACCEPT:
-			offset = dissect_pres_Abort_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_Abort_type);
+			offset = dissect_pres_Abort_type(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_Abort_type);
 			break;
 		case SES_DATA_TRANSFER:
-			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);
+			offset = dissect_pres_CPC_type(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_user_data);
 			break;
 		case SES_TYPED_DATA:
-			offset = dissect_pres_Typed_data_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_Typed_data_type);
+			offset = dissect_pres_Typed_data_type(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_Typed_data_type);
 			break;
 		case SES_RESYNCHRONIZE:
-			offset = dissect_pres_RS_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			offset = dissect_pres_RS_PPDU(FALSE, tvb, offset, &asn1_ctx, pres_tree, -1);
 			break;
 		case SES_RESYNCHRONIZE_ACK:
-			offset = dissect_pres_RSA_PPDU(FALSE, tvb, offset, pinfo, pres_tree, -1);
+			offset = dissect_pres_RSA_PPDU(FALSE, tvb, offset, &asn1_ctx, pres_tree, -1);
 			break;
 		case SES_REFUSE:
-			offset = dissect_pres_CPR_PPDU(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_CPR_PPDU);
+			offset = dissect_pres_CPR_PPDU(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_CPR_PPDU);
 			break;
 		default:
-			offset = dissect_pres_CPC_type(FALSE, tvb, offset, pinfo, pres_tree, hf_pres_user_data);
+			offset = dissect_pres_CPC_type(FALSE, tvb, offset, &asn1_ctx, pres_tree, hf_pres_user_data);
 			break;
 	}
 

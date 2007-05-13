@@ -128,7 +128,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ContextValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS AttributeId
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
@@ -171,14 +171,14 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   const char	*name = NULL;
   const char    *orig_oid = object_identifier_id;
 
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
   /* in dissecting the value we may have overridden the OID of the value - which is
      a problem if there are multiple values */
   object_identifier_id = orig_oid;
 
   /* try and dissect as a string */
-  dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
+  dissect_ber_octet_string(FALSE, actx->pinfo, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
   
   /* should also try and dissect as an OID and integer */
   /* of course, if I can look up the syntax .... */
@@ -207,16 +207,16 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   }
 
 #.FN_BODY SelectedValues
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS DefaultValueType
   FN_VARIANT = _str  HF_INDEX = hf_x509if_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY DefaultValueValues
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY ValuesWithContextValue
-  offset=call_ber_oid_callback("unknown", tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback("unknown", tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY RelativeDistinguishedName
   char *temp_dn;
@@ -274,10 +274,10 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
   proto_item_append_text(top_of_dn, " (%%s)", last_dn);
 
  /* see if we should append this to the col info */
-  if(check_col(pinfo->cinfo, COL_INFO) &&
+  if(check_col(actx->pinfo->cinfo, COL_INFO) &&
      (fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
       /* we have a format */
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s%%s", fmt, last_dn);
   }
 
 

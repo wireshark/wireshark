@@ -34,11 +34,12 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
-#include "packet-cmip.h"
 #include "packet-ber.h"
+#include "packet-cmip.h"
 #include "packet-gnm.h"
 
 #define PNAME  "ITU M.3100 Generic Network Information Model"
@@ -61,8 +62,11 @@ static int hf_gnm_AdministrativeState = -1;
 static void
 dissect_gnm_attribute_ObjectInstance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
+	asn1_ctx_t asn1_ctx;
 
-	dissect_cmip_ObjectInstance(FALSE, tvb, 0, pinfo, parent_tree, -1);
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+
+	dissect_cmip_ObjectInstance(FALSE, tvb, 0, &asn1_ctx, parent_tree, -1);
 
 }
 

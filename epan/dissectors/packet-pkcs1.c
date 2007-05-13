@@ -38,12 +38,13 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-pkcs1.h"
 #include "packet-ber.h"
+#include "packet-pkcs1.h"
 #include "packet-x509af.h"
 
 #define PNAME  "PKCS#1"
@@ -68,7 +69,7 @@ static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier *
 static int hf_pkcs1_digest = -1;                  /* Digest */
 
 /*--- End of included file: packet-pkcs1-hf.c ---*/
-#line 48 "packet-pkcs1-template.c"
+#line 49 "packet-pkcs1-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -79,7 +80,7 @@ static gint ett_pkcs1_RSAPrivateKey = -1;
 static gint ett_pkcs1_DigestInfo = -1;
 
 /*--- End of included file: packet-pkcs1-ett.c ---*/
-#line 51 "packet-pkcs1-template.c"
+#line 52 "packet-pkcs1-template.c"
 
 
 /*--- Included file: packet-pkcs1-fn.c ---*/
@@ -90,35 +91,35 @@ static gint ett_pkcs1_DigestInfo = -1;
 
 
 static int
-dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_pkcs1_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_modulus(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_modulus);
+static int dissect_modulus(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_modulus);
 }
-static int dissect_publicExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_publicExponent);
+static int dissect_publicExponent(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_publicExponent);
 }
-static int dissect_privateExponent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_privateExponent);
+static int dissect_privateExponent(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_privateExponent);
 }
-static int dissect_prime1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_prime1);
+static int dissect_prime1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_prime1);
 }
-static int dissect_prime2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_prime2);
+static int dissect_prime2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_prime2);
 }
-static int dissect_exponent1(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_exponent1);
+static int dissect_exponent1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_exponent1);
 }
-static int dissect_exponent2(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_exponent2);
+static int dissect_exponent2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_exponent2);
 }
-static int dissect_coefficient(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_coefficient);
+static int dissect_coefficient(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_INTEGER(FALSE, tvb, offset, actx, tree, hf_pkcs1_coefficient);
 }
 
 
@@ -129,8 +130,8 @@ static const ber_sequence_t RSAPublicKey_sequence[] = {
 };
 
 int
-dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RSAPublicKey_sequence, hf_index, ett_pkcs1_RSAPublicKey);
 
   return offset;
@@ -139,14 +140,14 @@ dissect_pkcs1_RSAPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_pkcs1_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_version(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_Version(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_version);
+static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_Version(FALSE, tvb, offset, actx, tree, hf_pkcs1_version);
 }
 
 
@@ -164,8 +165,8 @@ static const ber_sequence_t RSAPrivateKey_sequence[] = {
 };
 
 int
-dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RSAPrivateKey_sequence, hf_index, ett_pkcs1_RSAPrivateKey);
 
   return offset;
@@ -174,26 +175,26 @@ dissect_pkcs1_RSAPrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_pkcs1_DigestAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_digestAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_DigestAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digestAlgorithm);
+static int dissect_digestAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_DigestAlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_pkcs1_digestAlgorithm);
 }
 
 
 
 static int
-dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_pkcs1_Digest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_digest(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_pkcs1_Digest(FALSE, tvb, offset, pinfo, tree, hf_pkcs1_digest);
+static int dissect_digest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_pkcs1_Digest(FALSE, tvb, offset, actx, tree, hf_pkcs1_digest);
 }
 
 
@@ -204,8 +205,8 @@ static const ber_sequence_t DigestInfo_sequence[] = {
 };
 
 int
-dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    DigestInfo_sequence, hf_index, ett_pkcs1_DigestInfo);
 
   return offset;
@@ -213,7 +214,7 @@ dissect_pkcs1_DigestInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 /*--- End of included file: packet-pkcs1-fn.c ---*/
-#line 53 "packet-pkcs1-template.c"
+#line 54 "packet-pkcs1-template.c"
 
 /*--- proto_register_pkcs1 ----------------------------------------------*/
 void proto_register_pkcs1(void) {
@@ -269,7 +270,7 @@ void proto_register_pkcs1(void) {
         "pkcs1.Digest", HFILL }},
 
 /*--- End of included file: packet-pkcs1-hfarr.c ---*/
-#line 60 "packet-pkcs1-template.c"
+#line 61 "packet-pkcs1-template.c"
   };
 
   /* List of subtrees */
@@ -282,7 +283,7 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_DigestInfo,
 
 /*--- End of included file: packet-pkcs1-ettarr.c ---*/
-#line 65 "packet-pkcs1-template.c"
+#line 66 "packet-pkcs1-template.c"
   };
 
   /* Register protocol */

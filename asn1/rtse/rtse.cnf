@@ -17,7 +17,7 @@ EXTERNALt
 		break;
 	default:
 		if(session && session->pres_ctx_id)
-			oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id);
+			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
 	
@@ -25,10 +25,10 @@ EXTERNALt
 		oid = "applicationProtocol.12";
 
 	if(oid) {
-	  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
+	  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 		session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
 
-		offset = call_rtse_oid_callback(oid, tvb, offset, pinfo, top_tree ? top_tree : tree);
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 	}
 
 #.FN_BODY RTABapdu/userdataAB
@@ -36,7 +36,7 @@ EXTERNALt
 
 #.FN_BODY RTORQapdu
 
-  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
+  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_ARGUMENT);
   open_request=TRUE;
   %(DEFAULT_BODY)s
@@ -44,7 +44,7 @@ EXTERNALt
 
 #.FN_BODY RTOACapdu
 
-  if((session = (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data)) != NULL)
+  if((session = (struct SESSION_DATA_STRUCTURE*)(actx->pinfo->private_data)) != NULL)
 	session->ros_op = (ROS_OP_BIND | ROS_OP_RESULT);
 
   %(DEFAULT_BODY)s
@@ -62,7 +62,7 @@ EXTERNALt
 		break;
 	default:
 		if(session && session->pres_ctx_id)
-			oid = find_oid_by_pres_ctx_id(pinfo, session->pres_ctx_id);
+			oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
 		break;
 	}
 	
@@ -71,7 +71,7 @@ EXTERNALt
 
 	if(oid) {
 
-		offset = call_rtse_oid_callback(oid, tvb, offset, pinfo, top_tree ? top_tree : tree);
+		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 	}
 
 	/* else XXX: need to flag we can't find the presentation context */
@@ -79,7 +79,7 @@ EXTERNALt
 #.FN_BODY RTTRapdu
 	tvbuff_t *next_tvb = NULL;
 
-	offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &next_tvb);
 
 	if(next_tvb) {
 
@@ -89,7 +89,7 @@ EXTERNALt
 		if(session)
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-		offset = dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, pinfo, tree, -1);
+		offset = dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, actx, tree, -1);
 
 	}
 
@@ -108,33 +108,33 @@ EXTERNALt
      offset = get_ber_length(tree, tvb, offset, &len1, &ind_field);
    }
 
-   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
+   offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_rtse_EXTERNALt);
 
 #.FN_BODY EXTERNALt/indirect-reference
   char *oid;
 
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset,
                 hf_rtse_indirect_reference,
                 &indir_ref);
 
   /* look up the indirect reference */
-  if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
+  if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
     g_snprintf(object_identifier_id, MAX_OID_STR_LEN, "%%s", oid);
   }
 	
 
 #.FN_BODY EXTERNALt/encoding/single-ASN1-type
-  offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
+  offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 
 #.FN_BODY T_applicationProtocol
 
-  offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, &app_proto);
+  offset = dissect_ber_integer(TRUE, actx->pinfo, tree, tvb, offset, hf_index, &app_proto);
 
 #.FN_BODY SessionConnectionIdentifier
-  if(open_request && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Recover");
+  if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Recover");
   %(DEFAULT_BODY)s
 
 #.FN_PARS T61String
@@ -142,23 +142,23 @@ EXTERNALt
 #.FN_BODY T61String
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.FN_PARS CommonReference
   VAL_PTR=&string
 #.FN_BODY CommonReference
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.FN_PARS OCTET_STRING
   VAL_PTR=&string
 #.FN_BODY OCTET_STRING
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
+  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.END

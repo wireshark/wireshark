@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -155,7 +156,7 @@ static int hf_ftbp_Access_Request_change_attribute = -1;
 static int hf_ftbp_Access_Request_delete_object = -1;
 
 /*--- End of included file: packet-ftbp-hf.c ---*/
-#line 54 "packet-ftbp-template.c"
+#line 55 "packet-ftbp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ftbp = -1;
@@ -193,69 +194,69 @@ static gint ett_ftbp_Pass_Passwords = -1;
 static gint ett_ftbp_Application_Entity_Title = -1;
 
 /*--- End of included file: packet-ftbp-ett.c ---*/
-#line 58 "packet-ftbp-template.c"
+#line 59 "packet-ftbp-template.c"
 
 
 /*--- Included file: packet-ftbp-fn.c ---*/
 #line 1 "packet-ftbp-fn.c"
 /*--- Fields for imported types ---*/
 
-static int dissect_extensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x420_ExtensionsField(TRUE, tvb, offset, pinfo, tree, hf_ftbp_extensions);
+static int dissect_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_x420_ExtensionsField(TRUE, tvb, offset, actx, tree, hf_ftbp_extensions);
 }
-static int dissect_FileTransferData_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_EXTERNALt(FALSE, tvb, offset, pinfo, tree, hf_ftbp_FileTransferData_item);
+static int dissect_FileTransferData_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_acse_EXTERNALt(FALSE, tvb, offset, actx, tree, hf_ftbp_FileTransferData_item);
 }
-static int dissect_user_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_x411_ORName(TRUE, tvb, offset, pinfo, tree, hf_ftbp_user);
+static int dissect_user_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_x411_ORName(TRUE, tvb, offset, actx, tree, hf_ftbp_user);
 }
-static int dissect_permitted_actions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Permitted_Actions_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_permitted_actions);
+static int dissect_permitted_actions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Permitted_Actions_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_permitted_actions);
 }
-static int dissect_date_and_time_of_creation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_date_and_time_of_creation);
+static int dissect_date_and_time_of_creation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_date_and_time_of_creation);
 }
-static int dissect_date_and_time_of_last_modification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_date_and_time_of_last_modification);
+static int dissect_date_and_time_of_last_modification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_date_and_time_of_last_modification);
 }
-static int dissect_date_and_time_of_last_read_access_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_date_and_time_of_last_read_access);
+static int dissect_date_and_time_of_last_read_access_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_date_and_time_of_last_read_access);
 }
-static int dissect_date_and_time_of_last_attribute_modification_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_date_and_time_of_last_attribute_modification);
+static int dissect_date_and_time_of_last_attribute_modification_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Date_and_Time_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_date_and_time_of_last_attribute_modification);
 }
-static int dissect_object_availability_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Availability_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_object_availability);
+static int dissect_object_availability_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Object_Availability_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_object_availability);
 }
-static int dissect_object_size_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_object_size);
+static int dissect_object_size_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_object_size);
 }
-static int dissect_future_object_size_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_future_object_size);
+static int dissect_future_object_size_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Object_Size_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_future_object_size);
 }
-static int dissect_legal_qualifications_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Legal_Qualification_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_legal_qualifications);
+static int dissect_legal_qualifications_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Legal_Qualification_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_legal_qualifications);
 }
-static int dissect_private_use_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Private_Use_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_private_use);
+static int dissect_private_use_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Private_Use_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_private_use);
 }
-static int dissect_attribute_extensions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Attribute_Extensions(TRUE, tvb, offset, pinfo, tree, hf_ftbp_attribute_extensions);
+static int dissect_attribute_extensions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Attribute_Extensions(TRUE, tvb, offset, actx, tree, hf_ftbp_attribute_extensions);
 }
-static int dissect_incomplete_pathname_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Pathname(TRUE, tvb, offset, pinfo, tree, hf_ftbp_incomplete_pathname);
+static int dissect_incomplete_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Pathname(TRUE, tvb, offset, actx, tree, hf_ftbp_incomplete_pathname);
 }
-static int dissect_complete_pathname_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Pathname(TRUE, tvb, offset, pinfo, tree, hf_ftbp_complete_pathname);
+static int dissect_complete_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Pathname(TRUE, tvb, offset, actx, tree, hf_ftbp_complete_pathname);
 }
-static int dissect_concurrency_access_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftam_Concurrency_Access(TRUE, tvb, offset, pinfo, tree, hf_ftbp_concurrency_access);
+static int dissect_concurrency_access_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftam_Concurrency_Access(TRUE, tvb, offset, actx, tree, hf_ftbp_concurrency_access);
 }
-static int dissect_ap_title(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_AP_title(FALSE, tvb, offset, pinfo, tree, hf_ftbp_ap_title);
+static int dissect_ap_title(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_ftbp_ap_title);
 }
-static int dissect_ae_qualifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_acse_AE_qualifier(FALSE, tvb, offset, pinfo, tree, hf_ftbp_ae_qualifier);
+static int dissect_ae_qualifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_ftbp_ae_qualifier);
 }
 
 
@@ -272,44 +273,44 @@ static const ber_choice_t Pathname_Attribute_choice[] = {
 };
 
 static int
-dissect_ftbp_Pathname_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Pathname_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Pathname_Attribute_choice, hf_index, ett_ftbp_Pathname_Attribute,
                                  NULL);
 
   return offset;
 }
-static int dissect_pathname(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Pathname_Attribute(FALSE, tvb, offset, pinfo, tree, hf_ftbp_pathname);
+static int dissect_pathname(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Pathname_Attribute(FALSE, tvb, offset, actx, tree, hf_ftbp_pathname);
 }
-static int dissect_pathname_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Pathname_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_pathname);
+static int dissect_pathname_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Pathname_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_pathname);
 }
 
 
 
 static int
-dissect_ftbp_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_file_version_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GraphicString(TRUE, tvb, offset, pinfo, tree, hf_ftbp_file_version);
+static int dissect_file_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GraphicString(TRUE, tvb, offset, actx, tree, hf_ftbp_file_version);
 }
-static int dissect_descriptive_relationship_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GraphicString(TRUE, tvb, offset, pinfo, tree, hf_ftbp_descriptive_relationship);
+static int dissect_descriptive_relationship_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GraphicString(TRUE, tvb, offset, actx, tree, hf_ftbp_descriptive_relationship);
 }
-static int dissect_user_visible_string_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GraphicString(FALSE, tvb, offset, pinfo, tree, hf_ftbp_user_visible_string_item);
+static int dissect_user_visible_string_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GraphicString(FALSE, tvb, offset, actx, tree, hf_ftbp_user_visible_string_item);
 }
-static int dissect_descriptive_identifier_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GraphicString(FALSE, tvb, offset, pinfo, tree, hf_ftbp_descriptive_identifier_item);
+static int dissect_descriptive_identifier_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GraphicString(FALSE, tvb, offset, actx, tree, hf_ftbp_descriptive_identifier_item);
 }
-static int dissect_graphic_string(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GraphicString(FALSE, tvb, offset, pinfo, tree, hf_ftbp_graphic_string);
+static int dissect_graphic_string(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GraphicString(FALSE, tvb, offset, actx, tree, hf_ftbp_graphic_string);
 }
 
 
@@ -320,44 +321,44 @@ static const ber_sequence_t PathnameandVersion_sequence[] = {
 };
 
 static int
-dissect_ftbp_PathnameandVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_PathnameandVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PathnameandVersion_sequence, hf_index, ett_ftbp_PathnameandVersion);
 
   return offset;
 }
-static int dissect_pathname_and_version_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_PathnameandVersion(TRUE, tvb, offset, pinfo, tree, hf_ftbp_pathname_and_version);
+static int dissect_pathname_and_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_PathnameandVersion(TRUE, tvb, offset, actx, tree, hf_ftbp_pathname_and_version);
 }
 
 
 
 static int
-dissect_ftbp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_ftbp_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_application_cross_reference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_ftbp_application_cross_reference);
+static int dissect_application_cross_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_ftbp_application_cross_reference);
 }
-static int dissect_octet_string(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_ftbp_octet_string);
+static int dissect_octet_string(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_ftbp_octet_string);
 }
 
 
 
 static int
-dissect_ftbp_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_PrintableString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_user_relative_identifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_PrintableString(TRUE, tvb, offset, pinfo, tree, hf_ftbp_user_relative_identifier);
+static int dissect_user_relative_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_PrintableString(TRUE, tvb, offset, actx, tree, hf_ftbp_user_relative_identifier);
 }
 
 
@@ -368,27 +369,27 @@ static const ber_sequence_t MessageReference_set[] = {
 };
 
 static int
-dissect_ftbp_MessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_MessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               MessageReference_set, hf_index, ett_ftbp_MessageReference);
 
   return offset;
 }
-static int dissect_message_reference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_MessageReference(TRUE, tvb, offset, pinfo, tree, hf_ftbp_message_reference);
+static int dissect_message_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_MessageReference(TRUE, tvb, offset, actx, tree, hf_ftbp_message_reference);
 }
 
 
 
 static int
-dissect_ftbp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_ftbp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_body_part_reference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_INTEGER(TRUE, tvb, offset, pinfo, tree, hf_ftbp_body_part_reference);
+static int dissect_body_part_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_INTEGER(TRUE, tvb, offset, actx, tree, hf_ftbp_body_part_reference);
 }
 
 
@@ -400,14 +401,14 @@ static const ber_sequence_t CrossReference_sequence[] = {
 };
 
 static int
-dissect_ftbp_CrossReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_CrossReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CrossReference_sequence, hf_index, ett_ftbp_CrossReference);
 
   return offset;
 }
-static int dissect_cross_reference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_CrossReference(TRUE, tvb, offset, pinfo, tree, hf_ftbp_cross_reference);
+static int dissect_cross_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_CrossReference(TRUE, tvb, offset, actx, tree, hf_ftbp_cross_reference);
 }
 
 
@@ -424,15 +425,15 @@ static const ber_choice_t FileIdentifier_choice[] = {
 };
 
 static int
-dissect_ftbp_FileIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_FileIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  FileIdentifier_choice, hf_index, ett_ftbp_FileIdentifier,
                                  NULL);
 
   return offset;
 }
-static int dissect_file_identifier(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_FileIdentifier(FALSE, tvb, offset, pinfo, tree, hf_ftbp_file_identifier);
+static int dissect_file_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_FileIdentifier(FALSE, tvb, offset, actx, tree, hf_ftbp_file_identifier);
 }
 
 
@@ -446,14 +447,14 @@ static const value_string ftbp_ExplicitRelationship_vals[] = {
 
 
 static int
-dissect_ftbp_ExplicitRelationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_ftbp_ExplicitRelationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_explicit_relationship_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_ExplicitRelationship(TRUE, tvb, offset, pinfo, tree, hf_ftbp_explicit_relationship);
+static int dissect_explicit_relationship_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_ExplicitRelationship(TRUE, tvb, offset, actx, tree, hf_ftbp_explicit_relationship);
 }
 
 
@@ -470,15 +471,15 @@ static const ber_choice_t Relationship_choice[] = {
 };
 
 static int
-dissect_ftbp_Relationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Relationship(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Relationship_choice, hf_index, ett_ftbp_Relationship,
                                  NULL);
 
   return offset;
 }
-static int dissect_relationship(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Relationship(FALSE, tvb, offset, pinfo, tree, hf_ftbp_relationship);
+static int dissect_relationship(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Relationship(FALSE, tvb, offset, actx, tree, hf_ftbp_relationship);
 }
 
 
@@ -489,14 +490,14 @@ static const ber_sequence_t RelatedStoredFile_item_sequence[] = {
 };
 
 static int
-dissect_ftbp_RelatedStoredFile_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_RelatedStoredFile_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RelatedStoredFile_item_sequence, hf_index, ett_ftbp_RelatedStoredFile_item);
 
   return offset;
 }
-static int dissect_RelatedStoredFile_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_RelatedStoredFile_item(FALSE, tvb, offset, pinfo, tree, hf_ftbp_RelatedStoredFile_item);
+static int dissect_RelatedStoredFile_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_RelatedStoredFile_item(FALSE, tvb, offset, actx, tree, hf_ftbp_RelatedStoredFile_item);
 }
 
 
@@ -505,32 +506,32 @@ static const ber_sequence_t RelatedStoredFile_set_of[1] = {
 };
 
 static int
-dissect_ftbp_RelatedStoredFile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_RelatedStoredFile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  RelatedStoredFile_set_of, hf_index, ett_ftbp_RelatedStoredFile);
 
   return offset;
 }
-static int dissect_related_stored_file_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_RelatedStoredFile(TRUE, tvb, offset, pinfo, tree, hf_ftbp_related_stored_file);
+static int dissect_related_stored_file_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_RelatedStoredFile(TRUE, tvb, offset, actx, tree, hf_ftbp_related_stored_file);
 }
 
 
 
 static int
-dissect_ftbp_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_ftbp_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_document_type_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Document_Type_Name(FALSE, tvb, offset, pinfo, tree, hf_ftbp_document_type_name);
+static int dissect_document_type_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Document_Type_Name(FALSE, tvb, offset, actx, tree, hf_ftbp_document_type_name);
 }
 
 
 
 static int
-dissect_ftbp_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 23 "ftbp.cnf"
 /* XXX: Not implemented yet */
 
@@ -538,8 +539,8 @@ dissect_ftbp_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_parameter_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_parameter(TRUE, tvb, offset, pinfo, tree, hf_ftbp_parameter);
+static int dissect_parameter_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_parameter(TRUE, tvb, offset, actx, tree, hf_ftbp_parameter);
 }
 
 
@@ -550,38 +551,38 @@ static const ber_sequence_t T_document_type_sequence[] = {
 };
 
 static int
-dissect_ftbp_T_document_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_T_document_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_document_type_sequence, hf_index, ett_ftbp_T_document_type);
 
   return offset;
 }
-static int dissect_document_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_document_type(TRUE, tvb, offset, pinfo, tree, hf_ftbp_document_type);
+static int dissect_document_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_document_type(TRUE, tvb, offset, actx, tree, hf_ftbp_document_type);
 }
 
 
 
 static int
-dissect_ftbp_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_ftbp_Constraint_Set_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_constraint_set_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Constraint_Set_Name(FALSE, tvb, offset, pinfo, tree, hf_ftbp_constraint_set_name);
+static int dissect_constraint_set_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Constraint_Set_Name(FALSE, tvb, offset, actx, tree, hf_ftbp_constraint_set_name);
 }
 
 
 
 static int
-dissect_ftbp_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_ftbp_Abstract_Syntax_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_abstract_syntax_name(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Abstract_Syntax_Name(FALSE, tvb, offset, pinfo, tree, hf_ftbp_abstract_syntax_name);
+static int dissect_abstract_syntax_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Abstract_Syntax_Name(FALSE, tvb, offset, actx, tree, hf_ftbp_abstract_syntax_name);
 }
 
 
@@ -592,14 +593,14 @@ static const ber_sequence_t T_constraint_set_and_abstract_syntax_sequence[] = {
 };
 
 static int
-dissect_ftbp_T_constraint_set_and_abstract_syntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_T_constraint_set_and_abstract_syntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_constraint_set_and_abstract_syntax_sequence, hf_index, ett_ftbp_T_constraint_set_and_abstract_syntax);
 
   return offset;
 }
-static int dissect_constraint_set_and_abstract_syntax_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_constraint_set_and_abstract_syntax(TRUE, tvb, offset, pinfo, tree, hf_ftbp_constraint_set_and_abstract_syntax);
+static int dissect_constraint_set_and_abstract_syntax_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_constraint_set_and_abstract_syntax(TRUE, tvb, offset, actx, tree, hf_ftbp_constraint_set_and_abstract_syntax);
 }
 
 
@@ -616,8 +617,8 @@ static const ber_choice_t Contents_Type_Attribute_choice[] = {
 };
 
 static int
-dissect_ftbp_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Contents_Type_Attribute_choice, hf_index, ett_ftbp_Contents_Type_Attribute,
                                  NULL);
 
@@ -627,31 +628,31 @@ dissect_ftbp_Contents_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_ftbp_ContentsTypeParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ftbp_Contents_Type_Attribute(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_ftbp_ContentsTypeParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ftbp_Contents_Type_Attribute(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_contents_type_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_ContentsTypeParameter(TRUE, tvb, offset, pinfo, tree, hf_ftbp_contents_type);
+static int dissect_contents_type_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_ContentsTypeParameter(TRUE, tvb, offset, actx, tree, hf_ftbp_contents_type);
 }
 
 
 
 static int
-dissect_ftbp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_ftbp_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_operating_system_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_ftbp_operating_system);
+static int dissect_operating_system_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_ftbp_operating_system);
 }
-static int dissect_registered_identifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_ftbp_registered_identifier);
+static int dissect_registered_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_ftbp_registered_identifier);
 }
-static int dissect_compression_algorithm_id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_ftbp_compression_algorithm_id);
+static int dissect_compression_algorithm_id_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_ftbp_compression_algorithm_id);
 }
 
 
@@ -660,14 +661,14 @@ static const ber_sequence_t T_descriptive_identifier_sequence_of[1] = {
 };
 
 static int
-dissect_ftbp_T_descriptive_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_T_descriptive_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_descriptive_identifier_sequence_of, hf_index, ett_ftbp_T_descriptive_identifier);
 
   return offset;
 }
-static int dissect_descriptive_identifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_descriptive_identifier(TRUE, tvb, offset, pinfo, tree, hf_ftbp_descriptive_identifier);
+static int dissect_descriptive_identifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_descriptive_identifier(TRUE, tvb, offset, actx, tree, hf_ftbp_descriptive_identifier);
 }
 
 
@@ -684,18 +685,18 @@ static const ber_choice_t GeneralIdentifier_choice[] = {
 };
 
 static int
-dissect_ftbp_GeneralIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_GeneralIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GeneralIdentifier_choice, hf_index, ett_ftbp_GeneralIdentifier,
                                  NULL);
 
   return offset;
 }
-static int dissect_application_reference_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GeneralIdentifier(TRUE, tvb, offset, pinfo, tree, hf_ftbp_application_reference);
+static int dissect_application_reference_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GeneralIdentifier(TRUE, tvb, offset, actx, tree, hf_ftbp_application_reference);
 }
-static int dissect_machine_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_GeneralIdentifier(TRUE, tvb, offset, pinfo, tree, hf_ftbp_machine);
+static int dissect_machine_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_GeneralIdentifier(TRUE, tvb, offset, actx, tree, hf_ftbp_machine);
 }
 
 
@@ -704,14 +705,14 @@ static const ber_sequence_t T_user_visible_string_sequence_of[1] = {
 };
 
 static int
-dissect_ftbp_T_user_visible_string(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_T_user_visible_string(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_user_visible_string_sequence_of, hf_index, ett_ftbp_T_user_visible_string);
 
   return offset;
 }
-static int dissect_user_visible_string_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_user_visible_string(TRUE, tvb, offset, pinfo, tree, hf_ftbp_user_visible_string);
+static int dissect_user_visible_string_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_user_visible_string(TRUE, tvb, offset, actx, tree, hf_ftbp_user_visible_string);
 }
 
 
@@ -724,27 +725,27 @@ static const ber_sequence_t EnvironmentParameter_sequence[] = {
 };
 
 static int
-dissect_ftbp_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EnvironmentParameter_sequence, hf_index, ett_ftbp_EnvironmentParameter);
 
   return offset;
 }
-static int dissect_environment_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_EnvironmentParameter(TRUE, tvb, offset, pinfo, tree, hf_ftbp_environment);
+static int dissect_environment_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_EnvironmentParameter(TRUE, tvb, offset, actx, tree, hf_ftbp_environment);
 }
 
 
 
 static int
-dissect_ftbp_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 26 "ftbp.cnf"
 /* XXX: Not implemented yet */
 
   return offset;
 }
-static int dissect_compression_algorithm_param_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_T_compression_algorithm_param(TRUE, tvb, offset, pinfo, tree, hf_ftbp_compression_algorithm_param);
+static int dissect_compression_algorithm_param_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_T_compression_algorithm_param(TRUE, tvb, offset, actx, tree, hf_ftbp_compression_algorithm_param);
 }
 
 
@@ -755,40 +756,40 @@ static const ber_sequence_t CompressionParameter_sequence[] = {
 };
 
 static int
-dissect_ftbp_CompressionParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_CompressionParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CompressionParameter_sequence, hf_index, ett_ftbp_CompressionParameter);
 
   return offset;
 }
-static int dissect_compression_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_CompressionParameter(TRUE, tvb, offset, pinfo, tree, hf_ftbp_compression);
+static int dissect_compression_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_CompressionParameter(TRUE, tvb, offset, actx, tree, hf_ftbp_compression);
 }
 
 
 
 static int
-dissect_ftbp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+dissect_ftbp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
-static int dissect_no_value_available_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_NULL(TRUE, tvb, offset, pinfo, tree, hf_ftbp_no_value_available);
+static int dissect_no_value_available_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_NULL(TRUE, tvb, offset, actx, tree, hf_ftbp_no_value_available);
 }
 
 
 
 static int
-dissect_ftbp_Account(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_Account(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_account_actual_values(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Account(FALSE, tvb, offset, pinfo, tree, hf_ftbp_account_actual_values);
+static int dissect_account_actual_values(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Account(FALSE, tvb, offset, actx, tree, hf_ftbp_account_actual_values);
 }
 
 
@@ -805,32 +806,32 @@ static const ber_choice_t Account_Attribute_choice[] = {
 };
 
 static int
-dissect_ftbp_Account_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Account_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Account_Attribute_choice, hf_index, ett_ftbp_Account_Attribute,
                                  NULL);
 
   return offset;
 }
-static int dissect_storage_account_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Account_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_storage_account);
+static int dissect_storage_account_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Account_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_storage_account);
 }
 
 
 
 static int
-dissect_ftbp_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ftbp_User_Identity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GraphicString,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_identity_actual_values(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity(FALSE, tvb, offset, pinfo, tree, hf_ftbp_identity_actual_values);
+static int dissect_identity_actual_values(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity(FALSE, tvb, offset, actx, tree, hf_ftbp_identity_actual_values);
 }
-static int dissect_identity_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity(TRUE, tvb, offset, pinfo, tree, hf_ftbp_identity);
+static int dissect_identity_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity(TRUE, tvb, offset, actx, tree, hf_ftbp_identity);
 }
 
 
@@ -847,24 +848,24 @@ static const ber_choice_t User_Identity_Attribute_choice[] = {
 };
 
 static int
-dissect_ftbp_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  User_Identity_Attribute_choice, hf_index, ett_ftbp_User_Identity_Attribute,
                                  NULL);
 
   return offset;
 }
-static int dissect_identity_of_creator_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_identity_of_creator);
+static int dissect_identity_of_creator_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_identity_of_creator);
 }
-static int dissect_identity_of_last_modifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_identity_of_last_modifier);
+static int dissect_identity_of_last_modifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_identity_of_last_modifier);
 }
-static int dissect_identity_of_last_reader_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_identity_of_last_reader);
+static int dissect_identity_of_last_reader_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_identity_of_last_reader);
 }
-static int dissect_identity_of_last_attribute_modifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_identity_of_last_attribute_modifier);
+static int dissect_identity_of_last_attribute_modifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_User_Identity_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_identity_of_last_attribute_modifier);
 }
 
 
@@ -881,15 +882,15 @@ static const asn_namedbit Access_Request_bits[] = {
 };
 
 static int
-dissect_ftbp_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
                                     Access_Request_bits, hf_index, ett_ftbp_Access_Request,
                                     NULL);
 
   return offset;
 }
-static int dissect_action_list_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Access_Request(TRUE, tvb, offset, pinfo, tree, hf_ftbp_action_list);
+static int dissect_action_list_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Access_Request(TRUE, tvb, offset, actx, tree, hf_ftbp_action_list);
 }
 
 
@@ -906,42 +907,42 @@ static const ber_choice_t Password_choice[] = {
 };
 
 static int
-dissect_ftbp_Password(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Password(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Password_choice, hf_index, ett_ftbp_Password,
                                  NULL);
 
   return offset;
 }
-static int dissect_read_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_read_password);
+static int dissect_read_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_read_password);
 }
-static int dissect_insert_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_insert_password);
+static int dissect_insert_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_insert_password);
 }
-static int dissect_replace_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_replace_password);
+static int dissect_replace_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_replace_password);
 }
-static int dissect_extend_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_extend_password);
+static int dissect_extend_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_extend_password);
 }
-static int dissect_erase_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_erase_password);
+static int dissect_erase_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_erase_password);
 }
-static int dissect_read_attribute_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_read_attribute_password);
+static int dissect_read_attribute_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_read_attribute_password);
 }
-static int dissect_change_attribute_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_change_attribute_password);
+static int dissect_change_attribute_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_change_attribute_password);
 }
-static int dissect_delete_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_delete_password);
+static int dissect_delete_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_delete_password);
 }
-static int dissect_link_password_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(TRUE, tvb, offset, pinfo, tree, hf_ftbp_link_password);
+static int dissect_link_password_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(TRUE, tvb, offset, actx, tree, hf_ftbp_link_password);
 }
-static int dissect_Pass_Passwords_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Password(FALSE, tvb, offset, pinfo, tree, hf_ftbp_Pass_Passwords_item);
+static int dissect_Pass_Passwords_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Password(FALSE, tvb, offset, actx, tree, hf_ftbp_Pass_Passwords_item);
 }
 
 
@@ -950,14 +951,14 @@ static const ber_sequence_t Pass_Passwords_sequence_of[1] = {
 };
 
 static int
-dissect_ftbp_Pass_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_Pass_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       Pass_Passwords_sequence_of, hf_index, ett_ftbp_Pass_Passwords);
 
   return offset;
 }
-static int dissect_pass_passwords_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Pass_Passwords(TRUE, tvb, offset, pinfo, tree, hf_ftbp_pass_passwords);
+static int dissect_pass_passwords_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Pass_Passwords(TRUE, tvb, offset, actx, tree, hf_ftbp_pass_passwords);
 }
 
 
@@ -976,14 +977,14 @@ static const ber_sequence_t Access_Passwords_sequence[] = {
 };
 
 static int
-dissect_ftbp_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_Access_Passwords(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Access_Passwords_sequence, hf_index, ett_ftbp_Access_Passwords);
 
   return offset;
 }
-static int dissect_passwords_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Access_Passwords(TRUE, tvb, offset, pinfo, tree, hf_ftbp_passwords);
+static int dissect_passwords_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Access_Passwords(TRUE, tvb, offset, actx, tree, hf_ftbp_passwords);
 }
 
 
@@ -994,14 +995,14 @@ static const ber_sequence_t Application_Entity_Title_sequence[] = {
 };
 
 static int
-dissect_ftbp_Application_Entity_Title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_Application_Entity_Title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Application_Entity_Title_sequence, hf_index, ett_ftbp_Application_Entity_Title);
 
   return offset;
 }
-static int dissect_location_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Application_Entity_Title(TRUE, tvb, offset, pinfo, tree, hf_ftbp_location);
+static int dissect_location_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Application_Entity_Title(TRUE, tvb, offset, actx, tree, hf_ftbp_location);
 }
 
 
@@ -1015,14 +1016,14 @@ static const ber_sequence_t Access_Control_Element_sequence[] = {
 };
 
 static int
-dissect_ftbp_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Access_Control_Element_sequence, hf_index, ett_ftbp_Access_Control_Element);
 
   return offset;
 }
-static int dissect_actual_values_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Access_Control_Element(FALSE, tvb, offset, pinfo, tree, hf_ftbp_actual_values_item);
+static int dissect_actual_values_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Access_Control_Element(FALSE, tvb, offset, actx, tree, hf_ftbp_actual_values_item);
 }
 
 
@@ -1031,14 +1032,14 @@ static const ber_sequence_t SET_OF_Access_Control_Element_set_of[1] = {
 };
 
 static int
-dissect_ftbp_SET_OF_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_SET_OF_Access_Control_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_Access_Control_Element_set_of, hf_index, ett_ftbp_SET_OF_Access_Control_Element);
 
   return offset;
 }
-static int dissect_actual_values_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_SET_OF_Access_Control_Element(TRUE, tvb, offset, pinfo, tree, hf_ftbp_actual_values);
+static int dissect_actual_values_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_SET_OF_Access_Control_Element(TRUE, tvb, offset, actx, tree, hf_ftbp_actual_values);
 }
 
 
@@ -1055,15 +1056,15 @@ static const ber_choice_t Access_Control_Attribute_choice[] = {
 };
 
 static int
-dissect_ftbp_Access_Control_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_ftbp_Access_Control_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Access_Control_Attribute_choice, hf_index, ett_ftbp_Access_Control_Attribute,
                                  NULL);
 
   return offset;
 }
-static int dissect_access_control_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_Access_Control_Attribute(TRUE, tvb, offset, pinfo, tree, hf_ftbp_access_control);
+static int dissect_access_control_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_Access_Control_Attribute(TRUE, tvb, offset, actx, tree, hf_ftbp_access_control);
 }
 
 
@@ -1090,14 +1091,14 @@ static const ber_sequence_t FileAttributes_sequence[] = {
 };
 
 static int
-dissect_ftbp_FileAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_FileAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FileAttributes_sequence, hf_index, ett_ftbp_FileAttributes);
 
   return offset;
 }
-static int dissect_file_attributes_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_ftbp_FileAttributes(TRUE, tvb, offset, pinfo, tree, hf_ftbp_file_attributes);
+static int dissect_file_attributes_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_ftbp_FileAttributes(TRUE, tvb, offset, actx, tree, hf_ftbp_file_attributes);
 }
 
 
@@ -1112,8 +1113,8 @@ static const ber_sequence_t FileTransferParameters_sequence[] = {
 };
 
 static int
-dissect_ftbp_FileTransferParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_FileTransferParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FileTransferParameters_sequence, hf_index, ett_ftbp_FileTransferParameters);
 
   return offset;
@@ -1125,8 +1126,8 @@ static const ber_sequence_t FileTransferData_sequence_of[1] = {
 };
 
 static int
-dissect_ftbp_FileTransferData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_ftbp_FileTransferData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       FileTransferData_sequence_of, hf_index, ett_ftbp_FileTransferData);
 
   return offset;
@@ -1135,15 +1136,19 @@ dissect_ftbp_FileTransferData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 /*--- PDUs ---*/
 
 static void dissect_FileTransferParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_ftbp_FileTransferParameters(FALSE, tvb, 0, pinfo, tree, hf_ftbp_FileTransferParameters_PDU);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_ftbp_FileTransferParameters(FALSE, tvb, 0, &asn1_ctx, tree, hf_ftbp_FileTransferParameters_PDU);
 }
 static void dissect_FileTransferData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_ftbp_FileTransferData(FALSE, tvb, 0, pinfo, tree, hf_ftbp_FileTransferData_PDU);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_ftbp_FileTransferData(FALSE, tvb, 0, &asn1_ctx, tree, hf_ftbp_FileTransferData_PDU);
 }
 
 
 /*--- End of included file: packet-ftbp-fn.c ---*/
-#line 60 "packet-ftbp-template.c"
+#line 61 "packet-ftbp-template.c"
 
 
 /*--- proto_register_ftbp -------------------------------------------*/
@@ -1521,7 +1526,7 @@ void proto_register_ftbp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-ftbp-hfarr.c ---*/
-#line 69 "packet-ftbp-template.c"
+#line 70 "packet-ftbp-template.c"
   };
 
   /* List of subtrees */
@@ -1561,7 +1566,7 @@ void proto_register_ftbp(void) {
     &ett_ftbp_Application_Entity_Title,
 
 /*--- End of included file: packet-ftbp-ettarr.c ---*/
-#line 75 "packet-ftbp-template.c"
+#line 76 "packet-ftbp-template.c"
   };
 
   /* Register protocol */
@@ -1584,6 +1589,6 @@ void proto_reg_handoff_ftbp(void) {
 
 
 /*--- End of included file: packet-ftbp-dis-tab.c ---*/
-#line 90 "packet-ftbp-template.c"
+#line 91 "packet-ftbp-template.c"
 
 }

@@ -48,45 +48,45 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
      * time being  just remove this tag manually inside the EXTERNAL
      * dissector.
      */
-	offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset = dissect_ber_length(pinfo, tree, tvb, offset, &len1, &ind_field);
+	offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len1, &ind_field);
    }
-   offset = dissect_ber_sequence(TRUE, pinfo, tree, tvb, offset,
+   offset = dissect_ber_sequence(TRUE, actx, tree, tvb, offset,
                                 EXTERNALt_sequence, hf_index, ett_acse_EXTERNALt);
 
 #.FN_PARS Authentication-value-other/other-mechanism-name  
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 #.FN_BODY PDV-list/presentation-data-values/simple-ASN1-type
 /*XXX not implemented yet */
 
 #.FN_BODY AARQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY AARE-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY ACRQ-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY ACRP-apdu/aSO-context-name
-  offset = dissect_ber_object_identifier_str(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_object_identifier_str(FALSE, actx->pinfo, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
 #.FN_BODY EXTERNALt/indirect-reference
   char *oid;
-  offset = dissect_ber_integer(FALSE, pinfo, tree, tvb, offset,
+  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset,
                 hf_acse_indirect_reference,
                 &indir_ref);
 
   /* look up the indirect reference */
-  if((oid = find_oid_by_pres_ctx_id(pinfo, indir_ref)) != NULL) {
+  if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
     object_identifier_id = ep_strdup(oid);
   }
 
@@ -97,7 +97,7 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY EXTERNALt/encoding/single-ASN1-type
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, top_tree ? top_tree : tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
 
 #.FN_PARS Release-request-reason
   VAL_PTR=&reason
@@ -107,8 +107,8 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
  
   %(DEFAULT_BODY)s
 
-  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
-   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Request (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
+  if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Request (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
 
 
 #.FN_PARS Release-response-reason
@@ -119,8 +119,8 @@ ACRQ-apdu/aSO-context-name	aCRQ_aSO_context_name
  
   %(DEFAULT_BODY)s
 
-  if((reason != -1) && check_col(pinfo->cinfo, COL_INFO))
-   col_append_fstr(pinfo->cinfo, COL_INFO, "Release-Response (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
+  if((reason != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+   col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Release-Response (%%s)", val_to_str(reason, acse_Release_request_reason_vals, "reason(%%d)"));
 
 
 #.FIELD_ATTR

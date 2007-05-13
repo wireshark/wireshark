@@ -9,7 +9,7 @@
 
 
 #.PDU
-
+Component
 
 #.NO_EMIT
 
@@ -68,6 +68,29 @@ SpecializedResourceReportArg
 CancelArg
 RequestCurrentStatusReportResultArg
 ReceivedInformationArg
+
+#.FN_BODY InvokeParameter
+	offset = dissect_invokeData(tree, tvb, offset, actx);
+
+#.FN_BODY ReturnResultParameter
+	offset = dissect_returnResultData(tree, tvb, offset, actx);
+
+#.FN_BODY ReturnErrorParameter
+	offset = dissect_returnErrorData(tree, tvb, offset, actx);
+
+#.FN_BODY INAPLocalErrorcode VAL_PTR = &errorCode
+  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &errorCode);
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_error_code_strings, "Unknown Inap (%u)"));
+  }
+
+#.FN_BODY INAPOperationLocalvalue
+  offset = dissect_ber_integer(FALSE, actx->pinfo, tree, tvb, offset, hf_index, &opcode);
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
+    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(opcode, inap_opr_code_strings, "Unknown Inap (%u)"));
+  }
 
 #.FN_PARS CalledPartyNumber
 VAL_PTR = &parameter_tvb

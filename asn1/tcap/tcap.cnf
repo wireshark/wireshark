@@ -32,15 +32,15 @@ gint8 class;
 	gint ind_field;
 	
 
-offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
+offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
                                     
  
  if (!next_tvb)
 	return offset;
 
-  dissect_tcap_ExternalPDU(TRUE, next_tvb, 0, pinfo, tree, -1);
+  dissect_tcap_ExternalPDU(TRUE, next_tvb, 0, actx, tree, -1);
 
 
 return offset+len;
@@ -52,8 +52,8 @@ gint8 class;
 	guint32 len;
 	gint ind_field;
 	/* Workaround for tagged fields */
-offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
+offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 %(DEFAULT_BODY)s
 
 #.FN_BODY Dialog1
@@ -67,7 +67,7 @@ gint8 class;
 offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
 offset = get_ber_length(tree, tvb, offset, &len, &ind_field);
 
- dissect_tcap_DialoguePDU(TRUE, tvb, 0, pinfo, tree, -1);
+ dissect_tcap_DialoguePDU(TRUE, tvb, 0, actx, tree, -1);
 
 return offset+len;
 
@@ -80,14 +80,14 @@ gint8 class;
 	gint ind_field;
 
 
- offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
- offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
+ offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+ offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 	/* need to strip the EOC off the next_tvb */
 	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
 
 if (!next_tvb)
 	return offset; 
- dissect_tcap_param(pinfo,tree,tvb,0);
+ dissect_tcap_param(actx->pinfo,tree,tvb,0);
  offset += len;
   return offset;
 
@@ -100,17 +100,17 @@ gint8 class;
 	gint ind_field;
 
 
-offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind_field);
+offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
 next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));		
 if (!next_tvb)
 	return offset+len; 
-dissect_tcap_UserInformation(TRUE, next_tvb, 0, pinfo, tree, -1);
+dissect_tcap_UserInformation(TRUE, next_tvb, 0, actx, tree, -1);
  
  
 return offset+len;
 #.FN_BODY Component
-dissect_tcap_TheComponent(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_tcap_TheComponent(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY Applicationcontext  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
@@ -125,16 +125,16 @@ dissect_tcap_TheComponent(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 #	tcap_private.acv=TRUE;
 
 #.FN_BODY ExternUserInfo
-dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_tcap_TheExternUserInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY ANSIParameters
 /* we are doing the ParamSet here so need to look at the tags*/
 	guint32 len;
 len = tvb_length_remaining(tvb, offset);
 if (len > 2)  /* arghhh I dont know whether this is constructed or not! */
-		offset = dissect_tcap_param(pinfo,tree,tvb,offset);
+		offset = dissect_tcap_param(actx->pinfo,tree,tvb,offset);
 else
-offset = dissect_ber_octet_string(TRUE, pinfo, tree, tvb, 0, hf_index,
+offset = dissect_ber_octet_string(TRUE, actx->pinfo, tree, tvb, 0, hf_index,
                                     NULL);
 
 
@@ -144,15 +144,15 @@ dissector_handle_t subdissector_handle;
 
 next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_length_remaining(tvb, offset));		
 
-if (! (subdissector_handle = get_ansi_tcap_subdissector(pinfo->match_port))) {
+if (! (subdissector_handle = get_ansi_tcap_subdissector(actx->pinfo->match_port))) {
     subdissector_handle = data_handle;
 } 
   
     tcap_subdissector_used=TRUE;
 
-call_dissector(subdissector_handle, next_tvb, pinfo, tcap_top_tree);
+call_dissector(subdissector_handle, next_tvb, actx->pinfo, tcap_top_tree);
     
-offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+offset = dissect_ber_choice(actx, tree, tvb, offset,
                               ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,NULL);
 	
 #.FN_BODY OrigTransactionID
@@ -163,7 +163,7 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
+offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -183,11 +183,11 @@ if (parameter_tvb){
 		break;
 	}
 
-	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "otid(");
+	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
-        		  col_append_fstr(pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+        		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
 }	
@@ -201,7 +201,7 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, pinfo, subtree, tvb, offset, hf_tcap_tid,
+offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, subtree, tvb, offset, hf_tcap_tid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -221,66 +221,66 @@ if (parameter_tvb){
 		break;
 	}
 	
-	if ((len)&&(check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "dtid(");
+	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
-          		col_append_fstr(pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
+          		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
+        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
 	   }
 }
 #.FN_BODY Begin
 gp_tcapsrt_info->ope=TC_BEGIN;
 
-if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Begin ");
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Begin ");
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY End
 gp_tcapsrt_info->ope=TC_END;
 
-if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " End ");
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " End ");
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY Continue
 gp_tcapsrt_info->ope=TC_CONT;
 
-if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Continue ");
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Continue ");
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY Abort
 gp_tcapsrt_info->ope=TC_ABORT;
 
-if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
  
  %(DEFAULT_BODY)s
   
 #.FN_BODY AbortPDU
-if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " Abort ");
+if (check_col(actx->pinfo->cinfo, COL_INFO))
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Abort ");
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY TransactionPDU
-if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithPerm");		
+if ((hf_index == hf_tcap_ansiqueryWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithPerm");		
 				
-if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " QueryWithOutPerm");		
+if ((hf_index == hf_tcap_ansiqueryWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " QueryWithOutPerm");		
 				
-if ((hf_index == hf_tcap_ansiresponse)&&(check_col(pinfo->cinfo, COL_INFO)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " Response");		
+if ((hf_index == hf_tcap_ansiresponse)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Response");		
 				
-if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " ConversationWithPerm");		
+if ((hf_index == hf_tcap_ansiconversationWithPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithPerm");		
 				
-if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(pinfo->cinfo, COL_INFO)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
+if ((hf_index == hf_tcap_ansiconversationWithoutPerm)&&(check_col(actx->pinfo->cinfo, COL_INFO)))
+				col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ConversationWithoutPerm");		
 				
 %(DEFAULT_BODY)s  
 

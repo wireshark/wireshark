@@ -27,8 +27,8 @@
 	start_offset=offset;
 
 	/* skip the tag and length */
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	if(len>10){
 		len=10;
 	}

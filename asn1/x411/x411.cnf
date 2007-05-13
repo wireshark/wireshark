@@ -1,5 +1,5 @@
 #.TYPE_ATTR
-CountryName 	   	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
+CountryName 	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(x411_CountryName_vals)  BITMASK = 0
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 
 #.INCLUDE ../acse/acse-exp.cnf
@@ -137,11 +137,11 @@ MTABindError
 MTS-APDU
 
 #.REGISTER
-RecipientReassignmentProhibited B "x411.extension.1" "recipient-reassignment-prohibited"
-MTSOriginatorRequestedAlternateRecipient B "x411.extension.2" "originator-requested-alternate-recipient"
-DLExpansionProhibited B "x411.extension.3" "dl-expansion-prohibited"
-ConversionWithLossProhibited B "x411.extension.4" "conversion-with-loss-prohibited"
-LatestDeliveryTime B "x411.extension.5" "latest-delivery-time"
+RecipientReassignmentProhibited				B "x411.extension.1" "recipient-reassignment-prohibited"
+MTSOriginatorRequestedAlternateRecipient	B "x411.extension.2" "originator-requested-alternate-recipient"
+DLExpansionProhibited						B "x411.extension.3" "dl-expansion-prohibited"
+ConversionWithLossProhibited				B "x411.extension.4" "conversion-with-loss-prohibited"
+LatestDeliveryTime							B "x411.extension.5" "latest-delivery-time"
 RequestedDeliveryMethod B "x411.extension.6" "requested-delivery-method"
 PhysicalForwardingProhibited B "x411.extension.7" "physical-forwarding-prohibited"
 PhysicalForwardingAddressRequest B "x411.extension.8" "physical-forwarding-address-request"
@@ -232,14 +232,14 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
    guint32     len = 0;
 
    /* work out the length */
-   loffset = dissect_ber_identifier(pinfo, tree, tvb, offset, NULL, NULL, NULL);
-   (void) dissect_ber_length(pinfo, tree, tvb, loffset, &len, NULL);
+   loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
+   (void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
    item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
    tree = proto_item_add_subtree(item, ett_x411_additional_information);
    proto_item_append_text(tree, " (The use of this field is \"strongly deprecated\".)"); 
 
-   offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+   offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 #.FN_BODY RegistrationTypes/extensions/_item
 /*XXX not implemented yet */
@@ -248,9 +248,9 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	const char *name;
 
 	if(extension_id != -1) 
-		offset=call_x411_oid_callback("x411.extension", tvb, offset, pinfo, tree);
+		offset=call_x411_oid_callback("x411.extension", tvb, offset, actx->pinfo, tree);
 	else if(object_identifier_id) {
-		call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 		name = get_oid_str_name(object_identifier_id);
 		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id); 
 	}
@@ -258,11 +258,11 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 #.FN_BODY CategoryValue
 
-	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
-	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, pinfo, tree);
+	offset=call_x411_oid_callback("x411.extension-attribute", tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY RefusedOperation/refused-argument/refused-extension
 /*XXX not implemented yet */
@@ -284,7 +284,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
  if(doing_address)
     g_strlcat(oraddress, "/C=", MAX_ORA_STR_LEN);
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                               CountryName_choice, hf_index, ett_x411_CountryName, NULL);
 
 
@@ -306,7 +306,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   if(doing_address)
     g_strlcat(oraddress, "/A=", MAX_ORA_STR_LEN);
 
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                               AdministrationDomainName_choice, hf_index, ett_x411_AdministrationDomainName, NULL);
 
 #.FN_BODY ContentIdentifier
@@ -325,7 +325,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
   /* this is magic I haven't seen used before - I've stripped the tag - but now I'm going to say it is IMPLICIT! */
   offset = dissect_ber_restricted_string(TRUE, BER_UNI_TAG_PrintableString,
-                                         pinfo, tree, tvb, offset, hf_index,
+                                         actx->pinfo, tree, tvb, offset, hf_index,
                                          NULL);
 
 
@@ -381,11 +381,11 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
   tvbuff_t *next_tvb;
 
   /* we can do this now constructed octet strings are supported */
-  offset = dissect_ber_octet_string(FALSE, pinfo, NULL, tvb, offset, hf_index, &next_tvb);
+  offset = dissect_ber_octet_string(FALSE, actx->pinfo, NULL, tvb, offset, hf_index, &next_tvb);
 
   if (next_tvb) {
     if (content_type_id) {
-      (void) call_ber_oid_callback(content_type_id, next_tvb, 0, pinfo, top_tree ? top_tree : tree);
+      (void) call_ber_oid_callback(content_type_id, next_tvb, 0, actx->pinfo, top_tree ? top_tree : tree);
     } else {
       proto_item *item = NULL;
       proto_tree *next_tree = NULL;
@@ -394,7 +394,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
       if (item) {
         next_tree=proto_item_add_subtree(item, ett_x411_content_unknown);
       }
-      dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
+      dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
     }
   }
 
@@ -412,8 +412,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
 	} else {
 
-	if (check_col(pinfo->cinfo, COL_INFO) && mtaname) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
+	if (check_col(actx->pinfo->cinfo, COL_INFO) && mtaname) {
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_length(mtaname)));
 	}
 
 	}
@@ -569,8 +569,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	if(*oraddress) {
 		proto_item_append_text(address_item, " (%%s/", oraddress);
 
-		if(doing_subjectid  && check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s/", oraddress);
+		if(doing_subjectid  && check_col(actx->pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s/", oraddress);
 		}
 	}
 
@@ -587,8 +587,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	  if(doing_address) 
 		  proto_item_append_text(address_item, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
 
-          if(doing_subjectid  && check_col(pinfo->cinfo, COL_INFO)) 
-		col_append_fstr(pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
+          if(doing_subjectid  && check_col(actx->pinfo->cinfo, COL_INFO)) 
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_length(id)));
 	}
 
 #.FN_BODY MTSIdentifier
@@ -682,8 +682,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 #.FN_BODY MTABindError
   int error = -1;
   %(DEFAULT_BODY)s
-  if((error != -1) && check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, x411_MTABindError_vals, "error(%%d)"));
+  if((error != -1) && check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(error, x411_MTABindError_vals, "error(%%d)"));
 
 #.FN_PARS TokenTypeIdentifier
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
@@ -691,7 +691,7 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 #.FN_BODY TokenTypeData
 	
 	if(object_identifier_id) 
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS Credentials
 	VAL_PTR = &credentials
@@ -701,14 +701,14 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 	if(credentials == -1) credentials = 0;
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
   }
 
 #.FN_BODY T_value
 
-	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, pinfo, tree);
+	offset=call_x411_oid_callback("x411.tokendata", tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY T_bilateral_information
 	proto_item *item = NULL;
@@ -716,14 +716,14 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 	guint32	    len = 0;
 
 	/* work out the length */
-	loffset = dissect_ber_identifier(pinfo, tree, tvb, offset, NULL, NULL, NULL);
-	(void) dissect_ber_length(pinfo, tree, tvb, loffset, &len, NULL);
+	loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
+	(void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
 	/* create some structure so we can tell what this unknown ASN.1 represents */	
 	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
 	tree = proto_item_add_subtree(item, ett_x411_bilateral_information);
 
-	offset = dissect_unknown_ber(pinfo, tvb, offset, tree);
+	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
 #.FN_PARS MTS-APDU
 	VAL_PTR = &apdu
@@ -733,8 +733,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
   	%(DEFAULT_BODY)s
 	
-	if(check_col(pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(apdu, x411_MTS_APDU_vals, "MTS-APDU(%%d)"));
+	if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(apdu, x411_MTS_APDU_vals, "MTS-APDU(%%d)"));
 	}
 
 #.FN_PARS ReportType
@@ -745,8 +745,8 @@ ORAddress B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
 
   	%(DEFAULT_BODY)s
 	
-	if(check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(report, x411_ReportType_vals, "report-type(%%d)"));
+	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(report, x411_ReportType_vals, "report-type(%%d)"));
 	}
 
 #.END

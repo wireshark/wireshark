@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -67,6 +68,8 @@ dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_s4406, tvb, 0, -1, FALSE);
@@ -78,7 +81,7 @@ dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_str(pinfo->cinfo, COL_INFO, "Military");
 
-	dissect_s4406_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
+	dissect_s4406_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }
 
 

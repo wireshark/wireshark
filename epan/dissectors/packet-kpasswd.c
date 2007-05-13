@@ -83,9 +83,9 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 }
 
 
-static int dissect_kpasswd_newpassword(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+static int dissect_kpasswd_newpassword(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
+	offset=dissect_ber_octet_string_wcb(FALSE, actx->pinfo, tree, tvb, offset, hf_kpasswd_newpassword, NULL);
 
 	return offset;
 }
@@ -104,8 +104,10 @@ static int
 dissect_kpasswd_user_data_request(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree)
 {
     int offset=0;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-    offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, ChangePasswdData_sequence, hf_kpasswd_ChangePasswdData, ett_ChangePasswdData);
+    offset=dissect_ber_sequence(FALSE, &asn1_ctx, tree, tvb, offset, ChangePasswdData_sequence, hf_kpasswd_ChangePasswdData, ett_ChangePasswdData);
 
     return offset;
 }

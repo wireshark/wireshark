@@ -50,6 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
+#include <epan/asn1.h>
 #include "packet-tcap.h"
 #include "packet-sccp.h"
 #include "tap.h"

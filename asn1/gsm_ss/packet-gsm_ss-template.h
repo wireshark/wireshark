@@ -33,7 +33,7 @@
 
 #ifndef PACKET_GSM_SS_H
 #define PACKET_GSM_SS_H
-int gsm_ss_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 opcode, gint comp_type_tag);
+int gsm_ss_dissect(tvbuff_t *tvb, proto_tree *tree, int offset, asn1_ctx_t *actx, guint32 opcode, gint comp_type_tag);
 
 extern const value_string gsm_ss_opr_code_strings[];
 extern const value_string gsm_ss_err_code_strings[];

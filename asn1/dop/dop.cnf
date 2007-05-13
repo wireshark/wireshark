@@ -95,74 +95,74 @@ ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
 
   %(DEFAULT_BODY)s
 
-  if(check_col(pinfo->cinfo, COL_INFO)) {
+  if(check_col(actx->pinfo->cinfo, COL_INFO)) {
     name = get_oid_str_name(binding_type);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", name ? name : binding_type);
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", name ? name : binding_type);
   }
 
 #.FN_BODY	EstablishSymmetric
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	EstablishRoleAInitiates
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	EstablishRoleBInitiates
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	ModifySymmetric
 
-  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("dop.modify.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	ModifyRoleAInitiates
 
-  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("dop.modify.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	ModifyRoleBInitiates
 
-  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("dop.modify.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	TerminateSymmetric
 
-  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, pinfo, tree, "symmetric");
+  offset = call_dop_oid_callback("dop.terminate.symmetric", tvb, offset, actx->pinfo, tree, "symmetric");
 
 #.FN_BODY	TerminateRoleAInitiates
 
-  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("dop.terminate.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	TerminateRoleBInitiates
 
-  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("dop.terminate.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	T_agreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	T_symmetric
 
-  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, pinfo, tree, "symmetric"); 
+  offset = call_dop_oid_callback("dop.establish.symmetric", tvb, offset, actx->pinfo, tree, "symmetric"); 
 
 #.FN_BODY	T_roleA_replies
 
-  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, pinfo, tree, "roleA");
+  offset = call_dop_oid_callback("dop.establish.rolea", tvb, offset, actx->pinfo, tree, "roleA");
 
 #.FN_BODY	T_roleB_replies
 
-  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, pinfo, tree, "roleB");
+  offset = call_dop_oid_callback("dop.establish.roleb", tvb, offset, actx->pinfo, tree, "roleB");
 
 #.FN_BODY	T_agreementProposal
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	ResultNewAgreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY	ArgumentNewAgreement
 
-  offset = call_dop_oid_callback("dop.agreement", tvb, offset, pinfo, tree, NULL);
+  offset = call_dop_oid_callback("dop.agreement", tvb, offset, actx->pinfo, tree, NULL);
 
 
 #.FN_PARS INTEGER
@@ -173,11 +173,11 @@ ACIItem		B	"2.5.24.6" "id-aca-subentryACI"
 
 	%(DEFAULT_BODY)s
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		if(hf_index == hf_dop_identifier) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " id=%%d", value);
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%%d", value);
 		} else if (hf_index == hf_dop_version) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ",%%d", value);
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%%d", value);
 		}
   	}
 

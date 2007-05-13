@@ -111,6 +111,7 @@
 #include <epan/emem.h>
 #include <epan/inet_v6defs.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 #include <epan/tap.h>
 #include <epan/filesystem.h>
@@ -2245,6 +2246,8 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
     guint32 certificate_list_length;
     proto_tree *ti;
     proto_tree *subtree;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     if (tree)
     {
@@ -2276,15 +2279,15 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
             {
                 /* get the length of the current certificate */
                 guint32 cert_length;
-		cert_length = tvb_get_ntoh24(tvb, offset);
+				cert_length = tvb_get_ntoh24(tvb, offset);
                 certificate_list_length -= 3 + cert_length;
 
                 proto_tree_add_item(subtree, hf_ssl_handshake_certificate_len,
                                     tvb, offset, 3, FALSE);
                 offset += 3;
 
-		dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, subtree, hf_ssl_handshake_certificate);
-		offset += cert_length;
+				dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
+				offset += cert_length;
             }
         }
 
@@ -3017,6 +3020,8 @@ char SH_RESPONSE_DATA[MSB<<8|LSB]
 */
 
 	guint16 SH_SERVER_VERSION, SH_CERT_LENGTH, SH_CERT_SPECS_LENGTH, SH_CLIENT_SIG_LENGTH, SH_RESPONSE_LENGTH;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	proto_tree_add_text(tree, tvb, offset, 1, "PAD");
 	offset += 1;
@@ -3070,7 +3075,7 @@ char SH_RESPONSE_DATA[MSB<<8|LSB]
 	offset += 2;
 
 	if(SH_CERT_LENGTH) {
-		dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_pct_handshake_server_cert);
+		dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_pct_handshake_server_cert);
 		offset += SH_CERT_LENGTH;
 	}
 
@@ -3323,6 +3328,8 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     guint16 version;
     proto_tree *ti;
     proto_tree *subtree;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     /* everything we do only makes sense with a tree, so
      * quit now if we don't have one
@@ -3374,7 +3381,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     /* now the variable length fields */
     if (certificate_length > 0)
     {
-	dissect_x509af_Certificate(FALSE, tvb, offset, pinfo, tree, hf_ssl_handshake_certificate);
+	dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_ssl_handshake_certificate);
 	offset += certificate_length;
     }
 

@@ -138,14 +138,14 @@ TokenData/time		utctime
 	guint32 len;
 
 	/* check and see if this is an empty set */
-	dissect_ber_length(pinfo, tree, tvb, offset+1, &len, NULL);
+	dissect_ber_length(actx->pinfo, tree, tvb, offset+1, &len, NULL);
 
 	if(len == 0) {
 		/* its an empty set - i.e anonymous  (assuming version is DEFAULTed) */
 		proto_tree_add_text(tree, tvb, offset, -1,"Anonymous");
 
-		if(check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " anonymous");
+		if(check_col(actx->pinfo->cinfo, COL_INFO))
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " anonymous");
 
 	}
 	/* do the default thing */
@@ -156,8 +156,8 @@ TokenData/time		utctime
 
 	%(DEFAULT_BODY)s
 
-	if(check_col(pinfo->cinfo, COL_INFO))	
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
+	if(check_col(actx->pinfo->cinfo, COL_INFO))	
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x509if_get_last_dn());
 
 #.FN_PARS OCTET_STRING
 	VAL_PTR=&out_tvb 
@@ -196,8 +196,8 @@ TokenData/time		utctime
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%%d)"));
   }
 
 #.FN_PARS ServiceProblem
@@ -208,8 +208,8 @@ TokenData/time		utctime
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%%d)"));
   }
 
 #.FN_PARS UpdateProblem
@@ -220,8 +220,8 @@ TokenData/time		utctime
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%%d)"));
   }
 
 #.FN_PARS LimitProblem
@@ -232,8 +232,8 @@ TokenData/time		utctime
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, dap_LimitProblem_vals, "LimitProblem(%%d)"));
   }
 
 #.FN_PARS T_subset
@@ -244,8 +244,8 @@ TokenData/time		utctime
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(subset, dap_T_subset_vals, "Subset(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(subset, dap_T_subset_vals, "Subset(%%d)"));
   }
 
 
@@ -254,9 +254,9 @@ TokenData/time		utctime
 
 	%(DEFAULT_BODY)s
 
-	if(check_col(pinfo->cinfo, COL_INFO)) {
+	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
 		dn = x509if_get_last_dn();
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
+		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
 	}
 
 #.FN_BODY T_subordinates_item

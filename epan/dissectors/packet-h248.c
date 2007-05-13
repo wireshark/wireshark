@@ -567,7 +567,7 @@ static dissector_handle_t h248_term_handle;
 static dissector_handle_t h248_tpkt_handle;
 
 /* Forward declarations */
-static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
+static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
@@ -1165,7 +1165,7 @@ void h248_register_package(const h248_package_t* pkg) {
 
 static guint32 packageandid;
 
-static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb = NULL;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
@@ -1174,7 +1174,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
@@ -1223,7 +1223,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
   return offset;
 }
 
-static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
@@ -1233,7 +1233,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
@@ -1300,7 +1300,7 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
 
 
 
-static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset, packet_info *pinfo , proto_tree *tree, int hf_index) {
+static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *package_tree=NULL;
   guint16 name_major, name_minor;
@@ -1310,7 +1310,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
   guint i;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is always 4 bytes so just read it into two integers */
@@ -1374,7 +1374,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
   return offset;
 }
 
-static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 
 	gint8 class;
 	gboolean pc, ind;
@@ -1388,8 +1388,8 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 	const h248_pkg_param_t* prop;
 
 	old_offset=offset;
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	end_offset=offset+len;
 
 	if( (class!=BER_CLASS_UNI)
@@ -1417,21 +1417,21 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 	if (prop && prop->hfid ) {
 		if (!prop->dissector) prop = &no_param;
-		prop->dissector(tree, next_tvb, pinfo, *(prop->hfid), &curr_info, prop->data);
+		prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
 	}
 
 	return end_offset;
 }
 
 
-static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
 	const h248_pkg_param_t* sigpar;
 	const gchar* strval;
 	proto_item* pi;
 	
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset,  hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset,  hf_index, &next_tvb);
 	pi = get_ber_last_created_item();
 	
 	switch(tvb_length(next_tvb)) {
@@ -1464,7 +1464,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 	return offset;
 }
 
-static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	int old_offset, end_offset;
 	gint8 class;
@@ -1473,8 +1473,8 @@ static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 	guint32 len;
 
 	old_offset=offset;
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	end_offset=offset+len;
 
 	if( (class!=BER_CLASS_UNI)
@@ -1487,20 +1487,20 @@ static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, 
 	next_tvb = tvb_new_subset(tvb,offset,len,len);
 
 	if ( curr_info.par && curr_info.par->dissector) {
-		curr_info.par->dissector(tree, next_tvb, pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
+		curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	}
 
 	return end_offset;
 }
 
-static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	guint32 param_id = 0xffffffff;
 	const h248_pkg_param_t* evtpar;
 	const gchar* strval;
 	proto_item* pi;
 
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &next_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &next_tvb);
 	pi = get_ber_last_created_item();
 
 	if (next_tvb) {
@@ -1539,7 +1539,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 	return offset;
 }
 
-static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
+static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 	tvbuff_t *next_tvb;
 	int old_offset, end_offset;
 	gint8 class;
@@ -1548,8 +1548,8 @@ static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb
 	guint32 len;
 
 	old_offset=offset;
-	offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 	end_offset=offset+len;
 
 	if( (class!=BER_CLASS_UNI)
@@ -1562,20 +1562,20 @@ static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb
 	next_tvb = tvb_new_subset(tvb,offset,len,len);
 
 	if ( curr_info.par && curr_info.par->dissector) {
-		curr_info.par->dissector(tree, next_tvb, pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
+		curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
 	}
 
 	return end_offset;
 }
 
-static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index) {
+static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   tvbuff_t *new_tvb;
   proto_tree *mtp_tree=NULL;
   guint32 val;
   int i, len, old_offset;
 
   old_offset=offset;
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 
   if (new_tvb) {
     /* this field is either 2 or 4 bytes  so just read it into an integer */
@@ -1597,7 +1597,7 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
   return offset;
 }
 
-#define H248_TAP() do { if (keep_persistent_data && curr_info.cmd) tap_queue_packet(h248_tap, pinfo, curr_info.cmd); } while(0)
+#define H248_TAP() do { if (keep_persistent_data && curr_info.cmd) tap_queue_packet(h248_tap, actx->pinfo, curr_info.cmd); } while(0)
 
 
 /*--- Included file: packet-h248-fn.c ---*/
@@ -1605,10 +1605,10 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
 /*--- Cyclic dependencies ---*/
 
 /* SecondEventsDescriptor -> SecondEventsDescriptor/eventList -> SecondRequestedEvent -> SecondRequestedActions -> NotifyBehaviour -> RegulatedEmbeddedDescriptor -> SecondEventsDescriptor */
-static int dissect_h248_SecondEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_h248_SecondEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
-static int dissect_secondEvent_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SecondEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_secondEvent);
+static int dissect_secondEvent_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SecondEventsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_secondEvent);
 }
 
 
@@ -1618,40 +1618,40 @@ static int dissect_secondEvent_impl(packet_info *pinfo _U_, proto_tree *tree _U_
 
 
 static int
-dissect_h248_SecurityParmIndex(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_SecurityParmIndex(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_secParmIndex_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SecurityParmIndex(TRUE, tvb, offset, pinfo, tree, hf_h248_secParmIndex);
+static int dissect_secParmIndex_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SecurityParmIndex(TRUE, tvb, offset, actx, tree, hf_h248_secParmIndex);
 }
 
 
 
 static int
-dissect_h248_SequenceNum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_SequenceNum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_seqNum_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SequenceNum(TRUE, tvb, offset, pinfo, tree, hf_h248_seqNum);
+static int dissect_seqNum_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SequenceNum(TRUE, tvb, offset, actx, tree, hf_h248_seqNum);
 }
 
 
 
 static int
-dissect_h248_AuthData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_AuthData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_ad_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuthData(TRUE, tvb, offset, pinfo, tree, hf_h248_ad);
+static int dissect_ad_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuthData(TRUE, tvb, offset, actx, tree, hf_h248_ad);
 }
 
 
@@ -1663,86 +1663,86 @@ static const ber_sequence_t AuthenticationHeader_sequence[] = {
 };
 
 static int
-dissect_h248_AuthenticationHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AuthenticationHeader(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AuthenticationHeader_sequence, hf_index, ett_h248_AuthenticationHeader);
 
   return offset;
 }
-static int dissect_authHeader_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuthenticationHeader(TRUE, tvb, offset, pinfo, tree, hf_h248_authHeader);
+static int dissect_authHeader_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuthenticationHeader(TRUE, tvb, offset, actx, tree, hf_h248_authHeader);
 }
 
 
 
 static int
-dissect_h248_INTEGER_0_99(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_INTEGER_0_99(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_version_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_version);
+static int dissect_version_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_version);
 }
-static int dissect_packageVersion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_packageVersion);
+static int dissect_packageVersion_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_packageVersion);
 }
-static int dissect_startTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_startTimer);
+static int dissect_startTimer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_startTimer);
 }
-static int dissect_shortTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_shortTimer);
+static int dissect_shortTimer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_shortTimer);
 }
-static int dissect_longTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_longTimer);
+static int dissect_longTimer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_longTimer);
 }
-static int dissect_durationTimer_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_durationTimer);
+static int dissect_durationTimer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_durationTimer);
 }
-static int dissect_serviceChangeVersion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeVersion);
+static int dissect_serviceChangeVersion_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_99(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeVersion);
 }
 
 
 
 static int
-dissect_h248_OCTET_STRING_SIZE_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_OCTET_STRING_SIZE_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_iP4Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_OCTET_STRING_SIZE_4(TRUE, tvb, offset, pinfo, tree, hf_h248_iP4Address);
+static int dissect_iP4Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_OCTET_STRING_SIZE_4(TRUE, tvb, offset, actx, tree, hf_h248_iP4Address);
 }
 
 
 
 static int
-dissect_h248_INTEGER_0_65535(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_INTEGER_0_65535(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_portNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_portNumber);
+static int dissect_portNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_portNumber);
 }
-static int dissect_propGroupID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_propGroupID);
+static int dissect_propGroupID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_propGroupID);
 }
-static int dissect_id_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_id);
+static int dissect_id_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_id);
 }
-static int dissect_duration_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_duration);
+static int dissect_duration_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_duration);
 }
-static int dissect_intersigDelay_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_intersigDelay);
+static int dissect_intersigDelay_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_intersigDelay);
 }
-static int dissect_manufacturerCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, pinfo, tree, hf_h248_manufacturerCode);
+static int dissect_manufacturerCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_65535(TRUE, tvb, offset, actx, tree, hf_h248_manufacturerCode);
 }
 
 
@@ -1753,27 +1753,27 @@ static const ber_sequence_t IP4Address_sequence[] = {
 };
 
 static int
-dissect_h248_IP4Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IP4Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IP4Address_sequence, hf_index, ett_h248_IP4Address);
 
   return offset;
 }
-static int dissect_ip4Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IP4Address(TRUE, tvb, offset, pinfo, tree, hf_h248_ip4Address);
+static int dissect_ip4Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IP4Address(TRUE, tvb, offset, actx, tree, hf_h248_ip4Address);
 }
 
 
 
 static int
-dissect_h248_OCTET_STRING_SIZE_16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_OCTET_STRING_SIZE_16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_iP6Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_OCTET_STRING_SIZE_16(TRUE, tvb, offset, pinfo, tree, hf_h248_iP6Address);
+static int dissect_iP6Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_OCTET_STRING_SIZE_16(TRUE, tvb, offset, actx, tree, hf_h248_iP6Address);
 }
 
 
@@ -1784,31 +1784,31 @@ static const ber_sequence_t IP6Address_sequence[] = {
 };
 
 static int
-dissect_h248_IP6Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IP6Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IP6Address_sequence, hf_index, ett_h248_IP6Address);
 
   return offset;
 }
-static int dissect_ip6Address_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IP6Address(TRUE, tvb, offset, pinfo, tree, hf_h248_ip6Address);
+static int dissect_ip6Address_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IP6Address(TRUE, tvb, offset, actx, tree, hf_h248_ip6Address);
 }
 
 
 
 static int
-dissect_h248_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_domName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String(TRUE, tvb, offset, pinfo, tree, hf_h248_domName);
+static int dissect_domName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String(TRUE, tvb, offset, actx, tree, hf_h248_domName);
 }
-static int dissect_digitMapBody_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapBody);
+static int dissect_digitMapBody_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String(TRUE, tvb, offset, actx, tree, hf_h248_digitMapBody);
 }
 
 
@@ -1819,32 +1819,32 @@ static const ber_sequence_t DomainName_sequence[] = {
 };
 
 static int
-dissect_h248_DomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_DomainName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    DomainName_sequence, hf_index, ett_h248_DomainName);
 
   return offset;
 }
-static int dissect_domainName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_DomainName(TRUE, tvb, offset, pinfo, tree, hf_h248_domainName);
+static int dissect_domainName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_DomainName(TRUE, tvb, offset, actx, tree, hf_h248_domainName);
 }
 
 
 
 static int
-dissect_h248_PathName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_PathName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_deviceName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PathName(TRUE, tvb, offset, pinfo, tree, hf_h248_deviceName);
+static int dissect_deviceName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PathName(TRUE, tvb, offset, actx, tree, hf_h248_deviceName);
 }
 
-static int dissect_mtpAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MtpAddress(TRUE, tvb, offset, pinfo, tree, hf_h248_mtpAddress);
+static int dissect_mtpAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MtpAddress(TRUE, tvb, offset, actx, tree, hf_h248_mtpAddress);
 }
 
 
@@ -1867,28 +1867,28 @@ static const ber_choice_t MId_choice[] = {
 };
 
 static int
-dissect_h248_MId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_MId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MId_choice, hf_index, ett_h248_MId,
                                  NULL);
 
   return offset;
 }
-static int dissect_mId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MId(TRUE, tvb, offset, pinfo, tree, hf_h248_mId);
+static int dissect_mId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MId(TRUE, tvb, offset, actx, tree, hf_h248_mId);
 }
-static int dissect_serviceChangeMgcId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MId(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeMgcId);
+static int dissect_serviceChangeMgcId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MId(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeMgcId);
 }
 
 
 
 
 static int
-dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 237 "h248.cnf"
-    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &error_code);
-    expert_add_info_format(pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_h248_error_code, &error_code);
+    expert_add_info_format(actx->pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
     
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
@@ -1901,22 +1901,22 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_errorCode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_errorCode(TRUE, tvb, offset, pinfo, tree, hf_h248_errorCode);
+static int dissect_errorCode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_errorCode(TRUE, tvb, offset, actx, tree, hf_h248_errorCode);
 }
 
 
 
 static int
-dissect_h248_ErrorText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_ErrorText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_errorText_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ErrorText(TRUE, tvb, offset, pinfo, tree, hf_h248_errorText);
+static int dissect_errorText_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ErrorText(TRUE, tvb, offset, actx, tree, hf_h248_errorText);
 }
 
 
@@ -1927,69 +1927,69 @@ static const ber_sequence_t ErrorDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_ErrorDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ErrorDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ErrorDescriptor_sequence, hf_index, ett_h248_ErrorDescriptor);
 
   return offset;
 }
-static int dissect_messageError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_messageError);
+static int dissect_messageError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_messageError);
 }
-static int dissect_transactionError_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionError);
+static int dissect_transactionError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_transactionError);
 }
-static int dissect_errorDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_errorDescriptor);
+static int dissect_errorDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_errorDescriptor);
 }
-static int dissect_error_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_error);
+static int dissect_error_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ErrorDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_error);
 }
 
 
 
 static int
-dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_TransactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_transactionId1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionId1);
+static int dissect_transactionId1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_transactionId1);
 }
-static int dissect_firstAck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_firstAck);
+static int dissect_firstAck_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_firstAck);
 }
-static int dissect_lastAck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_lastAck);
+static int dissect_lastAck_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionId(TRUE, tvb, offset, actx, tree, hf_h248_lastAck);
 }
 
 
 
 static int
-dissect_h248_transactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_transactionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 92 "h248.cnf"
     guint32 trx_id = 0;
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
+	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REQUEST, keep_persistent_data);
     error_code = 0;
 
 
   return offset;
 }
-static int dissect_transactionId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_transactionId(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionId);
+static int dissect_transactionId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_transactionId(TRUE, tvb, offset, actx, tree, hf_h248_transactionId);
 }
 
 
 
 
 static int
-dissect_h248_contextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_contextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 99 "h248.cnf"
     guint32 ctx_id = 0;
-	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
+	offset = dissect_h248_ctx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &ctx_id);
     curr_info.ctx = gcp_ctx(curr_info.msg,curr_info.trx,ctx_id,keep_persistent_data);
     curr_info.cmd = NULL;
     curr_info.term = NULL;
@@ -1997,69 +1997,69 @@ dissect_h248_contextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_contextId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_contextId(TRUE, tvb, offset, pinfo, tree, hf_h248_contextId);
+static int dissect_contextId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_contextId(TRUE, tvb, offset, actx, tree, hf_h248_contextId);
 }
 
 
 
 static int
-dissect_h248_INTEGER_0_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_INTEGER_0_15(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_priority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_15(TRUE, tvb, offset, pinfo, tree, hf_h248_priority);
+static int dissect_priority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_15(TRUE, tvb, offset, actx, tree, hf_h248_priority);
 }
-static int dissect_selectpriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_15(TRUE, tvb, offset, pinfo, tree, hf_h248_selectpriority);
+static int dissect_selectpriority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_15(TRUE, tvb, offset, actx, tree, hf_h248_selectpriority);
 }
 
 
 
 static int
-dissect_h248_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+dissect_h248_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
-static int dissect_emergency_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_emergency);
+static int dissect_emergency_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_emergency);
 }
-static int dissect_iepscallind_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_iepscallind);
+static int dissect_iepscallind_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_iepscallind);
 }
-static int dissect_selectemergency_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_selectemergency);
+static int dissect_selectemergency_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_selectemergency);
 }
-static int dissect_selectiepscallind_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_selectiepscallind);
+static int dissect_selectiepscallind_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_selectiepscallind);
 }
-static int dissect_range_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_range);
+static int dissect_range_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_range);
 }
-static int dissect_sublist_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_sublist);
+static int dissect_sublist_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_sublist);
 }
-static int dissect_reserveValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_reserveValue);
+static int dissect_reserveValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_reserveValue);
 }
-static int dissect_reserveGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_reserveGroup);
+static int dissect_reserveGroup_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_reserveGroup);
 }
-static int dissect_keepActive_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_BOOLEAN(TRUE, tvb, offset, pinfo, tree, hf_h248_keepActive);
+static int dissect_keepActive_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_BOOLEAN(TRUE, tvb, offset, actx, tree, hf_h248_keepActive);
 }
 
 
 
 static int
-dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 255 "h248.cnf"
     tvbuff_t* new_tvb;
-    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+    offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
     tree = proto_item_add_subtree(get_ber_last_created_item(),ett_wildcard);
     proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
     proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
@@ -2071,8 +2071,8 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_wildcard_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_WildcardField(FALSE, tvb, offset, pinfo, tree, hf_h248_wildcard_item);
+static int dissect_wildcard_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_WildcardField(FALSE, tvb, offset, actx, tree, hf_h248_wildcard_item);
 }
 
 
@@ -2081,23 +2081,23 @@ static const ber_sequence_t SEQUENCE_OF_WildcardField_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_WildcardField_sequence_of, hf_index, ett_h248_SEQUENCE_OF_WildcardField);
 
   return offset;
 }
-static int dissect_wildcard_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_WildcardField(TRUE, tvb, offset, pinfo, tree, hf_h248_wildcard);
+static int dissect_wildcard_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_WildcardField(TRUE, tvb, offset, actx, tree, hf_h248_wildcard);
 }
 
 
 
 static int
-dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 267 "h248.cnf"
 	tvbuff_t* new_tvb;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
@@ -2111,7 +2111,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-			call_dissector(h248_term_handle, new_tvb, pinfo, tree);
+			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -2122,8 +2122,8 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   return offset;
 }
-static int dissect_terminationId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_terminationId(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationId);
+static int dissect_terminationId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_terminationId(TRUE, tvb, offset, actx, tree, hf_h248_terminationId);
 }
 
 
@@ -2134,30 +2134,30 @@ static const ber_sequence_t TerminationID_sequence[] = {
 };
 
 static int
-dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 250 "h248.cnf"
     curr_info.term = ep_new0(gcp_term_t);
     wild_term = GCP_WILDCARD_NONE;
 
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TerminationID_sequence, hf_index, ett_h248_TerminationID);
 
   return offset;
 }
-static int dissect_terminationFrom_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationID(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationFrom);
+static int dissect_terminationFrom_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationID(TRUE, tvb, offset, actx, tree, hf_h248_terminationFrom);
 }
-static int dissect_terminationTo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationID(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationTo);
+static int dissect_terminationTo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationID(TRUE, tvb, offset, actx, tree, hf_h248_terminationTo);
 }
-static int dissect_terminationID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationID(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationID);
+static int dissect_terminationID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationID(TRUE, tvb, offset, actx, tree, hf_h248_terminationID);
 }
-static int dissect_TerminationIDList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationID(FALSE, tvb, offset, pinfo, tree, hf_h248_TerminationIDList_item);
+static int dissect_TerminationIDList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationID(FALSE, tvb, offset, actx, tree, hf_h248_TerminationIDList_item);
 }
-static int dissect_termList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationID(FALSE, tvb, offset, pinfo, tree, hf_h248_termList_item);
+static int dissect_termList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationID(FALSE, tvb, offset, actx, tree, hf_h248_termList_item);
 }
 
 
@@ -2170,27 +2170,27 @@ static const value_string h248_T_topologyDirection_vals[] = {
 
 
 static int
-dissect_h248_T_topologyDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_T_topologyDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_topologyDirection_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_topologyDirection(TRUE, tvb, offset, pinfo, tree, hf_h248_topologyDirection);
+static int dissect_topologyDirection_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_topologyDirection(TRUE, tvb, offset, actx, tree, hf_h248_topologyDirection);
 }
 
 
 
 static int
-dissect_h248_StreamID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_StreamID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_streamID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamID(TRUE, tvb, offset, pinfo, tree, hf_h248_streamID);
+static int dissect_streamID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamID(TRUE, tvb, offset, actx, tree, hf_h248_streamID);
 }
 
 
@@ -2202,14 +2202,14 @@ static const value_string h248_T_topologyDirectionExtension_vals[] = {
 
 
 static int
-dissect_h248_T_topologyDirectionExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_T_topologyDirectionExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_topologyDirectionExtension_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_topologyDirectionExtension(TRUE, tvb, offset, pinfo, tree, hf_h248_topologyDirectionExtension);
+static int dissect_topologyDirectionExtension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_topologyDirectionExtension(TRUE, tvb, offset, actx, tree, hf_h248_topologyDirectionExtension);
 }
 
 
@@ -2223,14 +2223,14 @@ static const ber_sequence_t TopologyRequest_sequence[] = {
 };
 
 static int
-dissect_h248_TopologyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TopologyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TopologyRequest_sequence, hf_index, ett_h248_TopologyRequest);
 
   return offset;
 }
-static int dissect_topologyReq_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TopologyRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_topologyReq_item);
+static int dissect_topologyReq_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TopologyRequest(FALSE, tvb, offset, actx, tree, hf_h248_topologyReq_item);
 }
 
 
@@ -2239,12 +2239,12 @@ static const ber_sequence_t T_topologyReq_sequence_of[1] = {
 };
 
 static int
-dissect_h248_T_topologyReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_topologyReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 181 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_TOPOLOGY_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_topologyReq_sequence_of, hf_index, ett_h248_T_topologyReq);
 
 #line 185 "h248.cnf"
@@ -2252,43 +2252,43 @@ dissect_h248_T_topologyReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_topologyReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_topologyReq(TRUE, tvb, offset, pinfo, tree, hf_h248_topologyReq);
+static int dissect_topologyReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_topologyReq(TRUE, tvb, offset, actx, tree, hf_h248_topologyReq);
 }
 
-static int dissect_name_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_name);
+static int dissect_name_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_name);
 }
-static int dissect_iAEDPkgdName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_iAEDPkgdName);
+static int dissect_iAEDPkgdName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_iAEDPkgdName);
 }
-static int dissect_iAEBDEventName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_iAEBDEventName);
+static int dissect_iAEBDEventName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_iAEBDEventName);
 }
-static int dissect_iASignalName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_iASignalName);
+static int dissect_iASignalName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_iASignalName);
 }
-static int dissect_iAStatName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_iAStatName);
+static int dissect_iAStatName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_iAStatName);
 }
-static int dissect_pkgdName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PkgdName(TRUE, tvb, offset, pinfo, tree, hf_h248_pkgdName);
+static int dissect_pkgdName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PkgdName(TRUE, tvb, offset, actx, tree, hf_h248_pkgdName);
 }
 
 
 
 static int
-dissect_h248_PropertyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_h248_PropertyName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_propertyName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyName(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyName);
+static int dissect_propertyName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyName(TRUE, tvb, offset, actx, tree, hf_h248_propertyName);
 }
 
-static int dissect_propertyParamValue_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyID(FALSE, tvb, offset, pinfo, tree, hf_h248_propertyParamValue_item);
+static int dissect_propertyParamValue_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyID(FALSE, tvb, offset, actx, tree, hf_h248_propertyParamValue_item);
 }
 
 
@@ -2297,14 +2297,14 @@ static const ber_sequence_t SEQUENCE_OF_PropertyID_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PropertyID_sequence_of, hf_index, ett_h248_SEQUENCE_OF_PropertyID);
 
   return offset;
 }
-static int dissect_propertyParamValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyID(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParamValue);
+static int dissect_propertyParamValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyID(TRUE, tvb, offset, actx, tree, hf_h248_propertyParamValue);
 }
 
 
@@ -2317,14 +2317,14 @@ static const value_string h248_Relation_vals[] = {
 
 
 static int
-dissect_h248_Relation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_Relation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_relation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Relation(TRUE, tvb, offset, pinfo, tree, hf_h248_relation);
+static int dissect_relation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Relation(TRUE, tvb, offset, actx, tree, hf_h248_relation);
 }
 
 
@@ -2343,15 +2343,15 @@ static const ber_choice_t T_extraInfo1_choice[] = {
 };
 
 static int
-dissect_h248_T_extraInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_extraInfo1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_extraInfo1_choice, hf_index, ett_h248_T_extraInfo1,
                                  NULL);
 
   return offset;
 }
-static int dissect_extraInfo1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_extraInfo1(TRUE, tvb, offset, pinfo, tree, hf_h248_extraInfo1);
+static int dissect_extraInfo1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_extraInfo1(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo1);
 }
 
 
@@ -2363,26 +2363,26 @@ static const ber_sequence_t PropertyParm_sequence[] = {
 };
 
 static int
-dissect_h248_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PropertyParm_sequence, hf_index, ett_h248_PropertyParm);
 
   return offset;
 }
-static int dissect_contextProp_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_contextProp_item);
+static int dissect_contextProp_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_contextProp_item);
 }
-static int dissect_propertyParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParms);
+static int dissect_propertyParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_propertyParms);
 }
-static int dissect_propertyParms_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_propertyParms_item);
+static int dissect_propertyParms_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_propertyParms_item);
 }
-static int dissect_PropertyGroup_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_PropertyGroup_item);
+static int dissect_PropertyGroup_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_PropertyGroup_item);
 }
-static int dissect_mpl_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_mpl_item);
+static int dissect_mpl_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_mpl_item);
 }
 
 
@@ -2391,33 +2391,33 @@ static const ber_sequence_t SEQUENCE_OF_PropertyParm_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_PropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PropertyParm_sequence_of, hf_index, ett_h248_SEQUENCE_OF_PropertyParm);
 
   return offset;
 }
-static int dissect_contextProp_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_contextProp);
+static int dissect_contextProp_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_contextProp);
 }
-static int dissect_propertyParms1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_propertyParms1);
+static int dissect_propertyParms1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_propertyParms1);
 }
-static int dissect_mpl_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_mpl);
+static int dissect_mpl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_mpl);
 }
 
 
 
 static int
-dissect_h248_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_contextList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ContextIDinList(FALSE, tvb, offset, pinfo, tree, hf_h248_contextList_item);
+static int dissect_contextList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ContextIDinList(FALSE, tvb, offset, actx, tree, hf_h248_contextList_item);
 }
 
 
@@ -2426,14 +2426,14 @@ static const ber_sequence_t SEQUENCE_OF_ContextIDinList_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_ContextIDinList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_ContextIDinList_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ContextIDinList);
 
   return offset;
 }
-static int dissect_contextList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_ContextIDinList(TRUE, tvb, offset, pinfo, tree, hf_h248_contextList);
+static int dissect_contextList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_ContextIDinList(TRUE, tvb, offset, actx, tree, hf_h248_contextList);
 }
 
 
@@ -2448,83 +2448,83 @@ static const ber_sequence_t ContextRequest_sequence[] = {
 };
 
 static int
-dissect_h248_ContextRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ContextRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContextRequest_sequence, hf_index, ett_h248_ContextRequest);
 
   return offset;
 }
-static int dissect_contextRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ContextRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_contextRequest);
+static int dissect_contextRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ContextRequest(TRUE, tvb, offset, actx, tree, hf_h248_contextRequest);
 }
-static int dissect_contextReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ContextRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_contextReply);
+static int dissect_contextReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ContextRequest(TRUE, tvb, offset, actx, tree, hf_h248_contextReply);
 }
 
 
 
 static int
-dissect_h248_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_null(implicit_tag, pinfo, tree, tvb, offset, hf_index);
+dissect_h248_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index);
 
   return offset;
 }
-static int dissect_immAckRequired_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_immAckRequired);
+static int dissect_immAckRequired_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_immAckRequired);
 }
-static int dissect_segmentationComplete_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_segmentationComplete);
+static int dissect_segmentationComplete_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_segmentationComplete);
 }
-static int dissect_topology_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_topology);
+static int dissect_topology_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_topology);
 }
-static int dissect_cAAREmergency_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_cAAREmergency);
+static int dissect_cAAREmergency_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_cAAREmergency);
 }
-static int dissect_cAARPriority_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_cAARPriority);
+static int dissect_cAARPriority_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_cAARPriority);
 }
-static int dissect_iepscallind1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_iepscallind1);
+static int dissect_iepscallind1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iepscallind1);
 }
-static int dissect_andAUDITSelect_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_andAUDITSelect);
+static int dissect_andAUDITSelect_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_andAUDITSelect);
 }
-static int dissect_orAUDITSelect_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_orAUDITSelect);
+static int dissect_orAUDITSelect_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_orAUDITSelect);
 }
-static int dissect_optional_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_optional);
+static int dissect_optional_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_optional);
 }
-static int dissect_wildcardReturn_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_wildcardReturn);
+static int dissect_wildcardReturn_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_wildcardReturn);
 }
-static int dissect_iALCDStreamMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_iALCDStreamMode);
+static int dissect_iALCDStreamMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iALCDStreamMode);
 }
-static int dissect_iALCDReserveValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_iALCDReserveValue);
+static int dissect_iALCDReserveValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iALCDReserveValue);
 }
-static int dissect_iALCDReserveGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_iALCDReserveGroup);
+static int dissect_iALCDReserveGroup_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iALCDReserveGroup);
 }
-static int dissect_eventBufferControl_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_eventBufferControl);
+static int dissect_eventBufferControl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_eventBufferControl);
 }
-static int dissect_iATSDServiceState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_iATSDServiceState);
+static int dissect_iATSDServiceState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_iATSDServiceState);
 }
-static int dissect_notifyImmediate_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyImmediate);
+static int dissect_notifyImmediate_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_notifyImmediate);
 }
-static int dissect_neverNotify_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_neverNotify);
+static int dissect_neverNotify_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_neverNotify);
 }
-static int dissect_resetEventsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_resetEventsDescriptor);
+static int dissect_resetEventsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_resetEventsDescriptor);
 }
-static int dissect_serviceChangeIncompleteFlag_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NULL(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeIncompleteFlag);
+static int dissect_serviceChangeIncompleteFlag_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NULL(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeIncompleteFlag);
 }
 
 
@@ -2535,20 +2535,20 @@ static const ber_sequence_t IndAudPropertyParm_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudPropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudPropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudPropertyParm_sequence, hf_index, ett_h248_IndAudPropertyParm);
 
   return offset;
 }
-static int dissect_contextPropAud_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_contextPropAud_item);
+static int dissect_contextPropAud_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_contextPropAud_item);
 }
-static int dissect_indAudPropertyParms_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_indAudPropertyParms_item);
+static int dissect_indAudPropertyParms_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_indAudPropertyParms_item);
 }
-static int dissect_IndAudPropertyGroup_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, pinfo, tree, hf_h248_IndAudPropertyGroup_item);
+static int dissect_IndAudPropertyGroup_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudPropertyParm(FALSE, tvb, offset, actx, tree, hf_h248_IndAudPropertyGroup_item);
 }
 
 
@@ -2557,17 +2557,17 @@ static const ber_sequence_t SEQUENCE_OF_IndAudPropertyParm_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_IndAudPropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_IndAudPropertyParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_IndAudPropertyParm_sequence_of, hf_index, ett_h248_SEQUENCE_OF_IndAudPropertyParm);
 
   return offset;
 }
-static int dissect_contextPropAud_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_IndAudPropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_contextPropAud);
+static int dissect_contextPropAud_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_IndAudPropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_contextPropAud);
 }
-static int dissect_indAudPropertyParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_IndAudPropertyParm(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudPropertyParms);
+static int dissect_indAudPropertyParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_IndAudPropertyParm(TRUE, tvb, offset, actx, tree, hf_h248_indAudPropertyParms);
 }
 
 
@@ -2584,15 +2584,15 @@ static const ber_choice_t SelectLogic_choice[] = {
 };
 
 static int
-dissect_h248_SelectLogic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_SelectLogic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SelectLogic_choice, hf_index, ett_h248_SelectLogic,
                                  NULL);
 
   return offset;
 }
-static int dissect_selectLogic_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SelectLogic(TRUE, tvb, offset, pinfo, tree, hf_h248_selectLogic);
+static int dissect_selectLogic_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SelectLogic(TRUE, tvb, offset, actx, tree, hf_h248_selectLogic);
 }
 
 
@@ -2610,8 +2610,8 @@ static const ber_sequence_t ContextAttrAuditRequest_sequence[] = {
 };
 
 static int
-dissect_h248_ContextAttrAuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ContextAttrAuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContextAttrAuditRequest_sequence, hf_index, ett_h248_ContextAttrAuditRequest);
 
   return offset;
@@ -2620,20 +2620,20 @@ dissect_h248_ContextAttrAuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_h248_T_contextAttrAuditReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_contextAttrAuditReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 189 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_CTX_ATTR_AUDIT_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_ContextAttrAuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_ContextAttrAuditRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 193 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_contextAttrAuditReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_contextAttrAuditReq(TRUE, tvb, offset, pinfo, tree, hf_h248_contextAttrAuditReq);
+static int dissect_contextAttrAuditReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_contextAttrAuditReq(TRUE, tvb, offset, actx, tree, hf_h248_contextAttrAuditReq);
 }
 
 
@@ -2642,17 +2642,17 @@ static const ber_sequence_t TerminationIDList_sequence_of[1] = {
 };
 
 static int
-dissect_h248_TerminationIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TerminationIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TerminationIDList_sequence_of, hf_index, ett_h248_TerminationIDList);
 
   return offset;
 }
-static int dissect_terminationIDList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationIDList(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationIDList);
+static int dissect_terminationIDList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationIDList(TRUE, tvb, offset, actx, tree, hf_h248_terminationIDList);
 }
-static int dissect_contextAuditResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationIDList(TRUE, tvb, offset, pinfo, tree, hf_h248_contextAuditResult);
+static int dissect_contextAuditResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationIDList(TRUE, tvb, offset, actx, tree, hf_h248_contextAuditResult);
 }
 
 
@@ -2664,14 +2664,14 @@ static const value_string h248_EventBufferControl_vals[] = {
 
 
 static int
-dissect_h248_EventBufferControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_EventBufferControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_tSEventBufferControl_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventBufferControl(TRUE, tvb, offset, pinfo, tree, hf_h248_tSEventBufferControl);
+static int dissect_tSEventBufferControl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventBufferControl(TRUE, tvb, offset, actx, tree, hf_h248_tSEventBufferControl);
 }
 
 
@@ -2684,17 +2684,17 @@ static const value_string h248_ServiceState_vals[] = {
 
 
 static int
-dissect_h248_ServiceState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_ServiceState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_serviceStateSel_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceState(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceStateSel);
+static int dissect_serviceStateSel_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceState(TRUE, tvb, offset, actx, tree, hf_h248_serviceStateSel);
 }
-static int dissect_serviceState_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceState(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceState);
+static int dissect_serviceState_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceState(TRUE, tvb, offset, actx, tree, hf_h248_serviceState);
 }
 
 
@@ -2706,14 +2706,14 @@ static const ber_sequence_t TerminationStateDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_TerminationStateDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TerminationStateDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TerminationStateDescriptor_sequence, hf_index, ett_h248_TerminationStateDescriptor);
 
   return offset;
 }
-static int dissect_termStateDescr_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationStateDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_termStateDescr);
+static int dissect_termStateDescr_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationStateDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_termStateDescr);
 }
 
 
@@ -2728,17 +2728,17 @@ static const value_string h248_StreamMode_vals[] = {
 
 
 static int
-dissect_h248_StreamMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_StreamMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_streamModeSel_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamMode(TRUE, tvb, offset, pinfo, tree, hf_h248_streamModeSel);
+static int dissect_streamModeSel_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamMode(TRUE, tvb, offset, actx, tree, hf_h248_streamModeSel);
 }
-static int dissect_streamMode_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamMode(TRUE, tvb, offset, pinfo, tree, hf_h248_streamMode);
+static int dissect_streamMode_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamMode(TRUE, tvb, offset, actx, tree, hf_h248_streamMode);
 }
 
 
@@ -2751,14 +2751,14 @@ static const ber_sequence_t LocalControlDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_LocalControlDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_LocalControlDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LocalControlDescriptor_sequence, hf_index, ett_h248_LocalControlDescriptor);
 
   return offset;
 }
-static int dissect_localControlDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_LocalControlDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_localControlDescriptor);
+static int dissect_localControlDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_LocalControlDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_localControlDescriptor);
 }
 
 
@@ -2767,14 +2767,14 @@ static const ber_sequence_t PropertyGroup_sequence_of[1] = {
 };
 
 static int
-dissect_h248_PropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_PropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PropertyGroup_sequence_of, hf_index, ett_h248_PropertyGroup);
 
   return offset;
 }
-static int dissect_propGrps_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PropertyGroup(FALSE, tvb, offset, pinfo, tree, hf_h248_propGrps_item);
+static int dissect_propGrps_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PropertyGroup(FALSE, tvb, offset, actx, tree, hf_h248_propGrps_item);
 }
 
 
@@ -2783,14 +2783,14 @@ static const ber_sequence_t SEQUENCE_OF_PropertyGroup_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_PropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_PropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PropertyGroup_sequence_of, hf_index, ett_h248_SEQUENCE_OF_PropertyGroup);
 
   return offset;
 }
-static int dissect_propGrps_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_PropertyGroup(TRUE, tvb, offset, pinfo, tree, hf_h248_propGrps);
+static int dissect_propGrps_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_PropertyGroup(TRUE, tvb, offset, actx, tree, hf_h248_propGrps);
 }
 
 
@@ -2800,45 +2800,45 @@ static const ber_sequence_t LocalRemoteDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_LocalRemoteDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_LocalRemoteDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LocalRemoteDescriptor_sequence, hf_index, ett_h248_LocalRemoteDescriptor);
 
   return offset;
 }
-static int dissect_localDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_LocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_localDescriptor);
+static int dissect_localDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_LocalRemoteDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_localDescriptor);
 }
-static int dissect_remoteDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_LocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_remoteDescriptor);
+static int dissect_remoteDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_LocalRemoteDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_remoteDescriptor);
 }
 
 
 
 static int
-dissect_h248_StatName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_h248_StatName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_h248_PkgdName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_statName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StatName(TRUE, tvb, offset, pinfo, tree, hf_h248_statName);
+static int dissect_statName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StatName(TRUE, tvb, offset, actx, tree, hf_h248_statName);
 }
 
 
 
 static int
-dissect_h248_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_data_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_OCTET_STRING(TRUE, tvb, offset, pinfo, tree, hf_h248_data);
+static int dissect_data_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_OCTET_STRING(TRUE, tvb, offset, actx, tree, hf_h248_data);
 }
-static int dissect_Value_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_h248_Value_item);
+static int dissect_Value_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_OCTET_STRING(FALSE, tvb, offset, actx, tree, hf_h248_Value_item);
 }
 
 
@@ -2847,8 +2847,8 @@ static const ber_sequence_t Value_sequence_of[1] = {
 };
 
 static int
-dissect_h248_Value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_Value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       Value_sequence_of, hf_index, ett_h248_Value);
 
   return offset;
@@ -2857,13 +2857,13 @@ dissect_h248_Value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_h248_StatValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_h248_Value(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_h248_StatValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_h248_Value(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_statValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StatValue(TRUE, tvb, offset, pinfo, tree, hf_h248_statValue);
+static int dissect_statValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StatValue(TRUE, tvb, offset, actx, tree, hf_h248_statValue);
 }
 
 
@@ -2874,14 +2874,14 @@ static const ber_sequence_t StatisticsParameter_sequence[] = {
 };
 
 static int
-dissect_h248_StatisticsParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_StatisticsParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    StatisticsParameter_sequence, hf_index, ett_h248_StatisticsParameter);
 
   return offset;
 }
-static int dissect_StatisticsDescriptor_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StatisticsParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_StatisticsDescriptor_item);
+static int dissect_StatisticsDescriptor_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StatisticsParameter(FALSE, tvb, offset, actx, tree, hf_h248_StatisticsDescriptor_item);
 }
 
 
@@ -2890,14 +2890,14 @@ static const ber_sequence_t StatisticsDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_StatisticsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_StatisticsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       StatisticsDescriptor_sequence_of, hf_index, ett_h248_StatisticsDescriptor);
 
   return offset;
 }
-static int dissect_statisticsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StatisticsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_statisticsDescriptor);
+static int dissect_statisticsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_statisticsDescriptor);
 }
 
 
@@ -2910,17 +2910,17 @@ static const ber_sequence_t StreamParms_sequence[] = {
 };
 
 static int
-dissect_h248_StreamParms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_StreamParms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    StreamParms_sequence, hf_index, ett_h248_StreamParms);
 
   return offset;
 }
-static int dissect_mediaDescriptorOneStream_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_mediaDescriptorOneStream);
+static int dissect_mediaDescriptorOneStream_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamParms(TRUE, tvb, offset, actx, tree, hf_h248_mediaDescriptorOneStream);
 }
-static int dissect_streamParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_streamParms);
+static int dissect_streamParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamParms(TRUE, tvb, offset, actx, tree, hf_h248_streamParms);
 }
 
 
@@ -2931,14 +2931,14 @@ static const ber_sequence_t StreamDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_StreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_StreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    StreamDescriptor_sequence, hf_index, ett_h248_StreamDescriptor);
 
   return offset;
 }
-static int dissect_mediaDescriptorMultiStream_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_StreamDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_mediaDescriptorMultiStream_item);
+static int dissect_mediaDescriptorMultiStream_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_StreamDescriptor(FALSE, tvb, offset, actx, tree, hf_h248_mediaDescriptorMultiStream_item);
 }
 
 
@@ -2947,14 +2947,14 @@ static const ber_sequence_t SEQUENCE_OF_StreamDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_StreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_StreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_StreamDescriptor_sequence_of, hf_index, ett_h248_SEQUENCE_OF_StreamDescriptor);
 
   return offset;
 }
-static int dissect_mediaDescriptorMultiStream_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_StreamDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_mediaDescriptorMultiStream);
+static int dissect_mediaDescriptorMultiStream_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_StreamDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_mediaDescriptorMultiStream);
 }
 
 
@@ -2971,15 +2971,15 @@ static const ber_choice_t T_streams_choice[] = {
 };
 
 static int
-dissect_h248_T_streams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_streams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_streams_choice, hf_index, ett_h248_T_streams,
                                  NULL);
 
   return offset;
 }
-static int dissect_streams_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_streams(TRUE, tvb, offset, pinfo, tree, hf_h248_streams);
+static int dissect_streams_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_streams(TRUE, tvb, offset, actx, tree, hf_h248_streams);
 }
 
 
@@ -2990,14 +2990,14 @@ static const ber_sequence_t MediaDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_MediaDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_MediaDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MediaDescriptor_sequence, hf_index, ett_h248_MediaDescriptor);
 
   return offset;
 }
-static int dissect_mediaDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MediaDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_mediaDescriptor);
+static int dissect_mediaDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MediaDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_mediaDescriptor);
 }
 
 
@@ -3016,14 +3016,14 @@ static const value_string h248_ModemType_vals[] = {
 
 
 static int
-dissect_h248_ModemType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_ModemType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_mtl_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ModemType(FALSE, tvb, offset, pinfo, tree, hf_h248_mtl_item);
+static int dissect_mtl_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ModemType(FALSE, tvb, offset, actx, tree, hf_h248_mtl_item);
 }
 
 
@@ -3032,45 +3032,45 @@ static const ber_sequence_t SEQUENCE_OF_ModemType_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ModemType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_ModemType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_ModemType_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ModemType);
 
   return offset;
 }
-static int dissect_mtl_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_ModemType(TRUE, tvb, offset, pinfo, tree, hf_h248_mtl);
+static int dissect_mtl_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_ModemType(TRUE, tvb, offset, actx, tree, hf_h248_mtl);
 }
 
 
 
 static int
-dissect_h248_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+dissect_h248_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
-static int dissect_object_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_h248_object);
+static int dissect_object_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_h248_object);
 }
 
 
 
 static int
-dissect_h248_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_t35CountryCode1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_h248_t35CountryCode1);
+static int dissect_t35CountryCode1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, actx, tree, hf_h248_t35CountryCode1);
 }
-static int dissect_t35CountryCode2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_h248_t35CountryCode2);
+static int dissect_t35CountryCode2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, actx, tree, hf_h248_t35CountryCode2);
 }
-static int dissect_t35Extension_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, pinfo, tree, hf_h248_t35Extension);
+static int dissect_t35Extension_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_255(TRUE, tvb, offset, actx, tree, hf_h248_t35Extension);
 }
 
 
@@ -3083,34 +3083,34 @@ static const ber_sequence_t H221NonStandard_sequence[] = {
 };
 
 static int
-dissect_h248_H221NonStandard(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_H221NonStandard(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    H221NonStandard_sequence, hf_index, ett_h248_H221NonStandard);
 
   return offset;
 }
-static int dissect_h221NonStandard_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_H221NonStandard(TRUE, tvb, offset, pinfo, tree, hf_h248_h221NonStandard);
+static int dissect_h221NonStandard_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_H221NonStandard(TRUE, tvb, offset, actx, tree, hf_h248_h221NonStandard);
 }
 
 
 
 static int
-dissect_h248_IA5String_SIZE_8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_IA5String_SIZE_8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_experimental_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, pinfo, tree, hf_h248_experimental);
+static int dissect_experimental_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, actx, tree, hf_h248_experimental);
 }
-static int dissect_date_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, pinfo, tree, hf_h248_date);
+static int dissect_date_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, actx, tree, hf_h248_date);
 }
-static int dissect_time_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, pinfo, tree, hf_h248_time);
+static int dissect_time_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String_SIZE_8(TRUE, tvb, offset, actx, tree, hf_h248_time);
 }
 
 
@@ -3129,15 +3129,15 @@ static const ber_choice_t NonStandardIdentifier_choice[] = {
 };
 
 static int
-dissect_h248_NonStandardIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_NonStandardIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  NonStandardIdentifier_choice, hf_index, ett_h248_NonStandardIdentifier,
                                  NULL);
 
   return offset;
 }
-static int dissect_nonStandardIdentifier_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NonStandardIdentifier(TRUE, tvb, offset, pinfo, tree, hf_h248_nonStandardIdentifier);
+static int dissect_nonStandardIdentifier_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NonStandardIdentifier(TRUE, tvb, offset, actx, tree, hf_h248_nonStandardIdentifier);
 }
 
 
@@ -3148,14 +3148,14 @@ static const ber_sequence_t NonStandardData_sequence[] = {
 };
 
 static int
-dissect_h248_NonStandardData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_NonStandardData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NonStandardData_sequence, hf_index, ett_h248_NonStandardData);
 
   return offset;
 }
-static int dissect_nonStandardData_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NonStandardData(TRUE, tvb, offset, pinfo, tree, hf_h248_nonStandardData);
+static int dissect_nonStandardData_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NonStandardData(TRUE, tvb, offset, actx, tree, hf_h248_nonStandardData);
 }
 
 
@@ -3167,14 +3167,14 @@ static const ber_sequence_t ModemDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_ModemDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ModemDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ModemDescriptor_sequence, hf_index, ett_h248_ModemDescriptor);
 
   return offset;
 }
-static int dissect_modemDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ModemDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_modemDescriptor);
+static int dissect_modemDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ModemDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_modemDescriptor);
 }
 
 
@@ -3189,14 +3189,14 @@ static const value_string h248_MuxType_vals[] = {
 
 
 static int
-dissect_h248_MuxType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_MuxType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_muxType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MuxType(TRUE, tvb, offset, pinfo, tree, hf_h248_muxType);
+static int dissect_muxType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MuxType(TRUE, tvb, offset, actx, tree, hf_h248_muxType);
 }
 
 
@@ -3205,14 +3205,14 @@ static const ber_sequence_t SEQUENCE_OF_TerminationID_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_TerminationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_TerminationID_sequence_of, hf_index, ett_h248_SEQUENCE_OF_TerminationID);
 
   return offset;
 }
-static int dissect_termList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_TerminationID(TRUE, tvb, offset, pinfo, tree, hf_h248_termList);
+static int dissect_termList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_TerminationID(TRUE, tvb, offset, actx, tree, hf_h248_termList);
 }
 
 
@@ -3224,62 +3224,62 @@ static const ber_sequence_t MuxDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_MuxDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_MuxDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MuxDescriptor_sequence, hf_index, ett_h248_MuxDescriptor);
 
   return offset;
 }
-static int dissect_muxDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_MuxDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_muxDescriptor);
+static int dissect_muxDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_MuxDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_muxDescriptor);
 }
 
 
 
 static int
-dissect_h248_RequestID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_RequestID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_requestID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RequestID(TRUE, tvb, offset, pinfo, tree, hf_h248_requestID);
+static int dissect_requestID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RequestID(TRUE, tvb, offset, actx, tree, hf_h248_requestID);
 }
-static int dissect_signalRequestID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RequestID(TRUE, tvb, offset, pinfo, tree, hf_h248_signalRequestID);
+static int dissect_signalRequestID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RequestID(TRUE, tvb, offset, actx, tree, hf_h248_signalRequestID);
 }
-static int dissect_requestId_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RequestID(TRUE, tvb, offset, pinfo, tree, hf_h248_requestId);
+static int dissect_requestId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RequestID(TRUE, tvb, offset, actx, tree, hf_h248_requestId);
 }
 
-static int dissect_eventName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventName);
+static int dissect_eventName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventName(TRUE, tvb, offset, actx, tree, hf_h248_eventName);
 }
 
 
 
 static int
-dissect_h248_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_packageName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Name(TRUE, tvb, offset, pinfo, tree, hf_h248_packageName);
+static int dissect_packageName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Name(TRUE, tvb, offset, actx, tree, hf_h248_packageName);
 }
 
 
 
 static int
-dissect_h248_DigitMapName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_h248_Name(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+dissect_h248_DigitMapName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_h248_Name(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_digitMapName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_DigitMapName(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapName);
+static int dissect_digitMapName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_DigitMapName(TRUE, tvb, offset, actx, tree, hf_h248_digitMapName);
 }
 
 
@@ -3293,14 +3293,14 @@ static const ber_sequence_t DigitMapValue_sequence[] = {
 };
 
 static int
-dissect_h248_DigitMapValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_DigitMapValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    DigitMapValue_sequence, hf_index, ett_h248_DigitMapValue);
 
   return offset;
 }
-static int dissect_digitMapValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_DigitMapValue(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapValue);
+static int dissect_digitMapValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_DigitMapValue(TRUE, tvb, offset, actx, tree, hf_h248_digitMapValue);
 }
 
 
@@ -3317,19 +3317,19 @@ static const ber_choice_t EventDM_choice[] = {
 };
 
 static int
-dissect_h248_EventDM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_EventDM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  EventDM_choice, hf_index, ett_h248_EventDM,
                                  NULL);
 
   return offset;
 }
-static int dissect_eventDM_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventDM(TRUE, tvb, offset, pinfo, tree, hf_h248_eventDM);
+static int dissect_eventDM_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventDM(TRUE, tvb, offset, actx, tree, hf_h248_eventDM);
 }
 
-static int dissect_signalName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SignalName(TRUE, tvb, offset, pinfo, tree, hf_h248_signalName);
+static int dissect_signalName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SignalName(TRUE, tvb, offset, actx, tree, hf_h248_signalName);
 }
 
 
@@ -3342,14 +3342,14 @@ static const value_string h248_SignalType_vals[] = {
 
 
 static int
-dissect_h248_SignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_SignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_sigType_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SignalType(TRUE, tvb, offset, pinfo, tree, hf_h248_sigType);
+static int dissect_sigType_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SignalType(TRUE, tvb, offset, actx, tree, hf_h248_sigType);
 }
 
 
@@ -3363,23 +3363,23 @@ static const asn_namedbit NotifyCompletion_bits[] = {
 };
 
 static int
-dissect_h248_NotifyCompletion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_NotifyCompletion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
                                     NotifyCompletion_bits, hf_index, ett_h248_NotifyCompletion,
                                     NULL);
 
   return offset;
 }
-static int dissect_notifyCompletion_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NotifyCompletion(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyCompletion);
+static int dissect_notifyCompletion_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NotifyCompletion(TRUE, tvb, offset, actx, tree, hf_h248_notifyCompletion);
 }
 
-static int dissect_sigParameterName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SigParameterName(TRUE, tvb, offset, pinfo, tree, hf_h248_sigParameterName);
+static int dissect_sigParameterName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SigParameterName(TRUE, tvb, offset, actx, tree, hf_h248_sigParameterName);
 }
 
-static int dissect_SigParamValues_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SigParamValue(FALSE, tvb, offset, pinfo, tree, hf_h248_SigParamValues_item);
+static int dissect_SigParamValues_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SigParamValue(FALSE, tvb, offset, actx, tree, hf_h248_SigParamValues_item);
 }
 
 
@@ -3388,14 +3388,14 @@ static const ber_sequence_t SigParamValues_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SigParamValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SigParamValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SigParamValues_sequence_of, hf_index, ett_h248_SigParamValues);
 
   return offset;
 }
-static int dissect_value_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SigParamValues(TRUE, tvb, offset, pinfo, tree, hf_h248_value);
+static int dissect_value_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SigParamValues(TRUE, tvb, offset, actx, tree, hf_h248_value);
 }
 
 
@@ -3414,15 +3414,15 @@ static const ber_choice_t T_extraInfo2_choice[] = {
 };
 
 static int
-dissect_h248_T_extraInfo2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_extraInfo2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_extraInfo2_choice, hf_index, ett_h248_T_extraInfo2,
                                  NULL);
 
   return offset;
 }
-static int dissect_extraInfo2_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_extraInfo2(TRUE, tvb, offset, pinfo, tree, hf_h248_extraInfo2);
+static int dissect_extraInfo2_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_extraInfo2(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo2);
 }
 
 
@@ -3434,14 +3434,14 @@ static const ber_sequence_t SigParameter_sequence[] = {
 };
 
 static int
-dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SigParameter_sequence, hf_index, ett_h248_SigParameter);
 
   return offset;
 }
-static int dissect_sigParList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SigParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_sigParList_item);
+static int dissect_sigParList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SigParameter(FALSE, tvb, offset, actx, tree, hf_h248_sigParList_item);
 }
 
 
@@ -3450,14 +3450,14 @@ static const ber_sequence_t SEQUENCE_OF_SigParameter_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_SigParameter_sequence_of, hf_index, ett_h248_SEQUENCE_OF_SigParameter);
 
   return offset;
 }
-static int dissect_sigParList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_SigParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_sigParList);
+static int dissect_sigParList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_SigParameter(TRUE, tvb, offset, actx, tree, hf_h248_sigParList);
 }
 
 
@@ -3470,14 +3470,14 @@ static const value_string h248_SignalDirection_vals[] = {
 
 
 static int
-dissect_h248_SignalDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_SignalDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_direction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SignalDirection(TRUE, tvb, offset, pinfo, tree, hf_h248_direction);
+static int dissect_direction_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SignalDirection(TRUE, tvb, offset, actx, tree, hf_h248_direction);
 }
 
 
@@ -3496,17 +3496,17 @@ static const ber_sequence_t Signal_sequence[] = {
 };
 
 static int
-dissect_h248_Signal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_Signal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Signal_sequence, hf_index, ett_h248_Signal);
 
   return offset;
 }
-static int dissect_signal_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Signal(TRUE, tvb, offset, pinfo, tree, hf_h248_signal);
+static int dissect_signal_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Signal(TRUE, tvb, offset, actx, tree, hf_h248_signal);
 }
-static int dissect_signalList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Signal(FALSE, tvb, offset, pinfo, tree, hf_h248_signalList_item);
+static int dissect_signalList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Signal(FALSE, tvb, offset, actx, tree, hf_h248_signalList_item);
 }
 
 
@@ -3515,14 +3515,14 @@ static const ber_sequence_t SEQUENCE_OF_Signal_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_Signal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_Signal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_Signal_sequence_of, hf_index, ett_h248_SEQUENCE_OF_Signal);
 
   return offset;
 }
-static int dissect_signalList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_Signal(TRUE, tvb, offset, pinfo, tree, hf_h248_signalList);
+static int dissect_signalList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_Signal(TRUE, tvb, offset, actx, tree, hf_h248_signalList);
 }
 
 
@@ -3533,14 +3533,14 @@ static const ber_sequence_t SeqSigList_sequence[] = {
 };
 
 static int
-dissect_h248_SeqSigList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SeqSigList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SeqSigList_sequence, hf_index, ett_h248_SeqSigList);
 
   return offset;
 }
-static int dissect_seqSigList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SeqSigList(TRUE, tvb, offset, pinfo, tree, hf_h248_seqSigList);
+static int dissect_seqSigList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SeqSigList(TRUE, tvb, offset, actx, tree, hf_h248_seqSigList);
 }
 
 
@@ -3557,15 +3557,15 @@ static const ber_choice_t SignalRequest_choice[] = {
 };
 
 static int
-dissect_h248_SignalRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_SignalRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SignalRequest_choice, hf_index, ett_h248_SignalRequest,
                                  NULL);
 
   return offset;
 }
-static int dissect_SignalsDescriptor_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SignalRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_SignalsDescriptor_item);
+static int dissect_SignalsDescriptor_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SignalRequest(FALSE, tvb, offset, actx, tree, hf_h248_SignalsDescriptor_item);
 }
 
 
@@ -3574,14 +3574,14 @@ static const ber_sequence_t SignalsDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SignalsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SignalsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SignalsDescriptor_sequence_of, hf_index, ett_h248_SignalsDescriptor);
 
   return offset;
 }
-static int dissect_signalsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SignalsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_signalsDescriptor);
+static int dissect_signalsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SignalsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_signalsDescriptor);
 }
 
 
@@ -3592,14 +3592,14 @@ static const ber_sequence_t RegulatedEmbeddedDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_RegulatedEmbeddedDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_RegulatedEmbeddedDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RegulatedEmbeddedDescriptor_sequence, hf_index, ett_h248_RegulatedEmbeddedDescriptor);
 
   return offset;
 }
-static int dissect_notifyRegulated_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RegulatedEmbeddedDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyRegulated);
+static int dissect_notifyRegulated_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RegulatedEmbeddedDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_notifyRegulated);
 }
 
 
@@ -3618,15 +3618,15 @@ static const ber_choice_t NotifyBehaviour_choice[] = {
 };
 
 static int
-dissect_h248_NotifyBehaviour(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_NotifyBehaviour(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  NotifyBehaviour_choice, hf_index, ett_h248_NotifyBehaviour,
                                  NULL);
 
   return offset;
 }
-static int dissect_notifyBehaviour_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_NotifyBehaviour(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyBehaviour);
+static int dissect_notifyBehaviour_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_NotifyBehaviour(TRUE, tvb, offset, actx, tree, hf_h248_notifyBehaviour);
 }
 
 
@@ -3640,22 +3640,22 @@ static const ber_sequence_t SecondRequestedActions_sequence[] = {
 };
 
 static int
-dissect_h248_SecondRequestedActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SecondRequestedActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecondRequestedActions_sequence, hf_index, ett_h248_SecondRequestedActions);
 
   return offset;
 }
-static int dissect_secondaryEventAction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SecondRequestedActions(TRUE, tvb, offset, pinfo, tree, hf_h248_secondaryEventAction);
+static int dissect_secondaryEventAction_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SecondRequestedActions(TRUE, tvb, offset, actx, tree, hf_h248_secondaryEventAction);
 }
 
-static int dissect_eventParameterName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventParameterName(TRUE, tvb, offset, pinfo, tree, hf_h248_eventParameterName);
+static int dissect_eventParameterName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventParameterName(TRUE, tvb, offset, actx, tree, hf_h248_eventParameterName);
 }
 
-static int dissect_EventParamValues_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventParamValue(FALSE, tvb, offset, pinfo, tree, hf_h248_EventParamValues_item);
+static int dissect_EventParamValues_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventParamValue(FALSE, tvb, offset, actx, tree, hf_h248_EventParamValues_item);
 }
 
 
@@ -3664,14 +3664,14 @@ static const ber_sequence_t EventParamValues_sequence_of[1] = {
 };
 
 static int
-dissect_h248_EventParamValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_EventParamValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       EventParamValues_sequence_of, hf_index, ett_h248_EventParamValues);
 
   return offset;
 }
-static int dissect_eventParamValue_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventParamValues(TRUE, tvb, offset, pinfo, tree, hf_h248_eventParamValue);
+static int dissect_eventParamValue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventParamValues(TRUE, tvb, offset, actx, tree, hf_h248_eventParamValue);
 }
 
 
@@ -3690,15 +3690,15 @@ static const ber_choice_t T_extraInfo_choice[] = {
 };
 
 static int
-dissect_h248_T_extraInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_extraInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_extraInfo_choice, hf_index, ett_h248_T_extraInfo,
                                  NULL);
 
   return offset;
 }
-static int dissect_extraInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_extraInfo(TRUE, tvb, offset, pinfo, tree, hf_h248_extraInfo);
+static int dissect_extraInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_extraInfo(TRUE, tvb, offset, actx, tree, hf_h248_extraInfo);
 }
 
 
@@ -3710,17 +3710,17 @@ static const ber_sequence_t EventParameter_sequence[] = {
 };
 
 static int
-dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EventParameter_sequence, hf_index, ett_h248_EventParameter);
 
   return offset;
 }
-static int dissect_eventParList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_eventParList_item);
+static int dissect_eventParList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventParameter(FALSE, tvb, offset, actx, tree, hf_h248_eventParList_item);
 }
-static int dissect_evParList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_evParList_item);
+static int dissect_evParList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventParameter(FALSE, tvb, offset, actx, tree, hf_h248_evParList_item);
 }
 
 
@@ -3729,17 +3729,17 @@ static const ber_sequence_t SEQUENCE_OF_EventParameter_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_EventParameter_sequence_of, hf_index, ett_h248_SEQUENCE_OF_EventParameter);
 
   return offset;
 }
-static int dissect_eventParList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_EventParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_eventParList);
+static int dissect_eventParList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_EventParameter(TRUE, tvb, offset, actx, tree, hf_h248_eventParList);
 }
-static int dissect_evParList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_EventParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_evParList);
+static int dissect_evParList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_EventParameter(TRUE, tvb, offset, actx, tree, hf_h248_evParList);
 }
 
 
@@ -3752,14 +3752,14 @@ static const ber_sequence_t SecondRequestedEvent_sequence[] = {
 };
 
 static int
-dissect_h248_SecondRequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SecondRequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecondRequestedEvent_sequence, hf_index, ett_h248_SecondRequestedEvent);
 
   return offset;
 }
-static int dissect_secondaryEventList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SecondRequestedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_secondaryEventList_item);
+static int dissect_secondaryEventList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SecondRequestedEvent(FALSE, tvb, offset, actx, tree, hf_h248_secondaryEventList_item);
 }
 
 
@@ -3768,14 +3768,14 @@ static const ber_sequence_t SEQUENCE_OF_SecondRequestedEvent_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_SecondRequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_SecondRequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_SecondRequestedEvent_sequence_of, hf_index, ett_h248_SEQUENCE_OF_SecondRequestedEvent);
 
   return offset;
 }
-static int dissect_secondaryEventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_SecondRequestedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_secondaryEventList);
+static int dissect_secondaryEventList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_SecondRequestedEvent(TRUE, tvb, offset, actx, tree, hf_h248_secondaryEventList);
 }
 
 
@@ -3786,8 +3786,8 @@ static const ber_sequence_t SecondEventsDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_SecondEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SecondEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecondEventsDescriptor_sequence, hf_index, ett_h248_SecondEventsDescriptor);
 
   return offset;
@@ -3805,14 +3805,14 @@ static const ber_sequence_t RequestedActions_sequence[] = {
 };
 
 static int
-dissect_h248_RequestedActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_RequestedActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RequestedActions_sequence, hf_index, ett_h248_RequestedActions);
 
   return offset;
 }
-static int dissect_eventAction_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RequestedActions(TRUE, tvb, offset, pinfo, tree, hf_h248_eventAction);
+static int dissect_eventAction_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RequestedActions(TRUE, tvb, offset, actx, tree, hf_h248_eventAction);
 }
 
 
@@ -3825,14 +3825,14 @@ static const ber_sequence_t RequestedEvent_sequence[] = {
 };
 
 static int
-dissect_h248_RequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_RequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RequestedEvent_sequence, hf_index, ett_h248_RequestedEvent);
 
   return offset;
 }
-static int dissect_eventList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_RequestedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_eventList_item);
+static int dissect_eventList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_RequestedEvent(FALSE, tvb, offset, actx, tree, hf_h248_eventList_item);
 }
 
 
@@ -3841,14 +3841,14 @@ static const ber_sequence_t SEQUENCE_OF_RequestedEvent_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_RequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_RequestedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_RequestedEvent_sequence_of, hf_index, ett_h248_SEQUENCE_OF_RequestedEvent);
 
   return offset;
 }
-static int dissect_eventList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_RequestedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_eventList);
+static int dissect_eventList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_RequestedEvent(TRUE, tvb, offset, actx, tree, hf_h248_eventList);
 }
 
 
@@ -3859,14 +3859,14 @@ static const ber_sequence_t EventsDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_EventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_EventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EventsDescriptor_sequence, hf_index, ett_h248_EventsDescriptor);
 
   return offset;
 }
-static int dissect_eventsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_eventsDescriptor);
+static int dissect_eventsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_eventsDescriptor);
 }
 
 
@@ -3878,14 +3878,14 @@ static const ber_sequence_t EventSpec_sequence[] = {
 };
 
 static int
-dissect_h248_EventSpec(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_EventSpec(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EventSpec_sequence, hf_index, ett_h248_EventSpec);
 
   return offset;
 }
-static int dissect_EventBufferDescriptor_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventSpec(FALSE, tvb, offset, pinfo, tree, hf_h248_EventBufferDescriptor_item);
+static int dissect_EventBufferDescriptor_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventSpec(FALSE, tvb, offset, actx, tree, hf_h248_EventBufferDescriptor_item);
 }
 
 
@@ -3894,14 +3894,14 @@ static const ber_sequence_t EventBufferDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_EventBufferDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_EventBufferDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       EventBufferDescriptor_sequence_of, hf_index, ett_h248_EventBufferDescriptor);
 
   return offset;
 }
-static int dissect_eventBufferDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_EventBufferDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_eventBufferDescriptor);
+static int dissect_eventBufferDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_EventBufferDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_eventBufferDescriptor);
 }
 
 
@@ -3912,14 +3912,14 @@ static const ber_sequence_t DigitMapDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_DigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_DigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    DigitMapDescriptor_sequence, hf_index, ett_h248_DigitMapDescriptor);
 
   return offset;
 }
-static int dissect_digitMapDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_DigitMapDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_digitMapDescriptor);
+static int dissect_digitMapDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_DigitMapDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_digitMapDescriptor);
 }
 
 
@@ -3938,15 +3938,15 @@ static const asn_namedbit T_auditToken_bits[] = {
 };
 
 static int
-dissect_h248_T_auditToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_T_auditToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx->pinfo, tree, tvb, offset,
                                     T_auditToken_bits, hf_index, ett_h248_T_auditToken,
                                     NULL);
 
   return offset;
 }
-static int dissect_auditToken_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_auditToken(TRUE, tvb, offset, pinfo, tree, hf_h248_auditToken);
+static int dissect_auditToken_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_auditToken(TRUE, tvb, offset, actx, tree, hf_h248_auditToken);
 }
 
 
@@ -3959,14 +3959,14 @@ static const ber_sequence_t IndAudTerminationStateDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudTerminationStateDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudTerminationStateDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudTerminationStateDescriptor_sequence, hf_index, ett_h248_IndAudTerminationStateDescriptor);
 
   return offset;
 }
-static int dissect_indAudTerminationStateDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudTerminationStateDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudTerminationStateDescriptor);
+static int dissect_indAudTerminationStateDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudTerminationStateDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indAudTerminationStateDescriptor);
 }
 
 
@@ -3980,14 +3980,14 @@ static const ber_sequence_t IndAudLocalControlDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudLocalControlDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudLocalControlDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudLocalControlDescriptor_sequence, hf_index, ett_h248_IndAudLocalControlDescriptor);
 
   return offset;
 }
-static int dissect_iASPLocalControlDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudLocalControlDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_iASPLocalControlDescriptor);
+static int dissect_iASPLocalControlDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudLocalControlDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_iASPLocalControlDescriptor);
 }
 
 
@@ -3996,14 +3996,14 @@ static const ber_sequence_t IndAudPropertyGroup_sequence_of[1] = {
 };
 
 static int
-dissect_h248_IndAudPropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudPropertyGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       IndAudPropertyGroup_sequence_of, hf_index, ett_h248_IndAudPropertyGroup);
 
   return offset;
 }
-static int dissect_iAPropertyGroup_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudPropertyGroup(TRUE, tvb, offset, pinfo, tree, hf_h248_iAPropertyGroup);
+static int dissect_iAPropertyGroup_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudPropertyGroup(TRUE, tvb, offset, actx, tree, hf_h248_iAPropertyGroup);
 }
 
 
@@ -4014,17 +4014,17 @@ static const ber_sequence_t IndAudLocalRemoteDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudLocalRemoteDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudLocalRemoteDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudLocalRemoteDescriptor_sequence, hf_index, ett_h248_IndAudLocalRemoteDescriptor);
 
   return offset;
 }
-static int dissect_iASPLocalDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudLocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_iASPLocalDescriptor);
+static int dissect_iASPLocalDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudLocalRemoteDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_iASPLocalDescriptor);
 }
-static int dissect_iASPRemoteDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudLocalRemoteDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_iASPRemoteDescriptor);
+static int dissect_iASPRemoteDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudLocalRemoteDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_iASPRemoteDescriptor);
 }
 
 
@@ -4034,17 +4034,17 @@ static const ber_sequence_t IndAudStatisticsDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudStatisticsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudStatisticsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudStatisticsDescriptor_sequence, hf_index, ett_h248_IndAudStatisticsDescriptor);
 
   return offset;
 }
-static int dissect_indaudstatisticsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudstatisticsDescriptor);
+static int dissect_indaudstatisticsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudstatisticsDescriptor);
 }
-static int dissect_statisticsDescriptor1_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_statisticsDescriptor1);
+static int dissect_statisticsDescriptor1_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStatisticsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_statisticsDescriptor1);
 }
 
 
@@ -4057,17 +4057,17 @@ static const ber_sequence_t IndAudStreamParms_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudStreamParms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudStreamParms(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudStreamParms_sequence, hf_index, ett_h248_IndAudStreamParms);
 
   return offset;
 }
-static int dissect_oneStream_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_oneStream);
+static int dissect_oneStream_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStreamParms(TRUE, tvb, offset, actx, tree, hf_h248_oneStream);
 }
-static int dissect_indAudStreamParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStreamParms(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudStreamParms);
+static int dissect_indAudStreamParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStreamParms(TRUE, tvb, offset, actx, tree, hf_h248_indAudStreamParms);
 }
 
 
@@ -4078,14 +4078,14 @@ static const ber_sequence_t IndAudStreamDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudStreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudStreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudStreamDescriptor_sequence, hf_index, ett_h248_IndAudStreamDescriptor);
 
   return offset;
 }
-static int dissect_multiStream_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudStreamDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_multiStream_item);
+static int dissect_multiStream_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudStreamDescriptor(FALSE, tvb, offset, actx, tree, hf_h248_multiStream_item);
 }
 
 
@@ -4094,14 +4094,14 @@ static const ber_sequence_t SEQUENCE_OF_IndAudStreamDescriptor_sequence_of[1] = 
 };
 
 static int
-dissect_h248_SEQUENCE_OF_IndAudStreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_IndAudStreamDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_IndAudStreamDescriptor_sequence_of, hf_index, ett_h248_SEQUENCE_OF_IndAudStreamDescriptor);
 
   return offset;
 }
-static int dissect_multiStream_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_IndAudStreamDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_multiStream);
+static int dissect_multiStream_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_IndAudStreamDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_multiStream);
 }
 
 
@@ -4118,15 +4118,15 @@ static const ber_choice_t indAudMediaDescriptorStreams_choice[] = {
 };
 
 static int
-dissect_h248_indAudMediaDescriptorStreams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_indAudMediaDescriptorStreams(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  indAudMediaDescriptorStreams_choice, hf_index, ett_h248_indAudMediaDescriptorStreams,
                                  NULL);
 
   return offset;
 }
-static int dissect_indAudMediaDescriptorStreams_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_indAudMediaDescriptorStreams(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudMediaDescriptorStreams);
+static int dissect_indAudMediaDescriptorStreams_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_indAudMediaDescriptorStreams(TRUE, tvb, offset, actx, tree, hf_h248_indAudMediaDescriptorStreams);
 }
 
 
@@ -4137,14 +4137,14 @@ static const ber_sequence_t IndAudMediaDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudMediaDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudMediaDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudMediaDescriptor_sequence, hf_index, ett_h248_IndAudMediaDescriptor);
 
   return offset;
 }
-static int dissect_indaudmediaDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudMediaDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudmediaDescriptor);
+static int dissect_indaudmediaDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudMediaDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudmediaDescriptor);
 }
 
 
@@ -4156,14 +4156,14 @@ static const ber_sequence_t IndAudEventsDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudEventsDescriptor_sequence, hf_index, ett_h248_IndAudEventsDescriptor);
 
   return offset;
 }
-static int dissect_indaudeventsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudeventsDescriptor);
+static int dissect_indaudeventsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudEventsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudeventsDescriptor);
 }
 
 
@@ -4174,14 +4174,14 @@ static const ber_sequence_t IndAudEventBufferDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudEventBufferDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudEventBufferDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudEventBufferDescriptor_sequence, hf_index, ett_h248_IndAudEventBufferDescriptor);
 
   return offset;
 }
-static int dissect_indaudeventBufferDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudEventBufferDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudeventBufferDescriptor);
+static int dissect_indaudeventBufferDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudEventBufferDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudeventBufferDescriptor);
 }
 
 
@@ -4193,17 +4193,17 @@ static const ber_sequence_t IndAudSignal_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudSignal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudSignal(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudSignal_sequence, hf_index, ett_h248_IndAudSignal);
 
   return offset;
 }
-static int dissect_indAudSignal_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudSignal(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudSignal);
+static int dissect_indAudSignal_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudSignal(TRUE, tvb, offset, actx, tree, hf_h248_indAudSignal);
 }
-static int dissect_iASignalList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudSignal(TRUE, tvb, offset, pinfo, tree, hf_h248_iASignalList);
+static int dissect_iASignalList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudSignal(TRUE, tvb, offset, actx, tree, hf_h248_iASignalList);
 }
 
 
@@ -4214,14 +4214,14 @@ static const ber_sequence_t IndAudSeqSigList_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudSeqSigList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudSeqSigList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudSeqSigList_sequence, hf_index, ett_h248_IndAudSeqSigList);
 
   return offset;
 }
-static int dissect_indAudSeqSigList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudSeqSigList(TRUE, tvb, offset, pinfo, tree, hf_h248_indAudSeqSigList);
+static int dissect_indAudSeqSigList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudSeqSigList(TRUE, tvb, offset, actx, tree, hf_h248_indAudSeqSigList);
 }
 
 
@@ -4238,15 +4238,15 @@ static const ber_choice_t IndAudSignalsDescriptor_choice[] = {
 };
 
 static int
-dissect_h248_IndAudSignalsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_IndAudSignalsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  IndAudSignalsDescriptor_choice, hf_index, ett_h248_IndAudSignalsDescriptor,
                                  NULL);
 
   return offset;
 }
-static int dissect_indaudsignalsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudSignalsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudsignalsDescriptor);
+static int dissect_indaudsignalsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudSignalsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudsignalsDescriptor);
 }
 
 
@@ -4256,14 +4256,14 @@ static const ber_sequence_t IndAudDigitMapDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudDigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudDigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudDigitMapDescriptor_sequence, hf_index, ett_h248_IndAudDigitMapDescriptor);
 
   return offset;
 }
-static int dissect_indauddigitMapDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudDigitMapDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indauddigitMapDescriptor);
+static int dissect_indauddigitMapDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudDigitMapDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indauddigitMapDescriptor);
 }
 
 
@@ -4274,14 +4274,14 @@ static const ber_sequence_t IndAudPackagesDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_IndAudPackagesDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_IndAudPackagesDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IndAudPackagesDescriptor_sequence, hf_index, ett_h248_IndAudPackagesDescriptor);
 
   return offset;
 }
-static int dissect_indaudpackagesDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAudPackagesDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_indaudpackagesDescriptor);
+static int dissect_indaudpackagesDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAudPackagesDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_indaudpackagesDescriptor);
 }
 
 
@@ -4308,15 +4308,15 @@ static const ber_choice_t IndAuditParameter_choice[] = {
 };
 
 static int
-dissect_h248_IndAuditParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_IndAuditParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  IndAuditParameter_choice, hf_index, ett_h248_IndAuditParameter,
                                  NULL);
 
   return offset;
 }
-static int dissect_auditPropertyToken_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IndAuditParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_auditPropertyToken_item);
+static int dissect_auditPropertyToken_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IndAuditParameter(FALSE, tvb, offset, actx, tree, hf_h248_auditPropertyToken_item);
 }
 
 
@@ -4325,14 +4325,14 @@ static const ber_sequence_t SEQUENCE_OF_IndAuditParameter_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_IndAuditParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_IndAuditParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_IndAuditParameter_sequence_of, hf_index, ett_h248_SEQUENCE_OF_IndAuditParameter);
 
   return offset;
 }
-static int dissect_auditPropertyToken_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_IndAuditParameter(TRUE, tvb, offset, pinfo, tree, hf_h248_auditPropertyToken);
+static int dissect_auditPropertyToken_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_IndAuditParameter(TRUE, tvb, offset, actx, tree, hf_h248_auditPropertyToken);
 }
 
 
@@ -4343,20 +4343,20 @@ static const ber_sequence_t AuditDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_AuditDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AuditDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AuditDescriptor_sequence, hf_index, ett_h248_AuditDescriptor);
 
   return offset;
 }
-static int dissect_auditDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_auditDescriptor);
+static int dissect_auditDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_auditDescriptor);
 }
-static int dissect_emptyDescriptors_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_emptyDescriptors);
+static int dissect_emptyDescriptors_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_emptyDescriptors);
 }
-static int dissect_serviceChangeInfo_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeInfo);
+static int dissect_serviceChangeInfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuditDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeInfo);
 }
 
 
@@ -4390,15 +4390,15 @@ static const ber_choice_t AmmDescriptor_choice[] = {
 };
 
 static int
-dissect_h248_AmmDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_AmmDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AmmDescriptor_choice, hf_index, ett_h248_AmmDescriptor,
                                  NULL);
 
   return offset;
 }
-static int dissect_descriptors_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AmmDescriptor(FALSE, tvb, offset, pinfo, tree, hf_h248_descriptors_item);
+static int dissect_descriptors_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AmmDescriptor(FALSE, tvb, offset, actx, tree, hf_h248_descriptors_item);
 }
 
 
@@ -4407,14 +4407,14 @@ static const ber_sequence_t SEQUENCE_OF_AmmDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_AmmDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_AmmDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_AmmDescriptor_sequence_of, hf_index, ett_h248_SEQUENCE_OF_AmmDescriptor);
 
   return offset;
 }
-static int dissect_descriptors_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_AmmDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_descriptors);
+static int dissect_descriptors_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_AmmDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_descriptors);
 }
 
 
@@ -4425,8 +4425,8 @@ static const ber_sequence_t AmmRequest_sequence[] = {
 };
 
 static int
-dissect_h248_AmmRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AmmRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AmmRequest_sequence, hf_index, ett_h248_AmmRequest);
 
   return offset;
@@ -4435,59 +4435,59 @@ dissect_h248_AmmRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_h248_T_addReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_addReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 114 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 119 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_addReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_addReq(TRUE, tvb, offset, pinfo, tree, hf_h248_addReq);
+static int dissect_addReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_addReq(TRUE, tvb, offset, actx, tree, hf_h248_addReq);
 }
 
 
 
 static int
-dissect_h248_T_moveReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_moveReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 123 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REQ,offset,keep_persistent_data);
       H248_TAP();
 
 
-  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 129 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_moveReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_moveReq(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReq);
+static int dissect_moveReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_moveReq(TRUE, tvb, offset, actx, tree, hf_h248_moveReq);
 }
 
 
 
 static int
-dissect_h248_T_modReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_modReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 133 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 137 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_modReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_modReq(TRUE, tvb, offset, pinfo, tree, hf_h248_modReq);
+static int dissect_modReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_modReq(TRUE, tvb, offset, actx, tree, hf_h248_modReq);
 }
 
 
@@ -4498,8 +4498,8 @@ static const ber_sequence_t SubtractRequest_sequence[] = {
 };
 
 static int
-dissect_h248_SubtractRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SubtractRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SubtractRequest_sequence, hf_index, ett_h248_SubtractRequest);
 
   return offset;
@@ -4508,20 +4508,20 @@ dissect_h248_SubtractRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
-dissect_h248_T_subtractReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_subtractReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 141 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_SubtractRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_SubtractRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 145 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_subtractReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_subtractReq(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReq);
+static int dissect_subtractReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_subtractReq(TRUE, tvb, offset, actx, tree, hf_h248_subtractReq);
 }
 
 
@@ -4533,8 +4533,8 @@ static const ber_sequence_t AuditRequest_sequence[] = {
 };
 
 static int
-dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AuditRequest_sequence, hf_index, ett_h248_AuditRequest);
 
   return offset;
@@ -4543,39 +4543,39 @@ dissect_h248_AuditRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_h248_T_auditCapRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_auditCapRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 149 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 153 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_auditCapRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_auditCapRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditCapRequest);
+static int dissect_auditCapRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_auditCapRequest(TRUE, tvb, offset, actx, tree, hf_h248_auditCapRequest);
 }
 
 
 
 static int
-dissect_h248_T_auditValueRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_auditValueRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 157 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AuditRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 161 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_auditValueRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_auditValueRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueRequest);
+static int dissect_auditValueRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_auditValueRequest(TRUE, tvb, offset, actx, tree, hf_h248_auditValueRequest);
 }
 
 
@@ -4586,20 +4586,20 @@ static const ber_sequence_t TimeNotation_sequence[] = {
 };
 
 static int
-dissect_h248_TimeNotation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TimeNotation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TimeNotation_sequence, hf_index, ett_h248_TimeNotation);
 
   return offset;
 }
-static int dissect_timeNotation_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TimeNotation(TRUE, tvb, offset, pinfo, tree, hf_h248_timeNotation);
+static int dissect_timeNotation_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TimeNotation(TRUE, tvb, offset, actx, tree, hf_h248_timeNotation);
 }
-static int dissect_timeStamp_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TimeNotation(TRUE, tvb, offset, pinfo, tree, hf_h248_timeStamp);
+static int dissect_timeStamp_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TimeNotation(TRUE, tvb, offset, actx, tree, hf_h248_timeStamp);
 }
-static int dissect_timestamp_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TimeNotation(TRUE, tvb, offset, pinfo, tree, hf_h248_timestamp);
+static int dissect_timestamp_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TimeNotation(TRUE, tvb, offset, actx, tree, hf_h248_timestamp);
 }
 
 
@@ -4612,14 +4612,14 @@ static const ber_sequence_t ObservedEvent_sequence[] = {
 };
 
 static int
-dissect_h248_ObservedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ObservedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ObservedEvent_sequence, hf_index, ett_h248_ObservedEvent);
 
   return offset;
 }
-static int dissect_observedEventLst_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ObservedEvent(FALSE, tvb, offset, pinfo, tree, hf_h248_observedEventLst_item);
+static int dissect_observedEventLst_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ObservedEvent(FALSE, tvb, offset, actx, tree, hf_h248_observedEventLst_item);
 }
 
 
@@ -4628,14 +4628,14 @@ static const ber_sequence_t SEQUENCE_OF_ObservedEvent_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ObservedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_ObservedEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_ObservedEvent_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ObservedEvent);
 
   return offset;
 }
-static int dissect_observedEventLst_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_ObservedEvent(TRUE, tvb, offset, pinfo, tree, hf_h248_observedEventLst);
+static int dissect_observedEventLst_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_ObservedEvent(TRUE, tvb, offset, actx, tree, hf_h248_observedEventLst);
 }
 
 
@@ -4646,14 +4646,14 @@ static const ber_sequence_t ObservedEventsDescriptor_sequence[] = {
 };
 
 static int
-dissect_h248_ObservedEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ObservedEventsDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ObservedEventsDescriptor_sequence, hf_index, ett_h248_ObservedEventsDescriptor);
 
   return offset;
 }
-static int dissect_observedEventsDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ObservedEventsDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_observedEventsDescriptor);
+static int dissect_observedEventsDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ObservedEventsDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_observedEventsDescriptor);
 }
 
 
@@ -4665,8 +4665,8 @@ static const ber_sequence_t NotifyRequest_sequence[] = {
 };
 
 static int
-dissect_h248_NotifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_NotifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NotifyRequest_sequence, hf_index, ett_h248_NotifyRequest);
 
   return offset;
@@ -4675,20 +4675,20 @@ dissect_h248_NotifyRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_h248_T_notifyReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_notifyReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 165 "h248.cnf"
 	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_NotifyRequest(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_NotifyRequest(implicit_tag, tvb, offset, actx, tree, hf_index);
 
 #line 169 "h248.cnf"
       curr_info.cmd = NULL;
 
   return offset;
 }
-static int dissect_notifyReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_notifyReq(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReq);
+static int dissect_notifyReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_notifyReq(TRUE, tvb, offset, actx, tree, hf_h248_notifyReq);
 }
 
 
@@ -4704,14 +4704,14 @@ static const value_string h248_ServiceChangeMethod_vals[] = {
 
 
 static int
-dissect_h248_ServiceChangeMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_ServiceChangeMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_serviceChangeMethod_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeMethod(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeMethod);
+static int dissect_serviceChangeMethod_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeMethod(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeMethod);
 }
 
 
@@ -4736,29 +4736,29 @@ static const ber_choice_t ServiceChangeAddress_choice[] = {
 };
 
 static int
-dissect_h248_ServiceChangeAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_ServiceChangeAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ServiceChangeAddress_choice, hf_index, ett_h248_ServiceChangeAddress,
                                  NULL);
 
   return offset;
 }
-static int dissect_serviceChangeAddress_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeAddress(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeAddress);
+static int dissect_serviceChangeAddress_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeAddress(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeAddress);
 }
 
 
 
 static int
-dissect_h248_IA5String_SIZE_1_67(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_IA5String_SIZE_1_67(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
 }
-static int dissect_profileName_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_IA5String_SIZE_1_67(TRUE, tvb, offset, pinfo, tree, hf_h248_profileName);
+static int dissect_profileName_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_IA5String_SIZE_1_67(TRUE, tvb, offset, actx, tree, hf_h248_profileName);
 }
 
 
@@ -4768,38 +4768,38 @@ static const ber_sequence_t ServiceChangeProfile_sequence[] = {
 };
 
 static int
-dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceChangeProfile_sequence, hf_index, ett_h248_ServiceChangeProfile);
 
   return offset;
 }
-static int dissect_serviceChangeProfile_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeProfile(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeProfile);
+static int dissect_serviceChangeProfile_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeProfile(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeProfile);
 }
 
 
 
 static int
-dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 293 "h248.cnf"
 
  tvbuff_t	*parameter_tvb;
-   offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+   offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
 
  if (!parameter_tvb)
 	return offset;
 
- dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, pinfo, tree, hf_h248_serviceChangeReasonStr);
+ dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
 
 
 
   return offset;
 }
-static int dissect_SCreasonValue_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SCreasonValueOctetStr(FALSE, tvb, offset, pinfo, tree, hf_h248_SCreasonValue_item);
+static int dissect_SCreasonValue_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SCreasonValueOctetStr(FALSE, tvb, offset, actx, tree, hf_h248_SCreasonValue_item);
 }
 
 
@@ -4808,27 +4808,27 @@ static const ber_sequence_t SCreasonValue_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SCreasonValue_sequence_of, hf_index, ett_h248_SCreasonValue);
 
   return offset;
 }
-static int dissect_serviceChangeReason_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SCreasonValue(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeReason);
+static int dissect_serviceChangeReason_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SCreasonValue(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeReason);
 }
 
 
 
 static int
-dissect_h248_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_serviceChangeDelay_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_INTEGER_0_4294967295(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeDelay);
+static int dissect_serviceChangeDelay_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_INTEGER_0_4294967295(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeDelay);
 }
 
 
@@ -4848,14 +4848,14 @@ static const ber_sequence_t ServiceChangeParm_sequence[] = {
 };
 
 static int
-dissect_h248_ServiceChangeParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ServiceChangeParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceChangeParm_sequence, hf_index, ett_h248_ServiceChangeParm);
 
   return offset;
 }
-static int dissect_serviceChangeParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeParm(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeParms);
+static int dissect_serviceChangeParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeParm(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeParms);
 }
 
 
@@ -4866,12 +4866,12 @@ static const ber_sequence_t ServiceChangeRequest_sequence[] = {
 };
 
 static int
-dissect_h248_ServiceChangeRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_ServiceChangeRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 173 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REQ,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceChangeRequest_sequence, hf_index, ett_h248_ServiceChangeRequest);
 
 #line 177 "h248.cnf"
@@ -4879,8 +4879,8 @@ dissect_h248_ServiceChangeRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_serviceChangeReq_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeReq);
+static int dissect_serviceChangeReq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeRequest(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeReq);
 }
 
 
@@ -4909,15 +4909,15 @@ static const ber_choice_t Command_choice[] = {
 };
 
 static int
-dissect_h248_Command(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_Command(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Command_choice, hf_index, ett_h248_Command,
                                  NULL);
 
   return offset;
 }
-static int dissect_command_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Command(TRUE, tvb, offset, pinfo, tree, hf_h248_command);
+static int dissect_command_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Command(TRUE, tvb, offset, actx, tree, hf_h248_command);
 }
 
 
@@ -4929,14 +4929,14 @@ static const ber_sequence_t CommandRequest_sequence[] = {
 };
 
 static int
-dissect_h248_CommandRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_CommandRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CommandRequest_sequence, hf_index, ett_h248_CommandRequest);
 
   return offset;
 }
-static int dissect_commandRequests_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_CommandRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_commandRequests_item);
+static int dissect_commandRequests_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_CommandRequest(FALSE, tvb, offset, actx, tree, hf_h248_commandRequests_item);
 }
 
 
@@ -4945,14 +4945,14 @@ static const ber_sequence_t SEQUENCE_OF_CommandRequest_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_CommandRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_CommandRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_CommandRequest_sequence_of, hf_index, ett_h248_SEQUENCE_OF_CommandRequest);
 
   return offset;
 }
-static int dissect_commandRequests_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_CommandRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_commandRequests);
+static int dissect_commandRequests_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_CommandRequest(TRUE, tvb, offset, actx, tree, hf_h248_commandRequests);
 }
 
 
@@ -4965,14 +4965,14 @@ static const ber_sequence_t ActionRequest_sequence[] = {
 };
 
 static int
-dissect_h248_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ActionRequest_sequence, hf_index, ett_h248_ActionRequest);
 
   return offset;
 }
-static int dissect_actions_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ActionRequest(FALSE, tvb, offset, pinfo, tree, hf_h248_actions_item);
+static int dissect_actions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ActionRequest(FALSE, tvb, offset, actx, tree, hf_h248_actions_item);
 }
 
 
@@ -4981,14 +4981,14 @@ static const ber_sequence_t SEQUENCE_OF_ActionRequest_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_ActionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_ActionRequest_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ActionRequest);
 
   return offset;
 }
-static int dissect_actions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_actions);
+static int dissect_actions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_ActionRequest(TRUE, tvb, offset, actx, tree, hf_h248_actions);
 }
 
 
@@ -4999,14 +4999,14 @@ static const ber_sequence_t TransactionRequest_sequence[] = {
 };
 
 static int
-dissect_h248_TransactionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TransactionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TransactionRequest_sequence, hf_index, ett_h248_TransactionRequest);
 
   return offset;
 }
-static int dissect_transactionRequest_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionRequest(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionRequest);
+static int dissect_transactionRequest_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionRequest(TRUE, tvb, offset, actx, tree, hf_h248_transactionRequest);
 }
 
 
@@ -5016,14 +5016,14 @@ static const ber_sequence_t TransactionPending_sequence[] = {
 };
 
 static int
-dissect_h248_TransactionPending(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TransactionPending(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TransactionPending_sequence, hf_index, ett_h248_TransactionPending);
 
   return offset;
 }
-static int dissect_transactionPending_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionPending(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionPending);
+static int dissect_transactionPending_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionPending(TRUE, tvb, offset, actx, tree, hf_h248_transactionPending);
 }
 
 
@@ -5034,14 +5034,14 @@ static const ber_sequence_t PackagesItem_sequence[] = {
 };
 
 static int
-dissect_h248_PackagesItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_PackagesItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PackagesItem_sequence, hf_index, ett_h248_PackagesItem);
 
   return offset;
 }
-static int dissect_PackagesDescriptor_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PackagesItem(FALSE, tvb, offset, pinfo, tree, hf_h248_PackagesDescriptor_item);
+static int dissect_PackagesDescriptor_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PackagesItem(FALSE, tvb, offset, actx, tree, hf_h248_PackagesDescriptor_item);
 }
 
 
@@ -5050,14 +5050,14 @@ static const ber_sequence_t PackagesDescriptor_sequence_of[1] = {
 };
 
 static int
-dissect_h248_PackagesDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_PackagesDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       PackagesDescriptor_sequence_of, hf_index, ett_h248_PackagesDescriptor);
 
   return offset;
 }
-static int dissect_packagesDescriptor_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_PackagesDescriptor(TRUE, tvb, offset, pinfo, tree, hf_h248_packagesDescriptor);
+static int dissect_packagesDescriptor_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_PackagesDescriptor(TRUE, tvb, offset, actx, tree, hf_h248_packagesDescriptor);
 }
 
 
@@ -5094,15 +5094,15 @@ static const ber_choice_t AuditReturnParameter_choice[] = {
 };
 
 static int
-dissect_h248_AuditReturnParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_AuditReturnParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AuditReturnParameter_choice, hf_index, ett_h248_AuditReturnParameter,
                                  NULL);
 
   return offset;
 }
-static int dissect_TerminationAudit_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuditReturnParameter(FALSE, tvb, offset, pinfo, tree, hf_h248_TerminationAudit_item);
+static int dissect_TerminationAudit_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuditReturnParameter(FALSE, tvb, offset, actx, tree, hf_h248_TerminationAudit_item);
 }
 
 
@@ -5111,17 +5111,17 @@ static const ber_sequence_t TerminationAudit_sequence_of[1] = {
 };
 
 static int
-dissect_h248_TerminationAudit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TerminationAudit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TerminationAudit_sequence_of, hf_index, ett_h248_TerminationAudit);
 
   return offset;
 }
-static int dissect_terminationAudit_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationAudit(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationAudit);
+static int dissect_terminationAudit_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationAudit(TRUE, tvb, offset, actx, tree, hf_h248_terminationAudit);
 }
-static int dissect_terminationAuditResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TerminationAudit(TRUE, tvb, offset, pinfo, tree, hf_h248_terminationAuditResult);
+static int dissect_terminationAuditResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TerminationAudit(TRUE, tvb, offset, actx, tree, hf_h248_terminationAuditResult);
 }
 
 
@@ -5132,8 +5132,8 @@ static const ber_sequence_t AmmsReply_sequence[] = {
 };
 
 static int
-dissect_h248_AmmsReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AmmsReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AmmsReply_sequence, hf_index, ett_h248_AmmsReply);
 
   return offset;
@@ -5142,65 +5142,65 @@ dissect_h248_AmmsReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_h248_T_addReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_addReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 197 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_addReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_addReply(TRUE, tvb, offset, pinfo, tree, hf_h248_addReply);
+static int dissect_addReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_addReply(TRUE, tvb, offset, actx, tree, hf_h248_addReply);
 }
 
 
 
 static int
-dissect_h248_T_moveReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_moveReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 202 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_moveReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_moveReply(TRUE, tvb, offset, pinfo, tree, hf_h248_moveReply);
+static int dissect_moveReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_moveReply(TRUE, tvb, offset, actx, tree, hf_h248_moveReply);
 }
 
 
 
 static int
-dissect_h248_T_modReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_modReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 207 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_modReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_modReply(TRUE, tvb, offset, pinfo, tree, hf_h248_modReply);
+static int dissect_modReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_modReply(TRUE, tvb, offset, actx, tree, hf_h248_modReply);
 }
 
 
 
 static int
-dissect_h248_T_subtractReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_subtractReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 212 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AmmsReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_subtractReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_subtractReply(TRUE, tvb, offset, pinfo, tree, hf_h248_subtractReply);
+static int dissect_subtractReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_subtractReply(TRUE, tvb, offset, actx, tree, hf_h248_subtractReply);
 }
 
 
@@ -5211,14 +5211,14 @@ static const ber_sequence_t AuditResult_sequence[] = {
 };
 
 static int
-dissect_h248_AuditResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_AuditResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AuditResult_sequence, hf_index, ett_h248_AuditResult);
 
   return offset;
 }
-static int dissect_auditResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_AuditResult(TRUE, tvb, offset, pinfo, tree, hf_h248_auditResult);
+static int dissect_auditResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_AuditResult(TRUE, tvb, offset, actx, tree, hf_h248_auditResult);
 }
 
 
@@ -5229,14 +5229,14 @@ static const ber_sequence_t TermListAuditResult_sequence[] = {
 };
 
 static int
-dissect_h248_TermListAuditResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TermListAuditResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TermListAuditResult_sequence, hf_index, ett_h248_TermListAuditResult);
 
   return offset;
 }
-static int dissect_auditResultTermList_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TermListAuditResult(TRUE, tvb, offset, pinfo, tree, hf_h248_auditResultTermList);
+static int dissect_auditResultTermList_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TermListAuditResult(TRUE, tvb, offset, actx, tree, hf_h248_auditResultTermList);
 }
 
 
@@ -5260,8 +5260,8 @@ static const ber_choice_t AuditReply_choice[] = {
 };
 
 static int
-dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AuditReply_choice, hf_index, ett_h248_AuditReply,
                                  NULL);
 
@@ -5271,33 +5271,33 @@ dissect_h248_AuditReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_h248_T_auditCapReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_auditCapReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 227 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_auditCapReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_auditCapReply(TRUE, tvb, offset, pinfo, tree, hf_h248_auditCapReply);
+static int dissect_auditCapReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_auditCapReply(TRUE, tvb, offset, actx, tree, hf_h248_auditCapReply);
 }
 
 
 
 static int
-dissect_h248_T_auditValueReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_auditValueReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 232 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_AuditReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_auditValueReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_auditValueReply(TRUE, tvb, offset, pinfo, tree, hf_h248_auditValueReply);
+static int dissect_auditValueReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_auditValueReply(TRUE, tvb, offset, actx, tree, hf_h248_auditValueReply);
 }
 
 
@@ -5308,8 +5308,8 @@ static const ber_sequence_t NotifyReply_sequence[] = {
 };
 
 static int
-dissect_h248_NotifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_NotifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NotifyReply_sequence, hf_index, ett_h248_NotifyReply);
 
   return offset;
@@ -5318,17 +5318,17 @@ dissect_h248_NotifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_h248_T_notifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_T_notifyReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 217 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_h248_NotifyReply(implicit_tag, tvb, offset, pinfo, tree, hf_index);
+  offset = dissect_h248_NotifyReply(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_notifyReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_notifyReply(TRUE, tvb, offset, pinfo, tree, hf_h248_notifyReply);
+static int dissect_notifyReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_notifyReply(TRUE, tvb, offset, actx, tree, hf_h248_notifyReply);
 }
 
 
@@ -5342,14 +5342,14 @@ static const ber_sequence_t ServiceChangeResParm_sequence[] = {
 };
 
 static int
-dissect_h248_ServiceChangeResParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ServiceChangeResParm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceChangeResParm_sequence, hf_index, ett_h248_ServiceChangeResParm);
 
   return offset;
 }
-static int dissect_serviceChangeResParms_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeResParm(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeResParms);
+static int dissect_serviceChangeResParms_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeResParm(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeResParms);
 }
 
 
@@ -5366,15 +5366,15 @@ static const ber_choice_t ServiceChangeResult_choice[] = {
 };
 
 static int
-dissect_h248_ServiceChangeResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_ServiceChangeResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ServiceChangeResult_choice, hf_index, ett_h248_ServiceChangeResult,
                                  NULL);
 
   return offset;
 }
-static int dissect_serviceChangeResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeResult(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeResult);
+static int dissect_serviceChangeResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeResult(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeResult);
 }
 
 
@@ -5385,18 +5385,18 @@ static const ber_sequence_t ServiceChangeReply_sequence[] = {
 };
 
 static int
-dissect_h248_ServiceChangeReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_ServiceChangeReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 222 "h248.cnf"
       curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REPLY,offset,keep_persistent_data);
       H248_TAP();
 
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceChangeReply_sequence, hf_index, ett_h248_ServiceChangeReply);
 
   return offset;
 }
-static int dissect_serviceChangeReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ServiceChangeReply(TRUE, tvb, offset, pinfo, tree, hf_h248_serviceChangeReply);
+static int dissect_serviceChangeReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ServiceChangeReply(TRUE, tvb, offset, actx, tree, hf_h248_serviceChangeReply);
 }
 
 
@@ -5425,15 +5425,15 @@ static const ber_choice_t CommandReply_choice[] = {
 };
 
 static int
-dissect_h248_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CommandReply_choice, hf_index, ett_h248_CommandReply,
                                  NULL);
 
   return offset;
 }
-static int dissect_commandReply_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_CommandReply(FALSE, tvb, offset, pinfo, tree, hf_h248_commandReply_item);
+static int dissect_commandReply_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_CommandReply(FALSE, tvb, offset, actx, tree, hf_h248_commandReply_item);
 }
 
 
@@ -5442,14 +5442,14 @@ static const ber_sequence_t SEQUENCE_OF_CommandReply_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_CommandReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_CommandReply_sequence_of, hf_index, ett_h248_SEQUENCE_OF_CommandReply);
 
   return offset;
 }
-static int dissect_commandReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_CommandReply(TRUE, tvb, offset, pinfo, tree, hf_h248_commandReply);
+static int dissect_commandReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_CommandReply(TRUE, tvb, offset, actx, tree, hf_h248_commandReply);
 }
 
 
@@ -5462,8 +5462,8 @@ static const ber_sequence_t ActionReply_sequence[] = {
 };
 
 static int
-dissect_h248_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ActionReply_sequence, hf_index, ett_h248_ActionReply);
 
 #line 107 "h248.cnf"
@@ -5474,8 +5474,8 @@ dissect_h248_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_actionReplies_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_ActionReply(FALSE, tvb, offset, pinfo, tree, hf_h248_actionReplies_item);
+static int dissect_actionReplies_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_ActionReply(FALSE, tvb, offset, actx, tree, hf_h248_actionReplies_item);
 }
 
 
@@ -5484,14 +5484,14 @@ static const ber_sequence_t SEQUENCE_OF_ActionReply_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_ActionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_ActionReply_sequence_of, hf_index, ett_h248_SEQUENCE_OF_ActionReply);
 
   return offset;
 }
-static int dissect_actionReplies_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_ActionReply(TRUE, tvb, offset, pinfo, tree, hf_h248_actionReplies);
+static int dissect_actionReplies_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_ActionReply(TRUE, tvb, offset, actx, tree, hf_h248_actionReplies);
 }
 
 
@@ -5508,28 +5508,28 @@ static const ber_choice_t T_transactionResult_choice[] = {
 };
 
 static int
-dissect_h248_T_transactionResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_transactionResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_transactionResult_choice, hf_index, ett_h248_T_transactionResult,
                                  NULL);
 
   return offset;
 }
-static int dissect_transactionResult_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_transactionResult(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionResult);
+static int dissect_transactionResult_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_transactionResult(TRUE, tvb, offset, actx, tree, hf_h248_transactionResult);
 }
 
 
 
 static int
-dissect_h248_SegmentNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_h248_SegmentNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_segmentNumber_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SegmentNumber(TRUE, tvb, offset, pinfo, tree, hf_h248_segmentNumber);
+static int dissect_segmentNumber_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SegmentNumber(TRUE, tvb, offset, actx, tree, hf_h248_segmentNumber);
 }
 
 
@@ -5543,14 +5543,14 @@ static const ber_sequence_t TransactionReply_sequence[] = {
 };
 
 static int
-dissect_h248_TransactionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TransactionReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TransactionReply_sequence, hf_index, ett_h248_TransactionReply);
 
   return offset;
 }
-static int dissect_transactionReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionReply(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionReply);
+static int dissect_transactionReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionReply(TRUE, tvb, offset, actx, tree, hf_h248_transactionReply);
 }
 
 
@@ -5561,14 +5561,14 @@ static const ber_sequence_t TransactionAck_sequence[] = {
 };
 
 static int
-dissect_h248_TransactionAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TransactionAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TransactionAck_sequence, hf_index, ett_h248_TransactionAck);
 
   return offset;
 }
-static int dissect_TransactionResponseAck_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionAck(FALSE, tvb, offset, pinfo, tree, hf_h248_TransactionResponseAck_item);
+static int dissect_TransactionResponseAck_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionAck(FALSE, tvb, offset, actx, tree, hf_h248_TransactionResponseAck_item);
 }
 
 
@@ -5577,14 +5577,14 @@ static const ber_sequence_t TransactionResponseAck_sequence_of[1] = {
 };
 
 static int
-dissect_h248_TransactionResponseAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_TransactionResponseAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TransactionResponseAck_sequence_of, hf_index, ett_h248_TransactionResponseAck);
 
   return offset;
 }
-static int dissect_transactionResponseAck_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_TransactionResponseAck(TRUE, tvb, offset, pinfo, tree, hf_h248_transactionResponseAck);
+static int dissect_transactionResponseAck_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_TransactionResponseAck(TRUE, tvb, offset, actx, tree, hf_h248_transactionResponseAck);
 }
 
 
@@ -5596,14 +5596,14 @@ static const ber_sequence_t SegmentReply_sequence[] = {
 };
 
 static int
-dissect_h248_SegmentReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SegmentReply(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SegmentReply_sequence, hf_index, ett_h248_SegmentReply);
 
   return offset;
 }
-static int dissect_segmentReply_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SegmentReply(TRUE, tvb, offset, pinfo, tree, hf_h248_segmentReply);
+static int dissect_segmentReply_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SegmentReply(TRUE, tvb, offset, actx, tree, hf_h248_segmentReply);
 }
 
 
@@ -5629,15 +5629,15 @@ static const ber_choice_t Transaction_choice[] = {
 };
 
 static int
-dissect_h248_Transaction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_Transaction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Transaction_choice, hf_index, ett_h248_Transaction,
                                  NULL);
 
   return offset;
 }
-static int dissect_transactions_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Transaction(FALSE, tvb, offset, pinfo, tree, hf_h248_transactions_item);
+static int dissect_transactions_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Transaction(FALSE, tvb, offset, actx, tree, hf_h248_transactions_item);
 }
 
 
@@ -5646,14 +5646,14 @@ static const ber_sequence_t SEQUENCE_OF_Transaction_sequence_of[1] = {
 };
 
 static int
-dissect_h248_SEQUENCE_OF_Transaction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_SEQUENCE_OF_Transaction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_Transaction_sequence_of, hf_index, ett_h248_SEQUENCE_OF_Transaction);
 
   return offset;
 }
-static int dissect_transactions_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_SEQUENCE_OF_Transaction(TRUE, tvb, offset, pinfo, tree, hf_h248_transactions);
+static int dissect_transactions_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_SEQUENCE_OF_Transaction(TRUE, tvb, offset, actx, tree, hf_h248_transactions);
 }
 
 
@@ -5670,15 +5670,15 @@ static const ber_choice_t T_messageBody_choice[] = {
 };
 
 static int
-dissect_h248_T_messageBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_h248_T_messageBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_messageBody_choice, hf_index, ett_h248_T_messageBody,
                                  NULL);
 
   return offset;
 }
-static int dissect_messageBody_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_T_messageBody(TRUE, tvb, offset, pinfo, tree, hf_h248_messageBody);
+static int dissect_messageBody_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_T_messageBody(TRUE, tvb, offset, actx, tree, hf_h248_messageBody);
 }
 
 
@@ -5690,24 +5690,24 @@ static const ber_sequence_t Message_sequence[] = {
 };
 
 static int
-dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 80 "h248.cnf"
-    curr_info.msg = gcp_msg(pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
+    curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
 
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Message_sequence, hf_index, ett_h248_Message);
 
 #line 84 "h248.cnf"
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
+    if (check_col(actx->pinfo->cinfo, COL_INFO))
+        col_set_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
         
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
 
   return offset;
 }
-static int dissect_mess_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_h248_Message(TRUE, tvb, offset, pinfo, tree, hf_h248_mess);
+static int dissect_mess_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_h248_Message(TRUE, tvb, offset, actx, tree, hf_h248_mess);
 }
 
 
@@ -5718,8 +5718,8 @@ static const ber_sequence_t MegacoMessage_sequence[] = {
 };
 
 static int
-dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MegacoMessage_sequence, hf_index, ett_h248_MegacoMessage);
 
   return offset;
@@ -5728,9 +5728,9 @@ dissect_h248_MegacoMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
-                                            pinfo, tree, tvb, offset, hf_index,
+                                            actx->pinfo, tree, tvb, offset, hf_index,
                                             NULL);
 
   return offset;
@@ -5748,9 +5748,11 @@ static void
 dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *h248_item;
-
+	asn1_ctx_t asn1_ctx;
     h248_tree = NULL;
     h248_tvb = NULL;
+
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     curr_info.msg = NULL;
     curr_info.trx = NULL;
@@ -5789,7 +5791,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         h248_tree = proto_item_add_subtree(h248_item, ett_h248);
     }
 
-    dissect_h248_MegacoMessage(FALSE, tvb, 0, pinfo, h248_tree, -1);
+    dissect_h248_MegacoMessage(FALSE, tvb, 0, &asn1_ctx, h248_tree, -1);
 
 }
 
@@ -7112,7 +7114,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1304 "packet-h248-template.c"
+#line 1306 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -7274,7 +7276,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1322 "packet-h248-template.c"
+#line 1324 "packet-h248-template.c"
   };
 
   module_t *h248_module;

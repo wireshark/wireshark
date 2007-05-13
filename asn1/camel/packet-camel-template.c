@@ -43,6 +43,7 @@
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
 #include <epan/tap.h>
+#include <epan/asn1.h>
 #include "epan/expert.h"
 
 #include <stdio.h>
@@ -103,9 +104,9 @@ int hf_camelsrt_DeltaTime80=-1;
 static struct camelsrt_info_t * gp_camelsrt_info;
 
 /* Forward declarations */
-static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
-static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
-static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
+static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
+static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx);
 
 
 #include "packet-camel-hf.c"
@@ -358,7 +359,7 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 }
 
 
-static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
   gint8 bug_class;
   gboolean bug_pc, bug_ind_field;
@@ -367,196 +368,196 @@ static int dissect_invokeData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tv
 
   switch(opcode){
   case 0: /*InitialDP*/
-    offset=dissect_camel_InitialDPArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_InitialDPArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 16: /*AssistRequestInstructions*/
-    offset=dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_AssistRequestInstructionsArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 17: /*EstablishTemporaryConnection*/
-    offset=dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_EstablishTemporaryConnectionArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 18: /*DisconnectForwardConnections*/
     proto_tree_add_text(tree, tvb, offset, -1, "Disconnect Forward Connection");
     break;
   case 19: /*ConnectToResource*/
-    offset=dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ConnectToResourceArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 20: /*Connect*/
-    offset=dissect_camel_ConnectArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ConnectArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 22: /*releaseCall*/
-    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, pinfo, tree, hf_camel_cause);
+    offset=dissect_camel_ReleaseCallArg(FALSE, tvb, offset, actx, tree, hf_camel_cause);
     break;
   case 23: /*RequestReportBCSMEvent*/
-    offset=dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_RequestReportBCSMEventArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 24: /*EventReportBCSM*/
-    offset=dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_EventReportBCSMArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 27: /*CollectInformation*/
-    offset=dissect_camel_CollectInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CollectInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 31: /*Continue*/
     /* Continue: no arguments - do nothing */
     break;
   case 32: /*initiateCallAttempt*/
-    offset=dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_InitiateCallAttemptArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 33: /*ResetTimer*/
-    offset=dissect_camel_ResetTimerArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ResetTimerArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 34: /*FurnishChargingInformation*/
-    /* offset=dissect_camel_FurnishChargingInformationArg(TRUE, tvb, offset, pinfo, tree, -1); */
+    /* offset=dissect_camel_FurnishChargingInformationArg(TRUE, tvb, offset, tree, -1); */
     offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
     offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_camel_CAMEL_FCIBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CAMEL_FCIBillingChargingCharacteristics(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 35: /*ApplyCharging*/
-    offset=dissect_camel_ApplyChargingArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ApplyChargingArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 36: /*ApplyChargingReport*/
-    /* offset=dissect_camel_ApplyChargingReportArg(TRUE, tvb, offset, pinfo, tree, -1); */
+    /* offset=dissect_camel_ApplyChargingReportArg(TRUE, tvb, offset, tree, -1); */
     offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
     offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_camel_CAMEL_CallResult(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CAMEL_CallResult(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 41: /*CallGap*/
-    offset=dissect_camel_CallGapArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CallGapArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 44: /*CallInformationReport*/
-    offset=dissect_camel_CallInformationReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CallInformationReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 45: /*CallInformationRequest*/
-    offset=dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CallInformationRequestArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 46: /*SendChargingInformation*/
-    offset=dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_SendChargingInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 47: /*PlayAnnouncement*/
-    offset=dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_PlayAnnouncementArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_PromptAndCollectUserInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 49: /*SpecializedResourceReport*/
-    offset=dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_SpecializedResourceReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 53: /*Cancel*/
-    offset=dissect_camel_CancelArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CancelArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 56: /*ContinueWithArgument*/
-    offset=dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 60: /*InitialDPSMS*/
-    offset=dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_InitialDPSMSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 61: /*FurnishChargingInformationSMS*/
-    /* offset=dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, pinfo, tree, -1); */
+    /* offset=dissect_camel_FurnishChargingInformationSMSArg(FALSE, tvb, offset, tree, -1); */
     offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
     offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 62: /*ConnectSMS*/
-    offset=dissect_camel_ConnectSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ConnectSMSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 63: /*RequestReportSMSEvent*/
-    offset=dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_RequestReportSMSEventArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 64: /*EventReportSMS*/
-    offset=dissect_camel_EventReportSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_EventReportSMSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 65: /*ContinueSMS*/
     /* ContinueSMS: no arguments - do nothing */
     break;
   case 66: /*ReleaseSMS*/
-    offset=dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, pinfo, tree, hf_camel_RP_Cause);
+    offset=dissect_camel_ReleaseSMSArg(FALSE, tvb, offset, actx, tree, hf_camel_RP_Cause);
     break;
   case 67: /*ResetTimerSMS*/
-    offset=dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ResetTimerSMSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 71: /*ApplyChargingGPRS*/
-    offset=dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ApplyChargingGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 72: /*ApplyChargingReportGPRS*/
-    offset=dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ApplyChargingReportGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 73: /*CancelGPRS*/
-    offset=dissect_camel_CancelGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CancelGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 74: /*ConnectGPRS*/
-    offset=dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ConnectGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 75: /*ContinueGPRS*/
-    offset=dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ContinueGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 76: /*EntityReleasedGPRS*/
-    offset=dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_EntityReleasedGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 77: /*FurnishChargingInformationGPRS*/
-    /* offset=dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1); */
+    /* offset=dissect_camel_FurnishChargingInformationGPRSArg(FALSE, tvb, offset, tree, -1); */
     offset = get_ber_identifier(tvb, offset, &bug_class, &bug_pc, &bug_tag);
     offset = get_ber_length(tree, tvb, offset, &bug_len1, &bug_ind_field);
-    offset=dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 78: /*InitialDPGPRS*/
-    offset=dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_InitialDPGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 79: /*ReleaseGPRS*/
-    offset=dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ReleaseGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 80: /*EventReportGPRS*/
-    offset=dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_EventReportGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 81: /*RequestReportGPRSEvent*/
-    offset=dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_RequestReportGPRSEventArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 82: /*ResetTimerGPRS*/
-    offset=dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ResetTimerGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 83: /*SendChargingInformationGPRS*/
-    offset=dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_SendChargingInformationGPRSArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 86: /*DFCWithArgument*/
-    offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_DisconnectForwardConnectionWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 88: /*ContinueWithArgument*/
 	  /* XXX Same as opcode 56 ??? */
-    offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_ContinueWithArgumentArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 90: /*DisconnectLeg*/
-    offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_DisconnectLegArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 93: /*MoveLeg*/
-    offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_MoveLegArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 95: /*SplitLeg*/
-    offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_SplitLegArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 96: /*EntityReleased*/
-    offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_EntityReleasedArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 97: /*PlayTone*/
-    offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset= dissect_camel_PlayToneArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
     /* todo call the asn.1 dissector */
   }
   return offset;
 }
 
 
-static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(opcode){
   case 32: /*initiateCallAttempt*/
-    offset=dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_InitiateCallAttemptRes(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 48: /*PromptAndCollectUserInformation*/
-    offset=dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_ReceivedInformationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 55: /*ActivityTest*/
     /* ActivityTest: no arguments - do nothing */
@@ -567,31 +568,31 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnResultData %d",opcode);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnResultData %d",opcode);
   }
   return offset;
 }
 
-static int dissect_returnErrorData(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,asn1_ctx_t *actx) {
   proto_item *cause;
 
   switch(errorCode) {
   case 1: /*CancelFailed*/
-    offset=dissect_camel_CancelFailedPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_CancelFailedPARAM(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 10: /*RequestedInfoError*/
-    offset=dissect_camel_RequestedInfoErrorPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+    offset=dissect_camel_RequestedInfoErrorPARAM(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 11: /*SystemFailure*/
-   offset=dissect_camel_SystemFailurePARAM(TRUE, tvb, offset, pinfo, tree, -1);
+   offset=dissect_camel_SystemFailurePARAM(TRUE, tvb, offset, actx, tree, -1);
     break;
   case 12: /*TaskRefused*/
-   offset=dissect_camel_TaskRefusedPARAM(TRUE, tvb, offset, pinfo, tree, -1);
+   offset=dissect_camel_TaskRefusedPARAM(TRUE, tvb, offset, actx, tree, -1);
     break;
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
     proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnErrorData %d",errorCode);
+    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown returnErrorData %d",errorCode);
   }
   return offset;
 }
@@ -604,6 +605,9 @@ static void dissect_camelext_CAPGPRSReferenceNumber(tvbuff_t *tvb, packet_info *
   proto_tree    *tree=NULL;
   proto_item    *camel_item=NULL;
   proto_tree    *camel_tree=NULL;
+  asn1_ctx_t	asn1_ctx;
+
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
@@ -620,19 +624,19 @@ static void dissect_camelext_CAPGPRSReferenceNumber(tvbuff_t *tvb, packet_info *
     item = proto_tree_add_text(camel_tree, tvb, 0, -1, "GPRS Reference Number");
     tree = proto_item_add_subtree(item, ett_camel_CAPGPRSReferenceNumber);
   }
-  dissect_camel_CAPGPRSReferenceNumber(FALSE, tvb, 0, pinfo, tree, -1);
+  dissect_camel_CAPGPRSReferenceNumber(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
 static int
-dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_,proto_tree *tree, int hf_index) {
 
   char *version_ptr;
   struct tcap_private_t * p_private_tcap;
 
   opcode = 0;
   application_context_version = 0;
-  if (pinfo->private_data != NULL){
-    p_private_tcap=pinfo->private_data; 
+  if (actx->pinfo->private_data != NULL){
+    p_private_tcap=actx->pinfo->private_data; 
     
     if (p_private_tcap->acv==TRUE ){
       version_ptr = strrchr(p_private_tcap->oid,'.');
@@ -642,6 +646,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
     gp_camelsrt_info->tcap_context=p_private_tcap->context; 
     if (p_private_tcap->context)
       gp_camelsrt_info->tcap_session_id
+
 	= ( (struct tcaphash_context_t *) (p_private_tcap->context))->session_id;
   }
 
@@ -649,13 +654,13 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
   /* Get the length and add 2 */
   camel_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
-  if (check_col(pinfo->cinfo, COL_INFO)){
+  if (check_col(actx->pinfo->cinfo, COL_INFO)){
     /* Populate the info column with PDU type*/
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " ");
+    col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(camel_pdu_type, camel_Component_vals, "Unknown Camel (%u)"));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   }
 
-  offset = dissect_camel_Component(FALSE, tvb, 0, pinfo, tree, hf_index);
+  offset = dissect_camel_Component(FALSE, tvb, 0, actx, tree, hf_index);
 
   return offset;
 }
@@ -667,6 +672,8 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree    *tree=NULL;
   proto_item  *stat_item=NULL;
   proto_tree  *stat_tree=NULL;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Camel");
@@ -680,7 +687,7 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   /* camelsrt reset counter, and initialise global pointer
      to store service response time related data */
   gp_camelsrt_info=camelsrt_razinfo();
-  dissect_camel_camelPDU(FALSE, tvb, 0, pinfo, tree, -1);
+  dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1);
   
   /* If a Tcap context is associated to this transaction */
   if (gcamel_HandleSRT &&

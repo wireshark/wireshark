@@ -77,12 +77,12 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 
 #.FN_HDR Message
-    curr_info.msg = gcp_msg(pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
+    curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
 #.END
 
 #.FN_FTR Message
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
+    if (check_col(actx->pinfo->cinfo, COL_INFO))
+        col_set_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
         
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, h248_tvb, curr_info.msg, &h248_arrel);
@@ -90,14 +90,14 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_BODY TransactionRequest/transactionId
     guint32 trx_id = 0;
-	offset = dissect_h248_trx_id(implicit_tag, pinfo, tree, tvb, offset, &trx_id);
+	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
     curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REQUEST, keep_persistent_data);
     error_code = 0;
 #.END
 
 #.FN_BODY ActionRequest/contextId
     guint32 ctx_id = 0;
-	offset = dissect_h248_ctx_id(implicit_tag, pinfo, tree, tvb, offset, &ctx_id);
+	offset = dissect_h248_ctx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &ctx_id);
     curr_info.ctx = gcp_ctx(curr_info.msg,curr_info.trx,ctx_id,keep_persistent_data);
     curr_info.cmd = NULL;
     curr_info.term = NULL;
@@ -234,8 +234,8 @@ IndAudStatisticsDescriptor/statName		iAStatName
 #.END
 
 #.FN_BODY ErrorDescriptor/errorCode
-    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_h248_error_code, &error_code);
-    expert_add_info_format(pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_h248_error_code, &error_code);
+    expert_add_info_format(actx->pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
     
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
@@ -253,7 +253,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_BODY WildcardField
     tvbuff_t* new_tvb;
-    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+    offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
     tree = proto_item_add_subtree(get_ber_last_created_item(),ett_wildcard);
     proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
     proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
@@ -265,7 +265,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 
 #.FN_BODY TerminationID/id
 	tvbuff_t* new_tvb;
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, &new_tvb);
+	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &new_tvb);
 	
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
@@ -279,7 +279,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
 		if (h248_term_handle) {
-			call_dissector(h248_term_handle, new_tvb, pinfo, tree);
+			call_dissector(h248_term_handle, new_tvb, actx->pinfo, tree);
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -297,7 +297,7 @@ IndAudStatisticsDescriptor/statName		iAStatName
  if (!parameter_tvb)
 	return offset;
 
- dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, pinfo, tree, hf_h248_serviceChangeReasonStr);
+ dissect_h248_ServiceChangeReasonStr(FALSE, parameter_tvb, 0, actx, tree, hf_h248_serviceChangeReasonStr);
 
 #.TYPE_ATTR
 IP4Address/address  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL

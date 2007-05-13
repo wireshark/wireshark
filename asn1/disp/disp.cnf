@@ -40,8 +40,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_T_standard_vals, "standard(%%d"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_T_standard_vals, "standard(%%d"));
   }
 
 #.FN_PARS RefreshInformation
@@ -52,8 +52,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RefreshInformation_vals, "unknown(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RefreshInformation_vals, "unknown(%%d)"));
   }
 
 #.FN_PARS StandardUpdate
@@ -64,8 +64,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_StandardUpdate_vals, "unknown(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_StandardUpdate_vals, "unknown(%%d)"));
   }
 
 #.FN_PARS CoordinateShadowUpdateResult
@@ -76,8 +76,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_CoordinateShadowUpdateResult_vals, "unknown(%%d)"));
   }
 
 #.FN_PARS RequestShadowUpdateResult
@@ -88,8 +88,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_RequestShadowUpdateResult_vals, "unknown(%%d)"));
   }
 
 #.FN_PARS UpdateShadowResult
@@ -100,8 +100,8 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(update, disp_UpdateShadowResult_vals, "unknown(%%d)"));
   }
 
 #.FN_PARS ShadowProblem
@@ -112,6 +112,6 @@ ModificationParameter 	B "dop.modify.roleb.2.5.19.1" 	"shadow-modify-roleb"
 
   %(DEFAULT_BODY)s
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_append_fstr(pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, disp_ShadowProblem_vals, "ShadowProblem(%%d)"));
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(problem, disp_ShadowProblem_vals, "ShadowProblem(%%d)"));
   }

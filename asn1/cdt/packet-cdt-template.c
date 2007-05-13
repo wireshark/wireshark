@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/oid_resolv.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
 
 #include "packet-ber.h"
 #include "packet-x411.h"

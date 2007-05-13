@@ -30,12 +30,13 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-pkcs1.h"
 #include "packet-ber.h"
+#include "packet-pkcs1.h"
 #include "packet-x509af.h"
 
 #define PNAME  "PKCS#1"

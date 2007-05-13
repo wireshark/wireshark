@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -90,45 +91,6 @@ static const char *objectclass_identifier_id;
 #include "packet-cmip-fn.c"
 
 
-static void
-dissect_cmip_attribute_35(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_OperationalState(FALSE, tvb, 0, pinfo, parent_tree, hf_OperationalState);
-
-}
-
-static void
-dissect_cmip_attribute_55(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_Destination(FALSE, tvb, 0, pinfo, parent_tree,hf_Destination);
-
-}
-
-static void
-dissect_cmip_attribute_56(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_DiscriminatorConstruct(FALSE, tvb, 0, pinfo, parent_tree, hf_DiscriminatorConstruct);
-
-}
-
-static void
-dissect_cmip_attribute_63(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_NameBinding(FALSE, tvb, 0, pinfo, parent_tree, hf_NameBinding);
-
-}
-
-static void
-dissect_cmip_attribute_65(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-
-	dissect_cmip_ObjectClass(FALSE, tvb, 0, pinfo, parent_tree, hf_ObjectClass);
-
-}
 
 
 /* XXX this one should be broken out later and moved into the conformance file */
@@ -138,6 +100,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	static struct SESSION_DATA_STRUCTURE* session = NULL;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 
 	/* do we have spdu type from the session dissector?  */
@@ -173,13 +137,13 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		case SES_DISCONNECT:
 		case SES_FINISH:
 		case SES_REFUSE:
-			dissect_cmip_CMIPUserInfo(FALSE,tvb,0,pinfo,tree,-1);
+			dissect_cmip_CMIPUserInfo(FALSE,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		case SES_ABORT:
-			dissect_cmip_CMIPAbortInfo(FALSE,tvb,0,pinfo,tree,-1);
+			dissect_cmip_CMIPAbortInfo(FALSE,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		case SES_DATA_TRANSFER:
-			dissect_cmip_ROS(FALSE,tvb,0,pinfo,tree,-1);
+			dissect_cmip_ROS(FALSE,tvb,0,&asn1_ctx,tree,-1);
 			break;
 		default:
 			;
@@ -251,14 +215,10 @@ void proto_register_cmip(void) {
 void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
 	register_ber_oid_dissector("2.9.1.1.4", dissect_cmip, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
-	register_ber_oid_dissector("2.9.3.2.7.35", dissect_cmip_attribute_35, proto_cmip, "smi2AttributeID (7) operationalState(35)");
-	register_ber_oid_dissector("2.9.3.2.7.55", dissect_cmip_attribute_55, proto_cmip, "smi2AttributeID (7) destination(55)");
-	register_ber_oid_dissector("2.9.3.2.7.56", dissect_cmip_attribute_56, proto_cmip, "smi2AttributeID (7) discriminatorConstruct(56)");
-	register_ber_oid_dissector("2.9.3.2.7.63", dissect_cmip_attribute_63, proto_cmip, "smi2AttributeID (7) nameBinding(63)");
-	register_ber_oid_dissector("2.9.3.2.7.65", dissect_cmip_attribute_65, proto_cmip, "smi2AttributeID (7) objectClass(65)");
 
 	add_oid_str_name("2.9.3.2.3.4","eventForwardingDiscriminator(4)");
 	add_oid_str_name("2.9.1.1.4","joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
+#include "packet-cmip-dis-tab.c"
 }
 

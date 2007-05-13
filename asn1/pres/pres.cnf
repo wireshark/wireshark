@@ -36,10 +36,10 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
  tvbuff_t	*next_tvb;
  char *oid; 
 
-	oid=find_oid_by_pres_ctx_id(pinfo, presentation_context_identifier);
+	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
 		%(DEFAULT_BODY)s	
@@ -49,10 +49,10 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
  tvbuff_t	*next_tvb;
  char *oid; 
 
-	oid=find_oid_by_pres_ctx_id(pinfo, presentation_context_identifier);
+	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_ber_oid_callback(oid, next_tvb, offset, pinfo, global_tree);
+		call_ber_oid_callback(oid, next_tvb, offset, actx->pinfo, global_tree);
 	} else {
 		proto_tree_add_text(tree, tvb, offset, -1,"dissector is not available");
 		%(DEFAULT_BODY)s	
@@ -76,5 +76,5 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 	abstract_syntax_name_oid=NULL;
 #.END
 #.FN_FTR Context-list/_item
-	register_ctx_id_and_oid(pinfo, presentation_context_identifier, abstract_syntax_name_oid);
+	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 #.END

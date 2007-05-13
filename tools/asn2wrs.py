@@ -1020,7 +1020,7 @@ class EthCtx:
       out += "static "
     out += "int "
     if (self.Ber()):
-      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
       out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
     out += ";\n"
@@ -1050,7 +1050,7 @@ class EthCtx:
       out += "static "
     out += "int\n"
     if (self.Ber()):
-      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
+      out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     elif (self.Per()):
       out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
     if self.conform.get_fn_presence(tname):
@@ -1229,8 +1229,8 @@ class EthCtx:
         if (self.Ber()):
           if (i): postfix = '_impl'; impl = 'TRUE'
           else:   postfix = '';      impl = 'FALSE'
-          out += 'static int dissect_'+f+postfix+'(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {\n'
-          par=((impl, 'tvb', 'offset', 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+          out += 'static int dissect_'+f+postfix+'(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {\n'
+          par=((impl, 'tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
         else:
           out += 'static int dissect_'+f+'(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {\n'
           par=(('tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
@@ -1264,7 +1264,9 @@ class EthCtx:
         out += "  asn1_ctx_t asn1_ctx;\n"
         out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_PER', aligned, 'pinfo'),))
       if (self.Ber()):
-        par=((impl, 'tvb', off_par, 'pinfo', 'tree', self.eth_hf[f]['fullname']),)
+        out += "  asn1_ctx_t asn1_ctx;\n"
+        out += self.eth_fn_call('asn1_ctx_init', par=(('&asn1_ctx', 'ASN1_ENC_BER', 'TRUE', 'pinfo'),))
+        par=((impl, 'tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
       elif (self.Per()):
         par=(('tvb', off_par, '&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
       else:
@@ -2738,7 +2740,7 @@ class Type_Ref (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(PINFO)s', '%(TREE)s', '%(HF_INDEX)s'),))
+                              par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
@@ -2784,7 +2786,7 @@ class TaggedType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_tagged_type', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(HF_INDEX)s', '%(TAG_CLS)s', '%(TAG_TAG)s', '%(TAG_IMPL)s', '%(TYPE_REF_FN)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
@@ -2913,7 +2915,7 @@ class SequenceOfType (SeqOfType):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
@@ -2965,7 +2967,7 @@ class SetOfType (SeqOfType):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
@@ -3056,7 +3058,7 @@ class SequenceType (SeqType):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
@@ -3089,7 +3091,7 @@ class SetType(SeqType):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
@@ -3293,7 +3295,7 @@ class ChoiceType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
-                              par=(('%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
@@ -3412,7 +3414,7 @@ class EnumeratedType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_enumerated', ret='offset',
@@ -3438,7 +3440,7 @@ class ExternalType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):  
       body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_external_type', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
@@ -3529,7 +3531,7 @@ class NullType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_null', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
@@ -3554,7 +3556,7 @@ class RealType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_real', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_real', ret='offset',
@@ -3580,7 +3582,7 @@ class BooleanType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
@@ -3615,7 +3617,7 @@ class OctetStringType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_octet_string', ret='offset',
@@ -3671,7 +3673,7 @@ class RestrictedCharacterStringType (CharacterStringType):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_restricted_string', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(STRING_TAG)s'),
-                                   ('%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                                   ('%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per() and self.HasPermAlph()):
       body = ectx.eth_fn_call('dissect_%(ER)s_restricted_character_string', ret='offset',
@@ -3768,7 +3770,7 @@ class GeneralizedTime (RestrictedCharacterStringType):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),))
       return body
     else:
       return RestrictedCharacterStringType.eth_type_default_body(self, ectx, tname)
@@ -3808,7 +3810,7 @@ class ObjectIdentifierType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
     elif (ectx.Per()):
       body = ectx.eth_fn_call('dissect_%(ER)s_object_identifier%(FN_VARIANT)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
@@ -3941,7 +3943,7 @@ class IntegerType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
@@ -4007,7 +4009,7 @@ class BitStringType (Type):
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
       body = ectx.eth_fn_call('dissect_%(ER)s_bitstring', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
+                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per()):

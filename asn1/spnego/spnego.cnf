@@ -78,7 +78,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    */
   token_tvb = tvb_new_subset(tvb, offset, -1, -1);
   if (next_level_value && next_level_value->wrap_handle) {
-    len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo,
+    len = call_dissector(next_level_value->wrap_handle, token_tvb, actx->pinfo,
                          subtree);
     if (len == 0)
       offset = tvb_length(tvb);
@@ -100,15 +100,15 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    * does not provide a supportedMech.
    */
   if(saw_mechanism){
-    conversation = find_conversation(pinfo->fd->num, 
-                                        &pinfo->src, &pinfo->dst,
-					pinfo->ptype, 
-					pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation(actx->pinfo->fd->num, 
+                                        &actx->pinfo->src, &actx->pinfo->dst,
+					actx->pinfo->ptype, 
+					actx->pinfo->srcport, actx->pinfo->destport, 0);
     if(!conversation){
-      conversation = conversation_new(pinfo->fd->num, 
-                                        &pinfo->src, &pinfo->dst,
-    	                                pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
+      conversation = conversation_new(actx->pinfo->fd->num, 
+                                        &actx->pinfo->src, &actx->pinfo->dst,
+    	                                actx->pinfo->ptype,
+                                        actx->pinfo->srcport, actx->pinfo->destport, 0);
     }
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
@@ -128,7 +128,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    * the token and we have information on how to dissect its contents.
    */
   if (mechToken_tvb && next_level_value)
-     call_dissector(next_level_value->handle, mechToken_tvb, pinfo, tree);
+     call_dissector(next_level_value->handle, mechToken_tvb, actx->pinfo, tree);
 
 
 #.FN_BODY NegTokenInit/mechListMIC
@@ -150,7 +150,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
     /*
      * It's a sequence.
      */
-    return dissect_spnego_PrincipalSeq(FALSE, tvb, offset, pinfo, tree,
+    return dissect_spnego_PrincipalSeq(FALSE, tvb, offset, actx, tree,
                                        hf_spnego_mechListMIC);
   } else {
     /*
@@ -158,14 +158,14 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
      * which is what it's supposed to be; that'll cause the
      * right error report if it's not an octet string, either.
      */
-    offset = dissect_ber_octet_string(FALSE, pinfo, tree, tvb, offset,
+    offset = dissect_ber_octet_string(FALSE, actx->pinfo, tree, tvb, offset,
                                       hf_spnego_mechListMIC, &mechListMIC_tvb);
 
     /*
      * Now, we should be able to dispatch with that tvbuff.
      */
     if (mechListMIC_tvb && next_level_value)
-      call_dissector(next_level_value->handle, mechListMIC_tvb, pinfo, tree);
+      call_dissector(next_level_value->handle, mechListMIC_tvb, actx->pinfo, tree);
     return offset;
   }
 
@@ -183,15 +183,15 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
    * negTokenInit.
    */
   if(saw_mechanism){
-    conversation = find_conversation(pinfo->fd->num, 
-                                        &pinfo->src, &pinfo->dst,
-					pinfo->ptype, 
-					pinfo->srcport, pinfo->destport, 0);
+    conversation = find_conversation(actx->pinfo->fd->num, 
+                                        &actx->pinfo->src, &actx->pinfo->dst,
+					actx->pinfo->ptype, 
+					actx->pinfo->srcport, actx->pinfo->destport, 0);
     if(!conversation){
-      conversation = conversation_new(pinfo->fd->num, 
-                                        &pinfo->src, &pinfo->dst,
-    	                                pinfo->ptype,
-                                        pinfo->srcport, pinfo->destport, 0);
+      conversation = conversation_new(actx->pinfo->fd->num, 
+                                        &actx->pinfo->src, &actx->pinfo->dst,
+    	                                actx->pinfo->ptype,
+                                        actx->pinfo->srcport, actx->pinfo->destport, 0);
     }
     conversation_add_proto_data(conversation, proto_spnego, next_level_value);
   }
@@ -219,7 +219,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
     gssapi_oid_value *value=next_level_value;
 
     if(value){
-      call_dissector(value->handle, responseToken_tvb, pinfo, tree);
+      call_dissector(value->handle, responseToken_tvb, actx->pinfo, tree);
     }
   }
 
@@ -244,7 +244,7 @@ NegTokenInit/mechListMIC negTokenInit_mechListMIC
     gssapi_oid_value *value=next_level_value;
 
     if(value){
-      call_dissector(value->handle, mechListMIC_tvb, pinfo, tree);
+      call_dissector(value->handle, mechListMIC_tvb, actx->pinfo, tree);
     }
   }
 

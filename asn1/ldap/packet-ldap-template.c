@@ -275,7 +275,7 @@ static char *ldapvalue_string=NULL;
  * display it as a string, othervise just display it in hex.
  */
 static int
-dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index)
+dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
 {
 	gint8 class;
 	gboolean pc, ind, is_ascii;
@@ -319,7 +319,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, pa
 		e_uuid_t uuid;
 
 		/* This octet string contained a GUID */
-		dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_ldap_guid, &uuid);
+		dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
 		ldapvalue_string=ep_alloc(1024);
 		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",

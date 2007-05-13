@@ -39,6 +39,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +63,7 @@ static int hf_wlancertextn_SSIDList_PDU = -1;     /* SSIDList */
 static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 
 /*--- End of included file: packet-wlancertextn-hf.c ---*/
-#line 51 "packet-wlancertextn-template.c"
+#line 52 "packet-wlancertextn-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -71,7 +72,7 @@ static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
 static gint ett_wlancertextn_SSIDList = -1;
 
 /*--- End of included file: packet-wlancertextn-ett.c ---*/
-#line 54 "packet-wlancertextn-template.c"
+#line 55 "packet-wlancertextn-template.c"
 
 
 /*--- Included file: packet-wlancertextn-fn.c ---*/
@@ -82,14 +83,14 @@ static gint ett_wlancertextn_SSIDList = -1;
 
 
 static int
-dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+dissect_wlancertextn_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        NULL);
 
   return offset;
 }
-static int dissect_SSIDList_item(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_wlancertextn_SSID(FALSE, tvb, offset, pinfo, tree, hf_wlancertextn_SSIDList_item);
+static int dissect_SSIDList_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_wlancertextn_SSID(FALSE, tvb, offset, actx, tree, hf_wlancertextn_SSIDList_item);
 }
 
 
@@ -98,8 +99,8 @@ static const ber_sequence_t SSIDList_sequence_of[1] = {
 };
 
 static int
-dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, pinfo, tree, tvb, offset,
+dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SSIDList_sequence_of, hf_index, ett_wlancertextn_SSIDList);
 
   return offset;
@@ -108,12 +109,14 @@ dissect_wlancertextn_SSIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 /*--- PDUs ---*/
 
 static void dissect_SSIDList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_wlancertextn_SSIDList(FALSE, tvb, 0, pinfo, tree, hf_wlancertextn_SSIDList_PDU);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_wlancertextn_SSIDList(FALSE, tvb, 0, &asn1_ctx, tree, hf_wlancertextn_SSIDList_PDU);
 }
 
 
 /*--- End of included file: packet-wlancertextn-fn.c ---*/
-#line 56 "packet-wlancertextn-template.c"
+#line 57 "packet-wlancertextn-template.c"
 
 
 /*--- proto_register_wlancertextn ----------------------------------------------*/
@@ -134,7 +137,7 @@ void proto_register_wlancertextn(void) {
         "wlancertextn.SSID", HFILL }},
 
 /*--- End of included file: packet-wlancertextn-hfarr.c ---*/
-#line 64 "packet-wlancertextn-template.c"
+#line 65 "packet-wlancertextn-template.c"
   };
 
   /* List of subtrees */
@@ -145,7 +148,7 @@ void proto_register_wlancertextn(void) {
     &ett_wlancertextn_SSIDList,
 
 /*--- End of included file: packet-wlancertextn-ettarr.c ---*/
-#line 69 "packet-wlancertextn-template.c"
+#line 70 "packet-wlancertextn-template.c"
   };
 
   /* Register protocol */
@@ -168,7 +171,7 @@ void proto_reg_handoff_wlancertextn(void) {
 
 
 /*--- End of included file: packet-wlancertextn-dis-tab.c ---*/
-#line 84 "packet-wlancertextn-template.c"
+#line 85 "packet-wlancertextn-template.c"
   add_oid_str_name("1.3.6.1.5.5.7.3.13","id-kp-eapOverPPP");
   add_oid_str_name("1.3.6.1.5.5.7.3.14","id-kp-eapOverLAN");
 }

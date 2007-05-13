@@ -29,13 +29,13 @@ DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
 #.FIELD_RENAME
 
 #.FN_BODY DirectoryString
-	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+	offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, NULL);
 
 #.FN_PARS AttributeTypeAndValue/value
   FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id  VAL_PTR = &object_identifier_id
 
 #.FN_BODY AttributeTypeAndValue/value
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_PARS Extension/extnId
   FN_VARIANT = _str  HF_INDEX = hf_pkix1explicit_object_identifier_id  VAL_PTR = &object_identifier_id
@@ -46,9 +46,9 @@ DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
   gint32 tag;
   guint32 len;
   /* skip past the T and L  */
-  offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
-  offset = dissect_ber_length(pinfo, tree, tvb, offset, &len, &ind);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, pinfo, tree);
+  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
 #.END

@@ -38,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-x509af.h>
 
 
@@ -55,6 +56,8 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
         proto_tree *subtree = NULL;
         proto_item *ti;
+		asn1_ctx_t asn1_ctx;
+		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
         
         if (check_col(pinfo->cinfo, COL_INFO))
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(application/pkix-cert)");
@@ -64,7 +67,7 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                 subtree = proto_item_add_subtree(ti, ett_cert);
         }
 
-        dissect_x509af_Certificate(FALSE, tvb, 0, pinfo, subtree, hf_cert);
+        dissect_x509af_Certificate(FALSE, tvb, 0, &asn1_ctx, subtree, hf_cert);
         return;
 }
 

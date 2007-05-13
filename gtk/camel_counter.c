@@ -50,6 +50,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/gui_stat_util.h"
 #include "gtk/compat_macros.h"
+#include "epan/asn1.h"
 #include "epan/camel-persistentdata.h"
 
 static void gtk_camelcounter_reset(void *phs);

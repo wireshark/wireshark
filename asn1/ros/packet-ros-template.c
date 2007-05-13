@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -269,6 +270,8 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	conversation_t *conversation;
 	ros_conv_info_t *ros_info = NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
@@ -330,7 +333,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
-		offset=dissect_ros_ROS(FALSE, tvb, offset, pinfo , tree, -1);
+		offset=dissect_ros_ROS(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
 			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte ROS PDU");
 			offset = tvb_length(tvb);

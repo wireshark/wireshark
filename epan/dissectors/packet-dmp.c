@@ -48,6 +48,7 @@
 #include <string.h>
 #include <math.h>
 
+#include <epan/asn1.h>
 #include "packet-x411.h"
 #include "packet-x420.h"
 
@@ -1336,6 +1337,8 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo _U_,
 	gint        type, length;
 	guint8      value;
 	gint        boffset = offset;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	value = tvb_get_guint8 (tvb, offset);
 	type = (value & 0xE0) >> 5;
@@ -1387,7 +1390,7 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo _U_,
 	}
 
 	if (type == ASN1_BER) {
-		dissect_x411_ORName (FALSE, tvb, offset, pinfo, ext_tree,
+		dissect_x411_ORName (FALSE, tvb, offset, &asn1_ctx, ext_tree,
 				     hf_addr_ext_asn1_ber);
 	} else if (type == ASN1_PER) {
 		proto_tree_add_item (ext_tree, hf_addr_ext_asn1_per, tvb, offset,

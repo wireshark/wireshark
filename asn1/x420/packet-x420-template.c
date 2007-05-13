@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/oid_resolv.h>
+#include <epan/asn1.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -100,6 +101,8 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
 		item = proto_tree_add_item(parent_tree, proto_x420, tvb, 0, -1, FALSE);
@@ -111,7 +114,7 @@ dissect_x420(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
-	dissect_x420_InformationObject(TRUE, tvb, offset, pinfo , tree, -1);
+	dissect_x420_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }
 
 

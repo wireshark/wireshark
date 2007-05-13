@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/oid_resolv.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
 
 #include "packet-ber.h"
 #include "packet-x411.h"
@@ -71,7 +72,7 @@ static int hf_cdt_contentType_OID = -1;           /* OBJECT_IDENTIFIER */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-#line 53 "packet-cdt-template.c"
+#line 54 "packet-cdt-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -83,7 +84,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 56 "packet-cdt-template.c"
+#line 57 "packet-cdt-template.c"
 
 
 /*--- Included file: packet-cdt-fn.c ---*/
@@ -99,19 +100,19 @@ static const value_string cdt_AlgorithmID_ShortForm_vals[] = {
 
 
 static int
-dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 16 "cdt.cnf"
   guint32 value;
 
-    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   &value);
 
   proto_item_append_text (cdt_item, ", %s",
                           val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
                                       "unknown"));
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, "%s ", 
+  if (check_col (actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", 
                      val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
                                  "unknown"));
 
@@ -119,18 +120,18 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_algorithmID_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_AlgorithmID_ShortForm(TRUE, tvb, offset, pinfo, tree, hf_cdt_algorithmID_ShortForm);
+static int dissect_algorithmID_ShortForm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_AlgorithmID_ShortForm(TRUE, tvb, offset, actx, tree, hf_cdt_algorithmID_ShortForm);
 }
 
 
 
 static int
-dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 48 "cdt.cnf"
   const char *obj_id = NULL;
 
-    offset = dissect_ber_object_identifier_str(implicit_tag, pinfo, tree, tvb, offset, hf_index, &obj_id);
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index, &obj_id);
 
   if (obj_id) {
     const char *name = get_oid_str_name (obj_id);
@@ -141,19 +142,19 @@ dissect_cdt_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
     proto_item_append_text (cdt_item, ", %s", name);
 
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, "%s ", name);
+    if (check_col (actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", name);
   }
 
 
 
   return offset;
 }
-static int dissect_algorithmID_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_cdt_algorithmID_OID);
+static int dissect_algorithmID_OID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_cdt_algorithmID_OID);
 }
-static int dissect_contentType_OID_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, pinfo, tree, hf_cdt_contentType_OID);
+static int dissect_contentType_OID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_cdt_contentType_OID);
 }
 
 
@@ -170,15 +171,15 @@ static const ber_choice_t CompressionAlgorithmIdentifier_choice[] = {
 };
 
 static int
-dissect_cdt_CompressionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_cdt_CompressionAlgorithmIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CompressionAlgorithmIdentifier_choice, hf_index, ett_cdt_CompressionAlgorithmIdentifier,
                                  NULL);
 
   return offset;
 }
-static int dissect_compressionAlgorithm(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_CompressionAlgorithmIdentifier(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressionAlgorithm);
+static int dissect_compressionAlgorithm(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_CompressionAlgorithmIdentifier(FALSE, tvb, offset, actx, tree, hf_cdt_compressionAlgorithm);
 }
 
 
@@ -193,19 +194,19 @@ static const value_string cdt_ContentType_ShortForm_vals[] = {
 
 
 static int
-dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 32 "cdt.cnf"
   guint32 value;
 
-    offset = dissect_ber_integer(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_integer(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                   &value);
 
   proto_item_append_text (cdt_item, ", %s",
                           val_to_str (value, cdt_ContentType_ShortForm_vals, 
                                       "unknown"));
 
-  if (check_col (pinfo->cinfo, COL_INFO))
-    col_append_fstr (pinfo->cinfo, COL_INFO, "%s ", 
+  if (check_col (actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", 
                      val_to_str (value, cdt_ContentType_ShortForm_vals, 
                                  "unknown"));
 
@@ -213,8 +214,8 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_contentType_ShortForm_impl(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_ContentType_ShortForm(TRUE, tvb, offset, pinfo, tree, hf_cdt_contentType_ShortForm);
+static int dissect_contentType_ShortForm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_ContentType_ShortForm(TRUE, tvb, offset, actx, tree, hf_cdt_contentType_ShortForm);
 }
 
 
@@ -231,36 +232,36 @@ static const ber_choice_t T_contentType_choice[] = {
 };
 
 static int
-dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(pinfo, tree, tvb, offset,
+dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_contentType_choice, hf_index, ett_cdt_T_contentType,
                                  NULL);
 
   return offset;
 }
-static int dissect_contentType(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_T_contentType(FALSE, tvb, offset, pinfo, tree, hf_cdt_contentType);
+static int dissect_contentType(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_T_contentType(FALSE, tvb, offset, actx, tree, hf_cdt_contentType);
 }
 
 
 
 static int
-dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 68 "cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
   proto_item *tf = NULL;
   int         save_offset = offset;
 
-    offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
+    offset = dissect_ber_octet_string(implicit_tag, actx->pinfo, tree, tvb, offset, hf_index,
                                        &compr_tvb);
 
   if (compr_tvb == NULL) {
     tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
                               "[Error: Unable to get compressed content]");
-    expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_ERROR,
+    expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to get compressed content");
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, 
+    if (check_col (actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to get compressed content]");
     return offset;
   }
@@ -270,25 +271,25 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (next_tvb == NULL) {
     tf = proto_tree_add_text (top_tree, tvb, save_offset, -1,
                               "[Error: Unable to uncompress content]");
-    expert_add_info_format (pinfo, tf, PI_UNDECODED, PI_ERROR,
+    expert_add_info_format (actx->pinfo, tf, PI_UNDECODED, PI_ERROR,
                             "Unable to uncompress content");
-    if (check_col (pinfo->cinfo, COL_INFO))
-      col_append_fstr (pinfo->cinfo, COL_INFO, 
+    if (check_col (actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr (actx->pinfo->cinfo, COL_INFO, 
                        "[Error: Unable to uncompress content]");
     return offset;
   }
 
   tvb_set_child_real_data_tvbuff (tvb, next_tvb);
-  add_new_data_source (pinfo, next_tvb, "Uncompressed Content");
+  add_new_data_source (actx->pinfo, next_tvb, "Uncompressed Content");
 
-  dissect_x411_mts_apdu (next_tvb, pinfo, top_tree);
+  dissect_x411_mts_apdu (next_tvb, actx->pinfo, top_tree);
   
 
 
   return offset;
 }
-static int dissect_compressedContent(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_CompressedContent(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressedContent);
+static int dissect_compressedContent(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_CompressedContent(FALSE, tvb, offset, actx, tree, hf_cdt_compressedContent);
 }
 
 
@@ -299,14 +300,14 @@ static const ber_sequence_t CompressedContentInfo_sequence[] = {
 };
 
 static int
-dissect_cdt_CompressedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_cdt_CompressedContentInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CompressedContentInfo_sequence, hf_index, ett_cdt_CompressedContentInfo);
 
   return offset;
 }
-static int dissect_compressedContentInfo(packet_info *pinfo _U_, proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_cdt_CompressedContentInfo(FALSE, tvb, offset, pinfo, tree, hf_cdt_compressedContentInfo);
+static int dissect_compressedContentInfo(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
+  return dissect_cdt_CompressedContentInfo(FALSE, tvb, offset, actx, tree, hf_cdt_compressedContentInfo);
 }
 
 
@@ -317,8 +318,8 @@ static const ber_sequence_t CompressedData_sequence[] = {
 };
 
 int
-dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CompressedData_sequence, hf_index, ett_cdt_CompressedData);
 
   return offset;
@@ -327,12 +328,14 @@ dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 /*--- PDUs ---*/
 
 static void dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  dissect_cdt_CompressedData(FALSE, tvb, 0, pinfo, tree, hf_cdt_CompressedData_PDU);
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_cdt_CompressedData(FALSE, tvb, 0, &asn1_ctx, tree, hf_cdt_CompressedData_PDU);
 }
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 58 "packet-cdt-template.c"
+#line 59 "packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -405,7 +408,7 @@ void proto_register_cdt (void) {
         "cdt.CompressedContent", HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 90 "packet-cdt-template.c"
+#line 91 "packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -419,7 +422,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 95 "packet-cdt-template.c"
+#line 96 "packet-cdt-template.c"
   };
 
   /* Register protocol */
@@ -441,5 +444,5 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 110 "packet-cdt-template.c"
+#line 111 "packet-cdt-template.c"
 }
