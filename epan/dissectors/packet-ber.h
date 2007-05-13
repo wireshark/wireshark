@@ -115,6 +115,7 @@ extern int dissect_ber_null(gboolean implicit_tag, packet_info *pinfo, proto_tre
 extern int dissect_ber_boolean(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 extern int dissect_ber_boolean_value(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value);
 
+extern int dissect_ber_external_type(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,  gint hf_id, ber_callback func){
 
 #define BER_FLAGS_OPTIONAL	0x00000001
 #define BER_FLAGS_IMPLTAG	0x00000002

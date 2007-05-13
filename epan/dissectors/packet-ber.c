@@ -2726,9 +2726,8 @@ dissect_ber_external(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_
 }
 
 int
-dissect_ber_external_type(gboolean implicit_tag, packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,  gint hf_id, ber_callback func){
+dissect_ber_external_type(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,  gint hf_id, ber_callback func){
 
-	asn1_ctx_clean_external(actx);
 	actx->external.ber.ber_callback =  func;
 
 	offset = dissect_ber_external(implicit_tag, tvb, offset, actx, parent_tree, hf_id);
