@@ -474,8 +474,17 @@ abs_time_to_str(nstime_t *abs_time)
         struct tm *tmp;
         gchar *buf;
 
-	buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1+9+1);
+        buf=ep_alloc(3+1+2+2+4+1+2+1+2+1+2+1+9+1);
 
+        
+#ifdef _MSC_VER
+        /* calling localtime() on MSVC 2005 with huge values causes it to crash */
+        /* XXX - find the exact value that still does work */
+        /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+        if(abs_time->secs > 2000000000) {
+            tmp = NULL;
+        } else
+#endif
         tmp = localtime(&abs_time->secs);
         if (tmp) {
 		g_snprintf(buf, 3+1+2+2+4+1+2+1+2+1+2+1+9+1,
