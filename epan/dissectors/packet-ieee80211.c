@@ -524,7 +524,7 @@ static const value_string frame_type_subtype_vals[] = {
   {MGT_MEASUREMENT_PILOT,"Measurement Pilot"},
   {MGT_BEACON,           "Beacon frame"},
   {MGT_ATIM,             "ATIM"},
-  {MGT_DISASS,           "Dissassociate"},
+  {MGT_DISASS,           "Disassociate"},
   {MGT_AUTHENTICATION,   "Authentication"},
   {MGT_DEAUTHENTICATION, "Deauthentication"},
   {MGT_ACTION,           "Action"},
@@ -1426,7 +1426,6 @@ static gint ett_ff_psmp_sta_info = -1;
 /*** Begin: A-MSDU Dissection - Dustin Johnson ***/
 static gint ett_msdu_aggregation_parent_tree = -1;
 static gint ett_msdu_aggregation_subframe_tree = -1;
-static gint ett_msdu_aggregation_msdu_tree = -1;
 /*** End: A-MSDU Dissection - Dustin Johnson ***/
 
 static gint ett_80211_mgt_ie = -1;
@@ -6626,7 +6625,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         proto_item *parent_item;
         proto_tree *mpdu_tree;
         proto_tree *subframe_tree;
-        proto_tree *msdu_tree;
 
         parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
                                     tvb_reported_length_remaining(next_tvb, 0), "IEEE 802.11 Aggregate MSDU");
@@ -6649,11 +6647,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           msdu_length, "MSDU length: 0x%04X", msdu_length);
 
           msdu_offset += 14;
-          parent_item = proto_tree_add_text(subframe_tree, next_tvb, msdu_offset, msdu_length, "Mac Service Data Unit (MSDU)");
-          msdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_msdu_tree);
-
           msdu_tvb = tvb_new_subset(next_tvb, msdu_offset, msdu_length, -1);
-          call_dissector(llc_handle, msdu_tvb, pinfo, msdu_tree);
+          call_dissector(llc_handle, msdu_tvb, pinfo, subframe_tree);
           msdu_offset = roundup2(msdu_offset+msdu_length, 4);
         } while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
 
@@ -8905,9 +8900,9 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, 0, 0x03ff, "Highest Supported Data Rate", HFILL }},
 
     {&mcsset_tx_mcs_set_defined,
-     {"Tx Suported MCS Set", "wlan_mgt.ht.mcsset.txsetdefined",
+     {"Tx Supported MCS Set", "wlan_mgt.ht.mcsset.txsetdefined",
       FT_BOOLEAN, 16, TFS (&mcsset_tx_mcs_set_defined_flag), 0x0001,
-      "Tx Suported MCS Set", HFILL }},
+      "Tx Supported MCS Set", HFILL }},
 
     {&mcsset_tx_rx_mcs_set_not_equal,
      {"Tx and Rx MCS Set", "wlan_mgt.ht.mcsset.txrxmcsnotequal",
@@ -9972,7 +9967,6 @@ proto_register_ieee80211 (void)
     &ett_ht_info_delimiter3_tree,
     &ett_msdu_aggregation_parent_tree,
     &ett_msdu_aggregation_subframe_tree,
-    &ett_msdu_aggregation_msdu_tree,
     &ett_tag_measure_request_tree,
     &ett_tag_supported_channels,
     &ett_tag_neighbor_report_bssid_info_tree,
