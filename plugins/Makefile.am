@@ -35,6 +35,7 @@ SUBDIRS = \
 	lwres \
 	mate \
 	mgcp \
+	opcua \
 	opsi \
 	pcli \
 	profinet \
@@ -54,4 +55,5 @@ EXTRA_DIST = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
+
 

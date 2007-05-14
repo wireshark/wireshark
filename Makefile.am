@@ -225,6 +225,7 @@ plugin_ldadd = \
 	-dlopen plugins/lwres/lwres.la \
 	-dlopen plugins/mate/mate.la \
 	-dlopen plugins/mgcp/mgcp.la \
+	-dlopen plugins/opcua/opcua.la \
 	-dlopen plugins/opsi/opsi.la \
 	-dlopen plugins/pcli/pcli.la \
 	-dlopen plugins/profinet/profinet.la \

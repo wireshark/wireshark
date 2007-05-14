@@ -21,6 +21,7 @@ all: \
 	lwres \
 	mate \
 	mgcp \
+	opcua \
 	opsi \
 	pcli \
 	profinet \
@@ -99,6 +100,12 @@ mgcp::
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd .. 
+
+opcua::
+	cd opcua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 opsi::
 	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -185,6 +192,9 @@ clean:
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd opcua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -252,6 +262,9 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd mgcp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ..
+	cd opcua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd opsi
@@ -323,6 +336,9 @@ maintainer-clean: distclean
 	cd mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
+	cd opcua
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
 	cd opsi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
@@ -371,6 +387,7 @@ install-plugins:
 	xcopy lwres\*.dll $(VERSION) /d
 	xcopy mate\*.dll $(VERSION) /d
 	xcopy mgcp\*.dll $(VERSION) /d
+	xcopy opcua\*.dll $(VERSION) /d
 	xcopy opsi\*.dll $(VERSION) /d
 	xcopy pcli\*.dll $(VERSION) /d
 	xcopy profinet\*.dll $(VERSION) /d
@@ -385,5 +402,6 @@ install-plugins:
 
 clean-deps:
 	rm -rf $(VERSION)
+
 
 

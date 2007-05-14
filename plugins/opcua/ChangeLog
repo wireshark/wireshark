@@ -1,0 +1,8 @@
+$Id: ChangeLog,v 1.1.1.1 2006/07/12 09:17:41 gergap Exp $
+
+Overview of changes in OpcUa plugin:
+
+Version 0.0.1:
+
+* initial implementation without security
+

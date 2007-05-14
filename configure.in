@@ -1480,6 +1480,7 @@ AC_OUTPUT(
   plugins/lwres/Makefile
   plugins/mate/Makefile
   plugins/mgcp/Makefile
+  plugins/opcua/Makefile
   plugins/opsi/Makefile
   plugins/pcli/Makefile
   plugins/profinet/Makefile
