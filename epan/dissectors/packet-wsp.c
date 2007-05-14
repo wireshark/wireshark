@@ -1180,7 +1180,7 @@ static const true_false_string yes_no_truth = {
 static const value_string vals_false_true[] = {
 	{ 0, "False" },
 	{ 1, "True" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 enum {
@@ -1706,7 +1706,7 @@ static const hdr_parse_func_ptr WellKnownOpenwaveHeader[128] = {
 	/* 0x78 */	wkh_openwave_default,		/* 0x79 */	wkh_openwave_default,
 	/* 0x7A */	wkh_openwave_default,		/* 0x7B */	wkh_openwave_default,
 	/* 0x7C */	wkh_openwave_default,		/* 0x7D */	wkh_openwave_default,
-	/* 0x7E */	wkh_openwave_default,		/* 0x7F */	wkh_openwave_default,
+	/* 0x7E */	wkh_openwave_default,		/* 0x7F */	wkh_openwave_default
 };
 
 
@@ -4909,7 +4909,6 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* WSP contact point list */
 	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
 	add_addresses(subtree, tmp_tvb, hf_sir_wsp_contact_points);
-	tvb_free(tmp_tvb);
 
 	/* End of version 0 SIR content */
 	if (version == 0)
@@ -4925,7 +4924,6 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Non-WSP contact point list */
 	tmp_tvb = tvb_new_subset (tvb, offset, val_len, val_len);
 	add_addresses(subtree, tmp_tvb, hf_sir_contact_points);
-	tvb_free(tmp_tvb);
 
 	offset += val_len;
 
@@ -7332,7 +7330,7 @@ proto_register_wsp(void)
 				 FT_STRING, BASE_NONE, NULL, 0x00,
 				"Charset parameter", HFILL
 			}
-		},
+		}
 	};
 
 /* Setup protocol subtree array */
@@ -7348,7 +7346,7 @@ proto_register_wsp(void)
 		&ett_multiparts,
 		&ett_mpartlist,
 		&ett_addresses,		/* Addresses */
-		&ett_address,		/* Single address */
+		&ett_address		/* Single address */
 	};
 
 /* Register the protocol name and description */
@@ -7509,12 +7507,12 @@ proto_register_sir(void)
 				FT_BYTES, BASE_HEX, NULL, 0x00,
 				"CPITag (OTA-HTTP)", HFILL
 			}
-		},
+		}
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
-		&ett_sir,			/* Session Initiation Request */
+		&ett_sir			/* Session Initiation Request */
 	};
 
 	/* Register the dissector */
