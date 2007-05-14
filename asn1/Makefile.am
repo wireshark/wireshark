@@ -329,8 +329,13 @@ EXTRA_DIST = \
 	rnsap/Makefile	\
 	rnsap/Makefile.nmake	\
 	rnsap/packet-rnsap-template.c	\
-	rnsap/packet-rnsap-template.h	\
-	rnsap/rnsap.asn	\
+	rnsap/rnsap_dummy.asn \
+	rnsap/RNSAP-CommonDataTypes.asn \
+	rnsap/RNSAP-Constants.asn \
+	rnsap/RNSAP-Containers.asn \
+	rnsap/RNSAP-IEs.asn \
+	rnsap/RNSAP-PDU-Contents.asn \
+	rnsap/RNSAP-PDU-Descriptions.asn \
 	rnsap/rnsap.cnf	\
 	ros/Makefile	\
 	ros/Makefile.nmake	\

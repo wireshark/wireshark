@@ -7,15 +7,16 @@ include ../../config.nmake
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=rnsap
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
+RNSAP_ASN=RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn rnsap_dummy.asn 
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py rnsap.asn packet-rnsap-template.c packet-rnsap-template.h rnsap.cnf
+$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(RNSAP_ASN) packet-rnsap-template.c rnsap.cnf
 !IFDEF PYTHON
-	$(PYTHON) "../../tools/asn2wrs.py" -e -p $(PROTOCOL_NAME) -c rnsap.cnf -s packet-rnsap-template rnsap.asn
+	$(PYTHON) "../../tools/asn2wrs.py" -p $(PROTOCOL_NAME) -c rnsap.cnf -s packet-rnsap-template $(RNSAP_ASN)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
 	@exit 1
@@ -35,12 +36,9 @@ maintainer-clean: distclean
 
 fix_eol: generate_dissector
 	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
-	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
 	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
-	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
-	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+	del /f packet-$(PROTOCOL_NAME).c.tmp
 
 copy_files: generate_dissector fix_eol
 	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
-	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
 

@@ -12,87 +12,87 @@ CREATE_FIELDS DummyProtocolIE
 #.PDU
 RNSAP-PDU
 
-#.MAKE_DEFINES NO_TYPE_PREFIX
+#.MAKE_DEFINES
 ProcedureCode
+
+#.MAKE_ENUM
 ProtocolIE-ID 
+
+
+#.CLASS RNSAP-PROTOCOL-IES
+id           TypeReference ProtocolIE-ID
+criticality  TypeReference Criticality
+Value
+presence     TypeReference Presence
+#.END
+
+#.CLASS RNSAP-PROTOCOL-IES-PAIR
+id                 TypeReference ProtocolIE-ID
+firstCriticality   TypeReference Criticality
+FirstValue
+secondCriticality  TypeReference Criticality
+SecondValue
+presence           TypeReference Presence
+#.END
+
+#.CLASS RNSAP-PROTOCOL-EXTENSION
+id           TypeReference ProtocolIE-ID
+criticality  TypeReference Criticality
+Extension
+presence     TypeReference Presence
+#.END
+
+#.CLASS RNSAP-PRIVATE-IES
+id           TypeReference PrivateIE-ID
+criticality  TypeReference Criticality
+Value
+presence     TypeReference Presence
+#.END
+
+
+#.CLASS RNSAP-ELEMENTARY-PROCEDURE
+InitiatingMessage
+SuccessfulOutcome
+UnsuccessfulOutcome
+Outcome
+procedureID TypeReference ProcedureID
+criticality TypeReference Criticality
+#.END
+
 
 #.TYPE_RENAME
 
 #.FIELD_RENAME
 
+#.OMIT_ASSIGNMENT
+ProtocolIE-ContainerList
+ProtocolIE-ContainerPairList
+#.END
 
-#.FN_PARS  ProcedureCode
+#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 
-VAL_PTR = &ProcedureCode
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
 
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
                               "unknown message"));
-#.FN_PARS ProtocolIE-ID
- 
-VAL_PTR = &ProtocolIE_ID
-
-#.FN_PARS ProcedureID/ddMode
- 
-VAL_PTR = &ddMode
-
-#.FN_BODY Extension
-
-	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY InitiatingMessageValue
-
-	offset = dissect_rnsap_InitiatingMessageValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY SuccessfulOutcomeValue
-
-	offset = dissect_rnsap_SuccessfulOutcomeValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY OutcomeValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_rnsap_pdu_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
-
-#.FN_BODY UnsuccessfulOutcomeValue
-
-	offset = dissect_rnsap_UnsuccessfulOutcomeValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY ProtocolIEValue
-
-	offset = dissect_rnsap_ProtocolIEValueValue(tvb, offset, %(ACTX)s, tree);
-
-#.FN_BODY FirstValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_rnsap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
-
-#.FN_BODY SecondValue
-	/* FIX ME */
-	guint length;
-
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_rnsap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
+#.END
+#.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
 
 
-#.FN_BODY PrivateIEvalue
-	/* FIX ME */
-	guint length;
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_InitiatingMessageValueValue
 
-	offset = dissect_per_length_determinant(tvb, offset, %(ACTX)s, tree, hf_rnsap_IE_length, &length);
-	offset = offset + length;
-	BYTE_ALIGN_OFFSET(offset)
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_SuccessfulOutcomeValueValue
 
-#.FN_BODY L3-Information VAL_PTR = &parameter_tvb
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_UnsuccessfulOutcomeValueValue
 
+
+#.FN_BODY L3-Information  VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb;
 
 %(DEFAULT_BODY)s
@@ -103,14 +103,473 @@ VAL_PTR = &ddMode
 	switch (ProcedureCode){
 
 	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:
-		actx->encoding =FALSE;
-		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0,  %(ACTX)s, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
-		actx->encoding =TRUE;
-		break;
+		dissect_umts_rrc_DL_DCCH_Message(parameter_tvb, 0, %(ACTX)s, tree, hf_rnsap_L3_DL_DCCH_Message_PDU);
 	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:
 	default:
 		break;
 	}
+#.END
 
 #.TYPE_ATTR
 BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL
+#.END
+
+
+#.REGISTER_NEW
+
+#RNSAP-PROTOCOL-IES
+RTLoadValue                        N rnsap.ies id-RTLoadValue
+NRTLoadInformationValue            N rnsap.ies id-NRTLoadInformationValue
+UpPTSInterferenceValue             N rnsap.ies id-UpPTSInterferenceValue
+Rx-Timing-Deviation-Value-LCR      N rnsap.ies id-Rx-Timing-Deviation-Value-LCR
+Angle-Of-Arrival-Value-LCR         N rnsap.ies id-Angle-Of-Arrival-Value-LCR
+HS-SICH-Reception-Quality-Value    N rnsap.ies id-HS-SICH-Reception-Quality
+IPDL-TDD-ParametersLCR             N rnsap.ies id-IPDL-TDD-ParametersLCR
+Load-Value-IncrDecrThres           N rnsap.ies id-Load-Value-IncrDecrThres
+Transmitted-Carrier-Power-Value-IncrDecrThres N rnsap.ies id-Transmitted-Carrier-Power-Value-IncrDecrThres
+Received-Total-Wideband-Power-Value-IncrDecrThres N rnsap.ies id-Received-Total-Wideband-Power-Value-IncrDecrThres
+UL-Timeslot-ISCP-Value-IncrDecrThres N rnsap.ies id-UL-Timeslot-ISCP-Value-IncrDecrThres
+RT-Load-Value-IncrDecrThres        N rnsap.ies id-RT-Load-Value-IncrDecrThres
+NRT-Load-Information-Value-IncrDecrThres N rnsap.ies id-NRT-Load-Information-Value-IncrDecrThres
+TUTRANGPSMeasurementThresholdInformation N rnsap.ies id-TUTRANGPSMeasurementThresholdInformation
+SFNSFNMeasurementThresholdInformation N rnsap.ies id-SFNSFNMeasurementThresholdInformation
+Load-Value                         N rnsap.ies id-Load-Value
+Transmitted-Carrier-Power-Value    N rnsap.ies id-Transmitted-Carrier-Power-Value
+Received-Total-Wideband-Power-Value N rnsap.ies id-Received-Total-Wideband-Power-Value
+UL-Timeslot-ISCP-Value             N rnsap.ies id-UL-Timeslot-ISCP-Value
+RT-Load-Value                      N rnsap.ies id-RT-Load-Value
+NRT-Load-Information-Value         N rnsap.ies id-NRT-Load-Information-Value
+HS-SICH-Reception-Quality-Measurement-Value N rnsap.ies id-HS-SICH-Reception-Quality-Measurement-Value
+Neighbouring-UMTS-CellInformationItem N rnsap.ies id-Neighbouring-UMTS-CellInformationItem
+Neighbouring-GSM-CellInformationIEs N rnsap.ies id-Neighbouring-GSM-CellInformation
+OnModification                     N rnsap.ies id-OnModification
+RNC-ID                             N rnsap.ies id-SRNC-ID
+S-RNTI                             N rnsap.ies id-S-RNTI
+D-RNTI                             N rnsap.ies id-D-RNTI
+AllowedQueuingTime                 N rnsap.ies id-AllowedQueuingTime
+UL-DPCH-Information-RL-SetupRqstFDD N rnsap.ies id-UL-DPCH-Information-RL-SetupRqstFDD
+DL-DPCH-Information-RL-SetupRqstFDD N rnsap.ies id-DL-DPCH-Information-RL-SetupRqstFDD
+DCH-FDD-Information                N rnsap.ies id-DCH-FDD-Information
+RL-InformationList-RL-SetupRqstFDD N rnsap.ies id-RL-Information-RL-SetupRqstFDD
+Transmission-Gap-Pattern-Sequence-Information N rnsap.ies id-Transmission-Gap-Pattern-Sequence-Information
+Active-Pattern-Sequence-Information N rnsap.ies id-Active-Pattern-Sequence-Information
+RL-InformationItem-RL-SetupRqstFDD N rnsap.ies id-RL-InformationItem-RL-SetupRqstFDD
+UL-Physical-Channel-Information-RL-SetupRqstTDD N rnsap.ies id-UL-Physical-Channel-Information-RL-SetupRqstTDD
+DL-Physical-Channel-Information-RL-SetupRqstTDD N rnsap.ies id-DL-Physical-Channel-Information-RL-SetupRqstTDD
+UL-CCTrCH-InformationList-RL-SetupRqstTDD N rnsap.ies id-UL-CCTrCH-InformationList-RL-SetupRqstTDD
+DL-CCTrCH-InformationList-RL-SetupRqstTDD N rnsap.ies id-DL-CCTrCH-InformationList-RL-SetupRqstTDD
+DCH-TDD-Information                N rnsap.ies id-DCH-TDD-Information
+DSCH-TDD-Information               N rnsap.ies id-DSCH-TDD-Information
+USCH-Information                   N rnsap.ies id-USCH-Information
+RL-Information-RL-SetupRqstTDD     N rnsap.ies id-RL-Information-RL-SetupRqstTDD
+UL-CCTrCH-InformationItem-RL-SetupRqstTDD N rnsap.ies id-UL-CCTrCH-InformationItem-RL-SetupRqstTDD
+DL-CCTrCH-InformationItem-RL-SetupRqstTDD N rnsap.ies id-DL-CCTrCH-InformationItem-RL-SetupRqstTDD
+CN-PS-DomainIdentifier             N rnsap.ies id-CN-PS-DomainIdentifier
+CN-CS-DomainIdentifier             N rnsap.ies id-CN-CS-DomainIdentifier
+RL-InformationResponseList-RL-SetupRspFDD N rnsap.ies id-RL-InformationResponseList-RL-SetupRspFDD
+UL-SIR                             N rnsap.ies id-UL-SIRTarget
+CriticalityDiagnostics             N rnsap.ies id-CriticalityDiagnostics
+RL-InformationResponseItem-RL-SetupRspFDD N rnsap.ies id-RL-InformationResponseItem-RL-SetupRspFDD
+RL-InformationResponse-RL-SetupRspTDD N rnsap.ies id-RL-InformationResponse-RL-SetupRspTDD
+UL-CCTrCHInformationListIE-RL-SetupRspTDD N rnsap.ies id-UL-CCTrCH-InformationListIE-RL-SetupRspTDD
+UL-DPCH-InformationItem-RL-SetupRspTDD N rnsap.ies id-UL-DPCH-InformationItem-RL-SetupRspTDD
+DL-CCTrCHInformationListIE-RL-SetupRspTDD N rnsap.ies id-DL-CCTrCH-InformationListIE-RL-SetupRspTDD
+DL-DPCH-InformationItem-RL-SetupRspTDD N rnsap.ies id-DL-DPCH-InformationItem-RL-SetupRspTDD
+DCH-InformationResponse            N rnsap.ies id-DCH-InformationResponse
+DSCH-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-DSCH-InformationListIEs-RL-SetupRspTDD
+USCH-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-USCH-InformationListIEs-RL-SetupRspTDD
+UL-LCR-CCTrCHInformationListIE-RL-SetupRspTDD N rnsap.ies id-UL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD
+UL-DPCH-LCR-InformationItem-RL-SetupRspTDD N rnsap.ies id-UL-DPCH-LCR-InformationItem-RL-SetupRspTDD
+DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD N rnsap.ies id-DL-CCTrCH-LCR-InformationListIE-RL-SetupRspTDD
+DL-DPCH-LCR-InformationItem-RL-SetupRspTDD N rnsap.ies id-DL-DPCH-LCR-InformationItem-RL-SetupRspTDD
+DSCH-LCR-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-DSCH-LCR-InformationListIEs-RL-SetupRspTDD
+USCH-LCR-InformationListIEs-RL-SetupRspTDD N rnsap.ies id-USCH-LCR-InformationListIEs-RL-SetupRspTDD
+CauseLevel-RL-SetupFailureFDD      N rnsap.ies id-CauseLevel-RL-SetupFailureFDD
+UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-SetupFailureFDD
+SuccessfulRL-InformationResponse-RL-SetupFailureFDD N rnsap.ies id-SuccessfulRL-InformationResponse-RL-SetupFailureFDD
+CauseLevel-RL-SetupFailureTDD      N rnsap.ies id-CauseLevel-RL-SetupFailureTDD
+UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-SetupFailureTDD
+RL-InformationList-RL-AdditionRqstFDD N rnsap.ies id-RL-InformationList-RL-AdditionRqstFDD
+RL-Information-RL-AdditionRqstFDD  N rnsap.ies id-RL-Information-RL-AdditionRqstFDD
+RL-Information-RL-AdditionRqstTDD  N rnsap.ies id-RL-Information-RL-AdditionRqstTDD
+UL-CCTrCH-InformationItem-RL-AdditionRqstTDD N rnsap.ies id-UL-CCTrCH-InformationItem-RL-AdditionRqstTDD
+DL-CCTrCH-InformationItem-RL-AdditionRqstTDD N rnsap.ies id-DL-CCTrCH-InformationItem-RL-AdditionRqstTDD
+RL-InformationResponseList-RL-AdditionRspFDD N rnsap.ies id-RL-InformationResponseList-RL-AdditionRspFDD
+RL-InformationResponseItem-RL-AdditionRspFDD N rnsap.ies id-RL-InformationResponseItem-RL-AdditionRspFDD
+FDD-DL-CodeInformation             N rnsap.ies id-FDD-DL-CodeInformation
+RL-InformationResponse-RL-AdditionRspTDD N rnsap.ies id-RL-InformationResponse-RL-AdditionRspTDD
+UL-CCTrCHInformationListIE-RL-AdditionRspTDD N rnsap.ies id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD
+UL-DPCH-InformationItem-RL-AdditionRspTDD N rnsap.ies id-UL-DPCH-InformationItem-RL-AdditionRspTDD
+DL-CCTrCHInformationListIE-RL-AdditionRspTDD N rnsap.ies id-DL-CCTrCH-InformationListIE-RL-AdditionRspTDD
+DL-DPCH-InformationItem-RL-AdditionRspTDD N rnsap.ies id-DL-DPCH-InformationItem-RL-AdditionRspTDD
+DSCH-InformationListIE-RL-AdditionRspTDD N rnsap.ies id-DSCH-InformationListIE-RL-AdditionRspTDD
+USCH-InformationListIE-RL-AdditionRspTDD N rnsap.ies id-USCH-InformationListIE-RL-AdditionRspTDD
+UL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD N rnsap.ies id-UL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD
+UL-DPCH-LCR-InformationItem-RL-AdditionRspTDD N rnsap.ies id-UL-DPCH-LCR-InformationItem-RL-AdditionRspTDD
+DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD N rnsap.ies id-DL-CCTrCH-LCR-InformationListIE-RL-AdditionRspTDD
+DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD N rnsap.ies id-DL-DPCH-LCR-InformationItem-RL-AdditionRspTDD
+DSCH-LCR-InformationListIEs-RL-AdditionRspTDD N rnsap.ies id-DSCH-LCR-InformationListIEs-RL-AdditionRspTDD
+USCH-LCR-InformationListIEs-RL-AdditionRspTDD N rnsap.ies id-USCH-LCR-InformationListIEs-RL-AdditionRspTDD
+CauseLevel-RL-AdditionFailureFDD   N rnsap.ies id-CauseLevel-RL-AdditionFailureFDD
+UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureFDD
+SuccessfulRL-InformationResponse-RL-AdditionFailureFDD N rnsap.ies id-SuccessfulRL-InformationResponse-RL-AdditionFailureFDD
+CauseLevel-RL-AdditionFailureTDD   N rnsap.ies id-CauseLevel-RL-AdditionFailureTDD
+UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD N rnsap.ies id-UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD
+RL-InformationList-RL-DeletionRqst N rnsap.ies id-RL-InformationList-RL-DeletionRqst
+RL-Information-RL-DeletionRqst     N rnsap.ies id-RL-Information-RL-DeletionRqst
+UL-DPCH-Information-RL-ReconfPrepFDD N rnsap.ies id-UL-DPCH-Information-RL-ReconfPrepFDD
+DL-DPCH-Information-RL-ReconfPrepFDD N rnsap.ies id-DL-DPCH-Information-RL-ReconfPrepFDD
+FDD-DCHs-to-Modify                 N rnsap.ies id-FDD-DCHs-to-Modify
+DCH-FDD-Information                N rnsap.ies id-DCHs-to-Add-FDD
+DCH-DeleteList-RL-ReconfPrepFDD    N rnsap.ies id-DCH-DeleteList-RL-ReconfPrepFDD
+RL-InformationList-RL-ReconfPrepFDD N rnsap.ies id-RL-InformationList-RL-ReconfPrepFDD
+RL-Information-RL-ReconfPrepFDD    N rnsap.ies id-RL-Information-RL-ReconfPrepFDD
+UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationAddList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfPrepTDD
+DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfPrepTDD
+TDD-DCHs-to-Modify                 N rnsap.ies id-TDD-DCHs-to-Modify
+DCH-TDD-Information                N rnsap.ies id-DCHs-to-Add-TDD
+DCH-DeleteList-RL-ReconfPrepTDD    N rnsap.ies id-DCH-DeleteList-RL-ReconfPrepTDD
+DSCH-ModifyList-RL-ReconfPrepTDD   N rnsap.ies id-DSCH-ModifyList-RL-ReconfPrepTDD
+DSCH-TDD-Information               N rnsap.ies id-DSCHs-to-Add-TDD
+DSCH-DeleteList-RL-ReconfPrepTDD   N rnsap.ies id-DSCH-DeleteList-RL-ReconfPrepTDD
+USCH-ModifyList-RL-ReconfPrepTDD   N rnsap.ies id-USCH-ModifyList-RL-ReconfPrepTDD
+USCH-Information                   N rnsap.ies id-USCHs-to-Add
+USCH-DeleteList-RL-ReconfPrepTDD   N rnsap.ies id-USCH-DeleteList-RL-ReconfPrepTDD
+UL-CCTrCH-AddInformation-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-AddInformation-RL-ReconfPrepTDD
+UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-ModifyInformation-RL-ReconfPrepTDD
+UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD N rnsap.ies id-UL-CCTrCH-DeleteInformation-RL-ReconfPrepTDD
+DL-CCTrCH-InformationAddItem-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationAddItem-RL-ReconfPrepTDD
+DL-CCTrCH-InformationModifyItem-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationModifyItem-RL-ReconfPrepTDD
+DL-CCTrCH-InformationDeleteItem-RL-ReconfPrepTDD N rnsap.ies id-DL-CCTrCH-InformationDeleteItem-RL-ReconfPrepTDD
+RL-InformationResponseList-RL-ReconfReadyFDD N rnsap.ies id-RL-InformationResponseList-RL-ReconfReadyFDD
+RL-InformationResponseItem-RL-ReconfReadyFDD N rnsap.ies id-RL-InformationResponseItem-RL-ReconfReadyFDD
+UL-CCTrCHInformationListIE-RL-ReconfReadyTDD N rnsap.ies id-UL-CCTrCH-InformationListIE-RL-ReconfReadyTDD
+UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD N rnsap.ies id-UL-DPCH-InformationAddListIE-RL-ReconfReadyTDD
+UL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD N rnsap.ies id-UL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD
+UL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD N rnsap.ies id-UL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD
+DL-CCTrCHInformationListIE-RL-ReconfReadyTDD N rnsap.ies id-DL-CCTrCH-InformationListIE-RL-ReconfReadyTDD
+DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD N rnsap.ies id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD
+DL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD N rnsap.ies id-DL-DPCH-InformationModifyListIE-RL-ReconfReadyTDD
+DL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD N rnsap.ies id-DL-DPCH-InformationDeleteListIE-RL-ReconfReadyTDD
+DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD N rnsap.ies id-DSCHToBeAddedOrModifiedList-RL-ReconfReadyTDD
+USCHToBeAddedOrModifiedList-RL-ReconfReadyTDD N rnsap.ies id-USCHToBeAddedOrModifiedList-RL-ReconfReadyTDD
+CFN                                N rnsap.ies id-CFN
+CauseLevel-RL-ReconfFailure        N rnsap.ies id-CauseLevel-RL-ReconfFailure
+RL-ReconfigurationFailure-RL-ReconfFail N rnsap.ies id-RL-ReconfigurationFailure-RL-ReconfFail
+UL-DPCH-Information-RL-ReconfRqstFDD N rnsap.ies id-UL-DPCH-Information-RL-ReconfRqstFDD
+DL-DPCH-Information-RL-ReconfRqstFDD N rnsap.ies id-DL-DPCH-Information-RL-ReconfRqstFDD
+DCH-DeleteList-RL-ReconfRqstFDD    N rnsap.ies id-DCH-DeleteList-RL-ReconfRqstFDD
+RL-ReconfigurationRequestFDD-RL-Information-IEs N rnsap.ies id-RL-ReconfigurationRequestFDD-RL-Information-IEs
+UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD N rnsap.ies id-UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD
+UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD N rnsap.ies id-UL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD
+DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD N rnsap.ies id-DL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD
+DL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD N rnsap.ies id-DL-CCTrCH-InformationDeleteList-RL-ReconfRqstTDD
+DCH-DeleteList-RL-ReconfRqstTDD    N rnsap.ies id-DCH-DeleteList-RL-ReconfRqstTDD
+UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD N rnsap.ies id-UL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD
+UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD N rnsap.ies id-UL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD
+DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD N rnsap.ies id-DL-CCTrCH-InformationModifyItem-RL-ReconfRqstTDD
+DL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD N rnsap.ies id-DL-CCTrCH-InformationDeleteItem-RL-ReconfRqstTDD
+RL-InformationResponseList-RL-ReconfRspFDD N rnsap.ies id-RL-InformationResponseList-RL-ReconfRspFDD
+RL-InformationResponseItem-RL-ReconfRspFDD N rnsap.ies id-RL-InformationResponseItem-RL-ReconfRspFDD
+RL-InformationResponse-RL-ReconfRspTDD N rnsap.ies id-RL-InformationResponse-RL-ReconfRspTDD
+DL-DPCH-InformationModifyItem-LCR-RL-ReconfRspTDD N rnsap.ies id-DL-DPCH-InformationModifyItem-LCR-RL-ReconfRspTDD
+Reporting-Object-RL-FailureInd     N rnsap.ies id-Reporting-Object-RL-FailureInd
+RL-Information-RL-FailureInd       N rnsap.ies id-RL-Information-RL-FailureInd
+RL-Set-Information-RL-FailureInd   N rnsap.ies id-RL-Set-Information-RL-FailureInd
+CCTrCH-InformationItem-RL-FailureInd N rnsap.ies id-CCTrCH-InformationItem-RL-FailureInd
+RL-InformationList-RL-PreemptRequiredInd N rnsap.ies id-RL-InformationList-RL-PreemptRequiredInd
+RL-InformationItem-RL-PreemptRequiredInd N rnsap.ies id-RL-InformationItem-RL-PreemptRequiredInd
+HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd N rnsap.ies id-HSDSCHMacdFlowSpecificInformationItem-RL-PreemptRequiredInd
+EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd N rnsap.ies id-EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd
+Reporting-Object-RL-RestoreInd     N rnsap.ies id-Reporing-Object-RL-RestoreInd
+RL-Information-RL-RestoreInd       N rnsap.ies id-RL-Information-RL-RestoreInd
+RL-Set-Information-RL-RestoreInd   N rnsap.ies id-RL-Set-Information-RL-RestoreInd
+CCTrCH-InformationItem-RL-RestoreInd N rnsap.ies id-CCTrCH-InformationItem-RL-RestoreInd
+PowerAdjustmentType                N rnsap.ies id-PowerAdjustmentType
+DL-Power                           N rnsap.ies id-DLReferencePower
+InnerLoopDLPCStatus                N rnsap.ies id-InnerLoopDLPCStatus
+DL-ReferencePowerInformationList-DL-PC-Rqst N rnsap.ies id-DLReferencePowerList-DL-PC-Rqst
+MaxAdjustmentStep                  N rnsap.ies id-MaxAdjustmentStep
+AdjustmentPeriod                   N rnsap.ies id-AdjustmentPeriod
+ScaledAdjustmentRatio              N rnsap.ies id-AdjustmentRatio
+DL-ReferencePowerInformation-DL-PC-Rqst N rnsap.ies id-DL-ReferencePowerInformation-DL-PC-Rqst
+DL-TimeSlot-ISCP-Info              N rnsap.ies id-timeSlot-ISCP
+RL-Information-PhyChReconfRqstFDD  N rnsap.ies id-RL-Information-PhyChReconfRqstFDD
+RL-Information-PhyChReconfRqstTDD  N rnsap.ies id-RL-Information-PhyChReconfRqstTDD
+UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD N rnsap.ies id-UL-CCTrCH-InformationListIE-PhyChReconfRqstTDD
+UL-DPCH-InformationItem-PhyChReconfRqstTDD N rnsap.ies id-UL-DPCH-InformationItem-PhyChReconfRqstTDD
+DL-CCTrCH-InformationListIE-PhyChReconfRqstTDD N rnsap.ies id-DL-CCTrCH-InformationListIE-PhyChReconfRqstTDD
+DL-DPCH-InformationItem-PhyChReconfRqstTDD N rnsap.ies id-DL-DPCH-InformationItem-PhyChReconfRqstTDD
+Cause                              N rnsap.ies id-Cause
+CongestionCause                    N rnsap.ies id-CongestionCause
+RL-InformationList-RL-CongestInd   N rnsap.ies id-RL-InformationList-RL-CongestInd
+RL-InformationItem-RL-CongestInd   N rnsap.ies id-RL-InformationItem-RL-CongestInd
+DCH-Rate-InformationItem-RL-CongestInd N rnsap.ies id-DCH-Rate-InformationItem-RL-CongestInd
+EDCH-MacdFlowSpecificInformationItem-RL-CongestInd N rnsap.ies id-EDCH-MacdFlowSpecificInformationItem-RL-CongestInd
+UC-ID                              N rnsap.ies id-UC-ID
+SAI                                N rnsap.ies id-SAI
+GA-Cell                            N rnsap.ies id-GA-Cell
+C-RNTI                             N rnsap.ies id-C-RNTI
+PropagationDelay                   N rnsap.ies id-PropagationDelay
+STTD-SupportIndicator              N rnsap.ies id-STTD-SupportIndicator
+ClosedLoopMode1-SupportIndicator   N rnsap.ies id-ClosedLoopMode1-SupportIndicator
+L3-Information                     N rnsap.ies id-L3-Information
+URA-Information                    N rnsap.ies id-URA-Information
+RxTimingDeviationForTA             N rnsap.ies id-RxTimingDeviationForTA
+C-ID                               N rnsap.ies id-C-ID
+D-RNTI-ReleaseIndication           N rnsap.ies id-D-RNTI-ReleaseIndication
+RANAP-RelocationInformation        N rnsap.ies id-RANAP-RelocationInformation
+PagingArea-PagingRqst              N rnsap.ies id-PagingArea-PagingRqst
+IMSI                               N rnsap.ies id-IMSI
+DRXCycleLengthCoefficient          N rnsap.ies id-DRXCycleLengthCoefficient
+CNOriginatedPage-PagingRqst        N rnsap.ies id-CNOriginatedPage-PagingRqst
+MeasurementID                      N rnsap.ies id-MeasurementID
+DedicatedMeasurementObjectType-DM-Rqst N rnsap.ies id-DedicatedMeasurementObjectType-DM-Rqst
+DedicatedMeasurementType           N rnsap.ies id-DedicatedMeasurementType
+MeasurementFilterCoefficient       N rnsap.ies id-MeasurementFilterCoefficient
+ReportCharacteristics              N rnsap.ies id-ReportCharacteristics
+FNReportingIndicator               N rnsap.ies id-CFNReportingIndicator
+RL-InformationItem-DM-Rqst         N rnsap.ies id-RL-InformationItem-DM-Rqst
+RL-Set-InformationItem-DM-Rqst     N rnsap.ies id-RL-Set-InformationItem-DM-Rqst
+DedicatedMeasurementObjectType-DM-Rsp N rnsap.ies id-DedicatedMeasurementObjectType-DM-Rsp
+RL-InformationItem-DM-Rsp          N rnsap.ies id-RL-InformationItem-DM-Rsp
+RL-Set-InformationItem-DM-Rsp      N rnsap.ies id-RL-Set-InformationItem-DM-Rsp
+RL-Unsuccessful-InformationItem-DM-Fail N rnsap.ies id-RL-Unsuccessful-InformationItem-DM-Fail
+RL-Successful-InformationItem-DM-Fail N rnsap.ies id-RL-Successful-InformationItem-DM-Fail
+RL-Set-Unsuccessful-InformationItem-DM-Fail N rnsap.ies id-RL-Set-Unsuccessful-InformationItem-DM-Fail
+RL-Set-Successful-InformationItem-DM-Fail N rnsap.ies id-RL-Set-Successful-InformationItem-DM-Fail
+DedicatedMeasurementObjectType-DM-Rprt N rnsap.ies id-DedicatedMeasurementObjectType-DM-Rprt
+RL-InformationItem-DM-Rprt         N rnsap.ies id-RL-InformationItem-DM-Rprt
+RL-Set-InformationItem-DM-Rprt     N rnsap.ies id-RL-Set-InformationItem-DM-Rprt
+RL-Unsuccessful-InformationItem-DM-Fail-Ind N rnsap.ies id-RL-Unsuccessful-InformationItem-DM-Fail-Ind
+RL-Set-Unsuccessful-InformationItem-DM-Fail-Ind N rnsap.ies id-RL-Set-Unsuccessful-InformationItem-DM-Fail-Ind
+TransportBearerRequestIndicator    N rnsap.ies id-TransportBearerRequestIndicator
+TransportBearerID                  N rnsap.ies id-TransportBearerID
+FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspFDD N rnsap.ies id-FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspFDD
+TransportLayerAddress              N rnsap.ies id-TransportLayerAddress
+BindingID                          N rnsap.ies id-BindingID
+FACH-FlowControlInformation        N rnsap.ies id-FACH-FlowControlInformation
+FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspTDD N rnsap.ies id-FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspTDD
+CommonMeasurementObjectType-CM-Rqst N rnsap.ies id-CommonMeasurementObjectType-CM-Rqst
+CommonMeasurementType              N rnsap.ies id-CommonMeasurementType
+FNReportingIndicator               N rnsap.ies id-SFNReportingIndicator
+SFN                                N rnsap.ies id-SFN
+CommonMeasurementAccuracy          N rnsap.ies id-CommonMeasurementAccuracy
+NeighbouringTDDCellMeasurementInformationLCR N rnsap.ies id-neighbouringTDDCellMeasurementInformationLCR
+CommonMeasurementObjectType-CM-Rsp N rnsap.ies id-CommonMeasurementObjectType-CM-Rsp
+CommonMeasurementObjectType-CM-Rprt N rnsap.ies id-CommonMeasurementObjectType-CM-Rprt
+InformationExchangeID              N rnsap.ies id-InformationExchangeID
+InformationExchangeObjectType-InfEx-Rqst N rnsap.ies id-InformationExchangeObjectType-InfEx-Rqst
+InformationType                    N rnsap.ies id-InformationType
+InformationReportCharacteristics   N rnsap.ies id-InformationReportCharacteristics
+GSM-Cell-InfEx-Rqst                N rnsap.ies id-GSM-Cell-InfEx-Rqst
+MBMS-Bearer-Service-List           N rnsap.ies id-MBMS-Bearer-Service-List
+InformationExchangeObjectType-InfEx-Rsp N rnsap.ies id-InformationExchangeObjectType-InfEx-Rsp
+MBMS-Bearer-Service-List-InfEx-Rsp N rnsap.ies id-MBMS-Bearer-Service-List-InfEx-Rsp
+InformationExchangeObjectType-InfEx-Rprt N rnsap.ies id-InformationExchangeObjectType-InfEx-Rprt
+RNC-ID                             N rnsap.ies id-RNC-ID
+ResetIndicator                     N rnsap.ies id-ResetIndicator
+ContextInfoItem-Reset              N rnsap.ies id-ContextInfoItem-Reset
+ContextGroupInfoItem-Reset         N rnsap.ies id-ContextGroupInfoItem-Reset
+DelayedActivationInformationList-RL-ActivationCmdFDD N rnsap.ies id-DelayedActivationList-RL-ActivationCmdFDD
+DelayedActivationInformation-RL-ActivationCmdFDD N rnsap.ies id-DelayedActivationInformation-RL-ActivationCmdFDD
+DelayedActivationInformationList-RL-ActivationCmdTDD N rnsap.ies id-DelayedActivationList-RL-ActivationCmdTDD
+DelayedActivationInformation-RL-ActivationCmdTDD N rnsap.ies id-DelayedActivationInformation-RL-ActivationCmdTDD
+HSDSCH-FDD-Update-Information      N rnsap.ies id-HSDSCH-FDD-Update-Information
+RL-ParameterUpdateIndicationFDD-RL-InformationList N rnsap.ies id-RL-ParameterUpdateIndicationFDD-RL-InformationList
+RL-ParameterUpdateIndicationFDD-RL-Information-Item N rnsap.ies id-RL-ParameterUpdateIndicationFDD-RL-Information-Item
+HSDSCH-TDD-Update-Information      N rnsap.ies id-HSDSCH-TDD-Update-Information
+UEMeasurementType                  N rnsap.ies id-UEMeasurementType
+UEMeasurementTimeslotInfoHCR       N rnsap.ies id-UEMeasurementTimeslotInfoHCR
+UEMeasurementTimeslotInfoLCR       N rnsap.ies id-UEMeasurementTimeslotInfoLCR
+UEMeasurementReportCharacteristics N rnsap.ies id-UEMeasurementReportCharacteristics
+UEMeasurementParameterModAllow     N rnsap.ies id-UEMeasurementParameterModAllow
+UEMeasurementValueInformation      N rnsap.ies id-UEMeasurementValueInformation
+TraceReference                     N rnsap.ies id-TraceReference
+UEIdentity                         N rnsap.ies id-UEIdentity
+TraceRecordingSessionReference     N rnsap.ies id-TraceRecordingSessionReference
+ListOfInterfacesToTrace            N rnsap.ies id-ListOfInterfacesToTrace
+TraceDepth                         N rnsap.ies id-TraceDepth
+InterfacesToTraceItem              N rnsap.ies id-InterfacesToTraceItem
+UE-State                           N rnsap.ies id-UE-State
+ProvidedInformation                N rnsap.ies id-ProvidedInformation
+
+#RNSAP-PROTOCOL-EXTENSION
+MessageStructure                   N rnsap.extension id-MessageStructure
+TypeOfError                        N rnsap.extension id-TypeOfError
+TnlQos                             N rnsap.extension id-TnlQos
+Guaranteed-Rate-Information        N rnsap.extension id-Guaranteed-Rate-Information
+TrafficClass                       N rnsap.extension id-TrafficClass
+Unidirectional-DCH-Indicator       N rnsap.extension id-Unidirectional-DCH-Indicator
+Allowed-Rate-Information           N rnsap.extension id-Allowed-Rate-Information
+DL-Power                           N rnsap.extension id-Maximum-DL-Power-TimeslotLCR-InformationItem
+DL-Power                           N rnsap.extension id-Minimum-DL-Power-TimeslotLCR-InformationItem
+DSCH-InitialWindowSize             N rnsap.extension id-DSCH-InitialWindowSize
+BindingID                          N rnsap.extension id-BindingID
+TransportLayerAddress              N rnsap.extension id-TransportLayerAddress
+E-RGCH-E-HICH-ChannelisationCodeValidityIndicator N rnsap.extension id-E-RGCH-E-HICH-ChannelisationCodeValidityIndicator
+E-DCH-Minimum-Set-E-TFCIValidityIndicator N rnsap.extension id-E-DCH-Minimum-Set-E-TFCIValidityIndicator
+Satellite-Almanac-Information-ExtItem N rnsap.extension id-Satellite-Almanac-Information-ExtItem
+HARQ-Preamble-Mode                 N rnsap.extension id-HARQ-Preamble-Mode
+User-Plane-Congestion-Fields-Inclusion N rnsap.extension id-User-Plane-Congestion-Fields-Inclusion
+HARQ-Preamble-Mode-Activation-Indicator N rnsap.extension id-HARQ-Preamble-Mode-Activation-Indicator
+Neighbouring-LCR-TDD-CellInformation N rnsap.extension id-neighbouring-LCR-TDD-CellInformation
+RestrictionStateIndicator          N rnsap.extension id-RestrictionStateIndicator
+DPC-Mode-Change-SupportIndicator   N rnsap.extension id-DPC-Mode-Change-SupportIndicator
+CoverageIndicator                  N rnsap.extension id-CoverageIndicator
+AntennaColocationIndicator         N rnsap.extension id-AntennaColocationIndicator
+HCS-Prio                           N rnsap.extension id-HCS-Prio
+CellCapabilityContainer-FDD        N rnsap.extension id-CellCapabilityContainer-FDD
+SNA-Information                    N rnsap.extension id-SNA-Information
+FrequencyBandIndicator             N rnsap.extension id-FrequencyBandIndicator
+GERAN-Cell-Capability              N rnsap.extension id-GERAN-Cell-Capability
+GERAN-Classmark                    N rnsap.extension id-GERAN-Classmark
+ExtendedGSMCellIndividualOffset    N rnsap.extension id-ExtendedGSMCellIndividualOffset
+CellCapabilityContainer-TDD        N rnsap.extension id-CellCapabilityContainer-TDD
+CellCapabilityContainer-TDD-LCR    N rnsap.extension id-CellCapabilityContainer-TDD-LCR
+Cell-Capacity-Class-Value          N rnsap.extension id-Cell-Capacity-Class-Value
+NACC-Related-Data                  N rnsap.extension id-NACC-Related-Data
+MBMS-Bearer-Service-Full-Address   N rnsap.extension id-MBMS-Bearer-Service-Full-Address
+Inter-Frequency-Cell-Information   N rnsap.extension id-Inter-Frequency-Cell-Information
+DPC-Mode                           N rnsap.extension id-DPC-Mode
+UL-DPDCHIndicatorEDCH              N rnsap.extension id-UL-DPDCHIndicatorEDCH
+Enhanced-PrimaryCPICH-EcNo         N rnsap.extension id-Enhanced-PrimaryCPICH-EcNo
+RL-Specific-DCH-Info               N rnsap.extension id-RL-Specific-DCH-Info
+DelayedActivation                  N rnsap.extension id-DelayedActivation
+CellPortionID                      N rnsap.extension id-CellPortionID
+RL-Specific-EDCH-Information       N rnsap.extension id-RL-Specific-EDCH-Information
+EDCH-RL-Indication                 N rnsap.extension id-EDCH-RL-Indication
+Permanent-NAS-UE-Identity          N rnsap.extension id-Permanent-NAS-UE-Identity
+DL-PowerBalancing-Information      N rnsap.extension id-DL-PowerBalancing-Information
+HSDSCH-FDD-Information             N rnsap.extension id-HSDSCH-FDD-Information
+RL-ID                              N rnsap.extension id-HSPDSCH-RL-ID
+MBMS-Bearer-Service-List           N rnsap.extension id-MBMS-Bearer-Service-List
+EDPCH-Information-FDD              N rnsap.extension id-EDPCH-Information
+EDCH-FDD-Information               N rnsap.extension id-EDCH-FDD-Information
+EDCH-Serving-RL                    N rnsap.extension id-Serving-EDCHRL-Id
+F-DPCH-Information-RL-SetupRqstFDD N rnsap.extension id-F-DPCH-Information-RL-SetupRqstFDD
+Initial-DL-DPCH-TimingAdjustment-Allowed N rnsap.extension id-Initial-DL-DPCH-TimingAdjustment-Allowed
+DCH-Indicator-For-E-DCH-HSDPA-Operation N rnsap.extension id-DCH-Indicator-For-E-DCH-HSDPA-Operation
+Support-8PSK                       N rnsap.extension id-TDD-Support-8PSK
+MaxNrDLPhysicalchannelsTS          N rnsap.extension id-TDD-maxNrDLPhysicalchannels
+TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-LCR-RL-SetupRqstTDD
+DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-SetupRqstTDD
+TSTD-Support-Indicator             N rnsap.extension id-TSTD-Support-Indicator-RL-SetupRqstTDD
+UL-Synchronisation-Parameters-LCR  N rnsap.extension id-UL-Synchronisation-Parameters-LCR
+PrimaryCCPCH-RSCP-Delta            N rnsap.extension id-PrimaryCCPCH-RSCP-Delta
+HSDSCH-TDD-Information             N rnsap.extension id-HSDSCH-TDD-Information
+RL-ID                              N rnsap.extension id-PDSCH-RL-ID
+GA-CellAdditionalShapes            N rnsap.extension id-GA-CellAdditionalShapes
+DL-PowerBalancing-ActivationIndicator N rnsap.extension id-DL-PowerBalancing-ActivationIndicator
+Primary-CPICH-Usage-For-Channel-Estimation N rnsap.extension id-Primary-CPICH-Usage-For-Channel-Estimation
+Secondary-CPICH-Information        N rnsap.extension id-Secondary-CPICH-Information
+Active-MBMS-Bearer-Service-ListFDD-PFL N rnsap.extension id-Active-MBMS-Bearer-ServiceFDD-PFL
+RL-Set-ID                          N rnsap.extension id-EDCH-RLSet-Id
+EDCH-FDD-DL-ControlChannelInformation N rnsap.extension id-EDCH-FDD-DL-ControlChannelInformation
+DL-DPCH-TimingAdjustment           N rnsap.extension id-Initial-DL-DPCH-TimingAdjustment
+DCH-InformationResponse            N rnsap.extension id-DCH-InformationResponse
+EDCH-FDD-InformationResponse       N rnsap.extension id-EDCH-FDD-InformationResponse
+HSDSCH-RNTI                        N rnsap.extension id-HSDSCH-RNTI
+HSDSCH-FDD-Information-Response    N rnsap.extension id-HSDSCH-FDD-Information-Response
+TimeSlot                           N rnsap.extension id-TimeSlot-RL-SetupRspTDD
+UL-SIR                             N rnsap.extension id-UL-SIR-Target-CCTrCH-InformationItem-RL-SetupRspTDD
+DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-SetupRspTDD
+DL-Power                           N rnsap.extension id-CCTrCH-Minimum-DL-Power-RL-SetupRspTDD
+RL-LCR-InformationResponse-RL-SetupRspTDD N rnsap.extension id-RL-LCR-InformationResponse-RL-SetupRspTDD
+HSDSCH-TDD-Information-Response    N rnsap.extension id-HSDSCH-TDD-Information-Response
+DSCH-RNTI                          N rnsap.extension id-DSCH-RNTI
+Active-MBMS-Bearer-Service-ListTDD-PFL N rnsap.extension id-Active-MBMS-Bearer-ServiceTDD-PFL
+UL-TimingAdvanceCtrl-LCR           N rnsap.extension id-UL-TimingAdvanceCtrl-LCR
+UL-SIR                             N rnsap.extension id-UL-SIR-Target-CCTrCH-LCR-InformationItem-RL-SetupRspTDD
+DL-Power                           N rnsap.extension id-DLReferencePower
+SynchronisationIndicator           N rnsap.extension id-SynchronisationIndicator
+HS-DSCH-serving-cell-change-information N rnsap.extension id-HS-DSCH-serving-cell-change-information
+CFN                                N rnsap.extension id-Serving-cell-change-CFN
+HSDSCH-Configured-Indicator        N rnsap.extension id-HSDSCH-Configured-Indicator
+DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-AdditionRqstTDD
+UL-CCTrCH-InformationList-RL-AdditionRqstTDD N rnsap.extension id-UL-CCTrCH-InformationList-RL-AdditionRqstTDD
+DL-CCTrCH-InformationList-RL-AdditionRqstTDD N rnsap.extension id-DL-CCTrCH-InformationList-RL-AdditionRqstTDD
+HS-DSCH-serving-cell-change-informationResponse N rnsap.extension id-HS-DSCH-serving-cell-change-informationResponse
+E-DCH-Serving-cell-change-informationResponse N rnsap.extension id-E-DCH-Serving-cell-change-informationResponse
+MAChs-ResetIndicator               N rnsap.extension id-MAChs-ResetIndicator
+DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-AdditionRspTDD
+DL-Power                           N rnsap.extension id-CCTrCH-Minimum-DL-Power-RL-AdditionRspTDD
+RL-LCR-InformationResponse-RL-AdditionRspTDD N rnsap.extension id-RL-LCR-InformationResponse-RL-AdditionRspTDD
+DL-DPCH-Power-Information-RL-ReconfPrepFDD N rnsap.extension id-DL-DPCH-Power-Information-RL-ReconfPrepFDD
+DL-DPCH-TimingAdjustment           N rnsap.extension id-DL-DPCH-TimingAdjustment
+Phase-Reference-Update-Indicator   N rnsap.extension id-Phase-Reference-Update-Indicator
+HSDSCH-Information-to-Modify       N rnsap.extension id-HSDSCH-Information-to-Modify
+HSDSCH-MACdFlows-Information       N rnsap.extension id-HSDSCH-MACdFlows-to-Add
+HSDSCH-MACdFlows-to-Delete         N rnsap.extension id-HSDSCH-MACdFlows-to-Delete
+EDCH-FDD-Information-To-Modify     N rnsap.extension id-EDCH-FDD-Information-To-Modify
+EDCH-MACdFlows-Information         N rnsap.extension id-EDCH-MACdFlows-To-Add
+EDCH-MACdFlows-To-Delete           N rnsap.extension id-EDCH-MACdFlows-To-Delete
+F-DPCH-Information-RL-ReconfPrepFDD N rnsap.extension id-F-DPCH-Information-RL-ReconfPrepFDD
+UL-SIR                             N rnsap.extension id-UL-SIRTarget
+TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-InformationAdd-LCR-RL-ReconfPrepTDD
+TDD-TPC-UplinkStepSize-LCR         N rnsap.extension id-TDD-TPC-UplinkStepSize-InformationModify-LCR-RL-ReconfPrepTDD
+TDD-TPC-DownlinkStepSize           N rnsap.extension id-TDD-TPC-DownlinkStepSize-InformationAdd-RL-ReconfPrepTDD
+TDD-TPC-DownlinkStepSize           N rnsap.extension id-TDD-TPC-DownlinkStepSize-InformationModify-RL-ReconfPrepTDD
+PrimaryCCPCH-RSCP                  N rnsap.extension id-PrimaryCCPCH-RSCP-RL-ReconfPrepTDD
+DL-TimeSlot-ISCP-Info              N rnsap.extension id-DL-TimeSlot-ISCP-Info-RL-ReconfPrepTDD
+DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-DL-Timeslot-ISCP-LCR-Information-RL-ReconfPrepTDD
+RL-Information-RL-ReconfPrepTDD    N rnsap.extension id-RL-Information-RL-ReconfPrepTDD
+DL-PowerBalancing-UpdatedIndicator N rnsap.extension id-DL-PowerBalancing-UpdatedIndicator
+Secondary-CPICH-Information-Change N rnsap.extension id-Secondary-CPICH-Information-Change
+Secondary-LCR-CCPCH-Info-TDD       N rnsap.extension id-secondary-LCR-CCPCH-Info-TDD
+UL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD N rnsap.extension id-UL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD
+UL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD N rnsap.extension id-UL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD
+TDD-UL-DPCH-TimeSlotFormat-LCR     N rnsap.extension id-TDD-UL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD
+DL-DPCH-LCR-InformationAddList-RL-ReconfReadyTDD N rnsap.extension id-DL-DPCH-LCR-InformationAddListIE-RL-ReconfReadyTDD
+DL-Power                           N rnsap.extension id-CCTrCH-Maximum-DL-Power-RL-ReconfReadyTDD
+DL-Power                           N rnsap.extension id-CCTrCH-Minimum-DL-Power-RL-ReconfReadyTDD
+DL-TimeslotLCR-InformationModifyList-RL-ReconfReadyTDD N rnsap.extension id-DL-Timeslot-LCR-InformationModifyList-RL-ReconfReadyTDD
+TDD-DL-DPCH-TimeSlotFormat-LCR     N rnsap.extension id-TDD-DL-DPCH-TimeSlotFormatModifyItem-LCR-RL-ReconfReadyTDD
+DL-Power                           N rnsap.extension id-Maximum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD
+DL-Power                           N rnsap.extension id-Minimum-DL-Power-TimeslotLCR-InformationModifyItem-RL-ReconfReadyTDD
+Multiple-RL-InformationResponse-RL-ReconfReadyTDD N rnsap.extension id-Multiple-RL-InformationResponse-RL-ReconfReadyTDD
+RL-ReconfigurationRequestFDD-RL-InformationList N rnsap.extension id-RL-ReconfigurationRequestFDD-RL-InformationList
+DL-ReferencePowerInformation       N rnsap.extension id-DL-ReferencePowerInformation
+HSDSCH-Information-to-Modify-Unsynchronised N rnsap.extension id-HSDSCH-Information-to-Modify-Unsynchronised
+EDPCH-Information-RLReconfRequest-FDD N rnsap.extension id-EDPCH-Information-RLReconfRequest-FDD
+Multiple-RL-ReconfigurationRequestTDD-RL-Information N rnsap.extension id-RL-ReconfigurationRequestTDD-RL-Information
+DL-CCTrCH-InformationList-RL-ReconfRspTDD N rnsap.extension id-DL-CCTrCH-InformationList-RL-ReconfRspTDD
+Multiple-RL-InformationResponse-RL-ReconfRspTDD N rnsap.extension id-RL-ReconfigurationResponseTDD-RL-Information
+EDCH-MacdFlowSpecificInformationList-RL-PreemptRequiredInd N rnsap.extension id-EDCH-MacdFlowSpecificInformationList-RL-PreemptRequiredInd
+HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd N rnsap.extension id-HSDSCHMacdFlowSpecificInformationList-RL-PreemptRequiredInd
+DL-TimeSlot-ISCP-LCR-Information   N rnsap.extension id-timeSlot-ISCP-LCR-List-DL-PC-Rqst-TDD
+PrimaryCCPCH-RSCP                  N rnsap.extension id-PrimCCPCH-RSCP-DL-PC-RqstTDD
+HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD N rnsap.extension id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD
+HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD N rnsap.extension id-HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD
+UL-TimeslotLCR-InformationList-PhyChReconfRqstTDD N rnsap.extension id-UL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD
+DL-TimeslotLCR-InformationList-PhyChReconfRqstTDD N rnsap.extension id-DL-Timeslot-LCR-InformationList-PhyChReconfRqstTDD
+EDCH-MacdFlowSpecificInformationList-RL-CongestInd N rnsap.extension id-EDCH-MacdFlowSpecificInformationList-RL-CongestInd
+CommonTransportChannelResourcesInitialisationNotRequired N rnsap.extension id-CommonTransportChannelResourcesInitialisationNotRequired
+Active-MBMS-Bearer-Service-ListFDD N rnsap.extension id-Active-MBMS-Bearer-ServiceFDD
+Inter-Frequency-Cell-List          N rnsap.extension id-Inter-Frequency-Cell-List
+Active-MBMS-Bearer-Service-ListTDD N rnsap.extension id-Active-MBMS-Bearer-ServiceTDD
+URA-ID                             N rnsap.extension id-URA-ID
+URA-ID                             N rnsap.extension id-Old-URA-ID
+RNC-ID                             N rnsap.extension id-SRNC-ID
+HSSICH-Info-DM-Rqst                N rnsap.extension id-HSSICH-Info-DM-Rqst
+PartialReportingIndicator          N rnsap.extension id-PartialReportingIndicator
+MeasurementRecoveryBehavior        N rnsap.extension id-MeasurementRecoveryBehavior
+HS-SICH-ID                         N rnsap.extension id-HSSICH-Info-DM
+Multiple-DedicatedMeasurementValueList-TDD-DM-Rsp N rnsap.extension id-multiple-DedicatedMeasurementValueList-TDD-DM-Rsp
+Multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp N rnsap.extension id-multiple-DedicatedMeasurementValueList-LCR-TDD-DM-Rsp
+Multiple-HSSICHMeasurementValueList-TDD-DM-Rsp N rnsap.extension id-multiple-HSSICHMeasurementValueList-TDD-DM-Rsp
+MeasurementRecoverySupportIndicator N rnsap.extension id-MeasurementRecoverySupportIndicator
+DedicatedMeasurementObjectType-DM-Fail N rnsap.extension id-DedicatedMeasurementObjectType-DM-Fail
+HS-SICH-ID                         N rnsap.extension id-HSSICH-Info-DM-Rprt
+MeasurementRecoveryReportingIndicator N rnsap.extension id-MeasurementRecoveryReportingIndicator
+DedicatedMeasurementObjectType-DM-Fail-Ind N rnsap.extension id-DedicatedMeasurementObjectType-DM-Fail-Ind
+C-ID                               N rnsap.extension id-C-ID
+S-RNTI                             N rnsap.extension id-S-RNTI
+D-RNTI                             N rnsap.extension id-D-RNTI
+E-DCH-FDD-Update-Information       N rnsap.extension id-E-DCH-FDD-Update-Information
+
+#.END
