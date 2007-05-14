@@ -244,22 +244,22 @@
       Files appears elsewhere</para>
     </section>
     <section id="ChSetupPrepareCommandCom">
-      <title>Prepare command.com</title>
-      <para>Prepare command.com - set environment and current dir. 
+      <title>Prepare cmd.exe</title>
+      <para>Prepare cmd.exe - set environment and current dir. 
       <orderedlist>
         <listitem>
-          <para>start command.com</para>
-        </listitem>
-        <listitem>
-          <para>call "C:\Program Files\Microsoft Visual Studio
-          8\VC\bin\vcvars32.bat" to set environment variables of
-          Visual C++ 2005 Express Edition 
-          <superscript>12</superscript></para>
+          <para>start cmd.exe</para>
         </listitem>
         <listitem>
           <para>call "C:\Program Files\Microsoft Platform SDK for
           Windows Server 2003 R2\SetEnv.Cmd" to set environment
           variables of Platform SDK Server 2003 R2 
+          <superscript>12</superscript></para>
+        </listitem>
+        <listitem>
+          <para>call "C:\Program Files\Microsoft Visual Studio
+          8\VC\bin\vcvars32.bat" to set environment variables of
+          Visual C++ 2005 Express Edition 
           <superscript>12</superscript></para>
         </listitem>
         <listitem>
@@ -276,7 +276,7 @@
       different values here, e.g. a german version uses
       C:/Programme - take this also in account where C:\Program
       Files appears elsewhereNote: You need to repeat steps 1 - 4
-      each time you open a new command.com!</para>
+      each time you open a new cmd.exe!</para>
     </section>
     <section id="ChToolsWin32Verify">
       <title>Verify installed tools</title>
@@ -338,8 +338,8 @@
       <title>Install Libraries</title>
       <orderedlist>
         <listitem>
-          <para>If you've closed command.com in the meantime,
-          prepare command.com again</para>
+          <para>If you've closed cmd.exe in the meantime,
+          prepare cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake verify_tools verify
@@ -366,8 +366,8 @@
       first time! 
       <orderedlist>
         <listitem>
-          <para>If you've closed command.com in the meantime,
-          prepare command.com again</para>
+          <para>If you've closed cmd.exe in the meantime,
+          prepare cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake distclean to cleanup the
@@ -380,8 +380,8 @@
       <para>Now it's time to build Wireshark ... 
       <orderedlist>
         <listitem>
-          <para>If you've closed command.com in the meantime,
-          prepare command.com again</para>
+          <para>If you've closed cmd.exe in the meantime,
+          prepare cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake all to build
@@ -434,8 +434,8 @@
           <superscript>1</superscript></para>
         </listitem>
         <listitem>
-          <para>If you've closed command.com in the meantime,
-          prepare command.com again</para>
+          <para>If you've closed cmd.exe in the meantime,
+          prepare cmd.exe again</para>
         </listitem>
         <listitem>
           <para>nmake -f Makefile.nmake packaging build Wireshark
