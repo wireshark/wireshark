@@ -152,7 +152,7 @@ static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, type_cb_variant variant)
 {
 	guint32 type_length, end_offset;
-	tvbuff_t *val_tvb;
+	tvbuff_t *val_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
 
