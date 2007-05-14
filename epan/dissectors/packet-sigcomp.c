@@ -145,10 +145,10 @@ static gint udvm_print_detail_level = 0;
 
 /* Value strings */
 static const value_string length_encoding_vals[] = {
-	{ 0x00,	"No partial state(Message type 2)" },
-	{ 0x01,	"6 bytes)" },
-	{ 0x02,	"9 bytes)" },
-	{ 0x03,	"12 bytes)" },
+	{ 0x00,	"No partial state (Message type 2)" },
+	{ 0x01,	"(6 bytes)" },
+	{ 0x02,	"(9 bytes)" },
+	{ 0x03,	"(12 bytes)" },
 	{ 0,	NULL }
 };
 
@@ -277,31 +277,31 @@ static const value_string display_lit_bytecode_vals[] = {
 #define SIGCOMP_NACK_STATE_TOO_SHORT             23  
 
 static const value_string sigcomp_nack_reason_code_vals[] = {
-	{ 0x01,	"STATE_NOT_FOUND" },			/*1  State ID (6 - 20 bytes) */
-	{ 0x02,	"CYCLES_EXHAUSTED" },			/*2  Cycles Per Bit (1 byte) */
-	{ 0x03,	"USER_REQUESTED" },
-	{ 0x04,	"SEGFAULT" },
-	{ 0x05,	"TOO_MANY_STATE_REQUESTS" },
-	{ 0x06,	"INVALID_STATE_ID_LENGTH" },
-	{ 0x07,	"INVALID_STATE_PRIORITY" },
-	{ 0x08,	"OUTPUT_OVERFLOW" },
-	{ 0x09,	"STACK_UNDERFLOW" },
-	{ 0x10,	"BAD_INPUT_BITORDER" },
-	{ 0x11,	"DIV_BY_ZERO" },
-	{ 0x12,	"SWITCH_VALUE_TOO_HIGH" },
-	{ 0x13,	"TOO_MANY_BITS_REQUESTED" },
-	{ 0x14,	"INVALID_OPERAND" },
-	{ 0x15,	"HUFFMAN_NO_MATCH" },
-	{ 0x16,	"MESSAGE_TOO_SHORT" },
-	{ 0x17,	"INVALID_CODE_LOCATION" },
-	{ 0x18,	"BYTECODES_TOO_LARGE" },		/*18  Memory size (2 bytes) */
-	{ 0x19,	"INVALID_OPCODE" },
-	{ 0x20,	"INVALID_STATE_PROBE" },
-	{ 0x21,	"ID_NOT_UNIQUE" },				/*21  State ID (6 - 20 bytes) */
-	{ 0x22,	"MULTILOAD_OVERWRITTEN" },
-	{ 0x23,	"STATE_TOO_SHORT" },			/*23  State ID (6 - 20 bytes) */
-	{ 0x24,	"INTERNAL_ERROR" },
-	{ 0x25,	"FRAMING_ERROR" },
+	{  1,	"STATE_NOT_FOUND" },			/*1  State ID (6 - 20 bytes) */
+	{  2,	"CYCLES_EXHAUSTED" },			/*2  Cycles Per Bit (1 byte) */
+	{  3,	"USER_REQUESTED" },
+	{  4,	"SEGFAULT" },
+	{  5,	"TOO_MANY_STATE_REQUESTS" },
+	{  6,	"INVALID_STATE_ID_LENGTH" },
+	{  7,	"INVALID_STATE_PRIORITY" },
+	{  8,	"OUTPUT_OVERFLOW" },
+	{  9,	"STACK_UNDERFLOW" },
+	{ 10,	"BAD_INPUT_BITORDER" },
+	{ 11,	"DIV_BY_ZERO" },
+	{ 12,	"SWITCH_VALUE_TOO_HIGH" },
+	{ 13,	"TOO_MANY_BITS_REQUESTED" },
+	{ 14,	"INVALID_OPERAND" },
+	{ 15,	"HUFFMAN_NO_MATCH" },
+	{ 16,	"MESSAGE_TOO_SHORT" },
+	{ 17,	"INVALID_CODE_LOCATION" },
+	{ 18,	"BYTECODES_TOO_LARGE" },		/*18  Memory size (2 bytes) */
+	{ 19,	"INVALID_OPCODE" },
+	{ 20,	"INVALID_STATE_PROBE" },
+	{ 21,	"ID_NOT_UNIQUE" },				/*21  State ID (6 - 20 bytes) */
+	{ 22,	"MULTILOAD_OVERWRITTEN" },
+	{ 23,	"STATE_TOO_SHORT" },			/*23  State ID (6 - 20 bytes) */
+	{ 24,	"INTERNAL_ERROR" },
+	{ 25,	"FRAMING_ERROR" },
 	{ 0,	NULL }
 };
 
@@ -666,15 +666,15 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 			if ( (octet & 0x80) != 0 ){
 				len = octet & 0x7f;
-				proto_tree_add_uint(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
-					tvb, offset, 1, len);
+				proto_tree_add_item(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
+				                    tvb, offset, 1, FALSE);
 				offset ++;
 				tvb_memcpy(tvb,returned_feedback_field,offset, len);
 			} else {
 				returned_feedback_field[0] = tvb_get_guint8(tvb, offset) & 0x7f;
 			}
 			proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_returned_feedback_item,
-				tvb, offset, len, returned_feedback_field);
+			                     tvb, offset, len, returned_feedback_field);
 			offset = offset + len;
 		}
 		tvb_memcpy(tvb, partial_state, offset, partial_state_len);
@@ -801,13 +801,13 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 			octet = tvb_get_guint8(tvb, offset);
 			if ( (octet & 0x80) != 0 ){
 				len = octet & 0x7f;
-				proto_tree_add_uint(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
-					tvb, offset, 1, len);
+				proto_tree_add_item(sigcomp_tree,hf_sigcomp_returned_feedback_item_len,
+				                    tvb, offset, 1, FALSE);
 				offset ++;
 			}
 			tvb_memcpy(tvb,returned_feedback_field,offset, len);
 			proto_tree_add_bytes(sigcomp_tree,hf_sigcomp_returned_feedback_item,
-				tvb, offset, 1, returned_feedback_field);
+			                     tvb, offset, len, returned_feedback_field);
 			offset = offset + len;
 		}
 		len = tvb_get_ntohs(tvb, offset) >> 4;
@@ -858,7 +858,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 			destination = (octet & 0x0f);
 			if ( destination != 0 )
 				destination = 64 + ( destination * 64 );
-			proto_tree_add_uint(sigcomp_tree,hf_sigcomp_code_len, tvb, offset, 2, len);
+			proto_tree_add_item(sigcomp_tree,hf_sigcomp_code_len, tvb, offset, 2, FALSE);
 			proto_tree_add_item(sigcomp_tree,hf_sigcomp_destination, tvb, (offset+ 1), 1, FALSE);
 			offset = offset +2;
 
@@ -2290,7 +2290,7 @@ proto_register_sigcomp(void)
 			"Sigcomp T bit", HFILL }
 		},
 		{ &hf_sigcomp_len,
-			{ "Partial state id. len.","sigcomp.length",
+			{ "Partial state id length","sigcomp.length",
 			FT_UINT8, BASE_HEX, VALS(&length_encoding_vals), 0x03,          
 			"Sigcomp length", HFILL }
 		},
@@ -2316,12 +2316,12 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_sigcomp_returned_feedback_item_len,
 			{ "Returned feedback item length", "sigcomp.returned.feedback.item.len",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x7f,          
 			"Returned feedback item length", HFILL }
 		},
 		{ &hf_sigcomp_code_len,
 			{ "Code length","sigcomp.code.len",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_HEX, NULL, 0xfff0,          
 			"Code length", HFILL }
 		},
 		{ &hf_sigcomp_destination,
