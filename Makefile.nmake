@@ -582,14 +582,14 @@ setup: verify_tools clean_setup
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-2.12.11.zip
+		glib gtk2.10/glib-2.12.12.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.10/glib-dev-2.12.11.zip
+		glib gtk2.10/glib-dev-2.12.12.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.8/glib-2.12.4.zip
+		glib gtk2.8/glib-2.12.12.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		glib gtk2.8/glib-dev-2.12.4.zip
+		glib gtk2.8/glib-dev-2.12.12.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		glib gtk2.6/glib-2.6.6.zip
@@ -667,17 +667,17 @@ setup: verify_tools clean_setup
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-2.10.11.zip
+		gtk2 gtk2.10/gtk+-2.10.12.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/gtk+-dev-2.10.11.zip
+		gtk2 gtk2.10/gtk+-dev-2.10.12.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-1.4.0.zip
+		gtk2 gtk2.10/cairo-1.4.2.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/cairo-dev-1.4.0.zip
+		gtk2 gtk2.10/cairo-dev-1.4.2.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/atk-1.12.3.zip
+		gtk2 gtk2.10/atk-1.18.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/atk-dev-1.12.3.zip
+		gtk2 gtk2.10/atk-dev-1.18.0.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/libpng-1.2.8-bin.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
@@ -725,9 +725,9 @@ setup: verify_tools clean_setup
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.16"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/pango-1.16.1.zip
+		gtk2 gtk2.10/pango-1.16.4.zip
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.10/pango-dev-1.16.1.zip
+		gtk2 gtk2.10/pango-dev-1.16.4.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.14"
 	@$(SH) tools\win32-setup.sh --download "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-1.14.10.zip
