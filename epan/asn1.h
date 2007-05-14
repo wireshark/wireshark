@@ -33,7 +33,10 @@ typedef enum {
   ASN1_ENC_XER   /* X.693 - XER */
 } asn1_enc_e;
 
+#define ASN1_CTX_SIGNATURE 0x41435458  /* "ACTX" */
+
 typedef struct _asn1_ctx_t {
+  guint32 signature;
   asn1_enc_e encoding;
   gboolean aligned;
   packet_info *pinfo;
@@ -67,7 +70,18 @@ typedef struct _asn1_ctx_t {
 } asn1_ctx_t;
 
 extern void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
+extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
+
+extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
+
+/* flags */
+#define ASN1_EXT_ROOT 0x01
+#define ASN1_EXT_EXT  0x02
+#define ASN1_OPT      0x04
+#define ASN1_DFLT     0x08
+
+#define ASN1_HAS_EXT(f) ((f)&(ASN1_EXT_ROOT|ASN1_EXT_EXT))
 
 
 #endif  /* __ASN1_H__ */

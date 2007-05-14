@@ -26,19 +26,6 @@
 #ifndef __PACKET_PER_H__
 #define __PACKET_PER_H__
 
-extern double asn1_get_real(const guint8 *real_ptr, gint real_len);
-
-/* flags */
-#define ASN1_EXT_ROOT 0x01
-#define ASN1_EXT_EXT  0x02
-#define ASN1_OPT      0x04
-#define ASN1_DFLT     0x08
-
-#define ASN1_HAS_EXT(f) ((f)&(ASN1_EXT_ROOT|ASN1_EXT_EXT))
-
-
-/*----------------------------------*/
-
 
 #define PER_NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, 0, 0, "something unknown here [%s]",x); \
@@ -130,6 +117,8 @@ extern guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 of
 extern guint32 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
 
 extern guint32 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb);
+extern guint32 dissect_per_open_type_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb);
+extern guint32 dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb);
 
 extern guint32 dissect_per_external_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb);
 

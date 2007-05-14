@@ -27,21 +27,52 @@
 # include "config.h"
 #endif
 
+#include <stdlib.h>
+#include <math.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 
 #include "asn1.h"
 
 void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo) {
+  memset(actx, '\0', sizeof(*actx));
+  actx->signature = ASN1_CTX_SIGNATURE;
   actx->encoding = encoding;
   actx->aligned = aligned;
   actx->pinfo = pinfo;
-  actx->created_item = NULL;
-  actx->value_ptr = NULL;
-  actx->private_data = NULL;
+}
+
+gboolean asn1_ctx_check_signature(asn1_ctx_t *actx) {
+  return actx->signature == ASN1_CTX_SIGNATURE;
 }
 
 void asn1_ctx_clean_external(asn1_ctx_t *actx) {
   memset(&actx->external, '\0', sizeof(actx->external));
   actx->external.hf_index = -1;
+}
+
+double asn1_get_real(const guint8 *real_ptr, gint real_len) {
+  guint8 octet;
+  const guint8 *p;
+  guint8 *buf;
+  double val = 0;
+
+  if (real_len < 1) return val;
+  octet = real_ptr[0];
+  p = real_ptr + 1;
+  real_len -= 1;
+  if (octet & 0x80) {  /* binary encoding */
+  } else if (octet & 0x40) {  /* SpecialRealValue */
+    switch (octet & 0x3F) {
+      case 0x00: val = HUGE_VAL; break;
+      case 0x01: val = -HUGE_VAL; break;
+    }
+  } else {  /* decimal encoding */
+    buf = ep_alloc0(real_len + 1);
+    memcpy(buf, p, real_len);
+    val = atof(buf);
+  }
+
+  return val;
 }

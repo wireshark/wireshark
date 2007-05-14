@@ -73,10 +73,16 @@ static int hf_per_single_ASN1_type = -1;          /* T_single_ASN1_type */
 static int hf_per_octet_aligned = -1;             /* T_octet_aligned */
 static int hf_per_arbitrary = -1;                 /* T_arbitrary */
 
+static gint ett_per_open_type = -1;
 static gint ett_per_sequence_of_item = -1;
 static gint ett_per_External = -1;
 static gint ett_per_External_encoding = -1;
 
+typedef enum {
+  CB_ASN1_ENC,
+  CB_DISSECTOR,
+  CB_NEW_DISSECTOR,
+} type_cb_variant;
 
 /*
 #define DEBUG_ENTRY(x) \
@@ -111,31 +117,6 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
-double asn1_get_real(const guint8 *real_ptr, gint real_len) {
-  guint8 octet;
-  const guint8 *p;
-  guint8 *buf;
-  double val = 0;
-
-  if (real_len < 1) return val;
-  octet = real_ptr[0];
-  p = real_ptr + 1;
-  real_len -= 1;
-  if (octet & 0x80) {  /* binary encoding */
-  } else if (octet & 0x40) {  /* SpecialRealValue */
-    switch (octet & 0x3F) {
-      case 0x00: val = HUGE_VAL; break;
-      case 0x01: val = -HUGE_VAL; break;
-    }
-  } else {  /* decimal encoding */
-    buf = ep_alloc0(real_len + 1);
-    memcpy(buf, p, real_len);
-    val = atof(buf);
-  }
-
-  return val;
-}
-
 
 #define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
 
@@ -167,22 +148,71 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
 /* 10 Encoding procedures -------------------------------------------------- */
 
 /* 10.2 Open type fields --------------------------------------------------- */
-guint32 
-dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
+static guint32 
+dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, type_cb_variant variant)
 {
 	guint32 type_length, end_offset;
+	tvbuff_t *val_tvb;
+	header_field_info *hfi;
+	proto_tree *subtree = tree;
+
+	hfi = (hf_index == -1) ? NULL : proto_registrar_get_nth(hf_index);
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &type_length);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	end_offset = offset + type_length * 8;
 
+    if ((variant==CB_DISSECTOR)||(variant==CB_NEW_DISSECTOR)) {
+		val_tvb = new_octet_aligned_subset(tvb, offset, type_length);
+		if (hfi) {
+			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
+				if (IS_FT_UINT(hfi->type))
+					actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, type_length, type_length);
+				else
+					actx->created_item = proto_tree_add_int(tree, hf_index, val_tvb, 0, type_length, type_length);
+				proto_item_append_text(actx->created_item, plurality(type_length, " octet", " octets"));
+			} else {
+				actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, type_length, FALSE);
+			}
+			subtree = proto_item_add_subtree(actx->created_item, ett_per_open_type);
+		}
+	}
+
 	if (type_cb) {
-		type_cb(tvb, offset, actx, tree, hf_index);
+		switch (variant) {
+			case CB_ASN1_ENC:
+				((per_type_fn)type_cb)(tvb, offset, actx, tree, hf_index);
+				break;
+			case CB_DISSECTOR:
+				((dissector_t)type_cb)(val_tvb, actx->pinfo, subtree);
+				break;
+			case CB_NEW_DISSECTOR:
+				((new_dissector_t)type_cb)(val_tvb, actx->pinfo, subtree);
+				break;
+		}
 	} else {
 		actx->created_item = proto_tree_add_text(tree, tvb, offset>>3, BLEN(offset, end_offset), "Unknown Open Type");
 	}
 
 	return end_offset;
+}
+
+guint32 
+dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
+{
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_ASN1_ENC);
+}
+
+guint32 
+dissect_per_open_type_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb)
+{
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_DISSECTOR);
+}
+
+guint32 
+dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb)
+{
+	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, type_cb, CB_NEW_DISSECTOR);
 }
 
 /* 10.9 General rules for encoding a length determinant -------------------- 
@@ -2009,6 +2039,7 @@ proto_register_per(void)
 	};
 	static gint *ett[] =
 	{
+		&ett_per_open_type,
 		&ett_per_sequence_of_item,
 		&ett_per_External,
 		&ett_per_External_encoding,
