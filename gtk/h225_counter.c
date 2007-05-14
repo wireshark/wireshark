@@ -35,6 +35,7 @@
 
 #include <gtk/gtk.h>
 
+#include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 #include <epan/value_string.h>
