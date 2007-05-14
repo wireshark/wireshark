@@ -13,9 +13,9 @@ BEGIN
 
 IMPORTS
 
---informationFramework
---        FROM UsefulDefinitions {joint-iso-itu-t(2) ds(5) module(1)
---        usefulDefinitions(0) 3}
+informationFramework
+        FROM UsefulDefinitions {joint-iso-itu-t(2) ds(5) module(1)
+        usefulDefinitions(0) 3}
 
 Attribute
 	FROM InformationFramework informationFramework

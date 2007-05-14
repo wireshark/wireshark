@@ -144,6 +144,7 @@ def asn2c(id):
 
 input_file = None
 lexer = None
+in_oid = False
 
 class LexError(Exception):
   def __init__(self, tok, filename=None):
@@ -199,7 +200,8 @@ static_tokens = {
   r'@'  : 'AT',
   #r'\!' : 'EXCLAMATION',
   r'\^' : 'CIRCUMFLEX',
-  r'\&' : 'AMPERSAND'
+  r'\&' : 'AMPERSAND',
+  r'\|' : 'BAR'
 }
 
 # 11.27 Reserved words
@@ -268,7 +270,7 @@ reserved_words = {
   'TAGS'        : 'TAGS',
   'TRUE'        : 'TRUE',
   'TYPE-IDENTIFIER' : 'TYPE_IDENTIFIER',
-#  'UNION'       : 'UNION',
+  'UNION'       : 'UNION',
 #  'UNIQUE'      : 'UNIQUE',
   'UNIVERSAL'   : 'UNIVERSAL',
   'UTCTime'     : 'UTCTime',
@@ -291,7 +293,7 @@ for s in StringTypes:
 tokens = static_tokens.values() \
          + reserved_words.values() \
          + ['BSTRING', 'HSTRING', 'QSTRING',
-            'UCASE_IDENT', 'LCASE_IDENT', 'CLASS_IDENT',
+            'UCASE_IDENT', 'LCASE_IDENT', 'LCASE_IDENT_ASSIGNED', 'CLASS_IDENT',
             'REAL_NUMBER', 'NUMBER', 'PYQUOTE']
 
 
@@ -318,8 +320,10 @@ def t_UCASE_IDENT (t):
     t.type = reserved_words.get(t.value, t.type)
     return t
 
+lcase_ident_assigned = {}
 def t_LCASE_IDENT (t):
     r"[a-z](-[a-zA-Z0-9]|[a-zA-Z0-9])*" # can't end w/ '-'
+    if (not in_oid and lcase_ident_assigned.has_key(t.value)): t.type = 'LCASE_IDENT_ASSIGNED'
     return t
 
 # 11.9 Real numbers
@@ -503,6 +507,38 @@ class EthCtx:
     else:
       return False
 
+  def value_max(self, a, b):
+    if (a == 'MAX') or (b == 'MAX'): return 'MAX';
+    if a == 'MIN': return b;
+    if b == 'MIN': return a;
+    try:
+      if (int(a) > int(b)):
+        return a
+      else:
+        return b
+    except (ValueError, TypeError):
+      pass
+    return "MAX((%s),(%s))" % (a, b) 
+
+  def value_min(self, a, b):
+    if (a == 'MIN') or (b == 'MIN'): return 'MIN';
+    if a == 'MAX': return b;
+    if b == 'MAX': return a;
+    try:
+      if (int(a) < int(b)):
+        return a
+      else:
+        return b
+    except (ValueError, TypeError):
+      pass
+    return "MIN((%s),(%s))" % (a, b) 
+
+  def value_get_eth(self, nm):
+    ethname = nm
+    if self.value.has_key(nm):
+      ethname = self.value[nm]['ethname']
+    return ethname
+
   def eth_get_type_attr(self, type):
     types = [type]
     while (not self.type[type]['import'] 
@@ -569,8 +605,14 @@ class EthCtx:
   #--- eth_import_value -------------------------------------------------------
   def eth_import_value(self, ident, mod, proto):
     #print "eth_import_value(ident='%s', mod='%s', prot='%s')" % (ident, mod, prot)
-    if self.type.has_key(ident):
-      raise "Duplicate value for " + ident
+    if self.value.has_key(ident):
+      #print "already defined import=%s, module=%s" % (str(self.value[ident]['import']), self.value[ident]['module'])
+      if not self.value[ident]['import'] and (self.value[ident]['module'] == mod) :
+        return  # OK - already defined
+      elif self.value[ident]['import'] and (self.value[ident]['import'] == mod) :
+        return  # OK - already imported
+      else:
+        raise "Duplicate value for " + ident
     self.value[ident] = {'import'  : mod, 'proto' : proto,
                          'ethname' : ''}
     self.value_imp.append(ident)
@@ -613,15 +655,35 @@ class EthCtx:
     self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
     self.type_ord.append(ident)
 
+  #--- eth_reg_objectclass ----------------------------------------------------------
+  def eth_reg_objectclass(self, ident):
+    #print "eth_reg_objectclass(ident='%s')" % (ident)
+    if self.objectclass.has_key(ident):
+      if self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == self.module()) :
+        # replace imported object class
+        del self.objectclass[ident]
+        self.objectclass_imp.remove(value)
+      else:
+        raise "Duplicate object class for " + ident
+    self.objectclass[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto }
+    self.objectclass[ident]['export'] = self.conform.use_item('EXPORTS', ident)
+    self.objectclass_ord.append(ident)
+
   #--- eth_reg_value ----------------------------------------------------------
-  def eth_reg_value(self, ident, type, value):
+  def eth_reg_value(self, ident, type, value, ethname=None):
     #print "eth_reg_value(ident='%s')" % (ident)
     if self.value.has_key(ident):
-      raise "Duplicate value for " + ident
-    self.value[ident] = { 'import' : None, 'proto' : self.proto,
+      if self.value[ident]['import'] and (self.value[ident]['import'] == self.module()) :
+        # replace imported value
+        del self.value[ident]
+        self.value_imp.remove(value)
+      else:
+        raise "Duplicate value for " + ident
+    self.value[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto,
                           'type' : type, 'value' : value }
     self.value[ident]['export'] = self.conform.use_item('EXPORTS', ident)
     self.value[ident]['ethname'] = ''
+    if (ethname): self.value[ident]['ethname'] = ethname
     self.value_ord.append(ident)
 
   #--- eth_reg_field ----------------------------------------------------------
@@ -708,6 +770,7 @@ class EthCtx:
 
     #--- values -> named values -------------------
     v_for_remove = []
+    t_for_update = {}
     for v in self.value_ord:
       if (self.value[v]['type'].type == 'Type_Ref'):
         tnm = self.value[v]['type'].val
@@ -716,9 +779,13 @@ class EthCtx:
            and (self.type[tnm]['val'].type == 'IntegerType'):
           self.type[tnm]['val'].add_named_value(v, self.value[v]['value'])
           v_for_remove.append(v)
+          t_for_update[tnm] = True
     for v in v_for_remove:
       self.value_ord.remove(v)
       del self.value[v]
+    for t in t_for_update.keys():
+      self.type[t]['attr']['STRINGS'] = self.type[t]['val'].eth_strings()
+      self.type[t]['attr'].update(self.conform.use_item('TYPE_ATTR', t))
 
     #--- types -------------------
     for t in self.type_imp:
@@ -782,6 +849,11 @@ class EthCtx:
       else:
         self.eth_type[t]['tree'] = None
 
+    #--- register values from enums ------------
+    for t in self.eth_type_ord:
+      if (self.eth_type[t]['val'].eth_has_enum(t, self)):
+        self.eth_type[t]['val'].reg_enum_vals(t, self)
+
     #--- value dependencies -------------------
     for v in self.value_ord:
       if isinstance (self.value[v]['value'], Value):
@@ -810,6 +882,8 @@ class EthCtx:
                              'ref' : []}
       self.value[v]['ethname'] = nm
     for v in self.value_ord:
+      if (self.value[v]['ethname']):
+        continue
       nm = asn2c(v)
       self.eth_value[nm] = { 'import' : None, 
                              'proto' : asn2c(self.value[v]['proto']),
@@ -960,7 +1034,7 @@ class EthCtx:
     return out
 
   #--- eth_enum_prefix ------------------------------------------------------------
-  def eth_enum_prefix(self, tname):
+  def eth_enum_prefix(self, tname, type=False):
     out = ""
     if (self.eth_type[tname]['export'] & EF_ENUM):
       no_prot = self.eth_type[tname]['export'] & EF_NO_PROT
@@ -968,23 +1042,24 @@ class EthCtx:
       no_prot = self.eth_type[tname]['enum'] & EF_NO_PROT
     if (not no_prot):
       out += self.eproto
-    if (not self.eth_type[tname]['enum'] & EF_NO_TYPE):
+    if ((not self.eth_type[tname]['enum'] & EF_NO_TYPE) or type):
       if (out): out += '_'
       out += tname
     if (self.eth_type[tname]['enum'] & EF_UCASE):
       out = out.upper()
+    if (out): out += '_'
     return out
 
   #--- eth_enum_nm ------------------------------------------------------------
   def eth_enum_nm(self, tname):
-    out = self.eth_enum_prefix(tname)
-    out += "_enum"
+    out = self.eth_enum_prefix(tname, type=True)
+    out += "enum"
     return out
 
   #--- eth_enum_item ---------------------------------------------------------------
   def eth_enum_item(self, tname, ident):
     out = self.eth_enum_prefix(tname)
-    out += '_' + asn2c(ident)
+    out += asn2c(ident)
     if (self.eth_type[tname]['enum'] & EF_UCASE):
       out = out.upper()
     return out
@@ -999,7 +1074,7 @@ class EthCtx:
     else:
       out += "typedef enum _%s {\n" % (self.eth_enum_nm(tname))
       for (val, id) in vals:
-        out += '  %-12s %3s,\n' % (self.eth_enum_item(tname, id), val)
+        out += '  %-12s = %3s,\n' % (self.eth_enum_item(tname, id), val)
       out += "} %s;\n" % (self.eth_enum_nm(tname))
     return out
 
@@ -1196,6 +1271,11 @@ class EthCtx:
     fx = self.output.file_open('val', ext='h')
     for v in self.eth_value_ord1:
       fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
+    for t in self.eth_type_ord1:
+      if self.eth_type[t]['import']:
+        continue
+      if self.eth_type[t]['val'].eth_has_enum(t, self) and not (self.eth_type[t]['export'] & EF_ENUM):
+        fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
     self.output.file_close(fx)
 
   #--- eth_output_valexp ------------------------------------------------------
@@ -1306,8 +1386,6 @@ class EthCtx:
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
         continue
-      if self.eth_type[t]['val'].eth_has_enum(t, self) and not (self.eth_type[t]['export'] & EF_ENUM):
-        fx.write(self.eth_type[t]['val'].eth_type_enum(t, self))
       if self.eth_type[t]['val'].eth_has_vals():
         if self.eth_type[t]['no_emit'] & EF_VALS:
           pass
@@ -1393,7 +1471,8 @@ class EthCtx:
             hnd = 'find_dissector("%s")' % (dis)
         else:
           hnd = '%screate_dissector_handle(dissect_%s, proto_%s)' % (new_prefix, f, self.eproto)
-        fx.write('  dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], reg['rport'], hnd))
+        rport = self.value_get_eth(reg['rport'])
+        fx.write('  dissector_add%s("%s", %s, %s);\n' % (rstr, reg['rtable'], rport, hnd))
       elif (reg['rtype'] in ('BER', 'PER')):
         fx.write('  %sregister_%s_oid_dissector(%s, dissect_%s, proto_%s, %s);\n' % (new_prefix, reg['rtype'].lower(), reg['roid'], f, self.eproto, reg['roidname']))
       fempty = False
@@ -1462,6 +1541,11 @@ class EthCtx:
       print "-" * 100
       for v in self.eth_vexport_ord:
         print "%-40s %s" % (v, self.eth_value[v]['value'])
+      print "\n# ASN.1 Object Classes"
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "-" * 100
+      for t in self.objectclass_ord:
+        print "%-40s " % (t)
       print "\n# ASN.1 Types"
       print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Wireshark type")
       print "-" * 100
@@ -1765,8 +1849,8 @@ class EthCnf:
         elif result.group('name') in ('MAKE_ENUM', 'MAKE_DEFINES'):
           ctx = result.group('name')
           default_flags = EF_ENUM
-          if ctx == 'MAKE_ENUM': default_flags |= EF_NO_PROT
-          if ctx == 'MAKE_DEFINES': default_flags |= EF_DEFINE|EF_UCASE
+          if ctx == 'MAKE_ENUM': default_flags |= EF_NO_PROT|EF_NO_TYPE
+          if ctx == 'MAKE_DEFINES': default_flags |= EF_DEFINE|EF_UCASE|EF_NO_TYPE
           par = get_par(line[result.end():], 0, 3, fn=fn, lineno=lineno)
           for i in range(0, len(par)):
             if (par[i] == 'NO_PROT_PREFIX'):   default_flags |= EF_NO_PROT
@@ -2281,6 +2365,12 @@ class Type (Node):
     else :
       return True
 
+  def HasSizeConstraint(self):
+    return self.HasConstraint() and self.constr.IsSize()
+
+  def HasValueConstraint(self):
+    return self.HasConstraint() and self.constr.IsValue()
+
   def HasOwnTag(self):
     return len(self.tags) > 0
 
@@ -2391,25 +2481,32 @@ class Type (Node):
     else:
       self.eth_reg_sub(nm, ectx)
 
-  def eth_get_size_constr(self):
-    (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
-    if not self.HasConstraint():
-      (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
-    elif self.constr.IsSize():
-      (minv, maxv, ext) = self.constr.GetSize()
-    elif (self.constr.type == 'Intersection'):
-      if self.constr.subtype[0].IsSize():
-        (minv, maxv, ext) = self.constr.subtype[0].GetSize()
-      elif self.constr.subtype[1].IsSize():
-        (minv, maxv, ext) = self.constr.subtype[1].GetSize()
+  def eth_get_size_constr(self, ectx):
+    (minv, maxv, ext) = ('MIN', 'MAX', False)
+    if self.HasSizeConstraint():
+      if self.constr.IsSize():
+        (minv, maxv, ext) = self.constr.GetSize(ectx)
+      if (self.constr.type == 'Intersection'):
+        if self.constr.subtype[0].IsSize():
+          (minv, maxv, ext) = self.constr.subtype[0].GetSize(ectx)
+        elif self.constr.subtype[1].IsSize():
+          (minv, maxv, ext) = self.constr.subtype[1].GetSize(ectx)
+    if minv == 'MIN': minv = 'NO_BOUND'
+    if maxv == 'MAX': maxv = 'NO_BOUND'
+    if (ext): ext = 'TRUE'
+    else: ext = 'FALSE'
     return (minv, maxv, ext)
 
-  def eth_get_value_constr(self):
-    (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
-    if not self.HasConstraint():
-      (minv, maxv, ext) = ('NO_BOUND', 'NO_BOUND', 'FALSE')
-    elif self.constr.IsValue():
-      (minv, maxv, ext) = self.constr.GetValue()
+  def eth_get_value_constr(self, ectx):
+    (minv, maxv, ext) = ('MIN', 'MAX', False)
+    if self.HasValueConstraint():
+      (minv, maxv, ext) = self.constr.GetValue(ectx)
+    if minv == 'MIN': minv = 'NO_BOUND'
+    if maxv == 'MAX': maxv = 'NO_BOUND'
+    if str(minv).isdigit(): minv += 'U'
+    if str(maxv).isdigit(): maxv += 'U'
+    if (ext): ext = 'TRUE'
+    else: ext = 'FALSE'
     return (minv, maxv, ext)
 
   def eth_type_vals(self, tname, ectx):
@@ -2493,6 +2590,10 @@ class ObjectClass (Node):
     self.name = name
     add_class_ident(self.name)
 
+  def eth_reg(self, ident, ectx):
+    if ectx.conform.use_item('OMIT_ASSIGNMENT', ident): return # Assignment to omit
+    ectx.eth_reg_objectclass(self.name)
+
 #--- Tag ---------------------------------------------------------------
 class Tag (Node):
   def to_python (self, ctx):
@@ -2528,51 +2629,52 @@ class Constraint (Node):
     return "Constraint: type=%s, subtype=%s" % (self.type, self.subtype)
 
   def IsSize(self):
-    return self.type == 'Size' and (self.subtype.type == 'SingleValue' or self.subtype.type == 'ValueRange')
+    return self.type == 'Size' and self.subtype.IsValue() \
+           or (self.type == 'Intersection' and (self.subtype[0].IsSize() or self.subtype[1].IsSize())) \
 
-  def GetSize(self):
-    minv = 'NO_BOUND'
-    maxv = 'NO_BOUND'
-    ext = 'FALSE'
+  def GetSize(self, ectx):
+    (minv, maxv, ext) = ('MIN', 'MAX', False)
     if self.IsSize():
-      if self.subtype.type == 'SingleValue':
-        minv = self.subtype.subtype
-        maxv = self.subtype.subtype
-      else:
-        minv = self.subtype.subtype[0]
-        maxv = self.subtype.subtype[1]
-      if hasattr(self.subtype, 'ext') and self.subtype.ext:
-        ext = 'TRUE'
-      else:
-        ext = 'FALSE'
+      if self.type == 'Size':
+        (minv, maxv, ext) = self.subtype.GetValue(ectx)
+      elif self.type == 'Intersection':
+        if self.subtype[0].IsSize() and not self.subtype[1].IsSize():
+          (minv, maxv, ext) = self.subtype[0].GetSize(ectx)
+        elif not self.subtype[0].IsSize() and self.subtype[1].IsSize():
+          (minv, maxv, ext) = self.subtype[1].GetSize(ectx)
     return (minv, maxv, ext)
 
   def IsValue(self):
-    return self.type == 'SingleValue' or self.type == 'ValueRange'
+    return self.type == 'SingleValue' \
+           or self.type == 'ValueRange' \
+           or (self.type == 'Intersection' and (self.subtype[0].IsValue() or self.subtype[1].IsValue())) \
+           or (self.type == 'Union' and (self.subtype[0].IsValue() and self.subtype[1].IsValue()))
 
-  def GetValue(self):
-    minv = 'NO_BOUND'
-    maxv = 'NO_BOUND'
-    ext = 'FALSE'
+  def GetValue(self, ectx):
+    (minv, maxv, ext) = ('MIN', 'MAX', False)
     if self.IsValue():
       if self.type == 'SingleValue':
-        minv = self.subtype
-        maxv = self.subtype
-      else:
-        if self.subtype[0] == 'MIN':
-          minv = 'NO_BOUND'
-        else:
-          minv = self.subtype[0]
-        if self.subtype[1] == 'MAX':
-          maxv = 'NO_BOUND'
-        else:
-          maxv = self.subtype[1]
-      if str(minv).isdigit(): minv += 'U'
-      if str(maxv).isdigit(): maxv += 'U'
-      if hasattr(self, 'ext') and self.ext:
-        ext = 'TRUE'
-      else:
-        ext = 'FALSE'
+        minv = ectx.value_get_eth(self.subtype)
+        maxv = ectx.value_get_eth(self.subtype)
+        ext = hasattr(self, 'ext') and self.ext
+      elif self.type == 'ValueRange':
+        minv = ectx.value_get_eth(self.subtype[0])
+        maxv = ectx.value_get_eth(self.subtype[1])
+        ext = hasattr(self, 'ext') and self.ext
+      elif self.type == 'Intersection':
+        if self.subtype[0].IsValue() and not self.subtype[1].IsValue():
+          (minv, maxv, ext) = self.subtype[0].GetValue(ectx)
+        elif not self.subtype[0].IsValue() and self.subtype[1].IsValue():
+          (minv, maxv, ext) = self.subtype[1].GetValue(ectx)
+        elif self.subtype[0].IsValue() and self.subtype[1].IsValue():
+          v0 = self.subtype[0].GetValue(ectx)
+          v1 = self.subtype[1].GetValue(ectx)
+          (minv, maxv, ext) = (ectx.value_max(v0[0],v1[0]), ectx.value_min(v0[1],v1[1]), v0[2] and v1[2])
+      elif self.type == 'Union':
+        if self.subtype[0].IsValue() and self.subtype[1].IsValue():
+          v0 = self.subtype[0].GetValue(ectx)
+          v1 = self.subtype[1].GetValue(ectx)
+          (minv, maxv, ext) = (ectx.value_min(v0[0],v1[0]), ectx.value_max(v0[1],v1[1]), v0[2] or v1[2])
     return (minv, maxv, ext)
 
   def IsNegativ(self):
@@ -2583,7 +2685,7 @@ class Constraint (Node):
     elif self.type == 'ValueRange':
       if self.subtype[0] == 'MIN': return True
       return is_neg(self.subtype[0])
-    return FALSE
+    return False
 
   def IsPermAlph(self):
     return self.type == 'From' and self.subtype.type == 'SingleValue'
@@ -2908,7 +3010,7 @@ class SequenceOfType (SeqOfType):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     pars['TABLE'] = '%(TNAME)s_sequence_of'
     return pars
 
@@ -2960,7 +3062,7 @@ class SetOfType (SeqOfType):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     pars['TABLE'] = '%(TNAME)s_set_of'
     return pars
 
@@ -3492,7 +3594,7 @@ class OpenType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Per()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_open_type', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_open_type%(FN_VARIANT)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),))
     else:
       body = '#error Can not decode %s' % (tname)
@@ -3598,7 +3700,7 @@ class OctetStringType (Type):
   def eth_tname(self):
     if not self.HasConstraint():
       return 'OCTET_STRING'
-    elif self.constr.IsSize():
+    elif self.constr.type == 'Size':
       return 'OCTET_STRING' + '_' + self.constr.eth_constrname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -3611,7 +3713,7 @@ class OctetStringType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3632,7 +3734,7 @@ class CharacterStringType (Type):
   def eth_tname(self):
     if not self.HasConstraint():
       return self.eth_tsname()
-    elif self.constr.IsSize():
+    elif self.constr.type == 'Size':
       return self.eth_tsname() + '_' + self.constr.eth_constrname()
     else:
       return '#' + self.type + '_' + str(id(self))
@@ -3656,7 +3758,7 @@ class RestrictedCharacterStringType (CharacterStringType):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     (pars['STRING_TYPE'], pars['STRING_TAG']) = (self.eth_tsname(), self.GetTTag(ectx)[1])
     (pars['ALPHABET'], pars['ALPHABET_LEN']) = ('NULL', '0')
     if self.HasPermAlph():
@@ -3927,6 +4029,11 @@ class IntegerType (Type):
     out += ectx.eth_vals(tname, vals)
     return out
 
+  def reg_enum_vals(self, tname, ectx):
+    vals = self.get_vals(ectx)
+    for (val, id) in vals:
+      ectx.eth_reg_value(id, self, val, ethname=ectx.eth_enum_item(tname, id))
+
   def eth_type_enum(self, tname, ectx):
     if not self.eth_has_enum(tname, ectx): return ''
     out = '\n'
@@ -3936,8 +4043,8 @@ class IntegerType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    if self.HasConstraint() and self.constr.IsValue():
-      (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr()
+    if self.HasValueConstraint():
+      (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_value_constr(ectx)
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3945,10 +4052,10 @@ class IntegerType (Type):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s->%(PINFO)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
-    elif (ectx.Per() and not self.HasConstraint()):
+    elif (ectx.Per() and not self.HasValueConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
-    elif (ectx.Per() and ((self.constr.type == 'SingleValue') or (self.constr.type == 'ValueRange'))):
+    elif (ectx.Per() and self.HasValueConstraint()):
       body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                    ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(EXT)s'),))
@@ -3990,7 +4097,7 @@ class BitStringType (Type):
 
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
-    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr()
+    (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     if not pars.has_key('ETT_INDEX'):
       pars['ETT_INDEX'] = '-1'
     pars['TABLE'] = 'NULL'
@@ -4097,18 +4204,6 @@ def p_DefinitiveIdentifier (t):
 #    'module_ref : UCASE_IDENT'
 #    t[0] = t[1]
 
-def p_assigned_ident_1 (t):
-    'assigned_ident : ObjectIdentifierValue'
-    t[0] = t[1]
-
-def p_assigned_ident_2 (t):
-    'assigned_ident : LCASE_IDENT'
-    t[0] = t[1]
-
-def p_assigned_ident_3 (t):
-    'assigned_ident : '
-    pass
-
 def p_module_body_1 (t):
     'module_body : exports Imports AssignmentList'
     t[0] = Module_Body (exports = t[1], imports = t[2], assign_list = t[3])
@@ -4143,9 +4238,11 @@ def p_exp_sym_list_2 (t):
     t[0] = t[1] + [t[3]]
     
 
-def p_Imports_1(t):
+def p_Imports_1 (t):
   'Imports : IMPORTS SymbolsImported SEMICOLON'
   t[0] = t[2]
+  global lcase_ident_assigned
+  lcase_ident_assigned = {}
 
 def p_Imports_2 (t):
   'Imports : '
@@ -4170,10 +4267,24 @@ def p_SymbolsFromModuleList_2 (t):
 def p_SymbolsFromModule (t):
   'SymbolsFromModule : SymbolList FROM GlobalModuleReference'
   t[0] = Node ('SymbolList', symbol_list = t[1], module = t[3])
+  for s in t[1]: 
+    if (isinstance(s, str) and s[0].islower()): lcase_ident_assigned[s] = t[3]
 
 def p_GlobalModuleReference (t):
-  'GlobalModuleReference : modulereference assigned_ident'
+  'GlobalModuleReference : modulereference AssignedIdentifier'
   t [0] = Node('module_ident', val = t[1], ident = t[2])
+
+def p_AssignedIdentifier_1 (t):
+  'AssignedIdentifier : ObjectIdentifierValue'
+  t[0] = t[1]
+
+def p_AssignedIdentifier_2 (t):
+  'AssignedIdentifier : LCASE_IDENT_ASSIGNED'
+  t[0] = t[1]
+
+def p_AssignedIdentifier_3 (t):
+  'AssignedIdentifier : '
+  pass
 
 def p_SymbolList_1 (t):
   'SymbolList : Symbol'
@@ -4221,15 +4332,20 @@ def p_Assignment (t):
 
 # 13.1
 def p_DefinedType (t): 
-  '''DefinedType : ext_type_ref
-  | type_ref
-  | ParameterizedType'''
+  '''DefinedType : ExternalTypeReference
+                 | type_ref
+                 | ParameterizedType'''
   t[0] = t[1]
 
 def p_DefinedValue(t):
   '''DefinedValue : ext_val_ref
                   | identifier'''
   t[0] = t[1]
+
+# 13.6
+def p_ExternalTypeReference (t):
+    'ExternalTypeReference : type_ref DOT type_ref'
+    t[0] = Node ('ExternalTypeReference', module = t[1], typ = t[3])
 
 
 # 15 Assigning types and values -----------------------------------------------
@@ -4242,8 +4358,19 @@ def p_TypeAssignment (t):
 
 # 15.2
 def p_ValueAssignment (t):
-  'ValueAssignment : valuereference Type ASSIGNMENT Value'
+  'ValueAssignment : valuereference ValueType ASSIGNMENT Value'
   t[0] = value_assign (ident = t[1], typ = t[2], val = t[4])
+
+# only "simple" types are supported to simplify grammer
+def p_ValueType (t):
+  '''ValueType : type_ref
+               | BooleanType
+               | IntegerType
+               | ObjectIdentifierType
+               | OctetStringType
+               | RealType'''
+
+  t[0] = t[1]
 
 
 # 16 Definition of types and values -------------------------------------------
@@ -4283,11 +4410,6 @@ def p_ReferencedType (t):
   '''ReferencedType : DefinedType
                     | UsefulType'''
   t[0] = t[1]
-
-def p_ext_type_ref (t):
-    'ext_type_ref : type_ref DOT type_ref'
-    # XXX coerce 1st type_ref to module_ref
-    t[0] = Node ('ext_type_ref', module = t[1], typ = t[3])
 
 # 16.5
 def p_NamedType (t):
@@ -4552,7 +4674,7 @@ def p_element_type_2 (t):
     t[0] = Node ('elt_type', val = t[1], optional = 1)
 
 def p_element_type_3 (t):
-    'element_type : NamedType DEFAULT Value'
+    'element_type : NamedType DEFAULT DefaultValue'
     t[0] = Node ('elt_type', val = t[1], optional = 1, default = t[3])
 #          /*
 #           * this rules uses NamedValue instead of Value
@@ -4560,6 +4682,20 @@ def p_element_type_3 (t):
 #           * it should be like a set/seq value (ie with
 #           * enclosing { }
 #           */
+
+def p_DefaultValue_1 (t):
+  '''DefaultValue : ReferencedValue 
+                  | BooleanValue
+                  | IntegerValue
+                  | RealValue
+                  | hex_string
+                  | binary_string
+                  | char_string'''
+  t[0] = t[1]
+
+def p_DefaultValue_2 (t):
+  'DefaultValue : lbraceignore rbraceignore'
+  t[0] = ''
 
 # XXX get to COMPONENTS later
 
@@ -4736,7 +4872,8 @@ def p_ObjIdComponents (t):
   t[0] = t[1]
 
 def p_NameForm (t):
-  'NameForm : LCASE_IDENT'
+  '''NameForm : LCASE_IDENT
+              | LCASE_IDENT_ASSIGNED'''
   t [0] = t[1]
 
 def p_NumberForm (t):
@@ -4745,7 +4882,8 @@ def p_NumberForm (t):
   t [0] = t[1]
 
 def p_NameAndNumberForm (t):
-  'NameAndNumberForm : LCASE_IDENT LPAREN NumberForm RPAREN'
+  '''NameAndNumberForm : LCASE_IDENT_ASSIGNED LPAREN NumberForm RPAREN
+                       | LCASE_IDENT LPAREN NumberForm RPAREN'''
   t[0] = Node('name_and_number', ident = t[1], number = t[3])
 
 # 34 Notation for the external type -------------------------------------------
@@ -4900,16 +5038,24 @@ def p_ElementSetSpecs_3 (t):
 # skip compound constraints, only simple ones are supported
 
 def p_RootElementSetSpec_1 (t):
-    'RootElementSetSpec : SubtypeElements'
-    t[0] = t[1]
+  'RootElementSetSpec : SubtypeElements'
+  t[0] = t[1]
 
 def p_RootElementSetSpec_2 (t):
-    'RootElementSetSpec : SubtypeElements IntersectionMark SubtypeElements'
-    t[0] = Constraint(type = 'Intersection', subtype = [t[1], t[3]])
+  'RootElementSetSpec : SubtypeElements UnionMark SubtypeElements'
+  t[0] = Constraint(type = 'Union', subtype = [t[1], t[3]])
+
+def p_RootElementSetSpec_3 (t):
+  'RootElementSetSpec : SubtypeElements IntersectionMark SubtypeElements'
+  t[0] = Constraint(type = 'Intersection', subtype = [t[1], t[3]])
+
+def p_UnionMark (t):
+  '''UnionMark : BAR
+               | UNION'''
 
 def p_IntersectionMark (t):
-    '''IntersectionMark : CIRCUMFLEX
-                        | INTERSECTION'''
+  '''IntersectionMark : CIRCUMFLEX
+                      | INTERSECTION'''
 
 # 47 Subtype elements ---------------------------------------------------------
 
@@ -5113,9 +5259,9 @@ def p_objectclassreference (t):
 
 # 7.2 Information object references
 
-#def p_objectreference (t):
-#  'objectreference : LCASE_IDENT'
-#  t[0] = t[1]
+def p_objectreference (t):
+  'objectreference : LCASE_IDENT'
+  t[0] = t[1]
 
 # 7.3 Information object set references
 
@@ -5183,7 +5329,7 @@ def p_FieldName (t):
 
 # 11.1
 def p_ObjectAssignment (t):
-  'ObjectAssignment : valuereference CLASS_IDENT ASSIGNMENT Object'
+  'ObjectAssignment : objectreference CLASS_IDENT ASSIGNMENT Object'
   t[0] = Node('ObjectAssignment', name=t[1], cls=t[2], val=t[4])
 
 # 11.4
@@ -5396,6 +5542,25 @@ def p_ActualParameterList (t):
 #  t[0] = t[1]
 
 
+#  {...} OID value
+#def p_lbrace_oid(t):
+#  'lbrace_oid : brace_oid_begin LBRACE'
+#  t[0] = t[1]
+
+#def p_brace_oid_begin(t):
+#  'brace_oid_begin : '
+#  global in_oid
+#  in_oid = True
+
+#def p_rbrace_oid(t):
+#  'rbrace_oid : brace_oid_end RBRACE'
+#  t[0] = t[2]
+
+#def p_brace_oid_end(t):
+#  'brace_oid_end : '
+#  global in_oid
+#  in_oid = False
+
 #  {...} block to be ignored
 def p_lbraceignore(t):
   'lbraceignore : braceignorebegin LBRACE'
@@ -5547,6 +5712,7 @@ def eth_main():
   ast = []
   for fn in args:
     input_file = fn
+    lexer.lineno = 1
     f = open (fn, "r")
     ast.extend(yacc.parse(f.read(), lexer=lexer, debug=pd))
     f.close ()

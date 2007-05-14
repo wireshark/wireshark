@@ -31251,7 +31251,7 @@ int
 dissect_umts_rrc_ies_RL_AdditionInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_umts_rrc_ies_RL_AdditionInformationList, RL_AdditionInformationList_sequence_of,
-                                                  1, maxRL-1);
+                                                  1, maxRL_1);
 
   return offset;
 }
@@ -31265,7 +31265,7 @@ int
 dissect_umts_rrc_ies_RL_AdditionInformationList_r6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_umts_rrc_ies_RL_AdditionInformationList_r6, RL_AdditionInformationList_r6_sequence_of,
-                                                  1, maxRL-1);
+                                                  1, maxRL_1);
 
   return offset;
 }

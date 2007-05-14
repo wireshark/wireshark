@@ -301,6 +301,7 @@ EXTRA_DIST = \
 	q932/q932-ros.asn	\
 	q932/q932.cnf	\
 	q932/q932-ros.cnf	\
+	q932/q932-exp.cnf	\
 	q932/Makefile	\
 	q932/Makefile.nmake	\
 	q932/packet-q932-ros-template.c	\
@@ -313,6 +314,7 @@ EXTRA_DIST = \
 	qsig/qsig-gf-gp.asn 	\
 	qsig/qsig-na.asn 	\
 	qsig/qsig.cnf	\
+	qsig/qsig-exp.cnf	\
 	qsig/Makefile	\
 	qsig/Makefile.nmake	\
 	qsig/packet-qsig-template.c	\
