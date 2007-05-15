@@ -3563,6 +3563,11 @@ class EnumeratedType (Type):
     out += ectx.eth_vals(tname, vals)
     return out
 
+  def reg_enum_vals(self, tname, ectx):
+    vals = self.get_vals_etc(ectx)[0]
+    for (val, id) in vals:
+      ectx.eth_reg_value(id, self, val, ethname=ectx.eth_enum_item(tname, id))
+
   def eth_type_enum(self, tname, ectx):
     out = '\n'
     vals = self.get_vals_etc(ectx)[0]
