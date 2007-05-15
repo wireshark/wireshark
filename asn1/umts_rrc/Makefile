@@ -7,7 +7,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2wrs.py umts_rrc_Class-definitions.asn packet-umts_rrc-template.c packet-umts_rrc-template.h umts_rrc.cnf
-	python ../../tools/asn2wrs.py -X -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template  umts_rrc_Class-definitions.asn
+	python ../../tools/asn2wrs.py -e -p umts_rrc -c umts_rrc.cnf -s packet-umts_rrc-template  umts_rrc_Class-definitions.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
