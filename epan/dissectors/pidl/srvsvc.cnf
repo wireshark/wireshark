@@ -15,6 +15,10 @@ MANUAL srvsvc_dissect_element_NetSrvInfo102_server_type
 # until we get secinfo
 MANUAL srvsvc_dissect_element_NetGetFileSecurity_securityinformation
 MANUAL srvsvc_dissect_element_NetSetFileSecurity_securityinformation
+
+HF_FIELD hf_srvsvc_sec_desc_buf_len "Sec Desc Buf Len" "srvsvc.sec_desc_buf_len" FT_UINT32 BASE_DEC NULL 0 "" "" ""
+
+
 CODE START
 	#include "packet-smb.h"
 	#include "packet-smb-browse.h"
@@ -32,7 +36,7 @@ srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 	}
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-		-1, &len);
+		hf_srvsvc_sec_desc_buf_len, &len);
 
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, TRUE, len,
 		NULL);
