@@ -39,3 +39,15 @@ DISSECTOR_SRC = \
 	opcua_simpletypes.c \
 	opcua_servicetable.c \
 	opcua_hfindeces.c
+
+# corresponding headers
+DISSECTOR_INCLUDES =	\
+	opcua_complextypeparser.h \
+	opcua_enumparser.h \
+	opcua_hfindeces.h \
+	opcua_identifiers.h \
+	opcua_serviceparser.h \
+	opcua_simpletypes.h \
+	ua_application_layer.h \
+	ua_security_layer.h \
+	ua_transport_layer.h
