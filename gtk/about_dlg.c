@@ -141,7 +141,7 @@ splash_new(char *message)
     percentage_lb = gtk_label_new("  0%");
     gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
-    OBJECT_SET_DATA(win, "percentage_label", percentage_lb);    
+    OBJECT_SET_DATA(win, "percentage_label", percentage_lb);
 
     gtk_widget_show_all(win);
 
@@ -149,6 +149,8 @@ splash_new(char *message)
 
     return win;
 }
+
+#define REGISTER_FREQ 250 /* Milliseconds */
 
 void
 splash_update(register_action_e action, char *message, gpointer client_data)
@@ -167,9 +169,21 @@ splash_update(register_action_e action, char *message, gpointer client_data)
 
     static register_action_e last_action = RA_NONE;
 
+    static GTimeVal cur_tv;
+    static GTimeVal next_tv = {0, 0};
+
     win = (GtkWidget *)client_data;
 
     if (win == NULL) return;
+
+    g_get_current_time(&cur_tv);
+    if (cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
+      /* Only update every REGISTER_FREQ milliseconds */
+      ul_sofar++;
+      return;
+    }
+    memcpy(&next_tv, &cur_tv, sizeof(next_tv));
+    g_time_val_add(&next_tv, REGISTER_FREQ * 1000);
 
     if(last_action != action) {
       /* the action has changed */
@@ -208,12 +222,12 @@ splash_update(register_action_e action, char *message, gpointer client_data)
 
     if(ul_count == 0) /* get the count of dissectors */
       ul_count = register_count() + 6; /* additional 6 for:
-					  dissectors, listeners, 
+					  dissectors, listeners,
 					  registering plugins, handingoff plugins,
 					  preferences and configuration */
-					 
+
     main_lb = OBJECT_GET_DATA(win, "protocol_label");
-    /* make_dissector_reg.py changed - 
+    /* make_dissector_reg.py changed -
        so we need to strip off the leading elements to get back to the protocol */
     if(message) {
       if(!strncmp(message, "proto_register_", 15))
