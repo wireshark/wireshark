@@ -115,7 +115,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
 #endif
   current_time = time(NULL);
 
-  g_snprintf(filenum, sizeof(filenum), "%05d", rb_data.curr_file_num + 1 /*.number*/);
+  g_snprintf(filenum, sizeof(filenum), "%05u", (rb_data.curr_file_num + 1) % 100000);
   strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
 			    rb_data.fsuffix, NULL);
@@ -249,7 +249,7 @@ gboolean
 ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, 
                     long *bytes_written, int *err)
 {
-  int     next_file_num;
+  int     next_file_index;
   rb_file *next_rfile = NULL;
 
   /* close current file */
@@ -267,8 +267,8 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
   /* get the next file number and open it */
 
   rb_data.curr_file_num++ /* = next_file_num*/;
-  next_file_num = (rb_data.curr_file_num) % rb_data.num_files;  
-  next_rfile = &rb_data.files[next_file_num];
+  next_file_index = (rb_data.curr_file_num) % rb_data.num_files;
+  next_rfile = &rb_data.files[next_file_index];
 
   if (ringbuf_open_file(next_rfile, err) == -1) {
     return FALSE;
