@@ -895,11 +895,12 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 				/* SIP URI */
 				item_len = tvb_get_guint8( tvb, offset );
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, 1, FALSE );
+				/* Item len of 1 because its an FT_UINT_STRING... */
+				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_sip_uri,
+				                    tvb, offset, 1, FALSE );
                 offset++;
 
-				if (check_col(pinfo->cinfo, COL_INFO))
-				{
+				if (check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
 					                tvb_get_ephemeral_string(tvb, offset, item_len));
 				}
@@ -927,10 +928,18 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 					/* Display name */
 					item_len = tvb_get_guint8( tvb, offset );
-					offset++;
 					if (item_len != 0) {
-						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, 1, FALSE );
+						/* Item len of 1 because its an FT_UINT_STRING... */
+						proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
+						                    tvb, offset, 1, FALSE);
 					}
+					offset++;
+
+					if (check_col(pinfo->cinfo, COL_INFO)) {
+						col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
+										tvb_get_ephemeral_string(tvb, offset, item_len));
+					}
+
 					offset += item_len;
 					packet_len = packet_len - item_len - 1;
 
