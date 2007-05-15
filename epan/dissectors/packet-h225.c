@@ -1578,7 +1578,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   guint len = 0;
 
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789#*,", strlen("0123456789#*,"),
+                                                      1, 128, "0123456789#*,", 13,
                                                       &value_tvb);
 
   if (h225_pi->is_destinationInfo == TRUE) {
@@ -1792,7 +1792,7 @@ dissect_h225_PublicTypeOfNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_h225_NumberDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789#*,", strlen("0123456789#*,"),
+                                                      1, 128, "0123456789#*,", 13,
                                                       NULL);
 
   return offset;
@@ -1891,7 +1891,7 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      NO_BOUND, NO_BOUND, "0123456789#*abc", strlen("0123456789#*abc"),
+                                                      NO_BOUND, NO_BOUND, "0123456789#*abc", 15,
                                                       NULL);
 
   return offset;
@@ -2044,7 +2044,7 @@ dissect_h225_NatureOfAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_h225_IsupDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      1, 128, "0123456789ABCDE", strlen("0123456789ABCDE"),
+                                                      1, 128, "0123456789ABCDE", 15,
                                                       NULL);
 
   return offset;

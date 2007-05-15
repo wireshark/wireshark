@@ -172,6 +172,10 @@ states = (
   ('braceignore','exclusive'),
 )
 
+precedence = (
+  ('left', 'UNION', 'BAR'),
+  ('left', 'INTERSECTION', 'CIRCUMFLEX'),
+)
 # 11 ASN.1 lexical items
 
 static_tokens = {
@@ -2371,6 +2375,9 @@ class Type (Node):
   def HasValueConstraint(self):
     return self.HasConstraint() and self.constr.IsValue()
 
+  def HasPermAlph(self):
+    return self.HasConstraint() and self.constr.IsPermAlph()
+
   def HasOwnTag(self):
     return len(self.tags) > 0
 
@@ -2508,6 +2515,19 @@ class Type (Node):
     if (ext): ext = 'TRUE'
     else: ext = 'FALSE'
     return (minv, maxv, ext)
+
+  def eth_get_alphabet_constr(self, ectx):
+    (alph, alphlen) = ('NULL', '0')
+    if self.HasPermAlph():
+      alph = self.constr.GetPermAlph(ectx)
+      if not alph:
+        alph = 'NULL'
+      if (alph != 'NULL'):
+        if (((alph[0] + alph[-1]) == '""') and (not alph.count('"', 1, -1))):
+          alphlen = str(len(alph) - 2)
+        else:
+          alphlen = 'strlen(%s)' % (alph)
+    return (alph, alphlen)
 
   def eth_type_vals(self, tname, ectx):
     if self.eth_has_vals():
@@ -2677,6 +2697,51 @@ class Constraint (Node):
           (minv, maxv, ext) = (ectx.value_min(v0[0],v1[0]), ectx.value_max(v0[1],v1[1]), v0[2] or v1[2])
     return (minv, maxv, ext)
 
+  def IsAlphabet(self):
+    return self.type == 'SingleValue' \
+           or self.type == 'ValueRange' \
+           or (self.type == 'Intersection' and (self.subtype[0].IsAlphabet() or self.subtype[1].IsAlphabet())) \
+           or (self.type == 'Union' and (self.subtype[0].IsAlphabet() and self.subtype[1].IsAlphabet()))
+
+  def GetAlphabet(self, ectx):
+    alph = None
+    if self.IsAlphabet():
+      if self.type == 'SingleValue':
+        alph = ectx.value_get_eth(self.subtype)
+      elif self.type == 'ValueRange':
+        if ((len(self.subtype[0]) == 3) and ((self.subtype[0][0] + self.subtype[0][-1]) == '""') \
+            and (len(self.subtype[1]) == 3) and ((self.subtype[1][0] + self.subtype[1][-1]) == '""')):
+          alph = '"'
+          for c in range(ord(self.subtype[0][1]), ord(self.subtype[1][1]) + 1):
+            alph += chr(c)
+          alph += '"'
+      elif self.type == 'Union':
+        if self.subtype[0].IsAlphabet() and self.subtype[1].IsAlphabet():
+          a0 = self.subtype[0].GetAlphabet(ectx)
+          a1 = self.subtype[1].GetAlphabet(ectx)
+          if (((a0[0] + a0[-1]) == '""') and not a0.count('"', 1, -1) \
+              and ((a1[0] + a1[-1]) == '""') and not a1.count('"', 1, -1)):
+            alph = '"' + a0[1:-1] + a1[1:-1] + '"'
+          else:
+            alph = a0 + ' ' + a1
+    return alph
+
+  def IsPermAlph(self):
+    return self.type == 'From' and self.subtype.IsAlphabet() \
+           or (self.type == 'Intersection' and (self.subtype[0].IsPermAlph() or self.subtype[1].IsPermAlph())) \
+
+  def GetPermAlph(self, ectx):
+    alph = None
+    if self.IsPermAlph():
+      if self.type == 'From':
+        alph = self.subtype.GetAlphabet(ectx)
+      elif self.type == 'Intersection':
+        if self.subtype[0].IsPermAlph() and not self.subtype[1].IsPermAlph():
+          alph = self.subtype[0].GetPermAlph(ectx)
+        elif not self.subtype[0].IsPermAlph() and self.subtype[1].IsPermAlph():
+          alph = self.subtype[1].GetPermAlph(ectx)
+    return alph
+
   def IsNegativ(self):
     def is_neg(sval):
       return sval[0] == '-'
@@ -2686,9 +2751,6 @@ class Constraint (Node):
       if self.subtype[0] == 'MIN': return True
       return is_neg(self.subtype[0])
     return False
-
-  def IsPermAlph(self):
-    return self.type == 'From' and self.subtype.type == 'SingleValue'
 
   def eth_constrname(self):
     def int2str(val):
@@ -3749,26 +3811,11 @@ class RestrictedCharacterStringType (CharacterStringType):
   def GetTTag(self, ectx):
     return ('BER_CLASS_UNI', 'BER_UNI_TAG_' + self.eth_tsname())
 
-  def HasPermAlph(self):
-    return (self.HasConstraint() and 
-            (self.constr.IsPermAlph() or 
-             (self.constr.type == 'Intersection' and (self.constr.subtype[0].IsPermAlph() or self.constr.subtype[1].IsPermAlph()))
-            )
-           )
-
   def eth_type_default_pars(self, ectx, tname):
     pars = Type.eth_type_default_pars(self, ectx, tname)
     (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     (pars['STRING_TYPE'], pars['STRING_TAG']) = (self.eth_tsname(), self.GetTTag(ectx)[1])
-    (pars['ALPHABET'], pars['ALPHABET_LEN']) = ('NULL', '0')
-    if self.HasPermAlph():
-      if self.constr.IsPermAlph():
-        pars['ALPHABET'] = self.constr.subtype.subtype
-      elif self.constr.subtype[0].IsPermAlph():
-        pars['ALPHABET'] = self.constr.subtype[0].subtype.subtype
-      elif self.constr.subtype[1].IsPermAlph():
-        pars['ALPHABET'] = self.constr.subtype[1].subtype.subtype
-      pars['ALPHABET_LEN'] = 'strlen(%(ALPHABET)s)'
+    (pars['ALPHABET'], pars['ALPHABET_LEN']) = self.eth_get_alphabet_constr(ectx)
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -5022,32 +5069,58 @@ def p_ConstraintSpec (t):
 
 # 46.1
 def p_ElementSetSpecs_1 (t):
-    'ElementSetSpecs : RootElementSetSpec'
-    t[0] = t[1]
-
-def p_ElementSetSpecs_2 (t):
-    'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS'
-    t[0] = t[1]
-    t[0].ext = True
-
-def p_ElementSetSpecs_3 (t):
-    'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS COMMA ElementSetSpecs'
-    t[0] = t[1]
-    t[0].ext = True
-
-# skip compound constraints, only simple ones are supported
-
-def p_RootElementSetSpec_1 (t):
-  'RootElementSetSpec : SubtypeElements'
+  'ElementSetSpecs : RootElementSetSpec'
   t[0] = t[1]
 
-def p_RootElementSetSpec_2 (t):
-  'RootElementSetSpec : SubtypeElements UnionMark SubtypeElements'
+def p_ElementSetSpecs_2 (t):
+  'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS'
+  t[0] = t[1]
+  t[0].ext = True
+
+def p_ElementSetSpecs_3 (t):
+  'ElementSetSpecs : RootElementSetSpec COMMA ELLIPSIS COMMA AdditionalElementSetSpec'
+  t[0] = t[1]
+  t[0].ext = True
+
+def p_RootElementSetSpec (t):
+  'RootElementSetSpec : ElementSetSpec'
+  t[0] = t[1]
+
+def p_AdditionalElementSetSpec (t):
+  'AdditionalElementSetSpec : ElementSetSpec'
+  t[0] = t[1]
+
+def p_ElementSetSpec (t):
+  'ElementSetSpec : Unions'
+  t[0] = t[1]
+
+def p_Unions_1 (t):
+  'Unions : Intersections'
+  t[0] = t[1]
+
+def p_Unions_2 (t):
+  'Unions : UElems UnionMark Intersections'
   t[0] = Constraint(type = 'Union', subtype = [t[1], t[3]])
 
-def p_RootElementSetSpec_3 (t):
-  'RootElementSetSpec : SubtypeElements IntersectionMark SubtypeElements'
+def p_UElems (t):
+  'UElems : Unions'
+  t[0] = t[1]
+
+def p_Intersections_1 (t):
+  'Intersections : IntersectionElements'
+  t[0] = t[1]
+
+def p_Intersections_2 (t):
+  'Intersections : IElems IntersectionMark IntersectionElements'
   t[0] = Constraint(type = 'Intersection', subtype = [t[1], t[3]])
+
+def p_IElems (t):
+  'IElems : Intersections'
+  t[0] = t[1]
+
+def p_IntersectionElements (t):
+  'IntersectionElements : SubtypeElements'
+  t[0] = t[1]
 
 def p_UnionMark (t):
   '''UnionMark : BAR
