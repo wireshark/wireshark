@@ -668,7 +668,7 @@ class EthCtx:
       if self.objectclass[ident]['import'] and (self.objectclass[ident]['import'] == self.module()) :
         # replace imported object class
         del self.objectclass[ident]
-        self.objectclass_imp.remove(value)
+        self.objectclass_imp.remove(ident)
       else:
         raise "Duplicate object class for " + ident
     self.objectclass[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto }
@@ -682,7 +682,7 @@ class EthCtx:
       if self.value[ident]['import'] and (self.value[ident]['import'] == self.module()) :
         # replace imported value
         del self.value[ident]
-        self.value_imp.remove(value)
+        self.value_imp.remove(ident)
       else:
         raise "Duplicate value for " + ident
     self.value[ident] = { 'import' : None, 'module' : self.module(), 'proto' : self.proto,
