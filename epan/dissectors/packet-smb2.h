@@ -89,6 +89,7 @@ typedef struct _smb2_conv_info_t {
  */
 #define SMB2_FLAGS_RESPONSE	0x00000001
 #define SMB2_FLAGS_PID_VALID	0x00000002
+#define SMB2_FLAGS_ENDOFCHAIN	0x00000004
 #define SMB2_FLAGS_SIGNATURE	0x00000008
 typedef struct _smb2_info_t {
 	guint16 opcode;

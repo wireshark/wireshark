@@ -62,6 +62,7 @@ static int hf_smb2_tid = -1;
 static int hf_smb2_uid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_flags_pid_valid = -1;
+static int hf_smb2_flags_end_of_chain = -1;
 static int hf_smb2_flags_signature = -1;
 static int hf_smb2_chain_offset = -1;
 static int hf_smb2_response_buffer_offset = -1;
@@ -698,6 +699,11 @@ static const true_false_string tfs_flags_response = {
 static const true_false_string tfs_flags_pid_valid = {
 	"The PID field is VALID",
 	"The pid field if NOT valid"
+};
+
+static const true_false_string tfs_flags_end_of_chain = {
+	"This pdu is the END OF A CHAIN",
+	"This pdu is NOT an end of a chain"
 };
 
 static const true_false_string tfs_flags_signature = {
@@ -4316,6 +4322,7 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
 	}
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_end_of_chain, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_pid_valid, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
 
@@ -4548,6 +4555,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_pid_valid,
 		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_pid_valid), SMB2_FLAGS_PID_VALID, "Whether the PID field is valid or not", HFILL }},
+	{ &hf_smb2_flags_end_of_chain,
+		{ "End Of Chain", "smb2.flags.end_of_chain", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_end_of_chain), SMB2_FLAGS_ENDOFCHAIN, "Whether the pdu ends a chain or not", HFILL }},
 	{ &hf_smb2_flags_signature,
 		{ "Signing", "smb2.flags.signature", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_signature), SMB2_FLAGS_SIGNATURE, "Whether the pdu is signed or not", HFILL }},
