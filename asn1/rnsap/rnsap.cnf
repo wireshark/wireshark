@@ -4,10 +4,9 @@
 # $Id$
 
 #.OPT
-CREATE_FIELDS DummyInitiatingValue
-CREATE_FIELDS DummySuccessfulOutcomeValue
-CREATE_FIELDS DummyUnSuccessfulOutcomeValue
-CREATE_FIELDS DummyProtocolIE
+PER
+ALIGNED
+#.END
 
 #.PDU
 RNSAP-PDU
@@ -16,8 +15,8 @@ RNSAP-PDU
 ProcedureCode
 
 #.MAKE_ENUM
-ProtocolIE-ID 
-
+ProtocolIE-ID
+ProcedureID/ddMode
 
 #.CLASS RNSAP-PROTOCOL-IES
 id           TypeReference ProtocolIE-ID
@@ -61,11 +60,13 @@ criticality TypeReference Criticality
 
 
 #.TYPE_RENAME
+ProcedureID/ddMode DdMode
 
 #.FIELD_RENAME
 
 #.OMIT_ASSIGNMENT
 ProtocolIE-ContainerList
+ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 #.END
 
@@ -84,12 +85,23 @@ ProtocolIE-ContainerPairList
 #.END
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
 
+#.FN_HDR ProcedureID
+  ProcedureCode = 0xFFFF;
+  ddMode = 0xFFFF;
+  ProcedureID = NULL;
+#.END
 
-#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_InitiatingMessageValueValue
+#.FN_FTR ProcedureID
+  ProcedureID = ep_strdup_printf("%s/%s", 
+                                 val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
+                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));      
+#.END
 
-#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_SuccessfulOutcomeValueValue
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
-#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_rnsap_UnsuccessfulOutcomeValueValue
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
 
 #.FN_BODY L3-Information  VAL_PTR = &parameter_tvb
@@ -571,5 +583,92 @@ C-ID                               N rnsap.extension id-C-ID
 S-RNTI                             N rnsap.extension id-S-RNTI
 D-RNTI                             N rnsap.extension id-D-RNTI
 E-DCH-FDD-Update-Information       N rnsap.extension id-E-DCH-FDD-Update-Information
+
+#RNSAP-ELEMENTARY-PROCEDURE
+RadioLinkSetupRequestFDD               S rnsap.proc.imsg "id-radioLinkSetup/fdd"
+RadioLinkSetupResponseFDD              S rnsap.proc.sout "id-radioLinkSetup/fdd"
+RadioLinkSetupFailureFDD               S rnsap.proc.uout "id-radioLinkSetup/fdd"
+RadioLinkSetupRequestTDD               S rnsap.proc.imsg "id-radioLinkSetup/tdd"
+RadioLinkSetupResponseTDD              S rnsap.proc.sout "id-radioLinkSetup/tdd"
+RadioLinkSetupFailureTDD               S rnsap.proc.uout "id-radioLinkSetup/tdd"
+RadioLinkDeletionRequest               S rnsap.proc.imsg "id-radioLinkDeletion/common"
+RadioLinkDeletionResponse              S rnsap.proc.sout "id-radioLinkDeletion/common"
+RadioLinkReconfigurationPrepareFDD     S rnsap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationReadyFDD       S rnsap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationFailure        S rnsap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationPrepareTDD     S rnsap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationReadyTDD       S rnsap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationFailure        S rnsap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationRequestFDD     S rnsap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationResponseFDD    S rnsap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationFailure        S rnsap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationRequestTDD     S rnsap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationResponseTDD    S rnsap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationFailure        S rnsap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+PhysicalChannelReconfigurationRequestFDD S rnsap.proc.imsg "id-physicalChannelReconfiguration/fdd"
+PhysicalChannelReconfigurationCommand  S rnsap.proc.sout "id-physicalChannelReconfiguration/fdd"
+PhysicalChannelReconfigurationFailure  S rnsap.proc.uout "id-physicalChannelReconfiguration/fdd"
+PhysicalChannelReconfigurationRequestTDD S rnsap.proc.imsg "id-physicalChannelReconfiguration/tdd"
+PhysicalChannelReconfigurationCommand  S rnsap.proc.sout "id-physicalChannelReconfiguration/tdd"
+PhysicalChannelReconfigurationFailure  S rnsap.proc.uout "id-physicalChannelReconfiguration/tdd"
+DedicatedMeasurementInitiationRequest  S rnsap.proc.imsg "id-dedicatedMeasurementInitiation/common"
+DedicatedMeasurementInitiationResponse S rnsap.proc.sout "id-dedicatedMeasurementInitiation/common"
+DedicatedMeasurementInitiationFailure  S rnsap.proc.uout "id-dedicatedMeasurementInitiation/common"
+CommonTransportChannelResourcesRequest S rnsap.proc.imsg "id-commonTransportChannelResourcesInitialisation/fdd"
+CommonTransportChannelResourcesResponseFDD S rnsap.proc.sout "id-commonTransportChannelResourcesInitialisation/fdd"
+CommonTransportChannelResourcesFailure S rnsap.proc.uout "id-commonTransportChannelResourcesInitialisation/fdd"
+CommonTransportChannelResourcesRequest S rnsap.proc.imsg "id-commonTransportChannelResourcesInitialisation/tdd"
+CommonTransportChannelResourcesResponseTDD S rnsap.proc.sout "id-commonTransportChannelResourcesInitialisation/tdd"
+CommonTransportChannelResourcesFailure S rnsap.proc.uout "id-commonTransportChannelResourcesInitialisation/tdd"
+UplinkSignallingTransferIndicationFDD  S rnsap.proc.imsg "id-uplinkSignallingTransfer/fdd"
+UplinkSignallingTransferIndicationTDD  S rnsap.proc.imsg "id-uplinkSignallingTransfer/tdd"
+DownlinkSignallingTransferRequest      S rnsap.proc.imsg "id-downlinkSignallingTransfer/common"
+RelocationCommit                       S rnsap.proc.imsg "id-relocationCommit/common"
+PagingRequest                          S rnsap.proc.imsg "id-paging/common"
+RadioLinkReconfigurationCommit         S rnsap.proc.imsg "id-synchronisedRadioLinkReconfigurationCommit/common"
+RadioLinkReconfigurationCancel         S rnsap.proc.imsg "id-synchronisedRadioLinkReconfigurationCancellation/common"
+RadioLinkFailureIndication             S rnsap.proc.imsg "id-radioLinkFailure/common"
+RadioLinkPreemptionRequiredIndication  S rnsap.proc.imsg "id-radioLinkPreemption/common"
+RadioLinkRestoreIndication             S rnsap.proc.imsg "id-radioLinkRestoration/common"
+DedicatedMeasurementReport             S rnsap.proc.imsg "id-dedicatedMeasurementReporting/common"
+DedicatedMeasurementTerminationRequest S rnsap.proc.imsg "id-dedicatedMeasurementTermination/common"
+DedicatedMeasurementFailureIndication  S rnsap.proc.imsg "id-dedicatedMeasurementFailure/common"
+RadioLinkCongestionIndication          S rnsap.proc.imsg "id-radioLinkCongestion/common"
+DL-PowerControlRequest                 S rnsap.proc.imsg "id-downlinkPowerControl/fdd"
+DL-PowerTimeslotControlRequest         S rnsap.proc.imsg "id-downlinkPowerTimeslotControl/tdd"
+CompressedModeCommand                  S rnsap.proc.imsg "id-compressedModeCommand/fdd"
+CommonTransportChannelResourcesReleaseRequest S rnsap.proc.imsg "id-commonTransportChannelResourcesRelease/common"
+ErrorIndication                        S rnsap.proc.imsg "id-errorIndication/common"
+CommonMeasurementInitiationRequest     S rnsap.proc.imsg "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationResponse    S rnsap.proc.sout "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationFailure     S rnsap.proc.uout "id-commonMeasurementInitiation/common"
+CommonMeasurementReport                S rnsap.proc.imsg "id-commonMeasurementReporting/common"
+CommonMeasurementTerminationRequest    S rnsap.proc.imsg "id-commonMeasurementTermination/common"
+CommonMeasurementFailureIndication     S rnsap.proc.imsg "id-commonMeasurementFailure/common"
+InformationExchangeInitiationRequest   S rnsap.proc.imsg "id-informationExchangeInitiation/common"
+InformationExchangeInitiationResponse  S rnsap.proc.sout "id-informationExchangeInitiation/common"
+InformationExchangeInitiationFailure   S rnsap.proc.uout "id-informationExchangeInitiation/common"
+InformationReport                      S rnsap.proc.imsg "id-informationReporting/common"
+InformationExchangeTerminationRequest  S rnsap.proc.imsg "id-informationExchangeTermination/common"
+InformationExchangeFailureIndication   S rnsap.proc.imsg "id-informationExchangeFailure/common"
+PrivateMessage                         S rnsap.proc.imsg "id-privateMessage/common"
+ResetRequest                           S rnsap.proc.imsg "id-reset/common"
+ResetResponse                          S rnsap.proc.sout "id-reset/common"
+RadioLinkActivationCommandFDD          S rnsap.proc.imsg "id-radioLinkActivation/fdd"
+RadioLinkActivationCommandTDD          S rnsap.proc.imsg "id-radioLinkActivation/tdd"
+GERANUplinkSignallingTransferIndication S rnsap.proc.imsg "id-gERANuplinkSignallingTransfer/common"
+RadioLinkParameterUpdateIndicationFDD  S rnsap.proc.imsg "id-radioLinkParameterUpdate/fdd"
+RadioLinkParameterUpdateIndicationTDD  S rnsap.proc.imsg "id-radioLinkParameterUpdate/tdd"
+UEMeasurementInitiationRequest         S rnsap.proc.imsg "id-uEMeasurementInitiation/tdd"
+UEMeasurementInitiationResponse        S rnsap.proc.sout "id-uEMeasurementInitiation/tdd"
+UEMeasurementInitiationFailure         S rnsap.proc.uout "id-uEMeasurementInitiation/tdd"
+UEMeasurementReport                    S rnsap.proc.imsg "id-uEMeasurementReporting/tdd"
+UEMeasurementTerminationRequest        S rnsap.proc.imsg "id-uEMeasurementTermination/tdd"
+UEMeasurementFailureIndication         S rnsap.proc.imsg "id-uEMeasurementFailure/tdd"
+IurInvokeTrace                         S rnsap.proc.imsg "id-iurInvokeTrace/common"
+IurDeactivateTrace                     S rnsap.proc.imsg "id-iurDeactivateTrace/common"
+MBMSAttachCommand                      S rnsap.proc.imsg "id-mBMSAttach/common"
+MBMSDetachCommand                      S rnsap.proc.imsg "id-mBMSDetach/common"
+DirectInformationTransfer              S rnsap.proc.imsg "id-directInformationTransfer/common"
 
 #.END

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-rnsap.c                                                           */
-/* ../../tools/asn2wrs.py -p rnsap -c rnsap.cnf -s packet-rnsap-template RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn rnsap_dummy.asn */
+/* ../../tools/asn2wrs.py -p rnsap -c rnsap.cnf -s packet-rnsap-template RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn */
 
 /* Input file: packet-rnsap-template.c */
 
@@ -59,8 +59,6 @@
 #define PFNAME "rnsap"
 
 #define SCCP_SSN_RNSAP 143
-
-#define RNSAP_FDD 1
 
 
 /*--- Included file: packet-rnsap-val.h ---*/
@@ -200,6 +198,12 @@
 #define RNSAP_ID_MBMSATTACH  45
 #define RNSAP_ID_MBMSDETACH  46
 #define RNSAP_ID_DIRECTINFORMATIONTRANSFER  48
+
+typedef enum _DdMode_enum {
+  tdd          =   0,
+  fdd          =   1,
+  common       =   2,
+} DdMode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
   id_AllowedQueuingTime =   4,
@@ -666,15 +670,13 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 58 "packet-rnsap-template.c"
+#line 56 "packet-rnsap-template.c"
 
 static dissector_handle_t rnsap_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_rnsap = -1;
 
-static int hf_rnsap_pdu_length = -1;
-static int hf_rnsap_IE_length = -1;
 static int hf_rnsap_L3_DL_DCCH_Message_PDU = -1;
 
 
@@ -887,11 +889,13 @@ static int hf_rnsap_URA_ID_PDU = -1;              /* URA_ID */
 static int hf_rnsap_URA_Information_PDU = -1;     /* URA_Information */
 static int hf_rnsap_USCH_Information_PDU = -1;    /* USCH_Information */
 static int hf_rnsap_User_Plane_Congestion_Fields_Inclusion_PDU = -1;  /* User_Plane_Congestion_Fields_Inclusion */
+static int hf_rnsap_RadioLinkSetupRequestFDD_PDU = -1;  /* RadioLinkSetupRequestFDD */
 static int hf_rnsap_UL_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* UL_DPCH_Information_RL_SetupRqstFDD */
 static int hf_rnsap_DL_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* DL_DPCH_Information_RL_SetupRqstFDD */
 static int hf_rnsap_RL_InformationList_RL_SetupRqstFDD_PDU = -1;  /* RL_InformationList_RL_SetupRqstFDD */
 static int hf_rnsap_RL_InformationItem_RL_SetupRqstFDD_PDU = -1;  /* RL_InformationItem_RL_SetupRqstFDD */
 static int hf_rnsap_F_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* F_DPCH_Information_RL_SetupRqstFDD */
+static int hf_rnsap_RadioLinkSetupRequestTDD_PDU = -1;  /* RadioLinkSetupRequestTDD */
 static int hf_rnsap_UL_Physical_Channel_Information_RL_SetupRqstTDD_PDU = -1;  /* UL_Physical_Channel_Information_RL_SetupRqstTDD */
 static int hf_rnsap_DL_Physical_Channel_Information_RL_SetupRqstTDD_PDU = -1;  /* DL_Physical_Channel_Information_RL_SetupRqstTDD */
 static int hf_rnsap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationList_RL_SetupRqstTDD */
@@ -899,8 +903,10 @@ static int hf_rnsap_UL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* UL_C
 static int hf_rnsap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationList_RL_SetupRqstTDD */
 static int hf_rnsap_DL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationItem_RL_SetupRqstTDD */
 static int hf_rnsap_RL_Information_RL_SetupRqstTDD_PDU = -1;  /* RL_Information_RL_SetupRqstTDD */
+static int hf_rnsap_RadioLinkSetupResponseFDD_PDU = -1;  /* RadioLinkSetupResponseFDD */
 static int hf_rnsap_RL_InformationResponseList_RL_SetupRspFDD_PDU = -1;  /* RL_InformationResponseList_RL_SetupRspFDD */
 static int hf_rnsap_RL_InformationResponseItem_RL_SetupRspFDD_PDU = -1;  /* RL_InformationResponseItem_RL_SetupRspFDD */
+static int hf_rnsap_RadioLinkSetupResponseTDD_PDU = -1;  /* RadioLinkSetupResponseTDD */
 static int hf_rnsap_RL_InformationResponse_RL_SetupRspTDD_PDU = -1;  /* RL_InformationResponse_RL_SetupRspTDD */
 static int hf_rnsap_UL_CCTrCHInformationListIE_RL_SetupRspTDD_PDU = -1;  /* UL_CCTrCHInformationListIE_RL_SetupRspTDD */
 static int hf_rnsap_UL_DPCH_InformationItem_RL_SetupRspTDD_PDU = -1;  /* UL_DPCH_InformationItem_RL_SetupRspTDD */
@@ -915,9 +921,11 @@ static int hf_rnsap_DL_CCTrCH_LCR_InformationListIE_RL_SetupRspTDD_PDU = -1;  /*
 static int hf_rnsap_DL_DPCH_LCR_InformationItem_RL_SetupRspTDD_PDU = -1;  /* DL_DPCH_LCR_InformationItem_RL_SetupRspTDD */
 static int hf_rnsap_DSCH_LCR_InformationListIEs_RL_SetupRspTDD_PDU = -1;  /* DSCH_LCR_InformationListIEs_RL_SetupRspTDD */
 static int hf_rnsap_USCH_LCR_InformationListIEs_RL_SetupRspTDD_PDU = -1;  /* USCH_LCR_InformationListIEs_RL_SetupRspTDD */
+static int hf_rnsap_RadioLinkSetupFailureFDD_PDU = -1;  /* RadioLinkSetupFailureFDD */
 static int hf_rnsap_CauseLevel_RL_SetupFailureFDD_PDU = -1;  /* CauseLevel_RL_SetupFailureFDD */
 static int hf_rnsap_UnsuccessfulRL_InformationResponse_RL_SetupFailureFDD_PDU = -1;  /* UnsuccessfulRL_InformationResponse_RL_SetupFailureFDD */
 static int hf_rnsap_SuccessfulRL_InformationResponse_RL_SetupFailureFDD_PDU = -1;  /* SuccessfulRL_InformationResponse_RL_SetupFailureFDD */
+static int hf_rnsap_RadioLinkSetupFailureTDD_PDU = -1;  /* RadioLinkSetupFailureTDD */
 static int hf_rnsap_CauseLevel_RL_SetupFailureTDD_PDU = -1;  /* CauseLevel_RL_SetupFailureTDD */
 static int hf_rnsap_UnsuccessfulRL_InformationResponse_RL_SetupFailureTDD_PDU = -1;  /* UnsuccessfulRL_InformationResponse_RL_SetupFailureTDD */
 static int hf_rnsap_RL_InformationList_RL_AdditionRqstFDD_PDU = -1;  /* RL_InformationList_RL_AdditionRqstFDD */
@@ -948,8 +956,11 @@ static int hf_rnsap_UnsuccessfulRL_InformationResponse_RL_AdditionFailureFDD_PDU
 static int hf_rnsap_SuccessfulRL_InformationResponse_RL_AdditionFailureFDD_PDU = -1;  /* SuccessfulRL_InformationResponse_RL_AdditionFailureFDD */
 static int hf_rnsap_CauseLevel_RL_AdditionFailureTDD_PDU = -1;  /* CauseLevel_RL_AdditionFailureTDD */
 static int hf_rnsap_UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD_PDU = -1;  /* UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD */
+static int hf_rnsap_RadioLinkDeletionRequest_PDU = -1;  /* RadioLinkDeletionRequest */
 static int hf_rnsap_RL_InformationList_RL_DeletionRqst_PDU = -1;  /* RL_InformationList_RL_DeletionRqst */
 static int hf_rnsap_RL_Information_RL_DeletionRqst_PDU = -1;  /* RL_Information_RL_DeletionRqst */
+static int hf_rnsap_RadioLinkDeletionResponse_PDU = -1;  /* RadioLinkDeletionResponse */
+static int hf_rnsap_RadioLinkReconfigurationPrepareFDD_PDU = -1;  /* RadioLinkReconfigurationPrepareFDD */
 static int hf_rnsap_UL_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* UL_DPCH_Information_RL_ReconfPrepFDD */
 static int hf_rnsap_DL_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* DL_DPCH_Information_RL_ReconfPrepFDD */
 static int hf_rnsap_DL_DPCH_Power_Information_RL_ReconfPrepFDD_PDU = -1;  /* DL_DPCH_Power_Information_RL_ReconfPrepFDD */
@@ -957,6 +968,7 @@ static int hf_rnsap_DCH_DeleteList_RL_ReconfPrepFDD_PDU = -1;  /* DCH_DeleteList
 static int hf_rnsap_RL_InformationList_RL_ReconfPrepFDD_PDU = -1;  /* RL_InformationList_RL_ReconfPrepFDD */
 static int hf_rnsap_RL_Information_RL_ReconfPrepFDD_PDU = -1;  /* RL_Information_RL_ReconfPrepFDD */
 static int hf_rnsap_F_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* F_DPCH_Information_RL_ReconfPrepFDD */
+static int hf_rnsap_RadioLinkReconfigurationPrepareTDD_PDU = -1;  /* RadioLinkReconfigurationPrepareTDD */
 static int hf_rnsap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD */
 static int hf_rnsap_UL_CCTrCH_AddInformation_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_AddInformation_RL_ReconfPrepTDD */
 static int hf_rnsap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD */
@@ -975,8 +987,10 @@ static int hf_rnsap_DSCH_DeleteList_RL_ReconfPrepTDD_PDU = -1;  /* DSCH_DeleteLi
 static int hf_rnsap_USCH_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* USCH_ModifyList_RL_ReconfPrepTDD */
 static int hf_rnsap_USCH_DeleteList_RL_ReconfPrepTDD_PDU = -1;  /* USCH_DeleteList_RL_ReconfPrepTDD */
 static int hf_rnsap_RL_Information_RL_ReconfPrepTDD_PDU = -1;  /* RL_Information_RL_ReconfPrepTDD */
+static int hf_rnsap_RadioLinkReconfigurationReadyFDD_PDU = -1;  /* RadioLinkReconfigurationReadyFDD */
 static int hf_rnsap_RL_InformationResponseList_RL_ReconfReadyFDD_PDU = -1;  /* RL_InformationResponseList_RL_ReconfReadyFDD */
 static int hf_rnsap_RL_InformationResponseItem_RL_ReconfReadyFDD_PDU = -1;  /* RL_InformationResponseItem_RL_ReconfReadyFDD */
+static int hf_rnsap_RadioLinkReconfigurationReadyTDD_PDU = -1;  /* RadioLinkReconfigurationReadyTDD */
 static int hf_rnsap_UL_CCTrCHInformationListIE_RL_ReconfReadyTDD_PDU = -1;  /* UL_CCTrCHInformationListIE_RL_ReconfReadyTDD */
 static int hf_rnsap_UL_DPCH_LCR_InformationAddList_RL_ReconfReadyTDD_PDU = -1;  /* UL_DPCH_LCR_InformationAddList_RL_ReconfReadyTDD */
 static int hf_rnsap_UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD_PDU = -1;  /* UL_DPCH_InformationAddListIE_RL_ReconfReadyTDD */
@@ -992,13 +1006,18 @@ static int hf_rnsap_DL_DPCH_InformationDeleteListIE_RL_ReconfReadyTDD_PDU = -1; 
 static int hf_rnsap_DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_PDU = -1;  /* DSCHToBeAddedOrModifiedList_RL_ReconfReadyTDD */
 static int hf_rnsap_USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD_PDU = -1;  /* USCHToBeAddedOrModifiedList_RL_ReconfReadyTDD */
 static int hf_rnsap_Multiple_RL_InformationResponse_RL_ReconfReadyTDD_PDU = -1;  /* Multiple_RL_InformationResponse_RL_ReconfReadyTDD */
+static int hf_rnsap_RadioLinkReconfigurationCommit_PDU = -1;  /* RadioLinkReconfigurationCommit */
+static int hf_rnsap_RadioLinkReconfigurationFailure_PDU = -1;  /* RadioLinkReconfigurationFailure */
 static int hf_rnsap_CauseLevel_RL_ReconfFailure_PDU = -1;  /* CauseLevel_RL_ReconfFailure */
 static int hf_rnsap_RL_ReconfigurationFailure_RL_ReconfFail_PDU = -1;  /* RL_ReconfigurationFailure_RL_ReconfFail */
+static int hf_rnsap_RadioLinkReconfigurationCancel_PDU = -1;  /* RadioLinkReconfigurationCancel */
+static int hf_rnsap_RadioLinkReconfigurationRequestFDD_PDU = -1;  /* RadioLinkReconfigurationRequestFDD */
 static int hf_rnsap_UL_DPCH_Information_RL_ReconfRqstFDD_PDU = -1;  /* UL_DPCH_Information_RL_ReconfRqstFDD */
 static int hf_rnsap_DL_DPCH_Information_RL_ReconfRqstFDD_PDU = -1;  /* DL_DPCH_Information_RL_ReconfRqstFDD */
 static int hf_rnsap_DCH_DeleteList_RL_ReconfRqstFDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfRqstFDD */
 static int hf_rnsap_RL_ReconfigurationRequestFDD_RL_InformationList_PDU = -1;  /* RL_ReconfigurationRequestFDD_RL_InformationList */
 static int hf_rnsap_RL_ReconfigurationRequestFDD_RL_Information_IEs_PDU = -1;  /* RL_ReconfigurationRequestFDD_RL_Information_IEs */
+static int hf_rnsap_RadioLinkReconfigurationRequestTDD_PDU = -1;  /* RadioLinkReconfigurationRequestTDD */
 static int hf_rnsap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
 static int hf_rnsap_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD */
 static int hf_rnsap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD */
@@ -1009,29 +1028,38 @@ static int hf_rnsap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU = -1;  
 static int hf_rnsap_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD */
 static int hf_rnsap_DCH_DeleteList_RL_ReconfRqstTDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfRqstTDD */
 static int hf_rnsap_Multiple_RL_ReconfigurationRequestTDD_RL_Information_PDU = -1;  /* Multiple_RL_ReconfigurationRequestTDD_RL_Information */
+static int hf_rnsap_RadioLinkReconfigurationResponseFDD_PDU = -1;  /* RadioLinkReconfigurationResponseFDD */
 static int hf_rnsap_RL_InformationResponseList_RL_ReconfRspFDD_PDU = -1;  /* RL_InformationResponseList_RL_ReconfRspFDD */
 static int hf_rnsap_RL_InformationResponseItem_RL_ReconfRspFDD_PDU = -1;  /* RL_InformationResponseItem_RL_ReconfRspFDD */
+static int hf_rnsap_RadioLinkReconfigurationResponseTDD_PDU = -1;  /* RadioLinkReconfigurationResponseTDD */
 static int hf_rnsap_RL_InformationResponse_RL_ReconfRspTDD_PDU = -1;  /* RL_InformationResponse_RL_ReconfRspTDD */
 static int hf_rnsap_DL_CCTrCH_InformationList_RL_ReconfRspTDD_PDU = -1;  /* DL_CCTrCH_InformationList_RL_ReconfRspTDD */
 static int hf_rnsap_DL_DPCH_InformationModifyItem_LCR_RL_ReconfRspTDD_PDU = -1;  /* DL_DPCH_InformationModifyItem_LCR_RL_ReconfRspTDD */
 static int hf_rnsap_Multiple_RL_InformationResponse_RL_ReconfRspTDD_PDU = -1;  /* Multiple_RL_InformationResponse_RL_ReconfRspTDD */
+static int hf_rnsap_RadioLinkFailureIndication_PDU = -1;  /* RadioLinkFailureIndication */
 static int hf_rnsap_Reporting_Object_RL_FailureInd_PDU = -1;  /* Reporting_Object_RL_FailureInd */
 static int hf_rnsap_RL_Information_RL_FailureInd_PDU = -1;  /* RL_Information_RL_FailureInd */
 static int hf_rnsap_RL_Set_Information_RL_FailureInd_PDU = -1;  /* RL_Set_Information_RL_FailureInd */
 static int hf_rnsap_CCTrCH_InformationItem_RL_FailureInd_PDU = -1;  /* CCTrCH_InformationItem_RL_FailureInd */
+static int hf_rnsap_RadioLinkPreemptionRequiredIndication_PDU = -1;  /* RadioLinkPreemptionRequiredIndication */
 static int hf_rnsap_RL_InformationList_RL_PreemptRequiredInd_PDU = -1;  /* RL_InformationList_RL_PreemptRequiredInd */
 static int hf_rnsap_RL_InformationItem_RL_PreemptRequiredInd_PDU = -1;  /* RL_InformationItem_RL_PreemptRequiredInd */
 static int hf_rnsap_HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd_PDU = -1;  /* HSDSCHMacdFlowSpecificInformationList_RL_PreemptRequiredInd */
 static int hf_rnsap_HSDSCHMacdFlowSpecificInformationItem_RL_PreemptRequiredInd_PDU = -1;  /* HSDSCHMacdFlowSpecificInformationItem_RL_PreemptRequiredInd */
 static int hf_rnsap_EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd_PDU = -1;  /* EDCH_MacdFlowSpecificInformationList_RL_PreemptRequiredInd */
 static int hf_rnsap_EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd_PDU = -1;  /* EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd */
+static int hf_rnsap_RadioLinkRestoreIndication_PDU = -1;  /* RadioLinkRestoreIndication */
 static int hf_rnsap_Reporting_Object_RL_RestoreInd_PDU = -1;  /* Reporting_Object_RL_RestoreInd */
 static int hf_rnsap_RL_Information_RL_RestoreInd_PDU = -1;  /* RL_Information_RL_RestoreInd */
 static int hf_rnsap_RL_Set_Information_RL_RestoreInd_PDU = -1;  /* RL_Set_Information_RL_RestoreInd */
 static int hf_rnsap_CCTrCH_InformationItem_RL_RestoreInd_PDU = -1;  /* CCTrCH_InformationItem_RL_RestoreInd */
+static int hf_rnsap_DL_PowerControlRequest_PDU = -1;  /* DL_PowerControlRequest */
 static int hf_rnsap_DL_ReferencePowerInformationList_DL_PC_Rqst_PDU = -1;  /* DL_ReferencePowerInformationList_DL_PC_Rqst */
 static int hf_rnsap_DL_ReferencePowerInformation_DL_PC_Rqst_PDU = -1;  /* DL_ReferencePowerInformation_DL_PC_Rqst */
+static int hf_rnsap_DL_PowerTimeslotControlRequest_PDU = -1;  /* DL_PowerTimeslotControlRequest */
+static int hf_rnsap_PhysicalChannelReconfigurationRequestFDD_PDU = -1;  /* PhysicalChannelReconfigurationRequestFDD */
 static int hf_rnsap_RL_Information_PhyChReconfRqstFDD_PDU = -1;  /* RL_Information_PhyChReconfRqstFDD */
+static int hf_rnsap_PhysicalChannelReconfigurationRequestTDD_PDU = -1;  /* PhysicalChannelReconfigurationRequestTDD */
 static int hf_rnsap_RL_Information_PhyChReconfRqstTDD_PDU = -1;  /* RL_Information_PhyChReconfRqstTDD */
 static int hf_rnsap_UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationListIE_PhyChReconfRqstTDD */
 static int hf_rnsap_UL_DPCH_InformationItem_PhyChReconfRqstTDD_PDU = -1;  /* UL_DPCH_InformationItem_PhyChReconfRqstTDD */
@@ -1041,67 +1069,118 @@ static int hf_rnsap_DL_DPCH_InformationItem_PhyChReconfRqstTDD_PDU = -1;  /* DL_
 static int hf_rnsap_DL_TimeslotLCR_InformationList_PhyChReconfRqstTDD_PDU = -1;  /* DL_TimeslotLCR_InformationList_PhyChReconfRqstTDD */
 static int hf_rnsap_HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD_PDU = -1;  /* HSPDSCH_Timeslot_InformationList_PhyChReconfRqstTDD */
 static int hf_rnsap_HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD_PDU = -1;  /* HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD */
+static int hf_rnsap_PhysicalChannelReconfigurationCommand_PDU = -1;  /* PhysicalChannelReconfigurationCommand */
+static int hf_rnsap_PhysicalChannelReconfigurationFailure_PDU = -1;  /* PhysicalChannelReconfigurationFailure */
+static int hf_rnsap_RadioLinkCongestionIndication_PDU = -1;  /* RadioLinkCongestionIndication */
 static int hf_rnsap_RL_InformationList_RL_CongestInd_PDU = -1;  /* RL_InformationList_RL_CongestInd */
 static int hf_rnsap_RL_InformationItem_RL_CongestInd_PDU = -1;  /* RL_InformationItem_RL_CongestInd */
 static int hf_rnsap_DCH_Rate_InformationItem_RL_CongestInd_PDU = -1;  /* DCH_Rate_InformationItem_RL_CongestInd */
 static int hf_rnsap_EDCH_MacdFlowSpecificInformationList_RL_CongestInd_PDU = -1;  /* EDCH_MacdFlowSpecificInformationList_RL_CongestInd */
 static int hf_rnsap_EDCH_MacdFlowSpecificInformationItem_RL_CongestInd_PDU = -1;  /* EDCH_MacdFlowSpecificInformationItem_RL_CongestInd */
+static int hf_rnsap_UplinkSignallingTransferIndicationFDD_PDU = -1;  /* UplinkSignallingTransferIndicationFDD */
+static int hf_rnsap_UplinkSignallingTransferIndicationTDD_PDU = -1;  /* UplinkSignallingTransferIndicationTDD */
+static int hf_rnsap_DownlinkSignallingTransferRequest_PDU = -1;  /* DownlinkSignallingTransferRequest */
+static int hf_rnsap_RelocationCommit_PDU = -1;    /* RelocationCommit */
+static int hf_rnsap_PagingRequest_PDU = -1;       /* PagingRequest */
 static int hf_rnsap_PagingArea_PagingRqst_PDU = -1;  /* PagingArea_PagingRqst */
 static int hf_rnsap_CNOriginatedPage_PagingRqst_PDU = -1;  /* CNOriginatedPage_PagingRqst */
+static int hf_rnsap_DedicatedMeasurementInitiationRequest_PDU = -1;  /* DedicatedMeasurementInitiationRequest */
 static int hf_rnsap_DedicatedMeasurementObjectType_DM_Rqst_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rqst */
 static int hf_rnsap_RL_InformationItem_DM_Rqst_PDU = -1;  /* RL_InformationItem_DM_Rqst */
 static int hf_rnsap_HSSICH_Info_DM_Rqst_PDU = -1;  /* HSSICH_Info_DM_Rqst */
 static int hf_rnsap_RL_Set_InformationItem_DM_Rqst_PDU = -1;  /* RL_Set_InformationItem_DM_Rqst */
+static int hf_rnsap_DedicatedMeasurementInitiationResponse_PDU = -1;  /* DedicatedMeasurementInitiationResponse */
 static int hf_rnsap_DedicatedMeasurementObjectType_DM_Rsp_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rsp */
 static int hf_rnsap_RL_InformationItem_DM_Rsp_PDU = -1;  /* RL_InformationItem_DM_Rsp */
 static int hf_rnsap_RL_Set_InformationItem_DM_Rsp_PDU = -1;  /* RL_Set_InformationItem_DM_Rsp */
 static int hf_rnsap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_PDU = -1;  /* Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp */
 static int hf_rnsap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_PDU = -1;  /* Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp */
 static int hf_rnsap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_PDU = -1;  /* Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp */
+static int hf_rnsap_DedicatedMeasurementInitiationFailure_PDU = -1;  /* DedicatedMeasurementInitiationFailure */
 static int hf_rnsap_DedicatedMeasurementObjectType_DM_Fail_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Fail */
 static int hf_rnsap_RL_Unsuccessful_InformationItem_DM_Fail_PDU = -1;  /* RL_Unsuccessful_InformationItem_DM_Fail */
 static int hf_rnsap_RL_Successful_InformationItem_DM_Fail_PDU = -1;  /* RL_Successful_InformationItem_DM_Fail */
 static int hf_rnsap_RL_Set_Unsuccessful_InformationItem_DM_Fail_PDU = -1;  /* RL_Set_Unsuccessful_InformationItem_DM_Fail */
 static int hf_rnsap_RL_Set_Successful_InformationItem_DM_Fail_PDU = -1;  /* RL_Set_Successful_InformationItem_DM_Fail */
+static int hf_rnsap_DedicatedMeasurementReport_PDU = -1;  /* DedicatedMeasurementReport */
 static int hf_rnsap_DedicatedMeasurementObjectType_DM_Rprt_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rprt */
 static int hf_rnsap_RL_InformationItem_DM_Rprt_PDU = -1;  /* RL_InformationItem_DM_Rprt */
 static int hf_rnsap_RL_Set_InformationItem_DM_Rprt_PDU = -1;  /* RL_Set_InformationItem_DM_Rprt */
+static int hf_rnsap_DedicatedMeasurementTerminationRequest_PDU = -1;  /* DedicatedMeasurementTerminationRequest */
+static int hf_rnsap_DedicatedMeasurementFailureIndication_PDU = -1;  /* DedicatedMeasurementFailureIndication */
 static int hf_rnsap_DedicatedMeasurementObjectType_DM_Fail_Ind_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Fail_Ind */
 static int hf_rnsap_RL_Unsuccessful_InformationItem_DM_Fail_Ind_PDU = -1;  /* RL_Unsuccessful_InformationItem_DM_Fail_Ind */
 static int hf_rnsap_RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind_PDU = -1;  /* RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind */
+static int hf_rnsap_CommonTransportChannelResourcesReleaseRequest_PDU = -1;  /* CommonTransportChannelResourcesReleaseRequest */
+static int hf_rnsap_CommonTransportChannelResourcesRequest_PDU = -1;  /* CommonTransportChannelResourcesRequest */
+static int hf_rnsap_CommonTransportChannelResourcesResponseFDD_PDU = -1;  /* CommonTransportChannelResourcesResponseFDD */
 static int hf_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_PDU = -1;  /* FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD */
+static int hf_rnsap_CommonTransportChannelResourcesResponseTDD_PDU = -1;  /* CommonTransportChannelResourcesResponseTDD */
 static int hf_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD_PDU = -1;  /* FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD */
+static int hf_rnsap_CommonTransportChannelResourcesFailure_PDU = -1;  /* CommonTransportChannelResourcesFailure */
+static int hf_rnsap_CompressedModeCommand_PDU = -1;  /* CompressedModeCommand */
+static int hf_rnsap_ErrorIndication_PDU = -1;     /* ErrorIndication */
+static int hf_rnsap_CommonMeasurementInitiationRequest_PDU = -1;  /* CommonMeasurementInitiationRequest */
 static int hf_rnsap_CommonMeasurementObjectType_CM_Rqst_PDU = -1;  /* CommonMeasurementObjectType_CM_Rqst */
+static int hf_rnsap_CommonMeasurementInitiationResponse_PDU = -1;  /* CommonMeasurementInitiationResponse */
 static int hf_rnsap_CommonMeasurementObjectType_CM_Rsp_PDU = -1;  /* CommonMeasurementObjectType_CM_Rsp */
+static int hf_rnsap_CommonMeasurementInitiationFailure_PDU = -1;  /* CommonMeasurementInitiationFailure */
+static int hf_rnsap_CommonMeasurementReport_PDU = -1;  /* CommonMeasurementReport */
 static int hf_rnsap_CommonMeasurementObjectType_CM_Rprt_PDU = -1;  /* CommonMeasurementObjectType_CM_Rprt */
+static int hf_rnsap_CommonMeasurementTerminationRequest_PDU = -1;  /* CommonMeasurementTerminationRequest */
+static int hf_rnsap_CommonMeasurementFailureIndication_PDU = -1;  /* CommonMeasurementFailureIndication */
+static int hf_rnsap_InformationExchangeInitiationRequest_PDU = -1;  /* InformationExchangeInitiationRequest */
 static int hf_rnsap_InformationExchangeObjectType_InfEx_Rqst_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rqst */
 static int hf_rnsap_GSM_Cell_InfEx_Rqst_PDU = -1;  /* GSM_Cell_InfEx_Rqst */
+static int hf_rnsap_InformationExchangeInitiationResponse_PDU = -1;  /* InformationExchangeInitiationResponse */
 static int hf_rnsap_InformationExchangeObjectType_InfEx_Rsp_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rsp */
 static int hf_rnsap_MBMS_Bearer_Service_List_InfEx_Rsp_PDU = -1;  /* MBMS_Bearer_Service_List_InfEx_Rsp */
+static int hf_rnsap_InformationExchangeInitiationFailure_PDU = -1;  /* InformationExchangeInitiationFailure */
+static int hf_rnsap_InformationReport_PDU = -1;   /* InformationReport */
 static int hf_rnsap_InformationExchangeObjectType_InfEx_Rprt_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rprt */
+static int hf_rnsap_InformationExchangeTerminationRequest_PDU = -1;  /* InformationExchangeTerminationRequest */
+static int hf_rnsap_InformationExchangeFailureIndication_PDU = -1;  /* InformationExchangeFailureIndication */
+static int hf_rnsap_ResetRequest_PDU = -1;        /* ResetRequest */
 static int hf_rnsap_ResetIndicator_PDU = -1;      /* ResetIndicator */
 static int hf_rnsap_ContextInfoItem_Reset_PDU = -1;  /* ContextInfoItem_Reset */
 static int hf_rnsap_ContextGroupInfoItem_Reset_PDU = -1;  /* ContextGroupInfoItem_Reset */
+static int hf_rnsap_ResetResponse_PDU = -1;       /* ResetResponse */
+static int hf_rnsap_RadioLinkActivationCommandFDD_PDU = -1;  /* RadioLinkActivationCommandFDD */
 static int hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdFDD_PDU = -1;  /* DelayedActivationInformationList_RL_ActivationCmdFDD */
 static int hf_rnsap_DelayedActivationInformation_RL_ActivationCmdFDD_PDU = -1;  /* DelayedActivationInformation_RL_ActivationCmdFDD */
+static int hf_rnsap_RadioLinkActivationCommandTDD_PDU = -1;  /* RadioLinkActivationCommandTDD */
 static int hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdTDD_PDU = -1;  /* DelayedActivationInformationList_RL_ActivationCmdTDD */
 static int hf_rnsap_DelayedActivationInformation_RL_ActivationCmdTDD_PDU = -1;  /* DelayedActivationInformation_RL_ActivationCmdTDD */
+static int hf_rnsap_GERANUplinkSignallingTransferIndication_PDU = -1;  /* GERANUplinkSignallingTransferIndication */
+static int hf_rnsap_RadioLinkParameterUpdateIndicationFDD_PDU = -1;  /* RadioLinkParameterUpdateIndicationFDD */
 static int hf_rnsap_RL_ParameterUpdateIndicationFDD_RL_InformationList_PDU = -1;  /* RL_ParameterUpdateIndicationFDD_RL_InformationList */
 static int hf_rnsap_RL_ParameterUpdateIndicationFDD_RL_Information_Item_PDU = -1;  /* RL_ParameterUpdateIndicationFDD_RL_Information_Item */
+static int hf_rnsap_RadioLinkParameterUpdateIndicationTDD_PDU = -1;  /* RadioLinkParameterUpdateIndicationTDD */
+static int hf_rnsap_UEMeasurementInitiationRequest_PDU = -1;  /* UEMeasurementInitiationRequest */
+static int hf_rnsap_UEMeasurementInitiationResponse_PDU = -1;  /* UEMeasurementInitiationResponse */
+static int hf_rnsap_UEMeasurementInitiationFailure_PDU = -1;  /* UEMeasurementInitiationFailure */
+static int hf_rnsap_UEMeasurementReport_PDU = -1;  /* UEMeasurementReport */
+static int hf_rnsap_UEMeasurementTerminationRequest_PDU = -1;  /* UEMeasurementTerminationRequest */
+static int hf_rnsap_UEMeasurementFailureIndication_PDU = -1;  /* UEMeasurementFailureIndication */
+static int hf_rnsap_IurInvokeTrace_PDU = -1;      /* IurInvokeTrace */
 static int hf_rnsap_ListOfInterfacesToTrace_PDU = -1;  /* ListOfInterfacesToTrace */
 static int hf_rnsap_InterfacesToTraceItem_PDU = -1;  /* InterfacesToTraceItem */
+static int hf_rnsap_IurDeactivateTrace_PDU = -1;  /* IurDeactivateTrace */
+static int hf_rnsap_MBMSAttachCommand_PDU = -1;   /* MBMSAttachCommand */
+static int hf_rnsap_MBMSDetachCommand_PDU = -1;   /* MBMSDetachCommand */
+static int hf_rnsap_DirectInformationTransfer_PDU = -1;  /* DirectInformationTransfer */
+static int hf_rnsap_PrivateMessage_PDU = -1;      /* PrivateMessage */
 static int hf_rnsap_RNSAP_PDU_PDU = -1;           /* RNSAP_PDU */
 static int hf_rnsap_local = -1;                   /* INTEGER_0_maxPrivateIEs */
 static int hf_rnsap_global = -1;                  /* OBJECT_IDENTIFIER */
 static int hf_rnsap_procedureCode = -1;           /* ProcedureCode */
-static int hf_rnsap_ddMode = -1;                  /* T_ddMode */
+static int hf_rnsap_ddMode = -1;                  /* DdMode */
 static int hf_rnsap_shortTransActionId = -1;      /* INTEGER_0_127 */
 static int hf_rnsap_longTransActionId = -1;       /* INTEGER_0_32767 */
 static int hf_rnsap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_rnsap_id = -1;                      /* ProtocolIE_ID */
 static int hf_rnsap_criticality = -1;             /* Criticality */
 static int hf_rnsap_value = -1;                   /* T_value */
-static int hf_rnsap_ProtocolIE_ContainerPair_item = -1;  /* ProtocolIE_FieldPair */
 static int hf_rnsap_firstCriticality = -1;        /* Criticality */
 static int hf_rnsap_firstValue = -1;              /* T_firstValue */
 static int hf_rnsap_secondCriticality = -1;       /* Criticality */
@@ -2335,98 +2414,13 @@ static int hf_rnsap_value2 = -1;                  /* T_value2 */
 static int hf_rnsap_value3 = -1;                  /* T_value3 */
 static int hf_rnsap_value4 = -1;                  /* T_value4 */
 static int hf_rnsap_value5 = -1;                  /* T_value5 */
-static int hf_rnsap_id_commonTransportChannelResourcesInitialisation = -1;  /* CommonTransportChannelResourcesRequest */
-static int hf_rnsap_id_commonTransportChannelResourcesRelease = -1;  /* CommonTransportChannelResourcesReleaseRequest */
-static int hf_rnsap_id_compressedModeCommand = -1;  /* CompressedModeCommand */
-static int hf_rnsap_id_downlinkPowerControl = -1;  /* DL_PowerControlRequest */
-static int hf_rnsap_id_downlinkPowerTimeslotControl = -1;  /* DL_PowerTimeslotControlRequest */
-static int hf_rnsap_id_downlinkSignallingTransfer = -1;  /* DownlinkSignallingTransferRequest */
-static int hf_rnsap_id_errorIndication = -1;      /* ErrorIndication */
-static int hf_rnsap_id_dedicatedMeasurementFailure = -1;  /* DedicatedMeasurementFailureIndication */
-static int hf_rnsap_id_dedicatedMeasurementInitiation = -1;  /* DedicatedMeasurementInitiationRequest */
-static int hf_rnsap_id_dedicatedMeasurementReporting = -1;  /* DedicatedMeasurementReport */
-static int hf_rnsap_id_dedicatedMeasurementTermination = -1;  /* DedicatedMeasurementTerminationRequest */
-static int hf_rnsap_id_paging = -1;               /* PagingRequest */
-static int hf_rnsap_id_physicalChannelReconfiguration = -1;  /* PhysicalChannelReconfigurationRequestTDD */
-static int hf_rnsap_id_privateMessage = -1;       /* PrivateMessage */
-static int hf_rnsap_id_radioLinkAddition = -1;    /* RadioLinkAdditionRequestFDD */
-static int hf_rnsap_id_radioLinkAddition_TDD = -1;  /* RadioLinkAdditionRequestTDD */
-static int hf_rnsap_id_radioLinkCongestion = -1;  /* RadioLinkCongestionIndication */
-static int hf_rnsap_id_radioLinkDeletion = -1;    /* RadioLinkDeletionRequest */
-static int hf_rnsap_id_radioLinkFailure = -1;     /* RadioLinkFailureIndication */
-static int hf_rnsap_id_radioLinkPreemption = -1;  /* RadioLinkPreemptionRequiredIndication */
-static int hf_rnsap_id_radioLinkRestoration = -1;  /* RadioLinkRestoreIndication */
-static int hf_rnsap_id_radioLinkSetup = -1;       /* RadioLinkSetupRequestFDD */
-static int hf_rnsap_id_radioLinkSetupTdd = -1;    /* RadioLinkSetupRequestTDD */
-static int hf_rnsap_id_relocationCommit = -1;     /* RelocationCommit */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationCancellation = -1;  /* RadioLinkReconfigurationCancel */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationCommit = -1;  /* RadioLinkReconfigurationCommit */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation = -1;  /* RadioLinkReconfigurationPrepareFDD */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation_TDD = -1;  /* RadioLinkReconfigurationReadyTDD */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration = -1;  /* RadioLinkReconfigurationRequestFDD */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD = -1;  /* RadioLinkReconfigurationRequestTDD */
-static int hf_rnsap_id_uplinkSignallingTransfer = -1;  /* UplinkSignallingTransferIndicationFDD */
-static int hf_rnsap_id_uplinkSignallingTransfer_TDD = -1;  /* UplinkSignallingTransferIndicationTDD */
-static int hf_rnsap_id_commonMeasurementFailure = -1;  /* CommonMeasurementFailureIndication */
-static int hf_rnsap_id_commonMeasurementInitiation = -1;  /* CommonMeasurementInitiationRequest */
-static int hf_rnsap_id_commonMeasurementReporting = -1;  /* CommonMeasurementReport */
-static int hf_rnsap_id_commonMeasurementTermination = -1;  /* CommonMeasurementTerminationRequest */
-static int hf_rnsap_id_informationExchangeFailure = -1;  /* InformationExchangeFailureIndication */
-static int hf_rnsap_id_informationExchangeInitiation = -1;  /* InformationExchangeInitiationRequest */
-static int hf_rnsap_id_informationReporting = -1;  /* InformationReport */
-static int hf_rnsap_id_informationExchangeTermination = -1;  /* InformationExchangeTerminationRequest */
-static int hf_rnsap_id_reset = -1;                /* ResetRequest */
-static int hf_rnsap_id_radioLinkActivation = -1;  /* RadioLinkActivationCommandFDD */
-static int hf_rnsap_id_radioLinkActivation_TDD = -1;  /* RadioLinkActivationCommandTDD */
-static int hf_rnsap_id_gERANuplinkSignallingTransfer = -1;  /* GERANUplinkSignallingTransferIndication */
-static int hf_rnsap_id_radioLinkParameterUpdate = -1;  /* RadioLinkParameterUpdateIndicationFDD */
-static int hf_rnsap_id_radioLinkParameterUpdate_TDD = -1;  /* RadioLinkParameterUpdateIndicationTDD */
-static int hf_rnsap_id_uEMeasurementFailure = -1;  /* UEMeasurementFailureIndication */
-static int hf_rnsap_id_uEMeasurementInitiation = -1;  /* UEMeasurementInitiationRequest */
-static int hf_rnsap_id_uEMeasurementReporting = -1;  /* UEMeasurementReport */
-static int hf_rnsap_id_uEMeasurementTermination = -1;  /* UEMeasurementTerminationRequest */
-static int hf_rnsap_id_iurDeactivateTrace = -1;   /* IurDeactivateTrace */
-static int hf_rnsap_id_iurInvokeTrace = -1;       /* IurInvokeTrace */
-static int hf_rnsap_id_mBMSAttach = -1;           /* MBMSAttachCommand */
-static int hf_rnsap_id_mBMSDetach = -1;           /* MBMSDetachCommand */
-static int hf_rnsap_id_directInformationTransfer = -1;  /* DirectInformationTransfer */
-static int hf_rnsap_id_commonTransportChannelResourcesInitialisation1 = -1;  /* CommonTransportChannelResourcesResponseFDD */
-static int hf_rnsap_id_commonTransportChannelResourcesInitialisation_TDD = -1;  /* CommonTransportChannelResourcesResponseTDD */
-static int hf_rnsap_id_dedicatedMeasurementInitiation1 = -1;  /* DedicatedMeasurementInitiationResponse */
-static int hf_rnsap_id_physicalChannelReconfiguration1 = -1;  /* PhysicalChannelReconfigurationCommand */
-static int hf_rnsap_id_radioLinkAddition1 = -1;   /* RadioLinkAdditionResponseFDD */
-static int hf_rnsap_id_radioLinkAddition_TDD1 = -1;  /* RadioLinkAdditionResponseTDD */
-static int hf_rnsap_id_radioLinkDeletion1 = -1;   /* RadioLinkDeletionResponse */
-static int hf_rnsap_id_radioLinkSetup1 = -1;      /* RadioLinkSetupResponseFDD */
-static int hf_rnsap_id_radioLinkSetupTdd1 = -1;   /* RadioLinkSetupResponseTDD */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation1 = -1;  /* RadioLinkReconfigurationReadyFDD */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration1 = -1;  /* RadioLinkReconfigurationResponseFDD */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD1 = -1;  /* RadioLinkReconfigurationResponseTDD */
-static int hf_rnsap_id_commonMeasurementInitiation1 = -1;  /* CommonMeasurementInitiationResponse */
-static int hf_rnsap_id_informationExchangeInitiation1 = -1;  /* InformationExchangeInitiationResponse */
-static int hf_rnsap_id_reset1 = -1;               /* ResetResponse */
-static int hf_rnsap_id_uEMeasurementInitiation1 = -1;  /* UEMeasurementInitiationResponse */
-static int hf_rnsap_id_commonTransportChannelResourcesInitialisation2 = -1;  /* CommonTransportChannelResourcesFailure */
-static int hf_rnsap_id_dedicatedMeasurementInitiation2 = -1;  /* DedicatedMeasurementInitiationFailure */
-static int hf_rnsap_id_physicalChannelReconfiguration2 = -1;  /* PhysicalChannelReconfigurationFailure */
-static int hf_rnsap_id_radioLinkAddition2 = -1;   /* RadioLinkAdditionFailureFDD */
-static int hf_rnsap_id_radioLinkAddition_TDD2 = -1;  /* RadioLinkAdditionFailureTDD */
-static int hf_rnsap_id_radioLinkSetup2 = -1;      /* RadioLinkSetupFailureFDD */
-static int hf_rnsap_id_radioLinkSetupTdd2 = -1;   /* RadioLinkSetupFailureTDD */
-static int hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation2 = -1;  /* RadioLinkReconfigurationFailure */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration2 = -1;  /* RadioLinkReconfigurationFailure */
-static int hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD2 = -1;  /* RadioLinkReconfigurationFailure */
-static int hf_rnsap_id_commonMeasurementInitiation2 = -1;  /* CommonMeasurementInitiationFailure */
-static int hf_rnsap_id_informationExchangeInitiation2 = -1;  /* InformationExchangeInitiationFailure */
-static int hf_rnsap_id_uEMeasurementInitiation2 = -1;  /* UEMeasurementInitiationFailure */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 69 "packet-rnsap-template.c"
+#line 65 "packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
 static int ett_rnsap_initiatingMessageValue = -1;
-static int ett_rnsap_ProtocolIEValueValue = -1;
 static int ett_rnsap_SuccessfulOutcomeValue = -1;
 static int ett_rnsap_UnsuccessfulOutcomeValue = -1;
 
@@ -2438,7 +2432,6 @@ static gint ett_rnsap_ProcedureID = -1;
 static gint ett_rnsap_TransactionID = -1;
 static gint ett_rnsap_ProtocolIE_Container = -1;
 static gint ett_rnsap_ProtocolIE_Field = -1;
-static gint ett_rnsap_ProtocolIE_ContainerPair = -1;
 static gint ett_rnsap_ProtocolIE_FieldPair = -1;
 static gint ett_rnsap_ProtocolExtensionContainer = -1;
 static gint ett_rnsap_ProtocolExtensionField = -1;
@@ -3299,29 +3292,29 @@ static gint ett_rnsap_InitiatingMessage = -1;
 static gint ett_rnsap_SuccessfulOutcome = -1;
 static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
-static gint ett_rnsap_DummyInitiatingValue = -1;
-static gint ett_rnsap_DummySuccessfulOutcomeValue = -1;
-static gint ett_rnsap_DummyUnSuccessfulOutcomeValue = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 78 "packet-rnsap-template.c"
+#line 73 "packet-rnsap-template.c"
 
 /* Global variables */
-static proto_tree *top_tree;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
+static const gchar *ProcedureID;
 
 /* Dissector tables */
 static dissector_table_t rnsap_ies_dissector_table;
 static dissector_table_t rnsap_extension_dissector_table;
+static dissector_table_t rnsap_proc_imsg_dissector_table;
+static dissector_table_t rnsap_proc_sout_dissector_table;
+static dissector_table_t rnsap_proc_uout_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*--- Included file: packet-rnsap-fn.c ---*/
 #line 1 "packet-rnsap-fn.c"
@@ -3459,7 +3452,7 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 255U, &ProcedureCode, FALSE);
 
-#line 80 "rnsap.cnf"
+#line 81 "rnsap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, rnsap_ProcedureCode_vals,
@@ -3469,16 +3462,16 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string rnsap_T_ddMode_vals[] = {
-  {   0, "tdd" },
-  {   1, "fdd" },
-  {   2, "common" },
+static const value_string rnsap_DdMode_vals[] = {
+  { tdd, "tdd" },
+  { fdd, "fdd" },
+  { common, "common" },
   { 0, NULL }
 };
 
 
 static int
-dissect_rnsap_T_ddMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_rnsap_DdMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, &ddMode, TRUE, 0, NULL);
 
@@ -3488,14 +3481,24 @@ dissect_rnsap_T_ddMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static const per_sequence_t ProcedureID_sequence[] = {
   { &hf_rnsap_procedureCode , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProcedureCode },
-  { &hf_rnsap_ddMode        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_T_ddMode },
+  { &hf_rnsap_ddMode        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_DdMode },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 89 "rnsap.cnf"
+  ProcedureCode = 0xFFFF;
+  ddMode = 0xFFFF;
+  ProcedureID = NULL;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
+
+#line 95 "rnsap.cnf"
+  ProcedureID = ep_strdup_printf("%s/%s", 
+                                 val_to_str(ProcedureCode, VALS(rnsap_ProcedureCode_vals), "unknown(%u)"),
+                                 val_to_str(ddMode, VALS(rnsap_DdMode_vals), "unknown(%u)"));      
 
   return offset;
 }
@@ -4115,20 +4118,6 @@ static int
 dissect_rnsap_ProtocolIE_FieldPair(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProtocolIE_FieldPair, ProtocolIE_FieldPair_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ProtocolIE_ContainerPair_sequence_of[1] = {
-  { &hf_rnsap_ProtocolIE_ContainerPair_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_rnsap_ProtocolIE_FieldPair },
-};
-
-static int
-dissect_rnsap_ProtocolIE_ContainerPair(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_rnsap_ProtocolIE_ContainerPair, ProtocolIE_ContainerPair_sequence_of,
-                                                  0, maxProtocolIEs);
 
   return offset;
 }
@@ -13024,7 +13013,7 @@ dissect_rnsap_LimitedPowerIncrease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "rnsap.cnf"
+#line 108 "rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -16805,9 +16794,6 @@ dissect_rnsap_RadioLinkSetupRequestFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_id_radioLinkSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupRequestFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetup);
-}
 
 
 static const per_sequence_t UL_DPCH_Information_RL_SetupRqstFDD_sequence[] = {
@@ -16959,9 +16945,6 @@ dissect_rnsap_RadioLinkSetupRequestTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
                                    ett_rnsap_RadioLinkSetupRequestTDD, RadioLinkSetupRequestTDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkSetupTdd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupRequestTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetupTdd);
 }
 
 
@@ -17127,9 +17110,6 @@ dissect_rnsap_RadioLinkSetupResponseFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_id_radioLinkSetup1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupResponseFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetup1);
-}
 
 
 static const per_sequence_t RL_InformationResponseList_RL_SetupRspFDD_sequence_of[1] = {
@@ -17250,9 +17230,6 @@ dissect_rnsap_RadioLinkSetupResponseTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_
                                    ett_rnsap_RadioLinkSetupResponseTDD, RadioLinkSetupResponseTDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkSetupTdd1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupResponseTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetupTdd1);
 }
 
 
@@ -17792,9 +17769,6 @@ dissect_rnsap_RadioLinkSetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_id_radioLinkSetup2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupFailureFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetup2);
-}
 
 
 static const per_sequence_t GeneralCauseList_RL_SetupFailureFDD_sequence[] = {
@@ -17999,9 +17973,6 @@ dissect_rnsap_RadioLinkSetupFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_id_radioLinkSetupTdd2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkSetupFailureTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkSetupTdd2);
-}
 
 
 static const per_sequence_t GeneralCauseList_RL_SetupFailureTDD_sequence[] = {
@@ -18094,9 +18065,6 @@ dissect_rnsap_RadioLinkAdditionRequestFDD(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_id_radioLinkAddition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionRequestFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition);
-}
 
 
 static const per_sequence_t RL_InformationList_RL_AdditionRqstFDD_sequence_of[1] = {
@@ -18169,9 +18137,6 @@ dissect_rnsap_RadioLinkAdditionRequestTDD(tvbuff_t *tvb _U_, int offset _U_, asn
                                    ett_rnsap_RadioLinkAdditionRequestTDD, RadioLinkAdditionRequestTDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkAddition_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionRequestTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition_TDD);
 }
 
 
@@ -18267,9 +18232,6 @@ dissect_rnsap_RadioLinkAdditionResponseFDD(tvbuff_t *tvb _U_, int offset _U_, as
                                    ett_rnsap_RadioLinkAdditionResponseFDD, RadioLinkAdditionResponseFDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkAddition1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionResponseFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition1);
 }
 
 
@@ -18396,9 +18358,6 @@ dissect_rnsap_RadioLinkAdditionResponseTDD(tvbuff_t *tvb _U_, int offset _U_, as
                                    ett_rnsap_RadioLinkAdditionResponseTDD, RadioLinkAdditionResponseTDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkAddition_TDD1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionResponseTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition_TDD1);
 }
 
 
@@ -19010,9 +18969,6 @@ dissect_rnsap_RadioLinkAdditionFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_id_radioLinkAddition2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionFailureFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition2);
-}
 
 
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureFDD_sequence[] = {
@@ -19222,9 +19178,6 @@ dissect_rnsap_RadioLinkAdditionFailureTDD(tvbuff_t *tvb _U_, int offset _U_, asn
 
   return offset;
 }
-static int dissect_id_radioLinkAddition_TDD2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkAdditionFailureTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkAddition_TDD2);
-}
 
 
 static const per_sequence_t GeneralCauseList_RL_AdditionFailureTDD_sequence[] = {
@@ -19317,9 +19270,6 @@ dissect_rnsap_RadioLinkDeletionRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
   return offset;
 }
-static int dissect_id_radioLinkDeletion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkDeletionRequest(tvb, offset, actx, tree, hf_rnsap_id_radioLinkDeletion);
-}
 
 
 static const per_sequence_t RL_InformationList_RL_DeletionRqst_sequence_of[1] = {
@@ -19364,9 +19314,6 @@ dissect_rnsap_RadioLinkDeletionResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_id_radioLinkDeletion1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkDeletionResponse(tvb, offset, actx, tree, hf_rnsap_id_radioLinkDeletion1);
-}
 
 
 static const per_sequence_t RadioLinkReconfigurationPrepareFDD_sequence[] = {
@@ -19381,9 +19328,6 @@ dissect_rnsap_RadioLinkReconfigurationPrepareFDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_RadioLinkReconfigurationPrepareFDD, RadioLinkReconfigurationPrepareFDD_sequence);
 
   return offset;
-}
-static int dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationPrepareFDD(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation);
 }
 
 
@@ -20024,9 +19968,6 @@ dissect_rnsap_RadioLinkReconfigurationReadyFDD(tvbuff_t *tvb _U_, int offset _U_
 
   return offset;
 }
-static int dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationReadyFDD(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation1);
-}
 
 
 static const per_sequence_t RL_InformationResponseList_RL_ReconfReadyFDD_sequence_of[1] = {
@@ -20096,9 +20037,6 @@ dissect_rnsap_RadioLinkReconfigurationReadyTDD(tvbuff_t *tvb _U_, int offset _U_
                                    ett_rnsap_RadioLinkReconfigurationReadyTDD, RadioLinkReconfigurationReadyTDD_sequence);
 
   return offset;
-}
-static int dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationReadyTDD(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation_TDD);
 }
 
 
@@ -20797,9 +20735,6 @@ dissect_rnsap_RadioLinkReconfigurationCommit(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_id_synchronisedRadioLinkReconfigurationCommit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationCommit(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationCommit);
-}
 
 
 static const per_sequence_t RadioLinkReconfigurationFailure_sequence[] = {
@@ -20814,15 +20749,6 @@ dissect_rnsap_RadioLinkReconfigurationFailure(tvbuff_t *tvb _U_, int offset _U_,
                                    ett_rnsap_RadioLinkReconfigurationFailure, RadioLinkReconfigurationFailure_sequence);
 
   return offset;
-}
-static int dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationFailure(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation2);
-}
-static int dissect_id_unSynchronisedRadioLinkReconfiguration2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationFailure(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration2);
-}
-static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationFailure(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD2);
 }
 
 
@@ -20921,9 +20847,6 @@ dissect_rnsap_RadioLinkReconfigurationCancel(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_id_synchronisedRadioLinkReconfigurationCancellation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationCancel(tvb, offset, actx, tree, hf_rnsap_id_synchronisedRadioLinkReconfigurationCancellation);
-}
 
 
 static const per_sequence_t RadioLinkReconfigurationRequestFDD_sequence[] = {
@@ -20938,9 +20861,6 @@ dissect_rnsap_RadioLinkReconfigurationRequestFDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_RadioLinkReconfigurationRequestFDD, RadioLinkReconfigurationRequestFDD_sequence);
 
   return offset;
-}
-static int dissect_id_unSynchronisedRadioLinkReconfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationRequestFDD(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration);
 }
 
 
@@ -21047,9 +20967,6 @@ dissect_rnsap_RadioLinkReconfigurationRequestTDD(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_RadioLinkReconfigurationRequestTDD, RadioLinkReconfigurationRequestTDD_sequence);
 
   return offset;
-}
-static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationRequestTDD(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD);
 }
 
 
@@ -21243,9 +21160,6 @@ dissect_rnsap_RadioLinkReconfigurationResponseFDD(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_id_unSynchronisedRadioLinkReconfiguration1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationResponseFDD(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration1);
-}
 
 
 static const per_sequence_t RL_InformationResponseList_RL_ReconfRspFDD_sequence_of[1] = {
@@ -21314,9 +21228,6 @@ dissect_rnsap_RadioLinkReconfigurationResponseTDD(tvbuff_t *tvb _U_, int offset 
                                    ett_rnsap_RadioLinkReconfigurationResponseTDD, RadioLinkReconfigurationResponseTDD_sequence);
 
   return offset;
-}
-static int dissect_id_unSynchronisedRadioLinkReconfiguration_TDD1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkReconfigurationResponseTDD(tvb, offset, actx, tree, hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD1);
 }
 
 
@@ -21462,9 +21373,6 @@ dissect_rnsap_RadioLinkFailureIndication(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_RadioLinkFailureIndication, RadioLinkFailureIndication_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkFailureIndication(tvb, offset, actx, tree, hf_rnsap_id_radioLinkFailure);
 }
 
 
@@ -21641,9 +21549,6 @@ dissect_rnsap_RadioLinkPreemptionRequiredIndication(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_radioLinkPreemption(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkPreemptionRequiredIndication(tvb, offset, actx, tree, hf_rnsap_id_radioLinkPreemption);
-}
 
 
 static const per_sequence_t RL_InformationList_RL_PreemptRequiredInd_sequence_of[1] = {
@@ -21745,9 +21650,6 @@ dissect_rnsap_RadioLinkRestoreIndication(tvbuff_t *tvb _U_, int offset _U_, asn1
                                    ett_rnsap_RadioLinkRestoreIndication, RadioLinkRestoreIndication_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkRestoration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkRestoreIndication(tvb, offset, actx, tree, hf_rnsap_id_radioLinkRestoration);
 }
 
 
@@ -21921,9 +21823,6 @@ dissect_rnsap_DL_PowerControlRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   return offset;
 }
-static int dissect_id_downlinkPowerControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_PowerControlRequest(tvb, offset, actx, tree, hf_rnsap_id_downlinkPowerControl);
-}
 
 
 static const per_sequence_t DL_ReferencePowerInformationList_DL_PC_Rqst_sequence_of[1] = {
@@ -21968,9 +21867,6 @@ dissect_rnsap_DL_PowerTimeslotControlRequest(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_DL_PowerTimeslotControlRequest, DL_PowerTimeslotControlRequest_sequence);
 
   return offset;
-}
-static int dissect_id_downlinkPowerTimeslotControl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DL_PowerTimeslotControlRequest(tvb, offset, actx, tree, hf_rnsap_id_downlinkPowerTimeslotControl);
 }
 
 
@@ -22026,9 +21922,6 @@ dissect_rnsap_PhysicalChannelReconfigurationRequestTDD(tvbuff_t *tvb _U_, int of
                                    ett_rnsap_PhysicalChannelReconfigurationRequestTDD, PhysicalChannelReconfigurationRequestTDD_sequence);
 
   return offset;
-}
-static int dissect_id_physicalChannelReconfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PhysicalChannelReconfigurationRequestTDD(tvb, offset, actx, tree, hf_rnsap_id_physicalChannelReconfiguration);
 }
 
 
@@ -22382,9 +22275,6 @@ dissect_rnsap_PhysicalChannelReconfigurationCommand(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_physicalChannelReconfiguration1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PhysicalChannelReconfigurationCommand(tvb, offset, actx, tree, hf_rnsap_id_physicalChannelReconfiguration1);
-}
 
 
 static const per_sequence_t PhysicalChannelReconfigurationFailure_sequence[] = {
@@ -22400,9 +22290,6 @@ dissect_rnsap_PhysicalChannelReconfigurationFailure(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_physicalChannelReconfiguration2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PhysicalChannelReconfigurationFailure(tvb, offset, actx, tree, hf_rnsap_id_physicalChannelReconfiguration2);
-}
 
 
 static const per_sequence_t RadioLinkCongestionIndication_sequence[] = {
@@ -22417,9 +22304,6 @@ dissect_rnsap_RadioLinkCongestionIndication(tvbuff_t *tvb _U_, int offset _U_, a
                                    ett_rnsap_RadioLinkCongestionIndication, RadioLinkCongestionIndication_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkCongestion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkCongestionIndication(tvb, offset, actx, tree, hf_rnsap_id_radioLinkCongestion);
 }
 
 
@@ -22525,9 +22409,6 @@ dissect_rnsap_UplinkSignallingTransferIndicationFDD(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_uplinkSignallingTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UplinkSignallingTransferIndicationFDD(tvb, offset, actx, tree, hf_rnsap_id_uplinkSignallingTransfer);
-}
 
 
 static const per_sequence_t UplinkSignallingTransferIndicationTDD_sequence[] = {
@@ -22542,9 +22423,6 @@ dissect_rnsap_UplinkSignallingTransferIndicationTDD(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_UplinkSignallingTransferIndicationTDD, UplinkSignallingTransferIndicationTDD_sequence);
 
   return offset;
-}
-static int dissect_id_uplinkSignallingTransfer_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UplinkSignallingTransferIndicationTDD(tvb, offset, actx, tree, hf_rnsap_id_uplinkSignallingTransfer_TDD);
 }
 
 
@@ -22561,9 +22439,6 @@ dissect_rnsap_DownlinkSignallingTransferRequest(tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_id_downlinkSignallingTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DownlinkSignallingTransferRequest(tvb, offset, actx, tree, hf_rnsap_id_downlinkSignallingTransfer);
-}
 
 
 static const per_sequence_t RelocationCommit_sequence[] = {
@@ -22579,9 +22454,6 @@ dissect_rnsap_RelocationCommit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   return offset;
 }
-static int dissect_id_relocationCommit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RelocationCommit(tvb, offset, actx, tree, hf_rnsap_id_relocationCommit);
-}
 
 
 static const per_sequence_t PagingRequest_sequence[] = {
@@ -22596,9 +22468,6 @@ dissect_rnsap_PagingRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                    ett_rnsap_PagingRequest, PagingRequest_sequence);
 
   return offset;
-}
-static int dissect_id_paging(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PagingRequest(tvb, offset, actx, tree, hf_rnsap_id_paging);
 }
 
 
@@ -22683,9 +22552,6 @@ dissect_rnsap_DedicatedMeasurementInitiationRequest(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_DedicatedMeasurementInitiationRequest, DedicatedMeasurementInitiationRequest_sequence);
 
   return offset;
-}
-static int dissect_id_dedicatedMeasurementInitiation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementInitiationRequest(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementInitiation);
 }
 
 
@@ -22848,9 +22714,6 @@ dissect_rnsap_DedicatedMeasurementInitiationResponse(tvbuff_t *tvb _U_, int offs
                                    ett_rnsap_DedicatedMeasurementInitiationResponse, DedicatedMeasurementInitiationResponse_sequence);
 
   return offset;
-}
-static int dissect_id_dedicatedMeasurementInitiation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementInitiationResponse(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementInitiation1);
 }
 
 
@@ -23076,9 +22939,6 @@ dissect_rnsap_DedicatedMeasurementInitiationFailure(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_dedicatedMeasurementInitiation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementInitiationFailure(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementInitiation2);
-}
 
 
 static const per_sequence_t RL_Unsuccessful_InformationRespList_DM_Fail_sequence_of[1] = {
@@ -23275,9 +23135,6 @@ dissect_rnsap_DedicatedMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   return offset;
 }
-static int dissect_id_dedicatedMeasurementReporting(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementReport(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementReporting);
-}
 
 
 static const per_sequence_t RL_InformationList_DM_Rprt_sequence_of[1] = {
@@ -23410,9 +23267,6 @@ dissect_rnsap_DedicatedMeasurementTerminationRequest(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_id_dedicatedMeasurementTermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementTerminationRequest(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementTermination);
-}
 
 
 static const per_sequence_t DedicatedMeasurementFailureIndication_sequence[] = {
@@ -23427,9 +23281,6 @@ dissect_rnsap_DedicatedMeasurementFailureIndication(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_DedicatedMeasurementFailureIndication, DedicatedMeasurementFailureIndication_sequence);
 
   return offset;
-}
-static int dissect_id_dedicatedMeasurementFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DedicatedMeasurementFailureIndication(tvb, offset, actx, tree, hf_rnsap_id_dedicatedMeasurementFailure);
 }
 
 
@@ -23562,9 +23413,6 @@ dissect_rnsap_CommonTransportChannelResourcesReleaseRequest(tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_id_commonTransportChannelResourcesRelease(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonTransportChannelResourcesReleaseRequest(tvb, offset, actx, tree, hf_rnsap_id_commonTransportChannelResourcesRelease);
-}
 
 
 static const per_sequence_t CommonTransportChannelResourcesRequest_sequence[] = {
@@ -23580,9 +23428,6 @@ dissect_rnsap_CommonTransportChannelResourcesRequest(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_id_commonTransportChannelResourcesInitialisation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonTransportChannelResourcesRequest(tvb, offset, actx, tree, hf_rnsap_id_commonTransportChannelResourcesInitialisation);
-}
 
 
 static const per_sequence_t CommonTransportChannelResourcesResponseFDD_sequence[] = {
@@ -23597,9 +23442,6 @@ dissect_rnsap_CommonTransportChannelResourcesResponseFDD(tvbuff_t *tvb _U_, int 
                                    ett_rnsap_CommonTransportChannelResourcesResponseFDD, CommonTransportChannelResourcesResponseFDD_sequence);
 
   return offset;
-}
-static int dissect_id_commonTransportChannelResourcesInitialisation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonTransportChannelResourcesResponseFDD(tvb, offset, actx, tree, hf_rnsap_id_commonTransportChannelResourcesInitialisation1);
 }
 
 
@@ -23640,9 +23482,6 @@ dissect_rnsap_CommonTransportChannelResourcesResponseTDD(tvbuff_t *tvb _U_, int 
 
   return offset;
 }
-static int dissect_id_commonTransportChannelResourcesInitialisation_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonTransportChannelResourcesResponseTDD(tvb, offset, actx, tree, hf_rnsap_id_commonTransportChannelResourcesInitialisation_TDD);
-}
 
 
 
@@ -23682,9 +23521,6 @@ dissect_rnsap_CommonTransportChannelResourcesFailure(tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_id_commonTransportChannelResourcesInitialisation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonTransportChannelResourcesFailure(tvb, offset, actx, tree, hf_rnsap_id_commonTransportChannelResourcesInitialisation2);
-}
 
 
 static const per_sequence_t CompressedModeCommand_sequence[] = {
@@ -23699,9 +23535,6 @@ dissect_rnsap_CompressedModeCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                                    ett_rnsap_CompressedModeCommand, CompressedModeCommand_sequence);
 
   return offset;
-}
-static int dissect_id_compressedModeCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CompressedModeCommand(tvb, offset, actx, tree, hf_rnsap_id_compressedModeCommand);
 }
 
 
@@ -23718,9 +23551,6 @@ dissect_rnsap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
   return offset;
 }
-static int dissect_id_errorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ErrorIndication(tvb, offset, actx, tree, hf_rnsap_id_errorIndication);
-}
 
 
 static const per_sequence_t CommonMeasurementInitiationRequest_sequence[] = {
@@ -23735,9 +23565,6 @@ dissect_rnsap_CommonMeasurementInitiationRequest(tvbuff_t *tvb _U_, int offset _
                                    ett_rnsap_CommonMeasurementInitiationRequest, CommonMeasurementInitiationRequest_sequence);
 
   return offset;
-}
-static int dissect_id_commonMeasurementInitiation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementInitiationRequest(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementInitiation);
 }
 
 
@@ -23839,9 +23666,6 @@ dissect_rnsap_CommonMeasurementInitiationResponse(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_id_commonMeasurementInitiation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementInitiationResponse(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementInitiation1);
-}
 
 
 static const per_sequence_t Cell_CM_Rsp_sequence[] = {
@@ -23892,9 +23716,6 @@ dissect_rnsap_CommonMeasurementInitiationFailure(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_id_commonMeasurementInitiation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementInitiationFailure(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementInitiation2);
-}
 
 
 static const per_sequence_t CommonMeasurementReport_sequence[] = {
@@ -23909,9 +23730,6 @@ dissect_rnsap_CommonMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
                                    ett_rnsap_CommonMeasurementReport, CommonMeasurementReport_sequence);
 
   return offset;
-}
-static int dissect_id_commonMeasurementReporting(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementReport(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementReporting);
 }
 
 
@@ -23963,9 +23781,6 @@ dissect_rnsap_CommonMeasurementTerminationRequest(tvbuff_t *tvb _U_, int offset 
 
   return offset;
 }
-static int dissect_id_commonMeasurementTermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementTerminationRequest(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementTermination);
-}
 
 
 static const per_sequence_t CommonMeasurementFailureIndication_sequence[] = {
@@ -23981,9 +23796,6 @@ dissect_rnsap_CommonMeasurementFailureIndication(tvbuff_t *tvb _U_, int offset _
 
   return offset;
 }
-static int dissect_id_commonMeasurementFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_CommonMeasurementFailureIndication(tvb, offset, actx, tree, hf_rnsap_id_commonMeasurementFailure);
-}
 
 
 static const per_sequence_t InformationExchangeInitiationRequest_sequence[] = {
@@ -23998,9 +23810,6 @@ dissect_rnsap_InformationExchangeInitiationRequest(tvbuff_t *tvb _U_, int offset
                                    ett_rnsap_InformationExchangeInitiationRequest, InformationExchangeInitiationRequest_sequence);
 
   return offset;
-}
-static int dissect_id_informationExchangeInitiation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationExchangeInitiationRequest(tvb, offset, actx, tree, hf_rnsap_id_informationExchangeInitiation);
 }
 
 
@@ -24077,9 +23886,6 @@ dissect_rnsap_InformationExchangeInitiationResponse(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_InformationExchangeInitiationResponse, InformationExchangeInitiationResponse_sequence);
 
   return offset;
-}
-static int dissect_id_informationExchangeInitiation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationExchangeInitiationResponse(tvb, offset, actx, tree, hf_rnsap_id_informationExchangeInitiation1);
 }
 
 
@@ -24172,9 +23978,6 @@ dissect_rnsap_InformationExchangeInitiationFailure(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_id_informationExchangeInitiation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationExchangeInitiationFailure(tvb, offset, actx, tree, hf_rnsap_id_informationExchangeInitiation2);
-}
 
 
 static const per_sequence_t InformationReport_sequence[] = {
@@ -24189,9 +23992,6 @@ dissect_rnsap_InformationReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                    ett_rnsap_InformationReport, InformationReport_sequence);
 
   return offset;
-}
-static int dissect_id_informationReporting(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationReport(tvb, offset, actx, tree, hf_rnsap_id_informationReporting);
 }
 
 
@@ -24243,9 +24043,6 @@ dissect_rnsap_InformationExchangeTerminationRequest(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_informationExchangeTermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationExchangeTerminationRequest(tvb, offset, actx, tree, hf_rnsap_id_informationExchangeTermination);
-}
 
 
 static const per_sequence_t InformationExchangeFailureIndication_sequence[] = {
@@ -24261,9 +24058,6 @@ dissect_rnsap_InformationExchangeFailureIndication(tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_id_informationExchangeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_InformationExchangeFailureIndication(tvb, offset, actx, tree, hf_rnsap_id_informationExchangeFailure);
-}
 
 
 static const per_sequence_t ResetRequest_sequence[] = {
@@ -24278,9 +24072,6 @@ dissect_rnsap_ResetRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                    ett_rnsap_ResetRequest, ResetRequest_sequence);
 
   return offset;
-}
-static int dissect_id_reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ResetRequest(tvb, offset, actx, tree, hf_rnsap_id_reset);
 }
 
 
@@ -24431,9 +24222,6 @@ dissect_rnsap_ResetResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   return offset;
 }
-static int dissect_id_reset1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_ResetResponse(tvb, offset, actx, tree, hf_rnsap_id_reset1);
-}
 
 
 static const per_sequence_t RadioLinkActivationCommandFDD_sequence[] = {
@@ -24448,9 +24236,6 @@ dissect_rnsap_RadioLinkActivationCommandFDD(tvbuff_t *tvb _U_, int offset _U_, a
                                    ett_rnsap_RadioLinkActivationCommandFDD, RadioLinkActivationCommandFDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkActivationCommandFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkActivation);
 }
 
 
@@ -24497,9 +24282,6 @@ dissect_rnsap_RadioLinkActivationCommandTDD(tvbuff_t *tvb _U_, int offset _U_, a
 
   return offset;
 }
-static int dissect_id_radioLinkActivation_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkActivationCommandTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkActivation_TDD);
-}
 
 
 static const per_sequence_t DelayedActivationInformationList_RL_ActivationCmdTDD_sequence_of[1] = {
@@ -24545,9 +24327,6 @@ dissect_rnsap_GERANUplinkSignallingTransferIndication(tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_id_gERANuplinkSignallingTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_GERANUplinkSignallingTransferIndication(tvb, offset, actx, tree, hf_rnsap_id_gERANuplinkSignallingTransfer);
-}
 
 
 static const per_sequence_t RadioLinkParameterUpdateIndicationFDD_sequence[] = {
@@ -24562,9 +24341,6 @@ dissect_rnsap_RadioLinkParameterUpdateIndicationFDD(tvbuff_t *tvb _U_, int offse
                                    ett_rnsap_RadioLinkParameterUpdateIndicationFDD, RadioLinkParameterUpdateIndicationFDD_sequence);
 
   return offset;
-}
-static int dissect_id_radioLinkParameterUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkParameterUpdateIndicationFDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkParameterUpdate);
 }
 
 
@@ -24611,9 +24387,6 @@ dissect_rnsap_RadioLinkParameterUpdateIndicationTDD(tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_id_radioLinkParameterUpdate_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_RadioLinkParameterUpdateIndicationTDD(tvb, offset, actx, tree, hf_rnsap_id_radioLinkParameterUpdate_TDD);
-}
 
 
 static const per_sequence_t UEMeasurementInitiationRequest_sequence[] = {
@@ -24628,9 +24401,6 @@ dissect_rnsap_UEMeasurementInitiationRequest(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_UEMeasurementInitiationRequest, UEMeasurementInitiationRequest_sequence);
 
   return offset;
-}
-static int dissect_id_uEMeasurementInitiation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementInitiationRequest(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementInitiation);
 }
 
 
@@ -24647,9 +24417,6 @@ dissect_rnsap_UEMeasurementInitiationResponse(tvbuff_t *tvb _U_, int offset _U_,
 
   return offset;
 }
-static int dissect_id_uEMeasurementInitiation1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementInitiationResponse(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementInitiation1);
-}
 
 
 static const per_sequence_t UEMeasurementInitiationFailure_sequence[] = {
@@ -24664,9 +24431,6 @@ dissect_rnsap_UEMeasurementInitiationFailure(tvbuff_t *tvb _U_, int offset _U_, 
                                    ett_rnsap_UEMeasurementInitiationFailure, UEMeasurementInitiationFailure_sequence);
 
   return offset;
-}
-static int dissect_id_uEMeasurementInitiation2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementInitiationFailure(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementInitiation2);
 }
 
 
@@ -24683,9 +24447,6 @@ dissect_rnsap_UEMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   return offset;
 }
-static int dissect_id_uEMeasurementReporting(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementReport(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementReporting);
-}
 
 
 static const per_sequence_t UEMeasurementTerminationRequest_sequence[] = {
@@ -24700,9 +24461,6 @@ dissect_rnsap_UEMeasurementTerminationRequest(tvbuff_t *tvb _U_, int offset _U_,
                                    ett_rnsap_UEMeasurementTerminationRequest, UEMeasurementTerminationRequest_sequence);
 
   return offset;
-}
-static int dissect_id_uEMeasurementTermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementTerminationRequest(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementTermination);
 }
 
 
@@ -24719,9 +24477,6 @@ dissect_rnsap_UEMeasurementFailureIndication(tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_id_uEMeasurementFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_UEMeasurementFailureIndication(tvb, offset, actx, tree, hf_rnsap_id_uEMeasurementFailure);
-}
 
 
 static const per_sequence_t IurInvokeTrace_sequence[] = {
@@ -24736,9 +24491,6 @@ dissect_rnsap_IurInvokeTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                                    ett_rnsap_IurInvokeTrace, IurInvokeTrace_sequence);
 
   return offset;
-}
-static int dissect_id_iurInvokeTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IurInvokeTrace(tvb, offset, actx, tree, hf_rnsap_id_iurInvokeTrace);
 }
 
 
@@ -24800,9 +24552,6 @@ dissect_rnsap_IurDeactivateTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
   return offset;
 }
-static int dissect_id_iurDeactivateTrace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_IurDeactivateTrace(tvb, offset, actx, tree, hf_rnsap_id_iurDeactivateTrace);
-}
 
 
 static const per_sequence_t MBMSAttachCommand_sequence[] = {
@@ -24817,9 +24566,6 @@ dissect_rnsap_MBMSAttachCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
                                    ett_rnsap_MBMSAttachCommand, MBMSAttachCommand_sequence);
 
   return offset;
-}
-static int dissect_id_mBMSAttach(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSAttachCommand(tvb, offset, actx, tree, hf_rnsap_id_mBMSAttach);
 }
 
 
@@ -24836,9 +24582,6 @@ dissect_rnsap_MBMSDetachCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   return offset;
 }
-static int dissect_id_mBMSDetach(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_MBMSDetachCommand(tvb, offset, actx, tree, hf_rnsap_id_mBMSDetach);
-}
 
 
 static const per_sequence_t DirectInformationTransfer_sequence[] = {
@@ -24854,9 +24597,6 @@ dissect_rnsap_DirectInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   return offset;
 }
-static int dissect_id_directInformationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_DirectInformationTransfer(tvb, offset, actx, tree, hf_rnsap_id_directInformationTransfer);
-}
 
 
 static const per_sequence_t PrivateMessage_sequence[] = {
@@ -24871,15 +24611,12 @@ dissect_rnsap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
   return offset;
 }
-static int dissect_id_privateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {
-  return dissect_rnsap_PrivateMessage(tvb, offset, actx, tree, hf_rnsap_id_privateMessage);
-}
 
 
 
 static int
 dissect_rnsap_T_value2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_rnsap_InitiatingMessageValueValue);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_InitiatingMessageValue);
 
   return offset;
 }
@@ -24905,7 +24642,7 @@ dissect_rnsap_InitiatingMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_rnsap_T_value3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_rnsap_SuccessfulOutcomeValueValue);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_SuccessfulOutcomeValue);
 
   return offset;
 }
@@ -24931,7 +24668,7 @@ dissect_rnsap_SuccessfulOutcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_rnsap_T_value4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_rnsap_UnsuccessfulOutcomeValueValue);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_UnsuccessfulOutcomeValue);
 
   return offset;
 }
@@ -25000,230 +24737,6 @@ static int
 dissect_rnsap_RNSAP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_rnsap_RNSAP_PDU, RNSAP_PDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string rnsap_DummyInitiatingValue_vals[] = {
-  {   0, "id-commonTransportChannelResourcesInitialisation" },
-  {   1, "id-commonTransportChannelResourcesRelease" },
-  {   2, "id-compressedModeCommand" },
-  {   3, "id-downlinkPowerControl" },
-  {   4, "id-downlinkPowerTimeslotControl" },
-  {   5, "id-downlinkSignallingTransfer" },
-  {   6, "id-errorIndication" },
-  {   7, "id-dedicatedMeasurementFailure" },
-  {   8, "id-dedicatedMeasurementInitiation" },
-  {   9, "id-dedicatedMeasurementReporting" },
-  {  10, "id-dedicatedMeasurementTermination" },
-  {  11, "id-paging" },
-  {  12, "id-physicalChannelReconfiguration" },
-  {  13, "id-privateMessage" },
-  {  14, "id-radioLinkAddition" },
-  {  15, "id-radioLinkAddition-TDD" },
-  {  16, "id-radioLinkCongestion" },
-  {  17, "id-radioLinkDeletion" },
-  {  18, "id-radioLinkFailure" },
-  {  19, "id-radioLinkPreemption" },
-  {  20, "id-radioLinkRestoration" },
-  {  21, "id-radioLinkSetup" },
-  {  22, "id-radioLinkSetupTdd" },
-  {  23, "id-relocationCommit" },
-  {  24, "id-synchronisedRadioLinkReconfigurationCancellation" },
-  {  25, "id-synchronisedRadioLinkReconfigurationCommit" },
-  {  26, "id-synchronisedRadioLinkReconfigurationPreparation" },
-  {  27, "id-synchronisedRadioLinkReconfigurationPreparation-TDD" },
-  {  28, "id-unSynchronisedRadioLinkReconfiguration" },
-  {  29, "id-unSynchronisedRadioLinkReconfiguration-TDD" },
-  {  30, "id-uplinkSignallingTransfer" },
-  {  31, "id-uplinkSignallingTransfer-TDD" },
-  {  32, "id-commonMeasurementFailure" },
-  {  33, "id-commonMeasurementInitiation" },
-  {  34, "id-commonMeasurementReporting" },
-  {  35, "id-commonMeasurementTermination" },
-  {  36, "id-informationExchangeFailure" },
-  {  37, "id-informationExchangeInitiation" },
-  {  38, "id-informationReporting" },
-  {  39, "id-informationExchangeTermination" },
-  {  40, "id-reset" },
-  {  41, "id-radioLinkActivation" },
-  {  42, "id-radioLinkActivation-TDD" },
-  {  43, "id-gERANuplinkSignallingTransfer" },
-  {  44, "id-radioLinkParameterUpdate" },
-  {  45, "id-radioLinkParameterUpdate-TDD" },
-  {  46, "id-uEMeasurementFailure" },
-  {  47, "id-uEMeasurementInitiation" },
-  {  48, "id-uEMeasurementReporting" },
-  {  49, "id-uEMeasurementTermination" },
-  {  50, "id-iurDeactivateTrace" },
-  {  51, "id-iurInvokeTrace" },
-  {  52, "id-mBMSAttach" },
-  {  53, "id-mBMSDetach" },
-  {  54, "id-directInformationTransfer" },
-  { 0, NULL }
-};
-
-static const per_choice_t DummyInitiatingValue_choice[] = {
-  {   0, &hf_rnsap_id_commonTransportChannelResourcesInitialisation, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonTransportChannelResourcesRequest },
-  {   1, &hf_rnsap_id_commonTransportChannelResourcesRelease, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonTransportChannelResourcesReleaseRequest },
-  {   2, &hf_rnsap_id_compressedModeCommand, ASN1_EXTENSION_ROOT    , dissect_rnsap_CompressedModeCommand },
-  {   3, &hf_rnsap_id_downlinkPowerControl, ASN1_EXTENSION_ROOT    , dissect_rnsap_DL_PowerControlRequest },
-  {   4, &hf_rnsap_id_downlinkPowerTimeslotControl, ASN1_EXTENSION_ROOT    , dissect_rnsap_DL_PowerTimeslotControlRequest },
-  {   5, &hf_rnsap_id_downlinkSignallingTransfer, ASN1_EXTENSION_ROOT    , dissect_rnsap_DownlinkSignallingTransferRequest },
-  {   6, &hf_rnsap_id_errorIndication, ASN1_EXTENSION_ROOT    , dissect_rnsap_ErrorIndication },
-  {   7, &hf_rnsap_id_dedicatedMeasurementFailure, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementFailureIndication },
-  {   8, &hf_rnsap_id_dedicatedMeasurementInitiation, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementInitiationRequest },
-  {   9, &hf_rnsap_id_dedicatedMeasurementReporting, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementReport },
-  {  10, &hf_rnsap_id_dedicatedMeasurementTermination, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementTerminationRequest },
-  {  11, &hf_rnsap_id_paging     , ASN1_EXTENSION_ROOT    , dissect_rnsap_PagingRequest },
-  {  12, &hf_rnsap_id_physicalChannelReconfiguration, ASN1_EXTENSION_ROOT    , dissect_rnsap_PhysicalChannelReconfigurationRequestTDD },
-  {  13, &hf_rnsap_id_privateMessage, ASN1_EXTENSION_ROOT    , dissect_rnsap_PrivateMessage },
-  {  14, &hf_rnsap_id_radioLinkAddition, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionRequestFDD },
-  {  15, &hf_rnsap_id_radioLinkAddition_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionRequestTDD },
-  {  16, &hf_rnsap_id_radioLinkCongestion, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkCongestionIndication },
-  {  17, &hf_rnsap_id_radioLinkDeletion, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkDeletionRequest },
-  {  18, &hf_rnsap_id_radioLinkFailure, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkFailureIndication },
-  {  19, &hf_rnsap_id_radioLinkPreemption, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkPreemptionRequiredIndication },
-  {  20, &hf_rnsap_id_radioLinkRestoration, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkRestoreIndication },
-  {  21, &hf_rnsap_id_radioLinkSetup, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupRequestFDD },
-  {  22, &hf_rnsap_id_radioLinkSetupTdd, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupRequestTDD },
-  {  23, &hf_rnsap_id_relocationCommit, ASN1_EXTENSION_ROOT    , dissect_rnsap_RelocationCommit },
-  {  24, &hf_rnsap_id_synchronisedRadioLinkReconfigurationCancellation, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationCancel },
-  {  25, &hf_rnsap_id_synchronisedRadioLinkReconfigurationCommit, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationCommit },
-  {  26, &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationPrepareFDD },
-  {  27, &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationReadyTDD },
-  {  28, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationRequestFDD },
-  {  29, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationRequestTDD },
-  {  30, &hf_rnsap_id_uplinkSignallingTransfer, ASN1_EXTENSION_ROOT    , dissect_rnsap_UplinkSignallingTransferIndicationFDD },
-  {  31, &hf_rnsap_id_uplinkSignallingTransfer_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_UplinkSignallingTransferIndicationTDD },
-  {  32, &hf_rnsap_id_commonMeasurementFailure, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementFailureIndication },
-  {  33, &hf_rnsap_id_commonMeasurementInitiation, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementInitiationRequest },
-  {  34, &hf_rnsap_id_commonMeasurementReporting, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementReport },
-  {  35, &hf_rnsap_id_commonMeasurementTermination, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementTerminationRequest },
-  {  36, &hf_rnsap_id_informationExchangeFailure, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationExchangeFailureIndication },
-  {  37, &hf_rnsap_id_informationExchangeInitiation, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationExchangeInitiationRequest },
-  {  38, &hf_rnsap_id_informationReporting, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationReport },
-  {  39, &hf_rnsap_id_informationExchangeTermination, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationExchangeTerminationRequest },
-  {  40, &hf_rnsap_id_reset      , ASN1_EXTENSION_ROOT    , dissect_rnsap_ResetRequest },
-  {  41, &hf_rnsap_id_radioLinkActivation, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkActivationCommandFDD },
-  {  42, &hf_rnsap_id_radioLinkActivation_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkActivationCommandTDD },
-  {  43, &hf_rnsap_id_gERANuplinkSignallingTransfer, ASN1_EXTENSION_ROOT    , dissect_rnsap_GERANUplinkSignallingTransferIndication },
-  {  44, &hf_rnsap_id_radioLinkParameterUpdate, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkParameterUpdateIndicationFDD },
-  {  45, &hf_rnsap_id_radioLinkParameterUpdate_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkParameterUpdateIndicationTDD },
-  {  46, &hf_rnsap_id_uEMeasurementFailure, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementFailureIndication },
-  {  47, &hf_rnsap_id_uEMeasurementInitiation, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementInitiationRequest },
-  {  48, &hf_rnsap_id_uEMeasurementReporting, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementReport },
-  {  49, &hf_rnsap_id_uEMeasurementTermination, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementTerminationRequest },
-  {  50, &hf_rnsap_id_iurDeactivateTrace, ASN1_EXTENSION_ROOT    , dissect_rnsap_IurDeactivateTrace },
-  {  51, &hf_rnsap_id_iurInvokeTrace, ASN1_EXTENSION_ROOT    , dissect_rnsap_IurInvokeTrace },
-  {  52, &hf_rnsap_id_mBMSAttach , ASN1_EXTENSION_ROOT    , dissect_rnsap_MBMSAttachCommand },
-  {  53, &hf_rnsap_id_mBMSDetach , ASN1_EXTENSION_ROOT    , dissect_rnsap_MBMSDetachCommand },
-  {  54, &hf_rnsap_id_directInformationTransfer, ASN1_EXTENSION_ROOT    , dissect_rnsap_DirectInformationTransfer },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_rnsap_DummyInitiatingValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_rnsap_DummyInitiatingValue, DummyInitiatingValue_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string rnsap_DummySuccessfulOutcomeValue_vals[] = {
-  {   0, "id-commonTransportChannelResourcesInitialisation" },
-  {   1, "id-commonTransportChannelResourcesInitialisation-TDD" },
-  {   2, "id-dedicatedMeasurementInitiation" },
-  {   3, "id-physicalChannelReconfiguration" },
-  {   4, "id-radioLinkAddition" },
-  {   5, "id-radioLinkAddition-TDD" },
-  {   6, "id-radioLinkDeletion" },
-  {   7, "id-radioLinkSetup" },
-  {   8, "id-radioLinkSetupTdd" },
-  {   9, "id-synchronisedRadioLinkReconfigurationPreparation" },
-  {  10, "id-synchronisedRadioLinkReconfigurationPreparation-TDD" },
-  {  11, "id-unSynchronisedRadioLinkReconfiguration" },
-  {  12, "id-unSynchronisedRadioLinkReconfiguration-TDD" },
-  {  13, "id-commonMeasurementInitiation" },
-  {  14, "id-informationExchangeInitiation" },
-  {  15, "id-reset" },
-  {  16, "id-uEMeasurementInitiation" },
-  { 0, NULL }
-};
-
-static const per_choice_t DummySuccessfulOutcomeValue_choice[] = {
-  {   0, &hf_rnsap_id_commonTransportChannelResourcesInitialisation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonTransportChannelResourcesResponseFDD },
-  {   1, &hf_rnsap_id_commonTransportChannelResourcesInitialisation_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonTransportChannelResourcesResponseTDD },
-  {   2, &hf_rnsap_id_dedicatedMeasurementInitiation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementInitiationResponse },
-  {   3, &hf_rnsap_id_physicalChannelReconfiguration1, ASN1_EXTENSION_ROOT    , dissect_rnsap_PhysicalChannelReconfigurationCommand },
-  {   4, &hf_rnsap_id_radioLinkAddition1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionResponseFDD },
-  {   5, &hf_rnsap_id_radioLinkAddition_TDD1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionResponseTDD },
-  {   6, &hf_rnsap_id_radioLinkDeletion1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkDeletionResponse },
-  {   7, &hf_rnsap_id_radioLinkSetup1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupResponseFDD },
-  {   8, &hf_rnsap_id_radioLinkSetupTdd1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupResponseTDD },
-  {   9, &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationReadyFDD },
-  {  10, &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation_TDD, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationReadyTDD },
-  {  11, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationResponseFDD },
-  {  12, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD1, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationResponseTDD },
-  {  13, &hf_rnsap_id_commonMeasurementInitiation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementInitiationResponse },
-  {  14, &hf_rnsap_id_informationExchangeInitiation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationExchangeInitiationResponse },
-  {  15, &hf_rnsap_id_reset1     , ASN1_EXTENSION_ROOT    , dissect_rnsap_ResetResponse },
-  {  16, &hf_rnsap_id_uEMeasurementInitiation1, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementInitiationResponse },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_rnsap_DummySuccessfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_rnsap_DummySuccessfulOutcomeValue, DummySuccessfulOutcomeValue_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string rnsap_DummyUnSuccessfulOutcomeValue_vals[] = {
-  {   0, "id-commonTransportChannelResourcesInitialisation" },
-  {   1, "id-dedicatedMeasurementInitiation" },
-  {   2, "id-physicalChannelReconfiguration" },
-  {   3, "id-radioLinkAddition" },
-  {   4, "id-radioLinkAddition-TDD" },
-  {   5, "id-radioLinkSetup" },
-  {   6, "id-radioLinkSetupTdd" },
-  {   7, "id-synchronisedRadioLinkReconfigurationPreparation" },
-  {   8, "id-unSynchronisedRadioLinkReconfiguration" },
-  {   9, "id-unSynchronisedRadioLinkReconfiguration-TDD" },
-  {  10, "id-commonMeasurementInitiation" },
-  {  11, "id-informationExchangeInitiation" },
-  {  12, "id-uEMeasurementInitiation" },
-  { 0, NULL }
-};
-
-static const per_choice_t DummyUnSuccessfulOutcomeValue_choice[] = {
-  {   0, &hf_rnsap_id_commonTransportChannelResourcesInitialisation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonTransportChannelResourcesFailure },
-  {   1, &hf_rnsap_id_dedicatedMeasurementInitiation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_DedicatedMeasurementInitiationFailure },
-  {   2, &hf_rnsap_id_physicalChannelReconfiguration2, ASN1_EXTENSION_ROOT    , dissect_rnsap_PhysicalChannelReconfigurationFailure },
-  {   3, &hf_rnsap_id_radioLinkAddition2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionFailureFDD },
-  {   4, &hf_rnsap_id_radioLinkAddition_TDD2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkAdditionFailureTDD },
-  {   5, &hf_rnsap_id_radioLinkSetup2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupFailureFDD },
-  {   6, &hf_rnsap_id_radioLinkSetupTdd2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkSetupFailureTDD },
-  {   7, &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationFailure },
-  {   8, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationFailure },
-  {   9, &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD2, ASN1_EXTENSION_ROOT    , dissect_rnsap_RadioLinkReconfigurationFailure },
-  {  10, &hf_rnsap_id_commonMeasurementInitiation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_CommonMeasurementInitiationFailure },
-  {  11, &hf_rnsap_id_informationExchangeInitiation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_InformationExchangeInitiationFailure },
-  {  12, &hf_rnsap_id_uEMeasurementInitiation2, ASN1_EXTENSION_ROOT    , dissect_rnsap_UEMeasurementInitiationFailure },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_rnsap_DummyUnSuccessfulOutcomeValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_rnsap_DummyUnSuccessfulOutcomeValue, DummyUnSuccessfulOutcomeValue_choice,
                                  NULL);
 
   return offset;
@@ -26887,6 +26400,14 @@ static int dissect_User_Plane_Congestion_Fields_Inclusion_PDU(tvbuff_t *tvb _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkSetupRequestFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupRequestFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupRequestFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UL_DPCH_Information_RL_SetupRqstFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -26924,6 +26445,14 @@ static int dissect_F_DPCH_Information_RL_SetupRqstFDD_PDU(tvbuff_t *tvb _U_, pac
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_F_DPCH_Information_RL_SetupRqstFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_F_DPCH_Information_RL_SetupRqstFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkSetupRequestTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupRequestTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupRequestTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -26983,6 +26512,14 @@ static int dissect_RL_Information_RL_SetupRqstTDD_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkSetupResponseFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupResponseFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupResponseFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_InformationResponseList_RL_SetupRspFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -26996,6 +26533,14 @@ static int dissect_RL_InformationResponseItem_RL_SetupRspFDD_PDU(tvbuff_t *tvb _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_InformationResponseItem_RL_SetupRspFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_InformationResponseItem_RL_SetupRspFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkSetupResponseTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupResponseTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupResponseTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27111,6 +26656,14 @@ static int dissect_USCH_LCR_InformationListIEs_RL_SetupRspTDD_PDU(tvbuff_t *tvb 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkSetupFailureFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupFailureFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupFailureFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CauseLevel_RL_SetupFailureFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27132,6 +26685,14 @@ static int dissect_SuccessfulRL_InformationResponse_RL_SetupFailureFDD_PDU(tvbuf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_SuccessfulRL_InformationResponse_RL_SetupFailureFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_SuccessfulRL_InformationResponse_RL_SetupFailureFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkSetupFailureTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkSetupFailureTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkSetupFailureTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27375,6 +26936,14 @@ static int dissect_UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD_PDU(
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkDeletionRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkDeletionRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkDeletionRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_InformationList_RL_DeletionRqst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27388,6 +26957,22 @@ static int dissect_RL_Information_RL_DeletionRqst_PDU(tvbuff_t *tvb _U_, packet_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_Information_RL_DeletionRqst(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_Information_RL_DeletionRqst_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkDeletionResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkDeletionResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkDeletionResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationPrepareFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationPrepareFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationPrepareFDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27444,6 +27029,14 @@ static int dissect_F_DPCH_Information_RL_ReconfPrepFDD_PDU(tvbuff_t *tvb _U_, pa
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_F_DPCH_Information_RL_ReconfPrepFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_F_DPCH_Information_RL_ReconfPrepFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationPrepareTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationPrepareTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationPrepareTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27591,6 +27184,14 @@ static int dissect_RL_Information_RL_ReconfPrepTDD_PDU(tvbuff_t *tvb _U_, packet
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkReconfigurationReadyFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationReadyFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationReadyFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_InformationResponseList_RL_ReconfReadyFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27604,6 +27205,14 @@ static int dissect_RL_InformationResponseItem_RL_ReconfReadyFDD_PDU(tvbuff_t *tv
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_InformationResponseItem_RL_ReconfReadyFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_InformationResponseItem_RL_ReconfReadyFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationReadyTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationReadyTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationReadyTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27727,6 +27336,22 @@ static int dissect_Multiple_RL_InformationResponse_RL_ReconfReadyTDD_PDU(tvbuff_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkReconfigurationCommit_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationCommit(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationCommit_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CauseLevel_RL_ReconfFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27740,6 +27365,22 @@ static int dissect_RL_ReconfigurationFailure_RL_ReconfFail_PDU(tvbuff_t *tvb _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_ReconfigurationFailure_RL_ReconfFail(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_ReconfigurationFailure_RL_ReconfFail_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationCancel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationCancel(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationCancel_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationRequestFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationRequestFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationRequestFDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27780,6 +27421,14 @@ static int dissect_RL_ReconfigurationRequestFDD_RL_Information_IEs_PDU(tvbuff_t 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_ReconfigurationRequestFDD_RL_Information_IEs(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_ReconfigurationRequestFDD_RL_Information_IEs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationRequestTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationRequestTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationRequestTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27863,6 +27512,14 @@ static int dissect_Multiple_RL_ReconfigurationRequestTDD_RL_Information_PDU(tvbu
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkReconfigurationResponseFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationResponseFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationResponseFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_InformationResponseList_RL_ReconfRspFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27876,6 +27533,14 @@ static int dissect_RL_InformationResponseItem_RL_ReconfRspFDD_PDU(tvbuff_t *tvb 
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_InformationResponseItem_RL_ReconfRspFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_InformationResponseItem_RL_ReconfRspFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkReconfigurationResponseTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkReconfigurationResponseTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkReconfigurationResponseTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27911,6 +27576,14 @@ static int dissect_Multiple_RL_InformationResponse_RL_ReconfRspTDD_PDU(tvbuff_t 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkFailureIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkFailureIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Reporting_Object_RL_FailureInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -27940,6 +27613,14 @@ static int dissect_CCTrCH_InformationItem_RL_FailureInd_PDU(tvbuff_t *tvb _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_CCTrCH_InformationItem_RL_FailureInd(tvb, offset, &asn1_ctx, tree, hf_rnsap_CCTrCH_InformationItem_RL_FailureInd_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkPreemptionRequiredIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkPreemptionRequiredIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkPreemptionRequiredIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -27991,6 +27672,14 @@ static int dissect_EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd_PD
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RadioLinkRestoreIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkRestoreIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkRestoreIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Reporting_Object_RL_RestoreInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28023,6 +27712,14 @@ static int dissect_CCTrCH_InformationItem_RL_RestoreInd_PDU(tvbuff_t *tvb _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DL_PowerControlRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DL_PowerControlRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_DL_PowerControlRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DL_ReferencePowerInformationList_DL_PC_Rqst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28039,11 +27736,35 @@ static int dissect_DL_ReferencePowerInformation_DL_PC_Rqst_PDU(tvbuff_t *tvb _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DL_PowerTimeslotControlRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DL_PowerTimeslotControlRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_DL_PowerTimeslotControlRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PhysicalChannelReconfigurationRequestFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PhysicalChannelReconfigurationRequestFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_PhysicalChannelReconfigurationRequestFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_Information_PhyChReconfRqstFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_Information_PhyChReconfRqstFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_Information_PhyChReconfRqstFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PhysicalChannelReconfigurationRequestTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PhysicalChannelReconfigurationRequestTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_PhysicalChannelReconfigurationRequestTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28119,6 +27840,30 @@ static int dissect_HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD_PDU(tv
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_PhysicalChannelReconfigurationCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PhysicalChannelReconfigurationCommand(tvb, offset, &asn1_ctx, tree, hf_rnsap_PhysicalChannelReconfigurationCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PhysicalChannelReconfigurationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PhysicalChannelReconfigurationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_PhysicalChannelReconfigurationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkCongestionIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkCongestionIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkCongestionIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_InformationList_RL_CongestInd_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28159,6 +27904,46 @@ static int dissect_EDCH_MacdFlowSpecificInformationItem_RL_CongestInd_PDU(tvbuff
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UplinkSignallingTransferIndicationFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UplinkSignallingTransferIndicationFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_UplinkSignallingTransferIndicationFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UplinkSignallingTransferIndicationTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UplinkSignallingTransferIndicationTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_UplinkSignallingTransferIndicationTDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DownlinkSignallingTransferRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DownlinkSignallingTransferRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_DownlinkSignallingTransferRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RelocationCommit_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RelocationCommit(tvb, offset, &asn1_ctx, tree, hf_rnsap_RelocationCommit_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PagingRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PagingRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_PagingRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_PagingArea_PagingRqst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28172,6 +27957,14 @@ static int dissect_CNOriginatedPage_PagingRqst_PDU(tvbuff_t *tvb _U_, packet_inf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_CNOriginatedPage_PagingRqst(tvb, offset, &asn1_ctx, tree, hf_rnsap_CNOriginatedPage_PagingRqst_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DedicatedMeasurementInitiationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementInitiationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementInitiationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28204,6 +27997,14 @@ static int dissect_RL_Set_InformationItem_DM_Rqst_PDU(tvbuff_t *tvb _U_, packet_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_Set_InformationItem_DM_Rqst(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_Set_InformationItem_DM_Rqst_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DedicatedMeasurementInitiationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementInitiationResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementInitiationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28255,6 +28056,14 @@ static int dissect_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_PDU(tvbuff_t *
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DedicatedMeasurementInitiationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementInitiationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementInitiationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DedicatedMeasurementObjectType_DM_Fail_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28295,6 +28104,14 @@ static int dissect_RL_Set_Successful_InformationItem_DM_Fail_PDU(tvbuff_t *tvb _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DedicatedMeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementReport(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DedicatedMeasurementObjectType_DM_Rprt_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28316,6 +28133,22 @@ static int dissect_RL_Set_InformationItem_DM_Rprt_PDU(tvbuff_t *tvb _U_, packet_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_Set_InformationItem_DM_Rprt(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_Set_InformationItem_DM_Rprt_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DedicatedMeasurementTerminationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementTerminationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementTerminationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DedicatedMeasurementFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DedicatedMeasurementFailureIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_DedicatedMeasurementFailureIndication_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28343,11 +28176,43 @@ static int dissect_RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind_PDU(tvbuff_t 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CommonTransportChannelResourcesReleaseRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonTransportChannelResourcesReleaseRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonTransportChannelResourcesReleaseRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonTransportChannelResourcesRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonTransportChannelResourcesRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonTransportChannelResourcesRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonTransportChannelResourcesResponseFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonTransportChannelResourcesResponseFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonTransportChannelResourcesResponseFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonTransportChannelResourcesResponseTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonTransportChannelResourcesResponseTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonTransportChannelResourcesResponseTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28359,11 +28224,51 @@ static int dissect_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD_PDU(tvbuff_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CommonTransportChannelResourcesFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonTransportChannelResourcesFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonTransportChannelResourcesFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CompressedModeCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CompressedModeCommand(tvb, offset, &asn1_ctx, tree, hf_rnsap_CompressedModeCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ErrorIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_ErrorIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_ErrorIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonMeasurementInitiationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementInitiationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementInitiationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CommonMeasurementObjectType_CM_Rqst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_CommonMeasurementObjectType_CM_Rqst(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementObjectType_CM_Rqst_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonMeasurementInitiationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementInitiationResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementInitiationResponse_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28375,11 +28280,51 @@ static int dissect_CommonMeasurementObjectType_CM_Rsp_PDU(tvbuff_t *tvb _U_, pac
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CommonMeasurementInitiationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementInitiationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementInitiationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonMeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementReport(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CommonMeasurementObjectType_CM_Rprt_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_CommonMeasurementObjectType_CM_Rprt(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementObjectType_CM_Rprt_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonMeasurementTerminationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementTerminationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementTerminationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_CommonMeasurementFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CommonMeasurementFailureIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_CommonMeasurementFailureIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InformationExchangeInitiationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationExchangeInitiationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeInitiationRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28399,6 +28344,14 @@ static int dissect_GSM_Cell_InfEx_Rqst_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_InformationExchangeInitiationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationExchangeInitiationResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeInitiationResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_InformationExchangeObjectType_InfEx_Rsp_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28415,11 +28368,51 @@ static int dissect_MBMS_Bearer_Service_List_InfEx_Rsp_PDU(tvbuff_t *tvb _U_, pac
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_InformationExchangeInitiationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationExchangeInitiationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeInitiationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InformationReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationReport(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_InformationExchangeObjectType_InfEx_Rprt_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_InformationExchangeObjectType_InfEx_Rprt(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeObjectType_InfEx_Rprt_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InformationExchangeTerminationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationExchangeTerminationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeTerminationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_InformationExchangeFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_InformationExchangeFailureIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_InformationExchangeFailureIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ResetRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_ResetRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_ResetRequest_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28447,6 +28440,22 @@ static int dissect_ContextGroupInfoItem_Reset_PDU(tvbuff_t *tvb _U_, packet_info
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ResetResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_ResetResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_ResetResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkActivationCommandFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkActivationCommandFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkActivationCommandFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DelayedActivationInformationList_RL_ActivationCmdFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28460,6 +28469,14 @@ static int dissect_DelayedActivationInformation_RL_ActivationCmdFDD_PDU(tvbuff_t
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_DelayedActivationInformation_RL_ActivationCmdFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_DelayedActivationInformation_RL_ActivationCmdFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkActivationCommandTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkActivationCommandTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkActivationCommandTDD_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28479,6 +28496,22 @@ static int dissect_DelayedActivationInformation_RL_ActivationCmdTDD_PDU(tvbuff_t
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GERANUplinkSignallingTransferIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_GERANUplinkSignallingTransferIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_GERANUplinkSignallingTransferIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkParameterUpdateIndicationFDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkParameterUpdateIndicationFDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkParameterUpdateIndicationFDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_RL_ParameterUpdateIndicationFDD_RL_InformationList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -28492,6 +28525,70 @@ static int dissect_RL_ParameterUpdateIndicationFDD_RL_Information_Item_PDU(tvbuf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_RL_ParameterUpdateIndicationFDD_RL_Information_Item(tvb, offset, &asn1_ctx, tree, hf_rnsap_RL_ParameterUpdateIndicationFDD_RL_Information_Item_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RadioLinkParameterUpdateIndicationTDD_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_RadioLinkParameterUpdateIndicationTDD(tvb, offset, &asn1_ctx, tree, hf_rnsap_RadioLinkParameterUpdateIndicationTDD_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementInitiationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementInitiationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementInitiationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementInitiationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementInitiationResponse(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementInitiationResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementInitiationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementInitiationFailure(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementInitiationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementReport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementReport(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementReport_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementTerminationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementTerminationRequest(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementTerminationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEMeasurementFailureIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_UEMeasurementFailureIndication(tvb, offset, &asn1_ctx, tree, hf_rnsap_UEMeasurementFailureIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_IurInvokeTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_IurInvokeTrace(tvb, offset, &asn1_ctx, tree, hf_rnsap_IurInvokeTrace_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -28511,6 +28608,46 @@ static int dissect_InterfacesToTraceItem_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_IurDeactivateTrace_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_IurDeactivateTrace(tvb, offset, &asn1_ctx, tree, hf_rnsap_IurDeactivateTrace_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBMSAttachCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_MBMSAttachCommand(tvb, offset, &asn1_ctx, tree, hf_rnsap_MBMSAttachCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MBMSDetachCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_MBMSDetachCommand(tvb, offset, &asn1_ctx, tree, hf_rnsap_MBMSDetachCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DirectInformationTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_DirectInformationTransfer(tvb, offset, &asn1_ctx, tree, hf_rnsap_DirectInformationTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_PrivateMessage(tvb, offset, &asn1_ctx, tree, hf_rnsap_PrivateMessage_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -28519,8 +28656,7 @@ static void dissect_RNSAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 96 "packet-rnsap-template.c"
-
+#line 94 "packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -28532,320 +28668,29 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
   return (dissector_try_port(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_rnsap_InitiatingMessageValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset = 0;
-	proto_tree	*value_tree = tree;
-	asn1_ctx_t actx_str;
-	asn1_ctx_t *actx = &actx_str;
-	
-	asn1_ctx_init(actx, ASN1_ENC_PER, TRUE, pinfo);
-	switch(ProcedureCode){
-	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:	/* 0 */
-		offset = dissect_id_commonTransportChannelResourcesInitialisation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESRELEASE:			/* 1 */
-		offset = dissect_id_commonTransportChannelResourcesRelease(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_COMPRESSEDMODECOMMAND:							 /* 2 */
-		offset = dissect_id_compressedModeCommand(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DOWNLINKPOWERCONTROL:								 /* 3 */
-		offset = dissect_id_downlinkPowerTimeslotControl(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DOWNLINKPOWERTIMESLOTCONTROL:						 /* 4 */
-		offset = dissect_id_downlinkPowerTimeslotControl(tvb, offset, actx, value_tree);
-		break;
-		break;
-	case RNSAP_ID_DOWNLINKSIGNALLINGTRANSFER:						 /* 5 */
-		offset = dissect_id_downlinkSignallingTransfer(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_ERRORINDICATION:									 /* 6 */
-		offset = dissect_id_errorIndication(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTFAILURE:						 /* 7 */
-		offset = dissect_id_dedicatedMeasurementFailure(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
-		offset = dissect_id_dedicatedMeasurementInitiation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTREPORTING:					 /* 9 */
-		offset = dissect_id_dedicatedMeasurementReporting(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTTERMINATION:					 /* 10 */
-		offset = dissect_id_dedicatedMeasurementTermination(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_PAGING:											 /* 11 */
-		offset = dissect_id_paging(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
-		offset = dissect_id_physicalChannelReconfiguration(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_PRIVATEMESSAGE:									 /* 13 */
-		offset = dissect_id_privateMessage(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKADDITION:								 /* 14 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkAddition(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkAddition_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_RADIOLINKCONGESTION:								 /* 34 */
-		offset = dissect_id_radioLinkCongestion(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKDELETION:								 /* 15 */
-		offset = dissect_id_radioLinkDeletion(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKFAILURE:									 /* 16 */
-		offset = dissect_id_radioLinkFailure(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKPREEMPTION:								 /* 17 */
-		offset = dissect_id_radioLinkPreemption(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKRESTORATION:								 /* 18 */
-		offset = dissect_id_radioLinkRestoration(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkSetup(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkSetupTdd(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_RELOCATIONCOMMIT:									 /* 20 */
-		offset = dissect_id_relocationCommit(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONCANCELLATION:	 /* 21 */
-		offset = dissect_id_synchronisedRadioLinkReconfigurationCancellation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONCOMMIT:		 /* 22 */
-		offset = dissect_id_synchronisedRadioLinkReconfigurationCommit(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_UPLINKSIGNALLINGTRANSFER:							 /* 25 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_uplinkSignallingTransfer(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_uplinkSignallingTransfer_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTFAILURE:							 /* 26 */
-		offset = dissect_id_commonMeasurementFailure(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
-		offset = dissect_id_commonMeasurementInitiation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTREPORTING:						 /* 28 */
-		offset = dissect_id_commonMeasurementReporting(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTTERMINATION:						 /* 29 */
-		offset = dissect_id_commonMeasurementTermination(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONEXCHANGEFAILURE:						 /* 30 */
-		offset = dissect_id_informationExchangeFailure(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
-		offset = dissect_id_informationExchangeInitiation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONREPORTING:								 /* 32 */
-		offset = dissect_id_informationReporting(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONEXCHANGETERMINATION:					 /* 33 */
-		offset = dissect_id_informationExchangeTermination(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RESET:											 /* 35 */
-		offset = dissect_id_reset(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKACTIVATION: 								 /* 36 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkActivation(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkActivation_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_GERANUPLINKSIGNALLINGTRANSFER:					 /* 37 */
-		offset = dissect_id_gERANuplinkSignallingTransfer(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKPARAMETERUPDATE:							 /* 38 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkParameterUpdate(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkParameterUpdate_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_UEMEASUREMENTFAILURE:								 /* 39 */
-		offset = dissect_id_uEMeasurementFailure(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
-		offset = dissect_id_uEMeasurementInitiation(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UEMEASUREMENTREPORTING:							 /* 41 */
-		offset = dissect_id_uEMeasurementReporting(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UEMEASUREMENTTERMINATION:							 /* 42 */
-		offset = dissect_id_uEMeasurementTermination(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_IURDEACTIVATETRACE:								 /* 43 */
-		offset = dissect_id_iurDeactivateTrace(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_IURINVOKETRACE:									 /* 44 */
-		offset = dissect_id_iurInvokeTrace(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_MBMSATTACH:										 /* 45 */
-		offset = dissect_id_mBMSAttach(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_MBMSDETACH:										 /* 46 */
-		offset = dissect_id_mBMSDetach(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DIRECTINFORMATIONTRANSFER:						 /* 48 */
-		offset = dissect_id_directInformationTransfer(tvb, offset, actx, value_tree);
-		break;
-	}
-	return offset;
+static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (!ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_imsg_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_rnsap_SuccessfulOutcomeValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset = 0;
-	proto_tree	*value_tree = tree;
-	asn1_ctx_t actx_str;
-	asn1_ctx_t *actx = &actx_str;
-	
-	asn1_ctx_init(actx, ASN1_ENC_PER, TRUE, pinfo);
-	switch(ProcedureCode){
-	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_commonTransportChannelResourcesInitialisation1(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_commonTransportChannelResourcesInitialisation_TDD(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
-		offset = dissect_id_dedicatedMeasurementInitiation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
-		offset = dissect_id_physicalChannelReconfiguration1(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKADDITION:								 /* 14 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkAddition1(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkAddition_TDD1(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_RADIOLINKDELETION:								 /* 15 */
-		offset = dissect_id_radioLinkDeletion1(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkSetup1(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkSetupTdd1(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation1(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation_TDD(tvb, offset, actx, value_tree);
-		}
-	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration1(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD1(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
-		offset = dissect_id_commonMeasurementInitiation1(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
-		offset = dissect_id_informationExchangeInitiation1(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RESET:											 /* 35 */
-		offset = dissect_id_reset1(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
-		offset = dissect_id_uEMeasurementInitiation1(tvb, offset, actx, value_tree);
-		break;
-	}
-	return offset;
+static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (!ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_sout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_rnsap_UnsuccessfulOutcomeValueValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
-	int offset = 0;
-	proto_tree	*value_tree = tree;
-	asn1_ctx_t actx_str;
-	asn1_ctx_t *actx = &actx_str;
-	
-	asn1_ctx_init(actx, ASN1_ENC_PER, TRUE, pinfo);
-	switch(ProcedureCode){
-	case RNSAP_ID_COMMONTRANSPORTCHANNELRESOURCESINITIALISATION:
-		offset = dissect_id_commonTransportChannelResourcesInitialisation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_DEDICATEDMEASUREMENTINITIATION:					 /* 8 */
-		offset = dissect_id_dedicatedMeasurementInitiation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_PHYSICALCHANNELRECONFIGURATION:					 /* 12 */
-		offset = dissect_id_physicalChannelReconfiguration2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_RADIOLINKADDITION:								 /* 14 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkAddition2(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkAddition_TDD2(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_RADIOLINKSETUP:									 /* 19 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_radioLinkSetup2(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_radioLinkSetupTdd2(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_SYNCHRONISEDRADIOLINKRECONFIGURATIONPREPARATION:	 /* 23 */
-		offset = dissect_id_synchronisedRadioLinkReconfigurationPreparation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UNSYNCHRONISEDRADIOLINKRECONFIGURATION:			 /* 24 */
-		if (ddMode==RNSAP_FDD){
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration2(tvb, offset, actx, value_tree);
-		}else{
-			offset = dissect_id_unSynchronisedRadioLinkReconfiguration_TDD2(tvb, offset, actx, value_tree);
-		}
-		break;
-	case RNSAP_ID_COMMONMEASUREMENTINITIATION:						 /* 27 */
-		offset = dissect_id_commonMeasurementInitiation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_INFORMATIONEXCHANGEINITIATION:					 /* 31 */
-		offset = dissect_id_informationExchangeInitiation2(tvb, offset, actx, value_tree);
-		break;
-	case RNSAP_ID_UEMEASUREMENTINITIATION:							 /* 40 */
-		offset = dissect_id_uEMeasurementInitiation2(tvb, offset, actx, value_tree);
-		break;
-	}
-	return offset;
+static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (!ProcedureID) return 0;
+  return (dissector_try_string(rnsap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
-
 
 static void
 dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*rnsap_item = NULL;
 	proto_tree	*rnsap_tree = NULL;
-
-	top_tree = tree;
 
 	/* make entry in the Protocol column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -28864,12 +28709,6 @@ void proto_register_rnsap(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
-	{ &hf_rnsap_pdu_length,
-		{ "PDU Length", "rnsap.pdu_length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Number of octets in the PDU", HFILL }},
-	{ &hf_rnsap_IE_length,
-		{ "IE Length", "rnsap.ie_length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Number of octets in the IE", HFILL }},
     { &hf_rnsap_L3_DL_DCCH_Message_PDU,
       { "DL-DCCH-Message", "rnsap.DL_DCCH_Message",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29706,6 +29545,10 @@ void proto_register_rnsap(void) {
       { "User-Plane-Congestion-Fields-Inclusion", "rnsap.User_Plane_Congestion_Fields_Inclusion",
         FT_UINT32, BASE_DEC, VALS(rnsap_User_Plane_Congestion_Fields_Inclusion_vals), 0,
         "rnsap.User_Plane_Congestion_Fields_Inclusion", HFILL }},
+    { &hf_rnsap_RadioLinkSetupRequestFDD_PDU,
+      { "RadioLinkSetupRequestFDD", "rnsap.RadioLinkSetupRequestFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupRequestFDD", HFILL }},
     { &hf_rnsap_UL_DPCH_Information_RL_SetupRqstFDD_PDU,
       { "UL-DPCH-Information-RL-SetupRqstFDD", "rnsap.UL_DPCH_Information_RL_SetupRqstFDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29726,6 +29569,10 @@ void proto_register_rnsap(void) {
       { "F-DPCH-Information-RL-SetupRqstFDD", "rnsap.F_DPCH_Information_RL_SetupRqstFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.F_DPCH_Information_RL_SetupRqstFDD", HFILL }},
+    { &hf_rnsap_RadioLinkSetupRequestTDD_PDU,
+      { "RadioLinkSetupRequestTDD", "rnsap.RadioLinkSetupRequestTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupRequestTDD", HFILL }},
     { &hf_rnsap_UL_Physical_Channel_Information_RL_SetupRqstTDD_PDU,
       { "UL-Physical-Channel-Information-RL-SetupRqstTDD", "rnsap.UL_Physical_Channel_Information_RL_SetupRqstTDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29754,6 +29601,10 @@ void proto_register_rnsap(void) {
       { "RL-Information-RL-SetupRqstTDD", "rnsap.RL_Information_RL_SetupRqstTDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Information_RL_SetupRqstTDD", HFILL }},
+    { &hf_rnsap_RadioLinkSetupResponseFDD_PDU,
+      { "RadioLinkSetupResponseFDD", "rnsap.RadioLinkSetupResponseFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupResponseFDD", HFILL }},
     { &hf_rnsap_RL_InformationResponseList_RL_SetupRspFDD_PDU,
       { "RL-InformationResponseList-RL-SetupRspFDD", "rnsap.RL_InformationResponseList_RL_SetupRspFDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -29762,6 +29613,10 @@ void proto_register_rnsap(void) {
       { "RL-InformationResponseItem-RL-SetupRspFDD", "rnsap.RL_InformationResponseItem_RL_SetupRspFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_InformationResponseItem_RL_SetupRspFDD", HFILL }},
+    { &hf_rnsap_RadioLinkSetupResponseTDD_PDU,
+      { "RadioLinkSetupResponseTDD", "rnsap.RadioLinkSetupResponseTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupResponseTDD", HFILL }},
     { &hf_rnsap_RL_InformationResponse_RL_SetupRspTDD_PDU,
       { "RL-InformationResponse-RL-SetupRspTDD", "rnsap.RL_InformationResponse_RL_SetupRspTDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29818,6 +29673,10 @@ void proto_register_rnsap(void) {
       { "USCH-LCR-InformationListIEs-RL-SetupRspTDD", "rnsap.USCH_LCR_InformationListIEs_RL_SetupRspTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.USCH_LCR_InformationListIEs_RL_SetupRspTDD", HFILL }},
+    { &hf_rnsap_RadioLinkSetupFailureFDD_PDU,
+      { "RadioLinkSetupFailureFDD", "rnsap.RadioLinkSetupFailureFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupFailureFDD", HFILL }},
     { &hf_rnsap_CauseLevel_RL_SetupFailureFDD_PDU,
       { "CauseLevel-RL-SetupFailureFDD", "rnsap.CauseLevel_RL_SetupFailureFDD",
         FT_UINT32, BASE_DEC, VALS(rnsap_CauseLevel_RL_SetupFailureFDD_vals), 0,
@@ -29830,6 +29689,10 @@ void proto_register_rnsap(void) {
       { "SuccessfulRL-InformationResponse-RL-SetupFailureFDD", "rnsap.SuccessfulRL_InformationResponse_RL_SetupFailureFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.SuccessfulRL_InformationResponse_RL_SetupFailureFDD", HFILL }},
+    { &hf_rnsap_RadioLinkSetupFailureTDD_PDU,
+      { "RadioLinkSetupFailureTDD", "rnsap.RadioLinkSetupFailureTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkSetupFailureTDD", HFILL }},
     { &hf_rnsap_CauseLevel_RL_SetupFailureTDD_PDU,
       { "CauseLevel-RL-SetupFailureTDD", "rnsap.CauseLevel_RL_SetupFailureTDD",
         FT_UINT32, BASE_DEC, VALS(rnsap_CauseLevel_RL_SetupFailureTDD_vals), 0,
@@ -29950,6 +29813,10 @@ void proto_register_rnsap(void) {
       { "UnsuccessfulRL-InformationResponse-RL-AdditionFailureTDD", "rnsap.UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.UnsuccessfulRL_InformationResponse_RL_AdditionFailureTDD", HFILL }},
+    { &hf_rnsap_RadioLinkDeletionRequest_PDU,
+      { "RadioLinkDeletionRequest", "rnsap.RadioLinkDeletionRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkDeletionRequest", HFILL }},
     { &hf_rnsap_RL_InformationList_RL_DeletionRqst_PDU,
       { "RL-InformationList-RL-DeletionRqst", "rnsap.RL_InformationList_RL_DeletionRqst",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -29958,6 +29825,14 @@ void proto_register_rnsap(void) {
       { "RL-Information-RL-DeletionRqst", "rnsap.RL_Information_RL_DeletionRqst",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Information_RL_DeletionRqst", HFILL }},
+    { &hf_rnsap_RadioLinkDeletionResponse_PDU,
+      { "RadioLinkDeletionResponse", "rnsap.RadioLinkDeletionResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkDeletionResponse", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationPrepareFDD_PDU,
+      { "RadioLinkReconfigurationPrepareFDD", "rnsap.RadioLinkReconfigurationPrepareFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationPrepareFDD", HFILL }},
     { &hf_rnsap_UL_DPCH_Information_RL_ReconfPrepFDD_PDU,
       { "UL-DPCH-Information-RL-ReconfPrepFDD", "rnsap.UL_DPCH_Information_RL_ReconfPrepFDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -29986,6 +29861,10 @@ void proto_register_rnsap(void) {
       { "F-DPCH-Information-RL-ReconfPrepFDD", "rnsap.F_DPCH_Information_RL_ReconfPrepFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.F_DPCH_Information_RL_ReconfPrepFDD", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationPrepareTDD_PDU,
+      { "RadioLinkReconfigurationPrepareTDD", "rnsap.RadioLinkReconfigurationPrepareTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationPrepareTDD", HFILL }},
     { &hf_rnsap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU,
       { "UL-CCTrCH-InformationAddList-RL-ReconfPrepTDD", "rnsap.UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30058,6 +29937,10 @@ void proto_register_rnsap(void) {
       { "RL-Information-RL-ReconfPrepTDD", "rnsap.RL_Information_RL_ReconfPrepTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.RL_Information_RL_ReconfPrepTDD", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationReadyFDD_PDU,
+      { "RadioLinkReconfigurationReadyFDD", "rnsap.RadioLinkReconfigurationReadyFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationReadyFDD", HFILL }},
     { &hf_rnsap_RL_InformationResponseList_RL_ReconfReadyFDD_PDU,
       { "RL-InformationResponseList-RL-ReconfReadyFDD", "rnsap.RL_InformationResponseList_RL_ReconfReadyFDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30066,6 +29949,10 @@ void proto_register_rnsap(void) {
       { "RL-InformationResponseItem-RL-ReconfReadyFDD", "rnsap.RL_InformationResponseItem_RL_ReconfReadyFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_InformationResponseItem_RL_ReconfReadyFDD", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationReadyTDD_PDU,
+      { "RadioLinkReconfigurationReadyTDD", "rnsap.RadioLinkReconfigurationReadyTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationReadyTDD", HFILL }},
     { &hf_rnsap_UL_CCTrCHInformationListIE_RL_ReconfReadyTDD_PDU,
       { "UL-CCTrCHInformationListIE-RL-ReconfReadyTDD", "rnsap.UL_CCTrCHInformationListIE_RL_ReconfReadyTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30126,6 +30013,14 @@ void proto_register_rnsap(void) {
       { "Multiple-RL-InformationResponse-RL-ReconfReadyTDD", "rnsap.Multiple_RL_InformationResponse_RL_ReconfReadyTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.Multiple_RL_InformationResponse_RL_ReconfReadyTDD", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationCommit_PDU,
+      { "RadioLinkReconfigurationCommit", "rnsap.RadioLinkReconfigurationCommit",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationCommit", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationFailure_PDU,
+      { "RadioLinkReconfigurationFailure", "rnsap.RadioLinkReconfigurationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationFailure", HFILL }},
     { &hf_rnsap_CauseLevel_RL_ReconfFailure_PDU,
       { "CauseLevel-RL-ReconfFailure", "rnsap.CauseLevel_RL_ReconfFailure",
         FT_UINT32, BASE_DEC, VALS(rnsap_CauseLevel_RL_ReconfFailure_vals), 0,
@@ -30134,6 +30029,14 @@ void proto_register_rnsap(void) {
       { "RL-ReconfigurationFailure-RL-ReconfFail", "rnsap.RL_ReconfigurationFailure_RL_ReconfFail",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_ReconfigurationFailure_RL_ReconfFail", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationCancel_PDU,
+      { "RadioLinkReconfigurationCancel", "rnsap.RadioLinkReconfigurationCancel",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationCancel", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationRequestFDD_PDU,
+      { "RadioLinkReconfigurationRequestFDD", "rnsap.RadioLinkReconfigurationRequestFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationRequestFDD", HFILL }},
     { &hf_rnsap_UL_DPCH_Information_RL_ReconfRqstFDD_PDU,
       { "UL-DPCH-Information-RL-ReconfRqstFDD", "rnsap.UL_DPCH_Information_RL_ReconfRqstFDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -30154,6 +30057,10 @@ void proto_register_rnsap(void) {
       { "RL-ReconfigurationRequestFDD-RL-Information-IEs", "rnsap.RL_ReconfigurationRequestFDD_RL_Information_IEs",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_ReconfigurationRequestFDD_RL_Information_IEs", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationRequestTDD_PDU,
+      { "RadioLinkReconfigurationRequestTDD", "rnsap.RadioLinkReconfigurationRequestTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationRequestTDD", HFILL }},
     { &hf_rnsap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU,
       { "UL-CCTrCH-InformationModifyList-RL-ReconfRqstTDD", "rnsap.UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30194,6 +30101,10 @@ void proto_register_rnsap(void) {
       { "Multiple-RL-ReconfigurationRequestTDD-RL-Information", "rnsap.Multiple_RL_ReconfigurationRequestTDD_RL_Information",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.Multiple_RL_ReconfigurationRequestTDD_RL_Information", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationResponseFDD_PDU,
+      { "RadioLinkReconfigurationResponseFDD", "rnsap.RadioLinkReconfigurationResponseFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationResponseFDD", HFILL }},
     { &hf_rnsap_RL_InformationResponseList_RL_ReconfRspFDD_PDU,
       { "RL-InformationResponseList-RL-ReconfRspFDD", "rnsap.RL_InformationResponseList_RL_ReconfRspFDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30202,6 +30113,10 @@ void proto_register_rnsap(void) {
       { "RL-InformationResponseItem-RL-ReconfRspFDD", "rnsap.RL_InformationResponseItem_RL_ReconfRspFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_InformationResponseItem_RL_ReconfRspFDD", HFILL }},
+    { &hf_rnsap_RadioLinkReconfigurationResponseTDD_PDU,
+      { "RadioLinkReconfigurationResponseTDD", "rnsap.RadioLinkReconfigurationResponseTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkReconfigurationResponseTDD", HFILL }},
     { &hf_rnsap_RL_InformationResponse_RL_ReconfRspTDD_PDU,
       { "RL-InformationResponse-RL-ReconfRspTDD", "rnsap.RL_InformationResponse_RL_ReconfRspTDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -30218,6 +30133,10 @@ void proto_register_rnsap(void) {
       { "Multiple-RL-InformationResponse-RL-ReconfRspTDD", "rnsap.Multiple_RL_InformationResponse_RL_ReconfRspTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.Multiple_RL_InformationResponse_RL_ReconfRspTDD", HFILL }},
+    { &hf_rnsap_RadioLinkFailureIndication_PDU,
+      { "RadioLinkFailureIndication", "rnsap.RadioLinkFailureIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkFailureIndication", HFILL }},
     { &hf_rnsap_Reporting_Object_RL_FailureInd_PDU,
       { "Reporting-Object-RL-FailureInd", "rnsap.Reporting_Object_RL_FailureInd",
         FT_UINT32, BASE_DEC, VALS(rnsap_Reporting_Object_RL_FailureInd_vals), 0,
@@ -30234,6 +30153,10 @@ void proto_register_rnsap(void) {
       { "CCTrCH-InformationItem-RL-FailureInd", "rnsap.CCTrCH_InformationItem_RL_FailureInd",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.CCTrCH_InformationItem_RL_FailureInd", HFILL }},
+    { &hf_rnsap_RadioLinkPreemptionRequiredIndication_PDU,
+      { "RadioLinkPreemptionRequiredIndication", "rnsap.RadioLinkPreemptionRequiredIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkPreemptionRequiredIndication", HFILL }},
     { &hf_rnsap_RL_InformationList_RL_PreemptRequiredInd_PDU,
       { "RL-InformationList-RL-PreemptRequiredInd", "rnsap.RL_InformationList_RL_PreemptRequiredInd",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30258,6 +30181,10 @@ void proto_register_rnsap(void) {
       { "EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd", "rnsap.EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.EDCH_MacdFlowSpecificInformationItem_RL_PreemptRequiredInd", HFILL }},
+    { &hf_rnsap_RadioLinkRestoreIndication_PDU,
+      { "RadioLinkRestoreIndication", "rnsap.RadioLinkRestoreIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkRestoreIndication", HFILL }},
     { &hf_rnsap_Reporting_Object_RL_RestoreInd_PDU,
       { "Reporting-Object-RL-RestoreInd", "rnsap.Reporting_Object_RL_RestoreInd",
         FT_UINT32, BASE_DEC, VALS(rnsap_Reporting_Object_RL_RestoreInd_vals), 0,
@@ -30274,6 +30201,10 @@ void proto_register_rnsap(void) {
       { "CCTrCH-InformationItem-RL-RestoreInd", "rnsap.CCTrCH_InformationItem_RL_RestoreInd",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.CCTrCH_InformationItem_RL_RestoreInd", HFILL }},
+    { &hf_rnsap_DL_PowerControlRequest_PDU,
+      { "DL-PowerControlRequest", "rnsap.DL_PowerControlRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DL_PowerControlRequest", HFILL }},
     { &hf_rnsap_DL_ReferencePowerInformationList_DL_PC_Rqst_PDU,
       { "DL-ReferencePowerInformationList-DL-PC-Rqst", "rnsap.DL_ReferencePowerInformationList_DL_PC_Rqst",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30282,10 +30213,22 @@ void proto_register_rnsap(void) {
       { "DL-ReferencePowerInformation-DL-PC-Rqst", "rnsap.DL_ReferencePowerInformation_DL_PC_Rqst",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.DL_ReferencePowerInformation_DL_PC_Rqst", HFILL }},
+    { &hf_rnsap_DL_PowerTimeslotControlRequest_PDU,
+      { "DL-PowerTimeslotControlRequest", "rnsap.DL_PowerTimeslotControlRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DL_PowerTimeslotControlRequest", HFILL }},
+    { &hf_rnsap_PhysicalChannelReconfigurationRequestFDD_PDU,
+      { "PhysicalChannelReconfigurationRequestFDD", "rnsap.PhysicalChannelReconfigurationRequestFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PhysicalChannelReconfigurationRequestFDD", HFILL }},
     { &hf_rnsap_RL_Information_PhyChReconfRqstFDD_PDU,
       { "RL-Information-PhyChReconfRqstFDD", "rnsap.RL_Information_PhyChReconfRqstFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Information_PhyChReconfRqstFDD", HFILL }},
+    { &hf_rnsap_PhysicalChannelReconfigurationRequestTDD_PDU,
+      { "PhysicalChannelReconfigurationRequestTDD", "rnsap.PhysicalChannelReconfigurationRequestTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PhysicalChannelReconfigurationRequestTDD", HFILL }},
     { &hf_rnsap_RL_Information_PhyChReconfRqstTDD_PDU,
       { "RL-Information-PhyChReconfRqstTDD", "rnsap.RL_Information_PhyChReconfRqstTDD",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -30322,6 +30265,18 @@ void proto_register_rnsap(void) {
       { "HSPDSCH-Timeslot-InformationListLCR-PhyChReconfRqstTDD", "rnsap.HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.HSPDSCH_Timeslot_InformationListLCR_PhyChReconfRqstTDD", HFILL }},
+    { &hf_rnsap_PhysicalChannelReconfigurationCommand_PDU,
+      { "PhysicalChannelReconfigurationCommand", "rnsap.PhysicalChannelReconfigurationCommand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PhysicalChannelReconfigurationCommand", HFILL }},
+    { &hf_rnsap_PhysicalChannelReconfigurationFailure_PDU,
+      { "PhysicalChannelReconfigurationFailure", "rnsap.PhysicalChannelReconfigurationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PhysicalChannelReconfigurationFailure", HFILL }},
+    { &hf_rnsap_RadioLinkCongestionIndication_PDU,
+      { "RadioLinkCongestionIndication", "rnsap.RadioLinkCongestionIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkCongestionIndication", HFILL }},
     { &hf_rnsap_RL_InformationList_RL_CongestInd_PDU,
       { "RL-InformationList-RL-CongestInd", "rnsap.RL_InformationList_RL_CongestInd",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30342,6 +30297,26 @@ void proto_register_rnsap(void) {
       { "EDCH-MacdFlowSpecificInformationItem-RL-CongestInd", "rnsap.EDCH_MacdFlowSpecificInformationItem_RL_CongestInd",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.EDCH_MacdFlowSpecificInformationItem_RL_CongestInd", HFILL }},
+    { &hf_rnsap_UplinkSignallingTransferIndicationFDD_PDU,
+      { "UplinkSignallingTransferIndicationFDD", "rnsap.UplinkSignallingTransferIndicationFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UplinkSignallingTransferIndicationFDD", HFILL }},
+    { &hf_rnsap_UplinkSignallingTransferIndicationTDD_PDU,
+      { "UplinkSignallingTransferIndicationTDD", "rnsap.UplinkSignallingTransferIndicationTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UplinkSignallingTransferIndicationTDD", HFILL }},
+    { &hf_rnsap_DownlinkSignallingTransferRequest_PDU,
+      { "DownlinkSignallingTransferRequest", "rnsap.DownlinkSignallingTransferRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DownlinkSignallingTransferRequest", HFILL }},
+    { &hf_rnsap_RelocationCommit_PDU,
+      { "RelocationCommit", "rnsap.RelocationCommit",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RelocationCommit", HFILL }},
+    { &hf_rnsap_PagingRequest_PDU,
+      { "PagingRequest", "rnsap.PagingRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PagingRequest", HFILL }},
     { &hf_rnsap_PagingArea_PagingRqst_PDU,
       { "PagingArea-PagingRqst", "rnsap.PagingArea_PagingRqst",
         FT_UINT32, BASE_DEC, VALS(rnsap_PagingArea_PagingRqst_vals), 0,
@@ -30350,6 +30325,10 @@ void proto_register_rnsap(void) {
       { "CNOriginatedPage-PagingRqst", "rnsap.CNOriginatedPage_PagingRqst",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.CNOriginatedPage_PagingRqst", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementInitiationRequest_PDU,
+      { "DedicatedMeasurementInitiationRequest", "rnsap.DedicatedMeasurementInitiationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementInitiationRequest", HFILL }},
     { &hf_rnsap_DedicatedMeasurementObjectType_DM_Rqst_PDU,
       { "DedicatedMeasurementObjectType-DM-Rqst", "rnsap.DedicatedMeasurementObjectType_DM_Rqst",
         FT_UINT32, BASE_DEC, VALS(rnsap_DedicatedMeasurementObjectType_DM_Rqst_vals), 0,
@@ -30366,6 +30345,10 @@ void proto_register_rnsap(void) {
       { "RL-Set-InformationItem-DM-Rqst", "rnsap.RL_Set_InformationItem_DM_Rqst",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Set_InformationItem_DM_Rqst", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementInitiationResponse_PDU,
+      { "DedicatedMeasurementInitiationResponse", "rnsap.DedicatedMeasurementInitiationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementInitiationResponse", HFILL }},
     { &hf_rnsap_DedicatedMeasurementObjectType_DM_Rsp_PDU,
       { "DedicatedMeasurementObjectType-DM-Rsp", "rnsap.DedicatedMeasurementObjectType_DM_Rsp",
         FT_UINT32, BASE_DEC, VALS(rnsap_DedicatedMeasurementObjectType_DM_Rsp_vals), 0,
@@ -30390,6 +30373,10 @@ void proto_register_rnsap(void) {
       { "Multiple-HSSICHMeasurementValueList-TDD-DM-Rsp", "rnsap.Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementInitiationFailure_PDU,
+      { "DedicatedMeasurementInitiationFailure", "rnsap.DedicatedMeasurementInitiationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementInitiationFailure", HFILL }},
     { &hf_rnsap_DedicatedMeasurementObjectType_DM_Fail_PDU,
       { "DedicatedMeasurementObjectType-DM-Fail", "rnsap.DedicatedMeasurementObjectType_DM_Fail",
         FT_UINT32, BASE_DEC, VALS(rnsap_DedicatedMeasurementObjectType_DM_Fail_vals), 0,
@@ -30410,6 +30397,10 @@ void proto_register_rnsap(void) {
       { "RL-Set-Successful-InformationItem-DM-Fail", "rnsap.RL_Set_Successful_InformationItem_DM_Fail",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Set_Successful_InformationItem_DM_Fail", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementReport_PDU,
+      { "DedicatedMeasurementReport", "rnsap.DedicatedMeasurementReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementReport", HFILL }},
     { &hf_rnsap_DedicatedMeasurementObjectType_DM_Rprt_PDU,
       { "DedicatedMeasurementObjectType-DM-Rprt", "rnsap.DedicatedMeasurementObjectType_DM_Rprt",
         FT_UINT32, BASE_DEC, VALS(rnsap_DedicatedMeasurementObjectType_DM_Rprt_vals), 0,
@@ -30422,6 +30413,14 @@ void proto_register_rnsap(void) {
       { "RL-Set-InformationItem-DM-Rprt", "rnsap.RL_Set_InformationItem_DM_Rprt",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Set_InformationItem_DM_Rprt", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementTerminationRequest_PDU,
+      { "DedicatedMeasurementTerminationRequest", "rnsap.DedicatedMeasurementTerminationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementTerminationRequest", HFILL }},
+    { &hf_rnsap_DedicatedMeasurementFailureIndication_PDU,
+      { "DedicatedMeasurementFailureIndication", "rnsap.DedicatedMeasurementFailureIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DedicatedMeasurementFailureIndication", HFILL }},
     { &hf_rnsap_DedicatedMeasurementObjectType_DM_Fail_Ind_PDU,
       { "DedicatedMeasurementObjectType-DM-Fail-Ind", "rnsap.DedicatedMeasurementObjectType_DM_Fail_Ind",
         FT_UINT32, BASE_DEC, VALS(rnsap_DedicatedMeasurementObjectType_DM_Fail_Ind_vals), 0,
@@ -30434,26 +30433,82 @@ void proto_register_rnsap(void) {
       { "RL-Set-Unsuccessful-InformationItem-DM-Fail-Ind", "rnsap.RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_Set_Unsuccessful_InformationItem_DM_Fail_Ind", HFILL }},
+    { &hf_rnsap_CommonTransportChannelResourcesReleaseRequest_PDU,
+      { "CommonTransportChannelResourcesReleaseRequest", "rnsap.CommonTransportChannelResourcesReleaseRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonTransportChannelResourcesReleaseRequest", HFILL }},
+    { &hf_rnsap_CommonTransportChannelResourcesRequest_PDU,
+      { "CommonTransportChannelResourcesRequest", "rnsap.CommonTransportChannelResourcesRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonTransportChannelResourcesRequest", HFILL }},
+    { &hf_rnsap_CommonTransportChannelResourcesResponseFDD_PDU,
+      { "CommonTransportChannelResourcesResponseFDD", "rnsap.CommonTransportChannelResourcesResponseFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonTransportChannelResourcesResponseFDD", HFILL }},
     { &hf_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD_PDU,
       { "FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspFDD", "rnsap.FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspFDD", HFILL }},
+    { &hf_rnsap_CommonTransportChannelResourcesResponseTDD_PDU,
+      { "CommonTransportChannelResourcesResponseTDD", "rnsap.CommonTransportChannelResourcesResponseTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonTransportChannelResourcesResponseTDD", HFILL }},
     { &hf_rnsap_FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD_PDU,
       { "FACH-InfoForUESelectedS-CCPCH-CTCH-ResourceRspTDD", "rnsap.FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.FACH_InfoForUESelectedS_CCPCH_CTCH_ResourceRspTDD", HFILL }},
+    { &hf_rnsap_CommonTransportChannelResourcesFailure_PDU,
+      { "CommonTransportChannelResourcesFailure", "rnsap.CommonTransportChannelResourcesFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonTransportChannelResourcesFailure", HFILL }},
+    { &hf_rnsap_CompressedModeCommand_PDU,
+      { "CompressedModeCommand", "rnsap.CompressedModeCommand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CompressedModeCommand", HFILL }},
+    { &hf_rnsap_ErrorIndication_PDU,
+      { "ErrorIndication", "rnsap.ErrorIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.ErrorIndication", HFILL }},
+    { &hf_rnsap_CommonMeasurementInitiationRequest_PDU,
+      { "CommonMeasurementInitiationRequest", "rnsap.CommonMeasurementInitiationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementInitiationRequest", HFILL }},
     { &hf_rnsap_CommonMeasurementObjectType_CM_Rqst_PDU,
       { "CommonMeasurementObjectType-CM-Rqst", "rnsap.CommonMeasurementObjectType_CM_Rqst",
         FT_UINT32, BASE_DEC, VALS(rnsap_CommonMeasurementObjectType_CM_Rqst_vals), 0,
         "rnsap.CommonMeasurementObjectType_CM_Rqst", HFILL }},
+    { &hf_rnsap_CommonMeasurementInitiationResponse_PDU,
+      { "CommonMeasurementInitiationResponse", "rnsap.CommonMeasurementInitiationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementInitiationResponse", HFILL }},
     { &hf_rnsap_CommonMeasurementObjectType_CM_Rsp_PDU,
       { "CommonMeasurementObjectType-CM-Rsp", "rnsap.CommonMeasurementObjectType_CM_Rsp",
         FT_UINT32, BASE_DEC, VALS(rnsap_CommonMeasurementObjectType_CM_Rsp_vals), 0,
         "rnsap.CommonMeasurementObjectType_CM_Rsp", HFILL }},
+    { &hf_rnsap_CommonMeasurementInitiationFailure_PDU,
+      { "CommonMeasurementInitiationFailure", "rnsap.CommonMeasurementInitiationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementInitiationFailure", HFILL }},
+    { &hf_rnsap_CommonMeasurementReport_PDU,
+      { "CommonMeasurementReport", "rnsap.CommonMeasurementReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementReport", HFILL }},
     { &hf_rnsap_CommonMeasurementObjectType_CM_Rprt_PDU,
       { "CommonMeasurementObjectType-CM-Rprt", "rnsap.CommonMeasurementObjectType_CM_Rprt",
         FT_UINT32, BASE_DEC, VALS(rnsap_CommonMeasurementObjectType_CM_Rprt_vals), 0,
         "rnsap.CommonMeasurementObjectType_CM_Rprt", HFILL }},
+    { &hf_rnsap_CommonMeasurementTerminationRequest_PDU,
+      { "CommonMeasurementTerminationRequest", "rnsap.CommonMeasurementTerminationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementTerminationRequest", HFILL }},
+    { &hf_rnsap_CommonMeasurementFailureIndication_PDU,
+      { "CommonMeasurementFailureIndication", "rnsap.CommonMeasurementFailureIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.CommonMeasurementFailureIndication", HFILL }},
+    { &hf_rnsap_InformationExchangeInitiationRequest_PDU,
+      { "InformationExchangeInitiationRequest", "rnsap.InformationExchangeInitiationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationExchangeInitiationRequest", HFILL }},
     { &hf_rnsap_InformationExchangeObjectType_InfEx_Rqst_PDU,
       { "InformationExchangeObjectType-InfEx-Rqst", "rnsap.InformationExchangeObjectType_InfEx_Rqst",
         FT_UINT32, BASE_DEC, VALS(rnsap_InformationExchangeObjectType_InfEx_Rqst_vals), 0,
@@ -30462,6 +30517,10 @@ void proto_register_rnsap(void) {
       { "GSM-Cell-InfEx-Rqst", "rnsap.GSM_Cell_InfEx_Rqst",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.GSM_Cell_InfEx_Rqst", HFILL }},
+    { &hf_rnsap_InformationExchangeInitiationResponse_PDU,
+      { "InformationExchangeInitiationResponse", "rnsap.InformationExchangeInitiationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationExchangeInitiationResponse", HFILL }},
     { &hf_rnsap_InformationExchangeObjectType_InfEx_Rsp_PDU,
       { "InformationExchangeObjectType-InfEx-Rsp", "rnsap.InformationExchangeObjectType_InfEx_Rsp",
         FT_UINT32, BASE_DEC, VALS(rnsap_InformationExchangeObjectType_InfEx_Rsp_vals), 0,
@@ -30470,10 +30529,30 @@ void proto_register_rnsap(void) {
       { "MBMS-Bearer-Service-List-InfEx-Rsp", "rnsap.MBMS_Bearer_Service_List_InfEx_Rsp",
         FT_UINT32, BASE_DEC, NULL, 0,
         "rnsap.MBMS_Bearer_Service_List_InfEx_Rsp", HFILL }},
+    { &hf_rnsap_InformationExchangeInitiationFailure_PDU,
+      { "InformationExchangeInitiationFailure", "rnsap.InformationExchangeInitiationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationExchangeInitiationFailure", HFILL }},
+    { &hf_rnsap_InformationReport_PDU,
+      { "InformationReport", "rnsap.InformationReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationReport", HFILL }},
     { &hf_rnsap_InformationExchangeObjectType_InfEx_Rprt_PDU,
       { "InformationExchangeObjectType-InfEx-Rprt", "rnsap.InformationExchangeObjectType_InfEx_Rprt",
         FT_UINT32, BASE_DEC, VALS(rnsap_InformationExchangeObjectType_InfEx_Rprt_vals), 0,
         "rnsap.InformationExchangeObjectType_InfEx_Rprt", HFILL }},
+    { &hf_rnsap_InformationExchangeTerminationRequest_PDU,
+      { "InformationExchangeTerminationRequest", "rnsap.InformationExchangeTerminationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationExchangeTerminationRequest", HFILL }},
+    { &hf_rnsap_InformationExchangeFailureIndication_PDU,
+      { "InformationExchangeFailureIndication", "rnsap.InformationExchangeFailureIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.InformationExchangeFailureIndication", HFILL }},
+    { &hf_rnsap_ResetRequest_PDU,
+      { "ResetRequest", "rnsap.ResetRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.ResetRequest", HFILL }},
     { &hf_rnsap_ResetIndicator_PDU,
       { "ResetIndicator", "rnsap.ResetIndicator",
         FT_UINT32, BASE_DEC, VALS(rnsap_ResetIndicator_vals), 0,
@@ -30486,6 +30565,14 @@ void proto_register_rnsap(void) {
       { "ContextGroupInfoItem-Reset", "rnsap.ContextGroupInfoItem_Reset",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.ContextGroupInfoItem_Reset", HFILL }},
+    { &hf_rnsap_ResetResponse_PDU,
+      { "ResetResponse", "rnsap.ResetResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.ResetResponse", HFILL }},
+    { &hf_rnsap_RadioLinkActivationCommandFDD_PDU,
+      { "RadioLinkActivationCommandFDD", "rnsap.RadioLinkActivationCommandFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkActivationCommandFDD", HFILL }},
     { &hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdFDD_PDU,
       { "DelayedActivationInformationList-RL-ActivationCmdFDD", "rnsap.DelayedActivationInformationList_RL_ActivationCmdFDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30494,6 +30581,10 @@ void proto_register_rnsap(void) {
       { "DelayedActivationInformation-RL-ActivationCmdFDD", "rnsap.DelayedActivationInformation_RL_ActivationCmdFDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.DelayedActivationInformation_RL_ActivationCmdFDD", HFILL }},
+    { &hf_rnsap_RadioLinkActivationCommandTDD_PDU,
+      { "RadioLinkActivationCommandTDD", "rnsap.RadioLinkActivationCommandTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkActivationCommandTDD", HFILL }},
     { &hf_rnsap_DelayedActivationInformationList_RL_ActivationCmdTDD_PDU,
       { "DelayedActivationInformationList-RL-ActivationCmdTDD", "rnsap.DelayedActivationInformationList_RL_ActivationCmdTDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30502,6 +30593,14 @@ void proto_register_rnsap(void) {
       { "DelayedActivationInformation-RL-ActivationCmdTDD", "rnsap.DelayedActivationInformation_RL_ActivationCmdTDD",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.DelayedActivationInformation_RL_ActivationCmdTDD", HFILL }},
+    { &hf_rnsap_GERANUplinkSignallingTransferIndication_PDU,
+      { "GERANUplinkSignallingTransferIndication", "rnsap.GERANUplinkSignallingTransferIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.GERANUplinkSignallingTransferIndication", HFILL }},
+    { &hf_rnsap_RadioLinkParameterUpdateIndicationFDD_PDU,
+      { "RadioLinkParameterUpdateIndicationFDD", "rnsap.RadioLinkParameterUpdateIndicationFDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkParameterUpdateIndicationFDD", HFILL }},
     { &hf_rnsap_RL_ParameterUpdateIndicationFDD_RL_InformationList_PDU,
       { "RL-ParameterUpdateIndicationFDD-RL-InformationList", "rnsap.RL_ParameterUpdateIndicationFDD_RL_InformationList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30510,6 +30609,38 @@ void proto_register_rnsap(void) {
       { "RL-ParameterUpdateIndicationFDD-RL-Information-Item", "rnsap.RL_ParameterUpdateIndicationFDD_RL_Information_Item",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.RL_ParameterUpdateIndicationFDD_RL_Information_Item", HFILL }},
+    { &hf_rnsap_RadioLinkParameterUpdateIndicationTDD_PDU,
+      { "RadioLinkParameterUpdateIndicationTDD", "rnsap.RadioLinkParameterUpdateIndicationTDD",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.RadioLinkParameterUpdateIndicationTDD", HFILL }},
+    { &hf_rnsap_UEMeasurementInitiationRequest_PDU,
+      { "UEMeasurementInitiationRequest", "rnsap.UEMeasurementInitiationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementInitiationRequest", HFILL }},
+    { &hf_rnsap_UEMeasurementInitiationResponse_PDU,
+      { "UEMeasurementInitiationResponse", "rnsap.UEMeasurementInitiationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementInitiationResponse", HFILL }},
+    { &hf_rnsap_UEMeasurementInitiationFailure_PDU,
+      { "UEMeasurementInitiationFailure", "rnsap.UEMeasurementInitiationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementInitiationFailure", HFILL }},
+    { &hf_rnsap_UEMeasurementReport_PDU,
+      { "UEMeasurementReport", "rnsap.UEMeasurementReport",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementReport", HFILL }},
+    { &hf_rnsap_UEMeasurementTerminationRequest_PDU,
+      { "UEMeasurementTerminationRequest", "rnsap.UEMeasurementTerminationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementTerminationRequest", HFILL }},
+    { &hf_rnsap_UEMeasurementFailureIndication_PDU,
+      { "UEMeasurementFailureIndication", "rnsap.UEMeasurementFailureIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.UEMeasurementFailureIndication", HFILL }},
+    { &hf_rnsap_IurInvokeTrace_PDU,
+      { "IurInvokeTrace", "rnsap.IurInvokeTrace",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.IurInvokeTrace", HFILL }},
     { &hf_rnsap_ListOfInterfacesToTrace_PDU,
       { "ListOfInterfacesToTrace", "rnsap.ListOfInterfacesToTrace",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30518,6 +30649,26 @@ void proto_register_rnsap(void) {
       { "InterfacesToTraceItem", "rnsap.InterfacesToTraceItem",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.InterfacesToTraceItem", HFILL }},
+    { &hf_rnsap_IurDeactivateTrace_PDU,
+      { "IurDeactivateTrace", "rnsap.IurDeactivateTrace",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.IurDeactivateTrace", HFILL }},
+    { &hf_rnsap_MBMSAttachCommand_PDU,
+      { "MBMSAttachCommand", "rnsap.MBMSAttachCommand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.MBMSAttachCommand", HFILL }},
+    { &hf_rnsap_MBMSDetachCommand_PDU,
+      { "MBMSDetachCommand", "rnsap.MBMSDetachCommand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.MBMSDetachCommand", HFILL }},
+    { &hf_rnsap_DirectInformationTransfer_PDU,
+      { "DirectInformationTransfer", "rnsap.DirectInformationTransfer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.DirectInformationTransfer", HFILL }},
+    { &hf_rnsap_PrivateMessage_PDU,
+      { "PrivateMessage", "rnsap.PrivateMessage",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "rnsap.PrivateMessage", HFILL }},
     { &hf_rnsap_RNSAP_PDU_PDU,
       { "RNSAP-PDU", "rnsap.RNSAP_PDU",
         FT_UINT32, BASE_DEC, VALS(rnsap_RNSAP_PDU_vals), 0,
@@ -30536,8 +30687,8 @@ void proto_register_rnsap(void) {
         "rnsap.ProcedureCode", HFILL }},
     { &hf_rnsap_ddMode,
       { "ddMode", "rnsap.ddMode",
-        FT_UINT32, BASE_DEC, VALS(rnsap_T_ddMode_vals), 0,
-        "rnsap.T_ddMode", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(rnsap_DdMode_vals), 0,
+        "rnsap.DdMode", HFILL }},
     { &hf_rnsap_shortTransActionId,
       { "shortTransActionId", "rnsap.shortTransActionId",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -30562,10 +30713,6 @@ void proto_register_rnsap(void) {
       { "value", "rnsap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.T_value", HFILL }},
-    { &hf_rnsap_ProtocolIE_ContainerPair_item,
-      { "Item", "rnsap.ProtocolIE_ContainerPair_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.ProtocolIE_FieldPair", HFILL }},
     { &hf_rnsap_firstCriticality,
       { "firstCriticality", "rnsap.firstCriticality",
         FT_UINT32, BASE_DEC, VALS(rnsap_Criticality_vals), 0,
@@ -35498,354 +35645,14 @@ void proto_register_rnsap(void) {
       { "value", "rnsap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "rnsap.T_value5", HFILL }},
-    { &hf_rnsap_id_commonTransportChannelResourcesInitialisation,
-      { "id-commonTransportChannelResourcesInitialisation", "rnsap.id_commonTransportChannelResourcesInitialisation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonTransportChannelResourcesRequest", HFILL }},
-    { &hf_rnsap_id_commonTransportChannelResourcesRelease,
-      { "id-commonTransportChannelResourcesRelease", "rnsap.id_commonTransportChannelResourcesRelease",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonTransportChannelResourcesReleaseRequest", HFILL }},
-    { &hf_rnsap_id_compressedModeCommand,
-      { "id-compressedModeCommand", "rnsap.id_compressedModeCommand",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CompressedModeCommand", HFILL }},
-    { &hf_rnsap_id_downlinkPowerControl,
-      { "id-downlinkPowerControl", "rnsap.id_downlinkPowerControl",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DL_PowerControlRequest", HFILL }},
-    { &hf_rnsap_id_downlinkPowerTimeslotControl,
-      { "id-downlinkPowerTimeslotControl", "rnsap.id_downlinkPowerTimeslotControl",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DL_PowerTimeslotControlRequest", HFILL }},
-    { &hf_rnsap_id_downlinkSignallingTransfer,
-      { "id-downlinkSignallingTransfer", "rnsap.id_downlinkSignallingTransfer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DownlinkSignallingTransferRequest", HFILL }},
-    { &hf_rnsap_id_errorIndication,
-      { "id-errorIndication", "rnsap.id_errorIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.ErrorIndication", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementFailure,
-      { "id-dedicatedMeasurementFailure", "rnsap.id_dedicatedMeasurementFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementFailureIndication", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementInitiation,
-      { "id-dedicatedMeasurementInitiation", "rnsap.id_dedicatedMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementInitiationRequest", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementReporting,
-      { "id-dedicatedMeasurementReporting", "rnsap.id_dedicatedMeasurementReporting",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementReport", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementTermination,
-      { "id-dedicatedMeasurementTermination", "rnsap.id_dedicatedMeasurementTermination",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementTerminationRequest", HFILL }},
-    { &hf_rnsap_id_paging,
-      { "id-paging", "rnsap.id_paging",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.PagingRequest", HFILL }},
-    { &hf_rnsap_id_physicalChannelReconfiguration,
-      { "id-physicalChannelReconfiguration", "rnsap.id_physicalChannelReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.PhysicalChannelReconfigurationRequestTDD", HFILL }},
-    { &hf_rnsap_id_privateMessage,
-      { "id-privateMessage", "rnsap.id_privateMessage",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.PrivateMessage", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition,
-      { "id-radioLinkAddition", "rnsap.id_radioLinkAddition",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionRequestFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition_TDD,
-      { "id-radioLinkAddition-TDD", "rnsap.id_radioLinkAddition_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionRequestTDD", HFILL }},
-    { &hf_rnsap_id_radioLinkCongestion,
-      { "id-radioLinkCongestion", "rnsap.id_radioLinkCongestion",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkCongestionIndication", HFILL }},
-    { &hf_rnsap_id_radioLinkDeletion,
-      { "id-radioLinkDeletion", "rnsap.id_radioLinkDeletion",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkDeletionRequest", HFILL }},
-    { &hf_rnsap_id_radioLinkFailure,
-      { "id-radioLinkFailure", "rnsap.id_radioLinkFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkFailureIndication", HFILL }},
-    { &hf_rnsap_id_radioLinkPreemption,
-      { "id-radioLinkPreemption", "rnsap.id_radioLinkPreemption",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkPreemptionRequiredIndication", HFILL }},
-    { &hf_rnsap_id_radioLinkRestoration,
-      { "id-radioLinkRestoration", "rnsap.id_radioLinkRestoration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkRestoreIndication", HFILL }},
-    { &hf_rnsap_id_radioLinkSetup,
-      { "id-radioLinkSetup", "rnsap.id_radioLinkSetup",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupRequestFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkSetupTdd,
-      { "id-radioLinkSetupTdd", "rnsap.id_radioLinkSetupTdd",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupRequestTDD", HFILL }},
-    { &hf_rnsap_id_relocationCommit,
-      { "id-relocationCommit", "rnsap.id_relocationCommit",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RelocationCommit", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationCancellation,
-      { "id-synchronisedRadioLinkReconfigurationCancellation", "rnsap.id_synchronisedRadioLinkReconfigurationCancellation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationCancel", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationCommit,
-      { "id-synchronisedRadioLinkReconfigurationCommit", "rnsap.id_synchronisedRadioLinkReconfigurationCommit",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationCommit", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation,
-      { "id-synchronisedRadioLinkReconfigurationPreparation", "rnsap.id_synchronisedRadioLinkReconfigurationPreparation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationPrepareFDD", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation_TDD,
-      { "id-synchronisedRadioLinkReconfigurationPreparation-TDD", "rnsap.id_synchronisedRadioLinkReconfigurationPreparation_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationReadyTDD", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration,
-      { "id-unSynchronisedRadioLinkReconfiguration", "rnsap.id_unSynchronisedRadioLinkReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationRequestFDD", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD,
-      { "id-unSynchronisedRadioLinkReconfiguration-TDD", "rnsap.id_unSynchronisedRadioLinkReconfiguration_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationRequestTDD", HFILL }},
-    { &hf_rnsap_id_uplinkSignallingTransfer,
-      { "id-uplinkSignallingTransfer", "rnsap.id_uplinkSignallingTransfer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UplinkSignallingTransferIndicationFDD", HFILL }},
-    { &hf_rnsap_id_uplinkSignallingTransfer_TDD,
-      { "id-uplinkSignallingTransfer-TDD", "rnsap.id_uplinkSignallingTransfer_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UplinkSignallingTransferIndicationTDD", HFILL }},
-    { &hf_rnsap_id_commonMeasurementFailure,
-      { "id-commonMeasurementFailure", "rnsap.id_commonMeasurementFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementFailureIndication", HFILL }},
-    { &hf_rnsap_id_commonMeasurementInitiation,
-      { "id-commonMeasurementInitiation", "rnsap.id_commonMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementInitiationRequest", HFILL }},
-    { &hf_rnsap_id_commonMeasurementReporting,
-      { "id-commonMeasurementReporting", "rnsap.id_commonMeasurementReporting",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementReport", HFILL }},
-    { &hf_rnsap_id_commonMeasurementTermination,
-      { "id-commonMeasurementTermination", "rnsap.id_commonMeasurementTermination",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementTerminationRequest", HFILL }},
-    { &hf_rnsap_id_informationExchangeFailure,
-      { "id-informationExchangeFailure", "rnsap.id_informationExchangeFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationExchangeFailureIndication", HFILL }},
-    { &hf_rnsap_id_informationExchangeInitiation,
-      { "id-informationExchangeInitiation", "rnsap.id_informationExchangeInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationExchangeInitiationRequest", HFILL }},
-    { &hf_rnsap_id_informationReporting,
-      { "id-informationReporting", "rnsap.id_informationReporting",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationReport", HFILL }},
-    { &hf_rnsap_id_informationExchangeTermination,
-      { "id-informationExchangeTermination", "rnsap.id_informationExchangeTermination",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationExchangeTerminationRequest", HFILL }},
-    { &hf_rnsap_id_reset,
-      { "id-reset", "rnsap.id_reset",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.ResetRequest", HFILL }},
-    { &hf_rnsap_id_radioLinkActivation,
-      { "id-radioLinkActivation", "rnsap.id_radioLinkActivation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkActivationCommandFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkActivation_TDD,
-      { "id-radioLinkActivation-TDD", "rnsap.id_radioLinkActivation_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkActivationCommandTDD", HFILL }},
-    { &hf_rnsap_id_gERANuplinkSignallingTransfer,
-      { "id-gERANuplinkSignallingTransfer", "rnsap.id_gERANuplinkSignallingTransfer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.GERANUplinkSignallingTransferIndication", HFILL }},
-    { &hf_rnsap_id_radioLinkParameterUpdate,
-      { "id-radioLinkParameterUpdate", "rnsap.id_radioLinkParameterUpdate",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkParameterUpdateIndicationFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkParameterUpdate_TDD,
-      { "id-radioLinkParameterUpdate-TDD", "rnsap.id_radioLinkParameterUpdate_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkParameterUpdateIndicationTDD", HFILL }},
-    { &hf_rnsap_id_uEMeasurementFailure,
-      { "id-uEMeasurementFailure", "rnsap.id_uEMeasurementFailure",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementFailureIndication", HFILL }},
-    { &hf_rnsap_id_uEMeasurementInitiation,
-      { "id-uEMeasurementInitiation", "rnsap.id_uEMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementInitiationRequest", HFILL }},
-    { &hf_rnsap_id_uEMeasurementReporting,
-      { "id-uEMeasurementReporting", "rnsap.id_uEMeasurementReporting",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementReport", HFILL }},
-    { &hf_rnsap_id_uEMeasurementTermination,
-      { "id-uEMeasurementTermination", "rnsap.id_uEMeasurementTermination",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementTerminationRequest", HFILL }},
-    { &hf_rnsap_id_iurDeactivateTrace,
-      { "id-iurDeactivateTrace", "rnsap.id_iurDeactivateTrace",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.IurDeactivateTrace", HFILL }},
-    { &hf_rnsap_id_iurInvokeTrace,
-      { "id-iurInvokeTrace", "rnsap.id_iurInvokeTrace",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.IurInvokeTrace", HFILL }},
-    { &hf_rnsap_id_mBMSAttach,
-      { "id-mBMSAttach", "rnsap.id_mBMSAttach",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.MBMSAttachCommand", HFILL }},
-    { &hf_rnsap_id_mBMSDetach,
-      { "id-mBMSDetach", "rnsap.id_mBMSDetach",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.MBMSDetachCommand", HFILL }},
-    { &hf_rnsap_id_directInformationTransfer,
-      { "id-directInformationTransfer", "rnsap.id_directInformationTransfer",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DirectInformationTransfer", HFILL }},
-    { &hf_rnsap_id_commonTransportChannelResourcesInitialisation1,
-      { "id-commonTransportChannelResourcesInitialisation", "rnsap.id_commonTransportChannelResourcesInitialisation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonTransportChannelResourcesResponseFDD", HFILL }},
-    { &hf_rnsap_id_commonTransportChannelResourcesInitialisation_TDD,
-      { "id-commonTransportChannelResourcesInitialisation-TDD", "rnsap.id_commonTransportChannelResourcesInitialisation_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonTransportChannelResourcesResponseTDD", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementInitiation1,
-      { "id-dedicatedMeasurementInitiation", "rnsap.id_dedicatedMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementInitiationResponse", HFILL }},
-    { &hf_rnsap_id_physicalChannelReconfiguration1,
-      { "id-physicalChannelReconfiguration", "rnsap.id_physicalChannelReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.PhysicalChannelReconfigurationCommand", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition1,
-      { "id-radioLinkAddition", "rnsap.id_radioLinkAddition",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionResponseFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition_TDD1,
-      { "id-radioLinkAddition-TDD", "rnsap.id_radioLinkAddition_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionResponseTDD", HFILL }},
-    { &hf_rnsap_id_radioLinkDeletion1,
-      { "id-radioLinkDeletion", "rnsap.id_radioLinkDeletion",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkDeletionResponse", HFILL }},
-    { &hf_rnsap_id_radioLinkSetup1,
-      { "id-radioLinkSetup", "rnsap.id_radioLinkSetup",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupResponseFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkSetupTdd1,
-      { "id-radioLinkSetupTdd", "rnsap.id_radioLinkSetupTdd",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupResponseTDD", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation1,
-      { "id-synchronisedRadioLinkReconfigurationPreparation", "rnsap.id_synchronisedRadioLinkReconfigurationPreparation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationReadyFDD", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration1,
-      { "id-unSynchronisedRadioLinkReconfiguration", "rnsap.id_unSynchronisedRadioLinkReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationResponseFDD", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD1,
-      { "id-unSynchronisedRadioLinkReconfiguration-TDD", "rnsap.id_unSynchronisedRadioLinkReconfiguration_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationResponseTDD", HFILL }},
-    { &hf_rnsap_id_commonMeasurementInitiation1,
-      { "id-commonMeasurementInitiation", "rnsap.id_commonMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementInitiationResponse", HFILL }},
-    { &hf_rnsap_id_informationExchangeInitiation1,
-      { "id-informationExchangeInitiation", "rnsap.id_informationExchangeInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationExchangeInitiationResponse", HFILL }},
-    { &hf_rnsap_id_reset1,
-      { "id-reset", "rnsap.id_reset",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.ResetResponse", HFILL }},
-    { &hf_rnsap_id_uEMeasurementInitiation1,
-      { "id-uEMeasurementInitiation", "rnsap.id_uEMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementInitiationResponse", HFILL }},
-    { &hf_rnsap_id_commonTransportChannelResourcesInitialisation2,
-      { "id-commonTransportChannelResourcesInitialisation", "rnsap.id_commonTransportChannelResourcesInitialisation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonTransportChannelResourcesFailure", HFILL }},
-    { &hf_rnsap_id_dedicatedMeasurementInitiation2,
-      { "id-dedicatedMeasurementInitiation", "rnsap.id_dedicatedMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.DedicatedMeasurementInitiationFailure", HFILL }},
-    { &hf_rnsap_id_physicalChannelReconfiguration2,
-      { "id-physicalChannelReconfiguration", "rnsap.id_physicalChannelReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.PhysicalChannelReconfigurationFailure", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition2,
-      { "id-radioLinkAddition", "rnsap.id_radioLinkAddition",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionFailureFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkAddition_TDD2,
-      { "id-radioLinkAddition-TDD", "rnsap.id_radioLinkAddition_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkAdditionFailureTDD", HFILL }},
-    { &hf_rnsap_id_radioLinkSetup2,
-      { "id-radioLinkSetup", "rnsap.id_radioLinkSetup",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupFailureFDD", HFILL }},
-    { &hf_rnsap_id_radioLinkSetupTdd2,
-      { "id-radioLinkSetupTdd", "rnsap.id_radioLinkSetupTdd",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkSetupFailureTDD", HFILL }},
-    { &hf_rnsap_id_synchronisedRadioLinkReconfigurationPreparation2,
-      { "id-synchronisedRadioLinkReconfigurationPreparation", "rnsap.id_synchronisedRadioLinkReconfigurationPreparation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationFailure", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration2,
-      { "id-unSynchronisedRadioLinkReconfiguration", "rnsap.id_unSynchronisedRadioLinkReconfiguration",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationFailure", HFILL }},
-    { &hf_rnsap_id_unSynchronisedRadioLinkReconfiguration_TDD2,
-      { "id-unSynchronisedRadioLinkReconfiguration-TDD", "rnsap.id_unSynchronisedRadioLinkReconfiguration_TDD",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.RadioLinkReconfigurationFailure", HFILL }},
-    { &hf_rnsap_id_commonMeasurementInitiation2,
-      { "id-commonMeasurementInitiation", "rnsap.id_commonMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.CommonMeasurementInitiationFailure", HFILL }},
-    { &hf_rnsap_id_informationExchangeInitiation2,
-      { "id-informationExchangeInitiation", "rnsap.id_informationExchangeInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.InformationExchangeInitiationFailure", HFILL }},
-    { &hf_rnsap_id_uEMeasurementInitiation2,
-      { "id-uEMeasurementInitiation", "rnsap.id_uEMeasurementInitiation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "rnsap.UEMeasurementInitiationFailure", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 452 "packet-rnsap-template.c"
+#line 152 "packet-rnsap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_rnsap,
-		  &ett_rnsap_initiatingMessageValue,
-		  &ett_rnsap_ProtocolIEValueValue,
-		  &ett_rnsap_SuccessfulOutcomeValue,
-		  &ett_rnsap_UnsuccessfulOutcomeValue,
 
 /*--- Included file: packet-rnsap-ettarr.c ---*/
 #line 1 "packet-rnsap-ettarr.c"
@@ -35854,7 +35661,6 @@ void proto_register_rnsap(void) {
     &ett_rnsap_TransactionID,
     &ett_rnsap_ProtocolIE_Container,
     &ett_rnsap_ProtocolIE_Field,
-    &ett_rnsap_ProtocolIE_ContainerPair,
     &ett_rnsap_ProtocolIE_FieldPair,
     &ett_rnsap_ProtocolExtensionContainer,
     &ett_rnsap_ProtocolExtensionField,
@@ -36715,12 +36521,9 @@ void proto_register_rnsap(void) {
     &ett_rnsap_SuccessfulOutcome,
     &ett_rnsap_UnsuccessfulOutcome,
     &ett_rnsap_Outcome,
-    &ett_rnsap_DummyInitiatingValue,
-    &ett_rnsap_DummySuccessfulOutcomeValue,
-    &ett_rnsap_DummyUnSuccessfulOutcomeValue,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 462 "packet-rnsap-template.c"
+#line 158 "packet-rnsap-template.c"
   };
 
 
@@ -36737,7 +36540,9 @@ void proto_register_rnsap(void) {
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
   rnsap_extension_dissector_table = register_dissector_table("rnsap.extension", "RNSAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
-
+  rnsap_proc_imsg_dissector_table = register_dissector_table("rnsap.proc.imsg", "RNSAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE);
+  rnsap_proc_sout_dissector_table = register_dissector_table("rnsap.proc.sout", "RNSAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE);
+  rnsap_proc_uout_dissector_table = register_dissector_table("rnsap.proc.uout", "RNSAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
 
 }
 
@@ -37208,10 +37013,95 @@ proto_reg_handoff_rnsap(void)
   dissector_add("rnsap.extension", id_S_RNTI, new_create_dissector_handle(dissect_S_RNTI_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_D_RNTI, new_create_dissector_handle(dissect_D_RNTI_PDU, proto_rnsap));
   dissector_add("rnsap.extension", id_E_DCH_FDD_Update_Information, new_create_dissector_handle(dissect_E_DCH_FDD_Update_Information_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupRequestFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupResponseFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupFailureFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkSetup/tdd", new_create_dissector_handle(dissect_RadioLinkSetupRequestTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-radioLinkSetup/tdd", new_create_dissector_handle(dissect_RadioLinkSetupResponseTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-radioLinkSetup/tdd", new_create_dissector_handle(dissect_RadioLinkSetupFailureTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkDeletion/common", new_create_dissector_handle(dissect_RadioLinkDeletionRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-radioLinkDeletion/common", new_create_dissector_handle(dissect_RadioLinkDeletionResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-synchronisedRadioLinkReconfigurationPreparation/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationPrepareFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-synchronisedRadioLinkReconfigurationPreparation/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationReadyFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-synchronisedRadioLinkReconfigurationPreparation/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-synchronisedRadioLinkReconfigurationPreparation/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationPrepareTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-synchronisedRadioLinkReconfigurationPreparation/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationReadyTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-synchronisedRadioLinkReconfigurationPreparation/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-unSynchronisedRadioLinkReconfiguration/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationRequestFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-unSynchronisedRadioLinkReconfiguration/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationResponseFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-unSynchronisedRadioLinkReconfiguration/fdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-unSynchronisedRadioLinkReconfiguration/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationRequestTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-unSynchronisedRadioLinkReconfiguration/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationResponseTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-unSynchronisedRadioLinkReconfiguration/tdd", new_create_dissector_handle(dissect_RadioLinkReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-physicalChannelReconfiguration/fdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationRequestFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-physicalChannelReconfiguration/fdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationCommand_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-physicalChannelReconfiguration/fdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-physicalChannelReconfiguration/tdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationRequestTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-physicalChannelReconfiguration/tdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationCommand_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-physicalChannelReconfiguration/tdd", new_create_dissector_handle(dissect_PhysicalChannelReconfigurationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-dedicatedMeasurementInitiation/common", new_create_dissector_handle(dissect_DedicatedMeasurementInitiationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-dedicatedMeasurementInitiation/common", new_create_dissector_handle(dissect_DedicatedMeasurementInitiationResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-dedicatedMeasurementInitiation/common", new_create_dissector_handle(dissect_DedicatedMeasurementInitiationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonTransportChannelResourcesInitialisation/fdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-commonTransportChannelResourcesInitialisation/fdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesResponseFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-commonTransportChannelResourcesInitialisation/fdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonTransportChannelResourcesInitialisation/tdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-commonTransportChannelResourcesInitialisation/tdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesResponseTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-commonTransportChannelResourcesInitialisation/tdd", new_create_dissector_handle(dissect_CommonTransportChannelResourcesFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uplinkSignallingTransfer/fdd", new_create_dissector_handle(dissect_UplinkSignallingTransferIndicationFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uplinkSignallingTransfer/tdd", new_create_dissector_handle(dissect_UplinkSignallingTransferIndicationTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-downlinkSignallingTransfer/common", new_create_dissector_handle(dissect_DownlinkSignallingTransferRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-relocationCommit/common", new_create_dissector_handle(dissect_RelocationCommit_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-paging/common", new_create_dissector_handle(dissect_PagingRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-synchronisedRadioLinkReconfigurationCommit/common", new_create_dissector_handle(dissect_RadioLinkReconfigurationCommit_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-synchronisedRadioLinkReconfigurationCancellation/common", new_create_dissector_handle(dissect_RadioLinkReconfigurationCancel_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkFailure/common", new_create_dissector_handle(dissect_RadioLinkFailureIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkPreemption/common", new_create_dissector_handle(dissect_RadioLinkPreemptionRequiredIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkRestoration/common", new_create_dissector_handle(dissect_RadioLinkRestoreIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-dedicatedMeasurementReporting/common", new_create_dissector_handle(dissect_DedicatedMeasurementReport_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-dedicatedMeasurementTermination/common", new_create_dissector_handle(dissect_DedicatedMeasurementTerminationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-dedicatedMeasurementFailure/common", new_create_dissector_handle(dissect_DedicatedMeasurementFailureIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkCongestion/common", new_create_dissector_handle(dissect_RadioLinkCongestionIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-downlinkPowerControl/fdd", new_create_dissector_handle(dissect_DL_PowerControlRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-downlinkPowerTimeslotControl/tdd", new_create_dissector_handle(dissect_DL_PowerTimeslotControlRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-compressedModeCommand/fdd", new_create_dissector_handle(dissect_CompressedModeCommand_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonTransportChannelResourcesRelease/common", new_create_dissector_handle(dissect_CommonTransportChannelResourcesReleaseRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-errorIndication/common", new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonMeasurementInitiation/common", new_create_dissector_handle(dissect_CommonMeasurementInitiationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-commonMeasurementInitiation/common", new_create_dissector_handle(dissect_CommonMeasurementInitiationResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-commonMeasurementInitiation/common", new_create_dissector_handle(dissect_CommonMeasurementInitiationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonMeasurementReporting/common", new_create_dissector_handle(dissect_CommonMeasurementReport_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonMeasurementTermination/common", new_create_dissector_handle(dissect_CommonMeasurementTerminationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-commonMeasurementFailure/common", new_create_dissector_handle(dissect_CommonMeasurementFailureIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-informationExchangeInitiation/common", new_create_dissector_handle(dissect_InformationExchangeInitiationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-informationExchangeInitiation/common", new_create_dissector_handle(dissect_InformationExchangeInitiationResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-informationExchangeInitiation/common", new_create_dissector_handle(dissect_InformationExchangeInitiationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-informationReporting/common", new_create_dissector_handle(dissect_InformationReport_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-informationExchangeTermination/common", new_create_dissector_handle(dissect_InformationExchangeTerminationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-informationExchangeFailure/common", new_create_dissector_handle(dissect_InformationExchangeFailureIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-privateMessage/common", new_create_dissector_handle(dissect_PrivateMessage_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-reset/common", new_create_dissector_handle(dissect_ResetRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-reset/common", new_create_dissector_handle(dissect_ResetResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkActivation/fdd", new_create_dissector_handle(dissect_RadioLinkActivationCommandFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkActivation/tdd", new_create_dissector_handle(dissect_RadioLinkActivationCommandTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-gERANuplinkSignallingTransfer/common", new_create_dissector_handle(dissect_GERANUplinkSignallingTransferIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkParameterUpdate/fdd", new_create_dissector_handle(dissect_RadioLinkParameterUpdateIndicationFDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-radioLinkParameterUpdate/tdd", new_create_dissector_handle(dissect_RadioLinkParameterUpdateIndicationTDD_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uEMeasurementInitiation/tdd", new_create_dissector_handle(dissect_UEMeasurementInitiationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.sout", "id-uEMeasurementInitiation/tdd", new_create_dissector_handle(dissect_UEMeasurementInitiationResponse_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.uout", "id-uEMeasurementInitiation/tdd", new_create_dissector_handle(dissect_UEMeasurementInitiationFailure_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uEMeasurementReporting/tdd", new_create_dissector_handle(dissect_UEMeasurementReport_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uEMeasurementTermination/tdd", new_create_dissector_handle(dissect_UEMeasurementTerminationRequest_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-uEMeasurementFailure/tdd", new_create_dissector_handle(dissect_UEMeasurementFailureIndication_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-iurInvokeTrace/common", new_create_dissector_handle(dissect_IurInvokeTrace_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-iurDeactivateTrace/common", new_create_dissector_handle(dissect_IurDeactivateTrace_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-mBMSAttach/common", new_create_dissector_handle(dissect_MBMSAttachCommand_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-mBMSDetach/common", new_create_dissector_handle(dissect_MBMSDetachCommand_PDU, proto_rnsap));
+  dissector_add_string("rnsap.proc.imsg", "id-directInformationTransfer/common", new_create_dissector_handle(dissect_DirectInformationTransfer_PDU, proto_rnsap));
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 496 "packet-rnsap-template.c"
+#line 194 "packet-rnsap-template.c"
 }
 
 

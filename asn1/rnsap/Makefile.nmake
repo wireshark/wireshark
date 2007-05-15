@@ -8,7 +8,7 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 PROTOCOL_NAME=rnsap
 DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
-RNSAP_ASN=RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn rnsap_dummy.asn 
+RNSAP_ASN=RNSAP-CommonDataTypes.asn RNSAP-Constants.asn RNSAP-Containers.asn RNSAP-IEs.asn RNSAP-PDU-Contents.asn RNSAP-PDU-Descriptions.asn 
 
 all: generate_dissector
 
