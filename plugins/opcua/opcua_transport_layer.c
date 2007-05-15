@@ -27,8 +27,8 @@
 
 #include <gmodule.h>
 #include <epan/packet.h>
-#include "ua_security_layer.h"
-#include "ua_application_layer.h"
+#include "opcua_security_layer.h"
+#include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
 #include <string.h>
 #include <epan/emem.h>

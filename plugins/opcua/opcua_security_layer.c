@@ -27,7 +27,7 @@
 
 #include <gmodule.h>
 #include <epan/packet.h>
-#include "ua_application_layer.h"
+#include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
 
 /** NodeClass enum table */
