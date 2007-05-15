@@ -684,8 +684,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
-			                val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
+			col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
+			             val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
 		offset += 4;
 		packet_len -= 4;
 		app_length = app_length -8;
@@ -896,6 +896,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* SIP URI */
 				item_len = tvb_get_guint8( tvb, offset );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_sip_uri, tvb, offset, 1, FALSE );
+                offset++;
 
 				if (check_col(pinfo->cinfo, COL_INFO))
 				{
@@ -903,7 +904,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					                tvb_get_ephemeral_string(tvb, offset, item_len));
 				}
 				
-				offset = offset + item_len + 1;
+				offset += item_len;
 				packet_len = packet_len - item_len - 1;
 				
 				/* In the application dependent data, the TBCP Talk Burst Taken message SHALL carry
@@ -919,49 +920,54 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 				/* SDES type (must be NAME if present) */
 				sdes_type = tvb_get_guint8( tvb, offset );
-				if (sdes_type == RTCP_SDES_NAME)
-				{
+				if (sdes_type == RTCP_SDES_NAME) {
 					proto_tree_add_item( PoC1_tree, hf_rtcp_sdes_type, tvb, offset, 1, FALSE );
 					offset++;
 					packet_len--;
 
 					/* Display name */
 					item_len = tvb_get_guint8( tvb, offset );
-					if (item_len != 0)
-					{
+					offset++;
+					if (item_len != 0) {
 						proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_disp_name, tvb, offset, 1, FALSE );
 					}
-					offset = offset + item_len + 1;
+					offset += item_len;
 					packet_len = packet_len - item_len - 1;
 
-					if (packet_len == 0)
-					{
+					if (packet_len == 0) {
 						return offset;
+					}
+
+					/* Move onto next 4-byte boundary */
+					if (offset % 4) {
+						int padding = (4-(offset%4));
+						offset += padding;
+						packet_len -= padding;
 					}
 				}
 
 				/* Participants (optional) */
-				if (tvb_reported_length_remaining( tvb, offset) == 0)
-				{
+				if (tvb_reported_length_remaining( tvb, offset) == 0) {
 					return offset;
 				}
 				participants_code = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -=1;
-				if (participants_code != 100) /* SHALL be 100 */
+				if (participants_code != 100) { /* SHALL be 100 */
 					return offset;
+				}
 				item_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 				packet_len -= 1;
-				if (item_len != 2) /* SHALL be 2 */
+				if (item_len != 2) { /* SHALL be 2 */
 					return offset;
+				}
 
 				participants = tvb_get_ntohs(tvb, offset);
 				ti = proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_partic, tvb, offset, 2, FALSE );
 
 				/* Append text with meanings of extreme values */
-				switch (participants)
-				{
+				switch (participants) {
 					case 0:
 						proto_item_append_text(ti, " (not known)");
 						break;
@@ -970,6 +976,11 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 						break;
 					default:
 						break;
+				}
+
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO, " Participants=%u",
+					                participants);
 				}
 
 				offset += item_len;
