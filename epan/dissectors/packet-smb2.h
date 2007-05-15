@@ -41,13 +41,20 @@ WS_VAR_IMPORT const value_string smb2_cmd_vals[];
  * private data is set to NULL when the structure is created.  It is used
  * for communications between the Request and the Response packets.
  */
+typedef enum {
+	SMB2_EI_NONE,		/* Unassigned / NULL */
+	SMB2_EI_TREENAME,	/* tid tracking  char * */
+	SMB2_EI_FILENAME,	/* fid tracking  char * */
+	SMB2_EI_FINDPATTERN,	/* find tracking  char * */
+} smb2_extra_info_t;
 typedef struct _smb2_saved_info_t {
 	guint8 class;
 	guint8 infolevel;
 	guint64 seqnum;
-	void *private_data;	
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
+	void *extra_info;
+	smb2_extra_info_t extra_info_type;
 } smb2_saved_info_t;
 
 typedef struct _smb2_tid_info_t {
