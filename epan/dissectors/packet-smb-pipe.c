@@ -3648,7 +3648,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			}
 			fid = tri->fid;
 			if (fid != -1)
-				dissect_smb_fid(NULL, pinfo, pipe_tree, 0, 0, (guint16) fid, FALSE, FALSE, TRUE);
+				dissect_smb_fid(d_tvb, pinfo, pipe_tree, 0, 0, (guint16) fid, FALSE, FALSE, TRUE);
 		} else {
 			function = -1;
 			fid = -1;
