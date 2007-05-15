@@ -4453,9 +4453,14 @@ dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 	offset = dissect_smb2_command(pinfo, tree, tvb, offset, si);
 
 	if (chain_offset > 0) {
-		if ((old_offset+chain_offset) < offset)
+		tvbuff_t *next_tvb;
+
+		if ((old_offset+chain_offset) < offset) {
 			THROW(ReportedBoundsError);
-		offset = dissect_smb2(tvb, old_offset+chain_offset, pinfo, parent_tree);
+		}
+
+		next_tvb = tvb_new_subset(tvb, chain_offset, -1, -1);
+		offset = dissect_smb2(next_tvb, 0, pinfo, parent_tree);
 	}
 
 	return offset;
