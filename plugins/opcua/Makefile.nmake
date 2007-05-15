@@ -1,7 +1,7 @@
 # Makefile.nmake
 # nmake file for OpcUa plugin
 #
-# $Id: Makefile.nmake,v 1.1.1.1 2006/07/12 09:17:41 gergap Exp $
+# $Id$
 #
 
 include ..\..\config.nmake

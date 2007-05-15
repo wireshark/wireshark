@@ -1,5 +1,5 @@
 /******************************************************************************
-** $Id: opcua.c,v 1.5 2007/02/08 11:29:45 gergap Exp $
+** $Id$
 **
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com

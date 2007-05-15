@@ -1,5 +1,5 @@
 /******************************************************************************
-** $Id: ua_transport_layer.h,v 1.3 2007/02/08 12:19:58 gergap Exp $
+** $Id$
 **
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com

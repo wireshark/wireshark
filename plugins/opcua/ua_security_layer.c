@@ -1,5 +1,5 @@
 /******************************************************************************
-** $Id: ua_security_layer.c,v 1.2 2007/02/08 12:16:59 gergap Exp $
+** $Id$
 **
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
