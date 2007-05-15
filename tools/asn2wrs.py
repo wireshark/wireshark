@@ -488,6 +488,7 @@ class EthCtx:
     self.output = output
     self.conform.ectx = self
     self.output.ectx = self
+    self.new_ber = False
 
   def encp(self):  # encoding protocol
     encp = self.encoding
@@ -496,9 +497,10 @@ class EthCtx:
   # Encoding
   def Per(self): return self.encoding == 'per'
   def Ber(self): return self.encoding == 'ber'
+  def NewBer(self): return self.new_ber
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
-  def Fld(self, tnm='*'): return self.fld_opt.get('*', False) or self.fld_opt.get(tnm, False) or self.Ber()
+  def Fld(self, tnm='*'): return self.fld_opt.get('*', False) or self.fld_opt.get(tnm, False) or (self.Ber() and not self.NewBer())
   def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
   def NAPI(self): return False  # disable planned features
 
@@ -2084,6 +2086,9 @@ class EthCnf:
     elif opt in ("-b", "BER", "CER", "DER"):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.encoding = 'ber'
+    elif opt in ("-X", "NEW_BER"):
+      par = self.check_par(par, 0, 0, fn, lineno)
+      self.ectx.new_ber = True
     elif opt in ("PER",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.encoding = 'per'
@@ -2987,8 +2992,12 @@ class SqType (Type):
         opt = 'ASN1_NOT_OPTIONAL'
     if (ectx.Ber()):
       (tc, tn) = val.GetTag(ectx)
-      out = '  { %-13s, %s, %s, dissect_%s },\n' \
-            % (tc, tn, opt, efd)
+      if (ectx.NewBer()):
+        out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
+              % ('&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
+      else:
+        out = '  { %-13s, %s, %s, dissect_%s },\n' \
+              % (tc, tn, opt, efd)
     elif (ectx.Per()):
       out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
             % ('&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
@@ -3014,7 +3023,10 @@ class SeqType (SqType):
         f = fname + '/' + e.val.name
         table += self.out_item(f, e.val, e.optional, 'ASN1_NOT_EXTENSION_ROOT', ectx)
     if (ectx.Ber()):
-      table += "  { 0, 0, 0, NULL }\n};\n"
+      if (ectx.NewBer()):
+        table += "  { NULL, 0, 0, 0, NULL }\n};\n"
+      else:
+        table += "  { 0, 0, 0, NULL }\n};\n"
     else:
       table += "  { NULL, 0, 0, NULL }\n};\n"
     return table
@@ -3409,8 +3421,12 @@ class ChoiceType (Type):
         if (not opt): opt = '0'
       if (ectx.Ber()):
         (tc, tn) = e.GetTag(ectx)
-        out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
-              % (vval, tc, tn, opt, efd)
+        if (ectx.NewBer()):
+          out = '  { %3s, %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
+                % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
+        else:
+          out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
+                % (vval, tc, tn, opt, efd)
       elif (ectx.Per()):
         out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
               % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
@@ -3451,7 +3467,10 @@ class ChoiceType (Type):
         table += out_item(val, e, 'ASN1_NOT_EXTENSION_ROOT', ectx)
         cnt += 1
     if (ectx.Ber()):
-      table += "  { 0, 0, 0, 0, NULL }\n};\n"
+      if (ectx.NewBer()):
+        table += "  { 0, NULL, 0, 0, 0, NULL }\n};\n"
+      else:
+        table += "  { 0, 0, 0, 0, NULL }\n};\n"
     else:
       table += "  { 0, NULL, 0, NULL }\n};\n"
     return table
@@ -5762,14 +5781,14 @@ def eth_main():
       conf_to_read = a
     if o in ("-I",):
       ectx.conform.include_path.append(a)
-    if o in ("-X",):
-        warnings.warn("Command line option -X is obsolete and can be removed")
+    #if o in ("-X",):
+    #    warnings.warn("Command line option -X is obsolete and can be removed")
 
   if conf_to_read:
     ectx.conform.read(conf_to_read)
 
   for o, a in opts:
-    if o in ("-h", "-?", "-c", "-I", "-X"):
+    if o in ("-h", "-?", "-c", "-I"):
       pass  # already processed
     else:
       par = []
