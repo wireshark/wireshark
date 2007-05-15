@@ -63,6 +63,7 @@ static int hf_smb2_uid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_flags_pid_valid = -1;
 static int hf_smb2_flags_signature = -1;
+static int hf_smb2_chain_offset = -1;
 static int hf_smb2_response_buffer_offset = -1;
 static int hf_smb2_security_blob_offset = -1;
 static int hf_smb2_security_blob_len = -1;
@@ -147,8 +148,8 @@ static int hf_smb2_read_offset = -1;
 static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
 static int hf_smb2_create_disposition = -1;
-static int hf_smb2_chain_offset = -1;
-static int hf_smb2_chain_data = -1;
+static int hf_smb2_create_chain_offset = -1;
+static int hf_smb2_create_chain_data = -1;
 static int hf_smb2_data_offset = -1;
 static int hf_smb2_data_length = -1;
 static int hf_smb2_extrainfo = -1;
@@ -222,7 +223,7 @@ static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_uid_tree = -1;
 static gint ett_smb2_create_flags = -1;
-static gint ett_smb2_chain_element = -1;
+static gint ett_smb2_create_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
 static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
@@ -3171,19 +3172,19 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	if(parent_tree){
 		sub_item = proto_tree_add_text(parent_tree, tvb, offset, len, "Chain Element");
-		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_chain_element);
+		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_create_chain_element);
 		parent_item = proto_tree_get_parent(parent_tree);
 	}
 
 	/* chain offset */
-	proto_tree_add_item(sub_tree, hf_smb2_chain_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(sub_tree, hf_smb2_create_chain_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* tag  offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &tag_olb, OLB_O_UINT16_S_UINT32, hf_smb2_tag);
 
 	/* data  offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_O_UINT16_S_UINT32, hf_smb2_chain_data);
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &data_olb, OLB_O_UINT16_S_UINT32, hf_smb2_create_chain_data);
 
 	/* tag string */
 	tag = dissect_smb2_olb_string(pinfo, sub_tree, tvb, &tag_olb, OLB_TYPE_ASCII_STRING);
@@ -3432,7 +3433,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /* names here are just until we find better names for these functions */
 const value_string smb2_cmd_vals[] = {
   { 0x00, "NegotiateProtocol" },
-  { 0x01, "SessionSetupAndX" },
+  { 0x01, "SessionSetup" },
   { 0x02, "SessionLogoff" },
   { 0x03, "TreeConnect" },
   { 0x04, "TreeDisconnect" },
@@ -4109,8 +4110,8 @@ dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 	return offset;
 }
 
-static void
-dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_smb2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *seqnum_item;
 	proto_item *item=NULL;
@@ -4119,8 +4120,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *header_tree=NULL;
 	proto_item *flags_item=NULL;
 	proto_tree *flags_tree=NULL;
-	int offset=0;
-	int old_offset;
+	int chain_offset;
+	int old_offset = offset;
 	guint16 header_len;
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
@@ -4165,7 +4166,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB2");
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_clear(pinfo->cinfo, COL_INFO);
+		if (old_offset == 0) {
+			/* first packet */
+			col_clear(pinfo->cinfo, COL_INFO);
+		} else {
+			col_append_str(pinfo->cinfo, COL_INFO, "; ");
+		}
 	}
 
 	if (parent_tree) {
@@ -4179,7 +4185,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		header_item = proto_tree_add_text(tree, tvb, offset, -1, "SMB2 Header");
 		header_tree = proto_item_add_subtree(header_item, ett_smb2_header);
 	}
-	old_offset=offset;
 
 	/* Decode the header */
 	/* SMB2 marker */
@@ -4223,7 +4228,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 4;
 
 	/* some unknown bytes */
-	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 4, FALSE);
+	chain_offset=tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	/* command sequence number*/
@@ -4342,12 +4348,22 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tap_queue_packet(smb2_tap, pinfo, si);
 
 	/* Decode the payload */
-	dissect_smb2_command(pinfo, tree, tvb, offset, si);
+	offset = dissect_smb2_command(pinfo, tree, tvb, offset, si);
+
+	if (chain_offset > 0) {
+		if ((old_offset+chain_offset) < offset)
+			THROW(ReportedBoundsError);
+		offset = dissect_smb2(tvb, old_offset+chain_offset, pinfo, parent_tree);
+	}
+
+	return offset;
 }
 
 static gboolean
 dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
+	int offset = 0;
+
 	/* must check that this really is a smb2 packet */
 	if (!tvb_bytes_exist(tvb, 0, 4))
 		return FALSE;
@@ -4359,7 +4375,8 @@ dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return FALSE;
 	}
 
-	dissect_smb2(tvb, pinfo, parent_tree);
+	offset = dissect_smb2(tvb, offset, pinfo, parent_tree);
+
 	return TRUE;
 }
 
@@ -4394,6 +4411,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_uid,
 		{ "User Id", "smb2.uid", FT_UINT64, BASE_HEX,
 		NULL, 0, "SMB2 User Id", HFILL }},
+	{ &hf_smb2_chain_offset,
+		{ "Chain Offset", "smb2.chain_offset", FT_UINT32, BASE_HEX,
+		NULL, 0, "SMB2 Chain Offset", HFILL }},
 	{ &hf_smb2_end_of_file,
 		{ "End Of File", "smb2.eof", FT_UINT64, BASE_DEC,
 		NULL, 0, "SMB2 End Of File/File size", HFILL }},
@@ -4699,11 +4719,11 @@ proto_register_smb2(void)
 		{ "ExtraInfo", "smb2.create.extrainfo", FT_NONE, BASE_NONE,
 		NULL, 0, "Create ExtraInfo", HFILL }},
 
-	{ &hf_smb2_chain_offset,
+	{ &hf_smb2_create_chain_offset,
 		{ "Chain Offset", "smb2.create.chain_offset", FT_UINT32, BASE_HEX,
 		NULL, 0, "Offset to next entry in chain or 0", HFILL }},
 
-	{ &hf_smb2_chain_data,
+	{ &hf_smb2_create_chain_data,
 		{ "Data", "smb2.create.chain_data", FT_NONE, BASE_NONE,
 		NULL, 0, "Chain Data", HFILL }},
 
@@ -4918,7 +4938,7 @@ proto_register_smb2(void)
 		&ett_smb2_tid_tree,
 		&ett_smb2_uid_tree,
 		&ett_smb2_create_flags,
-		&ett_smb2_chain_element,
+		&ett_smb2_create_chain_element,
 		&ett_smb2_MxAc_buffer,
 		&ett_smb2_ioctl_function,
 		&ett_smb2_FILE_OBJECTID_BUFFER,
