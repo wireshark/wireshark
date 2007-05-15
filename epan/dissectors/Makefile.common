@@ -1015,7 +1015,6 @@ DISSECTOR_INCLUDES =	\
 	packet-tpkt.h	\
 	packet-tr.h	\
 	packet-udp.h	\
-	packet-ulp.h	\
 	packet-umts_fp.h	\
 	packet-umts_rrc.h	\
 	packet-umts_rrc_ies.h	\

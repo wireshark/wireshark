@@ -1,0 +1,276 @@
+-- SUPL.asn
+--
+-- Taken from OMA UserPlane Location Protocol Candidate Version 1.0 – 22 Jan 2007
+-- http://www.openmobilealliance.org/release_program/docs/SUPL/V1_0-20070122-C/OMA-TS-ULP-V1_0-20070122-C.pdf
+--
+-- 8.2 Message Specific Part 
+--
+
+--
+-- 8.2.1 SUPL INIT 
+--
+SUPL-INIT DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLINIT; 
+ 
+IMPORTS SLPAddress, QoP, PosMethod 
+  FROM ULP-Components; 
+ 
+SUPLINIT ::= SEQUENCE { 
+  posMethod     PosMethod, 
+  notification  Notification OPTIONAL, 
+  sLPAddress    SLPAddress OPTIONAL, 
+  qoP           QoP OPTIONAL, 
+  sLPMode       SLPMode, 
+  mAC           MAC OPTIONAL, 
+  keyIdentity   KeyIdentity OPTIONAL, 
+  ...} 
+ 
+Notification ::= SEQUENCE { 
+  notificationType  NotificationType, 
+  encodingType      EncodingType OPTIONAL, 
+  requestorId       OCTET STRING(SIZE (1..maxReqLength)) OPTIONAL, 
+  requestorIdType   FormatIndicator OPTIONAL, 
+  clientName        OCTET STRING(SIZE (1..maxClientLength)) OPTIONAL, 
+  clientNameType    FormatIndicator OPTIONAL, 
+  ...} 
+ 
+NotificationType ::= ENUMERATED { 
+  noNotificationNoVerification(0), notificationOnly(1), 
+  notificationAndVerficationAllowedNA(2), 
+  notificationAndVerficationDeniedNA(3), privacyOverride(4), ... 
+  }
+EncodingType ::= ENUMERATED {ucs2(0), gsmDefault(1), utf8(2), ... 
+  }
+maxReqLength INTEGER ::= 50 
+ 
+maxClientLength INTEGER ::= 50 
+ 
+FormatIndicator ::= ENUMERATED { 
+  logicalName(0), e-mailAddress(1), msisdn(2), url(3), sipUrl(4), min(5), 
+  mdn(6), imsPublicIdentity(7), ... 
+  }
+SLPMode ::= ENUMERATED {proxy(0), nonProxy(1)} 
+ 
+MAC ::= BIT STRING(SIZE (64)) 
+ 
+KeyIdentity ::= BIT STRING(SIZE (128)) 
+ 
+END 
+ 
+--
+-- 8.2.2 SUPL START 
+--
+SUPL-START DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLSTART, SETCapabilities; 
+ 
+IMPORTS LocationId, QoP 
+  FROM ULP-Components; 
+ 
+SUPLSTART ::= SEQUENCE { 
+  sETCapabilities  SETCapabilities, 
+  locationId       LocationId, 
+  qoP              QoP OPTIONAL, 
+  ...} 
+ 
+SETCapabilities ::= SEQUENCE { 
+  posTechnology  PosTechnology, 
+  prefMethod     PrefMethod, 
+  posProtocol    PosProtocol, 
+  ...} 
+ 
+PosTechnology ::= SEQUENCE { 
+  agpsSETassisted  BOOLEAN,
+  agpsSETBased     BOOLEAN, 
+  autonomousGPS    BOOLEAN, 
+  aFLT             BOOLEAN, 
+  eCID             BOOLEAN, 
+  eOTD             BOOLEAN, 
+  oTDOA            BOOLEAN, 
+  ...} 
+ 
+PrefMethod ::= ENUMERATED { 
+  agpsSETassistedPreferred, agpsSETBasedPreferred, noPreference} 
+ 
+PosProtocol ::= SEQUENCE { 
+  tia801  BOOLEAN, 
+  rrlp    BOOLEAN, 
+  rrc     BOOLEAN, 
+  ...} 
+ 
+END 
+ 
+--
+-- 8.2.3 SUPL RESPONSE 
+--
+SUPL-RESPONSE DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLRESPONSE; 
+ 
+IMPORTS PosMethod, SLPAddress 
+  FROM ULP-Components; 
+ 
+SUPLRESPONSE ::= SEQUENCE { 
+  posMethod     PosMethod, 
+  sLPAddress    SLPAddress OPTIONAL, 
+  sETAuthKey    SETAuthKey OPTIONAL, 
+  keyIdentity4  KeyIdentity4 OPTIONAL, 
+  ...} 
+ 
+SETAuthKey ::= CHOICE { 
+  shortKey  BIT STRING(SIZE (128)), 
+  longKey   BIT STRING(SIZE (256)), 
+  ...} 
+ 
+KeyIdentity4 ::= BIT STRING(SIZE (128)) 
+ 
+END 
+ 
+--
+-- 8.2.4 SUPL POS INIT 
+--
+SUPL-POS-INIT DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLPOSINIT; 
+ 
+IMPORTS 
+  SUPLPOS 
+  FROM SUPL-POS 
+  SETCapabilities 
+  FROM SUPL-START 
+  LocationId, Position, Ver 
+  FROM ULP-Components; 
+ 
+SUPLPOSINIT ::= SEQUENCE { 
+  sETCapabilities      SETCapabilities, 
+  requestedAssistData  RequestedAssistData OPTIONAL,
+  locationId           LocationId, 
+  position             Position OPTIONAL, 
+  sUPLPOS              SUPLPOS OPTIONAL, 
+  ver                  Ver OPTIONAL, 
+  ...} 
+ 
+RequestedAssistData ::= SEQUENCE { 
+  almanacRequested                BOOLEAN, 
+  utcModelRequested               BOOLEAN, 
+  ionosphericModelRequested       BOOLEAN, 
+  dgpsCorrectionsRequested        BOOLEAN, 
+  referenceLocationRequested      BOOLEAN, 
+  referenceTimeRequested          BOOLEAN, 
+  acquisitionAssistanceRequested  BOOLEAN, 
+  realTimeIntegrityRequested      BOOLEAN, 
+  navigationModelRequested        BOOLEAN, 
+  navigationModelData             NavigationModel OPTIONAL, 
+  ...} 
+ 
+NavigationModel ::= SEQUENCE { 
+  gpsWeek   INTEGER(0..1023), 
+  gpsToe    INTEGER(0..167), 
+  nSAT      INTEGER(0..31), 
+  toeLimit  INTEGER(0..10), 
+  satInfo   SatelliteInfo OPTIONAL, 
+  ...} 
+ 
+-- Further information on this fields can be found 
+-- in 3GPP TS 44.031 and 49.031 
+SatelliteInfo ::= SEQUENCE (SIZE (1..31)) OF SatelliteInfoElement 
+ 
+SatelliteInfoElement ::= SEQUENCE { 
+  satId  INTEGER(0..63), 
+  iODE   INTEGER(0..255), 
+  ...} 
+ 
+END 
+ 
+--
+-- 8.2.5 SUPL POS 
+--
+SUPL-POS DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLPOS; 
+ 
+IMPORTS Velocity 
+  FROM ULP-Components; 
+ 
+SUPLPOS ::= SEQUENCE { 
+  posPayLoad  PosPayLoad, 
+  velocity    Velocity OPTIONAL, 
+  ...} 
+ 
+PosPayLoad ::= CHOICE { 
+  tia801payload  OCTET STRING(SIZE (1..8192)), 
+  rrcPayload     OCTET STRING(SIZE (1..8192)), 
+  rrlpPayload    OCTET STRING(SIZE (1..8192)), 
+  ...} 
+ 
+END 
+
+--
+-- 8.2.6 SUPL END 
+--
+SUPL-END DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLEND; 
+ 
+IMPORTS StatusCode, Position, Ver 
+  FROM ULP-Components; 
+ 
+SUPLEND ::= SEQUENCE { 
+  position    Position OPTIONAL, 
+  statusCode  StatusCode OPTIONAL, 
+  ver         Ver OPTIONAL, 
+  ...} 
+ 
+END 
+ 
+--
+-- 8.2.7 SUPL AUTH REQ 
+--
+SUPL-AUTH-REQ DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLAUTHREQ; 
+ 
+SUPLAUTHREQ ::= SEQUENCE { 
+  sETNonce      SETNonce, 
+  keyIdentity2  KeyIdentity2, 
+  ...} 
+ 
+SETNonce ::= BIT STRING(SIZE (128)) 
+ 
+KeyIdentity2 ::= BIT STRING(SIZE (128)) 
+ 
+END 
+ 
+--
+-- 8.2.8 SUPL AUTH RESP 
+--
+SUPL-AUTH-RESP DEFINITIONS AUTOMATIC TAGS ::= 
+BEGIN 
+ 
+EXPORTS SUPLAUTHRESP; 
+ 
+IMPORTS StatusCode 
+  FROM ULP-Components; 
+ 
+SUPLAUTHRESP ::= SEQUENCE { 
+  sPCAuthKey    SPCAuthKey OPTIONAL, 
+  keyIdentity3  KeyIdentity3 OPTIONAL, 
+  statusCode    StatusCode OPTIONAL, 
+  ...} 
+ 
+SPCAuthKey ::= CHOICE { 
+  shortKey  BIT STRING(SIZE (128)), 
+  longKey   BIT STRING(SIZE (256)), 
+  ...} 
+ 
+KeyIdentity3 ::= BIT STRING(SIZE (128)) 
+ 
+END 

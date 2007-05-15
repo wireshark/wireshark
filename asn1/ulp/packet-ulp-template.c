@@ -39,9 +39,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-ulp.h"
-
-#include "packet-ber.h"
 #include "packet-per.h"
 #include <epan/emem.h>
 #include "packet-tcp.h"
@@ -150,7 +147,5 @@ void proto_register_ulp(void) {
 								   &gbl_ulp_port);
  
 }
-
-
 
 

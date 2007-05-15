@@ -398,10 +398,10 @@ EXTRA_DIST = \
 	ulp/Makefile	\
 	ulp/Makefile.nmake	\
 	ulp/packet-ulp-template.c	\
-	ulp/packet-ulp-template.h	\
 	ulp/ULP.asn	\
+	ulp/SULP.asn	\
+	ulp/ULP-Components.asn	\
 	ulp/ulp.cnf	\
-	ulp/ulp-exp.cnf	\
 	umts_rrc/Makefile	\
 	umts_rrc/Makefile.nmake	\
 	umts_rrc/packet-umts_rrc-template.c	\

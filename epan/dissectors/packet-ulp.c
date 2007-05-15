@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* .\packet-ulp.c                                                             */
-/* ../../tools/asn2wrs.py -u -e -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn */
+/* ../../tools/asn2wrs.py -p ulp -c ulp.cnf -s packet-ulp-template ULP.asn SUPL.asn ULP-Components.asn */
 
 /* Input file: packet-ulp-template.c */
 
@@ -47,9 +47,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "packet-ulp.h"
-
-#include "packet-ber.h"
 #include "packet-per.h"
 #include <epan/emem.h>
 #include "packet-tcp.h"
@@ -91,6 +88,70 @@ static int hf_ulp_msSUPLPOS = -1;                 /* SUPLPOS */
 static int hf_ulp_msSUPLEND = -1;                 /* SUPLEND */
 static int hf_ulp_msSUPLAUTHREQ = -1;             /* SUPLAUTHREQ */
 static int hf_ulp_msSUPLAUTHRESP = -1;            /* SUPLAUTHRESP */
+static int hf_ulp_posMethod = -1;                 /* PosMethod */
+static int hf_ulp_notification = -1;              /* Notification */
+static int hf_ulp_sLPAddress = -1;                /* SLPAddress */
+static int hf_ulp_qoP = -1;                       /* QoP */
+static int hf_ulp_sLPMode = -1;                   /* SLPMode */
+static int hf_ulp_mAC = -1;                       /* MAC */
+static int hf_ulp_keyIdentity = -1;               /* KeyIdentity */
+static int hf_ulp_notificationType = -1;          /* NotificationType */
+static int hf_ulp_encodingType = -1;              /* EncodingType */
+static int hf_ulp_requestorId = -1;               /* OCTET_STRING_SIZE_1_maxReqLength */
+static int hf_ulp_requestorIdType = -1;           /* FormatIndicator */
+static int hf_ulp_clientName = -1;                /* OCTET_STRING_SIZE_1_maxClientLength */
+static int hf_ulp_clientNameType = -1;            /* FormatIndicator */
+static int hf_ulp_sETCapabilities = -1;           /* SETCapabilities */
+static int hf_ulp_locationId = -1;                /* LocationId */
+static int hf_ulp_posTechnology = -1;             /* PosTechnology */
+static int hf_ulp_prefMethod = -1;                /* PrefMethod */
+static int hf_ulp_posProtocol = -1;               /* PosProtocol */
+static int hf_ulp_agpsSETassisted = -1;           /* BOOLEAN */
+static int hf_ulp_agpsSETBased = -1;              /* BOOLEAN */
+static int hf_ulp_autonomousGPS = -1;             /* BOOLEAN */
+static int hf_ulp_aFLT = -1;                      /* BOOLEAN */
+static int hf_ulp_eCID = -1;                      /* BOOLEAN */
+static int hf_ulp_eOTD = -1;                      /* BOOLEAN */
+static int hf_ulp_oTDOA = -1;                     /* BOOLEAN */
+static int hf_ulp_tia801 = -1;                    /* BOOLEAN */
+static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
+static int hf_ulp_rrc = -1;                       /* BOOLEAN */
+static int hf_ulp_sETAuthKey = -1;                /* SETAuthKey */
+static int hf_ulp_keyIdentity4 = -1;              /* KeyIdentity4 */
+static int hf_ulp_shortKey = -1;                  /* BIT_STRING_SIZE_128 */
+static int hf_ulp_longKey = -1;                   /* BIT_STRING_SIZE_256 */
+static int hf_ulp_requestedAssistData = -1;       /* RequestedAssistData */
+static int hf_ulp_position = -1;                  /* Position */
+static int hf_ulp_sUPLPOS = -1;                   /* SUPLPOS */
+static int hf_ulp_ver = -1;                       /* Ver */
+static int hf_ulp_almanacRequested = -1;          /* BOOLEAN */
+static int hf_ulp_utcModelRequested = -1;         /* BOOLEAN */
+static int hf_ulp_ionosphericModelRequested = -1;  /* BOOLEAN */
+static int hf_ulp_dgpsCorrectionsRequested = -1;  /* BOOLEAN */
+static int hf_ulp_referenceLocationRequested = -1;  /* BOOLEAN */
+static int hf_ulp_referenceTimeRequested = -1;    /* BOOLEAN */
+static int hf_ulp_acquisitionAssistanceRequested = -1;  /* BOOLEAN */
+static int hf_ulp_realTimeIntegrityRequested = -1;  /* BOOLEAN */
+static int hf_ulp_navigationModelRequested = -1;  /* BOOLEAN */
+static int hf_ulp_navigationModelData = -1;       /* NavigationModel */
+static int hf_ulp_gpsWeek = -1;                   /* INTEGER_0_1023 */
+static int hf_ulp_gpsToe = -1;                    /* INTEGER_0_167 */
+static int hf_ulp_nSAT = -1;                      /* INTEGER_0_31 */
+static int hf_ulp_toeLimit = -1;                  /* INTEGER_0_10 */
+static int hf_ulp_satInfo = -1;                   /* SatelliteInfo */
+static int hf_ulp_SatelliteInfo_item = -1;        /* SatelliteInfoElement */
+static int hf_ulp_satId = -1;                     /* INTEGER_0_63 */
+static int hf_ulp_iODE = -1;                      /* INTEGER_0_255 */
+static int hf_ulp_posPayLoad = -1;                /* PosPayLoad */
+static int hf_ulp_velocity = -1;                  /* Velocity */
+static int hf_ulp_tia801payload = -1;             /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrlpPayload = -1;               /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_statusCode = -1;                /* StatusCode */
+static int hf_ulp_sETNonce = -1;                  /* SETNonce */
+static int hf_ulp_keyIdentity2 = -1;              /* KeyIdentity2 */
+static int hf_ulp_sPCAuthKey = -1;                /* SPCAuthKey */
+static int hf_ulp_keyIdentity3 = -1;              /* KeyIdentity3 */
 static int hf_ulp_maj = -1;                       /* INTEGER_0_255 */
 static int hf_ulp_min = -1;                       /* INTEGER_0_255 */
 static int hf_ulp_servind = -1;                   /* INTEGER_0_255 */
@@ -106,8 +167,8 @@ static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
 static int hf_ulp_sessionID1 = -1;                /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_slpId = -1;                     /* SLPAddress */
-static int hf_ulp_ipv4Address = -1;               /* IPv4Address */
-static int hf_ulp_ipv6Address = -1;               /* IPv6Address */
+static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
+static int hf_ulp_ipv6Address = -1;               /* OCTET_STRING_SIZE_16 */
 static int hf_ulp_fQDN = -1;                      /* FQDN */
 static int hf_ulp_cellInfo = -1;                  /* CellInfo */
 static int hf_ulp_status = -1;                    /* Status */
@@ -116,7 +177,6 @@ static int hf_ulp_wcdmaCell = -1;                 /* WcdmaCellInformation */
 static int hf_ulp_cdmaCell = -1;                  /* CdmaCellInformation */
 static int hf_ulp_timestamp = -1;                 /* UTCTime */
 static int hf_ulp_positionEstimate = -1;          /* PositionEstimate */
-static int hf_ulp_velocity = -1;                  /* Velocity */
 static int hf_ulp_latitudeSign = -1;              /* T_latitudeSign */
 static int hf_ulp_latitude = -1;                  /* INTEGER_0_8388607 */
 static int hf_ulp_longitude = -1;                 /* INTEGER_M8388608_8388607 */
@@ -189,72 +249,9 @@ static int hf_ulp_verspeed = -1;                  /* BIT_STRING_SIZE_8 */
 static int hf_ulp_uncertspeed = -1;               /* BIT_STRING_SIZE_8 */
 static int hf_ulp_horuncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 static int hf_ulp_veruncertspeed = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_ulp_sETNonce = -1;                  /* SETNonce */
-static int hf_ulp_keyIdentity2 = -1;              /* KeyIdentity2 */
-static int hf_ulp_sPCAuthKey = -1;                /* SPCAuthKey */
-static int hf_ulp_keyIdentity3 = -1;              /* KeyIdentity3 */
-static int hf_ulp_statusCode = -1;                /* StatusCode */
-static int hf_ulp_shortKey = -1;                  /* BIT_STRING_SIZE_128 */
-static int hf_ulp_longKey = -1;                   /* BIT_STRING_SIZE_256 */
-static int hf_ulp_position = -1;                  /* Position */
-static int hf_ulp_ver = -1;                       /* Ver */
-static int hf_ulp_posMethod = -1;                 /* PosMethod */
-static int hf_ulp_notification = -1;              /* Notification */
-static int hf_ulp_sLPAddress = -1;                /* SLPAddress */
-static int hf_ulp_qoP = -1;                       /* QoP */
-static int hf_ulp_sLPMode = -1;                   /* SLPMode */
-static int hf_ulp_mAC = -1;                       /* MAC */
-static int hf_ulp_keyIdentity = -1;               /* KeyIdentity */
-static int hf_ulp_notificationType = -1;          /* NotificationType */
-static int hf_ulp_encodingType = -1;              /* EncodingType */
-static int hf_ulp_requestorId = -1;               /* OCTET_STRING_SIZE_1_maxReqLength */
-static int hf_ulp_requestorIdType = -1;           /* FormatIndicator */
-static int hf_ulp_clientName = -1;                /* OCTET_STRING_SIZE_1_maxClientLength */
-static int hf_ulp_clientNameType = -1;            /* FormatIndicator */
-static int hf_ulp_posPayLoad = -1;                /* PosPayLoad */
-static int hf_ulp_tia801payload = -1;             /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrlpPayload = -1;               /* RRLPPayload */
-static int hf_ulp_sETCapabilities = -1;           /* SETCapabilities */
-static int hf_ulp_requestedAssistData = -1;       /* RequestedAssistData */
-static int hf_ulp_locationId = -1;                /* LocationId */
-static int hf_ulp_sUPLPOS = -1;                   /* SUPLPOS */
-static int hf_ulp_almanacRequested = -1;          /* BOOLEAN */
-static int hf_ulp_utcModelRequested = -1;         /* BOOLEAN */
-static int hf_ulp_ionosphericModelRequested = -1;  /* BOOLEAN */
-static int hf_ulp_dgpsCorrectionsRequested = -1;  /* BOOLEAN */
-static int hf_ulp_referenceLocationRequested = -1;  /* BOOLEAN */
-static int hf_ulp_referenceTimeRequested = -1;    /* BOOLEAN */
-static int hf_ulp_acquisitionAssistanceRequested = -1;  /* BOOLEAN */
-static int hf_ulp_realTimeIntegrityRequested = -1;  /* BOOLEAN */
-static int hf_ulp_navigationModelRequested = -1;  /* BOOLEAN */
-static int hf_ulp_navigationModelData = -1;       /* NavigationModel */
-static int hf_ulp_gpsWeek = -1;                   /* INTEGER_0_1023 */
-static int hf_ulp_gpsToe = -1;                    /* INTEGER_0_167 */
-static int hf_ulp_nSAT = -1;                      /* INTEGER_0_31 */
-static int hf_ulp_toeLimit = -1;                  /* INTEGER_0_10 */
-static int hf_ulp_satInfo = -1;                   /* SatelliteInfo */
-static int hf_ulp_SatelliteInfo_item = -1;        /* SatelliteInfoElement */
-static int hf_ulp_satId = -1;                     /* INTEGER_0_63 */
-static int hf_ulp_iODE = -1;                      /* INTEGER_0_255 */
-static int hf_ulp_sETAuthKey = -1;                /* SETAuthKey */
-static int hf_ulp_keyIdentity4 = -1;              /* KeyIdentity4 */
-static int hf_ulp_posTechnology = -1;             /* PosTechnology */
-static int hf_ulp_prefMethod = -1;                /* PrefMethod */
-static int hf_ulp_posProtocol = -1;               /* PosProtocol */
-static int hf_ulp_agpsSETassisted = -1;           /* BOOLEAN */
-static int hf_ulp_agpsSETBased = -1;              /* BOOLEAN */
-static int hf_ulp_autonomousGPS = -1;             /* BOOLEAN */
-static int hf_ulp_aFLT = -1;                      /* BOOLEAN */
-static int hf_ulp_eCID = -1;                      /* BOOLEAN */
-static int hf_ulp_eOTD = -1;                      /* BOOLEAN */
-static int hf_ulp_oTDOA = -1;                     /* BOOLEAN */
-static int hf_ulp_tia801 = -1;                    /* BOOLEAN */
-static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
-static int hf_ulp_rrc = -1;                       /* BOOLEAN */
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 71 "packet-ulp-template.c"
+#line 68 "packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -263,6 +260,25 @@ static gint ett_ulp = -1;
 #line 1 "packet-ulp-ett.c"
 static gint ett_ulp_ULP_PDU = -1;
 static gint ett_ulp_UlpMessage = -1;
+static gint ett_ulp_SUPLINIT = -1;
+static gint ett_ulp_Notification = -1;
+static gint ett_ulp_SUPLSTART = -1;
+static gint ett_ulp_SETCapabilities = -1;
+static gint ett_ulp_PosTechnology = -1;
+static gint ett_ulp_PosProtocol = -1;
+static gint ett_ulp_SUPLRESPONSE = -1;
+static gint ett_ulp_SETAuthKey = -1;
+static gint ett_ulp_SUPLPOSINIT = -1;
+static gint ett_ulp_RequestedAssistData = -1;
+static gint ett_ulp_NavigationModel = -1;
+static gint ett_ulp_SatelliteInfo = -1;
+static gint ett_ulp_SatelliteInfoElement = -1;
+static gint ett_ulp_SUPLPOS = -1;
+static gint ett_ulp_PosPayLoad = -1;
+static gint ett_ulp_SUPLEND = -1;
+static gint ett_ulp_SUPLAUTHREQ = -1;
+static gint ett_ulp_SUPLAUTHRESP = -1;
+static gint ett_ulp_SPCAuthKey = -1;
 static gint ett_ulp_Version = -1;
 static gint ett_ulp_SessionID = -1;
 static gint ett_ulp_SetSessionID = -1;
@@ -300,41 +316,22 @@ static gint ett_ulp_Horvel = -1;
 static gint ett_ulp_Horandvervel = -1;
 static gint ett_ulp_Horveluncert = -1;
 static gint ett_ulp_Horandveruncert = -1;
-static gint ett_ulp_SUPLAUTHREQ = -1;
-static gint ett_ulp_SUPLAUTHRESP = -1;
-static gint ett_ulp_SPCAuthKey = -1;
-static gint ett_ulp_SUPLEND = -1;
-static gint ett_ulp_SUPLINIT = -1;
-static gint ett_ulp_Notification = -1;
-static gint ett_ulp_SUPLPOS = -1;
-static gint ett_ulp_PosPayLoad = -1;
-static gint ett_ulp_SUPLPOSINIT = -1;
-static gint ett_ulp_RequestedAssistData = -1;
-static gint ett_ulp_NavigationModel = -1;
-static gint ett_ulp_SatelliteInfo = -1;
-static gint ett_ulp_SatelliteInfoElement = -1;
-static gint ett_ulp_SUPLRESPONSE = -1;
-static gint ett_ulp_SETAuthKey = -1;
-static gint ett_ulp_SUPLSTART = -1;
-static gint ett_ulp_SETCapabilities = -1;
-static gint ett_ulp_PosTechnology = -1;
-static gint ett_ulp_PosProtocol = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 75 "packet-ulp-template.c"
+#line 72 "packet-ulp-template.c"
 
 /* Include constants */
 
 /*--- Included file: packet-ulp-val.h ---*/
 #line 1 "packet-ulp-val.h"
+#define maxReqLength                   50
+#define maxClientLength                50
 #define maxCellMeas                    32
 #define maxFreq                        8
 #define maxTS                          14
-#define maxReqLength                   50
-#define maxClientLength                50
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 78 "packet-ulp-template.c"
+#line 75 "packet-ulp-template.c"
 
 
 
@@ -409,7 +406,7 @@ dissect_ulp_IA5String_SIZE_1_1000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
-dissect_ulp_IPv4Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, NULL);
 
@@ -419,7 +416,7 @@ dissect_ulp_IPv4Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 
 static int
-dissect_ulp_IPv6Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ulp_OCTET_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        16, 16, NULL);
 
@@ -434,8 +431,8 @@ static const value_string ulp_IPAddress_vals[] = {
 };
 
 static const per_choice_t IPAddress_choice[] = {
-  {   0, &hf_ulp_ipv4Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_IPv4Address },
-  {   1, &hf_ulp_ipv6Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_IPv6Address },
+  {   0, &hf_ulp_ipv4Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_OCTET_STRING_SIZE_4 },
+  {   1, &hf_ulp_ipv6Address     , ASN1_NO_EXTENSIONS     , dissect_ulp_OCTET_STRING_SIZE_16 },
   { 0, NULL, 0, NULL }
 };
 
@@ -496,19 +493,10 @@ dissect_ulp_SetSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static int
-dissect_ulp_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       4, 4, NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_ulp_FQDN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_VisibleString(tvb, offset, actx, tree, hf_index,
-                                          1, 255);
+  offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
+                                                      1, 255, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-", 64,
+                                                      NULL);
 
   return offset;
 }
@@ -644,6 +632,7 @@ static const value_string ulp_FormatIndicator_vals[] = {
   {   4, "sipUrl" },
   {   5, "min" },
   {   6, "mdn" },
+  {   7, "imsPublicIdentity" },
   { 0, NULL }
 };
 
@@ -651,7 +640,7 @@ static const value_string ulp_FormatIndicator_vals[] = {
 static int
 dissect_ulp_FormatIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
+                                     8, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1848,25 +1837,6 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-
-static int
-dissect_ulp_RRLPPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "ulp.cnf"
- tvbuff_t *rrlp_tvb;
-
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 8192, &rrlp_tvb);
-
-
-  if (rrlp_tvb){
-	call_dissector(rrlp_handle, rrlp_tvb, actx->pinfo, tree);
-
-  }
-
-  return offset;
-}
-
-
 static const value_string ulp_PosPayLoad_vals[] = {
   {   0, "tia801payload" },
   {   1, "rrcPayload" },
@@ -1877,7 +1847,7 @@ static const value_string ulp_PosPayLoad_vals[] = {
 static const per_choice_t PosPayLoad_choice[] = {
   {   0, &hf_ulp_tia801payload   , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
   {   1, &hf_ulp_rrcPayload      , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
-  {   2, &hf_ulp_rrlpPayload     , ASN1_EXTENSION_ROOT    , dissect_ulp_RRLPPayload },
+  {   2, &hf_ulp_rrlpPayload     , ASN1_EXTENSION_ROOT    , dissect_ulp_OCTET_STRING_SIZE_1_8192 },
   { 0, NULL, 0, NULL }
 };
 
@@ -2095,7 +2065,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "ulp.cnf"
+#line 24 "ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -2124,8 +2094,7 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 10 "ulp.cnf"
-
+#line 15 "ulp.cnf"
 	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
 
 	if (check_col(actx->pinfo->cinfo, COL_PROTOCOL)) 
@@ -2133,11 +2102,8 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 		col_clear(actx->pinfo->cinfo, COL_INFO);
 
-    offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
-
-
-
 
   return offset;
 }
@@ -2152,7 +2118,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 81 "packet-ulp-template.c"
+#line 78 "packet-ulp-template.c"
 
 
 static guint
@@ -2246,6 +2212,262 @@ void proto_register_ulp(void) {
       { "msSUPLAUTHRESP", "ulp.msSUPLAUTHRESP",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.SUPLAUTHRESP", HFILL }},
+    { &hf_ulp_posMethod,
+      { "posMethod", "ulp.posMethod",
+        FT_UINT32, BASE_DEC, VALS(ulp_PosMethod_vals), 0,
+        "ulp.PosMethod", HFILL }},
+    { &hf_ulp_notification,
+      { "notification", "ulp.notification",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.Notification", HFILL }},
+    { &hf_ulp_sLPAddress,
+      { "sLPAddress", "ulp.sLPAddress",
+        FT_UINT32, BASE_DEC, VALS(ulp_SLPAddress_vals), 0,
+        "ulp.SLPAddress", HFILL }},
+    { &hf_ulp_qoP,
+      { "qoP", "ulp.qoP",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.QoP", HFILL }},
+    { &hf_ulp_sLPMode,
+      { "sLPMode", "ulp.sLPMode",
+        FT_UINT32, BASE_DEC, VALS(ulp_SLPMode_vals), 0,
+        "ulp.SLPMode", HFILL }},
+    { &hf_ulp_mAC,
+      { "mAC", "ulp.mAC",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.MAC", HFILL }},
+    { &hf_ulp_keyIdentity,
+      { "keyIdentity", "ulp.keyIdentity",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.KeyIdentity", HFILL }},
+    { &hf_ulp_notificationType,
+      { "notificationType", "ulp.notificationType",
+        FT_UINT32, BASE_DEC, VALS(ulp_NotificationType_vals), 0,
+        "ulp.NotificationType", HFILL }},
+    { &hf_ulp_encodingType,
+      { "encodingType", "ulp.encodingType",
+        FT_UINT32, BASE_DEC, VALS(ulp_EncodingType_vals), 0,
+        "ulp.EncodingType", HFILL }},
+    { &hf_ulp_requestorId,
+      { "requestorId", "ulp.requestorId",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.OCTET_STRING_SIZE_1_maxReqLength", HFILL }},
+    { &hf_ulp_requestorIdType,
+      { "requestorIdType", "ulp.requestorIdType",
+        FT_UINT32, BASE_DEC, VALS(ulp_FormatIndicator_vals), 0,
+        "ulp.FormatIndicator", HFILL }},
+    { &hf_ulp_clientName,
+      { "clientName", "ulp.clientName",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.OCTET_STRING_SIZE_1_maxClientLength", HFILL }},
+    { &hf_ulp_clientNameType,
+      { "clientNameType", "ulp.clientNameType",
+        FT_UINT32, BASE_DEC, VALS(ulp_FormatIndicator_vals), 0,
+        "ulp.FormatIndicator", HFILL }},
+    { &hf_ulp_sETCapabilities,
+      { "sETCapabilities", "ulp.sETCapabilities",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.SETCapabilities", HFILL }},
+    { &hf_ulp_locationId,
+      { "locationId", "ulp.locationId",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.LocationId", HFILL }},
+    { &hf_ulp_posTechnology,
+      { "posTechnology", "ulp.posTechnology",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.PosTechnology", HFILL }},
+    { &hf_ulp_prefMethod,
+      { "prefMethod", "ulp.prefMethod",
+        FT_UINT32, BASE_DEC, VALS(ulp_PrefMethod_vals), 0,
+        "ulp.PrefMethod", HFILL }},
+    { &hf_ulp_posProtocol,
+      { "posProtocol", "ulp.posProtocol",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.PosProtocol", HFILL }},
+    { &hf_ulp_agpsSETassisted,
+      { "agpsSETassisted", "ulp.agpsSETassisted",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_agpsSETBased,
+      { "agpsSETBased", "ulp.agpsSETBased",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_autonomousGPS,
+      { "autonomousGPS", "ulp.autonomousGPS",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_aFLT,
+      { "aFLT", "ulp.aFLT",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_eCID,
+      { "eCID", "ulp.eCID",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_eOTD,
+      { "eOTD", "ulp.eOTD",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_oTDOA,
+      { "oTDOA", "ulp.oTDOA",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_tia801,
+      { "tia801", "ulp.tia801",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_rrlp,
+      { "rrlp", "ulp.rrlp",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_rrc,
+      { "rrc", "ulp.rrc",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_sETAuthKey,
+      { "sETAuthKey", "ulp.sETAuthKey",
+        FT_UINT32, BASE_DEC, VALS(ulp_SETAuthKey_vals), 0,
+        "ulp.SETAuthKey", HFILL }},
+    { &hf_ulp_keyIdentity4,
+      { "keyIdentity4", "ulp.keyIdentity4",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.KeyIdentity4", HFILL }},
+    { &hf_ulp_shortKey,
+      { "shortKey", "ulp.shortKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.BIT_STRING_SIZE_128", HFILL }},
+    { &hf_ulp_longKey,
+      { "longKey", "ulp.longKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.BIT_STRING_SIZE_256", HFILL }},
+    { &hf_ulp_requestedAssistData,
+      { "requestedAssistData", "ulp.requestedAssistData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.RequestedAssistData", HFILL }},
+    { &hf_ulp_position,
+      { "position", "ulp.position",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.Position", HFILL }},
+    { &hf_ulp_sUPLPOS,
+      { "sUPLPOS", "ulp.sUPLPOS",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.SUPLPOS", HFILL }},
+    { &hf_ulp_ver,
+      { "ver", "ulp.ver",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.Ver", HFILL }},
+    { &hf_ulp_almanacRequested,
+      { "almanacRequested", "ulp.almanacRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_utcModelRequested,
+      { "utcModelRequested", "ulp.utcModelRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_ionosphericModelRequested,
+      { "ionosphericModelRequested", "ulp.ionosphericModelRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_dgpsCorrectionsRequested,
+      { "dgpsCorrectionsRequested", "ulp.dgpsCorrectionsRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_referenceLocationRequested,
+      { "referenceLocationRequested", "ulp.referenceLocationRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_referenceTimeRequested,
+      { "referenceTimeRequested", "ulp.referenceTimeRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_acquisitionAssistanceRequested,
+      { "acquisitionAssistanceRequested", "ulp.acquisitionAssistanceRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_realTimeIntegrityRequested,
+      { "realTimeIntegrityRequested", "ulp.realTimeIntegrityRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_navigationModelRequested,
+      { "navigationModelRequested", "ulp.navigationModelRequested",
+        FT_BOOLEAN, 8, NULL, 0,
+        "ulp.BOOLEAN", HFILL }},
+    { &hf_ulp_navigationModelData,
+      { "navigationModelData", "ulp.navigationModelData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.NavigationModel", HFILL }},
+    { &hf_ulp_gpsWeek,
+      { "gpsWeek", "ulp.gpsWeek",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_1023", HFILL }},
+    { &hf_ulp_gpsToe,
+      { "gpsToe", "ulp.gpsToe",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_167", HFILL }},
+    { &hf_ulp_nSAT,
+      { "nSAT", "ulp.nSAT",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_31", HFILL }},
+    { &hf_ulp_toeLimit,
+      { "toeLimit", "ulp.toeLimit",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_10", HFILL }},
+    { &hf_ulp_satInfo,
+      { "satInfo", "ulp.satInfo",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.SatelliteInfo", HFILL }},
+    { &hf_ulp_SatelliteInfo_item,
+      { "Item", "ulp.SatelliteInfo_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ulp.SatelliteInfoElement", HFILL }},
+    { &hf_ulp_satId,
+      { "satId", "ulp.satId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_63", HFILL }},
+    { &hf_ulp_iODE,
+      { "iODE", "ulp.iODE",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ulp.INTEGER_0_255", HFILL }},
+    { &hf_ulp_posPayLoad,
+      { "posPayLoad", "ulp.posPayLoad",
+        FT_UINT32, BASE_DEC, VALS(ulp_PosPayLoad_vals), 0,
+        "ulp.PosPayLoad", HFILL }},
+    { &hf_ulp_velocity,
+      { "velocity", "ulp.velocity",
+        FT_UINT32, BASE_DEC, VALS(ulp_Velocity_vals), 0,
+        "ulp.Velocity", HFILL }},
+    { &hf_ulp_tia801payload,
+      { "tia801payload", "ulp.tia801payload",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
+    { &hf_ulp_rrcPayload,
+      { "rrcPayload", "ulp.rrcPayload",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
+    { &hf_ulp_rrlpPayload,
+      { "rrlpPayload", "ulp.rrlpPayload",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
+    { &hf_ulp_statusCode,
+      { "statusCode", "ulp.statusCode",
+        FT_UINT32, BASE_DEC, VALS(ulp_StatusCode_vals), 0,
+        "ulp.StatusCode", HFILL }},
+    { &hf_ulp_sETNonce,
+      { "sETNonce", "ulp.sETNonce",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.SETNonce", HFILL }},
+    { &hf_ulp_keyIdentity2,
+      { "keyIdentity2", "ulp.keyIdentity2",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.KeyIdentity2", HFILL }},
+    { &hf_ulp_sPCAuthKey,
+      { "sPCAuthKey", "ulp.sPCAuthKey",
+        FT_UINT32, BASE_DEC, VALS(ulp_SPCAuthKey_vals), 0,
+        "ulp.SPCAuthKey", HFILL }},
+    { &hf_ulp_keyIdentity3,
+      { "keyIdentity3", "ulp.keyIdentity3",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "ulp.KeyIdentity3", HFILL }},
     { &hf_ulp_maj,
       { "maj", "ulp.maj",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2309,11 +2531,11 @@ void proto_register_ulp(void) {
     { &hf_ulp_ipv4Address,
       { "ipv4Address", "ulp.ipv4Address",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.IPv4Address", HFILL }},
+        "ulp.OCTET_STRING_SIZE_4", HFILL }},
     { &hf_ulp_ipv6Address,
       { "ipv6Address", "ulp.ipv6Address",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.IPv6Address", HFILL }},
+        "ulp.OCTET_STRING_SIZE_16", HFILL }},
     { &hf_ulp_fQDN,
       { "fQDN", "ulp.fQDN",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2346,10 +2568,6 @@ void proto_register_ulp(void) {
       { "positionEstimate", "ulp.positionEstimate",
         FT_NONE, BASE_NONE, NULL, 0,
         "ulp.PositionEstimate", HFILL }},
-    { &hf_ulp_velocity,
-      { "velocity", "ulp.velocity",
-        FT_UINT32, BASE_DEC, VALS(ulp_Velocity_vals), 0,
-        "ulp.Velocity", HFILL }},
     { &hf_ulp_latitudeSign,
       { "latitudeSign", "ulp.latitudeSign",
         FT_UINT32, BASE_DEC, VALS(ulp_T_latitudeSign_vals), 0,
@@ -2638,261 +2856,9 @@ void proto_register_ulp(void) {
       { "veruncertspeed", "ulp.veruncertspeed",
         FT_BYTES, BASE_HEX, NULL, 0,
         "ulp.BIT_STRING_SIZE_8", HFILL }},
-    { &hf_ulp_sETNonce,
-      { "sETNonce", "ulp.sETNonce",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.SETNonce", HFILL }},
-    { &hf_ulp_keyIdentity2,
-      { "keyIdentity2", "ulp.keyIdentity2",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.KeyIdentity2", HFILL }},
-    { &hf_ulp_sPCAuthKey,
-      { "sPCAuthKey", "ulp.sPCAuthKey",
-        FT_UINT32, BASE_DEC, VALS(ulp_SPCAuthKey_vals), 0,
-        "ulp.SPCAuthKey", HFILL }},
-    { &hf_ulp_keyIdentity3,
-      { "keyIdentity3", "ulp.keyIdentity3",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.KeyIdentity3", HFILL }},
-    { &hf_ulp_statusCode,
-      { "statusCode", "ulp.statusCode",
-        FT_UINT32, BASE_DEC, VALS(ulp_StatusCode_vals), 0,
-        "ulp.StatusCode", HFILL }},
-    { &hf_ulp_shortKey,
-      { "shortKey", "ulp.shortKey",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.BIT_STRING_SIZE_128", HFILL }},
-    { &hf_ulp_longKey,
-      { "longKey", "ulp.longKey",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.BIT_STRING_SIZE_256", HFILL }},
-    { &hf_ulp_position,
-      { "position", "ulp.position",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.Position", HFILL }},
-    { &hf_ulp_ver,
-      { "ver", "ulp.ver",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.Ver", HFILL }},
-    { &hf_ulp_posMethod,
-      { "posMethod", "ulp.posMethod",
-        FT_UINT32, BASE_DEC, VALS(ulp_PosMethod_vals), 0,
-        "ulp.PosMethod", HFILL }},
-    { &hf_ulp_notification,
-      { "notification", "ulp.notification",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.Notification", HFILL }},
-    { &hf_ulp_sLPAddress,
-      { "sLPAddress", "ulp.sLPAddress",
-        FT_UINT32, BASE_DEC, VALS(ulp_SLPAddress_vals), 0,
-        "ulp.SLPAddress", HFILL }},
-    { &hf_ulp_qoP,
-      { "qoP", "ulp.qoP",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.QoP", HFILL }},
-    { &hf_ulp_sLPMode,
-      { "sLPMode", "ulp.sLPMode",
-        FT_UINT32, BASE_DEC, VALS(ulp_SLPMode_vals), 0,
-        "ulp.SLPMode", HFILL }},
-    { &hf_ulp_mAC,
-      { "mAC", "ulp.mAC",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.MAC", HFILL }},
-    { &hf_ulp_keyIdentity,
-      { "keyIdentity", "ulp.keyIdentity",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.KeyIdentity", HFILL }},
-    { &hf_ulp_notificationType,
-      { "notificationType", "ulp.notificationType",
-        FT_UINT32, BASE_DEC, VALS(ulp_NotificationType_vals), 0,
-        "ulp.NotificationType", HFILL }},
-    { &hf_ulp_encodingType,
-      { "encodingType", "ulp.encodingType",
-        FT_UINT32, BASE_DEC, VALS(ulp_EncodingType_vals), 0,
-        "ulp.EncodingType", HFILL }},
-    { &hf_ulp_requestorId,
-      { "requestorId", "ulp.requestorId",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_1_maxReqLength", HFILL }},
-    { &hf_ulp_requestorIdType,
-      { "requestorIdType", "ulp.requestorIdType",
-        FT_UINT32, BASE_DEC, VALS(ulp_FormatIndicator_vals), 0,
-        "ulp.FormatIndicator", HFILL }},
-    { &hf_ulp_clientName,
-      { "clientName", "ulp.clientName",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_1_maxClientLength", HFILL }},
-    { &hf_ulp_clientNameType,
-      { "clientNameType", "ulp.clientNameType",
-        FT_UINT32, BASE_DEC, VALS(ulp_FormatIndicator_vals), 0,
-        "ulp.FormatIndicator", HFILL }},
-    { &hf_ulp_posPayLoad,
-      { "posPayLoad", "ulp.posPayLoad",
-        FT_UINT32, BASE_DEC, VALS(ulp_PosPayLoad_vals), 0,
-        "ulp.PosPayLoad", HFILL }},
-    { &hf_ulp_tia801payload,
-      { "tia801payload", "ulp.tia801payload",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
-    { &hf_ulp_rrcPayload,
-      { "rrcPayload", "ulp.rrcPayload",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.OCTET_STRING_SIZE_1_8192", HFILL }},
-    { &hf_ulp_rrlpPayload,
-      { "rrlpPayload", "ulp.rrlpPayload",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.RRLPPayload", HFILL }},
-    { &hf_ulp_sETCapabilities,
-      { "sETCapabilities", "ulp.sETCapabilities",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.SETCapabilities", HFILL }},
-    { &hf_ulp_requestedAssistData,
-      { "requestedAssistData", "ulp.requestedAssistData",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.RequestedAssistData", HFILL }},
-    { &hf_ulp_locationId,
-      { "locationId", "ulp.locationId",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.LocationId", HFILL }},
-    { &hf_ulp_sUPLPOS,
-      { "sUPLPOS", "ulp.sUPLPOS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.SUPLPOS", HFILL }},
-    { &hf_ulp_almanacRequested,
-      { "almanacRequested", "ulp.almanacRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_utcModelRequested,
-      { "utcModelRequested", "ulp.utcModelRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_ionosphericModelRequested,
-      { "ionosphericModelRequested", "ulp.ionosphericModelRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_dgpsCorrectionsRequested,
-      { "dgpsCorrectionsRequested", "ulp.dgpsCorrectionsRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_referenceLocationRequested,
-      { "referenceLocationRequested", "ulp.referenceLocationRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_referenceTimeRequested,
-      { "referenceTimeRequested", "ulp.referenceTimeRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_acquisitionAssistanceRequested,
-      { "acquisitionAssistanceRequested", "ulp.acquisitionAssistanceRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_realTimeIntegrityRequested,
-      { "realTimeIntegrityRequested", "ulp.realTimeIntegrityRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_navigationModelRequested,
-      { "navigationModelRequested", "ulp.navigationModelRequested",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_navigationModelData,
-      { "navigationModelData", "ulp.navigationModelData",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.NavigationModel", HFILL }},
-    { &hf_ulp_gpsWeek,
-      { "gpsWeek", "ulp.gpsWeek",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_1023", HFILL }},
-    { &hf_ulp_gpsToe,
-      { "gpsToe", "ulp.gpsToe",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_167", HFILL }},
-    { &hf_ulp_nSAT,
-      { "nSAT", "ulp.nSAT",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_31", HFILL }},
-    { &hf_ulp_toeLimit,
-      { "toeLimit", "ulp.toeLimit",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_10", HFILL }},
-    { &hf_ulp_satInfo,
-      { "satInfo", "ulp.satInfo",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.SatelliteInfo", HFILL }},
-    { &hf_ulp_SatelliteInfo_item,
-      { "Item", "ulp.SatelliteInfo_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.SatelliteInfoElement", HFILL }},
-    { &hf_ulp_satId,
-      { "satId", "ulp.satId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_63", HFILL }},
-    { &hf_ulp_iODE,
-      { "iODE", "ulp.iODE",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ulp.INTEGER_0_255", HFILL }},
-    { &hf_ulp_sETAuthKey,
-      { "sETAuthKey", "ulp.sETAuthKey",
-        FT_UINT32, BASE_DEC, VALS(ulp_SETAuthKey_vals), 0,
-        "ulp.SETAuthKey", HFILL }},
-    { &hf_ulp_keyIdentity4,
-      { "keyIdentity4", "ulp.keyIdentity4",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "ulp.KeyIdentity4", HFILL }},
-    { &hf_ulp_posTechnology,
-      { "posTechnology", "ulp.posTechnology",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.PosTechnology", HFILL }},
-    { &hf_ulp_prefMethod,
-      { "prefMethod", "ulp.prefMethod",
-        FT_UINT32, BASE_DEC, VALS(ulp_PrefMethod_vals), 0,
-        "ulp.PrefMethod", HFILL }},
-    { &hf_ulp_posProtocol,
-      { "posProtocol", "ulp.posProtocol",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ulp.PosProtocol", HFILL }},
-    { &hf_ulp_agpsSETassisted,
-      { "agpsSETassisted", "ulp.agpsSETassisted",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_agpsSETBased,
-      { "agpsSETBased", "ulp.agpsSETBased",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_autonomousGPS,
-      { "autonomousGPS", "ulp.autonomousGPS",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_aFLT,
-      { "aFLT", "ulp.aFLT",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_eCID,
-      { "eCID", "ulp.eCID",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_eOTD,
-      { "eOTD", "ulp.eOTD",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_oTDOA,
-      { "oTDOA", "ulp.oTDOA",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_tia801,
-      { "tia801", "ulp.tia801",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_rrlp,
-      { "rrlp", "ulp.rrlp",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
-    { &hf_ulp_rrc,
-      { "rrc", "ulp.rrc",
-        FT_BOOLEAN, 8, NULL, 0,
-        "ulp.BOOLEAN", HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 120 "packet-ulp-template.c"
+#line 117 "packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -2903,6 +2869,25 @@ void proto_register_ulp(void) {
 #line 1 "packet-ulp-ettarr.c"
     &ett_ulp_ULP_PDU,
     &ett_ulp_UlpMessage,
+    &ett_ulp_SUPLINIT,
+    &ett_ulp_Notification,
+    &ett_ulp_SUPLSTART,
+    &ett_ulp_SETCapabilities,
+    &ett_ulp_PosTechnology,
+    &ett_ulp_PosProtocol,
+    &ett_ulp_SUPLRESPONSE,
+    &ett_ulp_SETAuthKey,
+    &ett_ulp_SUPLPOSINIT,
+    &ett_ulp_RequestedAssistData,
+    &ett_ulp_NavigationModel,
+    &ett_ulp_SatelliteInfo,
+    &ett_ulp_SatelliteInfoElement,
+    &ett_ulp_SUPLPOS,
+    &ett_ulp_PosPayLoad,
+    &ett_ulp_SUPLEND,
+    &ett_ulp_SUPLAUTHREQ,
+    &ett_ulp_SUPLAUTHRESP,
+    &ett_ulp_SPCAuthKey,
     &ett_ulp_Version,
     &ett_ulp_SessionID,
     &ett_ulp_SetSessionID,
@@ -2940,28 +2925,9 @@ void proto_register_ulp(void) {
     &ett_ulp_Horandvervel,
     &ett_ulp_Horveluncert,
     &ett_ulp_Horandveruncert,
-    &ett_ulp_SUPLAUTHREQ,
-    &ett_ulp_SUPLAUTHRESP,
-    &ett_ulp_SPCAuthKey,
-    &ett_ulp_SUPLEND,
-    &ett_ulp_SUPLINIT,
-    &ett_ulp_Notification,
-    &ett_ulp_SUPLPOS,
-    &ett_ulp_PosPayLoad,
-    &ett_ulp_SUPLPOSINIT,
-    &ett_ulp_RequestedAssistData,
-    &ett_ulp_NavigationModel,
-    &ett_ulp_SatelliteInfo,
-    &ett_ulp_SatelliteInfoElement,
-    &ett_ulp_SUPLRESPONSE,
-    &ett_ulp_SETAuthKey,
-    &ett_ulp_SUPLSTART,
-    &ett_ulp_SETCapabilities,
-    &ett_ulp_PosTechnology,
-    &ett_ulp_PosProtocol,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 126 "packet-ulp-template.c"
+#line 123 "packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -2989,7 +2955,5 @@ void proto_register_ulp(void) {
 								   &gbl_ulp_port);
  
 }
-
-
 
 
